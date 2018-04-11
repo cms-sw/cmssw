@@ -1,15 +1,15 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *   Nicola Minafra
 *
 ****************************************************************************/
 
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -25,25 +25,25 @@ RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet& iConfig) :
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll) const
+int RawDataUnpacker::run(int fedId, const FEDRawData &data, vector<TotemFEDInfo> &fedInfoColl, SimpleVFATFrameCollection &coll) const
 {
   unsigned int size_in_words = data.size() / 8; // bytes -> words
   if (size_in_words < 2)
   {
     if (verbosity)
-      LogWarning("Totem") << "Error in RawDataUnpacker::Run > " <<
+      LogWarning("Totem") << "Error in RawDataUnpacker::run > " <<
         "Data in FED " << fedId << " too short (size = " << size_in_words << " words).";
     return 1;
   }
 
   fedInfoColl.push_back(TotemFEDInfo(fedId));
 
-  return ProcessOptoRxFrame((const word *) data.data(), size_in_words, fedInfoColl.back(), &coll);
+  return processOptoRxFrame((const word *) data.data(), size_in_words, fedInfoColl.back(), &coll);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::processOptoRxFrame(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
@@ -52,56 +52,60 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
   fedInfo.setHeader(head);
   fedInfo.setFooter(foot);
 
-  unsigned int BOE = (head >> 60) & 0xF;
-  unsigned int H0 = (head >> 0) & 0xF;
+  unsigned int boe = (head >> 60) & 0xF;
+  unsigned int h0 = (head >> 0) & 0xF;
 
-  //unsigned long LV1 = (head >> 32) & 0xFFFFFF;
-  //unsigned long BX = (head >> 20) & 0xFFF;
-  unsigned int OptoRxId = (head >> 8) & 0xFFF;
-  unsigned int FOV = (head >> 4) & 0xF;
+  unsigned long lv1 = (head >> 32) & 0xFFFFFF;
+  unsigned long bx = (head >> 20) & 0xFFF;
+  unsigned int optoRxId = (head >> 8) & 0xFFF;
+  unsigned int fov = (head >> 4) & 0xF;
 
-  unsigned int EOE = (foot >> 60) & 0xF;
-  unsigned int F0 = (foot >> 0) & 0xF;
-  unsigned int FSize = (foot >> 32) & 0x3FF;
+  unsigned int eoe = (foot >> 60) & 0xF;
+  unsigned int f0 = (foot >> 0) & 0xF;
+  unsigned int fSize = (foot >> 32) & 0x3FF;
 
   // check header and footer structure
-  if (BOE != 5 || H0 != 0 || EOE != 10 || F0 != 0 || FSize != frameSize)
+  if (boe != 5 || h0 != 0 || eoe != 10 || f0 != 0 || fSize != frameSize)
   {
     if (verbosity)
-      LogWarning("Totem") << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Wrong structure of OptoRx header/footer: "
-        << "BOE=" << BOE << ", H0=" << H0 << ", EOE=" << EOE << ", F0=" << F0
-        << ", size (OptoRx)=" << FSize << ", size (DATE)=" << frameSize
-        << ". OptoRxID=" << OptoRxId << ". Skipping frame." << endl;
+      LogWarning("Totem") << "Error in RawDataUnpacker::processOptoRxFrame > " << "Wrong structure of OptoRx header/footer: "
+        << "BOE=" << boe << ", H0=" << h0 << ", EOE=" << eoe << ", F0=" << f0
+        << ", size (OptoRx)=" << fSize << ", size (DATE)=" << frameSize
+        << ". OptoRxID=" << optoRxId << ". Skipping frame." << endl;
     return 0;
   }
 
-  #ifdef DEBUG
-    printf(">> RawDataUnpacker::ProcessOptoRxFrame > OptoRxId = %u, BX = %lu, LV1 = %lu, frameSize = %u, subFrames = %u)\n",
-      OptoRxId, BX, LV1, frameSize, subFrames);
-  #endif
+  LogDebug( "Totem" ) << "RawDataUnpacker::processOptoRxFrame: "
+    << "OptoRxId = " << optoRxId << ", BX = " << bx << ", LV1 = " << lv1 << ", frameSize = " << frameSize;
+
+  if (optoRxId >= FEDNumbering::MINTotemRPTimingVerticalFEDID && optoRxId <= FEDNumbering::MAXTotemRPTimingVerticalFEDID)
+  {
+    processOptoRxFrameSampic(buf, frameSize, fedInfo, fc);
+    return 0;
+  }
 
   // parallel or serial transmission?
-  switch (FOV) {
+  switch (fov) {
     case 1:
-      return ProcessOptoRxFrameSerial(buf, frameSize, fc);
+      return processOptoRxFrameSerial(buf, frameSize, fc);
     case 2:
     case 3:
-      return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
+      return processOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
     default: break;
   }
 
   if (verbosity)
-    LogWarning("Totem") << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Unknown FOV = " << FOV << endl;
+    LogWarning("Totem") << "Error in RawDataUnpacker::processOptoRxFrame > " << "Unknown FOV = " << fov << endl;
 
   return 0;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::processOptoRxFrameSerial(const word *buf, unsigned int frameSize, SimpleVFATFrameCollection *fc) const
 {
   // get OptoRx metadata
-  unsigned int OptoRxId = (buf[0] >> 8) & 0xFFF;
+  unsigned int optoRxId = (buf[0] >> 8) & 0xFFF;
 
   // get number of subframes
   unsigned int subFrames = (frameSize - 2) / 194;
@@ -115,33 +119,32 @@ int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int fram
       unsigned int head = (buf[1 + 194 * r] >> (16 * c)) & 0xFFFF;
       unsigned int foot = (buf[194 + 194 * r] >> (16 * c)) & 0xFFFF;
 
-      #ifdef DEBUG
-        printf(">>>> r = %i, c = %i: S = %i, BOF = %i, EOF = %i, ID = %i, ID' = %i\n", r, c, head & 0x1, head >> 12, foot >> 12, (head >> 8) & 0xF, (foot >> 8) & 0xF);
-      #endif
+      LogDebug( "Totem" )
+        << "r = " << r << ", c = " << c << ": "
+        << "S = " << ( head & 0x1 ) << ", BOF = " << ( head >> 12 ) << ", EOF = " << ( foot >> 12 )
+        << ", ID = " << ( ( head >> 8 ) & 0xF ) << ", ID' = " << ( ( foot >> 8) & 0xF );
 
       // stop if this GOH is NOT active
       if ((head & 0x1) == 0)
         continue;
 
-      #ifdef DEBUG
-        printf("\tHeader active (%04x -> %x).\n", head, head & 0x1);
-      #endif
+      LogDebug( "Totem" )
+        << "Header active (" << head << " -> " << ( head & 0x1 ) << ").";
 
       // check structure
       if (head >> 12 != 0x4 || foot >> 12 != 0xB || ((head >> 8) & 0xF) != ((foot >> 8) & 0xF))
       {
-        char ss[500];
+        std::ostringstream oss;
         if (head >> 12 != 0x4)
-          sprintf(ss, "\n\tHeader is not 0x4 as expected (%x).", head);
+          oss << "\n\tHeader is not 0x4 as expected (0x" << std::hex << head << ").";
         if (foot >> 12 != 0xB)
-          sprintf(ss, "\n\tFooter is not 0xB as expected (%x).", foot);
+          oss << "\n\tFooter is not 0xB as expected (0x" << std::hex << foot << ").";
         if (((head >> 8) & 0xF) != ((foot >> 8) & 0xF))
-          sprintf(ss, "\n\tIncompatible GOH IDs in header (%x) and footer (%x).", ((head >> 8) & 0xF),
-            ((foot >> 8) & 0xF));
+          oss << "\n\tIncompatible GOH IDs in header (0x" << std::hex << ( ( head >> 8 ) & 0xF ) << ") and footer (0x" << std::hex << ( ( foot >> 8 ) & 0xF ) << ").";
 
         if (verbosity)
-          LogWarning("Totem") << "Error in RawDataUnpacker::ProcessOptoRxFrame > " << "Wrong payload structure (in GOH block row " << r <<
-            " and column " << c << ") in OptoRx frame ID " << OptoRxId << ". GOH block omitted." << ss << endl;
+          LogWarning("Totem") << "Error in RawDataUnpacker::processOptoRxFrame > " << "Wrong payload structure (in GOH block row " << r <<
+            " and column " << c << ") in OptoRx frame ID " << optoRxId << ". GOH block omitted." << oss.str() << endl;
 
         errorCounter++;
         continue;
@@ -152,13 +155,12 @@ int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int fram
       vector<VFATFrame::word*> dataPtrs;
       for (unsigned int fi = 0; fi < 16; fi++)
       {
-        TotemFramePosition fp(0, 0, OptoRxId, goh, fi);
+        TotemFramePosition fp(0, 0, optoRxId, goh, fi);
         dataPtrs.push_back( fc->InsertEmptyFrame(fp)->getData() );
       }
 
-      #ifdef DEBUG
-        printf(">>>> transposing GOH block at prefix: %i, dataPtrs = %p\n", OptoRxId*192 + goh*16, dataPtrs);
-      #endif
+      LogDebug( "Totem" )
+        << "transposing GOH block at prefix: " << ( optoRxId*192+goh*16 ) << ", dataPtrs = " << dataPtrs;
 
       // deserialization
       for (int i = 0; i < 192; i++)
@@ -182,11 +184,11 @@ int RawDataUnpacker::ProcessOptoRxFrameSerial(const word *buf, unsigned int fram
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::processOptoRxFrameParallel(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
 {
   // get OptoRx metadata
   unsigned long long head = buf[0];
-  unsigned int OptoRxId = (head >> 8) & 0xFFF;
+  unsigned int optoRxId = (head >> 8) & 0xFFF;
 
   // recast data as buffer or 16bit words, skip header
   const uint16_t *payload = (const uint16_t *) (buf + 1);
@@ -202,7 +204,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
   // process all VFAT data
   for (unsigned int offset = 0; offset < nWords;)
   {
-    unsigned int wordsProcessed = ProcessVFATDataParallel(payload + offset, nWords, OptoRxId, fc);
+    unsigned int wordsProcessed = processVFATDataParallel(payload + offset, nWords, optoRxId, fc);
     offset += wordsProcessed;
   }
 
@@ -211,7 +213,7 @@ int RawDataUnpacker::ProcessOptoRxFrameParallel(const word *buf, unsigned int fr
 
 //----------------------------------------------------------------------------------------------------
 
-int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const
+int RawDataUnpacker::processVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int optoRxId, SimpleVFATFrameCollection *fc) const
 {
   // start counting processed words
   unsigned int wordsProcessed = 1;
@@ -225,7 +227,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
   if (hFlag != vmCluster && hFlag != vmRaw && hFlag != vmDiamondCompact)
   {
     if (verbosity)
-      LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
+      LogWarning("Totem") << "Error in RawDataUnpacker::processVFATDataParallel > "
         << "Unknown header flag " << hFlag << ". Skipping this word." << endl;
     return wordsProcessed;
   }
@@ -234,7 +236,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
   // NOTE: DAQ group uses terms GOH and fiber in the other way
   unsigned int gohIdx = (buf[0] >> 4) & 0xF;
   unsigned int fiberIdx = (buf[0] >> 0) & 0xF;
-  TotemFramePosition fp(0, 0, OptoRxId, gohIdx, fiberIdx);
+  TotemFramePosition fp(0, 0, optoRxId, gohIdx, fiberIdx);
 
   // prepare temporary VFAT frame
   VFATFrame f;
@@ -320,7 +322,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
   if (skipFrame)
   {
     if (verbosity)
-      LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > Frame at " << fp
+      LogWarning("Totem") << "Error in RawDataUnpacker::processVFATDataParallel > Frame at " << fp
         << " has the following problems and will be skipped.\n" << endl << ess.rdbuf();
 
     return wordsProcessed;
@@ -355,7 +357,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
       if (chMax < 0 || chMax > 127 || chMin < 0 || chMin > 127 || chMin > chMax)
       {
         if (verbosity)
-          LogWarning("Totem") << "Error in RawDataUnpacker::ProcessVFATDataParallel > "
+          LogWarning("Totem") << "Error in RawDataUnpacker::processVFATDataParallel > "
             << "Invalid cluster (pos=" << clPos
             << ", size=" << clSize << ", min=" << chMin << ", max=" << chMax << ") at " << fp
             <<". Skipping this cluster." << endl;
@@ -381,7 +383,7 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
     presenceFlags |= 0x8;
     fd[0] = buf[dataOffset + 8];
   }
-  
+
   // get channel data for diamond compact mode
   if (hFlag == vmDiamondCompact)
   {
@@ -425,3 +427,54 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
 
   return wordsProcessed;
 }
+
+//----------------------------------------------------------------------------------------------------
+
+int RawDataUnpacker::processOptoRxFrameSampic(const word *buf, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const
+{
+  unsigned int optoRxId = (buf[0] >> 8) & 0xFFF;
+
+  LogDebug( "RawDataUnpacker::processOptoRxFrameSampic" )
+    << "Processing sampic frame: OptoRx " << optoRxId << "   framesize: " << frameSize;
+
+  unsigned int orbitCounterVFATFrameWords = 6;
+  unsigned int sizeofVFATPayload = 12;
+
+  const VFATFrame::word *VFATFrameWordPtr = (const VFATFrame::word *) buf;
+  VFATFrameWordPtr += orbitCounterVFATFrameWords - 1;
+
+  LogDebug( "RawDataUnpacker::processOptoRxFrameSampic" )
+    << "Framesize: " << frameSize << "\tframes: " << frameSize/(sizeofVFATPayload+2);
+
+  unsigned int nWords = (frameSize-2) * 4 - 2;
+
+  for (unsigned int i=1; i*(sizeofVFATPayload+2)<nWords; ++i) {
+    // compile frame position
+    // NOTE: DAQ group uses terms GOH and fiber in the other way
+    unsigned int fiberIdx = (*(++VFATFrameWordPtr)) & 0xF;
+    unsigned int gohIdx = (*VFATFrameWordPtr >> 4) & 0xF;
+    TotemFramePosition fp(0, 0, optoRxId, gohIdx, fiberIdx);
+
+    LogDebug( "RawDataUnpacker::processOptoRxFrameSampic" )
+      << "OptoRx: " << optoRxId << " Goh: " << gohIdx << " Idx: " << fiberIdx;
+
+    // prepare temporary VFAT frame
+    VFATFrame frame(++VFATFrameWordPtr);
+    VFATFrameWordPtr += sizeofVFATPayload;
+
+    if ( *(VFATFrameWordPtr) != 0xf00e ) {
+      edm::LogError( "RawDataUnpacker::processOptoRxFrameSampic" )
+        << "Wrong trailer " << *VFATFrameWordPtr;
+      continue;
+    }
+    // save frame to output
+    frame.setPresenceFlags(1);
+    fc->Insert(fp, frame);
+
+    LogDebug( "RawDataUnpacker::processOptoRxFrameSampic" )
+      << "Trailer: " << std::hex << *VFATFrameWordPtr;
+  }
+
+  return 0;
+}
+
