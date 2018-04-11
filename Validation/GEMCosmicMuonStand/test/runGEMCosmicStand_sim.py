@@ -77,11 +77,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # Cosmic Muon generator
 process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
 process.generator.TrackerOnly = True
-<<<<<<< HEAD
-process.generator.MinP = 1000
-=======
 process.generator.MinP = 100
->>>>>>> cbd68393a1f222542021919dccf024838eba3b16
 process.generator.RadiusOfTarget = cms.double(100.0)#in cm
 process.generator.ZDistOfTarget = cms.double(100.0) #in cm
 
