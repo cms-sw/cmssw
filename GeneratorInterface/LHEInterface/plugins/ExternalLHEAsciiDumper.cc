@@ -91,7 +91,7 @@ ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
     else {
       std::stringstream fname;
       fname << basename << "_" << iout ;
-      if (extension != "")
+      if (!extension.empty())
         fname << "." << extension;
       outfile.open (fname.str().c_str(), std::ofstream::out | std::ofstream::app);
     }
@@ -107,7 +107,7 @@ ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
     else {
       std::stringstream fname;
       fname << basename << "_" << iout ;
-      if (extension != "")
+      if (!extension.empty())
         fname << "." << extension;
       outfile.open (fname.str().c_str(), std::ofstream::out | std::ofstream::app);
     }
