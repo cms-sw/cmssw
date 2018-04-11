@@ -220,6 +220,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm:
     for(size_t i=0; i<label.size(); ++i) {
       me.setBinLabel(i+1, label[i].label());
     }
+    me.disableAlphanumeric();
     return me;
   };
 
