@@ -112,6 +112,7 @@ class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
     this->setValue("Jet_energyRing_dR4_neut_Jet_rawEnergy", NeFractionEnergyRings[4]);
 //    this->setValue("Jet_energyRing_dR5_neut_Jet_rawEnergy", NeFractionEnergyRings[5]);
 
+    this->setValue("Jet_numDaughters_pt03",numDaughtersPt03);
 
 	  }
 
