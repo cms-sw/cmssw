@@ -64,6 +64,7 @@ def mergeProcess(*inputFiles, **options):
     if newDQMIO:
         outMod = OutputModule("DQMRootOutputModule")
     elif mergeNANO:
+        import Configuration.EventContent.EventContent_cff
         outMod = OutputModule("NanoAODOutputModule",Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
     else:
         outMod = OutputModule("PoolOutputModule")
