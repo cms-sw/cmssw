@@ -1,0 +1,34 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/Concurrency"/>
+
+<use name="L1Trigger/L1TMuon"/>
+<use name="L1Trigger/L1TMuonEndCap"/>
+
+<use name="DataFormats/Common"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/RPCDigi"/>
+<use name="DataFormats/RPCRecHit"/>
+<use name="DataFormats/L1TMuon" />
+<use name="DataFormats/TrackingRecHit"/>
+
+<use name="Geometry/Records"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="CommonTools/UtilAlgos"/>
+
+<use name="CondFormats/RPCObjects"/>
+<use name="CondFormats/DataRecord"/>
+
+<use name="TrackingTools/TrackRefitter"/>
+<use name="RecoMuon/DetLayers"/>
+
+<use name="root"/>
+
+<library file="DQMCPPF.cc" name="DQMCPPF">
+<flags EDM_PLUGIN="1"/>
+</library>
