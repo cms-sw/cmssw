@@ -60,7 +60,6 @@ namespace cms
     void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
     virtual void beginJob() {}
     void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override;
-    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) override; 
 
     template <class T>
     void accumulate_local(T const& iEvent, edm::EventSetup const& iSetup);

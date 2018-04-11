@@ -121,12 +121,8 @@ namespace cms
       }
     }
   }
-  void Phase2TrackerDigitizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
-    edm::LogInfo("Phase2TrackerDigitizer") << "End Luminosity Block";
-  }
 
   Phase2TrackerDigitizer::~Phase2TrackerDigitizer() {  
-    edm::LogInfo("Phase2TrackerDigitizer") << "Destroying the Digitizer";
   }
   void
   Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
@@ -166,13 +162,12 @@ namespace cms
 	"which is not present in the configuration file.  You must add the service\n"
 	"in the configuration file or remove the modules that require it.";
     }
-    CLHEP::HepRandomEngine* rnd_engine = &(rng->getEngine(e.streamID()));
     
     // Must initialize all the algorithms
     for (auto const & el : algomap_) {
       if (first_) el.second->init(iSetup); 
       
-      el.second->initializeEvent(rnd_engine); 
+      el.second->initializeEvent(rng->getEngine(e.streamID())); 
     }
     first_ = false;
     // Make sure that the first crossing processed starts indexing the sim hits from zero.

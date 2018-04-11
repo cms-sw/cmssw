@@ -720,7 +720,7 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
     }
   } 
 } 
-void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine* eng) {
+void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& eng) {
   if (addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) {
     
     gaussDistribution_ = std::make_unique<CLHEP::RandGaussQ>(eng, 0., theReadoutNoise);
@@ -730,7 +730,7 @@ void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine* en
     smearedThreshold_Endcap_ = std::make_unique<CLHEP::RandGaussQ> (eng, theThresholdInE_Endcap , theThresholdSmearing_Endcap);
     smearedThreshold_Barrel_ = std::make_unique<CLHEP::RandGaussQ> (eng, theThresholdInE_Barrel , theThresholdSmearing_Barrel);
   }
-   rengine_ = eng;
+  rengine_ = (&eng);
   _signal.clear();
 }
 

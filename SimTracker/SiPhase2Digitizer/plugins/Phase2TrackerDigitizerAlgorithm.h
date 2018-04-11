@@ -49,7 +49,7 @@ class Phase2TrackerDigitizerAlgorithm  {
 
   // initialization that cannot be done in the constructor
   virtual void init(const edm::EventSetup& es) = 0;
-  virtual void initializeEvent(CLHEP::HepRandomEngine* eng);
+  virtual void initializeEvent(CLHEP::HepRandomEngine& eng);
   // run the algorithm to digitize a single det
   virtual void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
 				 const std::vector<PSimHit>::const_iterator inputEnd,
