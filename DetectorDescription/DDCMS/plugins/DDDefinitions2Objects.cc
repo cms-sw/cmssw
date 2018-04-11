@@ -540,17 +540,29 @@ template <> void Converter<polycone>::operator()(xml_h element) const {
   string nam      = e.nameStr();
   double startPhi = _ns.attr<double>(e,_CMU(startPhi));
   double deltaPhi = _ns.attr<double>(e,_CMU(deltaPhi));
-  vector<double> z, rmin, rmax;
+  vector<double> z, rmin, rmax, r;
   
-  for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
-    rmin.push_back(_ns.attr<double>(zplane,_CMU(rMin)));
-    rmax.push_back(_ns.attr<double>(zplane,_CMU(rMax)));
-    z.push_back(_ns.attr<double>(zplane,_CMU(z)));
+  for(xml_coll_t rzpoint(element, _CMU(RZPoint)); rzpoint; ++rzpoint) {
+    z.emplace_back(_ns.attr<double>(rzpoint,_CMU(z)));
+    r.emplace_back(_ns.attr<double>(rzpoint,_U(r)));
   }
-  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
-           "+   Polycone: startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
-           startPhi, deltaPhi, z.size());
-  _ns.addSolid(nam, Polycone(startPhi,deltaPhi,rmin,rmax,z));
+  if( z.empty()) {
+    for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
+      rmin.push_back(_ns.attr<double>(zplane,_CMU(rMin)));
+      rmax.push_back(_ns.attr<double>(zplane,_CMU(rMax)));
+      z.push_back(_ns.attr<double>(zplane,_CMU(z)));
+    }
+    printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	     "+   Polycone: startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
+	     startPhi, deltaPhi, z.size());
+    _ns.addSolid(nam, Polycone(startPhi,deltaPhi,rmin,rmax,z));
+  }
+  else {
+    printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	     "+   Polycone: startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes and %4ld radii",
+	     startPhi, deltaPhi, z.size(), r.size());
+    _ns.addSolid(nam, Polycone(startPhi,deltaPhi,r,z));
+  }
 }
 
 /// Converter for <Polyhedra/> tags
@@ -561,18 +573,30 @@ template <> void Converter<polyhedra>::operator()(xml_h element) const {
   int numSide = _ns.attr<int>(e,_CMU(numSide));
   double startPhi = _ns.attr<double>(e,_CMU(startPhi));
   double deltaPhi = _ns.attr<double>(e,_CMU(deltaPhi));
-  vector<double> z, rmin, rmax;
-  
-  for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
-    rmin.push_back(_ns.attr<double>(zplane,_CMU(rMin)));
-    rmax.push_back(_ns.attr<double>(zplane,_CMU(rMax)));
-    z.push_back(_ns.attr<double>(zplane,_CMU(z)));
+  vector<double> z, rmin, rmax, r;
+
+  for(xml_coll_t rzpoint(element, _CMU(RZPoint)); rzpoint; ++rzpoint) {
+    z.emplace_back(_ns.attr<double>(rzpoint,_CMU(z)));
+    r.emplace_back(_ns.attr<double>(rzpoint,_U(r)));
   }
-  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
-           "+   Polyhedra: numSide=%d startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
-           numSide, startPhi, deltaPhi, z.size());
-  //_ns.addSolid(nam, PolyhedraRegular(numSide,startPhi,deltaPhi,rmin,rmax,z));
+  if( z.empty()) {
+    for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
+      rmin.emplace_back(_ns.attr<double>(zplane,_CMU(rMin)));
+      rmax.emplace_back(_ns.attr<double>(zplane,_CMU(rMax)));
+      z.emplace_back(_ns.attr<double>(zplane,_CMU(z)));
+    }
+    printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	     "+   Polyhedra: numSide=%d startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
+	     numSide, startPhi, deltaPhi, z.size());
+    //_ns.addSolid(nam, PolyhedraRegular(numSide,startPhi,deltaPhi,rmin,rmax,z));
     _ns.addSolid(nam, Polycone(startPhi,deltaPhi,rmin,rmax,z));
+  }
+  else {
+    printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	     "+   Polyhedra:  numSide=%d startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes and %4ld radii",
+	     numSide, startPhi, deltaPhi, z.size(), r.size());
+    _ns.addSolid(nam, Polycone(startPhi,deltaPhi,r,z));
+  }
 }
 
 /// Converter for <Torus/> tags
@@ -606,8 +630,13 @@ template <> void Converter<trapezoid>::operator()(xml_h element) const {
   double bl2      = _ns.attr<double>(e,_CMU(bl2));
   double tl2      = _ns.attr<double>(e,_CMU(tl2));
   double h2       = _ns.attr<double>(e,_CMU(h2));
-  double phi      = _ns.attr<double>(e,_U(phi));
-  double theta    = _ns.attr<double>(e,_U(theta));
+  double phi(0.0);
+  double theta(0.0);
+
+  if( e.hasAttr(_U(phi)))
+      phi = _ns.attr<double>(e,_U(phi));
+  if( e.hasAttr(_U(theta)))
+    theta = _ns.attr<double>(e,_U(theta));
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
            "+   Trapezoid:  dz=%10.3f [cm] alp1:%.3f bl1=%.3f tl1=%.3f alp2=%.3f bl2=%.3f tl2=%.3f h2=%.3f phi=%.3f theta=%.3f",
            dz, alp1, bl1, tl1, h1, alp2, bl2, tl2, h2, phi, theta);
