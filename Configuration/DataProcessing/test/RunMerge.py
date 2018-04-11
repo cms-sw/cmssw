@@ -35,7 +35,8 @@ class RunMerge:
                 process_name = self.processName,
                 output_file = self.outputFile,
                 output_lfn = self.outputLFN,
-                newDQMIO = self.newDQMIO)
+                newDQMIO = self.newDQMIO,
+                mergeNANO = self.mergeNANO)
         except Exception as ex:
             msg = "Error creating process for Merge:\n"
             msg += str(ex)
