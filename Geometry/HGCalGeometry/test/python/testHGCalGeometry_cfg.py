@@ -10,7 +10,7 @@ process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-if 'MessageLogger' in process.__dict__:
+if hasattr(process,'MessageLogger'):
     process.MessageLogger.categories.append('HGCalGeom')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
