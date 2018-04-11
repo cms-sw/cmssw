@@ -99,7 +99,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     void algoEndJob() override;
     void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
     void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]);
-    void makeTKMap();
+    void makeTKMap(bool autoTagging);
     void makeHotColdMaps();
     void makeSQLite();
     void totalStatistics();
@@ -124,6 +124,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     unsigned int nModsMin;
     unsigned int doSummary;
     string _badModulesFile;
+    bool _autoIneffModTagging;
     unsigned int _clusterMatchingMethod;
     float _ResXSig;
     float _clusterTrajDist;
@@ -157,8 +158,8 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     TrackerMap *tkmapeff;
     TrackerMap *tkmapnum;
     TrackerMap *tkmapden;
-    int layerfound[23];
-    int layertotal[23];
+    long layerfound[23];
+    long layertotal[23];
     map< unsigned int, vector<int> > layerfound_perBx;
     map< unsigned int, vector<int> > layertotal_perBx;
 	vector< TH1F* > layerfound_vsLumi;
@@ -183,6 +184,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   nModsMin = conf.getParameter<int>("nModsMin");
   doSummary = conf.getParameter<int>("doSummary");
   _badModulesFile = conf.getUntrackedParameter<std::string>("BadModulesFile", ""); 
+  _autoIneffModTagging = conf.getUntrackedParameter<bool>("AutoIneffModTagging", false);
   _clusterMatchingMethod = conf.getUntrackedParameter<int>("ClusterMatchingMethod",0);
   _ResXSig = conf.getUntrackedParameter<double>("ResXSig",-1);
   _clusterTrajDist = conf.getUntrackedParameter<double>("ClusterTrajDist",64.0);
@@ -273,18 +275,21 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     resolutionPlots[ilayer] = fs->make<TH1F>(Form("resol_layer_%i",(int)(ilayer)),GetLayerName(ilayer),125,-125,125);
     resolutionPlots[ilayer]->GetXaxis()->SetTitle("trajX-clusX [strip unit]");
 
-	layerfound_vsLumi.push_back( fs->make<TH1F>(Form("layerfound_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),60,0,15000));
-	layertotal_vsLumi.push_back( fs->make<TH1F>(Form("layertotal_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),60,0,15000));
-	layerfound_vsPU.push_back( fs->make<TH1F>(Form("layerfound_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),30,0,60));
-	layertotal_vsPU.push_back( fs->make<TH1F>(Form("layertotal_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),30,0,60));
+	layerfound_vsLumi.push_back( fs->make<TH1F>(Form("layerfound_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),100,0,25000));
+	layertotal_vsLumi.push_back( fs->make<TH1F>(Form("layertotal_vsLumi_layer_%i",(int)(ilayer)),GetLayerName(ilayer),100,0,25000));
+	layerfound_vsPU.push_back( fs->make<TH1F>(Form("layerfound_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),45,0,90));
+	layertotal_vsPU.push_back( fs->make<TH1F>(Form("layertotal_vsPU_layer_%i",(int)(ilayer)),GetLayerName(ilayer),45,0,90));
 
 	if(_useCM) {
 	  layerfound_vsCM.push_back( fs->make<TH1F>(Form("layerfound_vsCM_layer_%i",(int)(ilayer)),GetLayerName(ilayer),20,0,400));
 	  layertotal_vsCM.push_back( fs->make<TH1F>(Form("layertotal_vsCM_layer_%i",(int)(ilayer)),GetLayerName(ilayer),20,0,400));
 	}
+	layertotal[ilayer] = 0;
+	layerfound[ilayer] = 0;
   }
 
-  cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
+  if(!_autoIneffModTagging) cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
+  else cout << "A module is bad if efficiency < the avg in layer - " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
   
   
   unsigned int run, evt, bx;
@@ -627,7 +632,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   }// go to next CalibTreeFile
 
   makeHotColdMaps();
-  makeTKMap();
+  makeTKMap(_autoIneffModTagging);
   makeSQLite();
   totalStatistics();
   makeSummary();
@@ -956,7 +961,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
   cout << "Finished HotCold Map Generation\n";
 }
 
-void SiStripHitEffFromCalibTree::makeTKMap() {
+void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging=false) {
   cout << "Entering TKMap generation!\n";
   tkmap = new TrackerMap("  Detector Inefficiency  ");
   tkmapbad = new TrackerMap("  Inefficient Modules  ");
@@ -965,12 +970,15 @@ void SiStripHitEffFromCalibTree::makeTKMap() {
   tkmapden = new TrackerMap(" Detector denominator ");
   
   double myeff, mynum, myden;
+  double eff_limit=0;
   
   for(Long_t i = 1; i <= 22; i++) {
 	//Loop over every layer, extracting the information from
 	//the map of the efficiencies
 	layertotal[i] = 0;
 	layerfound[i] = 0;
+	TH1F* hEffInLayer =  fs->make<TH1F>(Form("eff_layer%i", int(i)),Form("Module efficiency in layer %i", int(i)), 201,0,1.005);
+	
     map<unsigned int, pair<unsigned int, unsigned int> >::const_iterator ih;
     for( ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
       //We should be in the layer in question, and looping over all of the modules in said layer
@@ -979,33 +987,68 @@ void SiStripHitEffFromCalibTree::makeTKMap() {
 	  myden = (double)(((*ih).second).first);
       if(myden>0) myeff = mynum/myden;
 	  else myeff=0;
-      if ( (myden >= nModsMin) && (myeff < threshold) ) {
-        //We have a bad module, put it in the list!
-		BadModules[(*ih).first] = myeff;
-		tkmapbad->fillc((*ih).first,255,0,0);
-		cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " efficiency: " << myeff << " , " << mynum << "/" << myden << endl;
+	  hEffInLayer->Fill(myeff);
+	  
+	  if(!autoTagging) {
+    	if ( (myden >= nModsMin) && (myeff < threshold) ) {
+          //We have a bad module, put it in the list!
+		  BadModules[(*ih).first] = myeff;
+		  tkmapbad->fillc((*ih).first,255,0,0);
+		  cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " efficiency: " << myeff << " , " << mynum << "/" << myden << endl;
+    	}
+    	else {
+          //Fill the bad list with empty results for every module
+          tkmapbad->fillc((*ih).first,255,255,255);
+    	}
+    	if(myden < nModsMin ) {
+          cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " is under occupancy at " << myden << endl;
+    	}
       }
-      else {
-        //Fill the bad list with empty results for every module
-        tkmapbad->fillc((*ih).first,255,255,255);
-      }
-      if(myden < 50 ) {
-        cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " is under occupancy at " << myden << endl;
-      }
+	  
       //Put any module into the TKMap
-      //Should call module ID, and then 1- efficiency for that module
-      //if((*ih).first == 369137820) {
-      //  cout << "Module 369137820 has 1-eff of " << 1.-myeff << endl;
-	//cout << "Which is " << ((*ih).second).second << "/" << ((*ih).second).first << endl;
-      //}
       tkmap->fill((*ih).first,1.-myeff);
       tkmapeff->fill((*ih).first,myeff);
       tkmapnum->fill((*ih).first,mynum);
       tkmapden->fill((*ih).first,myden);
-      //Find the total number of hits in the module
-      layertotal[i] += int(myden);
-      layerfound[i] += int(mynum);
+	  
+      //Add the number of hits in the layer
+      layertotal[i] += long(myden);
+      layerfound[i] += long(mynum);
     }
+	
+	if(autoTagging) {
+	
+	  //Compute threshold to use for each layer
+	  hEffInLayer->GetXaxis()->SetRange(3, hEffInLayer->GetNbinsX()+1); // Remove from the avg modules below 1%
+	  eff_limit = hEffInLayer->GetMean()-threshold;
+	  cout << "Layer " << i << " threshold for bad modules: " << eff_limit << endl;
+	  hEffInLayer->GetXaxis()->SetRange(1, hEffInLayer->GetNbinsX()+1);
+	  
+	  
+      for( ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
+		// Second loop over modules to tag inefficient ones
+		mynum = (double)(((*ih).second).second);
+		myden = (double)(((*ih).second).first);
+    	if(myden>0) myeff = mynum/myden;
+		else myeff=0;
+		if ( (myden >= nModsMin) && (myeff < eff_limit) ) {
+          //We have a bad module, put it in the list!
+		  BadModules[(*ih).first] = myeff;
+		  tkmapbad->fillc((*ih).first,255,0,0);
+		  cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " efficiency: " << myeff << " , " << mynum << "/" << myden << endl;
+    	}
+    	else {
+          //Fill the bad list with empty results for every module
+          tkmapbad->fillc((*ih).first,255,255,255);
+    	}
+    	/*if(myden < nModsMin ) {
+          cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " layer " << i << " is under occupancy at " << myden << endl;
+    	}*/
+      }
+	  
+	}
+	
+	
   }
   tkmap->save(true, 0, 0, "SiStripHitEffTKMap.png");
   tkmapbad->save(true, 0, 0, "SiStripHitEffTKMapBad.png");
@@ -1014,6 +1057,7 @@ void SiStripHitEffFromCalibTree::makeTKMap() {
   tkmapden->save(true, 0, 0, "SiStripHitEffTKMapDen.png");
   cout << "Finished TKMap Generation\n";
 }
+
 
 void SiStripHitEffFromCalibTree::makeSQLite() {
   //Generate the SQLite file for use in the Database of the bad modules!
@@ -1067,10 +1111,10 @@ void SiStripHitEffFromCalibTree::totalStatistics() {
   }
   
   cout << "The total efficiency is " << double(totalfound)/double(totaltotal) << endl;
-  cout << "      TIB: " << double(subdetfound[1])/subdettotal[1] << endl;
-  cout << "      TOB: " << double(subdetfound[2])/subdettotal[2] << endl;
-  cout << "      TID: " << double(subdetfound[3])/subdettotal[3] << endl;
-  cout << "      TEC: " << double(subdetfound[4])/subdettotal[4] << endl;
+  cout << "      TIB: " << double(subdetfound[1])/subdettotal[1] <<" "<< subdetfound[1]<<"/"<<subdettotal[1]<< endl;
+  cout << "      TOB: " << double(subdetfound[2])/subdettotal[2] <<" "<< subdetfound[2]<<"/"<<subdettotal[2]<< endl;
+  cout << "      TID: " << double(subdetfound[3])/subdettotal[3] <<" "<< subdetfound[3]<<"/"<<subdettotal[3]<< endl;
+  cout << "      TEC: " << double(subdetfound[4])/subdettotal[4] <<" "<< subdetfound[4]<<"/"<<subdettotal[4]<< endl;
 }
 
 void SiStripHitEffFromCalibTree::makeSummary() {
