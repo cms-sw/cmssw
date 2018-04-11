@@ -38,7 +38,9 @@ class HistogramAnalyzer(object):
             self._all[fn] = HistogramEntry(t, bin_size, bin_count, extra, total_bytes)
         else:
             t = str(type(obj))
-            bin_count, bin_size, extra = 0, 0, len(str(obj)) + len(fn)
+            #bin_count, bin_size, extra = 0, 0, len(str(obj)) + len(fn)
+            # assume constant size for strings
+            bin_count, bin_size, extra = 0, 0, 10 + len(fn)
             total_bytes = bin_count * bin_size + extra
 
             self._all[fn] = HistogramEntry(t, bin_size, bin_count, extra, total_bytes)
