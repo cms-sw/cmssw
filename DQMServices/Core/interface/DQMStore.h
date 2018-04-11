@@ -95,7 +95,7 @@ public:
     template <typename... Args>                                         \
     MonitorElement* book##funcname(Args&&... args)                      \
     {                                                                   \
-      return owner_->book##funcname(std::forward<Args>(args)...);       \
+      return owner_->book##funcname(run_, moduleId_, std::forward<Args>(args)...); \
     }
 
     // For the supported interface, see the DQMStore function that
@@ -126,7 +126,12 @@ public:
     void tagContents(std::string const&, unsigned int);
 
   private:
-    explicit IBooker(DQMStore* store) noexcept : owner_{store}
+    explicit IBooker(DQMStore* const store,
+                     uint32_t const run,
+                     uint32_t const moduleId) noexcept :
+      owner_{store},
+      run_{run},
+      moduleId_{moduleId}
     {
       assert(store);
     }
@@ -137,7 +142,9 @@ public:
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main
     // DQMStore instance (owner_).
-    DQMStore* owner_;
+    DQMStore* const owner_;
+    uint32_t const run_;
+    uint32_t const moduleId_;
   };  // IBooker
 
   class ConcurrentBooker : public IBooker {
@@ -172,15 +179,16 @@ public:
 #undef CONCURRENTBOOKER_FUNCTION_WITH_SUFFIX
 
   private:
-    explicit ConcurrentBooker(DQMStore* store) noexcept :
-      IBooker{store}
+    explicit ConcurrentBooker(DQMStore* const store,
+                              uint32_t const run) noexcept :
+      IBooker{store, run, 0}
     {}
 
     ConcurrentBooker() = delete;
     ConcurrentBooker(ConcurrentBooker const&) = delete;
-    ConcurrentBooker(ConcurrentBooker &&) = delete;
+    ConcurrentBooker(ConcurrentBooker&&) = delete;
     ConcurrentBooker& operator=(ConcurrentBooker const&) = delete;
-    ConcurrentBooker& operator=(ConcurrentBooker &&) = delete;
+    ConcurrentBooker& operator=(ConcurrentBooker&&) = delete;
 
     ~ConcurrentBooker() = default;
   };
@@ -231,7 +239,7 @@ public:
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main
     // DQMStore instance (owner_).
-    DQMStore* owner_;
+    DQMStore* const owner_;
   }; //IGetter
 
   // Template function to be used inside each DQM Modules' lambda
@@ -245,19 +253,12 @@ public:
   void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId)
   {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    /* Set the run number and module id only if multithreading is enabled */
-    if (enableMultiThread_) {
-      run_ = run;
-      moduleId_ = moduleId;
+    /* Use the run number and module id only if multi-threading is enabled. */
+    if (!enableMultiThread_) {
+      run = moduleId = 0;
     }
-    IBooker booker{this};
+    IBooker booker{this, run, moduleId};
     f(booker);
-
-    /* Reset the run number and module id only if multithreading is enabled */
-    if (enableMultiThread_) {
-      run_ = 0;
-      moduleId_ = 0;
-    }
   }
 
   // Similar function used to book "global" histograms via the
@@ -266,17 +267,12 @@ public:
   void bookConcurrentTransaction(iFunc f, uint32_t run)
   {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    /* Set the run_ member only if enableMultiThread is enabled */
-    if (enableMultiThread_) {
-      run_ = run;
+    /* Use the run number only if multi-threading is enabled. */
+    if (!enableMultiThread_) {
+      run = 0;
     }
-    ConcurrentBooker booker(this);
+    ConcurrentBooker booker{this, run};
     f(booker);
-
-    /* Reset the run_ member only if enableMultiThread is enabled */
-    if (enableMultiThread_) {
-      run_ = 0;
-    }
   }
 
   // Signature needed in the harvesting where the booking is done in
@@ -287,7 +283,7 @@ public:
   template <typename iFunc>
   void meBookerGetter(iFunc f)
   {
-    IBooker booker{this};
+    IBooker booker{this, 0, 0};
     IGetter getter{this};
     f(booker, getter);
   }
@@ -312,98 +308,229 @@ public:
 
   //-------------------------------------------------------------------------
   // ---------------------- public ME booking -------------------------------
-  MonitorElement* bookInt(TString const& name);
-  MonitorElement* bookFloat(TString const& name);
+  MonitorElement* bookInt(TString const& name)
+  {
+    return bookInt(0, 0, name);
+  }
+
+  MonitorElement* bookFloat(TString const& name)
+  {
+    return bookFloat(0, 0, name);
+  }
+
   MonitorElement* bookString(TString const& name,
-                             TString const& value);
+                             TString const& value)
+  {
+    return bookString(0, 0, name, value);
+  }
+
   MonitorElement* book1D(TString const& name,
                          TString const& title,
-                         int nchX, double lowX, double highX);
+                         int nchX, double lowX, double highX)
+  {
+    return book1D(0, 0, name, title, nchX, lowX, highX);
+  }
+
   MonitorElement* book1D(TString const& name,
                          TString const& title,
-                         int nchX, float const* xbinsize);
-  MonitorElement* book1D(TString const& name, TH1F* h);
+                         int nchX, float const* xbinsize)
+  {
+    return book1D(0, 0, name, title, nchX, xbinsize);
+  }
+
+  MonitorElement* book1D(TString const& name, TH1F* h)
+  {
+    return book1D(0, 0, name, h);
+  }
+
   MonitorElement* book1S(TString const& name,
                          TString const& title,
-                         int nchX, double lowX, double highX);
+                         int nchX, double lowX, double highX)
+  {
+    return book1S(0, 0, name, title, nchX, lowX, highX);
+  }
+
   MonitorElement* book1S(TString const& name,
                          TString const& title,
-                         int nchX, float const* xbinsize);
-  MonitorElement* book1S(TString const& name, TH1S* h);
+                         int nchX, float const* xbinsize)
+  {
+    return book1S(0, 0, name, title, nchX, xbinsize);
+  }
+
+  MonitorElement* book1S(TString const& name, TH1S* h)
+  {
+    return book1S(0, 0, name, h);
+  }
+
   MonitorElement* book1DD(TString const& name,
                           TString const& title,
-                          int nchX, double lowX, double highX);
+                          int nchX, double lowX, double highX)
+  {
+    return book1DD(0, 0, name, title, nchX, lowX, highX);
+  }
+
   MonitorElement* book1DD(TString const& name,
                           TString const& title,
-                          int nchX, float const* xbinsize);
-  MonitorElement* book1DD(TString const& name, TH1D* h);
+                          int nchX, float const* xbinsize)
+  {
+    return book1DD(0, 0, name, title, nchX, xbinsize);
+  }
+
+  MonitorElement* book1DD(TString const& name, TH1D* h)
+  {
+    return book1DD(0, 0, name, h);
+  }
+
   MonitorElement* book2D(TString const& name,
                          TString const& title,
                          int nchX, double lowX, double highX,
-                         int nchY, double lowY, double highY);
+                         int nchY, double lowY, double highY)
+  {
+    return book2D(0, 0, name, title, nchX, lowX, highX, nchY, lowY, highY);
+  }
+
   MonitorElement* book2D(TString const& name,
                          TString const& title,
                          int nchX, float const* xbinsize,
-                         int nchY, float const* ybinsize);
-  MonitorElement* book2D(TString const& name, TH2F* h);
+                         int nchY, float const* ybinsize)
+  {
+    return book2D(0, 0, name, title, nchX, xbinsize, nchY, ybinsize);
+  }
+
+  MonitorElement* book2D(TString const& name, TH2F* h)
+  {
+    return book2D(0, 0, name, h);
+  }
+
   MonitorElement* book2S(TString const& name,
                          TString const& title,
                          int nchX, double lowX, double highX,
-                         int nchY, double lowY, double highY);
+                         int nchY, double lowY, double highY)
+  {
+    return book2S(0, 0, name, title, nchX, lowX, highX, nchY, lowY, highY);
+  }
   MonitorElement* book2S(TString const& name,
                          TString const& title,
                          int nchX, float const* xbinsize,
-                         int nchY, float const* ybinsize);
-  MonitorElement* book2S(TString const& name, TH2S* h);
+                         int nchY, float const* ybinsize)
+  {
+    return book2S(0, 0, name, title, nchX, xbinsize, nchY, ybinsize);
+  }
+
+  MonitorElement* book2S(TString const& name, TH2S* h)
+  {
+    return book2S(0, 0, name, h);
+  }
+
   MonitorElement* book2DD(TString const& name,
                           TString const& title,
                           int nchX, double lowX, double highX,
-                          int nchY, double lowY, double highY);
+                          int nchY, double lowY, double highY)
+  {
+    return book2DD(0, 0, name, title, nchX, lowX, highX, nchY, lowY, highY);
+  }
+
   MonitorElement* book2DD(TString const& name,
                           TString const& title,
                           int nchX, float const* xbinsize,
-                          int nchY, float const* ybinsize);
-  MonitorElement* book2DD(TString const& name, TH2D* h);
+                          int nchY, float const* ybinsize)
+  {
+    return book2DD(0, 0, name, title, nchX, xbinsize, nchY, ybinsize);
+  }
+
+  MonitorElement* book2DD(TString const& name, TH2D* h)
+  {
+    return book2DD(0, 0, name, h);
+  }
+
   MonitorElement* book3D(TString const& name,
                          TString const& title,
                          int nchX, double lowX, double highX,
                          int nchY, double lowY, double highY,
-                         int nchZ, double lowZ, double highZ);
-  MonitorElement* book3D(TString const& name, TH3F* h);
+                         int nchZ, double lowZ, double highZ)
+  {
+    return book3D(0, 0, name, title,
+                  nchX, lowX, highX,
+                  nchY, lowY, highY,
+                  nchZ, lowZ, highZ);
+  }
+
+  MonitorElement* book3D(TString const& name, TH3F* h)
+  {
+    return book3D(0, 0, name, h);
+  }
+
   MonitorElement* bookProfile(TString const& name,
                               TString const& title,
                               int nchX, double lowX, double highX,
                               int nchY, double lowY, double highY,
-                              char const* option = "s");
+                              char const* option = "s")
+  {
+    return bookProfile(0, 0, name, title, nchX, lowX, highX, nchY, lowY, highY, option);
+  }
+
   MonitorElement* bookProfile(TString const& name,
                               TString const& title,
                               int nchX, double lowX, double highX,
                               double lowY, double highY,
-                              char const* option = "s");
+                              char const* option = "s")
+  {
+    return bookProfile(0, 0, name, title, nchX, lowX, highX, lowY, highY, option);
+  }
+
   MonitorElement* bookProfile(TString const& name,
                               TString const& title,
                               int nchX, double const* xbinsize,
                               int nchY, double lowY, double highY,
-                              char const* option = "s");
+                              char const* option = "s")
+  {
+    return bookProfile(0, 0, name, title, nchX, xbinsize, nchY, lowY, highY, option);
+  }
+
   MonitorElement* bookProfile(TString const& name,
                               TString const& title,
                               int nchX, double const* xbinsize,
                               double lowY, double highY,
-                              char const* option = "s");
-  MonitorElement* bookProfile(TString const& name, TProfile* h);
+                              char const* option = "s")
+  {
+    return bookProfile(0, 0, name, title, nchX, xbinsize, lowY, highY, option);
+  }
+
+  MonitorElement* bookProfile(TString const& name, TProfile* h)
+  {
+    return bookProfile(0, 0, name, h);
+  }
+
   MonitorElement* bookProfile2D(TString const& name,
                                 TString const& title,
                                 int nchX, double lowX, double highX,
                                 int nchY, double lowY, double highY,
                                 int nchZ, double lowZ, double highZ,
-                                char const* option = "s");
+                                char const* option = "s")
+  {
+    return bookProfile2D(0, 0, name, title,
+                         nchX, lowX, highX,
+                         nchY, lowY, highY,
+                         nchZ, lowZ, highZ, option);
+  }
+
   MonitorElement* bookProfile2D(TString const& name,
                                 TString const& title,
                                 int nchX, double lowX, double highX,
                                 int nchY, double lowY, double highY,
                                 double lowZ, double highZ,
-                                char const* option = "s");
-  MonitorElement* bookProfile2D(TString const& name, TProfile2D* h);
+                                char const* option = "s")
+  {
+    return bookProfile2D(0, 0, name, title,
+                         nchX, lowX, highX,
+                         nchY, lowY, highY,
+                         lowZ, highZ, option);
+  }
+
+  MonitorElement* bookProfile2D(TString const& name, TProfile2D* h)
+  {
+    return bookProfile2D(0, 0, name, h);
+  }
 
   //-------------------------------------------------------------------------
   // ---------------------- public tagging ----------------------------------
@@ -542,28 +669,128 @@ private:
   TObject* extractNextObject(TBufferFile&) const;
 
   // ---------------------- Booking ------------------------------------
+  MonitorElement* bookInt(uint32_t run,
+                          uint32_t moduleId,
+                          TString const& name);
+  MonitorElement* bookFloat(uint32_t run, uint32_t moduleId, TString const& name);
+  MonitorElement* bookString(uint32_t run, uint32_t moduleId, TString const& name,
+                             TString const& value);
+  MonitorElement* book1D(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, double lowX, double highX);
+  MonitorElement* book1D(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, float const* xbinsize);
+  MonitorElement* book1D(uint32_t run, uint32_t moduleId, TString const& name, TH1F* h);
+  MonitorElement* book1S(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, double lowX, double highX);
+  MonitorElement* book1S(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, float const* xbinsize);
+  MonitorElement* book1S(uint32_t run, uint32_t moduleId, TString const& name, TH1S* h);
+  MonitorElement* book1DD(uint32_t run, uint32_t moduleId, TString const& name,
+                          TString const& title,
+                          int nchX, double lowX, double highX);
+  MonitorElement* book1DD(uint32_t run, uint32_t moduleId, TString const& name,
+                          TString const& title,
+                          int nchX, float const* xbinsize);
+  MonitorElement* book1DD(uint32_t run, uint32_t moduleId, TString const& name, TH1D* h);
+  MonitorElement* book2D(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, double lowX, double highX,
+                         int nchY, double lowY, double highY);
+  MonitorElement* book2D(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, float const* xbinsize,
+                         int nchY, float const* ybinsize);
+  MonitorElement* book2D(uint32_t run, uint32_t moduleId, TString const& name, TH2F* h);
+  MonitorElement* book2S(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, double lowX, double highX,
+                         int nchY, double lowY, double highY);
+  MonitorElement* book2S(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, float const* xbinsize,
+                         int nchY, float const* ybinsize);
+  MonitorElement* book2S(uint32_t run, uint32_t moduleId, TString const& name, TH2S* h);
+  MonitorElement* book2DD(uint32_t run, uint32_t moduleId, TString const& name,
+                          TString const& title,
+                          int nchX, double lowX, double highX,
+                          int nchY, double lowY, double highY);
+  MonitorElement* book2DD(uint32_t run, uint32_t moduleId, TString const& name,
+                          TString const& title,
+                          int nchX, float const* xbinsize,
+                          int nchY, float const* ybinsize);
+  MonitorElement* book2DD(uint32_t run, uint32_t moduleId, TString const& name, TH2D* h);
+  MonitorElement* book3D(uint32_t run, uint32_t moduleId, TString const& name,
+                         TString const& title,
+                         int nchX, double lowX, double highX,
+                         int nchY, double lowY, double highY,
+                         int nchZ, double lowZ, double highZ);
+  MonitorElement* book3D(uint32_t run, uint32_t moduleId, TString const& name, TH3F* h);
+  MonitorElement* bookProfile(uint32_t run, uint32_t moduleId, TString const& name,
+                              TString const& title,
+                              int nchX, double lowX, double highX,
+                              int nchY, double lowY, double highY,
+                              char const* option = "s");
+  MonitorElement* bookProfile(uint32_t run, uint32_t moduleId, TString const& name,
+                              TString const& title,
+                              int nchX, double lowX, double highX,
+                              double lowY, double highY,
+                              char const* option = "s");
+  MonitorElement* bookProfile(uint32_t run, uint32_t moduleId, TString const& name,
+                              TString const& title,
+                              int nchX, double const* xbinsize,
+                              int nchY, double lowY, double highY,
+                              char const* option = "s");
+  MonitorElement* bookProfile(uint32_t run, uint32_t moduleId, TString const& name,
+                              TString const& title,
+                              int nchX, double const* xbinsize,
+                              double lowY, double highY,
+                              char const* option = "s");
+  MonitorElement* bookProfile(uint32_t run, uint32_t moduleId, TString const& name, TProfile* h);
+  MonitorElement* bookProfile2D(uint32_t run, uint32_t moduleId, TString const& name,
+                                TString const& title,
+                                int nchX, double lowX, double highX,
+                                int nchY, double lowY, double highY,
+                                int nchZ, double lowZ, double highZ,
+                                char const* option = "s");
+  MonitorElement* bookProfile2D(uint32_t run, uint32_t moduleId, TString const& name,
+                                TString const& title,
+                                int nchX, double lowX, double highX,
+                                int nchY, double lowY, double highY,
+                                double lowZ, double highZ,
+                                char const* option = "s");
+  MonitorElement* bookProfile2D(uint32_t run, uint32_t moduleId, TString const& name, TProfile2D* h);
+
   MonitorElement* initialise(MonitorElement* me, std::string const& path);
-  MonitorElement* book_(std::string const& dir,
+  MonitorElement* book_(uint32_t run,
+                        uint32_t moduleId,
+                        std::string const& dir,
                         std::string const& name,
                         char const* context);
+
   template <class HISTO, class COLLATE>
-  MonitorElement* book_(std::string const& dir,
+  MonitorElement* book_(uint32_t run,
+                        uint32_t moduleId,
+                        std::string const& dir,
                         std::string const& name,
                         char const* context,
                         int kind, HISTO* h, COLLATE collate);
 
-  MonitorElement* bookInt_(std::string const& dir, std::string const& name);
-  MonitorElement* bookFloat_(std::string const& dir, std::string const& name);
-  MonitorElement* bookString_(std::string const& dir, std::string const& name, std::string const& value);
-  MonitorElement* book1D_(std::string const& dir, std::string const& name, TH1F* h);
-  MonitorElement* book1S_(std::string const& dir, std::string const& name, TH1S* h);
-  MonitorElement* book1DD_(std::string const& dir, std::string const& name, TH1D* h);
-  MonitorElement* book2D_(std::string const& dir, std::string const& name, TH2F* h);
-  MonitorElement* book2S_(std::string const& dir, std::string const& name, TH2S* h);
-  MonitorElement* book2DD_(std::string const& dir, std::string const& name, TH2D* h);
-  MonitorElement* book3D_(std::string const& dir, std::string const& name, TH3F* h);
-  MonitorElement* bookProfile_(std::string const& dir, std::string const& name, TProfile* h);
-  MonitorElement* bookProfile2D_(std::string const& dir, std::string const& name, TProfile2D* h);
+  MonitorElement* bookInt_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name);
+  MonitorElement* bookFloat_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name);
+  MonitorElement* bookString_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, std::string const& value);
+  MonitorElement* book1D_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TH1F* h);
+  MonitorElement* book1S_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TH1S* h);
+  MonitorElement* book1DD_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TH1D* h);
+  MonitorElement* book2D_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TH2F* h);
+  MonitorElement* book2S_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TH2S* h);
+  MonitorElement* book2DD_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TH2D* h);
+  MonitorElement* book3D_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TH3F* h);
+  MonitorElement* bookProfile_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TProfile* h);
+  MonitorElement* bookProfile2D_(uint32_t run, uint32_t moduleId, std::string const& dir, std::string const& name, TProfile2D* h);
 
   static bool checkBinningMatches(MonitorElement* me, TH1* h, unsigned verbose);
 
@@ -626,8 +853,6 @@ private:
   bool LSbasedMode_;
   bool forceResetOnBeginLumi_{false};
   std::string readSelectedDirectory_{};
-  uint32_t run_{};
-  uint32_t moduleId_{};
   std::unique_ptr<std::ostream> stream_{nullptr};
 
   std::string pwd_{};
