@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
 #include <memory>
 
@@ -39,8 +40,34 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const
   
 }
 
+uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const edm::DetSet<SiStripDigi>& inDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+	
+	  std::vector<int16_t>  processedRawDigisPedSubtracted ;
+      
+      int16_t nAPVFlagged =0;
+    //  if( doAPVRestore ) nAPVFlagged = restorer->InspectHybridFormat(id, firstAPV, inDigis,  );
 
-//Suppressors Specific
+    //  subtractorCMN->subtract(id, firstAPV,  processedRawDigis);
+    //  if( doAPVRestore ) nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, processedRawDigisPedSubtracted, processedRawDigis, subtractorCMN->getAPVsCM() );
+    //  suppressor->suppress( processedRawDigis, firstAPV,  suppressedDigis ); 
+      return nAPVFlagged;
+	
+	//uitn32_t id = inDigis.id;
+	//SiStripDetId sid(id);
+	//double moduleLenght = sid.stripLength()
+	
+    //RawDigis.clear();
+    //RawDigi.insert(RawDigi)
+}
+
+uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& inputDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+	int16_t nAPVFlagged =0;
+	return nAPVFlagged;
+}
+
+
+
+//Suppressors Virgin Raw And Processed Raw
 //--------------------------------------------------------
 uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
       
@@ -93,7 +120,7 @@ uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t
       for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] += 1024;   //adding one MSB
 
       
-      subtractorPed->subtract( id, firstAPV*128,processedRawDigis);      
+      subtractorPed->subtract( id, firstAPV*128,processedRawDigis);      //all strips are pedestals subtracted
       
       for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] /= 2;
       processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
@@ -120,13 +147,6 @@ uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t
       	}
       }
        
-     // edm::DetSet<SiStripDigi>::const_iterator itDigi = suppressedDigis.begin();
-     //for(; itDigi != suppressedDigis.end(); ++itDigi){
-   	 //		uint16_t strip = itDigi->strip();
-     // 	    uint16_t adc = itDigi->adc();
-     // 	    uint16_t APV = strip/128;
-     //  		std::cout << "final id: " << id << " APVn " << APV << " strip: " << strip << " ADC: " << adc << std::endl; // to be removed
-     // }
       return nAPVFlagged;
 
 }

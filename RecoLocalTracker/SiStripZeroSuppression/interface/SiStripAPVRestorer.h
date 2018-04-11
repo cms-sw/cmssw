@@ -43,6 +43,10 @@ class SiStripAPVRestorer {
   uint16_t InspectForHybridFormatEmulation(const uint32_t&, const uint16_t&,std::vector<int16_t>&, const std::vector< std::pair<short,float> >&, std::vector<bool>&);
   
   uint16_t  InspectAndRestore(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+
+  uint16_t  InspectHybridFormat(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+  
+  
   //void     fixAPVsCM(edm::DetSet<SiStripProcessedRawDigi>& );
   void     LoadMeanCMMap(const edm::Event&);
   

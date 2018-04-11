@@ -127,13 +127,12 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
   if(produceRawDigis) output_base_raw.reserve(16000);
   output_base.reserve(16000);    
  
-  
   for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
       rawDigis = input.begin(); rawDigis != input.end(); ++rawDigis) {
     	
       edm::DetSet<SiStripDigi> suppressedDigis(rawDigis->id);
       uint16_t nAPVflagged = 0;
-        
+               
       if ( "ProcessedRaw" == inputTag.instance()){
 		nAPVflagged = algorithms->SuppressProcessedRawData(*rawDigis, suppressedDigis);
       	if(produceHybridFormat) throw cms::Exception("Processed Raw Cannot be converted in hibryd Format") << "SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
@@ -145,7 +144,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       else     
       throw cms::Exception("Unknown input type") << inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
       
-       
+      
       //storing the output
       this->storeExtraOutput(rawDigis->id, nAPVflagged);
 <<<<<<< HEAD
@@ -162,7 +161,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       }
          
   }
-  
+    
 }
 
 inline
@@ -183,21 +182,23 @@ processHybrid(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripDigi
  
   
   for ( edm::DetSetVector<SiStripDigi>::const_iterator 
-      rawDigis = input.begin(); rawDigis != input.end(); ++rawDigis) {
+      inDigis = input.begin(); inDigis != input.end(); ++inDigis) {
     	
-      edm::DetSet<SiStripDigi> suppressedDigis(rawDigis->id);
- //     uint16_t nAPVflagged = 0;
+      edm::DetSet<SiStripDigi> suppressedDigis(inDigis->id);
+      uint16_t nAPVflagged = 0;
+      std::vector<int16_t> RawDigis;
         
+       nAPVflagged = algorithms->SuppressHybridData(*inDigis, suppressedDigis);  
        
       //storing the output
-   //   this->storeExtraOutput(rawDigis->id, nAPVflagged);
-   //   if(suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0))  output_base.push_back(suppressedDigis); 
+      this->storeExtraOutput(inDigis->id, nAPVflagged);
+      if(suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0))  output_base.push_back(suppressedDigis); 
          
-    //  if (produceRawDigis && nAPVflagged > 0){  
-	//	edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis->id);
-	//	this->formatRawDigis(rawDigis, outRawDigis);
-	//	output_base_raw.push_back(outRawDigis);
-    //  }
+     // if (produceRawDigis && nAPVflagged > 0){  
+	 // 	edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis->id);
+     // 	this->formatRawDigisFromHybrid(rawDigis, outRawDigis);
+     // 	output_base_raw.push_back(outRawDigis);
+     // }
          
   }
   
@@ -212,7 +213,7 @@ void SiStripZeroSuppression::formatRawDigis(edm::DetSetVector<SiStripRawDigi>::c
          
       uint32_t strip=0;
       for (; itRawDigis != rawDigis->end(); ++itRawDigis){
-	int16_t APVn = strip/128;
+		int16_t APVn = strip/128;
         if(apvf[APVn]) outRawDigis.push_back(*itRawDigis); 
         else outRawDigis.push_back(SiStripRawDigi(0));
         ++strip;
@@ -227,8 +228,8 @@ void SiStripZeroSuppression::storeExtraOutput(uint32_t id, int16_t nAPVflagged){
       const std::vector< std::pair<short,float> >& vmedians = algorithms->getAPVsCM();
       if(storeCM) this->storeCMN(id, vmedians);
       if(nAPVflagged > 0){
-	if(produceCalculatedBaseline) this->storeBaseline(id, vmedians);
-	if(produceBaselinePoints) this->storeBaselinePoints(id);
+		if(produceCalculatedBaseline) this->storeBaseline(id, vmedians);
+		if(produceBaselinePoints) this->storeBaselinePoints(id);
       }
 }
 
