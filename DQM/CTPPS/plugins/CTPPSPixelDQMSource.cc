@@ -54,6 +54,8 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
  static constexpr int NROCsMAX = 6;	// per plane
  static constexpr int RPn_first = 3, RPn_last = 4;
  static constexpr int ADCMax = 256;
+ static constexpr int StationIDMAX=4;  // possible range of ID
+ static constexpr int RPotsIDMAX=8;    // possible range of ID
  const int hitMultMAX = 300; // tuned
  const int ClusMultMAX = 10; // tuned
 
@@ -95,8 +97,8 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
 
 
   unsigned int rpStatusWord = 0x8008; //220_fr_hr(stn2rp3)+ 210_fr_hr
-  int RPstatus[NStationMAX][NRPotsMAX]; // symmetric in both arms
-  int StationStatus[NStationMAX]; // symmetric in both arms
+  int RPstatus[StationIDMAX][RPotsIDMAX]; // symmetric in both arms
+  int StationStatus[StationIDMAX]; // symmetric in both arms
   const int IndexNotValid = 0;
 
   int getRPindex(int arm, int station, int rp) {
@@ -168,8 +170,13 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
   ROCSizeInX = pixRowMAX/2;  // ROC row size in pixels = 80
   ROCSizeInY = pixColMAX/3;
 
+ for(int stn=0; stn<StationIDMAX; stn++) {
+  StationStatus[stn]=0;
+  for(int rp=0; rp<RPotsIDMAX; rp++) RPstatus[stn][rp]=0;
+ } 
+
  unsigned int rpSts = rpStatusWord<<1;
- for(int stn=0; stn<3; stn++) {
+ for(int stn=0; stn<NStationMAX; stn++) {
    int stns = 0;
    for(int rp=0; rp<NRPotsMAX; rp++) {
      rpSts = (rpSts >> 1); RPstatus[stn][rp] = rpSts&1;
@@ -485,6 +492,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
       int arm = theId.arm()&0x1;
       int station = theId.station()&0x3;
       int rpot = theId.rp()&0x7;
+
+      if((StationStatus[station]==0) || (RPstatus[station][rpot]==0)) continue;
 
         int index = getRPindex(arm,station,rpot);
         ++ClusMultPlane[index][plane];
