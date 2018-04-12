@@ -3,6 +3,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <bitset>
+
 ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iConfig) {
   produces <unsigned int> ( "run"      );
   produces <unsigned int> ( "event"    );
@@ -12,6 +14,10 @@ ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iCon
   produces <float>        ( "PU"       );
   produces <std::vector<bool> > ( "TrigTech" );
   produces <std::vector<bool> > ( "TrigPh" );
+  #ifdef CALIBTreeDEV
+  produces <std::bitset<64> > ( "TrigTechBitSet" );
+  produces <std::bitset<128> > ( "TrigPhBitSet" );
+  #endif
 
   trig_token_   = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("trigRecord"));
   scalerToken_  = consumes< LumiScalersCollection >(iConfig.getParameter<edm::InputTag>("lumiScalers"));
@@ -32,6 +38,12 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::vector<bool> TrigTech_(64,false);
   std::vector<bool> TrigPh_(128,false);
+  #ifdef CALIBTreeDEV
+  std::bitset<64>   TrigTechBitSet_;
+  std::bitset<128>  TrigPhBitSet_;
+  TrigTechBitSet_.reset();
+  TrigPhBitSet_.reset();
+  #endif
 
   // Get dWord after masking disabled bits
   DecisionWord dWord = gtRecord->decisionWord();
@@ -39,34 +51,44 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // loop over dec. bit to get total rate (no overlap)
     for ( int i = 0; i < 64; ++i ) {
       TrigPh_[i]= dWord[i];
+      #ifdef CALIBTreeDEV
+      if(dWord[i]) TrigPhBitSet_.set(i);
+      #endif
     }
   }
-    
+
   TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
   if ( ! tw.empty() ) {
     // loop over dec. bit to get total rate (no overlap)
     for ( int i = 0; i < 64; ++i ) {
       TrigTech_[i]=tw[i];
+      #ifdef CALIBTreeDEV
+      if(tw[i]) TrigTechBitSet_.set(i);
+      #endif
     }
   }
 
   auto TrigTech = std::make_unique<std::vector<bool>>(TrigTech_);
   auto TrigPh = std::make_unique<std::vector<bool>>(TrigPh_);
+  #ifdef CALIBTreeDEV
+  auto TrigTechBitSet = std::make_unique<std::bitset<64>>(TrigTechBitSet_);
+  auto TrigPhBitSet   = std::make_unique<std::bitset<128>>(TrigPhBitSet_);
+  #endif
 
   // Luminosity informations
   edm::Handle< LumiScalersCollection > lumiScalers;
   float instLumi_=0; float PU_=0;
-  iEvent.getByToken(scalerToken_, lumiScalers); 
+  iEvent.getByToken(scalerToken_, lumiScalers);
   if(lumiScalers.isValid()){
     if (lumiScalers->begin() != lumiScalers->end()) {
       instLumi_ = lumiScalers->begin()->instantLumi();
       PU_       = lumiScalers->begin()->pileup();
     }
   } else {
-    edm::LogInfo("ShallowEventDataProducer") 
+    edm::LogInfo("ShallowEventDataProducer")
       << "LumiScalers collection not found in the event; will write dummy values";
   }
-  
+
   auto instLumi = std::make_unique<float>(instLumi_);
   auto PU       = std::make_unique<float>(PU_);
 
@@ -76,6 +98,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::move(lumi),     "lumi" );
   iEvent.put(std::move(TrigTech), "TrigTech" );
   iEvent.put(std::move(TrigPh),   "TrigPh" );
+  #ifdef CALIBTreeDEV
+  iEvent.put(std::move(TrigTechBitSet), "TrigTechBitSet" );
+  iEvent.put(std::move(TrigPhBitSet),   "TrigPhBitSet" );
+  #endif
   iEvent.put(std::move(instLumi), "instLumi");
   iEvent.put(std::move(PU),       "PU");
 }
