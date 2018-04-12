@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
 import FWCore.ParameterSet.VarParsing as VarParsing
+from CalibTracker.SiStripCommon.shallowTree_test_template import *
 
 ###################################################################
 # Setup 'standard' options
@@ -60,6 +61,7 @@ process.load('CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi') #event I
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('CalibTracker.SiStripCommon.ShallowEventDataProducer_cfi') #event Info
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.conditionGT, options.conditionOverwrite)
@@ -117,7 +119,6 @@ process.TkCalPath_IsoMuon    = cms.Path(process.TkCalSeq_IsoMuon*process.shallow
 process.TkCalPath_IsoMuon0T  = cms.Path(process.TkCalSeq_IsoMuon0T*process.shallowEventRun*process.EventInfo)
 process.TkCalPath_AagBunch   = cms.Path(process.TkCalSeq_AagBunch*process.shallowEventRun*process.EventInfo)
 process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T*process.shallowEventRun*process.EventInfo)
-
 
 process.schedule = cms.Schedule( process.TkCalPath_StdBunch, 
                                  process.TkCalPath_StdBunch0T,
