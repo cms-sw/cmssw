@@ -90,17 +90,18 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
   {
     vector<TrajectorySeed>::const_iterator seeds = seedInside->begin();
     auto seed = ((*seeds).recHits()).first;
-    auto firstHit = seed->rawId();
+    GEMDetId firstHit(seed->rawId());
     seed++;
-    auto secondHit = seed->rawId();
+    GEMDetId secondHit(seed->rawId());
+    
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
-      auto rawId = (*recHit)->rawId();
-      if(rawId == firstHit or rawId == secondHit) continue;
-      auto etaPartition = GEMGeometry_->etaPartition(rawId);
-      auto superChamber = GEMGeometry_->superChamber(rawId);
+      GEMDetId gemId((*recHit)->rawId());
+      if(gemId == firstHit or gemId == secondHit) continue;
+      
+      auto etaPartition = GEMGeometry_->etaPartition(gemId);
 
-      int chamber = superChamber->id().chamber();
+      int chamber = etaPartition->id().chamber();
       int layer = etaPartition->id().layer();
       int roll = etaPartition->id().roll();
       int nStrips = etaPartition->nstrips();
@@ -126,18 +127,21 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
   {
     vector<TrajectorySeed>::const_iterator seeds = seedOutside->begin();
     auto seed = ((*seeds).recHits()).first;
-    auto firstHit = seed->rawId();
+    GEMDetId firstHit(seed->rawId());
     seed++;
-    auto secondHit = seed->rawId();
+    GEMDetId secondHit(seed->rawId());
     
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
-      auto rawId = (*recHit)->rawId();
-      if(rawId == firstHit or rawId == secondHit) continue;
-      auto etaPartition = GEMGeometry_->etaPartition(rawId);
-      auto superChamber = GEMGeometry_->superChamber(rawId);
+      GEMDetId gemId((*recHit)->rawId());
+      if (gemId == firstHit or gemId == secondHit) continue;
+      if (gemId.chamber() < firstHit.chamber() and gemId.chamber() > secondHit.chamber())
+	continue;
+      
+      cout <<"gemId "<< GEMDetId(gemId)<< endl;
+      auto etaPartition = GEMGeometry_->etaPartition(gemId);
 
-      int chamber = superChamber->id().chamber();
+      int chamber = etaPartition->id().chamber();
       int layer = etaPartition->id().layer();
       int roll = etaPartition->id().roll();
       int nStrips = etaPartition->nstrips();
@@ -154,7 +158,7 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       
       if((*recHit)->isValid()) gem_vfat_eff[iChamber]->Fill(vfat);
       else gem_vfat_tot[iChamber]->Fill(vfat);
-       
+      
     }
   }
 }

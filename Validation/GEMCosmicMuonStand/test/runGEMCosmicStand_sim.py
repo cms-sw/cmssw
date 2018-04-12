@@ -75,11 +75,37 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Cosmic Muon generator
-process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
-process.generator.TrackerOnly = True
-process.generator.MinP = 100
-process.generator.RadiusOfTarget = cms.double(100.0)#in cm
-process.generator.ZDistOfTarget = cms.double(100.0) #in cm
+#process.load("Configuration.Generator.UndergroundCosmicMu_cfi")
+#process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
+#process.generator.RadiusOfTarget = cms.double(120.0)#in mm
+#process.generator.ZDistOfTarget = cms.double(280.0)
+#process.generator.MinP = 100
+#process.generator.ElossScaleFactor = 0.0
+#process.generator.TrackerOnly = True
+#process.generator.PlugVz = cms.double(0.0) #[mm]
+#process.generator.RhoAir = cms.double(0.0)
+#process.generator.RhoWall = cms.double(0.0)
+#process.generator.RhoRock = cms.double(0.0)
+#process.generator.RhoClay = cms.double(0.0)
+#process.generator.RhoPlug = cms.double(0.0)
+#process.generator.ClayWidth = cms.double(0.0)
+#process.generator.Verbosity = cms.bool(True)
+
+process.generator = cms.EDProducer("CosmicGun",
+    AddAntiParticle = cms.bool(False),
+    PGunParameters = cms.PSet(
+        MaxEta = cms.double(0.1),
+        MaxPhi = cms.double(3.14159265359),
+        MaxPt = cms.double(100.01),
+        MinEta = cms.double(-0.1),
+        MinPhi = cms.double(-3.14159265359),
+        MinPt = cms.double(3),
+        PartID = cms.vint32(-13)
+    ),
+    Verbosity = cms.untracked.int32(0),
+    firstRun = cms.untracked.uint32(1),
+    psethack = cms.string('single mu pt 100')
+)
 
 process.RandomNumberGeneratorService.generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
@@ -102,8 +128,7 @@ process.mix = cms.EDProducer("MixingModule",
             crossingFrames = cms.untracked.vstring('MuonGEMHits'),
             input = cms.VInputTag(cms.InputTag("g4SimHits","MuonGEMHits")),
             type = cms.string('PSimHit'),
-            subdets = cms.vstring('MuonGEMHits'),
-            
+            subdets = cms.vstring('MuonGEMHits'),            
             )
         ),
     mixTracks = cms.PSet(
@@ -144,7 +169,10 @@ process.load('Validation.GEMCosmicMuonStand.GEMCosmicMuonStandSim_cff')
 
 process.rawDataCollector.RawCollectionList = cms.VInputTag(cms.InputTag("gemPacker"))
 # Path and EndPath definitions
-process.generation_step = cms.Path(process.generator+process.pgen)
+process.genParticles.src = cms.InputTag("generator:unsmeared")
+process.g4SimHits.HepMCProductLabel = cms.InputTag("generator:unsmeared")
+process.g4SimHits.Generator.HepMCProductLabel = cms.InputTag("generator:unsmeared")
+process.generation_step = cms.Path(process.generator+process.genParticles)
 process.simulation_step = cms.Path(process.psim)
 process.digi2raw_step = cms.Path(process.gemPacker+process.rawDataCollector)
 process.raw2digi_step = cms.Path(process.muonGEMDigis)
