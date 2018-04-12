@@ -22,6 +22,9 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     RPCEnable = cms.bool(True),
     GEMEnable = cms.bool(False),
 
+    # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
+    Era = cms.string('Run2_2018'),
+
     # BX
     MinBX    = cms.int32(-3),
     MaxBX    = cms.int32(+3),
@@ -73,11 +76,12 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 
     # Sector processor track-building parameters
     spTBParams16 = cms.PSet(
-        ThetaWindow    = cms.int32(8),
-        ThetaWindowRPC = cms.int32(8),
-        UseSingleHits  = cms.bool(False),
-        BugSt2PhDiff   = cms.bool(False),
-        BugME11Dupes   = cms.bool(False),
+        ThetaWindow      = cms.int32(8),
+        ThetaWindowZone0 = cms.int32(4),
+        UseSingleHits    = cms.bool(False),
+        BugSt2PhDiff     = cms.bool(False),
+        BugME11Dupes     = cms.bool(False),
+        BugAmbigThetaWin = cms.bool(False),
     ),
 
     # Sector processor ghost-cancellation parameters
@@ -90,7 +94,6 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 
     # Sector processor pt-assignment parameters
     spPAParams16 = cms.PSet(
-        PtLUTVersion    = cms.int32(7),  ## v5 for 2016, v6 for early 2017, v7 starting ~June 5 - AWB 02.06.17
         ReadPtLUTFile   = cms.bool(False),
         FixMode15HighPt = cms.bool(True),
         Bug9BitDPhi     = cms.bool(False),
@@ -109,3 +112,12 @@ simEmtfDigisData = simEmtfDigisMC.clone(
 )
 
 simEmtfDigis = simEmtfDigisMC.clone()
+
+
+## Era: Run2_2016
+#from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+#stage2L1Trigger.toModify(simEmtfDigis, RPCEnable = cms.bool(False), Era = cms.string('Run2_2016'))
+
+## Era: Run2_2017
+#from Configuration.Eras.Modifier_stage2L1Trigger_2017_cff import stage2L1Trigger_2017
+#stage2L1Trigger_2017.toModify(simEmtfDigis, RPCEnable = cms.bool(True), Era = cms.string('Run2_2017'))

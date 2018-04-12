@@ -13,15 +13,16 @@ void SectorProcessor::configure(
     const GeometryTranslator* tp_geom,
     const ConditionHelper* cond,
     const SectorProcessorLUT* lut,
-    PtAssignmentEngine** pt_assign_engine,
+    PtAssignmentEngine* pt_assign_engine,
     int verbose, int endcap, int sector,
     int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
+    std::string era,
     const std::vector<int>& zoneBoundaries, int zoneOverlap,
     bool includeNeighbor, bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
     const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-    int thetaWindow, int thetaWindowRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes,
+    int thetaWindow, int thetaWindowZone0, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin,
     int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
-    int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7
+    bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7
 ) {
   if (not(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP))
     { edm::LogError("L1T") << "emtf::MIN_ENDCAP = " << emtf::MIN_ENDCAP 
@@ -56,6 +57,8 @@ void SectorProcessor::configure(
   bxShiftRPC_  = bxShiftRPC;
   bxShiftGEM_  = bxShiftGEM;
 
+  era_ = era;
+
   zoneBoundaries_     = zoneBoundaries;
   zoneOverlap_        = zoneOverlap;
   includeNeighbor_    = includeNeighbor;
@@ -69,17 +72,17 @@ void SectorProcessor::configure(
   useSymPatterns_     = useSymPatterns;
 
   thetaWindow_        = thetaWindow;
-  thetaWindowRPC_     = thetaWindowRPC;
+  thetaWindowZone0_   = thetaWindowZone0;
   useSingleHits_      = useSingleHits;
   bugSt2PhDiff_       = bugSt2PhDiff;
   bugME11Dupes_       = bugME11Dupes;
+  bugAmbigThetaWin_   = bugAmbigThetaWin;
 
   maxRoadsPerZone_    = maxRoadsPerZone;
   maxTracks_          = maxTracks;
   useSecondEarliest_  = useSecondEarliest;
   bugSameSectorPt0_   = bugSameSectorPt0;
 
-  ptLUTVersion_       = ptLUTVersion;
   readPtLUTFile_      = readPtLUTFile;
   fixMode15HighPt_    = fixMode15HighPt;
   bug9BitDPhi_        = bug9BitDPhi;
@@ -89,15 +92,11 @@ void SectorProcessor::configure(
   promoteMode7_       = promoteMode7;
 }
 
-void SectorProcessor::set_pt_lut_version(unsigned pt_lut_version) {
-  ptLUTVersion_ = pt_lut_version;
-  // std::cout << "  * In endcap " << endcap_ << ", sector " << sector_ << ", set ptLUTVersion_ to " << ptLUTVersion_ << std::endl;
-}
-
 // Refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
 void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
-
-  // std::cout << "Running configure_by_fw_version with version " << fw_version << std::endl;
+  if (verbose_ > 0) {
+    std::cout << "Configure SectorProcessor with fw_version: " << fw_version << std::endl;
+  }
 
   if (fw_version == 0 || fw_version == 123456)  // fw_version '123456' is from the fake conditions
     return;
@@ -352,8 +351,8 @@ void SectorProcessor::process_single_bx(
   angle_calc.configure(
       verbose_, endcap_, sector_, bx,
       bxWindow_,
-      thetaWindow_, thetaWindowRPC_,
-      bugME11Dupes_
+      thetaWindow_, thetaWindowZone0_,
+      bugME11Dupes_, bugAmbigThetaWin_
   );
 
   BestTrackSelection btrack_sel;
@@ -373,9 +372,9 @@ void SectorProcessor::process_single_bx(
 
   PtAssignment pt_assign;
   pt_assign.configure(
-      *pt_assign_engine_,
+      pt_assign_engine_,
       verbose_, endcap_, sector_, bx,
-      ptLUTVersion_, readPtLUTFile_, fixMode15HighPt_,
+      readPtLUTFile_, fixMode15HighPt_,
       bug9BitDPhi_, bugMode7CLCT_, bugNegPt_,
       bugGMTPhi_, promoteMode7_
   );
@@ -418,6 +417,11 @@ void SectorProcessor::process_single_bx(
     // They include the extra ones that are not used in track building and the subsequent steps.
     prim_sel.merge_no_truncate(selected_csc_map, selected_rpc_map, selected_gem_map, inclusive_selected_prim_map);
     prim_conv.process(inclusive_selected_prim_map, inclusive_conv_hits);
+
+    // Clear the input maps to save memory
+    selected_csc_map.clear();
+    selected_rpc_map.clear();
+    selected_gem_map.clear();
   }
 
   // Detect patterns in all zones, find 3 best roads in each zone
