@@ -1,87 +1,114 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
-#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
+#include "TMVA/Reader.h"
+#include "TMVA/MethodBDT.h"
 
 using namespace pat;
 
-SoftMuonMvaEstimator::SoftMuonMvaEstimator():
-	tmvaReader_("!Color:!Silent:Error"),
-	initialized_(false),
-	mva_(0)
-{}
-
-void SoftMuonMvaEstimator::initialize(std::string weightsfile)
-{
-	if (initialized_) return;
-	tmvaReader_.AddVariable("segComp",			&segmentCompatibility_);
-	tmvaReader_.AddVariable("chi2LocMom",			&chi2LocalMomentum_);
-	tmvaReader_.AddVariable("chi2LocPos",			&chi2LocalPosition_);
-	tmvaReader_.AddVariable("glbTrackTailProb",		&glbTrackProbability_);
-	tmvaReader_.AddVariable("iValFrac",			&iValidFraction_);
-	tmvaReader_.AddVariable("LWH",				&layersWithMeasurement_);
-	tmvaReader_.AddVariable("kinkFinder",			&trkKink_);
-	tmvaReader_.AddVariable("TMath::Log(2+glbKinkFinder)",	&log2PlusGlbKink_);
-	tmvaReader_.AddVariable("timeAtIpInOutErr",		&timeAtIpInOutErr_);
-	tmvaReader_.AddVariable("outerChi2",			&outerChi2_);
-	tmvaReader_.AddVariable("innerChi2",			&innerChi2_);
-	tmvaReader_.AddVariable("trkRelChi2",			&trkRelChi2_);
-	tmvaReader_.AddVariable("vMuonHitComb",			&vMuonHitComb_);
-	tmvaReader_.AddVariable("Qprod",			&qProd_);
-
-	tmvaReader_.AddSpectator("pID",			       	&pID_);
-	tmvaReader_.AddSpectator("pt",				&pt_);
-	tmvaReader_.AddSpectator("eta",				&eta_);
-	tmvaReader_.AddSpectator("MomID",			&momID_);
-
-	tmvaReader_.BookMVA("BDT", weightsfile);
-	initialized_ = true;	
+namespace {
+  constexpr char softmuon_mva_name[] = "BDT";
 }
 
-void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
+SoftMuonMvaEstimator::SoftMuonMvaEstimator(const std::string& weightsfile)
 {
-	if (not initialized_)
-		throw cms::Exception("FatalError") << "SoftMuonMVA is not initialized";
+  TMVA::Reader tmvaReader("!Color:!Silent:Error");
+  tmvaReader.AddVariable("segComp",			&segmentCompatibility_);
+  tmvaReader.AddVariable("chi2LocMom",			&chi2LocalMomentum_);
+  tmvaReader.AddVariable("chi2LocPos",			&chi2LocalPosition_);
+  tmvaReader.AddVariable("glbTrackTailProb",		&glbTrackProbability_);
+  tmvaReader.AddVariable("iValFrac",			&iValidFraction_);
+  tmvaReader.AddVariable("LWH",				&layersWithMeasurement_);
+  tmvaReader.AddVariable("kinkFinder",			&trkKink_);
+  tmvaReader.AddVariable("TMath::Log(2+glbKinkFinder)",	&log2PlusGlbKink_);
+  tmvaReader.AddVariable("timeAtIpInOutErr",		&timeAtIpInOutErr_);
+  tmvaReader.AddVariable("outerChi2",			&outerChi2_);
+  tmvaReader.AddVariable("innerChi2",			&innerChi2_);
+  tmvaReader.AddVariable("trkRelChi2",			&trkRelChi2_);
+  tmvaReader.AddVariable("vMuonHitComb",		&vMuonHitComb_);
+  tmvaReader.AddVariable("Qprod",			&qProd_);
+
+  tmvaReader.AddSpectator("pID",			&pID_);
+  tmvaReader.AddSpectator("pt",				&pt_);
+  tmvaReader.AddSpectator("eta",			&eta_);
+  tmvaReader.AddSpectator("MomID",			&momID_);
+
+  std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(softmuon_mva_name, weightsfile.c_str()) );
+  gbrForest_.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(softmuon_mva_name) ) ) );
+}
+
+SoftMuonMvaEstimator::~SoftMuonMvaEstimator() { }
+
+namespace {
+  enum inputIndexes {
+    kSegmentCompatibility,
+    kChi2LocalMomentum,
+    kChi2LocalPosition,
+    kGlbTrackProbability,
+    kIValidFraction,
+    kLayersWithMeasurement,
+    kTrkKink,
+    kLog2PlusGlbKink,
+    kTimeAtIpInOutErr,
+    kOuterChi2,
+    kInnerChi2,
+    kTrkRelChi2,
+    kVMuonHitComb,
+    kQProd,
+    kPID,
+    kPt,
+    kEta,
+    kMomID,
+    kLast
+  };
+}
+
+float SoftMuonMvaEstimator::computeMva(const pat::Muon& muon) const
+{
+	float var[kLast]{};
 
 	reco::TrackRef gTrack = muon.globalTrack();
 	reco::TrackRef iTrack = muon.innerTrack();
 	reco::TrackRef oTrack = muon.outerTrack();
 
-	if(!(muon.innerTrack().isNonnull() and 
-	     muon.outerTrack().isNonnull() and 
+	if(!(muon.innerTrack().isNonnull() and
+	     muon.outerTrack().isNonnull() and
 	     muon.globalTrack().isNonnull()))
 	{
-	  mva_ = -1; 
-	  return;
+	  return -1;
 	}
 
 	//VARIABLE EXTRACTION
-	pt_ = muon.pt();
-	eta_ = muon.eta();
-	dummy_ = -1;
-	momID_ = dummy_;
-	pID_ = dummy_;
+	var[kPt] = muon.pt();
+	var[kEta] = muon.eta();
+	var[kMomID] = -1;
+	var[kPID] = -1;
 
+	var[kChi2LocalMomentum] = muon.combinedQuality().chi2LocalMomentum;
+	var[kChi2LocalPosition] = muon.combinedQuality().chi2LocalPosition;
+	var[kGlbTrackProbability] =  muon.combinedQuality().glbTrackProbability;
+	var[kTrkRelChi2] =  muon.combinedQuality().trkRelChi2;
 
-	chi2LocalMomentum_ = muon.combinedQuality().chi2LocalMomentum;
-	chi2LocalPosition_ = muon.combinedQuality().chi2LocalPosition;
-	glbTrackProbability_ =  muon.combinedQuality().glbTrackProbability;
-	trkRelChi2_ =  muon.combinedQuality().trkRelChi2;
+	var[kTrkKink] = muon.combinedQuality().trkKink;
+	var[kLog2PlusGlbKink] =  TMath::Log(2+muon.combinedQuality().glbKink);
+	var[kSegmentCompatibility] = muon.segmentCompatibility();
 
-	trkKink_ = muon.combinedQuality().trkKink;
-	log2PlusGlbKink_ =  TMath::Log(2+muon.combinedQuality().glbKink);
-	segmentCompatibility_ = muon.segmentCompatibility();
-
-	timeAtIpInOutErr_ = muon.time().timeAtIpInOutErr;
+	var[kTimeAtIpInOutErr] = muon.time().timeAtIpInOutErr;
 
 	//TRACK RELATED VARIABLES
 	
-	iValidFraction_ =  iTrack->validFraction();
-	innerChi2_ =  iTrack->normalizedChi2();
-	layersWithMeasurement_ = iTrack->hitPattern().trackerLayersWithMeasurement();
+	var[kIValidFraction] =  iTrack->validFraction();
+	var[kInnerChi2] =  iTrack->normalizedChi2();
+	var[kLayersWithMeasurement] = iTrack->hitPattern().trackerLayersWithMeasurement();
 
-	outerChi2_ = oTrack->normalizedChi2();
+	var[kOuterChi2] = oTrack->normalizedChi2();
 
-	qProd_ =  iTrack->charge()*oTrack->charge();
+	var[kQProd] =  iTrack->charge()*oTrack->charge();
 
 	//vComb Calculation
 
@@ -91,7 +118,7 @@ void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
 	std::vector<int> fvRPChits = {0,0,0,0};
 	std::vector<int> fvCSChits = {0,0,0,0};
 
-	vMuonHitComb_ = 0;
+	var[kVMuonHitComb] = 0;
 
 	for (int i=0;i<gMpattern.numberOfAllHits(reco::HitPattern::TRACK_HITS);i++){
 
@@ -110,23 +137,24 @@ void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
 
 	for (unsigned int station = 0; station < 4; ++station) {
 
-	  vMuonHitComb_ += (fvDThits[station])/2.;
-	  vMuonHitComb_ += fvRPChits[station];
+	  var[kVMuonHitComb] += (fvDThits[station])/2.;
+	  var[kVMuonHitComb] += fvRPChits[station];
 
 	  if (fvCSChits[station] > 6){
-	    vMuonHitComb_ += 6; 
+	    var[kVMuonHitComb] += 6;
 	  }else{
-	    vMuonHitComb_ += fvCSChits[station];
+	    var[kVMuonHitComb] += fvCSChits[station];
 	  }
 
 	}
 
-	if(chi2LocalMomentum_ < 5000 and chi2LocalPosition_ < 2000 and
-	   glbTrackProbability_ < 5000 and trkKink_ < 900 and
-	   log2PlusGlbKink_ < 50 and timeAtIpInOutErr_ < 4 and
-	   outerChi2_ < 1000 and innerChi2_ < 10 and trkRelChi2_ < 3) 
+	if(var[kChi2LocalMomentum] < 5000 and var[kChi2LocalPosition] < 2000 and
+	   var[kGlbTrackProbability] < 5000 and var[kTrkKink] < 900 and
+	   var[kLog2PlusGlbKink] < 50 and var[kTimeAtIpInOutErr] < 4 and
+	   var[kOuterChi2] < 1000 and var[kInnerChi2] < 10 and var[kTrkRelChi2] < 3)
 	{
-	  mva_ = tmvaReader_.EvaluateMVA("BDT");
-	}else{ mva_ = -1; }
-
+	  return gbrForest_->GetAdaBoostClassifier(var);
+	} else {
+	  return -1;
+        }
 }
