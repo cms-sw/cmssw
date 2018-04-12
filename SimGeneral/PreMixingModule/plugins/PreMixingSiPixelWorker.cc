@@ -1,20 +1,25 @@
-// File: DataMixingSiPixelWorker.cc
-// Description:  see DataMixingSiPixelMCDigiWorker.h
-// Author:  Mike Hildreth, University of Notre Dame
-//
-//--------------------------------------------
-
-#include <map>
-#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-//
-//
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+//Data Formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "CondFormats/DataRecord/interface/SiPixelDynamicInefficiencyRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -26,37 +31,116 @@
 
 #include "CLHEP/Random/RandFlat.h"
 
-#include "DataMixingSiPixelMCDigiWorker.h"
+#include "PreMixingWorker.h"
+
+#include <map>
+#include <memory>
+
+namespace edm {
+  class ModuleCallingContext;
+
+  class PreMixingSiPixelWorker: public PreMixingWorker {
+  public:
+    PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC);
+    ~PreMixingSiPixelWorker() override = default;
+
+    void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+    void addSignals(edm::Event const& e, edm::EventSetup const& es) override;
+    void addPileups(int bcr, edm::EventPrincipal const&, int EventId, edm::EventSetup const& es, ModuleCallingContext const*) override;
+    void put(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) override;
+
+  private:
+    void setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bs); //this sets pu_scale
+
+    void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
+
+    //
+    // PixelEfficiencies struct
+    //
+    /**
+     * Internal use only.
+     */
+    struct PixelEfficiencies {
+      PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
+      bool FromConfig; // If true read from Config, otherwise use Database                                                    
+
+      double theInstLumiScaleFactor;
+      std::vector<double> pu_scale; // in config: 0-3 BPix, 4-5 FPix (inner, outer)                                           
+      std::vector<std::vector<double> > thePUEfficiency; // Instlumi dependent efficiency                                     
+      double thePixelEfficiency[20];     // Single pixel effciency
+      double thePixelColEfficiency[20];  // Column effciency
+      double thePixelChipEfficiency[20]; // ROC efficiency
+      std::vector<double> theLadderEfficiency_BPix[20]; // Ladder efficiency
+      std::vector<double> theModuleEfficiency_BPix[20]; // Module efficiency
+      double theInnerEfficiency_FPix[20]; // Fpix inner module efficiency
+      double theOuterEfficiency_FPix[20]; // Fpix outer module efficiency
+      unsigned int FPixIndex;         // The Efficiency index for FPix Disks
+      // Read factors from DB and fill containers
+      std::map<uint32_t, double> PixelGeomFactors;
+      std::map<uint32_t, double> ColGeomFactors;
+      std::map<uint32_t, double> ChipGeomFactors;
+      std::map<uint32_t, size_t > iPU;
+
+      void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
+      bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);
+    
+    };
+    edm::InputTag pixeldigi_collectionSig_ ; // secondary name given to collection of SiPixel digis
+    edm::InputTag pixeldigi_collectionPile_ ; // secondary name given to collection of SiPixel digis
+    std::string PixelDigiCollectionDM_  ; // secondary name to be given to new SiPixel digis
+
+    edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > PixelDigiToken_ ;  // Token to retrieve information 
+    edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > PixelDigiPToken_ ;  // Token to retrieve information 
+
+    edm::ESHandle<TrackerGeometry> pDD;
+
+    // Get Dynamic Inefficiency scale factors from DB                                                                          
+    edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
 
 
-using namespace std;
+    // 
+    // Internal typedefs
 
-namespace edm
-{
+    typedef int Amplitude;
+    typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
+    typedef signal_map_type::iterator          signal_map_iterator; // from Digi.Skel.  
+    typedef signal_map_type::const_iterator    signal_map_const_iterator; // from Digi.Skel.  
+    typedef std::map<uint32_t, signal_map_type> signalMaps;
+      
+    // Contains the accumulated hit info.
+    signalMaps _signal;
 
-  // Virtual constructor
+    typedef std::multimap<int, PixelDigi> OneDetectorMap;   // maps by pixel ID for later combination - can have duplicate pixels
+    typedef std::map<uint32_t, OneDetectorMap> SiGlobalIndex; // map to all data for each detector ID
 
-  //  DataMixingSiPixelMCDigiWorker::DataMixingSiPixelMCDigiWorker() { } 
+    SiGlobalIndex SiHitStorage_;
+
+    const std::string geometryType_;
+
+    //-- Allow for upgrades        
+    const int NumberOfBarrelLayers;     // Default = 3  
+    const int NumberOfEndcapDisks;      // Default = 2  
+
+    const bool AddPixelInefficiency;        // bool to read in inefficiencies    
+
+    PixelEfficiencies pixelEff_;
+
+    bool FirstCall_;
+
+  };
 
   // Constructor 
-  DataMixingSiPixelMCDigiWorker::DataMixingSiPixelMCDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
-    label_(ps.getParameter<std::string>("Label")),
-    geometryType_(ps.getParameter<std::string>("GeometryType")),
+  PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC): 
+    geometryType_(ps.getParameter<std::string>("PixGeometryType")),
     // get external parameters:
     // To account for upgrade geometries do not assume the number 
     // of layers or disks.
     NumberOfBarrelLayers(ps.exists("NumPixelBarrel")?ps.getParameter<int>("NumPixelBarrel"):3),
     NumberOfEndcapDisks(ps.exists("NumPixelEndcap")?ps.getParameter<int>("NumPixelEndcap"):2),
-    //theInstLumiScaleFactor(ps.getParameter<double>("theInstLumiScaleFactor")), //For dynamic inefficiency PU scaling
-    //bunchScaleAt25(ps.getParameter<double>("bunchScaleAt25")), //For dynamic inefficiency bunchspace scaling
     // Control the pixel inefficiency
     AddPixelInefficiency(ps.getParameter<bool>("AddPixelInefficiency")),
     pixelEff_(ps, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks)
   {                                                         
-
-    // get the subdetector names
-    //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
-
     // declare the products to produce
 
     pixeldigi_collectionSig_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
@@ -66,30 +150,23 @@ namespace edm
     PixelDigiToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionSig_);
     PixelDigiPToken_ = iC.consumes<edm::DetSetVector<PixelDigi> >(pixeldigi_collectionPile_);
 
+    producer.produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
+
     // clear local storage for this event                                                                     
     SiHitStorage_.clear();
 
     FirstCall_ = true;
 
   }
-	       
-
-  // Virtual destructor needed.
-  DataMixingSiPixelMCDigiWorker::~DataMixingSiPixelMCDigiWorker() { 
-  }  
 
   // Need an event initialization
 
-  void DataMixingSiPixelMCDigiWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {	
-
+  void PreMixingSiPixelWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {	
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD); 
-    //edm::ESHandle<TrackerTopology> tTopoHand;
-    //iSetup.get<IdealGeometryRecord>().get(tTopoHand);
-    //const TrackerTopology *tTopo=tTopoHand.product();
   }					   
 
 
-  DataMixingSiPixelMCDigiWorker::PixelEfficiencies::PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks) {
+  PreMixingSiPixelWorker::PixelEfficiencies::PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks) {
   // pixel inefficiency
   // Don't use Hard coded values, read inefficiencies in from DB/python config or don't use any
   int NumberOfTotLayers = NumberOfBarrelLayers + NumberOfEndcapDisks;
@@ -214,7 +291,7 @@ namespace edm
 }
 
 // Read DynIneff Scale factors from DB
-void DataMixingSiPixelMCDigiWorker::init_DynIneffDB(const edm::EventSetup& es, const unsigned int& bunchspace){
+void PreMixingSiPixelWorker::init_DynIneffDB(const edm::EventSetup& es, const unsigned int& bunchspace){
   if (AddPixelInefficiency&&!pixelEff_.FromConfig) {
     if (bunchspace == 50) es.get<SiPixelDynamicInefficiencyRcd>().get("50ns",SiPixelDynamicInefficiency_);
     else es.get<SiPixelDynamicInefficiencyRcd>().get(SiPixelDynamicInefficiency_);
@@ -222,7 +299,7 @@ void DataMixingSiPixelMCDigiWorker::init_DynIneffDB(const edm::EventSetup& es, c
   }
 }
 
-void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::ESHandle<TrackerGeometry>& geom, const edm::ESHandle<SiPixelDynamicInefficiency>& SiPixelDynamicInefficiency) {
+void PreMixingSiPixelWorker::PixelEfficiencies::init_from_db(const edm::ESHandle<TrackerGeometry>& geom, const edm::ESHandle<SiPixelDynamicInefficiency>& SiPixelDynamicInefficiency) {
 
   theInstLumiScaleFactor = SiPixelDynamicInefficiency->gettheInstLumiScaleFactor();
   const std::map<uint32_t, double>& PixelGeomFactorsDB = SiPixelDynamicInefficiency->getPixelGeomFactors();
@@ -265,7 +342,7 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   pu_scale.resize(thePUEfficiency.size());
 }
 
-bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& detid, const DetId& db_id, const std::vector<uint32_t >& DetIdmasks) {
+bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, const DetId& db_id, const std::vector<uint32_t >& DetIdmasks) {
   if (detid.subdetId() != db_id.subdetId()) return false;
   for (size_t i=0; i<DetIdmasks.size(); ++i) {
     DetId maskid = DetId(DetIdmasks.at(i));
@@ -279,10 +356,10 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 
 
 
-  void DataMixingSiPixelMCDigiWorker::addSiPixelSignals(const edm::Event &e) { 
+  void PreMixingSiPixelWorker::addSignals(edm::Event const& e, edm::EventSetup const& es) { 
     // fill in maps of hits
 
-    LogDebug("DataMixingSiPixelMCDigiWorker")<<"===============> adding MC signals for "<<e.id();
+    LogDebug("PreMixingSiPixelWorker")<<"===============> adding MC signals for "<<e.id();
 
     Handle< edm::DetSetVector<PixelDigi> >  input;
 
@@ -293,7 +370,7 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
       for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-	LogDebug("DataMixingSiPixelMCDigiWorker")  << "Processing DetID " << DSViter->id;
+	LogDebug("PreMixingSiPixelWorker")  << "Processing DetID " << DSViter->id;
 #endif
 
 	uint32_t detID = DSViter->id;
@@ -315,32 +392,26 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 
 
 
-  void DataMixingSiPixelMCDigiWorker::addSiPixelPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
-                                                  ModuleCallingContext const* mcc) {
+  void PreMixingSiPixelWorker::addPileups(int bcr, EventPrincipal const& ep, int eventNr,
+                                          edm::EventSetup const& es, ModuleCallingContext const* mcc) {
   
-    LogDebug("DataMixingSiPixelMCDigiWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+    LogDebug("PreMixingSiPixelWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     std::shared_ptr<Wrapper<edm::DetSetVector<PixelDigi> >  const> inputPTR =
-      getProductByTag<edm::DetSetVector<PixelDigi> >(*ep, pixeldigi_collectionPile_, mcc);
+      getProductByTag<edm::DetSetVector<PixelDigi> >(ep, pixeldigi_collectionPile_, mcc);
 
     if(inputPTR ) {
 
-      const edm::DetSetVector<PixelDigi>  *input = const_cast< edm::DetSetVector<PixelDigi> * >(inputPTR->product());
-
-
-
-      //   Handle< edm::DetSetVector<PixelDigi> >  input;
-
-      //   if( e->getByLabel(pixeldigi_collectionPile_,input) ) {
+      const edm::DetSetVector<PixelDigi>  *input = inputPTR->product();
 
       //loop on all detsets (detectorIDs) inside the input collection
       edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
       for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-	LogDebug("DataMixingSiPixelMCDigiWorker")  << "Pileups: Processing DetID " << DSViter->id;
+	LogDebug("PreMixingSiPixelWorker")  << "Pileups: Processing DetID " << DSViter->id;
 #endif
 
 	uint32_t detID = DSViter->id;
@@ -383,7 +454,7 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 
 
  
-  void DataMixingSiPixelMCDigiWorker::putSiPixel(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> &ps, int &bs) {
+  void PreMixingSiPixelWorker::put(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) {
 
     // collection of Digis to put in the event
 
@@ -427,8 +498,6 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	    else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 
 	    Signals.insert( std::make_pair(formerPixel, ADCSum));
-	    //PixelDigi aHit(formerPixel, ADCSum);
-	    //SPD.push_back( aHit );	  
 	  }
 	  // save pointers for next iteration
 	  formerPixel = currentPixel;
@@ -440,7 +509,6 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	  if (ADCSum > 511) ADCSum = 255;
 	  else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 	  Signals.insert( std::make_pair(formerPixel, ADCSum));
-	  //SPD.push_back( PixelDigi(formerPixel, ADCSum) );	  
 	} 
 
       }// end of loop over one detector
@@ -451,7 +519,7 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
     } // end of big loop over all detector IDs
 
     // put the collection of digis in the event   
-    LogInfo("DataMixingSiPixelMCDigiWorker") << "total # Merged Pixels: " << _signal.size() ;
+    LogInfo("PreMixingSiPixelWorker") << "total # Merged Pixels: " << _signal.size() ;
 
     // Now, we have to run Lumi-Dependent efficiency calculation on the merged pixels.
     // This is the only place where we have the PreMixed pileup information so that we can calculate
@@ -510,7 +578,6 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	      pixelEfficiency  = pixelEff_.thePixelEfficiency[layerIndex-1];
 	      columnEfficiency = pixelEff_.thePixelColEfficiency[layerIndex-1];
 	      chipEfficiency   = pixelEff_.thePixelChipEfficiency[layerIndex-1];
-	      //std::cout <<"Using BPix columnEfficiency = "<<columnEfficiency<< " for layer = "<<layerIndex <<"\n";
 	      // This should never happen, but only check if it is not an upgrade geometry
 	      if (NumberOfBarrelLayers==3){
 		if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
@@ -530,12 +597,9 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	      unsigned int diskIndex=tTopo->layer(detID)+pixelEff_.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
 	      unsigned int panelIndex=tTopo->pxfPanel(detID);
 	      unsigned int moduleIndex=tTopo->pxfModule(detID);
-	      //if (pixelEff_.FPixIndex>diskIndex-1){throw cms::Exception("Configuration") <<"SiPixelDigitizer is using the wrong efficiency value. index = "
-	      //                                                                       <<diskIndex-1<<" , MinIndex = "<<pixelEff_.FPixIndex<<" ... "<<tTopo->pxfDisk(detID);}
 	      pixelEfficiency  = pixelEff_.thePixelEfficiency[diskIndex-1];
 	      columnEfficiency = pixelEff_.thePixelColEfficiency[diskIndex-1];
 	      chipEfficiency   = pixelEff_.thePixelChipEfficiency[diskIndex-1];
-	      //std::cout <<"Using FPix columnEfficiency = "<<columnEfficiency<<" for Disk = "<< tTopo->pxfDisk(detID)<<"\n";
 	      // Sometimes the forward pixels have wrong size,
 	      // this crashes the index conversion, so exit, but only check if it is not an upgrade geometry
 	      if (NumberOfBarrelLayers==3){  // whether it is the present or the phase 1 detector can be checked using GeomDetEnumerators::SubDetector
@@ -598,14 +662,12 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
   
 	  // Delete some ROC hits.
 	  for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
-	    //float rand  = RandFlat::shoot();
 	    float rand  = CLHEP::RandFlat::shoot(engine);
 	    if( rand > chipEfficiency ) chips[iter->first]=0;
 	  }
   
 	  // Delete some Dcol hits.
 	  for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
-	    //float rand  = RandFlat::shoot();
 	    float rand  = CLHEP::RandFlat::shoot(engine);
 	    if( rand > columnEfficiency ) columns[iter->first]=0;
 	  }
@@ -614,7 +676,6 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	  // Loop over hit pixels, amplitude in electrons, channel = coded row,col
 	  for(signal_map_iterator i = theSignal.begin();i != theSignal.end(); ++i) {
     
-	    //    int chan = i->first;
 	    std::pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
 	    int row = ip.first;  // X in row
 	    int col = ip.second; // Y is in col
@@ -624,7 +685,6 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	    //dcol in mod
 	    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
     
-	    //float rand  = RandFlat::shoot();
 	    float rand  = CLHEP::RandFlat::shoot(engine);
 	    if( chips[chipIndex]==0 || columns[dColInDet]==0
 		|| rand>pixelEfficiency ) {
@@ -657,11 +717,7 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
     SiHitStorage_.clear();
   }
 
-void DataMixingSiPixelMCDigiWorker::setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bunchSpacing) {
-
-  //double bunchScale=1.0;
-  //if (bunchSpacing==25) bunchScale=bunchScaleAt25;
-  
+void PreMixingSiPixelWorker::setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bunchSpacing) {
   int p = -1;
   for ( unsigned int i=0; i<ps.size(); i++) 
     if ( ps[i].getBunchCrossing() == 0 ) 
@@ -682,3 +738,6 @@ void DataMixingSiPixelMCDigiWorker::setPileupInfo(const std::vector<PileupSummar
 } //this sets pu_scale
 
 } //edm
+
+#include "PreMixingWorkerFactory.h"
+DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, edm::PreMixingSiPixelWorker, "PreMixingSiPixelWorker");
