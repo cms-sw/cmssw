@@ -32,7 +32,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
 		20);
 	_lowHE = ps.getUntrackedParameter<double>("lowHE",
-		20);
+		100);
 	_lowHO = ps.getUntrackedParameter<double>("lowHO",
 		20);
 	_lowHF = ps.getUntrackedParameter<double>("lowHF",
@@ -45,6 +45,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_laserMonCBox = ps.getUntrackedParameter<int>("laserMonCBox");
 	_laserMonDigiOverlap = ps.getUntrackedParameter<int>("laserMonDigiOverlap");
 	_laserMonTS0 = ps.getUntrackedParameter<int>("laserMonTS0");
+	_laserMonThreshold = ps.getUntrackedParameter<double>("laserMonThreshold", 1.e5);
 }
 	
 /* virtual */ void LaserTask::bookHistograms(DQMStore::IBooker &ib,
@@ -218,7 +219,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_cLaserMonSumQ_LS.initialize(_name, 
 		"LaserMonSumQ",
 		new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse)
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_1000000)
 	);
 	_cLaserMonTiming_LS.initialize(_name, 
 		"LaserMonTiming",
@@ -438,7 +439,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		laserMonTiming = laserMonTiming / laserMonTimingWeight;
 	}
 
-	if (laserMonSumQ > 50.) {
+	if (laserMonSumQ > _laserMonThreshold) {
 		_cLaserMonSumQ_LS.fill(_currentLS, laserMonSumQ);
 		_cLaserMonTiming_LS.fill(_currentLS, laserMonTiming);
 	}
@@ -509,7 +510,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 
 		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
-		double aveTS = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
 		_xTimingSum.get(did)+=aveTS;
@@ -605,7 +606,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			continue;
 
 		//double aveTS = hcaldqm::utilities::aveTS_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
-		double aveTS = hcaldqm::utilities::aveTSDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+		double aveTS = hcaldqm::utilities::aveTSDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 		
 		_xSignalSum.get(did)+=sumQ;
 		_xSignalSum2.get(did)+=sumQ*sumQ;
@@ -648,13 +649,11 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vect
 		HcalCalibDetId hcdid(digi.id());
 
 		if ((hcdid.ieta() != _laserMonIEta) || (hcdid.cboxChannel() != _laserMonCBox)) {
-			std::cout << "[debug1] Skipping laserMon digi because ieta=" << hcdid.ieta() << " / cbox=" << hcdid.cboxChannel() << " (iphi=" << hcdid.iphi() << ", samples=" << digi.samples() << ")" << std::endl;
 			continue;
 		}
 
 		unsigned int digiIndex = std::find(_vLaserMonIPhi.begin(), _vLaserMonIPhi.end(), hcdid.iphi()) - _vLaserMonIPhi.begin();
 		if (digiIndex == _vLaserMonIPhi.size()) {
-			std::cout << "[debug2] Skipping laserMonDigi because iphi=" << hcdid.iphi() << std::endl;
 			continue;
 		}		
 
@@ -669,7 +668,6 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vect
 		for (int subindex = 0; subindex < digi.samples() - _laserMonDigiOverlap; ++subindex) {
 			int totalIndex = (digi.samples() - _laserMonDigiOverlap) * digiIndex + subindex;
 			iLaserMonADC[totalIndex] = (digi[subindex].ok() ? digi[subindex].adc() : -1);
-			std::cout << "[debug3] iphi " << hcdid.iphi() << " / digiIndex " << digiIndex << " / subindex " << subindex << " / totalIndex " << totalIndex << " = " << iLaserMonADC[totalIndex] << std::endl;
 		}
 	}
 }
