@@ -8,4 +8,3 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/L1TMuon"/>
 <use name="L1Trigger/L1TMuon"/>
-<use name="root"/>

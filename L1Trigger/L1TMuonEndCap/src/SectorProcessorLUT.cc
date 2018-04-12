@@ -6,6 +6,7 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 SectorProcessorLUT::SectorProcessorLUT() :
@@ -21,6 +22,8 @@ SectorProcessorLUT::~SectorProcessorLUT() {
 void SectorProcessorLUT::read(unsigned pc_lut_version) {
   if (version_ == pc_lut_version)  return;
 
+  edm::LogInfo("L1T") << "EMTF using pc_lut_ver: " << pc_lut_version;
+
   std::string coord_lut_dir = "";
   if      (pc_lut_version == 0)
     coord_lut_dir = "ph_lut_v1";  // All year 2016
@@ -33,14 +36,16 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
 
   std::string coord_lut_path = "L1Trigger/L1TMuon/data/emtf_luts/" + coord_lut_dir + "/";
 
-  // std::cout << "coord_lut_path = " << coord_lut_path << std::endl;
-
   read_file(coord_lut_path+"ph_init_neighbor.txt",     ph_init_neighbor_);
   read_file(coord_lut_path+"ph_disp_neighbor.txt",     ph_disp_neighbor_);
   read_file(coord_lut_path+"th_init_neighbor.txt",     th_init_neighbor_);
   read_file(coord_lut_path+"th_disp_neighbor.txt",     th_disp_neighbor_);
   read_file(coord_lut_path+"th_lut_neighbor.txt",      th_lut_neighbor_);
   read_file(coord_lut_path+"th_corr_lut_neighbor.txt", th_corr_lut_neighbor_);
+
+  std::string cppf_coord_lut_path = "L1Trigger/L1TMuon/data/cppf_luts/angleScale_v1/";
+
+  read_cppf_file(cppf_coord_lut_path, cppf_ph_lut_, cppf_th_lut_);  // cppf filenames are hardcoded in the function
 
   if (ph_init_neighbor_.size() != 2*6*61) {  // [endcap_2][sector_6][chamber_61]
     throw cms::Exception("SectorProcessorLUT")
@@ -77,6 +82,19 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
         << "Expected th_corr_lut_neighbor_ to get " << 2*6*7*128 << " values, "
         << "got " << th_corr_lut_neighbor_.size() << " values.";
   }
+
+  if (cppf_ph_lut_.size() != 2*6*6*6*3*64) {  // [endcap_2][rpc_sector_6][rpc_station_ring_6][rpc_subsector_6][rpc_roll_3][rpc_halfstrip_64]
+    throw cms::Exception("SectorProcessorLUT")
+        << "Expected cppf_ph_lut_ to get " << 2*6*6*6*3*64 << " values, "
+        << "got " << cppf_ph_lut_.size() << " values.";
+  }
+
+  if (cppf_th_lut_.size() != 2*6*6*6*3) {  // [endcap_2][rpc_sector_6][rpc_station_ring_6][rpc_subsector_6][rpc_roll_3]
+    throw cms::Exception("SectorProcessorLUT")
+        << "Expected cppf_th_lut_ to get " << 2*6*6*6*3 << " values, "
+        << "got " << cppf_th_lut_.size() << " values.";
+  }
+
 
   // clct pattern convertion array from CMSSW
   //{0.0, 0.0, -0.60,  0.60, -0.64,  0.64, -0.23,  0.23, -0.21,  0.21, 0.0}
@@ -209,6 +227,30 @@ uint32_t SectorProcessorLUT::get_ph_init_hard(int fw_station, int fw_cscid) cons
   return ph_init_hard_.at(index);
 }
 
+uint32_t SectorProcessorLUT::get_cppf_lut_id(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const {
+  uint32_t iendcap = (rpc_region == -1) ? 1 : 0;
+  uint32_t isector = (rpc_sector - 1);
+  uint32_t istationring = (rpc_station >= 3) ? ((rpc_station - 3) * 2 + (rpc_ring - 2) + 2) : (rpc_station - 1);
+  uint32_t isubsector = (rpc_subsector - 1);
+  uint32_t iroll = (rpc_roll - 1);
+  return ((((iendcap * 6 + isector) * 6 + istationring) * 6 + isubsector) * 3 + iroll);
+}
+
+uint32_t SectorProcessorLUT::get_cppf_ph_lut(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll, int halfstrip, bool is_neighbor) const {
+  size_t th_index       = get_cppf_lut_id(rpc_region, rpc_sector, rpc_station, rpc_ring, rpc_subsector, rpc_roll);
+  size_t ph_index       = (th_index * 64) + (halfstrip - 1);
+  uint32_t ph           = cppf_ph_lut_.at(ph_index);
+  if (!is_neighbor && rpc_subsector == 2)
+    ph += 900;
+  return ph;
+}
+
+uint32_t SectorProcessorLUT::get_cppf_th_lut(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const {
+  size_t th_index       = get_cppf_lut_id(rpc_region, rpc_sector, rpc_station, rpc_ring, rpc_subsector, rpc_roll);
+  uint32_t th           = cppf_th_lut_.at(th_index);
+  return th;
+}
+
 void SectorProcessorLUT::read_file(const std::string& filename, std::vector<uint32_t>& vec) {
   vec.clear();
 
@@ -221,4 +263,62 @@ void SectorProcessorLUT::read_file(const std::string& filename, std::vector<uint
     vec.push_back(buf);
   }
   infile.close();
+}
+
+void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2) {
+  auto get_rpc_region = [](uint32_t id) { return (static_cast<int>((id >> 0) & 0X3) + (-1)); };
+  auto get_rpc_sector = [](uint32_t id) { return (static_cast<int>((id >> 7) & 0XF) + (1)); };
+  auto get_rpc_ring = [](uint32_t id) { return (static_cast<int>((id >> 2) & 0X7) + (1)); };
+  auto get_rpc_station = [](uint32_t id) { return (static_cast<int>((id >> 5) & 0X3) + (1)); };
+  auto get_rpc_subsector = [](uint32_t id) { return (static_cast<int>((id >> 12) & 0X7) + (1)); };
+  auto get_rpc_roll = [](uint32_t id) { return (static_cast<int>((id >> 15) & 0X7) + (0)); };
+
+  std::vector<std::string> cppf_filenames = {
+    "angleScale_RPC_CPPFp1.txt",
+    "angleScale_RPC_CPPFp2.txt",
+    "angleScale_RPC_CPPFp3.txt",
+    "angleScale_RPC_CPPFp4.txt",
+    "angleScale_RPC_CPPFn1.txt",
+    "angleScale_RPC_CPPFn2.txt",
+    "angleScale_RPC_CPPFn3.txt",
+    "angleScale_RPC_CPPFn4.txt",
+  };
+
+
+  vec1.clear();
+  vec2.clear();
+  vec1.resize(2*6*6*6*3*64, 0);
+  vec2.resize(2*6*6*6*3, 0);
+
+  for (size_t i = 0; i < cppf_filenames.size(); ++i) {
+    std::ifstream infile;
+    infile.open(edm::FileInPath(filename + cppf_filenames.at(i)).fullPath().c_str());
+
+    int buf1, buf2, buf3, buf4, buf5, buf6;
+    while ((infile >> buf1) && (infile >> buf2) && (infile >> buf3) && (infile >> buf4) && (infile >> buf5) && (infile >> buf6)) {
+      uint32_t id           = buf1;
+      int32_t rpc_region    = get_rpc_region(id);
+      int32_t rpc_sector    = get_rpc_sector(id);
+      int32_t rpc_station   = get_rpc_station(id);
+      int32_t rpc_ring      = get_rpc_ring(id);
+      int32_t rpc_subsector = get_rpc_subsector(id);
+      int32_t rpc_roll      = get_rpc_roll(id);
+
+      //uint32_t strip        = buf2;
+      uint32_t halfstrip    = buf2;  // I modified the text files to use 'halfstrip' instead of 'strip' in column 2
+
+      uint32_t ph           = buf5;
+      uint32_t th           = buf6;
+
+      size_t th_index       = get_cppf_lut_id(rpc_region, rpc_sector, rpc_station, rpc_ring, rpc_subsector, rpc_roll);
+      size_t ph_index       = (th_index * 64) + (halfstrip - 1);
+
+      //std::cout << id << " " << rpc_region << " " << rpc_sector << " " << rpc_station << " " << rpc_ring << " " << rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
+
+      vec1.at(ph_index) = ph;
+      if (halfstrip == 1)
+        vec2.at(th_index) = th;
+    }
+    infile.close();
+  }
 }

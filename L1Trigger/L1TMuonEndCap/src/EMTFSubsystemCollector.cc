@@ -3,6 +3,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "helper.h"  // adjacent_cluster
+
 
 // Specialized for CSC
 template<>
@@ -11,7 +13,7 @@ void EMTFSubsystemCollector::extractPrimitives(
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
     TriggerPrimitiveCollection& out
-) {
+) const {
   edm::Handle<CSCTag::digi_collection> cscDigis;
   iEvent.getByToken(token, cscDigis);
 
@@ -35,9 +37,11 @@ void EMTFSubsystemCollector::extractPrimitives(
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
     TriggerPrimitiveCollection& out
-) {
+) const {
   edm::Handle<RPCTag::digi_collection> rpcDigis;
   iEvent.getByToken(token, rpcDigis);
+
+  TriggerPrimitiveCollection muon_primitives;
 
   auto chamber = rpcDigis->begin();
   auto chend   = rpcDigis->end();
@@ -49,10 +53,17 @@ void EMTFSubsystemCollector::extractPrimitives(
         if ((*chamber).first.station() <= 2 && (*chamber).first.ring() == 3)  continue;  // do not include RE1/3, RE2/3
         if ((*chamber).first.station() >= 3 && (*chamber).first.ring() == 1)  continue;  // do not include RE3/1, RE4/1
 
-        out.emplace_back((*chamber).first,digi->strip(),(*chamber).first.layer(),digi->bx());
+        muon_primitives.emplace_back((*chamber).first,*digi);
       }
     }
   }
+
+  // Cluster the RPC digis
+  TriggerPrimitiveCollection clus_muon_primitives;
+  cluster_rpc(muon_primitives, clus_muon_primitives);
+
+  // Output
+  std::copy(clus_muon_primitives.begin(), clus_muon_primitives.end(), std::back_inserter(out));
   return;
 }
 
@@ -63,9 +74,11 @@ void EMTFSubsystemCollector::extractPrimitives(
     const edm::Event& iEvent,
     const edm::EDGetToken& token,
     TriggerPrimitiveCollection& out
-) {
+) const {
   edm::Handle<GEMTag::digi_collection> gemDigis;
   iEvent.getByToken(token, gemDigis);
+
+  TriggerPrimitiveCollection muon_primitives;
 
   auto chamber = gemDigis->begin();
   auto chend   = gemDigis->end();
@@ -73,8 +86,18 @@ void EMTFSubsystemCollector::extractPrimitives(
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
-      out.emplace_back((*chamber).first,*digi);
+      muon_primitives.emplace_back((*chamber).first,*digi);
     }
   }
+
+  // Cluster the GEM digis.
+  TriggerPrimitiveCollection copad_muon_primitives;
+  make_copad_gem(muon_primitives, copad_muon_primitives);
+
+  TriggerPrimitiveCollection clus_muon_primitives;
+  cluster_gem(copad_muon_primitives, clus_muon_primitives);
+
+  // Output
+  std::copy(clus_muon_primitives.begin(), clus_muon_primitives.end(), std::back_inserter(out));
   return;
 }
