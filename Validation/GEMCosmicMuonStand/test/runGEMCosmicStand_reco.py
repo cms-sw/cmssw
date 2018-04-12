@@ -23,7 +23,7 @@ process.load('RecoLocalMuon.GEMRecHit.gemLocalReco_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 # Input source
 process.source = cms.Source("PoolSource",
