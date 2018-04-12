@@ -19,11 +19,14 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
+	_tagLaserMon = ps.getUntrackedParameter<edm::InputTag>("tagLaserMon", 
+		edm::InputTag("LASERMON"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
 	_tokHE = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
+	_tokLaserMon = consumes<QIE10DigiCollection>(_tagLaserMon);
 
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
@@ -35,6 +38,13 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_lowHF = ps.getUntrackedParameter<double>("lowHF",
 		20);
 	_laserType = (uint32_t)ps.getUntrackedParameter<uint32_t>("laserType");
+
+	// Laser mon digi ordering list
+	_vLaserMonIPhi = ps.getUntrackedParameter<std::vector<int> >("vLaserMonIPhi");
+	_laserMonIEta = ps.getUntrackedParameter<int>("laserMonIEta");
+	_laserMonCBox = ps.getUntrackedParameter<int>("laserMonCBox");
+	_laserMonDigiOverlap = ps.getUntrackedParameter<int>("laserMonDigiOverlap");
+	_laserMonTS0 = ps.getUntrackedParameter<int>("laserMonTS0");
 }
 	
 /* virtual */ void LaserTask::bookHistograms(DQMStore::IBooker &ib,
@@ -204,6 +214,30 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_xTimingSum2.initialize(hcaldqm::hashfunctions::fDChannel);
 	_xEntries.initialize(hcaldqm::hashfunctions::fDChannel);
 
+	// LaserMon containers
+	_cLaserMonSumQ_LS.initialize(_name, 
+		"LaserMonSumQ",
+		new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse)
+	);
+	_cLaserMonTiming_LS.initialize(_name, 
+		"LaserMonTiming",
+		new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250)
+	);
+
+	_cTiming_DigivsLaserMon_SubdetPM.initialize(_name, "Timing_DigivsLaserMon", 
+		hcaldqm::hashfunctions::fSubdetPM, 
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+	_cTimingDiffLS_SubdetPM.initialize(_name, "TimingDiff_DigiMinusLaserMon",
+		hcaldqm::hashfunctions::fSubdet,
+		new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRBX),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingDiff_ns), 0);
+
 	//	BOOK
 	_cSignalMean_Subdet.book(ib, _emap, _subsystem);
 	_cSignalRMS_Subdet.book(ib, _emap, _subsystem);
@@ -252,6 +286,11 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_xEntries.book(_emap);
 	_xTimingSum.book(_emap);
 	_xTimingSum2.book(_emap);
+
+	_cLaserMonSumQ_LS.book(ib, _subsystem);
+	_cLaserMonTiming_LS.book(ib, _subsystem);
+	_cTiming_DigivsLaserMon_SubdetPM.book(ib, _emap, _subsystem);
+	_cTimingDiffLS_SubdetPM.book(ib, _emap, _subsystem);
 
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 }
@@ -361,6 +400,49 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 //	int currentEvent = e.eventAuxiliary().id().event();
 	int bx = e.bunchCrossing();
 	
+
+	// LASERMON
+	edm::Handle<QIE10DigiCollection>  cLaserMon;
+	if (!e.getByToken(_tokLaserMon, cLaserMon)) {
+		_logger.dqmthrow("QIE10DigiCollection for laserMonDigis isn't available.");
+	}
+	std::vector<int> laserMonADC;
+	processLaserMon(cLaserMon, laserMonADC);
+
+	// SumQ = peak +/- 3 TSes
+	// Timing = fC-weighted average (TS-TS0) * 25 ns, also in peak +/- 3 TSes
+	int peakTS = -1;
+	double peakLaserMonADC = -1;
+	for (unsigned int iTS = 0; iTS < laserMonADC.size(); ++iTS) {
+		if (laserMonADC[iTS] > peakLaserMonADC) {
+			peakLaserMonADC = laserMonADC[iTS];
+			peakTS = iTS;
+		}
+	}
+
+	double laserMonSumQ = 0;
+	double laserMonTiming = 0.;
+	double laserMonTimingWeight = 0.;
+
+	if (peakTS >= 0) {
+		int minTS = std::max(0, peakTS - 3);
+		int maxTS = std::min(int(laserMonADC.size()-1), peakTS + 3);
+		for (int iTS = minTS; iTS <= maxTS; ++iTS) {
+			double this_fC = hcaldqm::constants::adc2fC[laserMonADC[iTS]];
+			laserMonSumQ += this_fC;
+			laserMonTiming += 25. * (iTS - _laserMonTS0) * this_fC;
+			laserMonTimingWeight += this_fC;
+		}
+	}
+	if (laserMonTimingWeight > 0.) {
+		laserMonTiming = laserMonTiming / laserMonTimingWeight;
+	}
+
+	if (laserMonSumQ > 50.) {
+		_cLaserMonSumQ_LS.fill(_currentLS, laserMonSumQ);
+		_cLaserMonTiming_LS.fill(_currentLS, laserMonTiming);
+	}
+
 	for (HBHEDigiCollection::const_iterator it=chbhe->begin();
 		it!=chbhe->end(); ++it)
 	{
@@ -402,6 +484,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
+
+			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+			_cTiming_DigivsLaserMon_SubdetPM.fill(did, digiTimingSOI, laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
 		}
 	}
 	for (QIE11DigiCollection::const_iterator it=cHE->begin(); it!=cHE->end();
@@ -449,6 +535,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
+
+			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+			_cTiming_DigivsLaserMon_SubdetPM.fill(did, digiTimingSOI, laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
 		}
 	}
 	for (HODigiCollection::const_iterator it=cho->begin();
@@ -492,6 +582,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
+
+			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+			_cTiming_DigivsLaserMon_SubdetPM.fill(did, digiTimingSOI, laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
 		}
 	}
 	for (QIE10DigiCollection::const_iterator it=chf->begin();
@@ -540,6 +634,42 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
+
+			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+			_cTiming_DigivsLaserMon_SubdetPM.fill(did, digiTimingSOI, laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
+		}
+	}
+}
+
+void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vector<int> &iLaserMonADC) {
+	for (QIE10DigiCollection::const_iterator it=col->begin(); it!=col->end(); ++it) {
+		const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
+		HcalCalibDetId hcdid(digi.id());
+
+		if ((hcdid.ieta() != _laserMonIEta) || (hcdid.cboxChannel() != _laserMonCBox)) {
+			std::cout << "[debug1] Skipping laserMon digi because ieta=" << hcdid.ieta() << " / cbox=" << hcdid.cboxChannel() << " (iphi=" << hcdid.iphi() << ", samples=" << digi.samples() << ")" << std::endl;
+			continue;
+		}
+
+		unsigned int digiIndex = std::find(_vLaserMonIPhi.begin(), _vLaserMonIPhi.end(), hcdid.iphi()) - _vLaserMonIPhi.begin();
+		if (digiIndex == _vLaserMonIPhi.size()) {
+			std::cout << "[debug2] Skipping laserMonDigi because iphi=" << hcdid.iphi() << std::endl;
+			continue;
+		}		
+
+		// First digi: initialize the vectors to -1 (need to know the length of the digi)
+		if (iLaserMonADC.size() == 0) {
+			int totalNSamples = (digi.samples() - _laserMonDigiOverlap) * _vLaserMonIPhi.size();
+			for (int i = 0; i < totalNSamples; ++i) {
+				iLaserMonADC.push_back(-1);
+			}
+		}
+
+		for (int subindex = 0; subindex < digi.samples() - _laserMonDigiOverlap; ++subindex) {
+			int totalIndex = (digi.samples() - _laserMonDigiOverlap) * digiIndex + subindex;
+			iLaserMonADC[totalIndex] = (digi[subindex].ok() ? digi[subindex].adc() : -1);
+			std::cout << "[debug3] iphi " << hcdid.iphi() << " / digiIndex " << digiIndex << " / subindex " << subindex << " / totalIndex " << totalIndex << " = " << iLaserMonADC[totalIndex] << std::endl;
 		}
 	}
 }

@@ -40,6 +40,41 @@ namespace hcaldqm
 				std::string subsystem="Hcal", std::string aux="") override;
 			void book(DQMStore*,
 				std::string subsystem="Hcal", std::string aux="") override;
+
+			void fill(int, int) override;
+			void fill(int, double) override;
+			void fill(int, double, double) override;
+			void fill(int, int, int) override;
+			void fill(int, int, double) override;
+			void fill(double, int) override;
+			void fill(double, double) override;
+			void fill(double, double, double) override;
+
+			virtual void fill(HcalDetId const&);
+			virtual void fill(HcalDetId const&, int);
+			virtual void fill(HcalDetId const&, double);
+			virtual void fill(HcalDetId const&, int, int);
+			virtual void fill(HcalDetId const&, int, double);
+			virtual void fill(HcalDetId const&, double, double);
+
+			virtual void fill(HcalElectronicsId const&);
+			virtual void fill(HcalElectronicsId const&, int);
+			virtual void fill(HcalElectronicsId const&, double);
+			virtual void fill(HcalElectronicsId const&, int, int);
+			virtual void fill(HcalElectronicsId const&, int, double);
+			virtual void fill(HcalElectronicsId const&, double, double);
+
+			virtual void fill(HcalDetId const&, HcalElectronicsId const&);
+			virtual void fill(HcalDetId const&, HcalElectronicsId const&, 
+				double);
+
+			virtual void fill(HcalTrigTowerDetId const&);
+			virtual void fill(HcalTrigTowerDetId const&, int);
+			virtual void fill(HcalTrigTowerDetId const&, double);
+			virtual void fill(HcalTrigTowerDetId const&, int, int);
+			virtual void fill(HcalTrigTowerDetId const&, int, double);
+			virtual void fill(HcalTrigTowerDetId const&, double, double);
+
 	};
 }
 
