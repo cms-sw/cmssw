@@ -114,6 +114,16 @@ fastSim.toModify(muonAssociatorByHitsCommonParameters,
     RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits",
     ROUList = ['fastSimProducerTrackerHits']
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(muonAssociatorByHitsCommonParameters,
+    DTdigisimlinkTag = "mixData:simMuonDTDigis",
+    CSClinksTag = "mixData:MuonCSCStripDigiSimLinks",
+    CSCwireLinksTag = "mixData:MuonCSCWireDigiSimLinks",
+    RPCdigisimlinkTag = "mixData:RPCDigiSimLink",
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
+)
   
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # COMMON CONFIGURATION
@@ -146,3 +156,4 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
 
+premix_stage2.toModify(muonAssociatorByHits, tpTag = "mixData:MergedTrackTruth")
