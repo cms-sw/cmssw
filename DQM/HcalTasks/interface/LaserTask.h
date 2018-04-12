@@ -13,6 +13,8 @@
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 #include "DQM/HcalCommon/interface/Container1D.h"
 #include "DQM/HcalCommon/interface/Container2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle1D.h"
+#include "DQM/HcalCommon/interface/ContainerSingleProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
@@ -47,6 +49,8 @@ class LaserTask : public hcaldqm::DQTask
 		void _resetMonitors(hcaldqm::UpdateFreq) override;
 		bool _isApplicable(edm::Event const&) override;
 		virtual void _dump();
+		void processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vector<int> &iLaserMonADC);
+
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
@@ -122,6 +126,21 @@ class LaserTask : public hcaldqm::DQTask
 		hcaldqm::Container2D		_cMissing_depth;
 		hcaldqm::Container2D		_cMissing_FEDVME;
 		hcaldqm::Container2D		_cMissing_FEDuTCA;
+
+		// Things for LASERMON
+		edm::InputTag _tagLaserMon;
+		edm::EDGetTokenT<QIE10DigiCollection> _tokLaserMon;
+
+		std::vector<int> _vLaserMonIPhi; // Laser mon digis are assigned to CBox=5, IEta=0, IPhi=[23-index] by the emap
+		int _laserMonIEta;
+		int _laserMonCBox;
+		int _laserMonDigiOverlap;
+		int _laserMonTS0;
+
+		hcaldqm::ContainerSingleProf1D _cLaserMonSumQ_LS;
+		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_LS;
+		hcaldqm::Container2D _cTiming_DigivsLaserMon_SubdetPM;
+		hcaldqm::ContainerProf2D _cTimingDiffLS_SubdetPM;
 };
 
 #endif
