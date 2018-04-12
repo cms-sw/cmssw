@@ -194,6 +194,8 @@ namespace hcaldqm
 		 *	Orbit Gap Related
 		 */	
 		std::string ogtype2string(OrbitGapType type);
+
+		int getRBX(uint32_t iphi);
 	}
 }
 
