@@ -75,16 +75,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Cosmic Muon generator
-<<<<<<< HEAD
-process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
-process.generator.TrackerOnly = True
-process.generator.MinP = 100
-<<<<<<< HEAD
-process.generator.RadiusOfTarget = cms.double(300.0)#in cm
-process.generator.ZDistOfTarget = cms.double(350.0) #in cm
-process.generator.ZCentrOfTarget = cms.double(-1000.0) #in cm
-=======
-#process.load("Configuration.Generator.UndergroundCosmicMu_cfi")
 #process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
 #process.generator.RadiusOfTarget = cms.double(120.0)#in mm
 #process.generator.ZDistOfTarget = cms.double(280.0)
@@ -115,11 +105,6 @@ process.generator = cms.EDProducer("CosmicGun",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single mu pt 100')
 )
->>>>>>> 034ef76b6ecca7a5e6cce28b490792a582d5ea81
-=======
-process.generator.RadiusOfTarget = cms.double(100.0)#in cm
-process.generator.ZDistOfTarget = cms.double(100.0) #in cm
->>>>>>> 1cdbd2d374d8110c6037ffc26705f9e939f47549
 
 process.RandomNumberGeneratorService.generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
