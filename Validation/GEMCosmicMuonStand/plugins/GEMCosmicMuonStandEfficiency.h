@@ -35,6 +35,9 @@ MonitorElement* ichamber;
 MonitorElement* iroll;
 MonitorElement* ipartition;
 
+MonitorElement* insideCount;
+MonitorElement* outsideCount;
+
 edm::EDGetTokenT<reco::TrackCollection> insideOutTracks_, outsideInTracks_;
 edm::EDGetTokenT<vector<TrajectorySeed>> seedInside_, seedOutside_;
 

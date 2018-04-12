@@ -27,7 +27,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-# Input source
 import os
 dqm_input_dir = "./"
 entries = [each for each in os.listdir(dqm_input_dir)]
