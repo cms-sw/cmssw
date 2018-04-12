@@ -147,11 +147,11 @@ FWGeometry::loadMap( const char* fileName )
       m_producerVersion = atoi(producerInfo->GetTitle());
    }
 
-   TNamed* ttopology = static_cast<TNamed*>(file->Get( "TrackerTopology" ));
-   if (ttopology) {
-      std::string xml = ttopology->GetTitle();
-      m_trackerTopology = std::unique_ptr<TrackerTopology>(new TrackerTopology(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml)));
-   }
+   // TNamed* ttopology = static_cast<TNamed*>(file->Get( "TrackerTopology" ));
+   // if (ttopology) {
+   //    std::string xml = ttopology->GetTitle();
+   //    m_trackerTopology = std::unique_ptr<TrackerTopology>(new TrackerTopology(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml)));
+   // }
 
    file->Close();
 }
