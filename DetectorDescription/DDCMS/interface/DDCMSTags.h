@@ -46,7 +46,6 @@ namespace dd4hep {
     UNICODE(atomicNumber);
     UNICODE(MaterialFraction);
 
-
     UNICODE(RotationSection);
     UNICODE(Rotation);
     UNICODE(rRotation);
@@ -61,12 +60,25 @@ namespace dd4hep {
     UNICODE(Transformation);
 
     UNICODE(SolidSection);
-
+    
+    UNICODE(PseudoTrap);
+    UNICODE(dx1);
+    UNICODE(dy1);
+    UNICODE(dx2);
+    UNICODE(dy2);
+    UNICODE(atMinusZ);
+    
     UNICODE(Box);
     UNICODE(dx);
     UNICODE(dy);
     UNICODE(dz);
-
+    
+    UNICODE(Cone);
+    UNICODE(rMin1);
+    UNICODE(rMax1);
+    UNICODE(rMin2);
+    UNICODE(rMax2);
+    
     UNICODE(Tubs);
     UNICODE(rMin);
     UNICODE(rMax);
@@ -76,8 +88,25 @@ namespace dd4hep {
     UNICODE(Polycone);
     UNICODE(ZSection);
     UNICODE(RZPoint);
-    UNICODE(z);
 
+    UNICODE(ZXYSection);
+    UNICODE(XYPoint);
+    UNICODE(scale);
+    
+    UNICODE(CutTubs);
+    UNICODE(lx);
+    UNICODE(ly);
+    UNICODE(lz);
+    UNICODE(tx);
+    UNICODE(ty);
+    UNICODE(tz);
+    
+    UNICODE(TruncTubs);
+    UNICODE(cutAtStart);
+    UNICODE(cutAtDelta);
+    UNICODE(cutInside);
+    UNICODE(zHalf);
+ 
     UNICODE(Polyhedra);
     UNICODE(numSide);
     
@@ -91,13 +120,29 @@ namespace dd4hep {
     UNICODE(bl2);
     UNICODE(tl2);
 
+    UNICODE(Sphere);
+    UNICODE(startTheta);
+    UNICODE(deltaTheta);
+    
+    UNICODE(Ellipsoid);
+    UNICODE(xSemiAxis);
+    UNICODE(ySemiAxis);
+    UNICODE(zSemiAxis);
+    UNICODE(zBottomCut);
+    UNICODE(zTopCut);
+    
+    UNICODE(EllipticalTube);
+    UNICODE(zHeight);
+ 
     UNICODE(Torus);
     UNICODE(torusRadius);
     UNICODE(innerRadius);
     UNICODE(outerRadius);
     
     UNICODE(SubtractionSolid);
-
+    UNICODE(firstSolid);
+    UNICODE(secondSolid);
+    
     UNICODE(LogicalPartSection);
     UNICODE(LogicalPart);
     UNICODE(rSolid);

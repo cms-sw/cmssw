@@ -77,6 +77,14 @@ namespace dd4hep {
         elt.setAttr(n,val);
         return elt.attr<T>(n);
       }
+      template <typename T> T attr(xml_elt_t elt,const xml_tag_t& n, T default_value) const   {
+	if ( elt.hasAttr(n) )   {
+	  std::string val = real_name(elt.attr<std::string>(n));
+	  elt.setAttr(n,val);
+	  return elt.attr<T>(n);
+	}
+	return default_value;
+      }
       /// Add a new constant to the namespace
       void     addConstant(const std::string& name, const std::string& value, const std::string& type)  const;
       /// Add a new constant to the namespace as fully indicated by the name
