@@ -43,7 +43,7 @@ namespace hcaldqm
 		double aveTSDB(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int i_start, unsigned int i_end) {
 			double sumQ = 0;
 			double sumQT = 0;
-			for (unsigned int i = i_start; i <+ i_end; ++i) {
+			for (unsigned int i = i_start; i <= i_end; ++i) {
 				double q = adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i);
 				sumQ += q;
 				sumQT += (i+1)*q;
@@ -54,7 +54,7 @@ namespace hcaldqm
 		template<class Digi>
 		double sumQDB(const edm::ESHandle<HcalDbService>& conditions, const CaloSamples& calo_samples, const HcalDetId did, const Digi& digi, unsigned int i_start, unsigned int i_end) {
 			double sumQ = 0;
-			for (unsigned int i = i_start; i <+ i_end; ++i) {
+			for (unsigned int i = i_start; i <= i_end; ++i) {
 				sumQ += adc2fCDBMinusPedestal(conditions, calo_samples, did, digi, i);
 			}
 			return sumQ;
