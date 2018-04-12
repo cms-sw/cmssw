@@ -19,7 +19,7 @@ laserTask = DQMEDAnalyzer(
 	tagHF       = cms.untracked.InputTag("hcalDigis"),
 	taguMN      = cms.untracked.InputTag("hcalDigis"),
 	tagRaw      = cms.untracked.InputTag('hltHcalCalibrationRaw'),
-	tagLaserMon = cms.untracked.InputTag("LASERMON"),
+	tagLaserMon = cms.untracked.InputTag("hcalDigis:LASERMON"),
 
 	laserType = cms.untracked.uint32(0),
 
@@ -31,4 +31,5 @@ laserTask = DQMEDAnalyzer(
 	vLaserMonIPhi = cms.untracked.vint32(23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0),
 	laserMonDigiOverlap = cms.untracked.int32(2), # digis have 6 TSes, but overlap by 2.
 	laserMonTS0 = cms.untracked.int32(65), # Timing is set so the peak is in TS 69.
+	laserMonThreshold = cms.untracked.double(1.e5),
 )
