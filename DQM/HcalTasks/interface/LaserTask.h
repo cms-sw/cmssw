@@ -136,6 +136,7 @@ class LaserTask : public hcaldqm::DQTask
 		int _laserMonCBox;
 		int _laserMonDigiOverlap;
 		int _laserMonTS0;
+		double _laserMonThreshold;
 
 		hcaldqm::ContainerSingleProf1D _cLaserMonSumQ_LS;
 		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_LS;
