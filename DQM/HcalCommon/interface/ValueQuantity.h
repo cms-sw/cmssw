@@ -64,6 +64,7 @@ namespace hcaldqm
 			fBadTDC = 49,
 			fRBX = 50,
 			fTimingDiff_ns = 51,
+			ffC_1000000 = 52,
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -118,6 +119,7 @@ namespace hcaldqm
 			{fBadTDC, "TDC"},
 			{fRBX, "RBX"},
 			{fTimingDiff_ns, "#Delta timing [ns]"},
+			{ffC_1000000, "fC"}
 		};
 		const std::map<ValueQuantityType, double> min_value = {
 			{fN,-0.05},
@@ -172,6 +174,7 @@ namespace hcaldqm
 			{fBadTDC,49.5},
 			{fRBX, 0.5},
 			{fTimingDiff_ns, -125.},
+			{ffC_1000000,0.}
 		};
 		const std::map<ValueQuantityType, double> max_value = {
 			{fN,1000},
@@ -226,6 +229,7 @@ namespace hcaldqm
 			{fBadTDC,61.5},
 			{fRBX, 18.5},
 			{fTimingDiff_ns, 125.},
+			{ffC_1000000,1.e6},
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
@@ -279,6 +283,7 @@ namespace hcaldqm
 			{fBadTDC,12},
 			{fRBX, 18},
 			{fTimingDiff_ns, 40},
+			{ffC_1000000,1000},
 		};
 		class ValueQuantity : public Quantity
 		{
