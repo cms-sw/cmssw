@@ -365,6 +365,7 @@ steps['RunExpressPhy2017F']={'INPUT':InputInfo(dataSet='/ExpressPhysics/Run2017F
 
 steps['RunJetHT2017F_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-17Nov2017-v1/AOD',label='rmaod_jetHT2017F',events=100000,location='STD', ls=Run2017F)}
 
+steps['RunJetHT2017C_94Xv2NanoAODINPUT']={'INPUT':InputInfo(dataSet='/JetHT/CMSSW_9_4_5_cand1-94X_dataRun2_relval_v11_RelVal_rmaod_jetHT2017C-v1/MINIAOD',label='nano_jetHT2017C',events=100000,location='STD', ls=Run2017C)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
