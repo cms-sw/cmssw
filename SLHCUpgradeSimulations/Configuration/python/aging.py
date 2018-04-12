@@ -63,7 +63,7 @@ def agedHGCal(process):
     from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import HGCal_setEndOfLifeNoise
     for subdet in ['EE','FH','BH']:
         hgcaldigi = getHGCalDigitizer(process,subdet)
-        if hgcaldigi is not None: HGCal_setEndOfLifeNoise(hgcaldigi)
+        if hgcaldigi is not None: HGCal_setEndOfLifeNoise(hgcaldigi, process)
     return process
 
 # needs lumi to set proper ZS thresholds (tbd)
@@ -79,8 +79,8 @@ def ageHcal(process,lumi,instLumi,scenarioHLLHC):
     hcaldigi = getHcalDigitizer(process)
     if hcaldigi is not None: hcaldigi.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
 
-    # these lines need to be further activated by turning on 'complete' aging for HF 
-    if hasattr(process,'g4SimHits'):  
+    # these lines need to be further activated by turning on 'complete' aging for HF
+    if hasattr(process,'g4SimHits'):
         process.g4SimHits.HCalSD.InstLuminosity = cms.double(float(instLumi))
         process.g4SimHits.HCalSD.DelivLuminosity = cms.double(float(lumi))
 
@@ -107,15 +107,15 @@ def turn_off_HB_aging(process):
 def turn_on_HE_aging(process):
     process = ageHE(process,True,"")
     return process
-    
+
 def turn_off_HE_aging(process):
     process = ageHE(process,False,"")
     return process
-    
+
 def turn_on_HF_aging(process):
     process = ageHF(process,True)
     return process
-    
+
 def turn_off_HF_aging(process):
     process = ageHF(process,False)
     return process
@@ -133,7 +133,7 @@ def hf_complete_aging(process):
 
 def ageEcal(process,lumi,instLumi):
     if hasattr(process,'g4SimHits'):
-        #these lines need to be further activiated by tuning on 'complete' aging for ecal 
+        #these lines need to be further activiated by tuning on 'complete' aging for ecal
         process.g4SimHits.ECalSD.InstLuminosity = cms.double(instLumi)
         process.g4SimHits.ECalSD.DelivLuminosity = cms.double(float(lumi))
 
@@ -176,13 +176,13 @@ def ageEcal(process,lumi,instLumi):
             for icluster in range(0,len(_clusters)):
                 if _clusters[icluster].detector.value()=="ECAL_BARREL":
                     _clusters[icluster].gatheringThreshold = cms.double(ecal_thresholds[int(lumi)])
-        
+
     return process
 
 def ecal_complete_aging(process):
     if hasattr(process,'g4SimHits'):
         process.g4SimHits.ECalSD.AgeingWithSlopeLY = cms.untracked.bool(True)
-    if hasattr(process,'ecal_digi_parameters'):    
+    if hasattr(process,'ecal_digi_parameters'):
         process.ecal_digi_parameters.UseLCcorrection = cms.untracked.bool(False)
     return process
 

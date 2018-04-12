@@ -182,17 +182,17 @@ hgchebackDigitizer = cms.PSet(
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
-def HGCal_setEndOfLifeNoise(digitizer):
-    HGCAL_noise_fC = cms.PSet(
+def HGCal_setEndOfLifeNoise(digitizer,process):
+    process.HGCAL_noise_fC = cms.PSet(
         values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
         )
-    HGCAL_chargeCollectionEfficiencies = cms.PSet(
+    process.HGCAL_chargeCollectionEfficiencies = cms.PSet(
         values = cms.vdouble(endOfLifeCCEs)
         )
-    HGCAL_noise_MIP = cms.PSet(
+    process.HGCAL_noise_MIP = cms.PSet(
         value = cms.double( 1.0/5.0 )
         )
-    HGCAL_noises = cms.PSet(
+    process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])
         )
 
