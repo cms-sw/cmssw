@@ -23,6 +23,11 @@ hcaldigisAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(hcaldigisAnalyzer, simHits = "fastSimProducer:HcalHits")
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(hcaldigisAnalyzer,
+    dataTPs = "DMHcalTriggerPrimitiveDigis",
+)
+
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcaldigisAnalyzer,
     TestNumber    = cms.bool(True)
