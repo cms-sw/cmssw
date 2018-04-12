@@ -2,6 +2,8 @@
 <DDDefinition>
   <debug>
     <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
 
 <!-- 
     <debug_rotations/>
@@ -45,6 +47,7 @@
   </ConstantsSection>
 
   <IncludeSection>
+    <Include ref="testRotations.xml"/>
     <Include ref="testSolids.xml"/>
     <Include ref="materials.xml"/>
     <Include ref="trackermaterial.xml"/>

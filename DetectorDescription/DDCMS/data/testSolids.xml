@@ -33,7 +33,7 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
       <RZPoint r="50*cm" z="1*m"/>
       <RZPoint r="60*cm" z="1.5*m"/>
       <RZPoint r="75*cm" z="2*m"/>
-      <RZPoint r="50*cm" z="2*m"/>
+      <RZPoint r="50*cm" z="2.5*m"/>
     </Polyhedra>
     <ExtrudedPolygon name="extrudedpgon">
       <XYPoint x="-30*cm" y="-30*cm"/>

@@ -31,7 +31,6 @@ namespace dd4hep {
 
     UInt_t unique_mat_id = 0xAFFEFEED;
 
-
     class disabled_algo;
     class include_constants;
     class include_load;
@@ -60,14 +59,25 @@ namespace dd4hep {
     class logicalpart;
 
     class solidsection;
+    class extrudedpolygon;
+    class shapeless;
     class trapezoid;
+    class ellipsoid;
+    class ellipticaltube;
+    class pseudotrap;
+    class polyhedra;
     class polycone;
     class torus;
+    class trd1;
+    class trunctubs;
+    class cuttubs;
     class tubs;
+    class orb;
     class box;
+    class cone;
+    class sphere;
     class unionsolid;
     class intersectionsolid;
-    class polyhedra;
     class subtractionsolid;
     
     class algorithm;    
@@ -119,19 +129,38 @@ namespace dd4hep {
   template <> void Converter<subtractionsolid>::operator()(xml_h element) const;
   /// Converter for <IntersectionSolid/> tags
   template <> void Converter<intersectionsolid>::operator()(xml_h element) const;
+  /// Converter for <PseudoTrap/> tags
+  template <> void Converter<pseudotrap>::operator()(xml_h element) const;
+  /// Converter for <ExtrudedPolygon/> tags
+  template <> void Converter<extrudedpolygon>::operator()(xml_h element) const;
+  /// Converter for <ShapelessSolid/> tags
+  template <> void Converter<shapeless>::operator()(xml_h element) const;
   /// Converter for <Trapezoid/> tags
   template <> void Converter<trapezoid>::operator()(xml_h element) const;
   /// Converter for <Polycone/> tags
   template <> void Converter<polycone>::operator()(xml_h element) const;
   /// Converter for <Polyhedra/> tags
   template <> void Converter<polyhedra>::operator()(xml_h element) const;
+  /// Converter for <Ellipsoid/> tags
+  template <> void Converter<ellipsoid>::operator()(xml_h element) const;
+  /// Converter for <EllipticalTube/> tags
+  template <> void Converter<ellipticaltube>::operator()(xml_h element) const;
   /// Converter for <Torus/> tags
   template <> void Converter<torus>::operator()(xml_h element) const;
   /// Converter for <Tubs/> tags
   template <> void Converter<tubs>::operator()(xml_h element) const;
+  /// Converter for <CutTubs/> tags
+  template <> void Converter<cuttubs>::operator()(xml_h element) const;
+  /// Converter for <TruncTubs/> tags
+  template <> void Converter<trunctubs>::operator()(xml_h element) const;
+  /// Converter for <Sphere/> tags
+  template <> void Converter<sphere>::operator()(xml_h element) const;
+  /// Converter for <Trd1/> tags
+  template <> void Converter<trd1>::operator()(xml_h element) const;
+  /// Converter for <Cone/> tags
+  template <> void Converter<cone>::operator()(xml_h element) const;
   /// Converter for <Box/> tags
   template <> void Converter<box>::operator()(xml_h element) const;
-
   /// Converter for <Algorithm/> tags
   template <> void Converter<algorithm>::operator()(xml_h element) const;
 
@@ -192,10 +221,32 @@ template <> void Converter<solidsection>::operator()(xml_h element) const   {
       Converter<box>(description,_ns.context,optional)(solid);
     else if ( tag == "Polycone" )
       Converter<polycone>(description,_ns.context,optional)(solid);
+    else if ( tag == "Polyhedra" )
+      Converter<polyhedra>(description,_ns.context,optional)(solid);
     else if ( tag == "Tubs" )
       Converter<tubs>(description,_ns.context,optional)(solid);
+    else if ( tag == "CutTubs" )
+      Converter<cuttubs>(description,_ns.context,optional)(solid);
+    else if ( tag == "TruncTubs" )
+      Converter<trunctubs>(description,_ns.context,optional)(solid);
+    else if ( tag == "Tube" )
+      Converter<tubs>(description,_ns.context,optional)(solid);
+    else if ( tag == "Trd1" )
+      Converter<trd1>(description,_ns.context,optional)(solid);
+    else if ( tag == "Cone" )
+      Converter<cone>(description,_ns.context,optional)(solid);
+    else if ( tag == "Sphere" )
+      Converter<sphere>(description,_ns.context,optional)(solid);
+    else if ( tag == "Ellipsoid" )
+      Converter<ellipsoid>(description,_ns.context,optional)(solid);
+    else if ( tag == "EllipticalTube" )
+      Converter<ellipticaltube>(description,_ns.context,optional)(solid);
     else if ( tag == "Torus" )
       Converter<torus>(description,_ns.context,optional)(solid);
+    else if ( tag == "PseudoTrap" )
+      Converter<pseudotrap>(description,_ns.context,optional)(solid);
+    else if ( tag == "ExtrudedPolygon" )
+      Converter<extrudedpolygon>(description,_ns.context,optional)(solid);
     else if ( tag == "Trapezoid" )
       Converter<trapezoid>(description,_ns.context,optional)(solid);
     else if ( tag == "UnionSolid" )
@@ -204,13 +255,11 @@ template <> void Converter<solidsection>::operator()(xml_h element) const   {
       Converter<subtractionsolid>(description,_ns.context,optional)(solid);
     else if ( tag == "IntersectionSolid" )
       Converter<intersectionsolid>(description,_ns.context,optional)(solid);
-    else if ( tag == "Polyhedra" ) {
-      Converter<polyhedra>(description,_ns.context,optional)(solid);
-      std::cout << "Polyhedra is not implemented yet!\n";
-    }
+    else if ( tag == "ShapelessSolid" )
+      Converter<shapeless>(description,_ns.context,optional)(solid);
     else  {
       string nam = xml_dim_t(solid).nameStr();
-      printout(ERROR,"MyDDCMS","+++ Request to process unknown shape %s [%s]",
+      printout(ERROR,"MyDDCMS","+++ Request to process unknown shape '%s' [%s]",
                nam.c_str(), tag.c_str());
     }
   }
@@ -498,14 +547,19 @@ static void convert_boolean(ParsingContext* ctx, xml_h element)   {
   Solid       boolean;
   int cnt=0;
 
-  for(xml_coll_t c(element, _CMU(rSolid)); cnt<2 && c; ++c, ++cnt)
-    solids[cnt] = _ns.solid(c.attr<string>(_U(name)));
-
+  if ( e.hasChild(_CMU(rSolid)) )  {   // Old version
+    for(xml_coll_t c(element, _CMU(rSolid)); cnt<2 && c; ++c, ++cnt)
+      solids[cnt] = _ns.solid(c.attr<string>(_U(name)));
+  }
+  else  {
+    if ( (solids[0] = _ns.solid(e.attr<string>(_CMU(firstSolid)))).isValid() ) ++cnt;
+    if ( (solids[1] = _ns.solid(e.attr<string>(_CMU(secondSolid)))).isValid() ) ++cnt;
+  }
   if ( cnt != 2 )   {
-    except("MyDDCMS","+++ Failed to create blooean solid %s. Found only %d parts.",nam.c_str(), cnt);
+    except("MyDDCMS","+++ Failed to create boolean solid %s. Found only %d parts.",nam.c_str(), cnt);
   }
   printout(_ns.context->debug_placements ? ALWAYS : DEBUG, "MyDDCMS",
-           "+++ SubtractionSolid: %s Left: %-32s Right: %-32s",
+           "+++ BooleanSolid: %s Left: %-32s Right: %-32s",
            nam.c_str(), solids[0]->GetName(), solids[1]->GetName());
 
   if ( solids[0].isValid() && solids[1].isValid() )  {
@@ -543,14 +597,14 @@ template <> void Converter<polycone>::operator()(xml_h element) const {
   vector<double> z, rmin, rmax, r;
   
   for(xml_coll_t rzpoint(element, _CMU(RZPoint)); rzpoint; ++rzpoint) {
-    z.emplace_back(_ns.attr<double>(rzpoint,_CMU(z)));
+    z.emplace_back(_ns.attr<double>(rzpoint,_U(z)));
     r.emplace_back(_ns.attr<double>(rzpoint,_U(r)));
   }
   if( z.empty()) {
     for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
       rmin.push_back(_ns.attr<double>(zplane,_CMU(rMin)));
       rmax.push_back(_ns.attr<double>(zplane,_CMU(rMax)));
-      z.push_back(_ns.attr<double>(zplane,_CMU(z)));
+      z.push_back(_ns.attr<double>(zplane,_U(z)));
     }
     printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
 	     "+   Polycone: startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
@@ -565,38 +619,89 @@ template <> void Converter<polycone>::operator()(xml_h element) const {
   }
 }
 
+/// Converter for <ExtrudedPolygon/> tags
+template <> void Converter<extrudedpolygon>::operator()(xml_h element) const  {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam      = e.nameStr();
+  vector<double> pt_x, pt_y, sec_x, sec_y, sec_z, sec_scale;
+  
+  for(xml_coll_t sec(element, _CMU(ZXYSection)); sec; ++sec)   {
+    sec_z.push_back(_ns.attr<double>(sec,_U(z)));
+    sec_x.push_back(_ns.attr<double>(sec,_U(x)));
+    sec_y.push_back(_ns.attr<double>(sec,_U(y)));
+    sec_scale.push_back(_ns.attr<double>(sec,_CMU(scale),1.0));
+  }
+  for(xml_coll_t pt(element, _CMU(XYPoint)); pt; ++pt)   {
+    pt_x.push_back(_ns.attr<double>(pt,_U(x)));
+    pt_y.push_back(_ns.attr<double>(pt,_U(y)));
+  }
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   ExtrudedPolygon: %4ld points %4ld zxy sections",
+	   pt_x.size(), sec_z.size());
+  _ns.addSolid(nam,ExtrudedPolygon(pt_x,pt_y,sec_z,sec_x,sec_y,sec_scale));
+}
+
 /// Converter for <Polyhedra/> tags
 template <> void Converter<polyhedra>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
-  int numSide = _ns.attr<int>(e,_CMU(numSide));
+  double numSide  = _ns.attr<int>(e,_CMU(numSide));
   double startPhi = _ns.attr<double>(e,_CMU(startPhi));
   double deltaPhi = _ns.attr<double>(e,_CMU(deltaPhi));
-  vector<double> z, rmin, rmax, r;
+  vector<double> z, rmin, rmax;
+  
+  for(xml_coll_t zplane(element, _CMU(RZPoint)); zplane; ++zplane)   {
+    rmin.push_back(0.0);
+    rmax.push_back(_ns.attr<double>(zplane,_U(r)));
+    z.push_back(_ns.attr<double>(zplane,_U(z)));
+  }
+  for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
+    rmin.push_back(_ns.attr<double>(zplane,_CMU(rMin)));
+    rmax.push_back(_ns.attr<double>(zplane,_CMU(rMax)));
+    z.push_back(_ns.attr<double>(zplane,_U(z)));
+  }
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   Polyhedra:startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]  %4d sides %4ld z-planes",
+	   startPhi, deltaPhi, numSide, z.size());
+  _ns.addSolid(nam, Polyhedra(numSide,startPhi,deltaPhi,z,rmin,rmax));
+}
 
-  for(xml_coll_t rzpoint(element, _CMU(RZPoint)); rzpoint; ++rzpoint) {
-    z.emplace_back(_ns.attr<double>(rzpoint,_CMU(z)));
-    r.emplace_back(_ns.attr<double>(rzpoint,_U(r)));
-  }
-  if( z.empty()) {
-    for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
-      rmin.emplace_back(_ns.attr<double>(zplane,_CMU(rMin)));
-      rmax.emplace_back(_ns.attr<double>(zplane,_CMU(rMax)));
-      z.emplace_back(_ns.attr<double>(zplane,_CMU(z)));
-    }
-    printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
-	     "+   Polyhedra: numSide=%d startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
-	     numSide, startPhi, deltaPhi, z.size());
-    //_ns.addSolid(nam, PolyhedraRegular(numSide,startPhi,deltaPhi,rmin,rmax,z));
-    _ns.addSolid(nam, Polycone(startPhi,deltaPhi,rmin,rmax,z));
-  }
-  else {
-    printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
-	     "+   Polyhedra:  numSide=%d startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes and %4ld radii",
-	     numSide, startPhi, deltaPhi, z.size(), r.size());
-    _ns.addSolid(nam, Polycone(startPhi,deltaPhi,r,z));
-  }
+/// Converter for <Sphere/> tags
+template <> void Converter<sphere>::operator()(xml_h element) const {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam      = e.nameStr();
+  double rinner   = _ns.attr<double>(e,_CMU(innerRadius));
+  double router   = _ns.attr<double>(e,_CMU(outerRadius));
+  double startPhi = _ns.attr<double>(e,_CMU(startPhi));
+  double deltaPhi = _ns.attr<double>(e,_CMU(deltaPhi));
+  double startTheta = _ns.attr<double>(e,_CMU(startTheta));
+  double deltaTheta = _ns.attr<double>(e,_CMU(deltaTheta));
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   Sphere:   r_inner=%8.3f [cm] r_outer=%8.3f [cm]"
+	   " startPhi=%8.3f [rad] deltaPhi=%8.3f startTheta=%8.3f delteTheta=%8.3f [rad]",
+	   rinner, router, startPhi, deltaPhi, startTheta, deltaTheta);
+  _ns.addSolid(nam, Sphere(rinner, router, startTheta, deltaTheta, startPhi, deltaPhi));
+}
+
+/// Converter for <Ellipsoid/> tags: Same as sphere, but with scale
+template <> void Converter<ellipsoid>::operator()(xml_h element) const   {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam  = e.nameStr();
+  double dx   = _ns.attr<double>(e,_CMU(xSemiAxis));
+  double dy   = _ns.attr<double>(e,_CMU(ySemiAxis));
+  double dz   = _ns.attr<double>(e,_CMU(zSemiAxis));
+  double zBot = _ns.attr<double>(e,_CMU(zBottomCut),0.0);
+  double zTop = _ns.attr<double>(e,_CMU(zTopCut),0.0);
+  
+  printout(WARNING, "MyDDCMS",
+	   "+   Ellipsoid UNSUPPORTED. '%s' REPLACED BY BOX "
+	   " xSemiAxis=%8.3f ySemiAxis=%8.3f zSemiAxis=%8.3f zBottomCut=%8.3f zTopCut=%8.3f [cm]",
+	   nam.c_str(), dx, dy, dz, zBot, zTop);
+  _ns.addSolid(nam, Box(1,1,1));
 }
 
 /// Converter for <Torus/> tags
@@ -616,6 +721,24 @@ template <> void Converter<torus>::operator()(xml_h element) const   {
   _ns.addSolid(nam, Torus(r, rinner, router, startPhi, deltaPhi));
 }
 
+/// Converter for <Pseudotrap/> tags
+template <> void Converter<pseudotrap>::operator()(xml_h element) const {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam      = e.nameStr();
+  double dx1      = _ns.attr<double>(e,_CMU(dx1));
+  double dy1      = _ns.attr<double>(e,_CMU(dy1));
+  double dx2      = _ns.attr<double>(e,_CMU(dx2));
+  double dy2      = _ns.attr<double>(e,_CMU(dy2));
+  double dz       = _ns.attr<double>(e,_U(dz));
+  double r        = _ns.attr<double>(e,_U(radius));
+  bool   atMinusZ = _ns.attr<bool>  (e,_CMU(atMinusZ));
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   Pseudotrap:  dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2=%.3f dy2=%.3f radius:%.3f atMinusZ:%s",
+	   dz, dx1, dy1, dx2, dy2, r, yes_no(atMinusZ));
+  _ns.addSolid(nam, PseudoTrap(dx1, dx2, dy1, dy2, dz, r, atMinusZ));
+}
+
 /// Converter for <Trapezoid/> tags
 template <> void Converter<trapezoid>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
@@ -630,17 +753,29 @@ template <> void Converter<trapezoid>::operator()(xml_h element) const {
   double bl2      = _ns.attr<double>(e,_CMU(bl2));
   double tl2      = _ns.attr<double>(e,_CMU(tl2));
   double h2       = _ns.attr<double>(e,_CMU(h2));
-  double phi(0.0);
-  double theta(0.0);
+  double phi      = _ns.attr<double>(e,_U(phi),0.0);
+  double theta    = _ns.attr<double>(e,_U(theta),0.0);
 
-  if( e.hasAttr(_U(phi)))
-      phi = _ns.attr<double>(e,_U(phi));
-  if( e.hasAttr(_U(theta)))
-    theta = _ns.attr<double>(e,_U(theta));
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
            "+   Trapezoid:  dz=%10.3f [cm] alp1:%.3f bl1=%.3f tl1=%.3f alp2=%.3f bl2=%.3f tl2=%.3f h2=%.3f phi=%.3f theta=%.3f",
            dz, alp1, bl1, tl1, h1, alp2, bl2, tl2, h2, phi, theta);
   _ns.addSolid(nam, Trap(dz, theta, phi, h1, bl1, tl1, alp1, h2, bl2, tl2, alp2));
+}
+
+/// Converter for <Trd1/> tags
+template <> void Converter<trd1>::operator()(xml_h element) const {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam      = e.nameStr();
+  double dx1      = _ns.attr<double>(e,_CMU(dx1));
+  double dy1      = _ns.attr<double>(e,_CMU(dy1));
+  double dx2      = _ns.attr<double>(e,_CMU(dx2),0.0);
+  double dy2      = _ns.attr<double>(e,_CMU(dy2),0.0);
+  double dz       = _ns.attr<double>(e,_CMU(dz));
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
+	   dz, dx1, dy1, dx2, dy2);
+  _ns.addSolid(nam, Trapezoid(dx1, dx2, dy1, dy2, dz));
 }
 
 /// Converter for <Tubs/> tags
@@ -651,12 +786,100 @@ template <> void Converter<tubs>::operator()(xml_h element) const {
   double dz       = _ns.attr<double>(e,_CMU(dz));
   double rmin     = _ns.attr<double>(e,_CMU(rMin));
   double rmax     = _ns.attr<double>(e,_CMU(rMax));
+  double startPhi = _ns.attr<double>(e,_CMU(startPhi),0.0);
+  double deltaPhi = _ns.attr<double>(e,_CMU(deltaPhi),2*M_PI);
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   Tubs:     dz=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
+	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]", dz, rmin, rmax, startPhi, deltaPhi);
+  _ns.addSolid(nam, Tube(rmin,rmax,dz,startPhi,deltaPhi));
+}
+ 
+/// Converter for <CutTubs/> tags
+template <> void Converter<cuttubs>::operator()(xml_h element) const {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam      = e.nameStr();
+  double dz       = _ns.attr<double>(e,_CMU(dz));
+  double rmin     = _ns.attr<double>(e,_CMU(rMin));
+  double rmax     = _ns.attr<double>(e,_CMU(rMax));
   double startPhi = _ns.attr<double>(e,_CMU(startPhi));
   double deltaPhi = _ns.attr<double>(e,_CMU(deltaPhi));
+  double lx       = _ns.attr<double>(e,_CMU(lx));
+  double ly       = _ns.attr<double>(e,_CMU(ly));
+  double lz       = _ns.attr<double>(e,_CMU(lz));
+  double tx       = _ns.attr<double>(e,_CMU(tx));
+  double ty       = _ns.attr<double>(e,_CMU(ty));
+  double tz       = _ns.attr<double>(e,_CMU(tz));
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
-           "+   Tubs:     dz=%10.3f [cm] rmin=%10.3f [cm] rmax=%10.3f [cm]"
-           " startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]", dz, rmin, rmax, startPhi, deltaPhi);
-  _ns.addSolid(nam, Tube(rmin,rmax,dz,startPhi,deltaPhi));
+	   "+   CutTube:  dz=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
+	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]...",
+	   dz, rmin, rmax, startPhi, deltaPhi);
+  _ns.addSolid(nam, CutTube(rmin,rmax,dz,startPhi,deltaPhi,lx,ly,lz,tx,ty,tz));
+}
+
+/// Converter for <TruncTubs/> tags
+template <> void Converter<trunctubs>::operator()(xml_h element) const {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam        = e.nameStr();
+  double zhalf      = _ns.attr<double>(e,_CMU(zHalf));
+  double rmin       = _ns.attr<double>(e,_CMU(rMin));
+  double rmax       = _ns.attr<double>(e,_CMU(rMax));
+  double startPhi   = _ns.attr<double>(e,_CMU(startPhi));
+  double deltaPhi   = _ns.attr<double>(e,_CMU(deltaPhi));
+  double cutAtStart = _ns.attr<double>(e,_CMU(cutAtStart));
+  double cutAtDelta = _ns.attr<double>(e,_CMU(cutAtDelta));
+  bool   cutInside  = _ns.attr<bool>(e,_CMU(cutInside));
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   TruncTube:zHalf=%8.3f [cm] rmin=%8.3f [cm] rmax=%8.3f [cm]"
+	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad] atStart=%8.3f [cm] atDelta=%8.3f [cm] inside:%s",
+	   zhalf, rmin, rmax, startPhi, deltaPhi, cutAtStart, cutAtDelta, yes_no(cutInside));
+  _ns.addSolid(nam, TruncatedTube(zhalf,rmin,rmax,startPhi,deltaPhi,cutAtStart,cutAtDelta,cutInside));
+}
+
+/// Converter for <EllipticalTube/> tags
+template <> void Converter<ellipticaltube>::operator()(xml_h element) const   {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam = e.nameStr();
+  double dx  = _ns.attr<double>(e,_CMU(xSemiAxis));
+  double dy  = _ns.attr<double>(e,_CMU(ySemiAxis));
+  double dz  = _ns.attr<double>(e,_CMU(zHeight));
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   EllipticalTube xSemiAxis=%8.3f [cm] ySemiAxis=%8.3f [cm] zHeight=%8.3f [cm]",dx,dy,dz);
+  _ns.addSolid(nam, EllipticalTube(dx,dy,dz));
+}
+
+/// Converter for <Cone/> tags
+template <> void Converter<cone>::operator()(xml_h element) const {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam      = e.nameStr();
+  double dz       = _ns.attr<double>(e,_CMU(dz));
+  double rmin1    = _ns.attr<double>(e,_CMU(rMin1));
+  double rmin2    = _ns.attr<double>(e,_CMU(rMin2));
+  double rmax1    = _ns.attr<double>(e,_CMU(rMax1));
+  double rmax2    = _ns.attr<double>(e,_CMU(rMax2));
+  double startPhi = _ns.attr<double>(e,_CMU(startPhi));
+  double deltaPhi = _ns.attr<double>(e,_CMU(deltaPhi));
+  double phi2     = startPhi + deltaPhi;
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   Cone:     dz=%8.3f [cm]"
+	   " rmin1=%8.3f [cm] rmax1=%8.3f [cm]"
+	   " rmin2=%8.3f [cm] rmax2=%8.3f [cm]"
+	   " startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]",
+	   dz, rmin1, rmax1, rmin2, rmax2, startPhi, deltaPhi);
+  _ns.addSolid(nam, ConeSegment(dz,rmin1,rmax1,rmin2,rmax2,startPhi,phi2));
+}
+
+/// Converter for </> tags
+template <> void Converter<shapeless>::operator()(xml_h element) const {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t e(element);
+  string nam = e.nameStr();
+  printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
+	   "+   Shapeless: THIS ONE CAN ONLY BE USED AT THE VOLUME LEVEL -> Assembly%s", nam.c_str());
+  _ns.addSolid(nam, Box(1,1,1));
 }
 
 /// Converter for <Box/> tags
