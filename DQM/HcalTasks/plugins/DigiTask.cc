@@ -674,7 +674,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cADC_SubdetPM.fill(did, it->sample(i).adc());
 			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
+				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).adc());
 				if (sumQ>_cutSumQ_HBHE) {
 					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
 				}
@@ -826,7 +826,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_cBadTDCCount_depth.fill(did);
 			}
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM_QIE1011.fill(did, i, q);
+				_cADCvsTS_SubdetPM_QIE1011.fill(did, i, digi[i].adc());
 				if (sumQ>_cutSumQ_HE) {
 					_cShapeCut_FED.fill(eid, i, q);
 				}
@@ -967,7 +967,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cADC_SubdetPM.fill(did, it->sample(i).adc());
 			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
+				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).adc());
 				if (sumQ>_cutSumQ_HO)
 					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
 			}
@@ -1127,7 +1127,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					_cBadTDCCount_depth.fill(did);
 				}
 				if (_ptype != fOffline) { // hidefed2crate
-					_cADCvsTS_SubdetPM_QIE1011.fill(did, (int)i, q);
+					_cADCvsTS_SubdetPM_QIE1011.fill(did, (int)i, digi[i].adc());
 					if (sumQ>_cutSumQ_HF)
 						_cShapeCut_FED.fill(eid, (int)i, q);
 				}
