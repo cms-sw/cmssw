@@ -48,11 +48,11 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     }
 
 
-    hgcEE_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCEE_noise_fC");
-    hgcEE_cce_ = ps.getParameter< std::vector<double> > ("HGCEE_cce");
-    hgcHEF_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCHEF_noise_fC");
-    hgcHEF_cce_ = ps.getParameter< std::vector<double> > ("HGCHEF_cce");
-    hgcHEB_noise_MIP_ = ps.getParameter<double>("HGCHEB_noise_MIP");
+    hgcEE_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCEE_noise_fC").getParameter < std::vector<double> > ("values");
+    hgcEE_cce_ = ps.getParameter<edm::ParameterSet>("HGCEE_cce").getParameter< std::vector<double> > ("values");
+    hgcHEF_noise_fC_ = ps.getParameter<edm::ParameterSet>("HGCHEF_noise_fC").getParameter < std::vector<double> > ("values");
+    hgcHEF_cce_ = ps.getParameter<edm::ParameterSet>("HGCHEF_cce").getParameter< std::vector<double> > ("values");
+    hgcHEB_noise_MIP_ = ps.getParameter<edm::ParameterSet>("HGCHEB_noise_MIP").getParameter<double>("value");
 
     // don't produce rechit if detid is a ghost one
     rangeMatch_ = ps.getParameter<uint32_t>("rangeMatch");
@@ -135,7 +135,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
     const double new_E = myrechit.energy() * (thickness == -1 ? 1.0 : rcorr_[thickness])/cce_correction;
 
 
-    myrechit.setEnergy(new_E); 
+    myrechit.setEnergy(new_E);
     myrechit.setSignalOverSigmaNoise(new_E/sigmaNoiseGeV);
     result.push_back(myrechit);
 

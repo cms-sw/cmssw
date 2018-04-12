@@ -18,6 +18,11 @@ HGCAL_noise_MIP = cms.PSet(
 HGCAL_chargeCollectionEfficiencies = cms.PSet(
     values = cms.vdouble( nonAgedCCEs )
     )
+
+HGCAL_noises = cms.PSet(
+    values = cms.vdouble([x for x in nonAgedNoises])
+    )
+
 # ECAL
 hgceeDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
@@ -187,3 +192,7 @@ def HGCal_setEndOfLifeNoise(digitizer):
     HGCAL_noise_MIP = cms.PSet(
         value = cms.double( 1.0/5.0 )
         )
+    HGCAL_noises = cms.PSet(
+        values = cms.vdouble([x for x in endOfLifeNoises])
+        )
+
