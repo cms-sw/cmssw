@@ -7,6 +7,17 @@ nonAgedCCEs    = [1.0, 1.0, 1.0]
 nonAgedNoises  = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
 thresholdTracksMIP = False
 
+HGCAL_noise_fC = cms.PSet(
+    values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
+    )
+
+HGCAL_noise_MIP = cms.PSet(
+    value = cms.double(1.0/7.0)
+    )
+
+HGCAL_chargeCollectionEfficiencies = cms.PSet(
+    values = cms.vdouble( nonAgedCCEs )
+    )
 # ECAL
 hgceeDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
@@ -23,8 +34,8 @@ hgceeDigitizer = cms.PSet(
     digiCfg = cms.PSet(
         keV2fC           = cms.double(0.044259), #1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
 
-        chargeCollectionEfficiencies = cms.vdouble( nonAgedCCEs ),
-        noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
+        chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
+        noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
         doTimeSamples    = cms.bool(False),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
@@ -83,8 +94,8 @@ hgchefrontDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
         keV2fC           = cms.double(0.044259), #1000 eV / 3.62 (eV per e) / 6.24150934e3 (e per fC)
-        chargeCollectionEfficiencies = cms.vdouble( nonAgedCCEs ),
-        noise_fC         = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
+        chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
+        noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
         doTimeSamples    = cms.bool(False),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
@@ -143,7 +154,7 @@ hgchebackDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
         keV2MIP           = cms.double(1./616.0),
-        noise_MIP         = cms.double(1.0/7.0), #expectation based on latest SiPM performance
+        noise_MIP         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_MIP")),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(11.0),
         nTotalPE  = cms.double(1156), #1156 pixels => saturation ~600MIP
@@ -167,8 +178,12 @@ hgchebackDigitizer = cms.PSet(
 endOfLifeCCEs = [0.5, 0.5, 0.7]
 endOfLifeNoises = [2400.0,2250.0,1750.0]
 def HGCal_setEndOfLifeNoise(digitizer):
-    if( digitizer.digiCollection != "HGCDigisHEback" ):
-        digitizer.digiCfg.noise_fC = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] )
-        digitizer.digiCfg.chargeCollectionEfficiencies = cms.vdouble(endOfLifeCCEs)
-    else: #use S/N of 7 for SiPM readout
-        digitizer.digiCfg.noise_MIP = cms.double( 1.0/5.0 )
+    HGCAL_noise_fC = cms.PSet(
+        values = cms.vdouble( [x*fC_per_ele for x in endOfLifeNoises] ), #100,200,300 um
+        )
+    HGCAL_chargeCollectionEfficiencies = cms.PSet(
+        values = cms.vdouble(endOfLifeCCEs)
+        )
+    HGCAL_noise_MIP = cms.PSet(
+        value = cms.double( 1.0/5.0 )
+        )

@@ -23,7 +23,7 @@
 using namespace hgc_digi;
 
 namespace {
-  
+
   constexpr std::array<double,3> occupancyGuesses = { { 0.5,0.2,0.2 } };
 
 
@@ -59,7 +59,7 @@ namespace {
     const std::vector<DetId>& ids = geom->getValidDetIds();
     for( const auto& id : ids ) {
       if( HcalEndcap == id.subdetId() &&
-	  DetId::Hcal == id.det() ) 
+	  DetId::Hcal == id.det() )
 	valid.emplace(id);
     }
     valid.reserve(valid.size());
@@ -72,7 +72,7 @@ namespace {
     HcalDetId id = HcalHitRelabeller::relabel(simid,dddConst);
 
     if (id.subdet()==int(HcalEndcap)) {
-      result = id;    
+      result = id;
     }
 
     return result;
@@ -82,29 +82,29 @@ namespace {
     DetId result(0);
     const auto& topo     = geom->topology();
     const auto& dddConst = topo.dddConstants();
-    
+
     int subdet(DetId(simId).subdetId()), layer, cell, sec, subsec, zp;
 
     const bool isSqr = (dddConst.geomMode() == HGCalGeometryMode::Square);
     if (isSqr) {
       HGCalTestNumbering::unpackSquareIndex(simId, zp, layer, sec, subsec, cell);
     } else {
-      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell); 
+      HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
       //sec is wafer and subsec is celltyp
     }
     //skip this hit if after ganging it is not valid
     std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
     cell  = recoLayerCell.first;
-    layer = recoLayerCell.second;    
+    layer = recoLayerCell.second;
     if (layer<0 || cell<0) {
       return result;
     }
 
     //assign the RECO DetId
     result = HGCalDetId((ForwardSubdetector)subdet,zp,layer,subsec,sec,cell);
-    
+
     return result;
-  }  
+  }
 
   float getCCE(const HGCalGeometry* geom,
 	       const DetId& detid,
@@ -115,7 +115,7 @@ namespace {
     uint32_t id(detid.rawId());
     HGCalDetId hid(id);
     int wafer = HGCalDetId(id).wafer();
-    int waferTypeL = dddConst.waferTypeL(wafer);  
+    int waferTypeL = dddConst.waferTypeL(wafer);
     return cces[waferTypeL-1];
   }
 
@@ -143,41 +143,41 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
   bxTime_            = ps.getParameter< double >("bxTime");
   digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
   verbosity_         = ps.getUntrackedParameter< uint32_t >("verbosity",0);
-  tofDelay_          = ps.getParameter< double >("tofDelay");  
+  tofDelay_          = ps.getParameter< double >("tofDelay");
 
   std::unordered_set<DetId>().swap(validIds_);
-  
+
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits",hitCollection_));
   const auto& myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
-  
-  if( myCfg_.existsAs<std::vector<double> >( "chargeCollectionEfficiencies" ) ) {
+
+  if( myCfg_.existsAs<edm::ParameterSet>("chargeCollectionEfficiencies")) {
     cce_.clear();
-    const auto& temp = myCfg_.getParameter<std::vector<double> >("chargeCollectionEfficiencies");
+    const auto& temp = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").getParameter<std::vector<double>>("values");
     for( double cce : temp ) {
       cce_.push_back(cce);
     }
   } else {
     std::vector<float>().swap(cce_);
   }
-  
-  if(hitCollection_.find("HitsEE")!=std::string::npos) { 
-    mySubDet_=ForwardSubdetector::HGCEE;  
-    theHGCEEDigitizer_=std::unique_ptr<HGCEEDigitizer>(new HGCEEDigitizer(ps) ); 
+
+  if(hitCollection_.find("HitsEE")!=std::string::npos) {
+    mySubDet_=ForwardSubdetector::HGCEE;
+    theHGCEEDigitizer_=std::unique_ptr<HGCEEDigitizer>(new HGCEEDigitizer(ps) );
   }
-  if(hitCollection_.find("HitsHEfront")!=std::string::npos)  
-    { 
+  if(hitCollection_.find("HitsHEfront")!=std::string::npos)
+    {
       mySubDet_=ForwardSubdetector::HGCHEF;
       theHGCHEfrontDigitizer_=std::unique_ptr<HGCHEfrontDigitizer>(new HGCHEfrontDigitizer(ps) );
     }
   if(hitCollection_.find("HcalHits")!=std::string::npos)
-    { 
+    {
       mySubDet_=ForwardSubdetector::HGCHEB;
       theHGCHEbackDigitizer_=std::unique_ptr<HGCHEbackDigitizer>(new HGCHEbackDigitizer(ps) );
     }
 }
 
 //
-void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es) 
+void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es)
 {
   // reserve memory for a full detector
   unsigned idx = std::numeric_limits<unsigned>::max();
@@ -201,11 +201,11 @@ void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& e
 void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP::HepRandomEngine* hre)
 {
   hitRefs_bx0.clear();
-  
-  const CaloSubdetectorGeometry* theGeom = ( nullptr == gHGCal_ ? 
-					     static_cast<const CaloSubdetectorGeometry*>(gHcal_) : 
+
+  const CaloSubdetectorGeometry* theGeom = ( nullptr == gHGCal_ ?
+					     static_cast<const CaloSubdetectorGeometry*>(gHcal_) :
 					     static_cast<const CaloSubdetectorGeometry*>(gHGCal_)  );
-  
+
   ++nEvents_;
   unsigned idx = std::numeric_limits<unsigned>::max();
   switch(mySubDet_) {
@@ -228,12 +228,12 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   //update occupancy guess
   const double thisOcc = simHitAccumulator_->size()/((double)validIds_.size());
   averageOccupancies_[idx] = (averageOccupancies_[idx]*(nEvents_-1) + thisOcc)/nEvents_;
-  
-  if( producesEEDigis() ) 
+
+  if( producesEEDigis() )
     {
       std::unique_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
       theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";      
+      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(std::move(digiResult),digiCollection());
     }
   if( producesHEfrontDigis())
@@ -250,7 +250,7 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(std::move(digiResult),digiCollection());
     }
-  
+
   hgc::HGCSimHitDataAccumulator().swap(*simHitAccumulator_);
 }
 
@@ -259,12 +259,12 @@ void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventS
 
   //get inputs
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits",hitCollection_),hits); 
+  e.getByLabel(edm::InputTag("g4SimHits",hitCollection_),hits);
   if( !hits.isValid() ){
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
     return;
   }
-  
+
   //accumulate in-time the main event
   if( nullptr != gHGCal_ ) {
     accumulate(hits, 0, gHGCal_, hre);
@@ -281,13 +281,13 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
 
   //get inputs
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits",hitCollection_),hits); 
+  e.getByLabel(edm::InputTag("g4SimHits",hitCollection_),hits);
   if( !hits.isValid() ){
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
     return;
   }
-  
-  //accumulate for the simulated bunch crossing  
+
+  //accumulate for the simulated bunch crossing
   if( nullptr != gHGCal_ ) {
     accumulate(hits, e.bunchCrossing(), gHGCal_, hre);
   } else if ( nullptr != gHcal_ ) {
@@ -300,14 +300,14 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
 
 //
 template<typename GEOM>
-void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, 
+void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 			      int bxCrossing,
 			      const GEOM* geom,
                               CLHEP::HepRandomEngine* hre) {
   if( nullptr == geom ) return;
-  
-  
-  
+
+
+
   //configuration to apply for the computation of time-of-flight
   bool weightToAbyEnergy(false);
   std::array<float, 3> tdcForToAOnset{ {0.f, 0.f, 0.f} };
@@ -326,21 +326,21 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   case ForwardSubdetector::HGCHEB:
     weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
     tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
-    keV2fC            = theHGCHEbackDigitizer_->keV2fC();     
+    keV2fC            = theHGCHEbackDigitizer_->keV2fC();
     break;
   default:
     break;
   }
 
   //create list of tuples (pos in container, RECO DetId, time) to be sorted first
-  int nchits=(int)hits->size();  
+  int nchits=(int)hits->size();
   std::vector< HGCCaloHitTuple_t > hitRefs;
   hitRefs.reserve(nchits);
   for(int i=0; i<nchits; ++i) {
-    const auto& the_hit = hits->at(i);    
-    
+    const auto& the_hit = hits->at(i);
+
     DetId id = simToReco(geom,the_hit.id());
-    
+
     if (verbosity_>0) {
       if (producesEEDigis())
 	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << " o/p " << id.rawId() << std::dec << std::endl;
@@ -348,12 +348,12 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << " o/p " << id.rawId() << std::dec << std::endl;
     }
 
-    if( 0 != id.rawId() ) {      
+    if( 0 != id.rawId() ) {
       hitRefs.emplace_back( i, id.rawId(), (float)the_hit.time() );
     }
   }
   std::sort(hitRefs.begin(),hitRefs.end(),this->orderByDetIdThenTime);
-  
+
   //loop over sorted hits
   nchits = hitRefs.size();
   for(int i=0; i<nchits; ++i) {
@@ -361,19 +361,19 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     const uint32_t id  = std::get<1>(hitRefs[i]);
 
     //get the data for this cell, if not available then we skip it
-   
+
     if( !validIds_.count(id) ) continue;
     HGCSimHitDataAccumulator::iterator simHitIt = simHitAccumulator_->emplace(id,HGCCellInfo()).first;
 
     if(id==0) continue; // to be ignored at RECO level
 
     const float toa    = std::get<2>(hitRefs[i]);
-    const PCaloHit &hit=hits->at( hitidx );     
+    const PCaloHit &hit=hits->at( hitidx );
     const float charge = hit.energy()*1e6*keV2fC*getCCE(geom,id,cce_);
-    
+
     //distance to the center of the detector
     const float dist2center( getPositionDistance(geom,id) );
-      
+
     //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
     //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
     const float tof = toa-dist2center/refSpeed_+tofDelay_ ;
@@ -382,9 +382,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     //no need to add bx crossing - tof comes already corrected from the mixing module
     //itime += bxCrossing;
     //itime += 9;
-      
-    if(itime<0 || itime>14) continue;     
-          
+
+    if(itime<0 || itime>14) continue;
+
     //check if time index is ok and store energy
     if(itime >= (int)simHitIt->second.hit_info[0].size() ) continue;
 
@@ -399,12 +399,12 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	hitRefs_bx0[id].push_back(std::pair<float, float>(charge, tof));
       }
       else if(tof <= hitRefs_bx0[id].back().second){
-	std::vector<std::pair<float, float> >::iterator findPos = 
-	  std::upper_bound(hitRefs_bx0[id].begin(), hitRefs_bx0[id].end(), std::pair<float, float>(0.f,tof), 
+	std::vector<std::pair<float, float> >::iterator findPos =
+	  std::upper_bound(hitRefs_bx0[id].begin(), hitRefs_bx0[id].end(), std::pair<float, float>(0.f,tof),
 			   [](const auto& i, const auto& j){return i.second < j.second;});
 
-	std::vector<std::pair<float, float> >::iterator insertedPos = 
-	  hitRefs_bx0[id].insert(findPos, (findPos == hitRefs_bx0[id].begin()) ? 
+	std::vector<std::pair<float, float> >::iterator insertedPos =
+	  hitRefs_bx0[id].insert(findPos, (findPos == hitRefs_bx0[id].begin()) ?
 				 std::pair<float, float>(charge,tof) : std::pair<float, float>((findPos-1)->first+charge,tof));
 
 	for(std::vector<std::pair<float, float> >::iterator step = insertedPos+1; step != hitRefs_bx0[id].end(); ++step){
@@ -446,9 +446,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	float deltaTOF = fireTDC - tofchargeBeforeThr;
 	fireTDC = (tdcForToAOnset[waferThickness-1] - chargeBeforeThr) * deltaTOF / deltaQ + tofchargeBeforeThr;
       }
-      (simHitIt->second).hit_info[1][itime] = fireTDC;                                                                  
+      (simHitIt->second).hit_info[1][itime] = fireTDC;
     }
-    
+
   }
   hitRefs.clear();
 }
@@ -459,29 +459,29 @@ void HGCDigitizer::beginRun(const edm::EventSetup & es)
   //get geometry
   edm::ESHandle<CaloGeometry> geom;
   es.get<CaloGeometryRecord>().get(geom);
-  
+
   gHGCal_ = nullptr;
   gHcal_ = nullptr;
 
   if( producesEEDigis() )      gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
   if( producesHEfrontDigis() ) gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
   if( producesHEbackDigis() )  gHcal_  = dynamic_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-  
-  int nadded(0);  
+
+  int nadded(0);
   //valid ID lists
   if( nullptr != gHGCal_ ) {
-    getValidDetIds( gHGCal_, validIds_ );    
+    getValidDetIds( gHGCal_, validIds_ );
   } else if( nullptr != gHcal_ ) {
-    getValidDetIds( gHcal_, validIds_ );    
+    getValidDetIds( gHcal_, validIds_ );
   } else {
     throw cms::Exception("BadConfiguration")
       << "HGCDigitizer is not producing EE, FH, or BH digis!";
   }
 
-  if (verbosity_ > 0) 
-    edm::LogInfo("HGCDigitizer") 
-      << "Added " << nadded << ":" << validIds_.size() 
-      << " detIds without " << hitCollection_ 
+  if (verbosity_ > 0)
+    edm::LogInfo("HGCDigitizer")
+      << "Added " << nadded << ":" << validIds_.size()
+      << " detIds without " << hitCollection_
       << " in first event processed" << std::endl;
 }
 
