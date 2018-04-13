@@ -63,6 +63,33 @@ def customiseFor20429(process):
         del producer.GBRForestFileName
     return process
 
+
+# 
+# The three different set of thresholds will be used to study
+# possible new thresholds of pfrechits and effects on high level objects
+# The values proposed (A, B, C) are driven by expected noise levels
+#
+
+
+# particleFlowRechitECAL new default value "false" flag to be added
+def customiseForEcalTest(process):
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
+    return process
+
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
