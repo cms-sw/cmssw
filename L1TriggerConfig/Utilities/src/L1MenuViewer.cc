@@ -18,15 +18,15 @@
 #include <iostream>
 using namespace std;
 
-class L1MenuReader : public edm::EDAnalyzer {
+class L1MenuViewer : public edm::EDAnalyzer {
 public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override ;
 
-    explicit L1MenuReader(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    ~L1MenuReader(void) override{}
+    explicit L1MenuViewer(const edm::ParameterSet&) : edm::EDAnalyzer(){}
+    ~L1MenuViewer(void) override {}
 };
 
-void L1MenuReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1MenuViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<L1TUtmTriggerMenu> handle1;
     evSetup.get<L1TUtmTriggerMenuRcd>().get( handle1 ) ;
@@ -58,5 +58,5 @@ void L1MenuReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSe
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1MenuReader);
+DEFINE_FWK_MODULE(L1MenuViewer);
 
