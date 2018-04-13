@@ -25,6 +25,45 @@ Rotation3D dd4hep::cms::make_rotation3D(double thetaX, double phiX,
   return rot;
 }
 
+Rotation3D dd4hep::cms::makeRotation3D(const std::string& axis, double angle)
+{
+  switch( hash( axis ))
+  {
+    case hash("x"):
+      return makeRotationX( angle );
+    case hash("y"):
+      return makeRotationY( angle );
+    case hash("z"):
+      return makeRotationZ( angle );
+    default:
+      throw std::runtime_error("Axis is not valid.");
+  }
+}
+
+/// Create 3D rotation from an angle arouns X axis 
+Rotation3D dd4hep::cms::makeRotationX(double angle)
+{
+  Rotation3D rot;
+  rot = RotationX(angle);
+  return rot;
+}
+
+/// Create 3D rotation from an angle arouns Y axis 
+Rotation3D dd4hep::cms::makeRotationY(double angle)
+{
+  Rotation3D rot;
+  rot = RotationY(angle);
+  return rot;
+}
+
+/// Create 3D rotation from an angle arouns Z axis 
+Rotation3D dd4hep::cms::makeRotationZ(double angle)
+{
+  Rotation3D rot;
+  rot = RotationZ(angle);
+  return rot;
+}
+
 /// Helper: Convert the name of a placed volume into a subdetector name
 string dd4hep::cms::detElementName(PlacedVolume pv)   {
   if ( pv.isValid() )  {

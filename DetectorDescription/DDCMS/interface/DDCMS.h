@@ -233,13 +233,28 @@ namespace dd4hep {
       LogWarn(const std::string& tag_value);
     };
 
+    constexpr 
+    unsigned int hash(const char* str, int h = 0)
+    {
+        return !str[h] ? 5381 : (hash(str, h+1)*33) ^ str[h];
+    }
 
+    inline 
+    unsigned int hash(const std::string& str)
+    {
+        return hash(str.c_str());
+    }
+    
     /// Helper: Convert the name of a placed volume into a subdetector name
     std::string detElementName(PlacedVolume pv);
     /// Create 3D rotation matrix from angles.
     Rotation3D make_rotation3D(double thetaX, double phiX,
                                double thetaY, double phiY,
                                double thetaZ, double phiZ);
+    Rotation3D makeRotation3D(const std::string& axis, double angle);
+    Rotation3D makeRotationX(double angle);
+    Rotation3D makeRotationY(double angle);
+    Rotation3D makeRotationZ(double angle);
 
   }   /* End namespace cms      */
 }     /* End namespace dd4hep   */
