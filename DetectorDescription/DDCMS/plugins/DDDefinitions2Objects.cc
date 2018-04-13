@@ -284,7 +284,7 @@ template <> void Converter<solidsection>::operator()(xml_h element) const   {
     default:
       string nam = xml_dim_t(solid).nameStr();
       std::ostringstream msg;
-      msg << "MyDDCMS +++  Request to process unknown shape '" << nam.c_str() << "' [" << tag.c_str() << "]";
+      msg << "Request to process unknown shape '" << nam.c_str() << "' [" << tag.c_str() << "]";
       throw std::runtime_error( msg.str());
       break;
     }
@@ -651,9 +651,9 @@ template <> void Converter<DDLPolycone>::operator()(xml_h element) const {
   }
   if( z.empty()) {
     for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
-      rmin.push_back(_ns.attr<double>(zplane,_CMU(rMin)));
-      rmax.push_back(_ns.attr<double>(zplane,_CMU(rMax)));
-      z.push_back(_ns.attr<double>(zplane,_U(z)));
+      rmin.emplace_back(_ns.attr<double>(zplane,_CMU(rMin)));
+      rmax.emplace_back(_ns.attr<double>(zplane,_CMU(rMax)));
+      z.emplace_back(_ns.attr<double>(zplane,_U(z)));
     }
     printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
 	     "+   Polycone: startPhi=%10.3f [rad] deltaPhi=%10.3f [rad]  %4ld z-planes",
@@ -676,14 +676,14 @@ template <> void Converter<DDLExtrudedPolygon>::operator()(xml_h element) const 
   vector<double> pt_x, pt_y, sec_x, sec_y, sec_z, sec_scale;
   
   for(xml_coll_t sec(element, _CMU(ZXYSection)); sec; ++sec)   {
-    sec_z.push_back(_ns.attr<double>(sec,_U(z)));
-    sec_x.push_back(_ns.attr<double>(sec,_U(x)));
-    sec_y.push_back(_ns.attr<double>(sec,_U(y)));
-    sec_scale.push_back(_ns.attr<double>(sec,_CMU(scale),1.0));
+    sec_z.emplace_back(_ns.attr<double>(sec,_U(z)));
+    sec_x.emplace_back(_ns.attr<double>(sec,_U(x)));
+    sec_y.emplace_back(_ns.attr<double>(sec,_U(y)));
+    sec_scale.emplace_back(_ns.attr<double>(sec,_CMU(scale),1.0));
   }
   for(xml_coll_t pt(element, _CMU(XYPoint)); pt; ++pt)   {
-    pt_x.push_back(_ns.attr<double>(pt,_U(x)));
-    pt_y.push_back(_ns.attr<double>(pt,_U(y)));
+    pt_x.emplace_back(_ns.attr<double>(pt,_U(x)));
+    pt_y.emplace_back(_ns.attr<double>(pt,_U(y)));
   }
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
 	   "+   ExtrudedPolygon: %4ld points %4ld zxy sections",
@@ -702,14 +702,14 @@ template <> void Converter<DDLPolyhedra>::operator()(xml_h element) const {
   vector<double> z, rmin, rmax;
   
   for(xml_coll_t zplane(element, _CMU(RZPoint)); zplane; ++zplane)   {
-    rmin.push_back(0.0);
-    rmax.push_back(_ns.attr<double>(zplane,_U(r)));
-    z.push_back(_ns.attr<double>(zplane,_U(z)));
+    rmin.emplace_back(0.0);
+    rmax.emplace_back(_ns.attr<double>(zplane,_U(r)));
+    z.emplace_back(_ns.attr<double>(zplane,_U(z)));
   }
   for(xml_coll_t zplane(element, _CMU(ZSection)); zplane; ++zplane)   {
-    rmin.push_back(_ns.attr<double>(zplane,_CMU(rMin)));
-    rmax.push_back(_ns.attr<double>(zplane,_CMU(rMax)));
-    z.push_back(_ns.attr<double>(zplane,_U(z)));
+    rmin.emplace_back(_ns.attr<double>(zplane,_CMU(rMin)));
+    rmax.emplace_back(_ns.attr<double>(zplane,_CMU(rMax)));
+    z.emplace_back(_ns.attr<double>(zplane,_U(z)));
   }
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
 	   "+   Polyhedra:startPhi=%8.3f [rad] deltaPhi=%8.3f [rad]  %4d sides %4ld z-planes",
@@ -938,7 +938,7 @@ template <> void Converter<include_load>::operator()(xml_h element) const   {
   fname = xml::DocumentHandler::system_path(doc.root());
   printout(_param<ParsingContext>()->debug_includes ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Processing the CMS detector description %s",fname.Data());
-  _option<resolve>()->includes.push_back(doc);
+  _option<resolve>()->includes.emplace_back(doc);
 }
 
 /// DD4hep specific Converter for <Include/> tags: process only the constants
