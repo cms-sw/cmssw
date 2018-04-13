@@ -383,7 +383,7 @@ class SiPixelDigitizerAlgorithm  {
     
     // pixel aging
     const bool AddPixelAging;
-    const bool UseTemplateAgeing;
+    const bool UseReweighting;
     const bool PrintClusters;
     const bool PrintTemplates;
 
