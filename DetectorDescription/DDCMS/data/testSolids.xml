@@ -68,10 +68,10 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
     </IntersectionSolid>
     <Sphere name="asphere" innerRadius="1.*cm" outerRadius="1.1*cm" startPhi="0*deg" deltaPhi="180*deg" startTheta="15*deg" deltaTheta="90*deg"/>
     <EllipticalTube name="etube" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zHeight="3.*cm"/>
-    <!-- SubtractionSolid name="subsolidOLD">
+    <SubtractionSolid name="subsolidOLD">
         <rSolid name="cone2"/>
         <rSolid name="cone2hole"/>
         <rRotation name="testRotations:x90y45"/>
-    </SubtractionSolid-->
+    </SubtractionSolid>
   </SolidSection>
 </DDDefinition>
