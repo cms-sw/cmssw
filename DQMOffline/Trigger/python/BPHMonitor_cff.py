@@ -575,6 +575,18 @@ Dimuon0_addTrackMu_Onia.muoSelection_ref = cms.string("pt>32 && abs(eta)<2.4 &  
 Dimuon0_addTrackMu_Onia.DMSelection_ref = cms.string("abs(Eta)<2.4")
 Dimuon0_addTrackMu_Onia.trOrMu = cms.int32(True)
 
+Dimuon0_addTrackMu_Phi1 = hltBPHmonitoring.clone()
+Dimuon0_addTrackMu_Phi1.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Phi1/')
+Dimuon0_addTrackMu_Phi.tnp = cms.bool(False)
+Dimuon0_addTrackMu_Phi1.minmassJpsiTk = cms.double(0.920)
+Dimuon0_addTrackMu_Phi1.maxmassJpsiTk = cms.double(1.120)
+Dimuon0_addTrackMu_Phi1.enum = cms.int32(10)
+Dimuon0_addTrackMu_Phi1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu25_TkMu0_Phi_v*")
+Dimuon0_addTrackMu_Phi1.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu20_v*")
+Dimuon0_addTrackMu_Phi1.muoSelection_ref = cms.string("pt>26 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon0_addTrackMu_Phi1.DMSelection_ref = cms.string("abs(Eta)<2.4")
+Dimuon0_addTrackMu_Phi1.trOrMu = cms.int32(True)
+
 DimuonX_HLT_OS_Vtx = hltBPHmonitoring.clone()
 DimuonX_HLT_OS_Vtx.FolderName = cms.string('HLT/BPH/DimuX_HLT_OS_Vtx/')
 DimuonX_HLT_OS_Vtx.tnp = cms.bool(False)
@@ -634,6 +646,7 @@ bphHLTmonitoring = cms.Sequence(
     + DM2_Jpsi_addTrackTrack_Phi
     + DM2_Jpsi_addTkMuTkMu_Phi
     + Dimuon0_addTrackMu_Onia
+    + Dimuon0_addTrackMu_Phi1
    # + DimuonX_HLT_OS_Vtx
 )
 
