@@ -44,7 +44,7 @@ public:
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
 
 private:
-  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hits, int bunchCrossing, CLHEP::HepRandomEngine*);
+  void accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hits, int bunchCrossing);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);
@@ -55,8 +55,6 @@ private:
 
   void setPhaseShift(const DetId & detId);
 
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
-  
   const HcalTimeSlew* hcalTimeSlew_delay_;
 
 private:
@@ -96,7 +94,7 @@ private:
   bool   doPhaseShift;
   double tunePhaseShift;
 
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif
