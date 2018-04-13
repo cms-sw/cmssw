@@ -44,6 +44,7 @@ private:
   //FakeDetLayer* theFakeDetLayer;
   void linkBarrelLayers( SymmetricLayerFinder& symFinder) override;
   //void linkForwardLayers( SymmetricLayerFinder& symFinder); 
+  using SimpleNavigationSchool::establishInverseRelations;
   void establishInverseRelations( SymmetricLayerFinder& symFinder );
   void buildAdditionalBarrelLinks();
   void buildAdditionalForwardLinks(SymmetricLayerFinder& symFinder);
@@ -209,7 +210,6 @@ linkBarrelLayers( SymmetricLayerFinder& symFinder)
                                    rightFL,theField, 5.,false));
   }
 }
-
 
 // identical to  SimpleNavigationSchool but for the last additional stuff
 void CosmicNavigationSchool::establishInverseRelations(SymmetricLayerFinder& symFinder) {

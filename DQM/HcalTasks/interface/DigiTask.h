@@ -69,6 +69,8 @@ class DigiTask : public hcaldqm::DQTask
 		//	hashes/FED vectors
 		std::vector<uint32_t> _vhashFEDs;
 
+		std::map<HcalSubdetector, int> _refDigiSize;
+
 		//	emap
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap; // online only
 		hcaldqm::electronicsmap::ElectronicsMap _dhashmap;

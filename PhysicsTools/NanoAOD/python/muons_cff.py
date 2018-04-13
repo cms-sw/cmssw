@@ -26,7 +26,7 @@ run2_miniAOD_80XLegacy.toModify(isoForMu, src = "slimmedMuonsUpdated", EAFile_Mi
 run2_nanoAOD_92X.toModify(isoForMu, src = "slimmedMuonsUpdated")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
-    srcJet = cms.InputTag("slimmedJets"),
+    srcJet = cms.InputTag("updatedJets"),
     srcLep = cms.InputTag("slimmedMuons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )

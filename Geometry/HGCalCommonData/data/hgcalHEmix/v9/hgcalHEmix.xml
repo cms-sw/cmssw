@@ -16,24 +16,33 @@
       HEHeatShield</Vector>
     <Vector name="Thickness" type="numeric" nEntries="6">
       35.0*mm, 68.0*mm,  1.0*mm,  1.0*mm, 7.9*mm, 6.0*mm</Vector>
-    <Vector name="Layers" type="numeric" nEntries="12"> 
-      5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</Vector>
-    <Vector name="LayerThick" type="numeric" nEntries="12"> 
+    <Vector name="Layers" type="numeric" nEntries="16"> 
+      5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="16"> 
       50.9*mm, 50.9*mm, 50.9*mm, 50.9*mm, 83.9*mm, 83.9*mm,
-      83.9*mm, 83.9*mm, 83.9*mm, 83.9*mm, 83.9*mm, 83.9*mm</Vector>
-    <Vector name="LayerRmix" type="numeric" nEntries="12"> 
-      1380.0*mm, 1320.0*mm, 1200.0*mm, 1200.0*mm, 1150.0*mm, 1060.0*mm,
-       910.0*mm,  910.0*mm,  910.0*mm,  910.0*mm,  910.0*mm,  910.0*mm</Vector>
-    <Vector name="LayerType" type="numeric" nEntries="60"> 
+      83.9*mm, 83.9*mm, 83.9*mm, 83.9*mm, 83.9*mm, 83.9*mm,
+      83.9*mm, 83.9*mm, 83.9*mm, 83.9*mm</Vector>
+    <Vector name="LayerRmix" type="numeric" nEntries="16"> 
+      [hgcal:radMixL0],  [hgcal:radMixL1],  [hgcal:radMixL2],
+      [hgcal:radMixL3],  [hgcal:radMixL4],  [hgcal:radMixL5],
+      [hgcal:radMixL6],  [hgcal:radMixL7],  [hgcal:radMixL8],
+      [hgcal:radMixL9],  [hgcal:radMixL10], [hgcal:radMixL11],
+      [hgcal:radMixL12], [hgcal:radMixL13], [hgcal:radMixL14],
+      [hgcal:radMixL15]</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="80"> 
       0, 2, 3, 4, 5,  0, 2, 3, 4, 5,  0, 2, 3, 4, 5,
       0, 2, 3, 4, 5,  1, 2, 3, 4, 5,  1, 2, 3, 4, 5,
       1, 2, 3, 4, 5,  1, 2, 3, 4, 5,  1, 2, 3, 4, 5,
-      1, 2, 3, 4, 5,  1, 2, 3, 4, 5,  1, 2, 3, 4, 5 </Vector>
-    <Vector name="LayerSense" type="numeric" nEntries="60">
+      1, 2, 3, 4, 5,  1, 2, 3, 4, 5,  1, 2, 3, 4, 5,
+      1, 2, 3, 4, 5,  1, 2, 3, 4, 5,  1, 2, 3, 4, 5,
+      1, 2, 3, 4, 5 </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="80">
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
       0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
-      0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0 </Vector>
+      0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
+      0, 0, 0, 1, 0,  0, 0, 0, 1, 0,  0, 0, 0, 1, 0,
+      0, 0, 0, 1, 0 </Vector>
     <Numeric name="FirstLayer"       value="9"/>
     <Vector name="TopMaterialNames" type="string" nEntries="3">
       materials:Cables, materials:H_Scintillator, 
@@ -56,8 +65,14 @@
     <Vector name="BottomLayerSense" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 1, 0</Vector>
     <Numeric name="zMinBlock"        value="[hgcal:zMinHEmix]"/>
-    <Numeric name="rMaxFine"         value="[hgcal:rMaxFine]"/>
-    <Numeric name="rMinThick"        value="[hgcal:rMaxMiddle]"/>
+    <Vector name="rad100to200" type="numeric" nEntries="5">
+      [hgcal:rad100200P0], [hgcal:rad100200P1], [hgcal:rad100200P2],
+      [hgcal:rad100200P3], [hgcal:rad100200P4]</Vector>
+    <Vector name="rad200to300" type="numeric" nEntries="5">
+      [hgcal:rad200300P0], [hgcal:rad200300P1], [hgcal:rad200300P2],
+      [hgcal:rad200300P3], [hgcal:rad200300P4]</Vector>
+    <Numeric name="zMinForRadPar"    value="[hgcal:zMinForRadPar]"/>
+    <Numeric name="nCornerCut"       value="[hgcal:NCornerCut]"/>
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
     <Numeric name="Sectors"          value="18"/>

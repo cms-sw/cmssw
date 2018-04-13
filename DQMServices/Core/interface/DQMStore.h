@@ -11,6 +11,7 @@
 #include <iosfwd>
 #include <list>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
@@ -58,7 +59,6 @@ class fastmatch
 
  public:
   fastmatch (std::string  _fastString);
-  ~fastmatch();
 
   bool match (std::string const& s) const;
 
@@ -70,7 +70,7 @@ class fastmatch
   bool compare_strings (std::string const& pattern,
                         std::string const& input) const;
 
-  lat::Regexp * regexp_;
+  std::unique_ptr<lat::Regexp> regexp_{nullptr};
   std::string fastString_;
   MatchingHeuristicEnum matching_;
 };
@@ -359,7 +359,8 @@ class DQMStore
       run_ = run;
       moduleId_ = moduleId;
     }
-    f(*ibooker_);
+    IBooker booker{this};
+    f(booker);
 
     /* Reset the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
@@ -393,7 +394,9 @@ class DQMStore
   // is not needed.
   template <typename iFunc>
   void meBookerGetter(iFunc f) {
-    f(*ibooker_, *igetter_);
+    IBooker booker{this};
+    IGetter getter{this};
+    f(booker, getter);
   }
 
   //-------------------------------------------------------------------------
@@ -791,8 +794,8 @@ class DQMStore
   void print_trace(const std::string &dir, const std::string &name);
 
   // ----------------------- Unavailable ---------------------------------------
-  DQMStore(const DQMStore&);
-  const DQMStore& operator=(const DQMStore&);
+  DQMStore(DQMStore const&) = delete;
+  DQMStore& operator=(DQMStore const&) = delete;
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
@@ -828,20 +831,20 @@ class DQMStore
                                     TFile & file,
                                     unsigned int & counter);
 
-  unsigned                      verbose_;
-  unsigned                      verboseQT_;
-  bool                          reset_;
+  unsigned                      verbose_{1};
+  unsigned                      verboseQT_{1};
+  bool                          reset_{false};
   double                        scaleFlag_;
-  bool                          collateHistograms_;
-  bool                          enableMultiThread_;
+  bool                          collateHistograms_{false};
+  bool                          enableMultiThread_{false};
   bool                          LSbasedMode_;
-  bool                          forceResetOnBeginLumi_;
-  std::string                   readSelectedDirectory_;
-  uint32_t                      run_;
-  uint32_t                      moduleId_;
-  std::ofstream *               stream_;
+  bool                          forceResetOnBeginLumi_{false};
+  std::string                   readSelectedDirectory_{};
+  uint32_t                      run_{};
+  uint32_t                      moduleId_{};
+  std::unique_ptr<std::ostream> stream_{nullptr};
 
-  std::string                   pwd_;
+  std::string                   pwd_{};
   MEMap                         data_;
   std::set<std::string>         dirs_;
 
@@ -850,8 +853,6 @@ class DQMStore
   QTestSpecs                    qtestspecs_;
 
   std::mutex book_mutex_;
-  IBooker * ibooker_;
-  IGetter * igetter_;
 
   friend class edm::DQMHttpSource;
   friend class DQMService;

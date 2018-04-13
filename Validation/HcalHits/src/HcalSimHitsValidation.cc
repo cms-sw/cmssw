@@ -13,6 +13,10 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const& conf) {
   hcalHits_ = conf.getUntrackedParameter<std::string>("HcalHitCollection","HcalHits");
   ebHits_ = conf.getUntrackedParameter<std::string>("EBHitCollection","EcalHitsEB");
   eeHits_ = conf.getUntrackedParameter<std::string>("EEHitCollection","EcalHitsEE");
+  
+  // import sampling factors
+  hf1_ = conf.getParameter<double>("hf1");
+  hf2_ = conf.getParameter<double>("hf2");
 
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_,hcalHits_));
@@ -289,8 +293,8 @@ void HcalSimHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
   //Approximate calibration constants
   const float calib_HB = 120.;
   const float calib_HE = 190.;
-  const float calib_HF1 = 1.0/0.383;
-  const float calib_HF2 = 1.0/0.368;
+  const float calib_HF1 = hf1_;//1.0/0.383;
+  const float calib_HF2 = hf2_;//1.0/0.368;
   
   edm::Handle<PCaloHitContainer> hcalHits;
   ev.getByToken(tok_hcal_,hcalHits);

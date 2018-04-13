@@ -18,7 +18,7 @@ limitations under the License.
 
 /*
 This file is an adaptation of the original direct_session.cc file located at
-https://github.com/tensorflow/tensorflow/blob/v1.5.0/tensorflow/core/common_runtime/direct_session.cc
+https://github.com/tensorflow/tensorflow/blob/v1.6.0/tensorflow/core/common_runtime/direct_session.cc
 to meet the demands of the software environment developed and used by the CMS collaboration.
 
 Changes with respect to the original code are documented in the NTSession.h header file.
@@ -76,7 +76,6 @@ Changes with respect to the original code are documented in the NTSession.h head
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/util/device_name_utils.h"
 #include "tensorflow/core/util/env_var.h"
-
 
 namespace tensorflow {
 
@@ -248,6 +247,10 @@ NTSession::~NTSession() {
   for (auto d : device_mgr_->ListDevices()) {
     d->op_segment()->RemoveHold(session_handle_);
   }
+  for (auto d : device_mgr_->ListDevices()) {
+    d->ClearResourceMgr();
+  }
+  functions_.clear();
   delete cancellation_manager_;
 
   execution_state_.reset(nullptr);
@@ -384,8 +387,9 @@ Status NTSession::Run(const RunOptions& run_options,
   args.step_id = step_id_counter_.fetch_add(1);
 
   TF_RETURN_IF_ERROR(
-      GetOrCreateExecutors(input_tensor_names, output_names, target_nodes,
-                           &executors_and_keys, &run_state_args));
+      GetOrCreateExecutors(input_tensor_names, output_names,
+                           target_nodes, &executors_and_keys,
+                           &run_state_args));
   const int64 executor_step_count = executors_and_keys->step_count.fetch_add(1);
 
   std::unique_ptr<DebuggerStateInterface> debugger_state;
@@ -1053,12 +1057,13 @@ Status NTSession::GetOrCreateExecutors(
     options.debug_options = run_state_args->debug_options;
   }
 
+  std::unique_ptr<FunctionInfo> func_info(new FunctionInfo);
   std::shared_ptr<ExecutorsAndKeys> ek(new ExecutorsAndKeys);
 
   // The executor_lock_ is intentionally released while executor is
   // being created.
   std::unordered_map<string, std::unique_ptr<Graph>> graphs;
-  TF_RETURN_IF_ERROR(CreateGraphs(options, &graphs, &ek->flib_def,
+  TF_RETURN_IF_ERROR(CreateGraphs(options, &graphs, &func_info->flib_def,
                                   run_state_args, &ek->input_types,
                                   &ek->output_types));
 
@@ -1089,9 +1094,9 @@ Status NTSession::GetOrCreateExecutors(
     graph_def_version =
         execution_state_->original_graph_def().versions().producer();
   }
-  ek->proc_flr.reset(new ProcessFunctionLibraryRuntime(
-      device_mgr_.get(), options_.env, graph_def_version, ek->flib_def.get(),
-      optimizer_opts));
+  func_info->proc_flr.reset(new ProcessFunctionLibraryRuntime(
+      device_mgr_.get(), options_.env, graph_def_version,
+      func_info->flib_def.get(), optimizer_opts));
 
   GraphOptimizer optimizer(optimizer_opts);
   for (auto iter = graphs.begin(); iter != graphs.end(); ++iter) {
@@ -1103,7 +1108,7 @@ Status NTSession::GetOrCreateExecutors(
 
     ek->items.resize(ek->items.size() + 1);
     auto* item = &(ek->items.back());
-    auto lib = ek->proc_flr->GetFLR(partition_name);
+    auto lib = func_info->proc_flr->GetFLR(partition_name);
     if (lib == nullptr) {
       return errors::Internal("Could not find device: ", partition_name);
     }
@@ -1199,6 +1204,7 @@ Status NTSession::GetOrCreateExecutors(
 
   // Reacquire the lock, try to insert into the map.
   mutex_lock l(executor_lock_);
+  functions_.push_back(std::move(func_info));
 
   // Another thread may have created the entry before us, in which case we will
   // reuse the already created one.

@@ -26,6 +26,7 @@ public:
 
 private:
   DAFTrackProducerAlgorithm theAlgo;
+  using TrackProducerBase<reco::Track>::getFromEvt;
   void getFromEvt(edm::Event&, edm::Handle<TrajTrackAssociationCollection>&, reco::BeamSpot&);
   void putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollection & trajannResults,
                 std::unique_ptr<TrajAnnealingCollection>& selTrajAnn);
