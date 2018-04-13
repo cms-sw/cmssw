@@ -577,7 +577,7 @@ Dimuon0_addTrackMu_Onia.trOrMu = cms.int32(True)
 
 Dimuon0_addTrackMu_Phi1 = hltBPHmonitoring.clone()
 Dimuon0_addTrackMu_Phi1.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Phi1/')
-Dimuon0_addTrackMu_Phi.tnp = cms.bool(False)
+Dimuon0_addTrackMu_Phi1.tnp = cms.bool(False)
 Dimuon0_addTrackMu_Phi1.minmassJpsiTk = cms.double(0.920)
 Dimuon0_addTrackMu_Phi1.maxmassJpsiTk = cms.double(1.120)
 Dimuon0_addTrackMu_Phi1.enum = cms.int32(10)
