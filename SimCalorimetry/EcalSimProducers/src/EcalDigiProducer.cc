@@ -293,6 +293,9 @@ EcalDigiProducer::~EcalDigiProducer()
 
 void
 EcalDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& eventSetup) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  randomEngine_ = &rng->getEngine(event.streamID());
+
    checkGeometry( eventSetup );
    checkCalibrations( event, eventSetup );
    if( m_doEB ) {
@@ -314,24 +317,24 @@ EcalDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const
 }
 
 void
-EcalDigiProducer::accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
+EcalDigiProducer::accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing) {
   if(m_doEB && ebHandle.isValid()) {
-    m_BarrelDigitizer->add(*ebHandle.product(), bunchCrossing, engine);
+    m_BarrelDigitizer->add(*ebHandle.product(), bunchCrossing, randomEngine_);
 
     if(m_apdSeparateDigi) {
-      m_APDDigitizer->add(*ebHandle.product(), bunchCrossing, engine);
+      m_APDDigitizer->add(*ebHandle.product(), bunchCrossing, randomEngine_);
     }
   }
 
   if(m_doEE && eeHandle.isValid()) {
-    m_EndcapDigitizer->add(*eeHandle.product(), bunchCrossing, engine);
+    m_EndcapDigitizer->add(*eeHandle.product(), bunchCrossing, randomEngine_);
   }
 
   if(m_doES && esHandle.isValid()) {
     if(m_doFastES) {
-      m_ESDigitizer->add(*esHandle.product(), bunchCrossing, engine);
+      m_ESDigitizer->add(*esHandle.product(), bunchCrossing, randomEngine_);
     } else {
-      m_ESOldDigitizer->add(*esHandle.product(), bunchCrossing, engine);
+      m_ESOldDigitizer->add(*esHandle.product(), bunchCrossing, randomEngine_);
     }
   }
 }
@@ -357,7 +360,7 @@ EcalDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eventSe
     e.getByLabel(esTag, esHandle);
   }
 
-  accumulateCaloHits(ebHandle, eeHandle, esHandle, 0, randomEngine(e.streamID()));
+  accumulateCaloHits(ebHandle, eeHandle, esHandle, 0);
 }
 
 void
@@ -381,7 +384,7 @@ EcalDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup cons
     e.getByLabel(esTag, esHandle);
   }
 
-  accumulateCaloHits(ebHandle, eeHandle, esHandle, e.bunchCrossing(), randomEngine(streamID));
+  accumulateCaloHits(ebHandle, eeHandle, esHandle, e.bunchCrossing());
 }
 
 void 
@@ -396,27 +399,27 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
    // run the algorithm
 
    if( m_doEB ) {
-     m_BarrelDigitizer->run( *barrelResult, randomEngine(event.streamID()) ) ;
+     m_BarrelDigitizer->run( *barrelResult, randomEngine_ ) ;
      cacheEBDigis( &*barrelResult ) ;
      
      edm::LogInfo("DigiInfo") << "EB Digis: " << barrelResult->size() ;
      
      if( m_apdSeparateDigi ) {
-       m_APDDigitizer->run( *apdResult, randomEngine(event.streamID()) ) ;
+       m_APDDigitizer->run( *apdResult, randomEngine_ ) ;
        edm::LogInfo("DigiInfo") << "APD Digis: " << apdResult->size() ;
      }
    }
 
    if( m_doEE ) {
-     m_EndcapDigitizer->run( *endcapResult, randomEngine(event.streamID()) ) ;
+     m_EndcapDigitizer->run( *endcapResult, randomEngine_ ) ;
      edm::LogInfo("EcalDigi") << "EE Digis: " << endcapResult->size() ;
      cacheEEDigis( &*endcapResult ) ;
    }
    if( m_doES ) {
      if(m_doFastES) {
-       m_ESDigitizer->run( *preshowerResult, randomEngine(event.streamID()) ) ;
+       m_ESDigitizer->run( *preshowerResult, randomEngine_ ) ;
      } else {
-       m_ESOldDigitizer->run( *preshowerResult, randomEngine(event.streamID()) ) ;
+       m_ESOldDigitizer->run( *preshowerResult, randomEngine_ ) ;
      }
      edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
    }
@@ -430,6 +433,8 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
    event.put(std::move(barrelResult),    m_EBdigiCollection ) ;
    event.put(std::move(endcapResult),    m_EEdigiCollection ) ;
    event.put(std::move(preshowerResult), m_ESdigiCollection ) ;
+
+   randomEngine_ = nullptr; // to prevent access outside event
 }
 
 void
@@ -626,20 +631,6 @@ EcalDigiProducer::updateGeometry()
 	 m_ESDigitizer->setDetIds( *theESDets ) ; 
    }
   }
-}
-
-CLHEP::HepRandomEngine* EcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
-  unsigned int index = streamID.value();
-  if(index >= randomEngines_.size()) {
-    randomEngines_.resize(index + 1, nullptr);
-  }
-  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-  if(!ptr) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    ptr = &rng->getEngine(streamID);
-    randomEngines_[index] = ptr;
-  }
-  return ptr;
 }
 
 void EcalDigiProducer::setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator) {
