@@ -138,7 +138,7 @@ process.prescaleEvent.prescale = 1
 
 #process.TkCalPath = cms.Path(process.L1T1*process.TkCalFullSequence)
 
-process.testTree = cms.EDAnalyzer(
+process.eventInfo = cms.EDAnalyzer(
    "ShallowTree",
    outputCommands = cms.untracked.vstring(
       'drop *',
@@ -148,12 +148,12 @@ process.testTree = cms.EDAnalyzer(
 
 
 
-process.TkCalPath_StdBunch   = cms.Path(process.TkCalSeq_StdBunch   *process.shallowEventRun*process.testTree)
-process.TkCalPath_StdBunch0T = cms.Path(process.TkCalSeq_StdBunch0T *process.shallowEventRun*process.testTree)
-process.TkCalPath_IsoMuon    = cms.Path(process.TkCalSeq_IsoMuon    *process.shallowEventRun*process.testTree)
-process.TkCalPath_IsoMuon0T  = cms.Path(process.TkCalSeq_IsoMuon0T  *process.shallowEventRun*process.testTree)
-process.TkCalPath_AagBunch   = cms.Path(process.TkCalSeq_AagBunch   *process.shallowEventRun*process.testTree)
-process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T *process.shallowEventRun*process.testTree)
+process.TkCalPath_StdBunch   = cms.Path(process.TkCalSeq_StdBunch   *process.shallowEventRun*process.eventInfo)
+process.TkCalPath_StdBunch0T = cms.Path(process.TkCalSeq_StdBunch0T *process.shallowEventRun*process.eventInfo)
+process.TkCalPath_IsoMuon    = cms.Path(process.TkCalSeq_IsoMuon    *process.shallowEventRun*process.eventInfo)
+process.TkCalPath_IsoMuon0T  = cms.Path(process.TkCalSeq_IsoMuon0T  *process.shallowEventRun*process.eventInfo)
+process.TkCalPath_AagBunch   = cms.Path(process.TkCalSeq_AagBunch   *process.shallowEventRun*process.eventInfo)
+process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T *process.shallowEventRun*process.eventInfo)
 
 
 process.schedule = cms.Schedule( process.TkCalPath_StdBunch,
