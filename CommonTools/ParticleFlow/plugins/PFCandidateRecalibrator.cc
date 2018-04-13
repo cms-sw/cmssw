@@ -176,7 +176,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 	//deal with HF
 	else if(fabs(pf.eta()) > 3.)
 	  {
-	    math::XYZPointF ecalPoint = pf.positionAtECALEntrance();
+	    const math::XYZPointF& ecalPoint = pf.positionAtECALEntrance();
 	    GlobalPoint ecalGPoint(ecalPoint.X(),ecalPoint.Y(),ecalPoint.Z());
 	    HcalDetId closestDetId(hgeom->getClosestCell(ecalGPoint));
 	    
