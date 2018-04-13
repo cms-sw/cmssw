@@ -57,8 +57,7 @@ using namespace edm;
 using namespace sipixelobjects;
 
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common, 
-								 const edm::ParameterSet& conf_specific, 
-								 CLHEP::HepRandomEngine& eng):
+								 const edm::ParameterSet& conf_specific):
   _signal(),
   makeDigiSimLinks_(conf_specific.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
   use_ineff_from_db_(conf_specific.getParameter<bool>("Inefficiency_DB")),
@@ -152,14 +151,9 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   fluctuate(fluctuateCharge ? new SiG4UniversalFluctuation() : nullptr),
   theNoiser(addNoise ? new GaussianTailNoiseGenerator() : nullptr),
   theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf_specific) : nullptr),
-  subdetEfficiencies_(conf_specific),
-  flatDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandFlat(eng, 0., 1.) : nullptr),
-  gaussDistribution_((addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) ? new CLHEP::RandGaussQ(eng, 0., theReadoutNoise) : nullptr),
-  // Threshold smearing with gaussian distribution:
-  smearedThreshold_Endcap_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_Endcap , theThresholdSmearing_Endcap) : nullptr),
-  smearedThreshold_Barrel_(addThresholdSmearing ? new CLHEP::RandGaussQ(eng, theThresholdInE_Barrel , theThresholdSmearing_Barrel) : nullptr),
-  rengine_(&eng)
+  subdetEfficiencies_(conf_specific)
 {
+
   LogInfo("Phase2TrackerDigitizerAlgorithm") << "Phase2TrackerDigitizerAlgorithm constructed\n"
 			    << "Configuration parameters:\n"
 			    << "Threshold/Gain = "
@@ -719,13 +713,27 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
   // Now loop again over pixels to kill some of them.
   // Loop over hits, amplitude in electrons, channel = coded row,col
   for (auto & s : theSignal) {
-    float rand = flatDistribution_->fire();
+    float rand = rengine_->flat();
     if( rand>subdetEfficiency ) {
       // make amplitude =0
       s.second.set(0.); // reset amplitude,
     }
   } 
 } 
+void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& eng) {
+  if (addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) {
+    
+    gaussDistribution_ = std::make_unique<CLHEP::RandGaussQ>(eng, 0., theReadoutNoise);
+  }
+  // Threshold smearing with gaussian distribution:
+  if (addThresholdSmearing) {
+    smearedThreshold_Endcap_ = std::make_unique<CLHEP::RandGaussQ> (eng, theThresholdInE_Endcap , theThresholdSmearing_Endcap);
+    smearedThreshold_Barrel_ = std::make_unique<CLHEP::RandGaussQ> (eng, theThresholdInE_Barrel , theThresholdSmearing_Barrel);
+  }
+  rengine_ = (&eng);
+  _signal.clear();
+}
+
 // =======================================================================================
 //
 // Set the drift direction accoring to the Bfield in local det-unit frame
