@@ -517,7 +517,7 @@ template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  
   Rotation3D rot = makeRotation3D( axis, angle );
   printout(ctx->debug_rotations ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Adding rotation: %-32s: (axis/angle)[rad] Axis: %6.3f Angle: %6.3f",
-           _ns.prepend(nam).c_str(),axis, angle);
+           _ns.prepend(nam).c_str(), axis.c_str(), angle);
   _ns.addRotation(nam, rot);
 }
 
