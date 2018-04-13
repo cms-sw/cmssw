@@ -128,7 +128,7 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
   es.get<TrackerDigiGeometryRecord>().get(geom_);
 
   // Read template files for charge reweighting
-  if (UseTemplateAgeing){
+  if (UseReweighting){
     edm::ESHandle<SiPixel2DTemplateDBObject> SiPixel2DTemp_den;
     es.get<SiPixel2DTemplateDBObjectRcd>().get("denominator",SiPixel2DTemp_den);
     dbobject_den = SiPixel2DTemp_den.product();
@@ -265,7 +265,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Add pixel radiation damage for upgrade studies
   AddPixelAging(conf.getParameter<bool>("DoPixelAging")),
-  UseTemplateAgeing(conf.exists("UseTemplateAgeing")?conf.getParameter<bool>("UseTemplateAgeing"):false),
+  UseReweighting(conf.exists("UseReweighting")?conf.getParameter<bool>("UseReweighting"):false),
   PrintClusters(conf.exists("PrintClusters")?conf.getParameter<bool>("PrintClusters"):false),
   PrintTemplates(conf.exists("PrintTemplates")?conf.getParameter<bool>("PrintTemplates"):false),
 
@@ -1253,7 +1253,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   // Fill the global map with all hit pixels from this event
 
    bool reweighted = false;
-   if (UseTemplateAgeing){
+   if (UseReweighting){
      if(hit.processType()==0){
        reweighted = hitSignalReweight (hit, hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType());
      }else{
@@ -2152,7 +2152,7 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   int ierr;
   // for unirradiated: 2nd argument is IDden
   // for irradiated: 2nd argument is IDnum
-  if (UseTemplateAgeing == true){
+  if (UseReweighting == true){
     int ID1 = dbobject_num->getTemplateID(detID);
     int ID0 = dbobject_den->getTemplateID(detID);
     //ierr = PixelTempRewgt2D(IDden, IDnum, pixrewgt);
