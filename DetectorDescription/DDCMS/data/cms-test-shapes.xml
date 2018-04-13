@@ -32,6 +32,7 @@
   </ConstantsSection>
 
   <IncludeSection>
+    <Include ref="testRotations.xml"/>
     <Include ref="testSolids.xml"/>
     <Include ref="materials.xml"/>
   </IncludeSection>

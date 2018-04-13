@@ -282,10 +282,7 @@ template <> void Converter<solidsection>::operator()(xml_h element) const   {
       Converter<DDLShapeless>(description,_ns.context,optional)(solid);
       break;
     default:
-      string nam = xml_dim_t(solid).nameStr();
-      std::ostringstream msg;
-      msg << "Request to process unknown shape '" << nam.c_str() << "' [" << tag.c_str() << "]";
-      throw std::runtime_error( msg.str());
+      throw std::runtime_error( "Request to process unknown shape '" + xml_dim_t(solid).nameStr() + "' [" + tag + "]");
       break;
     }
   }
@@ -475,7 +472,6 @@ template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) cons
       medium->SetTitle("material");
       medium->SetUniqueID(unique_mat_id);
     }
-    
   }
 }
 
@@ -511,14 +507,17 @@ template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  
   ParsingContext* ctx = _param<ParsingContext>();
   Namespace _ns(ctx);
   xml_dim_t xrot(element);
-  string    nam  = xrot.nameStr();
-  string    axis = _ns.attr<string>(xrot,_CMU(axis));
-  double    angle = _ns.attr<double>(xrot,_U(angle));
-  Rotation3D rot = makeRotation3D( axis, angle );
-  printout(ctx->debug_rotations ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ Adding rotation: %-32s: (axis/angle)[rad] Axis: %6.3f Angle: %6.3f",
-           _ns.prepend(nam).c_str(), axis.c_str(), angle);
-  _ns.addRotation(nam, rot);
+  xml_dim_t par(xrot.parent());
+  if( xrot.hasAttr(_U(name))) {
+    string    nam  = xrot.nameStr() + string("Rotation"); // xrot.hasAttr(_U(name)) ? xrot.nameStr() : par.nameStr();
+    string    axis = _ns.attr<string>(xrot,_CMU(axis));
+    double    angle = _ns.attr<double>(xrot,_U(angle));
+    Rotation3D rot = makeRotation3D( axis, angle );
+    printout(ctx->debug_rotations ? ALWAYS : DEBUG,
+	     "MyDDCMS","+++ Adding rotation: %-32s: (axis/angle)[rad] Axis: %s Angle: %6.3f",
+	     _ns.prepend(nam).c_str(), axis.c_str(), angle);
+    _ns.addRotation(nam, rot);
+  }
 }
 
 /// Converter for <Logicalpart/> tags

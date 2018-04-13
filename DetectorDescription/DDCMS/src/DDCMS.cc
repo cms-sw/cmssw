@@ -73,7 +73,7 @@ string dd4hep::cms::detElementName(PlacedVolume pv)   {
     //size_t idx = nnam.rfind('_');
     //return idx == string::npos ? nnam : nnam.substr(0,idx);
   }
-  except("DDCMS","++ Cannot deduce name from invalid PlacedVolume handle!");
+  except("MyDDCMS","++ Cannot deduce name from invalid PlacedVolume handle!");
   return string();
 }
 
@@ -87,7 +87,7 @@ Namespace::Namespace(ParsingContext* ctx, xml_h element) : context(ctx)  {
       name = context->namespaces.back();
     }
     printout(context->debug_namespaces ? ALWAYS : DEBUG,
-             "DDCMS","+++ Current namespace is now: %s",name.c_str());
+             "MyDDCMS","+++ Current namespace is now: %s",name.c_str());
     return;
   }
   if ( has_label )   {
@@ -102,7 +102,7 @@ Namespace::Namespace(ParsingContext* ctx, xml_h element) : context(ctx)  {
   context->namespaces.push_back(name);
   pop = true;
   printout(context->debug_namespaces ? ALWAYS : DEBUG,
-           "DDCMS","+++ Current namespace is now: %s",name.c_str());
+           "MyDDCMS","+++ Current namespace is now: %s",name.c_str());
   return;
 }
 
@@ -123,7 +123,7 @@ Namespace::Namespace(ParsingContext& ctx, xml_h element, bool ) : context(&ctx) 
   context->namespaces.push_back(name);
   pop = true;
   printout(context->debug_namespaces ? ALWAYS : DEBUG,
-           "DDCMS","+++ Current namespace is now: %s",name.c_str());
+           "MyDDCMS","+++ Current namespace is now: %s",name.c_str());
   return;
 }
 
@@ -142,7 +142,7 @@ Namespace::~Namespace()   {
   if ( pop )  {
     context->namespaces.pop_back();
     printout(context->debug_namespaces ? ALWAYS : DEBUG,
-             "DDCMS","+++ Current namespace is now: %s",context->ns().c_str());
+             "MyDDCMS","+++ Current namespace is now: %s",context->ns().c_str());
   }
 }
 
@@ -199,7 +199,7 @@ void Namespace::addConstantNS(const string& nam, const string& val, const string
   const string& v = val;
   const string& n = nam;
   printout(context->debug_constants ? ALWAYS : DEBUG,
-           "DDCMS","+++ Add constant object: %-40s = %s [type:%s]",
+           "MyDDCMS","+++ Add constant object: %-40s = %s [type:%s]",
            n.c_str(), v.c_str(), typ.c_str());
   _toDictionary(n, v, typ);
   Constant c(n, v, typ);
@@ -247,7 +247,7 @@ Volume Namespace::addVolumeNS(Volume vol)  const  {
   Material m = vol.material();
   vol->SetName(n.c_str());
   context->volumes[n] = vol;
-  printout(context->debug_volumes ? ALWAYS : DEBUG, "DDCMS",
+  printout(context->debug_volumes ? ALWAYS : DEBUG, "MyDDCMS",
            "+++ Add volume:%-38s Solid:%-26s[%-16s] Material:%s",
            vol.name(), s.name(), s.type(), m.name());
   return vol;
@@ -260,7 +260,7 @@ Volume Namespace::addVolume(Volume vol)  const  {
   Material m = vol.material();
   vol->SetName(n.c_str());
   context->volumes[n] = vol;
-  printout(context->debug_volumes ? ALWAYS : DEBUG, "DDCMS",
+  printout(context->debug_volumes ? ALWAYS : DEBUG, "MyDDCMS",
            "+++ Add volume:%-38s Solid:%-26s[%-16s] Material:%s",
            vol.name(), s.name(), s.type(), m.name());
   return vol;
@@ -287,7 +287,7 @@ Volume Namespace::volume(const string& nam, bool exc)  const   {
 
 /// Add solid to current namespace as fully indicated by the name
 Solid Namespace::addSolidNS(const string& nam,Solid sol)  const   {
-  printout(context->debug_shapes ? ALWAYS : DEBUG, "DDCMS",
+  printout(context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
            "+++ Add shape of type %s : %s",sol->IsA()->GetName(), nam.c_str());
   context->shapes[nam] = sol.setName(nam);
   return sol;
@@ -355,7 +355,7 @@ xml_h AlgoArguments::raw_arg(const string& nam)  const   {
       return p;
     }
   }
-  except("DDCMS","+++ Attempt to access non-existing algorithm option %s[%s]",name.c_str(),nam.c_str());
+  except("MyDDCMS","+++ Attempt to access non-existing algorithm option %s[%s]",name.c_str(),nam.c_str());
   throw runtime_error("DDCMS: Attempt to access non-existing algorithm option.");
 }
 
@@ -384,14 +384,14 @@ namespace {
     val = remove_whitespace(val);
     int res = gr.fromString(&data,val);
     if ( !res )  {
-      except("DDCMS","+++ VectorParam<%s>: %s -> %s [Invalid conversion:%d]",
+      except("MyDDCMS","+++ VectorParam<%s>: %s -> %s [Invalid conversion:%d]",
              typ.c_str(), nam.c_str(), val.c_str(), res);
     }
     else if ( num != (int)data.size() )  {
-      except("DDCMS","+++ VectorParam<%s>: %s -> %s [Invalid entry count: %d <> %ld]",
+      except("MyDDCMS","+++ VectorParam<%s>: %s -> %s [Invalid entry count: %d <> %ld]",
              typ.c_str(), nam.c_str(), val.c_str(), num, data.size());
     }
-    printout(DEBUG,"DDCMS","+++ VectorParam<%s>: ret=%d %s -> %s",
+    printout(DEBUG,"MyDDCMS","+++ VectorParam<%s>: ret=%d %s -> %s",
              typ.c_str(), res, nam.c_str(), gr.str(&data).c_str());
     return data;
   }
@@ -412,7 +412,7 @@ namespace {
     string val = xp.text();
     int    num = xp.attr<int>(_CMU(nEntries));
     if ( typ != req_typ )   {
-      except("DDCMS",
+      except("MyDDCMS",
              "+++ VectorParam<%s | %s>: %s -> <%s> %s [Incompatible vector-type]",
              req_typ, typ.c_str(), nam.c_str(), typeName(typeid(T)).c_str(),
              val.c_str());
@@ -428,7 +428,7 @@ namespace {
       T d = __cnv<T>(piece);
       data.push_back(d);
     }
-    printout(DEBUG,"DDCMS","+++ VectorParam<%s>: %s[%d] -> %s",
+    printout(DEBUG,"MyDDCMS","+++ VectorParam<%s>: %s[%d] -> %s",
              typ.c_str(), nam.c_str(), num, val.c_str());
     return data;
   }
