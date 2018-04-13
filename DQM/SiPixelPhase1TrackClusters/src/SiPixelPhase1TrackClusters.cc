@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// 
+//
 // Package:     SiPixelPhase1TrackClusters
 // Class  :     SiPixelPhase1TrackClusters
 //
@@ -35,8 +35,10 @@
 namespace {
 
 class SiPixelPhase1TrackClusters final : public SiPixelPhase1Base {
-enum {  
+enum {
   ON_TRACK_CHARGE,
+  ON_TRACK_BIGPIXELCHARGE,
+  ON_TRACK_NOTBIGPIXELCHARGE,
   ON_TRACK_SIZE,
   ON_TRACK_SHAPE,
   ON_TRACK_NCLUSTERS,
@@ -54,20 +56,20 @@ enum {
 
   ON_TRACK_SHAPE_OUTER,
   ON_TRACK_SHAPE_INNER,
- 
+
   ON_TRACK_SIZE_X_OUTER,
   ON_TRACK_SIZE_X_INNER,
   ON_TRACK_SIZE_X_F,
   ON_TRACK_SIZE_Y_OUTER,
   ON_TRACK_SIZE_Y_INNER,
   ON_TRACK_SIZE_Y_F,
-    
+
   ON_TRACK_SIZE_XY_OUTER,
   ON_TRACK_SIZE_XY_INNER,
   ON_TRACK_SIZE_XY_F,
   CHARGE_VS_SIZE_ON_TRACK,
 
-  ENUM_SIZE        
+  ENUM_SIZE
 };
 
 public:
@@ -87,11 +89,11 @@ SiPixelPhase1TrackClusters::SiPixelPhase1TrackClusters(const edm::ParameterSet& 
   applyVertexCut_(iConfig.getUntrackedParameter<bool>("VertexCut", true))
 {
   tracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
-  
+
   offlinePrimaryVerticesToken_ = applyVertexCut_ ?
                                   consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices")) :
                                   edm::EDGetTokenT<reco::VertexCollection>();
-                              
+
   pixelClusterShapeCacheToken_ = consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("clusterShapeCache"));
 }
 
@@ -137,18 +139,18 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   if ( !pixelClusterShapeCacheH.isValid() ) {
     edm::LogWarning("SiPixelPhase1TrackClusters")  << "PixelClusterShapeCache collection is not valid";
     return;
-  }  
+  }
   auto const & pixelClusterShapeCache = *pixelClusterShapeCacheH;
 
   for (auto const & track : *tracks) {
 
-    if (applyVertexCut_ && 
+    if (applyVertexCut_ &&
         (track.pt() < 0.75 || std::abs( track.dxy((*vertices)[0].position()) ) > 5 * track.dxyError())) continue;
 
     bool isBpixtrack = false, isFpixtrack = false, crossesPixVol = false;
 
     // find out whether track crosses pixel fiducial volume (for cosmic tracks)
-    auto d0 = track.d0(), dz = track.dz(); 
+    auto d0 = track.d0(), dz = track.dz();
     if (std::abs(d0) < 15 && std::abs(dz) < 50) crossesPixVol = true;
 
     auto etatk = track.eta();
@@ -156,9 +158,9 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
     auto const & trajParams = track.extra()->trajParams();
     assert(trajParams.size()==track.recHitsSize());
     auto hb = track.recHitsBegin();
-    
+
     for (unsigned int h = 0; h < track.recHitsSize(); h++){
-      
+
       auto hit = *(hb + h);
       if (!hit->isValid()) continue;
       auto id = hit->geographicalId();
@@ -169,25 +171,42 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       if (subdetid == PixelSubdetector::PixelEndcap) isFpixtrack = true;
       if (subdetid != PixelSubdetector::PixelBarrel && subdetid != PixelSubdetector::PixelEndcap) continue;
       bool iAmBarrel = subdetid == PixelSubdetector::PixelBarrel;
-      
+
       // PXB_L4 IS IN THE OTHER WAY
       // CAN BE XORed BUT LETS KEEP THINGS SIMPLE
-      bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) || 
+      bool iAmOuter = ((tkTpl.pxbLadder(id) % 2 == 1) && tkTpl.pxbLayer(id) != 4) ||
                       ((tkTpl.pxbLadder(id) % 2 != 1) && tkTpl.pxbLayer(id) == 4);
-                      
+
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
 
-      // auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-      // auto const & topol = geomdetunit->specificTopology();
-      
+      auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+      auto const & topol = geomdetunit->specificTopology();
+
       // get the cluster
       auto clustp = pixhit->cluster();
-      if (clustp.isNull()) continue; 
+      if (clustp.isNull()) continue;
       auto const & cluster = *clustp;
+      const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
+      for (unsigned int i = 0;  i < pixelsVec.size(); ++i) {
 
+        float pixx = pixelsVec[i].x; // index as float=iteger, row index
+        float pixy = pixelsVec[i].y; // same, col index
+
+        bool bigInX = topol.isItBigPixelInX(int(pixx));
+        bool bigInY = topol.isItBigPixelInY(int(pixy));
+        float pixel_charge = pixelsVec[i].adc;
+
+        if (bigInX==true || bigInY==true) {
+                histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+        }
+        else {
+                histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+
+        }
+      } // End loop over pixels
       auto const & ltp = trajParams[h];
-      
+
       auto localDir = ltp.momentum() / ltp.momentum().mag();
 
       // correct charge for track impact angle
@@ -201,7 +220,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       if(shapeFilter.getSizes(*pixhit, localDir, pixelClusterShapeCache, part, meas, pred)) {
        auto shape = shapeFilter.isCompatible(*pixhit, localDir, pixelClusterShapeCache);
        unsigned shapeVal = (shape ? 1 : 0);
-       
+
        if (iAmBarrel) {
          if(iAmOuter) {
            histo[ON_TRACK_SIZE_X_OUTER].fill(pred.first, cluster.sizeX(), id, &iEvent);
@@ -237,7 +256,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       histo[ON_TRACK_POSITIONF].fill(clustgp.x(),   clustgp.y(),     id, &iEvent);
 
       histo[CHARGE_VS_SIZE_ON_TRACK].fill(cluster.size(), charge, id, &iEvent);
-      
+
       if (iAmBarrel)  // Avoid mistakes even if specification < should > handle it
       {
         if(iAmOuter) {
@@ -252,17 +271,17 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
     // statistics on tracks
     histo[NTRACKS].fill(1, DetId(0), &iEvent);
-    if (isBpixtrack || isFpixtrack) 
+    if (isBpixtrack || isFpixtrack)
       histo[NTRACKS].fill(2, DetId(0), &iEvent);
-    if (isBpixtrack) 
+    if (isBpixtrack)
       histo[NTRACKS].fill(3, DetId(0), &iEvent);
-    if (isFpixtrack) 
+    if (isFpixtrack)
       histo[NTRACKS].fill(4, DetId(0), &iEvent);
 
     if (crossesPixVol) {
       if (isBpixtrack || isFpixtrack)
         histo[NTRACKS_INVOLUME].fill(1, DetId(0), &iEvent);
-      else 
+      else
         histo[NTRACKS_INVOLUME].fill(0, DetId(0), &iEvent);
     }
   }
@@ -275,4 +294,3 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelPhase1TrackClusters);
-
