@@ -48,6 +48,9 @@ namespace dd4hep {
 
     UNICODE(RotationSection);
     UNICODE(Rotation);
+    UNICODE(RotationSequence);
+    UNICODE(RotationByAxis);
+    UNICODE(axis);
     UNICODE(rRotation);
     UNICODE(thetaX);
     UNICODE(phiX);

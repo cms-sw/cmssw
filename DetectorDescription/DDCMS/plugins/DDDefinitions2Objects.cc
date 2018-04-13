@@ -45,11 +45,13 @@ namespace dd4hep {
     };
 
     class materialsection;
-    class elementarymaterial;
-    class compositematerial;
+    class DDLElementaryMaterial;
+    class DDLCompositeMaterial;
   
     class rotationsection;
-    class rotation;
+    class DDLRotation;
+    class DDLRotationSequence;
+    class DDLRotationByAxis;
     class transform3d;
 
     class pospartsection;
@@ -59,26 +61,24 @@ namespace dd4hep {
     class logicalpart;
 
     class solidsection;
-    class extrudedpolygon;
-    class shapeless;
-    class trapezoid;
-    class ellipsoid;
-    class ellipticaltube;
-    class pseudotrap;
-    class polyhedra;
-    class polycone;
-    class torus;
-    class trd1;
-    class trunctubs;
-    class cuttubs;
-    class tubs;
-    class orb;
-    class box;
-    class cone;
-    class sphere;
-    class unionsolid;
-    class intersectionsolid;
-    class subtractionsolid;
+    class DDLExtrudedPolygon;
+    class DDLShapeless;
+    class DDLTrapezoid;
+    class DDLEllipticalTube;
+    class DDLPseudoTrap;
+    class DDLPolyhedra;
+    class DDLPolycone;
+    class DDLTorus;
+    class DDLTrd1;
+    class DDLTruncTubs;
+    class DDLCutTubs;
+    class DDLTubs;
+    class DDLBox;
+    class DDLCone;
+    class DDLSphere;
+    class DDLUnionSolid;
+    class DDLIntersectionSolid;
+    class DDLSubtractionSolid;
     
     class algorithm;    
 
@@ -104,13 +104,17 @@ namespace dd4hep {
 
   /// Converter for <MaterialSection/> tags
   template <> void Converter<materialsection>::operator()(xml_h element) const;
-  template <> void Converter<elementarymaterial>::operator()(xml_h element) const;
-  template <> void Converter<compositematerial>::operator()(xml_h element) const;
+  template <> void Converter<DDLElementaryMaterial>::operator()(xml_h element) const;
+  template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) const;
 
   /// Converter for <RotationSection/> tags
   template <> void Converter<rotationsection>::operator()(xml_h element) const;
-  /// Converter for <Rotation/> tags
-  template <> void Converter<rotation>::operator()(xml_h element) const;
+  /// Converter for <DDLRotation/> tags
+  template <> void Converter<DDLRotation>::operator()(xml_h element) const;
+  /// Converter for <DDLRotationSequence/> tags
+  template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const;
+  /// Converter for <DDLRotationByAxis/> tags
+  template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const;
   template <> void Converter<transform3d>::operator()(xml_h element) const;
 
   /// Generic converter for  <LogicalPartSection/> tags
@@ -124,43 +128,41 @@ namespace dd4hep {
   /// Generic converter for solids: <SolidSection/> tags
   template <> void Converter<solidsection>::operator()(xml_h element) const;
   /// Converter for <UnionSolid/> tags
-  template <> void Converter<unionsolid>::operator()(xml_h element) const;
+  template <> void Converter<DDLUnionSolid>::operator()(xml_h element) const;
   /// Converter for <SubtractionSolid/> tags
-  template <> void Converter<subtractionsolid>::operator()(xml_h element) const;
+  template <> void Converter<DDLSubtractionSolid>::operator()(xml_h element) const;
   /// Converter for <IntersectionSolid/> tags
-  template <> void Converter<intersectionsolid>::operator()(xml_h element) const;
+  template <> void Converter<DDLIntersectionSolid>::operator()(xml_h element) const;
   /// Converter for <PseudoTrap/> tags
-  template <> void Converter<pseudotrap>::operator()(xml_h element) const;
+  template <> void Converter<DDLPseudoTrap>::operator()(xml_h element) const;
   /// Converter for <ExtrudedPolygon/> tags
-  template <> void Converter<extrudedpolygon>::operator()(xml_h element) const;
+  template <> void Converter<DDLExtrudedPolygon>::operator()(xml_h element) const;
   /// Converter for <ShapelessSolid/> tags
-  template <> void Converter<shapeless>::operator()(xml_h element) const;
+  template <> void Converter<DDLShapeless>::operator()(xml_h element) const;
   /// Converter for <Trapezoid/> tags
-  template <> void Converter<trapezoid>::operator()(xml_h element) const;
+  template <> void Converter<DDLTrapezoid>::operator()(xml_h element) const;
   /// Converter for <Polycone/> tags
-  template <> void Converter<polycone>::operator()(xml_h element) const;
+  template <> void Converter<DDLPolycone>::operator()(xml_h element) const;
   /// Converter for <Polyhedra/> tags
-  template <> void Converter<polyhedra>::operator()(xml_h element) const;
-  /// Converter for <Ellipsoid/> tags
-  template <> void Converter<ellipsoid>::operator()(xml_h element) const;
+  template <> void Converter<DDLPolyhedra>::operator()(xml_h element) const;
   /// Converter for <EllipticalTube/> tags
-  template <> void Converter<ellipticaltube>::operator()(xml_h element) const;
+  template <> void Converter<DDLEllipticalTube>::operator()(xml_h element) const;
   /// Converter for <Torus/> tags
-  template <> void Converter<torus>::operator()(xml_h element) const;
+  template <> void Converter<DDLTorus>::operator()(xml_h element) const;
   /// Converter for <Tubs/> tags
-  template <> void Converter<tubs>::operator()(xml_h element) const;
+  template <> void Converter<DDLTubs>::operator()(xml_h element) const;
   /// Converter for <CutTubs/> tags
-  template <> void Converter<cuttubs>::operator()(xml_h element) const;
+  template <> void Converter<DDLCutTubs>::operator()(xml_h element) const;
   /// Converter for <TruncTubs/> tags
-  template <> void Converter<trunctubs>::operator()(xml_h element) const;
+  template <> void Converter<DDLTruncTubs>::operator()(xml_h element) const;
   /// Converter for <Sphere/> tags
-  template <> void Converter<sphere>::operator()(xml_h element) const;
+  template <> void Converter<DDLSphere>::operator()(xml_h element) const;
   /// Converter for <Trd1/> tags
-  template <> void Converter<trd1>::operator()(xml_h element) const;
+  template <> void Converter<DDLTrd1>::operator()(xml_h element) const;
   /// Converter for <Cone/> tags
-  template <> void Converter<cone>::operator()(xml_h element) const;
-  /// Converter for <Box/> tags
-  template <> void Converter<box>::operator()(xml_h element) const;
+  template <> void Converter<DDLCone>::operator()(xml_h element) const;
+  /// Converter for <DDLBox/> tags
+  template <> void Converter<DDLBox>::operator()(xml_h element) const;
   /// Converter for <Algorithm/> tags
   template <> void Converter<algorithm>::operator()(xml_h element) const;
 
@@ -187,13 +189,15 @@ template <> void Converter<vissection>::operator()(xml_h element) const  {
 /// Converter for <MaterialSection/> tags
 template <> void Converter<materialsection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
-  xml_coll_t(element, _CMU(ElementaryMaterial)).for_each(Converter<elementarymaterial>(description,_ns.context,optional));
-  xml_coll_t(element, _CMU(CompositeMaterial)).for_each(Converter<compositematerial>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(ElementaryMaterial)).for_each(Converter<DDLElementaryMaterial>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(CompositeMaterial)).for_each(Converter<DDLCompositeMaterial>(description,_ns.context,optional));
 }
 
 template <> void Converter<rotationsection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
-  xml_coll_t(element, _CMU(Rotation)).for_each(Converter<rotation>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(Rotation)).for_each(Converter<DDLRotation>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(RotationSequence)).for_each(Converter<DDLRotationSequence>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(RotationByAxis)).for_each(Converter<DDLRotationByAxis>(description,_ns.context,optional));
 }
 
 template <> void Converter<pospartsection>::operator()(xml_h element) const   {
@@ -217,50 +221,72 @@ template <> void Converter<solidsection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
   for(xml_coll_t solid(element, _U(star)); solid; ++solid)   {
     string tag = solid.tag();
-    if ( tag == "Box" )
-      Converter<box>(description,_ns.context,optional)(solid);
-    else if ( tag == "Polycone" )
-      Converter<polycone>(description,_ns.context,optional)(solid);
-    else if ( tag == "Polyhedra" )
-      Converter<polyhedra>(description,_ns.context,optional)(solid);
-    else if ( tag == "Tubs" )
-      Converter<tubs>(description,_ns.context,optional)(solid);
-    else if ( tag == "CutTubs" )
-      Converter<cuttubs>(description,_ns.context,optional)(solid);
-    else if ( tag == "TruncTubs" )
-      Converter<trunctubs>(description,_ns.context,optional)(solid);
-    else if ( tag == "Tube" )
-      Converter<tubs>(description,_ns.context,optional)(solid);
-    else if ( tag == "Trd1" )
-      Converter<trd1>(description,_ns.context,optional)(solid);
-    else if ( tag == "Cone" )
-      Converter<cone>(description,_ns.context,optional)(solid);
-    else if ( tag == "Sphere" )
-      Converter<sphere>(description,_ns.context,optional)(solid);
-    else if ( tag == "Ellipsoid" )
-      Converter<ellipsoid>(description,_ns.context,optional)(solid);
-    else if ( tag == "EllipticalTube" )
-      Converter<ellipticaltube>(description,_ns.context,optional)(solid);
-    else if ( tag == "Torus" )
-      Converter<torus>(description,_ns.context,optional)(solid);
-    else if ( tag == "PseudoTrap" )
-      Converter<pseudotrap>(description,_ns.context,optional)(solid);
-    else if ( tag == "ExtrudedPolygon" )
-      Converter<extrudedpolygon>(description,_ns.context,optional)(solid);
-    else if ( tag == "Trapezoid" )
-      Converter<trapezoid>(description,_ns.context,optional)(solid);
-    else if ( tag == "UnionSolid" )
-      Converter<unionsolid>(description,_ns.context,optional)(solid);
-    else if ( tag == "SubtractionSolid" )
-      Converter<subtractionsolid>(description,_ns.context,optional)(solid);
-    else if ( tag == "IntersectionSolid" )
-      Converter<intersectionsolid>(description,_ns.context,optional)(solid);
-    else if ( tag == "ShapelessSolid" )
-      Converter<shapeless>(description,_ns.context,optional)(solid);
-    else  {
+    using dd4hep::cms::hash;
+    switch( hash( solid.tag()))
+    {
+    case hash("Box"):
+      Converter<DDLBox>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Polycone"):
+      Converter<DDLPolycone>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Polyhedra"):
+      Converter<DDLPolyhedra>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Tubs"):
+      Converter<DDLTubs>(description,_ns.context,optional)(solid);
+      break;
+    case hash("CutTubs"):
+      Converter<DDLCutTubs>(description,_ns.context,optional)(solid);
+      break;
+    case hash("TruncTubs"):
+      Converter<DDLTruncTubs>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Tube"):
+      Converter<DDLTubs>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Trd1"):
+      Converter<DDLTrd1>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Cone"):
+      Converter<DDLCone>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Sphere"):
+      Converter<DDLSphere>(description,_ns.context,optional)(solid);
+      break;
+    case hash("EllipticalTube"):
+      Converter<DDLEllipticalTube>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Torus"):
+      Converter<DDLTorus>(description,_ns.context,optional)(solid);
+      break;
+    case hash("PseudoTrap"):
+      Converter<DDLPseudoTrap>(description,_ns.context,optional)(solid);
+      break;
+    case hash("ExtrudedPolygon"):
+      Converter<DDLExtrudedPolygon>(description,_ns.context,optional)(solid);
+      break;
+    case hash("Trapezoid"):
+      Converter<DDLTrapezoid>(description,_ns.context,optional)(solid);
+      break;
+    case hash("UnionSolid"):
+      Converter<DDLUnionSolid>(description,_ns.context,optional)(solid);
+      break;
+    case hash("SubtractionSolid"):
+      Converter<DDLSubtractionSolid>(description,_ns.context,optional)(solid);
+      break;
+    case hash("IntersectionSolid"):
+      Converter<DDLIntersectionSolid>(description,_ns.context,optional)(solid);
+      break;
+    case hash("ShapelessSolid"):
+      Converter<DDLShapeless>(description,_ns.context,optional)(solid);
+      break;
+    default:
       string nam = xml_dim_t(solid).nameStr();
-      printout(ERROR,"MyDDCMS","+++ Request to process unknown shape '%s' [%s]",
-               nam.c_str(), tag.c_str());
+      std::ostringstream msg;
+      msg << "MyDDCMS +++  Request to process unknown shape '" << nam.c_str() << "' [" << tag.c_str() << "]";
+      throw std::runtime_error( msg.str());
+      break;
     }
   }
 }
@@ -362,8 +388,8 @@ template <> void Converter<vis>::operator()(xml_h e) const {
   description.addVisAttribute(attr);
 }
 
-/// Converter for <ElementaryMaterial/> tags
-template <> void Converter<elementarymaterial>::operator()(xml_h element) const   {
+/// Converter for <DDLElementaryMaterial/> tags
+template <> void Converter<DDLElementaryMaterial>::operator()(xml_h element) const   {
   Namespace     _ns(_param<ParsingContext>());
   xml_dim_t     xmat(element);
   string        nam = _ns.prepend(xmat.nameStr());
@@ -409,8 +435,8 @@ template <> void Converter<elementarymaterial>::operator()(xml_h element) const 
   }
 }
 
-/// Converter for <CompositeMaterial/> tags
-template <> void Converter<compositematerial>::operator()(xml_h element) const   {
+/// Converter for <DDLCompositeMaterial/> tags
+template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) const   {
   Namespace     _ns(_param<ParsingContext>());
   xml_dim_t     xmat(element);
   string        nam = _ns.prepend(xmat.nameStr());
@@ -454,7 +480,7 @@ template <> void Converter<compositematerial>::operator()(xml_h element) const  
 }
 
 /// Converter for <Rotation/> tags
-template <> void Converter<rotation>::operator()(xml_h element) const  {
+template <> void Converter<DDLRotation>::operator()(xml_h element) const  {
   ParsingContext* ctx = _param<ParsingContext>();
   Namespace _ns(ctx);
   xml_dim_t xrot(element);
@@ -469,6 +495,29 @@ template <> void Converter<rotation>::operator()(xml_h element) const  {
   printout(ctx->debug_rotations ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Adding rotation: %-32s: (theta/phi)[rad] X: %6.3f %6.3f Y: %6.3f %6.3f Z: %6.3f %6.3f",
            _ns.prepend(nam).c_str(),thetaX,phiX,thetaY,phiY,thetaZ,phiZ);
+  _ns.addRotation(nam, rot);
+}
+
+/// Converter for <RotationSequence/> tags
+template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const  {
+  Namespace _ns(_param<ParsingContext>());
+  xml_dim_t xrot(element);
+  string    nam  = xrot.nameStr();
+  xml_coll_t(element, _CMU(RotationByAxis)).for_each(Converter<DDLRotationByAxis>(description,_ns.context,optional));
+}
+
+/// Converter for <RotationByAxis/> tags
+template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  {
+  ParsingContext* ctx = _param<ParsingContext>();
+  Namespace _ns(ctx);
+  xml_dim_t xrot(element);
+  string    nam  = xrot.nameStr();
+  string    axis = _ns.attr<string>(xrot,_CMU(axis));
+  double    angle = _ns.attr<double>(xrot,_U(angle));
+  Rotation3D rot = makeRotation3D( axis, angle );
+  printout(ctx->debug_rotations ? ALWAYS : DEBUG,
+           "MyDDCMS","+++ Adding rotation: %-32s: (axis/angle)[rad] Axis: %6.3f Angle: %6.3f",
+           _ns.prepend(nam).c_str(),axis, angle);
   _ns.addRotation(nam, rot);
 }
 
@@ -573,22 +622,22 @@ static void convert_boolean(ParsingContext* ctx, xml_h element)   {
 }
 
 /// Converter for <SubtractionSolid/> tags
-template <> void Converter<unionsolid>::operator()(xml_h element) const   {
+template <> void Converter<DDLUnionSolid>::operator()(xml_h element) const   {
   convert_boolean<UnionSolid>(_param<ParsingContext>(),element);
 }
 
 /// Converter for <SubtractionSolid/> tags
-template <> void Converter<subtractionsolid>::operator()(xml_h element) const   {
+template <> void Converter<DDLSubtractionSolid>::operator()(xml_h element) const   {
   convert_boolean<SubtractionSolid>(_param<ParsingContext>(),element);
 }
 
 /// Converter for <SubtractionSolid/> tags
-template <> void Converter<intersectionsolid>::operator()(xml_h element) const   {
+template <> void Converter<DDLIntersectionSolid>::operator()(xml_h element) const   {
   convert_boolean<IntersectionSolid>(_param<ParsingContext>(),element);
 }
 
 /// Converter for <Polycone/> tags
-template <> void Converter<polycone>::operator()(xml_h element) const {
+template <> void Converter<DDLPolycone>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -620,7 +669,7 @@ template <> void Converter<polycone>::operator()(xml_h element) const {
 }
 
 /// Converter for <ExtrudedPolygon/> tags
-template <> void Converter<extrudedpolygon>::operator()(xml_h element) const  {
+template <> void Converter<DDLExtrudedPolygon>::operator()(xml_h element) const  {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -643,7 +692,7 @@ template <> void Converter<extrudedpolygon>::operator()(xml_h element) const  {
 }
 
 /// Converter for <Polyhedra/> tags
-template <> void Converter<polyhedra>::operator()(xml_h element) const {
+template <> void Converter<DDLPolyhedra>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -669,7 +718,7 @@ template <> void Converter<polyhedra>::operator()(xml_h element) const {
 }
 
 /// Converter for <Sphere/> tags
-template <> void Converter<sphere>::operator()(xml_h element) const {
+template <> void Converter<DDLSphere>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -686,26 +735,8 @@ template <> void Converter<sphere>::operator()(xml_h element) const {
   _ns.addSolid(nam, Sphere(rinner, router, startTheta, deltaTheta, startPhi, deltaPhi));
 }
 
-/// Converter for <Ellipsoid/> tags: Same as sphere, but with scale
-template <> void Converter<ellipsoid>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>());
-  xml_dim_t e(element);
-  string nam  = e.nameStr();
-  double dx   = _ns.attr<double>(e,_CMU(xSemiAxis));
-  double dy   = _ns.attr<double>(e,_CMU(ySemiAxis));
-  double dz   = _ns.attr<double>(e,_CMU(zSemiAxis));
-  double zBot = _ns.attr<double>(e,_CMU(zBottomCut),0.0);
-  double zTop = _ns.attr<double>(e,_CMU(zTopCut),0.0);
-  
-  printout(WARNING, "MyDDCMS",
-	   "+   Ellipsoid UNSUPPORTED. '%s' REPLACED BY BOX "
-	   " xSemiAxis=%8.3f ySemiAxis=%8.3f zSemiAxis=%8.3f zBottomCut=%8.3f zTopCut=%8.3f [cm]",
-	   nam.c_str(), dx, dy, dz, zBot, zTop);
-  _ns.addSolid(nam, Box(1,1,1));
-}
-
 /// Converter for <Torus/> tags
-template <> void Converter<torus>::operator()(xml_h element) const   {
+template <> void Converter<DDLTorus>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -722,7 +753,7 @@ template <> void Converter<torus>::operator()(xml_h element) const   {
 }
 
 /// Converter for <Pseudotrap/> tags
-template <> void Converter<pseudotrap>::operator()(xml_h element) const {
+template <> void Converter<DDLPseudoTrap>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -740,7 +771,7 @@ template <> void Converter<pseudotrap>::operator()(xml_h element) const {
 }
 
 /// Converter for <Trapezoid/> tags
-template <> void Converter<trapezoid>::operator()(xml_h element) const {
+template <> void Converter<DDLTrapezoid>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -763,7 +794,7 @@ template <> void Converter<trapezoid>::operator()(xml_h element) const {
 }
 
 /// Converter for <Trd1/> tags
-template <> void Converter<trd1>::operator()(xml_h element) const {
+template <> void Converter<DDLTrd1>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -779,7 +810,7 @@ template <> void Converter<trd1>::operator()(xml_h element) const {
 }
 
 /// Converter for <Tubs/> tags
-template <> void Converter<tubs>::operator()(xml_h element) const {
+template <> void Converter<DDLTubs>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -795,7 +826,7 @@ template <> void Converter<tubs>::operator()(xml_h element) const {
 }
  
 /// Converter for <CutTubs/> tags
-template <> void Converter<cuttubs>::operator()(xml_h element) const {
+template <> void Converter<DDLCutTubs>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -818,7 +849,7 @@ template <> void Converter<cuttubs>::operator()(xml_h element) const {
 }
 
 /// Converter for <TruncTubs/> tags
-template <> void Converter<trunctubs>::operator()(xml_h element) const {
+template <> void Converter<DDLTruncTubs>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam        = e.nameStr();
@@ -838,7 +869,7 @@ template <> void Converter<trunctubs>::operator()(xml_h element) const {
 }
 
 /// Converter for <EllipticalTube/> tags
-template <> void Converter<ellipticaltube>::operator()(xml_h element) const   {
+template <> void Converter<DDLEllipticalTube>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam = e.nameStr();
@@ -851,7 +882,7 @@ template <> void Converter<ellipticaltube>::operator()(xml_h element) const   {
 }
 
 /// Converter for <Cone/> tags
-template <> void Converter<cone>::operator()(xml_h element) const {
+template <> void Converter<DDLCone>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
@@ -873,7 +904,7 @@ template <> void Converter<cone>::operator()(xml_h element) const {
 }
 
 /// Converter for </> tags
-template <> void Converter<shapeless>::operator()(xml_h element) const {
+template <> void Converter<DDLShapeless>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam = e.nameStr();
@@ -882,8 +913,8 @@ template <> void Converter<shapeless>::operator()(xml_h element) const {
   _ns.addSolid(nam, Box(1,1,1));
 }
 
-/// Converter for <Box/> tags
-template <> void Converter<box>::operator()(xml_h element) const {
+/// Converter for <DDLBox/> tags
+template <> void Converter<DDLBox>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string nam = e.nameStr();
