@@ -141,6 +141,7 @@ void PFTauPrimaryVertexProducerBase::produce(edm::Event& iEvent,const edm::Event
 	  if(electrons.isValid()) {
 	    for(const auto& electron: *electrons){
 	      if(electron.track().isNonnull()) signalTracks.push_back(edm::refToPtr(electron.track()));
+	      if(electron.gsfTrack().isNonnull()) signalTracks.push_back(edm::refToPtr(electron.gsfTrack()));
 	    }
 	  }
 	}
