@@ -28,24 +28,27 @@ HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCol
 //
 void HGCDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& es) 
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  randomEngine_ = &rng->getEngine(event.streamID());
   theDigitizer_.initializeEvent(event, es);
 }
 
 //
 void HGCDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& es) 
 {
-  theDigitizer_.finalizeEvent(event, es, randomEngine(event.streamID()));
+  theDigitizer_.finalizeEvent(event, es, randomEngine_);
+  randomEngine_ = nullptr; // to precent access outside event
 }
 
 //
 void HGCDigiProducer::accumulate(edm::Event const& event, edm::EventSetup const& es) 
 {
-  theDigitizer_.accumulate(event, es, randomEngine(event.streamID()));
+  theDigitizer_.accumulate(event, es, randomEngine_);
 }
 
 void HGCDigiProducer::accumulate(PileUpEventPrincipal const& event, edm::EventSetup const& es, edm::StreamID const& streamID) 
 {
-  theDigitizer_.accumulate(event, es, randomEngine(streamID));
+  theDigitizer_.accumulate(event, es, randomEngine_);
 }
 
 //
@@ -58,20 +61,6 @@ void HGCDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es)
 void HGCDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) 
 {
   theDigitizer_.endRun();
-}
-
-CLHEP::HepRandomEngine* HGCDigiProducer::randomEngine(edm::StreamID const& streamID) {
-  unsigned int index = streamID.value();
-  if(index >= randomEngines_.size()) {
-    randomEngines_.resize(index + 1, nullptr);
-  }
-  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-  if(!ptr) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    ptr = &rng->getEngine(streamID);
-    randomEngines_[index] = ptr;
-  }
-  return ptr;
 }
 
 DEFINE_DIGI_ACCUMULATOR(HGCDigiProducer);
