@@ -56,8 +56,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 				  const std::string& namec) {
 
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCalParametersFromDD::build called with names " << name << ":"
-	    << namew << ":" << namec << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersFromDD::build called with "
+				<< "names " << name << ":" << namew << ":" 
+				<< namec;
 #endif
 
   //Special parameters at simulation level
@@ -73,9 +74,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     DDsvalues_type sv(fv.mergedSpecifics());
     php.mode_ = getGeometryMode("GeometryMode", sv);
 #ifdef EDM_ML_DEBUG
-    std::cout << "GeometryMode " << php.mode_ 
-	      << ":" << HGCalGeometryMode::Hexagon << ":" 
-	      << HGCalGeometryMode::HexagonFull << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "GeometryMode " << php.mode_ 
+				  << ":" << HGCalGeometryMode::Hexagon << ":" 
+				  << HGCalGeometryMode::HexagonFull;
 #endif
     HGCalGeomParameters *geom = new HGCalGeomParameters();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) ||
@@ -90,8 +91,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 	DDsvalues_type sv2(fv2.mergedSpecifics());
 	mode = getGeometryWaferMode("WaferMode", sv2);
 #ifdef EDM_ML_DEBUG
-	std::cout << "WaferMode " << mode << ":" << HGCalGeometryMode::Polyhedra
-		  << ":" << HGCalGeometryMode::ExtrudedPolygon << std::endl;
+	edm::LogVerbatim("HGCalGeom") << "WaferMode " << mode << ":" 
+				      << HGCalGeometryMode::Polyhedra << ":" 
+				      << HGCalGeometryMode::ExtrudedPolygon;
 #endif
       }
     }
@@ -129,4 +131,18 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
   edm::LogInfo("HGCalGeom") << "Return from HGCalParametersFromDD::build with "
 			    << ok;
   return ok;
+}
+
+double HGCalParametersFromDD::getDDDValue(const char* s, 
+					  const DDsvalues_type& sv) {
+  DDValue val(s);
+  if (DDfetch(&sv, val)) {
+    const std::vector<double> & fvec = val.doubles();
+    if (fvec.empty()) {
+      throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag.";
+    }
+    return fvec[0];
+  } else {
+    throw cms::Exception("HGCalGeom") << "Failed to get "<< s << " tag";
+  }
 }
