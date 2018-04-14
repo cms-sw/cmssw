@@ -168,7 +168,7 @@
       hgcalcell:HGCalHECellFull0Coarse2,   hgcalcell:HGCalHECellTrunc01Coarse2,
       hgcalcell:HGCalHECellTrunc02Coarse2, hgcalcell:HGCalHECellTrunc03Coarse2,
       hgcalcell:HGCalHECellExten01Coarse2, hgcalcell:HGCalHECellExten02Coarse2,
-      hgcalcell:HGCalHECellExten03Coarse2, hgcalcell:HGCalHECellCorner01Coarse2, 
+      hgcalcell:HGCalHECellExten03Coarse2, hgcalcell:HGCalHECellCorner01Coarse2,
       hgcalcell:HGCalHECellCorner02Coarse2,hgcalcell:HGCalHECellCorner03Coarse2,
       hgcalcell:HGCalHECellCorner04Coarse2,hgcalcell:HGCalHECellCorner05Coarse2,
       hgcalcell:HGCalHECellCorner06Coarse2</Vector>
