@@ -13,6 +13,7 @@
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -117,6 +118,7 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
   const MuonGeometryRecord& geom = es.get<MuonGeometryRecord>();
   unsigned long long geomid = geom.cacheIdentifier();
   if( _geom_cache_id != geomid ) {
+    geom.get(_geome0);
     geom.get(_geogem);
     geom.get(_georpc);
     geom.get(_geocsc);
@@ -134,11 +136,31 @@ void GeometryTranslator::checkAndUpdateGeometry(const edm::EventSetup& es) {
 
 GlobalPoint
 GeometryTranslator::getGEMSpecificPoint(const TriggerPrimitive& tp) const {
-  const GEMDetId id(tp.detId<GEMDetId>());
-  const GEMEtaPartition * roll = _geogem->etaPartition(id);
-  const uint16_t pad = tp.getGEMData().pad;
-  const LocalPoint lp = roll->centreOfPad(pad);
-  const GlobalPoint gp = roll->toGlobal(lp);
+  LocalPoint lp;
+  GlobalPoint gp;
+
+  if (!tp.getGEMData().isME0) {  // use GEM geometry
+    const GEMDetId id(tp.detId<GEMDetId>());
+    const GEMEtaPartition * roll = _geogem->etaPartition(id);
+    assert(roll);
+    //const uint16_t pad = tp.getGEMData().pad;
+    // Use half-strip precision, - 0.5 at the end to get the center of the strip
+    const float pad = (0.5 * static_cast<float>(tp.getGEMData().pad_low + tp.getGEMData().pad_hi)) - 0.5;
+    lp = roll->centreOfPad(pad);
+    gp = roll->surface().toGlobal(lp);
+
+  } else {  // use ME0 geometry
+    const ME0DetId id(tp.detId<ME0DetId>());
+    const ME0EtaPartition * roll = _geome0->etaPartition(id);
+    assert(roll);
+    //const uint16_t pad = tp.getGEMData().pad;
+    // Use half-strip precision, - 0.5 at the end to get the center of the strip
+    const float pad = (0.5 * static_cast<float>(tp.getGEMData().pad_low + tp.getGEMData().pad_hi)) - 0.5;
+    //lp = roll->centreOfPad(pad);  // does not work
+    const float strip = 2.0 * pad;
+    lp = roll->centreOfStrip(strip);
+    gp = roll->surface().toGlobal(lp);
+  }
 
   //roll.release();
 
@@ -155,11 +177,9 @@ GeometryTranslator::calcGEMSpecificPhi(const TriggerPrimitive& tp) const {
   return getGEMSpecificPoint(tp).phi();
 }
 
-// this function actually does nothing since GEM
-// hits are point-like objects
 double
 GeometryTranslator::calcGEMSpecificBend(const TriggerPrimitive& tp) const {
-  return 0.0;
+  return tp.getGEMData().bend;
 }
 
 
@@ -167,12 +187,13 @@ GlobalPoint
 GeometryTranslator::getRPCSpecificPoint(const TriggerPrimitive& tp) const {
   const RPCDetId id(tp.detId<RPCDetId>());
   const RPCRoll * roll = _georpc->roll(id);
+  assert(roll);
   //const int strip = static_cast<int>(tp.getRPCData().strip);
   // Use half-strip precision, - 0.5 at the end to get the center of the strip
   const float strip = (0.5 * static_cast<float>(tp.getRPCData().strip_low + tp.getRPCData().strip_hi)) - 0.5;
   const LocalPoint lp = roll->centreOfStrip(strip);
-  const GlobalPoint gp = roll->toGlobal(lp);
-  
+  const GlobalPoint gp = roll->surface().toGlobal(lp);
+
   //roll.release();
 
   return gp;
