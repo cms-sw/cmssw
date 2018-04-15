@@ -20,37 +20,30 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 
 options = VarParsing.VarParsing ('analysis')
-
-#--- Specify input MC
-options.register('inputMC','L1Trigger/VertexFinder/Samples/DavidePhaseIIFall/Zjet/PU200_L1tracksSLR.txt', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "Files to be processed")
-
-#--- Specify number of events to process.
-options.register('Events',-1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,"Number of Events to analyze")
-
 options.register('analysis',False,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool,"Run vertex finding analysis code")
-
-#--- Specify name of output histogram file.
 options.register('histFile','Hist.root',VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,"Name of output histogram file")
 
 options.parseArguments()
 
 
 #--- input and output
-list = FileUtils.loadListFromFile(options.inputMC)
-readFiles = cms.untracked.vstring(*list)
-secFiles = cms.untracked.vstring()
+inputFiles = []
+for filePath in options.inputFiles:
+    if filePath.endswith(".root"):
+        inputFiles += filePath
+    else:
+        inputFiles += FileUtils.loadListFromFile(filePath)
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Events) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string(options.histFile)
-)
+if options.analysis:
+    process.TFileService = cms.Service("TFileService", fileName = cms.string(options.histFile))
 
 process.source = cms.Source ("PoolSource",
-                            fileNames = readFiles,
-                            secondaryFileNames = secFiles,
+                            fileNames = cms.untracked.vstring(inputFiles),
+                            secondaryFileNames = cms.untracked.vstring(),
                             # skipEvents = cms.untracked.uint32(500)
                             )
 
