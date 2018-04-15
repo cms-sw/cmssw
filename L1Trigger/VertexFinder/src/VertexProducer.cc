@@ -23,6 +23,26 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   // Get configuration parameters
   settings_ = new Settings(iConfig);
 
+  if(settings_->vx_algoId() == 0){
+    cout << "L1T vertex producer: Finding vertices using a gap clustering algorithm "<< endl;
+  } else if(settings_->vx_algoId() == 1){
+    cout << "L1T vertex producer: Finding vertices using a Simple Merge Clustering algorithm "<< endl;
+  } else if(settings_->vx_algoId() == 2){
+    cout << "L1T vertex producer: Finding vertices using a DBSCAN algorithm "<< endl;
+  } else if(settings_->vx_algoId() == 3){
+    cout << "L1T vertex producer: Finding vertices using a PVR algorithm "<< endl;
+  } else if(settings_->vx_algoId() == 4){
+    cout << "L1T vertex producer: Finding vertices using an AdaptiveVertexReconstruction algorithm "<< endl;
+  } else if(settings_->vx_algoId() == 5){
+    cout << "L1T vertex producer: Finding vertices using an Highest Pt Vertex algorithm "<< endl;
+  } else if(settings_->vx_algoId() == 6){
+    cout << "L1T vertex producer: Finding vertices using a kmeans algorithm" << endl;
+  }
+  else{
+    cout << "No valid vertex reconstruction algorithm has been selected. Running a gap clustering algorithm "<< endl;
+  }
+
+
   // Tame debug printout.
   cout.setf(ios::fixed, ios::floatfield);
   cout.precision(4);
@@ -60,25 +80,18 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   VertexFinder vf(l1TrackPtrs, settings_);
 
   if(settings_->vx_algoId() == 0){
-    cout << "Finding vertices using a gap clustering algorithm "<< endl;
     vf.GapClustering();
   } else if(settings_->vx_algoId() == 1){
-    cout << "Finding vertices using a Simple Merge Clustering algorithm "<< endl;
     vf.AgglomerativeHierarchicalClustering();
   } else if(settings_->vx_algoId() == 2){
-    cout << "Finding vertices using a DBSCAN algorithm "<< endl;
     vf.DBSCAN();
   } else if(settings_->vx_algoId() == 3){
-    cout << "Finding vertices using a PVR algorithm "<< endl;
     vf.PVR();
   } else if(settings_->vx_algoId() == 4){
-    cout << "Finding vertices using an AdaptiveVertexReconstruction algorithm "<< endl;
     vf.AdaptiveVertexReconstruction();
   } else if(settings_->vx_algoId() == 5){
-    cout << "Finding vertices using an Highest Pt Vertex algorithm "<< endl;
     vf.HPV();
   } else if(settings_->vx_algoId() == 6){
-    cout << "Finding vertices using a kmeans algorithm" << endl;
     vf.Kmeans();
   }
   else{
