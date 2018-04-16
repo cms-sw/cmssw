@@ -11,6 +11,16 @@
 
 namespace l1tVertexFinder {
 
+enum class Algorithm {
+  GapClustering,
+  AgglomerativeHierarchical,
+  DBSCAN,
+  PVR,
+  AdaptiveVertexReconstruction,
+  HPV,
+  Kmeans
+};
+
 // Stores all configuration parameters + some hard-wired constants.
  
 class Settings {
@@ -18,7 +28,7 @@ class Settings {
 public:
   Settings(const edm::ParameterSet& iConfig);
   ~Settings(){}
- 
+
   //=== Cuts on MC truth tracks for tracking efficiency measurements.
  
   double               genMinPt()                const   {return genMinPt_;}
@@ -50,8 +60,8 @@ public:
   bool                 stubMatchStrict()         const   {return stubMatchStrict_;}
 
    //=== Vertex Reconstruction configuration
-  // Vertex Reconstruction Id (0: GapClustering, 1: SimpleMergeClustering )
-  unsigned int        vx_algoId()                const {return vx_algoId_;        }
+  // Vertex Reconstruction algo
+  Algorithm           vx_algo()                  const {return vx_algo_;        }
   /// For Agglomerative cluster algorithm, select a definition of distance between clusters
   unsigned int        vx_distanceType()          const {return vx_distanceType_;  }
   /// Keep only PV from hard interaction (highest pT)
@@ -99,6 +109,8 @@ public:
  
 private:
  
+  static const std::map<std::string, Algorithm> algoNameMap;
+
   // Parameter sets for differents types of configuration parameter.
   edm::ParameterSet    genCuts_;
   edm::ParameterSet    l1TrackDef_;
@@ -135,7 +147,7 @@ private:
 
 
   // Vertex Reconstruction configuration
-  unsigned int         vx_algoId_;
+  Algorithm            vx_algo_;
   float                vx_distance_;
   float                vx_resolution_;
   unsigned int         vx_distanceType_;

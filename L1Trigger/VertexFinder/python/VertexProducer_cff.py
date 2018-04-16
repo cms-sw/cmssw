@@ -49,8 +49,8 @@ VertexProducer = cms.EDProducer('VertexProducer',
 
   # === Vertex Reconstruction configuration
   VertexReconstruction=cms.PSet(
-        # Vertex Reconstruction Id (0: GapClustering, 1: AgglomerativeClustering, 2: DBSCAN, 3: PVR, 4: AdaptiveVertexReconstruction, 5: HPV, 6: Kmeans)
-        AlgorithmId = cms.uint32(2),
+        # Vertex Reconstruction Algorithm
+        Algorithm = cms.string("DBSCAN"),
         # Vertex distance
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution

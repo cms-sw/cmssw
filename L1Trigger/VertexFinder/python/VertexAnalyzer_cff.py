@@ -50,16 +50,7 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
 
   # === Vertex Reconstruction configuration
   VertexReconstruction=cms.PSet(
-        # Vertex Reconstruction Id (
-        # 0: GapClustering,
-        # 1: AgglomerativeClustering,
-        # 2: DBSCAN,
-        # 3: PVR,
-        # 4: AdaptiveVertexReconstruction,
-        # 5: HPV,
-        # 6: Kmeans,
-        # 7: Technical Proposal)
-        AlgorithmId = cms.uint32(7),
+        Algorithm = cms.string("DBSCAN"),
         # Vertex distance
         VertexDistance = cms.double(.15),
         # Assumed Vertex Resolution

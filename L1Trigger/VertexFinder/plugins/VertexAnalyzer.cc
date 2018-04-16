@@ -517,7 +517,7 @@ namespace l1tVertexFinder {
       recoVertexBase.setZ(l1VerticesHandle->at(i).z0());
       RecoVertexWithTP * recoVertex = new RecoVertexWithTP(recoVertexBase, trackAssociationMap);
       recoVertex->computeParameters(settings_->vx_weightedmean());
-      if (settings_->vx_algoId() == 6 || settings_->vx_algoId() == 5)
+      if (settings_->vx_algo() == Algorithm::Kmeans || settings_->vx_algo() == Algorithm::HPV)
         recoVertex->setZ(recoVertexBase.z0());
 
       recoVertices.emplace_back(recoVertex);

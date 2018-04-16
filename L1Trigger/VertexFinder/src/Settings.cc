@@ -41,7 +41,6 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
   stubMatchStrict_        ( trackMatchDef_.getParameter<bool>                 ( "StubMatchStrict"        ) ),
 
   //=== Vertex Reconstruction configuration
-  vx_algoId_              (vertex_.getParameter<unsigned int>                 ( "AlgorithmId")),
   vx_distance_            (vertex_.getParameter<double>                 ( "VertexDistance")),
   vx_resolution_          (vertex_.getParameter<double>                 ( "VertexResolution")),
   vx_distanceType_        (vertex_.getParameter<unsigned int>                 ( "DistanceType")),
@@ -62,6 +61,20 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
   // Debug printout
   debug_                  ( iConfig.getParameter<unsigned int>                ( "Debug"                  ) )
 {
+  const std::string algoName(vertex_.getParameter<std::string>("Algorithm"));
+  const auto algoMapIt = algoNameMap.find(algoName);
+  if ( algoMapIt != algoNameMap.end() )
+    vx_algo_ = algoMapIt->second;
+  else {
+    std::ostringstream validAlgoNames;
+    for (auto it = algoNameMap.begin(); it != algoNameMap.end(); it++) {
+      validAlgoNames << '"' << it->first << '"';
+      if (it != (--algoNameMap.end()))
+        validAlgoNames << ", ";
+    }
+    throw cms::Exception("Invalid algo name '" + algoName + "' specified for L1T vertex producer. Valid algo names are: " + validAlgoNames.str());
+  }
+
   // If user didn't specify any PDG codes, use e,mu,pi,K,p, to avoid picking up unstable particles like Xi-.
   std::vector<unsigned int> genPdgIdsUnsigned( genCuts_.getParameter<std::vector<unsigned int> >   ( "GenPdgIds" ) ); 
   if (genPdgIdsUnsigned.empty()) {
@@ -81,5 +94,17 @@ Settings::Settings(const edm::ParameterSet& iConfig) :
     throw cms::Exception("Settings.cc: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type C.");
   
 }
+
+
+const std::map<std::string, Algorithm> Settings::algoNameMap = {
+    {"GapClustering", Algorithm::GapClustering},
+    {"Agglomerative", Algorithm::AgglomerativeHierarchical},
+    {"DBSCAN", Algorithm::DBSCAN},
+    {"PVR", Algorithm::PVR},
+    {"Adaptive", Algorithm::AdaptiveVertexReconstruction},
+    {"HPV", Algorithm::HPV},
+    {"K-means", Algorithm::Kmeans}
+  };
+
 
 } // end namespace l1tVertexFinder
