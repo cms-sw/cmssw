@@ -245,10 +245,10 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 	vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
 	vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
 
-        vars.insert(btau::trackSip3dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance(),false),true);
-        vars.insert(btau::trackSip3dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value(),false),true);
-        vars.insert(btau::trackSip2dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(),false),true);
-        vars.insert(btau::trackSip2dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.value(),false),true);
+	vars.insert(btau::trackSip3dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance(),false),true);
+	vars.insert(btau::trackSip3dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value(),false),true);
+	vars.insert(btau::trackSip2dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(),false),true);
+	vars.insert(btau::trackSip2dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.value(),false),true);
 
         if (vtxType != btag::Vertices::NoVertex) {
                 math::XYZTLorentzVector allSum = useTrackWeights
