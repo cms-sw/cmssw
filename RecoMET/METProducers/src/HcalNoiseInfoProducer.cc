@@ -772,7 +772,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
     // do not continue with the calculation
     // if the vector was not filled
-    if( comb_charge.size() == 0 ) { 
+    if( comb_charge.empty() ) { 
       totalLasmonCharge = -1;
     }
     else {
