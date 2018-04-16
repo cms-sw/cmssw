@@ -115,7 +115,7 @@ static long algorithm(Detector& description, ParsingContext& ctxt, xml_h e, Sens
           << "rotation: " << rots << "\t90., " 
           << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
           << ", 0, 0";
-      rot = make_rotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+      rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
       //cpv.position(ladderHalf, layer, copy, tran, rot);
       pv = layer.placeVolume(ladderHalfVol, copy, Transform3D(rot,tran));
@@ -134,7 +134,7 @@ static long algorithm(Detector& description, ParsingContext& ctxt, xml_h e, Sens
       LogDebug("PixelGeom") << "Creating a new rotation: " << rots << "\t90., " 
           << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
           << ", 0, 0";
-      rot = make_rotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+      rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
       //cpv.position(ladderHalf, layer, copy, tran, rot);
       pv = layer.placeVolume(ladderHalfVol, copy, Transform3D(rot,tran));
       if ( !pv.isValid() )  {  }
@@ -155,7 +155,7 @@ static long algorithm(Detector& description, ParsingContext& ctxt, xml_h e, Sens
           << "rotation: " << rots << "\t90., " 
           << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
           << ", 0, 0";
-      rot = make_rotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+      rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
 
       //cpv.position(ladderFull, layer, copy, tran, rot);
       pv = layer.placeVolume(ladderFullVol, copy, Transform3D(rot,tran));
@@ -176,7 +176,7 @@ static long algorithm(Detector& description, ParsingContext& ctxt, xml_h e, Sens
         << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
         << ", 0, 0";
     
-    rot = make_rotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+    rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
     pv  = layer.placeVolume(coolTube, i+1, Transform3D(rot,tran));
     if ( !pv.isValid() )  {  }
     LogDebug("PixelGeom") << "coolTube: " << coolTube.name() 

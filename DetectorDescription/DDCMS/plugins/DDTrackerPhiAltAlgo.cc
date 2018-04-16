@@ -50,7 +50,7 @@ static long algorithm(Detector& /* description */,
   
       Rotation3D rotation;
       if (phideg != 0) {
-        rotation = make_rotation3D(theta, phix, theta, phiy, 0., 0.);
+        rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
 	
       double xpos, ypos;
