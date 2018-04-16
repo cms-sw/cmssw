@@ -22,7 +22,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
 #include <string>
-#include <vector>
+#include <array>
 #include <map>
 
 //----------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ class ElasticPlotDQMSource: public DQMEDAnalyzer
     void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   private:
-    static constexpr double ls_duration = 23.357; // s
+    static constexpr double ls_duration_inverse = 1./23.357; // s^-1
     static constexpr unsigned int ls_min = 0;
     static constexpr unsigned int ls_max = 2000; // little more than 12h
 
@@ -61,19 +61,19 @@ class ElasticPlotDQMSource: public DQMEDAnalyzer
     struct DiagonalPlots
     {
       // in the order 45-220-fr, 45-210-fr, 56-210-fr, 56-220-fr
-      std::vector<unsigned int> rpIds;
+      std::array<unsigned int, 4> rpIds;
 
       // track correlation in vertical RPs
       MonitorElement *h2_track_corr_vert=nullptr;
 
       // y distributions in a RP (1st index) with another RP (2nd index) in coincidence
-      std::vector<std::vector<MonitorElement *>> v_h_y;
+      std::array<std::array<MonitorElement *, 4>, 4> v_h_y;
 
-      // XY hit maps in a give RP (vector index) under these conditions
+      // XY hit maps in a give RP (array index) under these conditions
       //   4rp: all 4 diagonal RPs have a track
       //   2rp: diagonal RPs in 220-fr have a track
-      std::vector<MonitorElement *> v_h2_y_vs_x_dgn_4rp;
-      std::vector<MonitorElement *> v_h2_y_vs_x_dgn_2rp;
+      std::array<MonitorElement *, 4> v_h2_y_vs_x_dgn_4rp;
+      std::array<MonitorElement *, 4> v_h2_y_vs_x_dgn_2rp;
 
       // event rates vs. time
       MonitorElement *h_rate_vs_time_dgn_4rp=nullptr;
@@ -119,20 +119,17 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
   bool top56 = id & 1;
   bool diag = (top45 != top56);
 
-  char name[50];
-  sprintf(name, "%s 45%s - 56%s",
-    (diag) ? "diagonal" : "antidiagonal",
-    (top45) ? "top" : "bot",
-    (top56) ? "top" : "bot"
-  );
+  string name = string( (diag) ? "diagonal" : "antidiagonal" )
+    + " 45" + ( (top45) ? "top" : "bot")
+    + " - 56" + ( (top56) ? "top" : "bot" );
 
   string title = name;
 
   // dermine RP ids of this diagonal
-  rpIds.push_back(TotemRPDetId(0, 2, (top45) ? 4 : 5));
-  rpIds.push_back(TotemRPDetId(0, 0, (top45) ? 4 : 5));
-  rpIds.push_back(TotemRPDetId(1, 0, (top56) ? 4 : 5));
-  rpIds.push_back(TotemRPDetId(1, 2, (top56) ? 4 : 5));
+  rpIds[0] = TotemRPDetId(0, 2, (top45) ? 4 : 5);
+  rpIds[1] = TotemRPDetId(0, 0, (top45) ? 4 : 5);
+  rpIds[2] = TotemRPDetId(1, 0, (top56) ? 4 : 5);
+  rpIds[3] = TotemRPDetId(1, 2, (top56) ? 4 : 5);
 
   // book histograms
   ibooker.setCurrentFolder(string("CTPPS/TrackingStrip/") + name);
@@ -156,20 +153,17 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
     TotemRPDetId(rpIds[i]).rpName(rpName, TotemRPDetId::nFull);
     rpName = rpName.substr(15);
 
-    v_h2_y_vs_x_dgn_4rp.emplace_back(ibooker.book2D("xy hist - " + rpName + " - 4 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.));
-    v_h2_y_vs_x_dgn_2rp.emplace_back(ibooker.book2D("xy hist - " + rpName + " - 2 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.));
+    v_h2_y_vs_x_dgn_4rp[i] = ibooker.book2D("xy hist - " + rpName + " - 4 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
+    v_h2_y_vs_x_dgn_2rp[i] = ibooker.book2D("xy hist - " + rpName + " - 2 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
 
-    vector<MonitorElement *> v;
     for (unsigned int j = 0; j < 4; j++)
     {
       string rpCoincName;
       TotemRPDetId(rpIds[j]).rpName(rpCoincName, TotemRPDetId::nFull);
       rpCoincName = rpCoincName.substr(15);
 
-      v.emplace_back(ibooker.book1D("y hist - " + rpName + " - coinc " + rpCoincName, title+";y   (mm)", 180, -18., +18.));
+      v_h_y[i][j] = ibooker.book1D("y hist - " + rpName + " - coinc " + rpCoincName, title+";y   (mm)", 180, -18., +18.);
     }
-
-    v_h_y.push_back(move(v));
   }
 
   h_rate_vs_time_dgn_4rp = ibooker.book1D("rate - 4 RPs", title+";lumi section", ls_max-ls_min+1, -0.5+ls_min, +0.5+ls_max);
@@ -230,19 +224,11 @@ void ElasticPlotDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
   for (unsigned int arm = 0; arm < 2; arm++)
   {
     // loop over stations
-    for (unsigned int st = 0; st < 3; st += 2)
+    for (unsigned int st : {0, 2})
     {
       // loop over RPs
-      for (unsigned int rp = 0; rp < 6; ++rp)
+      for (unsigned int rp : {4, 5})
       {
-        // skip horizontals - irrelevant for elastics
-        if (rp == 2 || rp == 3)
-          continue;
-
-        // skip "nr" units - not equipped
-        if (rp <= 2)
-          continue;
-
         TotemRPDetId rpId(arm, st, rp);
         potPlots[rpId] = PotPlots(ibooker, rpId);
       }
@@ -324,8 +310,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
 
       if (p.getProjection() == TotemRPUVPattern::projU)
         n_pat_u++;
-
-      if (p.getProjection() == TotemRPUVPattern::projV)
+      else if (p.getProjection() == TotemRPUVPattern::projV)
         n_pat_v++;
     }
 
@@ -368,10 +353,10 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     }
 
     if (cond_4rp)
-      dp.h_rate_vs_time_dgn_4rp->Fill(event.luminosityBlock(), 1./ls_duration);
+      dp.h_rate_vs_time_dgn_4rp->Fill(event.luminosityBlock(), ls_duration_inverse);
 
     if (cond_2rp)
-      dp.h_rate_vs_time_dgn_2rp->Fill(event.luminosityBlock(), 1./ls_duration);
+      dp.h_rate_vs_time_dgn_2rp->Fill(event.luminosityBlock(), ls_duration_inverse);
 
     for (unsigned int i = 0; i < 4; i++)
     {
@@ -413,11 +398,11 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     const auto &has_track = (rp_track[rpId] != nullptr);
 
     if (pat_suff)
-      pp.h_rate_vs_time_suff->Fill(event.luminosityBlock(), 1./ls_duration);
+      pp.h_rate_vs_time_suff->Fill(event.luminosityBlock(), ls_duration_inverse);
     if (has_track)
-      pp.h_rate_vs_time_track->Fill(event.luminosityBlock(), 1./ls_duration);
+      pp.h_rate_vs_time_track->Fill(event.luminosityBlock(), ls_duration_inverse);
     if (pat_suff && !has_track)
-      pp.h_rate_vs_time_unresolved->Fill(event.luminosityBlock(), 1./ls_duration);
+      pp.h_rate_vs_time_unresolved->Fill(event.luminosityBlock(), ls_duration_inverse);
   }
 }
 
