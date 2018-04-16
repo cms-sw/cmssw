@@ -27,11 +27,11 @@ namespace edm {
 class PythiaHepMCFilterGammaGamma : public BaseHepMCFilter {
  public:
   explicit PythiaHepMCFilterGammaGamma(const edm::ParameterSet&);
-  ~PythiaHepMCFilterGammaGamma();
+  ~PythiaHepMCFilterGammaGamma() override;
   
   /** @return true if this GenEvent passes the double EM enrichment
       criterion */
-  virtual bool filter(const HepMC::GenEvent* myGenEvent) override;
+  bool filter(const HepMC::GenEvent* myGenEvent) override;
  private:
 
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
