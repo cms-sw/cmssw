@@ -1,5 +1,23 @@
 #include "RecoTauTag/RecoTau/interface/PFTauPrimaryVertexProducerBase.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
+
+#include "DataFormats/Common/interface/AssociationVector.h"
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+#include <memory>
+#include <boost/foreach.hpp>
+
 PFTauPrimaryVertexProducerBase::PFTauPrimaryVertexProducerBase(const edm::ParameterSet& iConfig):
   pftauToken_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("PFTauTag"))),
   electronToken_(consumes<edm::View<reco::Electron> >(iConfig.getParameter<edm::InputTag>("ElectronTag"))),
@@ -14,7 +32,7 @@ PFTauPrimaryVertexProducerBase::PFTauPrimaryVertexProducerBase(const edm::Parame
   removeElectronTracks_(iConfig.getParameter<bool>("RemoveElectronTracks"))
 {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  std::vector<edm::ParameterSet> discriminators =iConfig.getParameter<std::vector<edm::ParameterSet> >("discriminators");
+  std::vector<edm::ParameterSet> discriminators = iConfig.getParameter<std::vector<edm::ParameterSet> >("discriminators");
   // Build each of our cuts
   BOOST_FOREACH(const edm::ParameterSet &pset, discriminators) {
     DiscCutPair* newCut = new DiscCutPair();
@@ -45,7 +63,7 @@ namespace {
     }
     const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (pCand && pCand->hasTrackDetails()) {
-      const reco::TrackBase* trkPtr = &pCand->pseudoTrack();
+      const reco::TrackBase* trkPtr = pCand->bestTrack();
       return edm::Ptr<reco::TrackBase>(trkPtr,0);
     }
     return edm::Ptr<reco::TrackBase>();

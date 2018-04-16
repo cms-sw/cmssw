@@ -1,4 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/PFTauPrimaryVertexProducerBase.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 /// MiniAOD implementation of the PFTauPrimaryVertexProducer plugin
 class PFTauMiniAODPrimaryVertexProducer final : public PFTauPrimaryVertexProducerBase {
@@ -66,15 +69,15 @@ void PFTauMiniAODPrimaryVertexProducer::nonTauTracksInPVFromPackedCands(const si
     if(cand.vertexRef().key()!=thePVkey ||
        (quality!=pat::PackedCandidate::UsedInFitTight &&
 	quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
-    const reco::Track *track = cand.hasTrackDetails() ? &cand.pseudoTrack() : nullptr;
+    const reco::Track *track = cand.bestTrack();
     if(track == nullptr) continue;
     //Remove signal (tau) tracks
     //MB: Only deltaR deltaPt overlap removal possible (?)
     //MB: It should be fine as pat objects stores same track info with same presision 
     bool matched = false;
     for(const auto& tauTrack: tauTracks){
-      if(deltaR2(tauTrack->eta(),tauTrack->phi(),
-		 track->eta(),track->phi())<0.005*0.005
+      if(std::abs(tauTrack->eta()-track->eta())<0.005
+	 && deltaPhi(tauTrack->phi(),track->phi())<0.005
 	 && std::abs(tauTrack->pt()/track->pt()-1.)<0.005
 	 ){
 	matched = true;
