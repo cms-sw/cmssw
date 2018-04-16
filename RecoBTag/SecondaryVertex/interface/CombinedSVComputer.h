@@ -244,23 +244,11 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 	vars.insert(btau::trackJetPt, trackJetKinematics.vectorSum().Pt(), true);
 	vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
 	vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
-	
-	float trackSip3dSigAboveCharm = threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance();
-	float trackSip3dValAboveCharm = threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value();
-	float trackSip2dSigAboveCharm = threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance();
-	float trackSip2dValAboveCharm = threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.value();
 
-	if( (trackSip2dValAboveCharm == -1) && (trackSip3dValAboveCharm == -1) && trackFlip ){
-	  trackSip3dSigAboveCharm = -trackSip3dSigAboveCharm; 
-	  trackSip3dValAboveCharm = -trackSip3dValAboveCharm; 
-	  trackSip2dSigAboveCharm = -trackSip2dSigAboveCharm;
-	  trackSip2dValAboveCharm = -trackSip2dValAboveCharm;
-	}
-
-	vars.insert(btau::trackSip3dSigAboveCharm, flipValue(trackSip3dSigAboveCharm,false),true);
-	vars.insert(btau::trackSip3dValAboveCharm, flipValue(trackSip3dValAboveCharm,false),true);
-	vars.insert(btau::trackSip2dSigAboveCharm, flipValue(trackSip2dSigAboveCharm,false),true);
-	vars.insert(btau::trackSip2dValAboveCharm, flipValue(trackSip2dValAboveCharm,false),true);
+        vars.insert(btau::trackSip3dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance(),false),true);
+        vars.insert(btau::trackSip3dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value(),false),true);
+        vars.insert(btau::trackSip2dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(),false),true);
+        vars.insert(btau::trackSip2dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.value(),false),true);	
 
         if (vtxType != btag::Vertices::NoVertex) {
                 math::XYZTLorentzVector allSum = useTrackWeights
