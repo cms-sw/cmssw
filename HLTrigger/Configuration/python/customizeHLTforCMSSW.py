@@ -65,13 +65,9 @@ def customiseFor20429(process):
 
 
 # 
-# The three different set of thresholds will be used to study
-# possible new thresholds of pfrechits and effects on high level objects
-# The values proposed (A, B, C) are driven by expected noise levels
+# Threshold 1-sigma backported from 10_0_X cmssw release from 2018 to perform tests on 2017 data/MC
 #
 
-
-# particleFlowRechitECAL new default value "false" flag to be added
 def customiseForEcalTest(process):
 
     for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
