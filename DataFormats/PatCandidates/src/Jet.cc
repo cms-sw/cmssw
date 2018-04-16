@@ -210,6 +210,22 @@ const reco::Candidate * Jet::daughter(size_t i) const {
   return reco::Jet::daughter(i);
 }
 
+reco::CandidatePtr Jet::daughterPtr( size_t i ) const {
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return daughtersTemp_->at(i);
+  }
+  return reco::Jet::daughterPtr(i);
+}
+
+const reco::CompositePtrCandidate::daughters & Jet::daughterPtrVector() const {
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return *daughtersTemp_;
+  }
+  return reco::Jet::daughterPtrVector();
+}
+
 size_t Jet::numberOfDaughters() const {
   if (isCaloJet() || isJPTJet()) {
     if ( embeddedCaloTowers_ ) {

@@ -441,6 +441,9 @@ namespace pat {
       ///    Else return the reco Jet number of constituents
       const reco::Candidate * daughter(size_t i) const override;
 
+      reco::CandidatePtr daughterPtr( size_t i ) const;
+      const reco::CompositePtrCandidate::daughters & daughterPtrVector() const;
+
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
 
       /// Return number of daughters:
@@ -550,7 +553,7 @@ namespace pat {
 
       // ---- Jet Substructure ----
       std::vector< pat::JetPtrCollection> subjetCollections_;
-      std::vector< std::string>          subjetLabels_; 
+      std::vector< std::string>          subjetLabels_;
       edm::AtomicPtrCache<std::vector< reco::CandidatePtr > > daughtersTemp_;
 
       // ---- MC info ----
