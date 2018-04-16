@@ -1,5 +1,5 @@
-#ifndef __L1Trigger_VertexFinder_L1fittedTrack_h__
-#define __L1Trigger_VertexFinder_L1fittedTrack_h__
+#ifndef __L1Trigger_VertexFinder_L1TrackTruthMatched_h__
+#define __L1Trigger_VertexFinder_L1TrackTruthMatched_h__
 
 
 #include <vector>
@@ -27,10 +27,10 @@ typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_>           TTStubAssMap;
 typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_>        TTClusterAssMap;
 
 //! Simple wrapper class for TTTrack, with match to a tracking particle
-class L1fittedTrack : public L1Track {
+class L1TrackTruthMatched : public L1Track {
 public:
-  L1fittedTrack(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>&, const Settings& , const TrackerGeometry* , const TrackerTopology*, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap);
-  ~L1fittedTrack();
+  L1TrackTruthMatched(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>&, const Settings& , const TrackerGeometry* , const TrackerTopology*, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap);
+  ~L1TrackTruthMatched();
   unsigned int getNumStubs()  const  {return numStubs;}
 
   // Get best matching tracking particle (=nullptr if none).

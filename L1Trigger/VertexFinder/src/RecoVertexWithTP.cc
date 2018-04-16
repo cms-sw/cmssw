@@ -4,7 +4,7 @@ namespace l1tVertexFinder {
 
   RecoVertexWithTP::RecoVertexWithTP(
     RecoVertex & vertex,
-    std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap)
+    std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1TrackTruthMatched *> trackAssociationMap)
   {
     z0_ = -999.;
     pT_ = -9999.;
@@ -12,14 +12,14 @@ namespace l1tVertexFinder {
 
 
     // loop over base fitted tracks in reco vertex and find the corresponding TP
-    // track using the TTTrack - L1fittedTrack map from above
+    // track using the TTTrack - L1TrackTruthMatched map from above
     for (const auto & trackIt : vertex.tracks()) {
       // using insert ensures that true tracks are also stored in vertex object
       insert(trackAssociationMap[trackIt->getTTTrackPtr()]);
     }
   }
 
-  void RecoVertexWithTP::insert(const L1fittedTrack* fitTrack) {
+  void RecoVertexWithTP::insert(const L1TrackTruthMatched* fitTrack) {
     tracks_.push_back(fitTrack);
     if(fitTrack->getMatchedTP()!= nullptr and fitTrack->getMatchedTP()->physicsCollision()) 
       trueTracks_.insert(fitTrack->getMatchedTP());
@@ -38,7 +38,7 @@ namespace l1tVertexFinder {
     // unsigned int overflows = 0;
     float SumZ_pT = 0.;
     float SumZ = 0.;
-    for(const L1fittedTrack* track : tracks_){
+    for(const L1TrackTruthMatched* track : tracks_){
       // if(track->pt() < 100.){
       pT_ += track->pt();
       SumZ += track->z0();

@@ -7,7 +7,6 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "L1Trigger/VertexFinder/interface/L1fittedTrack.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 
 

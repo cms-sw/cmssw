@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "L1Trigger/VertexFinder/interface/TP.h"
-#include "L1Trigger/VertexFinder/interface/L1fittedTrack.h"
+#include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 
 
 

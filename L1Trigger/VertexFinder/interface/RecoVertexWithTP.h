@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "L1Trigger/VertexFinder/interface/TP.h"
-#include "L1Trigger/VertexFinder/interface/L1fittedTrack.h"
+#include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 
@@ -17,11 +17,11 @@ class RecoVertexWithTP {
 
 public:
   // Fill useful info about tracking particle.
-  RecoVertexWithTP(RecoVertex & vertex, std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap);
+  RecoVertexWithTP(RecoVertex & vertex, std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1TrackTruthMatched *> trackAssociationMap);
   ~RecoVertexWithTP(){}
 
   /// Tracking Particles in vertex    
-  const std::vector<const L1fittedTrack *>& tracks()    const { return    tracks_;    }
+  const std::vector<const L1TrackTruthMatched *>& tracks()    const { return    tracks_;    }
   /// Tracking Particles in vertex    
   const std::set< const TP* >& trueTracks()    const { return    trueTracks_;    }
   /// Number of tracks originating from this vertex
@@ -29,7 +29,7 @@ public:
   /// Number of true particles assigned to this vertex
   unsigned int      numTrueTracks() const {return trueTracks_.size();}
   /// Assign fitted track to this vertex
-  void              insert(const L1fittedTrack* fitTrack);
+  void              insert(const L1TrackTruthMatched* fitTrack);
   /// Compute vertex parameters
   void              computeParameters(bool weightedmean = false);
   /// Set z0 position
@@ -66,7 +66,7 @@ private:
   double            metY_;
   double            highestPt_;
 
-  std::vector<const L1fittedTrack*>   tracks_;
+  std::vector<const L1TrackTruthMatched*>   tracks_;
   std::set< const TP* >   trueTracks_;
   bool              pv_;
   bool              highPt_;

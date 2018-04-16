@@ -9,7 +9,7 @@
 
 namespace l1tVertexFinder {
 
-L1fittedTrack::L1fittedTrack(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack, const Settings& aSettings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap) :
+L1TrackTruthMatched::L1TrackTruthMatched(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack, const Settings& aSettings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap) :
   L1Track(aTrack)
 {
   std::vector<Stub*> stubs;
@@ -24,11 +24,11 @@ L1fittedTrack::L1fittedTrack(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aT
   	delete stub;
 }
 
-L1fittedTrack::~L1fittedTrack()
+L1TrackTruthMatched::~L1TrackTruthMatched()
 {
 }
 
-const TP* L1fittedTrack::getMatchedTP() const
+const TP* L1TrackTruthMatched::getMatchedTP() const
 {
   return matchedTP_;
 }
