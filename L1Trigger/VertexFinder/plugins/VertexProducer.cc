@@ -64,13 +64,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
-  std::vector<L1fittedTrackBase> l1Tracks;
+  std::vector<L1Track> l1Tracks;
   l1Tracks.reserve(l1TracksHandle->size());
 
   for(const auto& track : l1TracksHandle->ptrs())
-    l1Tracks.push_back(L1fittedTrackBase(track));
+    l1Tracks.push_back(L1Track(track));
 
-  std::vector<const L1fittedTrackBase*> l1TrackPtrs;
+  std::vector<const L1Track*> l1TrackPtrs;
   l1TrackPtrs.reserve(l1Tracks.size());
   for(const auto& track : l1Tracks){
     if(track.pt() > settings_->vx_TrackMinPt() ){

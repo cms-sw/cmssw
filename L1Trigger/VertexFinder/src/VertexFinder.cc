@@ -31,8 +31,8 @@ namespace l1tVertexFinder {
 
   float VertexFinder::MaxDistance(RecoVertex cluster0, RecoVertex cluster1){
     float distance = 0;
-    for(const L1fittedTrackBase* track0 : cluster0.tracks()){
-      for(const L1fittedTrackBase* track1 : cluster1.tracks()){
+    for(const L1Track* track0 : cluster0.tracks()){
+      for(const L1Track* track1 : cluster1.tracks()){
 	if(fabs(track0->z0()-track1->z0()) > distance){
 	  distance = fabs(track0->z0()-track1->z0());
 	}
@@ -44,8 +44,8 @@ namespace l1tVertexFinder {
 
   float VertexFinder::MinDistance(RecoVertex cluster0, RecoVertex cluster1){
     float distance = 9999;
-    for(const L1fittedTrackBase* track0 : cluster0.tracks()){
-      for(const L1fittedTrackBase* track1 : cluster1.tracks()){
+    for(const L1Track* track0 : cluster0.tracks()){
+      for(const L1Track* track1 : cluster1.tracks()){
 	if(fabs(track0->z0()-track1->z0()) < distance){
 	  distance = fabs(track0->z0()-track1->z0());
 	}
@@ -59,8 +59,8 @@ namespace l1tVertexFinder {
 
     float distanceSum = 0;
 
-    for(const L1fittedTrackBase* track0 : cluster0.tracks()){
-      for(const L1fittedTrackBase* track1 : cluster1.tracks()){
+    for(const L1Track* track0 : cluster0.tracks()){
+      for(const L1Track* track1 : cluster1.tracks()){
 	distanceSum += fabs(track0->z0()-track1->z0());
       }
     }
@@ -111,7 +111,7 @@ namespace l1tVertexFinder {
 	}
       }
       if(MinimumScore > settings_->vx_distance() or vClusters[clusterId1].tracks().empty() ) break;
-      for(const L1fittedTrackBase* track : vClusters[clusterId0].tracks()){
+      for(const L1Track* track : vClusters[clusterId0].tracks()){
 	vClusters[clusterId1].insert(track);
       }
       vClusters.erase(vClusters.begin()+clusterId0);
@@ -186,7 +186,7 @@ namespace l1tVertexFinder {
     bool start = true;
     FitTrackCollection discardedTracks, acceptedTracks;
     iterations_ = 0;
-    for(const L1fittedTrackBase* track : fitTracks_){
+    for(const L1Track* track : fitTracks_){
       acceptedTracks.push_back(track);
     }
 
@@ -201,7 +201,7 @@ namespace l1tVertexFinder {
 	if(settings_->debug() == 7) cout << "acceptedTracks "<< acceptedTracks.size() << endl;
 
 	float z0start = 0;
-	for(const L1fittedTrackBase* track : acceptedTracks){
+	for(const L1Track* track : acceptedTracks){
 	  z0start += track->z0();
 	  iterations_++;
 	}
@@ -212,7 +212,7 @@ namespace l1tVertexFinder {
 	removing = false;
 
 	for(FitTrackCollection::iterator it = acceptedTracks.begin(); it < acceptedTracks.end(); ++it ){
-	  const L1fittedTrackBase* track = *it;
+	  const L1Track* track = *it;
 	  iterations_++;
 	  if(fabs(track->z0()-z0start) > settings_->vx_distance() and fabs(track->z0()-z0start) > oldDistance){
 	    badTrackIt = it;
@@ -222,7 +222,7 @@ namespace l1tVertexFinder {
 	}
 
 	if(removing){
-	  const L1fittedTrackBase* badTrack = *badTrackIt;
+	  const L1Track* badTrack = *badTrackIt;
 	  if(settings_->debug() == 7) cout << "removing track "<< badTrack->z0() << " at distance "<< oldDistance << endl;
 	  discardedTracks.push_back(badTrack);
 	  acceptedTracks.erase(badTrackIt);
@@ -231,7 +231,7 @@ namespace l1tVertexFinder {
 
       if(acceptedTracks.size() >= settings_->vx_minTracks()){
 	RecoVertex vertex;
-	for(const L1fittedTrackBase* track :acceptedTracks ){
+	for(const L1Track* track :acceptedTracks ){
 	  vertex.insert(track);
 	}
 	vertex.computeParameters(settings_->vx_weightedmean());
@@ -248,7 +248,7 @@ namespace l1tVertexFinder {
     iterations_ =0 ;
     FitTrackCollection discardedTracks, acceptedTracks, discardedTracks2;
 
-    for(const L1fittedTrackBase* track : fitTracks_){
+    for(const L1Track* track : fitTracks_){
       discardedTracks.push_back(track);
     }
 
@@ -257,20 +257,20 @@ namespace l1tVertexFinder {
       start = false;
       discardedTracks2.clear();
       FitTrackCollection::iterator it = discardedTracks.begin();
-      const L1fittedTrackBase* track = *it;
+      const L1Track* track = *it;
       acceptedTracks.push_back(track);
       float z0sum = track->z0();
 
       for(FitTrackCollection::iterator it2 = discardedTracks.begin(); it2 < discardedTracks.end(); ++it2){
 	if(it2 != it){
-	  const L1fittedTrackBase * secondTrack = *it2;
+	  const L1Track * secondTrack = *it2;
 	  // Calculate new vertex z0 adding this track
 	  z0sum += secondTrack->z0();
 	  float z0vertex = z0sum/(acceptedTracks.size()+1);
 	  // Calculate chi2 of new vertex
 	  float chi2 = 0.;
 	  float dof = 0.;
-	  for(const L1fittedTrackBase * accTrack : acceptedTracks){
+	  for(const L1Track * accTrack : acceptedTracks){
 	    iterations_++;
 	    float Residual = accTrack->z0() - z0vertex;
 	    if(fabs(accTrack->eta()) < 1.2) Residual /= 0.1812; // Assumed z0 resolution
@@ -292,7 +292,7 @@ namespace l1tVertexFinder {
 
       if(acceptedTracks.size() >= settings_->vx_minTracks()){
 	RecoVertex vertex;
-	for(const L1fittedTrackBase* track :acceptedTracks ){
+	for(const L1Track* track :acceptedTracks ){
 	  vertex.insert(track);
 	}
 	vertex.computeParameters(settings_->vx_weightedmean());
@@ -312,7 +312,7 @@ namespace l1tVertexFinder {
     RecoVertex vertex;
     bool first = true;
     float z = 99.;
-    for(const L1fittedTrackBase* track : fitTracks_){
+    for(const L1Track* track : fitTracks_){
       if(track->pt() < 50.) {
 	if(first){
 	  first = false;
@@ -349,7 +349,7 @@ namespace l1tVertexFinder {
 	vertices_[i].clear();
       }
 
-      for(const L1fittedTrackBase* track: fitTracks_){
+      for(const L1Track* track: fitTracks_){
 	float distance = 9999;
 	if(iterations == settings_->vx_kmeans_iterations()-3) distance = settings_->vx_distance()*2;
 	if(iterations > settings_->vx_kmeans_iterations()-3)
@@ -410,7 +410,7 @@ namespace l1tVertexFinder {
       RecoVertex vertex;
       FitTrackCollection tracks;
 
-      for(const L1fittedTrackBase * track: fitTracks_){
+      for(const L1Track * track: fitTracks_){
 	if(fabs(z-track->z0()) < settings_->tdr_vx_width()){
 	  vertex.insert(track);
 	} else{

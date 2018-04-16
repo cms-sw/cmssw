@@ -1,5 +1,5 @@
-#ifndef __L1Trigger_VertexFinder_L1fittedTrackBase_h__
-#define __L1Trigger_VertexFinder_L1fittedTrackBase_h__
+#ifndef __L1Trigger_VertexFinder_L1Track_h__
+#define __L1Trigger_VertexFinder_L1Track_h__
 
 
 #include <vector>
@@ -14,11 +14,11 @@
 
 namespace l1tVertexFinder {
 
-  //! Simple wrapper class for TTTrack, to avoid changing other areas of packages immediately
-  class L1fittedTrackBase {
+  //! Simple wrapper class for TTTrack
+  class L1Track {
   public:
-  L1fittedTrackBase(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& aTrack) : track_(aTrack) {};
-    ~L1fittedTrackBase() {};
+    L1Track(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& aTrack) : track_(aTrack) {};
+    ~L1Track() {};
 
     float eta() const { return track_->getMomentum().eta(); };
     float phi0() const { return track_->getMomentum().phi(); };
@@ -29,10 +29,6 @@ namespace l1tVertexFinder {
     float chi2dof() const { return track_->getChi2Red(); };
 
     unsigned int getNumStubs()  const  {return track_->getStubRefs().size();}
-      /*
-      // Get best matching tracking particle (=nullptr if none).
-      const TP* getMatchedTP() const;
-    */
 
     const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& getTTTrackPtr() const {
       return track_;
@@ -40,13 +36,6 @@ namespace l1tVertexFinder {
 
   private:
     edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >> track_;
-    /*
-    //--- Information about its association (if any) to a truth Tracking Particle.
-    const TP*             matchedTP_;
-    std::vector<const Stub*>   matchedStubs_;
-    unsigned int          nMatchedLayers_;
-    unsigned int          numStubs;
-    */
   };
 
 } // end ns l1tVertexFinder

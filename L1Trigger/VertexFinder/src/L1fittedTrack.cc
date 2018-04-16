@@ -10,7 +10,7 @@
 namespace l1tVertexFinder {
 
 L1fittedTrack::L1fittedTrack(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack, const Settings& aSettings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<edm::Ptr< TrackingParticle >, const TP* >& translateTP, edm::Handle<TTStubAssMap> mcTruthTTStubHandle, edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle, const std::map<DetId, DetId>& geoDetIdMap) :
-  L1fittedTrackBase(aTrack)
+  L1Track(aTrack)
 {
   std::vector<Stub*> stubs;
   for(const auto& stubRef : aTrack->getStubRefs()) {

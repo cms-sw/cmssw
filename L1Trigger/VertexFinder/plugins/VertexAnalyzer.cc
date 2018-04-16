@@ -511,7 +511,7 @@ namespace l1tVertexFinder {
 
       // populate vertex with tracks
       for (const auto & track : l1VerticesHandle->at(i).tracks()) {
-        recoVertexBase.insert(new L1fittedTrackBase(track));
+        recoVertexBase.insert(new L1Track(track));
       }
 
       recoVertexBase.setZ(l1VerticesHandle->at(i).z0());
@@ -529,7 +529,7 @@ namespace l1tVertexFinder {
     // populate RecoVertex version of TDR PV with information obtained
     // from l1t::Vertex
     for (const auto & track : tdrPVVertexFromEDM.tracks()) {
-      TDRVertexBase.insert(new L1fittedTrackBase(track));
+      TDRVertexBase.insert(new L1Track(track));
     }
     TDRVertexBase.setZ(tdrPVVertexFromEDM.z0());
 
@@ -850,7 +850,7 @@ namespace l1tVertexFinder {
 
       if (!found) {
         bool TrackIsReconstructed = false;
-        for (const L1fittedTrackBase * l1trackBase: l1TrackPtrs) {
+        for (const L1Track * l1trackBase: l1TrackPtrs) {
           const L1fittedTrack * l1track = trackAssociationMap[l1trackBase->getTTTrackPtr()];
           if (l1track->getMatchedTP()!= nullptr) {
             if (tp.index() == l1track->getMatchedTP()->index()) {
@@ -899,7 +899,7 @@ namespace l1tVertexFinder {
       }
 
       if (!found) {
-        for (const L1fittedTrackBase * l1trackPtr: l1TrackPtrs) {
+        for (const L1Track * l1trackPtr: l1TrackPtrs) {
           const L1fittedTrack * l1track = trackAssociationMap[l1trackPtr->getTTTrackPtr()];
           if (l1track->getMatchedTP()!= nullptr) {
             if (tp.index() == l1track->getMatchedTP()->index()) {
@@ -910,7 +910,7 @@ namespace l1tVertexFinder {
               hisTDRUnmatchTrueEta_->Fill(tp.eta());
               misassignedTracks_tdr++;
               double mindistance = 999.;
-              for (const L1fittedTrackBase* vertexTrack : TDRVertex->tracks()) {
+              for (const L1Track* vertexTrack : TDRVertex->tracks()) {
                 if ( fabs(vertexTrack->z0() - l1track->z0()) < mindistance )
                   mindistance = fabs(vertexTrack->z0() - l1track->z0());
               }

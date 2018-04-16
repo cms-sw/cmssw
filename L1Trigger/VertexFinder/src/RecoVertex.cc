@@ -19,7 +19,7 @@ namespace l1tVertexFinder {
     float SumZ_pT = 0.;
     float SumZ = 0.;
 
-    for(const L1fittedTrackBase* track : tracks_){
+    for(const L1Track* track : tracks_){
       pT_ += track->pt();
       SumZ += track->z0();
       SumZ_pT += track->z0()*track->pt();
