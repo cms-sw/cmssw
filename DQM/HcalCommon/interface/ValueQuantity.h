@@ -34,7 +34,7 @@ namespace hcaldqm
 			fRatio2 = 19,
 			fdEtRatio = 20,
 			fSumdEt = 21,
-			fTiming_20TS = 22,
+			fTiming_100TS = 22,
 			fQIE10ADC_256 = 23,
 			fQIE10TDC_64 = 24,
 			fQIE10TDC_16 = 25,
@@ -65,6 +65,7 @@ namespace hcaldqm
 			fRBX = 50,
 			fTimingDiff_ns = 51,
 			ffC_1000000 = 52,
+			fTime_ns_250_coarse = 53,
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -98,7 +99,7 @@ namespace hcaldqm
 			{fRatio2,"Ratio"},
 			{fdEtRatio,"dEtRatio"},
 			{fSumdEt,"SumdEt"},
-			{fTiming_20TS,"Timing"},
+			{fTiming_100TS,"Timing"},
 			{fQIE10TDC_64,"TDC"},
 			{fQIE10TDC_16,"TDC"},
 			{fDiffAbs,"Q"},
@@ -119,7 +120,8 @@ namespace hcaldqm
 			{fBadTDC, "TDC"},
 			{fRBX, "RBX"},
 			{fTimingDiff_ns, "#Delta timing [ns]"},
-			{ffC_1000000, "fC"}
+			{ffC_1000000, "fC"},
+			{fTime_ns_250_coarse, "Time (ns)"},
 		};
 		const std::map<ValueQuantityType, double> min_value = {
 			{fN,-0.05},
@@ -144,7 +146,7 @@ namespace hcaldqm
 			{fRatio2,0.5},
 			{fdEtRatio,0},
 			{fSumdEt,0},
-			{fTiming_20TS,-0.5},
+			{fTiming_100TS,-0.5},
 			{fQIE10ADC_256,-0.5},
 			{fQIE10ADC_16,-0.5},
 			{fQIE10TDC_64,-0.5},
@@ -174,7 +176,8 @@ namespace hcaldqm
 			{fBadTDC,49.5},
 			{fRBX, 0.5},
 			{fTimingDiff_ns, -125.},
-			{ffC_1000000,0.}
+			{ffC_1000000,0.},
+			{fTime_ns_250_coarse, -0.5}
 		};
 		const std::map<ValueQuantityType, double> max_value = {
 			{fN,1000},
@@ -199,7 +202,7 @@ namespace hcaldqm
 			{fRatio2,1.5},
 			{fdEtRatio,1},
 			{fSumdEt,1000},
-			{fTiming_20TS,9.5},
+			{fTiming_100TS,99.5},
 			{fQIE10ADC_256,255.5},
 			{fQIE10ADC_16,15.5},
 			{fQIE10TDC_64,63.5},
@@ -230,6 +233,7 @@ namespace hcaldqm
 			{fRBX, 18.5},
 			{fTimingDiff_ns, 125.},
 			{ffC_1000000,1.e6},
+			{fTime_ns_250, 249.5},
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
@@ -254,7 +258,7 @@ namespace hcaldqm
 			{fRatio2,100},
 			{fdEtRatio,100},
 			{fSumdEt,100},
-			{fTiming_20TS,10},
+			{fTiming_100TS,100},
 			{fQIE10ADC_256,256},
 			{fQIE10TDC_64,64},
 			{fQIE10TDC_16,16},
@@ -273,7 +277,7 @@ namespace hcaldqm
 			{fQIE10fC_2000,100},
 			{fQIE10fC_10000,500},
 			{fQIE8fC_1000_50,50},
-			{fTime_ns_250,100},
+			{fTime_ns_250,250},
 			{fADC_256,256},
 			{ffC_generic_10000,10000},
 			{ffC_generic_400000,10000},	
@@ -284,11 +288,12 @@ namespace hcaldqm
 			{fRBX, 18},
 			{fTimingDiff_ns, 40},
 			{ffC_1000000,1000},
+			{fTime_ns_250_coarse, 100},
 		};
 		class ValueQuantity : public Quantity
 		{
 			public:
-				ValueQuantity() : _type(){}
+				ValueQuantity() : _type() {}
 				ValueQuantity(ValueQuantityType type, bool isLog=false) :
 					Quantity(name_value.at(type), isLog), _type(type)
 				{}
@@ -299,9 +304,29 @@ namespace hcaldqm
 
 				//	get Value to be overriden
 				int getValue(int x) override
-				{return x;}
+				{
+					int ret_x = x;
+					if (_showOverflow) {
+						if (x < min()) {
+							ret_x = min();
+						} else if (x > max()) {
+							ret_x = max();
+						}
+					}
+					return ret_x;
+				}
 				double getValue(double x) override
-				{return x;}
+				{
+					double ret_x = x;
+					if (_showOverflow) {
+						if (x < min()) {
+							ret_x = min();
+						} else if (x > max()) {
+							ret_x = max();
+						}
+					}
+					return ret_x;
+				}
 
 				//	standard properties
 				QuantityType type() override {return fValueQuantity;}
@@ -329,7 +354,7 @@ namespace hcaldqm
 		class FlagQuantity : public ValueQuantity
 		{
 			public:
-				FlagQuantity(){}
+				FlagQuantity() {}
 				FlagQuantity(std::vector<flag::Flag> const& flags) :
 					_flags(flags) {}
 				~FlagQuantity() override {}
@@ -360,11 +385,8 @@ namespace hcaldqm
 		class LumiSection : public ValueQuantity
 		{
 			public:
-				LumiSection() : ValueQuantity(fLS), _n(4000)
-				{}
-				LumiSection(int n) : ValueQuantity(fLS), 
-					_n(n) 
-				{}
+				LumiSection() : ValueQuantity(fLS), _n(4000) {}
+				LumiSection(int n) : ValueQuantity(fLS), _n(n) {}
 				~LumiSection() override {}
 				
 				LumiSection* makeCopy() override
@@ -374,7 +396,9 @@ namespace hcaldqm
 				int nbins() override {return _n;}
 				double min() override {return 1;}
 				double max() override {return _n+1;}
-				int getValue(int l) override {return l;}
+				int getValue(int l) override {
+					return l;
+				}
 				uint32_t getBin(int l) override 
 				{return getValue(l);}
 				void setMax(double x) override {_n=x;}
@@ -392,7 +416,7 @@ namespace hcaldqm
 				LumiSectionCoarse() : ValueQuantity(fLS), _n(4000), _binning(10)
 				{}
 				LumiSectionCoarse(int n, int binning) : ValueQuantity(fLS), 
-					_n(n), _binning(binning) 
+					_n(n), _binning(binning)
 				{}
 				~LumiSectionCoarse() override {}
 				
@@ -405,7 +429,9 @@ namespace hcaldqm
 				double max() override {return _n+1;}
 				int getValue(int l) override {return l;}
 				uint32_t getBin(int l) override 
-				{return (l + _binning - 1) / _binning;}
+				{
+					return (l + _binning - 1) / _binning;
+				}
 				void setMax(double x) override {_n=x;}
 
 			protected:
@@ -418,7 +444,7 @@ namespace hcaldqm
 			public:
 				RunNumber() {}
 				RunNumber(std::vector<int> runs) :
-					_runs(runs) 
+					_runs(runs)
 				{}
 				~RunNumber() override {}
 
