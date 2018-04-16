@@ -129,10 +129,24 @@ import RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi
 for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi.calibratedPhotonProducerTRecoPhoton.valueMapsStored:
     setattr(reducedEgammaEnergyScaleAndSmearingModifier.photon_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibPho",valueMapName)))
 
+#############################################################
+# 8X to 9X modifiers (fills in variables new to 9X w.r.t 8X)
+#############################################################
+egamma8XObjectUpdateModifier = cms.PSet(
+    modifierName  = cms.string('EG8XObjectUpdateModifier'),
+    ecalRecHitsEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+    ecalRecHitsEE = cms.InputTag("reducedEgamma","reducedEERecHits"),
+)
 
 def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
     modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
 
+def prependEgamma8XObjectUpdateModifier(modifiers):
+    modifiers.insert(0,egamma8XObjectUpdateModifier)
+
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
    
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
+run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)
