@@ -419,7 +419,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         if (candPtr->isJet())
           subjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
       }
-      if(subjets.size()>0) {
+      if(!subjets.empty()) {
         ajet.addSubjets( subjets, "default" );
         std::vector< edm::Ptr<reco::Candidate> > candidates=ajet.daughterPtrVector(); // In pat::Jet with subjets, daughterPtr returns the candidates inside the subjets.
         ajet.clearDaughters();
