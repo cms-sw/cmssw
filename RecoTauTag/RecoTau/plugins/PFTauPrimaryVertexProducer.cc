@@ -1,4 +1,6 @@
 #include "RecoTauTag/RecoTau/interface/PFTauPrimaryVertexProducerBase.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 /// RECO/AOD implementation of the PFTauPrimaryVertexProducer plugin
 class PFTauPrimaryVertexProducer final : public PFTauPrimaryVertexProducerBase {
