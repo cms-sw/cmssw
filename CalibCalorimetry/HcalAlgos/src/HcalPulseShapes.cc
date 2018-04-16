@@ -77,16 +77,14 @@ Reco  MC
 
   computeHFShape();
   computeSiPMShapeHO();
-  computeSiPMShapeHE203();
-  computeSiPMShapeHE206();
   computeSiPMShapeData2017();
   computeSiPMShapeData2018();
 
   theShapes[201] = &siPMShapeHO_;
   theShapes[202] = theShapes[201];
-  theShapes[203] = &siPMShapeMC2017_;
+  theShapes[203] = &(computeSiPMShapeHE203());
   theShapes[205] = &siPMShapeData2017_;
-  theShapes[206] = &siPMShapeMC2018_;
+  theShapes[206] = &(computeSiPMShapeHE206());
   theShapes[207] = &siPMShapeData2018_;
   theShapes[301] = &hfShape_;
   //theShapes[401] = new CaloCachedShapeIntegrator(&theZDCShape);
@@ -380,50 +378,19 @@ void HcalPulseShapes::computeSiPMShapeHO()
   }
 }
 
-void HcalPulseShapes::computeSiPMShapeHE203()
+const HcalPulseShape& HcalPulseShapes::computeSiPMShapeHE203()
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
-  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11203);
-
-  siPMShapeMC2017_.setNBin(nBinsSiPM_);
-
-  //skip first bin, always 0
-  double norm = 0.;
-  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
-    norm += (nt[j]>0) ? nt[j] : 0.;
-  }
-
-  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
-    nt[j] /= norm;
-    siPMShapeMC2017_.setShapeBin(j,nt[j]);
-  }
+  static const HcalPulseShape siPMShapeMC2017(normalize(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11203),nBinsSiPM_),nBinsSiPM_);
+  return siPMShapeMC2017;
 }
 
-void HcalPulseShapes::computeSiPMShapeHE206()
+const HcalPulseShape& HcalPulseShapes::computeSiPMShapeHE206()
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
-  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11206);
-
-  siPMShapeMC2018_.setNBin(nBinsSiPM_);
-
-  //Aligning 206 phase closer to 205 in order to have good reco agreement
-  int shift = -2;
-
-  //skip first bin, always 0
-  double norm = 0.;
-  for (unsigned int j = std::max(1,-1*shift); j<=nBinsSiPM_; j++) {
-    norm += std::max(0., nt[j-shift]);
-  }
-  double normInv=1./norm;
-  for ( int j = 1; j<=nBinsSiPM_; j++) {
-    if ( j-shift>=0 ) {
-      nt[j-shift]*=normInv;
-      siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
-    }
-    else{
-      siPMShapeMC2018_.setShapeBin(j,0);
-    }
-  }
+  //shift: aligning 206 phase closer to 205 in order to have good reco agreement
+  static const HcalPulseShape siPMShapeMC2018(normalizeShift(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11206),nBinsSiPM_,-2),nBinsSiPM_);
+  return siPMShapeMC2018;
 }
 
 const HcalPulseShapes::Shape &
