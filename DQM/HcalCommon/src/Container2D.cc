@@ -1252,6 +1252,11 @@ namespace hcaldqm
 			me->setBinLabel(i+1, ylabels[i], 2);
 		}
 	}
+
+	void Container2D::showOverflowZ(bool showOverflow) {
+		_qz->showOverflow(showOverflow);
+	}
 }
+
 
 

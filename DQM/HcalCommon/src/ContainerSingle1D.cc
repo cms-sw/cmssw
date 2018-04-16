@@ -304,6 +304,15 @@ namespace hcaldqm
 			_qx->setMax(x);
 		}
 	}
+
+	void ContainerSingle1D::showOverflowX(bool showOverflow) {
+		_qx->showOverflow(showOverflow);
+	}
+
+	void ContainerSingle1D::showOverflowY(bool showOverflow) {
+		_qy->showOverflow(showOverflow);
+	}
+
 }
 
 
