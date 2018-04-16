@@ -410,20 +410,20 @@ namespace l1tVertexFinder {
       RecoVertex vertex;
       FitTrackCollection tracks;
 
-      for(const L1Track * track: fitTracks_){
-	if(fabs(z-track->z0()) < settings_->tdr_vx_width()){
-	  vertex.insert(track);
-	} else{
-	  tracks.push_back(track);
-	}
+      for (const L1Track * track: fitTracks_){
+        if (fabs(z-track->z0()) < settings_->tdr_vx_width()){
+          vertex.insert(track);
+        } else{
+          tracks.push_back(track);
+        }
       }
       vertex.computeParameters(settings_->vx_weightedmean());
       // cout << "TDR pt "<< vertex.pT() << endl;
       vertex.setZ(z);
-      if(vertex.pT() > vxPt){
-	tdr_vertex_ = vertex;
-	tdr_pileup_tracks_ = tracks;
-	vxPt = vertex.pT();
+      if (vertex.pT() > vxPt){
+        tdr_vertex_ = vertex;
+        tdr_pileup_tracks_ = tracks;
+        vxPt = vertex.pT();
       }
     }
   } // end of TDRalgorithm

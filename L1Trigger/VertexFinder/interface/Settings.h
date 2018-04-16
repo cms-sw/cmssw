@@ -64,8 +64,6 @@ public:
   Algorithm           vx_algo()                  const {return vx_algo_;        }
   /// For Agglomerative cluster algorithm, select a definition of distance between clusters
   unsigned int        vx_distanceType()          const {return vx_distanceType_;  }
-  /// Keep only PV from hard interaction (highest pT)
-  bool                vx_keepOnlyPV()            const {return vx_keepOnlyPV_;    }
   // Assumed Vertex Distance
   float               vx_distance()              const {return vx_distance_;      }
   // Assumed Vertex Resolution
@@ -78,19 +76,11 @@ public:
   float               vx_chi2cut()               const {return vx_chi2cut_;       }
   /// TDR assumed vertex width
   float               tdr_vx_width()             const {return tdr_vx_width_;     }
-  /// Run the Vertex reconstruction locally or globally
-  bool                vx_local()                 const {return vx_local_;         }
-  /// Maximum distance to merge vertices
-  float               vx_merge_distance()        const {return vx_merge_distance_;}
   float               vx_dbscan_pt()             const {return vx_dbscan_pt_;}
   unsigned int        vx_dbscan_mintracks()      const {return vx_dbscan_mintracks_;}
 
-
-  /// If running the vertex reconstruction locally, do it individually per HT sector (if false do it by octants)
   unsigned int        vx_kmeans_iterations()     const {return vx_kmeans_iterations_;}
   unsigned int        vx_kmeans_nclusters()      const {return vx_kmeans_nclusters_;}
-  bool                vx_inHTsector()            const {return vx_inHTsector_;}
-  bool                vx_mergebytracks()         const {return vx_mergebytracks_;}
   float               vx_TrackMinPt()            const {return vx_TrackMinPt_;}
 
 
@@ -151,15 +141,10 @@ private:
   float                vx_distance_;
   float                vx_resolution_;
   unsigned int         vx_distanceType_;
-  bool                 vx_keepOnlyPV_;
   unsigned int         vx_minTracks_;
   bool                 vx_weightedmean_;
   float                vx_chi2cut_;
   float                tdr_vx_width_;
-  bool                 vx_local_;
-  float                vx_merge_distance_;
-  bool                 vx_inHTsector_;
-  bool                 vx_mergebytracks_;
   float                vx_TrackMinPt_;
   float                vx_dbscan_pt_;
   float                vx_dbscan_mintracks_;

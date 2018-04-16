@@ -57,8 +57,6 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
         VertexResolution = cms.double(.10),
         # Distance Type for agglomerative algorithm (0: MaxDistance, 1: MinDistance, 2: MeanDistance, 3: CentralDistance)
         DistanceType  = cms.uint32(0),
-        # Keep only PV from hard interaction (highest pT)
-        KeepOnlyPV   = cms.bool(True),
         # Minimum number of tracks to accept vertex
         MinTracks   = cms.uint32(2),
         # Compute the z0 position of the vertex with a mean weighted with track momenta
@@ -66,9 +64,7 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
         # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
         # TDR algorithm assumed vertex width [cm]
-        TDR_VertexWidth = cms.double(.15),
-        # Run locally the vertex reconstruction algorithms
-        VertexLocal  = cms.bool(False),
+        TP_VertexWidth = cms.double(.15),
         # Kmeans number of iterations
         KmeansIterations = cms.uint32(10),
         # Kmeans number of clusters
@@ -77,10 +73,7 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
         DBSCANPtThreshold = cms.double(2.),
         # DBSCAN min density tracks
         DBSCANMinDensityTracks = cms.uint32(1),
-        # Maximum distance to merge two vertices (only if VertexLocal is true)
-        VxMergeDistance = cms.double(.15),
-        VxInHTsector = cms.bool(True),
-        VxMergeByTracks = cms.bool(False),
+
         VxMinTrackPt   = cms.double(2.)
     ),
 
