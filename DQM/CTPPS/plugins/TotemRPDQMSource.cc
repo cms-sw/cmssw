@@ -66,21 +66,6 @@ class TotemRPDQMSource: public DQMEDAnalyzer
 
     GlobalPlots globalPlots;
 
-    /// plots related to one (anti)diagonal
-    struct DiagonalPlots
-    {
-      int id;
-
-      MonitorElement *h_lrc_x_d=nullptr, *h_lrc_x_n=nullptr, *h_lrc_x_f=nullptr;
-      MonitorElement *h_lrc_y_d=nullptr, *h_lrc_y_n=nullptr, *h_lrc_y_f=nullptr;
-
-      DiagonalPlots() {}
-
-      DiagonalPlots(DQMStore::IBooker &ibooker, int _id);
-    };
-
-    std::map<unsigned int, DiagonalPlots> diagonalPlots;
-
     /// plots related to one arm
     struct ArmPlots
     {
@@ -95,15 +80,6 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     };
 
     std::map<unsigned int, ArmPlots> armPlots;
-
-    /// plots related to one station
-    struct StationPlots
-    {
-      StationPlots() {}
-      StationPlots(DQMStore::IBooker &ibooker, int _id);
-    };
-
-    std::map<unsigned int, StationPlots> stationPlots;
 
     /// plots related to one RP
     struct PotPlots
@@ -169,33 +145,6 @@ void TotemRPDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
 
 //----------------------------------------------------------------------------------------------------
 
-TotemRPDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, int _id) : id(_id)
-{
-  bool top45 = id & 2;
-  bool top56 = id & 1;
-  bool diag = (top45 != top56);
-
-  char name[50];
-  sprintf(name, "%s 45%s - 56%s",
-    (diag) ? "diagonal" : "antidiagonal",
-    (top45) ? "top" : "bot",
-    (top56) ? "top" : "bot"
-  );
-
-  ibooker.setCurrentFolder(string("CTPPS/TrackingStrip/") + name);
-
-  // TODO: define ranges! If defined automatically, can lead to problems when histograms are merged from several instances of the module.
-  h_lrc_x_d = ibooker.book2D("dx left vs right", string(name) + " : dx left vs. right, histogram;#Delta x_{45};#Delta x_{56}", 50, 0., 0., 50, 0., 0.);
-  h_lrc_x_n = ibooker.book2D("xn left vs right", string(name) + " : xn left vs. right, histogram;x^{N}_{45};x^{N}_{56}", 50, 0., 0., 50, 0., 0.);
-  h_lrc_x_f = ibooker.book2D("xf left vs right", string(name) + " : xf left vs. right, histogram;x^{F}_{45};x^{F}_{56}", 50, 0., 0., 50, 0., 0.);
-
-  h_lrc_y_d = ibooker.book2D("dy left vs right", string(name) + " : dy left vs. right, histogram;#Delta y_{45};#Delta y_{56}", 50, 0., 0., 50, 0., 0.);
-  h_lrc_y_n = ibooker.book2D("yn left vs right", string(name) + " : yn left vs. right, histogram;y^{N}_{45};y^{N}_{56}", 50, 0., 0., 50, 0., 0.);
-  h_lrc_y_f = ibooker.book2D("yf left vs right", string(name) + " : yf left vs. right, histogram;y^{F}_{45};y^{F}_{56}", 50, 0., 0., 50, 0., 0.);
-}
-
-//----------------------------------------------------------------------------------------------------
-
 TotemRPDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : id(_id)
 {
   string path;
@@ -244,16 +193,6 @@ TotemRPDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : id(_
 
 //----------------------------------------------------------------------------------------------------
 
-TotemRPDQMSource::StationPlots::StationPlots(DQMStore::IBooker &ibooker, int id) 
-{
-  string path;
-  TotemRPDetId(id).stationName(path, TotemRPDetId::nPath);
-  ibooker.setCurrentFolder(path);
-}
-
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
-
 TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id)
 {
   string path;
@@ -297,7 +236,6 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
   track_v_profile = ibooker.book1D("track profile V", title+"; V   (mm)", 512, -256*66E-3, +256*66E-3);
 }
 
-//----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
 TotemRPDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned int id)
@@ -349,17 +287,6 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   // global plots
   globalPlots.Init(ibooker);
 
-  // temporarily disabled
-  /*
-  // initialize diagonals
-  diagonalPlots[1] = DiagonalPlots(ibooker, 1);  // 45 bot - 56 top
-  diagonalPlots[2] = DiagonalPlots(ibooker, 2);  // 45 top - 45 bot
-
-  // initialize anti-diagonals
-  diagonalPlots[0] = DiagonalPlots(ibooker, 0);  // 45 bot - 56 bot
-  diagonalPlots[3] = DiagonalPlots(ibooker, 3);  // 45 top - 56 top
-  */
-
   // loop over arms
   for (unsigned int arm = 0; arm < 2; arm++)
   {
@@ -369,8 +296,6 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     // loop over stations
     for (unsigned int st = 0; st < 3; st += 2)
     {
-      TotemRPDetId stId(arm, st);
-      stationPlots[stId] = StationPlots(ibooker, stId);
 
       // loop over RPs
       for (unsigned int rp = 0; rp < 6; ++rp)
@@ -815,10 +740,6 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       pp.track_v_profile->Fill(V);
     }
   }
-
-  //------------------------------
-  // Station Plots
-
   
   //------------------------------
   // Arm Plots
@@ -904,53 +825,6 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
     }
   }
   
-  //------------------------------
-  // RP-system plots
-  // TODO: this code needs
-  //    * generalization for more than two RPs per arm
-  //    * updating for tracks as DetSetVector
-  /*
-  for (auto &dp : diagonalPlots)
-  {
-    unsigned int id = dp.first;
-    bool top45 = id & 2;
-    bool top56 = id & 1;
-
-    unsigned int id_45_n = (top45) ? 20 : 21;
-    unsigned int id_45_f = (top45) ? 24 : 25;
-    unsigned int id_56_n = (top56) ? 120 : 121;
-    unsigned int id_56_f = (top56) ? 124 : 125;
-  
-    bool h_45_n = (tracks->find(id_45_n) != tracks->end() && tracks->find(id_45_n)->second.IsValid());
-    bool h_45_f = (tracks->find(id_45_f) != tracks->end() && tracks->find(id_45_f)->second.IsValid());
-    bool h_56_n = (tracks->find(id_56_n) != tracks->end() && tracks->find(id_56_n)->second.IsValid());
-    bool h_56_f = (tracks->find(id_56_f) != tracks->end() && tracks->find(id_56_f)->second.IsValid());
-  
-    if (! (h_45_n && h_45_f && h_56_n && h_56_f) )
-      continue;
-
-    double x_45_n = tracks->find(id_45_n)->second.X0(), y_45_n = tracks->find(id_45_n)->second.Y0();
-    double x_45_f = tracks->find(id_45_f)->second.X0(), y_45_f = tracks->find(id_45_f)->second.Y0();
-    double x_56_n = tracks->find(id_56_n)->second.X0(), y_56_n = tracks->find(id_56_n)->second.Y0();
-    double x_56_f = tracks->find(id_56_f)->second.X0(), y_56_f = tracks->find(id_56_f)->second.Y0();
-
-    double dx_45 = x_45_f - x_45_n;
-    double dy_45 = y_45_f - y_45_n;
-    double dx_56 = x_56_f - x_56_n;
-    double dy_56 = y_56_f - y_56_n;
-
-    DiagonalPlots &pl = dp.second;
-
-    pl.h_lrc_x_d->Fill(dx_45, dx_56);  
-    pl.h_lrc_y_d->Fill(dy_45, dy_56);  
-    
-    pl.h_lrc_x_n->Fill(x_45_n, x_56_n);  
-    pl.h_lrc_y_n->Fill(y_45_n, y_56_n);  
-    
-    pl.h_lrc_x_f->Fill(x_45_f, x_56_f);  
-    pl.h_lrc_y_f->Fill(y_45_f, y_56_f);
-  }
-  */
 }
 
 //----------------------------------------------------------------------------------------------------
