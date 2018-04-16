@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-elasticPlotDQMSource = cms.EDAnalyzer("ElasticPlotDQMSource",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+elasticPlotDQMSource = DQMEDAnalyzer("ElasticPlotDQMSource",
     tagRecHit = cms.InputTag("totemRPRecHitProducer"),
     tagUVPattern = cms.InputTag("totemRPUVPatternFinder"),
     tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
