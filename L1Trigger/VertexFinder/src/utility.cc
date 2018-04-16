@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "L1Trigger/VertexFinder/interface/TP.h"
-#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 #include "L1Trigger/VertexFinder/interface/Stub.h"
 
 
@@ -18,18 +18,18 @@ namespace utility {
 //=== Count number of tracker layers a given list of stubs are in.
 //=== By default, consider both PS+2S modules, but optionally consider only the PS ones.
 
-unsigned int countLayers(const Settings* settings, const vector<const Stub*>& vstubs, bool disableReducedLayerID, bool onlyPS) {
+unsigned int countLayers(const AnalysisSettings& settings, const vector<const Stub*>& vstubs, bool disableReducedLayerID, bool onlyPS) {
 
   //=== Unpack configuration parameters
 
   // Note if using reduced layer ID, so tracker layer can be encoded in 3 bits.
-  static bool  reduceLayerID           = settings->reduceLayerID();
+  static bool  reduceLayerID           = settings.reduceLayerID();
   // Define layers using layer ID (true) or by bins in radius of 5 cm width (false).
-  static bool  useLayerID              = settings->useLayerID();
+  static bool  useLayerID              = settings.useLayerID();
   // When counting stubs in layers, actually histogram stubs in distance from beam-line with this bin size.
-  static float layerIDfromRadiusBin    = settings->layerIDfromRadiusBin();
+  static float layerIDfromRadiusBin    = settings.layerIDfromRadiusBin();
   // Inner radius of tracker.
-  static float trackerInnerRadius      = settings->trackerInnerRadius();
+  static float trackerInnerRadius      = settings.trackerInnerRadius();
 
   // Disable use of reduced layer ID if requested, otherwise take from cfg.
   bool reduce  =  (disableReducedLayerID)  ?  false  :  reduceLayerID;
@@ -80,14 +80,14 @@ unsigned int countLayers(const Settings* settings, const vector<const Stub*>& vs
 //=== the number of tracker layers in which one of the stubs matched one from this tracking particle,
 //=== and the list of the subset of the stubs which match those on the tracking particle.
 
-const TP* matchingTP(const Settings* settings, const vector<Stub*>& vstubs,
+const TP* matchingTP(const AnalysisSettings& settings, const vector<Stub*>& vstubs,
                         unsigned int& nMatchedLayersBest, vector<const Stub*>& matchedStubsBest)
 {
   // Get matching criteria
-  const double        minFracMatchStubsOnReco = settings->minFracMatchStubsOnReco();
-  const double        minFracMatchStubsOnTP   = settings->minFracMatchStubsOnTP();
-  const unsigned int  minNumMatchLayers       = settings->minNumMatchLayers();
-  const unsigned int  minNumMatchPSLayers     = settings->minNumMatchPSLayers();
+  const double        minFracMatchStubsOnReco = settings.minFracMatchStubsOnReco();
+  const double        minFracMatchStubsOnTP   = settings.minFracMatchStubsOnTP();
+  const unsigned int  minNumMatchLayers       = settings.minNumMatchLayers();
+  const unsigned int  minNumMatchPSLayers     = settings.minNumMatchPSLayers();
 
   // Loop over the given stubs, looking at the TP that produced each one.
 

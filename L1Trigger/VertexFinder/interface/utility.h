@@ -7,7 +7,7 @@
 
 namespace l1tVertexFinder {
 
-class Settings;
+class AnalysisSettings;
 class Stub;
 class TP;
 
@@ -27,7 +27,7 @@ namespace utility {
   //
   // By default, considers both PS+2S modules, but optionally considers only the PS ones if onlyPS = true.
   
-  unsigned int countLayers(const Settings* settings, const std::vector<const Stub*>& stubs, bool disableReducedLayerID = false, bool onlyPS = false);
+  unsigned int countLayers(const AnalysisSettings& settings, const std::vector<const Stub*>& stubs, bool disableReducedLayerID = false, bool onlyPS = false);
 
 
   // Given a set of stubs (presumably on a reconstructed track candidate)
@@ -35,7 +35,7 @@ namespace utility {
   // the number of tracker layers in which one of the stubs matched one from this tracking particle,
   // and the list of the subset of the stubs which match those on the tracking particle.
 
-  const TP* matchingTP(const Settings* settings, const std::vector<Stub*>& vstubs,
+  const TP* matchingTP(const AnalysisSettings& settings, const std::vector<Stub*>& vstubs,
                    unsigned int& nMatchedLayersBest, std::vector<const Stub*>& matchedStubsBest);
 
 

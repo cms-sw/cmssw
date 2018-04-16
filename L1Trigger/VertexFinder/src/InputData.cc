@@ -22,7 +22,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 
 
 
@@ -30,7 +30,7 @@ using namespace std;
  
 namespace l1tVertexFinder {
 
-InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Settings* settings, 
+InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, const AnalysisSettings& settings, 
   const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag,
   const edm::EDGetTokenT<DetSetVec> stubInputTag,
   const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag,
@@ -230,14 +230,14 @@ InputData::InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Se
   }
 
   for(Vertex vertex : vertices_){
-    if(vertex.numTracks() >= settings->vx_minTracks()) recoVertices_.push_back(vertex);
+    if(vertex.numTracks() >= settings.vx_minTracks()) recoVertices_.push_back(vertex);
   }
 
   cout << vertices_.size() << " pileup vertices in the event, "<< recoVertices_.size() << " reconstructable" << endl;
   
 
   vertex_.computeParameters();
-  if(settings->debug() == 7) {
+  if(settings.debug() == 7) {
     cout << "Vertex "<< vertex_.z0() << " containing "<< vertex_.numTracks() << " total pT "<< vertex_.pT() << endl;
   
   }

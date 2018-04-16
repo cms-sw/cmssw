@@ -16,7 +16,7 @@
 
 namespace l1tVertexFinder {
 
-class Settings;
+class AnalysisSettings;
 class Stub;
 
 //=== Unpacks stub & tracking particle (truth) data into user-friendlier format in Stub & TP classes.
@@ -26,7 +26,7 @@ class InputData {
 
 public:
   
-  InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, Settings* settings,
+  InputData(const edm::Event& iEvent, const edm::EventSetup& iSetup, const AnalysisSettings& settings,
   const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag,
   const edm::EDGetTokenT<DetSetVec> stubInputTag,
   const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag,

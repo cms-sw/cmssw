@@ -12,9 +12,11 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
+#include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
+
 
 namespace l1tVertexFinder {
-  class Settings;
+  class AlgoSettings;
 }
 
 class VertexProducer : public edm::EDProducer {
@@ -34,7 +36,7 @@ private:
 private:
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
 
-  l1tVertexFinder::Settings *settings_;
+  l1tVertexFinder::AlgoSettings settings_;
 };
 
 #endif

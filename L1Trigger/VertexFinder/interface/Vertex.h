@@ -4,7 +4,6 @@
 
 #include <vector>
 
-#include "L1Trigger/VertexFinder/interface/Settings.h"
 #include "L1Trigger/VertexFinder/interface/TP.h"
 
 

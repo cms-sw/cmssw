@@ -4,17 +4,17 @@
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
-#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 #include "L1Trigger/VertexFinder/interface/Stub.h"
 
 
 
 namespace l1tVertexFinder {
 
-TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* settings) : 
+TP::TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const AnalysisSettings& settings) : 
   TrackingParticlePtr(tpPtr),
   index_in_vTPs_(index_in_vTPs),
-  settings_(settings),
+  settings_(&settings),
   pdgId_(tpPtr->pdgId()),                       
 
   charge_(tpPtr->charge()),
@@ -80,7 +80,7 @@ void TP::fillUseForVertexReco() {
   }
 
   if(useForVertexReco_){
-    useForVertexReco_ = (utility::countLayers(settings_, assocStubs_, true) >= settings_->genMinStubLayers() and utility::countLayers(settings_, assocStubs_, true, true) >= 2);
+    useForVertexReco_ = (utility::countLayers(*settings_, assocStubs_, true) >= settings_->genMinStubLayers() and utility::countLayers(*settings_, assocStubs_, true, true) >= 2);
   }
 }
 
@@ -156,7 +156,7 @@ void TP::fillUseForEff() {
 void TP::fillUseForAlgEff() {
   useForAlgEff_ = false;
   if (useForEff_) {
-    useForAlgEff_ = (utility::countLayers(settings_, assocStubs_, true) >= settings_->genMinStubLayers());
+    useForAlgEff_ = (utility::countLayers(*settings_, assocStubs_, true) >= settings_->genMinStubLayers());
   } 
 }
 

@@ -9,7 +9,6 @@
 
 #include "DataFormats/L1TVertex/interface/Vertex.h"
 
-#include "L1Trigger/VertexFinder/interface/Settings.h"
 #include "L1Trigger/VertexFinder/interface/VertexFinder.h"
 
 #include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
@@ -18,12 +17,12 @@ using namespace l1tVertexFinder;
 using namespace std;
 
 VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
-  l1TracksToken_( consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
+  l1TracksToken_( consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) ),
+  settings_(AlgoSettings(iConfig))
 {
   // Get configuration parameters
-  settings_ = new Settings(iConfig);
 
-  switch (settings_->vx_algo()) {
+  switch (settings_.vx_algo()) {
     case Algorithm::GapClustering:
       cout << "L1T vertex producer: Finding vertices using a gap clustering algorithm "<< endl;
       break;
@@ -73,7 +72,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<const L1Track*> l1TrackPtrs;
   l1TrackPtrs.reserve(l1Tracks.size());
   for(const auto& track : l1Tracks){
-    if(track.pt() > settings_->vx_TrackMinPt() ){
+    if(track.pt() > settings_.vx_TrackMinPt() ){
       if(track.pt() < 50 or track.getNumStubs() > 5 )
         l1TrackPtrs.push_back(&track);
     }
@@ -83,7 +82,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   fittedTracks[i].second.accepted() and fittedTracks[i].second.chi2dof()< settings_->chi2OverNdfCut()
   VertexFinder vf(l1TrackPtrs, settings_);
 
-  switch (settings_->vx_algo()) {
+  switch (settings_.vx_algo()) {
     case Algorithm::GapClustering:
       vf.GapClustering();
       break;

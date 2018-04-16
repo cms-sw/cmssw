@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 
 
@@ -20,7 +21,7 @@ class VertexFinder {
 
 public:
   // Copy fitted tracks collection into class
-  VertexFinder(FitTrackCollection fitTracks, Settings* settings){fitTracks_ = fitTracks; settings_ = settings;}
+  VertexFinder(FitTrackCollection fitTracks, const AlgoSettings& settings){fitTracks_ = fitTracks; settings_ = &settings;}
   ~VertexFinder(){}
 
   struct SortTracksByZ0{
@@ -94,7 +95,7 @@ public:
 
 private:
 
-  Settings* settings_;
+  const AlgoSettings* settings_;
   std::vector<RecoVertex> vertices_;
   unsigned int numMatchedVertices_;
   FitTrackCollection fitTracks_;

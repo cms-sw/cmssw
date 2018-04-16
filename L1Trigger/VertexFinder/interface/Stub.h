@@ -21,7 +21,7 @@ class TrackerGeometry;
 
 namespace l1tVertexFinder {
 
-class Settings;
+class AnalysisSettings;
 class TP;
 
 typedef edmNew::DetSetVector< TTStub<Ref_Phase2TrackerDigi_> > DetSetVec;
@@ -38,7 +38,7 @@ class Stub : public TTStubRef {
 
 public:
   // Fill useful info about stub.
-  Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const Settings* settings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>& geoDetIdMap);
+  Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const AnalysisSettings& settings, const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>& geoDetIdMap);
   ~Stub(){}
 
   // Fill truth info with association from stub to tracking particles.
@@ -78,7 +78,7 @@ private:
   void setModuleInfo(const TrackerGeometry* trackerGeometry, const TrackerTopology* trackerTopology, const DetId& detId);
 
 private:
-  const Settings* settings_; // configuration parameters.
+  const AnalysisSettings* settings_; // configuration parameters.
 
   float                                        phi_; // stub coords, optionally after digitisation.
   float                                          r_;

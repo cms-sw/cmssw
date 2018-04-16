@@ -13,7 +13,7 @@ namespace l1tVertexFinder {
 
 typedef edm::Ptr<TrackingParticle> TrackingParticlePtr;
 
-class Settings;
+class AnalysisSettings;
 class Stub;
 
 
@@ -21,7 +21,7 @@ class TP : public TrackingParticlePtr {
 
 public:
   // Fill useful info about tracking particle.
-  TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const Settings* settings);
+  TP(TrackingParticlePtr tpPtr, unsigned int index_in_vTPs, const AnalysisSettings& settings);
   ~TP(){}
 
   // Fill truth info with association from tracking particle to stubs.
@@ -71,12 +71,12 @@ private:
   void fillUseForVertexReco();
 
   // Calculate how many tracker layers this TP has stubs in.
-  void calcNumLayers() { nLayersWithStubs_ = utility::countLayers( settings_, assocStubs_, false); }
+  void calcNumLayers() { nLayersWithStubs_ = utility::countLayers( *settings_, assocStubs_, false); }
 
 private:
   unsigned int                      index_in_vTPs_; // location of this TP in InputData::vTPs
 
-  const Settings*                        settings_; // Configuration parameters
+  const AnalysisSettings*                        settings_; // Configuration parameters
 
   int                                       pdgId_;
   bool                                   inTimeBx_; // TP came from in-time bunch crossing.

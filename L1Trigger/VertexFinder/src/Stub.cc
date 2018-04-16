@@ -7,7 +7,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 
 
 
@@ -16,10 +16,10 @@ namespace l1tVertexFinder {
 
 //=== Store useful info about this stub.
 
-Stub::Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const Settings* settings, 
+Stub::Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const AnalysisSettings& settings, 
            const TrackerGeometry*  trackerGeometry, const TrackerTopology*  trackerTopology, const std::map<DetId, DetId>& geoDetIdMap) :
   TTStubRef(ttStubRef),
-  settings_(settings)
+  settings_(&settings)
 {
   // Get coordinates of stub.
   // const TTStub<Ref_Phase2TrackerDigi_> *ttStubP = ttStubRef.get(); 

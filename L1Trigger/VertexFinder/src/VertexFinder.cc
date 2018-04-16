@@ -2,7 +2,7 @@
 #include "L1Trigger/VertexFinder/interface/VertexFinder.h"
 
 
-#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/AlgoSettings.h"
 
 
 

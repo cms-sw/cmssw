@@ -20,7 +20,7 @@
 #include "L1Trigger/VertexFinder/interface/InputData.h"
 #include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
-#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/AnalysisSettings.h"
 #include "L1Trigger/VertexFinder/interface/selection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -75,7 +75,7 @@ namespace l1tVertexFinder {
     const bool printResults_;
 
     // storage class for configuration parameters
-    Settings *settings_;
+    AnalysisSettings settings_;
 
     edm::Service<TFileService> fs_;
     // Histograms for Vertex Reconstruction
@@ -213,11 +213,9 @@ namespace l1tVertexFinder {
     l1TracksToken_( consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) ),
     l1VerticesToken_( consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("l1VerticesInputTag")) ),
     l1VerticesTDRToken_( consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("l1VerticesTDRInputTag")) ),
-    printResults_( iConfig.getParameter<bool>("printResults") )
+    printResults_( iConfig.getParameter<bool>("printResults") ),
+    settings_(iConfig)
   {
-    // Get configuration parameters
-    settings_ = new Settings(iConfig);
-
     // Configure TH1 for plotting
     TH1::SetDefaultSumw2(true);
 
@@ -448,7 +446,7 @@ namespace l1tVertexFinder {
       iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
 
       for(const auto& track : l1TracksHandle->ptrs())
-        l1Tracks.push_back(L1TrackTruthMatched(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle, inputData.getStubGeoDetIdMap()));
+        l1Tracks.push_back(L1TrackTruthMatched(track, settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle, inputData.getStubGeoDetIdMap()));
     }
 
     std::vector<const L1TrackTruthMatched*> l1TrackPtrs;
@@ -459,7 +457,7 @@ namespace l1tVertexFinder {
     // implementation duplicates the requirements and can potentially bias the
     // analysis results.
     for(const auto& track : l1Tracks){
-      if(track.pt() > settings_->vx_TrackMinPt() ){
+      if(track.pt() > settings_.vx_TrackMinPt() ){
         if(track.pt() < 50 or track.getNumStubs() > 5 ) {
           l1TrackPtrs.push_back(&track);
         }
@@ -516,8 +514,8 @@ namespace l1tVertexFinder {
 
       recoVertexBase.setZ(l1VerticesHandle->at(i).z0());
       RecoVertexWithTP * recoVertex = new RecoVertexWithTP(recoVertexBase, trackAssociationMap);
-      recoVertex->computeParameters(settings_->vx_weightedmean());
-      if (settings_->vx_algo() == Algorithm::Kmeans || settings_->vx_algo() == Algorithm::HPV)
+      recoVertex->computeParameters(settings_.vx_weightedmean());
+      if (settings_.vx_algo() == Algorithm::Kmeans || settings_.vx_algo() == Algorithm::HPV)
         recoVertex->setZ(recoVertexBase.z0());
 
       recoVertices.emplace_back(recoVertex);
@@ -536,12 +534,12 @@ namespace l1tVertexFinder {
     RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
     RecoVertexWithTP * RecoPrimaryVertex = recoVertices.at(primaryVertexIndex);
 
-    TDRVertex->computeParameters(settings_->vx_weightedmean());
+    TDRVertex->computeParameters(settings_.vx_weightedmean());
 
     // update the primary vertex z0 if the algorithm is HPV, kmeans
     TDRVertex->setZ(TDRVertexBase.z0());
 
-    if(settings_->debug()==7 and numVertices > 0){
+    if(settings_.debug()==7 and numVertices > 0){
       cout << "Num Found Vertices " << numVertices << endl;
       cout << "Reconstructed Primary Vertex z0 "<< RecoPrimaryVertex->z0()
            << " pT "<< RecoPrimaryVertex->pT() << endl;
@@ -573,7 +571,7 @@ namespace l1tVertexFinder {
       hisRecoVertexVsGenMET_->Fill(inputData.GenMET());
     }
 
-    if(settings_->debug()==7){
+    if(settings_.debug()==7){
       cout << "** RECO VERTICES ***" << endl;
       for(RecoVertexWithTP * vertex : recoVertices){
         cout << "recovertex z0 "<< vertex->z0() << " pt "<< vertex->pT()
@@ -623,7 +621,7 @@ namespace l1tVertexFinder {
     hisRecoVertexZ0Resolution_->Fill(fabs(z0res));
 
     // Vertex has been found
-    if(fabs(z0res) < settings_->vx_resolution()) {
+    if(fabs(z0res) < settings_.vx_resolution()) {
       float genMet[4] = {50, 100, 200, 300};
       for(unsigned int i = 0; i< 4 ;++i){
         if(RecoPrimaryVertex->met()>genMet[i])
@@ -651,7 +649,7 @@ namespace l1tVertexFinder {
 
       float METres = fabs(RecoPrimaryVertex->met() - TruePrimaryVertex.met())/TruePrimaryVertex.met();
 
-      if(settings_->debug() == 7 and METres > 0.2){
+      if(settings_.debug() == 7 and METres > 0.2){
         cout << "** RECO TRACKS in PV**" << endl;
         for(const L1TrackTruthMatched* track : RecoPrimaryVertex->tracks() ){
           if(track->getMatchedTP() != nullptr)
@@ -733,13 +731,13 @@ namespace l1tVertexFinder {
     } else{
       hisRecoVertexOffPT_->Fill(RecoPrimaryVertex->pT());
       hisUnmatchedVertexZ0distance_->Fill(fabs(z0res));
-      if(settings_->debug() == 7) {
+      if(settings_.debug() == 7) {
         cout << "Vertex Reconstruction Algorithm doesn't find the correct"
              << " primary vertex (Delta Z = " << fabs(z0res) << ")" << endl;
       }
     }
 
-    if(settings_->debug() == 7) {
+    if(settings_.debug() == 7) {
       for(const L1TrackTruthMatched* l1track : RecoPrimaryVertex->tracks()) {
         if(l1track->getMatchedTP() == nullptr) {
           cout << "FAKE track assigned to PV. Track z0: "<< l1track->z0()
@@ -772,7 +770,7 @@ namespace l1tVertexFinder {
 
     hisTDRVertexZ0Resolution_->Fill(fabs(z0res_tdr));
 
-    if(fabs(z0res_tdr) < settings_->vx_resolution()){
+    if(fabs(z0res_tdr) < settings_.vx_resolution()){
       hisTDRPrimaryVertexVsTrueZ0_->Fill(TruePrimaryVertex.z0());
       hisTDRPrimaryVertexResolutionVsTrueZ0_->Fill(TruePrimaryVertex.z0(),fabs(z0res_tdr));
       hisTDRVertexPT_->Fill(TDRVertex->pT());
@@ -835,7 +833,7 @@ namespace l1tVertexFinder {
      * the producer, minor differences are to be expected (as a different fitted
      * track will sometimes be matched to a given TP).
      */
-    if (settings_->debug() == 7)
+    if (settings_.debug() == 7)
       cout << "*** Misassigned primary vertex tracks ***"<< endl;
     for (const TP& tp : TruePrimaryVertex.tracks()) {
       bool found = false;
@@ -868,7 +866,7 @@ namespace l1tVertexFinder {
               }
               hisUnmatchZ0MinDistance_->Fill(mindistance);
 
-              if (settings_->debug()>5) {
+              if (settings_.debug()>5) {
                 cout << "PV Track assigned to wrong vertex. Track z0: "
                      << l1track->z0() << " PV z0: "<< RecoPrimaryVertex->z0()
                      << " tp z0 "<< tp.z0() << " track pT "<< l1track->pt()
@@ -958,7 +956,7 @@ namespace l1tVertexFinder {
       hisPileUpVertexZ0width_->Fill(inputData.getRecoPileUpVertices()[i].z0width());
     }
 
-    if (settings_->debug()==7)
+    if (settings_.debug()==7)
       cout << "================ End of Event =============="<< endl;
 
     delete RecoPrimaryVertex;
