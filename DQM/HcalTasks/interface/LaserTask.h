@@ -138,8 +138,12 @@ class LaserTask : public hcaldqm::DQTask
 		int _laserMonTS0;
 		double _laserMonThreshold;
 
-		hcaldqm::ContainerSingleProf1D _cLaserMonSumQ_LS;
-		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_LS;
+		hcaldqm::ContainerSingle1D _cLaserMonSumQ;
+		hcaldqm::ContainerSingle1D _cLaserMonTiming;
+		hcaldqm::ContainerSingleProf1D _cLaserMonSumQ_LS; // Online
+		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_LS; // Online
+		hcaldqm::ContainerSingleProf1D _cLaserMonSumQ_Event; // Local
+		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_Event; // Local
 		hcaldqm::Container2D _cTiming_DigivsLaserMon_SubdetPM;
 		hcaldqm::ContainerProf2D _cTimingDiffLS_SubdetPM;
 };

@@ -160,7 +160,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cLETDCTimevsADC_SubdetPM.initialize(_name, "LETDCTimevsADC",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250_coarse),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cLETDCvsADC_SubdetPM.initialize(_name, "LETDCvsADC",
 		hcaldqm::hashfunctions::fSubdetPM,
