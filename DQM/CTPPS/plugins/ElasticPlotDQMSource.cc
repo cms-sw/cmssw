@@ -34,17 +34,9 @@ class ElasticPlotDQMSource: public DQMEDAnalyzer
     ~ElasticPlotDQMSource() override;
   
   protected:
-    void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
     void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-
-    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-
-    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-
-    void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   private:
     static constexpr double ls_duration_inverse = 1./23.357; // s^-1
@@ -205,12 +197,6 @@ ElasticPlotDQMSource::~ElasticPlotDQMSource()
 
 //----------------------------------------------------------------------------------------------------
 
-void ElasticPlotDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const &)
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
 void ElasticPlotDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &)
 {
   ibooker.cd();
@@ -234,13 +220,6 @@ void ElasticPlotDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
       }
     }
   }
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void ElasticPlotDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) 
-{
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -404,18 +383,6 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     if (pat_suff && !has_track)
       pp.h_rate_vs_time_unresolved->Fill(event.luminosityBlock(), ls_duration_inverse);
   }
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void ElasticPlotDQMSource::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void ElasticPlotDQMSource::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
 }
 
 //----------------------------------------------------------------------------------------------------
