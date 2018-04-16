@@ -410,6 +410,24 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if ( useUserData_ ) {
       userDataHelper_.add( ajet, iEvent, iSetup );
     }
+
+    // For jets containing subjets, store subjets via subjets() and constituents via daughters() (rather than subjets as daughters)
+    if ( ajet.isBasicJet() ) {
+      std::vector< edm::Ptr<pat::Jet> > subjets;
+      for ( size_t ida = 0; ida < jetRef->numberOfDaughters(); ++ida ) {
+        reco::CandidatePtr candPtr =  jetRef->daughterPtr( ida ); // In reco::Jet with subjets, daughterPtr returns the subjets
+        if (candPtr->isJet())
+          subjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
+      }
+      if(subjets.size()>0) {
+        ajet.addSubjets( subjets, "default" );
+        std::vector< edm::Ptr<reco::Candidate> > candidates=ajet.daughterPtrVector(); // In pat::Jet with subjets, daughterPtr returns the candidates inside the subjets.
+        ajet.clearDaughters();
+        for ( size_t ida = 0; ida < ajet.numberOfDaughters(); ++ida )
+          ajet.addDaughter(candidates[ida]);
+      }
+    }
+
     patJets->push_back(ajet);
   }
 
