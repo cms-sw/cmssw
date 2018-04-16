@@ -8,6 +8,10 @@
 #include <TBranch.h>
 
 ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
+  //int compSettings= iConfig.getParameter<int>("CompressionSettings",-1);
+  int compSettings= iConfig.getUntrackedParameter<int>("CompressionSettings",-1);
+  if(compSettings>0)
+  	fs_->file().SetCompressionSettings(compSettings);
   tree_ = fs_->make<TTree>("tree", ""); 
 
   std::map<std::string, LEAFTYPE> leafmap;
