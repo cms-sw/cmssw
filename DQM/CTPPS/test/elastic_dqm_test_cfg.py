@@ -22,9 +22,8 @@ process.dqmSaver.tag = "CTPPS"
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     # CTPPS alignment run, 2017, July
-    '/store/data/Run2017B/ZeroBias3/AOD/PromptReco-v2/000/298/593/00000/36743C31-A865-E711-8BF2-02163E019D8E.root',
-    #'/store/data/Run2017B/ZeroBias6/AOD/PromptReco-v2/000/298/593/00000/6A05E756-A965-E711-9F08-02163E01A760.root',
-    #'/store/data/Run2017B/ZeroBias9/AOD/PromptReco-v2/000/298/593/00000/445D9A13-A865-E711-BCFC-02163E01A351.root'
+    #'/store/data/Run2017B/ZeroBias1/AOD/PromptReco-v2/000/298/570/00000/122D69DA-6A65-E711-BDA8-02163E01375A.root'
+    '/store/data/Run2017B/ZeroBias1/AOD/PromptReco-v2/000/298/593/00000/02A251B3-AD65-E711-B189-02163E011E18.root'
 
     # CTPPS alignment run, 2017, September
     #'/store/data/Run2017E/ZeroBias1/AOD/PromptReco-v1/000/303/649/00000/1270894D-0DA1-E711-BC08-02163E019CBB.root'
@@ -36,13 +35,13 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # needed for geometry declaration
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
 
 # CTPPS DQM modules
-process.load("DQM.CTPPS.ctppsDQM_cff")
+process.load("DQM.CTPPS.elasticPlotDQMSource_cfi")
 
 process.path = cms.Path(
-  process.ctppsDQMElastic
+  process.elasticPlotDQMSource
 )
 
 process.end_path = cms.EndPath(
