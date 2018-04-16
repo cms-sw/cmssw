@@ -26,7 +26,6 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
-//#include "RecoTotemRP/RPRecoDataFormats/interface/RPMulFittedTrackCollection.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
@@ -43,12 +42,8 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     ~TotemRPDQMSource() override;
   
   protected:
-    void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-    void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   private:
     unsigned int verbosity;
@@ -59,7 +54,6 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     edm::EDGetTokenT< edm::DetSetVector<TotemRPRecHit> > tokenRecHit;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPUVPattern> > tokenUVPattern;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > tokenLocalTrack;
-    //edm::EDGetTokenT< RPMulFittedTrackCollection > tokenMultiTrackColl;
 
     /// plots related to the whole system
     struct GlobalPlots
@@ -337,18 +331,11 @@ TotemRPDQMSource::TotemRPDQMSource(const edm::ParameterSet& ps) :
   tokenRecHit = consumes< edm::DetSetVector<TotemRPRecHit> >(ps.getParameter<edm::InputTag>("tagRecHit"));
   tokenUVPattern = consumes< DetSetVector<TotemRPUVPattern> >(ps.getParameter<edm::InputTag>("tagUVPattern"));
   tokenLocalTrack = consumes< DetSetVector<TotemRPLocalTrack> >(ps.getParameter<edm::InputTag>("tagLocalTrack"));
-  //tokenMultiTrackColl = consumes< RPMulFittedTrackCollection >(ps.getParameter<edm::InputTag>("tagMultiTrackColl"));
 }
 
 //----------------------------------------------------------------------------------------------------
 
 TotemRPDQMSource::~TotemRPDQMSource()
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void TotemRPDQMSource::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 {
 }
 
@@ -415,13 +402,6 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) 
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
 void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   // get event setup data
@@ -447,9 +427,6 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   Handle< DetSetVector<TotemRPLocalTrack> > tracks;
   event.getByToken(tokenLocalTrack, tracks);
 
-  //Handle< RPMulFittedTrackCollection > multiTracks;
-  //event.getByToken(tokenMultiTrackColl, multiTracks);
-
   // check validity
   bool valid = true;
   valid &= status.isValid();
@@ -458,7 +435,6 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   valid &= hits.isValid();
   valid &= patterns.isValid();
   valid &= tracks.isValid();
-  //valid &= multiTracks.isValid();
 
   if (!valid)
   {
@@ -472,7 +448,6 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         << "    hits.isValid = " << hits.isValid() << "\n"
         << "    patterns.isValid = " << patterns.isValid() << "\n"
         << "    tracks.isValid = " << tracks.isValid();
-      //<< "    multiTracks.isValid = %i\n", multiTracks.isValid()
     }
 
     return;
@@ -976,18 +951,6 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
     pl.h_lrc_y_f->Fill(y_45_f, y_56_f);
   }
   */
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void TotemRPDQMSource::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void TotemRPDQMSource::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
 }
 
 //----------------------------------------------------------------------------------------------------
