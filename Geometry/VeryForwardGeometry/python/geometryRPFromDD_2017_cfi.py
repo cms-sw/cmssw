@@ -120,6 +120,17 @@ ctppsUFSDGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Parameters.xml'
 )
 
+# Totem Timing files
+totemTimingGeomXMLFiles = cms.vstring(
+    # UFSDetectors
+    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_DetectorAssembly.xml',
+    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Parameters.xml',
+    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane0.xml',
+    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane1.xml',
+    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane2.xml',
+    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane3.xml',
+    )
+
 # pixel files
 ctppsPixelGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/ppstrackerMaterials.xml',
@@ -131,9 +142,9 @@ ctppsPixelGeomXMLFiles = cms.vstring(
 )
 
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + ctppsPixelGeomXMLFiles,
-    rootNodeName = cms.string('cms:CMSE')
-)
+                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
+                                              rootNodeName = cms.string('cms:CMSE')
+                                              )
 
 # position of RPs
 XMLIdealGeometryESSource_CTPPS.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
