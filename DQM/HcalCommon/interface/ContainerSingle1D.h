@@ -101,6 +101,9 @@ namespace hcaldqm
 
 			virtual void extendAxisRange(int);
 
+			virtual void showOverflowX(bool showOverflow);
+			virtual void showOverflowY(bool showOverflow);
+
 		protected:
 			MonitorElement				*_me;
 			Quantity					*_qx;
