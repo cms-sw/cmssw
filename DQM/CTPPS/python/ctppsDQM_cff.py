@@ -11,11 +11,14 @@ from DQM.CTPPS.ctppsPixelDQMSource_cfi import *
 
 from DQM.CTPPS.elasticPlotDQMSource_cfi import *
 
+from DQM.CTPPS.ctppsCommonDQMSource_cfi import *
+
 ctppsDQM = cms.Sequence(
     totemDAQTriggerDQMSource
     + (totemRPDQMSource * totemRPDQMHarvester)
     + ctppsDiamondDQMSource
     + ctppsPixelDQMSource
+    + ctppsCommonDQMSource
 )
 
 ctppsDQMElastic = cms.Sequence(
@@ -23,5 +26,6 @@ ctppsDQMElastic = cms.Sequence(
     + (totemRPDQMSource * totemRPDQMHarvester)
     + ctppsDiamondDQMSource
     + ctppsPixelDQMSource
+    + ctppsCommonDQMSource
     + elasticPlotDQMSource
 )
