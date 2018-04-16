@@ -36,31 +36,32 @@ namespace dd4hep {
     class include_load;
     class include_unload;
     class print_xml_doc;
-    class constantssection;
-    class constant;
-    class resolve   {
+    
+    class ConstantsSection;
+    class DDLConstant;
+    class DDRegistry {
     public:
       std::vector<xml::Document> includes;
-      std::map<std::string,std::string>  unresolvedConst, allConst, originalConst;
+      std::map<std::string, std::string> unresolvedConst, allConst, originalConst;
     };
 
-    class materialsection;
+    class MaterialSection;
     class DDLElementaryMaterial;
     class DDLCompositeMaterial;
   
-    class rotationsection;
+    class RotationSection;
     class DDLRotation;
     class DDLRotationSequence;
     class DDLRotationByAxis;
-    class transform3d;
+    class DDLTransform3D;
 
-    class pospartsection;
-    class pospart;
+    class PosPartSection;
+    class DDLPosPart;
 
-    class logicalpartsection;
-    class logicalpart;
+    class LogicalPartSection;
+    class DDLLogicalPart;
 
-    class solidsection;
+    class SolidSection;
     class DDLExtrudedPolygon;
     class DDLShapeless;
     class DDLTrapezoid;
@@ -80,7 +81,7 @@ namespace dd4hep {
     class DDLIntersectionSolid;
     class DDLSubtractionSolid;
     
-    class algorithm;    
+    class DDLAlgorithm;    
 
     class vissection;
     class vis;
@@ -93,9 +94,9 @@ namespace dd4hep {
   template <> void Converter<disabled_algo>::operator()(xml_h element) const;
   
   /// Converter for <ConstantsSection/> tags
-  template <> void Converter<constantssection>::operator()(xml_h element) const;
-  template <> void Converter<constant>::operator()(xml_h element) const;
-  template <> void Converter<resolve>::operator()(xml_h element) const;
+  template <> void Converter<ConstantsSection>::operator()(xml_h element) const;
+  template <> void Converter<DDLConstant>::operator()(xml_h element) const;
+  template <> void Converter<DDRegistry>::operator()(xml_h element) const;
 
   /// Converter for <VisSection/> tags
   template <> void Converter<vissection>::operator()(xml_h element) const;
@@ -103,30 +104,30 @@ namespace dd4hep {
   template <> void Converter<vis>::operator()(xml_h element) const;
 
   /// Converter for <MaterialSection/> tags
-  template <> void Converter<materialsection>::operator()(xml_h element) const;
+  template <> void Converter<MaterialSection>::operator()(xml_h element) const;
   template <> void Converter<DDLElementaryMaterial>::operator()(xml_h element) const;
   template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) const;
 
   /// Converter for <RotationSection/> tags
-  template <> void Converter<rotationsection>::operator()(xml_h element) const;
+  template <> void Converter<RotationSection>::operator()(xml_h element) const;
   /// Converter for <DDLRotation/> tags
   template <> void Converter<DDLRotation>::operator()(xml_h element) const;
   /// Converter for <DDLRotationSequence/> tags
   template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const;
   /// Converter for <DDLRotationByAxis/> tags
   template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const;
-  template <> void Converter<transform3d>::operator()(xml_h element) const;
+  template <> void Converter<DDLTransform3D>::operator()(xml_h element) const;
 
   /// Generic converter for  <LogicalPartSection/> tags
-  template <> void Converter<logicalpartsection>::operator()(xml_h element) const;
-  template <> void Converter<logicalpart>::operator()(xml_h element) const;
+  template <> void Converter<LogicalPartSection>::operator()(xml_h element) const;
+  template <> void Converter<DDLLogicalPart>::operator()(xml_h element) const;
 
-  template <> void Converter<pospartsection>::operator()(xml_h element) const;
+  template <> void Converter<PosPartSection>::operator()(xml_h element) const;
   /// Converter for <PosPart/> tags
-  template <> void Converter<pospart>::operator()(xml_h element) const;
-
+  template <> void Converter<DDLPosPart>::operator()(xml_h element) const;
+  
   /// Generic converter for solids: <SolidSection/> tags
-  template <> void Converter<solidsection>::operator()(xml_h element) const;
+  template <> void Converter<SolidSection>::operator()(xml_h element) const;
   /// Converter for <UnionSolid/> tags
   template <> void Converter<DDLUnionSolid>::operator()(xml_h element) const;
   /// Converter for <SubtractionSolid/> tags
@@ -164,7 +165,7 @@ namespace dd4hep {
   /// Converter for <DDLBox/> tags
   template <> void Converter<DDLBox>::operator()(xml_h element) const;
   /// Converter for <Algorithm/> tags
-  template <> void Converter<algorithm>::operator()(xml_h element) const;
+  template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const;
 
   /// DD4hep specific: Load include file
   template <> void Converter<include_load>::operator()(xml_h element) const;
@@ -175,9 +176,9 @@ namespace dd4hep {
 }
 
 /// Converter for <ConstantsSection/> tags
-template <> void Converter<constantssection>::operator()(xml_h element) const  {
+template <> void Converter<ConstantsSection>::operator()(xml_h element) const  {
   Namespace _ns(_param<ParsingContext>(), element);
-  xml_coll_t(element, _CMU(Constant)).for_each(Converter<constant>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(Constant)).for_each(Converter<DDLConstant>(description,_ns.context,optional));
 }
 
 /// Converter for <VisSection/> tags
@@ -187,28 +188,28 @@ template <> void Converter<vissection>::operator()(xml_h element) const  {
 }
 
 /// Converter for <MaterialSection/> tags
-template <> void Converter<materialsection>::operator()(xml_h element) const   {
+template <> void Converter<MaterialSection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
   xml_coll_t(element, _CMU(ElementaryMaterial)).for_each(Converter<DDLElementaryMaterial>(description,_ns.context,optional));
   xml_coll_t(element, _CMU(CompositeMaterial)).for_each(Converter<DDLCompositeMaterial>(description,_ns.context,optional));
 }
 
-template <> void Converter<rotationsection>::operator()(xml_h element) const   {
+template <> void Converter<RotationSection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
   xml_coll_t(element, _CMU(Rotation)).for_each(Converter<DDLRotation>(description,_ns.context,optional));
   xml_coll_t(element, _CMU(RotationSequence)).for_each(Converter<DDLRotationSequence>(description,_ns.context,optional));
   xml_coll_t(element, _CMU(RotationByAxis)).for_each(Converter<DDLRotationByAxis>(description,_ns.context,optional));
 }
 
-template <> void Converter<pospartsection>::operator()(xml_h element) const   {
+template <> void Converter<PosPartSection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
-  xml_coll_t(element, _CMU(PosPart)).for_each(Converter<pospart>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(PosPart)).for_each(Converter<DDLPosPart>(description,_ns.context,optional));
 }
 
 /// Generic converter for  <LogicalPartSection/> tags
-template <> void Converter<logicalpartsection>::operator()(xml_h element) const   {
+template <> void Converter<LogicalPartSection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
-  xml_coll_t(element, _CMU(LogicalPart)).for_each(Converter<logicalpart>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(LogicalPart)).for_each(Converter<DDLLogicalPart>(description,_ns.context,optional));
 }
 
 template <> void Converter<disabled_algo>::operator()(xml_h element) const   {
@@ -217,7 +218,7 @@ template <> void Converter<disabled_algo>::operator()(xml_h element) const   {
 }
 
 /// Generic converter for  <SolidSection/> tags
-template <> void Converter<solidsection>::operator()(xml_h element) const   {
+template <> void Converter<SolidSection>::operator()(xml_h element) const   {
   Namespace _ns(_param<ParsingContext>(), element);
   for(xml_coll_t solid(element, _U(star)); solid; ++solid)   {
     string tag = solid.tag();
@@ -289,9 +290,9 @@ template <> void Converter<solidsection>::operator()(xml_h element) const   {
 }
 
 /// Converter for <Constant/> tags
-template <> void Converter<constant>::operator()(xml_h element) const  {
+template <> void Converter<DDLConstant>::operator()(xml_h element) const  {
   Namespace _ns(_param<ParsingContext>());
-  resolve*  res  = _option<resolve>();
+  DDRegistry*  res  = _option<DDRegistry>();
   xml_dim_t constant = element;
   xml_dim_t par  = constant.parent();
   bool      eval = par.hasAttr(_U(eval)) ? par.attr<bool>(_U(eval)) : false;
@@ -477,8 +478,8 @@ template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) cons
 
 /// Converter for <Rotation/> tags
 template <> void Converter<DDLRotation>::operator()(xml_h element) const  {
-  ParsingContext* ctx = _param<ParsingContext>();
-  Namespace _ns(ctx);
+  ParsingContext* context = _param<ParsingContext>();
+  Namespace _ns(context);
   xml_dim_t xrot(element);
   string    nam    = xrot.nameStr();
   double    thetaX = xrot.hasAttr(_CMU(thetaX)) ? _ns.attr<double>(xrot,_CMU(thetaX)) : 0e0;
@@ -487,41 +488,60 @@ template <> void Converter<DDLRotation>::operator()(xml_h element) const  {
   double    phiY   = xrot.hasAttr(_CMU(phiY))   ? _ns.attr<double>(xrot,_CMU(phiY))   : 0e0;
   double    thetaZ = xrot.hasAttr(_CMU(thetaZ)) ? _ns.attr<double>(xrot,_CMU(thetaZ)) : 0e0;
   double    phiZ   = xrot.hasAttr(_CMU(phiZ))   ? _ns.attr<double>(xrot,_CMU(phiZ))   : 0e0;
-  Rotation3D rot = make_rotation3D(thetaX, phiX, thetaY, phiY, thetaZ, phiZ);
-  printout(ctx->debug_rotations ? ALWAYS : DEBUG,
+  Rotation3D rot = makeRotation3D(thetaX, phiX, thetaY, phiY, thetaZ, phiZ);
+  printout(context->debug_rotations ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Adding rotation: %-32s: (theta/phi)[rad] X: %6.3f %6.3f Y: %6.3f %6.3f Z: %6.3f %6.3f",
            _ns.prepend(nam).c_str(),thetaX,phiX,thetaY,phiY,thetaZ,phiZ);
   _ns.addRotation(nam, rot);
 }
 
 /// Converter for <RotationSequence/> tags
-template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const  {
-  Namespace _ns(_param<ParsingContext>());
+template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const {
+  ParsingContext* context = _param<ParsingContext>();
+  Namespace _ns(context);
   xml_dim_t xrot(element);
-  string    nam  = xrot.nameStr();
-  xml_coll_t(element, _CMU(RotationByAxis)).for_each(Converter<DDLRotationByAxis>(description,_ns.context,optional));
+  string nam = xrot.nameStr();
+  Rotation3D rot;
+  xml_coll_t rotations(xrot,_CMU(RotationByAxis));
+  for( rotations.reset(); rotations; ++rotations ) {
+    string    axis = _ns.attr<string>(rotations,_CMU(axis));
+    double    angle = _ns.attr<double>(rotations,_U(angle));
+    rot = makeRotation3D( rot, axis, angle );
+    printout(context->debug_rotations ? ALWAYS : DEBUG,
+	     "MyDDCMS","+   Adding rotation to: %-29s: (axis/angle)[rad] Axis: %s Angle: %6.3f",
+	     nam.c_str(), axis.c_str(), angle);
+  }
+  double xx, xy, xz;
+  double yx, yy, yz;
+  double zx, zy, zz;
+  rot.GetComponents(xx,xy,xz,yx,yy,yz,zx,zy,zz);
+  printout(context->debug_rotations ? ALWAYS : DEBUG,
+	   "MyDDCMS","+++ Adding rotation sequence: %-23s: %6.3f %6.3f %6.3f, %6.3f %6.3f %6.3f, %6.3f %6.3f %6.3f",
+	   _ns.prepend(nam).c_str(), xx, xy, xz, yx, yy, yz, zx, zy, zz);
+  _ns.addRotation(nam, rot);
 }
 
 /// Converter for <RotationByAxis/> tags
 template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  {
-  ParsingContext* ctx = _param<ParsingContext>();
-  Namespace _ns(ctx);
+  ParsingContext* context = _param<ParsingContext>();
+  Namespace _ns(context);
   xml_dim_t xrot(element);
   xml_dim_t par(xrot.parent());
   if( xrot.hasAttr(_U(name))) {
     string    nam  = xrot.nameStr() + string("Rotation"); // xrot.hasAttr(_U(name)) ? xrot.nameStr() : par.nameStr();
     string    axis = _ns.attr<string>(xrot,_CMU(axis));
     double    angle = _ns.attr<double>(xrot,_U(angle));
-    Rotation3D rot = makeRotation3D( axis, angle );
-    printout(ctx->debug_rotations ? ALWAYS : DEBUG,
+    Rotation3D rot;
+    rot = makeRotation3D( rot, axis, angle );
+    printout(context->debug_rotations ? ALWAYS : DEBUG,
 	     "MyDDCMS","+++ Adding rotation: %-32s: (axis/angle)[rad] Axis: %s Angle: %6.3f",
 	     _ns.prepend(nam).c_str(), axis.c_str(), angle);
     _ns.addRotation(nam, rot);
   }
 }
 
-/// Converter for <Logicalpart/> tags
-template <> void Converter<logicalpart>::operator()(xml_h element) const {
+/// Converter for <LogicalPart/> tags
+template <> void Converter<DDLLogicalPart>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string    sol = e.child(_CMU(rSolid)).attr<string>(_U(name));
@@ -530,7 +550,7 @@ template <> void Converter<logicalpart>::operator()(xml_h element) const {
 }
 
 /// Helper converter
-template <> void Converter<transform3d>::operator()(xml_h element) const {
+template <> void Converter<DDLTransform3D>::operator()(xml_h element) const {
   Namespace    _ns(_param<ParsingContext>());
   Transform3D* tr = _option<Transform3D>();
   xml_dim_t   e(element);
@@ -559,7 +579,7 @@ template <> void Converter<transform3d>::operator()(xml_h element) const {
 }
 
 /// Converter for <PosPart/> tags
-template <> void Converter<pospart>::operator()(xml_h element) const {
+template <> void Converter<DDLPosPart>::operator()(xml_h element) const {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t   e(element);
   int         copy        = e.attr<int>(_CMU(copyNumber));
@@ -577,7 +597,7 @@ template <> void Converter<pospart>::operator()(xml_h element) const {
   PlacedVolume pv;
   if ( child.isValid() )   {
     Transform3D trafo;
-    Converter<transform3d>(description,param,&trafo)(element);
+    Converter<DDLTransform3D>(description,param,&trafo)(element);
     pv = parent.placeVolume(child,copy,trafo);
   }
   if ( !pv.isValid() )   {
@@ -587,13 +607,13 @@ template <> void Converter<pospart>::operator()(xml_h element) const {
 }
 
 template <typename TYPE>
-static void convert_boolean(ParsingContext* ctx, xml_h element)   {
-  Namespace   _ns(ctx);
+static void convert_boolean(ParsingContext* context, xml_h element)   {
+  Namespace   _ns(context);
   xml_dim_t   e(element);
   string      nam = e.nameStr();
   Solid       solids[2];
   Solid       boolean;
-  int cnt=0;
+  int cnt = 0;
 
   if ( e.hasChild(_CMU(rSolid)) )  {   // Old version
     for(xml_coll_t c(element, _CMU(rSolid)); cnt<2 && c; ++c, ++cnt)
@@ -612,7 +632,7 @@ static void convert_boolean(ParsingContext* ctx, xml_h element)   {
 
   if ( solids[0].isValid() && solids[1].isValid() )  {
     Transform3D trafo;
-    Converter<transform3d>(*ctx->description,ctx,&trafo)(element);
+    Converter<DDLTransform3D>(*context->description,context,&trafo)(element);
     boolean = TYPE(solids[0],solids[1],trafo);
   }
   if ( !boolean.isValid() )
@@ -937,7 +957,7 @@ template <> void Converter<include_load>::operator()(xml_h element) const   {
   fname = xml::DocumentHandler::system_path(doc.root());
   printout(_param<ParsingContext>()->debug_includes ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Processing the CMS detector description %s",fname.Data());
-  _option<resolve>()->includes.emplace_back(doc);
+  _option<DDRegistry>()->includes.emplace_back(doc);
 }
 
 /// DD4hep specific Converter for <Include/> tags: process only the constants
@@ -950,11 +970,11 @@ template <> void Converter<include_unload>::operator()(xml_h element) const   {
 
 /// DD4hep specific Converter for <Include/> tags: process only the constants
 template <> void Converter<include_constants>::operator()(xml_h element) const   {
-  xml_coll_t(element, _CMU(ConstantsSection)).for_each(Converter<constantssection>(description,param,optional));
+  xml_coll_t(element, _CMU(ConstantsSection)).for_each(Converter<ConstantsSection>(description,param,optional));
 }
 
 /// Converter for <Algorithm/> tags
-template <> void Converter<algorithm>::operator()(xml_h element) const  {
+template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
   Namespace _ns(_param<ParsingContext>());
   xml_dim_t e(element);
   string name = e.nameStr();
@@ -1026,13 +1046,13 @@ template <> void Converter<debug>::operator()(xml_h dbg) const {
   LogDebug::setDebugAlgorithms(_ns.context->debug_algorithms);
 }
 
-template <> void Converter<resolve>::operator()(xml_h /* element */) const {
-  ParsingContext* ctx = _param<ParsingContext>();
-  resolve*        res = _option<resolve>();
-  Namespace       _ns(ctx);
+template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
+  ParsingContext* context = _param<ParsingContext>();
+  DDRegistry* res = _option<DDRegistry>();
+  Namespace       _ns(context);
   int count = 0;
 
-  printout(ctx->debug_constants ? ALWAYS : DEBUG,
+  printout(context->debug_constants ? ALWAYS : DEBUG,
            "MyDDCMS","+++ RESOLVING %ld unknown constants.....",res->unresolvedConst.size());
   while ( !res->unresolvedConst.empty() )   {
     for(auto i=res->unresolvedConst.begin(); i!=res->unresolvedConst.end(); ++i )   {
@@ -1056,7 +1076,7 @@ template <> void Converter<resolve>::operator()(xml_h /* element */) const {
           while ( (idx=v.find("+-")) != string::npos )
             v.replace(idx,2,"-");
         }
-        printout(ctx->debug_constants ? ALWAYS : DEBUG,
+        printout(context->debug_constants ? ALWAYS : DEBUG,
                  "MyDDCMS","+++ [%06ld] ----------  %-40s = %s",
                  res->unresolvedConst.size()-1,n.c_str(),res->originalConst[n].c_str());
         _ns.addConstantNS(n, v, "number");
@@ -1084,14 +1104,14 @@ template <> void Converter<print_xml_doc>::operator()(xml_h element) const {
 
 /// Converter for <DDDefinition/> tags
 static long load_dddefinition(Detector& det, xml_h element) {
-  static ParsingContext ctxt(&det);
-  Namespace _ns(ctxt);
+  static ParsingContext context(&det);
+  Namespace _ns(context);
   xml_elt_t dddef(element);
   string fname = xml::DocumentHandler::system_path(element);
   bool open_geometry  = dddef.hasChild(_CMU(open_geometry));
   bool close_geometry = dddef.hasChild(_CMU(close_geometry));
 
-  xml_coll_t(dddef, _U(debug)).for_each(Converter<debug>(det,&ctxt));
+  xml_coll_t(dddef, _U(debug)).for_each(Converter<debug>(det,&context));
 
   // Here we define the order how XML elements are processed.
   // Be aware of dependencies. This can only defined once.
@@ -1099,65 +1119,64 @@ static long load_dddefinition(Detector& det, xml_h element) {
   printout(INFO,"MyDDCMS","+++ Processing the CMS detector description %s",fname.c_str());
 
   xml::Document doc;
-  Converter<print_xml_doc> print_doc(det,&ctxt);
+  Converter<print_xml_doc> print_doc(det,&context);
   try  {
-    resolve res;
+    DDRegistry res;
     print_doc((doc=dddef.document()).root());
-    xml_coll_t(dddef, _CMU(DisabledAlgo)).for_each(Converter<disabled_algo>(det,&ctxt,&res));
-    xml_coll_t(dddef, _CMU(ConstantsSection)).for_each(Converter<constantssection>(det,&ctxt,&res));
-    xml_coll_t(dddef, _CMU(VisSection)).for_each(Converter<vissection>(det,&ctxt));
-    xml_coll_t(dddef, _CMU(RotationSection)).for_each(Converter<rotationsection>(det,&ctxt));
-    xml_coll_t(dddef, _CMU(MaterialSection)).for_each(Converter<materialsection>(det,&ctxt));
+    xml_coll_t(dddef, _CMU(DisabledAlgo)).for_each(Converter<disabled_algo>(det,&context,&res));
+    xml_coll_t(dddef, _CMU(ConstantsSection)).for_each(Converter<ConstantsSection>(det,&context,&res));
+    xml_coll_t(dddef, _CMU(VisSection)).for_each(Converter<vissection>(det,&context));
+    xml_coll_t(dddef, _CMU(RotationSection)).for_each(Converter<RotationSection>(det,&context));
+    xml_coll_t(dddef, _CMU(MaterialSection)).for_each(Converter<MaterialSection>(det,&context));
 
-    xml_coll_t(dddef, _CMU(IncludeSection)).for_each(_CMU(Include), Converter<include_load>(det,&ctxt,&res));
+    xml_coll_t(dddef, _CMU(IncludeSection)).for_each(_CMU(Include), Converter<include_load>(det,&context,&res));
 
     for(xml::Document d : res.includes )   {
       print_doc((doc=d).root());
-      Converter<include_constants>(det,&ctxt,&res)((doc=d).root());
+      Converter<include_constants>(det,&context,&res)((doc=d).root());
     }
     // Before we continue, we have to resolve all constants NOW!
-    Converter<resolve>(det,&ctxt,&res)(dddef);
+    Converter<DDRegistry>(det,&context,&res)(dddef);
     // Now we can process the include files one by one.....
     for(xml::Document d : res.includes )   {
       print_doc((doc=d).root());
-      xml_coll_t(d.root(),_CMU(MaterialSection)).for_each(Converter<materialsection>(det,&ctxt));
+      xml_coll_t(d.root(),_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det,&context));
     }
     if ( open_geometry )  {
-      ctxt.geo_inited = true;
+      context.geo_inited = true;
       det.init();
       _ns.addVolume(det.worldVolume());
     }
     for(xml::Document d : res.includes )  {
       print_doc((doc=d).root());
-      xml_coll_t(d.root(),_CMU(RotationSection)).for_each(Converter<rotationsection>(det,&ctxt));
+      xml_coll_t(d.root(),_CMU(RotationSection)).for_each(Converter<RotationSection>(det,&context));
     }
     for(xml::Document d : res.includes )  {
       print_doc((doc=d).root());
-      xml_coll_t(d.root(), _CMU(SolidSection)).for_each(Converter<solidsection>(det,&ctxt));
+      xml_coll_t(d.root(), _CMU(SolidSection)).for_each(Converter<SolidSection>(det,&context));
     }
     for(xml::Document d : res.includes )  {
       print_doc((doc=d).root());
-      xml_coll_t(d.root(), _CMU(LogicalPartSection)).for_each(Converter<logicalpartsection>(det,&ctxt));
+      xml_coll_t(d.root(), _CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det,&context));
     }
     for(xml::Document d : res.includes )  {
       print_doc((doc=d).root());
-      xml_coll_t(d.root(), _CMU(Algorithm)).for_each(Converter<algorithm>(det,&ctxt));
+      xml_coll_t(d.root(), _CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det,&context));
     }
     for(xml::Document d : res.includes )  {
       print_doc((doc=d).root());
-      xml_coll_t(d.root(), _CMU(PosPartSection)).for_each(Converter<pospartsection>(det,&ctxt));
+      xml_coll_t(d.root(), _CMU(PosPartSection)).for_each(Converter<PosPartSection>(det,&context));
     }
 
     /// Unload all XML files after processing
-    for(xml::Document d : res.includes ) Converter<include_unload>(det,&ctxt,&res)(d.root());
+    for(xml::Document d : res.includes ) Converter<include_unload>(det,&context,&res)(d.root());
 
     print_doc((doc=dddef.document()).root());
     // Now process the actual geometry items
-    xml_coll_t(dddef, _CMU(SolidSection)).for_each(Converter<solidsection>(det,&ctxt));
-    xml_coll_t(dddef, _CMU(LogicalPartSection)).for_each(Converter<logicalpartsection>(det,&ctxt));
-    xml_coll_t(dddef, _CMU(Algorithm)).for_each(Converter<algorithm>(det,&ctxt));
-    xml_coll_t(dddef, _CMU(PosPartSection)).for_each(Converter<pospartsection>(det,&ctxt));
-
+    xml_coll_t(dddef, _CMU(SolidSection)).for_each(Converter<SolidSection>(det,&context));
+    xml_coll_t(dddef, _CMU(LogicalPartSection)).for_each(Converter<LogicalPartSection>(det,&context));
+    xml_coll_t(dddef, _CMU(Algorithm)).for_each(Converter<DDLAlgorithm>(det,&context));
+    xml_coll_t(dddef, _CMU(PosPartSection)).for_each(Converter<PosPartSection>(det,&context));
   }
   catch(const exception& e)   {
     printout(ERROR,"MyDDCMS","Exception while processing xml source:%s",doc.uri().c_str());

@@ -214,7 +214,7 @@ static long algorithm(Detector& /* description */,
       copy++; 
       // tilt Side Spacers (parallel to Side Frame)
       thetax = 90.*CLHEP::deg+thetaz;
-      rot = make_rotation3D(thetax, phix, thetay, phiy, thetaz, phiz);
+      rot = makeRotation3D(thetax, phix, thetay, phiy, thetaz, phiz);
       parentVol.placeVolume(ns.volume(name),copy,Transform3D(rot,Position(xpos,ypos,zpos)));
       LogDebug("TIDGeom") << name <<" number " << copy << " positioned in " << parentName << " at "
                           << Position(xpos,ypos,zpos) << " with " << rot;

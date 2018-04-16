@@ -46,7 +46,7 @@ static long algorithm(Detector& /* description */,
     double phiy   = phix + 90.*CLHEP::deg;
     double xpos   = radius*cos(phi[i]);
     double ypos   = radius*sin(phi[i]);
-    Rotation3D rot = make_rotation3D(theta, phix, theta, phiy, 0., 0.);
+    Rotation3D rot = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position   tran(xpos, ypos, zpos[i]);
     /* PlacedVolume pv = */ mother.placeVolume(child,ci,Transform3D(rot,tran));
     LogDebug("TrackerGeom") << "test: " << child.name() << " number "

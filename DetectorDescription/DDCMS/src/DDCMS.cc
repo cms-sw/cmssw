@@ -15,9 +15,9 @@ using namespace dd4hep::cms;
 #define NAMESPACE_SEP '_'
 
 /// Create 3D rotation matrix from angles.
-Rotation3D dd4hep::cms::make_rotation3D(double thetaX, double phiX,
-                                        double thetaY, double phiY,
-                                        double thetaZ, double phiZ)   {
+Rotation3D dd4hep::cms::makeRotation3D(double thetaX, double phiX,
+				       double thetaY, double phiY,
+				       double thetaZ, double phiZ) {
   Position  posX(sin(thetaX) * cos(phiX), sin(thetaX) * sin(phiX), cos(thetaX));
   Position  posY(sin(thetaY) * cos(phiY), sin(thetaY) * sin(phiY), cos(thetaY));
   Position  posZ(sin(thetaZ) * cos(phiZ), sin(thetaZ) * sin(phiZ), cos(thetaZ));
@@ -25,43 +25,23 @@ Rotation3D dd4hep::cms::make_rotation3D(double thetaX, double phiX,
   return rot;
 }
 
-Rotation3D dd4hep::cms::makeRotation3D(const std::string& axis, double angle)
+Rotation3D dd4hep::cms::makeRotation3D(Rotation3D rotation, const std::string& axis, double angle)
 {
   switch( hash( axis ))
   {
     case hash("x"):
-      return makeRotationX( angle );
+      rotation = RotationX(angle);
+      break;
     case hash("y"):
-      return makeRotationY( angle );
+      rotation = RotationY(angle);
+      break;
     case hash("z"):
-      return makeRotationZ( angle );
+      rotation = RotationZ(angle);
+      break;
     default:
       throw std::runtime_error("Axis is not valid.");
   }
-}
-
-/// Create 3D rotation from an angle arouns X axis 
-Rotation3D dd4hep::cms::makeRotationX(double angle)
-{
-  Rotation3D rot;
-  rot = RotationX(angle);
-  return rot;
-}
-
-/// Create 3D rotation from an angle arouns Y axis 
-Rotation3D dd4hep::cms::makeRotationY(double angle)
-{
-  Rotation3D rot;
-  rot = RotationY(angle);
-  return rot;
-}
-
-/// Create 3D rotation from an angle arouns Z axis 
-Rotation3D dd4hep::cms::makeRotationZ(double angle)
-{
-  Rotation3D rot;
-  rot = RotationZ(angle);
-  return rot;
+  return rotation;
 }
 
 /// Helper: Convert the name of a placed volume into a subdetector name

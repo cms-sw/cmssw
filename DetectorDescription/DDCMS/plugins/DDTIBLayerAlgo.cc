@@ -165,7 +165,7 @@ static long algorithm(Detector& /* description */,
     double phix   = phi - detectorTilt + 90*CLHEP::deg;
     double theta  = 90*CLHEP::deg;
     double phiy   = phix + 90.*CLHEP::deg;
-    Rotation3D rotation = make_rotation3D(theta, phix, theta, phiy, 0., 0.);
+    Rotation3D rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position   trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
     layerIn.placeVolume(detIn, n+1, Transform3D(rotation,trdet)); // copyNr=n+1
     LogDebug("TIBGeom") << detIn.name() << " number " << n+1 << " positioned in " 
@@ -195,7 +195,7 @@ static long algorithm(Detector& /* description */,
     double phix   = phi - detectorTilt - 90*CLHEP::deg;
     double theta  = 90*CLHEP::deg;
     double phiy   = phix + 90.*CLHEP::deg;
-    Rotation3D rotation = make_rotation3D(theta, phix, theta, phiy, 0., 0.);
+    Rotation3D rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position   trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
     layerOut.placeVolume(detOut, n+1, Transform3D(rotation,trdet));
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test " << detectorUp
@@ -274,7 +274,7 @@ static long algorithm(Detector& /* description */,
     double phix   = ribPhi[i];
     double theta  = 90*CLHEP::deg;
     double phiy   = phix + 90.*CLHEP::deg;
-    Rotation3D rotation = make_rotation3D(theta, phix, theta, phiy, 0., 0.);
+    Rotation3D rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position tran(0, 0, 0);
     cylinderIn.placeVolume(cylinderRib, 1, Transform3D(rotation,tran));// copyNr=1
     LogDebug("TIBGeom") << cylinderRib.name()
@@ -406,7 +406,7 @@ static long algorithm(Detector& /* description */,
       dohmList = dohmListFW;
       tran = Position(0., 0., dohmCarrierZ);
       rotstr = idName + "FwDown";
-      rotation = make_rotation3D(90.*CLHEP::deg, 180.*CLHEP::deg, 90.*CLHEP::deg,270.*CLHEP::deg, 0.,0.);
+      rotation = makeRotation3D(90.*CLHEP::deg, 180.*CLHEP::deg, 90.*CLHEP::deg,270.*CLHEP::deg, 0.,0.);
       dohmCarrierReplica = 2;
       placeDohm=0;
       break;
@@ -415,7 +415,7 @@ static long algorithm(Detector& /* description */,
       dohmList = dohmListBW;
       tran = Position(0., 0., -dohmCarrierZ);
       rotstr = idName + "BwUp";
-      rotation = make_rotation3D(90.*CLHEP::deg, 180.*CLHEP::deg, 90.*CLHEP::deg, 90.*CLHEP::deg, 180.*CLHEP::deg, 0.);
+      rotation = makeRotation3D(90.*CLHEP::deg, 180.*CLHEP::deg, 90.*CLHEP::deg, 90.*CLHEP::deg, 180.*CLHEP::deg, 0.);
       dohmCarrierReplica = 1;
       placeDohm=1;
       break;
@@ -424,7 +424,7 @@ static long algorithm(Detector& /* description */,
       dohmList = dohmListBW;
       tran = Position(0., 0., -dohmCarrierZ);
       rotstr = idName + "BwDown";
-      rotation = make_rotation3D(90.*CLHEP::deg, 0., 90.*CLHEP::deg, 270.*CLHEP::deg, 180.*CLHEP::deg, 0.);
+      rotation = makeRotation3D(90.*CLHEP::deg, 0., 90.*CLHEP::deg, 270.*CLHEP::deg, 180.*CLHEP::deg, 0.);
       dohmCarrierReplica = 2;
       placeDohm=0;
       break;
@@ -439,7 +439,7 @@ static long algorithm(Detector& /* description */,
       double phix  = phi + 90*CLHEP::deg;
       double theta = 90*CLHEP::deg;
       double phiy  = phix + 90.*CLHEP::deg;
-      dohmRotation = make_rotation3D(theta, phix, theta, phiy, 0., 0.);
+      dohmRotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
 
       int    dohmReplica = 0;
       double dohmZ = 0.;
@@ -533,7 +533,7 @@ static long algorithm(Detector& /* description */,
     for (unsigned int i=0; i<pillarZ.size(); i++) {
       if( pillarPhi[i]>0. ) {
         pillarTran = Position(0., 0., pillarZ[i]);
-        pillarRota = make_rotation3D(90.*CLHEP::deg, pillarPhi[i], 90.*CLHEP::deg, 90.*CLHEP::deg+pillarPhi[i], 0., 0.);
+        pillarRota = makeRotation3D(90.*CLHEP::deg, pillarPhi[i], 90.*CLHEP::deg, 90.*CLHEP::deg+pillarPhi[i], 0., 0.);
         layer.placeVolume(Pillar,i,Transform3D(pillarRota,pillarTran)); // copyNr i
         LogDebug("TIBGeom") << Pillar.name() << " positioned in " 
             << mother << " at "

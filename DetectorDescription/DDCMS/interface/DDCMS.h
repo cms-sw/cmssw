@@ -248,13 +248,10 @@ namespace dd4hep {
     /// Helper: Convert the name of a placed volume into a subdetector name
     std::string detElementName(PlacedVolume pv);
     /// Create 3D rotation matrix from angles.
-    Rotation3D make_rotation3D(double thetaX, double phiX,
-                               double thetaY, double phiY,
-                               double thetaZ, double phiZ);
-    Rotation3D makeRotation3D(const std::string& axis, double angle);
-    Rotation3D makeRotationX(double angle);
-    Rotation3D makeRotationY(double angle);
-    Rotation3D makeRotationZ(double angle);
+    Rotation3D makeRotation3D(double thetaX, double phiX,
+			      double thetaY, double phiY,
+			      double thetaZ, double phiZ);
+    Rotation3D makeRotation3D(Rotation3D rotation, const std::string& axis, double angle);
 
   }   /* End namespace cms      */
 }     /* End namespace dd4hep   */

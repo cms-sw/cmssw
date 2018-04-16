@@ -55,7 +55,7 @@ static long algorithm(Detector& /* description */,
                             << "rotation: " << rotstr << "\t90., " 
                             << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg
                             << ", 0, 0";
-        rotation = make_rotation3D(theta, phix, theta, phiy, 0., 0.);
+        rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
     }
     mother.placeVolume(child, copyNo, Transform3D(rotation,tran));

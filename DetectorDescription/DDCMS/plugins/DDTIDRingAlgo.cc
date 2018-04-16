@@ -65,7 +65,7 @@ static long algorithm(Detector& /* description */,
     thetay = thetay + 180.*CLHEP::deg;
     //
     Position    trmod(xpos, ypos, zpos);
-    Rotation3D  rotation = make_rotation3D(theta, phix, thetay, phiy, theta, phiz);
+    Rotation3D  rotation = makeRotation3D(theta, phix, thetay, phiy, theta, phiz);
     // int copyNr = i+1;
     /* PlacedVolume pv = */ mother.placeVolume(module, i+1, Transform3D(rotation,trmod));
     LogDebug("TIDGeom") << module.name() << " number "
