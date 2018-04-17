@@ -64,11 +64,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         ))
 )
 
-
-process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("")
-                              )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.reader = DQMEDAnalyzer("SiStripQualityStatistics",
+                               dataLabel = cms.untracked.string(""),
+                               TkMapFileName = cms.untracked.string("")
+                               )
 
 process.siStripBadStripFromQualityDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p1 = cms.Path(process.reader*process.siStripBadStripFromQualityDummyDBWriter)

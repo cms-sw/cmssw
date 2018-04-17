@@ -13,5 +13,9 @@
   <class name="CTPPSPixelDetId" ClassVersion="3">
     <version ClassVersion="3" checksum="2664786666"/>
   </class>
+  
+  <class name="TotemTimingDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="376818709"/>
+  </class>
 
 </lcgdict>

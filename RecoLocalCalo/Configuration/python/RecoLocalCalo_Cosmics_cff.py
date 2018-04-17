@@ -23,6 +23,7 @@ def hbheCosmic(module):
         tsFromDB = cms.bool(False),
         recoParamsFromDB = cms.bool(False),
         algorithm = dict(
+            useMahi = cms.bool(False),
             useM2 = cms.bool(False),
             useM3 = cms.bool(False),
             firstSampleShift = cms.int32(-1000),

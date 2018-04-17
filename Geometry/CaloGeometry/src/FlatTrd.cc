@@ -1,9 +1,10 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include <algorithm>
 #include <iostream>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 typedef FlatTrd::CCGFloat CCGFloat ;
 typedef FlatTrd::Pt3D     Pt3D     ;
@@ -37,10 +38,12 @@ FlatTrd& FlatTrd::operator=( const FlatTrd& tr ) {
     m_global = tr.m_global;
     m_tr     = tr.m_tr;
   }
-#ifdef DebugLog
-  std::cout << "FlatTrd(Copy): Local " << m_local << " Global " << m_global
-	    << " eta " << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd(Copy): Local " << m_local 
+				   << " Global " << m_global << " eta " 
+				   << etaPos() << " phi " << phiPos() 
+				   << " Translation " << m_tr.getTranslation()
+				   << " and rotation " << m_tr.getRotation();
 #endif
   return *this ; 
 }
@@ -57,10 +60,12 @@ FlatTrd::FlatTrd( CornersMgr*  cMgr ,
   getTransform(m_tr,nullptr);
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
-	    << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd: Local " << m_local 
+				   << " Global " << glb << " eta "
+				   << etaPos() << " phi " << phiPos() 
+				   << " Translation " << m_tr.getTranslation() 
+				   << " and rotation " << m_tr.getRotation();
 #endif
 } 
 
@@ -73,10 +78,12 @@ FlatTrd::FlatTrd( const CornersVec& corn ,
   m_axis   = makeAxis();
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
-	    << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd: Local " << m_local
+				   << " Global " << glb << " eta "
+				   << etaPos() << " phi " << phiPos()
+				   << " Translation " << m_tr.getTranslation()
+				   << " and rotation " << m_tr.getRotation();
 #endif
 } 
 
@@ -85,10 +92,12 @@ FlatTrd::FlatTrd( const FlatTrd& tr, const Pt3D & local ) :
   *this = tr;
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
-	    << etaPos() << " phi " << phiPos() << " Translation "
-	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd: Local " << m_local 
+				   << " Global " << glb << " eta "
+				   << etaPos() << " phi " << phiPos()
+				   << " Translation " << m_tr.getTranslation()
+				   << " and rotation " << m_tr.getRotation();
 #endif
 }
 
@@ -96,24 +105,28 @@ FlatTrd::~FlatTrd() {}
 
 GlobalPoint FlatTrd::getPosition(const Pt3D& local ) const {
   Pt3D glb = m_tr*local;
-#ifdef DebugLog
-  std::cout << "FlatTrd::Local " << local.x() << ":" << local.y() << ":" 
-	    << local.z() << " Global " << glb.x() << ":" << glb.y() << ":" 
-	    << glb.z() << " TR " << m_tr.xx() << ":" << m_tr.xy() << ":"
-	    << m_tr.xz() << ":" << m_tr.yx() << ":" << m_tr.yy() << ":"
-	    << m_tr.yz() << ":" << m_tr.zx() << ":" << m_tr.zy() << ":" 
-	    << m_tr.zz() << ":" << m_tr.dx() << ":" << m_tr.dy() << ":" 
-	    << m_tr.dz()  << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd::Local " << local.x() << ":" 
+				   << local.y() << ":" << local.z() 
+				   << " Global " << glb.x() << ":" << glb.y()
+				   << ":" << glb.z() << " TR " << m_tr.xx()
+				   << ":" << m_tr.xy() << ":" << m_tr.xz()
+				   << ":" << m_tr.yx() << ":" << m_tr.yy() 
+				   << ":" << m_tr.yz() << ":" << m_tr.zx() 
+				   << ":" << m_tr.zy() << ":" << m_tr.zz() 
+				   << ":" << m_tr.dx() << ":" << m_tr.dy()
+				   << ":" << m_tr.dz();
 #endif
   return GlobalPoint(glb.x(),glb.y(),glb.z());
 }
 
 Pt3D FlatTrd::getLocal(const GlobalPoint& global) const {
   Pt3D local = m_tr.inverse()*Pt3D(global.x(),global.y(),global.z());
-#ifdef DebugLog
-  std::cout << "FlatTrd::Global " << global.x() << ":" << global.y() << ":" 
-	    << global.z() << " Local " << local.x() << ":" << local.y() << ":" 
-	    << local.z() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloGeometry") << "FlatTrd::Global " << global.x() << ":" 
+				   << global.y() << ":" << global.z()
+				   << " Local " << local.x() << ":" 
+				   << local.y() << ":" << local.z();
 #endif
   return local;
 }
@@ -153,8 +166,8 @@ void  FlatTrd::createCorners( const std::vector<CCGFloat>&  pv ,
     ko[i] = tr * to[i] ; // apply transformation
     const Pt3D & p ( ko[i] ) ;
     co[ i ] = GlobalPoint( p.x(), p.y(), p.z() ) ;
-#ifdef DebugLog
-    std::cout << "Corner[" << i << "] = " << co[i] << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloGeometry") << "Corner[" << i << "] = " << co[i];
 #endif
   }
 }
@@ -183,10 +196,11 @@ void FlatTrd::localCorners( Pt3DVec&        lc  ,
    lc[7] = Pt3D ( - h*ta1 + bl, - h ,  dz ); // (+,-,+)
 
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
-#ifdef DebugLog
-   std::cout << "Ref " << ref << " Local Corners " << lc[0] << "|" << lc[1] 
-	     << "|" << lc[2] << "|" << lc[3] << "|" << lc[4] << "|" << lc[5]
-	     << "|" << lc[6] << "|" << lc[7] << std::endl;
+#ifdef EDM_ML_DEBUG
+   edm::LogVerbatim("CaloGeometry") << "Ref " << ref << " Local Corners " 
+				    << lc[0] << "|" << lc[1] << "|" << lc[2] 
+				    << "|" << lc[3] << "|" << lc[4] << "|" 
+				    << lc[5] << "|" << lc[6] << "|" << lc[7];
 #endif
 }
 

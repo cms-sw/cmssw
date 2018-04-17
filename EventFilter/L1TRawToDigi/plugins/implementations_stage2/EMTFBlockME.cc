@@ -190,7 +190,7 @@ namespace l1t {
 	(res->at(iOut)).push_ME(ME_);
 	res_hit->push_back(Hit_);
 	if (not duplicate_hit_exists) // Don't write duplicate LCTs from adjacent sectors
-	  res_LCT->insertDigi( Hit_.CSC_DetId(), Hit_.CSC_LCTDigi() );
+	  res_LCT->insertDigi( Hit_.CSC_DetId(), Hit_.CreateCSCCorrelatedLCTDigi() );
 
 	// Finished with unpacking one ME Data Record
 	return true;

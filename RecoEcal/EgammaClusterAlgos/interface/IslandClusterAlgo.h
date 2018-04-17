@@ -4,6 +4,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -14,7 +15,6 @@
 #include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
 // C/C++ headers
@@ -55,7 +55,7 @@ class IslandClusterAlgo
                                                const CaloSubdetectorGeometry *geometryES_p,
                                                EcalPart ecalPart,
 					       bool regional = false,
-					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
+					       const std::vector<RectangularEtaPhiRegion>& regions = std::vector<RectangularEtaPhiRegion>());
 
   /// point in the space
   typedef math::XYZPoint Point;

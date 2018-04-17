@@ -319,7 +319,7 @@ SiStripGainFromCalibTree::statCollectionFromMode(const char* tag) const
         it++;
     }
 
-    if (std::string(tag)=="") return 0;  // return StdBunch calibration mode for backward compatibility
+    if (std::string(tag).empty()) return 0;  // return StdBunch calibration mode for backward compatibility
 
     return None;
 }

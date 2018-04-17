@@ -220,6 +220,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm:
     for(size_t i=0; i<label.size(); ++i) {
       me.setBinLabel(i+1, label[i].label());
     }
+    me.disableAlphanumeric();
     return me;
   };
 
@@ -256,11 +257,11 @@ void MultiTrackValidator::bookHistograms(DQMStore::ConcurrentBooker& ibook, edm:
       ibook.cd();
       InputTag algo = label[www];
       string dirName=dirName_;
-      if (algo.process()!="")
+      if (!algo.process().empty())
         dirName+=algo.process()+"_";
-      if(algo.label()!="")
+      if(!algo.label().empty())
         dirName+=algo.label()+"_";
-      if(algo.instance()!="")
+      if(!algo.instance().empty())
         dirName+=algo.instance()+"_";
       if (dirName.find("Tracks")<dirName.length()){
         dirName.replace(dirName.find("Tracks"),6,"");

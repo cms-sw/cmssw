@@ -70,11 +70,6 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-
 //
 // constants, enums and typedefs
 //
@@ -135,7 +130,6 @@ namespace cms
   SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
 					size_t globalSimHitIndex,
 					const unsigned int tofBin,
-					CLHEP::HepRandomEngine* engine,
 					edm::EventSetup const& iSetup) {
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
@@ -157,7 +151,7 @@ namespace cms
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
                                           << pSetup->inTesla(pixdet->surface().position());
-             _pixeldigialgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, pixdet, bfield, tTopo, engine);
+             _pixeldigialgo->accumulateSimHits(it, itEnd, globalSimHitIndex, tofBin, pixdet, bfield, tTopo, randomEngine_);
            }
          }
        }
@@ -176,6 +170,10 @@ namespace cms
     // indices used to create the digi-sim link (if configured to do so) rather than starting
     // from zero for each crossing.
     crossingSimHitIndexOffset_.clear();
+
+    // Cache random number engine
+    edm::Service<edm::RandomNumberGenerator> rng;
+    randomEngine_ = &rng->getEngine(e.streamID());
 
     _pixeldigialgo->initializeEvent();
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
@@ -213,7 +211,7 @@ namespace cms
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
       if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
-      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(iEvent.streamID()), iSetup);
+      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
@@ -233,7 +231,7 @@ namespace cms
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
       if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
-      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(streamID), iSetup);
+      accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
       // as though they were on the end of this collection.
@@ -246,10 +244,6 @@ namespace cms
   // ------------ method called to produce the data  ------------
   void
   SiPixelDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-    edm::Service<edm::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
-
     edm::ESHandle<TrackerTopology> tTopoHand;
     iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
@@ -279,7 +273,7 @@ namespace cms
                                  collector.data,
                                  linkcollector.data,
 				 tTopo,
-                                 engine);
+                                 randomEngine_);
         if(!collector.data.empty()) {
           theDigiVector.push_back(std::move(collector));
         }
@@ -298,21 +292,8 @@ namespace cms
     // Step D: write output to file 
     iEvent.put(std::move(output));
     iEvent.put(std::move(outputlink));
-  }
 
-  CLHEP::HepRandomEngine* SiPixelDigitizer::randomEngine(edm::StreamID const& streamID) {
-    unsigned int index = streamID.value();
-    if(index >= randomEngines_.size()) {
-      randomEngines_.resize(index + 1, nullptr);
-    }
-    CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-    if(!ptr) {
-      edm::Service<edm::RandomNumberGenerator> rng;
-      ptr = &rng->getEngine(streamID);
-      randomEngines_[index] = ptr;
-    }
-    return ptr;
+    randomEngine_ = nullptr; // to prevent access outside event
   }
-
 }// end namespace cms::
 

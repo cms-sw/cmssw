@@ -56,6 +56,14 @@ def setup(process, binary_files, tree_files, run_start_geometry):
     process.AlignmentProducer.algoConfig.mergeTreeFiles   = tree_files
 
 
+    # align calibrations to general settings
+    # --------------------------------------------------------------------------
+    for calib in process.AlignmentProducer.calibrations:
+        calib.saveToDB       = process.AlignmentProducer.saveToDB
+        calib.treeFile       = process.AlignmentProducer.algoConfig.treeFile
+        calib.mergeTreeFiles = process.AlignmentProducer.algoConfig.mergeTreeFiles
+
+
     # Configure the empty source to include all needed runs
     # --------------------------------------------------------------------------
     iovs = mps_tools.make_unique_runranges(process.AlignmentProducer)

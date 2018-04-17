@@ -97,7 +97,7 @@ void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="RE
     Double_t norm   [] = {0.,0.,0.,0.};
     //===== Tracker, ECAL Deposits
     const char* plots1  [] = {"sumPt", "emEt", "sumPt_cd", "emEt_cd"};
-    Plot4Histograms(newDir + "/muonIso1.pdf",
+    Plot4Histograms(newDir + "/muonIso1",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "IsoHistos1", "Tracker, ECAL Deposits",
@@ -107,7 +107,7 @@ void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="RE
     
     //===== HCAL and HO Isolation Distributions
     const char* plots2  [] = {"hadEt", "hoEt", "hadEt_cd", "hoEt_cd"};
-    Plot4Histograms(newDir + "/muonIso2.pdf",
+    Plot4Histograms(newDir + "/muonIso2",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "IsoHistos2", "HCAL, HO Deposits",
@@ -117,7 +117,7 @@ void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="RE
     
     //===== N_Tracks, N_Jets around #mu
     const char* plots3   [] = {"nTracks", "nJets", "nTracks_cd", "nJets_cd"};
-    Plot4Histograms(newDir + "/muonIso3.pdf",
+    Plot4Histograms(newDir + "/muonIso3",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "IsoHistos3", "Number of tracks, jets around #mu",
@@ -129,7 +129,7 @@ void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="RE
     //===== avg Pt, weighted Et around #mu
     const char* plots4   [] = {"avgPt", "weightedEt", "avgPt_cd", "weightedEt_cd"};
 
-    Plot4Histograms(newDir + "/muonIso4.pdf",
+    Plot4Histograms(newDir + "/muonIso4",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "IsoHistos4", "Average p_{T}, weighted E_{T} aroun #mu",
@@ -141,7 +141,7 @@ void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="RE
     //===== Tracker and CAL deposits vs muon pT
     const char* plots5   [] = {"muonPt_sumPt", "muonPt_emEt", "muonPt_hadEt", "muonPt_hoEt"};
     Double_t  norm2    [] = {-999.,-999.,-999.,-999.};
-    Plot4Histograms(newDir + "/muonIso5.pdf",
+    Plot4Histograms(newDir + "/muonIso5",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "IsoHistos5", "Trk, CAL Isolations vs. #mu p_{T}",
@@ -151,7 +151,7 @@ void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="RE
     
     //===== NTracks, NJets, avgPt, weightedEt vs Muon pT
     const char* plots6   [] = {"muonPt_nTracks", "muonPt_nJets", "muonPt_avgPt", "muonPt_weightedEt"};
-    Plot4Histograms(newDir + "/muonIso6.pdf",
+    Plot4Histograms(newDir + "/muonIso6",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "IsoHistos6", "Other stuff vs #mu p_{T}",
@@ -179,7 +179,7 @@ void IsoValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="RE
     gSystem->Rename(mergefile, destfile);
 
     cout << ">> Deleting partial pdf files" << endl;
-    gSystem->Exec("rm -rf "+newDir);    
+    gSystem->Exec("rm -rf "+newDir+"/*.pdf");    
     cout << "   ... Done" << endl;
   }  // end of "while loop"
 

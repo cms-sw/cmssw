@@ -37,8 +37,7 @@ class JetChargeAnalyzer : public edm::EDAnalyzer {
         explicit JetChargeAnalyzer(const edm::ParameterSet&);
         ~JetChargeAnalyzer() {}
 
-        virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-        virtual void endJob(const edm::EventSetup& iSetup);
+        virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
     private:
         // physics stuff
         edm::EDGetTokenT<JetChargeCollection>         srcToken_;
@@ -106,8 +105,6 @@ void JetChargeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     charge_[k]->Fill(hJC->value(i));
   }
 
-}
-void JetChargeAnalyzer::endJob(const edm::EventSetup& iSetup) {
 }
 
 DEFINE_FWK_MODULE(JetChargeAnalyzer);

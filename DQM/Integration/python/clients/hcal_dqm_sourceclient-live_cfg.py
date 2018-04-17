@@ -99,9 +99,10 @@ process.emulTPDigis.RunZS = cms.bool(True)
 process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
 process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
-process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(255)
-process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
-
+process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
+	ADCThresholdHF = cms.uint32(255),
+	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+)
 
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
@@ -117,7 +118,7 @@ process.load('DQM.HcalTasks.TPTask')
 process.load('DQM.HcalTasks.RawTask')
 process.load('DQM.HcalTasks.NoCQTask')
 #process.load('DQM.HcalTasks.ZDCTask')
-process.load('DQM.HcalTasks.QIE11Task')
+#process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
 #-------------------------------------
@@ -153,9 +154,9 @@ process.tpTask.runkeyName = runTypeName
 #process.zdcTask.runkeyVal = runType
 #process.zdcTask.runkeyName = runTypeName
 #process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
-process.qie11Task.runkeyVal = runType
-process.qie11Task.runkeyName = runTypeName
-process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
+#process.qie11Task.runkeyVal = runType
+#process.qie11Task.runkeyName = runTypeName
+#process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
 
 #-------------------------------------
 #	Hcal DQM Tasks/Clients Sequences Definition
@@ -165,7 +166,7 @@ process.tasksPath = cms.Path(
 		+process.digiTask
 		+process.tpTask
 		+process.nocqTask
-		+process.qie11Task
+		#+process.qie11Task
 		#ZDC to be removed for 2017 pp running
 		#+process.zdcTask
 )

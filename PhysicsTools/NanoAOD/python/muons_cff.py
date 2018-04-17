@@ -20,13 +20,13 @@ isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("slimmedMuons"),
     relative = cms.bool(False),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
-    EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt"),
+    EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
-run2_miniAOD_80XLegacy.toModify(isoForMu, src = "slimmedMuonsUpdated")
+run2_miniAOD_80XLegacy.toModify(isoForMu, src = "slimmedMuonsUpdated", EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 run2_nanoAOD_92X.toModify(isoForMu, src = "slimmedMuonsUpdated")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
-    srcJet = cms.InputTag("slimmedJets"),
+    srcJet = cms.InputTag("updatedJets"),
     srcLep = cms.InputTag("slimmedMuons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
@@ -56,24 +56,31 @@ finalMuons = cms.EDFilter("PATMuonRefSelector",
 
 muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","muons"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml"),
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/mu_BDTG_94X.weights.xml"),
     name = cms.string("muonMVATTH"),
     isClassifier = cms.bool(True),
-    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"]),
+    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetBTagCSV","LepGood_jetPtRatio","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"]),
     variables = cms.PSet(
         LepGood_pt = cms.string("pt"),
         LepGood_eta = cms.string("eta"),
-        LepGood_jetNDauChargedMVASel = cms.string("userFloat('jetNDauChargedMVASel')"),
+        LepGood_jetNDauChargedMVASel = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0"),
         LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg')/pt"),
         LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll')-userFloat('miniIsoChg'))/pt"),
-        LepGood_jetPtRelv2 = cms.string("userFloat('ptRel')"),
-        LepGood_jetPtRatio = cms.string("min(userFloat('ptRatio'),1.5)"),
-        LepGood_jetBTagCSV = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'),0.0):-99.0"),
+        LepGood_jetPtRelv2 = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0"),
+        LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)"),
+        LepGood_jetBTagCSV = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'),0.0):0.0"),
         LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
         LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
         LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
         LepGood_segmentCompatibility = cms.string("segmentCompatibility"),
     )
+)
+run2_miniAOD_80XLegacy.toModify(muonMVATTH.variables,
+    LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1"),
+)
+run2_miniAOD_80XLegacy.toModify(muonMVATTH,
+    weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml",
+    variablesOrder = ["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"],
 )
 
 muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",

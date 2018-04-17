@@ -81,6 +81,42 @@ struct MahiNnlsWorkspace {
 
 };
 
+struct MahiDebugInfo {
+
+  int   nSamples;
+  int   soi;
+
+  bool  use3;
+
+  float inTimeConst;
+  float inDarkCurrent;
+  float inPedAvg;
+  float inGain;
+  
+  float inNoiseADC[MaxSVSize];
+  float inNoiseDC[MaxSVSize];
+  float inNoisePhoto[MaxSVSize];
+  float inPedestal[MaxSVSize];
+
+  float totalUCNoise[MaxSVSize];
+
+  float mahiEnergy;
+  float chiSq;
+  float arrivalTime;
+
+  float pEnergy;
+  float nEnergy;
+  float pedEnergy;
+
+  float count[MaxSVSize];
+  float inputTS[MaxSVSize];
+  int inputTDC[MaxSVSize];
+  float itPulse[MaxSVSize];
+  float pPulse[MaxSVSize];
+  float nPulse[MaxSVSize];
+  
+};
+
 class MahiFit
 {
  public:
@@ -98,6 +134,9 @@ class MahiFit
 		   float& reconstructedTime, 
 		   bool& useTriple,
 		   float& chi2) const;
+
+  void phase1Debug(const HBHEChannelInfo& channelData,
+		   MahiDebugInfo& mdi) const;
 
   void doFit(std::array<float,3> &correctedOutput, const int nbx) const;
 

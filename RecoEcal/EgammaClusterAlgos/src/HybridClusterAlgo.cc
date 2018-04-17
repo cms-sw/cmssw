@@ -59,7 +59,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 				     reco::BasicClusterCollection &basicClusters,
 				     const EcalSeverityLevelAlgo * sevLv,
 				     bool regional,
-				     const std::vector<EcalEtaPhiRegion>& regions
+				     const std::vector<RectangularEtaPhiRegion>& regions
 				     )
 {
   //clear vector of seeds
@@ -98,7 +98,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       // of regional reconstruction
       bool withinRegion = false;
       if (regional) {
-	std::vector<EcalEtaPhiRegion>::const_iterator region;
+	std::vector<RectangularEtaPhiRegion>::const_iterator region;
 	for (region=regions.begin(); region!=regions.end(); region++) {
 	  if (region->inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 	    withinRegion =  true;

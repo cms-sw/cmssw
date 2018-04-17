@@ -313,7 +313,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
      const char* plots0[] = {"effic", "fakerate", "efficPt", "fakeratePt"};
       const char* plotsl0[] = {"efficiency vs #eta", "fakerate vs #eta", "efficiency vs Pt", "fakerate vs Pt"};
       bool    logy0 [] = {false,  false, false,  false  };
-      Plot4Histograms(newDir + "/building.pdf",
+      Plot4Histograms(newDir + "/building",
                       rdir, sdir, 
                       rcollname, scollname,
                       "Seeds", "Efficiency Vs Pt and Vs #eta",
@@ -325,7 +325,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       const char* plots1[] = { "effic_vs_hit", "fakerate_vs_hit","effic_vs_phi","fakerate_vs_phi"};
       const char* plotsl1[] = { "efficiency vs hits", "fakerate vs hits","efficiency vs #phi","fakerate vs #phi"};
       bool    logy [] = {false,  false, false,  false  };
-      Plot4Histograms(newDir + "/building2.pdf",
+      Plot4Histograms(newDir + "/building2",
                       rdir, sdir, 
                       rcollname, scollname,
                       "Seeds2", "Efficiency vs hits and #phi",
@@ -343,7 +343,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       // Double_t maxx2   [] = {-1E100, -1E100, -1E100, -1E100,  -1E100, -1E100 };
       // Double_t miny2   [] = {0.5,    -1E100, 0., -1E100, 0.5,  -1E100 };
       // Double_t maxy2   [] = {1.0125, -1E100, -1E100, -1E100, -1E100, -1E100 };
-      Plot4Histograms(newDir + "/hitsAndPt.pdf",
+      Plot4Histograms(newDir + "/hitsAndPt",
                       rdir, sdir, 
                       rcollname, scollname,
                       "hits", "Pt",
@@ -356,7 +356,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       bool    logy3    [] = {false,   true,   false,      true    };
       bool    doKolmo3 [] = {true,    true,   true,       true    };
       const char* plots3 [] = {"chi2","chi2_prob","chi2mean", "ptres_vs_eta_Mean"};
-      Plot4Histograms(newDir + "/tuning.pdf",
+      Plot4Histograms(newDir + "/tuning",
 		      rdir, sdir, 
 		      rcollname, scollname,
 		      "IsoHistos2", "HCAL, HO Deposits",
@@ -375,7 +375,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       // Double_t maxx4   [] = {10,10,10, 10, 10, 10 };
       // Double_t miny4   [] = {0.,    -1E100, 0., -1E100, 0,  -1E100 };
       // Double_t maxy4   [] = {-1E100, -1E100, -1E100, -1E100, -1E100, -1E100 };
-      Plot6Histograms(newDir + "/Pulls.pdf",
+      Plot6Histograms(newDir + "/Pulls",
 		      rdir, sdir, 
 		      rcollname, scollname,
 		      "Pullsdis", "Pull Distributions",
@@ -396,7 +396,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       // Double_t maxy5   [] = {-1E100, -1E100, -1E100, -1E100, -1E100, -1E100 };  
 
       resol= true;
-      Plot6Histograms(newDir + "/residuals.pdf",
+      Plot6Histograms(newDir + "/residuals",
 		      rdir, sdir, 
 		      rcollname, scollname,
 		      "residualdis", "residuals vs Pt",
@@ -414,7 +414,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       // Double_t maxx6   [] = {-1E100, -1E100, -1E100, -1E100,    -1E100, -1E100 };
       // Double_t miny6   [] = {0.,    -1E100, 0., -1E100, 0,  -1E100 };
       // Double_t maxy6   [] = {-1E100, -1E100, -1E100, -1E100, -1E100, -1E100 };
-      Plot5Histograms(newDir + "/residualsEta.pdf",
+      Plot5Histograms(newDir + "/residualsEta",
 		      rdir, sdir, 
 		      rcollname, scollname,
 	 	      "residualsdisEta", "residuals vs Eta",
@@ -431,7 +431,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       // Double_t maxx7   [] = {-1E100, -1E100, -1E100, -1E100,    -1E100, -1E100 };
       // Double_t miny7   [] = {0.,    -1E100, 0., -1E100, 0,  -1E100 };
       // Double_t maxy7   [] = {-1E100, -1E100, -1E100, -1E100, -1E100, -1E100 };
-      Plot5Histograms(newDir + "/meanvaluesEta.pdf",
+      Plot5Histograms(newDir + "/meanvaluesEta",
 		      rdir, sdir, 
 		      rcollname, scollname,
 		      "meanvaluesEtadis", "mean values vs eta",
@@ -451,7 +451,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
       Double_t maxx8  [] = {maxPT,maxPT,maxPT,maxPT,maxPT,maxPT};
       // Double_t miny8  [] = {0.,    -1E100, 0., -1E100, 0,  -1E100 };
       // Double_t maxy8  [] = {-1E100, -1E100, -1E100, -1E100, -1E100, -1E100 };
-      Plot5Histograms(newDir + "/resolutionsPt.pdf",
+      Plot5Histograms(newDir + "/resolutionsPt",
 		      rdir, sdir, 
 		      rcollname, scollname,
 		      "resolutionsPtdis", "resolution vs pt",
@@ -487,7 +487,7 @@ void TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="
     gSystem->Rename(mergefile, destfile);
 
     cout << ">> Deleting partial pdf files" << endl;
-    gSystem->Exec("rm -rf "+newDir); 
+    gSystem->Exec("rm -rf "+newDir+"/*.pdf"); 
     cout << "   ... Done" << endl;
   }  // end of "while loop"
   

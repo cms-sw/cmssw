@@ -1003,45 +1003,42 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		}
 	}
 
-	if (rawidHBHEValid!=0 && rawidHFValid!=0)
-	{
-		//	ONLINE ONLY!
-		if (_ptype==fOnline)
-		{
+	//	ONLINE ONLY!
+	if (_ptype==fOnline) {
+		if (rawidHBHEValid != 0) {
 			_cOccupancyEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid), bx,
 				numHBHE);
-			_cOccupancyEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), bx,
-				numHF);
 			_cOccupancyCutEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid), 
 				bx,
 				numCutHBHE);
-			_cOccupancyCutEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), bx,
-				numCutHF);
-	
 			_cOccupancyEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid), 
 				_currentLS, numHBHE);
-			_cOccupancyEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), 
-				_currentLS,numHF);
 			_cOccupancyCutEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid),
 				_currentLS, numCutHBHE);
-			_cOccupancyCutEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), 
-				_currentLS, numCutHF);
-	
 			_cMsnDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid),
 				_currentLS, numMsnHBHE);
-			_cMsnDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid),
-				_currentLS, numMsnHF);
 			_cMsnCutDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid),
 				_currentLS, numMsnCutHBHE);
-			_cMsnCutDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid),
-				_currentLS, numMsnCutHF);
-	
 			_cMsnDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid),
 				bx, numMsnHBHE);
-			_cMsnDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid),
-				bx, numMsnHF);
 			_cMsnCutDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHBHEValid),
 				bx, numMsnCutHBHE);
+		}
+		if (rawidHFValid!=0) {
+			_cOccupancyEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), bx,
+				numHF);
+			_cOccupancyCutEmulvsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), bx,
+				numCutHF);
+			_cOccupancyEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), 
+				_currentLS,numHF);
+			_cOccupancyCutEmulvsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid), 
+				_currentLS, numCutHF);
+			_cMsnDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid),
+				_currentLS, numMsnHF);
+			_cMsnCutDatavsLS_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid),
+				_currentLS, numMsnCutHF);
+			_cMsnDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid),
+				bx, numMsnHF);
 			_cMsnCutDatavsBX_TTSubdet.fill(HcalTrigTowerDetId(rawidHFValid),
 				bx, numMsnCutHF);
 		}

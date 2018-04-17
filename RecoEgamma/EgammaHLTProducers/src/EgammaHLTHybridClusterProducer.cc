@@ -38,7 +38,6 @@
 
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHybridClusterProducer.h"
@@ -212,7 +211,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
-  std::vector<EcalEtaPhiRegion> regions;
+  std::vector<RectangularEtaPhiRegion> regions;
 
   if(doIsolated_) {
     for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
@@ -243,7 +242,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       if (etaHigh>1.479) etaHigh=1.479;
       if (etaLow<-1.479) etaLow=-1.479;
 
-      if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      if(isbarl) regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
 
     }
   }
@@ -280,7 +279,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
        if (etaHigh>1.479) etaHigh=1.479;
        if (etaLow<-1.479) etaLow=-1.479;
        
-       if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+       if(isbarl) regions.push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
        
     }
     }

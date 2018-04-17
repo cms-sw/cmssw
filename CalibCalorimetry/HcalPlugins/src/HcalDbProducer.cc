@@ -67,6 +67,7 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 			  &HcalDbProducer::TPParametersCallback &
 			  &HcalDbProducer::lutMetadataCallback &
 			  &HcalDbProducer::MCParamsCallback &
+			  &HcalDbProducer::RecoParamsCallback &
               &HcalDbProducer::effectivePedestalsCallback &
               &HcalDbProducer::effectivePedestalWidthsCallback
 			  )
@@ -495,6 +496,24 @@ void HcalDbProducer::MCParamsCallback (const HcalMCParamsRcd& fRecord) {
   if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end()) {
     *mDumpStream << "New HCAL MCParams set" << std::endl;
     HcalDbASCIIIO::dumpObject (*mDumpStream, *(mMCParams));
+  }
+}
+
+void HcalDbProducer::RecoParamsCallback (const HcalRecoParamsRcd& fRecord) {
+  edm::ESTransientHandle <HcalRecoParams> item;
+  fRecord.get (item);
+
+  mRecoParams.reset( new HcalRecoParams(*item) );
+
+  edm::ESHandle<HcalTopology> htopo;
+  fRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology* topo=&(*htopo);
+  mRecoParams->setTopo(topo);
+
+  mService->setData (mRecoParams.get());
+  if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end()) {
+    *mDumpStream << "New HCAL RecoParams set" << std::endl;
+    HcalDbASCIIIO::dumpObject (*mDumpStream, *(mRecoParams));
   }
 }
 

@@ -20,6 +20,7 @@ class MuonTransientTrackingRecHitBuilder: public TransientTrackingRecHitBuilder 
 
   ~MuonTransientTrackingRecHitBuilder() override {} ;
 
+  using TransientTrackingRecHitBuilder::build;
   /// Call the MuonTransientTrackingRecHit::specificBuild
   RecHitPointer build(const TrackingRecHit *p, 
 		      edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const ;

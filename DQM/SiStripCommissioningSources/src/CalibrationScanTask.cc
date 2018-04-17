@@ -108,8 +108,8 @@ void CalibrationScanTask::book() {
 //
 void CalibrationScanTask::fill( const SiStripEventSummary& summary,
 			    const edm::DetSet<SiStripRawDigi>& digis ) {
-//  LogDebug("Commissioning") << "[CalibrationScanTask::fill]: isha/vfs = " << summary.isha() << "/" << summary.vfs();
-  // Check if ISHA/VFS changed. In that case, save, reset histo, change title, and continue
+  //LogDebug("Commissioning") << "[CalibrationScanTask::fill]: isha/vfs = " << summary.isha() << "/" << summary.vfs();
+  //Check if ISHA/VFS changed. In that case, save, reset histo, change title, and continue
   checkAndSave(summary.isha(),summary.vfs());
   // retrieve the delay from the EventSummary
   int bin = (100-summary.latency())*8+(7-summary.calSel());

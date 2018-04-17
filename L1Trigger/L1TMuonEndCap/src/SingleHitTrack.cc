@@ -42,19 +42,19 @@ void SingleHitTrack::process(
 
       // Require subsector and CSC ID to match
       if (conv_hits_it.Subsector() != subsector || conv_hits_it.CSC_ID() != CSC_ID)
-	continue;
+        continue;
 
       // Only consider CSC LCTs
       if (conv_hits_it.Is_CSC() != 1)
-	continue;
-      
+        continue;
+
       // Only consider hits in station 1, ring 1
       if (conv_hits_it.Station() != 1 || (conv_hits_it.Ring() % 3) != 1)
-	continue;
-      
+        continue;
+
       // Only consider hits in the same sector (not neighbor hits)
       if ( (conv_hits_it.Endcap() == 1) != (endcap_ == 1) || conv_hits_it.Sector() != sector_ )
-	continue;
+        continue;
 
       // Check if a hit has already been used in a track
       bool already_used = false;
@@ -62,34 +62,34 @@ void SingleHitTrack::process(
       // Loop over existing multi-hit tracks
       for (const auto & best_tracks_it : best_tracks) {
 
-	// Only consider tracks with a hit in station 1
-	if (best_tracks_it.Mode() < 8)
-	  continue;
-	
-	// Check if hit in track is identical
-	// "Duplicate" hits (with same strip but different wire) are considered identical
-	// const EMTFHit& conv_hit_i = *conv_hits_it;
-	const EMTFHit& conv_hit_j = best_tracks_it.Hits().front();
-	
-	if (
-	    (conv_hits_it.Subsystem()  == conv_hit_j.Subsystem()) &&
-	    (conv_hits_it.PC_station() == conv_hit_j.PC_station()) &&
-	    (conv_hits_it.PC_chamber() == conv_hit_j.PC_chamber()) &&
-	    ((conv_hits_it.Ring() % 3) == (conv_hit_j.Ring() % 3)) &&  // because of ME1/1
-	    (conv_hits_it.Strip()      == conv_hit_j.Strip()) &&
-	    // (conv_hits_it.Wire()       == conv_hit_j.Wire()) &&
-	    (conv_hits_it.BX()         == conv_hit_j.BX()) &&
-	    true
-	    ) {
-	  already_used = true;
-	  break;
-	}
+        // Only consider tracks with a hit in station 1
+        if (best_tracks_it.Mode() < 8)
+          continue;
+
+        // Check if hit in track is identical
+        // "Duplicate" hits (with same strip but different wire) are considered identical
+        // const EMTFHit& conv_hit_i = *conv_hits_it;
+        const EMTFHit& conv_hit_j = best_tracks_it.Hits().front();
+
+        if (
+            (conv_hits_it.Subsystem()  == conv_hit_j.Subsystem()) &&
+            (conv_hits_it.PC_station() == conv_hit_j.PC_station()) &&
+            (conv_hits_it.PC_chamber() == conv_hit_j.PC_chamber()) &&
+            ((conv_hits_it.Ring() % 3) == (conv_hit_j.Ring() % 3)) &&  // because of ME1/1
+            (conv_hits_it.Strip()      == conv_hit_j.Strip()) &&
+            // (conv_hits_it.Wire()       == conv_hit_j.Wire()) &&
+            (conv_hits_it.BX()         == conv_hit_j.BX()) &&
+            true
+            ) {
+          already_used = true;
+          break;
+        }
       } // End loop: for (const auto & best_tracks_it : best_tracks)
 
       // Only use hits that have not been used in a track
       if (already_used)
-	continue;
-      
+        continue;
+
       int zone = -1;
       int zone_code = conv_hits_it.Zone_code();
       if      (zone_code & 0b1000) zone = 4;
@@ -102,10 +102,10 @@ void SingleHitTrack::process(
 
       EMTFTrack new_trk;
       new_trk.push_Hit ( conv_hits_it );
-      
+
       EMTFPtLUT empty_LUT = {};
       new_trk.set_PtLUT ( empty_LUT );
-      
+
       new_trk.set_endcap       ( conv_hits_it.Endcap()     );
       new_trk.set_sector       ( conv_hits_it.Sector()     );
       new_trk.set_sector_idx   ( conv_hits_it.Sector_idx() );
@@ -126,19 +126,19 @@ void SingleHitTrack::process(
       new_trk.set_phi_loc      ( conv_hits_it.Phi_loc() );
       new_trk.set_phi_glob     ( conv_hits_it.Phi_glob() );
       new_trk.set_track_num    ( maxTracks_ - 1 );
-      
+
       one_hit_trks.push_back( new_trk );
-      
+
       if (int(best_tracks.size()) + int(one_hit_trks.size()) >= maxTracks_)
-	break;
-    
+        break;
+
       // Firmware only sends one single-hit track per sector
-      if (!one_hit_trks.empty()) 
-	break;
+      if (!one_hit_trks.empty())
+        break;
 
     } // End loop:  for (const auto & conv_hits_it : conv_hits)
 
-    if (!one_hit_trks.empty()) 
+    if (!one_hit_trks.empty())
       break;
 
   } // End loop: for (int sub_ID = 5; sub_ID > 0; sub_ID--) {

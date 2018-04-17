@@ -120,8 +120,7 @@ void FWFileEntry::openFile(bool checkVersion)
 
    auto tc = new FWTTreeCache(m_eventTree, FWTTreeCache::GetDefaultCacheSize());
    m_file->SetCacheRead(tc, m_eventTree);
-   gEnv->SetValue("TFile.AsyncReading", 1);
-   tc->SetEnablePrefetching(true);
+   tc->SetEnablePrefetching(FWTTreeCache::IsPrefetching());
    tc->SetLearnEntries(20);
    tc->SetLearnPrefill(TTreeCache::kAllBranches);
    tc->StartLearningPhase();
@@ -342,7 +341,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
    auto interCache = new TTreeCache(m_eventTree, 10*1024*1024);
    // Do not disconnect the cache, it will be reattached after filtering.
    m_file->SetCacheRead(interCache, m_eventTree, TFile::kDoNotDisconnect);
-   interCache->SetEnablePrefetching(true);
+   interCache->SetEnablePrefetching(FWTTreeCache::IsPrefetching());
    for (auto & b : branch_names)
      interCache->AddBranch(b.c_str(), true);
    interCache->StopLearningPhase();

@@ -22,7 +22,8 @@ public:
 
 
   enum Detector {Tracker=1, Muon=2, Ecal=3, Hcal=4, Calo=5, Forward=6,
-		 VeryForward=7, HGCalEE=8, HGCalHSi=9, HGCalHSc=10 };
+		 VeryForward=7, HGCalEE=8, HGCalHSi=9, HGCalHSc=10,
+		 HGCalTrigger=11};
   /// Create an empty or null id (also for persistence)
   DetId()  : id_(0) { }
   /// Create an id from a raw number
@@ -69,5 +70,14 @@ inline bool operator<(DetId id, uint32_t i) { return id()<i; }
 
 //std::ostream& operator<<(std::ostream& s, const DetId& id);
 
+namespace std {
+  template<> struct hash<DetId> {
+    typedef DetId argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const& id) const noexcept {
+      return std::hash<uint32_t>()(id.rawId());            
+    }
+  };
+}
 
 #endif

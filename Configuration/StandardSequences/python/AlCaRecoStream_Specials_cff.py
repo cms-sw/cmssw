@@ -77,6 +77,7 @@ ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
 from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECORawPCCProducer_cff import *
 
 # FIXME: in case we need to add a DQM step
 #from DQMOffline.Configuration.AlCaRecoDQM_cff import *
@@ -85,6 +86,7 @@ from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_cff import *
 pathALCARECOLumiPixels      = cms.Path(seqALCARECOLumiPixels)
 pathALCARECOAlCaPCCZeroBias = cms.Path(seqALCARECOAlCaPCCZeroBias)
 pathALCARECOAlCaPCCRandom   = cms.Path(seqALCARECOAlCaPCCRandom)
+pathALCARECORawPCCProducer = cms.Path(seqALCARECORawPCCProducer)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
@@ -115,4 +117,11 @@ ALCARECOStreamAlCaPCCRandom = cms.FilteredStream(
 	      dataTier = cms.untracked.string('ALCARECO')
 	      )
 
-
+ALCARECOStreamRawPCCProducer = cms.FilteredStream(
+	      responsible = 'Chris Palmer',
+	      name = 'RawPCCProducer',
+	      paths  = (pathALCARECORawPCCProducer),
+	      content = OutALCARECORawPCCProducer.outputCommands,
+	      selectEvents = OutALCARECORawPCCProducer.SelectEvents,
+	      dataTier = cms.untracked.string('ALCARECO')
+	      )

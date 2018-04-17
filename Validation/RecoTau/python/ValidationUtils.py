@@ -133,8 +133,7 @@ def SetPlotSequence(sequence):
     scanner = Scanner()
     sequence.visit(scanner)
     for analyzer in scanner.modules():#The first one is the sequence itself
-        if type(analyzer) is cms.EDAnalyzer:
-            PlotAnalyzer(pset, analyzer)
+        PlotAnalyzer(pset, analyzer)
     return pset
 
 def SpawnPSet(lArgument, subPset):

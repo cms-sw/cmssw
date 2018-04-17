@@ -35,9 +35,10 @@ import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 hbherecoPedestal = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprereco.clone(
     digiLabelQIE8  = cms.InputTag("hcalDigiAlCaPedestal"),
     digiLabelQIE11 = cms.InputTag("hcalDigiAlCaPedestal"),
-    tsFromDB = cms.bool(False),
+###    tsFromDB = cms.bool(False),
     dropZSmarkedPassed = cms.bool(False),
     algorithm = dict(
+        useMahi = cms.bool(False),
         useM2 = cms.bool(False),
         useM3 = cms.bool(False)
     ),
@@ -52,8 +53,7 @@ hbherecoPedestal = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hb
     setLegacyFlagsQIE11 = cms.bool(False),
 )
 
-hbherecoPedestal.algorithm.firstSample = 0
-hbherecoPedestal.algorithm.samplesToAdd = 4
+hbherecoPedestal.algorithm.firstSampleShift = -100 # for the very beginning of the TS array
 
 import RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi
 hfrecoPedestal = RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi.hfsimplereco.clone()

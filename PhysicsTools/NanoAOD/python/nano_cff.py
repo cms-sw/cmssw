@@ -65,12 +65,14 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
 )
 lheInfoTable = cms.EDProducer("LHETablesProducer",
     lheInfo = cms.InputTag("externalLHEProducer"),
+    precision = cms.int32(14),
+    storeLHEParticles = cms.bool(True) 
 )
 
 l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Digis"), legacyL1=cms.bool(False))
 
 nanoSequence = cms.Sequence(
-        nanoMetadata + muonSequence + jetSequence + tauSequence + electronSequence+photonSequence+vertexSequence+metSequence+
+        nanoMetadata + jetSequence + muonSequence + tauSequence + electronSequence+photonSequence+vertexSequence+metSequence+
         isoTrackSequence + # must be after all the leptons 
         linkedObjects  +
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + triggerObjectTables + isoTrackTables +
@@ -84,41 +86,26 @@ def nanoAOD_customizeCommon(process):
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
-    process.calibratedPatElectrons.isMC = cms.bool(False)
-    process.calibratedPatPhotons.isMC = cms.bool(False)
+    if hasattr(process,'calibratedPatElectrons80X'):
+        process.calibratedPatElectrons80X.isMC = cms.bool(False)
+        process.calibratedPatPhotons80X.isMC = cms.bool(False)
     return process
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    process.calibratedPatElectrons.isMC = cms.bool(True)
-    process.calibratedPatPhotons.isMC = cms.bool(True)
+    if hasattr(process,'calibratedPatElectrons80X'):
+        process.calibratedPatElectrons80X.isMC = cms.bool(True)
+        process.calibratedPatPhotons80X.isMC = cms.bool(True)
     return process
 
 ### Era dependent customization
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
-qgtagger80x=QGTagger.clone(srcJets="slimmedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
 _80x_sequence = nanoSequence.copy()
 #remove stuff 
 _80x_sequence.remove(isoTrackTable)
 _80x_sequence.remove(isoTrackSequence)
-#add qgl
-_80x_sequence.insert(1,qgtagger80x)
 
-_80x_sequenceMC = nanoSequenceMC.copy()
-_80x_sequenceMC.remove(genSubJetAK8Table)
-_80x_sequenceMC.insert(_80x_sequenceMC.index(genJetFlavourTable),genJetFlavourAssociation)
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
-run2_miniAOD_80XLegacy.toReplaceWith( nanoSequenceMC, _80x_sequenceMC)
 
 	
 
-from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
-#remove stuff
-
-_92x_sequence = nanoSequence.copy()
-_92x_sequenceMC = nanoSequenceMC.copy()
-_92x_sequenceMC.remove(genSubJetAK8Table)
-_92x_sequenceMC.insert(_92x_sequenceMC.index(genJetFlavourTable),genJetFlavourAssociation)
-run2_nanoAOD_92X.toReplaceWith( nanoSequence, _92x_sequence)
-run2_nanoAOD_92X.toReplaceWith( nanoSequenceMC, _92x_sequenceMC)

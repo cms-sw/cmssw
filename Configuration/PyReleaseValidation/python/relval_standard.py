@@ -247,7 +247,8 @@ workflows[136.790] = ['',['RunMuOnia2017B','HLTDR2_2017','RECODR2_2017reHLT_skim
 workflows[136.791] = ['',['RunNoBPTX2017B','HLTDR2_2017','RECODR2_2017reHLTAlCaTkCosmics_Prompt','HARVEST2017']]
 workflows[136.7801] = ['',['RunHLTPhy2017B_AOD','DQMHLTonAOD_2017','HARVESTDQMHLTonAOD_2017']]
 workflows[136.7802] = ['',['RunHLTPhy2017B_AODextra','DQMHLTonAODextra_2017','HARVESTDQMHLTonAOD_2017']]
-workflows[136.7803] = ['',['RunHLTPhy2017B_RAWAOD','DQMHLTonRAWAOD_2017']]
+workflows[136.7803] = ['',['RunHLTPhy2017B_RAWAOD','DQMHLTonRAWAOD_2017','HARVESTDQMHLTonAOD_2017']]
+workflows[136.844] = ['',['RunCharmonium2017B','HLTDR2_2017','RECODR2_2017reHLT_skimCharmonium_Prompt','HARVEST2017']]
 
 ### run 2017C ###
 workflows[136.792] = ['',['RunHLTPhy2017C','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
@@ -263,7 +264,7 @@ workflows[136.801] = ['',['RunZeroBias2017C','HLTDR2_2017','RECODR2_2017reHLT_Pr
 workflows[136.802] = ['',['RunMuOnia2017C','HLTDR2_2017','RECODR2_2017reHLT_skimMuOnia_Prompt','HARVEST2017']]
 workflows[136.803] = ['',['RunNoBPTX2017C','HLTDR2_2017','RECODR2_2017reHLTAlCaTkCosmics_Prompt','HARVEST2017']]
 workflows[136.840] = ['',['RunDisplacedJet2017C','HLTDR2_2017','RECODR2_2017reHLT_skimDisplacedJet_Prompt','HARVEST2017']]
-
+workflows[136.845] = ['',['RunCharmonium2017C','HLTDR2_2017','RECODR2_2017reHLT_skimCharmonium_Prompt','HARVEST2017']]
 
 ### run 2017D ###                                                                                                                                                                                  
 workflows[136.804] = ['',['RunHLTPhy2017D','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
@@ -279,7 +280,7 @@ workflows[136.813] = ['',['RunZeroBias2017D','HLTDR2_2017','RECODR2_2017reHLT_Pr
 workflows[136.814] = ['',['RunMuOnia2017D','HLTDR2_2017','RECODR2_2017reHLT_skimMuOnia_Prompt','HARVEST2017']]
 workflows[136.815] = ['',['RunNoBPTX2017D','HLTDR2_2017','RECODR2_2017reHLTAlCaTkCosmics_Prompt','HARVEST2017']]
 workflows[136.841] = ['',['RunDisplacedJet2017D','HLTDR2_2017','RECODR2_2017reHLT_skimDisplacedJet_Prompt','HARVEST2017']]
-
+workflows[136.846] = ['',['RunCharmonium2017D','HLTDR2_2017','RECODR2_2017reHLT_skimCharmonium_Prompt','HARVEST2017']]
 
 ### run 2017E ###                                                                                                                                                                                  
 workflows[136.816] = ['',['RunHLTPhy2017E','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
@@ -295,6 +296,7 @@ workflows[136.825] = ['',['RunZeroBias2017E','HLTDR2_2017','RECODR2_2017reHLT_Pr
 workflows[136.826] = ['',['RunMuOnia2017E','HLTDR2_2017','RECODR2_2017reHLT_skimMuOnia_Prompt','HARVEST2017']]
 workflows[136.827] = ['',['RunNoBPTX2017E','HLTDR2_2017','RECODR2_2017reHLTAlCaTkCosmics_Prompt','HARVEST2017']]
 workflows[136.842] = ['',['RunDisplacedJet2017E','HLTDR2_2017','RECODR2_2017reHLT_skimDisplacedJet_Prompt','HARVEST2017']]
+workflows[136.847] = ['',['RunCharmonium2017E','HLTDR2_2017','RECODR2_2017reHLT_skimCharmonium_Prompt','HARVEST2017']]
 
 ### run 2017F ###                                                                                                                                                                                  
 workflows[136.828] = ['',['RunHLTPhy2017F','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
@@ -309,9 +311,14 @@ workflows[136.836] = ['',['RunSinglePh2017F','HLTDR2_2017','RECODR2_2017reHLT_sk
 workflows[136.837] = ['',['RunZeroBias2017F','HLTDR2_2017','RECODR2_2017reHLT_Prompt','HARVEST2017']]
 workflows[136.838] = ['',['RunMuOnia2017F','HLTDR2_2017','RECODR2_2017reHLT_skimMuOnia_Prompt','HARVEST2017']]
 workflows[136.839] = ['',['RunNoBPTX2017F','HLTDR2_2017','RECODR2_2017reHLTAlCaTkCosmics_Prompt','HARVEST2017']]
+workflows[136.8391] = ['',['RunExpressPhy2017F','HLTDR2_2017','RECODR2_2017reHLTSiPixelCalZeroBias_Prompt','HARVEST2017']]
 workflows[136.843] = ['',['RunDisplacedJet2017F','HLTDR2_2017','RECODR2_2017reHLT_skimDisplacedJet_Prompt','HARVEST2017']]
+workflows[136.848] = ['',['RunCharmonium2017F','HLTDR2_2017','RECODR2_2017reHLT_skimCharmonium_Prompt','HARVEST2017']]
 # reminiAOD wf on 2017F 94X input
 workflows[136.8311] = ['',['RunJetHT2017F_reminiaod','REMINIAOD_data2017','HARVEST2017_REMINIAOD_data2017']]
+
+# NANOAOD wf on 2017C miniAODv2 94X input
+workflows[136.7952] = ['',['RunJetHT2017C_94Xv2NanoAODINPUT','NANOEDM2017_94XMiniAODv2','HARVESTNANOAOD2017_94XMiniAODv2']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
@@ -437,10 +444,11 @@ workflows[1325.5] = ['', ['ProdZEE_13_reminiaodINPUT','REMINIAOD_mc2016','HARVES
 workflows[1325.51] = ['', ['TTbar_13_94XreminiaodINPUT','REMINIAOD_mc2017','HARVESTUP17_REMINIAOD_mc2017']]
 
 # nanoaod wf without intermediate EDM,  starting from existing MINIAOD inputs
-workflows[1325.6] = ['', ['TTbar_13_94XNanoAODINPUT','NANOAODMC2017']]
+workflows[1325.6] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOAODMC2017_94XMiniAODv1']]
 # nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
-workflows[1325.7] = ['', ['TTbar_13_94XNanoAODINPUT','NANOEDMMC2017','HARVESTNANOAODMC2017']]
-workflows[1325.8] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X','HARVESTNANOAODMC2017_92X']]
+workflows[1325.7] = ['', ['TTbar_13_94Xv2NanoAODINPUT','NANOEDMMC2017_94XMiniAODv2','HARVESTNANOAODMC2017_94XMiniAODv2']]
+workflows[1325.8] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOEDMMC2017_94XMiniAODv1','HARVESTNANOAODMC2017_94XMiniAODv1']]
+workflows[1325.9] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X','HARVESTNANOAODMC2017_92X']]
 #using ZEE as I cannot find TT at CERN
 workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','HARVESTNANOAODMC2016_80X']]
 

@@ -35,7 +35,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector")); 
   desc.add<bool>("useDBEMap", false);
   desc.add<bool>("unPackStatusDigis", false);
-  descriptions.add("muonGEMDigis", desc);  
+  descriptions.add("muonGEMDigisDefault", desc);  
 }
 
 std::shared_ptr<GEMROmap> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const

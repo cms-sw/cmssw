@@ -1,11 +1,16 @@
 #ifndef HGCalCommonData_DDHGCalEEAlgo_h
 #define HGCalCommonData_DDHGCalEEAlgo_h
 
+#include <cmath>
+#include <memory>
 #include <string>
+#include <unordered_set>
 #include <vector>
+
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
-#include <unordered_set>
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 class DDHGCalEEAlgo : public DDAlgorithm {
  
@@ -25,10 +30,13 @@ protected:
 
   void          constructLayers (const DDLogicalPart&, DDCompactView& cpv);
   double        rMax(double z);
-  void          positionSensitive(DDLogicalPart& glog, double rin, double rout,
-				  int layertype, DDCompactView& cpv);
+  void          positionSensitive(const DDLogicalPart& glog, double rin, 
+				  double rout, double zpos, int layertype, 
+				  DDCompactView& cpv);
 
 private:
+
+  std::unique_ptr<HGCalWaferType> waferType_;
 
   std::vector<std::string> wafers_;       //Wafers
   std::vector<std::string> materials_;    //Materials
@@ -41,8 +49,10 @@ private:
   std::vector<int>         layerSense_;   //Content of a layer (sensitive?)
   int                      firstLayer_;   //Copy # of the first sensitive layer
   double                   zMinBlock_;    //Starting z-value of the block
-  double                   rMaxFine_;     //Maximum r-value for fine wafer
-  double                   rMinThick_;    //Transition R between 200 & 300 mum
+  std::vector<double>      rad100to200_;  //Parameters for 120-200mum trans.
+  std::vector<double>      rad200to300_;  //Parameters for 200-300mum trans.
+  double                   zMinRadPar_;   //Minimum z for radius parametriz.
+  int                      nCutRadPar_;   //Cut off threshold for corners
   double                   waferSize_;    //Width of the wafer
   double                   waferSepar_;   //Sensor separation
   int                      sectors_;      //Sectors   
@@ -50,7 +60,6 @@ private:
   std::vector<double>      slopeT_;       //Slopes at the larger R
   std::vector<double>      zFront_;       //Starting Z values for the slopes
   std::vector<double>      rMaxFront_;    //Corresponding rMax's
-  std::string              idName;        //Name of the "parent" volume.  
   std::string              nameSpace_;    //Namespace of this and ALL sub-parts
   std::unordered_set<int>  copies_;       //List of copy #'s
 };

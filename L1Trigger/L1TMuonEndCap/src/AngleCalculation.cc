@@ -339,7 +339,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
     // if (subsystem == TriggerPrimitive::kRPC)
     //   return (station == 2);
 
-    // In EMTF firmware, RPC hits are treated as if they came from the corresponding 
+    // In EMTF firmware, RPC hits are treated as if they came from the corresponding
     // CSC chamber, so the FR bit assignment is the same as for CSCs - AWB 06.06.17
 
     // GEMs are in front of the CSCs
@@ -372,7 +372,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
     const auto& v = st_conv_hits.at(i);
     ptlut_data.cpattern[i] = v.empty() ? 0 : v.front().Pattern();  // Automatically set to 0 for RPCs
     ptlut_data.fr[i]       = v.empty() ? 0 : isFront(v.front().Station(), v.front().Ring(), v.front().Chamber(), v.front().Subsystem());
-    if (i == 0) 
+    if (i == 0)
       ptlut_data.st1_ring2 = v.empty() ? 0 : (v.front().Station() == 1 && (v.front().Ring() == 2 || v.front().Ring() == 3));
   }
 

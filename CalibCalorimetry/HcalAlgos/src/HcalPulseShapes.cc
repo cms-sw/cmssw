@@ -1,17 +1,10 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
-#include "CondFormats/HcalObjects/interface/HcalMCParam.h"
-#include "CondFormats/HcalObjects/interface/HcalMCParams.h"
-#include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
-#include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
-#include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
-#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 // #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include <cmath>
@@ -20,9 +13,7 @@
 #include "TMath.h"
 
 HcalPulseShapes::HcalPulseShapes() 
-: theMCParams(nullptr),
-  theTopology(nullptr),
-  theRecoParams(nullptr),
+: theDbService(nullptr),
   theShapes()
 {
 /*
@@ -86,16 +77,14 @@ Reco  MC
 
   computeHFShape();
   computeSiPMShapeHO();
-  computeSiPMShapeHE203();
-  computeSiPMShapeHE206();
   computeSiPMShapeData2017();
   computeSiPMShapeData2018();
 
   theShapes[201] = &siPMShapeHO_;
   theShapes[202] = theShapes[201];
-  theShapes[203] = &siPMShapeMC2017_;
+  theShapes[203] = &(computeSiPMShapeHE203());
   theShapes[205] = &siPMShapeData2017_;
-  theShapes[206] = &siPMShapeMC2018_;
+  theShapes[206] = &(computeSiPMShapeHE206());
   theShapes[207] = &siPMShapeData2018_;
   theShapes[301] = &hfShape_;
   //theShapes[401] = new CaloCachedShapeIntegrator(&theZDCShape);
@@ -104,51 +93,20 @@ Reco  MC
 
 
 HcalPulseShapes::~HcalPulseShapes() {
-  if (theMCParams) delete theMCParams;
-  if (theRecoParams) delete theRecoParams;
-  if (theTopology) delete theTopology;
 }
 
 
 void HcalPulseShapes::beginRun(edm::EventSetup const & es)
 {
-  edm::ESHandle<HcalMCParams> p;
-  es.get<HcalMCParamsRcd>().get(p);
-  theMCParams = new HcalMCParams(*p.product());
-
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<HcalRecNumberingRecord>().get(htopo);
-  theTopology=new HcalTopology(*htopo);
-  theMCParams->setTopo(theTopology);
-
-  edm::ESHandle<HcalRecoParams> q;
-  es.get<HcalRecoParamsRcd>().get(q);
-  theRecoParams = new HcalRecoParams(*q.product());
-  theRecoParams->setTopo(theTopology);
+  edm::ESHandle<HcalDbService> conditions;
+  es.get<HcalDbRecord>().get(conditions);
+  theDbService = conditions.product();
 }
 
-void HcalPulseShapes::beginRun(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
+void HcalPulseShapes::beginRun(const HcalDbService* conditions)
 {
-  theMCParams = new HcalMCParams(*mcParams.product());
-  theMCParams->setTopo(topo);
-
-  theRecoParams = new HcalRecoParams(*recoParams.product());
-  theRecoParams->setTopo(topo);
+  theDbService = conditions;
 }
-
-
-void HcalPulseShapes::endRun()
-{
-  if (theMCParams) delete theMCParams;
-  if (theRecoParams) delete theRecoParams;
-  if (theTopology) delete theTopology;
-
-
-  theMCParams = nullptr;
-  theRecoParams = nullptr;
-  theTopology = nullptr;
-}
-
 
 //void HcalPulseShapes::computeHPDShape()
 void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thpd, float tpre,
@@ -420,50 +378,19 @@ void HcalPulseShapes::computeSiPMShapeHO()
   }
 }
 
-void HcalPulseShapes::computeSiPMShapeHE203()
+const HcalPulseShape& HcalPulseShapes::computeSiPMShapeHE203()
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
-  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11203);
-
-  siPMShapeMC2017_.setNBin(nBinsSiPM_);
-
-  //skip first bin, always 0
-  double norm = 0.;
-  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
-    norm += (nt[j]>0) ? nt[j] : 0.;
-  }
-
-  for (unsigned int j = 1; j <= nBinsSiPM_; ++j) {
-    nt[j] /= norm;
-    siPMShapeMC2017_.setShapeBin(j,nt[j]);
-  }
+  static const HcalPulseShape siPMShapeMC2017(normalize(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11203),nBinsSiPM_),nBinsSiPM_);
+  return siPMShapeMC2017;
 }
 
-void HcalPulseShapes::computeSiPMShapeHE206()
+const HcalPulseShape& HcalPulseShapes::computeSiPMShapeHE206()
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
-  std::vector<double> nt = convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11206);
-
-  siPMShapeMC2018_.setNBin(nBinsSiPM_);
-
-  //Aligning 206 phase closer to 205 in order to have good reco agreement
-  int shift = -2;
-
-  //skip first bin, always 0
-  double norm = 0.;
-  for (unsigned int j = std::max(1,-1*shift); j<=nBinsSiPM_; j++) {
-    norm += std::max(0., nt[j-shift]);
-  }
-  double normInv=1./norm;
-  for ( int j = 1; j<=nBinsSiPM_; j++) {
-    if ( j-shift>=0 ) {
-      nt[j-shift]*=normInv;
-      siPMShapeMC2018_.setShapeBin(j,nt[j-shift]);
-    }
-    else{
-      siPMShapeMC2018_.setShapeBin(j,0);
-    }
-  }
+  //shift: aligning 206 phase closer to 205 in order to have good reco agreement
+  static const HcalPulseShape siPMShapeMC2018(normalizeShift(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11206),nBinsSiPM_,-2),nBinsSiPM_);
+  return siPMShapeMC2018;
 }
 
 const HcalPulseShapes::Shape &
@@ -482,10 +409,10 @@ HcalPulseShapes::getShape(int shapeType) const
 const HcalPulseShapes::Shape &
 HcalPulseShapes::shape(const HcalDetId & detId) const
 {
-  if(!theMCParams) {
+  if(!theDbService) {
     return defaultShape(detId);
   }
-  int shapeType = theMCParams->getValues(detId)->signalShape();
+  int shapeType = theDbService->getHcalMCParam(detId)->signalShape();
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
@@ -498,10 +425,10 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
 const HcalPulseShapes::Shape &
 HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
 {
-  if(!theRecoParams) {
+  if(!theDbService) {
     return defaultShape(detId);
   }
-  int shapeType = theRecoParams->getValues(detId.rawId())->pulseShapeID();
+  int shapeType = theDbService->getHcalRecoParam(detId.rawId())->pulseShapeID();
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {

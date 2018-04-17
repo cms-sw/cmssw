@@ -10,11 +10,6 @@
 
 int main(int argc, char** argv) {
   
-  if (argc < 2) {
-    std::cout << "Not enough arguments given." << std::endl;
-    return 0;
-  }
-
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
@@ -39,11 +34,28 @@ int main(int argc, char** argv) {
   std::cout <<histo1.data()<<std::endl;
 
   SiStripApvGainsAvgDeviationRatio1sigmaTrackerMap histo2;
-  histo2.process( connectionString, tag, runTimeType, end, end );
+  histo2.process( connectionString, tag, runTimeType, start, end );
   std::cout <<histo2.data()<<std::endl;
 
   SiStripApvGainsMaxDeviationRatio1sigmaTrackerMap histo3;
-  histo3.process( connectionString, tag, runTimeType, end, end );
+  histo3.process( connectionString, tag, runTimeType, start, end );
   std::cout <<histo3.data()<<std::endl;
 
+  SiStripApvGainsValuesComparator histo4;
+  histo4.process( connectionString, tag, runTimeType, start, end );
+  std::cout <<histo4.data()<<std::endl;
+
+  SiStripApvGainsComparator histo5;
+  histo5.process( connectionString, tag, runTimeType, start, end );
+  std::cout <<histo5.data()<<std::endl;
+
+  SiStripApvGainsComparatorByRegion histo6;
+  histo6.process( connectionString, tag, runTimeType, start, end );
+  std::cout <<histo6.data()<<std::endl;
+
+  SiStripApvGainsRatioComparatorByRegion histo7;
+  histo7.process( connectionString, tag, runTimeType, start, end );
+  std::cout <<histo7.data()<<std::endl;
+
 }
+

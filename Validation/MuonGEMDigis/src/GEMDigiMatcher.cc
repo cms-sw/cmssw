@@ -20,11 +20,8 @@ GEMDigiMatcher::GEMDigiMatcher(const SimHitMatcher& sh, const edm::Event& e, con
   e.getByToken(gem_digiToken, gem_digis_);
   e.getByToken(gem_padToken, gem_pads_);
   e.getByToken(gem_copadToken, gem_co_pads_);
-  if ( !gem_digis_.isValid() || !gem_pads_.isValid() ) return ;
-  // CoPad can be missing when we use only digi data.
-  if ( !gem_co_pads_.isValid() )  { 
-    edm::LogError("GEMDigiMatcher")<<"Copad is missing from collections.Pass copad.";
-  }
+  if ( !gem_digis_.isValid() ) return ;
+       
   init(e);
 }
 
@@ -35,7 +32,7 @@ void
 GEMDigiMatcher::init(const edm::Event& e)
 {
   matchDigisToSimTrack(*gem_digis_.product());
-  matchPadsToSimTrack(*gem_pads_.product());
+  if ( gem_pads_.isValid())  matchPadsToSimTrack(*gem_pads_.product());
   if ( gem_co_pads_.isValid())  matchCoPadsToSimTrack(*gem_co_pads_.product()); 
 }
 

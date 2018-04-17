@@ -1,5 +1,5 @@
-#ifndef DDCompactView_h
-#define DDCompactView_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_H
+#define DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_H
 
 #include <cstddef>
 #include <memory>
@@ -19,8 +19,6 @@
 class DDCompactViewImpl;
 class DDDivision;
 class DDName;
-class DDPartSelector;
-class DDPhysicalPart;
 struct DDPosData;
 
 namespace DDI {
@@ -48,10 +46,6 @@ Updated: Michael Case [ MEC ] 2010-02-11
 //FIXME:
 //FIXME:    THIS IS NOT ALLOWED, but currently can be specified using DDL ....
 //FIXME:
-
-//typedef TreeNode<DDPhysicalPart,int> expnode_t;
-//! type of data representation of DDCompactView
-//typedef graph<DDLogicalPart,DDPosData*> graph_type; //:typedef Graph<DDLogicalPart,DDPosData*> graph_type;
 
 //! Compact representation of the geometrical detector hierarchy
 /** A DDCompactView represents the detector as an acyclic directed multigraph.
