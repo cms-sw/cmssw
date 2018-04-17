@@ -235,14 +235,14 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
       const std::vector<double>& params = iSolid.parameters();
       switch(iSolid.shape())
       {
-	 case ddbox:
+	 case DDSolidShape::ddbox:
 	    rSolid = new TGeoBBox(
                                   iName.c_str(),
                                   params[0]/cm,
                                   params[1]/cm,
                                   params[2]/cm);
 	    break;
-	 case ddcons:
+	 case DDSolidShape::ddcons:
 	    rSolid = new TGeoConeSeg(
                                      iName.c_str(),
                                      params[0]/cm,
@@ -254,7 +254,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
                                      params[6]/deg+params[5]/deg
                                      );
 	    break;
-	 case ddtubs:
+	 case DDSolidShape::ddtubs:
 	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi
 	    rSolid= new TGeoTubeSeg(
                                     iName.c_str(),
@@ -264,7 +264,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
                                     params[3]/deg,
                                     params[3]/deg + params[4]/deg);
 	    break;
-	 case ddcuttubs:
+	 case DDSolidShape::ddcuttubs:
 	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi,lx,ly,lz,tx,ty,tz
 	    rSolid= new TGeoCtub(
 				 iName.c_str(),
@@ -276,7 +276,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 				 params[5],params[6],params[7],
 				 params[8],params[9],params[10]);
 	    break;
-	 case ddtrap:
+	 case DDSolidShape::ddtrap:
 	    rSolid =new TGeoTrap(
                                  iName.c_str(),
                                  params[0]/cm,  //dz
@@ -291,7 +291,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
                                  params[9]/cm,  //dx4
                                  params[10]/deg);//alpha2
 	    break;
-	 case ddpolycone_rrz:	 
+	 case DDSolidShape::ddpolycone_rrz:	 
 	    rSolid = new TGeoPcon(
                                   iName.c_str(),
                                   params[0]/deg,
@@ -312,7 +312,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	       rSolid->SetDimensions(&(*(temp.begin())));
 	    }
 	    break;
-	 case ddpolyhedra_rrz:
+	 case DDSolidShape::ddpolyhedra_rrz:
 	    rSolid = new TGeoPgon(
                                   iName.c_str(),
                                   params[1]/deg,
@@ -334,7 +334,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	       rSolid->SetDimensions(&(*(temp.begin())));
 	    }
 	    break;
-         case ddextrudedpolygon:
+         case DDSolidShape::ddextrudedpolygon:
 	    {
 	      DDExtrudedPolygon extrPgon(iSolid);
 	      std::vector<double> x = extrPgon.xVec();
@@ -356,7 +356,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	      rSolid = mySolid;
 	    }
 	    break;
-	 case ddpseudotrap:
+	 case DDSolidShape::ddpseudotrap:
 	 {
 	    //implementation taken from SimG4Core/Geometry/src/DDG4SolidConverter.cc
 	    const static DDRotationMatrix s_rot( ROOT::Math::RotationX( 90.*deg ));
@@ -472,7 +472,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    
 	    break;
 	 }
-         case ddtorus:
+         case DDSolidShape::ddtorus:
 	 {
 	    DDTorus solid( iSolid );
 	    rSolid = new TGeoTorus( iName.c_str(),
@@ -483,7 +483,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 				    solid.deltaPhi()/deg);
 	    break;
 	 }	
-	 case ddsubtraction:
+	 case DDSolidShape::ddsubtraction:
 	 {
 	    DDBooleanSolid boolSolid(iSolid);
 	    if(!boolSolid) {
@@ -506,7 +506,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    }
 	    break;
 	 }
-         case ddtrunctubs:
+         case DDSolidShape::ddtrunctubs:
 	 {
 	    DDTruncTubs tt( iSolid );
 	    if( !tt )
@@ -585,7 +585,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    				     sub );
 	    break;   
 	 }
-	 case ddunion:
+	 case DDSolidShape::ddunion:
 	 {
 	    DDBooleanSolid boolSolid(iSolid);
 	    if(!boolSolid) {
@@ -610,7 +610,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    }
 	    break;
 	 }
-	 case ddintersection:
+	 case DDSolidShape::ddintersection:
 	 {
 	    DDBooleanSolid boolSolid(iSolid);
 	    if(!boolSolid) {
@@ -634,7 +634,7 @@ TGeoMgrFromDdd::createShape(const std::string& iName,
 	    }
 	    break;
 	 }
-         case ddellipticaltube:
+         case DDSolidShape::ddellipticaltube:
 	 {
 	   DDEllipticalTube eSolid(iSolid);
 	   if(!eSolid) {

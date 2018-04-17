@@ -57,7 +57,7 @@ EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
       
       const DDSolid & solid = fv.logicalPart().solid();
 
-      if( solid.shape() != ddbox ) 
+      if( solid.shape() != DDSolidShape::ddbox ) 
       {
 	 throw cms::Exception("DDException") << std::string(__FILE__) 
 			    << "\n CaloGeometryEcalTBHodoscope::upDate(...): currently only box fiber shapes supported ";

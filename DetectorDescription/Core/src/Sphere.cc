@@ -16,7 +16,7 @@ DDI::Sphere::Sphere(double innerRadius,
 		    double deltaPhi,
 		    double startTheta,
 		    double deltaTheta)
-  : Solid(ddsphere)	  
+  : Solid(DDSolidShape::ddsphere)	  
 {
   p_.emplace_back(innerRadius);
   p_.emplace_back(outerRadius);
