@@ -262,7 +262,7 @@ void
 OutputMagneticFieldDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore )
 {
   solStore.insert( sol );
-  if( sol.shape() == ddunion || sol.shape() == ddsubtraction || sol.shape() == ddintersection )
+  if( sol.shape() == DDSolidShape::ddunion || sol.shape() == DDSolidShape::ddsubtraction || sol.shape() == DDSolidShape::ddintersection )
   {
     const DDBooleanSolid& bs ( sol );
     if( solStore.find(bs.solidA()) == solStore.end())

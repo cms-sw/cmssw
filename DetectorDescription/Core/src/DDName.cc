@@ -12,8 +12,6 @@
 std::ostream & operator<<(std::ostream & os, const DDName & n)
 { 
   os << n.ns() << ':' << n.name();
-  static const char * ev = getenv("DDNAMEID");
-  if (ev) os << '[' << n.id() << ']';
   return os;
 }  
 

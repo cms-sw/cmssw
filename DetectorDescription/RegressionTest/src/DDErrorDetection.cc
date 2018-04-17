@@ -208,7 +208,7 @@ const std::map<DDSolid,std::set<DDSolid> > & DDErrorDetection::so()
     DDSolid  ma = *it;
     if (ma.isDefined().second) {
       DDSolidShape sh = ma.shape();
-      if ( (sh == ddunion) || (sh == ddintersection) || (sh == ddsubtraction) ) {
+      if ( (sh == DDSolidShape::ddunion) || (sh == DDSolidShape::ddintersection) || (sh == DDSolidShape::ddsubtraction) ) {
        DDBooleanSolid bs(ma);
        DDSolid a(bs.solidA()),b(bs.solidB());
        //DDRotation r(bs.rotation());

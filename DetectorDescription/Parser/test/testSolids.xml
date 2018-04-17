@@ -82,8 +82,6 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
     <Sphere name="asphere" innerRadius="1.*cm" outerRadius="1.1*cm" startPhi="0*deg" deltaPhi="180*deg" startTheta="15*deg" deltaTheta="90*deg"/>
     <Orb name="anorb" radius="1.*cm"/>
     <EllipticalTube name="etube" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zHeight="3.*cm"/>
-    <Ellipsoid name="anelipsoid" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zSemiAxis="3.*cm" zBottomCut="0.*cm" zTopCut="1.5*cm"/>
-    <Ellipsoid name="unusedelipsoid" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zSemiAxis="3.*cm"/>
     <Parallelepiped name="para" xHalf="5.*cm" yHalf="6.*cm" zHalf="7.*cm" alpha="15*deg" theta="30*deg" phi="45*deg"/>
   </SolidSection>
 </DDDefinition>

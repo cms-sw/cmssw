@@ -45,7 +45,7 @@ namespace defaultRKPropagator {
   struct Product {
     explicit Product(const MagneticField* field,PropagationDirection dir = alongMomentum, double tolerance = 5.e-5) : 
       mpf(field), 
-      volume(MagVolume::PositionType(0,0,0), MagVolume::RotationType(),ddshapeless, &mpf),
+	volume(MagVolume::PositionType(0,0,0), MagVolume::RotationType(),DDSolidShape::ddshapeless, &mpf),
       propagator(volume, dir, tolerance){}
     TrivialFieldProvider mpf;
     RKMagVolume volume;
