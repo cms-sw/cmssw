@@ -5,10 +5,11 @@
 // 
 /**\class SiStripChannelGainFromDBMiscalibrator SiStripChannelGainFromDBMiscalibrator.cc CondTools/SiStrip/plugins/SiStripChannelGainFromDBMiscalibrator.cc
 
- Description: [one line class summary]
+ Description: Class to miscalibrate a SiStrip Channel Gain payload from Database
 
  Implementation:
-     [Notes on implementation]
+     Read a SiStrip Channel Gain payload from DB (either central DB or sqlite file) and apply a miscalibration (either an offset / gaussian smearing or both)
+     returns a local sqlite file with the same since of the original payload
 */
 //
 // Original Author:  Marco Musich
@@ -22,6 +23,7 @@
 #include <iostream>
 
 // user include files
+#include "CLHEP/Random/RandGauss.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
@@ -37,6 +39,7 @@
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h" 
 #include "Geometry/Records/interface/TrackerTopologyRcd.h" 
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -44,8 +47,6 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h" 
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
-
-#include "TRandom3.h"
 
 //
 // class declaration
@@ -95,6 +96,11 @@ class SiStripChannelGainFromDBMiscalibrator : public edm::one::EDAnalyzer<>  {
       const std::string m_Record;  
       const uint32_t m_gainType;
       const std::vector<edm::ParameterSet> m_parameters;
+
+      std::unique_ptr<TrackerMap> scale_map;
+      std::unique_ptr<TrackerMap> smear_map;
+      std::unique_ptr<TrackerMap> ratio_map;
+
 };
 
 //
@@ -106,6 +112,18 @@ SiStripChannelGainFromDBMiscalibrator::SiStripChannelGainFromDBMiscalibrator(con
   m_parameters{iConfig.getParameter<std::vector<edm::ParameterSet> >("params")}
 {
    //now do what ever initialization is needed
+  
+  scale_map = std::unique_ptr<TrackerMap>(new TrackerMap("scale"));
+  scale_map->setTitle("Scale factor module by module");
+  scale_map->setPalette(1);
+
+  smear_map =std::unique_ptr<TrackerMap>(new TrackerMap("smear"));
+  smear_map->setTitle("Smear factor module by module");
+  smear_map->setPalette(1);
+
+  ratio_map = std::unique_ptr<TrackerMap>(new TrackerMap("ratio"));
+  ratio_map->setTitle("Average by module of the payload ratio (new/old)");
+  ratio_map->setPalette(1);
 }
 
 
@@ -161,7 +179,6 @@ SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
    iSetup.get<SiStripGainRcd>().get(SiStripApvGain_);
 
    std::map<std::pair<uint32_t,int>,float> theMap;
-   std::shared_ptr<TRandom3> random(new TRandom3(1));
    
    std::vector<uint32_t> detid;
    SiStripApvGain_->getDetIds(detid);
@@ -199,7 +216,7 @@ SiStripChannelGainFromDBMiscalibrator::analyze(const edm::Event& iEvent, const e
        }
        
        if(params.m_doSmear){
-	 float smearedGain = random->Gaus(Gain,params.m_smearFactor);
+	 float smearedGain =  CLHEP::RandGauss::shoot(Gain,params.m_smearFactor);
 	 Gain=smearedGain;
        }
 
