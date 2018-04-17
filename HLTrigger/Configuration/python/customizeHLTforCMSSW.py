@@ -63,7 +63,6 @@ def customiseFor20429(process):
         del producer.GBRForestFileName
     return process
 
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
