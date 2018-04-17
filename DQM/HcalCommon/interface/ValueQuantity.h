@@ -233,7 +233,7 @@ namespace hcaldqm
 			{fRBX, 18.5},
 			{fTimingDiff_ns, 125.},
 			{ffC_1000000,1.e6},
-			{fTime_ns_250, 249.5},
+			{fTime_ns_250_coarse, 249.5},
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
