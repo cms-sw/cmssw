@@ -157,6 +157,11 @@ class CSCCathodeLCTProcessor
   /** Flag for SLHC studies. */
   bool isSLHC;
 
+  /** Offset between ALCT and CLCT in simulation.
+   *  This is important when ALCTs (at BX0=8) and CLCTs (at BX0=7)
+   *  are correlated in the trigger motherboard. */
+  unsigned int alctClctOffset;
+
   /** Configuration parameters. */
   unsigned int fifo_tbins,  fifo_pretrig; // only for test beam mode.
   unsigned int hit_persist, drift_delay;
