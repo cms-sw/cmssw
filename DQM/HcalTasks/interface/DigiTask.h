@@ -183,6 +183,8 @@ class DigiTask : public hcaldqm::DQTask
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
 		bool _unknownIdsPresent;
+		MonitorElement *_meLEDEventCount; // Count events with LED pin diode signal > threshold
+		double _thresh_led;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only

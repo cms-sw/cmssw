@@ -116,6 +116,8 @@ namespace hcaldqm
 		int numEvents = meNumEvents->getBinContent(1);
 		bool unknownIdsPresent = ig.get(_subsystem+"/"
 			+_taskname+"/UnknownIds")->getBinContent(1)>0;
+		bool ledSignalPresent = ig.get(_subsystem+"/"
+			+_taskname+"/LEDEventCount")->getBinContent(1)>0;
 
 		//	book the Numer of Events - set axis extendable
 		if (!_booked)
@@ -158,6 +160,7 @@ namespace hcaldqm
 		vtmpflags[fDigiSize]=flag::Flag("DigiSize");
 		vtmpflags[fNChsHF]=flag::Flag("NChsHF");
 		vtmpflags[fUnknownIds]=flag::Flag("UnknownIds");
+		vtmpflags[fLED]=flag::Flag("LEDMisfire");
 		for (std::vector<uint32_t>::const_iterator it=_vhashCrates.begin();
 			it!=_vhashCrates.end(); ++it)
 		{
@@ -189,6 +192,11 @@ namespace hcaldqm
 			else
 				vtmpflags[fUnknownIds]._state = flag::fGOOD;
 
+			if (ledSignalPresent)
+				vtmpflags[fLED]._state = flag::fBAD;
+			else
+				vtmpflags[fLED]._state = flag::fGOOD;
+
 			// push all the flags for this crate
 			lssum._vflags.push_back(vtmpflags);
 		}
@@ -216,6 +224,7 @@ namespace hcaldqm
 		vflagsPerLS[fDigiSize]=flag::Flag("DigiSize");
 		vflagsPerLS[fNChsHF]=flag::Flag("NChsHF");
 		vflagsPerLS[fUnknownIds]=flag::Flag("UnknownIds");
+		vflagsPerLS[fLED]=flag::Flag("LEDMisfire");
 		vflagsPerRun[fDigiSize]=flag::Flag("DigiSize");
 		vflagsPerRun[fNChsHF]=flag::Flag("NChsHF");
 		vflagsPerRun[fUniHF-nLSFlags+1]=flag::Flag("UniSlotHF");

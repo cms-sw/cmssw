@@ -26,6 +26,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cutSumQ_HO = ps.getUntrackedParameter<double>("cutSumQ_HO", 20);
 	_cutSumQ_HF = ps.getUntrackedParameter<double>("cutSumQ_HF", 20);
 	_thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
+	_thresh_led = ps.getUntrackedParameter<double>("thresh_led", 20);
 
 	_vflags.resize(nDigiFlag);
 	_vflags[fUni]=hcaldqm::flag::Flag("UniSlotHF");
@@ -65,8 +66,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	// Filters for QIE8 vs QIE10/11
 	std::vector<uint32_t> vhashQIE1011; 
-	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalEndcap, 20,1,1)));
-	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
+	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did.at(hcaldqm::hashfunctions::fSubdet)(HcalDetId(HcalEndcap, 20,1,1)));
+	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did.at(hcaldqm::hashfunctions::fSubdet)(HcalDetId(HcalForward, 29,1,1)));
 	_filter_QIE1011.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
 		vhashQIE1011);
 	_filter_QIE8.initialize(filter::fFilter, hcaldqm::hashfunctions::fSubdet,
@@ -545,6 +546,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		1, 0, 1);
 	_unknownIdsPresent = false;
 	meUnknownIds1LS->setLumiFlag();
+
+	_meLEDEventCount = ib.book1D("LEDEventCount", "LEDEventCount", 1, 0, 2);
+	_meLEDEventCount->setLumiFlag();
 }
 
 /* virtual */ void DigiTask::_resetMonitors(hcaldqm::UpdateFreq uf)
@@ -745,8 +749,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				HcalOtherDetId hodid(digi.detid());
 				if (hodid.subdet() == HcalCalibration) {
 					if (did.depth() == 10) {
+						bool ledSignalPresent = false;
 						for (int i=0; i<digi.samples(); i++) {
 							_meLEDMon->Fill(bx, digi[i].adc());
+							if (digi[i].adc() > _thresh_led) {
+								ledSignalPresent = true;
+							}
+						}
+						if (ledSignalPresent) {
+							_meLEDEventCount->Fill(1);
 						}
 					}
 				}
