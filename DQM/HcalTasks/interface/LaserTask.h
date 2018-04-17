@@ -64,10 +64,19 @@ class LaserTask : public hcaldqm::DQTask
 		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
+		enum LaserFlag
+		{
+			fBadTiming = 0,
+			fMissingLaserMon = 1,
+			nLaserFlag = 2
+		};
+		std::vector<hcaldqm::flag::Flag> _vflags;
+
 		//	emap
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;
+		std::vector<uint32_t> _vhashFEDs;
 
 		//	Cuts and variables
 		int _nevents;
@@ -83,6 +92,11 @@ class LaserTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<int> _xEntries;
 		hcaldqm::ContainerXXX<double> _xTimingSum;
 		hcaldqm::ContainerXXX<double> _xTimingSum2;
+		hcaldqm::ContainerXXX<double> _xTimingRefLMSum; // For computation of channel-by-channel mean timing w.r.t. lasermon
+		hcaldqm::ContainerXXX<double> _xTimingRefLMSum2;
+		hcaldqm::ContainerXXX<int> _xNBadTimingRefLM; // Count channels with bad timing
+		hcaldqm::ContainerXXX<int> _xNChs; // number of channels per FED as in emap
+
 
 		//	1D
 		hcaldqm::Container1D		_cSignalMean_Subdet;
@@ -137,6 +151,10 @@ class LaserTask : public hcaldqm::DQTask
 		int _laserMonDigiOverlap;
 		int _laserMonTS0;
 		double _laserMonThreshold;
+		double _thresh_timingreflm_rms; // Threshold on timing (ref. lasermon) RMS to mark channel as bad
+		double _thresh_frac_timingreflmrms; // Flag threshold (BAD) on fraction of channels with bad timingreflm_rms
+		double _thresh_min_lmsumq; // Threshold on minimum SumQ from lasermon, if laser is expected
+		int _xMissingLaserMon; // Counter for missing lasermon events
 
 		hcaldqm::ContainerSingle1D _cLaserMonSumQ;
 		hcaldqm::ContainerSingle1D _cLaserMonTiming;
@@ -146,6 +164,11 @@ class LaserTask : public hcaldqm::DQTask
 		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_Event; // Local
 		hcaldqm::Container2D _cTiming_DigivsLaserMon_SubdetPM;
 		hcaldqm::ContainerProf2D _cTimingDiffLS_SubdetPM;
+		hcaldqm::ContainerProf2D _cTimingDiffEvent_SubdetPM;
+
+		//	Summaries
+		hcaldqm::Container2D _cSummaryvsLS_FED;
+		hcaldqm::ContainerSingle2D _cSummaryvsLS;
 };
 
 #endif
