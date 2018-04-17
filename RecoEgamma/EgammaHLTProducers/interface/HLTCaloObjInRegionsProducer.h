@@ -28,8 +28,6 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
-
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
@@ -173,7 +171,6 @@ void HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::fillDescriptions(
   ecalCandPSet.addParameter<edm::InputTag>("inputColl",edm::InputTag("hltEgammaCandidates"));
   etaPhiRegions.push_back(ecalCandPSet);
   
-
   edm::ParameterSetDescription etaPhiRegionDesc;
   etaPhiRegionDesc.add<std::string>("type");
   etaPhiRegionDesc.add<double>("minEt");

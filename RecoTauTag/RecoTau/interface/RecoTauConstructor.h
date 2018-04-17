@@ -66,18 +66,18 @@ class RecoTauConstructor {
      */
 
     /// Set leading PFChargedHadron candidate
-    template<typename T> void setleadPFChargedHadrCand(const T& cand) {
-      tau_->setleadPFChargedHadrCand(convertToPtr(cand));
+    template<typename T> void setleadChargedHadrCand(const T& cand) {
+      tau_->setleadChargedHadrCand(convertToPtr(cand));
     }
 
     /// Set leading PFGamma candidate
-    template<typename T> void setleadPFNeutralCand(const T& cand) {
-      tau_->setleadPFNeutralCand(convertToPtr(cand));
+    template<typename T> void setleadNeutralCand(const T& cand) {
+      tau_->setleadNeutralCand(convertToPtr(cand));
     }
 
     /// Set leading PF candidate
-    template<typename T> void setleadPFCand(const T& cand) {
-      tau_->setleadPFCand(convertToPtr(cand));
+    template<typename T> void setleadCand(const T& cand) {
+      tau_->setleadCand(convertToPtr(cand));
     }
 
     /// Append a PFCandidateRef/Ptr to a given collection

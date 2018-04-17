@@ -151,9 +151,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   evt.getByToken(Jets_token, jets);
   
   // convert the view to a RefVector of actual PFJets
-  // reco::PFJetRefVector pfJets = reco::tau::castView<reco::PFJetRefVector>(jets);
   edm::RefToBaseVector<reco::Jet> pfJets;
-   // = reco::tau::castView<edm::RefToBaseVector<reco::Jet>>(jets);
   size_t nElements = jets->size();
   for (size_t i = 0; i < nElements; ++i) {
     pfJets.push_back(jets->refAt(i));
@@ -170,7 +168,6 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
   }
 
   // loop over our jets
-  // BOOST_FOREACH( const reco::JetBaseRef& pfJet, pfJets ) {
   for (size_t i_j = 0; i_j < pfJets.size(); ++i_j) {
     const auto& pfJet = pfJets.at(i_j);
     

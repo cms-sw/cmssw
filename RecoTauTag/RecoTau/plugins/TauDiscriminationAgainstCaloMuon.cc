@@ -74,16 +74,13 @@ class TauLeadTrackExtractor<reco::PFTau>
  public:
   reco::TrackRef getLeadTrack(const reco::PFTau& tau) const
   {
-    const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(tau.leadPFChargedHadrCand().get());
-    if (pflch != nullptr) {
-      return pflch->trackRef();
-    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+    return tau.leadPFChargedHadrCand()->trackRef();
   }
   double getTrackPtSum(const reco::PFTau& tau) const
   {
     double trackPtSum = 0.;
-    for ( std::vector<CandidatePtr>::const_iterator signalTrack = tau.signalPFChargedHadrCands().begin();
-	  signalTrack != tau.signalPFChargedHadrCands().end(); ++signalTrack ) {
+    for ( std::vector<CandidatePtr>::const_iterator signalTrack = tau.signalChargedHadrCands().begin();
+	  signalTrack != tau.signalChargedHadrCands().end(); ++signalTrack ) {
       trackPtSum += (*signalTrack)->pt();
     }
     return trackPtSum;

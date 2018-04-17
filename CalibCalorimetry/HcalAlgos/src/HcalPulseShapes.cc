@@ -1,17 +1,10 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
-#include "CondFormats/HcalObjects/interface/HcalMCParam.h"
-#include "CondFormats/HcalObjects/interface/HcalMCParams.h"
-#include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
-#include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
-#include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
-#include "CondFormats/DataRecord/interface/HcalRecoParamsRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 // #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include <cmath>
@@ -20,9 +13,7 @@
 #include "TMath.h"
 
 HcalPulseShapes::HcalPulseShapes() 
-: theMCParams(nullptr),
-  theTopology(nullptr),
-  theRecoParams(nullptr),
+: theDbService(nullptr),
   theShapes()
 {
 /*
@@ -104,51 +95,20 @@ Reco  MC
 
 
 HcalPulseShapes::~HcalPulseShapes() {
-  if (theMCParams) delete theMCParams;
-  if (theRecoParams) delete theRecoParams;
-  if (theTopology) delete theTopology;
 }
 
 
 void HcalPulseShapes::beginRun(edm::EventSetup const & es)
 {
-  edm::ESHandle<HcalMCParams> p;
-  es.get<HcalMCParamsRcd>().get(p);
-  theMCParams = new HcalMCParams(*p.product());
-
-  edm::ESHandle<HcalTopology> htopo;
-  es.get<HcalRecNumberingRecord>().get(htopo);
-  theTopology=new HcalTopology(*htopo);
-  theMCParams->setTopo(theTopology);
-
-  edm::ESHandle<HcalRecoParams> q;
-  es.get<HcalRecoParamsRcd>().get(q);
-  theRecoParams = new HcalRecoParams(*q.product());
-  theRecoParams->setTopo(theTopology);
+  edm::ESHandle<HcalDbService> conditions;
+  es.get<HcalDbRecord>().get(conditions);
+  theDbService = conditions.product();
 }
 
-void HcalPulseShapes::beginRun(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
+void HcalPulseShapes::beginRun(const HcalDbService* conditions)
 {
-  theMCParams = new HcalMCParams(*mcParams.product());
-  theMCParams->setTopo(topo);
-
-  theRecoParams = new HcalRecoParams(*recoParams.product());
-  theRecoParams->setTopo(topo);
+  theDbService = conditions;
 }
-
-
-void HcalPulseShapes::endRun()
-{
-  if (theMCParams) delete theMCParams;
-  if (theRecoParams) delete theRecoParams;
-  if (theTopology) delete theTopology;
-
-
-  theMCParams = nullptr;
-  theRecoParams = nullptr;
-  theTopology = nullptr;
-}
-
 
 //void HcalPulseShapes::computeHPDShape()
 void HcalPulseShapes::computeHPDShape(float ts1, float ts2, float ts3, float thpd, float tpre,
@@ -482,10 +442,10 @@ HcalPulseShapes::getShape(int shapeType) const
 const HcalPulseShapes::Shape &
 HcalPulseShapes::shape(const HcalDetId & detId) const
 {
-  if(!theMCParams) {
+  if(!theDbService) {
     return defaultShape(detId);
   }
-  int shapeType = theMCParams->getValues(detId)->signalShape();
+  int shapeType = theDbService->getHcalMCParam(detId)->signalShape();
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {
@@ -498,10 +458,10 @@ HcalPulseShapes::shape(const HcalDetId & detId) const
 const HcalPulseShapes::Shape &
 HcalPulseShapes::shapeForReco(const HcalDetId & detId) const
 {
-  if(!theRecoParams) {
+  if(!theDbService) {
     return defaultShape(detId);
   }
-  int shapeType = theRecoParams->getValues(detId.rawId())->pulseShapeID();
+  int shapeType = theDbService->getHcalRecoParam(detId.rawId())->pulseShapeID();
 
   ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
   if(shapeMapItr == theShapes.end()) {

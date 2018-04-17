@@ -41,10 +41,10 @@ process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 ####
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    dataLabel = cms.untracked.string('')
-)
-
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             dataLabel = cms.untracked.string('')
+                             )
 
 process.p = cms.Path(process.stat)
 

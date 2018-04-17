@@ -104,12 +104,12 @@ GEMGeometryParsFromDD::buildSuperChamber(DDFilteredView& fv, GEMDetId detId, Rec
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   std::vector<double> dpar = solid.solidA().parameters();
   
-  double dy = dpar[0]/cm;//length is along local Y
-  double dz = dpar[3]/cm;// thickness is long local Z
-  double dx1= dpar[4]/cm;// bottom width is along local X
-  double dx2= dpar[8]/cm;// top width is along local X
+  double dy = dpar[0];//length is along local Y
+  double dz = dpar[3];// thickness is long local Z
+  double dx1= dpar[4];// bottom width is along local X
+  double dx2= dpar[8];// top width is along local X
   dpar = solid.solidB().parameters();
-  dz += dpar[3]/cm;// chamber thickness
+  dz += dpar[3];// chamber thickness
   dz *=2; // 2 chambers in superchamber
   dz += 2.105;// gap between chambers
 
@@ -132,12 +132,12 @@ GEMGeometryParsFromDD::buildChamber(DDFilteredView& fv, GEMDetId detId, RecoIdea
   DDBooleanSolid solid = (DDBooleanSolid)(fv.logicalPart().solid());
   std::vector<double> dpar = solid.solidA().parameters();
   
-  double dy = dpar[0]/cm;//length is along local Y
-  double dz = dpar[3]/cm;// thickness is long local Z
-  double dx1= dpar[4]/cm;// bottom width is along local X
-  double dx2= dpar[8]/cm;// top width is along local X
+  double dy = dpar[0];//length is along local Y
+  double dz = dpar[3];// thickness is long local Z
+  double dx1= dpar[4];// bottom width is along local X
+  double dx2= dpar[8];// top width is along local X
   dpar = solid.solidB().parameters();
-  dz += dpar[3]/cm;// chamber thickness
+  dz += dpar[3];// chamber thickness
 
   GEMDetId gemid = detId.chamberId();
 
@@ -172,10 +172,10 @@ GEMGeometryParsFromDD::buildEtaPartition(DDFilteredView& fv, GEMDetId detId, Rec
   // EtaPartition specific parameter (size) 
   std::vector<double> dpar = fv.logicalPart().solid().parameters();
 
-  double dy = dpar[0]/cm;//length is along local Y
-  double dz = dpar[3]/cm;//0.4/cm;// thickness is long local Z
-  double dx1= dpar[4]/cm;// bottom width is along local X
-  double dx2= dpar[8]/cm;// top width is along local X
+  double dy = dpar[0];//length is along local Y
+  double dz = dpar[3];//0.4;// thickness is long local Z
+  double dx1= dpar[4];// bottom width is along local X
+  double dx2= dpar[8];// top width is along local X
 
   std::vector<double> pars{dx1, dx2, dy, dz, nStrips, nPads};
   std::vector<double> vtra = getTranslation(fv);

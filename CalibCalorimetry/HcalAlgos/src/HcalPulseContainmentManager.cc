@@ -21,16 +21,11 @@ void HcalPulseContainmentManager::beginRun(edm::EventSetup const & es)
   shapes_.beginRun(es);
 }
 
-void HcalPulseContainmentManager::endRun()
-{
-  shapes_.endRun();
-}
-
-void HcalPulseContainmentManager::beginRun(const HcalTopology *topo, const edm::ESHandle<HcalTimeSlew>& delay, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
+void HcalPulseContainmentManager::beginRun(const HcalDbService* conditions, const edm::ESHandle<HcalTimeSlew>& delay)
 {
   hcalTimeSlew_delay_ = &*delay;
 
-  shapes_.beginRun(topo, mcParams, recoParams);
+  shapes_.beginRun(conditions);
 }
 
 double HcalPulseContainmentManager::correction(const HcalDetId & detId, 

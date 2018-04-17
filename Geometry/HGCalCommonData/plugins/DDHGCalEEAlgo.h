@@ -5,6 +5,7 @@
 #include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include <unordered_set>
 
 class DDHGCalEEAlgo : public DDAlgorithm {
@@ -25,8 +26,9 @@ protected:
 
   void          constructLayers (const DDLogicalPart&, DDCompactView& cpv);
   double        rMax(double z);
-  void          positionSensitive(DDLogicalPart& glog, double rin, double rout,
-				  int layertype, DDCompactView& cpv);
+  void          positionSensitive(const DDLogicalPart& glog, double rin, 
+				  double rout, int layertype, 
+				  DDCompactView& cpv);
 
 private:
 
@@ -50,7 +52,6 @@ private:
   std::vector<double>      slopeT_;       //Slopes at the larger R
   std::vector<double>      zFront_;       //Starting Z values for the slopes
   std::vector<double>      rMaxFront_;    //Corresponding rMax's
-  std::string              idName;        //Name of the "parent" volume.  
   std::string              nameSpace_;    //Namespace of this and ALL sub-parts
   std::unordered_set<int>  copies_;       //List of copy #'s
 };

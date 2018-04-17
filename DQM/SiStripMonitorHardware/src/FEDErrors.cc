@@ -322,7 +322,7 @@ float FEDErrors::fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
 
     if (!lIsConnected) continue;
     lTotChans++;
-    if (!aBuffer->channelGood(iCh)) lBadChans++;
+    if (!aBuffer->channelGood(iCh, true)) lBadChans++;
   }
 
   return static_cast<float>(lBadChans*1.0/lTotChans);
@@ -589,7 +589,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 
   for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {//loop on channels
 
-    bool lFailUnpackerChannelCheck = (!aBuffer->channelGood(iCh) && connected_[iCh]) || failUnpackerFEDCheck_;
+    bool lFailUnpackerChannelCheck = (!aBuffer->channelGood(iCh, true) && connected_[iCh]) || failUnpackerFEDCheck_;
     bool lFailMonitoringChannelCheck = !lPassedMonitoringFEDcheck && connected_[iCh];
 
 

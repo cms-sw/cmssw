@@ -21,6 +21,8 @@
 #include <iomanip>
 #include <sstream>
 #include <cstring>
+#include <cerrno>
+#include <cstring>
 
 namespace {
   void matchLabel(std::pair<std::string, edm::ParameterSetDescription> const& thePair,
@@ -223,6 +225,15 @@ namespace edm {
       throw ex;
     }
     std::ofstream outFile(cfi_filename.c_str());
+    if(outFile.fail()) {
+      edm::Exception ex(edm::errors::LogicError,
+                        "Creating cfi file failed.\n");
+      ex << "Opening a file '" << cfi_filename << "' for module '" << labelAndDesc.first << "' failed.\n";
+      ex << "Error code from errno " << errno << ": " << std::strerror(errno) << "\n";
+      
+      ex.addContext("Executing function ConfigurationDescriptions::writeCfiForLabel");
+      throw ex;
+    }
 
     outFile << "import FWCore.ParameterSet.Config as cms\n\n";
     outFile << labelAndDesc.first << " = cms." << baseType << "('" << pluginName << "'";

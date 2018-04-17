@@ -248,6 +248,16 @@ namespace {
         el_severity = SeverityLevel::kInfo;
       }
 
+      // These are a special case because we do not want them to
+      // be fatal, but we do want an error to print.
+      bool alreadyPrinted = false;
+      if ((el_message.find("number of iterations was insufficient") != std::string::npos) ||
+          (el_message.find("bad integrand behavior") != std::string::npos)) {
+        el_severity = SeverityLevel::kInfo;
+        edm::LogError("Root_Error") << el_location << el_message;
+        alreadyPrinted = true;
+      }
+
     if (el_severity == SeverityLevel::kInfo) {
       // Don't throw if the message is just informational.
       die = false;
@@ -273,16 +283,18 @@ namespace {
     // Typically, we get here only for informational messages,
     // but we leave the other code in just in case we change
     // the criteria for throwing.
-    if (el_severity == SeverityLevel::kFatal) {
-      edm::LogError("Root_Fatal") << el_location << el_message;
-    } else if (el_severity == SeverityLevel::kSysError) {
-      edm::LogError("Root_Severe") << el_location << el_message;
-    } else if (el_severity == SeverityLevel::kError) {
-      edm::LogError("Root_Error") << el_location << el_message;
-    } else if (el_severity == SeverityLevel::kWarning) {
-      edm::LogWarning("Root_Warning") << el_location << el_message ;
-    } else if (el_severity == SeverityLevel::kInfo) {
-      edm::LogInfo("Root_Information") << el_location << el_message ;
+    if (!alreadyPrinted) {
+      if (el_severity == SeverityLevel::kFatal) {
+        edm::LogError("Root_Fatal") << el_location << el_message;
+      } else if (el_severity == SeverityLevel::kSysError) {
+        edm::LogError("Root_Severe") << el_location << el_message;
+      } else if (el_severity == SeverityLevel::kError) {
+        edm::LogError("Root_Error") << el_location << el_message;
+      } else if (el_severity == SeverityLevel::kWarning) {
+        edm::LogWarning("Root_Warning") << el_location << el_message ;
+      } else if (el_severity == SeverityLevel::kInfo) {
+        edm::LogInfo("Root_Information") << el_location << el_message ;
+      }
     }
   }
 

@@ -8,11 +8,15 @@ caloEventShapeVars = cms.EDProducer("EventShapeVarsProducer",
 
     # momentum dependence of sphericity and aplanarity variables and of C and D quantities 
     # (r = 2. corresponds to the conventionally used default, but raises issues of infrared safety in QCD calculations;
-    #  see http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node213.html for more details)
-    r = cms.double(2.)
+    #  see https://arxiv.org/pdf/hep-ph/0603175v2.pdf#page=524 for more details)
+    r = cms.double(2.),
+
+    # number of Fox-Wolfram moments to compute
+    fwmax = cms.uint32(0),
 )
 
-pfEventShapeVars = copy.deepcopy(caloEventShapeVars)
-pfEventShapeVars.src = cms.InputTag("pfNoPileUp")
+pfEventShapeVars = caloEventShapeVars.clone(
+    src = cms.InputTag("pfNoPileUp")
+)
 
 produceEventShapeVars = cms.Sequence( caloEventShapeVars * pfEventShapeVars )

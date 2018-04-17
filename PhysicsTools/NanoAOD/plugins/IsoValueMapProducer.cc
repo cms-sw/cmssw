@@ -57,6 +57,7 @@ class IsoValueMapProducer : public edm::global::EDProducer<> {
     if ((typeid(T) == typeid(pat::Electron))) {
       produces<edm::ValueMap<float>>("PFIsoChg");
       produces<edm::ValueMap<float>>("PFIsoAll");
+      produces<edm::ValueMap<float>>("PFIsoAll04");
       ea_pfiso_.reset(new EffectiveAreas((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso")).fullPath()));
       rho_pfiso_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho_PFIso"));
     }
@@ -192,9 +193,10 @@ IsoValueMapProducer<pat::Electron>::doPFIsoEle(edm::Event& iEvent) const{
   
   unsigned int nInput = src->size();
 
-  std::vector<float> PFIsoChg, PFIsoAll;
+  std::vector<float> PFIsoChg, PFIsoAll, PFIsoAll04;
   PFIsoChg.reserve(nInput);
   PFIsoAll.reserve(nInput);
+  PFIsoAll04.reserve(nInput);
   
   for (const auto & obj : *src) { 
     auto iso = obj.pfIsolationVariables();
@@ -205,6 +207,7 @@ IsoValueMapProducer<pat::Electron>::doPFIsoEle(edm::Event& iEvent) const{
     float scale = relative_ ? 1.0/obj.pt() : 1;
     PFIsoChg.push_back(scale*chg);
     PFIsoAll.push_back(scale*(chg+std::max(0.0,neu+pho-(*rho)*ea)));
+    PFIsoAll04.push_back(scale*(obj.chargedHadronIso()+std::max(0.0,obj.neutralHadronIso()+obj.photonIso()-(*rho)*ea*16./9.)));
   }
   
   std::unique_ptr<edm::ValueMap<float>> PFIsoChgV(new edm::ValueMap<float>());
@@ -215,9 +218,14 @@ IsoValueMapProducer<pat::Electron>::doPFIsoEle(edm::Event& iEvent) const{
   edm::ValueMap<float>::Filler fillerAll(*PFIsoAllV);
   fillerAll.insert(src,PFIsoAll.begin(),PFIsoAll.end());
   fillerAll.fill();
+  std::unique_ptr<edm::ValueMap<float>> PFIsoAll04V(new edm::ValueMap<float>());
+  edm::ValueMap<float>::Filler fillerAll04(*PFIsoAll04V);
+  fillerAll04.insert(src,PFIsoAll04.begin(),PFIsoAll04.end());
+  fillerAll04.fill();
 
   iEvent.put(std::move(PFIsoChgV),"PFIsoChg");
   iEvent.put(std::move(PFIsoAllV),"PFIsoAll");
+  iEvent.put(std::move(PFIsoAll04V),"PFIsoAll04");
 
 }
 

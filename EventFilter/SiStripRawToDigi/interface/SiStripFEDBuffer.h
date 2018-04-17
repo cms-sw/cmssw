@@ -36,11 +36,13 @@ namespace sistrip {
       //The FE length from the full debug header is used in full debug mode.
       bool fePresent(uint8_t internalFEUnitNum) const;
       //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
+      using sistrip::FEDBufferBase::channelGood;
       virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck=true) const;
       void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy;}
 
       //functions to check buffer. All return true if there is no problem.
       //minimum checks to do before using buffer
+      using sistrip::FEDBufferBase::doChecks;
       virtual bool doChecks(bool doCRC=true) const;
   
       //additional checks to check for corrupt buffers

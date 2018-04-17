@@ -115,6 +115,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     mvaL1L2L3ResCorrector = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
     rho = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
 
+    computeSoftMuonMVA = cms.bool(False),
+    softMvaTrainingFile = cms.string("RecoMuon/MuonIdentification/data/TMVA-muonid-bmm4-B-25.weights.xml"),
+
     # MC Info
     muonSimInfo = cms.InputTag("muonSimClassifier")                 
                           

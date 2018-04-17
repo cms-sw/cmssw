@@ -35,7 +35,7 @@
 class HcalCalibDetId : public HcalOtherDetId {
 public:
   /** Type identifier within calibration det ids */
-  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4 };
+  enum CalibDetType { CalibrationBox = 1, HOCrosstalk = 2, uMNqie = 3, CastorRadFacility = 4, LASERMON = 5 };
 
   /** Create a null det id */
   HcalCalibDetId();

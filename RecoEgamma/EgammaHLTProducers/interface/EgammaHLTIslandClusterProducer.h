@@ -13,6 +13,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -68,7 +69,7 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer {
   void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
 			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
-			  const std::vector<EcalEtaPhiRegion>& regions,
+			  const std::vector<RectangularEtaPhiRegion>& regions,
 			  const IslandClusterAlgo::EcalPart& ecalPart);
 };
 #endif

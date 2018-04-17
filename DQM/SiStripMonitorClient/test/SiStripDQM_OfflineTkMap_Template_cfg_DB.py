@@ -154,11 +154,12 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
 #        cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
         )
 
-process.ssqualitystat = cms.EDAnalyzer("SiStripQualityStatistics",
-                                       dataLabel = cms.untracked.string(""),
-                                       TkMapFileName = cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
-                                       SaveTkHistoMap = cms.untracked.bool(False)
-                              )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.ssqualitystat = DQMEDAnalyzer("SiStripQualityStatistics",
+                                      dataLabel = cms.untracked.string(""),
+                                      TkMapFileName = cms.untracked.string("PCLBadComponents.png"),  #available filetypes: .pdf .png .jpg .svg
+                                      SaveTkHistoMap = cms.untracked.bool(False)
+                                      )
 
 
 process.p1 = cms.Path(process.siStripOfflineAnalyser + process.ssqualitystat)

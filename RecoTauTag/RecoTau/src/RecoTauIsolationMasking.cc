@@ -77,21 +77,18 @@ RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
 
   typedef std::list<reco::CandidatePtr> CandList;
   // Copy original iso collections.
-  std::copy(tau.isolationPFGammaCands().begin(),
-      tau.isolationPFGammaCands().end(), std::back_inserter(output.gammas));
-  std::copy(tau.isolationPFNeutrHadrCands().begin(),
-      tau.isolationPFNeutrHadrCands().end(),
+  std::copy(tau.isolationGammaCands().begin(),
+      tau.isolationGammaCands().end(), std::back_inserter(output.gammas));
+  std::copy(tau.isolationNeutrHadrCands().begin(),
+      tau.isolationNeutrHadrCands().end(),
       std::back_inserter(output.h0s));
 
   std::vector<CandList*> courses;
   courses.push_back(&(output.h0s));
   courses.push_back(&(output.gammas));
   // Mask using each one of the tracks
-  BOOST_FOREACH(const reco::CandidatePtr& c_track,
+  BOOST_FOREACH(const reco::PFCandidatePtr& track,
       tau.signalPFChargedHadrCands()) {
-    const reco::PFCandidate* track = dynamic_cast<const reco::PFCandidate*>(c_track.get());
-    if (track == nullptr)
-      throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
     double trackerEnergy = track->energy();
     double linkedEcalEnergy = track->ecalEnergy();
     double linkedHcalEnergy = track->hcalEnergy();
@@ -139,7 +136,7 @@ RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
   // This removes upward fluctuating HCAL objects
   if (finalHcalCone_ > 0) {
     MultiTrackDRFilter hcalFinalFilter(finalHcalCone_,
-        tau.signalPFChargedHadrCands());
+        tau.signalChargedHadrCands());
     std::remove_if(output.h0s.begin(), output.h0s.end(), hcalFinalFilter);
   }
   return output;

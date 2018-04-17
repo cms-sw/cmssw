@@ -110,7 +110,7 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
 	// Get tracks form PFTau daugthers
 	std::vector<reco::TransientTrack> transTrk;
 	TransientVertex transVtx;
-	const std::vector<edm::Ptr<reco::Candidate> > cands = RefPFTau->signalPFChargedHadrCands(); 
+	const std::vector<edm::Ptr<reco::Candidate> > cands = RefPFTau->signalChargedHadrCands(); 
 	for (const auto& cand : cands) {
 	  if (cand.isNull()) continue;
 	  const reco::Track* track = getTrack(*cand);

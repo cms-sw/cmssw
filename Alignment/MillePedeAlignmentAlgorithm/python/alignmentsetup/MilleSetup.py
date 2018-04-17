@@ -26,6 +26,14 @@ def setup(process, input_files, collection,
     process.AlignmentProducer.saveDeformationsToDB = False
 
 
+    # align calibrations to general settings
+    # --------------------------------------------------------------------------
+    for calib in process.AlignmentProducer.calibrations:
+        calib.saveToDB       = process.AlignmentProducer.saveToDB
+        calib.treeFile       = process.AlignmentProducer.algoConfig.treeFile
+        calib.mergeTreeFiles = process.AlignmentProducer.algoConfig.mergeTreeFiles
+
+
     # Track selection and refitting
     # --------------------------------------------------------------------------
     import Alignment.CommonAlignment.tools.trackselectionRefitting as trackRefitter

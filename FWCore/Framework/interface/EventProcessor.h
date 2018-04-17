@@ -304,6 +304,7 @@ namespace edm {
     std::vector<edm::SerialTaskQueue> streamQueues_;
     std::unique_ptr<edm::LimitedTaskQueue> lumiQueue_;
     std::vector<std::shared_ptr<LuminosityBlockProcessingStatus>> streamLumiStatus_;
+    std::atomic<unsigned int> streamLumiActive_{0}; //works as guard for streamLumiStatus
     
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
