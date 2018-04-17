@@ -12,14 +12,19 @@ quickTrackAssociatorByHits = cms.EDProducer("QuickTrackAssociatorByHitsProducer"
         cluster2TPSrc = cms.InputTag("tpClusterProducer")
 )
 
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(quickTrackAssociatorByHits,
+quickTrackAssociatorByHitsTrackerHitAssociator = quickTrackAssociatorByHits.clone(
     useClusterTPAssociation = False,
-    associateStrip = cms.bool(False),
-    associatePixel = cms.bool(False),
+    associateStrip = cms.bool(True),
+    associatePixel = cms.bool(True),
     pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
     stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
 )
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(quickTrackAssociatorByHits, quickTrackAssociatorByHitsTrackerHitAssociator.clone(
+    associateStrip = False,
+    associatePixel = False,
+))
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (fastSim & premix_stage2).toModify(quickTrackAssociatorByHits,
