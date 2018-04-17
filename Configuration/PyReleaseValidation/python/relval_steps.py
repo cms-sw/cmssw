@@ -2432,6 +2432,7 @@ for stepType in upgradeSteps.keys():
         upgradeStepDict[stepName]={}
         stepNamePmx = step+'PUPRMX'+upgradeSteps[stepType]['suffix']
         upgradeStepDict[stepNamePmx]={}
+        upgradeStepDict[stepNamePmx+'Combined']={}
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -2669,6 +2670,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                         else:
                             d["--procModifiers"] = "premix_stage2"
                     upgradeStepDict[stepNamePUpmx][k] = d
+                    # For combined stage1+stage2
+                    if "Digi" in step:
+                        upgradeStepDict[stepNamePUpmx+"Combined"][k] = merge([digiPremixLocalPileup, d])
 
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
