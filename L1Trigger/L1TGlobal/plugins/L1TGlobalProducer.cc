@@ -410,7 +410,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	edm::Handle<BXVector<GlobalAlgBlk>> m_uGtAlgBlk;
 	iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
 
-	if(m_uGtAlgBlk.isValid()) {
+	if(m_uGtAlgBlk.isValid() && !m_uGtAlgBlk->isEmpty(0)) {
 	  std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
 	  m_prescaleSet=static_cast<unsigned int>(algBlk->getPreScColumn());
 	}else{
