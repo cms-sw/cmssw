@@ -26,13 +26,13 @@
 #include <map>
 
 //----------------------------------------------------------------------------------------------------
- 
+
 class ElasticPlotDQMSource: public DQMEDAnalyzer
 {
   public:
     ElasticPlotDQMSource(const edm::ParameterSet& ps);
     ~ElasticPlotDQMSource() override;
-  
+
   protected:
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -124,7 +124,7 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
   rpIds[3] = TotemRPDetId(1, 2, (top56) ? 4 : 5);
 
   // book histograms
-  ibooker.setCurrentFolder(string("CTPPS/TrackingStrip/") + name);
+  ibooker.setCurrentFolder("CTPPS/TrackingStrip/" + name);
 
   h2_track_corr_vert = ibooker.book2D("track correlation in verticals", title+";;", 4, -0.5, 3.5, 4, -0.5, 3.5);
   TH2F *h2 = h2_track_corr_vert->getTH2F();
@@ -139,14 +139,21 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
     ya->SetBinLabel(i+1, rpName.c_str());
   }
 
+  h_rate_vs_time_dgn_4rp = ibooker.book1D("rate - 4 RPs", title+";lumi section", ls_max-ls_min+1, -0.5+ls_min, +0.5+ls_max);
+  h_rate_vs_time_dgn_2rp = ibooker.book1D("rate - 2 RPs (220-fr)", title+";lumi section", ls_max-ls_min+1, -0.5+ls_min, +0.5+ls_max);
+
   for (unsigned int i = 0; i < 4; i++)
   {
     string rpName;
     TotemRPDetId(rpIds[i]).rpName(rpName, TotemRPDetId::nFull);
     rpName = rpName.substr(15);
 
+    ibooker.setCurrentFolder("CTPPS/TrackingStrip/" + name + "/xy hists");
+
     v_h2_y_vs_x_dgn_4rp[i] = ibooker.book2D("xy hist - " + rpName + " - 4 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
     v_h2_y_vs_x_dgn_2rp[i] = ibooker.book2D("xy hist - " + rpName + " - 2 RPs cond", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
+
+    ibooker.setCurrentFolder("CTPPS/TrackingStrip/" + name + "/y hists");
 
     for (unsigned int j = 0; j < 4; j++)
     {
@@ -157,9 +164,6 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
       v_h_y[i][j] = ibooker.book1D("y hist - " + rpName + " - coinc " + rpCoincName, title+";y   (mm)", 180, -18., +18.);
     }
   }
-
-  h_rate_vs_time_dgn_4rp = ibooker.book1D("rate - 4 RPs", title+";lumi section", ls_max-ls_min+1, -0.5+ls_min, +0.5+ls_max);
-  h_rate_vs_time_dgn_2rp = ibooker.book1D("rate - 2 RPs (220-fr)", title+";lumi section", ls_max-ls_min+1, -0.5+ls_min, +0.5+ls_max);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -311,7 +315,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     }
 
     rp_track[rpId] = track;
-  } 
+  }
 
   //------------------------------
   // diagonal plots
@@ -361,7 +365,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
       }
     }
   }
-  
+
   //------------------------------
   // pot plots
 
