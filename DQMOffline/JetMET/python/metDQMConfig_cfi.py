@@ -105,7 +105,11 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
  
     HBHENoiseLabelMiniAOD = cms.string("Flag_HBHENoiseFilter"),
     HBHEIsoNoiseLabelMiniAOD = cms.string("Flag_HBHEIsoNoiseFilter"),
-
+#     = cms.string(""),
+#     = cms.string(""),
+#     = cms.string(""),
+#     = cms.string(""),
+                                    
     HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"), 
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),
     HBHENoiseIsoFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"),
