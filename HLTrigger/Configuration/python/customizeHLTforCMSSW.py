@@ -64,28 +64,6 @@ def customiseFor20429(process):
     return process
 
 
-# 
-# Threshold 1-sigma backported from 10_0_X cmssw release from 2018 to perform tests on 2017 data/MC
-#
-
-def customiseForEcalTest(process):
-
-    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
-        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
-            module = getattr(process,hltParticleFlowRecHitECAL)
-
-            for producer in module.producers: 
-                if hasattr(producer,'srFlags'):
-                    producer.srFlags = cms.InputTag("")
-                if hasattr(producer,'qualityTests'):
-                    for qualityTest in producer.qualityTests:
-                        if hasattr(qualityTest,'thresholds'):
-                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
-                        
-    return process
-
-
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
