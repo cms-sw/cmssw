@@ -26,15 +26,20 @@ MonitorElement* BookHist1D( DQMStore::IBooker &, const char* name, const char* l
 
 private:
 
-MonitorElement* gem_vfat_eff[30];
-MonitorElement* gem_vfat_tot[30];
+MonitorElement* gem_vfat_eff[15][2][2];
+MonitorElement* gem_vfat_tot[15][2][2];
 MonitorElement* gem_vfat_total_eff;
-MonitorElement* isuperChamber;
+
 MonitorElement* ilayers;
 MonitorElement* ichamber;
+MonitorElement* iCheckChamber;
 MonitorElement* iroll;
 MonitorElement* ipartition;
-MonitorElement* ichi2;
+MonitorElement* iSeedInside;
+MonitorElement* iSeedOutside;
+
+MonitorElement* insideCount;
+MonitorElement* outsideCount;
 
 edm::EDGetTokenT<reco::TrackCollection> insideOutTracks_, outsideInTracks_;
 edm::EDGetTokenT<vector<TrajectorySeed>> seedInside_, seedOutside_;

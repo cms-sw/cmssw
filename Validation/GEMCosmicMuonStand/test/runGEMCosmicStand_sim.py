@@ -75,7 +75,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Cosmic Muon generator
-#process.load("Configuration.Generator.UndergroundCosmicMu_cfi")
 #process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
 #process.generator.RadiusOfTarget = cms.double(120.0)#in mm
 #process.generator.ZDistOfTarget = cms.double(280.0)
