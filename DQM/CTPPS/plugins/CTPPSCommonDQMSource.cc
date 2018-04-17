@@ -24,7 +24,7 @@
 #include <string>
 
 //----------------------------------------------------------------------------------------------------
- 
+
 class CTPPSCommonDQMSource: public DQMEDAnalyzer
 {
   public:
@@ -32,7 +32,7 @@ class CTPPSCommonDQMSource: public DQMEDAnalyzer
     CTPPSCommonDQMSource(const edm::ParameterSet& ps);
 
     ~CTPPSCommonDQMSource() override;
-  
+
   protected:
 
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -48,9 +48,7 @@ class CTPPSCommonDQMSource: public DQMEDAnalyzer
     struct GlobalPlots
     {
       MonitorElement *events_per_bx = nullptr, *events_per_bx_short = nullptr;
-      MonitorElement *h_trackCorr_hor = nullptr;
-
-      // TODO: add h_trackCorr_vert
+      MonitorElement *h_trackCorr_hor = nullptr, *h_trackCorr_vert = nullptr;
 
       void Init(DQMStore::IBooker &ibooker);
     };
@@ -88,13 +86,31 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
   events_per_bx = ibooker.book1D("events per BX", "rp;Event.BX", 4002, -1.5, 4000. + 0.5);
   events_per_bx_short = ibooker.book1D("events per BX (short)", "rp;Event.BX", 102, -1.5, 100. + 0.5);
 
-  h_trackCorr_hor = ibooker.book2D("track correlation RP-210-hor", "rp, 210, hor", 4, -0.5, 3.5, 4, -0.5, 3.5);
-  TH2F *hist = h_trackCorr_hor->getTH2F();
-  TAxis *xa = hist->GetXaxis(), *ya = hist->GetYaxis();
-  xa->SetBinLabel(1, "45, 210, near"); ya->SetBinLabel(1, "45, 210, near");
-  xa->SetBinLabel(2, "45, 210, far"); ya->SetBinLabel(2, "45, 210, far");
-  xa->SetBinLabel(3, "56, 210, near"); ya->SetBinLabel(3, "56, 210, near");
-  xa->SetBinLabel(4, "56, 210, far"); ya->SetBinLabel(4, "56, 210, far");
+  h_trackCorr_hor = ibooker.book2D("track correlation hor", "ctpps_common_rp_hor", 6, -0.5, 5.5, 6, -0.5, 5.5);
+  {
+    TH2F* hist = h_trackCorr_hor->getTH2F();
+    TAxis* xa = hist->GetXaxis(), *ya = hist->GetYaxis();
+    xa->SetBinLabel(1, "45, 210, far"); ya->SetBinLabel(1, "45, 210, far");
+    xa->SetBinLabel(2, "45, 220, far"); ya->SetBinLabel(2, "45, 220, far");
+    xa->SetBinLabel(3, "45, 220, cyl"); ya->SetBinLabel(3, "45, 220, cyl");
+    xa->SetBinLabel(4, "56, 210, far"); ya->SetBinLabel(4, "56, 210, far");
+    xa->SetBinLabel(5, "56, 220, far"); ya->SetBinLabel(5, "56, 220, far");
+    xa->SetBinLabel(6, "56, 220, cyl"); ya->SetBinLabel(6, "56, 220, cyl");
+  }
+
+  h_trackCorr_vert = ibooker.book2D("track correlation vert", "ctpps_common_rp_vert", 8, -0.5, 7.5, 8, -0.5, 7.5);
+  {
+    TH2F* hist = h_trackCorr_vert->getTH2F();
+    TAxis* xa = hist->GetXaxis(), *ya = hist->GetYaxis();
+    xa->SetBinLabel(1, "45, 210, far, top"); ya->SetBinLabel(1, "45, 210, far, top");
+    xa->SetBinLabel(2, "45, 210, far, bot"); ya->SetBinLabel(2, "45, 210, far, bot");
+    xa->SetBinLabel(3, "45, 220, far, top"); ya->SetBinLabel(3, "45, 220, far, top");
+    xa->SetBinLabel(4, "45, 220, far, bot"); ya->SetBinLabel(4, "45, 220, far, bot");
+    xa->SetBinLabel(5, "56, 210, far, top"); ya->SetBinLabel(5, "56, 210, far, top");
+    xa->SetBinLabel(6, "56, 210, far, bot"); ya->SetBinLabel(6, "56, 210, far, bot");
+    xa->SetBinLabel(7, "56, 220, far, top"); ya->SetBinLabel(7, "56, 220, far, top");
+    xa->SetBinLabel(8, "56, 220, far, bot"); ya->SetBinLabel(8, "56, 220, far, bot");
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -112,39 +128,27 @@ CTPPSCommonDQMSource::ArmPlots::ArmPlots(DQMStore::IBooker &ibooker, int _id) : 
   h_numRPWithTrack_hor = ibooker.book1D("number of hor RPs with tracks", title+";number of hor RPs with tracks", 5, -0.5, 4.5);
   h_numRPWithTrack_bot = ibooker.book1D("number of bot RPs with tracks", title+";number of bot RPs with tracks", 5, -0.5, 4.5);
 
-  // TODO: add timing RPs
-  h_trackCorr = ibooker.book2D("track RP correlation", title, 13, -0.5, 12.5, 13, -0.5, 12.5);
+  h_trackCorr = ibooker.book2D("track correlation", title, 7, -0.5, 6.5, 7, -0.5, 6.5);
   TH2F *h_trackCorr_h = h_trackCorr->getTH2F();
   TAxis *xa = h_trackCorr_h->GetXaxis(), *ya = h_trackCorr_h->GetYaxis();
-  xa->SetBinLabel(1, "210, near, top"); ya->SetBinLabel(1, "210, near, top");
-  xa->SetBinLabel(2, "bot"); ya->SetBinLabel(2, "bot");
-  xa->SetBinLabel(3, "hor"); ya->SetBinLabel(3, "hor");
-  xa->SetBinLabel(4, "far, hor"); ya->SetBinLabel(4, "far, hor");
-  xa->SetBinLabel(5, "top"); ya->SetBinLabel(5, "top");
-  xa->SetBinLabel(6, "bot"); ya->SetBinLabel(6, "bot");
-  xa->SetBinLabel(8, "220, near, top"); ya->SetBinLabel(8, "220, near, top");
-  xa->SetBinLabel(9, "bot"); ya->SetBinLabel(9, "bot");
-  xa->SetBinLabel(10, "hor"); ya->SetBinLabel(10, "hor");
-  xa->SetBinLabel(11, "far, hor"); ya->SetBinLabel(11, "far, hor");
-  xa->SetBinLabel(12, "top"); ya->SetBinLabel(12, "top");
-  xa->SetBinLabel(13, "bot"); ya->SetBinLabel(13, "bot");
+  xa->SetBinLabel( 1, "210, far, hor"); ya->SetBinLabel( 1, "210, far, hor");
+  xa->SetBinLabel( 2, "210, far, top"); ya->SetBinLabel( 2, "210, far, top");
+  xa->SetBinLabel( 3, "210, far, bot"); ya->SetBinLabel( 3, "210, far, bot");
+  xa->SetBinLabel( 4, "220, cyl"     ); ya->SetBinLabel( 4, "220, cyl"     );
+  xa->SetBinLabel( 5, "220, far, hor"); ya->SetBinLabel( 5, "220, far, hor");
+  xa->SetBinLabel( 6, "220, far, top"); ya->SetBinLabel( 6, "220, far, top");
+  xa->SetBinLabel( 7, "220, far, bot"); ya->SetBinLabel( 7, "220, far, bot");
 
-  // TODO: add timing RPs
-  h_trackCorr_overlap = ibooker.book2D("track RP correlation hor-vert overlaps", title, 13, -0.5, 12.5, 13, -0.5, 12.5);
+  h_trackCorr_overlap = ibooker.book2D("track correlation hor-vert overlaps", title, 7, -0.5, 6.5, 7, -0.5, 6.5);
   h_trackCorr_h = h_trackCorr_overlap->getTH2F();
   xa = h_trackCorr_h->GetXaxis(); ya = h_trackCorr_h->GetYaxis();
-  xa->SetBinLabel(1, "210, near, top"); ya->SetBinLabel(1, "210, near, top");
-  xa->SetBinLabel(2, "bot"); ya->SetBinLabel(2, "bot");
-  xa->SetBinLabel(3, "hor"); ya->SetBinLabel(3, "hor");
-  xa->SetBinLabel(4, "far, hor"); ya->SetBinLabel(4, "far, hor");
-  xa->SetBinLabel(5, "top"); ya->SetBinLabel(5, "top");
-  xa->SetBinLabel(6, "bot"); ya->SetBinLabel(6, "bot");
-  xa->SetBinLabel(8, "220, near, top"); ya->SetBinLabel(8, "220, near, top");
-  xa->SetBinLabel(9, "bot"); ya->SetBinLabel(9, "bot");
-  xa->SetBinLabel(10, "hor"); ya->SetBinLabel(10, "hor");
-  xa->SetBinLabel(11, "far, hor"); ya->SetBinLabel(11, "far, hor");
-  xa->SetBinLabel(12, "top"); ya->SetBinLabel(12, "top");
-  xa->SetBinLabel(13, "bot"); ya->SetBinLabel(13, "bot");
+  xa->SetBinLabel( 1, "210, far, hor"); ya->SetBinLabel( 1, "210, far, hor");
+  xa->SetBinLabel( 2, "210, far, top"); ya->SetBinLabel( 2, "210, far, top");
+  xa->SetBinLabel( 3, "210, far, bot"); ya->SetBinLabel( 3, "210, far, bot");
+  xa->SetBinLabel( 4, "220, cyl"     ); ya->SetBinLabel( 4, "220, cyl"     );
+  xa->SetBinLabel( 5, "220, far, hor"); ya->SetBinLabel( 5, "220, far, hor");
+  xa->SetBinLabel( 6, "220, far, top"); ya->SetBinLabel( 6, "220, far, top");
+  xa->SetBinLabel( 7, "220, far, bot"); ya->SetBinLabel( 7, "220, far, bot");
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -200,91 +204,109 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
   }
 
   //------------------------------
+  // collect indeces of RP with tracks, for each correlation plot
+  set<signed int> s_rp_idx_global_hor, s_rp_idx_global_vert;
+  map<unsigned int, set<signed int>> ms_rp_idx_arm;
+
+  for (auto &tr : *tracks)
+  {
+    const CTPPSDetId rpId(tr.getRPId());
+    const unsigned int arm = rpId.arm();
+    const unsigned int stNum = rpId.station();
+    const unsigned int rpNum = rpId.rp();
+    const unsigned int stRPNum = stNum * 10 + rpNum;
+
+    {
+      signed int idx = -1;
+      if (stRPNum ==  3) idx = 0;
+      if (stRPNum == 23) idx = 1;
+      if (stRPNum == 16) idx = 2;
+
+      if (idx >= 0)
+        s_rp_idx_global_hor.insert(3*arm + idx);
+    }
+
+    {
+      signed int idx = -1;
+      if (stRPNum ==  4) idx = 0;
+      if (stRPNum ==  5) idx = 1;
+      if (stRPNum == 24) idx = 2;
+      if (stRPNum == 25) idx = 3;
+
+      if (idx >= 0)
+        s_rp_idx_global_vert.insert(4*arm + idx);
+    }
+
+    {
+      signed int idx = -1;
+      if (stRPNum ==  3) idx = 0;
+      if (stRPNum ==  4) idx = 1;
+      if (stRPNum ==  5) idx = 2;
+      if (stRPNum == 16) idx = 3;
+      if (stRPNum == 23) idx = 4;
+      if (stRPNum == 24) idx = 5;
+      if (stRPNum == 25) idx = 6;
+
+      const signed int hor = ((rpNum == 2) || (rpNum == 3) || (rpNum == 6)) ? 1 : 0;
+
+      if (idx >= 0)
+        ms_rp_idx_arm[arm].insert(idx * 10 + hor);
+    }
+  }
+
+  //------------------------------
   // Global Plots
 
   globalPlots.events_per_bx->Fill(event.bunchCrossing());
   globalPlots.events_per_bx_short->Fill(event.bunchCrossing());
 
-  for (auto &tr1 : *tracks)
-  {
-    CTPPSDetId rpId1(tr1.getRPId());
-    unsigned int arm1 = rpId1.arm();
-    unsigned int stNum1 = rpId1.station();
-    unsigned int rpNum1 = rpId1.rp();
-    if (stNum1 != 0 || (rpNum1 != 2 && rpNum1 != 3))
-      continue;
-    unsigned int idx1 = arm1*2 + rpNum1-2;
+  for (const auto &idx1 : s_rp_idx_global_hor)
+    for (const auto &idx2 : s_rp_idx_global_hor)
+      globalPlots.h_trackCorr_hor->Fill(idx1, idx2);
 
-    for (auto &tr2 : *tracks)
-    {
-      CTPPSDetId rpId2(tr2.getRPId());
-      unsigned int arm2 = rpId2.arm();
-      unsigned int stNum2 = rpId2.station();
-      unsigned int rpNum2 = rpId2.rp();
-      if (stNum2 != 0 || (rpNum2 != 2 && rpNum2 != 3))
-        continue;
-      unsigned int idx2 = arm2*2 + rpNum2-2;
-  
-      globalPlots.h_trackCorr_hor->Fill(idx1, idx2); 
-    }
-  }
+  for (const auto &idx1 : s_rp_idx_global_vert)
+    for (const auto &idx2 : s_rp_idx_global_vert)
+      globalPlots.h_trackCorr_vert->Fill(idx1, idx2);
 
   //------------------------------
   // Arm Plots
+
+  map<unsigned int, set<unsigned int>> mTop, mHor, mBot;
+
+  for (auto &tr : *tracks)
   {
-    map<unsigned int, set<unsigned int>> mTop, mHor, mBot;
+    CTPPSDetId rpId(tr.getRPId());
+    const unsigned int rpNum = rpId.rp();
+    const unsigned int armIdx = rpId.arm();
 
-    for (auto &tr : *tracks)
+    if (rpNum == 0 || rpNum == 4)
+      mTop[armIdx].insert(rpId);
+    if (rpNum == 2 || rpNum == 3 || rpNum == 6)
+      mHor[armIdx].insert(rpId);
+    if (rpNum == 1 || rpNum == 5)
+      mBot[armIdx].insert(rpId);
+  }
+
+  for (auto &p : armPlots)
+  {
+    p.second.h_numRPWithTrack_top->Fill(mTop[p.first].size());
+    p.second.h_numRPWithTrack_hor->Fill(mHor[p.first].size());
+    p.second.h_numRPWithTrack_bot->Fill(mBot[p.first].size());
+  }
+
+  // track RP correlation
+  for (const auto &ap : ms_rp_idx_arm)
+  {
+    auto &plots = armPlots[ap.first];
+
+    for (const auto &idx1 : ap.second)
     {
-      CTPPSDetId rpId(tr.getRPId());
-      const unsigned int rpNum = rpId.rp();
-      const unsigned int armIdx = rpId.arm();
-
-      if (rpNum == 0 || rpNum == 4)
-        mTop[armIdx].insert(rpId);
-      if (rpNum == 2 || rpNum == 3)
-        mHor[armIdx].insert(rpId);
-      if (rpNum == 1 || rpNum == 5)
-        mBot[armIdx].insert(rpId);
-    }
-
-    for (auto &p : armPlots)
-    {
-      p.second.h_numRPWithTrack_top->Fill(mTop[p.first].size());
-      p.second.h_numRPWithTrack_hor->Fill(mHor[p.first].size());
-      p.second.h_numRPWithTrack_bot->Fill(mBot[p.first].size());
-    }
-
-    // track RP correlation
-    for (auto &tr1 : *tracks)
-    {
-      // TODO: check whether this rule works for timing RPs
-      // TODO: encapsulate formulae in a function ?
-      CTPPSDetId rpId1(tr1.getRPId());
-      unsigned int arm1 = rpId1.arm();
-      unsigned int stNum1 = rpId1.station();
-      unsigned int rpNum1 = rpId1.rp();
-      unsigned int idx1 = stNum1/2 * 7 + rpNum1;
-      bool hor1 = (rpNum1 == 2 || rpNum1 == 3);
-
-      ArmPlots &ap = armPlots[arm1];
-
-      for (auto &tr2 : *tracks)
+      for (const auto &idx2 : ap.second)
       {
-        CTPPSDetId rpId2(tr2.getRPId());
-        unsigned int arm2 = rpId2.arm();
-        unsigned int stNum2 = rpId2.station();
-        unsigned int rpNum2 = rpId2.rp();
-        unsigned int idx2 = stNum2/2 * 7 + rpNum2;
-        bool hor2 = (rpNum2 == 2 || rpNum2 == 3);
+        plots.h_trackCorr->Fill(idx1/10, idx2/10);
 
-        if (arm1 != arm2)
-          continue;
-
-        ap.h_trackCorr->Fill(idx1, idx2); 
-        
-        if (hor1 != hor2)
-          ap.h_trackCorr_overlap->Fill(idx1, idx2); 
+        if ((idx1 % 10) != (idx2 % 10))
+          plots.h_trackCorr_overlap->Fill(idx1/10, idx2/10);
       }
     }
   }
