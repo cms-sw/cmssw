@@ -17,21 +17,6 @@ enum class DDSolidShape { dd_not_init = 0,
     ddcuttubs = 18, ddextrudedpolygon = 19,
     };
 
-
-/* template<typename T> */
-/* struct enumStrings */
-/* { */
-/*   static char const* data[]; */
-/* }; */
-
-/* template<> char const* enumStrings<DDSolidShape>::data[] = {"Solid not initialized", "Box", "Tube(section)", */
-/* 							    "Trapezoid", "Cone(section)", "Polycone_rz", "Polyhedra_rz", */
-/* 							    "Polycone_rrz", "Polyhedra_rrz", "Torus", */
-/* 							    "UnionSolid", "SubtractionSolid", "IntersectionSolid", */
-/* 							    "ShapelessSolid", "PseudoTrapezoid", "TruncatedTube(section)", */
-/* 							    "Sphere(section)", "EllipticalTube", "CutTubs", "ExtrudedPolygon" */
-/* }; */
-
 static std::map<const DDSolidShape, const std::string> nameMap = {
   { DDSolidShape::dd_not_init, "Solid not initialized"},
   { DDSolidShape::ddbox, "Box"},
