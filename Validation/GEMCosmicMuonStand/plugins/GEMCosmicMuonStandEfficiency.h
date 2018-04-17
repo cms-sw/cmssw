@@ -26,14 +26,17 @@ MonitorElement* BookHist1D( DQMStore::IBooker &, const char* name, const char* l
 
 private:
 
-MonitorElement* gem_vfat_eff[15][2];
-MonitorElement* gem_vfat_tot[15][2];
+MonitorElement* gem_vfat_eff[15][2][2];
+MonitorElement* gem_vfat_tot[15][2][2];
 MonitorElement* gem_vfat_total_eff;
-MonitorElement* isuperChamber;
+
 MonitorElement* ilayers;
 MonitorElement* ichamber;
+MonitorElement* iCheckChamber;
 MonitorElement* iroll;
 MonitorElement* ipartition;
+MonitorElement* iSeedInside;
+MonitorElement* iSeedOutside;
 
 MonitorElement* insideCount;
 MonitorElement* outsideCount;
