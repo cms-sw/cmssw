@@ -28,9 +28,13 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 	_tokLaserMon = consumes<QIE10DigiCollection>(_tagLaserMon);
 
+	_vflags.resize(nLaserFlag);
+	_vflags[fBadTiming]=hcaldqm::flag::Flag("BadTiming");
+	_vflags[fMissingLaserMon]=hcaldqm::flag::Flag("MissingLaserMon");
+
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
-		20);
+		50);
 	_lowHE = ps.getUntrackedParameter<double>("lowHE",
 		100);
 	_lowHO = ps.getUntrackedParameter<double>("lowHO",
@@ -46,6 +50,9 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_laserMonDigiOverlap = ps.getUntrackedParameter<int>("laserMonDigiOverlap");
 	_laserMonTS0 = ps.getUntrackedParameter<int>("laserMonTS0");
 	_laserMonThreshold = ps.getUntrackedParameter<double>("laserMonThreshold", 1.e5);
+	_thresh_timingreflm_rms = ps.getUntrackedParameter<double>("thresh_timingreflm_rms", 5.);
+	_thresh_frac_timingreflmrms = ps.getUntrackedParameter<double>("thresh_frac_timingreflmrms", 0.01);
+	_thresh_min_lmsumq = ps.getUntrackedParameter<double>("thresh_min_lmsumq", 50000.);
 }
 	
 /* virtual */ void LaserTask::bookHistograms(DQMStore::IBooker &ib,
@@ -240,6 +247,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 				new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_100TS)
 			);
+			_cTimingDiffLS_SubdetPM.initialize(_name, "TimingDiff_DigiMinusLaserMon",
+				hcaldqm::hashfunctions::fSubdet,
+				new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRBX),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingDiff_ns), 0);
+			_cTimingDiffLS_SubdetPM.showOverflowY(true);
 		} else if (_ptype == fLocal) {
 			_cLaserMonSumQ_Event.initialize(_name, 
 				"LaserMonSumQ_Event",
@@ -251,6 +264,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 				new hcaldqm::quantity::EventNumber(_nevents),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_100TS)
 			);
+			_cTimingDiffEvent_SubdetPM.initialize(_name, "TimingDiff_DigiMinusLaserMon",
+				hcaldqm::hashfunctions::fSubdet,
+				new hcaldqm::quantity::EventNumber(_nevents),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRBX),
+				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingDiff_ns), 0);
+			_cTimingDiffEvent_SubdetPM.showOverflowY(true);
 		}
 		_cTiming_DigivsLaserMon_SubdetPM.initialize(_name, "Timing_DigivsLaserMon", 
 			hcaldqm::hashfunctions::fSubdetPM, 
@@ -260,13 +279,39 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cTiming_DigivsLaserMon_SubdetPM.showOverflowX(true);
 		_cTiming_DigivsLaserMon_SubdetPM.showOverflowY(true);
 
-		_cTimingDiffLS_SubdetPM.initialize(_name, "TimingDiff_DigiMinusLaserMon",
-			hcaldqm::hashfunctions::fSubdet,
-			new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRBX),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingDiff_ns), 0);
-		_cTimingDiffLS_SubdetPM.showOverflowY(true);
-	}
+		_xTimingRefLMSum.initialize(hcaldqm::hashfunctions::fDChannel);
+		_xTimingRefLMSum2.initialize(hcaldqm::hashfunctions::fDChannel);
+		_xNBadTimingRefLM.initialize(hcaldqm::hashfunctions::fFED);
+		_xNChs.initialize(hcaldqm::hashfunctions::fFED);
+		_xMissingLaserMon = 0;
+
+		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
+		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
+		std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
+		for (std::vector<int>::const_iterator it=vFEDsVME.begin();
+			it!=vFEDsVME.end(); ++it)
+			_vhashFEDs.push_back(HcalElectronicsId(constants::FIBERCH_MIN,
+				FIBER_VME_MIN, SPIGOT_MIN, (*it)-FED_VME_MIN).rawId());
+		for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
+			it!=vFEDsuTCA.end(); ++it)
+	    {
+	        std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
+			_vhashFEDs.push_back(HcalElectronicsId(
+				cspair.first, cspair.second, FIBER_uTCA_MIN1,
+				FIBERCH_MIN, false).rawId());
+	    }
+
+		_cSummaryvsLS_FED.initialize(_name, "SummaryvsLS",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::LumiSection(_maxLS),
+			new hcaldqm::quantity::FlagQuantity(_vflags),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
+		_cSummaryvsLS.initialize(_name, "SummaryvsLS",
+			new hcaldqm::quantity::LumiSection(_maxLS),
+			new hcaldqm::quantity::FEDQuantity(vFEDs),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fState),0);
+	} // End if (_ptype == fOnline || _ptype == fLocal) {
+
 
 	//	BOOK
 	_cSignalMean_Subdet.book(ib, _emap, _subsystem);
@@ -323,12 +368,19 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		if (_ptype == fOnline) {
 			_cLaserMonSumQ_LS.book(ib, _subsystem);
 			_cLaserMonTiming_LS.book(ib, _subsystem);
+			_cTimingDiffLS_SubdetPM.book(ib, _emap, _subsystem);
 		} else if (_ptype == fLocal) {
 			_cLaserMonSumQ_Event.book(ib, _subsystem);
 			_cLaserMonTiming_Event.book(ib, _subsystem);
+			_cTimingDiffEvent_SubdetPM.book(ib, _emap, _subsystem);
 		}
 		_cTiming_DigivsLaserMon_SubdetPM.book(ib, _emap, _subsystem);
-		_cTimingDiffLS_SubdetPM.book(ib, _emap, _subsystem);
+		_xTimingRefLMSum.book(_emap);
+		_xTimingRefLMSum2.book(_emap);
+		_xNBadTimingRefLM.book(_emap);
+		_xNChs.book(_emap);
+		_cSummaryvsLS_FED.book(ib, _emap, _subsystem);
+		_cSummaryvsLS.book(ib, _subsystem);
 	}
 
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -359,6 +411,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cTimingMean_FEDuTCA.reset();
 		_cTimingRMS_FEDVME.reset();
 		_cTimingRMS_FEDuTCA.reset();
+		_xNChs.reset();
 	}
 
 	std::vector<HcalGenericDetId> dids = _emap->allPrecisionId();
@@ -382,6 +435,8 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			}
 			continue;
 		}
+
+		++_xNChs.get(did);
 
 		double msig = _xSignalSum.get(did)/n; 
 		double mtim = _xTimingSum.get(did)/n;
@@ -412,7 +467,65 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 				_cTimingRMS_FEDuTCA.fill(eid, rtim);
 			}
 		}
+
+		// Bad timing
+		double timingreflm_mean = _xTimingRefLMSum.get(did) / n;
+		double timingreflm_rms = sqrt(_xTimingRefLMSum2.get(did) / n - timingreflm_mean * timingreflm_mean);
+
+		if (timingreflm_rms > _thresh_timingreflm_rms) {
+			++_xNBadTimingRefLM.get(did);
+		}
 	}
+	if (_ptype != fOffline) { // hidefed2crate
+		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
+			it!=_vhashFEDs.end(); ++it) {
+			hcaldqm::flag::Flag fSum("LASER");
+			HcalElectronicsId eid = HcalElectronicsId(*it);
+			std::vector<uint32_t>::const_iterator jt=
+				std::find(_vcdaqEids.begin(), _vcdaqEids.end(), (*it));
+			if (jt==_vcdaqEids.end())
+			{
+				//	not @cDAQ
+				for (
+					uint32_t iflag=0; iflag<_vflags.size(); iflag++)
+					_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
+						int(hcaldqm::flag::fNCDAQ));
+				_cSummaryvsLS.setBinContent(eid, _currentLS, int(hcaldqm::flag::fNCDAQ));
+				continue;
+			}
+			//	@cDAQ
+			if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHO(eid) || hcaldqm::utilities::isFEDHF(eid)) {
+				double frbadtimingreflm = double(_xNBadTimingRefLM.get(eid))/double(_xNChs.get(eid));
+				if (frbadtimingreflm > _thresh_frac_timingreflmrms) {
+					_vflags[fBadTiming]._state = hcaldqm::flag::fBAD;
+				} else {
+					_vflags[fBadTiming]._state = hcaldqm::flag::fGOOD;
+				}
+				if (_xMissingLaserMon) {
+					_vflags[fMissingLaserMon]._state = hcaldqm::flag::fBAD;
+				} else {
+					_vflags[fMissingLaserMon]._state = hcaldqm::flag::fGOOD;
+				}
+			}
+
+			// Set SummaryVsLS bins
+			int iflag=0;
+			for (std::vector<hcaldqm::flag::Flag>::iterator ft=_vflags.begin();
+				ft!=_vflags.end(); ++ft)
+			{
+				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, iflag,
+					int(ft->_state));
+				fSum+=(*ft);
+				iflag++;
+				ft->reset();
+			}
+			_cSummaryvsLS.setBinContent(eid, _currentLS, fSum._state);
+		} // End loop over FEDs
+
+		// Reset per-LS containers
+		_xNBadTimingRefLM.reset();
+		_xMissingLaserMon = 0;
+	} // End if _ptype != fOffline
 }
 
 /* virtual */ void LaserTask::_process(edm::Event const& e,
@@ -461,7 +574,6 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 	double laserMonSumQ = 0;
 	double laserMonTiming = 0.;
-	double laserMonTimingWeight = 0.;
 
 	if (peakTS >= 0) {
 		int minTS = std::max(0, peakTS - 3);
@@ -470,11 +582,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			double this_fC = hcaldqm::constants::adc2fC[laserMonADC[iTS]];
 			laserMonSumQ += this_fC;
 			laserMonTiming += 25. * (iTS - _laserMonTS0) * this_fC;
-			laserMonTimingWeight += this_fC;
 		}
 	}
-	if (laserMonTimingWeight > 0.) {
-		laserMonTiming = laserMonTiming / laserMonTimingWeight;
+	if (laserMonSumQ > 0.) {
+		laserMonTiming = laserMonTiming / laserMonSumQ;
+	} else {
+		++_xMissingLaserMon;
 	}
 
 	if (laserMonSumQ > _laserMonThreshold) {
@@ -519,22 +632,23 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		}
 
 		//	select based on local global
-		if (_ptype==fLocal)
-		{
+		double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+		double deltaTiming = digiTimingSOI - laserMonTiming;
+		_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
+		_xTimingRefLMSum.get(did) += deltaTiming;
+		_xTimingRefLMSum2.get(did) += deltaTiming * deltaTiming;
+		if (_ptype==fLocal) {
 			int currentEvent = e.eventAuxiliary().id().event();
 			_cTimingvsEvent_SubdetPM.fill(did, currentEvent, aveTS);
 			_cSignalvsEvent_SubdetPM.fill(did, currentEvent, sumQ);
+			_cTimingDiffLS_SubdetPM.fill(did, currentEvent, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
-		else
-		{
+		else {
 			_cTimingvsLS_SubdetPM.fill(did, _currentLS, aveTS);
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
-
-			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
-			_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
-			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
 	}
 	for (QIE11DigiCollection::const_iterator it=cHE->begin(); it!=cHE->end();
@@ -570,11 +684,17 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		}
 
 		//	select based on local global
+		double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+		double deltaTiming = digiTimingSOI - laserMonTiming;
+		_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
+		_xTimingRefLMSum.get(did) += deltaTiming;
+		_xTimingRefLMSum2.get(did) += deltaTiming * deltaTiming;
 		if (_ptype==fLocal)
 		{
 			int currentEvent = e.eventAuxiliary().id().event();
 			_cTimingvsEvent_SubdetPM.fill(did, currentEvent, aveTS);
 			_cSignalvsEvent_SubdetPM.fill(did, currentEvent, sumQ);
+			_cTimingDiffEvent_SubdetPM.fill(did, currentEvent, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
 		else
 		{
@@ -582,10 +702,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
-
-			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
-			_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
-			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
 	}
 	for (HODigiCollection::const_iterator it=cho->begin();
@@ -617,11 +734,17 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		}
 
 		//	select based on local global
+		double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+		double deltaTiming = digiTimingSOI - laserMonTiming;
+		_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
+		_xTimingRefLMSum.get(did) += deltaTiming;
+		_xTimingRefLMSum2.get(did) += deltaTiming * deltaTiming;
 		if (_ptype==fLocal)
 		{
 			int currentEvent = e.eventAuxiliary().id().event();
 			_cTimingvsEvent_SubdetPM.fill(did, currentEvent, aveTS);
 			_cSignalvsEvent_SubdetPM.fill(did, currentEvent, sumQ);
+			_cTimingDiffEvent_SubdetPM.fill(did, currentEvent, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
 		else
 		{
@@ -629,10 +752,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
-
-			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
-			_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
-			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
 	}
 	for (QIE10DigiCollection::const_iterator it=chf->begin();
@@ -669,11 +789,17 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		}
 
 		//	select based on local global
+		double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
+		double deltaTiming = digiTimingSOI - laserMonTiming;
+		_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
+		_xTimingRefLMSum.get(did) += deltaTiming;
+		_xTimingRefLMSum2.get(did) += deltaTiming * deltaTiming;
 		if (_ptype==fLocal)
 		{
 			int currentEvent = e.eventAuxiliary().id().event();
 			_cTimingvsEvent_SubdetPM.fill(did, currentEvent, aveTS);
 			_cSignalvsEvent_SubdetPM.fill(did, currentEvent, sumQ);
+			_cTimingDiffEvent_SubdetPM.fill(did, currentEvent, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
 		else
 		{
@@ -681,10 +807,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
-
-			double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
-			_cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
-			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), digiTimingSOI - laserMonTiming);
+			_cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
 		}
 	}
 }
