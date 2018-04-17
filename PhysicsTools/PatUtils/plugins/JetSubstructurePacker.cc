@@ -68,8 +68,10 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 	  for ( auto const & usercandstr : jjet.userCandNames() ) {
 	    outputs->back().addUserCand( usercandstr, jjet.userCand(usercandstr) );
 	  }
-          if(jjet.nSubjetCollections()>0)
-            nextSubjets=jjet.subjets();
+	  for ( size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida ) {
+	    reco::CandidatePtr candPtr =  jjet.daughterPtr( ida);
+	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
+	  }
 	  break;
 	}
       }
