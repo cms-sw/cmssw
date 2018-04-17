@@ -40,6 +40,8 @@ class LMFCorrCoefDatComponent: public LMFDat {
 
   LMFLmrSubIOV        getLMFLmrSubIOV() const;
   int                 getLMFLmrSubIOVID() const;
+  friend class LMFUnique;
+  using LMFUnique::getParameters;
   std::vector<float>  getParameters(const EcalLogicID &id);
   std::vector<float>  getParameterErrors(const EcalLogicID &id);
   std::vector<float>  getParameters(int id);

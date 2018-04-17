@@ -6,7 +6,10 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 muonRecoAnalyzer = DQMEDAnalyzer('MuonRecoAnalyzer',
                                   MuonServiceProxy, 
                                   MuonCollection       = cms.InputTag("muons"),
+                                  inputTagVertex       = cms.InputTag("offlinePrimaryVertices"),
+                                  inputTagBeamSpot     = cms.InputTag("offlineBeamSpot"),
                                   IsminiAOD            = cms.bool( False ),
+                                  doMVA                = cms.bool( False ),
                                   # histograms parameters
                                   thetaBin = cms.int32(100),
                                   thetaMin = cms.double(0.0),
@@ -48,8 +51,10 @@ muonRecoAnalyzer = DQMEDAnalyzer('MuonRecoAnalyzer',
 muonRecoAnalyzer_miniAOD = DQMEDAnalyzer('MuonRecoAnalyzer',
                                           MuonServiceProxy, 
                                           MuonCollection = cms.InputTag("slimmedMuons"),
+                                          inputTagVertex       = cms.InputTag("offlinePrimaryVertices"),
+                                          inputTagBeamSpot     = cms.InputTag("offlineBeamSpot"),
                                           IsminiAOD            = cms.bool( True ),
-                                          
+                                          doMVA                = cms.bool( False ),
                                           # histograms parameters
                                           thetaBin = cms.int32(100),
                                           thetaMin = cms.double(0.0),

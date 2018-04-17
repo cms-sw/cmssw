@@ -112,30 +112,30 @@ void RecoTauPhotonFilter::operator()(PFTau& tau) const {
       keysToMove.insert(ptr.key());
     }
 
-    std::vector<CandidatePtr> newSignalPFGammas;
-    std::vector<CandidatePtr> newSignalPFCands;
-    std::vector<CandidatePtr> newIsolationPFGammas = tau.isolationPFGammaCands();
-    std::vector<CandidatePtr> newIsolationPFCands = tau.isolationPFCands();
+    std::vector<CandidatePtr> newSignalGammas;
+    std::vector<CandidatePtr> newSignalCands;
+    std::vector<CandidatePtr> newIsolationGammas = tau.isolationGammaCands();
+    std::vector<CandidatePtr> newIsolationCands = tau.isolationCands();
 
     // Move the necessary signal pizeros - what a mess!
-    BOOST_FOREACH(const CandidatePtr& ptr, tau.signalPFCands()) {
+    BOOST_FOREACH(const CandidatePtr& ptr, tau.signalCands()) {
       if (keysToMove.count(ptr.key()))
-        newIsolationPFCands.push_back(ptr);
+        newIsolationCands.push_back(ptr);
       else
-        newSignalPFCands.push_back(ptr);
+        newSignalCands.push_back(ptr);
     }
 
-    BOOST_FOREACH(const CandidatePtr& ptr, tau.signalPFGammaCands()) {
+    BOOST_FOREACH(const CandidatePtr& ptr, tau.signalGammaCands()) {
       if (keysToMove.count(ptr.key()))
-        newIsolationPFGammas.push_back(ptr);
+        newIsolationGammas.push_back(ptr);
       else
-        newSignalPFGammas.push_back(ptr);
+        newSignalGammas.push_back(ptr);
     }
 
-    tau.setsignalPFCands(newSignalPFCands);
-    tau.setsignalPFCands(newSignalPFGammas);
-    tau.setisolationPFGammaCands(newIsolationPFGammas);
-    tau.setisolationPFCands(newIsolationPFCands);
+    tau.setsignalCands(newSignalCands);
+    tau.setsignalCands(newSignalGammas);
+    tau.setisolationGammaCands(newIsolationGammas);
+    tau.setisolationCands(newIsolationCands);
   }
 }
 }}  // end namespace reco::tau

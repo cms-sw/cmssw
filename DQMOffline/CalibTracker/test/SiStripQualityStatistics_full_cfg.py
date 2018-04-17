@@ -77,11 +77,12 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
 #process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 ####
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('test')
-)
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
+                             TkMapFileName = cms.untracked.string(''),
+                             dataLabel = cms.untracked.string('test')
+                             )
 
 process.out = cms.OutputModule("AsciiOutputModule")
 

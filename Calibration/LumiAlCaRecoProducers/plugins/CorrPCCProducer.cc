@@ -48,17 +48,18 @@ ________________________________________________________________**/
 class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one::WatchRuns,edm::EndLuminosityBlockProducer,edm::one::WatchLuminosityBlocks> {
     public:
         explicit CorrPCCProducer(const edm::ParameterSet&);
-        ~CorrPCCProducer();
+        ~CorrPCCProducer() override;
 
     private:
-        virtual void beginRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) override final;
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
-        virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
-        virtual void endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) override final;
-        virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override final;
-        virtual void endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) override final;
-        virtual void endJob()  override final;
-        virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override final;
+        void beginRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
+        void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
+        void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
+        void endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
+        void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
+        void endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) final;
+        void endJob()  final;
+        void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+
 
         void makeCorrectionTemplate ();
         float getMaximum(std::vector<float>);
@@ -396,7 +397,7 @@ void CorrPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, c
 
 //--------------------------------------------------------------------------------------------------
 void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup){
-    if(lumiSections.size()==0){
+    if(lumiSections.empty()){
         return;
     }
 
@@ -491,7 +492,7 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
         totalLumiByBX_=lumiInfoMapIterator->second->getInstLumiAllBX();
         events_=lumiInfoMapIterator->second->getErrorLumiAllBX();
 
-        if(events_.size()==0){
+        if(events_.empty()){
             continue;
         }
 

@@ -4,5 +4,7 @@ autoPCL = {'PromptCalibProd' : 'BeamSpotByRun+BeamSpotByLumi',
            'PromptCalibProdSiStripGains' : 'SiStripGains',
            'PromptCalibProdSiPixelAli' : 'SiPixelAli',
            'PromptCalibProdEcalPedestals': 'EcalPedestals',
-           'PromptCalibProdSiStripGainsAAG' : 'SiStripGainsAAG'
+           'PromptCalibProdSiStripGainsAAG' : 'SiStripGainsAAG',
+           'PromptCalibProdLumiPCC': 'LumiPCC',
+           'PromptCalibProdSiPixel' : 'SiPixelQuality'
            }

@@ -73,10 +73,10 @@ const reco::CandidatePtr RecoTauVertexAssociator::getLeadCand(const Jet& jet) co
     std::cout << " num. selectedPFCands = " << selectedPFCands.size() << std::endl;
   }
   
-  CandidatePtr leadPFCand;
+  CandidatePtr leadCand;
   if ( !selectedPFCands.empty() ) {
     double leadTrackPt = 0.;
-    if ( leadingTrkOrPFCandOption_ == kFirstTrack){ leadPFCand=selectedPFCands[0];}
+    if ( leadingTrkOrPFCandOption_ == kFirstTrack){ leadCand=selectedPFCands[0];}
     else {
       for ( std::vector<CandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
 	    pfCand != selectedPFCands.end(); ++pfCand ) {
@@ -94,36 +94,36 @@ const reco::CandidatePtr RecoTauVertexAssociator::getLeadCand(const Jet& jet) co
 	  trackPt = TMath::Min(actualTrackPt, (double)(*pfCand)->pt());
 	} else assert(0);
         if ( trackPt > leadTrackPt ) {
-          leadPFCand = (*pfCand);
+          leadCand = (*pfCand);
 	  leadTrackPt = trackPt;
         }
       }
     }
   }
-  if ( leadPFCand.isNull() ) {
+  if ( leadCand.isNull() ) {
     if ( recoverLeadingTrk_ ) {
-      leadPFCand = chargedPFCands[0];
+      leadCand = chargedPFCands[0];
     } else {
       return reco::CandidatePtr(nullptr, 0);
     } 
   }
   if ( verbosity_ >= 1 ) {
-    std::cout << "leadPFCand: Pt = " << leadPFCand->pt() << ", eta = " << leadPFCand->eta() << ", phi = " << leadPFCand->phi() << std::endl;
+    std::cout << "leadCand: Pt = " << leadCand->pt() << ", eta = " << leadCand->eta() << ", phi = " << leadCand->phi() << std::endl;
   }
-  return leadPFCand;
+  return leadCand;
 }
 
 const reco::Track* RecoTauVertexAssociator::getLeadTrack(const Jet& jet) const {
-  auto leadPFCand = getLeadCand(jet);
-  if(leadPFCand.isNull()) return nullptr;
-  const reco::Track* track = getTrack(*leadPFCand);
+  auto leadCand = getLeadCand(jet);
+  if(leadCand.isNull()) return nullptr;
+  const reco::Track* track = getTrack(*leadCand);
   return track;
 }
 
 const reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrackRef(const Jet& jet) const {
-  auto leadPFCand = getLeadCand(jet);
-  if(leadPFCand.isNull()) return reco::TrackBaseRef();
-  return getTrackRef(*leadPFCand);
+  auto leadCand = getLeadCand(jet);
+  if(leadCand.isNull()) return reco::TrackBaseRef();
+  return getTrackRef(*leadCand);
 }
 
 namespace {
@@ -277,8 +277,8 @@ reco::VertexRef
 RecoTauVertexAssociator::associatedVertex(const PFTau& tau, bool useJet) const 
 {
   if ( !useJet ) {
-    if ( tau.leadPFChargedHadrCand().isNonnull() ) {
-      const reco::Track* track = getTrack(*tau.leadPFChargedHadrCand());
+    if ( tau.leadChargedHadrCand().isNonnull() ) {
+      const reco::Track* track = getTrack(*tau.leadChargedHadrCand());
       if (track != nullptr)
         return associatedVertex(track);
     }

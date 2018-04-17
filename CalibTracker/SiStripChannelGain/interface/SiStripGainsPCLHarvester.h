@@ -57,7 +57,6 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
 
       void gainQualityMonitor(DQMStore::IBooker& ibooker_, const MonitorElement* Charge_Vs_Index) const;
 
-
       int statCollectionFromMode(const char* tag) const;
 
       void algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index);
@@ -87,8 +86,6 @@ class SiStripGainsPCLHarvester : public  DQMEDHarvester {
       std::vector<std::string> VChargeHisto;  /*!< Charge monitor plots to be output */
 
       std::vector<std::string> dqm_tag_;  
-
-      
 
       int CalibrationLevel;
 

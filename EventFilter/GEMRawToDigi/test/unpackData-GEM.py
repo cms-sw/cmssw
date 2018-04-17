@@ -79,10 +79,10 @@ if (options.process!=""):
 #process = cms.Process(pname)
 
 #from Configuration.StandardSequences.Eras import eras
-#process = cms.Process(pname, eras.Run2_2017, eras.run2_GEM_2017_MCTest)
+#process = cms.Process(pname, eras.Run2_2017, eras.run2_GEM_2017)
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.Run2_2017,eras.run2_GEM_2017_MCTest)
+process = cms.Process('RECO',eras.Run2_2017,eras.run2_GEM_2017)
 
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')

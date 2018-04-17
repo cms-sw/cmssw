@@ -1,5 +1,5 @@
 #include "BoostedTopProducer.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
 #include <string>
 #include <sstream>

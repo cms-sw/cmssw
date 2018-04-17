@@ -61,6 +61,7 @@ class HcalDbService {
   const HcalTPChannelParameter* getHcalTPChannelParameter (const HcalGenericDetId& fId) const;
   const HcalTPParameters* getHcalTPParameters () const;
   const HcalMCParam* getHcalMCParam (const HcalGenericDetId& fId) const;
+  const HcalRecoParam* getHcalRecoParam (const HcalGenericDetId& fId) const;
 
   void setData (const HcalPedestals* fItem, bool eff=false) {
     if(eff) mEffectivePedestals = fItem;
@@ -91,6 +92,7 @@ class HcalDbService {
   void setData (const HcalTPChannelParameters* fItem) {mTPChannelParameters = fItem; mCalibSet = nullptr;}
   void setData (const HcalTPParameters* fItem) {mTPParameters = fItem;}
   void setData (const HcalMCParams* fItem) {mMCParams = fItem;}
+  void setData (const HcalRecoParams* fItem) {mRecoParams = fItem;}
 
  private:
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject, 
@@ -124,6 +126,7 @@ class HcalDbService {
   const HcalTPChannelParameters* mTPChannelParameters;
   const HcalTPParameters* mTPParameters;
   const HcalMCParams* mMCParams;
+  const HcalRecoParams* mRecoParams;
   //  bool mPedestalInADC;
   mutable std::atomic<HcalCalibrationsSet const *> mCalibSet;
   mutable std::atomic<HcalCalibrationWidthsSet const *> mCalibWidthSet;

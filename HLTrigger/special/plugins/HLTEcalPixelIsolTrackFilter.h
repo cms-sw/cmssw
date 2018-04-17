@@ -23,10 +23,12 @@ public:
 private:
   edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> candTok;
   edm::InputTag candTag_; 
-  double maxEnergyIn_;
-  double maxEnergyOut_;
-  int    nMaxTrackCandidates_;
-  bool   dropMultiL2Event_;
+  const double maxEnergyInEB_;
+  const double maxEnergyInEE_;
+  const double maxEnergyOutEB_;
+  const double maxEnergyOutEE_;
+  const int    nMaxTrackCandidates_;
+  const bool   dropMultiL2Event_;
 };
 
 #endif 

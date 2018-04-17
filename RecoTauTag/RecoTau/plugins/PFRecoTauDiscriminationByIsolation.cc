@@ -343,10 +343,10 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   std::vector<CandidatePtr> isoPU_;
   CandidateCollection isoNeutralWeight_;
   std::vector<CandidatePtr> chPV_;
-  isoCharged_.reserve(pfTau->isolationPFChargedHadrCands().size());
-  isoNeutral_.reserve(pfTau->isolationPFGammaCands().size());
+  isoCharged_.reserve(pfTau->isolationChargedHadrCands().size());
+  isoNeutral_.reserve(pfTau->isolationGammaCands().size());
   isoPU_.reserve(std::min(100UL, chargedPFCandidatesInEvent_.size()));
-  isoNeutralWeight_.reserve(pfTau->isolationPFGammaCands().size());
+  isoNeutralWeight_.reserve(pfTau->isolationGammaCands().size());
 
   chPV_.reserve(std::min(50UL, chargedPFCandidatesInEvent_.size()));
 
@@ -360,32 +360,32 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
     } else {
       LogTrace("discriminate") << "pv: N/A" ;
     }
-    if ( pfTau->leadPFChargedHadrCand().isNonnull() ) {
+    if ( pfTau->leadChargedHadrCand().isNonnull() ) {
       LogTrace("discriminate") << "leadPFChargedHadron:" 
-		<< " Pt = " << pfTau->leadPFChargedHadrCand()->pt() << "," 
-		<< " eta = " << pfTau->leadPFChargedHadrCand()->eta() << "," 
-		<< " phi = " << pfTau->leadPFChargedHadrCand()->phi() ;
+		<< " Pt = " << pfTau->leadChargedHadrCand()->pt() << "," 
+		<< " eta = " << pfTau->leadChargedHadrCand()->eta() << "," 
+		<< " phi = " << pfTau->leadChargedHadrCand()->phi() ;
     } else {
       LogTrace("discriminate") << "leadPFChargedHadron: N/A" ; 
     }
   }
 
   // CV: isolation is not well defined in case primary vertex or leading charged hadron do not exist
-  if ( !(pv.isNonnull() && pfTau->leadPFChargedHadrCand().isNonnull()) ) return 0.;
+  if ( !(pv.isNonnull() && pfTau->leadChargedHadrCand().isNonnull()) ) return 0.;
 
   qcuts_->setPV(pv);
-  qcuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
+  qcuts_->setLeadTrack(*pfTau->leadChargedHadrCand());
 
   if ( applyDeltaBeta_ || calculateWeights_) {
     pileupQcutsGeneralQCuts_->setPV(pv);
-    pileupQcutsGeneralQCuts_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
+    pileupQcutsGeneralQCuts_->setLeadTrack(*pfTau->leadChargedHadrCand());
     pileupQcutsPUTrackSelection_->setPV(pv);
-    pileupQcutsPUTrackSelection_->setLeadTrack(*pfTau->leadPFChargedHadrCand());
+    pileupQcutsPUTrackSelection_->setLeadTrack(*pfTau->leadChargedHadrCand());
   }
 
   // Load the tracks if they are being used.
   if ( includeTracks_ ) {
-    for( auto const & cand : pfTau->isolationPFChargedHadrCands() ) {
+    for( auto const & cand : pfTau->isolationChargedHadrCands() ) {
       if ( qcuts_->filterCandRef(cand) ) {
 	LogTrace("discriminate") << "adding charged iso cand with pt " << cand->pt() ;
         isoCharged_.push_back(cand);
@@ -393,7 +393,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
     }
   }
   if ( includeGammas_ || calculateWeights_ ) {
-    for( auto const & cand : pfTau->isolationPFGammaCands() ) {
+    for( auto const & cand : pfTau->isolationGammaCands() ) {
       if ( qcuts_->filterCandRef(cand) ) {
 	LogTrace("discriminate") << "adding neutral iso cand with pt " << cand->pt() ;
         isoNeutral_.push_back(cand);
@@ -578,11 +578,11 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   bool failsPhotonPtSumOutsideSignalConeCut = false;
   double photonSumPt_outsideSignalCone = 0.;
   if ( applyPhotonPtSumOutsideSignalConeCut_ || storeRawPhotonSumPt_outsideSignalCone_ ) {
-    const std::vector<reco::CandidatePtr>& signalPFGammas = pfTau->signalPFGammaCands();
-    for ( std::vector<reco::CandidatePtr>::const_iterator signalPFGamma = signalPFGammas.begin();
-	  signalPFGamma != signalPFGammas.end(); ++signalPFGamma ) {
-      double dR = deltaR(pfTau->eta(), pfTau->phi(), (*signalPFGamma)->eta(), (*signalPFGamma)->phi());
-      if ( dR > pfTau->signalConeSize() ) photonSumPt_outsideSignalCone += (*signalPFGamma)->pt();
+    const std::vector<reco::CandidatePtr>& signalGammas = pfTau->signalGammaCands();
+    for ( std::vector<reco::CandidatePtr>::const_iterator signalGamma = signalGammas.begin();
+	  signalGamma != signalGammas.end(); ++signalGamma ) {
+      double dR = deltaR(pfTau->eta(), pfTau->phi(), (*signalGamma)->eta(), (*signalGamma)->phi());
+      if ( dR > pfTau->signalConeSize() ) photonSumPt_outsideSignalCone += (*signalGamma)->pt();
     }
     if ( photonSumPt_outsideSignalCone > maxAbsPhotonSumPt_outsideSignalCone_ || photonSumPt_outsideSignalCone > (maxRelPhotonSumPt_outsideSignalCone_*pfTau->pt()) ) {
       failsPhotonPtSumOutsideSignalConeCut = true;

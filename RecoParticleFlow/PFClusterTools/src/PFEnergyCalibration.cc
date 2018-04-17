@@ -188,16 +188,24 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     double dEta = std::abs( absEta - 1.5 );
     double etaPow = dEta * dEta * dEta * dEta;
 
+
     if ( e > 0. && thresh > 0. ) {
-      etaCorrE = 1. + aEtaEndcapEH(t) + 1.3*bEtaEndcapEH(t)*(0.04 + etaPow);
+      if(absEta<2.5) {
+        etaCorrE = 1. + aEtaEndcapEH(t) ;
+      }
+      else {
+        etaPow = dEta * dEta;
+        etaCorrE = 1. + aEtaEndcapEH(t) + 1.3*bEtaEndcapEH(t)*(0.6 + etaPow);
+      }
+      etaPow = dEta * dEta * dEta * dEta;
       etaCorrH = 1. + aEtaEndcapEH(t) + bEtaEndcapEH(t)*(0.04 + etaPow);
     } else {
       etaCorrE = 1. + aEtaEndcapH(t) + 1.3*bEtaEndcapH(t)*(0.04 + etaPow);
       if(absEta<2.5) {
-	etaCorrH = 1. + aEtaEndcapH(t) + 0.05*bEtaEndcapH(t);
+        etaCorrH = 1. + aEtaEndcapH(t) + 0.05*bEtaEndcapH(t);
       }
       else {
-	etaCorrH = 1. + aEtaEndcapH(t) + bEtaEndcapH(t)*(0.04 + etaPow);
+        etaCorrH = 1. + aEtaEndcapH(t) + bEtaEndcapH(t)*(etaPow - 1.1);
       }
     }
 

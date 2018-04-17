@@ -30,22 +30,22 @@ RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<
   copyGammas_ = copyGammasFromPiZeros;
   // Initialize our Accessors
   collections_[std::make_pair(kSignal, kChargedHadron)] =
-      &tau_->selectedSignalPFChargedHadrCands_;
+      &tau_->selectedSignalChargedHadrCands_;
   collections_[std::make_pair(kSignal, kGamma)] =
-      &tau_->selectedSignalPFGammaCands_;
+      &tau_->selectedSignalGammaCands_;
   collections_[std::make_pair(kSignal, kNeutralHadron)] =
-      &tau_->selectedSignalPFNeutrHadrCands_;
+      &tau_->selectedSignalNeutrHadrCands_;
   collections_[std::make_pair(kSignal, kAll)] =
-      &tau_->selectedSignalPFCands_;
+      &tau_->selectedSignalCands_;
 
   collections_[std::make_pair(kIsolation, kChargedHadron)] =
-      &tau_->selectedIsolationPFChargedHadrCands_;
+      &tau_->selectedIsolationChargedHadrCands_;
   collections_[std::make_pair(kIsolation, kGamma)] =
-      &tau_->selectedIsolationPFGammaCands_;
+      &tau_->selectedIsolationGammaCands_;
   collections_[std::make_pair(kIsolation, kNeutralHadron)] =
-      &tau_->selectedIsolationPFNeutrHadrCands_;
+      &tau_->selectedIsolationNeutrHadrCands_;
   collections_[std::make_pair(kIsolation, kAll)] =
-      &tau_->selectedIsolationPFCands_;
+      &tau_->selectedIsolationCands_;
 
   // Build our temporary sorted collections, since you can't use stl sorts on
   // RefVectors
@@ -57,21 +57,6 @@ RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<
 
   tau_->setjetRef(jet);
 }
-
-// void RecoTauConstructor::addPFCand(Region region, ParticleType type, const CandidateRef& ref, bool skipAddToP4) {
-//   LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ref->pt() << ", eta = " << ref->eta() << ", phi = " << ref->phi();
-//   if ( region == kSignal ) {
-//     // Keep track of the four vector of the signal vector products added so far.
-//     // If a photon add it if we are not using PiZeros to build the gammas
-//     if ( ((type != kGamma) || !copyGammas_) && !skipAddToP4 ) {
-//       LogDebug("TauConstructorAddPFCand") << "--> adding PFCand to tauP4." ;
-//       p4_ += ref->p4();
-//     }
-//   }
-//   getSortedCollection(region, type)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
-//   // Add to global collection
-//   getSortedCollection(region, kAll)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
-// }
 
 void RecoTauConstructor::addPFCand(Region region, ParticleType type, const CandidatePtr& ptr, bool skipAddToP4) {
   LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ptr->pt() << ", eta = " << ptr->eta() << ", phi = " << ptr->phi();
@@ -102,10 +87,10 @@ void RecoTauConstructor::reserveTauChargedHadron(Region region, size_t size)
 {
   if ( region == kSignal ) {
     tau_->signalTauChargedHadronCandidatesRestricted().reserve(size);
-    tau_->selectedSignalPFChargedHadrCands_.reserve(size);
+    tau_->selectedSignalChargedHadrCands_.reserve(size);
   } else {
     tau_->isolationTauChargedHadronCandidatesRestricted().reserve(size);
-    tau_->selectedIsolationPFChargedHadrCands_.reserve(size);
+    tau_->selectedIsolationChargedHadrCands_.reserve(size);
   }
 }
 
@@ -251,14 +236,6 @@ void checkMatchedProductIds(const T1& t1, const T2& t2) {
     }
 }
 }
-
-// PFCandidatePtr RecoTauConstructor::convertToPtr(
-//     const PFCandidateRef& pfRef) const {
-//   if(pfRef.isNonnull()) {
-//     checkMatchedProductIds(pfRef, pfCands_);
-//     return PFCandidatePtr(pfCands_, pfRef.key());
-//   } else return PFCandidatePtr();
-// }
 
 // Convert from a CandidateRef to a Ptr
 CandidatePtr RecoTauConstructor::convertToPtr(
@@ -422,28 +399,28 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects)
   if ( setupLeadingObjects ) {
     typedef std::vector<CandidatePtr>::const_iterator Iter;
     // Find the highest PT object in the signal cone
-    Iter leadingCand = leadPFCand(
+    Iter leadingCand = leadCand(
         getCollection(kSignal, kAll)->begin(),
         getCollection(kSignal, kAll)->end());
 
     if ( leadingCand != getCollection(kSignal, kAll)->end() )
-      tau_->setleadPFCand(*leadingCand);
+      tau_->setleadCand(*leadingCand);
 
     // Hardest charged object in signal cone
-    Iter leadingChargedCand = leadPFCand(
+    Iter leadingChargedCand = leadCand(
         getCollection(kSignal, kChargedHadron)->begin(),
         getCollection(kSignal, kChargedHadron)->end());
 
     if ( leadingChargedCand != getCollection(kSignal, kChargedHadron)->end() )
-      tau_->setleadPFChargedHadrCand(*leadingChargedCand);
+      tau_->setleadChargedHadrCand(*leadingChargedCand);
 
     // Hardest gamma object in signal cone
-    Iter leadingGammaCand = leadPFCand(
+    Iter leadingGammaCand = leadCand(
         getCollection(kSignal, kGamma)->begin(),
         getCollection(kSignal, kGamma)->end());
 
     if(leadingGammaCand != getCollection(kSignal, kGamma)->end())
-      tau_->setleadPFNeutralCand(*leadingGammaCand);
+      tau_->setleadNeutralCand(*leadingGammaCand);
   }
   return tau_;
 }

@@ -96,14 +96,11 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
   float tauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
-  const std::vector<reco::CandidatePtr>& signalPFCands = thePFTauRef->signalPFCands();
-  for (const auto& cand : signalPFCands) {
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
-    if (pfcand != nullptr) {
-      sumEtaTimesEnergy += (pfcand->positionAtECALEntrance().eta()*pfcand->energy());
-      sumEnergy += pfcand->energy();
-    }
-    else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+  const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTauRef->signalPFCands();
+  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
+    sumEtaTimesEnergy += ((*pfCandidate)->positionAtECALEntrance().eta()*(*pfCandidate)->energy());
+    sumEnergy += (*pfCandidate)->energy();
   }
   if ( sumEnergy > 0. ) {
     tauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -111,23 +108,20 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
 
   float leadChargedPFCandEtaAtEcalEntrance = -99.;
   float leadChargedPFCandPt = -99.;
-  for (const auto& cand : signalPFCands) {
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
-    if (pfcand != nullptr) {
-      const reco::Track* track = nullptr;
-      if (pfcand->trackRef().isNonnull()) track = pfcand->trackRef().get();
-      else if (pfcand->muonRef().isNonnull() && pfcand->muonRef()->innerTrack().isNonnull()) track = pfcand->muonRef()->innerTrack().get();
-      else if (pfcand->muonRef().isNonnull() && pfcand->muonRef()->globalTrack().isNonnull()) track = pfcand->muonRef()->globalTrack().get();
-      else if (pfcand->muonRef().isNonnull() && pfcand->muonRef()->outerTrack().isNonnull()) track = pfcand->muonRef()->outerTrack().get();
-      else if (pfcand->gsfTrackRef().isNonnull()) track = pfcand->gsfTrackRef().get();
-      if ( track ) {
-        if ( track->pt() > leadChargedPFCandPt ) {
-	  leadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
-	  leadChargedPFCandPt = track->pt();
-        }
+  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
+    const reco::Track* track = nullptr;
+    if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
+    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
+    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
+    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->outerTrack().get();
+    else if ( (*pfCandidate)->gsfTrackRef().isNonnull() ) track = (*pfCandidate)->gsfTrackRef().get();
+    if ( track ) {
+      if ( track->pt() > leadChargedPFCandPt ) {
+	leadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
+	leadChargedPFCandPt = track->pt();
       }
     }
-    else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
   }
 
   if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
@@ -139,11 +133,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
 	  size_t numSignalPFGammaCands = thePFTauRef->signalPFGammaCands().size();
-	  bool hasGsfTrack = false;
-	  const reco::PFCandidate* leadPFCH = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadPFChargedHadrCand().get());
-	  if (leadPFCH != nullptr) {
-	    hasGsfTrack = leadPFCH->gsfTrackRef().isNonnull();
-	  } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+	  bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
   	    
 	  //// Veto taus that go to Ecal crack
 	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
@@ -185,11 +175,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
     if ( !isGsfElectronMatched ) {
       mvaValue = mva_->MVAValue(*thePFTauRef);
       size_t numSignalPFGammaCands = thePFTauRef->signalPFGammaCands().size();
-      bool hasGsfTrack = false;
-      const reco::PFCandidate* leadPFCH = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadPFChargedHadrCand().get());
-      if (leadPFCH != nullptr) {
-	hasGsfTrack = leadPFCH->gsfTrackRef().isNonnull();
-      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+      bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
       
       //// Veto taus that go to Ecal crack
       if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
@@ -228,7 +214,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
     edm::LogPrint("PFTauAgainstEleMVA5") << "<PFRecoTauDiscriminationAgainstElectronMVA5::discriminate>:" ;
     edm::LogPrint("PFTauAgainstEleMVA5") << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi();
     edm::LogPrint("PFTauAgainstEleMVA5") << " deltaREleTau = " << deltaRDummy << ", isGsfElectronMatched = " << isGsfElectronMatched;
-    edm::LogPrint("PFTauAgainstEleMVA5") << " #Prongs = " << thePFTauRef->signalPFChargedHadrCands().size();
+    edm::LogPrint("PFTauAgainstEleMVA5") << " #Prongs = " << thePFTauRef->signalChargedHadrCands().size();
     edm::LogPrint("PFTauAgainstEleMVA5") << " MVA = " << mvaValue << ", category = " << category;
   }
 

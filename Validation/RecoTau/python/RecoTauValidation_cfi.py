@@ -221,7 +221,8 @@ EFFICIENCY
 """
 
 plotPset = Utils.SetPlotSequence(proc.TauValNumeratorAndDenominator)
-proc.efficiencies = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+proc.efficiencies = DQMEDHarvester(
    "TauDQMHistEffProducer",
    plots = plotPset    
    )

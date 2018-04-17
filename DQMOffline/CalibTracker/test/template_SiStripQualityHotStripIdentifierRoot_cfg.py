@@ -95,8 +95,9 @@ process.MySSQ = cms.ESProducer("SiStripQualityESProducer",
 #        ))
 #)
 ###
-#process.stat = cms.EDFilter("SiStripQualityStatistics",
-    #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
+#from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+#process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+#    #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_offline.png'),
 #    TkMapFileName = cms.untracked.string(''),
 #    dataLabel = cms.untracked.string('test')
 #)

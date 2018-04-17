@@ -107,6 +107,7 @@ namespace reco {
 
     edm::EDGetTokenT<HBHEDigiCollection> hbhedigi_token_;
     edm::EDGetTokenT<HcalCalibDigiCollection> hcalcalibdigi_token_;
+    edm::EDGetTokenT<QIE10DigiCollection> lasermondigi_token_;
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
     edm::EDGetTokenT<reco::TrackCollection> track_token_;

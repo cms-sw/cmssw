@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
@@ -199,6 +200,13 @@ namespace DataFormats_PatCandidates {
   std::vector< std::vector< edm::Ptr<pat::Jet> > > vvptr_jet;
   edm::Wrapper< std::vector< edm::Ptr<pat::Jet> > > wvptr_jet; 
   edm::Wrapper< std::vector< std::vector< edm::Ptr<pat::Jet> > > > wvvptr_jet;
+
+  edm::Association<std::vector<pat::Jet> > patjet_assoc_vr;
+  edm::Wrapper<edm::Association<std::vector<pat::Jet> > > patjet_assoc_vr_wrapper;
+  edm::RefProd<vector<pat::Jet> > patjet_rp;
+  edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >  patjet_v_patpc_v_otm_am;
+  edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > >   patjet_v_patpc_v_otm_am_w;
+  edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > > patjet_v_patpc_v_kv;
 
   pat::PATTauDiscriminatorBase                     pattdiscr_b;
   pat::PATTauDiscriminator                         pattdiscr_o;

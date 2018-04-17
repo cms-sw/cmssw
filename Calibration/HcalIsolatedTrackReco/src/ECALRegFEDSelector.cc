@@ -3,6 +3,7 @@
 #include "EventFilter/EcalRawToDigi/interface/EcalRegionCabling.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
 {
@@ -55,7 +56,7 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       double etaObj_=isoPixTrackRefs[p]->track()->eta();
       double phiObj_=isoPixTrackRefs[p]->track()->phi();
 
-      EcalEtaPhiRegion ecEtaPhi(etaObj_-delta_,etaObj_+delta_,phiObj_-delta_,phiObj_+delta_);
+      RectangularEtaPhiRegion ecEtaPhi(etaObj_-delta_,etaObj_+delta_,phiObj_-delta_,phiObj_+delta_);
       
       const std::vector<int> EC_FED_IDs=ec_mapping->GetListofFEDs(ecEtaPhi);
       

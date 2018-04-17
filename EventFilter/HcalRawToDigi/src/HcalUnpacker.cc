@@ -105,6 +105,7 @@ namespace HcalUnpacker_impl {
 	  digi.setSample(ntaken,sample);
 	  ++ntaken;
 	}
+
 	ncurr++;
       }
       digi.setSize(ntaken);
@@ -596,8 +597,6 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     // ok, now we're work-able
     int slot=amc13->AMCSlot(iamc);
     int crate=amc13->AMCId(iamc)&0xFF;
-    // this is used only for the 1.6 Gbps link data
-    int nps=(amc13->AMCId(iamc)>>12)&0xF;
     
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
     //Check to make sure uMNio is not unpacked here
@@ -613,7 +612,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 #endif
 
     //use uhtr presamples since amc header not properly packed in simulation
-    nps = uhtr.presamples();
+    int nps = uhtr.presamples();
+
     HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
     while (i!=iend) {
 #ifdef DebugLog
@@ -644,15 +644,24 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
               colls.qie11 = new QIE11DigiCollection(ns);
           }
           else if (colls.qie11->samples() != ns) {
-              // This is horrible
-              edm::LogError("Invalid Data") << "QIE11 Collection has " << colls.qie11->samples() << " samples per digi, raw data has " << ns << "!";
-              return;
+            // if this sample type hasn't been requested to be saved
+            // warn the user to provide a configuration that prompts it to be saved
+            if( colls.qie11Addtl.find( ns ) == colls.qie11Addtl.end() ) {
+              printInvalidDataMessage( "QIE11", colls.qie11->samples(), ns, true );
+            }
           }
 
           // Insert data
           /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
           if (!did.null()) { // unpack and store...
+            // only fill the default collection if we have the correct number of samples
+            if (colls.qie11->samples() == ns) {
               colls.qie11->addDataFrame(did, head_pos);
+            }
+            // fill the additional qie11 collections
+            if( colls.qie11Addtl.find( ns ) != colls.qie11Addtl.end() ) {
+              colls.qie11Addtl[ns]->addDataFrame( did, head_pos );
+            }
           } else {
               report.countUnmappedDigi(eid);
               if (unknownIds_.find(eid)==unknownIds_.end()) {
@@ -681,32 +690,53 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	  ns++; 
 	}
 
-	// Check QEI10 container exists
-	if (colls.qie10ZDC == nullptr) {
-	  colls.qie10ZDC = new QIE10DigiCollection(ns);
+        bool isZDC = (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId);
+        bool isLasmon = (did.det()==DetId::Hcal && (HcalSubdetector)did.subdetId() == HcalOther && HcalCalibDetId( did ).calibFlavor() == 5);
+
+	if( isZDC ) {
+          if( colls.qie10ZDC == nullptr ) {
+            colls.qie10ZDC = new QIE10DigiCollection(ns);
+          } else if (colls.qie10ZDC->samples() != ns) {
+            printInvalidDataMessage( "QIE10ZDC", colls.qie10ZDC->samples(), ns, false );
+          }
 	}
-	else if (colls.qie10ZDC->samples() != ns) {
-	  // This is horrible
-	  edm::LogError("Invalid Data") << "QIE10ZDC Collection has " << colls.qie10ZDC->samples() << " samples per digi, raw data has " << ns << "!";
-	  return;
-	}
-	
-	if (colls.qie10 == nullptr) {
-	  colls.qie10 = new QIE10DigiCollection(ns);
-	}
-	else if (colls.qie10->samples() != ns) {
-	  // This is horrible
-	  edm::LogError("Invalid Data") << "QIE10 Collection has " << colls.qie10->samples() << " samples per digi, raw data has " << ns << "!";
-	  return;
-	}
+        else if( isLasmon ) {
+          if (colls.qie10Lasermon == nullptr ) {
+            colls.qie10Lasermon = new QIE10DigiCollection(ns);
+          } else if (colls.qie10Lasermon->samples() != ns) {
+            printInvalidDataMessage( "QIE10LASMON", colls.qie10Lasermon->samples(), ns, false );
+          }
+        } else { // these are the default qie10 channels
+          if (colls.qie10 == nullptr) { 
+	    colls.qie10 = new QIE10DigiCollection(ns);
+          }
+          else if (colls.qie10->samples() != ns) {
+            // if this sample type hasn't been requested to be saved
+            // warn the user to provide a configuration that prompts it to be saved
+            if( colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
+              printInvalidDataMessage( "QIE10", colls.qie10->samples(), ns, true );
+            }
+          }
+        }
 
 	// Insert data
     /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
-	if (!did.null() && did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) { // unpack and store...
-		colls.qie10ZDC->addDataFrame(did, head_pos);
-	} 
-	else if (!did.null()) { // unpack and store...
-		colls.qie10->addDataFrame(did, head_pos);
+	if (!did.null()) { // unpack and store...
+          // fill the additional qie10 collections
+          if( isZDC ) colls.qie10ZDC->addDataFrame( did, head_pos );
+          else if( isLasmon) colls.qie10Lasermon->addDataFrame( did, head_pos );
+          else {
+
+            // only fill the default collection if we have the correct number of samples
+            if (colls.qie10->samples() == ns) {
+              colls.qie10->addDataFrame(did, head_pos);
+            }
+              
+            // fill the additional qie10 collections
+            if( colls.qie10Addtl.find( ns ) != colls.qie10Addtl.end() ) {
+              colls.qie10Addtl[ns]->addDataFrame( did, head_pos );
+            }
+          }
 	} else {
 		report.countUnmappedDigi(eid);
 		if (unknownIds_.find(eid)==unknownIds_.end()) {
@@ -825,6 +855,7 @@ HcalUnpacker::Collections::Collections() {
   ttp=nullptr;
   qie10=nullptr;
   qie10ZDC=nullptr;
+  qie10Lasermon=nullptr;
   qie11=nullptr;
   umnio=nullptr;
 }
@@ -903,3 +934,35 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& col
   *(colls.umnio) = HcalUMNioDigi(data, nwords);
   
 }
+
+void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns, bool extended ) {
+
+  nPrinted_++;
+
+  int limit = 20;
+  if( nPrinted_ >= limit ) {
+
+      if( nPrinted_ == limit ) edm::LogWarning("Invalid Data") << "Suppressing further error messages" << std::endl;
+      
+      return;
+  }
+
+  std::stringstream message;
+
+  message << "The default " << coll_type << " Collection has " 
+        << default_ns << " samples per digi, while the current data has " 
+        << conflict_ns << "!  This data cannot be included with the default collection.";
+
+  if( extended ) {
+      message << "\nIn order to store this data in the event, it must have a unique tag.  "
+              << "To accomplish this, provide two lists to HcalRawToDigi \n"
+              << "1) that specifies the number of samples and "
+              << "2) that gives tags with which these data are saved.\n"
+              << "For example in this case you might add \n"
+              << "process.hcalDigis.save" << coll_type << "DataNSamples = cms.untracked.vint32( " 
+              << conflict_ns << ") \nprocess.hcalDigis.save" << coll_type << "DataTags = cms.untracked.vstring( \"MYDATA\" )" ;
+  }
+
+  edm::LogWarning("Invalid Data") << message.str() << std::endl;
+}
+

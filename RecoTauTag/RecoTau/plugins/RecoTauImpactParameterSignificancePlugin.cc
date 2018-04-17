@@ -75,8 +75,8 @@ namespace
 
 void RecoTauImpactParameterSignificancePlugin::operator()(PFTau& tau) const {
   // Get the transient lead track
-  if (tau.leadPFChargedHadrCand().isNonnull()) {
-    const reco::Track* leadTrack = getTrack(*tau.leadPFChargedHadrCand());
+  if (tau.leadChargedHadrCand().isNonnull()) {
+    const reco::Track* leadTrack = getTrack(*tau.leadChargedHadrCand());
     if (leadTrack != nullptr) {
       const TransientTrack track = builder_->build(leadTrack);
       GlobalVector direction(tau.jetRef()->px(), tau.jetRef()->py(),

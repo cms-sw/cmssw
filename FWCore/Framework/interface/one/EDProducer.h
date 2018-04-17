@@ -44,6 +44,14 @@ namespace edm {
         return WantsGlobalLuminosityBlockTransitions<T...>::value;
       }
 
+      bool hasAbilityToProduceInRuns() const final {
+        return HasAbilityToProduceInRuns<T...>::value;
+      }
+
+      bool hasAbilityToProduceInLumis() const final {
+        return HasAbilityToProduceInLumis<T...>::value;
+      }
+
       SerialTaskQueue* globalRunsQueue() final { return globalRunsQueue_.queue();}
       SerialTaskQueue* globalLuminosityBlocksQueue() final { return globalLuminosityBlocksQueue_.queue();}
 

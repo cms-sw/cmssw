@@ -546,6 +546,40 @@ PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_s
 PREMIXEventContent.outputCommands.append('keep RPCDigiSimLinkedmDetSetVector_*_*_*')
 PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
 fastSim.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+fastSimEC.extraPremixContent)
+# Phase2 essentially extends the content to DIGI
+# We could split this by subdetector-eras, but let's start with simple
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+[
+        # Tracker
+        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
+        # MTD
+        # ???
+        # ECAL
+        'keep *_simEcalDigis_ebDigis_*',
+        'keep ESDigiCollection_simEcalUnsuppressedDigis_*_*',
+        # HCAL
+        'keep *_simHcalDigis_*_*',
+        'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
+        # HGCAL
+        'keep *_mix_HGCDigisEE_*',
+        'keep *_mix_HGCDigisHEfront_*',
+        'keep *_mix_HGCDigisHEback_*',
+        # DT
+        'keep *_simMuonDTDigis_*_*',
+        # CSC
+        'keep *_simMuonCSCDigis_*_*',
+        'keep *_simMuonCscTriggerPrimitiveDigis_*_*',
+        # RPC
+        'keep *_simMuonRPCDigis_*_*',
+        # GEM
+        'keep *_simMuonGEMDigis_*_*',
+        # ME0
+        'keep *_simMuonME0Digis_*_*',
+        # CaloParticles
+        'keep *_mix_MergedCaloTruth_*',
+])
+
 
 from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
 hcalSkipPacker.toModify(PREMIXEventContent.outputCommands,

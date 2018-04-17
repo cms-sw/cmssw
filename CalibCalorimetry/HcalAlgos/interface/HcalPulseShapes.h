@@ -7,15 +7,12 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 /** \class HcalPulseShapes
   *  
   * \author J. Mans - Minnesota
   */
-class HcalMCParams;
-class HcalRecoParams;
-class HcalTopology;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -28,8 +25,7 @@ public:
   ~HcalPulseShapes();
   // only needed if you'll be getting shapes by DetId
   void beginRun(edm::EventSetup const & es);
-  void endRun();
-  void beginRun(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams);
+  void beginRun(const HcalDbService* conditions);
 
   const Shape& hbShape() const { return hpdShape_; }
   const Shape& heShape() const { return hpdShape_; }
@@ -85,9 +81,7 @@ private:
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;
-  HcalMCParams * theMCParams;
-  const HcalTopology * theTopology;
-  HcalRecoParams * theRecoParams;
+  const HcalDbService * theDbService;
   typedef std::map<int, const Shape *> ShapeMap;
   ShapeMap theShapes;
 
