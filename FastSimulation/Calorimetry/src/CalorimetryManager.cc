@@ -1236,12 +1236,12 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
       else if (hdetid.subdetId()== HcalForward){
         if(useShowerLibrary) {
           if(useCorrectionSL) {
-             if(hdetid.depth()== 1) energy *= hfcorrEm[hdetid.ietaAbs()-ietaShiftHF_];
-             if(hdetid.depth()== 2) energy *= hfcorrHad[hdetid.ietaAbs()-ietaShiftHF_];
+             if(hdetid.depth()== 1 or hdetid.depth()==3) energy *= hfcorrEm[hdetid.ietaAbs()-ietaShiftHF_];
+             if(hdetid.depth()== 2 or hdetid.depth()==4) energy *= hfcorrHad[hdetid.ietaAbs()-ietaShiftHF_];
           }
         } else {
-          if(hdetid.depth()== 1) energy *= samplingHF_[0];
-          if(hdetid.depth()== 2) energy *= samplingHF_[1];
+          if(hdetid.depth()== 1 or hdetid.depth()==3) energy *= samplingHF_[0];
+          if(hdetid.depth()== 2 or hdetid.depth()==4) energy *= samplingHF_[1];
           time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
         } 
       }
