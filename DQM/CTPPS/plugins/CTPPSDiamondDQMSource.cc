@@ -105,8 +105,6 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     /// plots related to the whole system
     struct GlobalPlots
     {
-      MonitorElement* h_trackCorr_hor = nullptr;
-
       GlobalPlots() {}
       GlobalPlots( DQMStore::IBooker& ibooker );
     };
@@ -232,16 +230,6 @@ const int       CTPPSDiamondDQMSource::CTPPS_FED_ID_45 = 583;
 CTPPSDiamondDQMSource::GlobalPlots::GlobalPlots( DQMStore::IBooker& ibooker )
 {
   ibooker.setCurrentFolder( "CTPPS" );
-
-  h_trackCorr_hor = ibooker.book2D( "track correlation all hor", "rp, all, hor", 6, -0.5, 5.5, 6, -0.5, 5.5 );
-  TH2F* hist = h_trackCorr_hor->getTH2F();
-  TAxis* xa = hist->GetXaxis(), *ya = hist->GetYaxis();
-  xa->SetBinLabel( 6, "45, 210, near" ); ya->SetBinLabel( 1, "45, 210, near" );
-  xa->SetBinLabel( 5, "45, 210, far" );  ya->SetBinLabel( 2, "45, 210, far" );
-  xa->SetBinLabel( 4, "45, 220, cyl" );  ya->SetBinLabel( 3, "45, 220, cyl" );
-  xa->SetBinLabel( 3, "56, 210, near" ); ya->SetBinLabel( 4, "56, 210, near" );
-  xa->SetBinLabel( 2, "56, 210, far" );  ya->SetBinLabel( 5, "56, 210, far" );
-  xa->SetBinLabel( 1, "56, 220, cyl" );  ya->SetBinLabel( 6, "56, 220, cyl" );
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -508,74 +496,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   //------------------------------
   // Correlation Plots
   //------------------------------
-
-  for ( const auto& ds1 : *pixelTracks ) {
-    for ( const auto& tr1 : ds1 ) {
-      if ( ! tr1.isValid() )  continue;
-
-      CTPPSDetId rpId1( ds1.detId() );
-      unsigned int arm1 = rpId1.arm();
-      unsigned int stNum1 = rpId1.station();
-      unsigned int rpNum1 = rpId1.rp();
-      if (stNum1 != 0 || ( rpNum1 != 2 && rpNum1 != 3 ) )  continue;
-      unsigned int idx1 = arm1*3 + rpNum1-2;
-
-      for ( const auto& ds2 : *pixelTracks ) {
-        for ( const auto& tr2 : ds2 ) {
-          if ( ! tr2.isValid() )  continue;
-
-          CTPPSDetId rpId2(ds2.detId());
-          unsigned int arm2 = rpId2.arm();
-          unsigned int stNum2 = rpId2.station();
-          unsigned int rpNum2 = rpId2.rp();
-          if (stNum2 != 0 || ( rpNum2 != 2 && rpNum2 != 3 ) )  continue;
-          unsigned int idx2 = arm2*3 + rpNum2-2;
-
-          if ( idx1 >= idx2 ) globalPlot_.h_trackCorr_hor->Fill( 5-idx1, idx2 ); // strips-strips
-        }
-      }
-      for ( const auto& ds2 : *diamondLocalTracks ) {
-        for ( const auto& tr2 : ds2 ) {
-          if ( ! tr2.isValid() ) continue;
-          if ( centralOOT_ != -999 && tr2.getOOTIndex() != centralOOT_ ) continue;
-          if ( excludeMultipleHits_ && tr2.getMultipleHits() > 0 ) continue;
-
-          CTPPSDetId diamId2( ds2.detId() );
-          unsigned int arm2 = diamId2.arm();
-          if ( idx1 >= arm2*3+2 )
-            globalPlot_.h_trackCorr_hor->Fill( 5-idx1, arm2*3+2 ); // strips-diamonds
-          else
-            globalPlot_.h_trackCorr_hor->Fill( 5-(arm2*3+2 ),idx1 ); // strips-diamonds
-        }
-      }
-    }
-  }
-
-  for ( const auto& ds1 : *diamondLocalTracks ) {
-    for ( const auto& tr1 : ds1 ) {
-      if ( ! tr1.isValid() ) continue;
-      if ( excludeMultipleHits_ && tr1.getMultipleHits() > 0 ) continue;
-      if ( centralOOT_ != -999 && tr1.getOOTIndex() != centralOOT_ ) continue;
-
-      CTPPSDetId diamId1( ds1.detId() );
-      unsigned int arm1 = diamId1.arm();
-
-      globalPlot_.h_trackCorr_hor->Fill( 5-(arm1*3+2), arm1*3+2 ); // diamonds-diamonds
-
-      for ( const auto& ds2 : *diamondLocalTracks ) {
-        for ( const auto& tr2 : ds2 ) {
-          if ( ! tr2.isValid() ) continue;
-          if ( excludeMultipleHits_ && tr2.getMultipleHits() > 0 ) continue;
-          if ( centralOOT_ != -999 && tr2.getOOTIndex() != centralOOT_ ) continue;
-
-          CTPPSDetId diamId2( ds2.detId() );
-          unsigned int arm2 = diamId2.arm();
-          if ( arm1 > arm2 ) globalPlot_.h_trackCorr_hor->Fill( 5-(arm1*3+2), arm2*3+2 ); // diamonds-diamonds
-        }
-      }
-    }
-  }
-
 
   // Using CTPPSDiamondDigi
   for ( const auto& digis : *diamondDigis ) {
