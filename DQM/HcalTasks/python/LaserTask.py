@@ -32,4 +32,7 @@ laserTask = DQMEDAnalyzer(
 	laserMonDigiOverlap = cms.untracked.int32(2), # digis have 6 TSes, but overlap by 2.
 	laserMonTS0 = cms.untracked.int32(65), # Timing is set so the peak is in TS 69.
 	laserMonThreshold = cms.untracked.double(1.e5),
+	thresh_timingreflm_rms = cms.untracked.double(5.),
+	thresh_frac_timingreflmrms = cms.untracked.double(0.01),
+	thresh_min_lmsumq = cms.untracked.double(50000.),
 )
