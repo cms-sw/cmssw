@@ -21,54 +21,60 @@ class VertexFinder {
 
 public:
   // Copy fitted tracks collection into class
-  VertexFinder(FitTrackCollection fitTracks, const AlgoSettings& settings){fitTracks_ = fitTracks; settings_ = &settings;}
-  ~VertexFinder(){}
+  VertexFinder(FitTrackCollection fitTracks, const AlgoSettings& settings)
+  {
+    fitTracks_ = fitTracks;
+    settings_ = &settings;
+  }
+  ~VertexFinder() {}
 
-  struct SortTracksByZ0{
-    inline bool operator() (const L1Track* track0, const L1Track* track1){
-      return(track0->z0() < track1->z0());
-    }
+  struct SortTracksByZ0 {
+    inline bool operator()(const L1Track* track0, const L1Track* track1) { return (track0->z0() < track1->z0()); }
   };
 
-  struct SortTracksByPt{
-    inline bool operator() (const L1Track* track0, const L1Track* track1){
-      return(fabs(track0->pt()) > fabs(track1->pt()));
-    }
+  struct SortTracksByPt {
+    inline bool operator()(const L1Track* track0, const L1Track* track1) { return (fabs(track0->pt()) > fabs(track1->pt())); }
   };
 
-  struct SortVertexByZ0{
-    inline bool operator() (const RecoVertex vertex0, const RecoVertex vertex1){
-      return(vertex0.z0() < vertex1.z0());
-    }
+  struct SortVertexByZ0 {
+    inline bool operator()(const RecoVertex vertex0, const RecoVertex vertex1) { return (vertex0.z0() < vertex1.z0()); }
   };
 
   /// Returns the z positions of the reconstructed primary vertices
-  const std::vector<RecoVertex>& Vertices()        const {return vertices_;}
+  const std::vector<RecoVertex>& Vertices() const { return vertices_; }
   /// Number of reconstructed vertices
-  unsigned int numVertices()                const {return vertices_.size();}
+  unsigned int numVertices() const { return vertices_.size(); }
   /// Reconstructed Primary Vertex
-  RecoVertex  PrimaryVertex()               const {if(pv_index_ < vertices_.size()) return vertices_[pv_index_]; else{ std::cout << "No Primary Vertex has been found." << std::endl; return RecoVertex();} }
+  RecoVertex PrimaryVertex() const
+  {
+    if (pv_index_ < vertices_.size())
+      return vertices_[pv_index_];
+    else {
+      std::cout << "No Primary Vertex has been found." << std::endl;
+      return RecoVertex();
+    }
+  }
   /// Reconstructed Primary Vertex as in TDR
-  RecoVertex TDRPrimaryVertex()      const {return tdr_vertex_;}
+  RecoVertex TDRPrimaryVertex() const { return tdr_vertex_; }
   /// Reconstructed Primary Vertex Id
-  unsigned int PrimaryVertexId()            const { return pv_index_;}
+  unsigned int PrimaryVertexId() const { return pv_index_; }
   /// Storage for tracks out of the L1 Track finder
-  const FitTrackCollection& FitTracks()     const { return fitTracks_;}
+  const FitTrackCollection& FitTracks() const { return fitTracks_; }
   /// Storage for tracks out of the L1 Track finder
-  unsigned int numInputTracks()            const { return fitTracks_.size();}
+  unsigned int numInputTracks() const { return fitTracks_.size(); }
   /// Storage for tracks out of the L1 Track finder
-  const FitTrackCollection& TDRPileUpTracks()      const { return tdr_pileup_tracks_;}
+  const FitTrackCollection& TDRPileUpTracks() const { return tdr_pileup_tracks_; }
   /// Find the primary vertex
-  void  FindPrimaryVertex();
+  void FindPrimaryVertex();
   /// Associate the primary vertex with the real one
-  void  AssociatePrimaryVertex(double trueZ0);
+  void AssociatePrimaryVertex(double trueZ0);
   /// Gap Clustering Algorithm
   void GapClustering();
   /// Find maximum distance in two clusters of tracks
   float MaxDistance(RecoVertex cluster0, RecoVertex cluster1);
-    /// Find minimum distance in two clusters of tracks
+  /// Find minimum distance in two clusters of tracks
   float MinDistance(RecoVertex cluster0, RecoVertex cluster1);
-    /// Find average distance in two clusters of tracks
+  /// Find average distance in two clusters of tracks
   float MeanDistance(RecoVertex cluster0, RecoVertex cluster1);
   /// Find distance between centres of two clusters
   float CentralDistance(RecoVertex cluster0, RecoVertex cluster1);
@@ -87,14 +93,13 @@ public:
   /// Histogramming algorithmn as in the TDR
   void TDRalgorithm();
   /// Sort Vertices in z
-  void SortVerticesInZ0()                   {std::sort(vertices_.begin(), vertices_.end(), SortVertexByZ0());}
+  void SortVerticesInZ0() { std::sort(vertices_.begin(), vertices_.end(), SortVertexByZ0()); }
   /// Number of iterations
-  unsigned int NumIterations()        const{ return iterations_;}
+  unsigned int NumIterations() const { return iterations_; }
   /// Number of iterations
-  unsigned int IterationsPerTrack()     const{ return double(iterations_)/double(fitTracks_.size());}
+  unsigned int IterationsPerTrack() const { return double(iterations_) / double(fitTracks_.size()); }
 
 private:
-
   const AlgoSettings* settings_;
   std::vector<RecoVertex> vertices_;
   unsigned int numMatchedVertices_;
@@ -104,7 +109,6 @@ private:
 
   RecoVertex tdr_vertex_;
   FitTrackCollection tdr_pileup_tracks_;
-
 };
 
 } // end namespace l1tVertexFinder

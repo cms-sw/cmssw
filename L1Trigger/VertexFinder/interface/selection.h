@@ -13,9 +13,9 @@ namespace l1tVertexFinder {
 const l1t::Vertex& getPrimaryVertex(const std::vector<l1t::Vertex>& aVertexCollection);
 
 //! Returns vertex for which parameter 'aFunction' returns the highest value; throws if given empty collection.
-const l1t::Vertex& getPrimaryVertex(const std::vector<l1t::Vertex>& aVertexCollection, const std::function<float (const std::vector<edm::Ptr<l1t::Vertex::Track_t>>&)>& aFunction);
+const l1t::Vertex& getPrimaryVertex(const std::vector<l1t::Vertex>& aVertexCollection, const std::function<float(const std::vector<edm::Ptr<l1t::Vertex::Track_t>>&)>& aFunction);
 
-//const l1t::Vertex& getPrimaryVertex(const std::vector<l1t::Vertex>& aVertexCollection, const std::function<float (const l1t::Vertex::Track_t&)> aFunction);
+// const l1t::Vertex& getPrimaryVertex(const std::vector<l1t::Vertex>& aVertexCollection, const std::function<float (const l1t::Vertex::Track_t&)> aFunction);
 
 } // end namespace l1tVertexFinder
 

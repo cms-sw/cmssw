@@ -16,22 +16,21 @@
 
 
 namespace l1tVertexFinder {
-  class AlgoSettings;
+class AlgoSettings;
 }
 
 class VertexProducer : public edm::EDProducer {
 
 public:
   explicit VertexProducer(const edm::ParameterSet&);
-  ~VertexProducer(){}
+  ~VertexProducer() {}
 
 private:
-
-  typedef edm::View< TTTrack< Ref_Phase2TrackerDigi_ > > TTTrackCollectionView;
+  typedef edm::View<TTTrack<Ref_Phase2TrackerDigi_>> TTTrackCollectionView;
 
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void endJob();
 
 private:
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
@@ -40,4 +39,3 @@ private:
 };
 
 #endif
-

@@ -14,29 +14,27 @@
 
 namespace l1tVertexFinder {
 
-  //! Simple wrapper class for TTTrack
-  class L1Track {
-  public:
-    L1Track(const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& aTrack) : track_(aTrack) {};
-    ~L1Track() {};
+//! Simple wrapper class for TTTrack
+class L1Track {
+public:
+  L1Track(const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& aTrack) : track_(aTrack){};
+  ~L1Track(){};
 
-    float eta() const { return track_->getMomentum().eta(); };
-    float phi0() const { return track_->getMomentum().phi(); };
-    float pt() const { return track_->getMomentum().transverse(); };
-    float z0() const { return track_->getPOCA().z(); };
+  float eta() const { return track_->getMomentum().eta(); };
+  float phi0() const { return track_->getMomentum().phi(); };
+  float pt() const { return track_->getMomentum().transverse(); };
+  float z0() const { return track_->getPOCA().z(); };
 
-    // FIXME: Double check nPar=4 is correct
-    float chi2dof() const { return track_->getChi2Red(); };
+  // FIXME: Double check nPar=4 is correct
+  float chi2dof() const { return track_->getChi2Red(); };
 
-    unsigned int getNumStubs()  const  {return track_->getStubRefs().size();}
+  unsigned int getNumStubs() const { return track_->getStubRefs().size(); }
 
-    const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>& getTTTrackPtr() const {
-      return track_;
-    };
+  const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>& getTTTrackPtr() const { return track_; };
 
-  private:
-    edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >> track_;
-  };
+private:
+  edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>> track_;
+};
 
 } // end ns l1tVertexFinder
 
