@@ -15,7 +15,7 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify( hcalSimHitStudy, ModuleLabel = cms.untracked.string('fastSimProducer') )
     
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify( hcalSimHitStudy, TestNumber = cms.bool(True) )
+(run2_HCAL_2017 & ~fastSim).toModify( hcalSimHitStudy, TestNumber = cms.bool(True) )
 
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
 run2_HEPlan1_2017.toModify( hcalSimHitStudy, hep17 = cms.bool(True) )
