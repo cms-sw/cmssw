@@ -613,7 +613,7 @@ void Jet::cachePFCandidates() const {
 void Jet::cacheDaughters() const {
     // Jets in MiniAOD produced via JetSubstructurePacker contain a mixture of subjets and particles as daughters
     std::unique_ptr<std::vector<reco::CandidatePtr>> daughtersTemp{ new std::vector<reco::CandidatePtr>{}};
-    const std::vector<reco::CandidatePtr> & jdaus = daughterPtrVector();
+    const std::vector<reco::CandidatePtr> & jdaus = reco::Jet::daughterPtrVector();
     for (const reco::CandidatePtr & dau : jdaus) {
       if (dau->isJet()) {
         const reco::Jet *subjet = dynamic_cast<const reco::Jet *>(&*dau);
