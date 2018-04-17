@@ -36,26 +36,27 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
 	  ijetEnd = jetHandle->end(), ijet = ijetBegin; ijet != ijetEnd; ++ijet ) {
     
     outputs->push_back( *ijet );
-    std::vector< edm::Ptr<pat::Jet> > nextSubjets;
+    std::vector< edm::Ptr<reco::Candidate> > nextSubjets;
 
-    if (ijet->nSubjetCollections()>0) {
-        for ( unsigned int isubjet = 0; isubjet < ijet->subjets().size(); ++isubjet ) {
-        edm::Ptr<reco::Candidate> const & subjet = ijet->subjets()[isubjet];
-        edm::View<pat::Jet>::const_iterator ifound = find_if( subjetHandle->begin(),
+    for ( unsigned int isubjet = 0; isubjet < ijet->numberOfDaughters(); ++isubjet ) {
+      edm::Ptr<reco::Candidate> const & subjet = ijet->daughterPtr(isubjet);
+      edm::View<pat::Jet>::const_iterator ifound = find_if( subjetHandle->begin(),
 							    subjetHandle->end(),
 							    FindCorrectedSubjet(subjet) );
-        if ( ifound != subjetHandle->end() ) {
+      if ( ifound != subjetHandle->end() ) {
 
-	  outputSubjets->push_back( *ifound );
+	outputSubjets->push_back( *ifound );
 
-	  edm::Ref<std::vector<pat::Jet> > subjetRef ( h_subJetsOut, outputSubjets->size() - 1);
-	  edm::Ptr< pat::Jet > subjetPtr ( h_subJetsOut.id(), subjetRef.key(), h_subJetsOut.productGetter() );
-	  nextSubjets.push_back( subjetPtr );
-        }
+	edm::Ref<std::vector<pat::Jet> > subjetRef ( h_subJetsOut, outputSubjets->size() - 1);
+	edm::Ptr< pat::Jet > subjetPtr ( h_subJetsOut.id(), subjetRef.key(), h_subJetsOut.productGetter() );
+	nextSubjets.push_back( subjetPtr );
       }
     }
     outputs->back().clearDaughters();
-    outputs->back().addSubjets( nextSubjets , "default" );
+    for ( std::vector< edm::Ptr<reco::Candidate> >::const_iterator nextSubjet = nextSubjets.begin(),
+	    nextSubjetEnd = nextSubjets.end(); nextSubjet != nextSubjetEnd; ++nextSubjet ) {
+      outputs->back().addDaughter( *nextSubjet );
+    }
 
     
   }
