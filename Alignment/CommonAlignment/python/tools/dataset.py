@@ -11,6 +11,16 @@ class DatasetError(Exception): pass
 
 defaultdasinstance = "prod/global"
 
+class RunRange(object):
+  def __init__(self, firstrun, lastrun, runs):
+    self.firstrun = firstrun
+    self.lastrun = lastrun
+    self.runs = runs
+
+  def __contains__(self, run):
+    if self.runs and run not in self.runs: return False
+    return self.firstrun <= run <= self.lastrun
+
 def dasquery(dasQuery, dasLimit=0):
   dasData = das_client.get_data(dasQuery, dasLimit)
   if isinstance(dasData, str):
@@ -122,12 +132,14 @@ class DatasetBase(object):
   def headercomment(self):
     pass
 
-  def writefilelist_validation(self, firstrun, lastrun, maxevents, outputfile=None):
+  def writefilelist_validation(self, firstrun, lastrun, runs, maxevents, outputfile=None):
+    runrange = RunRange(firstrun=firstrun, lastrun=lastrun, runs=runs)
+
     if outputfile is None:
       outputfile = os.path.join(os.environ["CMSSW_BASE"], "src", "Alignment", "OfflineValidation", "python", self.filenamebase+"_cff.py")
 
     if maxevents < 0: maxevents = float("inf")
-    totalevents = sum(datafile.nevents for datafile in self.getfiles() if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun)
+    totalevents = sum(datafile.nevents for datafile in self.getfiles() if all(run in runrange for run in datafile.runs))
     if totalevents == 0:
       raise ValueError("No events within the run range!")
     accepted = rejected = 0.  #float so fractions are easier
@@ -138,20 +150,21 @@ class DatasetBase(object):
       f.write("#"+self.headercomment+"\n")
       f.write(validationheader)
       for datafile in self.getfiles():
-        if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun:
+        if all(run in runrange for run in datafile.runs):
           if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
             f.write('"' + datafile.filename + '",\n')
             accepted += datafile.nevents
           else:
             rejected += datafile.nevents
-        elif any(firstrun <= run <= lastrun for run in datafile.runs):
+        elif any(run in runrange for run in datafile.runs):
           raise DatasetError("file {} has multiple runs {}, which straddle firstrun or lastrun".format(datafile.filename, datafile.runs))
       f.write("#total events in these files: {}".format(accepted))
       f.write(validationfooter)
 
-  def writefilelist_hippy(self, firstrun, lastrun, eventsperjob, maxevents, outputfile):
+  def writefilelist_hippy(self, firstrun, lastrun, runs, eventsperjob, maxevents, outputfile):
+    runrange = RunRange(firstrun=firstrun, lastrun=lastrun, runs=runs)
     if maxevents < 0: maxevents = float("inf")
-    totalevents = sum(datafile.nevents for datafile in self.getfiles() if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun)
+    totalevents = sum(datafile.nevents for datafile in self.getfiles() if all(run in runrange for run in datafile.runs))
     if totalevents == 0:
       raise ValueError("No events within the run range!")
     accepted = rejected = inthisjob = 0.  #float so fractions are easier
@@ -161,7 +174,7 @@ class DatasetBase(object):
 
     with open(outputfile, "w") as f:
       for datafile in self.getfiles():
-        if firstrun <= min(datafile.runs) <= max(datafile.runs) <= lastrun:
+        if all(run in runrange for run in datafile.runs):
           if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
             if writecomma: f.write(",")
             f.write("'" + datafile.filename + "'")
@@ -175,7 +188,7 @@ class DatasetBase(object):
               writecomma = True
           else:
             rejected += datafile.nevents
-        elif any(firstrun <= run <= lastrun for run in datafile.runs):
+        elif any(run in runrange for run in datafile.runs):
           raise DatasetError("file {} has multiple runs {}, which straddle firstrun or lastrun".format(datafile.filename, datafile.runs))
       f.write("\n")
 
