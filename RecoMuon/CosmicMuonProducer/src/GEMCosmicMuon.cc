@@ -402,7 +402,8 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
 
   vector<Trajectory> fitted = theSmoother_->trajectories(seed, consRecHits, tsos);
   cout << "fitted.size() "<<fitted.size()<< endl;
-  return fitted.front();
+  if(fitted.size() == 0) return Trajectory();
+  else return fitted.front();
 }
 
 MuonTransientTrackingRecHit::MuonRecHitContainer GEMCosmicMuon::getHitsFromLayer(vector<const GEMChamber*> &chambers, const GEMRecHitCollection* gemHits)
