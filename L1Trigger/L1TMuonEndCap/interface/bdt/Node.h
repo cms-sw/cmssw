@@ -59,7 +59,7 @@ class Node
         Node* filterEventToDaughter(Event* e);
         void listEvents();
         void theMiracleOfChildBirth();
- 
+
     private:
         Node(const Node &) = delete;
         Node& operator=(const Node &) = delete;

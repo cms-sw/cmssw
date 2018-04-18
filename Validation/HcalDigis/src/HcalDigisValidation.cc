@@ -189,7 +189,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     HistLim sime(200, 0., 1.0);
 
     HistLim digiAmp(360, -100., 7100.);
-    HistLim digiAmpWide(360, -10000., 710000.);
+    HistLim digiAmpWide(2410, -3000., 720000.); //300 fC binning
     HistLim ratio(2000, -100., 3900.);
     HistLim sumAmp(100, -500., 1500.);
 
@@ -1112,7 +1112,7 @@ template<class dataFrameType> void HcalDigisValidation::reco(const edm::Event& i
 
             // fraction 5,6 bins if ampl. is big.
             //histogram names have not been changed, but it should be understood that bin_5 is soi, and bin_6_7 is latter TS'
-            if (v_ampl[depth] > 30.) {
+            if ((v_ampl[depth] > 30. && (subdet_ != "HE" || subdet_ != "HB")) || (v_ampl[depth] > 300.)) { //300 fC cut for QIE-11 HB & HE
                 double fbinSOI = tool[soi] - calibrations.pedestal((dataFrame)[soi].capid());
                 double fbinPS = 0; 
 

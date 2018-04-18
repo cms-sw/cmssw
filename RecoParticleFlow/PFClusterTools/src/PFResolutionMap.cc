@@ -254,7 +254,7 @@ double PFResolutionMap::getRes(double eta, double phi, double e, int MapEta){
 
 
 
-int PFResolutionMap::FindBin(double eta, double e) {
+int PFResolutionMap::FindBin(double eta, double e, double z) {
   if(e >= GetYaxis()->GetXmax() )
     e = GetYaxis()->GetXmax() - 0.001;
   

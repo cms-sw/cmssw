@@ -17,41 +17,33 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
-#process.CondDBCommon.connect = 'sqlite_file:DB.db'
-#process.CondDBCommon.connect = 'oracle://cms_orcoff_prep/CMS_COND_ECAL'
-process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_ECAL'
-process.CondDBCommon.DBParameters.authenticationPath = '/nfshome0/popcondev/conddb'
+process.CondDB.connect = 'sqlite_file:EcalIntercalibConstants.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-    process.CondDBCommon, 
-    logconnect = cms.untracked.string('sqlite_file:log.db'),   
-    toPut = cms.VPSet(cms.PSet(
-        record = cms.string('EcalIntercalibConstantsRcd'),
-        tag = cms.string('EcalIntercalibConstants_v9_offline')
-    ))
+  process.CondDB, 
+  logconnect = cms.untracked.string('sqlite_file:log.db'),   
+  toPut = cms.VPSet(
+    cms.PSet(
+      record = cms.string('EcalIntercalibConstantsRcd'),
+      tag = cms.string('EcalIntercalibConstants')
+    )
+  )
 )
 
 process.Test1 = cms.EDAnalyzer("ExTestEcalIntercalibAnalyzer",
-    record = cms.string('EcalIntercalibConstantsRcd'),
-    loggingOn= cms.untracked.bool(True),
-    IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
-    SinceAppendMode=cms.bool(True),
-    Source=cms.PSet(
-     FileLowField = cms.string('/nfshome0/popcondev/EcalTPGPopCon/CMSSW_3_11_0_ONLINE/src/CondTools/Ecal/python/interCalib_Boff.xml'),
-     FileHighField = cms.string('/nfshome0/popcondev/EcalTPGPopCon/CMSSW_3_11_0_ONLINE/src/CondTools/Ecal/python/interCalib_Bon.xml'),
-     Value_Bon = cms.untracked.double(0.75585),
-     firstRun = cms.string('98273'),
-     lastRun = cms.string('10000000'),
-     OnlineDBSID = cms.string('cms_omds_lb'),
-     OnlineDBUser = cms.string('cms_ecal_r'),
-     OnlineDBPassword = cms.string('*******'),
-     LocationSource = cms.string('P5'),
-     Location = cms.string('P5_Co'),
-     GenTag = cms.string('GLOBAL'),
-     RunType = cms.string('COSMICS')
-    )                            
+  record = cms.string('EcalIntercalibConstantsRcd'),
+  loggingOn= cms.untracked.bool(True),
+  IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
+  SinceAppendMode=cms.bool(True),
+  Source=cms.PSet(
+    firstRun = cms.string('1'),
+#    type = cms.string('txt'),
+#    fileName = cms.string('IC2017.txt'),
+    type = cms.string('xml'),
+    fileName = cms.string('Intercalib_Bon.xml'),
+  )                            
 )
 
 process.p = cms.Path(process.Test1)

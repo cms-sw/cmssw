@@ -8,6 +8,12 @@ namespace hcaldqm
 	{
 		_thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf",
 			0.2);
+
+		std::vector<uint32_t> vrefDigiSize = ps.getUntrackedParameter<std::vector<uint32_t>>("refDigiSize");
+		_refDigiSize[HcalBarrel]  = vrefDigiSize[0];
+		_refDigiSize[HcalEndcap]  = vrefDigiSize[1];
+		_refDigiSize[HcalOuter]   = vrefDigiSize[2];
+		_refDigiSize[HcalForward] = vrefDigiSize[3];
 	}
 
 	/* virtual */ void DigiRunSummary::beginRun(edm::Run const& r,
@@ -140,7 +146,7 @@ namespace hcaldqm
 			_cOccupancy_depth.fill(did, cOccupancy_depth.getBinContent(did));
 			//	digi size
 			cDigiSize_Crate.getMean(eid)!=
-				constants::DIGISIZE[did.subdet()-1]?
+				_refDigiSize[did.subdet()]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			cDigiSize_Crate.getRMS(eid)!=0?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;

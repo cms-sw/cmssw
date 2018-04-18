@@ -49,13 +49,13 @@ void PtAssignmentEngine::load(const L1TMuonEndCapForest *payload) {
     
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
     int mode = allowedModes_.at(i);
-    
+
     L1TMuonEndCapForest::DForestMap::const_iterator index = payload->forest_map_.find(mode); // associates mode to index
     if (index == payload->forest_map_.end())  continue;
-    
+
     forests_.at(mode).loadFromCondPayload(payload->forest_coll_[index->second]);
-    
-    double boostWeight_ = payload->forest_map_.find(mode+16)->second / 1000000.;  
+
+    double boostWeight_ = payload->forest_map_.find(mode+16)->second / 1000000.;
     // std::cout << "Loaded forest for mode " << mode << " with boostWeight_ = " << boostWeight_ << std::endl;
     // std::cout << "  * ptLUTVersion_ = " << ptLUTVersion_ << std::endl;
     forests_.at(mode).getTree(0)->setBoostWeight( boostWeight_ );
