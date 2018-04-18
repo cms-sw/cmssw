@@ -66,8 +66,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 	// Filters for QIE8 vs QIE10/11
 	std::vector<uint32_t> vhashQIE1011; 
-	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did.at(hcaldqm::hashfunctions::fSubdet)(HcalDetId(HcalEndcap, 20,1,1)));
-	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did.at(hcaldqm::hashfunctions::fSubdet)(HcalDetId(HcalForward, 29,1,1)));
+	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalEndcap, 20,1,1)));
+	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
 	_filter_QIE1011.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
 		vhashQIE1011);
 	_filter_QIE8.initialize(filter::fFilter, hcaldqm::hashfunctions::fSubdet,
@@ -644,7 +644,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				continue;
 		}
 
-		_cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
+		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
 		if (_ptype == fOnline || _ptype == fLocal) {
 			_cOccupancy_Crate.fill(eid);

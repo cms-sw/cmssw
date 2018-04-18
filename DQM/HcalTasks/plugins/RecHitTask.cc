@@ -56,7 +56,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vuTCA);
 	std::vector<uint32_t> vhashHF; 
-	vhashHF.push_back(hcaldqm::hashfunctions::hash_did.at(hcaldqm::hashfunctions::fSubdet)(HcalDetId(HcalForward, 29,1,1)));
+	vhashHF.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
 
 	_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet, vhashHF);
 
