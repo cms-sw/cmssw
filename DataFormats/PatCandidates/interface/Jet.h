@@ -441,8 +441,8 @@ namespace pat {
       ///    Else return the reco Jet number of constituents
       const reco::Candidate * daughter(size_t i) const override;
 
-      reco::CandidatePtr daughterPtr( size_t i ) const;
-      const reco::CompositePtrCandidate::daughters & daughterPtrVector() const;
+      reco::CandidatePtr daughterPtr( size_t i ) const override;
+      const reco::CompositePtrCandidate::daughters & daughterPtrVector() const override;
 
       using reco::LeafCandidate::daughter; // avoid hiding the base implementation
 
