@@ -188,7 +188,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       if (useBoth) {
         layerCount = 0;
         numSeedsMade = 0;
-        hittlessSeedsMade = 0;
+        hitlessSeedsMade = 0;
         for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
           LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl;
           findSeedsOnLayer(tTopo, **it, outerTkStateOutside,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2,
@@ -202,7 +202,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       layerCount = 0;
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
         LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl;
-        ffindSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
+        findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
                          estimatorH, measurementTrackerH, numSeedsMade, hitlessSeedsMade, numOfMaxSeeds, layerCount, out);
 	    }
       if (useBoth) {
