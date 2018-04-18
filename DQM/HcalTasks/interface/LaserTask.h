@@ -151,8 +151,8 @@ class LaserTask : public hcaldqm::DQTask
 		int _laserMonDigiOverlap;
 		int _laserMonTS0;
 		double _laserMonThreshold;
-		double _thresh_timingreflm_rms; // Threshold on timing (ref. lasermon) RMS to mark channel as bad
-		double _thresh_frac_timingreflmrms; // Flag threshold (BAD) on fraction of channels with bad timingreflm_rms
+		std::map<HcalSubdetector, std::pair<double, double>> _thresh_timingreflm; // Min and max timing (ref. lasermon)
+		double _thresh_frac_timingreflm; // Flag threshold (BAD) on fraction of channels with bad timing
 		double _thresh_min_lmsumq; // Threshold on minimum SumQ from lasermon, if laser is expected
 		int _xMissingLaserMon; // Counter for missing lasermon events
 
