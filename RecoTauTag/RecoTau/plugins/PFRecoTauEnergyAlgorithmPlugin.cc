@@ -158,12 +158,6 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(reco::PFTau& tau) const
       if ( chargedHadronTrack != nullptr ) {
 	nonPFCandTracksSumP += chargedHadronTrack->p();
 	nonPFCandTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
-      } else {
-	edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()")
-	  << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
-	if ( verbosity_ ) {
-	  chargedHadron->print();
-	}
       }
     }
   }

@@ -139,9 +139,7 @@ bool PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>::filterT
   const pat::PackedCandidate& cand = (*tracks)[iTrack];
   if (cand.charge() == 0)
     return false;
-  // ignore lost tracks without reconstructed track
-  if (!cand.hasTrackDetails())
-    return false;
+
   return qcuts_->filterChargedCand(cand);
 }
 

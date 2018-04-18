@@ -42,11 +42,19 @@ void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scal
     chargedHadronPz     = chargedPFCand->pz();
   } else if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kTrack) ) {
     const reco::Track* track = getTrackFromChargedHadron(chargedHadron);
-    assert(track != nullptr);
-    chargedHadronP     += track->p();
-    chargedHadronPx     = track->px();
-    chargedHadronPy     = track->py();
-    chargedHadronPz     = track->pz();
+    if (track != nullptr) {
+      chargedHadronP     += track->p();
+      chargedHadronPx     = track->px();
+      chargedHadronPy     = track->py();
+      chargedHadronPz     = track->pz();
+    } else { // lost tracks from MiniAOD that don't have track information saved
+      const reco::CandidatePtr& lostTrack = chargedHadron.getLostTrackCandidate();
+      assert(lostTrack.isNonnull());
+      chargedHadronP     += lostTrack->p();
+      chargedHadronPx     = lostTrack->px();
+      chargedHadronPy     = lostTrack->py();
+      chargedHadronPz     = lostTrack->pz();
+    }
   } else assert(0);
   const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
   for ( std::vector<reco::CandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
