@@ -294,8 +294,10 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
   cout << "tsos gp   "<< tsos.freeTrajectoryState()->position() <<endl;
   auto seedhit = seed.recHits().first;
   cout << "first  gp "<< GEMDetId(seedhit->rawId()) <<endl;
+  GEMDetId seedHit1(seedhit->rawId());
   seedhit++;
   cout << "second gp "<< GEMDetId(seedhit->rawId()) <<endl;
+  GEMDetId seedHit2(seedhit->rawId());
   
   float previousLayer = -200;//skip first layer
   int validHits = 0;
@@ -388,7 +390,10 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
       else{
 	++invalidHits;
       }
-      consRecHits.emplace_back(tmpRecHit);
+      GEMDetId tmpId(tmpRecHit->rawId());
+      if(tmpId.chamber() == seedHit1.chamber() and tmpId.layer() == seedHit1.layer()) consRecHits.emplace(consRecHits.begin(), tmpRecHit);
+      else if(tmpId.chamber() == seedHit2.chamber() and tmpId.layer() == seedHit2.layer()) consRecHits.emplace(consRecHits.begin(), tmpRecHit);
+      else consRecHits.emplace_back(tmpRecHit);
     }
   }
   cout << "validHits "<<validHits <<" invalidHits "<<invalidHits<< " total Hits "<< validHits+invalidHits<< endl;
