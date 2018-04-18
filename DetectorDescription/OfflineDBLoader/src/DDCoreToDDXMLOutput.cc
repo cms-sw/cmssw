@@ -364,7 +364,7 @@ void DDCoreToDDXMLOutput::rotation( const DDRotation& rotation, std::ostream& xo
    std::string rotName=rotation.toString();
    if( rotName == ":" ) 
    {
-      if( rotn != "" ) 
+      if( !rotn.empty() ) 
       {
          rotName = rotn;
          std::cout << "about to try to make a new DDRotation... should fail!" << std::endl;

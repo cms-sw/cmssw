@@ -74,7 +74,7 @@ OutputMagneticFieldDDToDDL::OutputMagneticFieldDDToDDL( const edm::ParameterSet&
 {
   m_rotNumSeed = iConfig.getParameter<int>( "rotNumSeed" );
   m_fname = iConfig.getUntrackedParameter<std::string>( "fileName" );
-  if( m_fname == "" )
+  if( m_fname.empty() )
   {
     m_xos = &std::cout;
   }
