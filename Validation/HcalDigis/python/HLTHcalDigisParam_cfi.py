@@ -16,6 +16,11 @@ hltHCALdigisAnalyzer.dataTPs      = cms.InputTag("simHcalTriggerPrimitiveDigis")
 hltHCALdigisAnalyzer.TestNumber   = cms.bool(False)    
 hltHCALdigisAnalyzer.hep17        = cms.bool(False)
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(hltHCALdigisAnalyzer,
+    dataTPs = "DMHcalTriggerPrimitiveDigis",
+)
+
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hltHCALdigisAnalyzer,
     TestNumber    = cms.bool(True)

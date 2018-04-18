@@ -4,7 +4,6 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
 
-#include <memory>
 #include <vector>
 
 namespace edm {
@@ -31,12 +30,11 @@ public:
   void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&, edm::StreamID const&) override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void endRun(edm::Run const&, edm::EventSetup const&) override;
-  ~HGCDigiProducer() override;
+  ~HGCDigiProducer() override = default;
 private:
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer
-  std::unique_ptr<HGCDigitizer> theDigitizer_;
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  HGCDigitizer theDigitizer_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif

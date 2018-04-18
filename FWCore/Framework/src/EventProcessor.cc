@@ -1118,7 +1118,7 @@ namespace edm {
     
     auto status= std::make_shared<LuminosityBlockProcessingStatus>(this, preallocations_.numberOfStreams(), iRunResource) ;
 
-    auto lumiWork = [this, iHolder, iSync, status](edm::LimitedTaskQueue::Resumer iResumer) mutable {
+    auto lumiWork = [this, iHolder, status](edm::LimitedTaskQueue::Resumer iResumer) mutable {
       if(iHolder.taskHasFailed()) { return; }
 
       status->setResumer(std::move(iResumer));

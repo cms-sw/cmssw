@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/Common/interface/TriggerNames.h"

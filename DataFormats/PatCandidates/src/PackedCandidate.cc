@@ -1,10 +1,10 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "DataFormats/PatCandidates/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
 using namespace logintpack;
 
 CovarianceParameterization pat::PackedCandidate::covarianceParameterization_;

@@ -61,10 +61,9 @@ void PixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
   es.get<TrackerDigiGeometryRecord>().get(geom_);
 }
 
-PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
+PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
   Phase2TrackerDigitizerAlgorithm(conf.getParameter<ParameterSet>("AlgorithmCommon"),
-				  conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm"),
-				  eng)
+				  conf.getParameter<ParameterSet>("PixelDigitizerAlgorithm"))
 {
   pixelFlag = true;
   LogInfo("PixelDigitizerAlgorithm") << "Algorithm constructed "

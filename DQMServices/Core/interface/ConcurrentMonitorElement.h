@@ -141,6 +141,11 @@ public:
     me_->getTH1()->Sumw2();
   }
 
+  void disableAlphanumeric()
+  {
+    me_->getTH1()->GetXaxis()->SetNoAlphanumeric(false);
+    me_->getTH1()->GetYaxis()->SetNoAlphanumeric(false);
+  }
 };
 
 #endif // DQMServices_Core_ConcurrentMonitorElement_h
