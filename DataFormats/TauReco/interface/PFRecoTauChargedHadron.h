@@ -8,9 +8,9 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 namespace reco { namespace tau {
+  template<class TrackClass>
+  class PFRecoTauChargedHadronFromGenericTrackPlugin;
   class PFRecoTauChargedHadronFromPFCandidatePlugin;
-  class PFRecoTauChargedHadronFromTrackPlugin;
-  class PFRecoTauChargedHadronFromLostTrackPlugin;
   class RecoTauConstructor;
   class PFRecoTauEnergyAlgorithmPlugin;
 }} 
@@ -72,8 +72,8 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
     
  private:
   friend class tau::PFRecoTauChargedHadronFromPFCandidatePlugin;
-  friend class tau::PFRecoTauChargedHadronFromTrackPlugin;
-  friend class tau::PFRecoTauChargedHadronFromLostTrackPlugin;
+  template<class TrackClass>
+  friend class tau::PFRecoTauChargedHadronFromGenericTrackPlugin;
   friend class tau::RecoTauConstructor;
   friend class tau::PFRecoTauEnergyAlgorithmPlugin;
   friend class ::PFRecoTauChargedHadronProducer;
