@@ -1,11 +1,13 @@
 /*
- * PFRecoTauChargedHadronFromTrackPlugin
+ * PFRecoTauChargedHadronFromGenericTrackPlugin
  *
  * Build PFRecoTauChargedHadron objects
  * using charged PFCandidates as input
  *
  * Author: Christian Veelken, LLR
  *
+ * inclusion of lost tracks based on 
+ * PFRecoTauChargedHadronFromLostTrackPlugin by Michal Bluj, NCBJ, Poland
  */
 
 #include "RecoTauTag/RecoTau/interface/PFRecoTauChargedHadronPlugins.h"
@@ -18,6 +20,7 @@
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -40,28 +43,33 @@
 
 #include <memory>
 #include <cmath>
+#include <algorithm>
 
 namespace reco { namespace tau {
 
-class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuilderPlugin 
+template<class TrackClass>
+class PFRecoTauChargedHadronFromGenericTrackPlugin : public PFRecoTauChargedHadronBuilderPlugin 
 {
  public:
-  explicit PFRecoTauChargedHadronFromTrackPlugin(const edm::ParameterSet&, edm::ConsumesCollector && iC);
-  ~PFRecoTauChargedHadronFromTrackPlugin() override;
+  explicit PFRecoTauChargedHadronFromGenericTrackPlugin(const edm::ParameterSet&, edm::ConsumesCollector && iC);
+  ~PFRecoTauChargedHadronFromGenericTrackPlugin() override;
   // Return type is auto_ptr<ChargedHadronVector>
   return_type operator()(const reco::Jet&) const override;
   // Hook to update PV information
   void beginEvent() override;
   
  private:
-  typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
+  bool filterTrack(const edm::Handle<std::vector<TrackClass> >&, size_t iTrack) const;
+  void setChargedHadronTrack(PFRecoTauChargedHadron& chargedHadron, const edm::Ptr<TrackClass>& track) const;
+  double getTrackPtError(const TrackClass& track) const;
+  XYZTLorentzVector getTrackPos(const TrackClass& track) const;
 
   RecoTauVertexAssociator vertexAssociator_;
 
   RecoTauQualityCuts* qcuts_;
 
   edm::InputTag srcTracks_;
-  edm::EDGetTokenT<reco::TrackCollection> Tracks_token;
+  edm::EDGetTokenT<std::vector<TrackClass> > Tracks_token;
   double dRcone_;
   bool dRconeLimitedToJetArea_;
 
@@ -76,7 +84,8 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   int verbosity_;
 };
 
-  PFRecoTauChargedHadronFromTrackPlugin::PFRecoTauChargedHadronFromTrackPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
+template<class TrackClass>
+PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::PFRecoTauChargedHadronFromGenericTrackPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
     : PFRecoTauChargedHadronBuilderPlugin(pset,std::move(iC)),
       vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)),
     qcuts_(nullptr)
@@ -85,7 +94,7 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
   srcTracks_ = pset.getParameter<edm::InputTag>("srcTracks");
-  Tracks_token = iC.consumes<reco::TrackCollection>(srcTracks_);
+  Tracks_token = iC.consumes<std::vector<TrackClass> >(srcTracks_);
   dRcone_ = pset.getParameter<double>("dRcone");
   dRconeLimitedToJetArea_ = pset.getParameter<bool>("dRconeLimitedToJetArea");
 
@@ -98,21 +107,81 @@ class PFRecoTauChargedHadronFromTrackPlugin : public PFRecoTauChargedHadronBuild
   verbosity_ = ( pset.exists("verbosity") ) ?
     pset.getParameter<int>("verbosity") : 0;
 }
-  
-PFRecoTauChargedHadronFromTrackPlugin::~PFRecoTauChargedHadronFromTrackPlugin()
+
+template<class TrackClass>
+PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::~PFRecoTauChargedHadronFromGenericTrackPlugin()
 {
   delete qcuts_;
 }
 
 // Update the primary vertex
-void PFRecoTauChargedHadronFromTrackPlugin::beginEvent() 
+template<class TrackClass>
+void PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::beginEvent() 
 {
   vertexAssociator_.setEvent(*this->evt());
 
   edm::ESHandle<MagneticField> magneticField;
-  evtSetup()->get<IdealMagneticFieldRecord>().get(magneticField);
+  const edm::EventSetup* evtSetup(this->evtSetup());
+  evtSetup->get<IdealMagneticFieldRecord>().get(magneticField);
   magneticFieldStrength_ = magneticField->inTesla(GlobalPoint(0.,0.,0.));
 }
+
+template<>
+bool PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track>::filterTrack(const edm::Handle<std::vector<reco::Track> >& tracks, size_t iTrack) const {
+// ignore tracks which fail quality cuts
+  reco::TrackRef trackRef(tracks, iTrack);
+  return qcuts_->filterTrack(trackRef);
+}
+
+template<>
+bool PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>::filterTrack(const edm::Handle<std::vector<pat::PackedCandidate> >& tracks, size_t iTrack) const {
+// ignore tracks which fail quality cuts
+  const pat::PackedCandidate& cand = (*tracks)[iTrack];
+  if (cand.charge() == 0)
+    return false;
+  return qcuts_->filterChargedCand(cand);
+}
+
+template<>
+void PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track>::setChargedHadronTrack(PFRecoTauChargedHadron& chargedHadron, const edm::Ptr<reco::Track>& track) const {
+  chargedHadron.track_ = track;
+}
+
+template<>
+void PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>::setChargedHadronTrack(PFRecoTauChargedHadron& chargedHadron, const edm::Ptr<pat::PackedCandidate>& track) const {
+  chargedHadron.lostTrackCandidate_ = track;
+}
+
+template<>
+double PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track>::getTrackPtError(const reco::Track& track) const {
+  return track.ptError();
+}
+
+template<>
+double PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>::getTrackPtError(const pat::PackedCandidate& cand) const {
+  double trackPtError = 0.06; // MB: Approximate avarage track PtError by 2.5% (barrel), 4% (transition), 6% (endcaps) lostTracks w/o detailed track information available (after TRK-11-001)
+  const reco::Track* track(cand.bestTrack());
+  if(track != nullptr) {
+    trackPtError = track->ptError();
+  } else {
+    if( std::abs(cand.eta()) < 0.9 )
+      trackPtError = 0.025;
+    else if( std::abs(cand.eta()) < 1.4 )
+      trackPtError = 0.04;
+  }
+  return trackPtError;
+}
+
+template<>
+XYZTLorentzVector PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track>::getTrackPos(const reco::Track& track) const {
+  return XYZTLorentzVector(track.referencePoint().x(), track.referencePoint().y(), track.referencePoint().z(), 0.);
+}
+
+template<>
+XYZTLorentzVector PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>::getTrackPos(const pat::PackedCandidate& track) const {
+  return XYZTLorentzVector(track.vertex().x(), track.vertex().y(), track.vertex().z(), 0.);
+}
+
 
 namespace
 {
@@ -128,10 +197,11 @@ namespace
   }
 }
 
-PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTrackPlugin::operator()(const reco::Jet& jet) const 
+template<class TrackClass>
+typename PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::return_type PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::operator()(const reco::Jet& jet) const 
 {
   if ( verbosity_ ) {
-    edm::LogPrint("TauChHFromTrack") << "<PFRecoTauChargedHadronFromTrackPlugin::operator()>:" ;
+    edm::LogPrint("TauChHFromTrack") << "<PFRecoTauChargedHadronFromGenericTrackPlugin::operator()>:" ;
     edm::LogPrint("TauChHFromTrack") << " pluginName = " << name() ;
   }
 
@@ -139,7 +209,7 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
 
   const edm::Event& evt = (*this->evt());
 
-  edm::Handle<reco::TrackCollection> tracks;
+  edm::Handle<std::vector<TrackClass> > tracks;
   evt.getByToken(Tracks_token, tracks);
 
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
@@ -147,18 +217,18 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
   float jPhi=jet.phi();
   size_t numTracks = tracks->size();
   for ( size_t iTrack = 0; iTrack < numTracks; ++iTrack ) {
-    reco::TrackRef track(tracks, iTrack);
+    const TrackClass& track = (*tracks)[iTrack];
 
     // consider tracks in vicinity of tau-jet candidate only
-    double dR = deltaR(track->eta(), track->phi(), jEta,jPhi);
+    double dR = deltaR(track.eta(), track.phi(), jEta,jPhi);
     double dRmatch = dRcone_;
     if ( dRconeLimitedToJetArea_ ) {
       double jetArea = jet.jetArea();
       if ( jetArea > 0. ) {
-	dRmatch = TMath::Min(dRmatch, TMath::Sqrt(jetArea/TMath::Pi()));
+	dRmatch = std::min(dRmatch, sqrt(jetArea/M_PI));
       } else {
 	if ( numWarnings_ < maxWarnings_ ) {
-	  edm::LogInfo("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
+	  edm::LogInfo("PFRecoTauChargedHadronFromGenericTrackPlugin::operator()") 
 	    << "Jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << " has area = " << jetArea << " !!" << std::endl;
 	  ++numWarnings_;
 	}
@@ -167,23 +237,23 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     }
     if ( dR > dRmatch ) continue;
 
-    // ignore tracks which fail quality cuts
-    if ( !qcuts_->filterTrack(track) ) continue;
+    if (!this->filterTrack(tracks, iTrack)) continue;
 
     reco::Candidate::Charge trackCharge_int = 0;
-    if ( track->charge() > 0. ) trackCharge_int = +1;
-    else if ( track->charge() < 0. ) trackCharge_int = -1;
+    if ( track.charge() > 0. ) trackCharge_int = +1;
+    else if ( track.charge() < 0. ) trackCharge_int = -1;
 
     const double chargedPionMass = 0.13957; // GeV
-    double chargedPionP  = track->p();
+    double chargedPionP  = track.p();
     double chargedPionEn = TMath::Sqrt(chargedPionP*chargedPionP + chargedPionMass*chargedPionMass);
-    reco::Candidate::LorentzVector chargedPionP4(track->px(), track->py(), track->pz(), chargedPionEn);
+    reco::Candidate::LorentzVector chargedPionP4(track.px(), track.py(), track.pz(), chargedPionEn);
 
     reco::Vertex::Point vtx(0.,0.,0.);
     if ( vertexAssociator_.associatedVertex(jet).isNonnull() ) vtx = vertexAssociator_.associatedVertex(jet)->position();
 
     std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(trackCharge_int, chargedPionP4, vtx, 0, true, PFRecoTauChargedHadron::kTrack));
-    chargedHadron->track_ = edm::Ptr<reco::Track>(tracks, iTrack);
+
+    setChargedHadronTrack(*chargedHadron, edm::Ptr<TrackClass>(tracks, iTrack));
 
     // CV: Take code for propagating track to ECAL entrance 
     //     from RecoParticleFlow/PFTracking/src/PFTrackTransformer.cc
@@ -195,16 +265,16 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     //     in order to run on AOD input
     //    (outerMomentum and outerPosition require access to reco::TrackExtra objects, which are available in RECO only)
     //
-    XYZTLorentzVector chargedPionPos(track->referencePoint().x(), track->referencePoint().y(), track->referencePoint().z(), 0.);
+    XYZTLorentzVector chargedPionPos(getTrackPos(track));
     BaseParticlePropagator trackPropagator(RawParticle(chargedPionP4, chargedPionPos), 0., 0., magneticFieldStrength_.z());
-    trackPropagator.setCharge(track->charge());
+    trackPropagator.setCharge(track.charge());
     trackPropagator.propagateToEcalEntrance(false);
     if ( trackPropagator.getSuccess() != 0 ) { 
       chargedHadron->positionAtECALEntrance_ = trackPropagator.vertex();
     } else {
       if ( chargedPionP4.pt() > 2. and std::abs(chargedPionP4.eta()) < 3. ) {
-	edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
-	  << "Failed to propagate track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << " to ECAL entrance !!" << std::endl;
+	edm::LogWarning("PFRecoTauChargedHadronFromGenericTrackPlugin::operator()") 
+	  << "Failed to propagate track: Pt = " << track.pt() << ", eta = " << track.eta() << ", phi = " << track.phi() << " to ECAL entrance !!" << std::endl;
       }
       chargedHadron->positionAtECALEntrance_ = math::XYZPointF(0.,0.,0.);
     }
@@ -229,14 +299,14 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     std::sort(neutralJetConstituents_withDistance.begin(), neutralJetConstituents_withDistance.end(), isSmallerDistance);
 
     const double caloResolutionCoeff = 1.0; // CV: approximate ECAL + HCAL calorimeter resolution for hadrons by 100%*sqrt(E)
-    double resolutionTrackP = track->p()*(track->ptError()/track->pt());
+    double resolutionTrackP = track.p()*(getTrackPtError(track)/track.pt());
     double neutralEnSum = 0.;
     for ( std::vector<Candidate_withDistance>::const_iterator nextNeutral = neutralJetConstituents_withDistance.begin();
 	  nextNeutral != neutralJetConstituents_withDistance.end(); ++nextNeutral ) {
       double nextNeutralEn = nextNeutral->pfCandidate_->energy();      
       double resolutionCaloEn = caloResolutionCoeff*sqrt(neutralEnSum + nextNeutralEn);
       double resolution = sqrt(resolutionTrackP*resolutionTrackP + resolutionCaloEn*resolutionCaloEn);
-      if ( (neutralEnSum + nextNeutralEn) < (track->p() + 2.*resolution) ) {
+      if ( (neutralEnSum + nextNeutralEn) < (track.p() + 2.*resolution) ) {
 	chargedHadron->neutralPFCandidates_.push_back(nextNeutral->pfCandidate_);
 	neutralEnSum += nextNeutralEn;
       } else {
@@ -256,8 +326,14 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
   return output.release();
 }
 
+template class PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track>;
+typedef PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track> PFRecoTauChargedHadronFromTrackPlugin;
+template class PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>;
+typedef PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate> PFRecoTauChargedHadronFromLostTrackPlugin;
+
 }} // end namespace reco::tau
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_EDM_PLUGIN(PFRecoTauChargedHadronBuilderPluginFactory, reco::tau::PFRecoTauChargedHadronFromTrackPlugin, "PFRecoTauChargedHadronFromTrackPlugin");
+DEFINE_EDM_PLUGIN(PFRecoTauChargedHadronBuilderPluginFactory, reco::tau::PFRecoTauChargedHadronFromLostTrackPlugin, "PFRecoTauChargedHadronFromLostTrackPlugin");
