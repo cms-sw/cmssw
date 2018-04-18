@@ -38,6 +38,7 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   SF3_(iConfig.getParameter<double>("SF3")),
   SF4_(iConfig.getParameter<double>("SF4")),
   SF5_(iConfig.getParameter<double>("SF5")),
+  SF6_(iConfig.getParameter<double>("SF6")),
   tsosDiff1_(iConfig.getParameter<double>("tsosDiff1")),
   tsosDiff2_(iConfig.getParameter<double>("tsosDiff2")),
   propagatorName_(iConfig.getParameter<std::string>("propagatorName")), 
@@ -156,8 +157,8 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     if (std::abs(l2->eta()) < maxEtaForTOB_) {
       layerCount = 0;
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	// this runs from outermost to innermost TOB layer
-	    LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount << endl;
-	    findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
+        LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount << endl;
+        findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
                          estimatorH, measurementTrackerH, numSeedsMade, hitlessSeedsMade, numOfMaxSeeds, layerCount, out);
       }
       if (useBoth) {
@@ -169,7 +170,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
           findSeedsOnLayer(tTopo, **it, outerTkStateOutside,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2,
                            estimatorH, measurementTrackerH, numSeedsMade, hitlessSeedsMade, numOfMaxSeeds, layerCount, out);
         }
-	  }
+      }
     }
     // Reset Number of seeds if in overlap region
     if (std::abs(l2->eta())>minEtaForTEC_ && std::abs(l2->eta())<maxEtaForTOB_){
@@ -180,19 +181,19 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     if (l2->eta() > minEtaForTEC_) {
       layerCount = 0;
       for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
-	    LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl;
-	    findSeedsOnLayer(tTopo, **it, tsosAtIP, *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
+	      LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl;
+	      findSeedsOnLayer(tTopo, **it, tsosAtIP, *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
                          estimatorH, measurementTrackerH, numSeedsMade, hitlessSeedsMade, numOfMaxSeeds, layerCount, out);
-	  }
-	  if (useBoth) {
+	    }
+      if (useBoth) {
         layerCount = 0;
-		numSeedsMade = 0;
-        hitlessSeedsMade = 0;
+        numSeedsMade = 0;
+        hittlessSeedsMade = 0;
         for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
           LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl;
           findSeedsOnLayer(tTopo, **it, outerTkStateOutside,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2,
                            estimatorH, measurementTrackerH, numSeedsMade, hitlessSeedsMade, numOfMaxSeeds, layerCount, out);
-		}
+		    }
       }
     }
 
@@ -200,19 +201,19 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     if (l2->eta() < -minEtaForTEC_) {
       layerCount = 0;
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
-	    LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl;
-	    findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
+        LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl;
+        ffindSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2,
                          estimatorH, measurementTrackerH, numSeedsMade, hitlessSeedsMade, numOfMaxSeeds, layerCount, out);
-	  }
-	  if (useBoth) {
+	    }
+      if (useBoth) {
         layerCount = 0;
-		numSeedsMade = 0;
+        numSeedsMade = 0;
         hitlessSeedsMade = 0;
         for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
           LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl;
           findSeedsOnLayer(tTopo, **it, outerTkStateOutside,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2,
                            estimatorH, measurementTrackerH, numSeedsMade, hitlessSeedsMade, numOfMaxSeeds, layerCount, out);
-		}
+		    }
       }
     }
 
@@ -233,19 +234,19 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 // Create seeds on a given layer (TOB or TEC)
 //
 void TSGForOI::findSeedsOnLayer(
-				const TrackerTopology* tTopo,
-				const GeometricSearchDet& layer,
-				const TrajectoryStateOnSurface& tsosAtIP,
-				const Propagator& propagatorAlong,
-				const Propagator& propagatorOpposite,
-				const reco::TrackRef l2,
-				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
-				edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
-				unsigned int& numSeedsMade,
-                unsigned int& hitlessSeedsMade,
-				unsigned int& numOfMaxSeeds,
-				unsigned int& layerCount,
-				std::unique_ptr<std::vector<TrajectorySeed> >& out) const {
+       const TrackerTopology* tTopo,
+       const GeometricSearchDet& layer,
+       const TrajectoryStateOnSurface& tsosAtIP,
+       const Propagator& propagatorAlong,
+       const Propagator& propagatorOpposite,
+       const reco::TrackRef l2,
+       edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
+       edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
+       unsigned int& numSeedsMade,
+       unsigned int& hitlessSeedsMade,
+       unsigned int& numOfMaxSeeds,
+       unsigned int& layerCount,
+       std::unique_ptr<std::vector<TrajectorySeed> >& out) const {
   
   if (numSeedsMade > numOfMaxSeeds) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: numSeedsMade = " << numSeedsMade << " , layerCount = " <<  layerCount << endl;
@@ -276,7 +277,6 @@ void TSGForOI::findSeedsOnLayer(
         TrajectorySeed::recHitContainer rHC;
         out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
         LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOD (Hitless) done " << endl;
-        numSeedsMade++;
         hitlessSeedsMade++;
       }
     }
@@ -285,7 +285,7 @@ void TSGForOI::findSeedsOnLayer(
   // Hits
   if (layerCount > numOfLayersToTry_) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start Hits" <<endl;  
-  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTrackerH, estimatorH, numSeedsMade, errorSFHits, l2->eta()))  ++layerCount; 
+  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTrackerH, estimatorH, numSeedsMade, errorSFHits, l2->eta())) ++layerCount;
 
 }
 
@@ -306,8 +306,8 @@ double TSGForOI::calculateSFFromL2(const reco::TrackRef track) const{
     if (abseta > eta1_ && abseta <= eta2_) theSF = SF2_;
     if (abseta > eta2_) theSF = SF3_;
   }
-  if (track->pt() > pT2_ && track->pt() <= pT3_){
-    if (abseta <= eta1_) theSF = SF5_;
+  if (track->pt() > pT2_ && track->pt() <= pT3_) {
+    if (abseta <= eta1_) theSF = SF6_;
     if (abseta > eta1_ && abseta <= eta2_) theSF = SF4_;
     if (abseta > eta2_) theSF = SF5_;
   }
@@ -360,17 +360,18 @@ int TSGForOI::makeSeedsFromHits(
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Update TSOS using TMs after sorting, then create Trajectory Seed, number of TM = " << meas.size() << endl;
   unsigned int found = 0;
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
+
+
+
   for (std::vector<TrajectoryMeasurement>::const_iterator it=meas.begin(); it!=meas.end(); ++it) {
     TrajectoryStateOnSurface updatedTSOS = updator_->update(it->forwardPredictedState(), *it->recHit());
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOS for TM " << found << endl;
     if (not updatedTSOS.isValid()) continue;
 
-    // Check if it is a Stereo TEC Layer
-    if (useStereoLayersInTEC_ && (fabs(l2Eta) > 0.8 && fabs(l2Eta) < 1.6)) {
+    // Check if it is a Stereo TEC dets
+    if (useStereoLayersInTEC_ && (fabs(l2Eta) > 1.1 && fabs(l2Eta) < 2.0)) {
       DetId detid = ((*it).recHit()->hit())->geographicalId();
-      if (detid.subdetId() == StripSubdetector::TEC) {
-		if (!tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
-      }
+      if (detid.subdetId() == StripSubdetector::TEC && !tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
     }
     
     edm::OwnVector<TrackingRecHit> seedHits;
@@ -445,6 +446,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("SF3",5.0);
   desc.add<double>("SF4",7.0);
   desc.add<double>("SF5",10.0);
+  desc.add<double>("SF6",2.0);
   desc.add<double>("tsosDiff1",0.2);
   desc.add<double>("tsosDiff2",0.02);
   desc.add<std::string>("propagatorName","PropagatorWithMaterial");
