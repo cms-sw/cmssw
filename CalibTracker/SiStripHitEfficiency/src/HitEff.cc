@@ -101,7 +101,7 @@ void HitEff::beginJob(){
   edm::Service<TFileService> fs;
 
   traj = fs->make<TTree>("traj","tree of trajectory positions");
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   traj->Branch("TrajGlbX",&TrajGlbX,"TrajGlbX/F");
   traj->Branch("TrajGlbY",&TrajGlbY,"TrajGlbY/F");
   traj->Branch("TrajGlbZ",&TrajGlbZ,"TrajGlbZ/F");
@@ -290,7 +290,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
     EventTrackCKF++;  
 
-#ifdef CALIBTreeDEV
+#ifdef ExtendedCALIBTree
     //get dEdx info if available
     Handle<ValueMap<DeDxData> >          dEdxUncalibHandle;
     if (e.getByLabel("dedxMedianCTF", dEdxUncalibHandle)) {
@@ -335,7 +335,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
       // for each track, fill some variables such as number of hits and momentum
       nHits = itraj->foundHits();
-#ifdef CALIBTreeDEV      
+#ifdef ExtendedCALIBTree      
       nLostHits = itraj->lostHits();
       chi2 = (itraj->chiSquared()/itraj->ndof());
       p = itraj->lastMeasurement().updatedState().globalMomentum().mag();
@@ -358,7 +358,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       double yErr = 0.;
       double angleX = -999.;
       double angleY = -999.;
-#ifdef CALIBTreeDEV      
+#ifdef ExtendedCALIBTree      
       double xglob,yglob,zglob;
 #endif
 
@@ -542,14 +542,14 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  angleX = atan( TM->localDxDz() );
 	  angleY = atan( TM->localDyDz() );
 
-#ifdef CALIBTreeDEV	  
+#ifdef ExtendedCALIBTree	  
 	  xglob = TM->globalX();
 	  yglob = TM->globalY();
 	  zglob = TM->globalZ();
 	  xErr =  TM->localErrorX();
 	  yErr =  TM->localErrorY();
-          TrajLocErrX = 0.0; TrajLocErrY = 0.0; 
-          TrajGlbX = 0.0; TrajGlbY = 0.0; TrajGlbZ = 0.0;
+	  TrajLocErrX = 0.0; TrajLocErrY = 0.0;
+	  TrajGlbX = 0.0; TrajGlbY = 0.0; TrajGlbZ = 0.0;
 #endif
 	  withinAcceptance = TM->withinAcceptance();
 	  
@@ -727,7 +727,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      
 	      // fill ntuple varibles
 	      //get global position from module id number iidd
-#ifdef CALIBTreeDEV
+#ifdef ExtendedCALIBTree
 	      TrajGlbX = xglob;
 	      TrajGlbY = yglob;
 	      TrajGlbZ = zglob;	  
