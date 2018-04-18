@@ -1121,7 +1121,10 @@ namespace sistrip {
   }
 
   void RawToDigiUnpacker::updateEventSummary( const sistrip::FEDBuffer& fed, SiStripEventSummary& summary ) {
-  
+
+    summary.event(fed.daqHeader().l1ID());
+    summary.bx(fed.daqHeader().bxID());
+
     // Retrieve contents of DAQ registers
 
     sistrip::FEDDAQEventType readout_mode = fed.daqEventType(); 
