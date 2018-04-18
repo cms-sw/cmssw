@@ -86,7 +86,7 @@ public:
       norm += std::max(0., nt[j-shift]);
     }
     double normInv=1./norm;
-    std::vector<double> nt2(nbin,0);
+    std::vector<double> nt2(nt.size(),0);
     for ( int j = 1; j<=(int)nbin; j++) {
       if ( j-shift>=0 ) {
         nt2[j] = nt[j-shift]*normInv;
