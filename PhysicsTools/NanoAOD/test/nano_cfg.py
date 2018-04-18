@@ -22,22 +22,13 @@ process.source.fileNames = [
 # '/store/relval/CMSSW_9_4_0_pre3/RelValProdTTbar_13/MINIAODSIM/94X_mcRun2_asymptotic_v0-v1/10000/06F85EC5-7BB9-E711-A2CB-0025905A6134.root'
 
 #sample with LHE
-	'/store/mc/RunIISummer17MiniAOD/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10_ext1-v1/110000/187F7EDA-0986-E711-ABB3-02163E014C21.root'
+'/store/cmst3/group/nanoAOD/pre-94XMiniAODv2/TTToSemiLeptonic_TuneCP5_PSweights_13TeV-powheg-pythia8.root'
 ]
 
 process.load("PhysicsTools.NanoAOD.nano_cff")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    calibratedPatElectrons = cms.PSet(initialSeed = cms.untracked.uint32(81),
-                                        engineName = cms.untracked.string('TRandom3'),
-                                        ),
-    calibratedPatPhotons = cms.PSet(initialSeed = cms.untracked.uint32(81),
-                                      engineName = cms.untracked.string('TRandom3'),
-                                      ),
-)
+
 process.nanoPath = cms.Path(process.nanoSequenceMC)
-process.calibratedPatElectrons.isMC = cms.bool(True)
-process.calibratedPatPhotons.isMC = cms.bool(True)
 #for data:
 #process.nanoPath = cms.Path(process.nanoSequence)
 #process.GlobalTag.globaltag = autoCond['run2_data']

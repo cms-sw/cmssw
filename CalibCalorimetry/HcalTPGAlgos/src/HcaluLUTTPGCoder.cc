@@ -35,7 +35,6 @@ const float HcaluLUTTPGCoder::lsb_=1./16;
 const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
-const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK_2017;
 
 constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
 
@@ -348,8 +347,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
 	const size_t SIZE = qieType==QIE8 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
 	const int MASK = qieType==QIE8 ? QIE8_LUT_BITMASK :
-                         qieType==QIE10 ? QIE10_LUT_BITMASK :
-                         is2018OrLater ? QIE11_LUT_BITMASK : QIE11_LUT_BITMASK_2017;
+                         qieType==QIE10 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;
         double linearLSB = linearLSB_QIE8_;
         if (qieType == QIE11 and cell.ietaAbs() == topo_->lastHBRing())
            linearLSB = linearLSB_QIE11Overlap_;

@@ -52,83 +52,86 @@ DQMOldReceiver::runQualityTests.  */
 /** @var DQMStore::qalgos_
     Set of all the available quality test algorithms. */
 
-//////////////////////////////////////////////////////////////////////
-/// name of global monitoring folder (containing all sources subdirectories)
-static const std::string s_monitorDirName = "DQMData";
-static const std::string s_referenceDirName = "Reference";
-static const std::string s_collateDirName = "Collate";
-static const std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
+namespace {
 
-static const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
-static const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
-static const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
-static const lat::Regexp s_rxtrace ("(.*)\\((.*)\\+0x.*\\).*");
-static const lat::Regexp s_rxself  ("^[^()]*DQMStore::.*");
-static const lat::Regexp s_rxpbfile (".*\\.pb$");
+  //////////////////////////////////////////////////////////////////////
+  /// name of global monitoring folder (containing all sources subdirectories)
+  const std::string s_monitorDirName = "DQMData";
+  const std::string s_referenceDirName = "Reference";
+  const std::string s_collateDirName = "Collate";
+  const std::string s_safe = "/ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-+=_()# ";
 
-//////////////////////////////////////////////////////////////////////
-/// Check whether the @a path is a subdirectory of @a ofdir.  Returns
-/// true both for an exact match and any nested subdirectory.
-static bool
-isSubdirectory(const std::string &ofdir, const std::string &path)
-{
-  return (ofdir.empty()
-          || (path.size() >= ofdir.size()
-              && path.compare(0, ofdir.size(), ofdir) == 0
-              && (path.size() == ofdir.size()
-                  || path[ofdir.size()] == '/')));
-}
+  const lat::Regexp s_rxmeval ("^<(.*)>(i|f|s|e|t|qr)=(.*)</\\1>$");
+  const lat::Regexp s_rxmeqr1 ("^st:(\\d+):([-+e.\\d]+):([^:]*):(.*)$");
+  const lat::Regexp s_rxmeqr2 ("^st\\.(\\d+)\\.(.*)$");
+  const lat::Regexp s_rxtrace ("(.*)\\((.*)\\+0x.*\\).*");
+  const lat::Regexp s_rxself  ("^[^()]*DQMStore::.*");
+  const lat::Regexp s_rxpbfile (".*\\.pb$");
 
-static void
-cleanTrailingSlashes(const std::string &path, std::string &clean, const std::string *&cleaned)
-{
-  clean.clear();
-  cleaned = &path;
-
-  size_t len = path.size();
-  for ( ; len > 0 && path[len-1] == '/'; --len)
-    ;
-
-  if (len != path.size())
+  //////////////////////////////////////////////////////////////////////
+  /// Check whether the @a path is a subdirectory of @a ofdir.  Returns
+  /// true both for an exact match and any nested subdirectory.
+  bool
+  isSubdirectory(const std::string &ofdir, const std::string &path)
   {
-    clean = path.substr(0, len);
-    cleaned = &clean;
+    return (ofdir.empty()
+            || (path.size() >= ofdir.size()
+                && path.compare(0, ofdir.size(), ofdir) == 0
+                && (path.size() == ofdir.size()
+                    || path[ofdir.size()] == '/')));
   }
-}
 
-static void
-splitPath(std::string &dir, std::string &name, const std::string &path)
-{
-  size_t slash = path.rfind('/');
-  if (slash != std::string::npos)
+  void
+  cleanTrailingSlashes(const std::string &path, std::string &clean, const std::string *&cleaned)
   {
-    dir.append(path, 0, slash);
-    name.append(path, slash+1, std::string::npos);
+    clean.clear();
+    cleaned = &path;
+
+    size_t len = path.size();
+    for ( ; len > 0 && path[len-1] == '/'; --len)
+      ;
+
+    if (len != path.size())
+    {
+      clean = path.substr(0, len);
+      cleaned = &clean;
+    }
   }
-  else
-    name = path;
-}
 
-static void
-mergePath(std::string &path, const std::string &dir, const std::string &name)
-{
-  path.reserve(dir.size() + name.size() + 2);
-  path += dir;
-  if (! path.empty())
-    path += '/';
-  path += name;
-}
+  void
+  splitPath(std::string &dir, std::string &name, const std::string &path)
+  {
+    size_t slash = path.rfind('/');
+    if (slash != std::string::npos)
+    {
+      dir.append(path, 0, slash);
+      name.append(path, slash+1, std::string::npos);
+    }
+    else
+      name = path;
+  }
 
-template <class T>
-QCriterion *
-makeQCriterion(const std::string &qtname)
-{ return new T(qtname); }
+  void
+  mergePath(std::string &path, const std::string &dir, const std::string &name)
+  {
+    path.reserve(dir.size() + name.size() + 2);
+    path += dir;
+    if (! path.empty())
+      path += '/';
+    path += name;
+  }
 
-template <class T>
-void
-initQCriterion(std::map<std::string, QCriterion *(*)(const std::string &)> &m)
-{ m[T::getAlgoName()] = &makeQCriterion<T>; }
+  template <class T>
+  QCriterion *
+  makeQCriterion(const std::string &qtname)
+  { return new T(qtname); }
 
+  template <class T>
+  void
+  initQCriterion(std::map<std::string, QCriterion *(*)(const std::string &)> &m)
+  { m[T::getAlgoName()] = &makeQCriterion<T>; }
+
+} // anonymous namespace
 
 /////////////////////////////////////////////////////////////
 fastmatch::fastmatch (std::string  _fastString) :
@@ -136,13 +139,11 @@ fastmatch::fastmatch (std::string  _fastString) :
 {
   try
   {
-    regexp_ = nullptr;
-    regexp_ = new lat::Regexp(fastString_, 0, lat::Regexp::Wildcard);
+    regexp_ = std::make_unique<lat::Regexp>(fastString_, 0, lat::Regexp::Wildcard);
     regexp_->study();
   }
   catch (lat::Error &e)
   {
-    delete regexp_;
     raiseDQMError("DQMStore", "Invalid wildcard pattern '%s' in quality"
                   " test specification", fastString_.c_str());
   }
@@ -155,7 +156,7 @@ fastmatch::fastmatch (std::string  _fastString) :
     pos = fastString_.find('*', pos + 1 );
     if ((size_t)pos == std::string::npos)
       break;
-    starCount ++;
+    ++starCount;
   }
 
   // investigate for heuristics
@@ -201,12 +202,6 @@ fastmatch::fastmatch (std::string  _fastString) :
   }
 }
 
-fastmatch::~fastmatch()
-{
-  if (regexp_ != nullptr)
-    delete regexp_;
-}
-
 bool fastmatch::compare_strings_reverse(std::string const& pattern,
                                         std::string const& input) const
 {
@@ -216,10 +211,10 @@ bool fastmatch::compare_strings_reverse(std::string const& pattern,
   // compare the two strings character by character for equalness:
   // this does not create uneeded copies of std::string. The
   // boost::algorithm implementation does
-  std::string::const_reverse_iterator rit_pattern = pattern.rbegin();
-  std::string::const_reverse_iterator rit_input = input.rbegin();
+  auto rit_pattern = pattern.crbegin();
+  auto rit_input = input.crbegin();
 
-  for (; rit_pattern < pattern.rend(); rit_pattern++, rit_input++)
+  for (; rit_pattern < pattern.rend(); ++rit_pattern, ++rit_input)
   {
     if (*rit_pattern != *rit_input)
       // found a difference, fail
@@ -237,10 +232,10 @@ bool fastmatch::compare_strings(std::string const& pattern,
   // compare the two strings character by character for equalness:
   // this does not create uneeded copies of std::string. The
   // boost::algorithm implementation does.
-  std::string::const_iterator rit_pattern = pattern.begin();
-  std::string::const_iterator rit_input = input.begin();
+  auto rit_pattern = pattern.cbegin();
+  auto rit_input = input.cbegin();
 
-  for (; rit_pattern < pattern.end(); rit_pattern++, rit_input++)
+  for (; rit_pattern < pattern.end(); ++rit_pattern, ++rit_input)
   {
     if (*rit_pattern != *rit_input)
       // found a difference, fail
@@ -299,8 +294,8 @@ void DQMStore::IBooker::tagContents(const std::string &path, unsigned int myTag)
 //IGetter methods
 std::vector<MonitorElement*>
 DQMStore::IGetter::getAllContents(const std::string &path,
-				  uint32_t run  /* = 0 */,
-				  uint32_t lumi /* = 0 */) {
+                                  uint32_t run  /* = 0 */,
+                                  uint32_t lumi /* = 0 */) {
   return owner_->getAllContents(path, run, lumi);
 }
 
@@ -352,29 +347,11 @@ void DQMStore::IGetter::setCurrentFolder(const std::string &fullpath) {
 
 //////////////////////////////////////////////////////////////////////
 DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
-  : verbose_ (1),
-    verboseQT_ (1),
-    reset_ (false),
-    collateHistograms_ (false),
-    enableMultiThread_(false),
-    forceResetOnBeginLumi_(false),
-    readSelectedDirectory_ (""),
-    run_(0),
-    moduleId_(0),
-    stream_(nullptr),
-    pwd_ (""),
-    ibooker_(nullptr),
-    igetter_(nullptr)
+  : DQMStore{pset}
 {
-  if (!ibooker_)
-    ibooker_ = new DQMStore::IBooker(this);
-  if (!igetter_)
-    igetter_ = new DQMStore::IGetter(this);
-  initializeFrom(pset);
-
   ar.preallocateSignal_.connect([this](edm::service::SystemBounds const& iBounds) {
       if(iBounds.maxNumberOfStreams() > 1 ) {
-	enableMultiThread_ = true;
+        enableMultiThread_ = true;
       }
     });
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
@@ -388,23 +365,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
-  : verbose_ (1),
-    verboseQT_ (1),
-    reset_ (false),
-    collateHistograms_ (false),
-    enableMultiThread_(false),
-    readSelectedDirectory_ (""),
-    run_(0),
-    moduleId_(0),
-    stream_(nullptr),
-    pwd_ (""),
-    ibooker_(nullptr),
-    igetter_(nullptr)
 {
-  if (!ibooker_)
-    ibooker_ = new DQMStore::IBooker(this);
-  if (!igetter_)
-    igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
 }
 
@@ -415,10 +376,6 @@ DQMStore::~DQMStore()
 
   for (auto & qtestspec : qtestspecs_)
     delete qtestspec.first;
-
-  if (stream_)
-    stream_->close();
-  delete stream_;
 }
 
 void
@@ -490,7 +447,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   // concurrency problems because the print_trace method is always called behind
   // a lock (see bookTransaction).
   if (!stream_)
-    stream_ = new std::ofstream("histogramBookingBT.log");
+    stream_ = std::make_unique<std::ofstream>("histogramBookingBT.log");
 
   void *array[10];
   size_t size;
@@ -504,7 +461,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
 
   size_t level = 1;
   char * demangled = nullptr;
-  for (; level < size; level++) {
+  for (; level < size; ++level) {
     if (!s_rxtrace.match(strings[level], 0, 0, &m)) continue;
     demangled = abi::__cxa_demangle(m.matchString(strings[level], 2).c_str(), nullptr, nullptr, &r);
     if (!demangled) continue;
@@ -531,7 +488,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
     size_t i;
     m.reset();
 
-    for (i = 0; i < size; i++)
+    for (i = 0; i < size; ++i)
       if (s_rxtrace.match(strings[i], 0, 0, &m))
       {
         char * demangled = abi::__cxa_demangle(m.matchString(strings[i], 2).c_str(), nullptr, nullptr, &r);
@@ -702,12 +659,10 @@ DQMStore::book_(const std::string &dir, const std::string &name,
       .initialise((MonitorElement::Kind)kind, h);
 
     // Initialise quality test information.
-    auto qi = qtestspecs_.begin();
-    auto qe = qtestspecs_.end();
-    for ( ; qi != qe; ++qi)
+    for (auto const& q : qtestspecs_)
     {
-        if ( qi->first->match(path) )
-                me->addQReport(qi->second);
+      if (q.first->match(path))
+        me->addQReport(q.second);
     }
 
     // If we just booked a (plain) MonitorElement, and there is a reference
@@ -1455,10 +1410,10 @@ DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h, unsigned verbose)
   {
     if(verbose > 0)
       std::cout << "*** DQMStore: WARNING:"
-		<< "checkBinningMatches: different binning - cannot add object '"
-		<< h->GetName() << "' of type "
-		<< h->IsA()->GetName() << " to existing ME: '"
-		<< me->getFullname() << "'\n";
+                << "checkBinningMatches: different binning - cannot add object '"
+                << h->GetName() << "' of type "
+                << h->IsA()->GetName() << " to existing ME: '"
+                << me->getFullname() << "'\n";
     return false;
   }
   return true;
@@ -1729,17 +1684,15 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
   into.reserve(dirs_.size());
 
   auto me = data_.end();
-  auto di = dirs_.begin();
-  auto de = dirs_.end();
-  for ( ; di != de; ++di)
+  for (auto const& dir : dirs_)
   {
-    MonitorElement proto(&*di, std::string());
+    MonitorElement proto(&dir, std::string());
     auto mi = data_.lower_bound(proto);
     auto m = mi;
-    size_t sz = di->size() + 2;
+    size_t sz = dir.size() + 2;
     size_t nfound = 0;
-    for ( ; m != me && isSubdirectory(*di, *m->data_.dirname); ++m)
-      if (*di == *m->data_.dirname)
+    for ( ; m != me && isSubdirectory(dir, *m->data_.dirname); ++m)
+      if (dir == *m->data_.dirname)
       {
         sz += m->data_.objname.size() + 1;
         ++nfound;
@@ -1755,11 +1708,11 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
     {
       istr->reserve(sz);
 
-      *istr += *di;
+      *istr += dir;
       *istr += ':';
       for (sz = 0; mi != m; ++mi)
       {
-        if (*di != *mi->data_.dirname)
+        if (dir != *mi->data_.dirname)
           continue;
 
         if (sz > 0)
@@ -1771,8 +1724,8 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
     }
     else
     {
-      istr->reserve(di->size() + 2);
-      *istr += *di;
+      istr->reserve(dir.size() + 2);
+      *istr += dir;
       *istr += ':';
     }
   }
@@ -1872,14 +1825,12 @@ DQMStore::getMatchingContents(const std::string &pattern, lat::Regexp::Syntax sy
 
   std::string path;
   std::vector<MonitorElement *> result;
-  auto i = data_.begin();
-  auto e = data_.end();
-  for ( ; i != e; ++i)
+  for (auto const& me : data_)
   {
     path.clear();
-    mergePath(path, *i->data_.dirname, i->data_.objname);
+    mergePath(path, *me.data_.dirname, me.data_.objname);
     if (rx.match(path))
-      result.push_back(const_cast<MonitorElement *>(&*i));
+      result.push_back(const_cast<MonitorElement *>(&me));
   }
 
   return result;
@@ -1894,12 +1845,10 @@ DQMStore::getMatchingContents(const std::string &pattern, lat::Regexp::Syntax sy
 void
 DQMStore::reset()
 {
-  auto mi = data_.begin();
-  auto me = data_.end();
-  for ( ; mi != me; ++mi)
+  for (auto const& m : data_)
   {
-    auto &me = const_cast<MonitorElement &>(*mi);
-    if (mi->wasUpdated())
+    auto &me = const_cast<MonitorElement &>(m);
+    if (me.wasUpdated())
     {
       if (me.resetMe())
         me.Reset();
@@ -1918,13 +1867,11 @@ DQMStore::reset()
 void
 DQMStore::forceReset()
 {
-  auto mi = data_.begin();
-  auto me = data_.end();
-  for ( ; mi != me; ++mi)
+  for (auto const& m : data_)
   {
-    if (forceResetOnBeginLumi_ && ((*mi).getLumiFlag() == false))
+    if (forceResetOnBeginLumi_ && (m.getLumiFlag() == false))
       continue;
-    auto &me = const_cast<MonitorElement &>(*mi);
+    auto &me = const_cast<MonitorElement &>(m);
     me.Reset();
     me.resetUpdate();
   }
@@ -2523,8 +2470,8 @@ DQMStore::saveMonitorElementRangeToROOT(
         std::string mname(me.getFullname(), s_referenceDirName.size()+1, std::string::npos);
         MonitorElement *master = get(mname);
         if (master)
-          for (size_t i = 0, e = master->data_.qreports.size(); i != e; ++i)
-            status = std::max(status, master->data_.qreports[i].code);
+          for (auto const& qreport : master->data_.qreports)
+            status = std::max(status, qreport.code);
 
         if (not master or status < minStatus)
         {
@@ -3062,10 +3009,8 @@ DQMStore::readFile(const std::string &filename,
   unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "", stripdirs);
   f->Close();
 
-  auto mi = data_.begin();
-  auto me = data_.end();
-  for ( ; mi != me; ++mi)
-    const_cast<MonitorElement &>(*mi).updateQReportStats();
+  for (auto const& me : data_)
+    const_cast<MonitorElement &>(me).updateQReportStats();
 
   if (verbose_)
   {
@@ -3113,11 +3058,11 @@ void DQMStore::get_info(const dqmstorepb::ROOTFilePB::Histo &h,
 
 bool
 DQMStore::readFilePB(const std::string &filename,
-		     bool overwrite /* = false */,
-		     const std::string &onlypath /* ="" */,
-		     const std::string &prepend /* ="" */,
-		     OpenRunDirs stripdirs /* =StripRunDirs */,
-		     bool fileMustExist /* =true */)
+                     bool overwrite /* = false */,
+                     const std::string &onlypath /* ="" */,
+                     const std::string &prepend /* ="" */,
+                     OpenRunDirs stripdirs /* =StripRunDirs */,
+                     bool fileMustExist /* =true */)
 {
   using google::protobuf::io::FileInputStream;
   using google::protobuf::io::FileOutputStream;
@@ -3150,7 +3095,7 @@ DQMStore::readFilePB(const std::string &filename,
   }
   ::close(filedescriptor);
 
-  for (int i = 0; i < dqmstore_message.histo_size(); i++) {
+  for (int i = 0; i < dqmstore_message.histo_size(); ++i) {
     std::string path;
     std::string objname;
 
@@ -3325,18 +3270,16 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   qtestspecs_.push_back(qts);
 
   // Apply the quality test.
-  auto mi = data_.begin();
-  auto me = data_.end();
   std::string path;
   int cases = 0;
-  for ( ; mi != me; ++mi)
+  for (auto const& me : data_)
   {
     path.clear();
-    mergePath(path, *mi->data_.dirname, mi->data_.objname);
+    mergePath(path, *me.data_.dirname, me.data_.objname);
     if (fm->match(path))
     {
       ++cases;
-      const_cast<MonitorElement &>(*mi).addQReport(qts.second);
+      const_cast<MonitorElement &>(me).addQReport(qts.second);
     }
   }
 
@@ -3354,11 +3297,9 @@ DQMStore::runQTests()
               << ( reset_ ? "true" : "false" ) << std::endl;
 
   // Apply quality tests to each monitor element, skipping references.
-  auto mi = data_.begin();
-  auto me = data_.end();
-  for ( ; mi != me; ++mi)
-    if (! isSubdirectory(s_referenceDirName, *mi->data_.dirname))
-      const_cast<MonitorElement &>(*mi).runQTests();
+  for (auto const& me : data_)
+    if (! isSubdirectory(s_referenceDirName, *me.data_.dirname))
+      const_cast<MonitorElement &>(me).runQTests();
 
   reset_ = false;
 }
@@ -3374,19 +3315,17 @@ DQMStore::getStatus(const std::string &path /* = "" */) const
   cleanTrailingSlashes(path, clean, cleaned);
 
   int status = dqm::qstatus::STATUS_OK;
-  auto mi = data_.begin();
-  auto me = data_.end();
-  for ( ; mi != me; ++mi)
+  for (auto const& me : data_)
   {
-    if (! cleaned->empty() && ! isSubdirectory(*cleaned, *mi->data_.dirname))
+    if (! cleaned->empty() && ! isSubdirectory(*cleaned, *me.data_.dirname))
       continue;
 
-    if (mi->hasError())
+    if (me.hasError())
       return dqm::qstatus::ERROR;
-    else if (mi->hasWarning())
+    else if (me.hasWarning())
       status = dqm::qstatus::WARNING;
     else if (status < dqm::qstatus::WARNING
-             && mi->hasOtherReport())
+             && me.hasOtherReport())
       status = dqm::qstatus::OTHER;
   }
   return status;
@@ -3479,11 +3418,9 @@ DQMStore::scaleElements()
   }
   factor = factor/(events*1.0);
 
-  auto mi = data_.begin();
-  auto me = data_.end();
-  for ( ; mi != me; ++mi)
+  for (auto const& m : data_)
   {
-    auto &me = const_cast<MonitorElement &>(*mi);
+    auto &me = const_cast<MonitorElement &>(m);
     switch (me.kind())
       {
       case MonitorElement::DQM_KIND_TH1F:

@@ -144,8 +144,8 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
       missingHitsValue = 0;
       validHitsValue = 100;
       chi2Value = 0;
-      oneOverESuperMinusOneOverPValue = 1;
-      oneOverESeedMinusOneOverPValue = 1;
+      oneOverESuperMinusOneOverPValue = 0;
+      oneOverESeedMinusOneOverPValue = 0;
     }else{
       for(size_t trkNr=0;trkNr<gsfTracks.size();trkNr++){
       

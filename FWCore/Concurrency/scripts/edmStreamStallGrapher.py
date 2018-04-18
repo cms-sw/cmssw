@@ -137,6 +137,7 @@ def processingStepsFromStallMonitorOutput(f,moduleNames):
 class StallMonitorParser(object):
     def __init__(self,f):
         numStreams = 0
+        numStreamsFromSource = 0
         moduleNames = {}
         for rawl in f:
             l = rawl.strip()
@@ -146,11 +147,17 @@ class StallMonitorParser(object):
                     #found global begin run
                     numStreams = int(i[1])+1
                     break
+            if numStreams == 0 and l and l[0] == 'S':
+                s = int(l.split(' ')[1])
+                if s > numStreamsFromSource:
+                  numStreamsFromSource = s
             if len(l) > 5 and l[0:2] == "#M":
                 (id,name)=tuple(l[2:].split())
                 moduleNames[id] = name
                 continue
         self._f = f
+        if numStreams == 0:
+          numStreams = numStreamsFromSource +1
         self.numStreams =numStreams
         self._moduleNames = moduleNames
         self.maxNameSize =0

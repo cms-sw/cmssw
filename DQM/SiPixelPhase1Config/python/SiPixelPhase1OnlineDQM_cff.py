@@ -34,7 +34,7 @@ StandardSpecifications1D.append(
 SiPixelPhase1Geometry.upgradePhase = 1
 
 #define number of lumis for overlayed plots
-SiPixelPhase1Geometry.onlineblock = 50
+SiPixelPhase1Geometry.onlineblock = 150
 
 # Turn on 'online' harvesting. This has to be set before other configs are 
 # loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
@@ -61,6 +61,7 @@ from DQM.SiPixelPhase1Clusters.SiPixelPhase1Clusters_cfi import *
 
 # Raw data errors
 from DQM.SiPixelPhase1RawData.SiPixelPhase1RawData_cfi import *
+from DQM.SiPixelPhase1DeadFEDChannels.SiPixelPhase1DeadFEDChannels_cfi import *
 
 from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 
@@ -73,6 +74,7 @@ from DQM.SiPixelPhase1TrackResiduals.SiPixelPhase1TrackResiduals_cfi import *
 
 siPixelPhase1OnlineDQM_source = cms.Sequence(
    SiPixelPhase1DigisAnalyzer
+ + SiPixelPhase1DeadFEDChannelsAnalyzer
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer
@@ -82,6 +84,7 @@ siPixelPhase1OnlineDQM_source = cms.Sequence(
 
 siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
    SiPixelPhase1DigisHarvester 
+ + SiPixelPhase1DeadFEDChannelsHarvester
  + SiPixelPhase1ClustersHarvester
  + SiPixelPhase1RawDataHarvester
  + SiPixelPhase1TrackClustersHarvester
@@ -104,6 +107,7 @@ SiPixelPhase1TrackResidualsAnalyzer_cosmics.VertexCut = cms.untracked.bool(False
 
 siPixelPhase1OnlineDQM_source_cosmics = cms.Sequence(
    SiPixelPhase1DigisAnalyzer
+ + SiPixelPhase1DeadFEDChannelsAnalyzer
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer_cosmics
@@ -124,6 +128,7 @@ SiPixelPhase1TrackResidualsAnalyzer_pprun.VertexCut = cms.untracked.bool(False)
 
 siPixelPhase1OnlineDQM_source_pprun = cms.Sequence(
    SiPixelPhase1DigisAnalyzer
+ + SiPixelPhase1DeadFEDChannelsAnalyzer
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
  + SiPixelPhase1TrackClustersAnalyzer_pprun

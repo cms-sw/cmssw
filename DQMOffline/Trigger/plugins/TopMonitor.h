@@ -279,6 +279,9 @@ bool invMassCutInAllMuPairs_;
 
   //Menglei
   bool enablePhotonPlot_;
+
+  //Mateusz
+  bool enableMETplot_;
   
 };
 

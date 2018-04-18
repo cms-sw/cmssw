@@ -6,14 +6,13 @@
 
 #include <cstdint>
 #include <vector>
-#include <cmath>
 
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTF/SP.h"
 
 namespace l1t {
-  
+
   struct EMTFPtLUT {
     uint64_t address;
     uint16_t mode;
@@ -31,47 +30,52 @@ namespace l1t {
     uint16_t bt_ci    [5]; // ^
     uint16_t bt_si    [5]; // ^
   };
-  
-  
+
+
   class EMTFTrack {
   public:
-    
-  EMTFTrack() :
-    _PtLUT(), endcap(-99), sector(-99), sector_idx(-99), 
+
+    EMTFTrack() :
+      _PtLUT(), endcap(-99), sector(-99), sector_idx(-99),
       mode(-99), mode_CSC(0), mode_RPC(0), mode_neighbor(0), mode_inv(-99),
       rank(-99), winner(-99), charge(-99), bx(-99), first_bx(-99), second_bx(-99),
       pt(-99), pt_XML(-99), zone(-99), ph_num(-99), ph_q(-99),
       theta_fp(-99), theta(-99), eta(-99), phi_fp(-99), phi_loc(-99), phi_glob(-999),
       gmt_pt(-99), gmt_phi(-999), gmt_eta(-999), gmt_quality(-99), gmt_charge(-99), gmt_charge_valid(-99),
-      track_num(-99), numHits(-99) 
+      track_num(-99), numHits(-99)
       {};
-    
+
     virtual ~EMTFTrack() {};
-    
+
     void ImportSP( const emtf::SP _SP, int _sector );
     // void ImportPtLUT( int _mode, unsigned long _address );
-    
 
-    void clear_Hits() { 
-      _Hits.clear();  numHits = 0;
-      mode_CSC = 0;  mode_RPC = 0;  mode_neighbor = 0;
+
+    void clear_Hits() {
+      _Hits.clear();
+      numHits       = 0;
+      mode_CSC      = 0;
+      mode_RPC      = 0;
+      mode_neighbor = 0;
     }
+
     void push_Hit(const EMTFHit& hit) {
-      _Hits.push_back( hit );  
-      numHits = _Hits.size();  
-      mode_CSC      += ( hit.Is_CSC()   ? pow(2, 4 - hit.Station()) : 0 ); 
-      mode_RPC      += ( hit.Is_RPC()   ? pow(2, 4 - hit.Station()) : 0 ); 
-      mode_neighbor += ( hit.Neighbor() ? pow(2, 4 - hit.Station()) : 0 ); 
+      _Hits.push_back( hit );
+      numHits       = _Hits.size();
+      if (hit.Is_CSC())   mode_CSC      |= (1 << (4 - hit.Station()));
+      if (hit.Is_RPC())   mode_RPC      |= (1 << (4 - hit.Station()));
+      if (hit.Neighbor()) mode_neighbor |= (1 << (4 - hit.Station()));
     }
+
     void set_Hits(const EMTFHitCollection& hits) {
       clear_Hits();
       for (const auto& hit : hits)
-	push_Hit( hit );
+        push_Hit( hit );
     }
 
-    void set_HitIdx(const std::vector<unsigned int>& bits) { _HitIdx = bits;          }
     void clear_HitIdx()                                    { _HitIdx.clear();         }
     void push_HitIdx(unsigned int bits)                    { _HitIdx.push_back(bits); }
+    void set_HitIdx(const std::vector<unsigned int>& bits) { _HitIdx = bits;          }
 
     int NumHits                      () const { return numHits; }
     EMTFHitCollection Hits           () const { return _Hits;   }

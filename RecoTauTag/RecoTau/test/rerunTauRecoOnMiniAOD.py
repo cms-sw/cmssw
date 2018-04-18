@@ -56,7 +56,7 @@ print '\t Max events:', process.maxEvents.input.value()
 if runSignal:
 	readFiles.extend( [
             'file:patMiniAOD_standard.root'
-            # 'root://cms-xrd-global.cern.ch////store/relval/CMSSW_10_1_0/RelValZTT_13/MINIAODSIM/101X_upgrade2018_realistic_v6_resub-v1/10000/AE5162C1-0A38-E811-9FCA-0CC47A4D7634.root',
+	          #'/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
             #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValZTT_13/MINIAODSIM/PUpmx25ns_100X_mc2017_realistic_v1-v1/20000/B01F0774-17E1-E711-9826-0CC47A4D7654.root',
 	] )
 else:

@@ -12,9 +12,9 @@ errHistDenStr = 'errorSummaryDen'
 
 # Muons
 l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient = DQMEDHarvester("L1TStage2RatioClient",
-    monitorDir = cms.untracked.string(ugmtDqmDir+'/uGMTMuonCopy1'),
-    inputNum = cms.untracked.string(ugmtDqmDir+'/uGMTMuonCopy1/'+errHistNumStr),
-    inputDen = cms.untracked.string(ugmtDqmDir+'/uGMTMuonCopy1/'+errHistDenStr),
+    monitorDir = cms.untracked.string(ugmtMuCpyDqmDir+'/uGMTMuonCopy1'),
+    inputNum = cms.untracked.string(ugmtMuCpyDqmDir+'/uGMTMuonCopy1/'+errHistNumStr),
+    inputDen = cms.untracked.string(ugmtMuCpyDqmDir+'/uGMTMuonCopy1/'+errHistDenStr),
     ratioName = cms.untracked.string('mismatchRatio'),
     ratioTitle = cms.untracked.string('Summary of mismatch rates between uGMT muons and uGMT muon copy 1'),
     yAxisTitle = cms.untracked.string('# mismatch / # total'),
@@ -58,6 +58,7 @@ l1tStage2OmtfOutVsuGMTInRatioClient.monitorDir = cms.untracked.string(ugmtDqmDir
 l1tStage2OmtfOutVsuGMTInRatioClient.inputNum = cms.untracked.string(ugmtDqmDir+'/OMTFoutput_vs_uGMTinput/'+errHistNumStr)
 l1tStage2OmtfOutVsuGMTInRatioClient.inputDen = cms.untracked.string(ugmtDqmDir+'/OMTFoutput_vs_uGMTinput/'+errHistDenStr)
 l1tStage2OmtfOutVsuGMTInRatioClient.ratioTitle = cms.untracked.string('Summary of mismatch rates between OMTF output muons and uGMT input muons from OMTF')
+l1tStage2OmtfOutVsuGMTInRatioClient.ignoreBin = cms.untracked.vint32(ignoreBins['Omtf'])
 
 l1tStage2EmtfOutVsuGMTInRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone()
 l1tStage2EmtfOutVsuGMTInRatioClient.monitorDir = cms.untracked.string(ugmtDqmDir+'/EMTFoutput_vs_uGMTinput')

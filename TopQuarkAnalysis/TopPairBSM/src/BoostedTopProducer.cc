@@ -370,17 +370,6 @@ BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-BoostedTopProducer::beginJob(const edm::EventSetup&)
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-BoostedTopProducer::endJob() {
-}
-
 double
 BoostedTopProducer::Psi(const TLorentzVector& p1, const TLorentzVector& p2, double mass) {
 

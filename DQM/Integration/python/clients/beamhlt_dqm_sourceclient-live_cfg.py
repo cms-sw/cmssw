@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamMonitor", eras.Run2_2017)
+process = cms.Process("BeamMonitor", eras.Run2_2018)
 
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
