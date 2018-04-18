@@ -11,7 +11,6 @@
 
 #include "DQM/HcalCommon/interface/Mapper.h"
 #include "DQM/HcalCommon/interface/HashFunctions.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace hcaldqm
 {
@@ -33,38 +32,24 @@ namespace hcaldqm
 				//	get hash
 				using Mapper::getHash;
 				uint32_t getHash(HcalDetId const& did) const override
-				{
-					return (hash_did.at(_htype))(did);
-				}
+				{return hash_did[_htype](did);}
 				uint32_t getHash(HcalElectronicsId const& eid) const override
-				{
-					return (hash_eid.at(_htype))(eid);
-				}
+				{return hash_eid[_htype-nHashType_did-1](eid);}
 				uint32_t getHash(HcalTrigTowerDetId const& tid) const override
-				{
-					return (hash_tid.at(_htype))(tid);
-				}
+				{return hash_tid[_htype-nHashType_eid-1](tid);}
 
 				//	get name of the hashed element
 				using Mapper::getName;
 				std::string getName(HcalDetId const &did) const override
-				{
-					return hashfunctions::name_did.at(_htype)(did);
-				}
+				{return hashfunctions::name_did[_htype](did);}
 				std::string getName(HcalElectronicsId const& eid) const override
-				{
-					return hashfunctions::name_eid.at(_htype)(eid);
-				}
+				{return hashfunctions::name_eid[_htype-nHashType_did-1](eid);}
 				std::string getName(HcalTrigTowerDetId const& tid) const override
-				{
-					return hashfunctions::name_tid.at(_htype)(tid);
-				}
+				{return hashfunctions::name_tid[_htype-nHashType_eid-1](tid);}
 
 				//	get the Hash Type Name
 				virtual std::string getHashTypeName() const
-				{
-					return hash_names.at(_htype);
-				}
+				{return hash_names[this->getLinearHashType(_htype)];}
 				virtual HashType getHashType() const
 				{return _htype;}
 
