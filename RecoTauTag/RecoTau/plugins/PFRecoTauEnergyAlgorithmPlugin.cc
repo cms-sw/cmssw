@@ -305,8 +305,8 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(reco::PFTau& tau) const
 	    allTracksSumP += chargedHadronTrack->p();
 	    allTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
 	  } else {
-	    edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
-	      << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+	    edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+	      << "PFRecoTauChargedHadron has no associated reco::Track !!";
 	    if ( verbosity_ ) {
 	      chargedHadron->print();
 	    }
@@ -427,8 +427,8 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(reco::PFTau& tau) const
 		double chargedHadronPz_modified = scaleFactor*chargedHadronTrack->pz();
 		chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);
 	      } else {
-		edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
-		  << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
+		edm::LogInfo("PFRecoTauEnergyAlgorithmPlugin::operator()") 
+		  << "PFRecoTauChargedHadron has no associated reco::Track !!";
 		if ( verbosity_ ) {
 		  chargedHadron.print();
 		}
