@@ -12,8 +12,8 @@ cloneGlobalMuonTagger = cloneGlobalMuonTaggerMAOD.clone(
 )
 
 # Bad charge hadron
-from RecoMET.METFilters.BadChargedCandidateSummer16Filter_cfi import BadChargedCandidateSummer16Filter
-BadChargedCandidateTagger = BadChargedCandidateSummer16Filter.clone(
+from RecoMET.METFilters.BadChargedCandidateFilter_cfi import BadChargedCandidateFilter
+BadChargedCandidateTagger = BadChargedCandidateFilter.clone(
     PFCandidates = cms.InputTag("packedPFCandidates"),
     muons = cms.InputTag("slimmedMuons"),
     taggingMode = True,
