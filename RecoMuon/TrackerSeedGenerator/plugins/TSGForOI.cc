@@ -449,7 +449,7 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("SF6",2.0);
   desc.add<double>("tsosDiff1",0.2);
   desc.add<double>("tsosDiff2",0.02);
-  desc.add<std::string>("propagatorName","PropagatorWithMaterial");
+  desc.add<std::string>("propagatorName","PropagatorWithMaterialParabolicMf");
   descriptions.add("TSGForOI",desc);
 
 }
