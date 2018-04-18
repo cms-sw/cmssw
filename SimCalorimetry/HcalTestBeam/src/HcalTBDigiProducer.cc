@@ -99,6 +99,10 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
   // get the correct geometry
   checkGeometry(eventSetup);
 
+  // Cache random number engine
+  edm::Service<edm::RandomNumberGenerator> rng;
+  randomEngine_ = &rng->getEngine(e.streamID());
+
   theHBHEHits.clear();
   theHOHits.clear();
   if (doPhaseShift) {
@@ -123,15 +127,15 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const& e, edm::EventSetup co
   theHODigitizer->initializeHits();
 }
 
-void HcalTBDigiProducer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
+void HcalTBDigiProducer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, int bunchCrossing) {
 
   LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate trying to get SimHit";
 
   if(hcalHandle.isValid()) {
     std::vector<PCaloHit> hits = *hcalHandle.product();
     LogDebug("HcalSim") << "HcalTBDigiProducer::accumulate Hits corrected";
-    theHBHEDigitizer->add(hits, bunchCrossing, engine);
-    theHODigitizer->add(hits, bunchCrossing, engine);
+    theHBHEDigitizer->add(hits, bunchCrossing, randomEngine_);
+    theHODigitizer->add(hits, bunchCrossing, randomEngine_);
   }
 }
 
@@ -142,7 +146,7 @@ void HcalTBDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&)
   edm::Handle<std::vector<PCaloHit> > hcalHandle;
   e.getByLabel(hcalTag, hcalHandle);
 
-  accumulateCaloHits(hcalHandle, 0, randomEngine(e.streamID()));
+  accumulateCaloHits(hcalHandle, 0);
 }
 
 void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const&, edm::StreamID const& streamID) {
@@ -152,7 +156,7 @@ void HcalTBDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSet
   edm::Handle<std::vector<PCaloHit> > hcalHandle;
   e.getByLabel(hcalTag, hcalHandle);
 
-  accumulateCaloHits(hcalHandle, e.bunchCrossing(), randomEngine(streamID));
+  accumulateCaloHits(hcalHandle, e.bunchCrossing());
 }
 
 void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
@@ -161,9 +165,9 @@ void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eve
   std::unique_ptr<HODigiCollection> hoResult(new HODigiCollection());
   LogDebug("HcalSim") << "HcalTBDigiProducer::produce Empty collection created";
   // Step C: Invoke the algorithm, getting back outputs.
-  theHBHEDigitizer->run(*hbheResult, randomEngine(e.streamID()));
+  theHBHEDigitizer->run(*hbheResult, randomEngine_);
   edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HBHE digis : " << hbheResult->size();
-  theHODigitizer->run(*hoResult, randomEngine(e.streamID()));
+  theHODigitizer->run(*hoResult, randomEngine_);
   edm::LogInfo("HcalSim") << "HcalTBDigiProducer: HO digis   : " << hoResult->size();
 
   // Step D: Put outputs into event
@@ -171,6 +175,7 @@ void HcalTBDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eve
   e.put(std::move(hbheResult), instance);
   e.put(std::move(hoResult), instance);
 
+  randomEngine_ = nullptr; // to prevent access outside event
 }
 
 void HcalTBDigiProducer::sortHits(const edm::PCaloHitContainer & hits) {
@@ -241,18 +246,4 @@ void HcalTBDigiProducer::setPhaseShift(const DetId & detId) {
       theHOResponse->setPhaseShift(passPhaseShift);
     }
   }
-}
-
-CLHEP::HepRandomEngine* HcalTBDigiProducer::randomEngine(edm::StreamID const& streamID) {
-  unsigned int index = streamID.value();
-  if(index >= randomEngines_.size()) {
-    randomEngines_.resize(index + 1, nullptr);
-  }
-  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-  if(!ptr) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    ptr = &rng->getEngine(streamID);
-    randomEngines_[index] = ptr;
-  }
-  return ptr;
 }

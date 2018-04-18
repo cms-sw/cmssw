@@ -40,7 +40,7 @@ void PtLUTWriter::write(const std::string& lut_full_path, const uint16_t num_, c
     throw std::invalid_argument(what);
   }
 
-  if (num_ == 1) 
+  if (num_ == 1)
     ptlut_.at(0) = version_;  // address 0 is the pT LUT version number
 
   typedef uint64_t full_word_t;

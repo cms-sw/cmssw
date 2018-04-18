@@ -5,13 +5,13 @@
 #include "DQMOffline/Trigger/interface/HLTTauDQMPlotter.h"
 #include "DQMOffline/Trigger/interface/HLTTauDQMPath.h"
 
-#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
+//#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace edm {
   class Event;
   class EventSetup;
-  class TriggerResults;
 }
 
 namespace trigger {
@@ -22,17 +22,19 @@ class HLTConfigProvider;
 
 class HLTTauDQMTagAndProbePlotter: private HLTTauDQMPlotter {
 public:
-  HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, std::unique_ptr<GenericTriggerEventFlag> numFlag, std::unique_ptr<GenericTriggerEventFlag> denFlag, const std::string& dqmBaseFolder);
+  HLTTauDQMTagAndProbePlotter(const edm::ParameterSet& iConfig, const std::vector<std::string>& modLabels, const std::string& dqmBaseFolder);
   ~HLTTauDQMTagAndProbePlotter();
 
   using HLTTauDQMPlotter::isValid;
 
   void bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::EventSetup const &iSetup);
 
-  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup, const HLTTauDQMOfflineObjects& refCollection);
+  void analyze(edm::Event const& iEvent, const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
 
 
 private:
+  LV findTrgObject(std::string, const trigger::TriggerEvent&);
+
   const int nbinsPt_;
   const double ptmin_,ptmax_;
   int nbinsEta_;
@@ -41,8 +43,10 @@ private:
   const double phimin_,phimax_;
   std::string xvariable;
 
-  std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
-  std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
+  std::vector<std::string> numTriggers;
+  std::vector<std::string> denTriggers;
+
+  std::vector<std::string> moduleLabels;
 
   unsigned int nOfflineObjs;
 

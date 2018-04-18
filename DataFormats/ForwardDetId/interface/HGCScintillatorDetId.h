@@ -9,9 +9,10 @@
    [0:8]   iphi index wrt x-axis on +z side
    [9:16]  |ieta| index (starting from |etamin|)
    [17:21] Layer #
-   [22:22] z-side (0 for +z; 1 for -z)
-   [23:23] Type (0 fine divisions; 1 for coarse division)
-   [24:24] Reserved for future extension
+   [22:24] Reserved for future extension
+   [25:25] z-side (0 for +z; 1 for -z)
+   [26:27] Type (0 fine divisions of scintillators;
+                 1 coarse divisions of scintillators)
    [28:31] Detector type (HGCalHSc)
 */
 
@@ -34,7 +35,7 @@ public:
   HGCScintillatorDetId geometryCell () const {return HGCScintillatorDetId (type(), layer(), ieta(), 0);}
 
   /// get the subdetector
-  ForwardSubdetector subdet() const { return HGCHEB; }
+  DetId::Detector subdet() const { return det(); }
 
   /// get the type
   int type() const { return (id_>>kHGCalTypeOffset)&kHGCalTypeMask; }
@@ -68,11 +69,10 @@ private:
   static const int kHGCalEtaMask        = 0xFF;
   static const int kHGCalLayerOffset    = 17;
   static const int kHGCalLayerMask      = 0x1F;
-  static const int kHGCalZsideOffset    = 22;
+  static const int kHGCalZsideOffset    = 25;
   static const int kHGCalZsideMask      = 0x1;
-  static const int kHGCalZsideMask2     = 0x400000;
-  static const int kHGCalTypeOffset     = 23;
-  static const int kHGCalTypeMask       = 0x1;
+  static const int kHGCalTypeOffset     = 26;
+  static const int kHGCalTypeMask       = 0x3;
 };
 
 std::ostream& operator<<(std::ostream&,const HGCScintillatorDetId& id);

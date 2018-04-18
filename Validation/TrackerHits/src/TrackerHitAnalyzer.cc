@@ -101,7 +101,7 @@ void TrackerHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,const edm::R
  
  const char *Region[] = {"005","051","115","152","225","253",
                        "-050","-105","-151","-215","-252","-325"};  
-  nbin = 10000;   
+  nbin = 200;   
       
 // Energy loss histograms
    for(int i=0; i<12; i++) {

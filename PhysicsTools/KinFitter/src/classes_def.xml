@@ -1,0 +1,20 @@
+<lcgdict>
+    <class name="TFitConstraintEp" class_version="0"/>
+    <class name="TFitConstraintM" class_version="0"/>
+    <class name="TFitConstraintMGaus" class_version="0"/>
+    <class name="TFitParticleCart" class_version="0"/>
+    <class name="TFitParticleECart" class_version="0"/>
+    <class name="TFitParticleEMomDev" class_version="0"/>
+    <class name="TFitParticleEScaledMomDev" class_version="0"/>
+    <class name="TFitParticleESpher" class_version="0"/>
+    <class name="TFitParticleEtEtaPhi" class_version="0"/>
+    <class name="TFitParticleEtThetaPhi" class_version="0"/>
+    <class name="TFitParticleMCCart" class_version="0"/>
+    <class name="TFitParticleMCMomDev" class_version="0"/>
+    <class name="TFitParticleMCPInvSpher" class_version="0"/>
+    <class name="TFitParticleMCSpher" class_version="0"/>
+    <class name="TFitParticleMomDev" class_version="0"/>
+    <class name="TFitParticleSpher" class_version="0"/>
+    <class name="TKinFitter" class_version="0"/>
+    <class name="TSLToyGen" class_version="0"/>
+</lcgdict>

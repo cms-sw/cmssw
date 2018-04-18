@@ -247,10 +247,15 @@ class SiPixelDigitizerAlgorithm  {
 
      // Read factors from DB and fill containers
      std::map<uint32_t, double> PixelGeomFactors;
+     std::map<uint32_t, std::vector<double> > PixelGeomFactorsROCStdPixels;     
+     std::map<uint32_t, std::vector<double> > PixelGeomFactorsROCBigPixels;
      std::map<uint32_t, double> ColGeomFactors;
      std::map<uint32_t, double> ChipGeomFactors;
      std::map<uint32_t, size_t > iPU;
-
+     
+     // constants for ROC level simulation for Phase1
+     enum shiftEnumerator {FPixRocIdShift = 3, BPixRocIdShift = 6};     
+     static const int rocIdMaskBits = 0x1F;      
      void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
      bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);
    };

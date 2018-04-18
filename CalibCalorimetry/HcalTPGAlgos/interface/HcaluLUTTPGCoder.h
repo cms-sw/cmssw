@@ -64,9 +64,7 @@ public:
 
   static const int QIE8_LUT_BITMASK = 0x3FF;
   static const int QIE10_LUT_BITMASK = 0x7FF;
-  static const int QIE11_LUT_BITMASK = 0x7FF;
-  // only the lowest 10 bits were used in 2017
-  static const int QIE11_LUT_BITMASK_2017 = 0x3FF;
+  static const int QIE11_LUT_BITMASK = 0x3FF;
 
 private:
   // typedef
@@ -79,8 +77,8 @@ private:
   static const int    nFi_ = 72;
 
   static const int QIE8_LUT_MSB = 0x400;
-  static const int QIE11_LUT_MSB0 = 0x800;
-  static const int QIE11_LUT_MSB1 = 0x1000;
+  static const int QIE11_LUT_MSB0 = 0x400;
+  static const int QIE11_LUT_MSB1 = 0x800;
   static const int QIE10_LUT_MSB  = 0x1000;
   
   // member variables

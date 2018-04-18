@@ -22,7 +22,7 @@ class L1TMuonEndCapParamsESProducer : public edm::ESProducer {
 public:
   L1TMuonEndCapParamsESProducer(const edm::ParameterSet&);
   ~L1TMuonEndCapParamsESProducer() override;
-  
+
   typedef std::shared_ptr<L1TMuonEndCapParams> ReturnType;
 
   ReturnType produce(const L1TMuonEndCapParamsRcd&);
@@ -60,7 +60,7 @@ L1TMuonEndCapParamsESProducer::produce(const L1TMuonEndCapParamsRcd& iRecord)
    using namespace edm::es;
    auto pEMTFParams = std::make_shared<L1TMuonEndCapParams>(*data_.getWriteInstance());
    return pEMTFParams;
-   
+
 }
 
 // Define this as a plug-in

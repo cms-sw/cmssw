@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamPixel", eras.Run2_2017)
+process = cms.Process("BeamPixel", eras.Run2_2018)
 
 
 #----------------------------
@@ -59,8 +59,8 @@ process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 #----------------------------
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
-
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+
 
 #----------------------------
 # Proton-Proton Specific Part
@@ -128,15 +128,13 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
     process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
     process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
-    process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
-    process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
-    process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
+    process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
-    process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
-    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 6
-    process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
-    process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
-    process.pixelTracksTrackingRegions.RegionPSet.originZPos = 1
+    process.pixelTracksTrackingRegions.RegionPSet.originRadius     = 0.4
+    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 15.
+    process.pixelTracksTrackingRegions.RegionPSet.originXPos       = 0.08
+    process.pixelTracksTrackingRegions.RegionPSet.originYPos       = -0.03
+    process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
 
 
     #----------------------------

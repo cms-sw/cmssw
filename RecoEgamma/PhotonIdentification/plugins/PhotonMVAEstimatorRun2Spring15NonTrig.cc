@@ -59,7 +59,7 @@ float PhotonMVAEstimatorRun2Spring15NonTrig::
 mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {  
 
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
+  const std::vector<float> vars =  fillMVAVariables( particle, iEvent ) ;  
   
   const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
 
@@ -318,7 +318,7 @@ std::vector<float> PhotonMVAEstimatorRun2Spring15NonTrig::fillMVAVariables(const
 
   std::vector<float> vars;
   if( isEndcapCategory( findCategory( particle ) ) ) {
-    vars = std::move( packMVAVariables(allMVAVars.varPhi,
+    vars =  packMVAVariables(allMVAVars.varPhi,
                                        allMVAVars.varR9,
                                        allMVAVars.varSieie,
                                        allMVAVars.varSieip,
@@ -338,9 +338,9 @@ std::vector<float> PhotonMVAEstimatorRun2Spring15NonTrig::fillMVAVariables(const
                                        // Declare spectator vars
                                        allMVAVars.varPt,
                                        allMVAVars.varEta) 
-                      ); 
+                      ; 
   } else {
-    vars = std::move( packMVAVariables(allMVAVars.varPhi,
+    vars =  packMVAVariables(allMVAVars.varPhi,
                                        allMVAVars.varR9,
                                        allMVAVars.varSieie,
                                        allMVAVars.varSieip,
@@ -358,7 +358,7 @@ std::vector<float> PhotonMVAEstimatorRun2Spring15NonTrig::fillMVAVariables(const
                                        // Declare spectator vars
                                        allMVAVars.varPt,
                                        allMVAVars.varEta) 
-                      );
+                      ;
   }
   return vars;
 }
