@@ -12,11 +12,9 @@ ShallowEventDataProducer::ShallowEventDataProducer(const edm::ParameterSet& iCon
   produces <unsigned int> ( "lumi"     );
   produces <float>        ( "instLumi" );
   produces <float>        ( "PU"       );
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   produces <std::vector<bool> > ( "TrigTech" );
   produces <std::vector<bool> > ( "TrigPh" );
-  // produces <std::bitset<64> > ( "TrigTechBitSet" );
-  // produces <std::bitset<128> > ( "TrigPhBitSet" );
   #endif
 
   trig_token_   = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("trigRecord"));
@@ -36,23 +34,18 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle< L1GlobalTriggerReadoutRecord > gtRecord;
   iEvent.getByToken(trig_token_, gtRecord);
 
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   std::vector<bool> TrigTech_(64,false);
   std::vector<bool> TrigPh_(128,false);
-  // std::bitset<64>   TrigTechBitSet_;
-  // std::bitset<128>  TrigPhBitSet_;
-  // TrigTechBitSet_.reset();
-  // TrigPhBitSet_.reset();
   #endif
 
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   // Get dWord after masking disabled bits
   DecisionWord dWord = gtRecord->decisionWord();
   if ( ! dWord.empty() ) { // if board not there this is zero
     // loop over dec. bit to get total rate (no overlap)
     for ( int i = 0; i < 64; ++i ) {
       TrigPh_[i]= dWord[i];
-      // if(dWord[i]) TrigPhBitSet_.set(i);
     }
   }
 
@@ -61,14 +54,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // loop over dec. bit to get total rate (no overlap)
     for ( int i = 0; i < 64; ++i ) {
       TrigTech_[i]=tw[i];
-      // if(tw[i]) TrigTechBitSet_.set(i);
     }
   }
 
   auto TrigTech = std::make_unique<std::vector<bool>>(TrigTech_);
   auto TrigPh = std::make_unique<std::vector<bool>>(TrigPh_);
-  // auto TrigTechBitSet = std::make_unique<std::bitset<64>>(TrigTechBitSet_);
-  // auto TrigPhBitSet   = std::make_unique<std::bitset<128>>(TrigPhBitSet_);
   #endif
 
   // Luminosity informations
@@ -92,11 +82,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::move(event),    "event" );
   iEvent.put(std::move(bx),       "bx" );
   iEvent.put(std::move(lumi),     "lumi" );
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   iEvent.put(std::move(TrigTech), "TrigTech" );
   iEvent.put(std::move(TrigPh),   "TrigPh" );
-  // iEvent.put(std::move(TrigTechBitSet), "TrigTechBitSet" );
-  // iEvent.put(std::move(TrigPhBitSet),   "TrigPhBitSet" );
   #endif
   iEvent.put(std::move(instLumi), "instLumi");
   iEvent.put(std::move(PU),       "PU");

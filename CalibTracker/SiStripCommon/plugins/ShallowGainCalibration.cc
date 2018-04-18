@@ -24,7 +24,7 @@ ShallowGainCalibration::ShallowGainCalibration(const edm::ParameterSet& iConfig)
   produces <std::vector<bool> >           ( Prefix + "farfromedge"    + Suffix );
   produces <std::vector<unsigned int> >   ( Prefix + "charge"         + Suffix );
   produces <std::vector<double> >         ( Prefix + "path"           + Suffix );
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   produces <std::vector<double> >         ( Prefix + "chargeoverpath" + Suffix );
   #endif
   produces <std::vector<unsigned char> >  ( Prefix + "amplitude"      + Suffix );
@@ -46,7 +46,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto         farfromedge   = std::make_unique<std::vector<bool>>           ();
   auto         charge        = std::make_unique<std::vector<unsigned int>>   ();
   auto         path          = std::make_unique<std::vector<double>>         ();
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   auto         chargeoverpath= std::make_unique<std::vector<double>>         ();
   #endif
   auto         amplitude     = std::make_unique<std::vector<unsigned char>>  ();
@@ -162,8 +162,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
                   if(Ampls[a] >=254)Saturation =true;
                }
             }
-            #ifdef CALIBTreeDEV
-	    double                   ChargeOverPath = (double)Charge / Path ;
+	    #ifdef ExtendedCALIBTree
+	    double ChargeOverPath = (double)Charge / Path ;
 	    #endif
 
             trackindex    ->push_back( shallow::findTrackIndex(tracks, track) ); 
@@ -178,7 +178,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             farfromedge   ->push_back( StripCluster ? IsFarFromBorder(&trajState,DetId, &iSetup) : true );
             charge        ->push_back( Charge );
             path          ->push_back( Path );
-            #ifdef CALIBTreeDEV
+            #ifdef ExtendedCALIBTree
             chargeoverpath->push_back( ChargeOverPath );
             #endif
             gainused      ->push_back( PrevGain );  
@@ -199,7 +199,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::move(farfromedge),   Prefix + "farfromedge"   + Suffix );
   iEvent.put(std::move(charge),        Prefix + "charge"        + Suffix );
   iEvent.put(std::move(path),          Prefix + "path"          + Suffix );
-  #ifdef CALIBTreeDEV
+  #ifdef ExtendedCALIBTree
   iEvent.put(std::move(chargeoverpath),Prefix + "chargeoverpath"+ Suffix );
   #endif
   iEvent.put(std::move(amplitude),     Prefix + "amplitude"     + Suffix );

@@ -69,7 +69,7 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig)
   farfromedge_token_    = consumes<std::vector<bool>           >(edm::InputTag(label, CalibPrefix_ + "farfromedge"   + CalibSuffix_)); 
   charge_token_         = consumes<std::vector<unsigned int>   >(edm::InputTag(label, CalibPrefix_ + "charge"        + CalibSuffix_)); 
   path_token_           = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "path"          + CalibSuffix_)); 
-#ifdef CALIBTreeDEV
+#ifdef ExtendedCALIBTree
   chargeoverpath_token_ = consumes<std::vector<double>         >(edm::InputTag(label, CalibPrefix_ + "chargeoverpath"+ CalibSuffix_)); 
 #endif
   amplitude_token_      = consumes<std::vector<unsigned char>  >(edm::InputTag(label, CalibPrefix_ + "amplitude"     + CalibSuffix_)); 
@@ -222,7 +222,7 @@ SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup cons
   iEvent.getByToken(path_token_,handle14);
   auto path = handle14.product(); 
 
-#ifdef CALIBTreeDEV
+#ifdef ExtendedCALIBTree 
   Handle<const std::vector<double>> handle15;
   iEvent.getByToken(chargeoverpath_token_,handle15);
   auto chargeoverpath = handle15.product();
@@ -249,7 +249,6 @@ SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup cons
   int elepos = statCollectionFromMode(m_calibrationMode.c_str());
   
   unsigned int FirstAmplitude=0;
- // for(unsigned int i=0;i<chargeoverpath->size();i++){
   for(unsigned int i=0;i<charge->size();i++){
     
     FirstAmplitude+=(*nstrips)[i];
