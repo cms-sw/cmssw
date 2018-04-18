@@ -89,14 +89,6 @@ namespace hcaldqm
 			return utilities::hash(did);
 		}
 
-		uint32_t hash_RBX(HcalDetId const& did)
-		{
-			// RBX = 4 iphis, starting from (71, 72, 1, 2)
-			int rbx = (((did.iphi() + 2) % 72) + 4 - 1) / 4;
-			int hash_iphi = rbx * 4 - 3; // RBX 1 = iphi 1
-			return utilities::hash(HcalDetId(did.subdet(), fabs(did.ieta()) / did.ieta(), hash_iphi, 1));
-		}
-
 		std::string name_Subdet(HcalDetId const& did)
 		{
 			return constants::SUBDET_NAME[did.subdet()-1];
@@ -311,21 +303,6 @@ namespace hcaldqm
 		{
 			return HcalDetId(HcalBarrel,1,1,1).rawId();
 		}
-
-		std::string name_RBX(HcalDetId const& did) {
-			char name[10];
-			std::string pm = (did.ieta() > 0 ? "P" : "M");
-			sprintf(name, "%s %s RBX %d", constants::SUBDET_NAME[did.subdet()-1].c_str(), pm.c_str(), hcaldqm::utilities::getRBX(did));
-			return std::string(name);
-		}
-
-		//	TODO: Make it work here
-		//	Not neccessary right now!
-		uint32_t hash_RBX(std::string const& name)
-		{
-			return HcalDetId(HcalBarrel,1,1,1).rawId();
-		}
-
 
 		/**
 		 *	by ElectronicsId

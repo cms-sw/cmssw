@@ -184,9 +184,11 @@ namespace hcaldqm
 
 		uint32_t ElectronicsMap::lookup(HcalDetId const &id)
 		{
+			// Turn the HcalDetId into a HcalGenericDetId to avoid newForm
 			uint32_t hash = (id.oldFormat() ? id.otherForm() : id.rawId());
+			HcalGenericDetId gdid(hash);
 			if (_etype==fHcalElectronicsMap)
-				return _emap->lookup(id).rawId();
+				return _emap->lookup(gdid).rawId();
 			else 
 			{
 				EMapType::iterator it = _ids.find(hash);
