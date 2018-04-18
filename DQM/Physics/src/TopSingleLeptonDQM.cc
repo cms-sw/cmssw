@@ -537,6 +537,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
 	edm::Handle<reco::JetCorrector> corrector;
 	event.getByToken(mJetCorrector, corrector);
+    if (!event.getByToken(mJetCorrector, corrector)) return;
 
   // loop jet collection
   std::vector<reco::Jet> correctedJets;
