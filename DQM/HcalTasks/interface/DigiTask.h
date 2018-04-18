@@ -165,6 +165,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
 		hcaldqm::Container1D _cLETDCTime_SubdetPM;
+		hcaldqm::ContainerProf2D _cLETDCTime_depth;
 
 		// Bad TDC histograms
 		hcaldqm::Container1D _cBadTDCValues_SubdetPM;
