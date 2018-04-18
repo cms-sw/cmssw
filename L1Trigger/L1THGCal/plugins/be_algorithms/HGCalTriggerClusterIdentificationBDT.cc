@@ -96,7 +96,6 @@ initialize(const edm::ParameterSet& conf)
   std::vector<std::string> spectators = {};
   for (const auto& file : bdt_files)
   {
-    // TMVAEvaluator bdt;
     bdts_.emplace_back(new TMVAEvaluator());
     bdts_.back()->initialize(
         "!Color:Silent:!Error",
@@ -105,7 +104,6 @@ initialize(const edm::ParameterSet& conf)
         input_variables_,
         spectators,
         false, false);
-    // bdts_.push_back(bdt);
   }
 }
 
@@ -144,8 +142,6 @@ category(float pt, float eta) const
   {
     if(categories_[cat].contains(pt, eta)) return static_cast<int>(cat);
   }
-  edm::LogWarning("HGCalTriggerClusterIdentificationBDT|UnknownCategory")
-    <<"pt="<<pt<<",eta="<<eta<<" doesn't match any defined category\n";
   return -1;
 }
 
