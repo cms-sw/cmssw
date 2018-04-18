@@ -123,13 +123,10 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         enough_stat=true;
     }
 
+       
+    dqmPlots(pedestals, ibooker_);
+
     
-    if(enough_stat){
-
-        dqmPlots(pedestals, ibooker_);
-
-    }
-
     // check if there are large variations wrt exisiting pedstals
 
     if (checkAnomalies_){
