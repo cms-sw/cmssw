@@ -99,7 +99,7 @@ initialize(const edm::ParameterSet& conf)
     bdts_.emplace_back(new TMVAEvaluator());
     bdts_.back()->initialize(
         "!Color:Silent:!Error",
-        "BDT::BDT",
+        "BDT::bdt",
         edm::FileInPath(file).fullPath(),
         input_variables_,
         spectators,
