@@ -28,18 +28,9 @@ private:
 
 MonitorElement* gem_vfat_eff[15][2][2];
 MonitorElement* gem_vfat_tot[15][2][2];
-MonitorElement* gem_vfat_total_eff;
 
-MonitorElement* ilayers;
-MonitorElement* ichamber;
-MonitorElement* iCheckChamber;
-MonitorElement* iroll;
-MonitorElement* ipartition;
-MonitorElement* iSeedInside;
-MonitorElement* iSeedOutside;
-
-MonitorElement* insideCount;
-MonitorElement* outsideCount;
+MonitorElement* insideChi2;
+MonitorElement* outsideChi2;
 
 edm::EDGetTokenT<reco::TrackCollection> insideOutTracks_, outsideInTracks_;
 edm::EDGetTokenT<vector<TrajectorySeed>> seedInside_, seedOutside_;

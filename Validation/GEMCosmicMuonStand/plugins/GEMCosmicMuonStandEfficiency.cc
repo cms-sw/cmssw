@@ -61,18 +61,9 @@ void GEMCosmicMuonStandEfficiency::bookHistograms(DQMStore::IBooker & ibooker, e
       gem_vfat_tot[i][j][1] = BookHist1D(ibooker, temp1.c_str(), temp1.c_str(), 24, -0.5, 23.5);
     }
   }
-  gem_vfat_total_eff = BookHist1D(ibooker, "vfatTotHit", "vfatTotHit", 24, -0.5, 23.5);
-  
-  ilayers = BookHist1D(ibooker, "layers", "layers", 2, 0.5, 2.5);
-  ichamber = BookHist1D(ibooker, "chamber", "chamber", 30, 0.5, 30.5);
-  iCheckChamber = BookHist1D(ibooker, "CheckChamber", "CheckChamber", 30, 0.5, 30.5);
-  iroll = BookHist1D(ibooker, "roll", "roll", 8, 0.5, 8.5);
-  ipartition = BookHist1D(ibooker, "partition", "partition", 3, -0.5, 2.5);
-  iSeedInside = BookHist1D(ibooker, "SeedInside", "SeedInside", 30, 0.5, 30.5);
-  iSeedOutside = BookHist1D(ibooker, "SeedOutside", "SeedOutside", 30, 0.5, 30.5);
 
-  insideCount = BookHist1D(ibooker, "insideOutRecHits", "insideOutRecHits", 11, -0.5, 10.5);
-  outsideCount = BookHist1D(ibooker, "outsideInRecHits", "outsideInRecHits", 11, -0.5, 10.5);
+  insideChi2 = BookHist1D(ibooker, "insideChi2", "insideChi2", 1000, 0, 100);
+  outsideChi2 = BookHist1D(ibooker, "outsideChi2", "outsideChi2", 1000, 0, 100);
 
   LogDebug("GEMCosmicMuonStandEfficiency")<<"Booking End.\n";
 }
@@ -105,13 +96,11 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     GEMDetId firstHit(seed->rawId());
     seed++;
     GEMDetId secondHit(seed->rawId());
-    iSeedInside->Fill(firstHit.chamber()+firstHit.layer()-1);
-    iSeedInside->Fill(secondHit.chamber()+secondHit.layer()-1);
-    cout << "Inside!" << endl;
-    int count = 0;
+
+    insideChi2->Fill(track->chi2());
+
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
-      count++;
       GEMDetId gemId((*recHit)->rawId());
       if(gemId.chamber() == firstHit.chamber() and gemId.layer() == firstHit.layer()) continue;
       if(gemId.chamber() == secondHit.chamber() and gemId.layer() == secondHit.layer()) continue;
@@ -123,21 +112,13 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       int nStrips = etaPartition->nstrips();
       float strip = etaPartition->strip((*recHit)->localPosition());
 
-      ilayers->Fill(layer);
-      ichamber->Fill(chamber+layer-1);
-      iCheckChamber->Fill(chamber);
-      iroll->Fill(roll);
-      ipartition->Fill(int(strip*3/nStrips));
-      
       int idxChamber = (chamber-1)/2;
       int idxLayer = layer-1;
       int vfat = (roll-1)+int(strip/nStrips*3)*8;
       
-      gem_vfat_total_eff->Fill(vfat);
       if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer][0]->Fill(vfat);
       gem_vfat_tot[idxChamber][idxLayer][0]->Fill(vfat);
     }
-    insideCount->Fill(count);
   }
  
 
@@ -150,13 +131,11 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     GEMDetId firstHit(seed->rawId());
     seed++;
     GEMDetId secondHit(seed->rawId());
-    iSeedOutside->Fill(firstHit.chamber()+firstHit.layer()-1);
-    iSeedOutside->Fill(secondHit.chamber()+secondHit.layer()-1);
-    int count = 0; 
-    cout << "Outside!" << endl;
+
+    outsideChi2->Fill(track->chi2());
+
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
-      count++;
       GEMDetId gemId((*recHit)->rawId());
       if(gemId.chamber() == firstHit.chamber() and gemId.layer() == firstHit.layer()) continue;
       if(gemId.chamber() == secondHit.chamber() and gemId.layer() == secondHit.layer()) continue;
@@ -168,12 +147,6 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       int nStrips = etaPartition->nstrips();
       float strip = etaPartition->strip((*recHit)->localPosition());
 
-      ilayers->Fill(layer);
-      ichamber->Fill(chamber+layer-1);
-      iCheckChamber->Fill(chamber);
-      iroll->Fill(roll);
-      ipartition->Fill(int(strip*3/nStrips));
-      
       int idxChamber = (chamber-1)/2;
       int idxLayer = layer-1;
       int vfat = (roll-1)+int(strip/nStrips*3)*8;
@@ -181,6 +154,5 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer][1]->Fill(vfat);
       gem_vfat_tot[idxChamber][idxLayer][1]->Fill(vfat);
     }
-    outsideCount->Fill(count);
   }
 }
