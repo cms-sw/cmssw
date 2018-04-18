@@ -1,0 +1,30 @@
+import FWCore.ParameterSet.Config as cms
+from PhysicsTools.NanoAOD.common_cff import *
+
+# Bad/clone muon filters - tagging mode to keep the event
+from RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff import badGlobalMuonTaggerMAOD, cloneGlobalMuonTaggerMAOD
+badGlobalMuonTagger = badGlobalMuonTaggerMAOD.clone(
+    taggingMode = True
+)
+
+cloneGlobalMuonTagger = cloneGlobalMuonTaggerMAOD.clone(
+    taggingMode = True
+)
+
+# Bad charge hadron
+from RecoMET.METFilters.BadChargedCandidateSummer16Filter_cfi import BadChargedCandidateSummer16Filter
+BadChargedCandidateTagger = BadChargedCandidateSummer16Filter.clone(
+    PFCandidates = cms.InputTag("packedPFCandidates"),
+    muons = cms.InputTag("slimmedMuons"),
+    taggingMode = True,
+)
+
+extraFlagsTable = cms.EDProducer("GlobalVariablesTableProducer",
+    variables = cms.PSet(
+        Flag_BadGlobalMuon = ExtVar(cms.InputTag("badGlobalMuonTagger:notBadEvent"), bool, doc = "Bad muon flag"),
+        Flag_CloneGlobalMuon = ExtVar(cms.InputTag("cloneGlobalMuonTagger:notBadEvent"), bool, doc = "Clone muon flag"),
+        Flag_BadChargedCandidate = ExtVar(cms.InputTag("BadChargedCandidateTagger"), bool, doc = "Bad charged hadron flag"),
+    )
+)
+
+extraFlagsProducers = cms.Sequence(badGlobalMuonTagger + cloneGlobalMuonTagger + BadChargedCandidateTagger)
