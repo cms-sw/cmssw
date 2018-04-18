@@ -68,6 +68,7 @@ class TotemRPDQMSource: public DQMEDAnalyzer
       MonitorElement *event_category=nullptr;
       MonitorElement *trackHitsCumulativeHist=nullptr;
       MonitorElement *track_u_profile=nullptr, *track_v_profile=nullptr;
+      MonitorElement *triggerSectorUVCorrelation=nullptr;
 
       PotPlots() {}
       PotPlots(DQMStore::IBooker &ibooker, unsigned int id);
@@ -140,6 +141,8 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
 
   track_u_profile = ibooker.book1D("track profile U", title+"; U   (mm)", 512, -256*66E-3, +256*66E-3);
   track_v_profile = ibooker.book1D("track profile V", title+"; V   (mm)", 512, -256*66E-3, +256*66E-3);
+
+  triggerSectorUVCorrelation = ibooker.book2D("trigger sector UV correlation", title+";V sector;U sector", 16, -0.5, 15.5, 16, -0.5, 15.5);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -597,6 +600,54 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   
       pp.track_u_profile->Fill(U);
       pp.track_v_profile->Fill(V);
+    }
+  }
+
+  // restore trigger-sector map from digis
+  map<unsigned int, map<unsigned int, map<unsigned int, unsigned int>>> triggerSectorMap; // [rpId, U/V flag, sector] --> number of planes
+  for (const auto &dp : *digi)
+  {
+    TotemRPDetId plId(dp.detId());
+    CTPPSDetId rpId = plId.getRPId();
+    unsigned int uvFlag = (plId.isStripsCoordinateUDirection()) ? 0 : 1;
+
+    set<unsigned int> sectors;
+    for (const auto &d : dp)
+    {
+      unsigned int sector = d.getStripNumber() / 32;
+      sectors.insert(sector);
+    }
+
+    for (const auto &sector : sectors)
+      triggerSectorMap[rpId][uvFlag][sector]++;
+  }
+
+  for (auto &rpp : triggerSectorMap)
+  {
+    // trigger sector is counted as active if at least 3 planes report activity
+
+    set<unsigned int> triggerSectorsU;
+    for (const auto sp : rpp.second[0])
+    {
+      if (sp.second >= 3)
+        triggerSectorsU.insert(sp.first);
+    }
+
+    set<unsigned int> triggerSectorsV;
+    for (const auto sp : rpp.second[1])
+    {
+      if (sp.second >= 3)
+        triggerSectorsV.insert(sp.first);
+    }
+
+    PotPlots &pp = potPlots[rpp.first];
+
+    for (const auto &secU : triggerSectorsU)
+    {
+      for (const auto &secV : triggerSectorsV)
+      {
+        pp.triggerSectorUVCorrelation->Fill(secV, secU);
+      }
     }
   }
 }
