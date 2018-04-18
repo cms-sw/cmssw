@@ -41,8 +41,7 @@ public:
   
   JetConstituentSelector(edm::ParameterSet const& params) :
     srcToken_{consumes<edm::View<T>>(params.getParameter<edm::InputTag>("src"))},
-    selector_{params.getParameter<std::string>("cut")},
-    unpackAK8_{params.getParameter<bool>("unpackAK8")}
+    selector_{params.getParameter<std::string>("cut")}
   {
     produces<JetsOutput>();
     produces<ConstituentsOutput>("constituents");
@@ -54,7 +53,6 @@ public:
     desc.add<edm::InputTag>("src")->setComment("InputTag used for retrieving jets in event.");
     desc.add<std::string>("cut")->setComment("Cut used by which to select jets.  For example:\n"
                                              "  \"pt > 100.0 && abs(rapidity()) < 2.4\".");
-    desc.add<bool>("unpackAK8", false)->setComment("Obsolete parameter.");
 
     // addDefault must be used here instead of add unless this function is specialized
     // for different sets of template parameter types. Each specialization would need
@@ -97,7 +95,6 @@ public:
 private:
   edm::EDGetTokenT<edm::View<T>> const srcToken_;
   StringCutObjectSelector<T> const selector_;
-  bool unpackAK8_;
 };
 
 template<>
