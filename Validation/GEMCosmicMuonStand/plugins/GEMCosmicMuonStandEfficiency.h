@@ -26,11 +26,9 @@ MonitorElement* BookHist1D( DQMStore::IBooker &, const char* name, const char* l
 
 private:
 
-/// For Drawing Efficiency Plots
-MonitorElement* gem_vfat_eff[15][2];
-MonitorElement* gem_vfat_tot[15][2];
+MonitorElement* gem_vfat_eff[15][2][2];
+MonitorElement* gem_vfat_tot[15][2][2];
 
-/// For Test
 MonitorElement* insideChi2;
 MonitorElement* outsideChi2;
 
@@ -39,6 +37,6 @@ edm::EDGetTokenT<vector<TrajectorySeed>> seedInside_, seedOutside_;
 
 };
 
-DEFINE_FWK_MODULE (GEMCosmicMuonStandEfficiency)
+DEFINE_FWK_MODULE (GEMCosmicMuonStandEfficiency) ;
 #endif
 

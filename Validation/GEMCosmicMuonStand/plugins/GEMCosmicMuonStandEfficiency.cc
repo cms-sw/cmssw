@@ -62,9 +62,9 @@ void GEMCosmicMuonStandEfficiency::bookHistograms(DQMStore::IBooker & ibooker, e
     }
   }
 
-  insideChi2 = BookHist1D(ibooker, "Inside_Chi2", "Inside_Chi2", 1000, 0, 100);
-  outsideChi2 = BookHist1D(ibooker, "Outside_Chi2", "Outside_Chi2", 1000, 0, 100);
-  
+  insideChi2 = BookHist1D(ibooker, "insideChi2", "insideChi2", 1000, 0, 100);
+  outsideChi2 = BookHist1D(ibooker, "outsideChi2", "outsideChi2", 1000, 0, 100);
+
   LogDebug("GEMCosmicMuonStandEfficiency")<<"Booking End.\n";
 }
 
@@ -96,12 +96,12 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     GEMDetId firstHit(seed->rawId());
     seed++;
     GEMDetId secondHit(seed->rawId());
-    int count = 0;
+
+    insideChi2->Fill(track->chi2());
+
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
-      count++;
       GEMDetId gemId((*recHit)->rawId());
-      outsideChi2->Fill((*recHit)->chi2());
       if(gemId.chamber() == firstHit.chamber() and gemId.layer() == firstHit.layer()) continue;
       if(gemId.chamber() == secondHit.chamber() and gemId.layer() == secondHit.layer()) continue;
       
@@ -119,9 +119,10 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer][0]->Fill(vfat);
       gem_vfat_tot[idxChamber][idxLayer][0]->Fill(vfat);
     }
-    insideCount->Fill(count);
   }
  
+
+
   // Analysis outside in tracks 
   for (std::vector<reco::Track>::const_iterator track = outsideInTracks->begin(); track != outsideInTracks->end(); ++track)
   {
@@ -130,12 +131,12 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     GEMDetId firstHit(seed->rawId());
     seed++;
     GEMDetId secondHit(seed->rawId());
-    int count = 0; 
+
+    outsideChi2->Fill(track->chi2());
+
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
-      count++;
       GEMDetId gemId((*recHit)->rawId());
-      outsideChi2->Fill((*recHit)->chi2());
       if(gemId.chamber() == firstHit.chamber() and gemId.layer() == firstHit.layer()) continue;
       if(gemId.chamber() == secondHit.chamber() and gemId.layer() == secondHit.layer()) continue;
       
@@ -153,6 +154,5 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer][1]->Fill(vfat);
       gem_vfat_tot[idxChamber][idxLayer][1]->Fill(vfat);
     }
-    outsideCount->Fill(count);
   }
 }
