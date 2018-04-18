@@ -36,18 +36,44 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 
 namespace pat {
+
+  class PATMuonHeavyObjectCache {
+  public:
+
+    PATMuonHeavyObjectCache(const edm::ParameterSet&);
+
+    std::unique_ptr<const pat::MuonMvaEstimator> const& muonMvaEstimator() const {
+      return muonMvaEstimator_;
+    }
+
+    std::unique_ptr<const pat::SoftMuonMvaEstimator> const& softMuonMvaEstimator() const {
+      return softMuonMvaEstimator_;
+    }
+
+  private:
+    std::unique_ptr<const pat::MuonMvaEstimator> muonMvaEstimator_;
+    std::unique_ptr<const pat::SoftMuonMvaEstimator> softMuonMvaEstimator_;
+  };
+
   /// foward declarations
   class TrackerIsolationPt;
   class CaloIsolationEnergy;
 
   /// class definition
-  class PATMuonProducer : public edm::stream::EDProducer<> {
+  class PATMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<PATMuonHeavyObjectCache>> {
 
   public:
     /// default constructir
-    explicit PATMuonProducer(const edm::ParameterSet & iConfig);
+    explicit PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavyObjectCache const*);
     /// default destructur
     ~PATMuonProducer() override;
+
+    static std::unique_ptr<PATMuonHeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& iConfig) {
+      return std::make_unique<PATMuonHeavyObjectCache>(iConfig);
+    }
+
+    static void globalEndJob(PATMuonHeavyObjectCache*) { }
+
     /// everything that needs to be done during the event loop
     void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
     /// description of config file parameters
@@ -168,16 +194,11 @@ namespace pat {
     bool computeMuonMVA_;
     bool computeSoftMuonMVA_;
     bool recomputeBasicSelectors_;
-    double mvaDrMax_;
     bool mvaUseJec_;
     edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
     edm::EDGetTokenT<reco::JetCorrector> mvaL1Corrector_;
     edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
     edm::EDGetTokenT<double> rho_;
-    pat::MuonMvaEstimator mvaEstimator_;
-    std::string mvaTrainingFile_;
-    pat::SoftMuonMvaEstimator softMvaEstimator_;
-    std::string softMvaTrainingFile_;
     
     /// --- tools ---
     /// comparator for pt ordering
