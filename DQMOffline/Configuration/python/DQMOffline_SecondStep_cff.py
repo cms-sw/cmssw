@@ -29,7 +29,7 @@ DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              cscOfflineCollisionsClients *
                                              es_dqm_client_offline *
                                              hcalOfflineHarvesting *
-                                             HcalDQMOfflinePostProcessor * 
+                                             HcalDQMOfflinePostProcessor *
                                              dqmFEDIntegrityClient *
                                              l1TriggerDqmOfflineClient )
 
@@ -46,7 +46,7 @@ from DQMOffline.JetMET.SusyPostProcessor_cff import *
 from DQMOffline.JetMET.dataCertificationJetMET_cff import *
 from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_cff import *
 from DQM.TrackingMonitorClient.pixelTrackingEffFromHitPattern_cff import *
-from DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff import *
+from DQM.SiOuterTracker.OuterTrackerClientConfig_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
                                              muonQualityTests *
@@ -64,7 +64,7 @@ DQMOffline_SecondStepPOG = cms.Sequence( dqmRefHistoRootFileGetter *
                                          DQMMessageLoggerClientSeq )
 
 
-HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * trackingForDisplacedJetMonitorClientHLT) 
+HLTMonitoringClient = cms.Sequence(trackingMonitorClientHLT * trackingForDisplacedJetMonitorClientHLT)
 HLTMonitoringClientPA= cms.Sequence(trackingMonitorClientHLT * PAtrackingMonitorClientHLT)
 DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMOffline_SecondStep_PreDPG *
@@ -73,7 +73,7 @@ DQMOffline_SecondStep = cms.Sequence( dqmRefHistoRootFileGetter *
                                       DQMMessageLoggerClientSeq *
                                       dqmFastTimerServiceClient)
 
-DQMOffline_SecondStep_ExtraHLT = cms.Sequence( 
+DQMOffline_SecondStep_ExtraHLT = cms.Sequence(
     hltOfflineDQMClientExtra
 )
 
@@ -156,4 +156,3 @@ DQMHarvestL1TMonitoring = cms.Sequence( l1TriggerDqmOfflineClient )
 DQMHarvestL1TEgamma = cms.Sequence( l1TriggerEgDqmOfflineClient )
 
 DQMHarvestL1TMuon = cms.Sequence( l1TriggerMuonDqmOfflineClient )
-
