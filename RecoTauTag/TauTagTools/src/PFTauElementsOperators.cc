@@ -48,12 +48,10 @@ std::vector<reco::CandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInCone
 std::vector<reco::CandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector& myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   std::vector<reco::CandidatePtr> filteredPFChargedHadrCands;
   for(std::vector<reco::CandidatePtr>::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(iPFCand->get());
-    if (pfcand != nullptr) {
-      TrackRef PFChargedHadrCand_track = pfcand->trackRef();
-      if (!PFChargedHadrCand_track)continue;
-      if (fabs((*PFChargedHadrCand_track).dz(myPV.position())-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
-    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+    const reco::Track* PFChargedHadrCand_track = (*iPFCand)->bestTrack();
+    if (PFChargedHadrCand_track == nullptr) continue;
+    if (fabs(PFChargedHadrCand_track->dz(myPV.position())-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
+
   }
   std::vector<reco::CandidatePtr> theFilteredPFCandsInCone=PFCandsInCone(filteredPFChargedHadrCands,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
