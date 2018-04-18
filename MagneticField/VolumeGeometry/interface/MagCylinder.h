@@ -17,7 +17,7 @@ class MagCylinder : public MagVolume {
 public:
 
   MagCylinder( const PositionType& pos, const RotationType& rot, 
-	       DDSolidShape shape, const std::vector<VolumeSide>& faces,
+	       const std::vector<VolumeSide>& faces,
 	       const MagneticFieldProvider<float> * mfp);
 
   bool inside( const GlobalPoint& gp, double tolerance=0.) const override;
