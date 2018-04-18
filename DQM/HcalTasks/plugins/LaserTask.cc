@@ -50,9 +50,17 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_laserMonDigiOverlap = ps.getUntrackedParameter<int>("laserMonDigiOverlap");
 	_laserMonTS0 = ps.getUntrackedParameter<int>("laserMonTS0");
 	_laserMonThreshold = ps.getUntrackedParameter<double>("laserMonThreshold", 1.e5);
-	_thresh_timingreflm_rms = ps.getUntrackedParameter<double>("thresh_timingreflm_rms", 5.);
-	_thresh_frac_timingreflmrms = ps.getUntrackedParameter<double>("thresh_frac_timingreflmrms", 0.01);
+	_thresh_frac_timingreflm = ps.getUntrackedParameter<double>("_thresh_frac_timingreflm", 0.01);
 	_thresh_min_lmsumq = ps.getUntrackedParameter<double>("thresh_min_lmsumq", 50000.);
+
+	std::vector<double> vTimingRangeHB = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HB", std::vector<double>({-75., -25.}));
+	std::vector<double> vTimingRangeHE = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HE", std::vector<double>({-75., -25.}));
+	std::vector<double> vTimingRangeHO = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HO", std::vector<double>({-75., -25.}));
+	std::vector<double> vTimingRangeHF = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HF", std::vector<double>({-75., -25.}));
+	_thresh_timingreflm[HcalBarrel] = std::make_pair(vTimingRangeHB[0], vTimingRangeHB[1]);
+	_thresh_timingreflm[HcalEndcap] = std::make_pair(vTimingRangeHE[0], vTimingRangeHE[1]);
+	_thresh_timingreflm[HcalOuter] = std::make_pair(vTimingRangeHO[0], vTimingRangeHO[1]);
+	_thresh_timingreflm[HcalForward] = std::make_pair(vTimingRangeHF[0], vTimingRangeHF[1]);
 }
 	
 /* virtual */ void LaserTask::bookHistograms(DQMStore::IBooker &ib,
@@ -424,8 +432,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		HcalElectronicsId eid(_ehashmap.lookup(*it));
 		int n = _xEntries.get(did);
 		//	channels missing or low signal
-		if (n==0)
-		{
+		if (n == 0) {
 			_cMissing_depth.fill(did);
 			if (_ptype != fOffline) { // hidefed2crate
 				if (eid.isVMEid())
@@ -438,10 +445,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		++_xNChs.get(did);
 
-		double msig = _xSignalSum.get(did)/n; 
-		double mtim = _xTimingSum.get(did)/n;
-		double rsig = sqrt(_xSignalSum2.get(did)/n-msig*msig);
-		double rtim = sqrt(_xTimingSum2.get(did)/n-mtim*mtim);
+		double msig = 0.;//_xSignalSum.get(did)/n; 
+		double mtim = 0.;//_xTimingSum.get(did)/n;
+		double rsig = 0.;//sqrt(_xSignalSum2.get(did)/n-msig*msig);
+		double rtim = 0.;//sqrt(_xTimingSum2.get(did)/n-mtim*mtim);
 
 		_cSignalMean_Subdet.fill(did, msig);
 		_cSignalMean_depth.fill(did, msig);
@@ -469,16 +476,16 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		}
 
 		// Bad timing
+		
 		double timingreflm_mean = _xTimingRefLMSum.get(did) / n;
-		double timingreflm_rms = sqrt(_xTimingRefLMSum2.get(did) / n - timingreflm_mean * timingreflm_mean);
+		//double timingreflm_rms = sqrt(_xTimingRefLMSum2.get(did) / n - timingreflm_mean * timingreflm_mean);
 
-		if (timingreflm_rms > _thresh_timingreflm_rms) {
+		if ((timingreflm_mean < _thresh_timingreflm[did.subdet()].first) || (timingreflm_mean > _thresh_timingreflm[did.subdet()].second)) {
 			++_xNBadTimingRefLM.get(did);
-		}
+		}		
 	}
 	if (_ptype != fOffline) { // hidefed2crate
-		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin();
-			it!=_vhashFEDs.end(); ++it) {
+		for (std::vector<uint32_t>::const_iterator it=_vhashFEDs.begin(); it!=_vhashFEDs.end(); ++it) {
 			hcaldqm::flag::Flag fSum("LASER");
 			HcalElectronicsId eid = HcalElectronicsId(*it);
 			std::vector<uint32_t>::const_iterator jt=
@@ -496,7 +503,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			//	@cDAQ
 			if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHO(eid) || hcaldqm::utilities::isFEDHF(eid)) {
 				double frbadtimingreflm = double(_xNBadTimingRefLM.get(eid))/double(_xNChs.get(eid));
-				if (frbadtimingreflm > _thresh_frac_timingreflmrms) {
+				if (frbadtimingreflm > _thresh_frac_timingreflm) {
 					_vflags[fBadTiming]._state = hcaldqm::flag::fBAD;
 				} else {
 					_vflags[fBadTiming]._state = hcaldqm::flag::fGOOD;
@@ -845,7 +852,7 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vect
 	edm::EventSetup const& es)
 {
 	if (_ptype==fLocal)
-		return;
+		return;	
 	this->_dump();
 
 	DQTask::endLuminosityBlock(lb, es);
