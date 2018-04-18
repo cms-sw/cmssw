@@ -177,6 +177,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cLETDCTime_depth.initialize(_name, "LETDCTime",
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cBadTDCValues_SubdetPM.initialize(_name, "BadTDCValues", 
 		hcaldqm::hashfunctions::fSubdetPM,
@@ -456,6 +461,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cLETDCvsADC_SubdetPM.book(ib, _emap, _subsystem);
 	_cLETDCvsTS_SubdetPM.book(ib, _emap, _subsystem);
 	_cLETDCTime_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCTime_depth.book(ib, _emap, _subsystem);
 
 	_cBadTDCValues_SubdetPM.book(ib, _emap, _subsystem);
 	_cBadTDCvsBX_SubdetPM.book(ib, _emap, _subsystem);
@@ -827,6 +833,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (digi[i].tdc() <50) {
 				double time = i*25. + (digi[i].tdc() / 2.);
 				_cLETDCTime_SubdetPM.fill(did, time);
+				_cLETDCTime_depth.fill(did, time);
 				_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
 			}
 			// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we saw some in 2017 data.
@@ -1127,6 +1134,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				if (digi[i].le_tdc() <50) {
 					double time = i*25. + (digi[i].le_tdc() / 2.);
 					_cLETDCTime_SubdetPM.fill(did, time);
+					_cLETDCTime_depth.fill(did, time);
 					_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
 				}
 
