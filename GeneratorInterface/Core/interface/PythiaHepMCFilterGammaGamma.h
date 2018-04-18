@@ -21,9 +21,6 @@ namespace edm {
 	  class HepMCProduct;
 }
 
-#include "TH1D.h"
-#include "TH1I.h"
-
 class PythiaHepMCFilterGammaGamma : public BaseHepMCFilter {
  public:
   explicit PythiaHepMCFilterGammaGamma(const edm::ParameterSet&);
