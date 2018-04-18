@@ -135,9 +135,12 @@ bool PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track>::filterTrack(cons
 
 template<>
 bool PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>::filterTrack(const edm::Handle<std::vector<pat::PackedCandidate> >& tracks, size_t iTrack) const {
-// ignore tracks which fail quality cuts
+  // ignore tracks which fail quality cuts
   const pat::PackedCandidate& cand = (*tracks)[iTrack];
   if (cand.charge() == 0)
+    return false;
+  // ignore lost tracks without reconstructed track
+  if (!cand.hasTrackDetails())
     return false;
   return qcuts_->filterChargedCand(cand);
 }
