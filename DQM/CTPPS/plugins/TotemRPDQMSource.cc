@@ -34,13 +34,13 @@
 #include <string>
 
 //----------------------------------------------------------------------------------------------------
- 
+
 class TotemRPDQMSource: public DQMEDAnalyzer
 {
   public:
     TotemRPDQMSource(const edm::ParameterSet& ps);
     ~TotemRPDQMSource() override;
-  
+
   protected:
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
@@ -123,8 +123,8 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
 
   hit_plane_hist = ibooker.book2D("activity in planes (2D)", title+";plane number;strip number", 10, -0.5, 9.5, 32, -0.5, 511.5);
 
-  patterns_u = ibooker.book1D("recognized patterns U", title+";number of recognized U patterns", 11, -0.5, 10.5); 
-  patterns_v = ibooker.book1D("recognized patterns V", title+";number of recognized V patterns", 11, -0.5, 10.5); 
+  patterns_u = ibooker.book1D("recognized patterns U", title+";number of recognized U patterns", 11, -0.5, 10.5);
+  patterns_v = ibooker.book1D("recognized patterns V", title+";number of recognized V patterns", 11, -0.5, 10.5);
 
   h_planes_fit_u = ibooker.book1D("planes contributing to fit U", title+";number of planes contributing to U fit", 6, -0.5, 5.5);
   h_planes_fit_v = ibooker.book1D("planes contributing to fit V", title+";number of planes contributing to V fit", 6, -0.5, 5.5);
@@ -194,27 +194,14 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   ibooker.setCurrentFolder("CTPPS");
 
   // loop over arms
-  for (unsigned int arm = 0; arm < 2; arm++)
+  for (unsigned int arm : {0, 1})
   {
-
     // loop over stations
-    for (unsigned int st = 0; st < 3; st += 2)
+    for (unsigned int st : {0, 2})
     {
-
       // loop over RPs
-      for (unsigned int rp = 0; rp < 6; ++rp)
+      for (unsigned int rp : {4, 5})
       {
-        if (st == 2)
-        {
-          // unit 220-nr is not equipped
-          if (rp <= 2)
-            continue;
-
-          // RP 220-fr-hr contains pixels
-          if (rp == 3)
-            continue;
-        }
-
         TotemRPDetId rpId(arm, st, rp);
         potPlots[rpId] = PotPlots(ibooker, rpId);
 
@@ -291,7 +278,10 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
     unsigned int plNum = detId.plane();
     CTPPSDetId rpId = detId.getRPId();
 
-    auto &plots = potPlots[rpId];
+    auto it = potPlots.find(rpId);
+    if (it == potPlots.end())
+      continue;
+    auto &plots = it->second;
 
     for (auto &s : ds)
     {
@@ -314,7 +304,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       }
     }
   }
-  
+
   //------------------------------
   // Plane Plots
 
@@ -322,31 +312,37 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   for (DetSetVector<TotemRPDigi>::const_iterator it = digi->begin(); it != digi->end(); ++it)
   {
     TotemRPDetId detId(it->detId());
+
+    auto plIt = planePlots.find(detId);
+    if (plIt == planePlots.end())
+      continue;
+    auto &plots = plIt->second;
+
     for (DetSet<TotemRPDigi>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
-      planePlots[detId].digi_profile_cumulative->Fill(dit->getStripNumber());
+      plots.digi_profile_cumulative->Fill(dit->getStripNumber());
   }
 
-  // cluster profile cumulative
+  // cluster plots
   for (DetSetVector<TotemRPCluster>::const_iterator it = digCluster->begin(); it != digCluster->end(); it++)
   {
     TotemRPDetId detId(it->detId());
+
+    auto plIt = planePlots.find(detId);
+    if (plIt == planePlots.end())
+      continue;
+    auto &plots = plIt->second;
+
+    // hit multiplicity
+    plots.hit_multiplicity->Fill(it->size());
+
     for (DetSet<TotemRPCluster>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
-      planePlots[detId].cluster_profile_cumulative->Fill(dit->getCenterStripPosition());
-  }
+    {
+      // profile cumulative
+      plots.cluster_profile_cumulative->Fill(dit->getCenterStripPosition());
 
-  // hit multiplicity
-  for (DetSetVector<TotemRPCluster>::const_iterator it = digCluster->begin(); it != digCluster->end(); it++)
-  {
-    TotemRPDetId detId(it->detId());
-    planePlots[detId].hit_multiplicity->Fill(it->size());
-  }
-
-  // cluster size
-  for (DetSetVector<TotemRPCluster>::const_iterator it = digCluster->begin(); it != digCluster->end(); it++)
-  {
-    TotemRPDetId detId(it->detId());
-    for (DetSet<TotemRPCluster>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
-      planePlots[detId].cluster_size->Fill(dit->getNumberOfStrips());
+      // cluster size
+      plots.cluster_size->Fill(dit->getNumberOfStrips());
+    }
   }
 
   // plane efficiency plots
@@ -365,6 +361,11 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       {
         TotemRPDetId plId = rpId;
         plId.setPlane(plNum);
+
+        auto plIt = planePlots.find(plId);
+        if (plIt == planePlots.end())
+          continue;
+        auto &plots = plIt->second;
 
         double ft_z = ft.getZ0();
         double ft_x = ft.getX0() + ft.getTx() * (ft_z - rp_z);
@@ -387,11 +388,9 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
           }
         }
 
-        auto &pp = planePlots[plId];
-
-        pp.efficiency_den->Fill(ft_v);
+        plots.efficiency_den->Fill(ft_v);
         if (hasMatchingHit)
-          pp.efficiency_num->Fill(ft_v);
+          plots.efficiency_num->Fill(ft_v);
       }
     }
   }
@@ -430,7 +429,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         activity = true;
         break;
       }
-    } 
+    }
 
     if (!activity)
       continue;
@@ -459,16 +458,20 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       it->second.activity_per_bx_short->Fill(event.bunchCrossing());
     }
   }
-  
+
   for (DetSetVector<TotemRPCluster>::const_iterator it = digCluster->begin(); it != digCluster->end(); it++)
   {
     TotemRPDetId detId(it->detId());
     unsigned int planeNum = detId.plane();
     CTPPSDetId rpId = detId.getRPId();
 
-    PotPlots &pp = potPlots[rpId];
+    auto plIt = potPlots.find(rpId);
+    if (plIt == potPlots.end())
+      continue;
+    auto &plots = plIt->second;
+
     for (DetSet<TotemRPCluster>::const_iterator dit = it->begin(); dit != it->end(); ++dit)
-      pp.hit_plane_hist->Fill(planeNum, dit->getCenterStripPosition());   
+      plots.hit_plane_hist->Fill(planeNum, dit->getCenterStripPosition());
   }
 
   // recognized pattern histograms
@@ -476,7 +479,10 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   {
     CTPPSDetId rpId(ds.detId());
 
-    PotPlots &pp = potPlots[rpId];
+    auto plIt = potPlots.find(rpId);
+    if (plIt == potPlots.end())
+      continue;
+    auto &plots = plIt->second;
 
     // count U and V patterns
     unsigned int u = 0, v = 0;
@@ -492,8 +498,8 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         v++;
     }
 
-    pp.patterns_u->Fill(u);
-    pp.patterns_v->Fill(v);
+    plots.patterns_u->Fill(u);
+    plots.patterns_v->Fill(v);
   }
 
   // event-category histogram
@@ -516,10 +522,10 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       {
         if (! p.getFittable())
           continue;
-  
+
         if (p.getProjection() == TotemRPUVPattern::projU)
           pat_u++;
-  
+
         if (p.getProjection() == TotemRPUVPattern::projV)
           pat_v++;
       }
@@ -529,7 +535,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
     signed int category = -1;
 
     if (pl_u == 0 && pl_v == 0) category = 0;   // empty
-    
+
     if (category == -1 && pat_u + pat_v <= 1)
     {
       if (pl_u + pl_v < 6)
@@ -550,13 +556,16 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   {
     CTPPSDetId rpId(ds.detId());
 
-    PotPlots &pp = potPlots[rpId];
+    auto plIt = potPlots.find(rpId);
+    if (plIt == potPlots.end())
+      continue;
+    auto &plots = plIt->second;
 
     for (auto &ft : ds)
     {
       if (!ft.isValid())
         continue;
-     
+
       // number of planes contributing to (valid) fits
       unsigned int n_pl_in_fit_u = 0, n_pl_in_fit_v = 0;
       for (auto &hds : ft.getHits())
@@ -574,9 +583,9 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         }
       }
 
-      pp.h_planes_fit_u->Fill(n_pl_in_fit_u);
-      pp.h_planes_fit_v->Fill(n_pl_in_fit_v);
-  
+      plots.h_planes_fit_u->Fill(n_pl_in_fit_u);
+      plots.h_planes_fit_v->Fill(n_pl_in_fit_v);
+
       // mean position of U and V planes
       TotemRPDetId plId_V(rpId); plId_V.setPlane(0);
       TotemRPDetId plId_U(rpId); plId_U.setPlane(1);
@@ -585,21 +594,21 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
                       geometry->getSensor(plId_U)->translation().x() ) / 2.;
       double rp_y = ( geometry->getSensor(plId_V)->translation().y() +
                       geometry->getSensor(plId_U)->translation().y() ) / 2.;
-  
+
       // mean read-out direction of U and V planes
       CLHEP::Hep3Vector rod_U = geometry->localToGlobalDirection(plId_U, CLHEP::Hep3Vector(0., 1., 0.));
       CLHEP::Hep3Vector rod_V = geometry->localToGlobalDirection(plId_V, CLHEP::Hep3Vector(0., 1., 0.));
-  
+
       double x = ft.getX0() - rp_x;
       double y = ft.getY0() - rp_y;
-  
-      pp.trackHitsCumulativeHist->Fill(x, y);
-  
+
+      plots.trackHitsCumulativeHist->Fill(x, y);
+
       double U = x * rod_U.x() + y * rod_U.y();
       double V = x * rod_V.x() + y * rod_V.y();
-  
-      pp.track_u_profile->Fill(U);
-      pp.track_v_profile->Fill(V);
+
+      plots.track_u_profile->Fill(U);
+      plots.track_v_profile->Fill(V);
     }
   }
 
@@ -640,13 +649,16 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         triggerSectorsV.insert(sp.first);
     }
 
-    PotPlots &pp = potPlots[rpp.first];
+    auto plIt = potPlots.find(rpp.first);
+    if (plIt == potPlots.end())
+      continue;
+    auto &plots = plIt->second;
 
     for (const auto &secU : triggerSectorsU)
     {
       for (const auto &secV : triggerSectorsV)
       {
-        pp.triggerSectorUVCorrelation->Fill(secV, secU);
+        plots.triggerSectorUVCorrelation->Fill(secV, secU);
       }
     }
   }
