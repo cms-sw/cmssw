@@ -1,4 +1,5 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
 #include <ostream>
 #include <string>
