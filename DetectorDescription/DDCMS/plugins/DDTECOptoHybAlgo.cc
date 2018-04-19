@@ -1,17 +1,17 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace      ns(ctxt,e,true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt,e,true);
+  DDAlgoArguments  args(ctxt, e);
   int            startCopyNo = args.value<int>("StartCopyNo");
   double         rpos        = args.value<double>("Rpos");
   double         zpos        = args.value<double>("Zpos");
@@ -22,7 +22,7 @@ static long algorithm(Detector& /* description */,
   Volume         mother      = ns.volume(args.parentName());
 
   LogDebug("TECGeom") << "Parent " << mother.name()
-                      << " Child " << child.name() << " NameSpace " << ns.name;
+                      << " Child " << child.name() << " NameSpace " << ns.name();
   LogDebug("TECGeom") << "Height of the Hybrid "
                       << optoHeight << " and Width " << optoWidth
                       <<"Rpos " << rpos << " Zpos " << zpos 
@@ -44,7 +44,7 @@ static long algorithm(Detector& /* description */,
     double phiy = phix + 90.*CLHEP::deg;
     double phideg = phix/CLHEP::deg;
     if (phideg != 0) {
-      string rotstr= ns.ns_name(child.name()) + std::to_string(phideg*1000.);
+      string rotstr= ns.nsName(child.name()) + std::to_string(phideg*1000.);
       auto irot = ctxt.rotations.find(ns.prepend(rotstr));
       if ( irot != ctxt.rotations.end() )   {
         rotation = ns.rotation(ns.prepend(rotstr));

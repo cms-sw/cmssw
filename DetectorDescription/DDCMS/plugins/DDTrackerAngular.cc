@@ -1,17 +1,17 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long  algorithm(Detector& /* description */,
-                       ParsingContext& ctxt,
+                       cms::DDParsingContext& ctxt,
                        xml_h e,
                        SensitiveDetector& /* sens */)
 {
-  Namespace      ns(ctxt,e,true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt,e,true);
+  DDAlgoArguments  args(ctxt, e);
   // Header section of original DDTrackerAngular.h
   int            n           = args.value<int>("N");
   int            startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1;
@@ -39,7 +39,7 @@ static long  algorithm(Detector& /* description */,
       << ", " << center[1] << ", "<<center[2];
   LogDebug("TrackerGeom") << "debug: Parent " << mother.name() 
       << "\tChild " << child.name() << " NameSpace "
-      << ns.name;
+      << ns.name();
 
   double theta  = 90.*CLHEP::deg;
   int    copy   = startCopyNo;
@@ -51,7 +51,7 @@ static long  algorithm(Detector& /* description */,
 
     Rotation3D rotation;
     if (phideg != 0) {
-      string rotstr = ns.ns_name(child.name()) + std::to_string(phideg*10.);
+      string rotstr = ns.nsName(child.name()) + std::to_string(phideg*10.);
       auto irot = ctxt.rotations.find(ns.prepend(rotstr));
       if ( irot != ctxt.rotations.end() )   {
         rotation = ns.rotation(ns.prepend(rotstr));
