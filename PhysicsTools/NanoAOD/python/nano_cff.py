@@ -6,6 +6,7 @@ from PhysicsTools.NanoAOD.taus_cff import *
 from PhysicsTools.NanoAOD.electrons_cff import *
 from PhysicsTools.NanoAOD.photons_cff import *
 from PhysicsTools.NanoAOD.globals_cff import *
+from PhysicsTools.NanoAOD.extraflags_cff import *
 from PhysicsTools.NanoAOD.ttbarCategorization_cff import *
 from PhysicsTools.NanoAOD.genparticles_cff import *
 from PhysicsTools.NanoAOD.particlelevel_cff import *
@@ -104,6 +105,9 @@ _80x_sequence = nanoSequence.copy()
 #remove stuff 
 _80x_sequence.remove(isoTrackTable)
 _80x_sequence.remove(isoTrackSequence)
+#add stuff
+_80x_sequence.insert(_80x_sequence.index(jetSequence), extraFlagsProducers)
+_80x_sequence.insert(_80x_sequence.index(l1bits)+1, extraFlagsTable)
 
 run2_miniAOD_80XLegacy.toReplaceWith( nanoSequence, _80x_sequence)
 
