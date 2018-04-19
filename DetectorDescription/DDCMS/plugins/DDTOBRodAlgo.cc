@@ -204,7 +204,7 @@ static long algorithm(Detector& /* description */,
 
   // End cooling tubes
   Position r2(0, endCoolY, shift+endCoolZ);
-  Rotation3D rot2 = ns.rotation(endCoolRot);
+  const Rotation3D& rot2 = ns.rotation(endCoolRot);
   child = endCool;
   cent.placeVolume(ns.volume(child), 1, Transform3D(rot2,r2));
   LogDebug("TOBGeom") << child << " number 1 " << "positioned in " << centName << " at " << r2 
