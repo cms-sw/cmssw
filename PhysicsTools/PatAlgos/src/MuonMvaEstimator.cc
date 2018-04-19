@@ -1,84 +1,110 @@
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+
+#include "TMVA/Reader.h"
+#include "TMVA/MethodBDT.h"
 
 using namespace pat;
 
-MuonMvaEstimator::MuonMvaEstimator():
-  tmvaReader_("!Color:!Silent:Error"),
-  initialized_(false),
-  mva_(0),
-  dRmax_(0)
-{}
-
-void MuonMvaEstimator::initialize(std::string weightsfile,
-				  float dRmax)
-{ 
-  if (initialized_) return;
-  tmvaReader_.AddVariable("LepGood_pt",                    &pt_               );
-  tmvaReader_.AddVariable("LepGood_eta",                   &eta_              );
-  tmvaReader_.AddVariable("LepGood_jetNDauChargedMVASel",  &jetNDauCharged_   );
-  tmvaReader_.AddVariable("LepGood_miniRelIsoCharged",     &miniRelIsoCharged_);
-  tmvaReader_.AddVariable("LepGood_miniRelIsoNeutral",     &miniRelIsoNeutral_);
-  tmvaReader_.AddVariable("LepGood_jetPtRelv2",            &jetPtRel_         );
-  tmvaReader_.AddVariable("min(LepGood_jetPtRatiov2,1.5)", &jetPtRatio_       );
-  tmvaReader_.AddVariable("max(LepGood_jetBTagCSV,0)",     &jetBTagCSV_       );
-  tmvaReader_.AddVariable("LepGood_sip3d",                 &sip_              );
-  tmvaReader_.AddVariable("log(abs(LepGood_dxy))",         &log_abs_dxyBS_    ); 
-  tmvaReader_.AddVariable("log(abs(LepGood_dz))",          &log_abs_dzPV_     );
-  tmvaReader_.AddVariable("LepGood_segmentCompatibility",  &segmentCompatibility_);
-  tmvaReader_.BookMVA("BDTG",weightsfile);
-  dRmax_ = dRmax;
-  initialized_ = true;
-};
-
-float ptRel(const reco::Candidate::LorentzVector& muP4, 
-	    const reco::Candidate::LorentzVector& jetP4, 
-	    bool subtractMuon=true) 
-{
-  reco::Candidate::LorentzVector jp4 = jetP4;
-  if (subtractMuon) jp4-=muP4;
-  float dot = muP4.Vect().Dot( jp4.Vect() );
-  float ptrel = muP4.P2() - dot*dot/jp4.P2();
-  ptrel = ptrel>0 ? sqrt(ptrel) : 0.0;
-  return ptrel;
+namespace {
+  constexpr char muon_mva_name[] = "BDTG";
 }
 
-void MuonMvaEstimator::computeMva(const pat::Muon& muon,
+MuonMvaEstimator::MuonMvaEstimator(const std::string& weightsfile, float dRmax):
+  dRmax_(dRmax)
+{
+  TMVA::Reader tmvaReader("!Color:!Silent:Error");
+  tmvaReader.AddVariable("LepGood_pt",                    &pt_               );
+  tmvaReader.AddVariable("LepGood_eta",                   &eta_              );
+  tmvaReader.AddVariable("LepGood_jetNDauChargedMVASel",  &jetNDauCharged_   );
+  tmvaReader.AddVariable("LepGood_miniRelIsoCharged",     &miniRelIsoCharged_);
+  tmvaReader.AddVariable("LepGood_miniRelIsoNeutral",     &miniRelIsoNeutral_);
+  tmvaReader.AddVariable("LepGood_jetPtRelv2",            &jetPtRel_         );
+  tmvaReader.AddVariable("min(LepGood_jetPtRatiov2,1.5)", &jetPtRatio_       );
+  tmvaReader.AddVariable("max(LepGood_jetBTagCSV,0)",     &jetBTagCSV_       );
+  tmvaReader.AddVariable("LepGood_sip3d",                 &sip_              );
+  tmvaReader.AddVariable("log(abs(LepGood_dxy))",         &log_abs_dxyBS_    );
+  tmvaReader.AddVariable("log(abs(LepGood_dz))",          &log_abs_dzPV_     );
+  tmvaReader.AddVariable("LepGood_segmentCompatibility",  &segmentCompatibility_);
+
+  std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(muon_mva_name, weightsfile.c_str()) );
+  gbrForest_.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(muon_mva_name) ) ) );
+}
+
+MuonMvaEstimator::~MuonMvaEstimator() { }
+
+namespace {
+
+  enum inputIndexes {
+      kPt,
+      kEta,
+      kJetNDauCharged,
+      kMiniRelIsoCharged,
+      kMiniRelIsoNeutral,
+      kJetPtRel,
+      kJetPtRatio,
+      kJetBTagCSV,
+      kSip,
+      kLog_abs_dxyBS,
+      kLog_abs_dzPV,
+      kSegmentCompatibility,
+      kLast
+  };
+
+  float ptRel(const reco::Candidate::LorentzVector& muP4, const reco::Candidate::LorentzVector& jetP4,
+              bool subtractMuon=true)
+  {
+    reco::Candidate::LorentzVector jp4 = jetP4;
+    if (subtractMuon) jp4-=muP4;
+    float dot = muP4.Vect().Dot( jp4.Vect() );
+    float ptrel = muP4.P2() - dot*dot/jp4.P2();
+    ptrel = ptrel>0 ? sqrt(ptrel) : 0.0;
+    return ptrel;
+  }
+}
+
+float MuonMvaEstimator::computeMva(const pat::Muon& muon,
 				  const reco::Vertex& vertex,
 				  const reco::JetTagCollection& bTags,
+                                  float& jetPtRatio,
+                                  float& jetPtRel,
 				  const reco::JetCorrector* correctorL1,
-				  const reco::JetCorrector* correctorL1L2L3Res)
+				  const reco::JetCorrector* correctorL1L2L3Res) const
 {
-  if (not initialized_) 
-    throw cms::Exception("FatalError") << "MuonMVA is not initialized";
-  pt_                   = muon.pt();
-  eta_                  = muon.eta();
-  segmentCompatibility_ = muon.segmentCompatibility();
-  miniRelIsoCharged_ = muon.miniPFIsolation().chargedHadronIso();
-  miniRelIsoNeutral_ = muon.miniPFIsolation().neutralHadronIso();
+  float var[kLast]{};
+
+  var[kPt] = muon.pt();
+  var[kEta] = muon.eta();
+  var[kSegmentCompatibility] = muon.segmentCompatibility();
+  var[kMiniRelIsoCharged] = muon.miniPFIsolation().chargedHadronIso();
+  var[kMiniRelIsoNeutral] = muon.miniPFIsolation().neutralHadronIso();
 
   double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
   double dB3D  = muon.dB(pat::Muon::PV3D);
   double edB3D = muon.edB(pat::Muon::PV3D);
   double dz    = fabs(muon.muonBestTrack()->dz(vertex.position()));
-  sip_  = edB3D>0?fabs(dB3D/edB3D):0.0; 
-  log_abs_dxyBS_     = dB2D>0?log(dB2D):0; 
-  log_abs_dzPV_      = dz>0?log(dz):0;
+  var[kSip]  = edB3D>0?fabs(dB3D/edB3D):0.0;
+  var[kLog_abs_dxyBS]     = dB2D>0?log(dB2D):0;
+  var[kLog_abs_dzPV]      = dz>0?log(dz):0;
 
   //Initialise loop variables
   double minDr = 9999;
   double jecL1L2L3Res = 1.;
   double jecL1 = 1.;
 
-  jetPtRatio_ = -99;
-  jetPtRel_   = -99;
-  jetBTagCSV_ = -999;
-  jetNDauCharged_ = -1;
+  var[kJetPtRatio] = -99;
+  var[kJetPtRel]   = -99;
+  var[kJetBTagCSV] = -999;
+  var[kJetNDauCharged] = -1;
 
   for (const auto& tagI: bTags){
     // for each muon with the lepton 
@@ -95,8 +121,8 @@ void MuonMvaEstimator::computeMva(const pat::Muon& muon,
     }
 
     // Get b-jet info
-    jetBTagCSV_ = tagI.second;
-    jetNDauCharged_ = 0;
+    var[kJetBTagCSV] = tagI.second;
+    var[kJetNDauCharged] = 0;
     for (auto jet: tagI.first->getJetConstituentsQuick()){
       const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate*>(jet);
       if (pfcand==nullptr) throw cms::Exception("ConfigurationError") << "Cannot get jet constituents";
@@ -111,25 +137,27 @@ void MuonMvaEstimator::computeMva(const pat::Muon& muon,
 
       if (std::fabs(bestTrackPtr->dxy(vertex.position())) > 0.2) continue;
       if (std::fabs(bestTrackPtr->dz(vertex.position())) > 17) continue;
-      jetNDauCharged_++;
+      var[kJetNDauCharged]++;
     }
 
     if(minDr < dRmax_){
       if ((jetP4-muP4).Rho()<0.0001){ 
-	jetPtRel_ = 0;
-	jetPtRatio_ = 1;
+	var[kJetPtRel] = 0;
+	var[kJetPtRatio] = 1;
       } else {
 	jetP4 -= muP4/jecL1;
 	jetP4 *= jecL1L2L3Res;
 	jetP4 += muP4;
       
-	jetPtRatio_ = muP4.pt()/jetP4.pt();
-	jetPtRel_ = ptRel(muP4,jetP4);
+	var[kJetPtRatio] = muP4.pt()/jetP4.pt();
+	var[kJetPtRel] = ptRel(muP4,jetP4);
       }
     }
   }
 
-  if (jetPtRatio_>1.5) jetPtRatio_ = 1.5;
-  if (jetBTagCSV_<0) jetBTagCSV_ = 0;
-  mva_ = tmvaReader_.EvaluateMVA("BDTG");
+  if (var[kJetPtRatio] > 1.5) var[kJetPtRatio] = 1.5;
+  if (var[kJetBTagCSV] < 0) var[kJetBTagCSV] = 0;
+  jetPtRatio = var[kJetPtRatio];
+  jetPtRel = var[kJetPtRel];
+  return gbrForest_->GetClassifier(var);
 };

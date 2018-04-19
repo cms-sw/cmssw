@@ -344,9 +344,10 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
   l1t::EtSumBxCollection::const_iterator calol2It = calol2Col->begin();
   l1t::EtSumBxCollection::const_iterator uGTIt = uGTCol->begin();
 
-  // if the calol2 or ugt collections  have different size, mark the event as
-  // bad (this should never occur in normal running)
-  if ((calol2Col->size() != uGTCol->size())) {
+  // if either calol2 or ugt collections are empty, or they have different
+  // size, mark the event as bad (this should never occur in normal running)
+  if (calol2Col->size() == 0 || uGTCol->size() == 0 ||
+      (calol2Col->size() != uGTCol->size())) {
     comparisonNum->Fill(EVENTBADSUMCOL);
     return false;
   }
