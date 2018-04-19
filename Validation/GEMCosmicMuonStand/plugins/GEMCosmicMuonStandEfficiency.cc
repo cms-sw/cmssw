@@ -97,7 +97,10 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     seed++;
     GEMDetId secondHit(seed->rawId());
 
-    insideChi2->Fill(track->chi2());
+    //if((firstHit.chamber()-1)/10 != (secondHit.chamber()-1)/10) continue;
+    if(track->normalizedChi2() > 1.) continue;
+    
+    insideChi2->Fill(track->normalizedChi2());
 
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
@@ -114,7 +117,7 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
 
       int idxChamber = (chamber-1)/2;
       int idxLayer = layer-1;
-      int vfat = (roll-1)+int(strip/nStrips*3)*8;
+      int vfat = (8-roll)+int(strip/nStrips*3)*8;
       
       if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer][0]->Fill(vfat);
       gem_vfat_tot[idxChamber][idxLayer][0]->Fill(vfat);
@@ -132,7 +135,10 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     seed++;
     GEMDetId secondHit(seed->rawId());
 
-    outsideChi2->Fill(track->chi2());
+    //if((firstHit.chamber()-1)/10 != (secondHit.chamber()-1)/10) continue;
+    if(track->normalizedChi2() > 1.) continue;
+
+    outsideChi2->Fill(track->normalizedChi2());
 
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
@@ -149,7 +155,7 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
 
       int idxChamber = (chamber-1)/2;
       int idxLayer = layer-1;
-      int vfat = (roll-1)+int(strip/nStrips*3)*8;
+      int vfat = (8-roll)+int(strip/nStrips*3)*8;
       
       if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer][1]->Fill(vfat);
       gem_vfat_tot[idxChamber][idxLayer][1]->Fill(vfat);
