@@ -9,7 +9,9 @@
 #include "DD4hep/detail/ObjectsInterna.h"
 
 #include "XML/Utilities.h"
-#include "DetectorDescription/DDCMS/interface/DDCMS.h"
+#include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
+#include "DetectorDescription/DDCMS/interface/DDNamespace.h"
+#include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
 
 #include "TSystem.h"
 #include "TGeoManager.h"
@@ -23,12 +25,12 @@
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 namespace dd4hep {
 
   namespace {
-
+    
     UInt_t unique_mat_id = 0xAFFEFEED;
 
     class disabled_algo;
@@ -177,52 +179,52 @@ namespace dd4hep {
 
 /// Converter for <ConstantsSection/> tags
 template <> void Converter<ConstantsSection>::operator()(xml_h element) const  {
-  Namespace _ns(_param<ParsingContext>(), element);
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, _CMU(Constant)).for_each(Converter<DDLConstant>(description,_ns.context,optional));
 }
 
 /// Converter for <VisSection/> tags
 template <> void Converter<vissection>::operator()(xml_h element) const  {
-  Namespace _ns(_param<ParsingContext>(), element);
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, _CMU(vis)).for_each(Converter<vis>(description,_ns.context,optional));
 }
 
 /// Converter for <MaterialSection/> tags
 template <> void Converter<MaterialSection>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>(), element);
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, _CMU(ElementaryMaterial)).for_each(Converter<DDLElementaryMaterial>(description,_ns.context,optional));
   xml_coll_t(element, _CMU(CompositeMaterial)).for_each(Converter<DDLCompositeMaterial>(description,_ns.context,optional));
 }
 
 template <> void Converter<RotationSection>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>(), element);
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, _CMU(Rotation)).for_each(Converter<DDLRotation>(description,_ns.context,optional));
   xml_coll_t(element, _CMU(RotationSequence)).for_each(Converter<DDLRotationSequence>(description,_ns.context,optional));
   xml_coll_t(element, _CMU(RotationByAxis)).for_each(Converter<DDLRotationByAxis>(description,_ns.context,optional));
 }
 
 template <> void Converter<PosPartSection>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>(), element);
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, _CMU(PosPart)).for_each(Converter<DDLPosPart>(description,_ns.context,optional));
 }
 
 /// Generic converter for  <LogicalPartSection/> tags
 template <> void Converter<LogicalPartSection>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>(), element);
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, _CMU(LogicalPart)).for_each(Converter<DDLLogicalPart>(description,_ns.context,optional));
 }
 
 template <> void Converter<disabled_algo>::operator()(xml_h element) const   {
-  ParsingContext* c = _param<ParsingContext>();
+  cms::DDParsingContext* c = _param<cms::DDParsingContext>();
   c->disabledAlgs.insert(element.attr<string>(_U(name)));
 }
 
 /// Generic converter for  <SolidSection/> tags
 template <> void Converter<SolidSection>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>(), element);
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   for(xml_coll_t solid(element, _U(star)); solid; ++solid)   {
     string tag = solid.tag();
-    using dd4hep::cms::hash;
+    using cms::hash;
     switch( hash( solid.tag()))
     {
     case hash("Box"):
@@ -291,7 +293,7 @@ template <> void Converter<SolidSection>::operator()(xml_h element) const   {
 
 /// Converter for <Constant/> tags
 template <> void Converter<DDLConstant>::operator()(xml_h element) const  {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   DDRegistry*  res  = _option<DDRegistry>();
   xml_dim_t constant = element;
   xml_dim_t par  = constant.parent();
@@ -323,7 +325,7 @@ template <> void Converter<DDLConstant>::operator()(xml_h element) const  {
     size_t idp = val.find(':',idx);
     size_t idq = val.find(']',idx);
     if ( idp == string::npos || idp > idq )
-      val.insert(idx,_ns.name);
+      val.insert(idx,_ns.name());
     else if ( idp != string::npos && idp < idq )
       val[idp] = '_';
     idx = val.find('[',idx);
@@ -345,7 +347,7 @@ template <> void Converter<DDLConstant>::operator()(xml_h element) const  {
  *       visible="true"/>
  */
 template <> void Converter<vis>::operator()(xml_h e) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   VisAttr attr(e.attr<string>(_U(name)));
   float red   = e.hasAttr(_U(r)) ? e.attr<float>(_U(r)) : 1.0f;
   float green = e.hasAttr(_U(g)) ? e.attr<float>(_U(g)) : 1.0f;
@@ -388,7 +390,7 @@ template <> void Converter<vis>::operator()(xml_h e) const {
 
 /// Converter for <DDLElementaryMaterial/> tags
 template <> void Converter<DDLElementaryMaterial>::operator()(xml_h element) const   {
-  Namespace     _ns(_param<ParsingContext>());
+  cms::DDNamespace     _ns(_param<cms::DDParsingContext>());
   xml_dim_t     xmat(element);
   string        nam = _ns.prepend(xmat.nameStr());
   TGeoManager&  mgr = description.manager();
@@ -435,7 +437,7 @@ template <> void Converter<DDLElementaryMaterial>::operator()(xml_h element) con
 
 /// Converter for <DDLCompositeMaterial/> tags
 template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) const   {
-  Namespace     _ns(_param<ParsingContext>());
+  cms::DDNamespace     _ns(_param<cms::DDParsingContext>());
   xml_dim_t     xmat(element);
   string        nam = _ns.prepend(xmat.nameStr());
   TGeoManager&  mgr = description.manager();
@@ -454,7 +456,7 @@ template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) cons
       xml_dim_t xfrac(composites);
       xml_dim_t xfrac_mat(xfrac.child(_CMU(rMaterial)));
       double    fraction = xfrac.fraction();
-      string    fracname = _ns.real_name(xfrac_mat.nameStr());
+      string    fracname = _ns.realName(xfrac_mat.nameStr());
 
       TGeoMaterial* frac_mat = mgr.GetMaterial(fracname.c_str());
       if ( frac_mat )  {
@@ -478,8 +480,8 @@ template <> void Converter<DDLCompositeMaterial>::operator()(xml_h element) cons
 
 /// Converter for <Rotation/> tags
 template <> void Converter<DDLRotation>::operator()(xml_h element) const  {
-  ParsingContext* context = _param<ParsingContext>();
-  Namespace _ns(context);
+  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  cms::DDNamespace _ns(context);
   xml_dim_t xrot(element);
   string    nam    = xrot.nameStr();
   double    thetaX = xrot.hasAttr(_CMU(thetaX)) ? _ns.attr<double>(xrot,_CMU(thetaX)) : 0e0;
@@ -497,8 +499,8 @@ template <> void Converter<DDLRotation>::operator()(xml_h element) const  {
 
 /// Converter for <RotationSequence/> tags
 template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const {
-  ParsingContext* context = _param<ParsingContext>();
-  Namespace _ns(context);
+  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  cms::DDNamespace _ns(context);
   xml_dim_t xrot(element);
   string nam = xrot.nameStr();
   Rotation3D rot;
@@ -523,8 +525,8 @@ template <> void Converter<DDLRotationSequence>::operator()(xml_h element) const
 
 /// Converter for <RotationByAxis/> tags
 template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  {
-  ParsingContext* context = _param<ParsingContext>();
-  Namespace _ns(context);
+  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  cms::DDNamespace _ns(context);
   xml_dim_t xrot(element);
   xml_dim_t par(xrot.parent());
   if( xrot.hasAttr(_U(name))) {
@@ -542,7 +544,7 @@ template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  
 
 /// Converter for <LogicalPart/> tags
 template <> void Converter<DDLLogicalPart>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string    sol = e.child(_CMU(rSolid)).attr<string>(_U(name));
   string    mat = e.child(_CMU(rMaterial)).attr<string>(_U(name));
@@ -551,7 +553,7 @@ template <> void Converter<DDLLogicalPart>::operator()(xml_h element) const {
 
 /// Helper converter
 template <> void Converter<DDLTransform3D>::operator()(xml_h element) const {
-  Namespace    _ns(_param<ParsingContext>());
+  cms::DDNamespace    _ns(_param<cms::DDParsingContext>());
   Transform3D* tr = _option<Transform3D>();
   xml_dim_t   e(element);
   xml_dim_t   translation = e.child(_CMU(Translation),false);
@@ -580,7 +582,7 @@ template <> void Converter<DDLTransform3D>::operator()(xml_h element) const {
 
 /// Converter for <PosPart/> tags
 template <> void Converter<DDLPosPart>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t   e(element);
   int         copy        = e.attr<int>(_CMU(copyNumber));
   string      parent_nam  = _ns.attr<string>(e.child(_CMU(rParent)),_U(name));
@@ -607,8 +609,8 @@ template <> void Converter<DDLPosPart>::operator()(xml_h element) const {
 }
 
 template <typename TYPE>
-static void convert_boolean(ParsingContext* context, xml_h element)   {
-  Namespace   _ns(context);
+static void convert_boolean(cms::DDParsingContext* context, xml_h element)   {
+  cms::DDNamespace   _ns(context);
   xml_dim_t   e(element);
   string      nam = e.nameStr();
   Solid       solids[2];
@@ -642,22 +644,22 @@ static void convert_boolean(ParsingContext* context, xml_h element)   {
 
 /// Converter for <SubtractionSolid/> tags
 template <> void Converter<DDLUnionSolid>::operator()(xml_h element) const   {
-  convert_boolean<UnionSolid>(_param<ParsingContext>(),element);
+  convert_boolean<UnionSolid>(_param<cms::DDParsingContext>(),element);
 }
 
 /// Converter for <SubtractionSolid/> tags
 template <> void Converter<DDLSubtractionSolid>::operator()(xml_h element) const   {
-  convert_boolean<SubtractionSolid>(_param<ParsingContext>(),element);
+  convert_boolean<SubtractionSolid>(_param<cms::DDParsingContext>(),element);
 }
 
 /// Converter for <SubtractionSolid/> tags
 template <> void Converter<DDLIntersectionSolid>::operator()(xml_h element) const   {
-  convert_boolean<IntersectionSolid>(_param<ParsingContext>(),element);
+  convert_boolean<IntersectionSolid>(_param<cms::DDParsingContext>(),element);
 }
 
 /// Converter for <Polycone/> tags
 template <> void Converter<DDLPolycone>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double startPhi = _ns.attr<double>(e,_CMU(startPhi));
@@ -689,7 +691,7 @@ template <> void Converter<DDLPolycone>::operator()(xml_h element) const {
 
 /// Converter for <ExtrudedPolygon/> tags
 template <> void Converter<DDLExtrudedPolygon>::operator()(xml_h element) const  {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   vector<double> pt_x, pt_y, sec_x, sec_y, sec_z, sec_scale;
@@ -712,7 +714,7 @@ template <> void Converter<DDLExtrudedPolygon>::operator()(xml_h element) const 
 
 /// Converter for <Polyhedra/> tags
 template <> void Converter<DDLPolyhedra>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double numSide  = _ns.attr<int>(e,_CMU(numSide));
@@ -738,7 +740,7 @@ template <> void Converter<DDLPolyhedra>::operator()(xml_h element) const {
 
 /// Converter for <Sphere/> tags
 template <> void Converter<DDLSphere>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double rinner   = _ns.attr<double>(e,_CMU(innerRadius));
@@ -756,7 +758,7 @@ template <> void Converter<DDLSphere>::operator()(xml_h element) const {
 
 /// Converter for <Torus/> tags
 template <> void Converter<DDLTorus>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double r        = _ns.attr<double>(e,_CMU(torusRadius));
@@ -773,7 +775,7 @@ template <> void Converter<DDLTorus>::operator()(xml_h element) const   {
 
 /// Converter for <Pseudotrap/> tags
 template <> void Converter<DDLPseudoTrap>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double dx1      = _ns.attr<double>(e,_CMU(dx1));
@@ -791,7 +793,7 @@ template <> void Converter<DDLPseudoTrap>::operator()(xml_h element) const {
 
 /// Converter for <Trapezoid/> tags
 template <> void Converter<DDLTrapezoid>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double dz       = _ns.attr<double>(e,_U(dz));
@@ -814,7 +816,7 @@ template <> void Converter<DDLTrapezoid>::operator()(xml_h element) const {
 
 /// Converter for <Trd1/> tags
 template <> void Converter<DDLTrd1>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double dx1      = _ns.attr<double>(e,_CMU(dx1));
@@ -830,7 +832,7 @@ template <> void Converter<DDLTrd1>::operator()(xml_h element) const {
 
 /// Converter for <Tubs/> tags
 template <> void Converter<DDLTubs>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double dz       = _ns.attr<double>(e,_CMU(dz));
@@ -846,7 +848,7 @@ template <> void Converter<DDLTubs>::operator()(xml_h element) const {
  
 /// Converter for <CutTubs/> tags
 template <> void Converter<DDLCutTubs>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double dz       = _ns.attr<double>(e,_CMU(dz));
@@ -869,7 +871,7 @@ template <> void Converter<DDLCutTubs>::operator()(xml_h element) const {
 
 /// Converter for <TruncTubs/> tags
 template <> void Converter<DDLTruncTubs>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam        = e.nameStr();
   double zhalf      = _ns.attr<double>(e,_CMU(zHalf));
@@ -889,7 +891,7 @@ template <> void Converter<DDLTruncTubs>::operator()(xml_h element) const {
 
 /// Converter for <EllipticalTube/> tags
 template <> void Converter<DDLEllipticalTube>::operator()(xml_h element) const   {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam = e.nameStr();
   double dx  = _ns.attr<double>(e,_CMU(xSemiAxis));
@@ -902,7 +904,7 @@ template <> void Converter<DDLEllipticalTube>::operator()(xml_h element) const  
 
 /// Converter for <Cone/> tags
 template <> void Converter<DDLCone>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam      = e.nameStr();
   double dz       = _ns.attr<double>(e,_CMU(dz));
@@ -924,7 +926,7 @@ template <> void Converter<DDLCone>::operator()(xml_h element) const {
 
 /// Converter for </> tags
 template <> void Converter<DDLShapeless>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam = e.nameStr();
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
@@ -934,7 +936,7 @@ template <> void Converter<DDLShapeless>::operator()(xml_h element) const {
 
 /// Converter for <DDLBox/> tags
 template <> void Converter<DDLBox>::operator()(xml_h element) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string nam = e.nameStr();
   double dx  = _ns.attr<double>(e,_CMU(dx));
@@ -955,7 +957,7 @@ template <> void Converter<include_load>::operator()(xml_h element) const   {
   else
     doc = xml::DocumentHandler().load(element, element.attr_value(_U(ref)));
   fname = xml::DocumentHandler::system_path(doc.root());
-  printout(_param<ParsingContext>()->debug_includes ? ALWAYS : DEBUG,
+  printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Processing the CMS detector description %s",fname.Data());
   _option<DDRegistry>()->includes.emplace_back(doc);
 }
@@ -964,7 +966,7 @@ template <> void Converter<include_load>::operator()(xml_h element) const   {
 template <> void Converter<include_unload>::operator()(xml_h element) const   {
   string fname = xml::DocumentHandler::system_path(element);
   xml::DocumentHolder(xml_elt_t(element).document()).assign(nullptr);
-  printout(_param<ParsingContext>()->debug_includes ? ALWAYS : DEBUG,
+  printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Finished processing %s",fname.c_str());
 }
 
@@ -975,7 +977,7 @@ template <> void Converter<include_constants>::operator()(xml_h element) const  
 
 /// Converter for <Algorithm/> tags
 template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   xml_dim_t e(element);
   string name = e.nameStr();
   if ( _ns.context->disabledAlgs.find(name) != _ns.context->disabledAlgs.end() )   {
@@ -985,7 +987,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
   try {
     SensitiveDetector sd;
     Segmentation      seg;
-    string            type = "DDCMS_"+_ns.real_name(name);
+    string            type = "DDCMS_"+_ns.realName(name);
 
     // SensitiveDetector and Segmentation currently are undefined. Let's keep it like this
     // until we found something better.....
@@ -1032,7 +1034,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
 }
 
 template <> void Converter<debug>::operator()(xml_h dbg) const {
-  Namespace _ns(_param<ParsingContext>());
+  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
   if ( dbg.hasChild(_CMU(debug_visattr))    ) _ns.context->debug_visattr    = true;
   if ( dbg.hasChild(_CMU(debug_constants))  ) _ns.context->debug_constants  = true;
   if ( dbg.hasChild(_CMU(debug_materials))  ) _ns.context->debug_materials  = true;
@@ -1047,9 +1049,9 @@ template <> void Converter<debug>::operator()(xml_h dbg) const {
 }
 
 template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
-  ParsingContext* context = _param<ParsingContext>();
+  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
   DDRegistry* res = _option<DDRegistry>();
-  Namespace       _ns(context);
+  cms::DDNamespace       _ns(context);
   int count = 0;
 
   printout(context->debug_constants ? ALWAYS : DEBUG,
@@ -1098,14 +1100,14 @@ template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {
 
 template <> void Converter<print_xml_doc>::operator()(xml_h element) const {
   string fname = xml::DocumentHandler::system_path(element);
-  printout(_param<ParsingContext>()->debug_includes ? ALWAYS : DEBUG,
+  printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Processing data from: %s",fname.c_str());
 }
 
 /// Converter for <DDDefinition/> tags
 static long load_dddefinition(Detector& det, xml_h element) {
-  static ParsingContext context(&det);
-  Namespace _ns(context);
+  static cms::DDParsingContext context(&det);
+  cms::DDNamespace _ns(context);
   xml_elt_t dddef(element);
   string fname = xml::DocumentHandler::system_path(element);
   bool open_geometry  = dddef.hasChild(_CMU(open_geometry));

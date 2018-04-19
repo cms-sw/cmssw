@@ -1,14 +1,14 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
-static long algorithm(Detector& description, ParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */)  {
+static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */)  {
   PlacedVolume  pv;
-  Namespace     ns(ctxt, e, true);
-  AlgoArguments args(ctxt, e);
+  cms::DDNamespace     ns(ctxt, e, true);
+  DDAlgoArguments args(ctxt, e);
   string        parentName = args.parentName();
 
   LogDebug("PixelGeom") << "+++ Parsing arguments for Algorithm:" <<  args.name
@@ -24,7 +24,7 @@ static long algorithm(Detector& description, ParsingContext& ctxt, xml_h e, Sens
   double coolDist  = args.value<double>("CoolDist");
   string coolMat   = args.value<string>("CoolMaterial");
   string tubeMat   = args.value<string>("CoolTubeMaterial");
-  LogDebug("PixelGeom") << "Parent " << parentName << " NameSpace " << ns.name << "\n"
+  LogDebug("PixelGeom") << "Parent " << parentName << " NameSpace " << ns.name() << "\n"
       << "\tLadders " << number << "\tGeneral Material " 
       << genMat << "\tLength " << layerDz << "\tSensorEdge "
       << sensorEdge << "\tSpecification of Cooling Pieces:\n"
@@ -40,7 +40,7 @@ static long algorithm(Detector& description, ParsingContext& ctxt, xml_h e, Sens
       << ladder[1] << " width/thickness " << ladderWidth[1]
       << ", " << ladderThick[1];
 
-  const std::string idName = ns.obj_name(parentName);
+  const std::string idName = ns.objName(parentName);
   double dphi = CLHEP::twopi/number;
   double d2   = 0.5*coolWidth;
   double d1   = d2 - coolSide*sin(0.5*dphi);

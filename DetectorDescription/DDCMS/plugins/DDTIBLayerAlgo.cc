@@ -1,18 +1,18 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
   typedef vector<double> vecdouble;
-  Namespace      ns(ctxt, e, true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt, e, true);
+  DDAlgoArguments  args(ctxt, e);
   string    mother       = args.parentName();
   string    genMat       = args.str("GeneralMaterial");           //General material name
   double    detectorTilt = args.dble("DetectorTilt");             //Detector Tilt
@@ -85,7 +85,7 @@ static long algorithm(Detector& /* description */,
   vecdouble bwExtPillarPhi      = args.vecDble("BWExtPillarPhi");  
   
   LogDebug("TIBGeom") << "Parent " << mother
-      << " NameSpace " << ns.name
+		      << " NameSpace " << ns.name()
       << " General Material " << genMat;
   LogDebug("TIBGeom") << "Lower layer Radius " << radiusLo
       << " Number " << stringsLo << " String " << detectorLo;

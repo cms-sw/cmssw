@@ -1,20 +1,20 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/Printout.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 #include <sstream>
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace      ns(ctxt,e,true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt,e,true);
+  DDAlgoArguments  args(ctxt, e);
   int            startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1;
   double         rPosition   = args.value<double>("RPosition");
   vector<double> phiPosition = args.value<vector<double> >("PhiPosition");
@@ -22,7 +22,7 @@ static long algorithm(Detector& /* description */,
   Volume         mother      = ns.volume(args.parentName());
 
   LogDebug("TECGeom") << "debug: Parent " << mother.name() 
-                      <<" NameSpace " << ns.name << " at radial Position " << rPosition;
+                      <<" NameSpace " << ns.name() << " at radial Position " << rPosition;
   if (phiPosition.size() == coolInsert.size()) {
     for (int i=0; i<(int)(phiPosition.size()); i++)   {
       LogDebug("TECGeom") << "debug: Insert[" << i << "]: "
@@ -37,7 +37,7 @@ static long algorithm(Detector& /* description */,
   int copyNo  = startCopyNo;
   // loop over the inserts to be placed
   for (int i = 0; i < (int)(coolInsert.size()); i++) {
-    Volume child = ns.volume(ns.real_name(coolInsert.at(i)));
+    Volume child = ns.volume(ns.realName(coolInsert.at(i)));
     // get positions
     double xpos =  rPosition*cos(phiPosition.at(i));
     double ypos = -rPosition*sin(phiPosition.at(i));

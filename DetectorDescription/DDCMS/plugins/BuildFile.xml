@@ -3,7 +3,7 @@
 <use   name="dd4hep"/>
 <use name="DetectorDescription/DDCMS"/>
 
-<library name="DetectorDescriptionDDCMSPlugins" file="DDCMSDetector.cc" >
+<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc" >
  <flags   EDM_PLUGIN="1"/>
 </library>
 <library name="DetectorDescriptionDD4HepPlugins" file="*.cc" >

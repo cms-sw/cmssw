@@ -1,17 +1,17 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace      ns(ctxt, e, true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt, e, true);
+  DDAlgoArguments  args(ctxt, e);
   double         diskDz = args.dble("DiskDz");               // Disk  thickness
   double         rMax = args.dble("RMax");                   // Maximum radius
   double         cableT = args.dble("CableT");               // Cable thickness
@@ -35,7 +35,7 @@ static long algorithm(Detector& /* description */,
   vector<string> names = args.vecStr("RingName");            // Names of layers
 
   string parentName = args.parentName();
-  LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Parent " << parentName << " NameSpace " << ns.name;
+  LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Parent " << parentName << " NameSpace " << ns.name();
   LogDebug("TOBGeom") << "DDTOBRadCableAlgo debug: Disk Half width " << diskDz 
                       << "\tRMax " << rMax  << "\tCable Thickness " << cableT 
                       << "\tRadii of disk position and cable materials:";

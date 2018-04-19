@@ -1,17 +1,17 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace     ns(ctxt, e, true);
-  AlgoArguments args(ctxt, e);
+  cms::DDNamespace     ns(ctxt, e, true);
+  DDAlgoArguments args(ctxt, e);
   Volume        mother      = ns.volume(args.parentName());
   Volume        child       = ns.volume(args.childName());
   double        tilt        = args.value<double>("Tilt");        //Tilt of the module
@@ -24,7 +24,7 @@ static long algorithm(Detector& /* description */,
   int           startCopyNo = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1; //Start copy number
   int           incrCopyNo  = args.find("IncrCopyNo")  ? args.value<int>("IncrCopyNo")  : 1; //Increment in copy number
 
-  LogDebug("TrackerGeom") << "Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name;
+  LogDebug("TrackerGeom") << "Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
   LogDebug("TrackerGeom") << "Parameters for positioning-- Tilt " << tilt 
                           << "\tStartAngle " << startAngle/CLHEP::deg 
                           << "\tRangeAngle " << rangeAngle/CLHEP::deg 

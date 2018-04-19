@@ -1,17 +1,17 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace      ns(ctxt, e, true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt, e, true);
+  DDAlgoArguments  args(ctxt, e);
   Volume         mother      = ns.volume(args.parentName());
   Volume         child       = ns.volume(args.childName());
   int            startcn     = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1;
@@ -37,7 +37,7 @@ static long algorithm(Detector& /* description */,
     LogDebug("TrackerGeom") << "\t[" << i << "] phi = " << phi[i]/CLHEP::deg 
         << " z = " << zpos[i];
   LogDebug("TrackerGeom") <<  "debug: Parent " << mother.name()
-      <<"\tChild " << child.name() << " NameSpace " << ns.name;
+      <<"\tChild " << child.name() << " NameSpace " << ns.name();
 
   double theta  = 90.*CLHEP::deg;
   int ci = startcn;

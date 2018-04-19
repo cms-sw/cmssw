@@ -1,17 +1,17 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace      ns(ctxt, e, true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt, e, true);
+  DDAlgoArguments  args(ctxt, e);
   int            startcn = args.find("StartCopyNo") ? args.value<int>("StartCopyNo") : 1;
   int            incrcn  = args.find("IncrCopyNo") ? args.value<int>("IncrCopyNo") : 1;
   int            number  = args.value<int>("Number");
@@ -27,7 +27,7 @@ static long algorithm(Detector& /* description */,
   LogDebug("TrackerGeom") << "+++ Executing Algorithm. rParent:" << mother.name();
   LogDebug("TrackerGeom") << "debug: Parent " << mother.name() 
       << "\tChild " << child.name() << " NameSpace " 
-      << ns.name << "\tNumber " << number 
+      << ns.name() << "\tNumber " << number 
       << "\tAxis (theta/phi) " << theta/dd4hep::deg << ", "
       << phi/dd4hep::deg << "\t(Offset/Delta) " << offset 
       << ", "  << delta << "\tCentre " << centre[0] << ", "

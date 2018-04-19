@@ -1,128 +1,141 @@
 #include "DD4hep/VolumeProcessor.h"
-
-namespace dd4hep {
-  
-  /// DD4hep DetElement creator for the CMS geometry.
-  /*  Heuristically assign DetElement structures to the sensitive volume pathes.
-   *
-   *  \author  M.Frank
-   *  \version 1.0
-   *  \ingroup DD4HEP_CORE
-   */
-  class DDCMSDetElementCreator : public PlacedVolumeProcessor  {
-    Detector&    description;
-    Atom         silicon;
-    struct Data {
-      PlacedVolume pv {nullptr};
-      DetElement   element {};
-      bool         sensitive = false;
-      bool         has_sensitive = false;
-      int          vol_count = 0;
-      int          daughter_count = 0;
-      int          sensitive_count = 0;
-
-      Data() = default;
-      Data(PlacedVolume v) : pv(v) {}
-      Data(const Data& d) = default;
-      Data& operator=(const Data& d) = default;
-    };
-    struct Count {
-      int elements = 0;
-      int volumes = 0;
-      int sensitives = 0;
-      Count() = default;
-      Count(const Count&) = default;
-      Count& operator=(const Count&) = default;
-    };
-    typedef std::vector<Data> VolumeStack;
-    typedef std::map<std::string,dd4hep::DetElement> Detectors;
-    typedef std::map<dd4hep::DetElement,Count> Counters;
-    typedef std::map<std::pair<dd4hep::DetElement,int>, std::pair<int,int> > LeafCount;
-
-    Counters          counters;
-    LeafCount         leafCount;
-    VolumeStack       stack;
-    Detectors         subdetectors;
-    DetElement        tracker, current_detector;
-    SensitiveDetector current_sensitive;
-    std::map<PlacedVolume, std::pair<int,int> > all_placements;
-    
-    /// Add new subdetector to the detector description
-    DetElement addSubdetector(const std::string& nam, PlacedVolume pv, bool volid);
-    /// Create a new detector element
-    DetElement createElement(const char* debug_tag, PlacedVolume pv, int id);
-    /// Create the top level detectors
-    void createTopLevelDetectors(PlacedVolume pv);
-
-  public:
-    /// Initializing constructor
-    DDCMSDetElementCreator(Detector& desc);
-    /// Default destructor
-    ~DDCMSDetElementCreator() override;
-    /// Callback to output PlacedVolume information of an single Placement
-    int operator()(PlacedVolume pv, int level) override;
-    /// Callback to output PlacedVolume information of an entire Placement
-    int process(PlacedVolume pv, int level, bool recursive) override;
-  };
-}
-
-
 #include "DD4hep/detail/DetectorInterna.h"
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/DetectorHelper.h"
 #include "DD4hep/Printout.h"
-#include "DDCMS/DDCMS.h"
+#include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 
 #include <sstream>
 
 using namespace std;
+using namespace cms;
 using namespace dd4hep;
 
-/// Initializing constructor
-DDCMSDetElementCreator::DDCMSDetElementCreator(Detector& desc)
-  : description(desc)
-{
-  DetectorHelper helper(description);
-  silicon = helper.element("SI");
-  if ( !silicon.isValid() )   {
-    except("DDCMSDetElementCreator",
-           "++ Failed to extract SILICON from the element table.");
-  }
-  stack.reserve(32);
+namespace cms {
+  
+  // Heuristically assign DetElement structures
+  // to the sensitive volume pathes
+  //
+  class DDCMSDetElementCreator : public dd4hep::PlacedVolumeProcessor
+  {
+  public:
+    
+    DDCMSDetElementCreator( dd4hep::Detector& );
+    ~DDCMSDetElementCreator() override;
+    
+    /// Callback to output PlacedVolume information of an single Placement
+    int operator()( dd4hep::PlacedVolume volume, int level ) override;
+    /// Callback to output PlacedVolume information of an entire Placement
+    int process( dd4hep::PlacedVolume volume, int level, bool recursive ) override;
+
+  private:
+
+    dd4hep::DetElement addSubdetector( const std::string& nam, dd4hep::PlacedVolume volume, bool valid );
+    dd4hep::DetElement createElement( const char* debugTag, dd4hep::PlacedVolume volume, int id );
+    void createTopLevelDetectors( dd4hep::PlacedVolume volume );    
+
+    struct Data
+    {
+      Data() = default;
+      Data( dd4hep::PlacedVolume v ) : volume( v ) {}
+      Data( const Data& d ) = default;
+      Data& operator=( const Data& d ) = default;
+
+      dd4hep::PlacedVolume volume {nullptr};
+      dd4hep::DetElement   element {};
+      bool         sensitive = false;
+      bool         hasSensitive = false;
+      int          volumeCount = 0;
+      int          daughterCount = 0;
+      int          sensitiveCount = 0;      
+    };
+    
+    struct Count
+    {
+      Count() = default;
+      Count( const Count& ) = default;
+      Count& operator=( const Count& ) = default;
+
+      int elements = 0;
+      int volumes = 0;
+      int sensitives = 0;
+    };
+
+    using Detectors = std::map<std::string, dd4hep::DetElement>;
+    using Counters = std::map<dd4hep::DetElement, Count>;
+    using LeafCount = std::map<std::pair<dd4hep::DetElement, int>, std::pair<int, int> >;
+    using VolumeStack = std::vector<Data>;
+    
+    std::map<dd4hep::PlacedVolume, std::pair<int,int> > m_allPlacements;
+        
+    Counters          m_counters;
+    LeafCount         m_leafCount;
+    VolumeStack       m_stack;
+    Detectors         m_subdetectors;
+    dd4hep::DetElement m_tracker, m_currentDetector;
+    dd4hep::SensitiveDetector m_currentSensitive;
+    dd4hep::Detector&    m_description;
+    dd4hep::Atom         m_silicon;
+  };
+ 
+  std::string detElementName( dd4hep::PlacedVolume volume );
 }
 
-/// Default destructor
-DDCMSDetElementCreator::~DDCMSDetElementCreator()   {
+std::string
+cms::detElementName( dd4hep::PlacedVolume volume ) {
+  if( volume.isValid()) {
+    std::string name = volume.name();
+    std::string nnam = name.substr( name.find('_') + 1 );
+    return nnam;
+  }
+  except("MyDDCMS","++ Cannot deduce name from invalid PlacedVolume handle!");
+  return std::string();
+}
+
+DDCMSDetElementCreator::DDCMSDetElementCreator( dd4hep::Detector& desc )
+  : m_description( desc )
+{
+  dd4hep::DetectorHelper helper( m_description );
+  m_silicon = helper.element( "SI" );
+  if( !m_silicon.isValid()) {
+    except( "DDCMSDetElementCreator",
+	    "++ Failed to extract SILICON from the element table." );
+  }
+  m_stack.reserve(32);
+}
+
+DDCMSDetElementCreator::~DDCMSDetElementCreator()
+{
   Count total;
   stringstream str, id_str;
 
-  printout(INFO,"DDCMSDetElementCreator","+++++++++++++++ Summary of sensitve elements  ++++++++++++++++++++++++");
-  for ( const auto& c : counters )  {
-    printout(INFO,"DDCMSDetElementCreator","++ Summary: SD: %-24s %7d DetElements %7d sensitives out of %7d volumes",
-             (c.first.name()+string(":")).c_str(), c.second.elements, c.second.sensitives, c.second.volumes);
+  printout( INFO, "DDCMSDetElementCreator", "+++++++++++++++ Summary of sensitve elements  ++++++++++++++++++++++++" );
+  for( const auto& c : m_counters ) {
+    printout( INFO, "DDCMSDetElementCreator", "++ Summary: SD: %-24s %7d DetElements %7d sensitives out of %7d volumes",
+	      ( c.first.name() + string(":")).c_str(), c.second.elements, c.second.sensitives, c.second.volumes );
     total.elements   += c.second.elements;
     total.sensitives += c.second.sensitives;
     total.volumes    += c.second.volumes;
   }
-  printout(INFO,"DDCMSDetElementCreator",  "++ Summary:     %-24s %7d DetElements %7d sensitives out of %7d volumes",
-           "Grand Total:",total.elements,total.sensitives,total.volumes);
-  printout(INFO,"DDCMSDetElementCreator","+++++++++++++++ Summary of geometry depth analysis  ++++++++++++++++++");
-  int total_cnt = 0, total_depth = 0;
-  map<DetElement, vector<pair<int,int> > > fields;
-  for ( const auto& l : leafCount )  {
-    DetElement de = l.first.first;
-    printout(INFO,"DDCMSDetElementCreator","++ Summary: SD: %-24s system:%04X Lvl:%3d Sensitives: %6d [Max: %6d].",
-             (de.name()+string(":")).c_str(), de.id(),
-             l.first.second, l.second.second, l.second.first);
-    fields[de].push_back(make_pair(l.first.second,l.second.first));
-    total_depth += l.second.second;
-    ++total_cnt;
+  printout( INFO, "DDCMSDetElementCreator", "++ Summary:     %-24s %7d DetElements %7d sensitives out of %7d volumes",
+	    "Grand Total:", total.elements, total.sensitives, total.volumes );
+  printout( INFO, "DDCMSDetElementCreator", "+++++++++++++++ Summary of geometry depth analysis  ++++++++++++++++++" );
+  int totalCount = 0, totalDepth = 0;
+  map<dd4hep::DetElement, vector<pair<int,int> > > fields;
+  for( const auto& l : m_leafCount ) {
+    dd4hep::DetElement de = l.first.first;
+    printout( INFO,"DDCMSDetElementCreator", "++ Summary: SD: %-24s system:%04X Lvl:%3d Sensitives: %6d [Max: %6d].",
+	      ( de.name() + string(":")).c_str(), de.id(),
+	      l.first.second, l.second.second, l.second.first );
+    fields[de].push_back( make_pair( l.first.second, l.second.first ));
+    totalDepth += l.second.second;
+    ++totalCount;
   }
-  printout(INFO,"DDCMSDetElementCreator","++ Summary:     %-24s  %d.","Total DetElements:",total_cnt);
-  printout(INFO,"DDCMSDetElementCreator","+++++++++++++++ Readout structure generation  ++++++++++++++++++++++++");
+  printout( INFO, "DDCMSDetElementCreator", "++ Summary:     %-24s  %d.","Total DetElements:", totalCount );
+  printout( INFO, "DDCMSDetElementCreator", "+++++++++++++++ Readout structure generation  ++++++++++++++++++++++++" );
   str << endl;
-  for( const auto& f : fields )   {
-    string ro_name = f.first.name() + string("Hits");
+  for( const auto& f : fields ) {
+    string roName = f.first.name() + string("Hits");
     int num_bits = 8;
     id_str.str("");
     id_str << "system:" << num_bits;
@@ -149,192 +162,195 @@ DDCMSDetElementCreator::~DDCMSDetElementCreator()   {
       num_bits += bits;
     }
     string idspec = id_str.str();
-    str << "<readout name=\"" << ro_name << "\">" << endl
+    str << "<readout name=\"" << roName << "\">" << endl
         << "\t<id>"
         << idspec
         << "</id>  <!-- Number of bits: " << num_bits << " -->" << endl
         << "</readout>" << endl;
+
     /// Create ID Descriptors and readout configurations
-    IDDescriptor dsc(ro_name,idspec);
-    description.addIDSpecification(dsc);
-    Readout ro(ro_name);
-    ro.setIDDescriptor(dsc);
-    description.addReadout(ro);
-    SensitiveDetector sd = description.sensitiveDetector(f.first.name());
-    sd.setHitsCollection(ro.name());
-    sd.setReadout(ro);
-    printout(INFO,"DDCMSDetElementCreator",
-             "++ Setting up readout for subdetector:%-24s id:%04X",
-             f.first.name(), f.first.id());
+    IDDescriptor dsc( roName, idspec );
+    m_description.addIDSpecification( dsc );
+    Readout ro( roName );
+    ro.setIDDescriptor( dsc );
+    m_description.addReadout( ro );
+    dd4hep::SensitiveDetector sd = m_description.sensitiveDetector( f.first.name());
+    sd.setHitsCollection( ro.name());
+    sd.setReadout( ro );
+    printout( INFO, "DDCMSDetElementCreator",
+	      "++ Setting up readout for subdetector:%-24s id:%04X",
+	      f.first.name(), f.first.id());
   }
-  printout(INFO,"DDCMSDetElementCreator","+++++++++++++++ ID Descriptor generation  ++++++++++++++++++++++++++++");
-  printout(INFO,"",str.str().c_str());
-  char volid[32];
-  for(auto& p : all_placements )  {
-    PlacedVolume place = p.first;
-    Volume vol = place.volume();
-    ::snprintf(volid,sizeof(volid),"Lv%d", p.second.first);
-    printout(DEBUG,"DDCMSDetElementCreator",
-             "++ Set volid (%-24s): %-6s = %3d  -> %s  (%p)",
-             vol.isSensitive() ? vol.sensitiveDetector().name() : "Not Sensitive",
-             volid, p.second.second, place.name(), place.ptr());
-    place.addPhysVolID(volid, p.second.second);
+  printout( INFO, "DDCMSDetElementCreator","+++++++++++++++ ID Descriptor generation  ++++++++++++++++++++++++++++");
+  printout( INFO, "", str.str().c_str());
+  char volId[32];
+  for(auto& p : m_allPlacements ) {
+    dd4hep::PlacedVolume place = p.first;
+    dd4hep::Volume volume = place.volume();
+    ::snprintf( volId, sizeof(volId), "Lv%d", p.second.first );
+    printout( DEBUG,"DDCMSDetElementCreator",
+	      "++ Set volid (%-24s): %-6s = %3d  -> %s  (%p)",
+	      volume.isSensitive() ? volume.sensitiveDetector().name() : "Not Sensitive",
+	      volId, p.second.second, place.name(), place.ptr());
+    place.addPhysVolID( volId, p.second.second);
   }
-  printout(ALWAYS,"DDCMSDetElementCreator",
-           "++ Instrumented %ld subdetectors with %d DetElements %d sensitives out of %d volumes and %ld sensitive placements.",
-           fields.size(),total.elements,total.sensitives,total.volumes,all_placements.size());
+  printout( ALWAYS, "DDCMSDetElementCreator",
+	    "++ Instrumented %ld subdetectors with %d DetElements %d sensitives out of %d volumes and %ld sensitive placements.",
+	    fields.size(), total.elements, total.sensitives, total.volumes, m_allPlacements.size());
 }
 
-/// Create a new detector element
-DetElement DDCMSDetElementCreator::createElement(const char* /* debug_tag */, PlacedVolume pv, int id) {
-  string     name = cms::detElementName(pv);
-  DetElement det(name, id);
-  det.setPlacement(pv);
-  /*
-    printout(INFO,"DDCMSDetElementCreator","++ Created detector element [%s]: %s (%s)  %p",
-    debug_tag, det.name(), name.c_str(), det.ptr());
-  */
+dd4hep::DetElement
+DDCMSDetElementCreator::createElement( const char*, PlacedVolume volume, int id )
+{
+  string name = detElementName( volume );
+  dd4hep::DetElement det( name, id );
+  det.setPlacement( volume );
   return det;
 }
-
-/// Create the top level detectors
-void DDCMSDetElementCreator::createTopLevelDetectors(PlacedVolume pv)   {
-  auto& data = stack.back();
-  if ( stack.size() == 2 )    {      // Main subssystem: tracker:Tracker
-    data.element = tracker = addSubdetector(cms::detElementName(pv), pv, false);
-    tracker->SetTitle("compound");
+void
+DDCMSDetElementCreator::createTopLevelDetectors( PlacedVolume volume )
+{
+  auto& data = m_stack.back();
+  if( m_stack.size() == 2 ) {      // Main subssystem: tracker:Tracker
+    data.element = m_tracker = addSubdetector( cms::detElementName(volume), volume, false );
+    m_tracker->SetTitle( "compound" );
   }
-  else if ( stack.size() == 3 )    { // Main subsystem detector: TIB, TEC, ....
-    data.element = current_detector = addSubdetector(cms::detElementName(pv), pv, true);
+  else if( m_stack.size() == 3 ) { // Main subsystem detector: TIB, TEC, ....
+    data.element = m_currentDetector = addSubdetector( cms::detElementName(volume), volume, true );
   }
 }
 
-/// Add new subdetector to the detector description
-DetElement DDCMSDetElementCreator::addSubdetector(const std::string& nam, PlacedVolume pv, bool volid)  {
-  Detectors::iterator idet = subdetectors.find(nam);
-  if ( idet == subdetectors.end() )   {
-    DetElement det(nam, subdetectors.size()+1);
-    det.setPlacement(pv);
-    if ( volid )  {
-      det.placement().addPhysVolID("system",det.id());
+dd4hep::DetElement
+DDCMSDetElementCreator::addSubdetector( const std::string& nam, dd4hep::PlacedVolume volume, bool valid )
+{
+  auto idet = m_subdetectors.find(nam);
+  if( idet == m_subdetectors.end()) {
+    dd4hep::DetElement det( nam, m_subdetectors.size() + 1 );
+    det.setPlacement( volume );
+    if( valid ) {
+      det.placement().addPhysVolID( "system", det.id());
     }
-    idet = subdetectors.insert(make_pair(nam,det)).first;
-    description.add(det);
+    idet = m_subdetectors.insert( make_pair( nam, det)).first;
+    m_description.add( det );
   }
   return idet->second;
 }
 
-/// Callback to output PlacedVolume information of an single Placement
-int DDCMSDetElementCreator::operator()(PlacedVolume pv, int vol_level)   {
-  double frac_si = pv.volume().material().fraction(silicon);
-  if ( frac_si > 90e-2 )  {
-    Data& data = stack.back();
+int
+DDCMSDetElementCreator::operator()( dd4hep::PlacedVolume volume, int volumeLevel )
+{
+  double fracSi = volume.volume().material().fraction( m_silicon );
+  if( fracSi > 90e-2 ) {
+    Data& data = m_stack.back();
     data.sensitive     = true;
-    data.has_sensitive = true;
-    ++data.vol_count;
-    int   idx   = pv->GetMotherVolume()->GetIndex(pv.ptr())+1;
-    auto& cnt   = leafCount[make_pair(current_detector,vol_level)];
-    cnt.first   = std::max(cnt.first,idx);
+    data.hasSensitive = true;
+    ++data.volumeCount;
+    int   idx   = volume->GetMotherVolume()->GetIndex( volume.ptr())+1;
+    auto& cnt   = m_leafCount[make_pair( m_currentDetector, volumeLevel )];
+    cnt.first   = std::max( cnt.first, idx );
     ++cnt.second;
-    all_placements[pv] = make_pair(vol_level,idx);
+    m_allPlacements[volume] = make_pair( volumeLevel, idx );
     return 1;
   }
   return 0;
 }
 
-/// Callback to output PlacedVolume information of an entire Placement
-int DDCMSDetElementCreator::process(PlacedVolume pv, int level, bool recursive)   {
-  stack.push_back(Data(pv));
-  if ( stack.size() <= 3 )   {
-    createTopLevelDetectors(pv);
+    int
+DDCMSDetElementCreator::process( dd4hep::PlacedVolume volume, int level,
+				 bool recursive )
+    {
+  m_stack.push_back(Data(volume));
+  if ( m_stack.size() <= 3 )   {
+    createTopLevelDetectors(volume);
   }
-  int ret = PlacedVolumeProcessor::process(pv,level,recursive);
+  int ret = dd4hep::PlacedVolumeProcessor::process( volume, level, recursive );
 
-  /// Complete structures if the stack size is > 3!
-  if ( stack.size() > 3 )   {
-    // Note: short-cuts to entries in the stack MUST be local and
+  /// Complete structures if the m_stack size is > 3!
+  if( m_stack.size() > 3 ) {
+    // Note: short-cuts to entries in the m_stack MUST be local and
     // initialized AFTER the call to "process"! The vector may be resized!
-    auto& data = stack.back();
-    auto& parent = stack[stack.size()-2];
-    auto& counts = counters[current_detector];
-    if ( data.sensitive )   {
+    auto& data = m_stack.back();
+    auto& parent = m_stack[ m_stack.size() - 2 ];
+    auto& counts = m_counters[ m_currentDetector ];
+    if( data.sensitive ) {
       /// If this volume is sensitve, we must attach a sensitive detector handle
-      if ( !current_sensitive.isValid() )  {
-        SensitiveDetector sd = description.sensitiveDetector(current_detector.name());
-        if ( !sd.isValid() )  {
-          sd = SensitiveDetector(current_detector.name(),"tracker");
-          current_detector->flag |= DetElement::Object::HAVE_SENSITIVE_DETECTOR;
-          description.add(sd);
+      if ( !m_currentSensitive.isValid()) {
+        dd4hep::SensitiveDetector sd = m_description.sensitiveDetector( m_currentDetector.name());
+        if( !sd.isValid()) {
+          sd = dd4hep::SensitiveDetector( m_currentDetector.name(), "tracker" );
+          m_currentDetector->flag |= DetElement::Object::HAVE_SENSITIVE_DETECTOR;
+          m_description.add( sd );
         }
-        current_sensitive = sd;
+        m_currentSensitive = sd;
       }
-      pv.volume().setSensitiveDetector(current_sensitive);
+      volume.volume().setSensitiveDetector( m_currentSensitive );
       ++counts.sensitives;
     }
     ++counts.volumes;
     bool added = false;
-    if ( data.vol_count > 0 )   {
-      parent.daughter_count  += data.vol_count;
-      parent.daughter_count  += data.daughter_count;
-      data.has_sensitive      = true;
+    if( data.volumeCount > 0 ) {
+      parent.daughterCount  += data.volumeCount;
+      parent.daughterCount  += data.daughterCount;
+      data.hasSensitive      = true;
     }
-    else   {
-      parent.daughter_count  += data.daughter_count;
-      data.has_sensitive      = (data.daughter_count>0);
+    else {
+      parent.daughterCount  += data.daughterCount;
+      data.hasSensitive      = ( data.daughterCount > 0 );
     }
 
-    if ( data.has_sensitive )  {
+    if( data.hasSensitive ) {
       // If we have sensitive elements at this level or below,
       // we must complete the DetElement hierarchy
-      if ( !data.element.isValid() )  {
-        data.element = createElement("Element", data.pv, current_detector.id());
+      if( !data.element.isValid()) {
+        data.element = createElement( "Element", data.volume, m_currentDetector.id());
         ++counts.elements;
       }
-      if ( !parent.element.isValid() )  {
-        parent.element = createElement("Parent ", parent.pv, current_detector.id());
+      if( !parent.element.isValid()) {
+        parent.element = createElement( "Parent ", parent.volume, m_currentDetector.id());
         ++counts.elements;
       }
-      printout(DEBUG,"DDCMSDetElementCreator",
-               "++ Assign detector element: %s (%p, %ld children) to %s (%p) with %ld vols",
-               data.element.name(), data.element.ptr(), data.element.children().size(),
-               parent.element.name(), parent.element.ptr(),
-               data.vol_count);
+      printout( DEBUG, "DDCMSDetElementCreator",
+		"++ Assign detector element: %s (%p, %ld children) to %s (%p) with %ld vols",
+		data.element.name(), data.element.ptr(), data.element.children().size(),
+		parent.element.name(), parent.element.ptr(),
+		data.volumeCount );
 
       // Trickle up the tree only for sensitive pathes. Forget the passive rest
       // This should automatically omit non-sensitive pathes
-      parent.has_sensitive = true;
-      parent.element.add(data.element);
+      parent.hasSensitive = true;
+      parent.element.add( data.element );
       added = true;
       // It is simpler to collect the volumes and later assign the volids
       // rather than checking if the volid already exists.
-      int vol_level = level;
-      int idx = data.pv->GetMotherVolume()->GetIndex(data.pv.ptr())+1;
-      all_placements[data.pv] = make_pair(vol_level,idx); // 1...n
+      int volumeLevel = level;
+      int idx = data.volume->GetMotherVolume()->GetIndex( data.volume.ptr())+1;
+      m_allPlacements[data.volume] = make_pair( volumeLevel, idx ); // 1...n
       // Update counters
-      auto& cnt_det   = leafCount[make_pair(current_detector,vol_level)];
-      cnt_det.first   = std::max(cnt_det.first,idx);
+      auto& cnt_det = m_leafCount[make_pair( m_currentDetector, volumeLevel )];
+      cnt_det.first = std::max( cnt_det.first, idx );
       cnt_det.second += 1;
     }
     if ( !added && data.element.isValid() )  {
       printout(WARNING,"MEMORY-LEAK","Level:%3d Orpahaned DetElement:%s Daugthers:%d Parent:%s",
-               int(stack.size()), data.element.name(), data.vol_count, parent.pv.name());
+               int(m_stack.size()), data.element.name(), data.volumeCount, parent.volume.name());
     }
   }
   /// Now the cleanup kicks in....
-  if ( stack.size() == 3 )  {
-    current_sensitive = SensitiveDetector();
-    current_detector = DetElement();
+  if( m_stack.size() == 3 ) {
+    m_currentSensitive = SensitiveDetector();
+    m_currentDetector = DetElement();
     ret = 0;
   }
-  stack.pop_back();
+  m_stack.pop_back();
   return ret;
 }
 
-static void* create_object(Detector& description, int /* argc */, char** /* argv */)   {
-  PlacedVolumeProcessor* proc = new DDCMSDetElementCreator(description);
+static void*
+createObject( dd4hep::Detector& description, int /* argc */, char** /* argv */) {
+  dd4hep::PlacedVolumeProcessor* proc = new DDCMSDetElementCreator( description );
   return (void*)proc;
 }
 
 // first argument is the type from the xml file
-DECLARE_DD4HEP_CONSTRUCTOR(DDCMS_DetElementCreator,create_object)
+DECLARE_DD4HEP_CONSTRUCTOR( DDCMS_DetElementCreator, createObject);
 

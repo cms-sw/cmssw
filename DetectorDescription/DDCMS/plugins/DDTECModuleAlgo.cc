@@ -1,20 +1,20 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
-static void doPos(ParsingContext& ctxt, Volume toPos, Volume mother, 
+static void doPos(cms::DDParsingContext& ctxt, dd4hep::Volume toPos, dd4hep::Volume mother, 
                   int copyNr, double x, double y, double z, 
                   const string& rotName)
 {
-  Namespace ns(ctxt);
-  mother.placeVolume(toPos,copyNr,Transform3D(ns.rotation(rotName),Position(x,y,z)));
+  cms::DDNamespace ns(ctxt);
+  mother.placeVolume(toPos,copyNr,dd4hep::Transform3D(ns.rotation(rotName),dd4hep::Position(x,y,z)));
   LogDebug("TECGeom") << "Volume: " << mother.name() << " positioned daughter "<< mother.name();
 }
 
-static void doPos(ParsingContext& ctxt, Volume toPos, Volume mother,
+static void doPos(cms::DDParsingContext& ctxt, dd4hep::Volume toPos, dd4hep::Volume mother,
                   bool isStereo, double rPos,
                   double posCorrectionPhi,
                   double x, double y, double z,
@@ -35,12 +35,12 @@ static void doPos(ParsingContext& ctxt, Volume toPos, Volume mother,
 }
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace     ns(ctxt, e, true);
-  AlgoArguments args(ctxt, e);
+  cms::DDNamespace     ns(ctxt, e, true);
+  DDAlgoArguments args(ctxt, e);
   Volume        mother      = ns.volume(args.parentName());
 
   //variables:
@@ -210,8 +210,8 @@ static long algorithm(Detector& /* description */,
   if (isStereo) tag = "Stereo";
   //usefull constants
   const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
-  string idName     = ns.prepend(ns.obj_name(mother.name()));
-  LogDebug("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name;
+  string idName     = ns.prepend(ns.objName(mother.name()));
+  LogDebug("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name();
   Solid solid;
 
    //set global parameters

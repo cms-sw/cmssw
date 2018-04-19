@@ -1,17 +1,17 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DetectorDescription/DDCMS/interface/DDCMSPlugins.h"
+#include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 
 using namespace std;
 using namespace dd4hep;
-using namespace dd4hep::cms;
+using namespace cms;
 
 static long algorithm(Detector& /* description */,
-                      ParsingContext& ctxt,
+                      cms::DDParsingContext& ctxt,
                       xml_h e,
                       SensitiveDetector& /* sens */)
 {
-  Namespace      ns(ctxt, e, true);
-  AlgoArguments  args(ctxt, e);
+  cms::DDNamespace      ns(ctxt, e, true);
+  DDAlgoArguments  args(ctxt, e);
   string         parentName        = args.parentName();
   int            detectorN         = args.integer("DetectorNumber");         //Number of detectors
   double         detTilt           = args.dble("DetTilt");           //Tilt of stereo detector
