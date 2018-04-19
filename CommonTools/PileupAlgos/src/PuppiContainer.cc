@@ -259,11 +259,11 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
             LogDebug("PuppiWeightError") << "====> Weight is nan : " << pWeight << " : pt " << fRecoParticles[i0].pt << " -- eta : " << fRecoParticles[i0].eta << " -- Value" << fVals[i0] << " -- id :  " << fRecoParticles[i0].id << " --  NAlgos: " << lNAlgos << std::endl;
         }
         //Basic Cuts
-        if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
         if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && fRecoParticles[i0].id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
+        if((fPtMax>0) && (fRecoParticles[i0].id == 0)) pWeight=min(max(pWeight,fPFParticles[i0].pt()/fPtMax),1.);
+        if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
         if(fInvert) pWeight = 1.-pWeight;
         //std::cout << "fRecoParticles[i0].pt = " <<  fRecoParticles[i0].pt << ", fRecoParticles[i0].charge = " << fRecoParticles[i0].charge << ", fRecoParticles[i0].id = " << fRecoParticles[i0].id << ", weight = " << pWeight << std::endl;
-        if((fPtMax>0) && (fRecoParticles[i0].id == 0)) pWeight=min(max(pWeight,fPFParticles[i0].pt()/fPtMax),1.);
 
         fWeights .push_back(pWeight);
         fAlphaMed.push_back(fPuppiAlgo[pPupId].median());
