@@ -1,6 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+# Use compressiong settings of TFile
+# see https://root.cern.ch/root/html534/TFile.html#TFile:SetCompressionSettings
+# settings = 100 * algorithm + level
+# level is from 1 (small) to 9 (large compression)
+# algo: 1 (ZLIB), 2 (LMZA)
+# see more about compression & performance: https://root.cern.ch/root/html534/guides/users-guide/InputOutput.html#compression-and-performance
+compressionSettings = 201
+
 anEff = cms.EDAnalyzer("HitEff",
+                       #CompressionSettings = cms.untracked.int32(compressionSettings),
                        Debug = cms.bool(False),
                        Layer = cms.int32(0), # =0 means do all layers
                        #combinatorialTracks = cms.InputTag("ctfWithMaterialTracksP5"),

@@ -84,6 +84,7 @@ class HitEff : public edm::EDAnalyzer {
   TTree* traj;
   int events,EventTrackCKF;
   
+  int compSettings;
   unsigned int layers;
   bool DEBUG;
   unsigned int whatlayer;
@@ -95,12 +96,12 @@ class HitEff : public edm::EDAnalyzer {
   int timeDTDOF; 
   float timeECAL, dedx; 
   int dedxNOM; 
-  float TrajLocErrX, TrajLocErrY;
   int nLostHits; 
   float p, chi2; 
   #endif
   float TrajGlbX, TrajGlbY, TrajGlbZ;
   float TrajLocX, TrajLocY, TrajLocAngleX, TrajLocAngleY;
+  float TrajLocErrX, TrajLocErrY;
   float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
   float ResX, ResXSig;
   unsigned int ModIsBad; unsigned int Id; unsigned int SiStripQualBad; bool withinAcceptance;
