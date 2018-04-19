@@ -91,16 +91,15 @@ class HitEff : public edm::EDAnalyzer {
   // Tree declarations
   // Trajectory positions for modules included in the study
   #ifdef ExtendedCALIBTree
-  float TrajGlbX, TrajGlbY, TrajGlbZ;
   float timeDT, timeDTErr; 
   int timeDTDOF; 
   float timeECAL, dedx; 
   int dedxNOM; 
   float TrajLocErrX, TrajLocErrY;
-  int istep;
   int nLostHits; 
   float p, chi2; 
   #endif
+  float TrajGlbX, TrajGlbY, TrajGlbZ;
   float TrajLocX, TrajLocY, TrajLocAngleX, TrajLocAngleY;
   float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
   float ResX, ResXSig;
