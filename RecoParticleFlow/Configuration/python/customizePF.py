@@ -10,9 +10,9 @@ def ecalNoSRPFCut1sigma(process):
    if hasattr(process, "particleFlowRecHitECAL"):
       process.particleFlowRecHitECAL.producers[0].srFlags = ""
       process.particleFlowRecHitECAL.producers[1].srFlags = ""
-      process.particleFlowRecHitECAL.producers[0].qualityTests.thresholds = _pfZS._particle_flow_zero_suppression_ECAL_2018.thresholds
-      process.particleFlowRecHitECAL.producers[1].qualityTests.thresholds = _pfZS._particle_flow_zero_suppression_ECAL_2018.thresholds
-      process.particleFlowRecHitECAL.producers[0].qualityTests.applySelectionsToAllCrystals = cms.bool(True)
-      process.particleFlowRecHitECAL.producers[1].qualityTests.applySelectionsToAllCrystals = cms.bool(True)
-
+      process.particleFlowRecHitECAL.producers[0].qualityTests[0].thresholds = _pfZS._particle_flow_zero_suppression_ECAL_2018.thresholds
+      process.particleFlowRecHitECAL.producers[1].qualityTests[0].thresholds = _pfZS._particle_flow_zero_suppression_ECAL_2018.thresholds
+      process.particleFlowRecHitECAL.producers[0].qualityTests[0].applySelectionsToAllCrystals = cms.bool(True)
+      process.particleFlowRecHitECAL.producers[1].qualityTests[0].applySelectionsToAllCrystals = cms.bool(True)
    return process
+
