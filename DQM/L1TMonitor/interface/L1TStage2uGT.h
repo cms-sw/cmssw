@@ -121,18 +121,18 @@ private:
    MonitorElement* den_isolated_collision_run_;
 
    // Prescaled and unprescaled aglo trigger bits
-    MonitorElement* prescaled_first_collision_run_;
-    MonitorElement* den_prescaled_first_collision_run_;
-    MonitorElement* unprescaled_first_collision_run_;
-    MonitorElement* den_unprescaled_first_collision_run_;
-    MonitorElement* prescaled_isolated_collision_run_;
-    MonitorElement* den_prescaled_isolated_collision_run_;
-    MonitorElement* unprescaled_isolated_collision_run_;
-    MonitorElement* den_unprescaled_isolated_collision_run_;
-    MonitorElement* prescaled_last_collision_run_;
-    MonitorElement* den_prescaled_last_collision_run_;
-    MonitorElement* unprescaled_last_collision_run_;
-    MonitorElement* den_unprescaled_last_collision_run_;
+    MonitorElement* prescaled_algo_first_collision_in_train_;
+    MonitorElement* prescaled_algo_first_collision_in_train_den_;
+    MonitorElement* unprescaled_algo_first_collision_in_train_;
+    MonitorElement* unprescaled_algo_first_collision_in_train_den_;
+    MonitorElement* prescaled_algo_isolated_collision_in_train_;
+    MonitorElement* prescaled_algo_isolated_collision_in_train_den_;
+    MonitorElement* unprescaled_algo_isolated_collision_in_train_;
+    MonitorElement* unprescaled_algo_isolated_collision_in_train_den_;
+    MonitorElement* prescaled_algo_last_collision_in_train_;
+    MonitorElement* prescaled_algo_last_collision_in_train_den_;
+    MonitorElement* unprescaled_algo_last_collision_in_train_;
+    MonitorElement* unprescaled_algo_last_collision_in_train_den_;
 };
 
 #endif

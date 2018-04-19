@@ -173,88 +173,88 @@ void L1TStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, e
    prescaleFactorSet_->setAxisTitle("Prescale Factor Set Index", 2);
 
   // Prescaled and Unprescaled Algo Trigger Bits
-  prescaled_first_collision_run_ = ibooker.book2D("prescaled_first_collision_run_", "uGT: Prescaled Algorithm Trigger Bits  vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
-  prescaled_first_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  prescaled_first_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names ", 2);
+  prescaled_algo_first_collision_in_train_ = ibooker.book2D("prescaled_algo_first_collision_in_train_", "uGT: Prescaled Algorithm Trigger Bits  vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
+  prescaled_algo_first_collision_in_train_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  prescaled_algo_first_collision_in_train_->setAxisTitle("Algorithm Trigger Bits + Names ", 2);
   for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) {
-    prescaled_first_collision_run_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
+    prescaled_algo_first_collision_in_train_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  den_prescaled_first_collision_run_ = ibooker.book2D("den_prescaled_first_collision_run_", "uGT: Prescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-  den_prescaled_first_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  den_prescaled_first_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  prescaled_algo_first_collision_in_train_den_ = ibooker.book2D("prescaled_algo_first_collision_in_train_den_", "uGT: Prescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
+  prescaled_algo_first_collision_in_train_den_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  prescaled_algo_first_collision_in_train_den_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) {
-    den_prescaled_first_collision_run_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
+    prescaled_algo_first_collision_in_train_den_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  unprescaled_first_collision_run_ = ibooker.book2D("unprescaled_first_collision_run_", "uGT: Unprescaled Algorithm Trigger Bits  vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
-  unprescaled_first_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  unprescaled_first_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  unprescaled_algo_first_collision_in_train_ = ibooker.book2D("unprescaled_algo_first_collision_in_train_", "uGT: Unprescaled Algorithm Trigger Bits  vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
+  unprescaled_algo_first_collision_in_train_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  unprescaled_algo_first_collision_in_train_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
-    unprescaled_first_collision_run_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
+    unprescaled_algo_first_collision_in_train_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  den_unprescaled_first_collision_run_ = ibooker.book2D("den_unprescaled_first_collision_run_", "uGT: Unprescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-  den_unprescaled_first_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  den_unprescaled_first_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  unprescaled_algo_first_collision_in_train_den_ = ibooker.book2D("unprescaled_algo_first_collision_in_train_den_", "uGT: Unprescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
+  unprescaled_algo_first_collision_in_train_den_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  unprescaled_algo_first_collision_in_train_den_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
-    den_unprescaled_first_collision_run_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
+    unprescaled_algo_first_collision_in_train_den_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  prescaled_isolated_collision_run_ = ibooker.book2D("prescaled_isolated_collision_run_", "uGT: Prescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
-  prescaled_isolated_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  prescaled_isolated_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  prescaled_algo_isolated_collision_in_train_ = ibooker.book2D("prescaled_algo_isolated_collision_in_train_", "uGT: Prescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
+  prescaled_algo_isolated_collision_in_train_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  prescaled_algo_isolated_collision_in_train_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) {
-    prescaled_isolated_collision_run_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
+    prescaled_algo_isolated_collision_in_train_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  den_prescaled_isolated_collision_run_ = ibooker.book2D("den_prescaled_isolated_collision_run_", "uGT: Prescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-  den_prescaled_isolated_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  den_prescaled_isolated_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  prescaled_algo_isolated_collision_in_train_den_ = ibooker.book2D("prescaled_algo_isolated_collision_in_train_den_", "uGT: Prescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
+  prescaled_algo_isolated_collision_in_train_den_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  prescaled_algo_isolated_collision_in_train_den_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) {
-    den_prescaled_isolated_collision_run_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
+    prescaled_algo_isolated_collision_in_train_den_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  unprescaled_isolated_collision_run_ = ibooker.book2D("unprescaled_isolated_collision_run_", "uGT: Unprescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
-  unprescaled_isolated_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  unprescaled_isolated_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  unprescaled_algo_isolated_collision_in_train_ = ibooker.book2D("unprescaled_algo_isolated_collision_in_train_", "uGT: Unprescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
+  unprescaled_algo_isolated_collision_in_train_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  unprescaled_algo_isolated_collision_in_train_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
-    unprescaled_isolated_collision_run_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
+    unprescaled_algo_isolated_collision_in_train_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  den_unprescaled_isolated_collision_run_ = ibooker.book2D("den_unprescaled_isolated_collision_run_", "uGT: Unprescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-  den_unprescaled_isolated_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  den_unprescaled_isolated_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  unprescaled_algo_isolated_collision_in_train_den_ = ibooker.book2D("unprescaled_algo_isolated_collision_in_train_den_", "uGT: Unprescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
+  unprescaled_algo_isolated_collision_in_train_den_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  unprescaled_algo_isolated_collision_in_train_den_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
-    den_unprescaled_isolated_collision_run_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
+    unprescaled_algo_isolated_collision_in_train_den_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  prescaled_last_collision_run_ = ibooker.book2D("prescaled_last_collision_run_", "uGT: Prescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
-  prescaled_last_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  prescaled_last_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  prescaled_algo_last_collision_in_train_ = ibooker.book2D("prescaled_algo_last_collision_in_train_", "uGT: Prescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
+  prescaled_algo_last_collision_in_train_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  prescaled_algo_last_collision_in_train_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) {
-    prescaled_last_collision_run_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
+    prescaled_algo_last_collision_in_train_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  den_prescaled_last_collision_run_ = ibooker.book2D("den_prescaled_last_collision_run_", "uGT: Prescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-  den_prescaled_last_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  den_prescaled_last_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  prescaled_algo_last_collision_in_train_den_ = ibooker.book2D("prescaled_algo_last_collision_in_train_den_", "uGT: Prescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, prescaledAlgoBitName_.size(), -0.5, preAlgs_d-0.5);
+  prescaled_algo_last_collision_in_train_den_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  prescaled_algo_last_collision_in_train_den_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) {
-    den_prescaled_last_collision_run_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
+    prescaled_algo_last_collision_in_train_den_->setBinLabel(algo+1,prescaledAlgoBitName_.at(algo).first+"("+std::to_string(prescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  unprescaled_last_collision_run_ = ibooker.book2D("unprescaled_last_collision_run_", "uGT: Unprescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
-  unprescaled_last_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  unprescaled_last_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  unprescaled_algo_last_collision_in_train_ = ibooker.book2D("unprescaled_algo_last_collision_in_train_", "uGT: Unprescaled Algorithm Trigger Bits vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
+  unprescaled_algo_last_collision_in_train_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  unprescaled_algo_last_collision_in_train_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
-    unprescaled_last_collision_run_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
+    unprescaled_algo_last_collision_in_train_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
-  den_unprescaled_last_collision_run_ = ibooker.book2D("den_unprescaled_last_collision_run_", "uGT: Unprescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, numAlgs, -0.5, numAlgs_d-0.5);
-  den_unprescaled_last_collision_run_->setAxisTitle("Bunch Crossing Number In Event", 1);
-  den_unprescaled_last_collision_run_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
+  unprescaled_algo_last_collision_in_train_den_ = ibooker.book2D("unprescaled_algo_last_collision_in_train_den_", "uGT: Unprescaled Algorithm Trigger Bits Deno vs. BX Number In Event", 5, -2.5, 2.5, unprescaledAlgoBitName_.size(), -0.5, unpreAlgs_d-0.5);
+  unprescaled_algo_last_collision_in_train_den_->setAxisTitle("Bunch Crossing Number In Event", 1);
+  unprescaled_algo_last_collision_in_train_den_->setAxisTitle("Algorithm Trigger Bits + Names", 2);
   for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
-    den_unprescaled_last_collision_run_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
+    unprescaled_algo_last_collision_in_train_den_->setBinLabel(algo+1,unprescaledAlgoBitName_.at(algo).first+"("+std::to_string(unprescaledAlgoBitName_.at(algo).second)+")",2);
   }
 
 }
@@ -398,17 +398,17 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
        for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
          for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) { 
            if(itr2->getAlgoDecisionInitial(prescaledAlgoBitName_.at(algo).second)) { 
-             prescaled_first_collision_run_->Fill(ibx, prescaledAlgoBitName_.at(algo).second);
+             prescaled_algo_first_collision_in_train_->Fill(ibx, algo);
              for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-               den_prescaled_first_collision_run_->Fill(ibx2,prescaledAlgoBitName_.at(algo).second);
+               prescaled_algo_first_collision_in_train_den_->Fill(ibx2,algo);
              }
            }
          }
          for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
            if(itr2->getAlgoDecisionInitial(unprescaledAlgoBitName_.at(algo).second)) {
-             unprescaled_first_collision_run_->Fill(ibx,unprescaledAlgoBitName_.at(algo).second);
+             unprescaled_algo_first_collision_in_train_->Fill(ibx,algo);
              for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-               den_unprescaled_first_collision_run_->Fill(ibx2,unprescaledAlgoBitName_.at(algo).second);
+               unprescaled_algo_first_collision_in_train_den_->Fill(ibx2,algo);
              }
            }
          }
@@ -420,17 +420,17 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
        for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
          for(unsigned int i=0; i<prescaledAlgoBitName_.size(); i++) {
            if(itr2->getAlgoDecisionInitial(prescaledAlgoBitName_.at(i).second)) {
-             prescaled_last_collision_run_->Fill(ibx, prescaledAlgoBitName_.at(i).second);
+             prescaled_algo_last_collision_in_train_->Fill(ibx, i);
              for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-               den_prescaled_last_collision_run_->Fill(ibx2,prescaledAlgoBitName_.at(i).second);
+               prescaled_algo_last_collision_in_train_den_->Fill(ibx2,i);
              }
            }
          } 
          for(unsigned int i=0; i<unprescaledAlgoBitName_.size(); i++) {
            if(itr2->getAlgoDecisionInitial(unprescaledAlgoBitName_.at(i).second)) {
-             unprescaled_last_collision_run_->Fill(ibx,unprescaledAlgoBitName_.at(i).second);
+             unprescaled_algo_last_collision_in_train_->Fill(ibx,i);
              for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-               den_unprescaled_last_collision_run_->Fill(ibx2,unprescaledAlgoBitName_.at(i).second);
+               unprescaled_algo_last_collision_in_train_den_->Fill(ibx2,i);
              }
            }
          }
@@ -442,17 +442,17 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
        for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
          for(unsigned int i=0; i<prescaledAlgoBitName_.size(); i++) {
            if(itr2->getAlgoDecisionInitial(prescaledAlgoBitName_.at(i).second)) {
-             prescaled_isolated_collision_run_->Fill(ibx, prescaledAlgoBitName_.at(i).second);
+             prescaled_algo_isolated_collision_in_train_->Fill(ibx, i);
              for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-               den_prescaled_isolated_collision_run_->Fill(ibx2,prescaledAlgoBitName_.at(i).second);
+               prescaled_algo_isolated_collision_in_train_den_->Fill(ibx2,i);
              }
            }
          }
          for(unsigned int i=0; i<unprescaledAlgoBitName_.size(); i++) {
            if(itr2->getAlgoDecisionInitial(unprescaledAlgoBitName_.at(i).second)) {
-             unprescaled_isolated_collision_run_->Fill(ibx,unprescaledAlgoBitName_.at(i).second);
+             unprescaled_algo_isolated_collision_in_train_->Fill(ibx,i);
              for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-               den_unprescaled_isolated_collision_run_->Fill(ibx2,unprescaledAlgoBitName_.at(i).second);
+               unprescaled_algo_isolated_collision_in_train_den_->Fill(ibx2,i);
              }
            }
          }

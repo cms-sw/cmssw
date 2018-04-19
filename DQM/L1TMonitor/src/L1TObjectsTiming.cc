@@ -95,18 +95,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
   // Subsystem Monitoring and Muon Output
   std::string bx_obj[5]={"minus2","minus1","0","plus1","plus2"};
-  
-  ibooker.setCurrentFolder(monitorDir_);
-  denominator_muons = ibooker.book2D("denominator_muons","Denominator for L1TMuon",25, -2.5, 2.5, 25, -3.2, 3.2);
-  denominator_jet = ibooker.book2D("denominator_jet","Denominator for L1TJet",25, -2.5, 2.5, 25, -3.2, 3.2);
-  denominator_egamma = ibooker.book2D("denominator_egamma","Denominator for L1TEGamma",25, -2.5, 2.5, 25, -3.2, 3.2);
-  denominator_tau = ibooker.book2D("denominator_tau","Denominator for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
-  denominator_etsum_MET = ibooker.book1D("denominator_etsum_MET","Denominator for L1TEtSum MET", 25, -3.2, 3.2);
-  denominator_etsum_METHF = ibooker.book1D("denominator_etsum_METHF","Denominator for L1TEtSum METHF", 25, -3.2, 3.2);
-  denominator_etsum_MHT = ibooker.book1D("denominator_etsum_METHT","Denominator for L1TEtSum MHT", 25, -3.2, 3.2);
-  denominator_etsum_MHTHF = ibooker.book1D("denominator_etsum_MHTHF","Denominator for L1TEtSum MHTHF", 25, -3.2, 3.2);
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"); 
+  denominator_muons = ibooker.book2D("denominator_muons","Denominator for L1TMuon",25, -2.5, 2.5, 25, -3.2, 3.2);
   for(unsigned int i=0; i<bxrange_; ++i) {
     muons_eta_phi.push_back(ibooker.book2D("muons_eta_phi_bx_"+bx_obj[i],"L1T Muon #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     muons_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -114,6 +105,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
   
   ibooker.setCurrentFolder(monitorDir_+"/L1TJet"+"/timing"); 
+  denominator_jet = ibooker.book2D("denominator_jet","Denominator for L1TJet",25, -2.5, 2.5, 25, -3.2, 3.2);
   for(unsigned int i=0; i<bxrange_; ++i) { 
     jet_eta_phi.push_back(ibooker.book2D("jet_eta_phi_bx_"+bx_obj[i],"L1T Jet #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     jet_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -121,6 +113,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
    
   ibooker.setCurrentFolder(monitorDir_+"/L1TEGamma"+"/timing"); 
+  denominator_egamma = ibooker.book2D("denominator_egamma","Denominator for L1TEGamma",25, -2.5, 2.5, 25, -3.2, 3.2);
   for(unsigned int i=0; i<bxrange_; ++i) {
     egamma_eta_phi.push_back(ibooker.book2D("egamma_eta_phi_bx_"+bx_obj[i],"L1T EGamma #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     egamma_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -128,6 +121,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing");
+  denominator_tau = ibooker.book2D("denominator_tau","Denominator for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
   for(unsigned int i=0; i<bxrange_; ++i) {
     tau_eta_phi.push_back(ibooker.book2D("tau_eta_phi_bx_"+bx_obj[i],"L1T Tau #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     tau_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -135,6 +129,10 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing");
+  denominator_etsum_MET = ibooker.book1D("denominator_etsum_MET","Denominator for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_METHF = ibooker.book1D("denominator_etsum_METHF","Denominator for L1TEtSum METHF", 25, -3.2, 3.2);
+  denominator_etsum_MHT = ibooker.book1D("denominator_etsum_METHT","Denominator for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_MHTHF = ibooker.book1D("denominator_etsum_MHTHF","Denominator for L1TEtSum MHTHF", 25, -3.2, 3.2);
   for(unsigned int i=0; i<bxrange_; ++i) {
     etsum_eta_phi_MET.push_back(ibooker.book1D("etsum_phi_bx_MET_"+bx_obj[i],"L1T MET #phi BX="+bx_obj[i],25, -3.2, 3.2));
     etsum_eta_phi_MET.at(i)->setAxisTitle("#phi", 1);
