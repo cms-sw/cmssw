@@ -102,9 +102,6 @@ void HitEff::beginJob(){
 
   traj = fs->make<TTree>("traj","tree of trajectory positions");
   #ifdef ExtendedCALIBTree
-  traj->Branch("TrajGlbX",&TrajGlbX,"TrajGlbX/F");
-  traj->Branch("TrajGlbY",&TrajGlbY,"TrajGlbY/F");
-  traj->Branch("TrajGlbZ",&TrajGlbZ,"TrajGlbZ/F");
   traj->Branch("timeDT",&timeDT,"timeDT/F");
   traj->Branch("timeDTErr",&timeDTErr,"timeDTErr/F");
   traj->Branch("timeDTDOF",&timeDTDOF,"timeDTDOF/I");
@@ -113,11 +110,13 @@ void HitEff::beginJob(){
   traj->Branch("dedxNOM",&dedxNOM,"dedxNOM/I"); 
   traj->Branch("TrajLocErrX",&TrajLocErrX,"TrajLocErrX/F");
   traj->Branch("TrajLocErrY",&TrajLocErrY,"TrajLocErrY/F");
-  traj->Branch("istep",&istep,"istep/I");
   traj->Branch("nLostHits",&nLostHits,"nLostHits/I");
   traj->Branch("chi2",&chi2,"chi2/F");
   traj->Branch("p",&p,"p/F");
   #endif
+  traj->Branch("TrajGlbX",&TrajGlbX,"TrajGlbX/F");
+  traj->Branch("TrajGlbY",&TrajGlbY,"TrajGlbY/F");
+  traj->Branch("TrajGlbZ",&TrajGlbZ,"TrajGlbZ/F");
   traj->Branch("TrajLocX",&TrajLocX,"TrajLocX/F");
   traj->Branch("TrajLocY",&TrajLocY,"TrajLocY/F");
   traj->Branch("TrajLocAngleX",&TrajLocAngleX,"TrajLocAngleX/F");
@@ -358,12 +357,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       double yErr = 0.;
       double angleX = -999.;
       double angleY = -999.;
-#ifdef ExtendedCALIBTree      
       double xglob,yglob,zglob;
-#endif
 
 
-	  
 	  // Check whether the trajectory has some missing hits
 	  bool hasMissingHits=false;
 	  for (itm=TMeas.begin();itm!=TMeas.end();itm++){
@@ -543,14 +539,16 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  angleY = atan( TM->localDyDz() );
 
 #ifdef ExtendedCALIBTree	  
+	  TrajLocErrX = 0.0; TrajLocErrY = 0.0;
+#endif
+
 	  xglob = TM->globalX();
 	  yglob = TM->globalY();
 	  zglob = TM->globalZ();
 	  xErr =  TM->localErrorX();
 	  yErr =  TM->localErrorY();
-	  TrajLocErrX = 0.0; TrajLocErrY = 0.0;
+
 	  TrajGlbX = 0.0; TrajGlbY = 0.0; TrajGlbZ = 0.0;
-#endif
 	  withinAcceptance = TM->withinAcceptance();
 	  
 	  trajHitValid = TM->validHit();
@@ -727,10 +725,11 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      
 	      // fill ntuple varibles
 	      //get global position from module id number iidd
-#ifdef ExtendedCALIBTree
 	      TrajGlbX = xglob;
 	      TrajGlbY = yglob;
-	      TrajGlbZ = zglob;	  
+	      TrajGlbZ = zglob;	
+  
+#ifdef ExtendedCALIBTree
 	      TrajLocErrX = xErr;
 	      TrajLocErrY = yErr;
 #endif
