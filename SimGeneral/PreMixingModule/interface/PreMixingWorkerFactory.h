@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "PreMixingWorker.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
 
 namespace edm {
   class ParameterSet;

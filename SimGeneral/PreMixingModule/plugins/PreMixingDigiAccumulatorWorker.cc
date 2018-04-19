@@ -8,7 +8,8 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-#include "PreMixingWorker.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 
 namespace edm {
   class PreMixingDigiAccumulatorWorker: public PreMixingWorker {
@@ -32,10 +33,8 @@ namespace edm {
     void addSignals(const edm::Event &e, const edm::EventSetup& ES) override {
       accumulator_->accumulate(e, ES);
     }
-    void addPileups(int bcr, const edm::EventPrincipal& ep, int EventId,
-                    const edm::EventSetup& ES, edm::ModuleCallingContext const *mcc) override {
-      PileUpEventPrincipal pep(ep, mcc, bcr);
-      accumulator_->accumulate(pep, ES, ep.streamID());
+    void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& ES) override {
+      accumulator_->accumulate(pep, ES, pep.principal().streamID());
     }
     void put(edm::Event &e,const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override {
       accumulator_->finalizeEvent(e, ES);
@@ -46,5 +45,4 @@ namespace edm {
   };
 }
 
-#include "PreMixingWorkerFactory.h"
 DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, edm::PreMixingDigiAccumulatorWorker, "PreMixingDigiAccumulatorWorker");

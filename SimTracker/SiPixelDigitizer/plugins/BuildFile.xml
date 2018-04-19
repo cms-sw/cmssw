@@ -1,4 +1,5 @@
 <use   name="SimGeneral/MixingModule"/>
+<use   name="SimGeneral/PreMixingModule"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="FWCore/Framework"/>
