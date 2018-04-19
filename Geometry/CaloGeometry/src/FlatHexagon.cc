@@ -154,15 +154,15 @@ void  FlatHexagon::createCorners( const std::vector<CCGFloat>&  pv ,
 				  std::vector<GlobalPoint>&     co   ) {
 
   assert(  3 == pv.size() ) ;
-  assert( 12 == co.size() ) ;
+  assert( ncorner_ == co.size() ) ;
 
-  Pt3DVec        ko ( 12, Pt3D(0,0,0) ) ;
+  Pt3DVec        ko ( ncorner_, Pt3D(0,0,0) ) ;
 
   Pt3D    tmp ;
-  Pt3DVec to ( 12, Pt3D(0,0,0) ) ;
+  Pt3DVec to ( ncorner_, Pt3D(0,0,0) ) ;
   localCorners( to, &pv.front(), tmp ) ;
 
-  for( unsigned int i ( 0 ) ; i != 12 ; ++i ) {
+  for( unsigned int i ( 0 ) ; i != ncorner_ ; ++i ) {
     ko[i] = tr * to[i] ; // apply transformation
     const Pt3D & p ( ko[i] ) ;
     co[ i ] = GlobalPoint( p.x(), p.y(), p.z() ) ;
@@ -176,7 +176,7 @@ void FlatHexagon::localCorners( Pt3DVec&        lc  ,
 				const CCGFloat* pv  ,
 				Pt3D&           ref   ) {
    assert( nullptr != pv ) ;
-   assert( 12 == lc.size() ) ;
+   assert( ncorner_ == lc.size() ) ;
 
    const CCGFloat dz ( pv[0] ) ;
    const CCGFloat r  ( pv[1] ) ;
@@ -195,7 +195,7 @@ void FlatHexagon::localCorners( Pt3DVec&        lc  ,
    lc[10]= Pt3D (   r ,      R ,  dz ); // (+,+,+)
    lc[11]= Pt3D (   r ,  -   R ,  dz ); // (+,-,+)
 
-   ref   = ( lc[0] + lc[1] + lc[2] + lc[3] + lc[4] + lc[5] ) / 6.0;
+   ref   = oneBySix_ * ( lc[0] + lc[1] + lc[2] + lc[3] + lc[4] + lc[5] );
 #ifdef EDM_ML_DEBUG
    edm::LogVerbatim("CaloGeometry") << "Ref " << ref << " Local Corners " 
 				    << lc[0] << "|" << lc[1] << "|" << lc[2] 
@@ -213,7 +213,7 @@ void FlatHexagon::getTransform( Tr3D& tr, Pt3DVec* lptr ) const {
 
   Pt3D  lFront ;
   assert( nullptr != param() ) ;
-  std::vector<Pt3D > lc( 12, Pt3D(0,0,0) ) ;
+  std::vector<Pt3D > lc( ncorner_, Pt3D(0,0,0) ) ;
   localCorners( lc, param(), lFront ) ;
 
   // figure out if reflction volume or not
@@ -259,7 +259,7 @@ void FlatHexagon::initCorners(CaloCellGeometry::CornersVec& co) {
     Tr3D tr ;
     getTransform( tr, &lc ) ;
 
-    for (unsigned int i ( 0 ) ; i != 12 ; ++i ) {
+    for (unsigned int i ( 0 ) ; i != ncorner_ ; ++i ) {
       const Pt3D corn ( tr*lc[i] ) ;
       corners[i] = GlobalPoint( corn.x(), corn.y(), corn.z() ) ;
     }
@@ -271,7 +271,7 @@ GlobalVector FlatHexagon::makeAxis() {
 }
 
 GlobalPoint FlatHexagon::backCtr() const {
-  float dz = (getCorners()[6].z() > getCorners()[0].z()) ? 
+  float dz = (getCorners()[ncornerBy2_].z() > getCorners()[0].z()) ? 
     param()[0] : -param()[0];
   Pt3D local_b(m_local.x(),m_local.y(),m_local.z()+dz);
   Pt3D global_b = m_tr*local_b;
