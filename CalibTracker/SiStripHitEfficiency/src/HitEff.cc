@@ -82,6 +82,7 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
   trackerEvent_token_( consumes< MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent")) ),
   conf_(conf)
 {
+  compSettings=conf_.getUntrackedParameter<int>("CompressionSettings",-1);
   layers =conf_.getParameter<int>("Layer");
   DEBUG = conf_.getParameter<bool>("Debug");
   addLumi_ = conf_.getUntrackedParameter<bool>("addLumi", false);
@@ -99,6 +100,10 @@ HitEff::~HitEff() { }
 void HitEff::beginJob(){
 
   edm::Service<TFileService> fs;
+  if(compSettings>0){
+    edm::LogInfo("SiStripHitEfficiency:HitEff")<<"the compressions settings are:"<< compSettings << std::endl;
+    fs->file().SetCompressionSettings(compSettings);
+  }
 
   traj = fs->make<TTree>("traj","tree of trajectory positions");
   #ifdef ExtendedCALIBTree
@@ -108,8 +113,6 @@ void HitEff::beginJob(){
   traj->Branch("timeECAL",&timeECAL,"timeECAL/F");
   traj->Branch("dedx",&dedx,"dedx/F");
   traj->Branch("dedxNOM",&dedxNOM,"dedxNOM/I"); 
-  traj->Branch("TrajLocErrX",&TrajLocErrX,"TrajLocErrX/F");
-  traj->Branch("TrajLocErrY",&TrajLocErrY,"TrajLocErrY/F");
   traj->Branch("nLostHits",&nLostHits,"nLostHits/I");
   traj->Branch("chi2",&chi2,"chi2/F");
   traj->Branch("p",&p,"p/F");
@@ -121,6 +124,8 @@ void HitEff::beginJob(){
   traj->Branch("TrajLocY",&TrajLocY,"TrajLocY/F");
   traj->Branch("TrajLocAngleX",&TrajLocAngleX,"TrajLocAngleX/F");
   traj->Branch("TrajLocAngleY",&TrajLocAngleY,"TrajLocAngleY/F");
+  traj->Branch("TrajLocErrX",&TrajLocErrX,"TrajLocErrX/F");
+  traj->Branch("TrajLocErrY",&TrajLocErrY,"TrajLocErrY/F");
   traj->Branch("ClusterLocX",&ClusterLocX,"ClusterLocX/F");
   traj->Branch("ClusterLocY",&ClusterLocY,"ClusterLocY/F");
   traj->Branch("ClusterLocErrX",&ClusterLocErrX,"ClusterLocErrX/F");
@@ -538,9 +543,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	  angleX = atan( TM->localDxDz() );
 	  angleY = atan( TM->localDyDz() );
 
-#ifdef ExtendedCALIBTree	  
 	  TrajLocErrX = 0.0; TrajLocErrY = 0.0;
-#endif
 
 	  xglob = TM->globalX();
 	  yglob = TM->globalY();
@@ -729,10 +732,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	      TrajGlbY = yglob;
 	      TrajGlbZ = zglob;	
   
-#ifdef ExtendedCALIBTree
 	      TrajLocErrX = xErr;
 	      TrajLocErrY = yErr;
-#endif
+
 	      Id = iidd;
 	      run = run_nr;
 	      event = ev_nr;
