@@ -443,12 +443,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			continue;
 		}
 
-		++_xNChs.get(did);
+		_xNChs.get(eid)++;
 
-		double msig = 0.;//_xSignalSum.get(did)/n; 
-		double mtim = 0.;//_xTimingSum.get(did)/n;
-		double rsig = 0.;//sqrt(_xSignalSum2.get(did)/n-msig*msig);
-		double rtim = 0.;//sqrt(_xTimingSum2.get(did)/n-mtim*mtim);
+		double msig = _xSignalSum.get(did)/n; 
+		double mtim = _xTimingSum.get(did)/n;
+		double rsig = sqrt(_xSignalSum2.get(did)/n-msig*msig);
+		double rtim = sqrt(_xTimingSum2.get(did)/n-mtim*mtim);
 
 		_cSignalMean_Subdet.fill(did, msig);
 		_cSignalMean_depth.fill(did, msig);
