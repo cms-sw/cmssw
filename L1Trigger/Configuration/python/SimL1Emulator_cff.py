@@ -59,7 +59,7 @@ from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 from L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff import *
 
 # ########################################################################
-# Customisation for the phase2_hgcal era. Includes the HGCAL L1 trigger
+# Customisation for the phase2_hgcal era. Includes the HGCAL TPs
 # ########################################################################
 from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
 _phase2_siml1emulator = SimL1EmulatorTask.copy()
@@ -69,25 +69,6 @@ from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 (phase2_hgcal & ~phase2_hgcalV9).toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
 
-
-# ########################################################################
-# Customisation for the phase2_trigger era, assumes TrackTrigger available
-# ########################################################################
-phase2_SimL1Emulator = SimL1Emulator.copy()
-from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
-#phase2_SimL1Emulator += L1TkElectrons
-#phase2_SimL1Emulator += L1TkIsoElectrons
-#phase2_SimL1Emulator += L1TkPhotons
-phase2_SimL1Emulator += L1TkJets
-phase2_SimL1Emulator += L1TkPrimaryVertex
-#phase2_SimL1Emulator += L1TkEtMiss
-#phase2_SimL1Emulator += L1TkHTMissVtx
-#phase2_SimL1Emulator += L1TkMuons
-#phase2_SimL1Emulator += L1TkTauFromCalo
-
-from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
-phase2_trigger.toReplaceWith( SimL1Emulator , phase2_SimL1Emulator)
-
 # If PreMixing, don't run these modules during first step
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
@@ -95,5 +76,38 @@ premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
     SimL1TechnicalTriggers,
     SimL1TGlobal
 ]))
+
+# ########################################################################
+# Customisation for the phase2_trigger era, assumes TrackTrigger available
+# ########################################################################
+phase2_SimL1Emulator = SimL1Emulator.copy()
+
+from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
+phase2_SimL1Emulator += L1TkElectrons
+phase2_SimL1Emulator += L1TkIsoElectrons
+phase2_SimL1Emulator += L1TkPhotons
+phase2_SimL1Emulator += L1TkJets
+phase2_SimL1Emulator += L1TkPrimaryVertex
+phase2_SimL1Emulator += L1TkEtMiss
+phase2_SimL1Emulator += L1TkHTMissVtx
+phase2_SimL1Emulator += L1TkMuons
+phase2_SimL1Emulator += L1TkTauFromCalo
+
+from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
+phase2_SimL1Emulator += l1EGammaCrystalsProducer
+
+from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
+#l1ParticleFlow = cms.Sequence(
+#    l1EGammaCrystalsProducer + 
+#    pfTracksFromL1Tracks +
+#    pfClustersFromHGC3DClustersEM +
+#    pfClustersFromL1EGClusters +
+#    pfClustersFromCombinedCalo +
+#    l1pfProducer
+#)
+phase2_SimL1Emulator += l1ParticleFlow
+
+from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
+phase2_trigger.toReplaceWith( SimL1Emulator , phase2_SimL1Emulator)
 
 
