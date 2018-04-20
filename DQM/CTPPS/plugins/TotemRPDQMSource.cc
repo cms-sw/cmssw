@@ -68,7 +68,7 @@ class TotemRPDQMSource: public DQMEDAnalyzer
       MonitorElement *event_category=nullptr;
       MonitorElement *trackHitsCumulativeHist=nullptr;
       MonitorElement *track_u_profile=nullptr, *track_v_profile=nullptr;
-      MonitorElement *triggerSectorUVCorrelation=nullptr;
+      MonitorElement *triggerSectorUVCorrelation_all=nullptr, *triggerSectorUVCorrelation_mult2=nullptr, *triggerSectorUVCorrelation_track=nullptr;
 
       PotPlots() {}
       PotPlots(DQMStore::IBooker &ibooker, unsigned int id);
@@ -142,7 +142,9 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
   track_u_profile = ibooker.book1D("track profile U", title+"; U   (mm)", 512, -256*66E-3, +256*66E-3);
   track_v_profile = ibooker.book1D("track profile V", title+"; V   (mm)", 512, -256*66E-3, +256*66E-3);
 
-  triggerSectorUVCorrelation = ibooker.book2D("trigger sector UV correlation", title+";V sector;U sector", 16, -0.5, 15.5, 16, -0.5, 15.5);
+  triggerSectorUVCorrelation_all = ibooker.book2D("trigger sector UV correlation (no cond)", title+";V sector;U sector", 16, -0.5, 15.5, 16, -0.5, 15.5);
+  triggerSectorUVCorrelation_mult2 = ibooker.book2D("trigger sector UV correlation (max mult 2)", title+";V sector;U sector", 16, -0.5, 15.5, 16, -0.5, 15.5);
+  triggerSectorUVCorrelation_track = ibooker.book2D("trigger sector UV correlation (track)", title+";V sector;U sector", 16, -0.5, 15.5, 16, -0.5, 15.5);
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -552,9 +554,13 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   }
 
   // RP track-fit plots
+  set<unsigned int> rps_with_tracks;
+
   for (auto &ds : *tracks)
   {
     CTPPSDetId rpId(ds.detId());
+
+    rps_with_tracks.insert(rpId);
 
     auto plIt = potPlots.find(rpId);
     if (plIt == potPlots.end())
@@ -633,6 +639,8 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
 
   for (auto &rpp : triggerSectorMap)
   {
+    const unsigned int rpId = rpp.first;
+
     // trigger sector is counted as active if at least 3 planes report activity
 
     set<unsigned int> triggerSectorsU;
@@ -649,16 +657,26 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         triggerSectorsV.insert(sp.first);
     }
 
-    auto plIt = potPlots.find(rpp.first);
+    auto plIt = potPlots.find(rpId);
     if (plIt == potPlots.end())
       continue;
     auto &plots = plIt->second;
+
+    const bool high_mult = (triggerSectorsU.size() > 2 && triggerSectorsV.size() > 2);
+
+    const bool has_track = (rps_with_tracks.find(rpId) != rps_with_tracks.end());
 
     for (const auto &secU : triggerSectorsU)
     {
       for (const auto &secV : triggerSectorsV)
       {
-        plots.triggerSectorUVCorrelation->Fill(secV, secU);
+        plots.triggerSectorUVCorrelation_all->Fill(secV, secU);
+
+        if (!high_mult)
+          plots.triggerSectorUVCorrelation_mult2->Fill(secV, secU);
+
+        if (has_track)
+          plots.triggerSectorUVCorrelation_track->Fill(secV, secU);
       }
     }
   }
