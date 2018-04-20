@@ -834,7 +834,7 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vect
 		}		
 
 		// First digi: initialize the vectors to -1 (need to know the length of the digi)
-		if (iLaserMonADC.size() == 0) {
+		if (iLaserMonADC.empty()) {
 			int totalNSamples = (digi.samples() - _laserMonDigiOverlap) * _vLaserMonIPhi.size();
 			for (int i = 0; i < totalNSamples; ++i) {
 				iLaserMonADC.push_back(-1);

@@ -603,10 +603,10 @@ namespace hcaldqm
 		//	if loaded and not stripped, then 
 		//	prepend/subsystem/Run summary/taskname/...
 		_logger.debug(_hashmap.getHashTypeName());
-		std::string path = (prepend==""?prepend:prepend+"/")+
+		std::string path = (prepend.empty()?prepend:prepend+"/")+
 			subsystem+"/"+(mode==DQMStore::KeepRunDirs?"Run summary/":"")
 			+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -686,10 +686,10 @@ namespace hcaldqm
 		//	if loaded and not stripped, then 
 		//	prepend/subsystem/Run summary/taskname/...
 		_logger.debug(_hashmap.getHashTypeName());
-		std::string path = (prepend==""?prepend:prepend+"/")+
+		std::string path = (prepend.empty()?prepend:prepend+"/")+
 			subsystem+"/"+(mode==DQMStore::KeepRunDirs?"Run summary/":"")
 			+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -783,7 +783,7 @@ namespace hcaldqm
 		_logger.debug(_hashmap.getHashTypeName());
 		std::string path = 
 			subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -869,7 +869,7 @@ namespace hcaldqm
 		_logger.debug(_hashmap.getHashTypeName());
 		std::string path = 
 			subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName();
 		_logger.debug("FULLPATH::"+path);
 
 		if (_hashmap.isDHash())
@@ -961,7 +961,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
@@ -1051,7 +1051,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 
 		if (_hashmap.isDHash())
@@ -1146,7 +1146,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
@@ -1234,7 +1234,7 @@ namespace hcaldqm
 		//	full path to where all the plots are living
 		//	subsystem/taskname/QxvsQy_auxilary/HashType
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname+
-			(aux==""?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
+			(aux.empty()?aux:"_"+aux)+"/"+_hashmap.getHashTypeName());
 		_logger.debug(_hashmap.getHashTypeName());
 		if (_hashmap.isDHash())
 		{
