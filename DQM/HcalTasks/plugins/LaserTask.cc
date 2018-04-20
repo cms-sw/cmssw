@@ -254,7 +254,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_100TS)
 			);
 			_cTimingDiffLS_SubdetPM.initialize(_name, "TimingDiff_DigiMinusLaserMon",
-				hcaldqm::hashfunctions::fSubdet,
+				hcaldqm::hashfunctions::fSubdetPM,
 				new hcaldqm::quantity::LumiSectionCoarse(_maxLS, 10),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRBX),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingDiff_ns), 0);
@@ -271,7 +271,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_100TS)
 			);
 			_cTimingDiffEvent_SubdetPM.initialize(_name, "TimingDiff_DigiMinusLaserMon",
-				hcaldqm::hashfunctions::fSubdet,
+				hcaldqm::hashfunctions::fSubdetPM,
 				new hcaldqm::quantity::EventNumber(_nevents),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRBX),
 				new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTimingDiff_ns), 0);
