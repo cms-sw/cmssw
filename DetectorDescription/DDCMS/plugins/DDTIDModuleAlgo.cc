@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -78,58 +79,58 @@ static long algorithm(Detector& /* description */,
       << " Detector Planes " << detectorN;
 
   LogDebug("TIDGeom") << "ModuleThick " 
-      << moduleThick << " Detector Tilt " << detTilt/CLHEP::deg
-      << " Height " << fullHeight << " dl(Top) " << dlTop
-      << " dl(Bottom) " << dlBottom << " dl(Hybrid) "
-      << dlHybrid << " doComponents " << doComponents;
+		      << moduleThick << " Detector Tilt " << ConvertTo( detTilt, deg )
+		      << " Height " << fullHeight << " dl(Top) " << dlTop
+		      << " dl(Bottom) " << dlBottom << " dl(Hybrid) "
+		      << dlHybrid << " doComponents " << doComponents;
   LogDebug("TIDGeom") << "" << boxFrameName 
-      << " Material " << boxFrameMat << " Thickness " 
-      << boxFrameThick << " width " << boxFrameWidth 
-      <<  " height " << boxFrameHeight
-      << " Extra Height at Bottom " << bottomFrameHeight 
-      << " Overlap " << bottomFrameOver;
+		      << " Material " << boxFrameMat << " Thickness " 
+		      << boxFrameThick << " width " << boxFrameWidth 
+		      <<  " height " << boxFrameHeight
+		      << " Extra Height at Bottom " << bottomFrameHeight 
+		      << " Overlap " << bottomFrameOver;
 
   for (int i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") << sideFrameName[i] 
-        << " Material " << sideFrameMat << " Width " 
-        << sideFrameWidth << " Thickness " << sideFrameThick
-        << " Overlap " << sideFrameOver << " Hole  "
-        << holeFrameName[i];
+			<< " Material " << sideFrameMat << " Width " 
+			<< sideFrameWidth << " Thickness " << sideFrameThick
+			<< " Overlap " << sideFrameOver << " Hole  "
+			<< holeFrameName[i];
 
   for (int i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") << kaptonName[i] 
-        << " Material " << kaptonMat 
-        << " Thickness " << kaptonThick
-        << " Overlap " << kaptonOver << " Hole  "
-        << holeKaptonName[i];
+			<< " Material " << kaptonMat 
+			<< " Thickness " << kaptonThick
+			<< " Overlap " << kaptonOver << " Hole  "
+			<< holeKaptonName[i];
 
   LogDebug("TIDGeom") << "Wafer Material " 
-      << waferMat  << " Side Width Top " << sideWidthTop
-      << " Side Width Bottom " << sideWidthBottom;
+		      << waferMat  << " Side Width Top " << sideWidthTop
+		      << " Side Width Bottom " << sideWidthBottom;
   for (int i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") << "\twaferName[" << i << "] = " << waferName[i];
-
+  
   LogDebug("TIDGeom") << "Active Material " 
-      << activeMat << " Height " << activeHeight 
-      << " rotated by " << activeRot;
+		      << activeMat << " Height " << activeHeight 
+		      << " rotated by " << activeRot;
   for (int i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") << " translated by (0," << -0.5*backplaneThick[i] 
-        << ",0)\tactiveName[" << i << "] = " << activeName[i]
-        << " of thickness " << waferThick[i]-backplaneThick[i];
-
+			<< ",0)\tactiveName[" << i << "] = " << activeName[i]
+			<< " of thickness " << waferThick[i]-backplaneThick[i];
+  
   LogDebug("TIDGeom") << "" << hybridName 
-      << " Material " << hybridMat << " Height " 
-      << hybridHeight << " Width " << hybridWidth 
-      << " Thickness " << hybridThick;
+		      << " Material " << hybridMat << " Height " 
+		      << hybridHeight << " Width " << hybridWidth 
+		      << " Thickness " << hybridThick;
   LogDebug("TIDGeom") << "Pitch Adapter Material "
-      << pitchMat << " Height " << pitchHeight
-      << " Thickness " << pitchThick;
+		      << pitchMat << " Height " << pitchHeight
+		      << " Thickness " << pitchThick;
   for (int i = 0; i < detectorN; i++)
     LogDebug("TIDGeom") <<  "\tpitchName[" << i << "] = " << pitchName[i];
   LogDebug("TIDGeom") << "Cool Element Material "
-      << coolMat << " Height " << coolHeight
-      << " Thickness " << coolThick << " Width " << coolWidth;
-
+		      << coolMat << " Height " << coolHeight
+		      << " Thickness " << coolThick << " Width " << coolWidth;
+  
   string name = mother;
   double sidfr = sideFrameWidth - sideFrameOver;      // width of side frame on the sides of module 
   double botfr;                                       // width of side frame at the the bottom of the modules 
@@ -433,11 +434,11 @@ static long algorithm(Detector& /* description */,
         double thet = atan((bl1-bl2)/(2.*dz));
         solid   = ns.addSolidNS(name,Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0));
         LogDebug("TIDGeom") << solid.name() 
-            << " Trap made of " << pitchMat << " of "
-            << "dimensions " << dz << ", " << thet/CLHEP::deg 
-            << ", 0, " << h1 << ", " << bl1 << ", " << bl1 
-            << ", 0, " << h1 << ", " << bl2 << ", " << bl2 
-            << ", 0";
+			    << " Trap made of " << pitchMat << " of "
+			    << "dimensions " << dz << ", " << ConvertTo( thet, deg )
+			    << ", 0, " << h1 << ", " << bl1 << ", " << bl1 
+			    << ", 0, " << h1 << ", " << bl2 << ", " << bl2 
+			    << ", 0";
       }
       /* Volume pa = */ ns.addVolumeNS(Volume(name, solid, ns.material(pitchMat)));
     }

@@ -59,45 +59,6 @@ namespace cms
     xml_h rawArgument( const std::string& name ) const;
     std::string resolved_scalar_arg( const std::string& name ) const;
   };
-  
-  /// Re-direct debug messages to the DD4hep printer
-  /*
-   *
-   * \author  M.Frank
-   * \version 1.0
-   * \ingroup DD4HEP_CORE
-   */
-  class LogDebug : public std::stringstream  {
-  protected:
-    std::string tag;
-    int  level;
-    bool pop = false;
-  public:
-    LogDebug() = delete;
-    LogDebug(const LogDebug& copy) = delete;
-    LogDebug& operator=(const LogDebug& copy) = delete;
-    LogDebug(const std::string& tag_value, bool /* set_context */);
-    LogDebug(const std::string& tag_value);
-    ~LogDebug() override;
-    static void setDebugAlgorithms(bool value);
-  };
-  
-  /// Re-direct warning messages to the DD4hep printer
-  /*
-   *
-   * \author  M.Frank
-   * \version 1.0
-   * \ingroup DD4HEP_CORE
-   */
-  class LogWarn : public LogDebug  {
-  public:
-    LogWarn() = delete;
-    LogWarn(const LogWarn& copy) = delete;
-    LogWarn& operator=(const LogWarn& copy) = delete;
-    LogWarn(const std::string& tag_value);
-  };
-  
-  
 }
 
 #endif

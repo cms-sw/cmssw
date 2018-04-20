@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -31,19 +32,19 @@ static long algorithm(Detector& /* description */,
   }
   LogDebug("TrackerGeom") << "debug: Parameters for position"
                           << "ing:: " << " Radius " << radius << " Tilt " 
-                          << tilt/CLHEP::deg << " Copies " << phi.size() 
+                          << tilt << " Copies " << phi.size() 
                           << " at";
   for (int i=0; i<(int)(phi.size()); i++)
-    LogDebug("TrackerGeom") << "\t[" << i << "] phi = " << phi[i]/CLHEP::deg 
+    LogDebug("TrackerGeom") << "\t[" << i << "] phi = " << phi[i]
         << " z = " << zpos[i];
   LogDebug("TrackerGeom") <<  "debug: Parent " << mother.name()
       <<"\tChild " << child.name() << " NameSpace " << ns.name();
 
-  double theta  = 90.*CLHEP::deg;
+  double theta  = 90._deg;
   int ci = startcn;
   for (int i  = 0; i < numcopies; ++i) {
     double phix   = phi[i] + tilt;
-    double phiy   = phix + 90.*CLHEP::deg;
+    double phiy   = phix + 90._deg;
     double xpos   = radius*cos(phi[i]);
     double ypos   = radius*sin(phi[i]);
     Rotation3D rot = makeRotation3D(theta, phix, theta, phiy, 0., 0.);

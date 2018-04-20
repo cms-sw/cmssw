@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -41,8 +42,8 @@ static long algorithm(Detector& /* description */,
     Position tran(xpos, ypos, zpos);
 
     Rotation3D rotation;
-    double phiy = phix + 90.*CLHEP::deg;
-    double phideg = phix/CLHEP::deg;
+    double phiy = phix + 90._deg;
+    double phideg = ConvertTo( phix, deg );
     if (phideg != 0) {
       string rotstr= ns.nsName(child.name()) + std::to_string(phideg*1000.);
       auto irot = ctxt.rotations.find(ns.prepend(rotstr));
@@ -50,10 +51,10 @@ static long algorithm(Detector& /* description */,
         rotation = ns.rotation(ns.prepend(rotstr));
       }
       else  {
-        double theta = 90.*CLHEP::deg;
+        double theta = 90._deg;
         LogDebug("TECGeom") << "test: Creating a new "
                             << "rotation: " << rotstr << "\t90., " 
-                            << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg
+                            << ConvertTo( phix, deg ) << ", 90.," << ConvertTo( phiy, deg )
                             << ", 0, 0";
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }

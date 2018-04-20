@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -23,22 +24,22 @@ static long algorithm(Detector& /* description */,
   int           incrCopyNo  = args.find("IncrCopyNo") ? args.value<int>("IncrCopyNo") : 1;  //Increment in copy number
 
   LogDebug("TECGeom") << "debug: Parameters for "
-      << "positioning--" << "\tStartAngle " 
-      << startAngle/CLHEP::deg << "\tIncrAngle " 
-      << incrAngle/CLHEP::deg << "\tZ in/out " << zIn << ", " 
-      << zOut 	      << "\tCopy Numbers " << number 
-      << " Start/Increment " << startCopyNo << ", " 
-      << incrCopyNo;
+		      << "positioning--" << "\tStartAngle " 
+		      << ConvertTo( startAngle, deg ) << "\tIncrAngle " 
+		      << ConvertTo( incrAngle, deg ) << "\tZ in/out " << zIn << ", " 
+		      << zOut 	      << "\tCopy Numbers " << number 
+		      << " Start/Increment " << startCopyNo << ", " 
+		      << incrCopyNo;
   LogDebug("TECGeom") << "debug: Parent " << mother.name() 
-      << "\tChild " << child.name() << " NameSpace " 
-      << ns.name();
+		      << "\tChild " << child.name() << " NameSpace " 
+		      << ns.name();
 
   if (number > 0) {
-    double theta  = 90.*CLHEP::deg;
+    double theta  = 90._deg;
     int    copyNo = startCopyNo;
     for (int i=0; i<number; i++) {
       double phiz = startAngle + i*incrAngle;
-      double phix = phiz + 90.*CLHEP::deg;  
+      double phix = phiz + 90._deg;  
       Rotation3D rotation = makeRotation3D(theta, phix, 0e0, 0e0, theta, phiz);
       Position   tran(0., 0., (i%2 == 0) ? zIn : zOut);
       /* PlacedVolume pv = */ mother.placeVolume(child,copyNo,Transform3D(rotation,tran));

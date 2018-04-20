@@ -1,6 +1,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/Printout.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <sstream>
 
@@ -26,8 +27,8 @@ static long algorithm(Detector& /* description */,
   if (phiPosition.size() == coolInsert.size()) {
     for (int i=0; i<(int)(phiPosition.size()); i++)   {
       LogDebug("TECGeom") << "debug: Insert[" << i << "]: "
-          << coolInsert.at(i) << " at Phi " 
-          << phiPosition.at(i)/CLHEP::deg;
+			  << coolInsert.at(i) << " at Phi " 
+			  << ConvertTo( phiPosition.at(i), deg );
     }
   }
   else {
@@ -47,7 +48,7 @@ static long algorithm(Detector& /* description */,
     LogDebug("TECGeom") << "test " << child.name() << "["  
                         << copyNo << "] positioned in " << mother.name()
                         << " at " << tran
-                        << " phi " << phiPosition.at(i)/CLHEP::deg << " r " 
+                        << " phi " << ConvertTo( phiPosition.at(i), deg ) << " r " 
                         << rPosition;
     copyNo++;
   }
