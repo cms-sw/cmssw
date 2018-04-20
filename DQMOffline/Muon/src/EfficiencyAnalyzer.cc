@@ -270,7 +270,7 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       h_allProbes_pt->Fill(muon2->pt());
       h_allProbes_eta->Fill(muon2->eta());
       h_allProbes_phi->Fill(muon2->phi());
-      if(muon2->innerTrack().isNonnull()) {
+      if(muon2->innerTrack()->extra().isAvailable()) {
           h_allProbes_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
           h_allProbes_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
           h_allProbes_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
@@ -289,7 +289,7 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       h_passProbes_ID_pt->Fill(muon2->pt());
       h_passProbes_ID_eta->Fill(muon2->eta());
       h_passProbes_ID_phi->Fill(muon2->phi());
-      if(muon2->innerTrack().isNonnull()) {
+      if(muon2->innerTrack()->extra().isAvailable()) {
           h_passProbes_ID_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
           h_passProbes_ID_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
           h_passProbes_ID_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
