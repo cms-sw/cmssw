@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * This is a part of the TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
@@ -20,6 +20,7 @@
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 
 /// \brief Collection of code to convert TOTEM raw data into digi.
 class RawToDigiConverter
@@ -28,15 +29,19 @@ class RawToDigiConverter
     RawToDigiConverter(const edm::ParameterSet &conf);
 
     /// Creates RP digi.
-    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+    void run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<TotemRPDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
 
     /// Creates Diamond digi.
-    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+    void run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
 
+    /// Creates Totem Timing digi.
+    void run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+      edm::DetSetVector<TotemTimingDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
+
     /// Print error summaries.
-    void PrintSummaries() const;
+    void printSummaries() const;
 
   private:
     struct Record
@@ -47,7 +52,7 @@ class RawToDigiConverter
     };
 
     unsigned char verbosity;
-    
+
     unsigned int printErrorSummary;
     unsigned int printUnknownFrameSummary;
 
@@ -73,7 +78,7 @@ class RawToDigiConverter
     std::map<TotemFramePosition, unsigned int> unknownSummary;
 
     /// Common processing for all VFAT based sub-systems.
-    void RunCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
+    void runCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
       std::map<TotemFramePosition, Record> &records);
 };
 
