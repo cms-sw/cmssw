@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -123,69 +124,69 @@ static long algorithm(Detector& /* description */,
   string         siReenforceMat = args.value<string>("SiReenforcementMaterial");  //             Materieal
 
   LogDebug("TECGeom") << "debug: ModuleThick " << moduleThick
-      << " Detector Tilt " << detTilt/CLHEP::deg << " Height "
-      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
-      << dlBottom << " dl(Hybrid) " << dlHybrid
-      << " rPos " << rPos << " standrad rotation " 
-      << standardRot;
+		      << " Detector Tilt " << ConvertTo( detTilt, deg ) << " Height "
+		      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
+		      << dlBottom << " dl(Hybrid) " << dlHybrid
+		      << " rPos " << rPos << " standrad rotation " 
+		      << standardRot;
   LogDebug("TECGeom") << "debug: Frame Width " << frameWidth 
-      << " Thickness " << frameThick << " Overlap " 
-      << frameOver;
+		      << " Thickness " << frameThick << " Overlap " 
+		      << frameOver;
   LogDebug("TECGeom") << "debug: Top Frame Material " 
-      << topFrameMat << " Height " << topFrameHeight 
-      << " Top Width " << topFrameTopWidth << " Bottom Width "
-      << topFrameTopWidth
-      << " Thickness " << topFrameThick <<" positioned at"
-      << topFrameZ;
+		      << topFrameMat << " Height " << topFrameHeight 
+		      << " Top Width " << topFrameTopWidth << " Bottom Width "
+		      << topFrameTopWidth
+		      << " Thickness " << topFrameThick <<" positioned at"
+		      << topFrameZ;
   LogDebug("TECGeom") << "debug : Side Frame Material " 
-      << sideFrameMat << " Thickness " << sideFrameThick
-      << " left Leg's Width: " << sideFrameLWidth
-      << " left Leg's Height: " << sideFrameLHeight
-      << " left Leg's tilt(theta): " << sideFrameLtheta
-      << " right Leg's Width: " << sideFrameRWidth
-      << " right Leg's Height: " << sideFrameRHeight
-      << " right Leg's tilt(theta): " << sideFrameRtheta
-      << "Supplies Box's Material: " << siFrSuppBoxMat
-      << " positioned at" << sideFrameZ;
+		      << sideFrameMat << " Thickness " << sideFrameThick
+		      << " left Leg's Width: " << sideFrameLWidth
+		      << " left Leg's Height: " << sideFrameLHeight
+		      << " left Leg's tilt(theta): " << sideFrameLtheta
+		      << " right Leg's Width: " << sideFrameRWidth
+		      << " right Leg's Height: " << sideFrameRHeight
+		      << " right Leg's tilt(theta): " << sideFrameRtheta
+		      << "Supplies Box's Material: " << siFrSuppBoxMat
+		      << " positioned at" << sideFrameZ;
   for (int i= 0; i < (int)(siFrSuppBoxWidth.size());i++)
     LogDebug("TECGeom") << " Supplies Box" << i << "'s Width: " 
-        << siFrSuppBoxWidth[i] << " Supplies Box" << i
-        <<"'s Height: " << siFrSuppBoxHeight[i]
-        << " Supplies Box" << i << "'s y Position: " 
-        << siFrSuppBoxYPos[i];
+			<< siFrSuppBoxWidth[i] << " Supplies Box" << i
+			<<"'s Height: " << siFrSuppBoxHeight[i]
+			<< " Supplies Box" << i << "'s y Position: " 
+			<< siFrSuppBoxYPos[i];
   LogDebug("TECGeom") << "debug: Wafer Material " 
-      << waferMat << " Side Width Top" << sideWidthTop
-      << " Side Width Bottom" << sideWidthBottom
-      << " and positioned at "<<waferPosition
-      << " positioned with rotation"	<< " matrix:"
-      << waferRot;
+		      << waferMat << " Side Width Top" << sideWidthTop
+		      << " Side Width Bottom" << sideWidthBottom
+		      << " and positioned at "<<waferPosition
+		      << " positioned with rotation"	<< " matrix:"
+		      << waferRot;
   LogDebug("TECGeom") << "debug: Active Material " 
-      << activeMat << " Height " << activeHeight 
-      << " rotated by " << activeRot
-      << " translated by (0,0," << -0.5 * backplaneThick << ")"
-      << " Thickness/Z"
-      << waferThick-backplaneThick << "/" << activeZ;
+		      << activeMat << " Height " << activeHeight 
+		      << " rotated by " << activeRot
+		      << " translated by (0,0," << -0.5 * backplaneThick << ")"
+		      << " Thickness/Z"
+		      << waferThick-backplaneThick << "/" << activeZ;
   LogDebug("TECGeom") << "debug: Hybrid Material " 
-      << hybridMat << " Height " << hybridHeight 
-      << " Width " << hybridWidth << " Thickness " 
-      << hybridThick << " Z"  << hybridZ;
+		      << hybridMat << " Height " << hybridHeight 
+		      << " Width " << hybridWidth << " Thickness " 
+		      << hybridThick << " Z"  << hybridZ;
   LogDebug("TECGeom") << "debug: Pitch Adapter Material " 
-      << pitchMat << " Height " << pitchHeight 
-      << " Thickness " << pitchThick << " position with "
-      << " rotation " << pitchRot << " at Z" << pitchZ;
+		      << pitchMat << " Height " << pitchHeight 
+		      << " Thickness " << pitchThick << " position with "
+		      << " rotation " << pitchRot << " at Z" << pitchZ;
   LogDebug("TECGeom") << "debug: Bridge Material " 
-      << bridgeMat << " Width " << bridgeWidth 
-      << " Thickness " << bridgeThick << " Height " 
-      << bridgeHeight << " Separation "<< bridgeSep;
+		      << bridgeMat << " Width " << bridgeWidth 
+		      << " Thickness " << bridgeThick << " Height " 
+		      << bridgeHeight << " Separation "<< bridgeSep;
   LogDebug("TECGeom") << "FALTBOOT DDTECModuleAlgo debug : Si-Reenforcement Material " 
-      << sideFrameMat << " Thickness " << siReenforceThick;
+		      << sideFrameMat << " Thickness " << siReenforceThick;
   for (int i= 0; i < (int)(siReenforceWidth.size());i++)
     LogDebug("TECGeom") << " SiReenforcement" << i << "'s Width: " 
-        << siReenforceWidth[i] << " SiReenforcement" << i 
-        << "'s Height: " << siReenforceHeight[i]
-        << " SiReenforcement" << i << "'s y Position: "
-        <<siReenforceYPos[i];
-
+			<< siReenforceWidth[i] << " SiReenforcement" << i 
+			<< "'s Height: " << siReenforceHeight[i]
+			<< " SiReenforcement" << i << "'s y Position: "
+			<<siReenforceYPos[i];
+  
   if(!isStereo){
     LogDebug("TECGeom") << "This is a normal module, in ring "<<ringNo<<"!"; 
   }
@@ -193,14 +194,14 @@ static long algorithm(Detector& /* description */,
     LogDebug("TECGeom") << "This is a stereo module, in ring "<<ringNo<<"!"; 
     LogDebug("TECGeom") << "Phi Position corrected by " << posCorrectionPhi << "*rad";
     LogDebug("TECGeom") << "debug: stereo Top Frame 2nd Part left Heigt " 
-        << topFrame2LHeight << " right Height " << topFrame2RHeight 
-        << " Width " << topFrame2Width ;
+			<< topFrame2LHeight << " right Height " << topFrame2RHeight 
+			<< " Width " << topFrame2Width ;
     LogDebug("TECGeom") << " left Leg's lower Width: " << sideFrameLWidthLow
-        << " right Leg's lower Width: " << sideFrameRWidthLow;
+			<< " right Leg's lower Width: " << sideFrameRWidthLow;
   }
-
+  
   // Execution part:
-
+  
   LogDebug("TECGeom") << "==>> Constructing DDTECModuleAlgo: ";
   //declarations
   double tmp;
@@ -213,8 +214,8 @@ static long algorithm(Detector& /* description */,
   string idName     = ns.prepend(ns.objName(mother.name()));
   LogDebug("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name();
   Solid solid;
-
-   //set global parameters
+  
+  //set global parameters
   Material matter = ns.material(genMat);
   double dzdif = fullHeight + topFrameHeight;
   if(isStereo) dzdif += 0.5*(topFrame2LHeight+topFrame2RHeight);
@@ -263,7 +264,7 @@ static long algorithm(Detector& /* description */,
     xpos = -xpos;
     zpos = topFrameEndZ -topFrame2LHeight-
       0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-
-      dz*cos(detTilt+fabs(thet))/cos(fabs(thet))+bl2*sin(detTilt)-0.1*CLHEP::mm;
+      dz*cos(detTilt+fabs(thet))/cos(fabs(thet))+bl2*sin(detTilt)-0.1_mm;
   }
   //position
   doPos(ctxt,sideFrameLeft, mother, isStereo, rPos, posCorrectionPhi, xpos,ypos,zpos,waferRot);
@@ -297,7 +298,7 @@ static long algorithm(Detector& /* description */,
     xpos = -xpos;
     zpos = topFrameEndZ -topFrame2RHeight+
       0.5*sin(detTilt)*(topFrameBotWidth - topFrame2Width)-
-      dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt)-0.1*CLHEP::mm;
+      dz*cos(detTilt-fabs(thet))/cos(fabs(thet))-bl2*sin(detTilt)-0.1_mm;
   }
   //position it
   doPos(ctxt, sideFrameRight, mother, isStereo, rPos, posCorrectionPhi,xpos,ypos,zpos,waferRot);
@@ -438,8 +439,8 @@ static long algorithm(Detector& /* description */,
     solid   = Box(dx, dy, dz);
     ns.addSolidNS(name,solid);
     LogDebug("TECGeom") << "Solid:\t" << solid.name() 
-        << " Box made of " << pitchMat <<" of dimensions "
-        << dx << ", " << dy << ", " << dz;
+			<< " Box made of " << pitchMat <<" of dimensions "
+			<< dx << ", " << dy << ", " << dz;
   } else {
     dz      = 0.5 * pitchWidth;    
     h1      = 0.5 * pitchThick;
@@ -449,11 +450,11 @@ static long algorithm(Detector& /* description */,
     solid   = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
     ns.addSolidNS(name,solid);
     LogDebug("TECGeom") << "Solid:\t" << solid.name()
-        << " Trap made of " <<  pitchMat
-        << " of dimensions " << dz << ", " << thet/CLHEP::deg
-        << ", 0, " << h1 << ", " << bl1 << ", " << bl1
-        << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-        << ", 0";
+			<< " Trap made of " <<  pitchMat
+			<< " of dimensions " << dz << ", " << ConvertTo( thet, deg )
+			<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
+			<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			<< ", 0";
   }
   xpos = 0;
   ypos = pitchZ;
@@ -498,10 +499,10 @@ static long algorithm(Detector& /* description */,
     solid   = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
     ns.addSolid(name,solid);
     LogDebug("TECGeom") << "Solid:\t" << solid.name()
-        << " Trap made of " << topFrameMat << " of dimensions "
-        << dz << ", " << thet/CLHEP::deg << ", 0, " << h1 
-        << ", " << bl1 << ", " << bl1 << ", 0, " << h1 
-        << ", " << bl2 << ", " << bl2 << ", 0";
+			<< " Trap made of " << topFrameMat << " of dimensions "
+			<< dz << ", " << ConvertTo( thet, deg ) << ", 0, " << h1 
+			<< ", " << bl1 << ", " << bl1 << ", 0, " << h1 
+			<< ", " << bl2 << ", " << bl2 << ", 0";
   }
   
   // Position the topframe

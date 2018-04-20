@@ -2,8 +2,8 @@
 #define DETECTOR_DESCRIPTION_DD_PLUGINS_H
 
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
+#include "DetectorDescription/DDCMS/interface/DDUnits.h"
 #include "DD4hep/Plugins.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 namespace dd4hep {
   
@@ -11,10 +11,10 @@ namespace dd4hep {
 
   template <typename T> class DDCMSDetElementFactory : public dd4hep::PluginFactoryBase {
   public:
-    static long create(dd4hep::Detector&            dsc,
-		       cms::DDParsingContext& ctx,
-		       dd4hep::xml::Handle_t        elt,
-		       dd4hep::SensitiveDetector&   sens);
+    static long create( dd4hep::Detector& detector,
+			cms::DDParsingContext& context,
+			dd4hep::xml::Handle_t element,
+			dd4hep::SensitiveDetector& sensitive );
   };
 }
 
@@ -24,7 +24,7 @@ namespace {
 				cms::DDParsingContext*, ns::xml_h*,
 				dd4hep::SensitiveDetector* )
   {
-    return dd4hep::DDCMSDetElementFactory<P>::create(*a0,*a1,*a2,*a3);
+    return dd4hep::DDCMSDetElementFactory<P>::create( *a0, *a1, *a2, *a3 );
   }
 }
 
@@ -33,9 +33,9 @@ namespace {
     typedef DDCMSDetElementFactory< ddcms_det_element_##name > _IMP;    \
     template <> long                                                    \
       _IMP::create(dd4hep::Detector& d,                                 \
-                   cms::DDParsingContext& c,                              \
+                   cms::DDParsingContext& c,                            \
                    xml::Handle_t e,                                     \
-                   dd4hep::SensitiveDetector& h)                                \
+                   dd4hep::SensitiveDetector& h)                        \
     {  return func(d,c,e,h);       }                                    \
     DD4HEP_PLUGINSVC_FACTORY(ddcms_det_element_##name,name,             \
                              long(dd4hep::Detector*,cms::DDParsingContext*, \

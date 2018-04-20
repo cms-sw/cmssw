@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -26,17 +27,17 @@ static long algorithm(Detector& /* description */,
 
   LogDebug("TrackerGeom") << "Parent " << mother.name() << "\tChild " << child.name() << " NameSpace " << ns.name();
   LogDebug("TrackerGeom") << "Parameters for positioning-- Tilt " << tilt 
-                          << "\tStartAngle " << startAngle/CLHEP::deg 
-                          << "\tRangeAngle " << rangeAngle/CLHEP::deg 
+                          << "\tStartAngle " << ConvertTo( startAngle, deg )
+                          << "\tRangeAngle " << ConvertTo( rangeAngle, deg ) 
                           << "\tRin " << radiusIn << "\tRout " << radiusOut 
                           << "\t ZPos " << zpos << "\tCopy Numbers " << number 
                           << " Start/Increment " << startCopyNo << ", " 
                           << incrCopyNo;
 
   if (number > 0) {
-    double theta  = 90.*CLHEP::deg;
+    double theta  = 90._deg;
     double dphi;
-    if (number == 1 || fabs(rangeAngle-360.0*CLHEP::deg)<0.001*CLHEP::deg) 
+    if (number == 1 || fabs(rangeAngle-360.0_deg)<0.001_deg) 
       dphi = rangeAngle/number;
     else
       dphi = rangeAngle/(number-1);
@@ -44,9 +45,9 @@ static long algorithm(Detector& /* description */,
 
     for (int i=0; i<number; i++) {
       double phi  = startAngle + i*dphi;
-      double phix = phi - tilt + 90.*CLHEP::deg;
-      double phiy = phix + 90.*CLHEP::deg;
-      double phideg = phix/CLHEP::deg;
+      double phix = phi - tilt + 90._deg;
+      double phiy = phix + 90._deg;
+      double phideg = ConvertTo( phix, deg );
   
       Rotation3D rotation;
       if (phideg != 0) {

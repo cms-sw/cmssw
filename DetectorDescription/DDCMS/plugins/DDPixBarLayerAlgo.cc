@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -25,23 +26,23 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
   string coolMat   = args.value<string>("CoolMaterial");
   string tubeMat   = args.value<string>("CoolTubeMaterial");
   LogDebug("PixelGeom") << "Parent " << parentName << " NameSpace " << ns.name() << "\n"
-      << "\tLadders " << number << "\tGeneral Material " 
-      << genMat << "\tLength " << layerDz << "\tSensorEdge "
-      << sensorEdge << "\tSpecification of Cooling Pieces:\n"
-      << "\tLength " << coolDz << " Width " << coolWidth 
-      << " Side " << coolSide << " Thickness of Shell " 
-      << coolThick << " Radial distance " << coolDist 
-      << " Materials " << coolMat << ", " << tubeMat;
+			<< "\tLadders " << number << "\tGeneral Material " 
+			<< genMat << "\tLength " << layerDz << "\tSensorEdge "
+			<< sensorEdge << "\tSpecification of Cooling Pieces:\n"
+			<< "\tLength " << coolDz << " Width " << coolWidth 
+			<< " Side " << coolSide << " Thickness of Shell " 
+			<< coolThick << " Radial distance " << coolDist 
+			<< " Materials " << coolMat << ", " << tubeMat;
   vector<string> ladder      = args.value<vector<string> >("LadderName");
   vector<double> ladderWidth = args.value<vector<double> >("LadderWidth");
   vector<double> ladderThick = args.value<vector<double> >("LadderThick");
   LogDebug("PixelGeom") << "Full Ladder " << ladder[0] << " width/thickness " << ladderWidth[0]
-      << ", " << ladderThick[0] << "\tHalf Ladder " 
-      << ladder[1] << " width/thickness " << ladderWidth[1]
-      << ", " << ladderThick[1];
+			<< ", " << ladderThick[0] << "\tHalf Ladder " 
+			<< ladder[1] << " width/thickness " << ladderWidth[1]
+			<< ", " << ladderThick[1];
 
   const std::string idName = ns.objName(parentName);
-  double dphi = CLHEP::twopi/number;
+  double dphi = 2_pi/number;
   double d2   = 0.5*coolWidth;
   double d1   = d2 - coolSide*sin(0.5*dphi);
   double x1   = (d1+d2)/(2.*sin(0.5*dphi));
@@ -50,16 +51,16 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
   double rmax = (coolDist+0.5*(d1+d2))*cos(0.5*dphi)+0.5*ladderThick[0];
   double rmxh = rmax - 0.5*ladderThick[0] + ladderThick[1];
   LogDebug("PixelGeom") << "Rmin/Rmax " << rmin 
-      << ", " << rmax << " d1/d2 " << d1 << ", " << d2 
-      << " x1/x2 " << x1 << ", " << x2;
+			<< ", " << rmax << " d1/d2 " << d1 << ", " << d2 
+			<< " x1/x2 " << x1 << ", " << x2;
 
   double rtmi = rmin + 0.5*ladderThick[0] - ladderThick[1];
   double rtmx = sqrt(rmxh*rmxh+ladderWidth[1]*ladderWidth[1]);
-  Solid solid = ns.addSolid(idName,Tube(rtmi, rtmx, 0.5*layerDz, 0, CLHEP::twopi));
+  Solid solid = ns.addSolid(idName,Tube(rtmi, rtmx, 0.5*layerDz, 0, 2_pi));
   LogDebug("PixelGeom") << "IDname "<< idName << " Tubs made of " 
-      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
-      << " with Rin " << rtmi << " Rout " << rtmx 
-      << " ZHalf " << 0.5*layerDz;
+			<< genMat << " from 0 to " << ConvertTo( 2_pi, deg ) 
+			<< " with Rin " << rtmi << " Rout " << rtmx 
+			<< " ZHalf " << 0.5*layerDz;
   
   Volume layer = ns.addVolume(Volume(idName, solid, ns.material(genMat)));
   double rr = 0.5*(rmax+rmin);
@@ -68,10 +69,10 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
   std::string name = idName + "CoolTube";
   solid = ns.addSolid(name,Trap(0.5*coolDz, 0, 0, h1, d2, d1, 0, h1, d2, d1, 0));
   LogDebug("PixelGeom") << "Solid " << solid.name() 
-      << " Trap made of " << tubeMat << " of dimensions " 
-      << 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2 
-      << ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
-      << d1 << ", 0";
+			<< " Trap made of " << tubeMat << " of dimensions " 
+			<< 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2 
+			<< ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
+			<< d1 << ", 0";
 
   Volume coolTube = ns.addVolume(Volume(name, solid, description.material(tubeMat)));
   h1  -= coolThick;
@@ -80,21 +81,21 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
   name = idName + "Coolant";
   solid = ns.addSolid(name, Trap(0.5*coolDz, 0, 0, h1, d2, d1, 0, h1, d2, d1, 0));
   LogDebug("PixelGeom") << "Solid " << solid.name() 
-      << " Trap made of " << coolMat << " of dimensions " 
-      << 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2
-      << ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
-      << d1 << ", 0";
+			<< " Trap made of " << coolMat << " of dimensions " 
+			<< 0.5*coolDz << ", 0, 0, " << h1 << ", " << d2
+			<< ", " << d1 << ", 0, " << h1 << ", " << d2 << ", " 
+			<< d1 << ", 0";
 
   Volume cool = ns.addVolume(Volume(name, solid, description.material(coolMat)));
   pv = coolTube.placeVolume(cool,1);
   LogDebug("PixelGeom") << "Cool " << cool.name() 
-      << " number 1 positioned in " << coolTube.name() 
-      << " at (0,0,0) with no rotation";
+			<< " number 1 positioned in " << coolTube.name() 
+			<< " at (0,0,0) with no rotation";
 
   string ladderFull = ladder[0];
   string ladderHalf = ladder[1];
   int nphi=number/2, copy=1, iup=-1;
-  double phi0 = 90*CLHEP::deg;
+  double phi0 = 90_deg;
   Volume ladderHalfVol = ns.volume(ladderHalf);
   Volume ladderFullVol = ns.volume(ladderFull);
 
@@ -109,79 +110,79 @@ static long algorithm(Detector& description, cms::DDParsingContext& ctxt, xml_h 
       xx   = (0.5*ladderWidth[1] - sensorEdge) * sin(phi);
       tran = Position(xx, rrr*sin(phi), 0);
       rots = idName + std::to_string(copy);
-      phix = phi-90*CLHEP::deg;
-      phiy = 90*CLHEP::deg+phix;
+      phix = phi-90_deg;
+      phiy = 90_deg+phix;
       LogDebug("PixelGeom") << "Creating a new "
-          << "rotation: " << rots << "\t90., " 
-          << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
+			    << "rotation: " << rots << "\t90., " 
+			    << ConvertTo( phix, deg ) << ", 90.," << ConvertTo( phiy, deg )
           << ", 0, 0";
-      rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+      rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
 
       //cpv.position(ladderHalf, layer, copy, tran, rot);
       pv = layer.placeVolume(ladderHalfVol, copy, Transform3D(rot,tran));
       if ( !pv.isValid() )  {  }
       LogDebug("PixelGeom") << "ladderHalfVol: " << ladderHalfVol.name()
-          << " number " << copy << " positioned in " 
-          << layer.name() << " at " << tran << " with " 
-          << rot;
+			    << " number " << copy << " positioned in " 
+			    << layer.name() << " at " << tran << " with " 
+			    << rot;
       copy++;
       iup  = -1;
       rrr  = rr - dr - 0.5*(ladderThick[1]-ladderThick[0]);
       tran = Position(-xx, rrr*sin(phi), 0);
       rots = idName + std::to_string(copy);
-      phix = phi+90*CLHEP::deg;
-      phiy = 90*CLHEP::deg+phix;
+      phix = phi+90_deg;
+      phiy = 90_deg+phix;
       LogDebug("PixelGeom") << "Creating a new rotation: " << rots << "\t90., " 
-          << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
-          << ", 0, 0";
-      rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+			    << ConvertTo( phix, deg ) << ", 90.," << ConvertTo( phiy, deg )
+			    << ", 0, 0";
+      rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
       //cpv.position(ladderHalf, layer, copy, tran, rot);
       pv = layer.placeVolume(ladderHalfVol, copy, Transform3D(rot,tran));
       if ( !pv.isValid() )  {  }
       LogDebug("PixelGeom") << "ladderHalfVol: " << ladderHalfVol.name()
-          << " number " << copy << " positioned in " 
-          << layer.name() << " at " << tran << " with " 
-          << rot;
+			    << " number " << copy << " positioned in " 
+			    << layer.name() << " at " << tran << " with " 
+			    << rot;
       copy++;
     } else {
       iup  =-iup;
       rrr  = rr + iup*dr;
       tran = Position(rrr*cos(phi), rrr*sin(phi), 0);
       rots = idName + std::to_string(copy);
-      if (iup > 0) phix = phi-90*CLHEP::deg;
-      else         phix = phi+90*CLHEP::deg;
-      phiy = phix+90.*CLHEP::deg;
+      if (iup > 0) phix = phi-90_deg;
+      else         phix = phi+90_deg;
+      phiy = phix+90._deg;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
-          << "rotation: " << rots << "\t90., " 
-          << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
-          << ", 0, 0";
-      rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+			    << "rotation: " << rots << "\t90., " 
+			    << ConvertTo( phix, deg ) << ", 90.," << ConvertTo( phiy, deg ) 
+			    << ", 0, 0";
+      rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
 
       //cpv.position(ladderFull, layer, copy, tran, rot);
       pv = layer.placeVolume(ladderFullVol, copy, Transform3D(rot,tran));
       if ( !pv.isValid() )  {  }
       LogDebug("PixelGeom") << "test: " << ladderFullVol.name()
-          << " number " << copy << " positioned in " 
-          << layer.name() << " at " << tran << " with " 
-          << rot;
+			    << " number " << copy << " positioned in " 
+			    << layer.name() << " at " << tran << " with " 
+			    << rot;
       copy++;
     }
     rrr  = coolDist*cos(0.5*dphi);
     tran = Position(rrr*cos(phi)-x2*sin(phi), rrr*sin(phi)+x2*cos(phi), 0);
     rots = idName + std::to_string(i+100);
     phix = phi+0.5*dphi;
-    if (iup > 0) phix += 180*CLHEP::deg;
-    phiy = phix+90.*CLHEP::deg;
+    if (iup > 0) phix += 180_deg;
+    phiy = phix+90._deg;
     LogDebug("PixelGeom") << "Creating a new rotation: " << rots << "\t90., " 
-        << phix/CLHEP::deg << ", 90.," << phiy/CLHEP::deg 
-        << ", 0, 0";
+			  << ConvertTo( phix, deg ) << ", 90.," << ConvertTo( phiy, deg ) 
+			  << ", 0, 0";
     
-    rot = makeRotation3D(90*CLHEP::deg, phix, 90*CLHEP::deg, phiy, 0.,0.);
+    rot = makeRotation3D(90_deg, phix, 90_deg, phiy, 0.,0.);
     pv  = layer.placeVolume(coolTube, i+1, Transform3D(rot,tran));
     if ( !pv.isValid() )  {  }
     LogDebug("PixelGeom") << "coolTube: " << coolTube.name() 
-        << " number " << i+1 << " positioned in " 
-        << layer.name() << " at " << tran << " with "<< rot;
+			  << " number " << i+1 << " positioned in " 
+			  << layer.name() << " at " << tran << " with "<< rot;
   }
   LogDebug("PixelGeom") << "Layer: " << layer.name();
   return 1;

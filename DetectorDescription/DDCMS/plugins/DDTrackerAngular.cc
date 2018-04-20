@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -25,29 +26,29 @@ static long  algorithm(Detector& /* description */,
 
   double         delta = 0e0;                                         //Increment in phi
   // Code section of original DDTrackerAngular.cc
-  if (fabs(rangeAngle-360.0*CLHEP::deg)<0.001*CLHEP::deg) { 
+  if (fabs(rangeAngle-360.0_deg)<0.001_deg) { 
     delta    =   rangeAngle/double(n);
   } else if (n > 1) {
     delta    =   rangeAngle/double(n-1);
   }  
 
   LogDebug("TrackerGeom") << "debug: Parameters for positioning:: n "
-      << n << " Start, Range, Delta " 
-      << startAngle/CLHEP::deg << " " 
-      << rangeAngle/CLHEP::deg << " " << delta/CLHEP::deg
-      << " Radius " << radius << " Centre " << center[0] 
-      << ", " << center[1] << ", "<<center[2];
+			  << n << " Start, Range, Delta " 
+			  << ConvertTo( startAngle, deg ) << " " 
+			  << ConvertTo( rangeAngle, deg ) << " " << ConvertTo( delta, deg )
+			  << " Radius " << radius << " Centre " << center[0] 
+			  << ", " << center[1] << ", "<<center[2];
   LogDebug("TrackerGeom") << "debug: Parent " << mother.name() 
-      << "\tChild " << child.name() << " NameSpace "
-      << ns.name();
+			  << "\tChild " << child.name() << " NameSpace "
+			  << ns.name();
 
-  double theta  = 90.*CLHEP::deg;
+  double theta  = 90._deg;
   int    copy   = startCopyNo;
   double phi    = startAngle;
   for (int i=0; i<n; i++) {
     double phix = phi;
-    double phiy = phix + 90.*CLHEP::deg;
-    double phideg = phix/CLHEP::deg;
+    double phiy = phix + 90._deg;
+    double phideg = ConvertTo( phix, deg );
 
     Rotation3D rotation;
     if (phideg != 0) {
@@ -58,9 +59,9 @@ static long  algorithm(Detector& /* description */,
       }
       else  {
         LogDebug("TrackerGeom") << "Creating a new "
-            << "rotation: " << rotstr << "\t90., " 
-            << phix/CLHEP::deg << ", 90.," 
-            << phiy/CLHEP::deg <<", 0, 0";
+				<< "rotation: " << rotstr << "\t90., " 
+				<< ConvertTo( phix, deg ) << ", 90.," 
+				<< ConvertTo( phiy, deg ) <<", 0, 0";
         RotationZYX   rot;
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }

@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -80,8 +81,8 @@ static long algorithm(Detector& /* description */,
     dz    = coolRout1;
     solid = ns.addSolid(name,Torus(coolRin,coolRout1,coolR1[i],coolStartPhi1,coolDeltaPhi1));
     LogDebug("TOBGeom") << name << " Torus made of " 
-                        << coolM1 << " from " << coolStartPhi1/CLHEP::deg 
-                        << " to " << (coolStartPhi1+coolDeltaPhi1)/CLHEP::deg 
+                        << coolM1 << " from " << ConvertTo( coolStartPhi1, deg ) 
+                        << " to " << ConvertTo(( coolStartPhi1+coolDeltaPhi1), deg )
                         << " with Rin " << coolRin << " Rout " << coolRout1
                         << " R torus " << coolR1[i];
     Volume coolManifoldLogic_a = ns.addVolume(Volume(name,solid,ns.material(coolM1)));
@@ -95,8 +96,8 @@ static long algorithm(Detector& /* description */,
     name  = "TOBCoolingManifoldFluid" + names[i] + "a";
     solid = ns.addSolid(name,Torus(coolRin,coolRout2,coolR1[i],coolStartPhi2,coolDeltaPhi2));
     LogDebug("TOBGeom") << name << " Torus made of " 
-                        << coolM2 << " from " << coolStartPhi2/CLHEP::deg 
-                        << " to " << (coolStartPhi2+coolDeltaPhi2)/CLHEP::deg 
+                        << coolM2 << " from " << ConvertTo( coolStartPhi2, deg ) 
+                        << " to " << ConvertTo(( coolStartPhi2+coolDeltaPhi2), deg )
                         << " with Rin " << coolRin << " Rout " << coolRout2
                         << " R torus " << coolR1[i];
     Volume coolManifoldFluidLogic_a = ns.addVolume(Volume(name,solid,ns.material(coolM2)));
@@ -109,8 +110,8 @@ static long algorithm(Detector& /* description */,
     dz    = coolRout1;
     solid = ns.addSolid(name,Torus(coolRin,coolRout1,coolR2[i],coolStartPhi1,coolDeltaPhi1));
     LogDebug("TOBGeom") << name << " Torus made of " 
-                        << coolM1 << " from " << coolStartPhi1/CLHEP::deg 
-                        << " to " << (coolStartPhi1+coolDeltaPhi1)/CLHEP::deg 
+                        << coolM1 << " from " << ConvertTo( coolStartPhi1, deg )
+                        << " to " << ConvertTo(( coolStartPhi1+coolDeltaPhi1), deg )
                         << " with Rin " << coolRin << " Rout " << coolRout1
                         << " R torus " << coolR2[i];
     Volume coolManifoldLogic_r = ns.addVolume(Volume(name,solid,ns.material(coolM1)));
@@ -124,8 +125,8 @@ static long algorithm(Detector& /* description */,
     name  = "TOBCoolingManifoldFluid" + names[i] + "r";
     solid = ns.addSolid(name,Torus(coolRin,coolRout2,coolR2[i],coolStartPhi2,coolDeltaPhi2));
     LogDebug("TOBGeom") << name << " Torus made of " 
-                        << coolM2 << " from " << coolStartPhi2/CLHEP::deg 
-                        << " to " << (coolStartPhi2+coolDeltaPhi2)/CLHEP::deg 
+                        << coolM2 << " from " << ConvertTo( coolStartPhi2, deg )
+                        << " to " << ConvertTo(( coolStartPhi2+coolDeltaPhi2), deg )
                         << " with Rin " << coolRin << " Rout " << coolRout2
                         << " R torus " << coolR2[i];
     Volume coolManifoldFluidLogic_r = ns.addVolume(Volume(name, solid, ns.material(coolM2)));
@@ -141,7 +142,7 @@ static long algorithm(Detector& /* description */,
     rout  = 0.5*(rodRin[i]+rodRout[i])+0.5*connW;
     solid = ns.addSolid(name,Tube(rin, rout, dz));
     LogDebug("TOBGeom") << name << " Tubs made of " 
-                        << connM[i] << " from 0 to " << CLHEP::twopi/CLHEP::deg
+                        << connM[i] << " from 0 to " << ConvertTo( 2_pi, deg )
                         << " with Rin " << rin << " Rout " << rout 
                         << " ZHalf " << dz;
     Volume connLogic = ns.addVolume(Volume(name, solid, ns.material(connM[i])));
@@ -167,10 +168,10 @@ static long algorithm(Detector& /* description */,
     pgonRmax.emplace_back(rout); 
     pgonRmax.emplace_back(rout); 
     pgonRmax.emplace_back(rout); 
-    solid = ns.addSolid(name,Polycone(0, CLHEP::twopi, pgonRmin, pgonRmax, pgonZ));
+    solid = ns.addSolid(name,Polycone(0, 2_pi, pgonRmin, pgonRmax, pgonZ));
     LogDebug("TOBGeom") << name <<" Polycone made of "
                         << cableM[i] << " from 0 to " 
-                        << CLHEP::twopi/CLHEP::deg << " and with " 
+                        << ConvertTo( 2_pi, deg ) << " and with " 
                         << pgonZ.size() << " sections";
     for (int ii = 0; ii < (int)(pgonZ.size()); ii++)
       LogDebug("TOBGeom") << "\t[" << ii << "]\tZ = " << pgonZ[ii] 

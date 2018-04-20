@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -67,7 +68,7 @@ static long algorithm(Detector& /* description */,
   LogDebug("TIDGeom") << "Parent " << parentName
                       << " Detector Planes " << detectorN;
   LogDebug("TIDGeom") << "Detector Tilt " 
-                      << detTilt/CLHEP::deg << " Height " << fullHeight 
+                      << ConvertTo( detTilt, deg ) << " Height " << fullHeight 
                       << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
                       << " dl(Hybrid) " << dlHybrid;
   LogDebug("TIDGeom") << boxFrameName  << " positioned at Z";
@@ -204,16 +205,16 @@ static long algorithm(Detector& /* description */,
     xpos = dxbotenv+(zSideSpacers-0.5*sidSpacersHeight)*tanEnv-0.5*sidSpacersWidth+sideFrameOver;      
 
     double phiy = 0e0, phiz = 0e0;
-    double phix=0.*CLHEP::deg; phiy=90.*CLHEP::deg; phiz=0.*CLHEP::deg;
+    double phix=0._deg; phiy=90._deg; phiz=0._deg;
 
     double thetax = 0e0;
-    double thetay = 90.*CLHEP::deg;
+    double thetay = 90._deg;
     double thetaz = thetaWafer;
 
     for (int j1=0; j1<2; j1++){
       copy++; 
       // tilt Side Spacers (parallel to Side Frame)
-      thetax = 90.*CLHEP::deg+thetaz;
+      thetax = 90._deg+thetaz;
       rot = makeRotation3D(thetax, phix, thetay, phiy, thetaz, phiz);
       parentVol.placeVolume(ns.volume(name),copy,Transform3D(rot,Position(xpos,ypos,zpos)));
       LogDebug("TIDGeom") << name <<" number " << copy << " positioned in " << parentName << " at "

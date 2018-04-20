@@ -1,18 +1,21 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
 
-static long algorithm(Detector& /* description */,
-                      cms::DDParsingContext& ctxt,
-                      xml_h e,
-                      SensitiveDetector& /* sens */)
+static long algorithm( Detector& /* description */,
+		       cms::DDParsingContext& context,
+		       xml_h element,
+		       SensitiveDetector& /* sens */)
 {
-  typedef vector<double> vecdouble;
-  cms::DDNamespace      ns(ctxt, e, true);
-  DDAlgoArguments  args(ctxt, e);
+  using VecDouble = vector<double>;
+
+  cms::DDNamespace ns( context, element, true );
+  DDAlgoArguments args( context, element );
+  
   string    mother       = args.parentName();
   string    genMat       = args.str("GeneralMaterial");           //General material name
   double    detectorTilt = args.dble("DetectorTilt");             //Detector Tilt
@@ -39,18 +42,18 @@ static long algorithm(Detector& /* description */,
   double    supportT     = args.dble("SupportThickness");         //Cylinder barrel CF skin thickness
 
   string    centMat      = args.str("CentRingMaterial");          //Central rings  material
-  vecdouble centRing1par = args.vecDble("CentRing1");             //Central rings parameters
-  vecdouble centRing2par = args.vecDble("CentRing2");             //Central rings parameters
+  VecDouble centRing1par = args.vecDble("CentRing1");             //Central rings parameters
+  VecDouble centRing2par = args.vecDble("CentRing2");             //Central rings parameters
 
   string    fillerMat    = args.str("FillerMaterial");            //Filler material
   double    fillerDz     = args.dble("FillerDeltaz");             //Filler Half Length
 
   string    ribMat       = args.str("RibMaterial");               //Rib material
-  vecdouble ribW         = args.vecDble("RibWidth");              //Rib width
-  vecdouble ribPhi       = args.vecDble("RibPhi");                //Rib Phi position
+  VecDouble ribW         = args.vecDble("RibWidth");              //Rib width
+  VecDouble ribPhi       = args.vecDble("RibPhi");                //Rib Phi position
 
-  vecdouble dohmListFW   = args.vecDble("DOHMListFW");            //DOHM/AUX positions in #strings FW
-  vecdouble dohmListBW   = args.vecDble("DOHMListBW");            //DOHM/AUX positions in #strings BW
+  VecDouble dohmListFW   = args.vecDble("DOHMListFW");            //DOHM/AUX positions in #strings FW
+  VecDouble dohmListBW   = args.vecDble("DOHMListBW");            //DOHM/AUX positions in #strings BW
 
   double    dohmtoMF            = args.dble("DOHMtoMFDist");      //DOHM Distance to MF
   double    dohmCarrierPhiOff   = args.dble("DOHMCarrierPhiOffset"); //DOHM Carrier Phi offset wrt horizontal
@@ -68,21 +71,21 @@ static long algorithm(Detector& /* description */,
 
   double    fwIntPillarDz       = args.dble("FWIntPillarDz");     //Internal pillar parameters
   double    fwIntPillarDPhi     = args.dble("FWIntPillarDPhi");  
-  vecdouble fwIntPillarZ        = args.vecDble("FWIntPillarZ");  
-  vecdouble fwIntPillarPhi      = args.vecDble("FWIntPillarPhi");  
+  VecDouble fwIntPillarZ        = args.vecDble("FWIntPillarZ");  
+  VecDouble fwIntPillarPhi      = args.vecDble("FWIntPillarPhi");  
   double    bwIntPillarDz       = args.dble("BWIntPillarDz");  
   double    bwIntPillarDPhi     = args.dble("BWIntPillarDPhi");  
-  vecdouble bwIntPillarZ        = args.vecDble("BWIntPillarZ");  
-  vecdouble bwIntPillarPhi      = args.vecDble("BWIntPillarPhi");  
+  VecDouble bwIntPillarZ        = args.vecDble("BWIntPillarZ");  
+  VecDouble bwIntPillarPhi      = args.vecDble("BWIntPillarPhi");  
 
   double    fwExtPillarDz       = args.dble("FWExtPillarDz");        //External pillar parameters
   double    fwExtPillarDPhi     = args.dble("FWExtPillarDPhi");  
-  vecdouble fwExtPillarZ        = args.vecDble("FWExtPillarZ");    
-  vecdouble fwExtPillarPhi      = args.vecDble("FWExtPillarPhi");  
+  VecDouble fwExtPillarZ        = args.vecDble("FWExtPillarZ");    
+  VecDouble fwExtPillarPhi      = args.vecDble("FWExtPillarPhi");  
   double    bwExtPillarDz       = args.dble("BWExtPillarDz");  
   double    bwExtPillarDPhi     = args.dble("BWExtPillarDPhi");  
-  vecdouble bwExtPillarZ        = args.vecDble("BWExtPillarZ");    
-  vecdouble bwExtPillarPhi      = args.vecDble("BWExtPillarPhi");  
+  VecDouble bwExtPillarZ        = args.vecDble("BWExtPillarZ");    
+  VecDouble bwExtPillarPhi      = args.vecDble("BWExtPillarPhi");  
   
   LogDebug("TIBGeom") << "Parent " << mother
 		      << " NameSpace " << ns.name()
@@ -95,7 +98,7 @@ static long algorithm(Detector& /* description */,
       << " Rib Material " << ribMat << " at " << ribW.size() << " positions with width/phi";
   for (unsigned int i = 0; i < ribW.size(); i++)  {
     LogDebug("TIBGeom") << "\tribW[" << i << "] = " <<  ribW[i] 
-        << "\tribPhi[" << i << "] = " << ribPhi[i]/CLHEP::deg;
+			<< "\tribPhi[" << i << "] = " << ConvertTo( ribPhi[i], deg );
   }
   LogDebug("TIBGeom") << "DOHM Primary " << " Material " << dohmPrimMaterial << " Length " << dohmPrimL;
   LogDebug("TIBGeom") << "DOHM Aux     " << " Material " << dohmAuxMaterial << " Length " << dohmAuxL;
@@ -137,8 +140,8 @@ static long algorithm(Detector& /* description */,
   double rmax = MFRingOutR;
   Solid  solid = ns.addSolidNS(idName,Tube(rmin, rmax, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
-      << " with Rin " << rmin << " Rout " << rmax << " ZHalf " << 0.5*layerL;
+		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg )
+		      << " with Rin " << rmin << " Rout " << rmax << " ZHalf " << 0.5*layerL;
   Volume layer = ns.addVolumeNS(Volume(idName, solid, ns.material(genMat)));
 
   //Internal layer first
@@ -148,9 +151,9 @@ static long algorithm(Detector& /* description */,
   string name = idName + "Down";
   solid = ns.addSolidNS(name,Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
-      << " with Rin " << rin << " Rout " << rout 
-      << " ZHalf " << 0.5*layerL;
+		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg ) 
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << 0.5*layerL;
   Volume layerIn = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
   layer.placeVolume(layerIn, 1); // copyNr=1 !
   LogDebug("TIBGeom") << layerIn.name()
@@ -158,13 +161,13 @@ static long algorithm(Detector& /* description */,
       << " at (0,0,0) with no rotation";
 
   double rposdet = radiusLo;
-  double dphi    = CLHEP::twopi/stringsLo;
+  double dphi    = 2_pi/stringsLo;
   Volume detIn   = ns.volume(detectorLo);
   for (int n = 0; n < stringsLo; n++) {
     double phi    = (n+0.5)*dphi;
-    double phix   = phi - detectorTilt + 90*CLHEP::deg;
-    double theta  = 90*CLHEP::deg;
-    double phiy   = phix + 90.*CLHEP::deg;
+    double phix   = phi - detectorTilt + 90_deg;
+    double theta  = 90_deg;
+    double phiy   = phix + 90._deg;
     Rotation3D rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position   trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
     layerIn.placeVolume(detIn, n+1, Transform3D(rotation,trdet)); // copyNr=n+1
@@ -178,9 +181,9 @@ static long algorithm(Detector& /* description */,
   name = idName + "Up";
   solid = ns.addSolidNS(name,Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
-      << " with Rin " << rin << " Rout " << rout
-      << " ZHalf " << 0.5*layerL;
+		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg )
+		      << " with Rin " << rin << " Rout " << rout
+		      << " ZHalf " << 0.5*layerL;
   Volume layerOut = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
   layer.placeVolume(layerOut, 1); // CopyNr 1 
   LogDebug("TIBGeom") << layerOut.name() 
@@ -188,13 +191,13 @@ static long algorithm(Detector& /* description */,
       << " at (0,0,0) with no rotation";
 
   rposdet = radiusUp;
-  dphi    = CLHEP::twopi/stringsUp;
+  dphi    = 2_pi/stringsUp;
   Volume detOut = ns.volume(detectorUp);
   for (int n = 0; n < stringsUp; n++) {
     double phi    = (n+0.5)*dphi;
-    double phix   = phi - detectorTilt - 90*CLHEP::deg;
-    double theta  = 90*CLHEP::deg;
-    double phiy   = phix + 90.*CLHEP::deg;
+    double phix   = phi - detectorTilt - 90_deg;
+    double theta  = 90_deg;
+    double phiy   = phix + 90._deg;
     Rotation3D rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position   trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
     layerOut.placeVolume(detOut, n+1, Transform3D(rotation,trdet));
@@ -214,7 +217,7 @@ static long algorithm(Detector& /* description */,
   solid = ns.addSolidNS(name, Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << cylinderMat << " from 0 to " 
-      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf " << 0.5*layerL;
   Volume cylinder = ns.addVolumeNS(Volume(name, solid, ns.material(cylinderMat)));
   layer.placeVolume(cylinder, 1); // CopyNr = 1
@@ -229,7 +232,7 @@ static long algorithm(Detector& /* description */,
   name  = idName + "CylinderIn";
   solid = ns.addSolidNS(name, Tube(rin, rout, 0.5*layerL));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of "
-      << genMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
+		      << genMat << " from 0 to " << ConvertTo( 2_pi, deg ) 
       << " with Rin " << rin << " Rout " << rout 
       << " ZHalf " << 0.5*layerL;
   Volume cylinderIn = ns.addVolumeNS(Volume(name, solid, ns.material(genMat)));
@@ -244,7 +247,7 @@ static long algorithm(Detector& /* description */,
   solid = ns.addSolidNS(name,Tube(rin, rout, fillerDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << fillerMat << " from " << 0. << " to "
-      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf "  << fillerDz;
   Volume cylinderFiller = ns.addVolumeNS(Volume(name,solid,ns.material(fillerMat)));
   cylinderIn.placeVolume(cylinderFiller, 1, Position(0.0, 0.0, 0.5*layerL-fillerDz)); // copyNr 1
@@ -262,18 +265,18 @@ static long algorithm(Detector& /* description */,
     name = idName + "Rib" + std::to_string(i);
     double width = 2.*ribW[i]/(rin+rout);
     double dz    = 0.5*layerL-2.*fillerDz;
-    double _rmi  = std::min(rin+0.5*CLHEP::mm,rout-0.5*CLHEP::mm);
-    double _rma  = std::max(rin+0.5*CLHEP::mm,rout-0.5*CLHEP::mm);
+    double _rmi  = std::min(rin+0.5_mm,rout-0.5_mm);
+    double _rma  = std::max(rin+0.5_mm,rout-0.5_mm);
     solid = ns.addSolidNS(name,Tube(_rmi,_rma,dz,-0.5*width, width));
     LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-        << ribMat << " from " << -0.5*width/CLHEP::deg <<" to "
-        << 0.5*width/CLHEP::deg << " with Rin " 
-        << rin+0.5*CLHEP::mm << " Rout " 
-        << rout-0.5*CLHEP::mm << " ZHalf "  << dz;
+			<< ribMat << " from " << -0.5*ConvertTo( width, deg ) <<" to "
+			<< 0.5*ConvertTo( width, deg ) << " with Rin " 
+        << rin+0.5_mm << " Rout " 
+        << rout-0.5_mm << " ZHalf "  << dz;
     Volume cylinderRib = ns.addVolumeNS(Volume(name, solid, matrib));
     double phix   = ribPhi[i];
-    double theta  = 90*CLHEP::deg;
-    double phiy   = phix + 90.*CLHEP::deg;
+    double theta  = 90_deg;
+    double phiy   = phix + 90._deg;
     Rotation3D rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
     Position tran(0, 0, 0);
     cylinderIn.placeVolume(cylinderRib, 1, Transform3D(rotation,tran));// copyNr=1
@@ -292,7 +295,7 @@ static long algorithm(Detector& /* description */,
   solid = ns.addSolidNS(name,Tube(rin, rout, MFRingDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << MFIntRingMat << " from 0 to " 
-      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf " << MFRingDz;
   Volume inmfr = ns.addVolumeNS(Volume(name, solid, ns.material(MFIntRingMat)));
   layer.placeVolume(inmfr, 1, Position(0.0, 0.0, -0.5*layerL+MFRingDz)); // Copy Nr=1
@@ -308,7 +311,7 @@ static long algorithm(Detector& /* description */,
   solid= ns.addSolidNS(name,Tube(rin, rout, MFRingDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
       << MFExtRingMat << " from 0 to " 
-      << CLHEP::twopi/CLHEP::deg << " with Rin " << rin 
+		      << ConvertTo( 2_pi, deg ) << " with Rin " << rin 
       << " Rout " << rout << " ZHalf " << MFRingDz;
 
   Volume outmfr = ns.addVolumeNS(Volume(name, solid, ns.material(MFExtRingMat)));
@@ -330,9 +333,9 @@ static long algorithm(Detector& /* description */,
   solid = ns.addSolidNS(name,Tube(rin, rout, centDz));
 
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-      << centMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
-      << " with Rin " << rin << " Rout " << rout 
-      << " ZHalf " << centDz;
+		      << centMat << " from 0 to " << ConvertTo( 2_pi, deg )
+		      << " with Rin " << rin << " Rout " << rout 
+		      << " ZHalf " << centDz;
 
   Volume cent1 = ns.addVolumeNS(Volume(name, solid, ns.material(centMat)));
   layer.placeVolume(cent1,1, Position(0.0, 0.0, centZ)); // Copy Nr = 1
@@ -346,7 +349,7 @@ static long algorithm(Detector& /* description */,
   name = idName + "CentRing2";
   solid = ns.addSolidNS(name, Tube(rin, rout, centDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " 
-      << centMat << " from 0 to " << CLHEP::twopi/CLHEP::deg 
+		      << centMat << " from 0 to " << ConvertTo( 2_pi, deg )
       << " with Rin " << rin << " Rout " << rout 
       << " ZHalf " << centDz;
 
@@ -368,17 +371,17 @@ static long algorithm(Detector& /* description */,
 
   solid = ns.addSolidNS(name,Tube(dohmCarrierRin, dohmCarrierRout, 
                                   dohmCarrierPhiOff, dohmCarrierDz, 
-                                  180.*CLHEP::deg-2.*dohmCarrierPhiOff));
+                                  180._deg-2.*dohmCarrierPhiOff));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of "
       << dohmCarrierMaterial << " from "
       << dohmCarrierPhiOff << " to " 
-      << 180.*CLHEP::deg-dohmCarrierPhiOff << " with Rin "
+      << 180._deg-dohmCarrierPhiOff << " with Rin "
       << dohmCarrierRin << " Rout " << MFRingOutR << " ZHalf " 
       << dohmCarrierDz;
   
   // Define FW and BW carrier logical volume and
   // place DOHM Primary and auxiliary modules inside it
-  dphi = CLHEP::twopi/stringsUp;
+  dphi = 2_pi/stringsUp;
 
   Rotation3D dohmRotation;
   double dohmR = 0.5*(dohmCarrierRin+dohmCarrierRout);
@@ -406,7 +409,7 @@ static long algorithm(Detector& /* description */,
       dohmList = dohmListFW;
       tran = Position(0., 0., dohmCarrierZ);
       rotstr = idName + "FwDown";
-      rotation = makeRotation3D(90.*CLHEP::deg, 180.*CLHEP::deg, 90.*CLHEP::deg,270.*CLHEP::deg, 0.,0.);
+      rotation = makeRotation3D(90._deg, 180._deg, 90._deg,270._deg, 0.,0.);
       dohmCarrierReplica = 2;
       placeDohm=0;
       break;
@@ -415,7 +418,7 @@ static long algorithm(Detector& /* description */,
       dohmList = dohmListBW;
       tran = Position(0., 0., -dohmCarrierZ);
       rotstr = idName + "BwUp";
-      rotation = makeRotation3D(90.*CLHEP::deg, 180.*CLHEP::deg, 90.*CLHEP::deg, 90.*CLHEP::deg, 180.*CLHEP::deg, 0.);
+      rotation = makeRotation3D(90._deg, 180._deg, 90._deg, 90._deg, 180._deg, 0.);
       dohmCarrierReplica = 1;
       placeDohm=1;
       break;
@@ -424,7 +427,7 @@ static long algorithm(Detector& /* description */,
       dohmList = dohmListBW;
       tran = Position(0., 0., -dohmCarrierZ);
       rotstr = idName + "BwDown";
-      rotation = makeRotation3D(90.*CLHEP::deg, 0., 90.*CLHEP::deg, 270.*CLHEP::deg, 180.*CLHEP::deg, 0.);
+      rotation = makeRotation3D(90._deg, 0., 90._deg, 270._deg, 180._deg, 0.);
       dohmCarrierReplica = 2;
       placeDohm=0;
       break;
@@ -436,9 +439,9 @@ static long algorithm(Detector& /* description */,
 #if 0
     for ( size_t i = 0; i < placeDohm*dohmList.size(); i++ )   {
       double phi   = (std::abs(dohmList[i])+0.5-1.)*dphi;
-      double phix  = phi + 90*CLHEP::deg;
-      double theta = 90*CLHEP::deg;
-      double phiy  = phix + 90.*CLHEP::deg;
+      double phix  = phi + 90_deg;
+      double theta = 90_deg;
+      double phiy  = phix + 90._deg;
       dohmRotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
 
       int    dohmReplica = 0;
@@ -467,7 +470,7 @@ static long algorithm(Detector& /* description */,
     }
 #else
     if ( placeDohm || primReplica || auxReplica || dohmR>0e0 )  {} // Avoid warnings
-    LogWarn("TIBGeom") << "DOOHM placement sucks for Geant4. ERASED!";
+    edm::LogWarning("TIBGeom") << "DOOHM placement sucks for Geant4. ERASED!";
 #endif
     layer.placeVolume(dohmCarrier, dohmCarrierReplica, Transform3D(rotation,tran));// copyNr = dohmCarrierReplica
     LogDebug("TIBGeom") << "DDTIBLayerAlgo test "
@@ -533,7 +536,7 @@ static long algorithm(Detector& /* description */,
     for (unsigned int i=0; i<pillarZ.size(); i++) {
       if( pillarPhi[i]>0. ) {
         pillarTran = Position(0., 0., pillarZ[i]);
-        pillarRota = makeRotation3D(90.*CLHEP::deg, pillarPhi[i], 90.*CLHEP::deg, 90.*CLHEP::deg+pillarPhi[i], 0., 0.);
+        pillarRota = makeRotation3D(90._deg, pillarPhi[i], 90._deg, 90._deg+pillarPhi[i], 0., 0.);
         layer.placeVolume(Pillar,i,Transform3D(pillarRota,pillarTran)); // copyNr i
         LogDebug("TIBGeom") << Pillar.name() << " positioned in " 
             << mother << " at "

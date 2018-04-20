@@ -993,7 +993,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
     // until we found something better.....
     printout(_ns.context->debug_algorithms ? ALWAYS : DEBUG,
              "MyDDCMS","+++ Start executing algorithm %s....",type.c_str());
-    LogDebug context(e.nameStr(),true);
+
     long ret = PluginService::Create<long>(type, &description, _ns.context, &element, &sd);
     if ( ret == 1 )    {
       printout(_ns.context->debug_algorithms ? ALWAYS : DEBUG,
@@ -1045,7 +1045,6 @@ template <> void Converter<debug>::operator()(xml_h dbg) const {
   if ( dbg.hasChild(_CMU(debug_namespaces)) ) _ns.context->debug_namespaces = true;
   if ( dbg.hasChild(_CMU(debug_includes))   ) _ns.context->debug_includes   = true;
   if ( dbg.hasChild(_CMU(debug_algorithms)) ) _ns.context->debug_algorithms = true;
-  LogDebug::setDebugAlgorithms(_ns.context->debug_algorithms);
 }
 
 template <> void Converter<DDRegistry>::operator()(xml_h /* element */) const {

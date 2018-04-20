@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -58,7 +59,7 @@ static long algorithm(Detector& /* description */,
     // Each sector is divided in 3 parts from phi[i] to phi[i+1]
     
     widthphi = ( (i+1 == (int)(sectorStartPhi.size())) ?
-                 (sectorStartPhi[0]+CLHEP::twopi)-sectorStartPhi[i] :
+                 (sectorStartPhi[0]+2_pi)-sectorStartPhi[i] :
                  (sectorStartPhi[i+1]-sectorStartPhi[i]) );
     // First Part: A
     name  = "TOBAxService_" + sectorNumber[i] + "A";
@@ -70,8 +71,8 @@ static long algorithm(Detector& /* description */,
     solid = ns.addSolid(name,Tube(rin, rout, dz, startphi, deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " 
                         << sectorMaterial_A[i] << " from " 
-                        << startphi/CLHEP::deg << " to "
-                        << (startphi+deltaphi)/CLHEP::deg << " with Rin " 
+                        << ConvertTo( startphi, deg ) << " to "
+                        << ConvertTo(( startphi + deltaphi ), deg ) << " with Rin " 
                         << rin << " Rout " << rout << " ZHalf " << dz;
     Volume sectorLogic = ns.addVolume(Volume(name,solid, ns.material(sectorMaterial_A[i])));
     tubsVol.placeVolume(sectorLogic,i+1); // copyNr: i+1
@@ -85,8 +86,8 @@ static long algorithm(Detector& /* description */,
     deltaphi = sectorDeltaPhi_B;
     solid = ns.addSolid(name, Tube(rin, rout, dz, startphi, deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " 
-                        << sectorMaterial_B[i] << " from " << startphi/CLHEP::deg
-                        << " to " << (startphi+deltaphi)/CLHEP::deg
+                        << sectorMaterial_B[i] << " from " << ConvertTo( startphi, deg )
+                        << " to " << ConvertTo(( startphi + deltaphi ), deg )
                         << " with Rin " << rin << " Rout " << rout 
                         << " ZHalf " << dz;
     
@@ -103,8 +104,8 @@ static long algorithm(Detector& /* description */,
     solid = ns.addSolid(name,Tube(rin, rout, dz, startphi, deltaphi));
     LogDebug("TOBGeom") << solid.name() << " Tubs made of " 
                         << sectorMaterial_C[i] << " from " 
-                        << startphi/CLHEP::deg << " to " 
-                        << (startphi+deltaphi)/CLHEP::deg << " with Rin " 
+                        << ConvertTo( startphi, deg ) << " to " 
+                        << ConvertTo(( startphi + deltaphi ), deg ) << " with Rin " 
                         << rin << " Rout " << rout << " ZHalf " << dz;
     sectorLogic = ns.addVolume(Volume(name, solid, ns.material(sectorMaterial_C[i])));
     tubsVol.placeVolume(sectorLogic,i+1); // copyNr: i+1

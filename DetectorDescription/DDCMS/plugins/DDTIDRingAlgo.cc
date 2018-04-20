@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
@@ -28,14 +29,14 @@ static long algorithm(Detector& /* description */,
                       << moduleName[1] << "\tICC " << iccName 
                       << "\tNameSpace " << ns.name();
   LogDebug("TIDGeom") << "Parameters for positioning--"
-                      << " StartAngle " << startAngle/CLHEP::deg
+                      << " StartAngle " << ConvertTo( startAngle, deg )
                       << " Copy Numbers " << number << " Modules at R " 
                       << rModule << " Z " << zModule[0] << ", " << zModule[1] 
                       << " ICCs at R " << rICC << " Z " << zICC[0] << ", " 
                       << zICC[1]; 
-  double theta = 90.*CLHEP::deg;
-  double phiy  = 0.*CLHEP::deg;
-  double dphi  = CLHEP::twopi/number;
+  double theta = 90._deg;
+  double phiy  = 0._deg;
+  double dphi  = 2_pi/number;
 
   //Loop over modules
   Volume icc  = ns.volume(iccName);
@@ -49,20 +50,20 @@ static long algorithm(Detector& /* description */,
     double zpos, thetay, phix;
     Volume module;
     if (i%2 == 0) {
-      phix   = phiz + 90.*CLHEP::deg;
-      thetay = 0*CLHEP::deg;
+      phix   = phiz + 90._deg;
+      thetay = 0._deg;
       zpos   = zModule[0];
       module = mod0;
     } else {
-      phix   = phiz - 90.*CLHEP::deg;
-      thetay = 180*CLHEP::deg;
+      phix   = phiz - 90._deg;
+      thetay = 180._deg;
       zpos   = zModule[1];
       module = mod1;
     }
     
     // stereo face inside toward structure, rphi face outside
-    phix   = phix   - 180.*CLHEP::deg;
-    thetay = thetay + 180.*CLHEP::deg;
+    phix   = phix   - 180._deg;
+    thetay = thetay + 180._deg;
     //
     Position    trmod(xpos, ypos, zpos);
     Rotation3D  rotation = makeRotation3D(theta, phix, thetay, phiy, theta, phiz);
