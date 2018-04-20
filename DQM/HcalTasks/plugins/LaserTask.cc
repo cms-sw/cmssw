@@ -111,7 +111,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
-	if (_ptype != fOffline) { // hidefed2crate
+	if (_ptype == fLocal) { // hidefed2crate
 		_cSignalMean_FEDVME.initialize(_name, "SignalMean",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
@@ -152,6 +152,16 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200),0);
+		_cMissing_FEDVME.initialize(_name, "Missing",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cMissing_FEDuTCA.initialize(_name, "Missing",
+			hcaldqm::hashfunctions::fFED,
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 		_cShapeCut_FEDSlot.initialize(_name, "Shape", 
 			hcaldqm::hashfunctions::fFEDSlot,
@@ -209,18 +219,6 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	if (_ptype != fOffline) { // hidefed2crate
-		_cMissing_FEDVME.initialize(_name, "Missing",
-			hcaldqm::hashfunctions::fFED,
-			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
-			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-		_cMissing_FEDuTCA.initialize(_name, "Missing",
-			hcaldqm::hashfunctions::fFED,
-			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
-			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	}
 
 	
 	//	initialize compact containers
@@ -345,7 +343,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cSignalvsBX_SubdetPM.book(ib, _emap, _subsystem);
 	}
 
-	if (_ptype != fOffline) { // hidefed2crate
+	if (_ptype == fLocal) { // hidefed2crate
 		_cSignalMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 		_cSignalMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 		_cSignalRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
@@ -354,15 +352,13 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cTimingMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 		_cTimingRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 		_cTimingRMS_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
+		_cMissing_FEDVME.book(ib, _emap, _filter_uTCA,_subsystem);
+		_cMissing_FEDuTCA.book(ib, _emap, _filter_VME,_subsystem);
+		_cShapeCut_FEDSlot.book(ib, _emap, _subsystem);
 	}
 	_cADC_SubdetPM.book(ib, _emap, _subsystem);
 
 	_cMissing_depth.book(ib, _emap,_subsystem);
-	if (_ptype != fOffline) { // hidefed2crate
-		_cShapeCut_FEDSlot.book(ib, _emap, _subsystem);
-		_cMissing_FEDVME.book(ib, _emap, _filter_uTCA,_subsystem);
-		_cMissing_FEDuTCA.book(ib, _emap, _filter_VME,_subsystem);
-	}
 
 	_xSignalSum.book(_emap);
 	_xSignalSum2.book(_emap);
@@ -410,7 +406,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_cTimingMean_depth.reset();
 	_cTimingRMS_depth.reset();
 
-	if (_ptype != fOffline) { // hidefed2crate
+	if (_ptype == fLocal) { // hidefed2crate
 		_cSignalMean_FEDVME.reset();
 		_cSignalMean_FEDuTCA.reset();
 		_cSignalRMS_FEDVME.reset();
@@ -419,7 +415,9 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cTimingMean_FEDuTCA.reset();
 		_cTimingRMS_FEDVME.reset();
 		_cTimingRMS_FEDuTCA.reset();
-		_xNChs.reset();
+	}
+	if (_ptype != fOffline) {
+		_xNChs.reset();		
 	}
 
 	std::vector<HcalGenericDetId> dids = _emap->allPrecisionId();
@@ -434,7 +432,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		//	channels missing or low signal
 		if (n == 0) {
 			_cMissing_depth.fill(did);
-			if (_ptype != fOffline) { // hidefed2crate
+			if (_ptype == fLocal) { // hidefed2crate
 				if (eid.isVMEid())
 					_cMissing_FEDVME.fill(eid);
 				else
@@ -458,7 +456,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		_cTimingMean_depth.fill(did, mtim);
 		_cTimingRMS_Subdet.fill(did, rtim);
 		_cTimingRMS_depth.fill(did, rtim);
-		if (_ptype != fOffline) { // hidefed2crate
+		if (_ptype == fLocal) { // hidefed2crate
 			if (eid.isVMEid())
 			{
 				_cSignalMean_FEDVME.fill(eid, msig);
@@ -631,7 +629,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digi.size(); i++)
 		{
-			if (_ptype != fOffline) { // hidefed2crate
+			if (_ptype == fLocal) { // hidefed2crate
 				_cShapeCut_FEDSlot.fill(eid, i, 
 					digi.sample(i).nominal_fC()-2.5);
 			}
@@ -686,7 +684,9 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digi.samples(); i++)
 		{
-			_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i));
+			if (_ptype == fLocal) {
+				_cShapeCut_FEDSlot.fill(eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i));
+			}
 			_cADC_SubdetPM.fill(did, digi[i].adc());
 		}
 
@@ -733,7 +733,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digi.size(); i++)
 		{
-			if (_ptype != fOffline) { // hidefed2crate
+			if (_ptype == fLocal) { // hidefed2crate
 				_cShapeCut_FEDSlot.fill(eid, i, 
 					digi.sample(i).nominal_fC()-8.5);
 			}
@@ -789,7 +789,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digi.samples(); i++)
 		{
-			if (_ptype != fOffline) { // hidefed2crate
+			if (_ptype == fLocal) { // hidefed2crate
 				_cShapeCut_FEDSlot.fill(eid, (int)i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i));
 			}
 			_cADC_SubdetPM.fill(did, digi[i].adc());
