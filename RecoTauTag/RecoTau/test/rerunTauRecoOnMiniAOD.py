@@ -9,7 +9,7 @@ import FWCore.ParameterSet.Config as cms
 ######
 runSignal=True
 #runSignal=False
-maxEvents=1000
+maxEvents=100
 #maxEvents=-1
 
 # If 'reclusterJets' set true a new collection of uncorrected ak4PFJets is 
@@ -55,13 +55,15 @@ print '\t Max events:', process.maxEvents.input.value()
 
 if runSignal:
 	readFiles.extend( [
-            'file:patMiniAOD_standard.root'
-	          #'/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
+            #'file:patMiniAOD_standard.root'
+	    '/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
+	    #'/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
             #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValZTT_13/MINIAODSIM/PUpmx25ns_100X_mc2017_realistic_v1-v1/20000/B01F0774-17E1-E711-9826-0CC47A4D7654.root',
 	] )
 else:
 	readFiles.extend( [
-            'file:patMiniAOD_standard.root'
+            #'file:patMiniAOD_standard.root'
+	    '/store/relval/CMSSW_10_1_0_pre3/RelValZTT_13UP18/MINIAODSIM/PUpmx25ns_101X_upgrade2018_realistic_v3_cc7-v1/10000/2808A251-DE31-E811-BFBC-0242AC130002.root'
             #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/PUpmx25ns_100X_mcRun2_asymptotic_v2_FastSim-v1/20000/78318DC3-40E0-E711-BCFE-0CC47A4D763C.root',
             #'root://cms-xrd-global.cern.ch///store/relval/CMSSW_10_0_0_pre2/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/PUpmx25ns_100X_mcRun2_asymptotic_v2_FastSim-v1/20000/E6F528C8-40E0-E711-9F06-0CC47A4C8E56.root',
 	] )
