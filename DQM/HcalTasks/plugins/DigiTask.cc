@@ -33,6 +33,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_vflags[fDigiSize]=hcaldqm::flag::Flag("DigiSize");
 	_vflags[fNChsHF]=hcaldqm::flag::Flag("NChsHF");
 	_vflags[fUnknownIds]=hcaldqm::flag::Flag("UnknownIds");
+	_vflags[fLED]=hcaldqm::flag::Flag("LEDMisfire");
 
 	_qie10InConditions = ps.getUntrackedParameter<bool>("qie10InConditions", true);
 
@@ -503,7 +504,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_xDigiSize.book(_emap);
 
 		// Manually book LED monitoring histogram, to get custom axis
-		ib.setCurrentFolder(_subsystem+"/"+_name);
+		ib.setCurrentFolder(_subsystem+"/"+_name+"/LED");
 		_meLEDMon = ib.book2D("LED_ADCvsBX", "ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
 		_meLEDMon->setAxisTitle("BX", 1);
 		_meLEDMon->setAxisTitle("ADC", 2);
@@ -553,6 +554,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_unknownIdsPresent = false;
 	meUnknownIds1LS->setLumiFlag();
 
+	_ledSignalPresent = false;
+	ib.setCurrentFolder(_subsystem+"/"+_name+"/LED");
 	_meLEDEventCount = ib.book1D("LEDEventCount", "LEDEventCount", 1, 0, 2);
 	_meLEDEventCount->setLumiFlag();
 }
@@ -742,27 +745,20 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = digi.detid();
-		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) {
-			meUnknownIds1LS->Fill(1);
-			_unknownIdsPresent=true;
-			continue;
-		}
-		HcalElectronicsId const& eid(rawid);
 		if (did.subdet() != HcalEndcap) {
 			// LED monitoring from calibration channels
 			if (did.subdet() == HcalOther) {
 				HcalOtherDetId hodid(digi.detid());
 				if (hodid.subdet() == HcalCalibration) {
 					if (did.depth() == 10) {
-						bool ledSignalPresent = false;
+						_ledSignalPresent = false;
 						for (int i=0; i<digi.samples(); i++) {
 							_meLEDMon->Fill(bx, digi[i].adc());
 							if (digi[i].adc() > _thresh_led) {
-								ledSignalPresent = true;
+								_ledSignalPresent = true;
 							}
 						}
-						if (ledSignalPresent) {
+						if (_ledSignalPresent) {
 							_meLEDEventCount->Fill(1);
 						}
 					}
@@ -771,6 +767,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 			continue;
 		}
+		uint32_t rawid = _ehashmap.lookup(did);
+		if (rawid==0) {
+			meUnknownIds1LS->Fill(1);
+			_unknownIdsPresent=true;
+			continue;
+		}
+		HcalElectronicsId const& eid(rawid);
+
 		if (did.subdet()==HcalBarrel) { // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection will have HB for Run 3.
 			rawidHBValid = did.rawId();
 		} else if (did.subdet()==HcalEndcap) {
@@ -927,12 +931,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	{		
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = it->id();
+		if (did.subdet() != HcalOuter) {
+			continue;
+		}
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) 
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
-		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalOuter)
+		if (rawid == 0) {
+			meUnknownIds1LS->Fill(1);
+			_unknownIdsPresent = true;
+			continue;
+		} else {
 			rawidValid = did.rawId();
+		}
+		HcalElectronicsId const& eid(rawid);
 
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
@@ -1059,21 +1069,19 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 			//	Explicit check on the DetIds present in the Collection
 			HcalDetId const& did = digi.detid();
-
-			// Require subdet == HF. In 2017, calibration channels are included in QIE10DigiCollection :( 
 			if (did.subdet() != HcalForward) {
 				continue;
 			}
 
 			uint32_t rawid = _ehashmap.lookup(did);
-			if (rawid==0) {
+			if (rawid == 0) {
 				meUnknownIds1LS->Fill(1); 
 				_unknownIdsPresent=true;
 				continue;
+			} else {
+				rawidValid = did.rawId();
 			}
 			HcalElectronicsId const& eid(rawid);
-			if (did.subdet()==HcalForward)
-				rawidValid = did.rawId();
 
 			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
 			double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
@@ -1307,6 +1315,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_vflags[fUnknownIds]._state = hcaldqm::flag::fBAD;
 			else
 				_vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
+
+			if (_ledSignalPresent)
+				_vflags[fLED]._state = flag::fBAD;
+			else
+				_vflags[fLED]._state = flag::fGOOD;
 
 			int iflag=0;
 			for (std::vector<hcaldqm::flag::Flag>::iterator ft=_vflags.begin();
