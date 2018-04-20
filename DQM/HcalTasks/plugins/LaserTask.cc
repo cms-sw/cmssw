@@ -53,10 +53,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_thresh_frac_timingreflm = ps.getUntrackedParameter<double>("_thresh_frac_timingreflm", 0.01);
 	_thresh_min_lmsumq = ps.getUntrackedParameter<double>("thresh_min_lmsumq", 50000.);
 
-	std::vector<double> vTimingRangeHB = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HB", std::vector<double>({-75., -25.}));
-	std::vector<double> vTimingRangeHE = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HE", std::vector<double>({-75., -25.}));
-	std::vector<double> vTimingRangeHO = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HO", std::vector<double>({-75., -25.}));
-	std::vector<double> vTimingRangeHF = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HF", std::vector<double>({-75., -25.}));
+	std::vector<double> vTimingRangeHB = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HB", std::vector<double>({-60, -10.}));
+	std::vector<double> vTimingRangeHE = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HE", std::vector<double>({-50., 0.}));
+	std::vector<double> vTimingRangeHO = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HO", std::vector<double>({-35., 15.}));
+	std::vector<double> vTimingRangeHF = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HF", std::vector<double>({-40., 10.}));
 	_thresh_timingreflm[HcalBarrel] = std::make_pair(vTimingRangeHB[0], vTimingRangeHB[1]);
 	_thresh_timingreflm[HcalEndcap] = std::make_pair(vTimingRangeHE[0], vTimingRangeHE[1]);
 	_thresh_timingreflm[HcalOuter] = std::make_pair(vTimingRangeHO[0], vTimingRangeHO[1]);
@@ -479,7 +479,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		//double timingreflm_rms = sqrt(_xTimingRefLMSum2.get(did) / n - timingreflm_mean * timingreflm_mean);
 
 		if ((timingreflm_mean < _thresh_timingreflm[did.subdet()].first) || (timingreflm_mean > _thresh_timingreflm[did.subdet()].second)) {
-			++_xNBadTimingRefLM.get(did);
+			_xNBadTimingRefLM.get(eid)++;
 		}		
 	}
 	if (_ptype != fOffline) { // hidefed2crate
