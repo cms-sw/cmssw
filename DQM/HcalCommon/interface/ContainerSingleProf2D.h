@@ -50,30 +50,30 @@ namespace hcaldqm
 			void fill(double, double) override;
 			void fill(double, double, double) override;
 
-			virtual void fill(HcalDetId const&);
-			virtual void fill(HcalDetId const&, int);
-			virtual void fill(HcalDetId const&, double);
-			virtual void fill(HcalDetId const&, int, int);
-			virtual void fill(HcalDetId const&, int, double);
-			virtual void fill(HcalDetId const&, double, double);
+			void fill(HcalDetId const&) override;
+			void fill(HcalDetId const&, int) override;
+			void fill(HcalDetId const&, double) override;
+			void fill(HcalDetId const&, int, int) override;
+			void fill(HcalDetId const&, int, double) override;
+			void fill(HcalDetId const&, double, double) override;
 
-			virtual void fill(HcalElectronicsId const&);
-			virtual void fill(HcalElectronicsId const&, int);
-			virtual void fill(HcalElectronicsId const&, double);
-			virtual void fill(HcalElectronicsId const&, int, int);
-			virtual void fill(HcalElectronicsId const&, int, double);
-			virtual void fill(HcalElectronicsId const&, double, double);
+			void fill(HcalElectronicsId const&) override;
+			void fill(HcalElectronicsId const&, int) override;
+			void fill(HcalElectronicsId const&, double) override;
+			void fill(HcalElectronicsId const&, int, int) override;
+			void fill(HcalElectronicsId const&, int, double) override;
+			void fill(HcalElectronicsId const&, double, double) override;
 
-			virtual void fill(HcalDetId const&, HcalElectronicsId const&);
-			virtual void fill(HcalDetId const&, HcalElectronicsId const&, 
-				double);
+			void fill(HcalDetId const&, HcalElectronicsId const&) override;
+			void fill(HcalDetId const&, HcalElectronicsId const&, 
+				double) override;
 
-			virtual void fill(HcalTrigTowerDetId const&);
-			virtual void fill(HcalTrigTowerDetId const&, int);
-			virtual void fill(HcalTrigTowerDetId const&, double);
-			virtual void fill(HcalTrigTowerDetId const&, int, int);
-			virtual void fill(HcalTrigTowerDetId const&, int, double);
-			virtual void fill(HcalTrigTowerDetId const&, double, double);
+			void fill(HcalTrigTowerDetId const&) override;
+			void fill(HcalTrigTowerDetId const&, int) override;
+			void fill(HcalTrigTowerDetId const&, double) override;
+			void fill(HcalTrigTowerDetId const&, int, int) override;
+			void fill(HcalTrigTowerDetId const&, int, double) override;
+			void fill(HcalTrigTowerDetId const&, double, double) override;
 
 	};
 }
