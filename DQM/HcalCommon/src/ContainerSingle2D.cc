@@ -82,8 +82,8 @@ namespace hcaldqm
 		 std::string subsystem, std::string aux)
 	{
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = ib.book2D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = ib.book2D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->nbins(), _qy->min(), _qy->max());
 		customize();
@@ -93,15 +93,15 @@ namespace hcaldqm
 		std::string subsystem, std::string aux)
 	{
 		_me = ig.get(subsystem+"/"+_folder+"/"+_qname+"/"+
-			_qname+(aux==""?aux:"_"+aux));
+			_qname+(aux.empty()?aux:"_"+aux));
 	}
 
 	/* virtual */ void ContainerSingle2D::book(DQMStore *store,
 		 std::string subsystem, std::string aux)
 	{
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = store->book2D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = store->book2D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->nbins(), _qy->min(), _qy->max());
 		customize();
