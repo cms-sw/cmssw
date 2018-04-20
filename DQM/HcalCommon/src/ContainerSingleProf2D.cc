@@ -43,8 +43,8 @@ namespace hcaldqm
 		std::string subsystem, std::string aux)
 	{
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = ib.bookProfile2D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = ib.bookProfile2D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->nbins(), _qy->min(), _qy->max(),
 			_qz->min(), _qz->max());
@@ -55,8 +55,8 @@ namespace hcaldqm
 		std::string subsystem, std::string aux)
 	{
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = store->bookProfile2D(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = store->bookProfile2D(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->nbins(), _qy->min(), _qy->max(),
 			_qz->min(), _qz->max());
