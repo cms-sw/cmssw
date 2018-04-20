@@ -63,7 +63,8 @@ class DigiTask : public hcaldqm::DQTask
 			fUni = 1,
 			fNChsHF = 2,
 			fUnknownIds = 3,
-			nDigiFlag = 4
+			fLED=4,
+			nDigiFlag = 5
 		};
 
 		//	hashes/FED vectors
@@ -186,6 +187,7 @@ class DigiTask : public hcaldqm::DQTask
 		bool _unknownIdsPresent;
 		MonitorElement *_meLEDEventCount; // Count events with LED pin diode signal > threshold
 		double _thresh_led;
+		bool _ledSignalPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
