@@ -81,7 +81,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS200), 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 
-	if (_ptype != fOffline) { // hidefed2crate
+	if (_ptype == fLocal) { // hidefed2crate
 		_cSignalMean_FEDVME.initialize(_name, "SignalMean",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
@@ -214,7 +214,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	_cTimingRMS_depth.book(ib, _emap, _subsystem);
 
 	_cMissing_depth.book(ib, _emap, _subsystem);
-	if (_ptype != fOffline) { // hidefed2crate
+	if (_ptype == fLocal) { // hidefed2crate
 		_cSignalMean_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
 		_cSignalMean_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 		_cSignalRMS_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
@@ -260,7 +260,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	_cTimingMean_depth.reset();
 	_cTimingRMS_depth.reset();
 
-	if (_ptype != fOffline) { // hidefed2crate
+	if (_ptype == fLocal) { // hidefed2crate
 		_cSignalMean_FEDVME.reset();
 		_cSignalMean_FEDuTCA.reset();
 		_cSignalRMS_FEDVME.reset();
@@ -289,7 +289,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		if (n==0)
 		{
 			_cMissing_depth.fill(did);
-			if (_ptype != fOffline) { // hidefed2crate
+			if (_ptype == fLocal) { // hidefed2crate
 				if (eid.isVMEid())
 					_cMissing_FEDVME.fill(eid);
 				else
@@ -305,7 +305,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		_cTimingMean_depth.fill(did, mtim);
 		_cTimingRMS_Subdet.fill(did, rtim);
 		_cTimingRMS_depth.fill(did, rtim);
-		if (_ptype != fOffline) { // hidefed2crate
+		if (_ptype == fLocal) { // hidefed2crate
 			if (eid.isVMEid())
 			{
 				_cSignalMean_FEDVME.fill(eid, msig);
