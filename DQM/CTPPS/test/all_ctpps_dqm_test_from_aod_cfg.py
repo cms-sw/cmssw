@@ -46,7 +46,7 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 process.load("DQM.CTPPS.ctppsDQM_cff")
 
 process.path = cms.Path(
-  process.ctppsDQM
+  process.ctppsDQMElastic
 )
 
 process.end_path = cms.EndPath(
