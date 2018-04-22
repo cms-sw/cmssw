@@ -34,8 +34,8 @@ laserTask = DQMEDAnalyzer(
 	laserMonThreshold = cms.untracked.double(1.e5),
 	thresh_frac_timingreflm = cms.untracked.double(5.),
 	thresh_min_lmsumq = cms.untracked.double(50000.),
-	thresh_timingreflm_HB = cms.untracked.vdouble(-60., -10.),
-	thresh_timingreflm_HE = cms.untracked.vdouble(-50., 0.),
-	thresh_timingreflm_HO = cms.untracked.vdouble(-35., 15.),
-	thresh_timingreflm_HF = cms.untracked.vdouble(-40., 10.),
+	thresh_timingreflm_HB = cms.untracked.vdouble(-70., -10.),
+	thresh_timingreflm_HE = cms.untracked.vdouble(-60., 0.),
+	thresh_timingreflm_HO = cms.untracked.vdouble(-50., 20.),
+	thresh_timingreflm_HF = cms.untracked.vdouble(-50., 20.),
 )
