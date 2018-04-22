@@ -36,11 +36,11 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
 		50);
 	_lowHE = ps.getUntrackedParameter<double>("lowHE",
-		100);
+		150);
 	_lowHO = ps.getUntrackedParameter<double>("lowHO",
-		20);
+		100);
 	_lowHF = ps.getUntrackedParameter<double>("lowHF",
-		20);
+		50);
 	_laserType = (uint32_t)ps.getUntrackedParameter<uint32_t>("laserType");
 
 	// Laser mon digi ordering list
@@ -53,10 +53,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_thresh_frac_timingreflm = ps.getUntrackedParameter<double>("_thresh_frac_timingreflm", 0.01);
 	_thresh_min_lmsumq = ps.getUntrackedParameter<double>("thresh_min_lmsumq", 50000.);
 
-	std::vector<double> vTimingRangeHB = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HB", std::vector<double>({-60, -10.}));
-	std::vector<double> vTimingRangeHE = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HE", std::vector<double>({-50., 0.}));
-	std::vector<double> vTimingRangeHO = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HO", std::vector<double>({-35., 15.}));
-	std::vector<double> vTimingRangeHF = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HF", std::vector<double>({-40., 10.}));
+	std::vector<double> vTimingRangeHB = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HB", std::vector<double>({-70, -10.}));
+	std::vector<double> vTimingRangeHE = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HE", std::vector<double>({-60., 0.}));
+	std::vector<double> vTimingRangeHO = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HO", std::vector<double>({-50., 20.}));
+	std::vector<double> vTimingRangeHF = ps.getUntrackedParameter<std::vector<double>>("thresh_timingreflm_HF", std::vector<double>({-50., 20.}));
 	_thresh_timingreflm[HcalBarrel] = std::make_pair(vTimingRangeHB[0], vTimingRangeHB[1]);
 	_thresh_timingreflm[HcalEndcap] = std::make_pair(vTimingRangeHE[0], vTimingRangeHE[1]);
 	_thresh_timingreflm[HcalOuter] = std::make_pair(vTimingRangeHO[0], vTimingRangeHO[1]);
@@ -500,11 +500,16 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			}
 			//	@cDAQ
 			if (hcaldqm::utilities::isFEDHBHE(eid) || hcaldqm::utilities::isFEDHO(eid) || hcaldqm::utilities::isFEDHF(eid)) {
-				double frbadtimingreflm = double(_xNBadTimingRefLM.get(eid))/double(_xNChs.get(eid));
-				if (frbadtimingreflm > _thresh_frac_timingreflm) {
-					_vflags[fBadTiming]._state = hcaldqm::flag::fBAD;
+				int min_nchs = 10;
+				if (_xNChs.get(eid) < min_nchs) {
+					_vflags[fBadTiming]._state = hcaldqm::flag::fNA;
 				} else {
-					_vflags[fBadTiming]._state = hcaldqm::flag::fGOOD;
+					double frbadtimingreflm = double(_xNBadTimingRefLM.get(eid))/double(_xNChs.get(eid));
+					if (frbadtimingreflm > _thresh_frac_timingreflm) {
+						_vflags[fBadTiming]._state = hcaldqm::flag::fBAD;
+					} else {
+						_vflags[fBadTiming]._state = hcaldqm::flag::fGOOD;
+					}
 				}
 				if (_xMissingLaserMon) {
 					_vflags[fMissingLaserMon]._state = hcaldqm::flag::fBAD;
