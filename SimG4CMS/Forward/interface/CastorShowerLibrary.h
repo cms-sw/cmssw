@@ -70,10 +70,6 @@ private:
   
   std::vector<double> pmom;
 
-  int                 emPDG, epPDG, gammaPDG;
-  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
-  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
-  int                 mumPDG, mupPDG;
 // new variables (bins in eta and phi)
   unsigned int        nBinsE, nBinsEta, nBinsPhi;
   unsigned int        nEvtPerBinE, nEvtPerBinEta, nEvtPerBinPhi;
