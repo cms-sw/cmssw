@@ -272,7 +272,7 @@ namespace hcaldqm
 			{fBX,3601},
 			{fEnergy_1TeV,200},
 			{fState,flag::nState},
-			{fQIE10fC_400000,4000},
+			{fQIE10fC_400000,1000},
 			{fDataSize,100},
 			{fQIE10fC_2000,100},
 			{fQIE10fC_10000,500},

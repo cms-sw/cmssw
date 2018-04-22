@@ -97,15 +97,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cfC_SubdetPM_QIE1011.initialize(_name, "fC", hcaldqm::hashfunctions::fSubdetPM,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSumQ_SubdetPM_QIE1011.initialize(_name, "SumQ", hcaldqm::hashfunctions::fSubdetPM,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSumQvsLS_SubdetPM_QIE1011.initialize(_name, "SumQvsLS",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),0);
 
 	_cTimingCut_SubdetPM.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fSubdetPM,
