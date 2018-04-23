@@ -115,7 +115,7 @@ ElasticPlotDQMSource::DiagonalPlots::DiagonalPlots(DQMStore::IBooker &ibooker, i
     + " 45" + ( (top45) ? "top" : "bot")
     + " - 56" + ( (top56) ? "top" : "bot" );
 
-  string title = name;
+  const string &title = name;
 
   // dermine RP ids of this diagonal
   rpIds[0] = TotemRPDetId(0, 2, (top45) ? 4 : 5);
