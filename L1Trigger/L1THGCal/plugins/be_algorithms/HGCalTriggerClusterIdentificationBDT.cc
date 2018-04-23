@@ -60,9 +60,7 @@ class HGCalTriggerClusterIdentificationBDT : public HGCalTriggerClusterIdentific
 
 };
 
-DEFINE_EDM_PLUGIN(HGCalTriggerClusterIdentificationFactory,
-    HGCalTriggerClusterIdentificationBDT,
-    "HGCalTriggerClusterIdentificationBDT" );
+DEFINE_HGC_TPG_CLUSTER_ID(HGCalTriggerClusterIdentificationBDT,"HGCalTriggerClusterIdentificationBDT" );
 
 
 HGCalTriggerClusterIdentificationBDT::

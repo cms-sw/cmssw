@@ -19,5 +19,8 @@ class HGCalTriggerClusterIdentificationBase
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory< HGCalTriggerClusterIdentificationBase* () > HGCalTriggerClusterIdentificationFactory;
 
+#define DEFINE_HGC_TPG_CLUSTER_ID(type,name) \
+    DEFINE_EDM_PLUGIN (HGCalTriggerClusterIdentificationFactory,type,name)
+
 
 #endif
