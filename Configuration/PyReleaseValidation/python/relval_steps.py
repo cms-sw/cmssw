@@ -1276,6 +1276,18 @@ digiPremixUp2015Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2016'
     }
+# Specifying explicitly the --filein is not nice but that was the
+# easiest way to "skip" the output of step2 (=premixing stage1) for
+# filein (as it goes to pileup_input). It works (a bit accidentally
+# though) also for "-i all" because in that case the --filein for DAS
+# input is after this one in the list of command line arguments to
+# cmsDriver, and gets then used in practice.
+digiPremixLocalPileup = {
+    "--filein": "file:step1.root",
+    "--pileup_input": "file:step2.root"
+}
+digiPremixLocalPileupUp2015Defaults25ns = merge([digiPremixLocalPileup,
+                                                 digiPremixUp2015Defaults25ns])
 digiPremixUp2015Defaults50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},
                                     {'--conditions':'auto:run2_mc_50ns'},
                                     {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[6]},
@@ -1292,6 +1304,8 @@ digiPremixUp2017Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2017'
     }
+digiPremixLocalPileupUp2017Defaults25ns = merge([digiPremixLocalPileup,
+                                                 digiPremixUp2017Defaults25ns])
 
 
 digiPremixUp2018Defaults25ns = {
@@ -1304,12 +1318,17 @@ digiPremixUp2018Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2018'
     }
+digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
+                                                 digiPremixUp2018Defaults25ns])
 
 
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
+steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
 steps['DIGIPRMXUP18_PU25']=merge([digiPremixUp2018Defaults25ns])
+steps['DIGIPRMXLOCALUP18_PU25']=merge([digiPremixLocalPileupUp2018Defaults25ns])
 
 premixProd25ns = {'-s'             : 'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
                  '--eventcontent' : 'PREMIXRAW',
