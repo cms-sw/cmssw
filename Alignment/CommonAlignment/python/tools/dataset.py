@@ -125,21 +125,21 @@ class DatasetBase(object):
   __metaclass__ = abc.ABCMeta
 
   @abc.abstractmethod
-  def getfiles(self):
+  def getfiles(self, usecache):
     pass
 
   @abc.abstractproperty
   def headercomment(self):
     pass
 
-  def writefilelist_validation(self, firstrun, lastrun, runs, maxevents, outputfile=None):
+  def writefilelist_validation(self, firstrun, lastrun, runs, maxevents, outputfile=None, usecache=True):
     runrange = RunRange(firstrun=firstrun, lastrun=lastrun, runs=runs)
 
     if outputfile is None:
       outputfile = os.path.join(os.environ["CMSSW_BASE"], "src", "Alignment", "OfflineValidation", "python", self.filenamebase+"_cff.py")
 
     if maxevents < 0: maxevents = float("inf")
-    totalevents = sum(datafile.nevents for datafile in self.getfiles() if all(run in runrange for run in datafile.runs))
+    totalevents = sum(datafile.nevents for datafile in self.getfiles(usecache) if all(run in runrange for run in datafile.runs))
     if totalevents == 0:
       raise ValueError("No events within the run range!")
     accepted = rejected = 0.  #float so fractions are easier
@@ -149,7 +149,7 @@ class DatasetBase(object):
     with open(outputfile, "w") as f:
       f.write("#"+self.headercomment+"\n")
       f.write(validationheader)
-      for datafile in self.getfiles():
+      for datafile in self.getfiles(usecache):
         if all(run in runrange for run in datafile.runs):
           if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
             f.write('"' + datafile.filename + '",\n')
@@ -161,10 +161,10 @@ class DatasetBase(object):
       f.write("#total events in these files: {}".format(accepted))
       f.write(validationfooter)
 
-  def writefilelist_hippy(self, firstrun, lastrun, runs, eventsperjob, maxevents, outputfile):
+  def writefilelist_hippy(self, firstrun, lastrun, runs, eventsperjob, maxevents, outputfile, usecache=True):
     runrange = RunRange(firstrun=firstrun, lastrun=lastrun, runs=runs)
     if maxevents < 0: maxevents = float("inf")
-    totalevents = sum(datafile.nevents for datafile in self.getfiles() if all(run in runrange for run in datafile.runs))
+    totalevents = sum(datafile.nevents for datafile in self.getfiles(usecache) if all(run in runrange for run in datafile.runs))
     if totalevents == 0:
       raise ValueError("No events within the run range!")
     accepted = rejected = inthisjob = 0.  #float so fractions are easier
@@ -173,7 +173,7 @@ class DatasetBase(object):
     writecomma = False
 
     with open(outputfile, "w") as f:
-      for datafile in self.getfiles():
+      for datafile in self.getfiles(usecache):
         if all(run in runrange for run in datafile.runs):
           if accepted == 0 or accepted / (accepted+rejected) <= fractiontoaccept:
             if writecomma: f.write(",")
@@ -205,8 +205,15 @@ class Dataset(DatasetBase):
     self.dasinstance = dasinstance
 
   @cache
-  def getfiles(self):
+  def getfiles(self, usecache):
     filename = os.path.join(os.environ["CMSSW_BASE"], "src", "Alignment", "CommonAlignment", "data", self.filenamebase+".csv")
+    if not usecache:
+      try:
+        os.remove(filename)
+      except OSError as e:
+        if os.path.exists(filename):
+          raise
+
     result = []
     try:
       with open(filename) as f:
@@ -248,8 +255,8 @@ class MultipleDatasets(DatasetBase):
     self.datasets = [Dataset(dataset, dasinstance=dasinstance) for dataset in datasets]
 
   @cache
-  def getfiles(self):
-    return sum([d.getfiles() for d in self.datasets], [])
+  def getfiles(self, usecache):
+    return sum([d.getfiles(usecache=usecache) for d in self.datasets], [])
 
   @property
   def headercomment(self):

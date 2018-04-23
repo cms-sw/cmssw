@@ -13,6 +13,7 @@ parser.add_argument("-l", "--last-run", default=float("inf"), type=int)
 parser.add_argument("-r", "--run", action="append", type=int)
 parser.add_argument("-m", "--max-events", default=float("inf"), type=int)
 parser.add_argument("-j", "--events-per-job", type=int)
+parser.add_argument("--clear-cache", action="store_true")
 
 args = parser.parse_args()
 dataset = MultipleDatasets(*args.dataset)
@@ -23,6 +24,6 @@ if args.validation and not args.hippy and args.events_per_job:
   raise RuntimeError("--events-per-job is only used for HipPy")
 
 if args.hippy:
-  dataset.writefilelist_hippy(firstrun=args.first_run, lastrun=args.last_run, runs=args.run, maxevents=args.max_events, eventsperjob=args.events_per_job, outputfile=args.hippy)
+  dataset.writefilelist_hippy(firstrun=args.first_run, lastrun=args.last_run, runs=args.run, maxevents=args.max_events, eventsperjob=args.events_per_job, outputfile=args.hippy, usecache=not args.clear_cache)
 if args.validation:
-  dataset.writefilelist_validation(firstrun=args.first_run, lastrun=args.last_run, runs=args.run, maxevents=args.max_events, outputfile=args.validation)
+  dataset.writefilelist_validation(firstrun=args.first_run, lastrun=args.last_run, runs=args.run, maxevents=args.max_events, outputfile=args.validation, usecache=not args.clear_cache)
