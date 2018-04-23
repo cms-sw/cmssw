@@ -121,12 +121,12 @@ void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
  
   //Shifter
   ibooker.setCurrentFolder(monitorDir_+"/shifter");
-  stage2CaloLayer2CenJetEtEtaPhi_shift_ = ibooker.book2D("CenJetsEtEtaPhi_shift", "CENTRAL JET E_{T} ETA PHI; Jet i#eta; Jet i#phi", 229, -65, 65, 144, -0.5, 143.5); 	
-  stage2CaloLayer2ForJetEtEtaPhi_shift_ = ibooker.book2D("ForJetsEtEtaPhi_shift", "FORWARD JET E_{T} ETA PHI; Jet i#eta; Jet i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2IsoEGEtEtaPhi_shift_ = ibooker.book2D("IsoEGsEtEtaPhi_shift", "ISO EG E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2NonIsoEGEtEtaPhi_shift_ = ibooker.book2D("NonIsoEGsEtEtaPhi_shift", "NonISO EG E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);	
-  stage2CaloLayer2IsoTauEtEtaPhi_shift_ = ibooker.book2D("IsoTausEtEtaPhi_shift", "ISO Tau E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
-  stage2CaloLayer2TauEtEtaPhi_shift_ = ibooker.book2D("TausEtEtaPhi_shift", "Tau E_{T} ETA PHI; i#eta; i#phi", 229, -114.5, 114.5, 144, -0.5, 143.5);
+  stage2CaloLayer2CenJetEtEtaPhi_shift_ = ibooker.book2D("CenJetsEtEtaPhi_shift", "CENTRAL JET E_{T} ETA PHI; Jet i#eta; Jet i#phi", 68, -68, 68, 144, -0.5, 143.5); 	
+  stage2CaloLayer2ForJetEtEtaPhi_shift_ = ibooker.book2D("ForJetsEtEtaPhi_shift", "FORWARD JET E_{T} ETA PHI; Jet i#eta; Jet i#phi", 115, -115, 115, 144, -0.5, 143.5);
+  stage2CaloLayer2IsoEGEtEtaPhi_shift_ = ibooker.book2D("IsoEGsEtEtaPhi_shift", "ISO EG E_{T} ETA PHI; i#eta; i#phi", 60, -60, 60, 72, -0.5, 143.5);
+  stage2CaloLayer2NonIsoEGEtEtaPhi_shift_ = ibooker.book2D("NonIsoEGsEtEtaPhi_shift", "NonISO EG E_{T} ETA PHI; i#eta; i#phi", 60, -60, 60, 72, -0.5, 143.5);	
+  stage2CaloLayer2IsoTauEtEtaPhi_shift_ = ibooker.book2D("IsoTausEtEtaPhi_shift", "ISO Tau E_{T} ETA PHI; i#eta; i#phi", 60, -60, 60, 72, -0.5, 143.5);
+  stage2CaloLayer2TauEtEtaPhi_shift_ = ibooker.book2D("TausEtEtaPhi_shift", "Tau E_{T} ETA PHI; i#eta; i#phi", 60, -60, 60, 72, -0.5, 143.5);
   
 }
 
