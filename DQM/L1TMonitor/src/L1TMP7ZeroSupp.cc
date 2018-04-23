@@ -260,7 +260,6 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         capIds_->Fill(blockCapId);
 
-        // fill the denominator histograms
         bool capIdDefined = false;
         if (zeroSuppValMap_.find(blockCapId) != zeroSuppValMap_.end()) {
           capIdDefined = true;
@@ -271,6 +270,7 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
           continue;
         }
 
+        // fill the denominator histograms
         zeroSuppValMap_[maxMasks_]->Fill(BLOCKS);
         errorSummaryDenMap_[maxMasks_]->Fill(RBLKS);
         errorSummaryDenMap_[maxMasks_]->Fill(RBLKSFALSEPOS);
