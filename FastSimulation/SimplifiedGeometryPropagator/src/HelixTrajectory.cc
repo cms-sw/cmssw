@@ -147,7 +147,7 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometr
     if(std::abs(layer.getRadius() - getRadParticle(phi1)) > 1.0e-2 
         || std::abs(layer.getRadius() - getRadParticle(phi2)) > 1.0e-2)
     {
-        StraightTrajectory traj(*((Trajectory*) this));
+        StraightTrajectory traj(*this);
         return traj.nextCrossingTimeC(layer, onLayer);
     }
 
