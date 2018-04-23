@@ -5,7 +5,7 @@
 
 #define ConvertTo(_x, _y) (_x)/(1.0_##_y)
 
-constexpr long double _pi = std::acos(-1);
+constexpr long double _pi(M_PI);
 
 constexpr long double operator"" _deg( long double deg )
 {
