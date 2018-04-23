@@ -72,10 +72,12 @@ void
 HGCalTriggerClusterIdentificationBDT::
 initialize(const edm::ParameterSet& conf)
 {
-  categories_.clear();
-  bdts_.clear();
-  working_points_.clear();
-  input_variables_.clear();
+  if(!bdts_.empty())
+  {
+    edm::LogWarning("HGCalTriggerClusterIdentificationBDT|Initialization")
+      << "BDTs already initialized.";
+    return; 
+  }
   input_variables_ = conf.getParameter< std::vector<std::string> >("Inputs");
   std::vector<std::string> bdt_files = conf.getParameter< std::vector<std::string> >("Weights");
   std::vector<double> categories_etamin = conf.getParameter<std::vector<double>>("CategoriesEtaMin");
@@ -83,6 +85,19 @@ initialize(const edm::ParameterSet& conf)
   std::vector<double> categories_ptmin = conf.getParameter<std::vector<double>>("CategoriesPtMin");
   std::vector<double> categories_ptmax = conf.getParameter<std::vector<double>>("CategoriesPtMax");
   working_points_ = conf.getParameter<std::vector<double>>("WorkingPoints");
+
+  if(bdt_files.size()!=categories_etamin.size() ||
+      categories_etamin.size()!=categories_etamax.size() ||
+      categories_etamax.size()!=categories_ptmin.size() ||
+      categories_ptmin.size()!=categories_ptmax.size() ||
+      categories_ptmax.size()!=working_points_.size()
+    )
+  {
+    throw cms::Exception("HGCalTriggerClusterIdentificationBDT|BadInitialization")
+      << "Inconsistent numbers of categories, BDT weight files and working points";
+  }
+  categories_.reserve(working_points_.size());
+  bdts_.reserve(working_points_.size());
   for(unsigned cat=0; cat<categories_etamin.size(); cat++)
   {
     categories_.emplace_back(
