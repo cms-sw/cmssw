@@ -53,7 +53,7 @@ void HGCalConcentratorProcessor::bestChoiceSelect(const l1t::HGCalTriggerCellBxC
     
     // Convert vector to collection
     trigCellVec = trigCellCollectionToVector(ibx, coll);
-    
+   
     // Selection in implementation class
     ConcentratorProcImpl_.bestChoiceSelectImpl(trigCellVec);
     
@@ -78,10 +78,8 @@ thresholdSelect(const l1t::HGCalTriggerCellBxCollection& coll)
     
     // Convert vector to collection
     trigCellVec = trigCellCollectionToVector(ibx, coll);
-    
     // Select in the implementation class
     ConcentratorProcImpl_.thresholdSelectImpl(trigCellVec);
-  
     // Convert std::vector to collection (BXVector), fill into the final product 
     trigCellVectorToCollection(ibx, trigCellVec);    
   }  

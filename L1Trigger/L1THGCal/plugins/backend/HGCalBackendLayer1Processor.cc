@@ -1,3 +1,5 @@
+#include "L1Trigger/L1THGCal/interface/HGCalBackendLayer1ProcessorBase.h"
+
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
@@ -8,14 +10,10 @@
 
 
 class HGCalBackendLayer1Processor : public HGCalBackendLayer1ProcessorBase 
-{
-    
+{    
     public:
-
        HGCalBackendLayer1Processor(const edm::ParameterSet& conf)  : 
 		HGCalBackendLayer1ProcessorBase(conf),
-		HGCalEESensitive_( conf.getParameter<std::string>("HGCalEESensitive_tag") ),
-                HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
 		clustering_( conf.getParameterSet("C2d_parameters") )
         {
             std::string typeCluster(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
@@ -39,7 +37,7 @@ class HGCalBackendLayer1Processor : public HGCalBackendLayer1ProcessorBase
         }
             
         void putInEvent2D(edm::Event& evt) final 
-        {
+        {   
             evt.put(std::move(cluster_product_), "cluster2D");
         }
     

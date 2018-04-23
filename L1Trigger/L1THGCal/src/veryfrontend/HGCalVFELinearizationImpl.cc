@@ -7,10 +7,12 @@ HGCalVFELinearizationImpl(const edm::ParameterSet& conf):
     tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")),
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
     adcnBits_(conf.getParameter<uint32_t>("adcnBits")),
-    tdcsaturation_(conf.getParameter<double>("tdcsaturation"))
+    tdcsaturation_(conf.getParameter<double>("tdcsaturation")),
+    linnBits_(conf.getParameter<uint32_t>("linnBits"))
 {
   adcLSB_ = adcsaturation_/pow(2.,adcnBits_);
   tdcLSB_ =  tdcsaturation_/pow(2.,tdcnBits_);
+  linMax_ = (0x1<<linnBits_)-1;
 }
 
 void

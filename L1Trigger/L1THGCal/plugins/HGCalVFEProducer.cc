@@ -8,6 +8,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalVFEProcessorBase.h"
@@ -52,7 +53,7 @@ HGCalVFEProducer(const edm::ParameterSet& conf):
 
 void HGCalVFEProducer::beginRun(const edm::Run& /*run*/, 
                                           const edm::EventSetup& es) {					  				  
-  es.get<IdealGeometryRecord>().get(triggerGeometry_);
+  es.get<CaloGeometryRecord>().get(triggerGeometry_);
   vfeProcess_->setGeometry(triggerGeometry_.product());
 }
 
@@ -68,7 +69,6 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   const HGCEEDigiCollection& ee_digis = *ee_digis_h;
   const HGCHEDigiCollection& fh_digis = *fh_digis_h;
   const HGCBHDigiCollection& bh_digis = *bh_digis_h;
-
   // First find modules containing hits and prepare list of hits for each module
   std::unordered_map<uint32_t, HGCEEDigiCollection> hit_modules_ee;
   for(const auto& eedata : ee_digis) {
@@ -77,6 +77,7 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     auto itr_insert = hit_modules_ee.emplace(module,HGCEEDigiCollection());
     itr_insert.first->second.push_back(eedata);
   }
+
   std::unordered_map<uint32_t,HGCHEDigiCollection> hit_modules_fh;
   for(const auto& fhdata : fh_digis) {
     uint32_t module = triggerGeometry_->getModuleFromCell(fhdata.id());
@@ -84,6 +85,7 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     auto itr_insert = hit_modules_fh.emplace(module, HGCHEDigiCollection());
     itr_insert.first->second.push_back(fhdata);
   }
+
   std::unordered_map<uint32_t,HGCBHDigiCollection> hit_modules_bh;
   for(const auto& bhdata : bh_digis) {
     if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
@@ -95,7 +97,7 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   vfeProcess_->reset();
   for( const auto& module_hits : hit_modules_ee ) {
-    vfeProcess_->vfeProcessing(module_hits.second, HGCHEDigiCollection(), HGCBHDigiCollection(), es);        
+    vfeProcess_->vfeProcessing(module_hits.second, HGCHEDigiCollection(), HGCBHDigiCollection(), es);         
   } //end loop on EE modules
   
       

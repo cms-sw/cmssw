@@ -21,7 +21,7 @@ class HGCalVFEProcessorBase {
 
   virtual void vfeProcessing(const HGCEEDigiCollection&,
                              const HGCHEDigiCollection&,
-                             const HGCHEDigiCollection&, 
+                             const HGCBHDigiCollection&, 
 			     const edm::EventSetup& es) = 0;
   
   const std::string& name() const { return name_; } 
