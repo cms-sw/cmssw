@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <algorithm>
 
-#include "TString.h"
 
 EnergyScaleCorrection::EnergyScaleCorrection(const std::string& correctionFileName, unsigned int genSeed):
   smearingType_(ECALELF)
@@ -367,12 +366,12 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
   if(p1 != std::string::npos) {
     p1 = category.find("_", p1);
     p2 = category.find("_", p1 + 1);
-    r9Min_ = TString(category.substr(p1 + 1, p2 - p1 - 1)).Atof();
+    r9Min_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
     // If there is one value, just set lower bound
     if (p2 != std::string::npos) {
       p1 = p2;
       p2 = category.find("-", p1);
-      r9Max_ = TString(category.substr(p1 + 1, p2 - p1 - 1)).Atof();
+      r9Max_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
       if(r9Max_>=1.0) r9Max_ = std::numeric_limits<float>::max();
     }
   }

@@ -11,6 +11,9 @@ calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
                                     produceCalibratedObjs = cms.bool(True)
                                     )
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(calibratedEgammaSettings,correctionFile = _correctionFile2016Legacy)
+
 calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
     recHitCollectionEB = cms.InputTag('reducedEgamma','reducedEBRecHits'),
     recHitCollectionEE = cms.InputTag('reducedEgamma','reducedEERecHits')
@@ -69,9 +72,4 @@ def prefixName(prefix,name):
     return prefix+name[0].upper()+name[1:]
 
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(calibratedElectrons,correctionFile = _correctionFile2016Legacy)
-run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons,correctionFile = _correctionFile2016Legacy)
-run2_miniAOD_80XLegacy.toModify(calibratedPhotons,correctionFile = _correctionFile2016Legacy)
-run2_miniAOD_80XLegacy.toModify(calibratedPatPhotons,correctionFile = _correctionFile2016Legacy)
 
