@@ -117,7 +117,7 @@ namespace hcaldqm
 		bool unknownIdsPresent = ig.get(_subsystem+"/"
 			+_taskname+"/UnknownIds")->getBinContent(1)>0;
 		bool ledSignalPresent = ig.get(_subsystem+"/"
-			+_taskname+"/LEDEventCount")->getBinContent(1)>0;
+			+_taskname+"/LED/LEDEventCount")->getBinContent(1)>0;
 
 		//	book the Numer of Events - set axis extendable
 		if (!_booked)
