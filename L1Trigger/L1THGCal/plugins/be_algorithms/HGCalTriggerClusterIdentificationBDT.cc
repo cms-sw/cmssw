@@ -49,12 +49,28 @@ class HGCalTriggerClusterIdentificationBDT : public HGCalTriggerClusterIdentific
     bool decision(const l1t::HGCalMulticluster& cluster) const final;
 
   private:
+    enum class ClusterVariable
+    {
+      cl3d_showerlength,
+      cl3d_coreshowerlength,
+      cl3d_firstlayer,
+      cl3d_maxlayer,
+      cl3d_seetot,
+      cl3d_seemax,
+      cl3d_spptot,
+      cl3d_sppmax,
+      cl3d_szz,
+      cl3d_srrtot,
+      cl3d_srrmax,
+      cl3d_srrmean
+    };
     std::vector<Category> categories_;
     std::vector<std::unique_ptr<TMVAEvaluator>> bdts_;
     std::vector<double> working_points_;
     std::vector<std::string> input_variables_;
+    std::vector<ClusterVariable> input_variables_id_;
 
-    float clusterVariable(const std::string&, const l1t::HGCalMulticluster&) const;
+    float clusterVariable(ClusterVariable, const l1t::HGCalMulticluster&) const;
     int category(float pt, float eta) const;
 
 
@@ -118,6 +134,24 @@ initialize(const edm::ParameterSet& conf)
         spectators,
         false, false);
   }
+
+  // Transform input variable strings to enum values for later comparisons
+  input_variables_id_.reserve(input_variables_.size());
+  for(const auto& variable : input_variables_)
+  {
+    if(variable=="cl3d_showerlength") input_variables_id_.push_back(ClusterVariable::cl3d_showerlength);
+    else if(variable=="cl3d_coreshowerlength") input_variables_id_.push_back(ClusterVariable::cl3d_coreshowerlength);
+    else if(variable=="cl3d_firstlayer") input_variables_id_.push_back(ClusterVariable::cl3d_firstlayer);
+    else if(variable=="cl3d_maxlayer") input_variables_id_.push_back(ClusterVariable::cl3d_maxlayer);
+    else if(variable=="cl3d_seetot") input_variables_id_.push_back(ClusterVariable::cl3d_seetot);
+    else if(variable=="cl3d_seemax") input_variables_id_.push_back(ClusterVariable::cl3d_seemax);
+    else if(variable=="cl3d_spptot") input_variables_id_.push_back(ClusterVariable::cl3d_spptot);
+    else if(variable=="cl3d_sppmax") input_variables_id_.push_back(ClusterVariable::cl3d_sppmax);
+    else if(variable=="cl3d_szz") input_variables_id_.push_back(ClusterVariable::cl3d_szz);
+    else if(variable=="cl3d_srrtot") input_variables_id_.push_back(ClusterVariable::cl3d_srrtot);
+    else if(variable=="cl3d_srrmax") input_variables_id_.push_back(ClusterVariable::cl3d_srrmax);
+    else if(variable=="cl3d_srrmean") input_variables_id_.push_back(ClusterVariable::cl3d_srrmean);
+  }
 }
 
 float
@@ -125,9 +159,9 @@ HGCalTriggerClusterIdentificationBDT::
 value(const l1t::HGCalMulticluster& cluster) const
 {
   std::map<std::string, float> inputs;
-  for(const std::string& var : input_variables_)
+  for(unsigned i=0; i<input_variables_.size(); i++)
   {
-    inputs[var] = clusterVariable(var, cluster);
+    inputs[input_variables_[i]] = clusterVariable(input_variables_id_[i], cluster);
   }
   float pt = cluster.pt();
   float eta = cluster.eta();
@@ -163,19 +197,23 @@ category(float pt, float eta) const
 
 float
 HGCalTriggerClusterIdentificationBDT::
-clusterVariable(const std::string& variable, const l1t::HGCalMulticluster& cluster) const
+clusterVariable(ClusterVariable variable, const l1t::HGCalMulticluster& cluster) const
 {
-  if(variable=="cl3d_showerlength") return cluster.showerLength();
-  if(variable=="cl3d_coreshowerlength") return cluster.coreShowerLength();
-  if(variable=="cl3d_firstlayer") return cluster.firstLayer();
-  if(variable=="cl3d_maxlayer") return cluster.maxLayer();
-  if(variable=="cl3d_seetot") return cluster.sigmaEtaEtaTot();
-  if(variable=="cl3d_seemax") return cluster.sigmaEtaEtaMax();
-  if(variable=="cl3d_spptot") return cluster.sigmaPhiPhiTot();
-  if(variable=="cl3d_sppmax") return cluster.sigmaPhiPhiMax();
-  if(variable=="cl3d_szz") return cluster.sigmaZZ();
-  if(variable=="cl3d_srrtot") return cluster.sigmaRRTot();
-  if(variable=="cl3d_srrmax") return cluster.sigmaRRMax();
-  if(variable=="cl3d_srrmean") return cluster.sigmaRRMean();
+  switch(variable)
+  {
+    case ClusterVariable::cl3d_showerlength: return cluster.showerLength();
+    case ClusterVariable::cl3d_coreshowerlength: return cluster.coreShowerLength();
+    case ClusterVariable::cl3d_firstlayer: return cluster.firstLayer();
+    case ClusterVariable::cl3d_maxlayer: return cluster.maxLayer();
+    case ClusterVariable::cl3d_seetot: return cluster.sigmaEtaEtaTot();
+    case ClusterVariable::cl3d_seemax: return cluster.sigmaEtaEtaMax();
+    case ClusterVariable::cl3d_spptot: return cluster.sigmaPhiPhiTot();
+    case ClusterVariable::cl3d_sppmax: return cluster.sigmaPhiPhiMax();
+    case ClusterVariable::cl3d_szz: return cluster.sigmaZZ();
+    case ClusterVariable::cl3d_srrtot: return cluster.sigmaRRTot();
+    case ClusterVariable::cl3d_srrmax: return cluster.sigmaRRMax();
+    case ClusterVariable::cl3d_srrmean: return cluster.sigmaRRMean();
+    default: break;
+  }
   return 0.;
 }
