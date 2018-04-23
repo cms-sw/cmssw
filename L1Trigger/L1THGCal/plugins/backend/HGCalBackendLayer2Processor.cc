@@ -1,3 +1,5 @@
+#include "L1Trigger/L1THGCal/interface/HGCalBackendLayer2ProcessorBase.h"
+
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
@@ -12,13 +14,22 @@ class HGCalBackendLayer2Processor : public HGCalBackendLayer2ProcessorBase
     public:
       HGCalBackendLayer2Processor(const edm::ParameterSet& conf)  : 
 		HGCalBackendLayer2ProcessorBase(conf),
-		multiclustering_( conf.getParameterSet("C3d_parameters" ) )
+		multiclustering_( conf.getParameterSet("C3d_parameters") )
       {
+        std::string typeMulticluster(conf.getParameterSet("C3d_parameters").getParameter<std::string>("type_multicluster"));
+        if(typeMulticluster=="dRC3d"){
+            multiclusteringAlgoType_ = dRC3d;
+        }else if(typeMulticluster=="DBSCANC3d"){
+            multiclusteringAlgoType_ = DBSCANC3d;
+        }else {
+            throw cms::Exception("HGCTriggerParameterError")
+               << "Unknown Multiclustering type '" << typeMulticluster;
+        }
       }
     
       void setProduces3D(edm::stream::EDProducer<>& prod) const final
       {
-            prod.produces<l1t::HGCalMulticlusterBxCollection>( "cluster3D" );   
+        prod.produces<l1t::HGCalMulticlusterBxCollection>( "cluster3D" );   
       }
             
       void run3D(const edm::Handle<l1t::HGCalClusterBxCollection> handleColl, 
@@ -49,8 +60,7 @@ class HGCalBackendLayer2Processor : public HGCalBackendLayer2ProcessorBase
           default:
             // Should not happen, clustering type checked in constructor
             break;
-        }
-
+        }         
         /* retrieve the orphan handle to the multiclusters collection and put the collection in the event */
         multiclustersHandle = evt.put( std::move( multicluster_product_ ), "cluster3D");
       }
@@ -68,8 +78,12 @@ class HGCalBackendLayer2Processor : public HGCalBackendLayer2ProcessorBase
 
     
     private:
-    
-        /* pointers to collections of trigger-cells, clusters and multiclusters */
+        enum MulticlusterType{
+            dRC3d,
+            DBSCANC3d
+        };
+        
+	/* pointers to collections of trigger-cells, clusters and multiclusters */
         std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
     
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
@@ -78,9 +92,8 @@ class HGCalBackendLayer2Processor : public HGCalBackendLayer2ProcessorBase
         HGCalMulticlusteringImpl multiclustering_;
 
         /* algorithm type */
-        ClusterType clusteringAlgorithmType_;
-        double triggercell_threshold_silicon_;
-        double triggercell_threshold_scintillator_;
+        //double triggercell_threshold_silicon_;
+        //double triggercell_threshold_scintillator_;
         MulticlusterType multiclusteringAlgoType_;
 };
 

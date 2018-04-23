@@ -7,7 +7,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalBackendLayer1ProcessorBase.h"
@@ -53,7 +53,7 @@ input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::I
 
 void HGCalBackendLayer1Producer::beginRun(const edm::Run& /*run*/, 
                                           const edm::EventSetup& es) {				  
-  es.get<IdealGeometryRecord>().get(triggerGeometry_);
+  es.get<CaloGeometryRecord>().get("",triggerGeometry_);
   backendProcess_->setGeometry(triggerGeometry_.product());
 }
 
@@ -65,8 +65,8 @@ void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& e
   e.getByToken(input_cell_, trigCellBxColl);
   e.getByToken(input_sums_,trigSumsBxColl);
 
-  const l1t::HGCalTriggerCellBxCollection& trigCell = *trigCellBxColl;
-  const l1t::HGCalTriggerSumsBxCollection& trigSums = *trigSumsBxColl;
+  //const l1t::HGCalTriggerCellBxCollection& trigCell = *trigCellBxColl;
+  //const l1t::HGCalTriggerSumsBxCollection& trigSums = *trigSumsBxColl;
   
   backendProcess_->reset2D();  
   backendProcess_->run2D(trigCellBxColl,es,e);

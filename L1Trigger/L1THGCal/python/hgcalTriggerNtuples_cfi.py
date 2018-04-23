@@ -50,10 +50,48 @@ ntuple_digis = cms.PSet(
     isSimhitComp = cms.bool(False)
 )
 
+#ntuple_triggercells = cms.PSet(
+#    NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
+#    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells'),
+#    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
+#    eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
+#    fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
+#    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
+#    FillSimEnergy = cms.bool(False),
+#    fcPerMip = fcPerMip,
+#    keV2fC = keV2fC,
+#    layerWeights = layerWeights,
+#    thicknessCorrections = thicknessCorrections,
+#    FilterCellsInMulticlusters = cms.bool(True)
+#)
+
+#ntuple_clusters = cms.PSet(
+#    NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
+#    Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster2D'),
+#    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
+#    FilterClustersInMulticlusters = cms.bool(True)
+#)
+
+#ntuple_multicluster = cms.PSet(
+#    NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
+#    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
+#)
+
+#ntuple_panels = cms.PSet(
+#    NtupleName = cms.string('HGCalTriggerNtupleHGCPanels'),
+#    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells')
+#)
+
+#ntuple_tower = cms.PSet(
+#    NtupleName = cms.string('HGCalTriggerNtupleHGCTowers'),
+#    Towers = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:tower')
+#)
+
+#new
 ntuple_triggercells = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
-    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells'),
-    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
+    TriggerCells = cms.InputTag('hgcalVFEProducer:calibratedTriggerCells'),
+    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:cluster3D'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
@@ -62,29 +100,19 @@ ntuple_triggercells = cms.PSet(
     keV2fC = keV2fC,
     layerWeights = layerWeights,
     thicknessCorrections = thicknessCorrections,
-    FilterCellsInMulticlusters = cms.bool(True)
+    FilterCellsInMulticlusters = cms.bool(False)
 )
 
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
-    Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster2D'),
-    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
-    FilterClustersInMulticlusters = cms.bool(True)
+    Clusters = cms.InputTag('hgcalBackEndLayer1Producer:cluster2D'),
+    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:cluster3D'),
+    FilterClustersInMulticlusters = cms.bool(False)
 )
 
 ntuple_multicluster = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
-    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
-)
-
-ntuple_panels = cms.PSet(
-    NtupleName = cms.string('HGCalTriggerNtupleHGCPanels'),
-    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells')
-)
-
-ntuple_tower = cms.PSet(
-    NtupleName = cms.string('HGCalTriggerNtupleHGCTowers'),
-    Towers = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:tower')
+    Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:cluster3D')
 )
 
 hgcalTriggerNtuplizer = cms.EDAnalyzer(
@@ -97,7 +125,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_digis,
         ntuple_triggercells,
         ntuple_clusters,
-        ntuple_multicluster,
-        ntuple_tower
+        ntuple_multicluster
+        #ntuple_tower
     )
 )

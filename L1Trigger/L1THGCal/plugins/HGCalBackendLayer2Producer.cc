@@ -10,7 +10,7 @@
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
-
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalBackendLayer2ProcessorBase.h"
@@ -54,7 +54,7 @@ HGCalBackendLayer2Producer(const edm::ParameterSet& conf):
 void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/, 
                                           const edm::EventSetup& es) 
 {				  
-  es.get<IdealGeometryRecord>().get(triggerGeometry_);
+  es.get<CaloGeometryRecord>().get("",triggerGeometry_);
   backendProcess_->setGeometry(triggerGeometry_.product());
 }
 
@@ -64,7 +64,7 @@ void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& e
   
   e.getByToken(input_cluster2D, trigCluster2DBxColl);
 
-  const l1t::HGCalClusterBxCollection& trigCluster2D = *trigCluster2DBxColl;
+  //const l1t::HGCalClusterBxCollection& trigCluster2D = *trigCluster2DBxColl;
     
   backendProcess_->reset3D();    
   backendProcess_->run3D(trigCluster2DBxColl,es,e);

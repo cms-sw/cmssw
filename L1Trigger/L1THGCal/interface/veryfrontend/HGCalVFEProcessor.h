@@ -10,7 +10,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerCellCalibration.h"
+#include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalTriggerCellCalibration.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
@@ -24,7 +24,7 @@ class HGCalVFEProcessor : public HGCalVFEProcessorBase
     
     void vfeProcessing(const HGCEEDigiCollection& ee,
                 	   const HGCHEDigiCollection& fh,
-                	   const HGCHEDigiCollection& bh, const edm::EventSetup& es);
+                	   const HGCBHDigiCollection& bh, const edm::EventSetup& es);
     
     void putInEvent(edm::Event& evt);
     
@@ -43,13 +43,13 @@ class HGCalVFEProcessor : public HGCalVFEProcessorBase
     typedef std::unique_ptr<HGCalVFEProcessorBase> vfeProcessing_ptr;
     
     // Retrieve parameters
-    double   linLSB()        const {return linLSB_;}
-    uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}
+    /*double   linLSB()        const {return linLSB_;}
+    uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}*/
     
   private:
     std::vector<vfeProcessing_ptr> vfeProcessing_;
-    double   linLSB_;
-    uint32_t triggerCellTruncationBits_;
+    /*double   linLSB_;
+    uint32_t triggerCellTruncationBits_;*/
         
     HGCalVFELinearizationImpl vfeLinearizationImpl_;
     HGCalVFESummationImpl vfeSummationImpl_; 
@@ -67,7 +67,11 @@ class HGCalVFEProcessor : public HGCalVFEProcessorBase
     /* handles to the detector topologies */
     edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
     edm::ESHandle<HGCalTopology> hgchefTopoHandle_;    
- 
+
+    /* Parameters for calibration */ 
+    double triggercell_threshold_silicon_;
+    double triggercell_threshold_scintillator_;
+
 };    
     
 #endif

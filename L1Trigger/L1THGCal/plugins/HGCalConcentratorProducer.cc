@@ -8,6 +8,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalConcentratorProcessorBase.h"
@@ -54,7 +55,7 @@ HGCalConcentratorProducer(const edm::ParameterSet& conf):
 
 void HGCalConcentratorProducer::beginRun(const edm::Run& /*run*/, 
                                           const edm::EventSetup& es) {
-  es.get<IdealGeometryRecord>().get(triggerGeometry_);
+  es.get<CaloGeometryRecord>().get(triggerGeometry_);
   
   concentratorProcess_->setGeometry(triggerGeometry_.product());
 
@@ -86,7 +87,7 @@ void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es
   }
   else if (choice_ == "thresholdSelect"){
     for( const auto& module_trigcell : tc_modules ) {
-      concentratorProcess_->thresholdSelect(trigCellColl);
+      concentratorProcess_->thresholdSelect(module_trigcell.second);
     }  
   }
   concentratorProcess_->putInEvent(e);

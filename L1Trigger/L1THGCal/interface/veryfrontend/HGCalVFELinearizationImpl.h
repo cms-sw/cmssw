@@ -13,11 +13,13 @@ class HGCalVFELinearizationImpl
 {
 
  public:
-  HGCalVFELinearizationImpl(const edm::ParameterSet& conf);
+   HGCalVFELinearizationImpl(const edm::ParameterSet& conf);
   
-        void linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>&,
+   void linearize(const std::vector<HGCDataFrame<DetId,HGCSample>>&,
                 std::vector<std::pair<DetId, uint32_t > >&);
 
+   // Retrieve parameters
+   uint32_t linnBits() const {return linnBits_;}
    
  private:
    double   adcLSB_;
@@ -27,7 +29,9 @@ class HGCalVFELinearizationImpl
    double   tdcOnsetfC_;
    uint32_t adcnBits_;
    double   tdcsaturation_ ;
-   double tdcLSB_;   
+   uint32_t linnBits_;
+   double   tdcLSB_;
+   uint32_t linMax_;   
 };
 
 #endif
