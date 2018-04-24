@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #pfjetcoll="hltAK4PFJetsCorrected"
 pfjetcoll="hltAK4PFJets"
 
-foldernm="HLT/HLTJETMET/"
+foldernm="HLT/JME/HLTJETMET/"
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SingleJetMetPaths = DQMEDAnalyzer('HLTJetMETValidation',
