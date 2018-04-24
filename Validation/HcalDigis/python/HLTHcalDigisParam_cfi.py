@@ -22,7 +22,8 @@ premix_stage2.toModify(hltHCALdigisAnalyzer,
 )
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify(hltHCALdigisAnalyzer,
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+(run2_HCAL_2017 & ~fastSim).toModify(hltHCALdigisAnalyzer,
     TestNumber    = cms.bool(True)
 )
 
