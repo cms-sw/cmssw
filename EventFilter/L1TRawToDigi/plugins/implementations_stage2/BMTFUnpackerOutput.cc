@@ -93,14 +93,6 @@ namespace l1t
       return true;
     }//unpack
 
-    bool BMTFUnpackerOutput::unpack(const Block& block, UnpackerCollections *coll) {
-      return unpacking(block, coll);
-    }
-
-    bool BMTFUnpackerKalmanOutput::unpack(const Block& block, UnpackerCollections *coll) {
-      return unpacking(block, coll, true);
-    }
-
   }//ns stage2
 }//ns lt1
 
