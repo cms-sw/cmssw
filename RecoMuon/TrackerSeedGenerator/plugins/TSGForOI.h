@@ -29,10 +29,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
-
-
-
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 class TSGForOI : public edm::global::EDProducer<> {
     
@@ -65,7 +62,7 @@ class TSGForOI : public edm::global::EDProducer<> {
     const bool adjustErrorsDynamicallyForHits_;
     const bool adjustErrorsDynamicallyForHitless_;
 
-  	/// Estimator used to find dets and TrajectoryMeasurements
+    /// Estimator used to find dets and TrajectoryMeasurements
     const std::string estimatorName_;
 
     /// Minimum eta value to activate searching in the TEC
@@ -88,7 +85,7 @@ class TSGForOI : public edm::global::EDProducer<> {
 
     /// pT, eta ranges and scale factor values
     const double pT1_,pT2_,pT3_;
-    const double eta1_,eta2_;
+    const double eta1_,eta2_,eta3_,eta4_,eta5_,eta6_;
     const double SF1_,SF2_,SF3_,SF4_,SF5_,SF6_;
 
     /// Distance of L2 TSOSs before and after updated with vertex
@@ -101,35 +98,35 @@ class TSGForOI : public edm::global::EDProducer<> {
 
     /// Find seeds on a given layer
     void findSeedsOnLayer(
-                const TrackerTopology* tTopo,
-                const GeometricSearchDet& layer,
-                const TrajectoryStateOnSurface& tsosAtIP,
-                const Propagator& propagatorAlong,
-                const Propagator& propagatorOpposite,
-                const reco::TrackRef l2,
-                edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
-                edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
-                unsigned int& numSeedsMade,
-                unsigned int& hitlessSeedsMade,
-                unsigned int& numOfMaxSeeds,
-                unsigned int& layerCount,
-                std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
+        const TrackerTopology* tTopo,
+        const GeometricSearchDet& layer,
+        const TrajectoryStateOnSurface& tsosAtIP,
+        const Propagator& propagatorAlong,
+        const Propagator& propagatorOpposite,
+        const reco::TrackRef l2,
+        edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+        edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
+        unsigned int& numSeedsMade,
+        unsigned int& hitlessSeedsMade,
+        unsigned int& numOfMaxSeeds,
+        unsigned int& layerCount,
+        std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
 
     /// Calculate the dynamic error SF by analysing the L2
     double calculateSFFromL2(const reco::TrackRef track) const;
 
     /// Find hits on layers and create seeds from updated TSOS
     int makeSeedsFromHits(
-                const TrackerTopology* tTopo,
-                const GeometricSearchDet& layer,
-                const TrajectoryStateOnSurface& tsosAtIP,
-                std::vector<TrajectorySeed>& out,
-                const Propagator& propagatorAlong,
-                const MeasurementTrackerEvent& measurementTracker,
-                edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
-                unsigned int& numSeedsMade,
-                const double errorSF,
-                const double l2Eta) const;
+        const TrackerTopology* tTopo,
+        const GeometricSearchDet& layer,
+        const TrajectoryStateOnSurface& tsosAtIP,
+        std::vector<TrajectorySeed>& out,
+        const Propagator& propagatorAlong,
+        const MeasurementTrackerEvent& measurementTracker,
+        edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator,
+        unsigned int& numSeedsMade,
+        const double errorSF,
+        const double l2Eta) const;
 
     /// Find compatability between two TSOSs
     double match_Chi2(const TrajectoryStateOnSurface& tsos1,
