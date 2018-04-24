@@ -20,7 +20,7 @@ namespace cond {
 cond::TestReadUtilities::TestReadUtilities():Utilities("conddb_copy_iov"){
   addConnectOption("connect","c","target connection string (required)");
   addAuthenticationOptions();
-  addOption<bool>("deserialize","d","de-serialize the specified payload");
+  //addOption<bool>("deserialize","d","de-serialize the specified payload");
   addOption<std::string>("hashes","x","space-separated list of hashes of the payloads");
   addOption<std::string>("tag","t","tag for the iov-based search");
   addOption<std::string>("iovs","i","space-separated list of target times ( run, lumi or timestamp)");
