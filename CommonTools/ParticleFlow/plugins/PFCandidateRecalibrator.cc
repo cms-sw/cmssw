@@ -32,6 +32,25 @@
 #include <iostream>
 
 
+struct HEChannel { 
+  float eta; float phi; float ratio;
+  HEChannel(float eta, float phi, float ratio): 
+    eta(eta),
+    phi(phi),
+    ratio(ratio)
+  {}
+};
+struct HFChannel { 
+  int ieta; int iphi; int depth; float ratio;
+  HFChannel(int ieta, int iphi, int depth, float ratio): 
+    ieta(ieta),
+    iphi(iphi),
+    depth(depth),
+    ratio(ratio)
+  {}  
+};
+
+
 class PFCandidateRecalibrator : public edm::stream::EDProducer<> {
     public:
         PFCandidateRecalibrator(const edm::ParameterSet&);
@@ -45,17 +64,17 @@ class PFCandidateRecalibrator : public edm::stream::EDProducer<> {
         edm::ESWatcher<HcalRecNumberingRecord> hcalDbWatcher_;
         edm::ESWatcher<HcalRespCorrsRcd> hcalRCWatcher_;
   
-        edm::EDGetTokenT<std::vector<reco::PFCandidate> > pfcandidates_;
+        edm::EDGetTokenT<reco::PFCandidateCollection> pfcandidates_;
 
-        std::vector<std::tuple<float,float,float>> badChHE_;
-        std::vector<std::tuple<int,int,int,float>> badChHF_;
+        std::vector<HEChannel> badChHE_;
+        std::vector<HFChannel> badChHF_;
 };
 
 PFCandidateRecalibrator::PFCandidateRecalibrator(const edm::ParameterSet &iConfig) :
-    pfcandidates_(consumes<std::vector<reco::PFCandidate>>(iConfig.getParameter<edm::InputTag>("pfcandidates")))
+  pfcandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfcandidates")))
 {
-    produces<std::vector<reco::PFCandidate>>();
-    produces<std::vector<reco::PFCandidate>>("discarded");
+    produces<reco::PFCandidateCollection>();
+    produces<reco::PFCandidateCollection>("discarded");
     produces<edm::ValueMap<reco::PFCandidateRef>>();
 }
 
@@ -82,7 +101,10 @@ void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSet
 	iSetup.get<CaloGeometryRecord>().get(calogeom);
 	const CaloGeometry* cgeo = calogeom.product();
 	const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(cgeo->getSubdetectorGeometry(DetId::Hcal,HcalForward));
-	
+
+	//reset the bad channel containers
+	badChHE_.clear();
+	badChHF_.clear();
 	
 	//fill bad cells HE (use eta, phi)
 	const std::vector<DetId>& cellsHE = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalEndcap);
@@ -92,25 +114,25 @@ void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSet
 	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
 	    float ratio = currentRespCorr/buggedRespCorr;
 	    
-	    if(ratio != 1.)
+	    if(ratio != 1.f)
 	      {
 		GlobalPoint pos = hgeom->getPosition(id);
-		badChHE_.push_back(std::make_tuple(pos.eta(),pos.phi(),ratio));
+		badChHE_.push_back(HEChannel(pos.eta(),pos.phi(),ratio));
 	      }
 	  }
 	
 	//fill bad cells HF (use ieta, iphi)
-	std::vector<DetId> cellsHF = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalForward);
+	auto const& cellsHF = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalForward);
 	for( auto id : cellsHF)
 	  {
 	    float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
 	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
 	    float ratio = currentRespCorr/buggedRespCorr;
 	    
-	    if(ratio != 1.)
+	    if(ratio != 1.f)
 	      {
 		HcalDetId dummyId(id);
-		badChHF_.push_back(std::make_tuple(dummyId.ieta(), dummyId.iphi(), dummyId.depth(), ratio));
+		badChHF_.push_back(HFChannel(dummyId.ieta(), dummyId.iphi(), dummyId.depth(), ratio));
 	      }
 	  }
       }
@@ -118,8 +140,6 @@ void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSet
 
 void PFCandidateRecalibrator::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-    badChHE_.clear();
-    badChHF_.clear();
 }
 
 void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
@@ -131,31 +151,32 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
     const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(cgeo->getSubdetectorGeometry(DetId::Hcal,HcalForward));
  
     //access PFCandidates
-    edm::Handle<std::vector<reco::PFCandidate>> pfcandidates;
+    edm::Handle<reco::PFCandidateCollection> pfcandidates;
     iEvent.getByToken(pfcandidates_, pfcandidates);
 
-    int n = pfcandidates->size();
-    std::unique_ptr<std::vector<reco::PFCandidate>> copy(new std::vector<reco::PFCandidate>());
-    std::unique_ptr<std::vector<reco::PFCandidate>> discarded(new std::vector<reco::PFCandidate>());
-    copy->reserve(n);
-    std::vector<int> oldToNew(n), newToOld, badToOld; 
-    newToOld.reserve(n);
+    int nPfCand = pfcandidates->size();
+    std::unique_ptr<reco::PFCandidateCollection> copy(new reco::PFCandidateCollection());
+    std::unique_ptr<reco::PFCandidateCollection> discarded(new reco::PFCandidateCollection());
+    copy->reserve(nPfCand);
+    std::vector<int> oldToNew(nPfCand), newToOld, badToOld; 
+    newToOld.reserve(nPfCand);
 
-    LogDebug("PFCandidateRecalibrator") << "NEW EV:" << std::endl;
+    LogDebug("PFCandidateRecalibrator") << "NEW EV:";
 
     //loop over PFCandidates
     int i = -1;
     for (const reco::PFCandidate &pf : *pfcandidates) 
       {
 	++i;
+	float absEta = std::abs(pf.eta());
 
 	//deal with HE
-	if( pf.particleId() == 5 && 
-	    fabs(pf.eta()) > 1.4  && fabs(pf.eta()) < 3.)
+	if( pf.particleId() == reco::PFCandidate::ParticleType::h0 && 
+	    absEta > 1.4  && absEta < 3.)
 	  {
 	    bool toKill = false;
 	    for(auto const& badIt: badChHE_)
-	      if( reco::deltaR2(pf.eta(), pf.phi(), std::get<0>(badIt), std::get<1>(badIt)) < 0.07 )
+	      if( reco::deltaR2(pf.eta(), pf.phi(), badIt.eta, badIt.phi) < 0.07 )
 		toKill = true;
 	    
 	    
@@ -174,13 +195,13 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 	      }
 	  }
 	//deal with HF
-	else if(fabs(pf.eta()) > 3.)
+	else if(absEta >= 3.)
 	  {
 	    const math::XYZPointF& ecalPoint = pf.positionAtECALEntrance();
 	    GlobalPoint ecalGPoint(ecalPoint.X(),ecalPoint.Y(),ecalPoint.Z());
 	    HcalDetId closestDetId(hgeom->getClosestCell(ecalGPoint));
 	    
-	    if(closestDetId.subdet() == 4)
+	    if(closestDetId.subdet() == HcalForward)
 	      {
 		HcalDetId hDetId(closestDetId.subdet(),closestDetId.ieta(),closestDetId.iphi(),1); //depth1
 		
@@ -191,36 +212,40 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 		float ecalEnergy = pf.rawEcalEnergy();
 		float hcalEnergy = pf.rawHcalEnergy();
 		float totEnergy = ecalEnergy + hcalEnergy;
+		float totEnergyOrig = totEnergy;
 		
 		bool toKill = false;
 			
 		for(auto const& badIt: badChHF_)
 		  {
-		    if ( hDetId.ieta() == std::get<0>(badIt) &&
-			 hDetId.iphi() == std::get<1>(badIt) )
+		    if ( hDetId.ieta() == badIt.ieta &&
+			 hDetId.iphi() == badIt.iphi )
 		      {
-			LogDebug("PFCandidateRecalibrator") << "==> orig en (tot,H,E): " << pf.energy() << " " << pf.rawHcalEnergy() << " " << pf.rawEcalEnergy() << std::endl;
-			if(std::get<2>(badIt) == 1) //depth1
+			LogDebug("PFCandidateRecalibrator") << "==> orig en (tot,H,E): " 
+							    << pf.energy() << " " << pf.rawHcalEnergy() << " " << pf.rawEcalEnergy();
+			if(badIt.depth == 1) //depth1
 			  {
-			    longE *= std::get<3>(badIt);
+			    longE *= badIt.ratio;
 			    ecalEnergy = longE - shortE;
 			    totEnergy = ecalEnergy + hcalEnergy;
 			  }
 			else //depth2
 			  {
-			    shortE *= std::get<3>(badIt);
+			    shortE *= badIt.ratio;
 			    hcalEnergy = 2*shortE;
 			    if(ecalEnergy > 0)
 			      ecalEnergy = longE - shortE;
 			    totEnergy = ecalEnergy + hcalEnergy;
 			  }
 			//kill candidate if goes below thr
-			if((pf.pdgId()==1 && shortE < 1.4) || 
-			   (pf.pdgId()==2 && longE < 1.4))
+			if((pf.particleId() == reco::PFCandidate::ParticleType::h_HF && shortE < 1.4) || 
+			   (pf.particleId() == reco::PFCandidate::ParticleType::egamma_HF && longE < 1.4))
 			  toKill = true;
 
-			LogDebug("PFCandidateRecalibrator") << "====> ieta,iphi,depth: " <<std::get<0>(badIt) << " " << std::get<1>(badIt) << " " << std::get<2>(badIt) << " corr: " << std::get<3>(badIt) << std::endl;
-			LogDebug("PFCandidateRecalibrator") << "====> recal en (tot,H,E): " << totEnergy << " " << hcalEnergy << " " << ecalEnergy << std::endl;
+			LogDebug("PFCandidateRecalibrator") << "====> ieta,iphi,depth: " 
+							    << badIt.ieta << " " << badIt.iphi << " " << badIt.depth << " corr: " << badIt.ratio;
+			LogDebug("PFCandidateRecalibrator") << "====> recal en (tot,H,E): " 
+							    << totEnergy << " " << hcalEnergy << " " << ecalEnergy;
 
 		      }
 		  }
@@ -231,7 +256,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 		    oldToNew[i] = (-discarded->size());
 		    badToOld.push_back(i);
 
-		    LogDebug("PFCandidateRecalibrator") << "==> KILLED " << std::endl;
+		    LogDebug("PFCandidateRecalibrator") << "==> KILLED ";
 		  }
 		else
 		  {
@@ -241,10 +266,11 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 		    
 		    copy->back().setHcalEnergy(hcalEnergy, hcalEnergy);
 		    copy->back().setEcalEnergy(ecalEnergy, ecalEnergy);
-		    math::XYZTLorentzVector recalibP4(pf.px(), pf.py(), pf.pz(), totEnergy);
+		    math::XYZTLorentzVector recalibP4(pf.px()*(totEnergy/totEnergyOrig), pf.py()*(totEnergy/totEnergyOrig), pf.pz()*(totEnergy/totEnergyOrig), totEnergy);
 		    copy->back().setP4( recalibP4 );
 
-		    LogDebug("PFCandidateRecalibrator") << "====> stored en (tot,H,E): " << copy->back().energy() << " " << copy->back().hcalEnergy() << " " << copy->back().ecalEnergy() << std::endl;
+		    LogDebug("PFCandidateRecalibrator") << "====> stored en (tot,H,E): " 
+							<< copy->back().energy() << " " << copy->back().hcalEnergy() << " " << copy->back().ecalEnergy();
 		  }
 	      }
 	    else
@@ -263,15 +289,15 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
       }
 
     // Now we put things in the event
-    edm::OrphanHandle<std::vector<reco::PFCandidate>> newpf = iEvent.put(std::move(copy));
-    edm::OrphanHandle<std::vector<reco::PFCandidate>> badpf = iEvent.put(std::move(discarded), "discarded");
+    edm::OrphanHandle<reco::PFCandidateCollection> newpf = iEvent.put(std::move(copy));
+    edm::OrphanHandle<reco::PFCandidateCollection> badpf = iEvent.put(std::move(discarded), "discarded");
 
     std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf(new edm::ValueMap<reco::PFCandidateRef>());
     edm::ValueMap<reco::PFCandidateRef>::Filler filler(*pf2pf);
-    std::vector<reco::PFCandidateRef> refs; refs.reserve(n);
+    std::vector<reco::PFCandidateRef> refs; refs.reserve(nPfCand);
 
     // old to new
-    for (i = 0; i < n; ++i) {
+    for (i = 0; i < nPfCand; ++i) {
       if (oldToNew[i] > 0) {
 	refs.push_back(reco::PFCandidateRef(newpf, oldToNew[i]-1));
       } else {
