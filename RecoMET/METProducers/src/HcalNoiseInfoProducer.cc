@@ -112,7 +112,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   // get the integration region with defaults
   laserMonitorTSStart_ = iConfig.getParameter<int>("laserMonTSStart");
   laserMonitorTSEnd_   = iConfig.getParameter<int>("laserMonTSEnd");
-  laserMonitorSamples_ = iConfig.getParameter<int>("laserMonSamples");
+  laserMonitorSamples_ = iConfig.getParameter<unsigned>("laserMonSamples");
 
   adc2fC= std::vector<float> {-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5,10.5,11.5,12.5,
      13.5,15.,17.,19.,21.,23.,25.,27.,29.5,32.5,35.5,38.5,42.,46.,50.,54.5,59.5,
@@ -313,7 +313,7 @@ void HcalNoiseInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& des
       setComment("lower bound of laser monitor charge integration window");
   desc.add<int>("laserMonTSEnd", -1)->
       setComment("upper bound of laser monitor charge integration window (-1 = no bound)");
-  desc.add<int>("laserMonSamples", 4)->
+  desc.add<unsigned>("laserMonSamples", 4)->
       setComment("Number of laser monitor samples to take per channel");
 
   // what to fill
@@ -718,9 +718,11 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       int ieta  = laserMonIEtaList_[ich];
 
       // loop over digis, find the digi that matches this channel
-      for(QIE10DigiCollection::const_iterator digi = hLasermon->begin(); digi != hLasermon->end(); digi++) {
+      unsigned nDigi = hLasermon->size();
+      for( unsigned didx = 0; didx < nDigi; ++didx ) {
+        QIE10DataFrame df = (*hLasermon)[didx];
 
-        HcalCalibDetId calibId( digi->id() );
+        HcalCalibDetId calibId( df.id() );
 
         int ch_cboxch = calibId.cboxChannel();
         int ch_iphi   = calibId.iphi();
@@ -728,15 +730,13 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
         if( cboxch == ch_cboxch && iphi == ch_iphi && ieta == ch_ieta ) {
 
-          QIE10DataFrame df = static_cast<QIE10DataFrame>(*digi);
-
           unsigned ts_size = df.samples();
 
           // loop over time slices
           for( unsigned its = 0; its < ts_size; ++its ) {
             // if we are on the last channel, use all the data
             // otherwise only take the unique samples 
-            if( ( ich < (nch - 1) ) && its >= unsigned(laserMonitorSamples_) ) continue;
+            if( ( (ich + 1) < nch )  && its >= laserMonitorSamples_ ) continue;
 
             bool ok = df[its].ok();
             int adc = df[its].adc();
