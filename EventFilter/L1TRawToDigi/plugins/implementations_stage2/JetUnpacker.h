@@ -7,7 +7,16 @@ namespace l1t {
    namespace stage2 {
       class JetUnpacker : public Unpacker {
          public:
+            JetUnpacker();
+            ~JetUnpacker() override {};
+
             bool unpack(const Block& block, UnpackerCollections *coll) override;
+
+            inline void setJetCopy(const unsigned int copy) { JetCopy_ = copy; };
+
+         private:
+            JetBxCollection* res_;
+            unsigned int JetCopy_;
       };
    }
 }

@@ -7,7 +7,16 @@ namespace l1t {
    namespace stage2 {
       class EGammaUnpacker : public Unpacker {
          public:
+            EGammaUnpacker();
+            ~EGammaUnpacker() override {};
+
             bool unpack(const Block& block, UnpackerCollections *coll) override;
+
+            inline void setEGammaCopy(const unsigned int copy) { EGammaCopy_ = copy; };
+
+         private:
+            EGammaBxCollection* res_;
+            unsigned int EGammaCopy_;
       };
    }
 }
