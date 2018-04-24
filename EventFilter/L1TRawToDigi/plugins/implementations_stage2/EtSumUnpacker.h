@@ -7,7 +7,16 @@ namespace l1t {
    namespace stage2 {
       class EtSumUnpacker : public Unpacker {
          public:
+            EtSumUnpacker();
+            ~EtSumUnpacker() override {};
+
             bool unpack(const Block& block, UnpackerCollections *coll) override;
+
+            inline void setEtSumCopy(const unsigned int copy) { EtSumCopy_ = copy; };
+
+         private:
+            EtSumBxCollection* res_;
+            unsigned int EtSumCopy_;
       };
    }
 }

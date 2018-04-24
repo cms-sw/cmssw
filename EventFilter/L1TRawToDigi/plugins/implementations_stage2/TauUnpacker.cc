@@ -10,6 +10,10 @@
 
 namespace l1t {
 namespace stage2 {
+   TauUnpacker::TauUnpacker() : TauCopy_(0)
+   {
+   }
+
    bool
    TauUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
@@ -29,7 +33,7 @@ namespace stage2 {
        lastBX = ceil((double)nBX/2.)-1;
      }
 
-     auto res_ = static_cast<L1TObjectCollections*>(coll)->getTaus();
+     auto res_ = static_cast<L1TObjectCollections*>(coll)->getTaus(TauCopy_);
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
