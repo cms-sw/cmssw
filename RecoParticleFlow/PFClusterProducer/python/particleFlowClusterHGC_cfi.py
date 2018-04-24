@@ -24,13 +24,13 @@ _simClusterMapper_HGCal = cms.PSet(
     maxDforTimingSquared = cms.double(4.0),
     timeOffset = hgceeDigitizer.tofDelay,
     minNHitsforTiming = cms.uint32(3),
-    useMCFractionsForExclEnergy = cms.bool(False),    
+    useMCFractionsForExclEnergy = cms.bool(False),
     thresholdsByDetector = cms.VPSet(
     ),
     hadronCalib = hadronCorrections,
-    egammaCalib = egammaCorrections, 
-    calibMinEta = minEtaCorrection, 
-    calibMaxEta = maxEtaCorrection,                                   
+    egammaCalib = egammaCorrections,
+    calibMinEta = minEtaCorrection,
+    calibMaxEta = maxEtaCorrection,
     simClusterSrc = cms.InputTag("mix:MergedCaloTruth")
 )
 
@@ -38,7 +38,8 @@ _simClusterMapper_HGCal = cms.PSet(
 #position calculations
 _positionCalcPCA_HGCal = cms.PSet(
         algoName = cms.string("Cluster3DPCACalculator"),
-        minFractionInCalc = cms.double(1e-9)
+        minFractionInCalc = cms.double(1e-9),
+        updateTiming = cms.bool(False)
 )
 
 _hgcalMultiClusterMapper_HGCal = cms.PSet(
