@@ -63,10 +63,10 @@
 
 
 
-  <class name="L1MuBMTrack" ClassVersion="11">
+  <class name="L1MuBMTrack" ClassVersion="12">
     <version ClassVersion="10" checksum="955528069"/>
-    <version ClassVersion="11" checksum="879964230"/>
-   <version ClassVersion="11" checksum="1941187557"/>
+    <version ClassVersion="11" checksum="1941187557"/>
+    <version ClassVersion="12" checksum="4194061270"/>
   </class>
 
 
