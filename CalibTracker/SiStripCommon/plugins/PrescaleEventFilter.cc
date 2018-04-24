@@ -45,7 +45,7 @@ namespace prescale {
 class PrescaleEventFilter : public edm::stream::EDFilter<edm::GlobalCache<prescale::Efficiency> > {
    public:
       explicit PrescaleEventFilter(edm::ParameterSet const& iConfig, const prescale::Efficiency* efficiency);
-      ~PrescaleEventFilter();
+      ~PrescaleEventFilter() override;
 
       static std::unique_ptr<prescale::Efficiency> initializeGlobalCache(edm::ParameterSet const&) {
  return std::unique_ptr<prescale::Efficiency>(new prescale::Efficiency());
@@ -56,9 +56,9 @@ class PrescaleEventFilter : public edm::stream::EDFilter<edm::GlobalCache<presca
       static void globalEndJob(const prescale::Efficiency* efficiency);
 
    private:
-      virtual void beginStream(edm::StreamID) override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endStream() override;
+      void beginStream(edm::StreamID) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endStream() override;
 
       // ----------member data ---------------------------
 
