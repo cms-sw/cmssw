@@ -63,6 +63,7 @@ class LEDTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_VME;
 
 		//	Cuts
+		int _nevents;
 		double _lowHBHE;
 		double _lowHE;
 		double _lowHO;

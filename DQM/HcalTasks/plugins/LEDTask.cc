@@ -7,6 +7,7 @@ using namespace hcaldqm::filter;
 LEDTask::LEDTask(edm::ParameterSet const& ps):
 	DQTask(ps)
 {
+	_nevents = ps.getUntrackedParameter<int>("nevents", 2000);
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
@@ -190,8 +191,14 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),0);
 		// Manually book LED monitoring histogram, to get custom axis
 		ib.setCurrentFolder(_subsystem+"/"+_name);
-		_meLEDMon = ib.book2D("LED_ADCvsBX", "ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
+		_meLEDMon = ib.book2D("LED_ADCvsBX", "Pin diode ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
 		_meLEDMon->setAxisTitle("BX", 1);
+		_meLEDMon->setAxisTitle("ADC", 2);
+	} else if (_ptype == fLocal) {
+		// Manually book LED monitoring histogram, to get custom axis
+		ib.setCurrentFolder(_subsystem+"/"+_name);
+		_meLEDMon = ib.book2D("LED_ADCvsEvN", "Pin diode ADC vs EvN", _nevents, -0.5, _nevents-0.5, 64, -0.5, 255.5);
+		_meLEDMon->setAxisTitle("Event Number", 1);
 		_meLEDMon->setAxisTitle("ADC", 2);
 	}
 	
@@ -228,7 +235,6 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		_cMissing_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
 	}
 	if (_ptype == fOnline) {
-
 		_cADCvsTS_SubdetPM.book(ib, _emap, _subsystem);
 		_cSumQ_SubdetPM.book(ib, _emap, _subsystem);
 		_cTDCTime_SubdetPM.book(ib, _emap, _subsystem);
@@ -396,7 +402,11 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 				if (hodid.subdet() == HcalCalibration) {
 					if (did.depth() == 10) {
 						for (int i=0; i<digi.samples(); i++) {
-							_meLEDMon->Fill(e.bunchCrossing(), digi[i].adc());
+							if (_ptype == fOnline) {
+								_meLEDMon->Fill(e.bunchCrossing(), digi[i].adc());
+							} else if (_ptype == fLocal) {
+								_meLEDMon->Fill(e.eventAuxiliary().id().event(), digi[i].adc());
+							}
 						}
 					}
 				}
@@ -511,7 +521,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 				}
 			}
 			if (_ptype == fOnline) {
-				for (unsigned int iTS = 0; iTS < digi.size(); ++iTS) {
+				for (int iTS = 0; iTS < digi.samples(); ++iTS) {
 					_cADCvsTS_SubdetPM.fill(did, iTS, digi[iTS].adc());					
 					if (digi[iTS].le_tdc() <50) {
 						double time = iTS*25. + (digi[iTS].le_tdc() / 2.);
