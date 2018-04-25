@@ -13,6 +13,8 @@ l1tObjectsTiming = DQMEDAnalyzer(
     monitorDir = cms.untracked.string("L1T/L1TObjects"),
     verbose = cms.untracked.bool(False),
     firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
-    lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain")
+    lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
+    isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
+    useAlgoDecision = cms.untracked.string("initial")
 )
 
