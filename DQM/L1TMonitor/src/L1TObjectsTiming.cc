@@ -698,7 +698,6 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
               egamma_eta_phi_firstbunch.at(i).at(index)->Fill(egamma->eta(), egamma->phi());
             }
             if ((bool)egamma->hwIso()) {
-              std::cout << "Fill iso egamma with pt=" << egamma->pt() << ", iphi=" << egamma->hwPhi() << ", ieta=" << egamma->hwEta() << ", in itBX " << itBX << ", with shift " << bxShiftFirst << std::endl;
               egamma_iso_bx_ieta_firstbunch.at(i)->Fill(itBX - bxShiftFirst, egamma->hwEta());
             }
             egamma_noniso_bx_ieta_firstbunch.at(i)->Fill(itBX - bxShiftFirst, egamma->hwEta());
