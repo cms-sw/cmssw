@@ -1377,6 +1377,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					_vflags[fDigiSize]._state = hcaldqm::flag::fBAD;
 				else
 					_vflags[fDigiSize]._state = hcaldqm::flag::fGOOD;
+
+				if (_xBadCapid.get(eid) > 0) {
+					_vflags[fCapId]._state = hcaldqm::flag::fBAD;
+				} else {
+					_vflags[fCapId]._state = hcaldqm::flag::fGOOD;
+				}
+
 				if (hcaldqm::utilities::isFEDHF(eid))
 				{
 					double fr = double(_xNChs.get(eid))/double(
@@ -1403,9 +1410,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
 
 			if (_ledSignalPresent)
-				_vflags[fLED]._state = flag::fBAD;
+				_vflags[fLED]._state = hcaldqm::flag::fBAD;
 			else
-				_vflags[fLED]._state = flag::fGOOD;
+				_vflags[fLED]._state = hcaldqm::flag::fGOOD;
 
 			int iflag=0;
 			for (std::vector<hcaldqm::flag::Flag>::iterator ft=_vflags.begin();
