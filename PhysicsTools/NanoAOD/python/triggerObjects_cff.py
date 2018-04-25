@@ -39,7 +39,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                               "64*filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter') + " \
                               "128*max(filter('hltL3fL1Mu*DoubleEG*Filtered*'),filter('hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter')) + " \
                               "256*max(filter('hltL3fL1DoubleMu*EG*Filter*'),filter('hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter'))"),
-            qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = 1e (WPLoose), 4 = 1e (WPTight), 8 = e-tau (OverlapFilter PFTau), 16 = 2e, 32 = e-mu, 64 = 3e, 128 = 2e-mu, 256 = 1e-2mu"),
+            qualityBitsDoc = cms.string("1 = CaloIdL_TrackIdL_IsoVL, 2 = 1e (WPTight), 4 = 1e (WPLoose), 8 = e-tau (OverlapFilter PFTau), 16 = 2e, 32 = e-mu, 64 = 3e, 128 = 2e-mu, 256 = 1e-2mu"),
             ),
         cms.PSet(
             name = cms.string("Photon (PixelMatch-vetoed e/gamma)"), 
