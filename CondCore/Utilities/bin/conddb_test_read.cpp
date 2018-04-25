@@ -12,8 +12,8 @@ namespace cond {
   class TestReadUtilities : public cond::Utilities {
     public:
       TestReadUtilities();
-      ~TestReadUtilities();
-      int execute();
+      ~TestReadUtilities() override;
+      int execute() override;
   };
 }
 
@@ -27,10 +27,10 @@ cond::TestReadUtilities::TestReadUtilities():Utilities("conddb_copy_iov"){
   addOption<bool>("run","r","run-labeled transaction");
 }
 
-cond::TestReadUtilities::~TestReadUtilities(){
+cond::TestReadUtilities::~TestReadUtilities() {
 }
 
-int cond::TestReadUtilities::execute(){
+int cond::TestReadUtilities::execute() {
 
   bool debug = hasDebug();
   std::string connect = getOptionValue<std::string>("connect");
@@ -83,7 +83,7 @@ int cond::TestReadUtilities::execute(){
       persistency::Session iovSession = session;
       if( runTransaction ){
 	std::cout <<"INFO: using run-labeled transactions."<<std::endl;
-	iovSession = connPool.createReadOnlySession( connect, boost::lexical_cast<std::string>(i) );
+	iovSession = connPool.createReadOnlySession( connect, std::to_string(i) );
         iovSession.transaction().start( true );
       }
       iovp = iovSession.readIov( tag );
