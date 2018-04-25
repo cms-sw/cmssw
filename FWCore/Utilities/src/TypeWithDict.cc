@@ -33,18 +33,18 @@
 namespace edm {
 
   namespace {
-    typedef tbb::concurrent_unordered_map<std::string, TypeWithDict> Map;
+    using Map = tbb::concurrent_unordered_map<std::string, TypeWithDict>;
     Map typeMap;
-    typedef tbb::concurrent_unordered_map<std::string, FunctionWithDict> FunctionMap;
+    using FunctionMap = tbb::concurrent_unordered_map<std::string, FunctionWithDict>;
     FunctionMap functionMap;
 
-    struct Hasher {
+    struct TypeIndexHash {
       std::size_t operator()(std::type_index ti) const {
         return ti.hash_code();
       }
     };
  
-    typedef tbb::concurrent_unordered_map<std::type_index, TypeWithDict, Hasher> TypeIndexMap;
+    using TypeIndexMap = tbb::concurrent_unordered_map<std::type_index, TypeWithDict, TypeIndexHash>;
     TypeIndexMap typeIndexMap;
   }
    static
