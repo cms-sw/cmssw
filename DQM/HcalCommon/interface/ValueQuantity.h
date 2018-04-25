@@ -66,6 +66,7 @@ namespace hcaldqm
 			fTimingDiff_ns = 51,
 			ffC_1000000 = 52,
 			fTime_ns_250_coarse = 53,
+			fCapidMinusBXmod4 = 54,
 		};
 		const std::map<ValueQuantityType, std::string> name_value = {
 			{fN,"N"},
@@ -122,6 +123,7 @@ namespace hcaldqm
 			{fTimingDiff_ns, "#Delta timing [ns]"},
 			{ffC_1000000, "fC"},
 			{fTime_ns_250_coarse, "Time (ns)"},
+			{fCapidMinusBXmod4, "(CapId - BX) % 4"},
 		};
 		const std::map<ValueQuantityType, double> min_value = {
 			{fN,-0.05},
@@ -177,7 +179,8 @@ namespace hcaldqm
 			{fRBX, 0.5},
 			{fTimingDiff_ns, -125.},
 			{ffC_1000000,0.},
-			{fTime_ns_250_coarse, -0.5}
+			{fTime_ns_250_coarse, -0.5},
+			{fCapidMinusBXmod4, -0.5},			
 		};
 		const std::map<ValueQuantityType, double> max_value = {
 			{fN,1000},
@@ -234,6 +237,7 @@ namespace hcaldqm
 			{fTimingDiff_ns, 125.},
 			{ffC_1000000,1.e6},
 			{fTime_ns_250_coarse, 249.5},
+			{fCapidMinusBXmod4, 3.5},
 		};
 		const std::map<ValueQuantityType, int> nbins_value = {
 			{fN,200},
@@ -289,6 +293,7 @@ namespace hcaldqm
 			{fTimingDiff_ns, 40},
 			{ffC_1000000,1000},
 			{fTime_ns_250_coarse, 100},
+			{fCapidMinusBXmod4, 4}
 		};
 		class ValueQuantity : public Quantity
 		{

@@ -160,6 +160,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<uint32_t> _xUniHF,_xUni; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChs; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xNChsNominal; // online only
+		hcaldqm::ContainerXXX<uint32_t> _xBadCapid; // online only
 
 		// QIE10 TDC histograms
 		hcaldqm::Container2D _cLETDCTimevsADC_SubdetPM;
@@ -178,6 +179,9 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cBadTDCvsBX;
 		hcaldqm::Container1D _cBadTDCvsLS;
 
+		// (Capid - BX) % 4		
+		hcaldqm::Container1D _cCapidMinusBXmod4_SubdetPM;
+
 		// For monitoring LED misfires: ADC vs BX
 		MonitorElement* _meLEDMon;
 
@@ -193,6 +197,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 
 		bool _qie10InConditions; // Flag to protect against QIE10 digis not in conditions in 2016.
+
+		std::map<HcalSubdetector, short> _capidmbx; // Expected (capid - BX) % 4 for each subdet
 };
 
 #endif

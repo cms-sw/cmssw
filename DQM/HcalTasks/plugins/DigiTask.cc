@@ -43,6 +43,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_refDigiSize[HcalEndcap]  = (int)vrefDigiSize[1];
 	_refDigiSize[HcalOuter]   = (int)vrefDigiSize[2];
 	_refDigiSize[HcalForward] = (int)vrefDigiSize[3];
+
+	// Initialize (capid - BX) % 4 to nonsense value
+	_capidmbx[HcalBarrel] = -1;
+	_capidmbx[HcalEndcap] = -1;
+	_capidmbx[HcalOuter] = -1;
+	_capidmbx[HcalForward] = -1;
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib,
@@ -277,6 +283,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cCapidMinusBXmod4_SubdetPM.initialize(_name, 
+			"CapID", hcaldqm::hashfunctions::fSubdetPM,
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fCapidMinusBXmod4),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	}
 	if (_ptype != fOffline) { // hidefed2crate
 		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
@@ -409,6 +419,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_xDigiSize.initialize(hcaldqm::hashfunctions::fFED);
 			_xNChs.initialize(hcaldqm::hashfunctions::fFED);
 			_xNChsNominal.initialize(hcaldqm::hashfunctions::fFED);
+			_xBadCapid.initialize(hcaldqm::hashfunctions::fFED);
 		}
 	}
 
@@ -494,6 +505,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
 //		_cOccupancyCutvsSlotvsLS_HFPM.book(ib, _emap, _filter_QIE1011, _subsystem);
 		_cOccupancyCutvsiphivsLS_SubdetPM.book(ib, _emap, _subsystem);
+		_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
 		_cSummaryvsLS_FED.book(ib, _emap, _subsystem);
 		_cSummaryvsLS.book(ib, _subsystem);
 
@@ -502,10 +514,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_xNChsNominal.book(_emap);
 		_xUni.book(_emap);
 		_xDigiSize.book(_emap);
+		_xBadCapid.book(_emap);
 
 		// Manually book LED monitoring histogram, to get custom axis
 		ib.setCurrentFolder(_subsystem+"/"+_name+"/LED");
-		_meLEDMon = ib.book2D("LED_ADCvsBX", "ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
+		_meLEDMon = ib.book2D("LED_ADCvsBX", "Pin diode ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
 		_meLEDMon->setAxisTitle("BX", 1);
 		_meLEDMon->setAxisTitle("ADC", 2);
 
@@ -625,13 +638,31 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			continue;
 		}
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) 
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		if (rawid == 0) {
+			meUnknownIds1LS->Fill(1); 
+			_unknownIdsPresent=true;
+			continue;
+		} else {
+			if (did.subdet()==HcalBarrel) {
+				rawidHBValid = did.rawId();
+			} else if (did.subdet()==HcalEndcap) {
+				rawidHEValid = did.rawId();
+			}
+		}
 		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalBarrel)
-			rawidHBValid = did.rawId();
-		else if (did.subdet()==HcalEndcap) 
-			rawidHEValid = did.rawId();
+
+		unsigned short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+		bool good_capidmbx = false;
+		if (_capidmbx[did.subdet()] == -1) {
+			_capidmbx[did.subdet()] = this_capidmbx;
+			good_capidmbx = true;
+		} else {
+			good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+		}
+		if (!good_capidmbx) {
+			_xBadCapid.get(eid)++;
+		}
 
 		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, *it);
@@ -768,17 +799,38 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			continue;
 		}
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) {
+		if (rawid == 0) {
 			meUnknownIds1LS->Fill(1);
 			_unknownIdsPresent=true;
 			continue;
+		} else {
+			if (did.subdet()==HcalBarrel) { // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection will have HB for Run 3.
+				rawidHBValid = did.rawId();
+			} else if (did.subdet()==HcalEndcap) {
+				rawidHEValid = did.rawId();
+			}
 		}
 		HcalElectronicsId const& eid(rawid);
 
-		if (did.subdet()==HcalBarrel) { // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection will have HB for Run 3.
-			rawidHBValid = did.rawId();
-		} else if (did.subdet()==HcalEndcap) {
-			rawidHEValid = did.rawId();
+		// (capid - BX) % 4
+		short soi = -1;
+		for (int i=0; i<digi.samples(); i++) {
+			if (digi[i].soi()) {
+				soi = i;
+				break;
+			}
+		}
+		unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
+		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+		bool good_capidmbx = false;
+		if (_capidmbx[did.subdet()] == -1) {
+			_capidmbx[did.subdet()] = this_capidmbx;
+			good_capidmbx = true;
+		} else {
+			good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+		}
+		if (!good_capidmbx) {
+			_xBadCapid.get(eid)++;
 		}
 
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
@@ -944,6 +996,19 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 		HcalElectronicsId const& eid(rawid);
 
+		short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+		bool good_capidmbx = false;
+		if (_capidmbx[did.subdet()] == -1) {
+			_capidmbx[did.subdet()] = this_capidmbx;
+			good_capidmbx = true;
+		} else {
+			good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+		}
+		if (!good_capidmbx) {
+			_xBadCapid.get(eid)++;
+		}
+
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
 		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
@@ -1082,6 +1147,27 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				rawidValid = did.rawId();
 			}
 			HcalElectronicsId const& eid(rawid);
+
+			// (capid - BX) % 4
+			short soi = -1;
+			for (int i=0; i<digi.samples(); i++) {
+				if (digi[i].soi()) {
+					soi = i;
+					break;
+				}
+			}
+			unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
+			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+			bool good_capidmbx = false;
+			if (_capidmbx[did.subdet()] == -1) {
+				_capidmbx[did.subdet()] = this_capidmbx;
+				good_capidmbx = true;
+			} else {
+				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+			}
+			if (!good_capidmbx) {
+				_xBadCapid.get(eid)++;
+			}
 
 			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
 			double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
@@ -1337,8 +1423,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 	}
 
-	_xDigiSize.reset(); _xUniHF.reset(); _xUni.reset();
+	_xDigiSize.reset(); _xUniHF.reset(); _xUni.reset(); 
 	_xNChs.reset();
+	_xBadCapid.reset();
 
 	//	in the end always do the DQTask::endLumi
 	DQTask::endLuminosityBlock(lb, es);
