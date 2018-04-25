@@ -61,10 +61,21 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   // For the timing histograms
   int algoBitFirstBxInTrain_;
   int algoBitLastBxInTrain_;
+  int algoBitIsoBx_;
   const std::string algoNameFirstBxInTrain_;
   const std::string algoNameLastBxInTrain_;
+  const std::string algoNameIsoBx_;
   const unsigned int bxrange_; //this is the out bx range
 
+  unsigned int useAlgoDecision_;
+
+  std::vector<int> egammaPtCuts_;
+  float egammaPtCut_;
+  float jetPtCut_;
+  float tauPtCut_;
+  float etsumPtCut_;
+  float muonPtCut_;
+  float muonQualCut_;
   
 //---------Histograms booking---------
   std::vector<MonitorElement*> muons_eta_phi;
@@ -78,62 +89,107 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
 
   std::vector<MonitorElement*> muons_eta_phi_isolated;
   std::vector<MonitorElement*> jet_eta_phi_isolated;
-  std::vector<MonitorElement*> egamma_eta_phi_isolated;
+  std::vector<std::vector<MonitorElement*>> egamma_eta_phi_isolated;
   std::vector<MonitorElement*> tau_eta_phi_isolated;
   std::vector<MonitorElement*> etsum_eta_phi_MET_isolated;
   std::vector<MonitorElement*> etsum_eta_phi_METHF_isolated;
   std::vector<MonitorElement*> etsum_eta_phi_MHT_isolated;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_isolated;
+  std::vector<MonitorElement*> denominator_egamma_isolated;
+
+  std::vector<MonitorElement*> egamma_iso_bx_ieta_isolated;
+  std::vector<MonitorElement*> egamma_noniso_bx_ieta_isolated;
+
+  std::vector<MonitorElement*> muons_eta_phi_firstbunchminus2;
+  std::vector<MonitorElement*> jet_eta_phi_firstbunchminus2;
+  std::vector<MonitorElement*> egamma_eta_phi_firstbunchminus2;
+  std::vector<MonitorElement*> tau_eta_phi_firstbunchminus2;
+  std::vector<MonitorElement*> etsum_eta_phi_firstbunchminus2;
+  std::vector<MonitorElement*> etsum_eta_phi_MET_firstbunchminus2;
+  std::vector<MonitorElement*> etsum_eta_phi_METHF_firstbunchminus2;
+  std::vector<MonitorElement*> etsum_eta_phi_MHT_firstbunchminus2;
+  std::vector<MonitorElement*> etsum_eta_phi_MHTHF_firstbunchminus2;
+
+  std::vector<MonitorElement*> muons_eta_phi_firstbunchminus1;
+  std::vector<MonitorElement*> jet_eta_phi_firstbunchminus1;
+  std::vector<MonitorElement*> egamma_eta_phi_firstbunchminus1;
+  std::vector<MonitorElement*> tau_eta_phi_firstbunchminus1;
+  std::vector<MonitorElement*> etsum_eta_phi_firstbunchminus1;
+  std::vector<MonitorElement*> etsum_eta_phi_MET_firstbunchminus1;
+  std::vector<MonitorElement*> etsum_eta_phi_METHF_firstbunchminus1;
+  std::vector<MonitorElement*> etsum_eta_phi_MHT_firstbunchminus1;
+  std::vector<MonitorElement*> etsum_eta_phi_MHTHF_firstbunchminus1;
 
   std::vector<MonitorElement*> muons_eta_phi_firstbunch;
   std::vector<MonitorElement*> jet_eta_phi_firstbunch;
-  std::vector<MonitorElement*> egamma_eta_phi_firstbunch;
+  std::vector<std::vector<MonitorElement*>> egamma_eta_phi_firstbunch;
   std::vector<MonitorElement*> tau_eta_phi_firstbunch;
   std::vector<MonitorElement*> etsum_eta_phi_firstbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MET_firstbunch;
   std::vector<MonitorElement*> etsum_eta_phi_METHF_firstbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHT_firstbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_firstbunch;
+  std::vector<MonitorElement*> denominator_egamma_firstbunch;
+
+  std::vector<MonitorElement*> egamma_iso_bx_ieta_firstbunch;
+  std::vector<MonitorElement*> egamma_noniso_bx_ieta_firstbunch;
 
   std::vector<MonitorElement*> muons_eta_phi_lastbunch;
   std::vector<MonitorElement*> jet_eta_phi_lastbunch;
-  std::vector<MonitorElement*> egamma_eta_phi_lastbunch;
+  std::vector<std::vector<MonitorElement*>> egamma_eta_phi_lastbunch;
   std::vector<MonitorElement*> tau_eta_phi_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MET_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_METHF_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHT_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_lastbunch;
+  std::vector<MonitorElement*> denominator_egamma_lastbunch;
  
+  std::vector<MonitorElement*> egamma_iso_bx_ieta_lastbunch;
+  std::vector<MonitorElement*> egamma_noniso_bx_ieta_lastbunch;
+
   MonitorElement* denominator_muons;
   MonitorElement* denominator_muons_isolated;
+  MonitorElement* denominator_muons_firstbunchminus2;
+  MonitorElement* denominator_muons_firstbunchminus1;
   MonitorElement* denominator_muons_firstbunch;
   MonitorElement* denominator_muons_lastbunch;
   MonitorElement* denominator_jet;
   MonitorElement* denominator_jet_isolated;
+  MonitorElement* denominator_jet_firstbunchminus2;
+  MonitorElement* denominator_jet_firstbunchminus1;
   MonitorElement* denominator_jet_firstbunch;
   MonitorElement* denominator_jet_lastbunch;
   MonitorElement* denominator_egamma;
-  MonitorElement* denominator_egamma_isolated;
-  MonitorElement* denominator_egamma_firstbunch;
-  MonitorElement* denominator_egamma_lastbunch;
+  MonitorElement* denominator_egamma_firstbunchminus2;
+  MonitorElement* denominator_egamma_firstbunchminus1;
   MonitorElement* denominator_tau;
   MonitorElement* denominator_tau_isolated;
+  MonitorElement* denominator_tau_firstbunchminus2;
+  MonitorElement* denominator_tau_firstbunchminus1;
   MonitorElement* denominator_tau_firstbunch;
   MonitorElement* denominator_tau_lastbunch;
   MonitorElement* denominator_etsum_MET;
   MonitorElement* denominator_etsum_isolated_MET;
+  MonitorElement* denominator_etsum_firstbunchminus2_MET;
+  MonitorElement* denominator_etsum_firstbunchminus1_MET;
   MonitorElement* denominator_etsum_firstbunch_MET;
   MonitorElement* denominator_etsum_lastbunch_MET;
   MonitorElement* denominator_etsum_METHF;
   MonitorElement* denominator_etsum_isolated_METHF;
+  MonitorElement* denominator_etsum_firstbunchminus2_METHF;
+  MonitorElement* denominator_etsum_firstbunchminus1_METHF;
   MonitorElement* denominator_etsum_firstbunch_METHF;
   MonitorElement* denominator_etsum_lastbunch_METHF;
   MonitorElement* denominator_etsum_MHT;
   MonitorElement* denominator_etsum_isolated_MHT;
+  MonitorElement* denominator_etsum_firstbunchminus2_MHT;
+  MonitorElement* denominator_etsum_firstbunchminus1_MHT;
   MonitorElement* denominator_etsum_firstbunch_MHT;
   MonitorElement* denominator_etsum_lastbunch_MHT;
   MonitorElement* denominator_etsum_MHTHF;
   MonitorElement* denominator_etsum_isolated_MHTHF;
+  MonitorElement* denominator_etsum_firstbunchminus2_MHTHF;
+  MonitorElement* denominator_etsum_firstbunchminus1_MHTHF;
   MonitorElement* denominator_etsum_firstbunch_MHTHF;
   MonitorElement* denominator_etsum_lastbunch_MHTHF;
 
