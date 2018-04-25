@@ -64,7 +64,8 @@ class DigiTask : public hcaldqm::DQTask
 			fNChsHF = 2,
 			fUnknownIds = 3,
 			fLED=4,
-			nDigiFlag = 5
+			fCapId=5,
+			nDigiFlag=6
 		};
 
 		//	hashes/FED vectors
