@@ -233,6 +233,7 @@
   </ioread>
 
   <class name="pat::Jet"  ClassVersion="16">
+   <field name="daughtersTemp_" transient="true"/>
    <version ClassVersion="16" checksum="4069285947"/>
    <version ClassVersion="15" checksum="727883729"/>
    <version ClassVersion="14" checksum="1304049301"/>
@@ -245,6 +246,15 @@
   </class>
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="caloTowersTemp_">
+    <![CDATA[caloTowersTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="pfCandidatesTemp_">
+    <![CDATA[pfCandidatesTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
+    <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
   <class name="pat::MET"  ClassVersion="15">
     <version ClassVersion="15" checksum="428901429"/>
