@@ -1469,9 +1469,7 @@ def _copy_tag(args, copyTime, session1, session2, first, second, fromIOV=None, t
                     if serialization_metadata.cmp_boost_version( currentTagBoostVersion, tagBoostVersion )<0:
                         if destSynchro not in ['any','validation']:
                             raise Exception('Cannot update existing tag %s, since the minimum serialization version %s is not compatible with the combined boost version of the payloads to add (%s)' %(second,currentTagBoostVersion,tagBoostVersion))
-                    merge = True
-            else:
-                merge = True
+            merge = True
         if merge:
             session2.merge(TagMetadata(tag_name=second,min_serialization_v=tagBoostVersion,min_since=minIov,modification_time=copyTime))
             logging.info('Destination Tag boost Version set to %s ( was %s )' %(tagBoostVersion,currentTagBoostVersion) )
