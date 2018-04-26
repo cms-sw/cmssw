@@ -39,12 +39,12 @@ DEFINE_FWK_MODULE(HGCalBackendLayer1Producer);
 
 HGCalBackendLayer1Producer::
 HGCalBackendLayer1Producer(const edm::ParameterSet& conf):
-input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("bxCollection_be"))),
-input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("bxCollection_be")))
+input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))),
+input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerSums")))
 {   
   //setup Backend parameters
-  const edm::ParameterSet& beParamConfig = conf.getParameterSet("Backendparam");
-  const std::string& beProcessorName = beParamConfig.getParameter<std::string>("BeProcessorLayer1Name");
+  const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
+  const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
   HGCalBackendLayer1ProcessorBase* beProc = HGCalBackendLayer1Factory::get()->create(beProcessorName, beParamConfig);
   backendProcess_.reset(beProc);
 
@@ -63,10 +63,7 @@ void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& e
   edm::Handle<l1t::HGCalTriggerSumsBxCollection> trigSumsBxColl;
 
   e.getByToken(input_cell_, trigCellBxColl);
-  e.getByToken(input_sums_,trigSumsBxColl);
-
-  //const l1t::HGCalTriggerCellBxCollection& trigCell = *trigCellBxColl;
-  //const l1t::HGCalTriggerSumsBxCollection& trigSums = *trigSumsBxColl;
+  e.getByToken(input_sums_, trigSumsBxColl);
   
   backendProcess_->reset2D();  
   backendProcess_->run2D(trigCellBxColl,es,e);

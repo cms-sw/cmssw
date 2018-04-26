@@ -17,8 +17,8 @@ class HGCalVFESummationImpl
   HGCalVFESummationImpl(const edm::ParameterSet& conf);
   
   void triggerCellSums(const HGCalTriggerGeometryBase& ,
-                   		const std::vector<std::pair<DetId, uint32_t > >&,
-				std::map<HGCalDetId, uint32_t>& payload);
+                       const std::vector<std::pair<DetId, uint32_t > >&,
+                       std::map<HGCalDetId, uint32_t>& payload);
   const std::vector<double>& ThicknessCorrections() const {return thickness_corrections_;} 
    
  private:

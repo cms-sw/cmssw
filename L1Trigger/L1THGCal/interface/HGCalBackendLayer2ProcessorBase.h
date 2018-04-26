@@ -27,9 +27,9 @@ class HGCalBackendLayer2ProcessorBase {
   
   virtual void putInEvent3D(edm::Event& evt) = 0;
   
-  virtual void run3D(const edm::Handle<l1t::HGCalClusterBxCollection> handleColl, 
-		     const edm::EventSetup& es,
-		     edm::Event &e) = 0;
+  virtual void run3D(const edm::Handle<l1t::HGCalClusterBxCollection> handleColl,
+                     const edm::EventSetup& es,
+                     edm::Event &e) = 0;
 		   
   virtual void reset3D() = 0;
 

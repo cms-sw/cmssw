@@ -13,7 +13,7 @@ class HGCalBackendLayer1ProcessorBase {
  public:
   HGCalBackendLayer1ProcessorBase(const edm::ParameterSet& conf) : 
     geometry_(nullptr),
-    name_(conf.getParameter<std::string>("BeProcessorLayer1Name"))
+    name_(conf.getParameter<std::string>("ProcessorName"))
     {}
   virtual ~HGCalBackendLayer1ProcessorBase() {}
 
@@ -25,8 +25,8 @@ class HGCalBackendLayer1ProcessorBase {
   virtual void putInEvent2D(edm::Event& evt) = 0;
   
   virtual void run2D(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& coll, 
-		     const edm::EventSetup& es,
-		     edm::Event &e) = 0;
+                     const edm::EventSetup& es,
+                     edm::Event &e) = 0;
 		   
   virtual void reset2D() = 0;  
 
