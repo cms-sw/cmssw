@@ -368,63 +368,60 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
       return;
    }
    
-   // Get uGT algo bit statistics
-   else {
+   //algoBits_->Fill(-1.); // fill underflow to normalize // FIXME: needed?
+   for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
+      for (auto itr = uGtAlgs->begin(ibx); itr != uGtAlgs->end(ibx); ++itr) { // FIXME: redundant loop?
 
-     //algoBits_->Fill(-1.); // fill underflow to normalize // FIXME: needed? 
-      for (int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-         for (auto itr = uGtAlgs->begin(ibx); itr != uGtAlgs->end(ibx); ++itr) { // FIXME: redundant loop?
-            
-            // Fills prescale factor set histogram
-            prescaleFactorSet_->Fill(lumi, itr->getPreScColumn());
-             
-            // Fills algorithm bits histograms
-            for(int algoBit = 0; algoBit < numAlgs; ++algoBit) {
-              
-               // Algorithm bits before AlgoBX mask 
-               if(itr->getAlgoDecisionInitial(algoBit)) {
-                  algoBits_before_bxmask_->Fill(algoBit);
-                  algoBits_before_bxmask_lumi_->Fill(lumi, algoBit);
-                  algoBits_before_bxmask_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
-                  algoBits_before_bxmask_bx_global_->Fill(bx + ibx, algoBit);
- 
-                  for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
-                     if(itr->getAlgoDecisionInitial(algoBit2)) {
-                        algoBits_before_bxmask_corr_->Fill(algoBit, algoBit2);
-                     }
-                  }
-               }  
-               
-               // Algorithm bits before prescale 
-               if(itr->getAlgoDecisionInterm(algoBit)) {
-                  algoBits_before_prescale_->Fill(algoBit);
-                  algoBits_before_prescale_lumi_->Fill(lumi, algoBit);
-                  algoBits_before_prescale_bx_inEvt_->Fill(ibx, algoBit);
-                  algoBits_before_prescale_bx_global_->Fill(bx + ibx, algoBit);
+         // Fills prescale factor set histogram
+         prescaleFactorSet_->Fill(lumi, itr->getPreScColumn());
 
-                  for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
-                     if(itr->getAlgoDecisionInterm(algoBit2)) {
-                        algoBits_before_prescale_corr_->Fill(algoBit, algoBit2);
-                     }
+         // Fills algorithm bits histograms
+         for(int algoBit = 0; algoBit < numAlgs; ++algoBit) {
+
+            // Algorithm bits before AlgoBX mask
+            if(itr->getAlgoDecisionInitial(algoBit)) {
+               algoBits_before_bxmask_->Fill(algoBit);
+               algoBits_before_bxmask_lumi_->Fill(lumi, algoBit);
+               algoBits_before_bxmask_bx_inEvt_->Fill(ibx, algoBit); // FIXME: or itr->getbxInEventNr()/getbxNr()?
+               algoBits_before_bxmask_bx_global_->Fill(bx + ibx, algoBit);
+
+               for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
+                  if(itr->getAlgoDecisionInitial(algoBit2)) {
+                     algoBits_before_bxmask_corr_->Fill(algoBit, algoBit2);
                   }
-               }  
-               
-               // Algorithm bits after prescale 
-               if(itr->getAlgoDecisionFinal(algoBit)) {
-                  algoBits_after_prescale_->Fill(algoBit);
-                  algoBits_after_prescale_lumi_->Fill(lumi, algoBit);
-                  algoBits_after_prescale_bx_inEvt_->Fill(ibx, algoBit);
-                  algoBits_after_prescale_bx_global_->Fill(bx + ibx, algoBit);
-                  
-                  for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
-                     if(itr->getAlgoDecisionFinal(algoBit2)) {
-                        algoBits_after_prescale_corr_->Fill(algoBit, algoBit2);
-                     }
+               }
+            }
+
+            // Algorithm bits before prescale
+            if(itr->getAlgoDecisionInterm(algoBit)) {
+               algoBits_before_prescale_->Fill(algoBit);
+               algoBits_before_prescale_lumi_->Fill(lumi, algoBit);
+               algoBits_before_prescale_bx_inEvt_->Fill(ibx, algoBit);
+               algoBits_before_prescale_bx_global_->Fill(bx + ibx, algoBit);
+
+               for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
+                  if(itr->getAlgoDecisionInterm(algoBit2)) {
+                     algoBits_before_prescale_corr_->Fill(algoBit, algoBit2);
                   }
-               }  
+               }
+            }
+
+            // Algorithm bits after prescale
+            if(itr->getAlgoDecisionFinal(algoBit)) {
+               algoBits_after_prescale_->Fill(algoBit);
+               algoBits_after_prescale_lumi_->Fill(lumi, algoBit);
+               algoBits_after_prescale_bx_inEvt_->Fill(ibx, algoBit);
+               algoBits_after_prescale_bx_global_->Fill(bx + ibx, algoBit);
+
+               for(int algoBit2 = 0; algoBit2 < numAlgs; ++algoBit2) {
+                  if(itr->getAlgoDecisionFinal(algoBit2)) {
+                     algoBits_after_prescale_corr_->Fill(algoBit, algoBit2);
+                  }
+               }
             }
          }
       }
+   }
 
   // Find out in which BX the first collision in train, isolated bunch, and last collision in train have fired.
   // In case of pre firing it will be in BX 1 or BX 2 and this will determine the BX shift that
@@ -605,9 +602,9 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
     }
   }
 
-
+  // If algoBitFirstBxInTrain_ fired in L1A BX 2 something else must have prefired in the actual BX -2 before the first bunch crossing in the train 
   if (uGtAlgs->getLastBX() >= 2) {
-    for(auto itr = uGtAlgs->begin(2); itr != uGtAlgs->end(2); ++itr) { // If algoBitFirstBxInTrain_ fired in L1A BX 2 something else must have prefired in the actual BX -2 before the first bunch crossing in the train 
+    for(auto itr = uGtAlgs->begin(2); itr != uGtAlgs->end(2); ++itr) {
       if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) {
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
           for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
@@ -642,8 +639,9 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
     }
   }
 
+  // If algoBitFirstBxInTrain_ fired in L1A BX 1 something else must have prefired in the actual BX -1 before the first bunch crossing in the train
   if (uGtAlgs->getLastBX() >= 1) {
-    for(auto itr = uGtAlgs->begin(1); itr != uGtAlgs->end(1); ++itr) { // If algoBitFirstBxInTrain_ fired in L1A BX 1 something else must have prefired in the actual BX -1 before the first bunch crossing in the train
+    for(auto itr = uGtAlgs->begin(1); itr != uGtAlgs->end(1); ++itr) {
       if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) {
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
           for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
@@ -677,131 +675,6 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
       }
     }
   }
-
-  for(auto itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) { 
-     //  This loop is only called once since the size of uGTAlgs seems to be always 1
-     //if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) { 
-     //   //  Algo bit for the first bunch in train trigger (should be made configurable or, better, taken from conditions if possible)
-     //   //  The first BX in train trigger has fired. Now check all other triggers around this.
-     //   for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-     //      for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
-     //         //  This loop is probably only called once since the size of uGtAlgs seems to be always 1
-     //         auto algoBits = itr2->getAlgoDecisionInitial(); 
-     //         //  get a vector with all algo bits for this BX
-     //         for(size_t algo = 0; algo < algoBits.size(); ++algo) { 
-     //            //  check all algos
-     //            if(algoBits.at(algo)) {
-     //               //  fill if the algo fired 
-     //               first_collision_run_->Fill(ibx, algo);
-     //               for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-     //                  den_first_collision_run_->Fill(ibx2,algo);
-     //               } //denominator for ratio plots
-     //            } //end of fired algo
-     //         } // end of all algo trigger bits
-     //      } // end of uGtAlgs
-     //   } // end of BX
-     //} // selecting FirstCollisionInTrain
-     //if(algoBitIsoBx_ != -1 && itr->getAlgoDecisionInitial(algoBitIsoBx_)) {
-     //   for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-     //      for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
-     //         auto algoBits = itr2->getAlgoDecisionInitial();
-     //         for(size_t algo = 0; algo < algoBits.size(); ++algo) {
-     //            if(algoBits.at(algo)) {
-     //               isolated_collision_run_->Fill(ibx, algo);
-     //               for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-     //                  den_isolated_collision_run_->Fill(ibx2,algo);
-     //               } // denominator for ratio plots
-     //            } //end of fired algo
-     //         } // end of all algo trigger bits
-     //      } // end of uGtAlgs
-     //   } // end of BX
-     //} // selecting FirstCollisionInTrain && LastCollisionInTrain
-     //if(algoBitLastBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_)) {
-     //   for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-     //      for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
-     //         auto algoBits = itr2->getAlgoDecisionInitial();
-     //         for(size_t algo = 0; algo < algoBits.size(); ++algo) {
-     //            if(algoBits.at(algo)) {
-     //               last_collision_run_->Fill(ibx, algo);
-     //               for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-     //                  den_last_collision_run_->Fill(ibx2,algo);
-     //               } // denominator for ratio plots
-     //            } //end of fired algo
-     //         } // end of all algo trigger bits
-     //      } // end of uGtAlgs
-     //   } // end of BX
-     //} // selecting LastCollisionInTrain
-
-
-   //if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) {
-   //  for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-   //    for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
-   //      for(unsigned int algo=0; algo<prescaledAlgoBitName_.size(); algo++) { 
-   //        if(itr2->getAlgoDecisionInitial(prescaledAlgoBitName_.at(algo).second)) { 
-   //          prescaled_algo_first_collision_in_train_->Fill(ibx, algo);
-   //          for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-   //            prescaled_algo_first_collision_in_train_den_->Fill(ibx2,algo);
-   //          }
-   //        }
-   //      }
-   //      for(unsigned int algo=0; algo<unprescaledAlgoBitName_.size(); algo++) {
-   //        if(itr2->getAlgoDecisionInitial(unprescaledAlgoBitName_.at(algo).second)) {
-   //          unprescaled_algo_first_collision_in_train_->Fill(ibx,algo);
-   //          for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-   //            unprescaled_algo_first_collision_in_train_den_->Fill(ibx2,algo);
-   //          }
-   //        }
-   //      }
-   //    }
-   //  }
-   //}
-   //if(algoBitLastBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_)) {
-   //  for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-   //    for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
-   //      for(unsigned int i=0; i<prescaledAlgoBitName_.size(); i++) {
-   //        if(itr2->getAlgoDecisionInitial(prescaledAlgoBitName_.at(i).second)) {
-   //          prescaled_algo_last_collision_in_train_->Fill(ibx, i);
-   //          for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-   //            prescaled_algo_last_collision_in_train_den_->Fill(ibx2,i);
-   //          }
-   //        }
-   //      } 
-   //      for(unsigned int i=0; i<unprescaledAlgoBitName_.size(); i++) {
-   //        if(itr2->getAlgoDecisionInitial(unprescaledAlgoBitName_.at(i).second)) {
-   //          unprescaled_algo_last_collision_in_train_->Fill(ibx,i);
-   //          for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-   //            unprescaled_algo_last_collision_in_train_den_->Fill(ibx2,i);
-   //          }
-   //        }
-   //      }
-   //    }
-   //  }
-   //}
-   //if(algoBitIsoBx_ != -1 && itr->getAlgoDecisionInitial(algoBitIsoBx_)) {
-   //  for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
-   //    for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
-   //      for(unsigned int i=0; i<prescaledAlgoBitName_.size(); i++) {
-   //        if(itr2->getAlgoDecisionInitial(prescaledAlgoBitName_.at(i).second)) {
-   //          prescaled_algo_isolated_collision_in_train_->Fill(ibx, i);
-   //          for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-   //            prescaled_algo_isolated_collision_in_train_den_->Fill(ibx2,i);
-   //          }
-   //        }
-   //      }
-   //      for(unsigned int i=0; i<unprescaledAlgoBitName_.size(); i++) {
-   //        if(itr2->getAlgoDecisionInitial(unprescaledAlgoBitName_.at(i).second)) {
-   //          unprescaled_algo_isolated_collision_in_train_->Fill(ibx,i);
-   //          for(int ibx2 = uGtAlgs->getFirstBX(); ibx2 <= uGtAlgs->getLastBX(); ++ibx2) {
-   //            unprescaled_algo_isolated_collision_in_train_den_->Fill(ibx2,i);
-   //          }
-   //        }
-   //      }
-   //    }
-   //  }
-   //} 
- } // end of uGTAlgs = 1
-
- }
 }
       
 // End section
