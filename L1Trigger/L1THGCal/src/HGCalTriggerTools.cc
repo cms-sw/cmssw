@@ -124,7 +124,8 @@ layer(const DetId& id) const {
 unsigned 
 HGCalTriggerTools::
 layerWithOffset(const DetId& id) const {
-  unsigned int l = layer(id);
+  
+  unsigned int l = layer(id);  
   if( id.det() == DetId::Forward && id.subdetId() == HGCHEF ) {
     l += eeLayers_;
   } else if( (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||

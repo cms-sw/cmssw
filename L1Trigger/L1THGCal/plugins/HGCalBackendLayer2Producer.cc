@@ -30,7 +30,7 @@ class HGCalBackendLayer2Producer : public edm::stream::EDProducer<> {
   
  private:
   // inputs
-  edm::EDGetToken input_cluster2D;
+  edm::EDGetToken input_cluster;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
   std::unique_ptr<HGCalBackendLayer2ProcessorBase> backendProcess_;
@@ -40,11 +40,11 @@ DEFINE_FWK_MODULE(HGCalBackendLayer2Producer);
 
 HGCalBackendLayer2Producer::
 HGCalBackendLayer2Producer(const edm::ParameterSet& conf): 
-  input_cluster2D(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("cluster2DCollection_be")))
+input_cluster(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("InputCluster")))
 {   
   //setup Backend parameters
-  const edm::ParameterSet& beParamConfig = conf.getParameterSet("Backendparam");
-  const std::string& beProcessorName = beParamConfig.getParameter<std::string>("BeProcessorLayer2Name");
+  const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
+  const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
   HGCalBackendLayer2ProcessorBase* beProc = HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig);
   backendProcess_.reset(beProc);
 
@@ -62,9 +62,7 @@ void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& e
 {    
   edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;
   
-  e.getByToken(input_cluster2D, trigCluster2DBxColl);
-
-  //const l1t::HGCalClusterBxCollection& trigCluster2D = *trigCluster2DBxColl;
+  e.getByToken(input_cluster, trigCluster2DBxColl);
     
   backendProcess_->reset3D();    
   backendProcess_->run3D(trigCluster2DBxColl,es,e);

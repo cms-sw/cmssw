@@ -12,15 +12,12 @@ C3d_parValues = cms.PSet( type_multicluster = cms.string('dRC3d'),
 			  minN_dbscan_multicluster=cms.uint32(0)
  )
 
-be_proc = cms.PSet( BeProcessorLayer2Name  = cms.string('HGCalBackendLayer2Processor'),
+be_proc = cms.PSet( ProcessorName  = cms.string('HGCalBackendLayer2Processor3DClustering'),
 		    C3d_parameters = C3d_parValues.clone()
-		    #HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-		    #HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive')
                   )
-
 
 hgcalBackEndLayer2Producer = cms.EDProducer(
     "HGCalBackendLayer2Producer",
-    cluster2DCollection_be = cms.InputTag('hgcalBackEndLayer1Producer:cluster2D'),
-    Backendparam = be_proc.clone()
+    InputCluster = cms.InputTag('hgcalBackEndLayer1Producer:cluster2D'),
+    ProcessorParameters = be_proc.clone()
     )

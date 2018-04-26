@@ -14,7 +14,7 @@ class HGCalVFEProcessorBase {
  public:
   HGCalVFEProcessorBase(const edm::ParameterSet& conf) : 
     geometry_(nullptr),
-    name_(conf.getParameter<std::string>("VFEProcessorName"))
+    name_(conf.getParameter<std::string>("ProcessorName"))
     {}
   virtual ~HGCalVFEProcessorBase() {}
 
@@ -22,8 +22,8 @@ class HGCalVFEProcessorBase {
   virtual void vfeProcessing(const HGCEEDigiCollection&,
                              const HGCHEDigiCollection&,
                              const HGCBHDigiCollection&, 
-			     const edm::EventSetup& es) = 0;
-  
+                             const edm::EventSetup& es) = 0;
+
   const std::string& name() const { return name_; } 
   
   void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}

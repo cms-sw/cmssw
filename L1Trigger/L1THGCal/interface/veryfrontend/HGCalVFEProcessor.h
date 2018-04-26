@@ -47,10 +47,7 @@ class HGCalVFEProcessor : public HGCalVFEProcessorBase
     uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}*/
     
   private:
-    std::vector<vfeProcessing_ptr> vfeProcessing_;
-    /*double   linLSB_;
-    uint32_t triggerCellTruncationBits_;*/
-        
+          
     HGCalVFELinearizationImpl vfeLinearizationImpl_;
     HGCalVFESummationImpl vfeSummationImpl_; 
     HGCalTriggerCellCalibration calibration_;
@@ -58,15 +55,6 @@ class HGCalVFEProcessor : public HGCalVFEProcessorBase
     std::vector<l1t::HGCalTriggerCell> vecTrigCell_;
     std::unique_ptr<l1t::HGCalTriggerCellBxCollection> triggerCell_product_;
     std::unique_ptr<l1t::HGCalTriggerSumsBxCollection> triggerSums_product_;
-    
-     
-    /* lables of sensitive detector (geometry record) */
-    std::string HGCalEESensitive_;
-    std::string HGCalHESiliconSensitive_;
-
-    /* handles to the detector topologies */
-    edm::ESHandle<HGCalTopology> hgceeTopoHandle_;
-    edm::ESHandle<HGCalTopology> hgchefTopoHandle_;    
 
     /* Parameters for calibration */ 
     double triggercell_threshold_silicon_;

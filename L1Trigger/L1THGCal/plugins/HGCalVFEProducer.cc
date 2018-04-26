@@ -43,8 +43,8 @@ HGCalVFEProducer(const edm::ParameterSet& conf):
   inputbh_(consumes<HGCBHDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis")))
 {   
   //setup VFE parameters
-  const edm::ParameterSet& vfeParamConfig = conf.getParameterSet("VFEparam");
-  const std::string& vfeProcessorName = vfeParamConfig.getParameter<std::string>("VFEProcessorName");
+  const edm::ParameterSet& vfeParamConfig = conf.getParameterSet("ProcessorParameters");
+  const std::string& vfeProcessorName = vfeParamConfig.getParameter<std::string>("ProcessorName");
   HGCalVFEProcessorBase* vfeProc = HGCalVFEProcessorBaseFactory::get()->create(vfeProcessorName, vfeParamConfig);
   vfeProcess_.reset(vfeProc);
     

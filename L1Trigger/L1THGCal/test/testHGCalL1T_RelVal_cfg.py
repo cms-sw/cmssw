@@ -26,20 +26,21 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
        #fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_3_0/RelValSinglePiPt25Eta1p7_2p7/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v2_2023D17noPU-v1/00000/240935CF-1C9B-E711-9F7D-0025905A60BE.root'),
-       fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_3_7/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/F2EAE24E-FD2C-E811-A9B5-0242AC130002.root'),
+       #fileNames = cms.untracked.vstring('/store/relval/CMSSW_9_3_7/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW/PU25ns_93X_upgrade2023_realistic_v5_2023D17PU200-v1/10000/F2EAE24E-FD2C-E811-A9B5-0242AC130002.root'),
+       fileNames = cms.untracked.vstring('file:/afs/cern.ch/work/j/jsauvan/public/HGCAL/TestingRelVal/CMSSW_9_3_7/RelValSingleGammaPt35/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v5_2023D17noPU-v2/2661406C-972C-E811-9754-0025905A60DE.root'),
        inputCommands=cms.untracked.vstring(
            'keep *',
            'drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT',
            'drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT',
            'drop l1tEMTFHit2016s_simEmtfDigis__HLT',
            'drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT',
-           'drop l1tEMTFTrack2016s_simEmtfDigis__HLT',
+           'drop l1tEMTFTrack2016s_simEmtfDigis__HLT'
            )
        )
 
@@ -65,8 +66,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 # load HGCAL TPG simulation
-process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
-process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
+process.load('L1Trigger.L1THGCal.hgcalVFE_cff')
+process.load('L1Trigger.L1THGCal.hgcalConcentrator_cff')
+process.load('L1Trigger.L1THGCal.hgcalBackEndLayer1_cff')
+process.load('L1Trigger.L1THGCal.hgcalBackEndLayer2_cff')
 # Change to V7 trigger geometry for older samples
 #  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7
 #  process = custom_geometry_ZoltanSplit_V7(process)
@@ -76,7 +79,7 @@ process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')
 process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.hgcl1tpg_step, process.ntuple_step)
+process.schedule = cms.Schedule(process.hgcVFE_step, process.hgcConcentrator_step, process.hgcBackEndLayer1_step, process.hgcBackEndLayer2_step, process.ntuple_step)
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

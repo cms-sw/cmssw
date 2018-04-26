@@ -10,35 +10,35 @@
 class HGCalConcentratorProcessor : public HGCalConcentratorProcessorBase 
 {
 
- public:
-  HGCalConcentratorProcessor(const edm::ParameterSet& conf);
+  public:
+    HGCalConcentratorProcessor(const edm::ParameterSet& conf);
   
-  virtual void setProduces(edm::stream::EDProducer<>& prod) const override final 
-  {
-    prod.produces<l1t::HGCalTriggerCellBxCollection>(name());
-    prod.produces<l1t::HGCalTriggerSumsBxCollection>(name());
-  }
+    virtual void setProduces(edm::stream::EDProducer<>& prod) const override final 
+    {
+      prod.produces<l1t::HGCalTriggerCellBxCollection>(name());
+      prod.produces<l1t::HGCalTriggerSumsBxCollection>(name());
+    }
 
-  virtual void reset() override final 
-  { 
-    triggerCellConc_product_.reset( new l1t::HGCalTriggerCellBxCollection );
-    triggerSumsConc_product_.reset( new l1t::HGCalTriggerSumsBxCollection );
-  }
+    virtual void reset() override final 
+    { 
+      triggerCellConc_product_.reset( new l1t::HGCalTriggerCellBxCollection );
+      triggerSumsConc_product_.reset( new l1t::HGCalTriggerSumsBxCollection );
+    }
 
-  void putInEvent(edm::Event& evt);
-  
-  void bestChoiceSelect(const l1t::HGCalTriggerCellBxCollection& coll);
-  void thresholdSelect(const l1t::HGCalTriggerCellBxCollection& coll);
-  
-  std::vector<l1t::HGCalTriggerCell> trigCellCollectionToVector(int ibx, const l1t::HGCalTriggerCellBxCollection& coll);
-  void trigCellVectorToCollection(int ibx, const std::vector<l1t::HGCalTriggerCell>);
+    void putInEvent(edm::Event& evt);
+    
+    std::vector<l1t::HGCalTriggerCell> trigCellCollectionToVector(int ibx, const l1t::HGCalTriggerCellBxCollection& coll);
+    void trigCellVectorToCollection(int ibx, const std::vector<l1t::HGCalTriggerCell>);
   
   
- private:
-  HGCalConcentratorSelectionImpl ConcentratorProcImpl_;
+  private:
+    void bestChoiceSelect(const l1t::HGCalTriggerCellBxCollection& coll);
+    void thresholdSelect(const l1t::HGCalTriggerCellBxCollection& coll);
+
+    HGCalConcentratorSelectionImpl concentratorProcImpl_;
   
-  std::unique_ptr<l1t::HGCalTriggerCellBxCollection> triggerCellConc_product_;
-  std::unique_ptr<l1t::HGCalTriggerSumsBxCollection> triggerSumsConc_product_;
+    std::unique_ptr<l1t::HGCalTriggerCellBxCollection> triggerCellConc_product_;
+    std::unique_ptr<l1t::HGCalTriggerSumsBxCollection> triggerSumsConc_product_;
 
 };
 

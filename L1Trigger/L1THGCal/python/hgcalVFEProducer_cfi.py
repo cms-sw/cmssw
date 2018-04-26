@@ -40,27 +40,27 @@ calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBefor
                             thickCorr = cms.double(thicknessCorrection_200)
                             )
 
-vfe_proc = cms.PSet( VFEProcessorName = cms.string('HGCalVFEProcessor'),
+vfe_proc = cms.PSet( ProcessorName = cms.string('HGCalVFEProcessor'),
                      calib_parameters = calib_parValues.clone(),
-		     triggercell_threshold_silicon = cms.double(2.), # MipT
+                     triggercell_threshold_silicon = cms.double(2.), # MipT
                      triggercell_threshold_scintillator = cms.double(2.), # MipT
-		     linLSB = cms.double(100./1024.),
-		     adcsaturation = adcSaturation_fC,
-		     tdcnBits = tdcNbits,
-		     tdcOnsetfC = tdcOnset_fC,
-		     adcnBits = adcNbits,
-		     tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
-		     linnBits = cms.uint32(16),
-		     HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
-		     HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
-		     ThicknessCorrections = cms.vdouble(frontend_thickness_corrections)
+                     linLSB = cms.double(100./1024.),
+                     adcsaturation = adcSaturation_fC,
+                     tdcnBits = tdcNbits,
+                     tdcOnsetfC = tdcOnset_fC,
+                     adcnBits = adcNbits,
+                     tdcsaturation = digiparam.hgceeDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+                     linnBits = cms.uint32(16),
+                     HGCalEESensitive_tag = cms.string('HGCalEESensitive'),
+                     HGCalHESiliconSensitive_tag = cms.string('HGCalHESiliconSensitive'),
+                     ThicknessCorrections = cms.vdouble(frontend_thickness_corrections)
                    )
-                    
+
 hgcalVFEProducer = cms.EDProducer(
-    	"HGCalVFEProducer",
-    	eeDigis = cms.InputTag('mix:HGCDigisEE'),
-    	fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
-	bhDigis = cms.InputTag('mix:HGCDigisHEback'),
-    	VFEparam = vfe_proc.clone()
+        "HGCalVFEProducer",
+        eeDigis = cms.InputTag('mix:HGCDigisEE'),
+        fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
+        bhDigis = cms.InputTag('mix:HGCDigisHEback'),
+        ProcessorParameters = vfe_proc.clone()
        )
 

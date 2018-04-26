@@ -31,16 +31,17 @@ void
 HGCalConcentratorSelectionImpl::
 bestChoiceSelectImpl(std::vector<l1t::HGCalTriggerCell>& trigCellVec)
 {
-    // sort, reverse order
-    sort(trigCellVec.begin(), trigCellVec.end(),
-            [](const l1t::HGCalTriggerCell& a, 
-                const  l1t::HGCalTriggerCell& b) -> bool
-            { 
-                return a.hwPt() > b.hwPt(); 
-            } 
-            );
-    // keep only the first trigger cells
-    if(trigCellVec.size()>nData_) trigCellVec.resize(nData_);
+  // sort, reverse order
+  sort(trigCellVec.begin(), trigCellVec.end(),
+       [](const l1t::HGCalTriggerCell& a, 
+          const  l1t::HGCalTriggerCell& b) -> bool
+  { 
+    return a.hwPt() > b.hwPt(); 
+  } 
+  );
+
+  // keep only the first trigger cells
+  if(trigCellVec.size()>nData_) trigCellVec.resize(nData_);
 }
 
 

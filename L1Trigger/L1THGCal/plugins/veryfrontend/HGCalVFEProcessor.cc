@@ -11,13 +11,13 @@ DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory,
 
 HGCalVFEProcessor::
 HGCalVFEProcessor(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
-    vfeLinearizationImpl_(conf),
-    vfeSummationImpl_(conf),
-    calibration_( conf.getParameterSet("calib_parameters") ),
-    HGCalEESensitive_( conf.getParameter<std::string>("HGCalEESensitive_tag") ),
-    HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
-    triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
-    triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator") )
+  vfeLinearizationImpl_(conf),
+  vfeSummationImpl_(conf),
+  calibration_( conf.getParameterSet("calib_parameters") ),
+  HGCalEESensitive_( conf.getParameter<std::string>("HGCalEESensitive_tag") ),
+  HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
+  triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
+  triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator") )
 { 
 }
 
@@ -30,48 +30,48 @@ vfeProcessing(const HGCEEDigiCollection& ee,
   es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
   es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
   /*es.get<IdealGeometryRecord>().get("", triggerGeometry_);
-  */ 
+  */
   calibration_.eventSetup(es);
-  
+
   std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
   std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
   std::map<HGCalDetId, uint32_t> payload;
-  
+
   // convert ee and fh hit collections into the same object  
   if(!ee.empty())
-  { 
+  {
     for(const auto& eedata : ee)
-    { 
+    {
       dataframes.emplace_back(eedata.id());
       for(int i=0; i<eedata.size(); i++)
-      { 
+      {
         dataframes.back().setSample(i, eedata.sample(i));
       }
     }
   }
   else if(!fh.empty())
-  { 
+  {
     for(const auto& fhdata : fh)
-    {  
+    {
        dataframes.emplace_back(fhdata.id());
        for(int i=0; i<fhdata.size(); i++)
-       { 
+       {
          dataframes.back().setSample(i, fhdata.sample(i));
-       }	 
+       }
      }
    }
   else if(!bh.empty())
-  { 
+  {
     for(const auto& bhdata : bh)
-    {  
+    {
        dataframes.emplace_back(bhdata.id());
        for(int i=0; i<bhdata.size(); i++)
-       { 
+       {
          dataframes.back().setSample(i, bhdata.sample(i));
-       }	 
+       }
      }
-   }     
-  
+   }
+
   vfeLinearizationImpl_.linearize(dataframes, linearized_dataframes);
   vfeSummationImpl_.triggerCellSums(*geometry_, linearized_dataframes, payload);  
   
