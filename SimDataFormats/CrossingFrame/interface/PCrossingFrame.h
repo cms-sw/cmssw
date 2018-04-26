@@ -72,12 +72,12 @@ PCrossingFrame<T>::PCrossingFrame(const CrossingFrame<T>& cf)
  firstPCrossing_ = cf.getBunchRange().first;
  lastPCrossing_ = cf.getBunchRange().second;
 
- const auto pileups = cf.getPileups();
+ const auto& pileups = cf.getPileups();
  PCFpileups_.reserve(pileups.size());
  for(const auto& ptr: pileups) {
    PCFpileups_.emplace_back(*ptr);
  }
- const auto signal = cf.getSignal();
+ const auto& signal = cf.getSignal();
  PCFsignals_.reserve(signal.size());
  for(const auto& ptr: signal) {
    PCFsignals_.emplace_back(*ptr);
