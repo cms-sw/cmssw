@@ -43,12 +43,38 @@
   <class name="std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> >"/>
   <class name="std::vector<TotemRPLocalTrack::FittedRecHit>"/>
 
-<!-- diamonds objects -->
+<!-- timing objects -->
 
-  <class name="CTPPSDiamondRecHit" ClassVersion="5">
+  <class name="CTPPSTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="174345063"/>
+  </class>
+  <class name="edm::Ptr<CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<CTPPSTimingRecHit>"/>
+  <class name="std::vector<CTPPSTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<CTPPSTimingRecHit> >"/>
+  <class name="edm::DetSet<CTPPSTimingRecHit>"/>
+  <class name="edm::DetSetVector<CTPPSTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<CTPPSTimingRecHit> >"/>
+
+
+  <class name="TotemTimingRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="1181754314"/>
+  </class>
+  <class name="edm::Ptr<TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<TotemTimingRecHit>"/>
+  <class name="std::vector<TotemTimingRecHit>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingRecHit> >"/>
+  <class name="edm::DetSet<TotemTimingRecHit>"/>
+  <class name="edm::DetSetVector<TotemTimingRecHit>"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<TotemTimingRecHit> >"/>
+
+  <class name="CTPPSDiamondRecHit" ClassVersion="6">
     <version ClassVersion="3" checksum="2377257106"/>
     <version ClassVersion="4" checksum="2150979176"/>
     <version ClassVersion="5" checksum="2528095961"/>
+    <version ClassVersion="6" checksum="4251418537"/>
   </class>
   <class name="edm::Ptr<CTPPSDiamondRecHit>"/>
   <class name="edm::Wrapper<CTPPSDiamondRecHit>"/>
@@ -59,6 +85,7 @@
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> >"/>
   <class name="edm::Wrapper<std::vector<CTPPSDiamondRecHit> >"/>
 
+  
   <class name="CTPPSDiamondLocalTrack" ClassVersion="4">
     <version ClassVersion="3" checksum="2739193553"/>
     <version ClassVersion="4" checksum="3974505177"/>
