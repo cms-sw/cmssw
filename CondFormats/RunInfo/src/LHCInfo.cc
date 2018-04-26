@@ -86,13 +86,26 @@ LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_int
 	setFill(lhcFill, fromData);
 }
 
-LHCInfo::~LHCInfo() {}
+LHCInfo::~LHCInfo() {
+}
+
+LHCInfo* LHCInfo::cloneFill() const {
+  LHCInfo* ret = new LHCInfo();
+  ret->m_isData = m_isData;
+  if( !m_intParams[0].empty()){
+    for(size_t i=0;i<LUMI_SECTION; i++) ret->m_intParams[i]=m_intParams[i];
+    for(size_t i=0;i<DELIV_LUMI; i++) ret->m_floatParams[i]=m_floatParams[i];
+    for(size_t i=0;i<DIP_TIME; i++) ret->m_timeParams[i]=m_timeParams[i];
+    for(size_t i=0;i<LHC_STATE; i++) ret->m_stringParams[i]=m_stringParams[i];
+  }
+  return ret;
+}
 
 //reset instance
 void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
   m_isData = fromData;
   m_intParams.resize( ISIZE, std::vector<unsigned int>(1,0) );
-  m_intParams[ LHC_FILL ].push_back( lhcFill );
+  m_intParams[ LHC_FILL ] = std::vector<unsigned int>(1,lhcFill);
   m_floatParams.resize( FSIZE, std::vector<float>(1,0.));
   m_floatParams[ LUMI_PER_B ] = std::vector<float>(1, 0.);
   m_floatParams[ BEAM1_VC ] = std::vector<float>(1, 0.);
@@ -133,7 +146,7 @@ namespace LHCInfoImpl {
 
 //getters
 unsigned short const LHCInfo::fillNumber() const {
- return LHCInfoImpl::getOneParam( m_intParams, LHC_FILL );
+  return LHCInfoImpl::getOneParam( m_intParams, LHC_FILL );
 }
 
 bool const LHCInfo::isData() const {
@@ -194,6 +207,14 @@ float const LHCInfo::delivLumi() const {
 
 float const LHCInfo::recLumi() const {
   return LHCInfoImpl::getOneParam( m_floatParams, REC_LUMI );
+}
+
+float const LHCInfo::instLumi() const {
+  return LHCInfoImpl::getOneParam( m_floatParams, INST_LUMI );
+}
+
+float const LHCInfo::instLumiError() const {
+  return LHCInfoImpl::getOneParam( m_floatParams, INST_LUMI_ERR );
 }
 
 cond::Time_t const LHCInfo::createTime() const {
@@ -334,6 +355,14 @@ void LHCInfo::setRecLumi( float const & recLumi ) {
   LHCInfoImpl::setOneParam( m_floatParams, REC_LUMI, recLumi );
 }
 
+void LHCInfo::setInstLumi( float const & instLumi ) {
+  LHCInfoImpl::setOneParam( m_floatParams, INST_LUMI, instLumi );
+}
+
+void LHCInfo::setInstLumiError( float const & instLumiError ) {
+  LHCInfoImpl::setOneParam( m_floatParams, INST_LUMI_ERR, instLumiError );
+}
+
 void LHCInfo::setCreationTime( cond::Time_t const & createTime ) {
   LHCInfoImpl::setOneParam( m_timeParams, CREATE_TIME, createTime );
 }
@@ -401,6 +430,8 @@ void LHCInfo::setInfo( unsigned short const & bunches1
 			    ,float const & energy
 			    ,float const & delivLumi
 			    ,float const & recLumi
+		            ,float const & instLumi
+		            ,float const & instLumiError
 			    ,cond::Time_t const & createTime
 			    ,cond::Time_t const & beginTime
 			    ,cond::Time_t const & endTime
@@ -430,6 +461,8 @@ void LHCInfo::setInfo( unsigned short const & bunches1
   this->setEnergy( energy );
   this->setDelivLumi( delivLumi );
   this->setRecLumi( recLumi );
+  this->setInstLumi( instLumi );
+  this->setInstLumiError( instLumiError );
   this->setCreationTime( createTime );
   this->setBeginTime( beginTime );
   this->setEndTime( endTime );
@@ -463,6 +496,8 @@ void LHCInfo::print( std::stringstream & ss ) const {
      << "Energy (GeV): " << this->energy() << std::endl
      << "Delivered Luminosity (max): " << this->delivLumi() << std::endl
      << "Recorded Luminosity (max): " << this->recLumi() << std::endl
+     << "Instantaneous Luminosity: " << this->instLumi() << std::endl
+     << "Instantaneous Luminosity Error: " << this->instLumiError() << std::endl
      << "Creation time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( this->createTime() ) ) << std::endl
      << "Begin time of Stable Beam flag: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( this->beginTime() ) ) << std::endl
      << "End time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( this->endTime() ) ) << std::endl
@@ -525,4 +560,19 @@ std::ostream & operator<<( std::ostream & os, LHCInfo beamInfo ) {
   beamInfo.print( ss );
   os << ss.str();
   return os;
+}
+
+bool LHCInfo::equals( const LHCInfo& rhs ) const {
+  if( m_isData != rhs.m_isData ) return false;
+  if( m_intParams != rhs.m_intParams  ) return false;
+  if( m_floatParams != rhs.m_floatParams  ) return false;
+  if( m_timeParams != rhs.m_timeParams  ) return false;
+  if( m_stringParams != rhs.m_stringParams  ) return false;
+  if( m_bunchConfiguration1 != rhs.m_bunchConfiguration1 ) return false;
+  if( m_bunchConfiguration2 != rhs.m_bunchConfiguration2 ) return false;
+  return true;
+}
+
+bool LHCInfo::empty() const {
+  return m_intParams[0].empty();
 }
