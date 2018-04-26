@@ -35,7 +35,6 @@ public:
 private:
   uint32_t m_latency;
   uint32_t m_mode;
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -48,7 +47,6 @@ SiStripLatencyFakeESSource::SiStripLatencyFakeESSource(const edm::ParameterSet& 
 
   m_latency = iConfig.getParameter<uint32_t>("latency");
   m_mode = iConfig.getParameter<uint32_t>("mode");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripLatencyFakeESSource::~SiStripLatencyFakeESSource() {}
@@ -66,8 +64,8 @@ SiStripLatencyFakeESSource::produce(const SiStripLatencyRcd& iRecord)
 
   auto latency = std::make_unique<SiStripLatency>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-  const auto& detInfos = reader.getAllData();
+  const edm::Service<SiStripDetInfoFileReader> reader;
+  const auto& detInfos = reader->getAllData();
   // Take the last detId. Since the map is sorted it will be the biggest value
   if ( ! detInfos.empty() ) {
     // Set the apv number as 6, the highest possible
