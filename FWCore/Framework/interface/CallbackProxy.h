@@ -57,9 +57,11 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         const void* getImpl(const EventSetupRecord& iRecord, const DataKey&) override {
+         const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
             assert(iRecord.key() == RecordT::keyForClass());
-            (*callback_)(static_cast<const record_type&>(iRecord));
+            record_type rec;
+            rec.setImpl(&iRecord);
+            (*callback_)(rec);
             return &(*data_);
          }
          
