@@ -2522,7 +2522,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--geometry' : geom,
                                     '--scenario' : 'pp',
                                     '--filetype':'DQM',
-				    '--filein':'file:step3_inDQM.root'
                                     }
 
     upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVESTFull'][k]])
@@ -2532,7 +2531,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
                                       '--eventcontent':'ALCARECO',
-                                      '--geometry' : geom
+                                      '--geometry' : geom,
+                                      '--filein':'file:step3.root'
                                       }
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
