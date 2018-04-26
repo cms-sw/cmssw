@@ -172,6 +172,15 @@ phase2TrackerDigitizer = cms.PSet(
     )
 )
 
+# tracker phase2 post-TDR
+from Configuration.StandardSequences.Eras import eras
+eras.phase2_tracker_postTDR.toModify(phase2TrackerDigitizer, 
+                                     PixelDigitizerAlgorithm  = dict(
+        TanLorentzAnglePerTesla_Barrel = 0.0459,
+        TanLorentzAnglePerTesla_Endcap = 0.0459
+        )
+)
+
 # TODO: values are copied from phase0/1 pixel configuration, they can be wrong
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
 premix_stage1.toModify(phase2TrackerDigitizer,

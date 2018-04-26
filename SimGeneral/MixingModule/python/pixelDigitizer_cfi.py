@@ -26,11 +26,6 @@ from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import phase2Tracke
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toReplaceWith(pixelDigitizer, _phase2TrackerDigitizer)
 
-# tracker phase2 post-TDR
-from Configuration.StandardSequences.Eras import eras
-eras.phase2_tracker_postTDR.toModify(_phase2TrackerDigitizer, PixelDigitizerAlgorithm  = dict(TanLorentzAnglePerTesla_Barrel = 0.0459))
-eras.phase2_tracker_postTDR.toModify(_phase2TrackerDigitizer, PixelDigitizerAlgorithm  = dict(TanLorentzAnglePerTesla_Endcap = 0.0459))
-
 from Configuration.Eras.Modifier_phase2_tracker_postTDR_cff import phase2_tracker_postTDR
 phase2_tracker_postTDR.toReplaceWith(pixelDigitizer, _phase2TrackerDigitizer)
 
