@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
 #include "FWCore/Framework/interface/eventSetupGetImplementation.h"
@@ -29,10 +30,9 @@
 #include "FWCore/Framework/interface/HCMethods.h"
 
 
-#include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
-#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
+#include "FWCore/Framework/interface/RecordDependencyRegister.h"
 #include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
@@ -122,11 +122,11 @@ void testEventsetup::getTest()
    //eventSetup.get<DummyRecord>();
    //CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
    
-   DummyRecord dummyRecord;
+   eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
    provider.addRecordToEventSetup(dummyRecord);
    const DummyRecord& gottenRecord = eventSetup.get<DummyRecord>();
    CPPUNIT_ASSERT(non_null(&gottenRecord));
-   CPPUNIT_ASSERT(&dummyRecord == &gottenRecord);
+   CPPUNIT_ASSERT(&dummyRecord == gottenRecord.impl_);
 }
 
 void testEventsetup::tryToGetTest()
@@ -137,11 +137,11 @@ void testEventsetup::tryToGetTest()
   //eventSetup.get<DummyRecord>();
   //CPPUNIT_ASSERT_THROW(eventSetup.get<DummyRecord>(), edm::eventsetup::NoRecordException<DummyRecord>);
   
-  DummyRecord dummyRecord;
+  eventsetup::EventSetupRecordImpl dummyRecord{ eventsetup::EventSetupRecordKey::makeKey<DummyRecord>() };
   provider.addRecordToEventSetup(dummyRecord);
-  const DummyRecord* gottenRecord = eventSetup.tryToGet<DummyRecord>();
-  CPPUNIT_ASSERT(non_null(gottenRecord));
-  CPPUNIT_ASSERT(&dummyRecord == gottenRecord);
+  auto gottenRecord = eventSetup.tryToGet<DummyRecord>();
+  CPPUNIT_ASSERT(gottenRecord);
+  CPPUNIT_ASSERT(&dummyRecord == gottenRecord->impl_);
 }
 
 void testEventsetup::getExcTest()
@@ -168,8 +168,8 @@ public:
 void testEventsetup::recordProviderTest()
 {
    DummyEventSetupProvider provider(&activityRegistry);
-   typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
+   typedef eventsetup::EventSetupRecordProvider DummyRecordProvider;
+   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>(DummyRecord::keyForClass());
    
    provider.insert(std::move(dummyRecordProvider));
    
@@ -211,8 +211,8 @@ private:
 void testEventsetup::recordValidityTest()
 {
    DummyEventSetupProvider provider(&activityRegistry);
-   typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
+   typedef eventsetup::EventSetupRecordProvider DummyRecordProvider;
+   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>(DummyRecord::keyForClass());
 
    std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
    dummyRecordProvider->addFinder(finder);
@@ -248,8 +248,8 @@ void testEventsetup::recordValidityTest()
 void testEventsetup::recordValidityExcTest()
 {
    DummyEventSetupProvider provider(&activityRegistry);
-   typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
+   typedef eventsetup::EventSetupRecordProvider DummyRecordProvider;
+   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>(DummyRecord::keyForClass());
 
    std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
    dummyRecordProvider->addFinder(finder);
@@ -279,8 +279,8 @@ protected:
 
 };
 
-//create an instance of the factory
-static eventsetup::EventSetupRecordProviderFactoryTemplate<DummyRecord> s_factory;
+//create an instance of the register
+static eventsetup::RecordDependencyRegister<DummyRecord> s_factory;
 
 void testEventsetup::proxyProviderTest()
 {
@@ -717,7 +717,7 @@ void testEventsetup::introspectionTest()
     std::vector<edm::eventsetup::EventSetupRecordKey> recordKeys;
     eventSetup.fillAvailableRecordKeys(recordKeys);
     CPPUNIT_ASSERT(1==recordKeys.size());
-    const eventsetup::EventSetupRecord* record = eventSetup.find(recordKeys[0]);
+    auto record = eventSetup.find(recordKeys[0]);
     CPPUNIT_ASSERT(0!=record);
     
   } catch (const cms::Exception& iException) {
@@ -729,8 +729,8 @@ void testEventsetup::introspectionTest()
 void testEventsetup::iovExtentionTest()
 {
   DummyEventSetupProvider provider(&activityRegistry);
-  typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
-  auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
+  typedef eventsetup::EventSetupRecordProvider DummyRecordProvider;
+  auto dummyRecordProvider = std::make_unique<DummyRecordProvider>(DummyRecord::keyForClass());
   
   std::shared_ptr<DummyFinder> finder = std::make_shared<DummyFinder>();
   dummyRecordProvider->addFinder(finder);
