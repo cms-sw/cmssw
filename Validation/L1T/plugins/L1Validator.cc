@@ -70,8 +70,8 @@ L1Validator::~L1Validator(){
 }
 
 void L1Validator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
-  iBooker.setCurrentFolder(_dirName);
-  _Hists.Book(iBooker);
+  //iBooker.setCurrentFolder(_dirName);
+  _Hists.Book(iBooker, _dirName);
 };
 
 void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
