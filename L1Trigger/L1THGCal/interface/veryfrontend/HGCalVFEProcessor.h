@@ -41,11 +41,7 @@ class HGCalVFEProcessor : public HGCalVFEProcessorBase
     }
              
     typedef std::unique_ptr<HGCalVFEProcessorBase> vfeProcessing_ptr;
-    
-    // Retrieve parameters
-    /*double   linLSB()        const {return linLSB_;}
-    uint32_t triggerCellTruncationBits() const {return triggerCellTruncationBits_;}*/
-    
+        
   private:
           
     HGCalVFELinearizationImpl vfeLinearizationImpl_;

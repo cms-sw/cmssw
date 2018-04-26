@@ -27,8 +27,8 @@ class HGCalConcentratorProcessor : public HGCalConcentratorProcessorBase
 
     void putInEvent(edm::Event& evt);
     
-    std::vector<l1t::HGCalTriggerCell> trigCellCollectionToVector(int ibx, const l1t::HGCalTriggerCellBxCollection& coll);
-    void trigCellVectorToCollection(int ibx, const std::vector<l1t::HGCalTriggerCell>);
+    std::vector<l1t::HGCalTriggerCell> trigCellCollectionToVector(const l1t::HGCalTriggerCellBxCollection& coll);
+    void trigCellVectorToCollection(const std::vector<l1t::HGCalTriggerCell>);
   
   
   private:

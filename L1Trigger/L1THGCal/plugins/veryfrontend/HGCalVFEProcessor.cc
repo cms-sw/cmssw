@@ -14,8 +14,6 @@ HGCalVFEProcessor(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
   vfeLinearizationImpl_(conf),
   vfeSummationImpl_(conf),
   calibration_( conf.getParameterSet("calib_parameters") ),
-  HGCalEESensitive_( conf.getParameter<std::string>("HGCalEESensitive_tag") ),
-  HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
   triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
   triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator") )
 { 
@@ -27,10 +25,6 @@ vfeProcessing(const HGCEEDigiCollection& ee,
               const HGCHEDigiCollection& fh, 
               const HGCBHDigiCollection& bh, const edm::EventSetup& es) 
 { 
-  es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
-  es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
-  /*es.get<IdealGeometryRecord>().get("", triggerGeometry_);
-  */
   calibration_.eventSetup(es);
 
   std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
