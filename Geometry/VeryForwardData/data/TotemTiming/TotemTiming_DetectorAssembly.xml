@@ -40,7 +40,7 @@
     <PosPart copyNumber="1">
       <rParent name="RP_Box_120:RP_box_primary_vacuum"/>
       <rChild name="TotemTiming_Main_Box"/>
-      <Translation x="[TotemTiming_Dist_Beam_Cent:RP_220_Right_Det_x_pos]" y="[TotemTiming_Dist_Beam_Cent:RP_220_Right_Det_y_pos]" z="0*cm"/> <!--FIXME offset!-->
+      <Translation x="[TotemTiming_Dist_Beam_Cent:RP_220_Right_Det_x_pos]" y="[TotemTiming_Dist_Beam_Cent:RP_220_Right_Det_y_pos]-[RP_Box:RP_Box_primary_vacuum_x]/2" z="0*cm"/> <!--FIXME offset!-->
     </PosPart>
     <PosPart copyNumber="0">
       <rParent name="TotemTiming_Main_Box"/>
