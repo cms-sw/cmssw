@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <boost/tokenizer.hpp>
+#include <chrono>
 
 namespace cond {
 
@@ -73,24 +74,22 @@ int cond::TestReadUtilities::execute() {
   persistency::Session session;
   bool runTransaction = hasOptionValue("run");
   session = connPool.createSession( connect, false );
-  session.transaction().start( true );
   if(hashes.empty()){
-    cond::persistency::IOVProxy iovp;
-    if(!runTransaction){
-      iovp = session.readIov( tag );
-    }
     for( auto &i: iovs ){
+      auto startt = std::chrono::steady_clock::now();
       persistency::Session iovSession = session;
       if( runTransaction ){
 	std::cout <<"INFO: using run-labeled transactions."<<std::endl;
 	iovSession = connPool.createReadOnlySession( connect, std::to_string(i) );
-        iovSession.transaction().start( true );
       }
-      iovp = iovSession.readIov( tag );
+      iovSession.transaction().start( true );
+      cond::persistency::IOVProxy iovp = iovSession.readIov( tag );
       auto iov = iovp.getInterval( i );
       hashes.push_back( iov.payloadId );
-      std::cout <<"INFO: found payload for iov "<<i<<" in tag "<<tag<<std::endl;
-      if( runTransaction) iovSession.transaction().commit();
+      iovSession.transaction().commit();
+      auto stopt = std::chrono::steady_clock::now();
+      auto deltat = std::chrono::duration_cast<std::chrono::milliseconds>(stopt - startt);
+      std::cout <<"INFO: Resolved iov "<<iov.since<<" for target "<<i<<" in tag "<<tag<<" (time ms:"<<deltat.count()<<")"<<std::endl;
     }
   }
 
@@ -98,15 +97,19 @@ int cond::TestReadUtilities::execute() {
   cond::Binary info;
   std::string typeName("");
   for( auto& h:hashes ){
+    auto startt = std::chrono::steady_clock::now();
+    session.transaction().start( true );
     bool found = session.fetchPayloadData( h, typeName, data, info );
+    session.transaction().commit();
+    auto stopt = std::chrono::steady_clock::now();
+    auto deltat = std::chrono::duration_cast<std::chrono::milliseconds>(stopt - startt);
     if( !found ) {
       std::cout <<"ERROR: payload for hash "<<h<<" has not been found."<<std::endl;
       return 2;
     } else {
-      std::cout<<"INFO: retrieved payload for hash "<<h<<std::endl;
+      std::cout<<"INFO: Loaded payload data for hash "<<h<<" size: "<<data.size()<<" (time ms:"<<deltat.count()<<")"<<std::endl;
     }
   }
-  session.transaction().commit();
   return 0;
 }
 
