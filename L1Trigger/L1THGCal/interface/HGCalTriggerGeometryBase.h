@@ -14,8 +14,7 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-
-
+#include "DataFormats/L1THGCal/interface/HGCalTowerID.h"
 
 // Pure virtual trigger geometry class
 // Provides the interface to access trigger cell and module mappings
@@ -68,7 +67,7 @@ class HGCalTriggerGeometryBase
         virtual unsigned short getTriggerTowerFromTriggerCell(const unsigned) const { return 1; };
         // FIXME: ideally I would like to return a const ref but this poses problems in all classes actuanlly not
         // implementing this functionality
-        virtual std::vector<unsigned short> getTriggerTowers() const { return std::vector<unsigned short>(); };
+        virtual std::vector<l1t::HGCalTowerCoord> getTriggerTowers() const { return std::vector<l1t::HGCalTowerCoord>(); };
 
     protected:
         void setCaloGeometry(const edm::ESHandle<CaloGeometry>& geom) {calo_geometry_=geom;}
