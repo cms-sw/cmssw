@@ -1,0 +1,7 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/FTLRecHit"/>
+<library file="FTLRecoDump.cc" name="FTLRecoDump">
+  <flags EDM_PLUGIN="1"/>
+</library>
