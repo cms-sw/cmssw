@@ -24,11 +24,10 @@
 
 // user include files
 #include "CLHEP/Random/RandGauss.h"
+#include "CondTools/SiStrip/interface/SiStripMiscalibrateHelper.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "CommonTools/TrackerMap/interface/TmModule.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
@@ -49,62 +48,6 @@
 // class declaration
 //
 
-namespace SiStripNoise {
-  
-  class Entry{
-  public:
-    Entry():
-      entries(0),
-      sum(0),
-      sq_sum(0){}
-
-    double mean() {return sum / entries;}
-    double std_dev() {
-      double tmean = mean();
-      return (sq_sum - entries*tmean*tmean)>0 ? sqrt((sq_sum - entries*tmean*tmean)/(entries-1)) : 0.;
-    }
-    double mean_rms() { return std_dev()/sqrt(entries); }
-
-    void add(double val){
-      entries++;
-      sum += val;
-      sq_sum += val*val;
-    }
-
-    void reset() {
-      entries = 0;
-      sum = 0;
-      sq_sum = 0;
-    }
-  private:
-    long int entries;
-    double sum, sq_sum;
-  };
-
-  struct NoiseSmearings{
-    NoiseSmearings(){
-      m_doScale = false;
-      m_doSmear = false;
-      m_scaleFactor = 1.;
-      m_smearFactor = 0.;
-    }
-    ~NoiseSmearings(){}
-    
-    void setSmearing(bool doScale,bool doSmear,double the_scaleFactor,double the_smearFactor){
-      m_doScale = doScale;
-      m_doSmear = doSmear;
-      m_scaleFactor = the_scaleFactor;
-      m_smearFactor = the_smearFactor;
-    }
-    
-    bool m_doScale;
-    bool m_doSmear;
-    double m_scaleFactor;
-    double m_smearFactor;
-  };
-
-}
-
 class SiStripNoisesFromDBMiscalibrator : public edm::one::EDAnalyzer<>  {
    public:
       explicit SiStripNoisesFromDBMiscalibrator(const edm::ParameterSet&);
@@ -116,12 +59,7 @@ class SiStripNoisesFromDBMiscalibrator : public edm::one::EDAnalyzer<>  {
       virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       std::unique_ptr<SiStripNoises> getNewObject(const std::map<std::pair<uint32_t,int>,float>& theMap);
-      std::unique_ptr<SiStripNoises> getNewObject_withDefaults(const std::map<std::pair<uint32_t,int>,float>& theMap,const float theDefault);
-      sistripsummary::TrackerRegion getRegionFromString(std::string region);
-      std::vector<sistripsummary::TrackerRegion> getRegionsFromDetId(const TrackerTopology* tTopo,DetId detid);
-  
-      std::pair<float,float> getTruncatedRange(const TrackerMap* theMap);
-
+      std::unique_ptr<SiStripNoises> getNewObject_withDefaults(const std::map<std::pair<uint32_t,int>,float>& theMap,const float theDefault); 
       virtual void endJob() override;
 
       // ----------member data ---------------------------
@@ -150,19 +88,19 @@ SiStripNoisesFromDBMiscalibrator::SiStripNoisesFromDBMiscalibrator(const edm::Pa
    //now do what ever initialization is needed
 
   scale_map = std::unique_ptr<TrackerMap>(new TrackerMap("scale"));
-  scale_map->setTitle("Tracker Map of Scale factor module by module");
+  scale_map->setTitle("Tracker Map of Scale factor averaged by module");
   scale_map->setPalette(1);
 
   smear_map =std::unique_ptr<TrackerMap>(new TrackerMap("smear"));
-  smear_map->setTitle("Tracker Map of Smear factor module by module");
+  smear_map->setTitle("Tracker Map of Smear factor averaged by module");
   smear_map->setPalette(1);
 
   old_payload_map =std::unique_ptr<TrackerMap>(new TrackerMap("old_payload"));
-  old_payload_map->setTitle("Tracker Map of Starting Payload Noise module by module");
+  old_payload_map->setTitle("Tracker Map of Starting Noise Payload averaged by module");
   old_payload_map->setPalette(1);
 
   new_payload_map =std::unique_ptr<TrackerMap>(new TrackerMap("new_payload"));
-  new_payload_map->setTitle("Tracker Map of Modified Payload Noise module by module");
+  new_payload_map->setTitle("Tracker Map of Modified Noise Payload averaged by module");
   new_payload_map->setPalette(1);
 
   ratio_map = std::unique_ptr<TrackerMap>(new TrackerMap("ratio"));
@@ -208,19 +146,19 @@ SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::E
      }
    }
 
-   std::map<sistripsummary::TrackerRegion,SiStripNoise::NoiseSmearings> mapOfSmearings;
+   std::map<sistripsummary::TrackerRegion,SiStripMiscalibrate::Smearings> mapOfSmearings;
 
    for(auto& thePSet : m_parameters){
      
      const std::string partition(thePSet.getParameter<std::string>("partition"));
-     sistripsummary::TrackerRegion region = this->getRegionFromString(partition);
+     sistripsummary::TrackerRegion region = SiStripMiscalibrate::getRegionFromString(partition);
      
      bool    m_doScale(thePSet.getParameter<bool>("doScale"));
      bool    m_doSmear(thePSet.getParameter<bool>("doSmear"));
      double  m_scaleFactor(thePSet.getParameter<double>("scaleFactor"));
      double  m_smearFactor(thePSet.getParameter<double>("smearFactor"));
      
-     SiStripNoise::NoiseSmearings params = SiStripNoise::NoiseSmearings();
+     SiStripMiscalibrate::Smearings params = SiStripMiscalibrate::Smearings();
      params.setSmearing(m_doScale,m_doSmear,m_scaleFactor,m_smearFactor);
      mapOfSmearings[region]=params;
    }
@@ -235,12 +173,12 @@ SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::E
    for (const auto & d : detid) {
      SiStripNoises::Range range=SiStripNoise_->getRange(d);
 
-     auto regions = getRegionsFromDetId(tTopo,d); 
+     auto regions = SiStripMiscalibrate::getRegionsFromDetId(tTopo,d); 
 
      // sort by largest to smallest
      std::sort(regions.rbegin(), regions.rend());
      
-     SiStripNoise::NoiseSmearings params = SiStripNoise::NoiseSmearings();
+     SiStripMiscalibrate::Smearings params = SiStripMiscalibrate::Smearings();
      
      for (unsigned int j=0; j<regions.size();j++){
        bool checkRegion = (mapOfSmearings.count(regions[j]) != 0);
@@ -290,9 +228,9 @@ SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::E
 
    // make the payload ratio map
    uint32_t cachedId(0);
-   SiStripNoise::Entry noise_ratio;
-   SiStripNoise::Entry o_noise;
-   SiStripNoise::Entry n_noise;
+   SiStripMiscalibrate::Entry noise_ratio;
+   SiStripMiscalibrate::Entry o_noise;
+   SiStripMiscalibrate::Entry n_noise;
    for(const auto &element : theMap){
 
      uint32_t DetId  = element.first.first;
@@ -329,30 +267,6 @@ SiStripNoisesFromDBMiscalibrator::analyze(const edm::Event& iEvent, const edm::E
  
 }
 
-// ------------ trim the tracker map  ------------
-std::pair<float,float> 
-SiStripNoisesFromDBMiscalibrator::getTruncatedRange(const TrackerMap* theMap){
-
-  auto map = theMap->smoduleMap;
-  std::map<unsigned int,float> info_per_detid;
-  for (int layer=1; layer < 44; layer++){
-    for (int ring=theMap->firstRing[layer-1]; ring < theMap->ntotRing[layer-1]+theMap->firstRing[layer-1];ring++){
-      for (int module=1;module<200;module++) {
-        int key=layer*100000+ring*1000+module;
-        TmModule* mod = map[key];
-        if(mod !=nullptr && !mod->notInUse()  && mod->count>0){
-          info_per_detid[key]=mod->value;
-        }
-      } // loop on modules
-    } // loop on ring
-  } // loop on layers
-
-  auto range = SiStripPI::getTheRange(info_per_detid,2);
-  return range;
-  
-}
-
-
 // ------------ method called once each job just before starting event loop  ------------
 void 
 SiStripNoisesFromDBMiscalibrator::beginJob()
@@ -365,24 +279,24 @@ SiStripNoisesFromDBMiscalibrator::endJob()
 {
 
   if(m_saveMaps){
-    scale_map->save(true,0,0,"scale_map.pdf");
-    scale_map->save(true,0,0,"scale_map.png"); 
+    scale_map->save(true,0,0,"noise_scale_map.pdf");
+    scale_map->save(true,0,0,"noise_scale_map.png"); 
 			             
-    smear_map->save(true,0,0,"smear_map.pdf");
-    smear_map->save(true,0,0,"smear_map.png"); 
+    smear_map->save(true,0,0,"noise_smear_map.pdf");
+    smear_map->save(true,0,0,"noise_smear_map.png"); 
 			             
-    ratio_map->save(true,0,0,"ratio_map.pdf");
-    ratio_map->save(true,0,0,"ratio_map.png"); 
+    ratio_map->save(true,0,0,"noise_ratio_map.pdf");
+    ratio_map->save(true,0,0,"noise_ratio_map.png"); 
 
-    auto range = this->getTruncatedRange(old_payload_map.get());
+    auto range = SiStripMiscalibrate::getTruncatedRange(old_payload_map.get());
 
-    old_payload_map->save(true,range.first,range.second,"starting_payload_map.pdf");
-    old_payload_map->save(true,range.first,range.second,"starting_payload_map.png");
+    old_payload_map->save(true,range.first,range.second,"starting_noise_payload_map.pdf");
+    old_payload_map->save(true,range.first,range.second,"starting_noise_payload_map.png");
                    		             	      
-    range = this->getTruncatedRange(new_payload_map.get());
+    range = SiStripMiscalibrate::getTruncatedRange(new_payload_map.get());
 
-    new_payload_map->save(true,range.first,range.second,"new_payload_map.pdf");
-    new_payload_map->save(true,range.first,range.second,"new_payload_map.png");
+    new_payload_map->save(true,range.first,range.second,"new_noise_payload_map.pdf");
+    new_payload_map->save(true,range.first,range.second,"new_noise_payload_map.png");
 
     if(m_fillDefaults){
       missing_map->save(true,0,0,"missing_map.pdf");
@@ -509,112 +423,6 @@ SiStripNoisesFromDBMiscalibrator::fillDescriptions(edm::ConfigurationDescription
 
   descriptions.add("scaleAndSmearSiStripNoises", desc);
 
-}
-
-/*--------------------------------------------------------------------*/
-sistripsummary::TrackerRegion SiStripNoisesFromDBMiscalibrator::getRegionFromString(std::string region)
-/*--------------------------------------------------------------------*/
-{
-  std::map<std::string,sistripsummary::TrackerRegion> mapping = {
-    {"Tracker",sistripsummary::TRACKER},
-    {"TIB"    ,sistripsummary::TIB   },
-    {"TIB_1"  ,sistripsummary::TIB_1 },
-    {"TIB_2"  ,sistripsummary::TIB_2 },
-    {"TIB_3"  ,sistripsummary::TIB_3 },
-    {"TIB_4"  ,sistripsummary::TIB_4 },
-    {"TID"    ,sistripsummary::TID   },
-    {"TIDP"   ,sistripsummary::TIDP  },
-    {"TIDP_1" ,sistripsummary::TIDP_1},
-    {"TIDP_2" ,sistripsummary::TIDP_2},
-    {"TIDP_3" ,sistripsummary::TIDP_3},
-    {"TIDM"   ,sistripsummary::TIDM  },
-    {"TIDM_1" ,sistripsummary::TIDM_1},
-    {"TIDM_2" ,sistripsummary::TIDM_2},
-    {"TIDM_3" ,sistripsummary::TIDM_3},
-    {"TOB"    ,sistripsummary::TOB   },
-    {"TOB_1"  ,sistripsummary::TOB_1 },
-    {"TOB_2"  ,sistripsummary::TOB_2 },
-    {"TOB_3"  ,sistripsummary::TOB_3 },
-    {"TOB_4"  ,sistripsummary::TOB_4 },
-    {"TOB_5"  ,sistripsummary::TOB_5 },
-    {"TOB_6"  ,sistripsummary::TOB_6 },
-    {"TEC"    ,sistripsummary::TEC   },
-    {"TECP"   ,sistripsummary::TECP  },
-    {"TECP_1" ,sistripsummary::TECP_1},
-    {"TECP_2" ,sistripsummary::TECP_2},
-    {"TECP_3" ,sistripsummary::TECP_3},
-    {"TECP_4" ,sistripsummary::TECP_4},
-    {"TECP_5" ,sistripsummary::TECP_5},
-    {"TECP_6" ,sistripsummary::TECP_6},
-    {"TECP_7" ,sistripsummary::TECP_7},
-    {"TECP_8" ,sistripsummary::TECP_8},
-    {"TECP_9" ,sistripsummary::TECP_9},
-    {"TECM"   ,sistripsummary::TECM  },
-    {"TECM_1" ,sistripsummary::TECM_1},
-    {"TECM_2" ,sistripsummary::TECM_2},
-    {"TECM_3" ,sistripsummary::TECM_3},
-    {"TECM_4" ,sistripsummary::TECM_4},
-    {"TECM_5" ,sistripsummary::TECM_5},
-    {"TECM_6" ,sistripsummary::TECM_6},
-    {"TECM_7" ,sistripsummary::TECM_7},
-    {"TECM_8" ,sistripsummary::TECM_8},
-    {"TECM_9" ,sistripsummary::TECM_9}
-  };
-  
-  if (mapping.find(region) == mapping.end() ){
-    edm::LogError("SiStripNoisesFromDBMiscalibrator") << "@SUB=analyze" << "Unknown partition: " << region;
-    throw cms::Exception("Invalid Partition passed"); 
-  } else {
-    return mapping[region];
-  }
-}
-
-/*--------------------------------------------------------------------*/
-std::vector<sistripsummary::TrackerRegion> SiStripNoisesFromDBMiscalibrator::getRegionsFromDetId(const TrackerTopology* m_trackerTopo,DetId detid)
-/*--------------------------------------------------------------------*/      
-{
-  int layer    = 0;
-  int side     = 0;
-  int subdet   = 0;
-  int detCode  = 0;
-
-  std::vector<sistripsummary::TrackerRegion> ret;
-
-  switch (detid.subdetId()) {
-  case StripSubdetector::TIB:
-    layer = m_trackerTopo->tibLayer(detid);
-    subdet = 1;
-    break;
-  case StripSubdetector::TOB:
-    layer = m_trackerTopo->tobLayer(detid);
-    subdet = 2;
-    break;
-  case StripSubdetector::TID:
-    // is this module in TID+ or TID-?
-    layer = m_trackerTopo->tidWheel(detid);
-    side  = m_trackerTopo->tidSide(detid);
-    subdet = 3*10+side;
-    break;
-  case StripSubdetector::TEC:
-    // is this module in TEC+ or TEC-?
-    layer = m_trackerTopo->tecWheel(detid);
-    side  = m_trackerTopo->tecSide(detid);
-    subdet = 4*10+side;
-    break;
-  }
-  
-  detCode = (subdet*10)+layer;
-  
-  ret.push_back(static_cast<sistripsummary::TrackerRegion>(detCode));
-
-  if(subdet/10 > 0) {
-    ret.push_back(static_cast<sistripsummary::TrackerRegion>(subdet/10));
-  }
-
-  ret.push_back(static_cast<sistripsummary::TrackerRegion>(subdet));
-  ret.push_back(sistripsummary::TRACKER);
-
-  return ret;
 }
 
 //define this as a plug-in
