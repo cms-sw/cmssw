@@ -34,6 +34,7 @@ namespace ecaldqm
     MESet& meTimingSummary(MEs_.at("TimingSummary"));
     MESet& meNonSingleSummary(MEs_.at("NonSingleSummary"));
     MESet& meEmulQualitySummary(MEs_.at("EmulQualitySummary"));
+    MESet& meTrendTTF4Flags(MEs_.at("TrendTTF4Flags"));
 
     MESet const& sEtEmulError(sources_.at("EtEmulError"));
     MESet const& sMatchedIndex(sources_.at("MatchedIndex"));
@@ -96,13 +97,19 @@ namespace ecaldqm
     MESet const& sTTMaskMapAll(sources_.at("TTMaskMapAll"));
 
     std::vector<float> nWithTTF4(nDCC, 0.); // counters to keep track of number of towers in a DCC that have TTF4 flag set
+    int nWithTTF4_EE = 0; // total number of towers in EE with TTF4
+    int nWithTTF4_EB = 0; // total number of towers in EB with TTF4
     // Loop over all TTs
     for(unsigned iTT(0); iTT < EcalTrigTowerDetId::kSizeForDenseIndexing; iTT++) {
       EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(iTT));
       unsigned iDCC( dccId(ttid)-1 );
       bool isMasked( sTTMaskMapAll.getBinContent(ttid) > 0. );
       bool hasTTF4( sTTFlags4.getBinContent(ttid) > 0. );
-      if (hasTTF4) nWithTTF4[iDCC]++;
+      if (hasTTF4) {
+        nWithTTF4[iDCC]++;
+        if (ttid.subDet() == EcalBarrel) nWithTTF4_EB++;
+        else if (ttid.subDet() == EcalEndcap) nWithTTF4_EE++;
+      }
       if ( isMasked ) { 
         if ( hasTTF4 )
           meTTF4vMask.setBinContent( ttid,12 ); // Masked, has TTF4
@@ -112,7 +119,11 @@ namespace ecaldqm
         if ( hasTTF4 )
           meTTF4vMask.setBinContent( ttid,13 ); // not Masked, has TTF4
       }   
-    } // TT loop 
+    } // TT loop
+
+    // Fill trend plots for number of TTs with TTF4 flag set
+    meTrendTTF4Flags.fill(EcalBarrel, double(timestamp_.iLumi), nWithTTF4_EB);
+    meTrendTTF4Flags.fill(EcalEndcap, double(timestamp_.iLumi), nWithTTF4_EE);
 
     // Quality check: set an entire FED to BAD if a more than 80% of the TTs in that FED show any DCC-SRP flag mismatch errors
     // Fill flag mismatch statistics
