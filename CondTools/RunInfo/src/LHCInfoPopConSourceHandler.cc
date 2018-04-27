@@ -669,7 +669,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
       m_lastPayloadEmpty = true;
     }
   }
-  if( currentFillPayload.get() == 0 ){
+  if( currentFillPayload.get() == nullptr ){
     currentFillPayload.reset( new LHCInfo() );
     session.transaction().start(true);
     bool foundFill = getCurrentFillData( session, cond::time::to_boost(targetIov ), *currentFillPayload );
@@ -734,7 +734,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	edm::LogInfo( m_name )<<"End of sampling for current fill: endTime is "<<
 	  boost::posix_time::to_simple_string(cond::time::to_boost(endSampling));
         targetIov = endSampling;
-        currentFillPayload = 0;
+        currentFillPayload = nullptr;
 	more = false;
       }
       if( targetIov >= endIov ){
