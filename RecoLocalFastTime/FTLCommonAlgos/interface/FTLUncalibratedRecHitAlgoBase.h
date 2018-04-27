@@ -33,7 +33,9 @@ class FTLUncalibratedRecHitAlgoBase {
   virtual void getEventSetup(const edm::EventSetup&) = 0;
 
   /// make the rec hit
-  virtual FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const = 0;
+  
+  virtual FTLUncalibratedRecHit makeRecHit(const BTLDataFrame& dataFrame ) const = 0;
+  virtual FTLUncalibratedRecHit makeRecHit(const ETLDataFrame& dataFrame ) const = 0;
 
   const std::string& name() const { return name_; }
 
