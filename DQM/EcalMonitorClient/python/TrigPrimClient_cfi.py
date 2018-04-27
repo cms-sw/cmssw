@@ -5,7 +5,7 @@ from DQM.EcalMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 
 minEntries = 3
 errorFractionThreshold = 0.1
-TTF4MaskingAlarmThreshold = 0.05
+TTF4MaskingAlarmThreshold = 0.1
 
 ecalTrigPrimClient = cms.untracked.PSet(
     params = cms.untracked.PSet(
@@ -56,6 +56,13 @@ ecalTrigPrimClient = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('TriggerTower'),
             description = cms.untracked.string('Summarizes whether a TT was masked in the TPGRecords, or had an instance of TT Flag=4.<br/>GRAY: Masked, no TTF4,<br/>BLACK: Masked, with TTF4,<br/>BLUE: Not Masked, with TTF4.')
+        ),
+        TrendTTF4Flags = cms.untracked.PSet(
+            path = cms.untracked.string('Ecal/Trends/TrigPrimClient %(prefix)s number of TTs with TTF4 set'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('Trend'),
+            description = cms.untracked.string('Trend of the total number of TTs in this partition with TTF4 flag set.')
         )
     )
 )
