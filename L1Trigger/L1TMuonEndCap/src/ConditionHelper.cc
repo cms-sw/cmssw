@@ -23,7 +23,7 @@ bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
   bool new_forests = false;
 
   // Pull configuration from the EventSetup
-  auto& params_setup = iSetup.get<L1TMuonEndCapParamsRcd>();
+  auto params_setup = iSetup.get<L1TMuonEndCapParamsRcd>();
   if (params_setup.cacheIdentifier() != params_cache_id_) {
     params_setup.get(params_);
 
@@ -36,7 +36,7 @@ bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
   }
 
   // Pull pt LUT from the EventSetup
-  auto& forest_setup = iSetup.get<L1TMuonEndCapForestRcd>();
+  auto forest_setup = iSetup.get<L1TMuonEndCapForestRcd>();
   if (forest_setup.cacheIdentifier() != forest_cache_id_) {
     forest_setup.get(forest_);
 
