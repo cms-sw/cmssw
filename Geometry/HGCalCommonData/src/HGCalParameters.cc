@@ -169,11 +169,11 @@ void HGCalParameters::scaleTrForm(double scale) {
   }
 }
 
-unsigned int HGCalParameters::waferIndex(int layer, int waferU, int waferV) {
+int HGCalParameters::waferIndex(int layer, int waferU, int waferV) {
   int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
   int waferUsign = (waferU >= 0) ? 0 : 1;
   int waferVsign = (waferV >= 0) ? 0 : 1;
-  unsigned int id(0);
+  int id(0);
   id |= (((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
 	 ((waferUsign& kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
 	 ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
@@ -182,17 +182,17 @@ unsigned int HGCalParameters::waferIndex(int layer, int waferU, int waferV) {
   return id;
 }
 
-int HGCalParameters::waferLayer(const unsigned int id) const {
+int HGCalParameters::waferLayer(const int id) const {
   return (id>>kHGCalLayerOffset)&kHGCalLayerMask; 
 }
 
-int HGCalParameters::waferU(const unsigned int id) const {
-  unsigned int iu = (id>>kHGCalWaferUOffset)&kHGCalWaferUMask;
+int HGCalParameters::waferU(const int id) const {
+  int iu = (id>>kHGCalWaferUOffset)&kHGCalWaferUMask;
   return (((id>>kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -iu : iu);
 }
 
-int HGCalParameters::waferV(const unsigned int id) const {
-  unsigned int iv = (id>>kHGCalWaferVOffset)&kHGCalWaferVMask;
+int HGCalParameters::waferV(const int id) const {
+  int iv = (id>>kHGCalWaferVOffset)&kHGCalWaferVMask;
   return (((id>>kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -iv : iv);
 }
 

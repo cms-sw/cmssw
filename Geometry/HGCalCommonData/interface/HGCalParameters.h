@@ -16,7 +16,7 @@ class HGCalParameters {
 public:
 
   typedef std::vector<std::unordered_map<int32_t,int32_t> > layer_map;
-  typedef std::unordered_map<unsigned int, unsigned int>    wafer_map;
+  typedef std::unordered_map<int32_t, int32_t>              wafer_map;
 
   struct hgtrap {
     int           lay;
@@ -37,10 +37,10 @@ public:
   hgtrform getTrForm(unsigned int k) const;
   void     addTrForm(const CLHEP::Hep3Vector& h3v);
   void     scaleTrForm(double);
-  unsigned int waferIndex(int layer, int waferU, int waferV);
-  int      waferLayer(const unsigned int index) const;
-  int      waferU(const unsigned int index) const;
-  int      waferV(const unsigned int index) const;
+  int      waferIndex(int layer, int waferU, int waferV);
+  int      waferLayer(const int index) const;
+  int      waferU(const int index) const;
+  int      waferV(const int index) const;
 
   std::string                     name_;
   int                             nCells_;
