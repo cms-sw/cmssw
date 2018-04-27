@@ -11,6 +11,7 @@
 <use   name="SimDataFormats/Forward"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="Geometry/HGCalCommonData"/>
+<use   name="Geometry/MTDCommonData"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>

@@ -12,7 +12,7 @@
 
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
-#include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
+#include "Geometry/MTDCommonData/interface/MTDNumberingScheme.h"
   
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -28,6 +28,7 @@ class TrackingSlaveSD;
 class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
+class MTDBaseNumber;
 
 //-------------------------------------------------------------------
 
@@ -73,11 +74,12 @@ private:
   void             ResetForNewPrimary();
   void             Summarize();
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
+  void             setNumberingScheme(MTDNumberingScheme*);
+  void             getBaseNumber(const G4Step*);
   
 private:
   
   TrackingSlaveSD             *slave;
-  const FastTimeDDDConstants  *ftcons;
   int                          type_;
 
   G4ThreeVector                entrancePoint, exitPoint;
@@ -117,6 +119,11 @@ private:
   float                        X,Y,Z;
   
   int                          eventno;
+
+  MTDNumberingScheme *         numberingScheme;
+  MTDBaseNumber                theBaseNumber;
+  bool                         isBTL;
+  bool                         isETL;
   
 protected:
   
