@@ -44,7 +44,8 @@ class SiStripAPVRestorer {
   
   uint16_t  InspectAndRestore(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
 
-  uint16_t  InspectHybridFormat(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+ // uint16_t  HybridFormatInspect(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+  
   
   
   //void     fixAPVsCM(edm::DetSet<SiStripProcessedRawDigi>& );
@@ -69,7 +70,8 @@ class SiStripAPVRestorer {
   template<typename T >uint16_t BaselineFollowerInspect(const uint16_t&, std::vector<T>&);  
   template<typename T >uint16_t BaselineAndSaturationInspect(const uint16_t&, std::vector<T>&);
   template<typename T >uint16_t ForceRestoreInspect(const uint16_t&, std::vector<T>&);
-
+  template<typename T >uint16_t HybridFormatInspect(const uint16_t&, std::vector<T>&);
+  
   void FlatRestore(const uint16_t&, const uint16_t&, std::vector<int16_t>& );
   bool CheckBaseline(const std::vector<int16_t> &) const;
   void BaselineFollowerRestore(const uint16_t&, const uint16_t&, const float&, std::vector<int16_t>& );

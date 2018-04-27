@@ -6,6 +6,9 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripAPVRestorer.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
@@ -16,7 +19,7 @@ class SiStripRawProcessingAlgorithms {
   void initialize(const edm::EventSetup&);
   void initialize(const edm::EventSetup&, const edm::Event&);
   
-  uint16_t SuppressHybridData(const edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripDigi>&  );
+  uint16_t SuppressHybridData(const edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripDigi>&,  std::vector<int16_t>& );
   uint16_t SuppressHybridData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
 
 
@@ -29,6 +32,8 @@ class SiStripRawProcessingAlgorithms {
   
   uint16_t ConvertVirginRawToHybrid(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
   uint16_t ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
+  
+  void ConvertHybridDigiToRawDigiVector(const uint32_t&, const edm::DetSet<SiStripDigi>&, std::vector<int16_t>&);
   
   inline std::vector<bool>& GetAPVFlags(){return restorer->GetAPVFlags();}
   inline std::map<uint16_t, std::vector < int16_t> >& GetBaselineMap(){return restorer->GetBaselineMap();}
@@ -43,7 +48,9 @@ class SiStripRawProcessingAlgorithms {
  private:
   const bool doAPVRestore;
   const bool useCMMeanMap;
-
+  
+  const TrackerGeometry* trGeo;
+  
   SiStripRawProcessingAlgorithms(std::auto_ptr<SiStripPedestalsSubtractor> ped,
 				 std::auto_ptr<SiStripCommonModeNoiseSubtractor> cmn,
 				 std::auto_ptr<SiStripFedZeroSuppression> zs,
