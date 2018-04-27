@@ -369,8 +369,8 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       {
          printf("Could not extract run-conditions get-result=%d, is-valid=%d\n", res, runCond.isValid());
 
-         const edm::eventsetup::EventSetupRecord* rec = iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
-         if( nullptr != rec )
+         auto rec = iSetup.find( edm::eventsetup::EventSetupRecordKey::makeKey<RunInfoRcd>());
+         if( rec )
          {
             edm::ESHandle<RunInfo> sum;
             iSetup.get<RunInfoRcd>().get(sum);
