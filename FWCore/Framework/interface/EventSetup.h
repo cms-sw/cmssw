@@ -34,7 +34,6 @@
 #include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 
 // forward declarations
 
