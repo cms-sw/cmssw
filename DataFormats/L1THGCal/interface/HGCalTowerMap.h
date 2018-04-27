@@ -9,6 +9,7 @@
 namespace l1t {
 
   class HGCalTowerMap;
+  class HGCalTowerCoord;
   typedef BXVector<HGCalTowerMap> HGCalTowerMapBxCollection;
 
   class HGCalTowerMap {
@@ -17,7 +18,7 @@ namespace l1t {
 
     HGCalTowerMap(): layer_(0) {}
 
-    HGCalTowerMap(const std::vector<unsigned short>& tower_ids, const int layer);
+    HGCalTowerMap(const std::vector<l1t::HGCalTowerCoord>& tower_ids, const int layer);
 
     // ~HGCalTowerMap();
 
@@ -25,8 +26,7 @@ namespace l1t {
 
     int layer() const { return layer_; }
 
-    // FIXME: is this the right signature shall I pass a const ref????
-    const HGCalTowerMap& operator+=(HGCalTowerMap map);
+    const HGCalTowerMap& operator+=(const HGCalTowerMap& map);
 
     // bool addEt(short iX, short iY, float etEm, float etHad);
     bool addEt(short bin_id, float etEm, float etHad);
