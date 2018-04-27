@@ -15,6 +15,12 @@ l1tObjectsTiming = DQMEDAnalyzer(
     firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
     lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),
     isoBXAlgo = cms.untracked.string("L1_IsolatedBunch"),
-    useAlgoDecision = cms.untracked.string("initial")
+    useAlgoDecision = cms.untracked.string("initial"),
+    egammaPtCuts = cms.untracked.vdouble([20., 10., 30.]), # The first in the list will be the default cut
+    jetPtCut = cms.untracked.double(20.),
+    tauPtCut = cms.untracked.double(20.),
+    etsumPtCut = cms.untracked.double(20.),
+    muonPtCut = cms.untracked.double(8.),
+    muonQualCut = cms.untracked.int32(12)
 )
 
