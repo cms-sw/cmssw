@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <bitset>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <tuple>

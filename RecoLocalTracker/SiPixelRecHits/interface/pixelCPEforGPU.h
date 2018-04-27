@@ -1,12 +1,14 @@
-#pragma once
+#ifndef RecoLocalTracker_SiPixelRecHits_pixelCPEforGPU_h
+#define RecoLocalTracker_SiPixelRecHits_pixelCPEforGPU_h
 
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
-#include "DataFormats/GeometrySurface/interface/SOARotation.h"
-#include <cstdint>
+#include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <iterator>
 
-#include<cassert>
+#include "DataFormats/GeometrySurface/interface/SOARotation.h"
+#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cuda_cxx17.h"
 
 namespace pixelCPEforGPU {
 
@@ -256,3 +258,5 @@ namespace pixelCPEforGPU {
    }
 
 }
+
+#endif  // RecoLocalTracker_SiPixelRecHits_pixelCPEforGPU_h
