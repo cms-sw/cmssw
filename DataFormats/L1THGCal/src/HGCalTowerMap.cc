@@ -5,27 +5,17 @@
 
 using namespace l1t;
 
-HGCalTowerMap::HGCalTowerMap(const std::vector<unsigned short>& tower_ids, const int layer=0) : layer_(layer)  {
-  // FIXME: these numbers should come from the geometry....
-  GlobalPoint referencePointM(-167.5, -167.5, -320.755);
-  GlobalPoint referencePointP(-167.5, -167.5, 320.755);
-  float bin_size = 5.;
-
+HGCalTowerMap::HGCalTowerMap(const std::vector<HGCalTowerCoord>& tower_ids,
+                             const int layer=0) : layer_(layer)  {
   for(auto tower_id: tower_ids) {
-    l1t::HGCalTowerID towerId(tower_id);
-    GlobalPoint referencePoint = towerId.zside() < 0 ? referencePointM : referencePointP;
-    GlobalPoint surface_center(referencePoint.x()+towerId.iX()*bin_size,
-                               referencePoint.y()+towerId.iY()*bin_size,
-                               referencePoint.z());
-    l1t::HGCalTower tower(0., 0., surface_center.eta(), surface_center.phi(), tower_id);
-    towerMap_[tower_id] = tower;
+    towerMap_[tower_id.rawId] = l1t::HGCalTower(0., 0., tower_id.eta, tower_id.phi, tower_id.rawId);
   }
 }
 
 // HGCalTowerMap::~HGCalTowerMap() {}
 
 
-const HGCalTowerMap& HGCalTowerMap::operator+=(HGCalTowerMap map){
+const HGCalTowerMap& HGCalTowerMap::operator+=(const HGCalTowerMap& map){
   if (nTowers() != map.nTowers()) {
     throw edm::Exception(edm::errors::StdException, "StdException")
       << "HGCalTowerMap: Trying to add HGCalTowerMaps with different bins: " << nTowers() << " and " << map.nTowers() <<endl;
