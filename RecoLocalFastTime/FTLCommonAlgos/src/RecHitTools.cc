@@ -1,6 +1,6 @@
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/RecHitTools.h"
 
-#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
+#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 
 #include "Geometry/Records/interface/FastTimeGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -31,8 +31,8 @@ FlatTrd::CornersVec RecHitTools::getCorners(const DetId& id) const {
 }
 
 RecHitTools::HitType RecHitTools::getHitType(const DetId& id) const {
-  FastTimeDetId fid(id);
-  return (HitType)fid.type();
+  MTDDetId fid(id.rawId());
+  return (HitType)fid.mtdSubDetector();
 }
 
 

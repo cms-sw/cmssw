@@ -34,9 +34,10 @@ public:
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~FTLDigiProducer() override;
 private:
+  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer
   std::vector<std::unique_ptr<FTLDigitizerBase> > theDigitizers_;
-  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
+  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

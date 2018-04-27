@@ -24,14 +24,16 @@ class FTLSimpleUncalibRecHitAlgo : public FTLUncalibratedRecHitAlgoBase {
   void getEventSetup(const edm::EventSetup&) final {}
 
   /// make the rec hit
-  FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const final;
+  //FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const final;
+  FTLUncalibratedRecHit makeRecHit(const BTLDataFrame& dataFrame ) const final;
+  FTLUncalibratedRecHit makeRecHit(const ETLDataFrame& dataFrame ) const final;
 
  private:  
   double adcLSB_, toaLSBToNS_, timeError_;
 };
 
 FTLUncalibratedRecHit 
-FTLSimpleUncalibRecHitAlgo::makeRecHit(const FTLDataFrame& dataFrame ) const { 
+FTLSimpleUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataFrame ) const { 
   constexpr int iSample=2; //only in-time sample
   const auto& sample = dataFrame.sample(iSample);
   
@@ -47,6 +49,40 @@ FTLSimpleUncalibRecHitAlgo::makeRecHit(const FTLDataFrame& dataFrame ) const {
   
   return FTLUncalibratedRecHit( dataFrame.id(), amplitude, time, timeError_, flag);
 }
+FTLUncalibratedRecHit 
+FTLSimpleUncalibRecHitAlgo::makeRecHit(const ETLDataFrame& dataFrame ) const { 
+  constexpr int iSample=2; //only in-time sample
+  const auto& sample = dataFrame.sample(iSample);
+  
+  double amplitude = double(sample.data()) * adcLSB_;
+  double time    = double(sample.toa()) * toaLSBToNS_;
+  unsigned char flag = 0;
+  
+  LogDebug("FTLSimpleUncalibRecHit") << "ADC+: set the charge to: " << amplitude << ' ' << sample.data() 
+                                     << ' ' << adcLSB_ << ' ' << std::endl;    
+  LogDebug("FTLSimpleUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() 
+                                     << ' ' << toaLSBToNS_ << ' ' << std::endl;    
+  LogDebug("FTLSimpleUncalibRecHit") << "Final uncalibrated amplitude : " << amplitude << std::endl;
+  
+  return FTLUncalibratedRecHit( dataFrame.id(), amplitude, time, timeError_, flag);
+}
+//FTLUncalibratedRecHit 
+//FTLSimpleUncalibRecHitAlgo::makeRecHit(const FTLDataFrame& dataFrame ) const { 
+//  constexpr int iSample=2; //only in-time sample
+//  const auto& sample = dataFrame.sample(iSample);
+//  
+//  double amplitude = double(sample.data()) * adcLSB_;
+//  double time    = double(sample.toa()) * toaLSBToNS_;
+//  unsigned char flag = 0;
+//  
+//  LogDebug("FTLSimpleUncalibRecHit") << "ADC+: set the charge to: " << amplitude << ' ' << sample.data() 
+//                                     << ' ' << adcLSB_ << ' ' << std::endl;    
+//  LogDebug("FTLSimpleUncalibRecHit") << "ADC+: set the time to: " << time << ' ' << sample.toa() 
+//                                     << ' ' << toaLSBToNS_ << ' ' << std::endl;    
+//  LogDebug("FTLSimpleUncalibRecHit") << "Final uncalibrated amplitude : " << amplitude << std::endl;
+//  
+//  return FTLUncalibratedRecHit( dataFrame.id(), amplitude, time, timeError_, flag);
+//}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_EDM_PLUGIN( FTLUncalibratedRecHitAlgoFactory, FTLSimpleUncalibRecHitAlgo, "FTLSimpleUncalibRecHitAlgo" );
