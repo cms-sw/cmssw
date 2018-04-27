@@ -89,6 +89,10 @@ namespace edm {
       public:
          EventSetupRecord();
          EventSetupRecord(EventSetupRecord&&) = default;
+         EventSetupRecord& operator=(EventSetupRecord&&) = default;
+
+         EventSetupRecord(EventSetupRecord const&) = default;
+         EventSetupRecord& operator=(EventSetupRecord const&) = default;
          virtual ~EventSetupRecord();
 
          // ---------- const member functions ---------------------
