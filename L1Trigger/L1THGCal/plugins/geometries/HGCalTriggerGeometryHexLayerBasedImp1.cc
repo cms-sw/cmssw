@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTowerGeometryHelper.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
@@ -41,8 +42,8 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         unsigned triggerLayer(const unsigned) const final;
 
         virtual unsigned short getTriggerTowerFromTriggerCell(const unsigned) const override final;
-        virtual std::vector<unsigned short> getTriggerTowers() const override final {
-          return trigger_towers_;
+        virtual std::vector<l1t::HGCalTowerCoord> getTriggerTowers() const override final {
+          return towerGeometryHelper_.getTowerCoordinates();
         }
 
     private:
@@ -80,6 +81,8 @@ class HGCalTriggerGeometryHexLayerBasedImp1 : public HGCalTriggerGeometryBase
         std::unordered_set<unsigned> disconnected_layers_;
         std::vector<unsigned> trigger_layers_;
 
+        HGCalTriggerTowerGeometryHelper towerGeometryHelper_;
+
         // layer offsets
         unsigned fhOffset_;
         unsigned bhOffset_;
@@ -111,7 +114,8 @@ HGCalTriggerGeometryHexLayerBasedImp1(const edm::ParameterSet& conf):
     l1tModulesMapping_(conf.getParameter<edm::FileInPath>("L1TModulesMapping")),
     l1tCellNeighborsMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsMapping")),
     l1tCellNeighborsBHMapping_(conf.getParameter<edm::FileInPath>("L1TCellNeighborsBHMapping")),
-    l1tTriggerTowerMapping_(conf.getParameter<edm::FileInPath>("L1TTriggerTowerMapping"))
+    l1tTriggerTowerMapping_(conf.getParameter<edm::ParameterSet>("L1TTriggerTowerConfig").getParameter<edm::FileInPath>("L1TTriggerTowerMapping")),
+    towerGeometryHelper_(conf.getParameter<edm::ParameterSet>("L1TTriggerTowerConfig"))
 {
     std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedModules");
     std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_modules_, disconnected_modules_.end()));
@@ -590,6 +594,7 @@ fillMaps()
     }
     trigger_towers_.reserve(tt_ids.size());
     std::copy(tt_ids.begin(), tt_ids.end(), std::back_inserter(trigger_towers_));
+    towerGeometryHelper_.createTowerCoordinates(trigger_towers_);
 
     std::cout << "...done" << std::endl;
     std::cout << "# of trigger cells: " << cells_to_trigger_towers_.size() << std::endl;
