@@ -91,64 +91,6 @@ namespace edm {
             return validity_;
          }
 
-        /*
-         template<typename HolderT>
-         void get(HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
-
-         template<typename HolderT>
-         void get(char const* iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
-         template<typename HolderT>
-         void get(std::string const& iName, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
-
-         template<typename HolderT>
-         void get(ESInputTag const& iTag, HolderT& iHolder) const {
-            typename HolderT::value_type const* value = nullptr;
-            ComponentDescription const* desc = nullptr;
-            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
-            this->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
-
-            if(value) {
-              validate(desc, iTag);
-              iHolder = HolderT(value, desc);
-            } else {
-              iHolder = HolderT(std::move(whyFailedFactory));
-            }
-         }
-
-         */
          ///returns false if no data available for key
          bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
 
