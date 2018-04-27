@@ -54,7 +54,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
   else                          keV2fC_   = 1.0;
 
   if( myCfg_.existsAs<edm::ParameterSet>( "chargeCollectionEfficiencies" ) ) {
-    cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").getParameter<std::vector<double>>("values");
+    cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").template getParameter<std::vector<double>>("values");
   } else {
     std::vector<double>().swap(cce_);
   }
@@ -68,7 +68,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
     noise_fC_.reserve(noises.size());
     for( auto noise : noises ) { noise_fC_.push_back( noise ); }
   } else if(myCfg_.existsAs<edm::ParameterSet>("noise_fC")) {
-    const auto& noises = myCfg_.getParameter<edm::ParameterSet>("noise_fC").getParameter<std::vector<double> >("values");
+    const auto& noises = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double> >("values");
     noise_fC_.resize(0);
     noise_fC_.reserve(noises.size());
     for( auto noise : noises ) { noise_fC_.push_back( noise ); }
