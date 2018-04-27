@@ -84,7 +84,8 @@ namespace dd4hep {
     class DDLSubtractionSolid;
     
     class DDLAlgorithm;    
-
+    class DDLVector;
+    
     class vissection;
     class vis;
     class debug;
@@ -168,6 +169,8 @@ namespace dd4hep {
   template <> void Converter<DDLBox>::operator()(xml_h element) const;
   /// Converter for <Algorithm/> tags
   template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const;
+  /// Converter for <Vector/> tags
+  template <> void Converter<DDLVector>::operator()(xml_h element) const;
 
   /// DD4hep specific: Load include file
   template <> void Converter<include_load>::operator()(xml_h element) const;
@@ -181,6 +184,7 @@ namespace dd4hep {
 template <> void Converter<ConstantsSection>::operator()(xml_h element) const  {
   cms::DDNamespace _ns(_param<cms::DDParsingContext>(), element);
   xml_coll_t(element, _CMU(Constant)).for_each(Converter<DDLConstant>(description,_ns.context,optional));
+  xml_coll_t(element, _CMU(Vector)).for_each(Converter<DDLVector>(description,_ns.context,optional));
 }
 
 /// Converter for <VisSection/> tags
@@ -1031,6 +1035,71 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
     printout(ERROR, "MyDDCMS", "++ FAILED    to convert subdetector: %s: %s", name.c_str(), "UNKNONW Exception");
     terminate();
   }
+}
+
+template <class InputIt, class ForwardIt, class BinOp>
+void for_each_token( InputIt first, InputIt last,
+		     ForwardIt s_first, ForwardIt s_last,
+		     BinOp binary_op)
+{
+  while( first != last ) {
+    const auto pos = std::find_first_of( first, last, s_first, s_last );
+    binary_op( first, pos );
+    if( pos == last ) break;
+    first = std::next( pos );
+  }
+}
+
+vector<double>
+splitNumeric( const string& str, const string& delims = "," )
+{
+  vector<double> output;
+
+  for_each_token( cbegin( str ), cend( str ),
+		  cbegin( delims ), cend( delims ),
+		  [&output] ( auto first, auto second ) {
+		    if( first != second ) {
+		      output.emplace_back(stod(string( first, second )));
+		    } 
+		  });
+  return output;
+}
+
+vector<string>
+splitString( const string& str, const string& delims = "," )
+{
+  vector<string> output;
+
+  for_each_token( cbegin( str ), cend( str ),
+		  cbegin( delims ), cend( delims ),
+		  [&output] ( auto first, auto second ) {
+		    if( first != second ) {
+		      output.emplace_back( first, second );
+		    } 
+		  });
+  return output;
+}
+
+/// Converter for <Vector/> tags
+/// FIXME: Check if (parent() == "Algorithm" || parent() == "SpecPar")
+template <> void Converter<DDLVector>::operator()( xml_h element ) const {
+  cms::DDNamespace _ns( _param<cms::DDParsingContext>());
+  xml_dim_t e( element );
+  string name = e.nameStr();
+  string type = _ns.attr<string>(e,_U(type));
+  string nEntries = _ns.attr<string>(e,_CMU(nEntries));
+  string val = e.text();
+  val.erase( remove_if( val.begin(), val.end(), [](unsigned char x){return isspace(x);}), val.end());
+  
+  printout( _ns.context->debug_constants ? ALWAYS : DEBUG,
+	    "MyDDCMS","+++ Vector<%s>:  %s[%s]: %s", type.c_str(), name.c_str(),
+	    nEntries.c_str(), val.c_str());
+
+  vector<double> results = splitNumeric( val );
+
+  for( auto it : results )
+    cout << it << " ";
+  cout << "\n";
 }
 
 template <> void Converter<debug>::operator()(xml_h dbg) const {

@@ -8,7 +8,8 @@ namespace cms  {
   class DDParsingContext {
 
   public:
-
+    using VecDouble = std::vector<double>;
+    
     DDParsingContext( dd4hep::Detector* det )
       : description( det ) {
       namespaces.push_back("");
@@ -16,11 +17,13 @@ namespace cms  {
 
     ~DDParsingContext() = default;
     const std::string& ns() const { return namespaces.back(); }
+    void addVector( const std::string& name, const VecDouble& value );
     
     dd4hep::Detector* description;
     std::map<std::string, dd4hep::Rotation3D> rotations;
     std::map<std::string, dd4hep::Solid> shapes;
     std::map<std::string, dd4hep::Volume> volumes;
+    std::map<std::string, VecDouble > numVectors;
     std::set<std::string> disabledAlgs;
     std::vector<std::string> namespaces;
 
