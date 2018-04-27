@@ -46,6 +46,7 @@ namespace cms {
     
     void addConstant( const std::string& name, const std::string& value, const std::string& type ) const;
     void addConstantNS( const std::string& name, const std::string& value, const std::string& type ) const;
+    void addVector( const std::string& name, const std::vector<double>& value ) const;
     
     dd4hep::Material material( const std::string& name ) const;
     dd4hep::Solid solid( const std::string& name ) const;
