@@ -28,7 +28,24 @@ namespace l1t {
     static const int xShift = 7;
     static const int yShift = 0;
   };
+
+
+  struct HGCalTowerCoord {
+    HGCalTowerCoord(unsigned short rawId, float eta, float phi): rawId(rawId),
+                                                                 eta(eta),
+                                                                 phi(phi) {}
+
+    const unsigned short rawId;
+    const float eta;
+    const float phi;
+
+  };
+
+
 }
+
+
+
 
 
 #endif
