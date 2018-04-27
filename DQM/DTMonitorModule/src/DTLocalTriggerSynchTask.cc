@@ -46,10 +46,14 @@ DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : 
   parameters = ps;
   tm_Token_  = consumes<L1MuDTChambPhContainer>(
       parameters.getParameter<edm::InputTag>("TMInputTag"));
-  ddu_Token_  = consumes<DTLocalTriggerCollection>(
-      parameters.getParameter<edm::InputTag>("DDUInputTag"));
   seg_Token_  = consumes<DTRecSegment4DCollection>(
       parameters.getParameter<edm::InputTag>("SEGInputTag"));
+
+  processDDU = parameters.getUntrackedParameter<bool>("processDDU",false);
+
+  if (processDDU)
+    ddu_Token_  = consumes<DTLocalTriggerCollection>(
+         parameters.getParameter<edm::InputTag>("DDUInputTag"));
 
   bxTime        = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
   rangeInBX     = parameters.getParameter<bool>("rangeWithinBX");
@@ -102,10 +106,6 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
   nevents++;
 
-  InputTag inputTagTM  = parameters.getParameter<edm::InputTag>("TMInputTag");
-  InputTag inputTagDDU  = parameters.getParameter<edm::InputTag>("DDUInputTag");
-  InputTag inputTagSEG  = parameters.getParameter<edm::InputTag>("SEGInputTag");
-
   for (int i=0;i<5;++i){
     for (int j=0;j<6;++j){
       for (int k=0;k<13;++k){
@@ -136,26 +136,28 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   }
 
   // Get best DDU triggers
-  Handle<DTLocalTriggerCollection> trigsDDU;
-  event.getByToken(ddu_Token_, trigsDDU);
-  DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
+  if (processDDU){
+    Handle<DTLocalTriggerCollection> trigsDDU;
+    event.getByToken(ddu_Token_, trigsDDU);
+    DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
 
-  for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
+    for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
 
-    const DTChamberId& id = (*detUnitIt).first;
-    const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
+      const DTChamberId& id = (*detUnitIt).first;
+      const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
 
-    int wh = id.wheel();
-    int sec = id.sector();
-    int st = id.station();
+      int wh = id.wheel();
+      int sec = id.sector();
+      int st = id.station();
 
-    for (DTLocalTriggerCollection::const_iterator trigIt = range.first; trigIt!=range.second;++trigIt){
-
-      int quality = trigIt->quality();
-
-      if(quality>-1 && quality<7 &&
-	 quality>phCodeBestDDU[wh+wheelArrayShift][st][sec]) {
-	phCodeBestDDU[wh+wheelArrayShift][st][sec]=quality;
+      for (DTLocalTriggerCollection::const_iterator trigIt = range.first; trigIt!=range.second;++trigIt){
+	
+	int quality = trigIt->quality();
+	
+	if(quality>-1 && quality<7 &&
+	   quality>phCodeBestDDU[wh+wheelArrayShift][st][sec]) {
+	  phCodeBestDDU[wh+wheelArrayShift][st][sec]=quality;
+	}
       }
     }
   }
@@ -221,8 +223,8 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 	innerME.find("SEG_TrackCrossingTime")->second->Fill(htime);
 	if ( qualTM>=0 ) innerME.find("TM_TrackCrossingTimeAll")->second->Fill(htime);
 	if ( qualTM==6 ) innerME.find("TM_TrackCrossingTimeHH")->second->Fill(htime);
-	if ( qualDDU>=0 ) innerME.find("DDU_TrackCrossingTimeAll")->second->Fill(htime);
-	if ( qualDDU==6 ) innerME.find("DDU_TrackCrossingTimeHH")->second->Fill(htime);
+	if ( processDDU && qualDDU>=0 ) innerME.find("DDU_TrackCrossingTimeAll")->second->Fill(htime);
+	if ( processDDU && qualDDU==6 ) innerME.find("DDU_TrackCrossingTimeHH")->second->Fill(htime);
       }
 
     }
@@ -239,22 +241,26 @@ void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker & ibooker, const DTCh
 
   ibooker.setCurrentFolder(baseDir() + "/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() );
 
+  std::vector<string> histoTags = { "SEG_TrackCrossingTime", "TM_TrackCrossingTimeAll", "TM_TrackCrossingTimeHH" };
 
-  string histoTag[5] = { "SEG_TrackCrossingTime", "TM_TrackCrossingTimeAll", "TM_TrackCrossingTimeHH", "DDU_TrackCrossingTimeAll", "DDU_TrackCrossingTimeHH" };
+  if (processDDU) {
+    histoTags.push_back("DDU_TrackCrossingTimeAll");
+    histoTags.push_back("DDU_TrackCrossingTimeHH");
+  }
 
   float min = rangeInBX ?      0 : nBXLow*bxTime;
   float max = rangeInBX ? bxTime : nBXHigh*bxTime;
   int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
-  for (int iHisto=0;iHisto<5;++iHisto) {
-    string histoName = histoTag[iHisto] + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+  for (const auto & histoTag : histoTags) {
+    string histoName = histoTag + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: booking "
 						 << baseDir() + "/Wheel" << wheel.str()
 					    << "/Sector" << sector.str()
 					    << "/Station"<< station.str()
 					    << "/" << histoName << endl;
 
-    triggerHistos[chRawId][histoTag[iHisto]] = ibooker.book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
+    triggerHistos[chRawId][histoTag] = ibooker.book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
   }
 
   string floatTag[2] = { "tTrig_SL1", "tTrig_SL3" };
