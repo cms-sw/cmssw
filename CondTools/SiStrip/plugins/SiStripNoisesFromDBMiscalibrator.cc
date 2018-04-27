@@ -51,16 +51,16 @@
 class SiStripNoisesFromDBMiscalibrator : public edm::one::EDAnalyzer<>  {
    public:
       explicit SiStripNoisesFromDBMiscalibrator(const edm::ParameterSet&);
-      ~SiStripNoisesFromDBMiscalibrator();
+      ~SiStripNoisesFromDBMiscalibrator() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       std::unique_ptr<SiStripNoises> getNewObject(const std::map<std::pair<uint32_t,int>,float>& theMap);
       std::unique_ptr<SiStripNoises> getNewObject_withDefaults(const std::map<std::pair<uint32_t,int>,float>& theMap,const float theDefault); 
-      virtual void endJob() override;
+      void endJob() override;
 
       // ----------member data ---------------------------
       const bool m_fillDefaults;
@@ -348,7 +348,7 @@ SiStripNoisesFromDBMiscalibrator::getNewObject_withDefaults(const std::map<std::
     }
   }
 
-  if(missingDetIds.size()!=0){
+  if(!missingDetIds.empty()){
     // open output file
     std::stringstream name; 
     name << "missing_modules.txt";
