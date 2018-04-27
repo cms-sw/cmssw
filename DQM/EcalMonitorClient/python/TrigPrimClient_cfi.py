@@ -5,11 +5,13 @@ from DQM.EcalMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
 
 minEntries = 3
 errorFractionThreshold = 0.1
+TTF4MaskingAlarmThreshold = 0.05
 
 ecalTrigPrimClient = cms.untracked.PSet(
     params = cms.untracked.PSet(
         minEntries = cms.untracked.int32(minEntries),
-        errorFractionThreshold = cms.untracked.double(errorFractionThreshold)
+        errorFractionThreshold = cms.untracked.double(errorFractionThreshold),
+        TTF4MaskingAlarmThreshold = cms.untracked.double(TTF4MaskingAlarmThreshold)
     ),
     sources = cms.untracked.PSet(
         EtEmulError = ecalTrigPrimTask.MEs.EtEmulError,
@@ -36,7 +38,7 @@ ecalTrigPrimClient = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('Ecal3P'),
             btype = cms.untracked.string('TriggerTower'),
-            description = cms.untracked.string('Summary of emulator matching quality. A tower is red if the number of events with Et emulation error is greater than ' + str(errorFractionThreshold) + ' of total events. Towers with entries less than ' + str(minEntries) + ' are not considered.')
+            description = cms.untracked.string('Summary of emulator matching quality. A tower is red if the number of events with Et emulation error is greater than ' + str(errorFractionThreshold) + ' of total events. Towers with entries less than ' + str(minEntries) + ' are not considered. Also, an entire SuperModule can show red if its (data) Trigger Primitive digi occupancy is less than 5sigma of the overall SuperModule mean, or if more than 80% of its Trigger Towers are showing any number of TT Flag-Readout Mismatch errors. Finally, if the fraction of towers in a SuperModule that are permanently masked or have TTF4 flag set is greater than ' + str(TTF4MaskingAlarmThreshold) + ', then the entire supermodule shows red.')
         ),
         TimingSummary = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sTTT%(suffix)s Trigger Primitives Timing summary'),
