@@ -44,15 +44,15 @@ class DigiTask : public hcaldqm::DQTask
 		void _resetMonitors(hcaldqm::UpdateFreq) override;
 
 		edm::InputTag		_tagHBHE;
-		edm::InputTag		_tagHEP17;
+		edm::InputTag		_tagHE;
 		edm::InputTag		_tagHO;
 		edm::InputTag		_tagHF;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHE;
 		edm::EDGetTokenT<HODigiCollection>	 _tokHO;
 		edm::EDGetTokenT<QIE10DigiCollection>	_tokHF;
 
-		double _cutSumQ_HBHE, _cutSumQ_HEP17, _cutSumQ_HO, _cutSumQ_HF;
+		double _cutSumQ_HBHE, _cutSumQ_HE, _cutSumQ_HO, _cutSumQ_HF;
 		double _thresh_unihf;
 
 		//	flag vector
@@ -63,7 +63,8 @@ class DigiTask : public hcaldqm::DQTask
 			fUni = 1,
 			fNChsHF = 2,
 			fUnknownIds = 3,
-			nDigiFlag = 4
+			fLED=4,
+			nDigiFlag = 5
 		};
 
 		//	hashes/FED vectors
@@ -79,8 +80,8 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_VME;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_FEDHF;
-		hcaldqm::filter::HashFilter _filter_HF;
-		hcaldqm::filter::HashFilter _filter_notHF;
+		hcaldqm::filter::HashFilter _filter_QIE1011;
+		hcaldqm::filter::HashFilter _filter_QIE8;
 		hcaldqm::filter::HashFilter _filter_HEP17;
 
 		/* hcaldqm::Containers */
@@ -93,17 +94,17 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM;	// online only!
 
 		// ADC, fC for HF (QIE10 has different ADC/fC)
-		hcaldqm::Container1D _cADC_SubdetPM_HF;
-		hcaldqm::Container1D _cfC_SubdetPM_HF;
-		hcaldqm::Container1D _cSumQ_SubdetPM_HF;
-		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_HF;
-		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_HF;	// online only!
+		hcaldqm::Container1D _cADC_SubdetPM_QIE1011;
+		hcaldqm::Container1D _cfC_SubdetPM_QIE1011;
+		hcaldqm::Container1D _cSumQ_SubdetPM_QIE1011;
+		hcaldqm::ContainerProf1D _cSumQvsLS_SubdetPM_QIE1011;
+		hcaldqm::ContainerProf1D _cSumQvsBX_SubdetPM_QIE1011;	// online only!
 
 		
 		//	Shape - just filling - not summary!
 		hcaldqm::Container1D _cShapeCut_FED;
 		hcaldqm::Container2D _cADCvsTS_SubdetPM;
-		hcaldqm::Container2D _cADCvsTS_SubdetPM_HF;
+		hcaldqm::Container2D _cADCvsTS_SubdetPM_QIE1011;
 
 		//	Timing
 		//	just filling - no summary!
@@ -143,7 +144,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cOccupancyCut_depth;
 		hcaldqm::Container1D _cOccupancyCutvsiphi_SubdetPM; // online only
 		hcaldqm::Container1D _cOccupancyCutvsieta_Subdet;	// online only
-		hcaldqm::Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
+		//hcaldqm::Container2D _cOccupancyCutvsSlotvsLS_HFPM; // online only
 		hcaldqm::Container2D _cOccupancyCutvsiphivsLS_SubdetPM; // online only
 
 		//	Occupancy w/o and w/ a Cut vs BX and vs LS
@@ -165,21 +166,28 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
 		hcaldqm::Container1D _cLETDCTime_SubdetPM;
+		hcaldqm::ContainerProf2D _cLETDCTime_depth;
 
 		// Bad TDC histograms
-		hcaldqm::Container1D _cBadTDCValues_SubdetPM_HF;
-		hcaldqm::Container1D _cBadTDCvsBX_SubdetPM_HF;
-		hcaldqm::Container1D _cBadTDCvsLS_SubdetPM_HF;
+		hcaldqm::Container1D _cBadTDCValues_SubdetPM;
+		hcaldqm::Container1D _cBadTDCvsBX_SubdetPM;
+		hcaldqm::Container1D _cBadTDCvsLS_SubdetPM;
 		hcaldqm::Container2D _cBadTDCCount_depth;
 
-		hcaldqm::Container1D _cBadTDCValues_SubdetPM_HEP17;
-		hcaldqm::Container1D _cBadTDCvsBX_SubdetPM_HEP17;
-		hcaldqm::Container1D _cBadTDCvsLS_SubdetPM_HEP17;
+		hcaldqm::Container1D _cBadTDCValues;
+		hcaldqm::Container1D _cBadTDCvsBX;
+		hcaldqm::Container1D _cBadTDCvsLS;
+
+		// For monitoring LED misfires: ADC vs BX
+		MonitorElement* _meLEDMon;
 
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
 		bool _unknownIdsPresent;
+		MonitorElement *_meLEDEventCount; // Count events with LED pin diode signal > threshold
+		double _thresh_led;
+		bool _ledSignalPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only

@@ -247,6 +247,11 @@ namespace hcaldqm
 				default : return "Unknonw";
 			}
 		}
+
+		int getRBX(uint32_t iphi) {
+			return (((iphi + 2) % 72) + 4 - 1) / 4;
+		}
+
 	}
 }
 

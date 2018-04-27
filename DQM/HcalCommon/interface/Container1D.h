@@ -323,6 +323,9 @@ namespace hcaldqm
 			//	set lumi flags for all mes
 			virtual void setLumiFlag();
 
+			virtual void showOverflowX(bool showOverflow);
+			virtual void showOverflowY(bool showOverflow);
+
 		protected:
 			virtual void customize(MonitorElement*);
 

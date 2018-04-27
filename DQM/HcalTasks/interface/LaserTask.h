@@ -13,6 +13,8 @@
 #include "DQM/HcalCommon/interface/ContainerXXX.h"
 #include "DQM/HcalCommon/interface/Container1D.h"
 #include "DQM/HcalCommon/interface/Container2D.h"
+#include "DQM/HcalCommon/interface/ContainerSingle1D.h"
+#include "DQM/HcalCommon/interface/ContainerSingleProf1D.h"
 #include "DQM/HcalCommon/interface/ContainerSingle2D.h"
 #include "DQM/HcalCommon/interface/ContainerSingleProf2D.h"
 #include "DQM/HcalCommon/interface/ContainerProf1D.h"
@@ -47,28 +49,39 @@ class LaserTask : public hcaldqm::DQTask
 		void _resetMonitors(hcaldqm::UpdateFreq) override;
 		bool _isApplicable(edm::Event const&) override;
 		virtual void _dump();
+		void processLaserMon(edm::Handle<QIE10DigiCollection> &col, std::vector<int> &iLaserMonADC);
+
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
-		edm::InputTag	_tagHEP17;
+		edm::InputTag	_tagHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_taguMN;
 		edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-		edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
+		edm::EDGetTokenT<QIE11DigiCollection> _tokHE;
 		edm::EDGetTokenT<HODigiCollection> _tokHO;
 		edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
 		edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+
+		enum LaserFlag
+		{
+			fBadTiming = 0,
+			fMissingLaserMon = 1,
+			nLaserFlag = 2
+		};
+		std::vector<hcaldqm::flag::Flag> _vflags;
 
 		//	emap
 		hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_VME;
+		std::vector<uint32_t> _vhashFEDs;
 
 		//	Cuts and variables
 		int _nevents;
 		double _lowHBHE;
-		double _lowHEP17;
+		double _lowHE;
 		double _lowHO;
 		double _lowHF;
 		uint32_t _laserType;
@@ -79,10 +92,17 @@ class LaserTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<int> _xEntries;
 		hcaldqm::ContainerXXX<double> _xTimingSum;
 		hcaldqm::ContainerXXX<double> _xTimingSum2;
+		hcaldqm::ContainerXXX<double> _xTimingRefLMSum; // For computation of channel-by-channel mean timing w.r.t. lasermon
+		hcaldqm::ContainerXXX<double> _xTimingRefLMSum2;
+		hcaldqm::ContainerXXX<int> _xNBadTimingRefLM; // Count channels with bad timing
+		hcaldqm::ContainerXXX<int> _xNChs; // number of channels per FED as in emap
+
 
 		//	1D
 		hcaldqm::Container1D		_cSignalMean_Subdet;
 		hcaldqm::Container1D		_cSignalRMS_Subdet;
+		hcaldqm::Container1D		_cSignalMeanQIE1011_Subdet;
+		hcaldqm::Container1D		_cSignalRMSQIE1011_Subdet;
 		hcaldqm::Container1D		_cTimingMean_Subdet;
 		hcaldqm::Container1D		_cTimingRMS_Subdet;
 
@@ -94,12 +114,16 @@ class LaserTask : public hcaldqm::DQTask
 		hcaldqm::ContainerProf1D _cSignalvsEvent_SubdetPM;
 		hcaldqm::ContainerProf1D _cTimingvsLS_SubdetPM;
 		hcaldqm::ContainerProf1D _cSignalvsLS_SubdetPM;
+		hcaldqm::ContainerProf1D _cSignalvsLSQIE1011_SubdetPM;
 		hcaldqm::ContainerProf1D _cTimingvsBX_SubdetPM;
 		hcaldqm::ContainerProf1D _cSignalvsBX_SubdetPM;
+		hcaldqm::ContainerProf1D _cSignalvsBXQIE1011_SubdetPM;
 
 		//	2D timing/signals
 		hcaldqm::ContainerProf2D		_cSignalMean_depth;
 		hcaldqm::ContainerProf2D		_cSignalRMS_depth;
+		hcaldqm::ContainerProf2D		_cSignalMeanQIE1011_depth;
+		hcaldqm::ContainerProf2D		_cSignalRMSQIE1011_depth;
 		hcaldqm::ContainerProf2D		_cTimingMean_depth;
 		hcaldqm::ContainerProf2D		_cTimingRMS_depth;
 
@@ -116,6 +140,35 @@ class LaserTask : public hcaldqm::DQTask
 		hcaldqm::Container2D		_cMissing_depth;
 		hcaldqm::Container2D		_cMissing_FEDVME;
 		hcaldqm::Container2D		_cMissing_FEDuTCA;
+
+		// Things for LASERMON
+		edm::InputTag _tagLaserMon;
+		edm::EDGetTokenT<QIE10DigiCollection> _tokLaserMon;
+
+		std::vector<int> _vLaserMonIPhi; // Laser mon digis are assigned to CBox=5, IEta=0, IPhi=[23-index] by the emap
+		int _laserMonIEta;
+		int _laserMonCBox;
+		int _laserMonDigiOverlap;
+		int _laserMonTS0;
+		double _laserMonThreshold;
+		std::map<HcalSubdetector, std::pair<double, double>> _thresh_timingreflm; // Min and max timing (ref. lasermon)
+		double _thresh_frac_timingreflm; // Flag threshold (BAD) on fraction of channels with bad timing
+		double _thresh_min_lmsumq; // Threshold on minimum SumQ from lasermon, if laser is expected
+		int _xMissingLaserMon; // Counter for missing lasermon events
+
+		hcaldqm::ContainerSingle1D _cLaserMonSumQ;
+		hcaldqm::ContainerSingle1D _cLaserMonTiming;
+		hcaldqm::ContainerSingleProf1D _cLaserMonSumQ_LS; // Online
+		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_LS; // Online
+		hcaldqm::ContainerSingleProf1D _cLaserMonSumQ_Event; // Local
+		hcaldqm::ContainerSingleProf1D _cLaserMonTiming_Event; // Local
+		hcaldqm::Container2D _cTiming_DigivsLaserMon_SubdetPM;
+		hcaldqm::ContainerProf2D _cTimingDiffLS_SubdetPM;
+		hcaldqm::ContainerProf2D _cTimingDiffEvent_SubdetPM;
+
+		//	Summaries
+		hcaldqm::Container2D _cSummaryvsLS_FED;
+		hcaldqm::ContainerSingle2D _cSummaryvsLS;
 };
 
 #endif

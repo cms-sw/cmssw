@@ -173,6 +173,8 @@ namespace hcaldqm
 				HcalElectronicsMap const*, filter::HashFilter const&,
 				std::string subsystem="Hcal", std::string aux="") override;
 
+			void showOverflowZ(bool showOverflow);
+
 		protected:
 			Quantity	*_qz;
 
