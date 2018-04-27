@@ -33,53 +33,26 @@ class DDLTestDoc : public DDLDocumentProvider
 public:
 
   DDLTestDoc( void );
-  ~DDLTestDoc() override;
 
   /// Return a list of files as a vector of strings.
   const std::vector < std::string >&  getFileList( void ) const override;
 
-  /// Return a list of urls as a vector of strings.
-  const std::vector < std::string >&  getURLList( void ) const override;
-
   /// Print out the list of files.
   void dumpFileList( void ) const override;
 
-  /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  bool doValidation( void ) const override;
-
-  /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation( void ) const override;
-
   /// ReadConfig
-  int readConfig( const std::string& filename ) override;
+  int readConfig( const std::string& filename );
 
-  void emplace_back( const std::string& fileName, const std::string& url = std::string( "./" ));
-
-  void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
-
-  void setValidation( bool val );
+  void emplace_back( const std::string& fileName );
 
   void clear( void );
 
 private:
   std::vector < std::string > fnames_;
-  std::vector < std::string > urls_;
-  std::string schemaLoc_;
-  bool validate_;
 };
 
-//--------------------------------------------------------------------------
-//  DDLTestDoc:  Default constructor and destructor.
-//--------------------------------------------------------------------------
-DDLTestDoc::~DDLTestDoc( void )
-{ 
-}
-
 DDLTestDoc::DDLTestDoc( void )
-  : validate_(true)
-{ 
-  schemaLoc_ = "http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd";
-}
+{}
 
 const std::vector<std::string>&
 DDLTestDoc::getFileList( void ) const
@@ -87,34 +60,11 @@ DDLTestDoc::getFileList( void ) const
   return fnames_;
 }
 
-const std::vector<std::string>&
-DDLTestDoc::getURLList( void ) const
-{
-  return urls_;
-}
-
 void
-DDLTestDoc::emplace_back( const std::string& fileName, const std::string& url ) 
+DDLTestDoc::emplace_back( const std::string& fileName ) 
 {
   fnames_.emplace_back(fileName);
-  urls_.emplace_back(url);
 }
-
-void
-DDLTestDoc::setValidation( bool val )
-{ validate_= val; }
-
-bool
-DDLTestDoc::doValidation( void ) const
-{ return validate_; }
-
-void
-DDLTestDoc::setSchemaLocation( std::string path )
-{ schemaLoc_ = std::move(path); }
-
-std::string
-DDLTestDoc::getSchemaLocation( void ) const
-{ std::cout << schemaLoc_ << std::endl; return schemaLoc_; }
 
 void
 DDLTestDoc::dumpFileList( void ) const
@@ -130,7 +80,6 @@ void
 DDLTestDoc::clear( void )
 {
   fnames_.clear();
-  urls_.clear();
 }
 
 //-----------------------------------------------------------------------
@@ -176,13 +125,11 @@ DDLTestDoc::readConfig( const std::string& filename )
   }
 
   fnames_ = sch->getFileNames();
-  urls_ = sch->getURLs();
   std::cout << "there are " << fnames_.size() << " files." << std::endl;
   for (size_t i = 0; i < fnames_.size(); ++i)
-    std::cout << "url=" << urls_[i] << " file=" << fnames_[i] << std::endl;
+    std::cout << " file=" << fnames_[i] << std::endl;
   return 0;
 }
-
 
 void
 testRotations( void )
@@ -468,9 +415,6 @@ int main(int argc, char *argv[])
          
          std::cout << "======== Navigate a little bit  ======" << std::endl;
          try {
-            if (!cpv.root().isDefined().second) {
-               cpv.setRoot(DDRootDef::instance().root());
-            }
             DDExpandedView ev(cpv);
             while (ev.next()) {
                std::cout << ev.geoHistory() << std::endl;

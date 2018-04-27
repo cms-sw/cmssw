@@ -131,8 +131,8 @@ protected:
   bool descend(const DDGeoHistory & sc);
 
 protected:
-  DDCompactView::walker_type * walker_; //!< the tricky walker
-  DDCompactView::walker_type w2_;
+  DDCompactView::WalkerType * walker_; //!< the tricky walker
+  DDCompactView::WalkerType w2_;
   const DDTranslation trans_;
   const DDRotationMatrix rot_;
   DDGeoHistory history_; //!< std::vector of DDExpandedNode

@@ -89,7 +89,7 @@ const std::map<std::string, std::set<DDLogicalPart> > & DDErrorDetection::lp_cpv
   if (!result_.empty()) return result_;
   
   //  DDCompactView cpv;
-  const DDCompactView::graph_type & g = cpv.graph();
+  const DDCompactView::GraphType & g = cpv.graph();
   
   std::map<std::string, std::set<DDLogicalPart> >::const_iterator it(lp_err::instance().begin()),
                                                        ed(lp_err::instance().end());
@@ -97,7 +97,7 @@ const std::map<std::string, std::set<DDLogicalPart> > & DDErrorDetection::lp_cpv
     std::set<DDLogicalPart>::const_iterator sit(it->second.begin()), sed(it->second.end());
     for( ; sit != sed; ++sit) {
       const DDLogicalPart & lp = *sit;
-      DDCompactView::graph_type::const_edge_range er = g.edges(lp);
+      DDCompactView::GraphType::const_edge_range er = g.edges(lp);
       if (g.nodeIndex(lp).second) {
         result_.insert(make_pair(lp.ddname().fullname(), std::set<DDLogicalPart>()));  
       }

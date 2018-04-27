@@ -40,10 +40,8 @@ class DDLSAX2ConfigHandler : public DDLSAX2Handler
   const bool doValidation() const;
 
  private:
-  bool doValidation_;
   std::vector<std::string> files_;
   std::vector<std::string> urls_;
-  std::string schemaLocation_;
   DDCompactView& cpv_;
 };
 

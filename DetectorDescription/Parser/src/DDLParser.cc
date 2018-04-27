@@ -149,28 +149,7 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   SAX2Parser_->setFeature( XMLUni::fgSAX2CoreValidation, false );
   SAX2Parser_->setFeature( XMLUni::fgSAX2CoreNameSpaces, false );
 
-  //  This need be only done once, so might as well to it here.
-  size_t fileIndex = 0;
-  std::vector<std::string> fullFileName;
-  const std::vector < std::string >& fileList = dp.getFileList();
-  const std::vector < std::string >& urlList = dp.getURLList();
-  
-  for(; fileIndex < fileList.size(); ++fileIndex )
-  { 
-    std::string ts = urlList[fileIndex];
-    std::string tf = fileList[fileIndex];
-    if ( !ts.empty() ) {
-      if ( ts[ts.size() - 1] == '/') {
-	fullFileName.emplace_back( ts + tf );
-      } else {
-	fullFileName.emplace_back( ts + "/" + tf );
-      }
-    } else {
-      fullFileName.emplace_back( tf );
-    }
-  }
-
-  for( const auto& fnit : fullFileName ) 
+  for( const auto& fnit : dp.getFileList()) 
   {
     size_t foundFile = isFound( extractFileName( fnit )); 
 	

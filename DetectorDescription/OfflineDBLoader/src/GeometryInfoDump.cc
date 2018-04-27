@@ -65,12 +65,12 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
     // final destination of the DDSpecifics
     std::string dsname = "dumpSpecs" + fname;
     std::ofstream dump(dsname.c_str());
-    DDCompactView::DDCompactView::graph_type gra = cpv.graph();
+    DDCompactView::DDCompactView::GraphType gra = cpv.graph();
     std::set<DDLogicalPart> lpStore;
-    typedef  DDCompactView::graph_type::const_adj_iterator adjl_iterator;
+    typedef  DDCompactView::GraphType::const_adj_iterator adjl_iterator;
     adjl_iterator git = gra.begin();
     adjl_iterator gend = gra.end();        
-    DDCompactView::graph_type::index_type i=0;
+    DDCompactView::GraphType::index_type i=0;
     for (; git != gend; ++git) 
     {
       const DDLogicalPart & ddLP = gra.nodeData(git);

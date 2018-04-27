@@ -74,8 +74,6 @@ XMLIdealMagneticFieldGeometryESProducer::produce( const IdealMagneticFieldRecord
 
   parser.parse(*tb, tb->size());
 
-  returnValue->lockdown();
-
   return returnValue ;
 }
 

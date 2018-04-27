@@ -101,7 +101,7 @@ void debugHistory(const DDGeoHistory & h)
 
 void goPersistent(const DDCompactView & cv, const std::string& file) {
   std::ofstream f(file.c_str());
-  typedef DDCompactView::graph_type graph_t;
+  typedef DDCompactView::GraphType graph_t;
   const graph_t & g = cv.graph();
   unsigned int node = 0;
   graph_t::const_adj_iterator it = g.begin();
@@ -249,12 +249,12 @@ void tutorial()
   // -------------------------------------------------------------------
   // In the Protoype SW the CompactView can be navigated only be taking
   // its internal data structure (Graph<DDLogcialPart,DDPosData*> available
-  // as type 'graph_type'). 
+  // as type 'GraphType'). 
   // The corresponding interfaces for navigation of graphs are described in 
   // DDD/DDCore/interface/graph.h
  
   // First one takes the graph representation of CompactView
-  const DDCompactView::graph_type & cpvGraph = cpv.graph();
+  const DDCompactView::GraphType & cpvGraph = cpv.graph();
  
   // Using the Graph.h interface, some basic information is available:
   std::cout << "CompactView, basic information: " << std::endl
@@ -559,7 +559,7 @@ void tutorial()
     Start = clock();
     //while (NEXT(fv,fv_count)) ;
     int cc=0;
-    walker_type  g = walker_type(DDCompactView().graph(),DDCompactView().root());
+    WalkerType  g = WalkerType(DDCompactView().graph(),DDCompactView().root());
     while(g.next()) ++cc;
     End = clock();
     std::cout << "Time : " << ((double) (End-Start)) / double(CLOCKS_PER_SEC) << " sec" << std::endl;

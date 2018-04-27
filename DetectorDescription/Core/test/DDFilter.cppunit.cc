@@ -141,7 +141,6 @@ void testDDFilter::checkFilters() {
         DDSpecifics ds{"Endcap", {"//End.*"}, values}; 
       }
     }
-    cv.lockdown();
 
     {
       DDSpecificsFilter f;

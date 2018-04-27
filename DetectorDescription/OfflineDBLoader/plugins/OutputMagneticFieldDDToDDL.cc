@@ -105,7 +105,7 @@ OutputMagneticFieldDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es
   edm::ESTransientHandle<DDCompactView> pDD;
   es.get<IdealMagneticFieldRecord>().get( pDD );
 
-  DDCompactView::DDCompactView::graph_type gra = pDD->graph();
+  DDCompactView::DDCompactView::GraphType gra = pDD->graph();
   
   // Temporary stores:
   std::set<DDLogicalPart> lpStore;
@@ -143,12 +143,12 @@ OutputMagneticFieldDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es
 
   ( *m_xos ) << std::fixed << std::setprecision( 18 );
   
-  typedef  DDCompactView::graph_type::const_adj_iterator adjl_iterator;
+  typedef  DDCompactView::GraphType::const_adj_iterator adjl_iterator;
 
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();    
     
-  DDCompactView::graph_type::index_type i=0;
+  DDCompactView::GraphType::index_type i=0;
   ( *m_xos) << "<PosPartSection label=\"" << ns_ << "\">\n";
   git = gra.begin();
   for( ; git != gend; ++git ) 
@@ -165,8 +165,8 @@ OutputMagneticFieldDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es
     if( !git->empty()) 
     {
       // ask for children of ddLP  
-      DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
-      DDCompactView::graph_type::edge_list::const_iterator cend = git->end();
+      DDCompactView::GraphType::edge_list::const_iterator cit  = git->begin();
+      DDCompactView::GraphType::edge_list::const_iterator cend = git->end();
       for( ; cit != cend; ++cit ) 
       {
 	const DDLogicalPart & ddcurLP = gra.nodeData( cit->first );

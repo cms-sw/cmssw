@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
     std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
     DDCheckMaterials(std::cout);
 
-    std::cout << "edge size of produce graph:" << cpv.writeableGraph().edge_size() << std::endl;
+    std::cout << "edge size of produce graph:" << cpv.graph().edge_size() << std::endl;
 
     DDExpandedView ev(cpv);
     std::cout << "== got the epv ==" << std::endl;
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     }
     plist.close();
     std::cout << "Traversing the tree went to " << numPhysParts << " nodes, or \"PhysicalParts\" in online db terms." << std::endl;
-    cpv.writeableGraph().clear();
+    // FIXME: cpv.graph().clear();
     //    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
 
