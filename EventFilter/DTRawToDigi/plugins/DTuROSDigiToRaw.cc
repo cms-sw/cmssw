@@ -28,7 +28,7 @@ DTuROSDigiToRaw::DTuROSDigiToRaw(const edm::ParameterSet& pset) :  eventNum(0) {
 
   produces<FEDRawDataCollection>();
 
-  DTDigiInputTag_ = pset.getParameter<edm::InputTag>("DTDigi_Source");
+  DTDigiInputTag_ = pset.getParameter<edm::InputTag>("digiColl");
 
   debug_ = pset.getUntrackedParameter<bool>("debug", false);
 
