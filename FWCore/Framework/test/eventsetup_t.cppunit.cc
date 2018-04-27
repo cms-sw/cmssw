@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
-#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 
 #include "FWCore/Framework/test/DummyRecord.h"
 #include "FWCore/Framework/test/DummyProxyProvider.h"
