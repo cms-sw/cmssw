@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="btl.xml" eval="true">
+    <Constant name="BTLrmin" value="1161.0*mm"/>
+    <Constant name="BTLrmax" value="1188.0*mm"/>
+    <!-- <Constant name="BTLz" value="2660.0*mm"/> -->
+    <Constant name="BTLz" value="2910.0*mm"/>
+  </ConstantsSection>
+
+  <SolidSection label="btl.xml">
+    <Polycone name="BarrelTimingLayer" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="-[BTLz]"         rMin="[BTLrmin]"          rMax="[BTLrmax]" />
+      <ZSection z="[BTLz]"          rMin="[BTLrmin]"          rMax="[BTLrmax]" />
+    </Polycone>
+  </SolidSection>
+
+  <LogicalPartSection label="btl.xml">
+    <LogicalPart name="BarrelTimingLayer" category="unspecified">
+      <rSolid name="BarrelTimingLayer"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+   <PosPartSection label="btl.xml">            
+    <PosPart copyNumber="1">                   
+     <rParent name="tracker:Tracker"/>   
+     <rChild name="btl:BarrelTimingLayer"/>    
+    </PosPart>                                 
+   </PosPartSection>                           
+
+</DDDefinition>

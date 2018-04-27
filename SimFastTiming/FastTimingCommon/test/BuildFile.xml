@@ -1,0 +1,7 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DataFormats/FTLDigi"/>
+<library file="FTLDigiDump.cc" name="FTLDigiDump">
+  <flags EDM_PLUGIN="1"/>
+</library>
