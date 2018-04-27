@@ -11,7 +11,7 @@ namespace cond {
   class Dump_LHCInfo : public Utilities {
   public:
     Dump_LHCInfo();
-    ~Dump_LHCInfo();
+    ~Dump_LHCInfo() override;
     int execute() override;
   };
 }
