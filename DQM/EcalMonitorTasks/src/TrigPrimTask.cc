@@ -258,7 +258,6 @@ namespace ecaldqm
       }
 
       // Fill TT Flag MEs
-      // float ttF( tpItr->ttFlag() );
       int ttF( tpItr->ttFlag() );
       meTTFlags.fill( ttid, 1.0*ttF );
       meTTFlagsVsEt.fill(ttid, et, 1.0*ttF);
@@ -346,7 +345,6 @@ namespace ecaldqm
 
         if(realEt > 0){
 
-          // int interest(realItr->ttFlag() & 0x3);
           int ttF(realItr->ttFlag());
           if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
 
