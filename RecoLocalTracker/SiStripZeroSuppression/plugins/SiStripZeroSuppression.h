@@ -24,11 +24,12 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
  private:
 
   void processRaw(const edm::InputTag&, const edm::DetSetVector<SiStripRawDigi>&);
-  void processHybrid(const edm::InputTag&, const edm::DetSetVector<SiStripDigi>&);
+  void processHybrid(const edm::DetSetVector<SiStripDigi>&);
   
   
   void storeExtraOutput(uint32_t, int16_t);
   void formatRawDigis(edm::DetSetVector<SiStripRawDigi>::const_iterator, edm::DetSet<SiStripRawDigi>&);
+  void formatRawDigis(std::vector<int16_t>&, edm::DetSet<SiStripRawDigi>&);
   void storeCMN(uint32_t, const std::vector< std::pair<short,float> >&);
   void storeBaseline(uint32_t, const std::vector< std::pair<short,float> >&);
   void storeBaselinePoints(uint32_t);
@@ -37,9 +38,11 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
   void MergeCollectionsZeroSuppression(edm::Event&);
 
   std::vector<edm::InputTag> inputTags;
+  edm::InputTag inputDigiTag;
   edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > DigisToMergeZS;
   edm::EDGetTokenT< edm::DetSetVector<SiStripRawDigi> > DigisToMergeVR;
-
+  edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > inputDigiToken;
+ 
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;
   std::vector<edm::DetSet<SiStripDigi> > output_base; 
   std::vector<edm::DetSet<SiStripRawDigi> > output_base_raw; 
@@ -52,6 +55,8 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
   typedef token_v::const_iterator token_iterator_t;
   token_v inputTokens;
 
+  
+  
   bool storeCM;
   bool produceRawDigis;
   bool produceCalculatedBaseline;
@@ -60,7 +65,7 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
   bool mergeCollections;
   bool fixCM;
   bool produceHybridFormat;
-  
+     
 };
 #endif
 

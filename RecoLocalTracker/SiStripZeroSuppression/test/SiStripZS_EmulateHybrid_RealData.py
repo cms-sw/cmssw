@@ -20,7 +20,7 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('PyReleaseValidation')
 )
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
@@ -65,6 +65,7 @@ process.siStripZeroSuppression.produceCalculatedBaseline = cms.bool(False)
 process.siStripZeroSuppression.produceBaselinePoints = cms.bool(False)
 process.siStripZeroSuppression.storeCM = cms.bool(True)
 process.siStripZeroSuppression.produceHybridFormat = cms.bool(True)
+process.siStripZeroSuppression.HybridInputDigis = cms.InputTag('','')
 process.siStripZeroSuppression.Algorithms.CommonModeNoiseSubtractionMode = cms.string('Median')
 process.siStripZeroSuppression.Algorithms.MeanCM = cms.int32(512)
 process.siStripZeroSuppression.Algorithms.DeltaCMThreshold = cms.uint32(20)
@@ -106,6 +107,7 @@ process.myRawDataCollector = cms.EDProducer("RawDataCollectorByLabel",
 process.raw2digi_step = cms.Path(process.siStripDigis)
 #process.reconstruction_step = cms.Path(process.striptrackerlocalreco+process.moddedZS+process.moddedClust+process.baselineAna+process.moddedbaselineAna+process.clusterMatching)
 process.reconstruction_step = cms.Path(process.striptrackerlocalreco*process.hybridAna*process.siStripDigiToRawData*process.myRawDataCollector)
+#process.reconstruction_step = cms.Path(process.striptrackerlocalreco);
 #process.endjob_step = cms.EndPath(process.endOfProcess)
 process.RECOoutput_step = cms.EndPath(process.RECOoutput)
 

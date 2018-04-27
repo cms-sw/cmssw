@@ -14,6 +14,7 @@
 SiStripZeroSuppression::
 SiStripZeroSuppression(edm::ParameterSet const& conf)
   : inputTags(conf.getParameter<std::vector<edm::InputTag> >("RawDigiProducersList")),
+    inputDigiTag(conf.getParameter<edm::InputTag>("HybridInputDigis")),
     algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
     storeCM(conf.getParameter<bool>("storeCM")),
     mergeCollections(conf.getParameter<bool>("mergeCollections"))
@@ -42,16 +43,23 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     produces< edm::DetSetVector<SiStripDigi> > ("ZeroSuppressed");
   }
   
+  
+    produces< edm::DetSetVector<SiStripDigi> > (inputDigiTag.instance());
+	if(produceRawDigis) produces< edm::DetSetVector<SiStripRawDigi> > (inputDigiTag.instance());
+    if(produceCalculatedBaseline) produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE"+inputDigiTag.instance());
+    if(produceBaselinePoints) produces< edm::DetSetVector<SiStripDigi> > ("BADAPVBASELINEPOINTS"+inputDigiTag.instance());
+    if(storeCM) produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM"+inputDigiTag.instance());
+  
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ){
     produces< edm::DetSetVector<SiStripDigi> > (inputTag->instance());
     if(produceRawDigis) produces< edm::DetSetVector<SiStripRawDigi> > (inputTag->instance());
     if(produceCalculatedBaseline) produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE"+inputTag->instance());
     if(produceBaselinePoints) produces< edm::DetSetVector<SiStripDigi> > ("BADAPVBASELINEPOINTS"+inputTag->instance());
     if(storeCM) produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM"+inputTag->instance());
-//     tokens consumes<reco::BeamSpot>(
+
   } 
   inputTokens = edm::vector_transform( inputTags, [this](edm::InputTag const & tag) { return consumes< edm::DetSetVector<SiStripRawDigi> >(tag);} );
-  
+  inputDigiToken = consumes< edm::DetSetVector<SiStripDigi> >(inputDigiTag);
   
   
 }
@@ -70,41 +78,71 @@ produce(edm::Event& e, const edm::EventSetup& es) {
 
 inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
 
-  token_iterator_t inputToken = inputTokens.begin();
-  for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag,++inputToken ) {
+  if("ZeroSuppressed" == inputDigiTag.instance()){
+ 	edm::Handle< edm::DetSetVector<SiStripDigi> > input;
+  	e.getByToken(inputDigiToken,input);
+  	
+    if (input->size())
+    processHybrid(*input);
+    
+    std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
+    e.put( output, inputDigiTag.instance() );
+    	
+    if(produceRawDigis){
+		std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputraw(new edm::DetSetVector<SiStripRawDigi>(output_base_raw) );
+		e.put(outputraw, inputDigiTag.instance());
+    }
+    
+    if(produceCalculatedBaseline){
+		std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
+		e.put(outputbaseline, "BADAPVBASELINE"+inputDigiTag.instance());
+    }
+  
+    if(produceBaselinePoints){
+		std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
+		e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS"+inputDigiTag.instance());
+    }
+  
+    if(storeCM){
+		std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputAPVCM(new edm::DetSetVector<SiStripProcessedRawDigi>(output_apvcm) );
+		e.put( outputAPVCM,"APVCM"+inputDigiTag.instance());
+    }
+      	
+      		
+  } else {
+  	token_iterator_t inputToken = inputTokens.begin();
+  	for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag,++inputToken ) {
 
-    if("ZeroSuppressed" == inputTag->instance()){
-    	 edm::Handle< edm::DetSetVector<SiStripDigi> > input;
-  		 e.getByToken(*inputToken,input);
-  		 
-  		 if (input->size())
-      		processHybrid(*inputTag, *input);		 
-    } else {
     	edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
     	e.getByToken(*inputToken,input);
 
     	if (input->size())
       		processRaw(*inputTag, *input);
-    }
-      std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
-      e.put( output, inputTag->instance() );
+
+    	std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
+      	e.put( output, inputTag->instance() );
     	
-      if(produceRawDigis){
-        e.put(std::make_unique<edm::DetSetVector<SiStripRawDigi>>(output_base_raw), inputTag->instance());
-      }
+      	if(produceRawDigis){
+			std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputraw(new edm::DetSetVector<SiStripRawDigi>(output_base_raw) );
+			e.put(outputraw, inputTag->instance() );
+      	}
     
-      if(produceCalculatedBaseline){
-        e.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(output_baseline), "BADAPVBASELINE"+inputTag->instance());
-      }
+      	if(produceCalculatedBaseline){
+			std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
+			e.put(outputbaseline, "BADAPVBASELINE"+inputTag->instance() );
+      	}
   
-      if(produceBaselinePoints){
-        e.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(output_baseline_points), "BADAPVBASELINEPOINTS"+inputTag->instance());
-      }
+      	if(produceBaselinePoints){
+			std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
+			e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS"+inputTag->instance() );
+      	}
   
-      if(storeCM){
-	e.put(std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>(output_apvcm), "APVCM"+inputTag->instance());
-      }
+      	if(storeCM){
+			std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputAPVCM(new edm::DetSetVector<SiStripProcessedRawDigi>(output_apvcm) );
+			e.put( outputAPVCM,"APVCM"+inputTag->instance());
+      	}
     
+  	}
   }
 }
 
@@ -166,7 +204,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 
 inline
 void SiStripZeroSuppression::
-processHybrid(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripDigi>& input ) {
+processHybrid(const edm::DetSetVector<SiStripDigi>& input) {
 
   output_apvcm.clear();
   output_baseline.clear();
@@ -188,22 +226,41 @@ processHybrid(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripDigi
       uint16_t nAPVflagged = 0;
       std::vector<int16_t> RawDigis;
         
-       nAPVflagged = algorithms->SuppressHybridData(*inDigis, suppressedDigis);  
+       nAPVflagged = algorithms->SuppressHybridData(*inDigis, suppressedDigis, RawDigis);  
        
       //storing the output
       this->storeExtraOutput(inDigis->id, nAPVflagged);
       if(suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0))  output_base.push_back(suppressedDigis); 
          
-     // if (produceRawDigis && nAPVflagged > 0){  
-	 // 	edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis->id);
-     // 	this->formatRawDigisFromHybrid(rawDigis, outRawDigis);
-     // 	output_base_raw.push_back(outRawDigis);
-     // }
+      if (produceRawDigis && nAPVflagged > 0){  
+		edm::DetSet<SiStripRawDigi> outRawDigis(inDigis->id);
+   		this->formatRawDigis(RawDigis, outRawDigis);
+   		output_base_raw.push_back(outRawDigis);
+   	  }
          
   }
   
 }
 
+//protection for not first APV shold be added aslo if not really needed because this code uses always APV=0 as starting point
+inline 
+void SiStripZeroSuppression::formatRawDigis(std::vector<int16_t>&
+					    rawDigis, edm::DetSet<SiStripRawDigi>& outRawDigis){
+     
+      const std::vector<bool>& apvf = algorithms->GetAPVFlags();
+      std::vector<int16_t>::const_iterator itRawDigis = rawDigis.begin(); 
+         
+      uint32_t strip=0;
+      for (; itRawDigis != rawDigis.end(); ++itRawDigis){
+		int16_t APVn = strip/128;
+        if(apvf[APVn]) outRawDigis.push_back(SiStripRawDigi(*itRawDigis)); 
+        else outRawDigis.push_back(SiStripRawDigi(0));
+        ++strip;
+       }
+          
+}
+
+//protection for not first APV shold be added aslo if not really needed because this code uses always APV=0 as starting point
 inline 
 void SiStripZeroSuppression::formatRawDigis(edm::DetSetVector<SiStripRawDigi>::const_iterator 
 					    rawDigis, edm::DetSet<SiStripRawDigi>& outRawDigis){
