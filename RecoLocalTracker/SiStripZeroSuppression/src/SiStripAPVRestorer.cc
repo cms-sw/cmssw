@@ -107,6 +107,7 @@ uint16_t SiStripAPVRestorer::inspect( const uint32_t& detId, const uint16_t& fir
          badAPVs_[APV] = qualityHandle->IsApvBad(detId_, APV);
   }
 	
+  if(InspectAlgo_=="Hybrid") return this->HybridFormatInspect(firstAPV, digis); 	
   if(InspectAlgo_=="BaselineFollower") return this->BaselineFollowerInspect(firstAPV, digis); 
   if(InspectAlgo_=="AbnormalBaseline") return this->AbnormalBaselineInspect(firstAPV, digis);
   if(InspectAlgo_=="Null") return this->NullInspect(firstAPV, digis);
@@ -148,6 +149,39 @@ void SiStripAPVRestorer::restore(const uint16_t& firstAPV, std::vector<int16_t>&
 //Inspect method implementation ========================================================================================================================================================================
 //======================================================================================================================================================================================================
 //======================================================================================================================================================================================================
+
+template<typename T>
+inline
+uint16_t  SiStripAPVRestorer::HybridFormatInspect(const uint16_t& firstAPV, std::vector<T>& digis){
+   
+  std::vector<T> singleAPVdigi;  
+  uint16_t nAPVflagged = 0;
+   
+  for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
+
+    DigiMap smoothedmap;
+    smoothedmap.erase(smoothedmap.begin(), smoothedmap.end());
+     if(!badAPVs_[APV]){
+    	uint16_t stripsPerAPV=0;
+    	singleAPVdigi.clear(); 
+    	for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip){
+			uint16_t adc = digis[strip];
+			singleAPVdigi.push_back(adc); 
+			if(adc>0) ++stripsPerAPV;
+		}
+    
+    	if(stripsPerAPV>64){
+        	this->FlatRegionsFinder(singleAPVdigi,smoothedmap,APV);
+	    	apvFlags_[APV]= RestoreAlgo_;    //specify any algo to make the restore
+	    	nAPVflagged++;
+      	}	  
+      }
+    SmoothedMaps_.insert(SmoothedMaps_.end(), std::pair<uint16_t, DigiMap>(APV, smoothedmap));
+   }
+  
+  return nAPVflagged;
+}
+
 
 template<typename T>
 inline
@@ -326,7 +360,7 @@ uint16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T
 }
 
 
-//Hybrid Format  ========================================================================================================================================================================
+//Hybrid Format emulation inspect ========================================================================================================================================================================
 //======================================================================================================================================================================================================
 //======================================================================================================================================================================================================
 
@@ -372,35 +406,6 @@ uint16_t SiStripAPVRestorer::InspectForHybridFormatEmulation(const uint32_t& det
 
 }
   
-// template<typename T>
-// inline
-// uint16_t  InspectHybridFormat(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
-//   
-//   std::vector<T> singleAPVdigi;  
-//   uint16_t nAPVflagged = 0;
-//   
-//   
-//   for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
-// 
-//     DigiMap smoothedmap;
-//     smoothedmap.erase(smoothedmap.begin(), smoothedmap.end());
-// 
-//       //std::cout << "Delta CM: " << DeltaCM << " CM: " << median_[APV] << " detId " << (uint32_t) detId_ << std::endl; 	
-//       //if(DeltaCM < 0 && std::abs(DeltaCM) > DeltaCMThreshold_){
-//       
-//         bool isFlat = FlatRegionsFinder(singleAPVdigi,smoothedmap,APV);
-//         if(!isFlat){
-// 	      apvFlags_[APV]= RestoreAlgo_;    //specify any algo to make the restore
-// 	      nAPVflagged++;
-//         }
-//      // }	
-//       
-//     } 
-//     SmoothedMaps_.insert(SmoothedMaps_.end(), std::pair<uint16_t, DigiMap>(APV, smoothedmap));
-//    }
-//   
-//   return nAPVflagged;
-// }
 
 
 //Restore method implementation ========================================================================================================================================================================
