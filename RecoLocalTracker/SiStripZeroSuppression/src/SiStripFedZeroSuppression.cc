@@ -23,11 +23,11 @@ void SiStripFedZeroSuppression::init(const edm::EventSetup& es){
   }
 }
 
-void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal,const uint32_t& detID){
+void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detID){
   suppress(in, selectedSignal, detID, noiseHandle, thresholdHandle);
 }
 
-void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal,const uint32_t& detID, 
+void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detID,
 							edm::ESHandle<SiStripNoises> & noiseHandle,edm::ESHandle<SiStripThreshold> & thresholdHandle){
 
   int i;  
@@ -244,7 +244,7 @@ void SiStripFedZeroSuppression::fillThresholds_(const uint32_t detID, size_t siz
 }
 
 
-void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, const uint16_t& firstAPV,  edm::DetSet<SiStripDigi>& out){
+void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, uint16_t firstAPV,  edm::DetSet<SiStripDigi>& out){
 
   const uint32_t detID = out.id;
   size_t size = in.size();
