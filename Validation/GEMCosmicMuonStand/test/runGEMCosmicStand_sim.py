@@ -58,15 +58,15 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0)
 )
 
-process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
-    dataset = cms.untracked.PSet(
-        dataTier = cms.untracked.string('DQMIO'),
-        filterName = cms.untracked.string('')
-    ),
-    fileName = cms.untracked.string('file:dqm.root'),
-    outputCommands = process.DQMEventContent.outputCommands,
-    splitLevel = cms.untracked.int32(0)
-)
+#process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
+#    dataset = cms.untracked.PSet(
+#        dataTier = cms.untracked.string('DQMIO'),
+#        filterName = cms.untracked.string('')
+#    ),
+#    fileName = cms.untracked.string('file:dqm.root'),
+#    outputCommands = process.DQMEventContent.outputCommands,
+#    splitLevel = cms.untracked.int32(0)
+#)
 
 #process.FEVTDEBUGHLToutput.outputCommands.append()
 

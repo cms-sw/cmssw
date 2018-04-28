@@ -1,0 +1,11 @@
+#!/bin/sh
+JOB_NAME=${1:-"GEMQC8-Sim_$(date +%y%m%d-%H%M%S)"}
+
+JOB_DIR=/xrootd/store/user/slowmoyang/${JOB_NAME}
+mkdir -v ${JOB_DIR}
+
+create-batch --jobName ${JOB_NAME} \
+             --cfg runGEMCosmicStand_sim.py \
+             --maxEvent 5000 \
+             --nJobs 10 \
+             --transferDest "root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang/${JOB_NAME}"

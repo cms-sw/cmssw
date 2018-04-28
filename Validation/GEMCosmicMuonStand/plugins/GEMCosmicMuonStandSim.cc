@@ -1,29 +1,49 @@
 #include "GEMCosmicMuonStandSim.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
+
+#include <vector>
+#include <iostream>
+#include <iterator> // std::distance
+#include <algorithm> // std::find
+#include <numeric> // std::iota
+#include <string>
+
 using namespace std;
 
-GEMCosmicMuonStandSim::GEMCosmicMuonStandSim(const edm::ParameterSet& cfg)
-{
+GEMCosmicMuonStandSim::GEMCosmicMuonStandSim(const edm::ParameterSet& cfg) {
   simHitToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simHitToken"));
   recHitToken_ = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitToken"));
 }
 
-MonitorElement* GEMCosmicMuonStandSim::BookHist1D( DQMStore::IBooker &ibooker, const char* name, const char* label, unsigned int row, unsigned int coll, unsigned int layer_num, unsigned int vfat_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax)
-{
+MonitorElement* GEMCosmicMuonStandSim::BookHist1D(DQMStore::IBooker &ibooker,
+                                                  const char* name, const char* label,
+                                                  unsigned int row, unsigned int coll,
+                                                  unsigned int layer_num, unsigned int vfat_num,
+                                                  const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {
   string hist_name,hist_label;
   return ibooker.book1D( hist_name, hist_label,Nbin,xMin,xMax ); 
 }
 
-MonitorElement* GEMCosmicMuonStandSim::BookHist1D( DQMStore::IBooker &ibooker, const char* name, const char* label, const unsigned int Nbin, const Float_t xMin, const Float_t xMax)
-{
+MonitorElement* GEMCosmicMuonStandSim::BookHist1D(DQMStore::IBooker &ibooker,
+                                                  const char* name, const char* label,
+                                                  const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {
   return ibooker.book1D( name, label,Nbin,xMin,xMax );
 }
 
-void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup )
-{
+
+void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup) {
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry*  GEMGeometry_ = &*hGeom;
@@ -33,15 +53,45 @@ void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   ibooker.setCurrentFolder("GEMCosmicMuonStandSim");
   LogDebug("GEMCosmicMuonStandSim")<<"ibooker set current folder\n";
 
-  // for( auto& region : GEMGeometry_->regions() ){
-  //   int re = region->region();
-  // }
-  
+  TString vfat_name_fmt = "gem_vfat_%s_%dth_chamber";
+
+
+  for(Int_t chamber_id = 1; chamber_id <= 29; chamber_id += 2) {
+    Int_t index = GetChamberIndex(chamber_id);
+
+    TString total_name = TString::Format(vfat_name_fmt, "total", chamber_id);
+    TString total_title = TString::Format("Total events of %d GEM Chamber", chamber_id);
+    gem_vfat_total_[index] = ibooker.book2D(total_name, total_title, 8, 1, 8+1, 3, 1, 3+1);
+
+    TString passed_name = TString::Format(vfat_name_fmt, "passed", chamber_id);
+    TString passed_title = TString::Format("Passed events of %d GEM Chamber", chamber_id);
+    gem_vfat_passed_[index] = ibooker.book2D(passed_name, passed_title, 8, 1, 8+1, 3, 1, 3+1);
+  }
+ 
   LogDebug("GEMCosmicMuonStandSim")<<"Booking End.\n";
 }
 
-void GEMCosmicMuonStandSim::analyze(const edm::Event& e,const edm::EventSetup& iSetup)
-{
+
+Int_t GEMCosmicMuonStandSim::GetVFATId(Float_t x, const GEMEtaPartition* roll) {
+  /* ambig pt in boundaries.
+   */
+  Int_t nstrips = roll->nstrips();
+  Float_t x_min = roll->centreOfStrip(1).x(); // - strip width
+  Float_t x_max = roll->centreOfStrip(nstrips).x(); // + strip width
+
+  Float_t x0 = std::min(x_min, x_max);
+
+  // 3.0 means the number of phi-segmentations  in the eta partition.
+  Float_t width = std::fabs(x_max - x_min) / 3.0;
+
+  if (x < x0 + width)        return 1;
+  else if (x < x0 + 2*width) return 2;
+  else if (x < x0 + 3*width) return 3;
+  else                       return -1;
+}
+
+
+void GEMCosmicMuonStandSim::analyze(const edm::Event& e,const edm::EventSetup& iSetup) {
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry*  GEMGeometry_ = &*hGeom;
@@ -52,115 +102,62 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,const edm::EventSetup& i
   edm::Handle<edm::PSimHitContainer> gemSimHits;
   e.getByToken( simHitToken_, gemSimHits);
   
-  if (!gemRecHits.isValid()) {
+  if (not gemRecHits.isValid()) {
     edm::LogError("GEMCosmicMuonStandSim") << "Cannot get strips by Token RecHits Token.\n";
     return ;
   }
-  
-  // for (edm::PSimHitContainer::const_iterator hits = gemSimHits->begin(); hits!=gemSimHits->end(); ++hits) {
-  //   const GEMDetId id(hits->detUnitId());
 
-  //   Int_t sh_region = id.region();
-  //   //Int_t sh_ring = id.ring();
-  //   Int_t sh_roll = id.roll();
-  //   Int_t sh_station = id.station();
-  //   Int_t sh_layer = id.layer();
-  //   Int_t sh_chamber = id.chamber();
+ // if( isMC) 
+ for(edm::PSimHitContainer::const_iterator simHit = gemSimHits->begin();
+                                           simHit != gemSimHits->end();
+                                           ++simHit) {
 
-  //   if ( GEMGeometry_->idToDet(hits->detUnitId()) == nullptr) {
-  //     std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
-  //     continue;
-  //   }
+    Local3DPoint simHitLP = simHit->localPosition();
+    GEMDetId simDetId(simHit->detUnitId());
 
-  //   if (!(abs(hits-> particleType()) == 13)) continue;
+    GlobalPoint simHitGP = GEMGeometry_->idToDet(simDetId)->surface().toGlobal(simHitLP);
 
-  //   //const LocalPoint p0(0., 0., 0.);
-  //   //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
-  //   const LocalPoint hitLP(hits->localPosition());
+    //
+    //Int_t simFiredStrip = GEMGeometry_->etaPartition(simDetId)->strip(simHitLP);
+    Int_t simFiredStrip = GEMGeometry_->etaPartition(simDetId)->strip(simHit->entryPoint());
+    //Int_t simFiredStrip = GEMGeometry_->etaPartition(simDetId)->strip(simHit->exitPoint());
 
-  //   const LocalPoint hitEP(hits->entryPoint());
-  //   Int_t sh_strip = GEMGeometry_->etaPartition(hits->detUnitId())->strip(hitEP);
+    GEMRecHitCollection::range range = gemRecHits->get(simDetId);
+    for(GEMRecHitCollection::const_iterator recHit = range.first;
+                                            recHit != range.second;
+                                            ++recHit) {
 
-  //   //const GlobalPoint hitGP(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
-  //   //Float_t sh_l_r = hitLP.perp();
-  //   Float_t sh_l_x = hitLP.x();
-  //   Float_t sh_l_y = hitLP.y();
-  //   //Float_t sh_l_z = hitLP.z();
+      LocalPoint recHitLP = recHit->localPosition();
+      GEMDetId recDetId = recHit->gemId();
+      GlobalPoint recHitGP = GEMGeometry_->idToDet(recDetId)->surface().toGlobal(recHitLP);
 
-  //   for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); ++recHit){
-  //     Float_t  rh_l_x = recHit->localPosition().x();
-  //     Float_t  rh_l_xErr = recHit->localPositionError().xx();
-  //     Float_t  rh_l_y = recHit->localPosition().y();
-  //     Float_t  rh_l_yErr = recHit->localPositionError().yy();
-  //     //Int_t  detId = (Short_t) (*recHit).gemId();
-  //     //Int_t  bx = recHit->BunchX();
-  //     Int_t  clusterSize = recHit->clusterSize();
-  //     Int_t  firstClusterStrip = recHit->firstClusterStrip();
+      const GEMEtaPartition* kRecRoll = GEMGeometry_->etaPartition(recDetId);
+      Int_t recVFATId = GetVFATId(recHitLP.x(), kRecRoll);
+      if(recVFATId == -1) continue;
 
-  //     GEMDetId id((*recHit).gemId());
+      Int_t recChamberIdx = GetChamberIndex(recDetId.chamber());
+      std::cout << "Chamber Index: " << recChamberIdx << std::endl;
+      gem_vfat_total_[recChamberIdx]->Fill(recDetId.roll(), recVFATId);
 
-  //     Short_t rh_region = (Short_t) id.region();
-  //     //Int_t rh_ring = (Short_t) id.ring();
-  //     Short_t rh_station = (Short_t) id.station();
-  //     Short_t rh_layer = (Short_t) id.layer();
-  //     Short_t rh_chamber = (Short_t) id.chamber();
-  //     Short_t rh_roll = (Short_t) id.roll();
+      // XXX SimHit RecHit Matching
+      // FIXME Discard useless conditions
+      if(simDetId.layer() != recDetId.layer()) continue;
+      if(simDetId.chamber() != recDetId.chamber()) continue;
+      if(simDetId.roll() != recDetId.roll()) continue;
 
-  //     LocalPoint recHitLP = recHit->localPosition();
-  //     if ( GEMGeometry_->idToDet((*recHit).gemId()) == nullptr) {
-  //       std::cout<<"This gem recHit did not matched with GEMGeometry."<<std::endl;
-  //       continue;
-  //     }
-  //     GlobalPoint recHitGP = GEMGeometry_->idToDet((*recHit).gemId())->surface().toGlobal(recHitLP);
+      Int_t recHitCLS = recHit->clusterSize();
+      Int_t recFirstFiredStrip = recHit->firstClusterStrip();
+      Int_t recLastFiredStrip = recFirstFiredStrip + recHitCLS;
 
-  //     Float_t     rh_g_R = recHitGP.perp();
-  //     //Float_t rh_g_Eta = recHitGP.eta();
-  //     //Float_t rh_g_Phi = recHitGP.phi();
-  //     Float_t     rh_g_X = recHitGP.x();
-  //     Float_t     rh_g_Y = recHitGP.y();
-  //     Float_t     rh_g_Z = recHitGP.z();
-  //     Float_t   rh_pullX = (Float_t)(rh_l_x - sh_l_x)/(rh_l_xErr);
-  //     Float_t   rh_pullY = (Float_t)(rh_l_y - sh_l_y)/(rh_l_yErr);
+      if((simFiredStrip < recFirstFiredStrip) or (simFiredStrip > recLastFiredStrip)) continue;
 
-  //     std::vector<int> stripsFired;
-  //     for(int i = firstClusterStrip; i < (firstClusterStrip + clusterSize); i++){
-  //       stripsFired.push_back(i);
-  //     }
+      gem_vfat_passed_[recChamberIdx]->Fill(recDetId.roll(), recVFATId);
 
-  //     const bool cond1( sh_region == rh_region and sh_layer == rh_layer and sh_station == rh_station);
-  //     const bool cond2(sh_chamber == rh_chamber and sh_roll == rh_roll);
-  //     const bool cond3(std::find(stripsFired.begin(), stripsFired.end(), (sh_strip + 1)) != stripsFired.end());
+      std::cout << simHitGP.x() << " " << recHitGP.x() << std::endl;
+    }
+  }
 
-  //     if(cond1 and cond2 and cond3){
-  //       LogDebug("GEMCosmicMuonStandSim")<< " Region : " << rh_region << "\t Station : " << rh_station
-  //         << "\t Layer : "<< rh_layer << "\n Radius: " << rh_g_R << "\t X : " << rh_g_X << "\t Y : "<< rh_g_Y << "\t Z : " << rh_g_Z << std::endl;	
+  // if( not isMC )
 
-  //       // int region_num=0 ;
-  //       // if ( rh_region ==-1 ) region_num = 0 ;
-  //       // else if ( rh_region==1) region_num = 1;
-  //       int layer_num = rh_layer-1;
-  //       int binX = (rh_chamber-1)*2+layer_num;
-  //       int binY = rh_roll;
-  //       int station_num = rh_station -1;
-
-  //       // Fill normal plots.
-  //       TString histname_suffix = TString::Format("_r%d",rh_region);
-  //       TString simple_zr_histname = TString::Format("rh_simple_zr%s",histname_suffix.Data());
-  //       LogDebug("GEMCosmicMuonStandSim")<< " simpleZR!\n";
-  //       recHits_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(rh_g_Z), rh_g_R);
-
-  //       histname_suffix = TString::Format("_r%d_st%d",rh_region, rh_station);
-  //       TString dcEta_histname = TString::Format("rh_dcEta%s",histname_suffix.Data());
-  //       LogDebug("GEMCosmicMuonStandSim")<< " dcEta\n";
-  //       recHits_dcEta[dcEta_histname.Hash()]->Fill( binX, binY);
-
-  //       gem_cls_tot->Fill(clusterSize);
-  //       gem_region_pullX[0]->Fill(rh_pullX);
-  //       gem_region_pullY[0]->Fill(rh_pullY);
-  //       LogDebug("GEMCosmicMuonStandSim")<< " Begin detailPlot!\n";
-
-  //     }
-  //   } //End loop on RecHits
-  // } //End loop on SimHits
-
-}
+ 
+ }
