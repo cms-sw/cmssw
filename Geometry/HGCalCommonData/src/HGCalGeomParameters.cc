@@ -22,6 +22,7 @@
 //#define EDM_ML_DEBUG
 
 const double k_ScaleFromDDD = 0.1;
+const double tolerance      = 0.001;
 
 HGCalGeomParameters::HGCalGeomParameters() {
 #ifdef EDM_ML_DEBUG
@@ -60,13 +61,13 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
     int zp   = (nsiz > 2) ? copy[nsiz-3] : -1;
     if (zp != 1) zp = -1;
     if (lay == 0) {
-      edm::LogError("HGCalGeom") << "Funny layer # " << lay << " zp "
-				 << zp << " in " << nsiz << " components";
-      throw cms::Exception("DDException") << "Funny layer # " << lay;
+      throw cms::Exception("DDException") << "Funny layer # " << lay << " zp "
+					  << zp << " in " << nsiz 
+					  << " components";
     } else {
       if (std::find(php.layer_.begin(),php.layer_.end(),lay) == 
 	  php.layer_.end()) php.layer_.emplace_back(lay);
-      std::map<int,HGCalGeomParameters::layerParameters>::iterator itr = layers.find(lay);
+      auto itr = layers.find(lay);
       if (itr == layers.end()) {
 	const DDTubs & tube = static_cast<DDTubs>(sol);
 	double rin = k_ScaleFromDDD*tube.rIn();
@@ -82,9 +83,9 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 					x.Z(), y.Z(), z.Z() );
       const CLHEP::HepRotation hr ( rotation );
       double xx = k_ScaleFromDDD*fv.translation().X();
-      if (std::abs(xx) < 0.001) xx = 0;
+      if (std::abs(xx) < tolerance) xx = 0;
       double yy = k_ScaleFromDDD*fv.translation().Y();
-      if (std::abs(yy) < 0.001) yy = 0;
+      if (std::abs(yy) < tolerance) yy = 0;
       const CLHEP::Hep3Vector h3v ( xx, yy, fv.translation().Z() );
       HGCalParameters::hgtrform mytrf;
       mytrf.zp    = zp;
@@ -142,9 +143,9 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 	  copies[wafer] = wafer2copy.size();
 	  copiesInLayers[layer][wafer] = wafer2copy.size();
 	  double xx = k_ScaleFromDDD*fv1.translation().X();
-	  if (std::abs(xx) < 0.001) xx = 0;
+	  if (std::abs(xx) < tolerance) xx = 0;
 	  double yy = k_ScaleFromDDD*fv1.translation().Y();
-	  if (std::abs(yy) < 0.001) yy = 0;
+	  if (std::abs(yy) < tolerance) yy = 0;
 	  wafer2copy.emplace_back(wafer);
 	  GlobalPoint p(xx,yy,k_ScaleFromDDD*fv1.translation().Z());
 	  HGCalGeomParameters::cellParameters cell(false,wafer,p);
@@ -439,7 +440,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   for (unsigned int k=0; k<php.trformIndex_.size(); ++k) {
     edm::LogVerbatim("HGCalGeom") << "Matrix[" << k << "] (" << std::hex 
 				  << php.trformIndex_[k]
-				  << std::dec << ") Trnaslation (" 
+				  << std::dec << ") Translation (" 
 				  << php.trformTranX_[k] << ", " 
 				  << php.trformTranY_[k] << ", " 
 				  << php.trformTranZ_[k] << " Rotation ("
@@ -510,9 +511,9 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
 					x.Z(), y.Z(), z.Z() );
       const CLHEP::HepRotation hr ( rotation );
       double xx = k_ScaleFromDDD*fv.translation().X();
-      if (std::abs(xx) < 0.001) xx = 0;
+      if (std::abs(xx) < tolerance) xx = 0;
       double yy = k_ScaleFromDDD*fv.translation().Y();
-      if (std::abs(yy) < 0.001) yy = 0;
+      if (std::abs(yy) < tolerance) yy = 0;
       const CLHEP::Hep3Vector h3v (xx, yy, fv.translation().Z());
       HGCalParameters::hgtrform mytrf;
       mytrf.zp    = zp;
@@ -586,7 +587,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
   for (unsigned int k=0; k<php.trformIndex_.size(); ++k) {
     edm::LogVerbatim("HGCalGeom") << "Matrix[" << k << "] (" << std::hex 
 				  << php.trformIndex_[k]
-				  << std::dec << ") Trnaslation (" 
+				  << std::dec << ") Translation (" 
 				  << php.trformTranX_[k] << ", " 
 				  << php.trformTranY_[k] << ", " 
 				  << php.trformTranZ_[k] << " Rotation ("
@@ -806,10 +807,11 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
 
   double waferW(k_ScaleFromDDD*php.waferSize_);
   double waferS(k_ScaleFromDDD*php.sensorSeparation_);
-  std::unique_ptr<HGCalWaferType> wType = 
-    std::make_unique<HGCalWaferType>(php.radius100to200_,
-				     php.radius200to300_, (waferW+waferS),
-				     php.zMinForRad_, php.nCornerCut_);
+  auto wType = std::make_unique<HGCalWaferType>(php.radius100to200_,
+						php.radius200to300_, 
+						(waferW+waferS),
+						php.zMinForRad_, 
+						php.nCornerCut_);
   
   double rout(php.rLimit_[1]);
 #ifdef EDM_ML_DEBUG
@@ -824,7 +826,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
   php.waferPosY_.clear();
   double r     = 0.5*(waferW+waferS);
   double dy    = 0.5*r*sqrt(3.0);
-  int    N     = (int)(0.5*rout/r) + 2;
+  int    N     = (r == 0) ? 2 : ((int)(0.5*rout/r) + 2);
   int    ns1   = (2*N+1)*(2*N+1);
   int    ns2   = ns1*php.zLayerHex_.size();
 #ifdef EDM_ML_DEBUG
@@ -1101,9 +1103,9 @@ HGCalGeomParameters::cellPosition(const std::vector<HGCalGeomParameters::cellPar
   double dx(0), dy(0);
   if (itrf != wafers.end()) {
     dx = (xx - itrf->xyz.x());
-    if (std::abs(dx) < 0.001) dx = 0;
+    if (std::abs(dx) < tolerance) dx = 0;
     dy = (yy - itrf->xyz.y());
-    if (std::abs(dy) < 0.001) dy = 0;
+    if (std::abs(dy) < tolerance) dy = 0;
   }
   return std::pair<double,double>(dx,dy);
 }
