@@ -58,7 +58,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const edm::DetSet<Si
 
 
 //IMPORTANT: don't forget the conversion from  hybrids on the bad APVs (*2 -1024)
-uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
 	  std::vector<int16_t>  processedRawDigisPedSubtracted ;
       processedRawDigisPedSubtracted.clear();
       int16_t nAPVFlagged =0;
@@ -91,7 +91,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const uint32_t& id, 
 }
 
 
-void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(const uint32_t& id, const edm::DetSet<SiStripDigi>& inDigis, std::vector<int16_t>& RawDigis){
+void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(uint32_t id, const edm::DetSet<SiStripDigi>& inDigis, std::vector<int16_t>& RawDigis){
      
 	 const StripGeomDetUnit* StripModuleGeom =(const StripGeomDetUnit*)trGeo->idToDetUnit(id);
 	 uint16_t nStrips = (StripModuleGeom->specificTopology()).nstrips(); 
@@ -120,7 +120,7 @@ void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(const uint
 
 //Suppressors Virgin Raw And Processed Raw
 //--------------------------------------------------------
-uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
       
       subtractorPed->subtract( id, firstAPV*128,processedRawDigis);
       return this->SuppressProcessedRawData(id, firstAPV, processedRawDigis , suppressedDigis );
@@ -139,7 +139,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet
 
 
 
-uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
       std::vector<int16_t>  processedRawDigisPedSubtracted ;
       
       int16_t nAPVFlagged =0;
@@ -163,7 +163,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::Det
 //Convert to Hybrid Format 
 //--------------------------------------------------------
 
-uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
 
       //std::vector<int16_t>  tmpVR;
       //tmpVR.clear();
