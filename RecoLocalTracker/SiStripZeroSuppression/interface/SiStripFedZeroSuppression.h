@@ -28,11 +28,11 @@ class SiStripFedZeroSuppression {
     doTruncate10bits(trunc10bits){}
   ~SiStripFedZeroSuppression() {};
   void init(const edm::EventSetup& es);
-  void suppress(const std::vector<SiStripDigi>&,std::vector<SiStripDigi>&,const uint32_t&,
+  void suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detId,
 		edm::ESHandle<SiStripNoises> &,edm::ESHandle<SiStripThreshold> &);
-  void suppress(const std::vector<SiStripDigi>&,std::vector<SiStripDigi>&,const uint32_t&);
-  void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
-  void suppress(const std::vector<int16_t>&,const uint16_t&, edm::DetSet<SiStripDigi>&);
+  void suppress(const std::vector<SiStripDigi>& in, std::vector<SiStripDigi>& selectedSignal, uint32_t detId);
+  void suppress(const edm::DetSet<SiStripRawDigi>& in ,edm::DetSet<SiStripDigi>& out);
+  void suppress(const std::vector<int16_t>& in, uint16_t firstAPV, edm::DetSet<SiStripDigi>& out);
   
  uint16_t truncate(int16_t adc) const{
     if(adc>253 && doTruncate && !doTruncate10bits ) return ((adc==1023) ? 255 : 254);
