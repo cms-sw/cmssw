@@ -12,19 +12,19 @@
 #include <memory>
 
 
-SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(std::auto_ptr<SiStripPedestalsSubtractor> ped,
-				 std::auto_ptr<SiStripCommonModeNoiseSubtractor> cmn,
-				 std::auto_ptr<SiStripFedZeroSuppression> zs,
-				 std::auto_ptr<SiStripAPVRestorer> res,
-				 bool doAPVRest,
-				 bool useCMMap)
-    :  subtractorPed(ped),
-       subtractorCMN(cmn),
-       suppressor(zs),
-       restorer(res),
-       doAPVRestore(doAPVRest),
-       useCMMeanMap(useCMMap)
-    {}
+SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(
+    std::unique_ptr<SiStripPedestalsSubtractor> ped,
+    std::unique_ptr<SiStripCommonModeNoiseSubtractor> cmn,
+    std::unique_ptr<SiStripFedZeroSuppression> zs,
+    std::unique_ptr<SiStripAPVRestorer> res,
+    bool doAPVRest, bool useCMMap)
+: subtractorPed(std::move(ped)),
+  subtractorCMN(std::move(cmn)),
+  suppressor(std::move(zs)),
+  restorer(std::move(res)),
+  doAPVRestore(doAPVRest),
+  useCMMeanMap(useCMMap)
+{}
 
 
 void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es) {
