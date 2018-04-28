@@ -17,6 +17,8 @@ bits ([27:25]) identify a part of the detector (such as HcalBarrel
 */
 class DetId {
 public:
+  static const int kDetMask            = 0xF;
+  static const int kSubdetMask         = 0x7;
   static const int kDetOffset          = 28;
   static const int kSubdetOffset       = 25;
 
@@ -30,13 +32,13 @@ public:
   DetId(uint32_t id) : id_(id) { }
   /// Create an id, filling the detector and subdetector fields as specified
   DetId(Detector det, int subdet)  {
-    id_=((det&0xF)<<28)|((subdet&0x7)<<25);
+    id_=((det&kDetMask)<<kDetOffset)|((subdet&kSubdetMask)<<kSubdetOffset);
   }
 
   /// get the detector field from this detid
-  Detector det() const { return Detector((id_>>kDetOffset)&0xF); }
+  Detector det() const { return Detector((id_>>kDetOffset)&kDetMask); }
   /// get the contents of the subdetector field (not cast into any detector's numbering enum)
-  int subdetId() const { return ((id_>>kSubdetOffset)&0x7); }
+  int subdetId() const { return ((id_>>kSubdetOffset)&kSubdetMask); }
 
   uint32_t operator()() const { return id_; }
   operator uint32_t() const { return id_; }
