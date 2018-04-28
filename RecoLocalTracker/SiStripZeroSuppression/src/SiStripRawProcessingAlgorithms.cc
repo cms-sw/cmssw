@@ -27,21 +27,22 @@ SiStripRawProcessingAlgorithms::SiStripRawProcessingAlgorithms(
 {}
 
 
-void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es) {
-    subtractorPed->init(es);
-    subtractorCMN->init(es);
-    suppressor->init(es);
-    if(restorer.get()) restorer->init(es);
-    
-    edm::ESHandle<TrackerGeometry> tracker; 
-    es.get<TrackerDigiGeometryRecord>().get( tracker );
-    const TrackerGeometry &trGeotmp(*tracker);
-    trGeo = &trGeotmp;
+void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es)
+{
+  subtractorPed->init(es);
+  subtractorCMN->init(es);
+  suppressor->init(es);
+  if ( restorer.get() ) restorer->init(es);
+
+  edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  trGeo = tracker.product();
 }
-void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const edm::Event& e){
-  this->initialize(es);
-  if(restorer.get()&&doAPVRestore&&useCMMeanMap) restorer->LoadMeanCMMap(e);
-  
+
+void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const edm::Event& e)
+{
+  initialize(es);
+  if ( restorer.get() && doAPVRestore&&useCMMeanMap ) restorer->LoadMeanCMMap(e);
 }
 
 
@@ -120,43 +121,85 @@ void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(uint32_t i
 
 //Suppressors Virgin Raw And Processed Raw
 //--------------------------------------------------------
-uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
-      
-      subtractorPed->subtract( id, firstAPV*128,processedRawDigis);
-      return this->SuppressProcessedRawData(id, firstAPV, processedRawDigis , suppressedDigis );
- 
+//
+/**
+ * Zero-suppress virgin raw data.
+ *
+ * Subtracts pedestals and common-mode noise, and (optionally, if doAPVRestore)
+ * re-evaluates and subtracts the baseline.
+ *
+ * @param id module DetId
+ * @param firstAPV index of the first APV to consider
+ * @param procRawDigis input (virgin raw) ADCs. Output: the ADCs after all subtractions, but before zero-suppression
+ * @param output zero-suppressed digis
+ * @return number of restored APVs
+ */
+uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& procRawDigis, edm::DetSet<SiStripDigi>& output)
+{
+  subtractorPed->subtract(id, firstAPV*128, procRawDigis);
+  return SuppressProcessedRawData(id, firstAPV, procRawDigis, output);
 }
 
-uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
-   
-   std::vector<int16_t> RawDigis;
-   RawDigis.clear();
-   edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
-   for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
-   return this->SuppressVirginRawData(rawDigis.id, 0,RawDigis , suppressedDigis);
-}
-  
-
-
-
-uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
-      std::vector<int16_t>  processedRawDigisPedSubtracted ;
-      
-      int16_t nAPVFlagged =0;
-      if( doAPVRestore ) processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
-      subtractorCMN->subtract(id, firstAPV,  processedRawDigis);
-      if( doAPVRestore ) nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, processedRawDigisPedSubtracted, processedRawDigis, subtractorCMN->getAPVsCM() );
-      suppressor->suppress( processedRawDigis, firstAPV,  suppressedDigis ); 
-      return nAPVFlagged;
+/**
+ * Zero-suppress virgin raw data.
+ *
+ * Subtracts pedestals and common-mode noise, and (optionally, if doAPVRestore)
+ * re-evaluates and subtracts the baseline.
+ *
+ * @param rawDigis input (virgin) raw digis
+ * @param output zero-suppressed digis
+ * @return number of restored APVs
+ */
+uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
+{
+  std::vector<int16_t> RawDigis; RawDigis.reserve(rawDigis.size());
+  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
+      [] ( SiStripRawDigi digi ) { return digi.adc(); } );
+  return SuppressVirginRawData(rawDigis.id, 0, RawDigis, output);
 }
 
+/**
+ * Zero-suppress processed (pedestals-subtracted) raw data.
+ *
+ * Subtracts common-mode noise and (optionally, if doAPVRestore)
+ * re-evaluates and subtracts the baseline.
+ *
+ * @param id module DetId
+ * @param firstAPV index of the first APV to consider
+ * @param procRawDigis input (processed raw) ADCs. Output: the ADCs after all subtractions, but before zero-suppression
+ * @param output zero-suppressed digis
+ * @return number of restored APVs
+ */
+uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& procRawDigis , edm::DetSet<SiStripDigi>& output)
+{
+  std::vector<int16_t> procRawDigisPedSubtracted ;
 
-uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
-   std::vector<int16_t> RawDigis;
-   RawDigis.clear();
-   edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
-   for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
-   return this->SuppressProcessedRawData(rawDigis.id, 0, RawDigis , suppressedDigis );
+  int16_t nAPVFlagged =0;
+  if ( doAPVRestore )
+    procRawDigisPedSubtracted.assign(procRawDigis.begin(), procRawDigis.end());
+  subtractorCMN->subtract(id, firstAPV, procRawDigis);
+  if ( doAPVRestore )
+    nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, procRawDigisPedSubtracted, procRawDigis, subtractorCMN->getAPVsCM());
+  suppressor->suppress(procRawDigis, firstAPV, output);
+  return nAPVFlagged;
+}
+
+/**
+ * Zero-suppress processed (pedestals-subtracted) raw data.
+ *
+ * Subtracts common-mode noise and (optionally, if doAPVRestore)
+ * re-evaluates and subtracts the baseline.
+ *
+ * @param rawDigis input (processed) raw digis
+ * @param output zero-suppressed digis
+ * @return number of restored APVs
+ */
+uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& output)
+{
+  std::vector<int16_t> RawDigis; RawDigis.reserve(rawDigis.size());
+  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
+      [] ( SiStripRawDigi digi ) { return digi.adc(); } );
+  return SuppressProcessedRawData(rawDigis.id, 0, RawDigis, output);
 }
 
 
