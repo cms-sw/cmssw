@@ -20,24 +20,24 @@ void IteratedMedianCMNSubtractor::init(const edm::EventSetup& es){
   }
 }
 
-void IteratedMedianCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis){ subtract_(detId, firstAPV, digis);}
-void IteratedMedianCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<float>& digis){ subtract_(detId,firstAPV, digis);}
+void IteratedMedianCMNSubtractor::subtract(uint32_t detId, uint16_t firstAPV, std::vector<int16_t>& digis){ subtract_(detId, firstAPV, digis);}
+void IteratedMedianCMNSubtractor::subtract(uint32_t detId, uint16_t firstAPV, std::vector<float>& digis){ subtract_(detId,firstAPV, digis);}
 
 template<typename T>
 inline
 void IteratedMedianCMNSubtractor::
-subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis){
+subtract_(uint32_t detId, uint16_t firstAPV, std::vector<T>& digis){
 
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId);
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId);
 
   typename std::vector<T>::iterator fs,ls;
-  float offset = 0;  
+  float offset = 0;
   std::vector< std::pair<float,float> > subset;
   subset.reserve(128);
 
-  _vmedians.clear(); 
-  
+  _vmedians.clear();
+
   uint16_t APV=firstAPV;
   for( ; APV< digis.size()/128+firstAPV; ++APV)
   {
@@ -63,17 +63,17 @@ subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis
       std::vector< std::pair<float,float> >::iterator si = subset.begin();
       while(  si != subset.end() )
       {
-        if( si->first-offset > cut_to_avoid_signal_*si->second )  
+        if( si->first-offset > cut_to_avoid_signal_*si->second )
           si = subset.erase(si);
         else
           ++si;
       }
       if ( subset.empty() ) break;
       offset = pairMedian(subset);
-    }        
+    }
 
     _vmedians.push_back(std::pair<short,float>(APV,offset));
-    
+
     // remove offset
     fs = digis.begin()+(APV-firstAPV)*128;
     ls = digis.begin()+(APV-firstAPV+1)*128;
