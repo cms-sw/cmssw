@@ -36,6 +36,11 @@ class DQMReader(object):
             indices.GetEntry(y)
             # print indices.Run, indices.Lumi, indices.Type
 
+            if indices.Type == 1000:
+                # nothing is stored here
+                # see https://github.com/cms-sw/cmssw/blob/8be445ac6fd9983d69156199d4d1fd3350f05d92/DQMServices/FwkIO/plugins/DQMRootOutputModule.cc#L437
+                continue
+
             object_type = self.DQMIO_TYPES[indices.Type]
             t_tree = self._root_file.Get(object_type)
 
