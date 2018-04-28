@@ -40,21 +40,21 @@ class SiStripRawProcessingAlgorithms {
   inline std::map< uint16_t, std::map< uint16_t, int16_t> >& GetSmoothedPoints(){return restorer->GetSmoothedPoints();}
   inline const std::vector< std::pair<short,float> >& getAPVsCM(){return subtractorCMN->getAPVsCM();}
 
-  const std::auto_ptr<SiStripPedestalsSubtractor> subtractorPed;
-  const std::auto_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
-  const std::auto_ptr<SiStripFedZeroSuppression> suppressor;
-  const std::auto_ptr<SiStripAPVRestorer> restorer;
+  const std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed;
+  const std::unique_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
+  const std::unique_ptr<SiStripFedZeroSuppression> suppressor;
+  const std::unique_ptr<SiStripAPVRestorer> restorer;
 
  private:
   const bool doAPVRestore;
   const bool useCMMeanMap;
-  
+
   const TrackerGeometry* trGeo;
-  
-  SiStripRawProcessingAlgorithms(std::auto_ptr<SiStripPedestalsSubtractor> ped,
-				 std::auto_ptr<SiStripCommonModeNoiseSubtractor> cmn,
-				 std::auto_ptr<SiStripFedZeroSuppression> zs,
-                                 std::auto_ptr<SiStripAPVRestorer> res,
+
+  SiStripRawProcessingAlgorithms(std::unique_ptr<SiStripPedestalsSubtractor> ped,
+				 std::unique_ptr<SiStripCommonModeNoiseSubtractor> cmn,
+				 std::unique_ptr<SiStripFedZeroSuppression> zs,
+                                 std::unique_ptr<SiStripAPVRestorer> res,
 				 bool doAPVRest,
 				 bool useCMMap); 
  
