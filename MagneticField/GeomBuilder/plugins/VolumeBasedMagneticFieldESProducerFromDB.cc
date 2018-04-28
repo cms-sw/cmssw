@@ -143,7 +143,6 @@ std::unique_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce
     parser.clearFiles();
     std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
     parser.parse(*tb, tb->size());
-    cpv->lockdown();
     
     builder.build(*cpv);
 

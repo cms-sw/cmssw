@@ -50,8 +50,6 @@ XMLIdealGeometryESProducer::produce( const IdealGeometryRecord& iRecord )
   
   parser.parse( *tb, tb->size());
   
-  cpv->lockdown();
-  
   return cpv;
 }
 

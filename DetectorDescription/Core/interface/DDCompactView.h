@@ -83,33 +83,21 @@ MEC:
 */
 class DDCompactView
 {
- 
-public:
-  //! container-type of children of a given node in the compact-view
-  typedef std::vector<DDLogicalPart> logchild_type;
-  
-  //! container-type of pairs of children nodes and their relative position data of a given node in the compact-view
-  typedef std::vector< std::pair<DDLogicalPart,DDPosData*> > poschildren_type;
-  
-  //! pair ...
-  typedef std::pair<DDLogicalPart,DDPosData*> pos_type;
-  
-  typedef math::GraphWalker<DDLogicalPart,DDPosData*> walker_type;
+ public:
+  using WalkerType = math::GraphWalker<DDLogicalPart, DDPosData*>;
   
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef math::Graph<DDLogicalPart,DDPosData*> graph_type;
-    
+  using GraphType = math::Graph<DDLogicalPart, DDPosData*>;
+  
   //! Creates a compact-view 
   explicit DDCompactView();
   
   //! \b EXPERIMENTAL! Creates a compact-view using a different root of the geometrical hierarchy
   explicit DDCompactView(const DDLogicalPart & rootnodedata);
   
-  ~DDCompactView();
-  
   //! Provides read-only access to the data structure of the compact-view.
-  const graph_type & graph() const;
+  const GraphType & graph() const;
 
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
@@ -139,35 +127,18 @@ public:
   // ************************************************************************
   
   //! \b don't \b use : interface not stable ....
-  void setRoot(const DDLogicalPart & root);
+  //void setRoot(const DDLogicalPart & root);
 
   //! \b dont't \b use ! Proper implementation missing ...
-  walker_type walker() const;
+  WalkerType walker() const;
 
-  // ---------------------------------------------------------------
-  // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
-    
-  // to modify the structure! DDCore internal!
-  graph_type & writeableGraph();
-
-  void swap( DDCompactView& );
-
-  void lockdown();
-  
  private:
-  std::unique_ptr<DDCompactViewImpl> rep_;
-  std::unique_ptr<DDPosData> worldpos_ ;
-  
-    // 2010-01-27 memory patch
-    // for copying and protecting DD Store's after parsing is complete.
-    DDI::Store<DDName, DDI::Material*> matStore_;
-    DDI::Store<DDName, DDI::Solid*> solidStore_;
-    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
-    DDI::Store<DDName, DDI::Specific*> specStore_;
-    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
 
+  std::shared_ptr<DDCompactViewImpl> rep_;
+  std::shared_ptr<DDPosData> worldpos_ ;
 };
 
 //! global type for a compact-view walker
-typedef DDCompactView::walker_type walker_type;
+using WalkerType = DDCompactView::WalkerType;
+
 #endif

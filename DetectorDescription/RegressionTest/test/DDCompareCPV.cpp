@@ -154,7 +154,6 @@ int main(int argc, char *argv[])
       std::cout << "FILE 1: problem encountered during parsing. exiting ... " << std::endl;
       exit(1);
     }
-    cpv1.lockdown();
 
     DDCompactView cpv2;
     DDLParser myP2(cpv2);
@@ -181,22 +180,8 @@ int main(int argc, char *argv[])
       std::cout << "FILE 2: problem encountered during parsing. exiting ... " << std::endl;
       exit(1);
     }
-    cpv2.lockdown();
 
     std::cout << "Parsing completed. Start comparing." << std::endl;
-
-//      DDErrorDetection ed(cpv1);
-
-//      bool noErrors = ed.noErrorsInTheReport(cpv1);
-//      if (noErrors && fullPath) {
-//        std::cout << "DDCompareCPV did not find any errors and is finished." << std::endl;
-//      }
-//     else {
-//       ed.report(cpv1, std::cout);
-//       if (!noErrors) {
-//         return 1;
-//       }
-//     }
 
     DDCompareCPV ddccpv(ddco);
     bool graphmatch = ddccpv(cpv1, cpv2);

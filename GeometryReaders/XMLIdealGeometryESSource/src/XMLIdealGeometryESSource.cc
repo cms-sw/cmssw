@@ -19,11 +19,12 @@
 #include <memory>
 
 
-XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p): rootNodeName_(p.getParameter<std::string>("rootNodeName")),
-                                                                                 userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
-                                                                                 geoConfig_(p)
+XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p)
+  : rootNodeName_(p.getParameter<std::string>("rootNodeName")),
+    userNS_(p.getUntrackedParameter<bool>("userControlledNamespace", false)),
+    geoConfig_(p)
 {
-  if ( rootNodeName_ == "" || rootNodeName_ == "\\" ) {
+  if ( rootNodeName_.empty() || rootNodeName_ == "\\" ) {
     throw cms::Exception("DDException") << "XMLIdealGeometryESSource must have a root node name.";
   }
   
@@ -60,7 +61,7 @@ XMLIdealGeometryESSource::produce() {
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
   std::unique_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
-  DDLParser parser(*returnValue); //* parser = DDLParser::instance();
+  DDLParser parser(*returnValue);
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);
   if (result2 != 0) throw cms::Exception("DDException") << "DDD-Parser: parsing failed!";
@@ -71,7 +72,6 @@ XMLIdealGeometryESSource::produce() {
     throw cms::Exception("Geometry")<<"There is no valid node named \""
                                     <<rootNodeName_<<"\"";
   }
-  returnValue->lockdown();  
   return returnValue;
 }
 

@@ -41,7 +41,7 @@
 
 int main(int argc, char *argv[])
 {
-  typedef DDCompactView::graph_type::const_adj_iterator adjl_iterator;
+  typedef DDCompactView::GraphType::const_adj_iterator adjl_iterator;
 
   // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];
@@ -109,18 +109,18 @@ int main(int argc, char *argv[])
 
     //  cpv.setRoot(DDLogicalPart(DDName("cms:World")));
 
-    std::cout << "edge size of produce graph:" << cpv.writeableGraph().edge_size() << std::endl;
-    const DDCompactView::graph_type& gt = cpv.graph();
+    std::cout << "edge size of produce graph:" << cpv.graph().edge_size() << std::endl;
+    const DDCompactView::GraphType& gt = cpv.graph();
     adjl_iterator git = gt.begin();
     adjl_iterator gend = gt.end();    
 
-    DDCompactView::graph_type::index_type i=0;
+    DDCompactView::GraphType::index_type i=0;
     for (; git != gend; ++git) {
       const DDLogicalPart & ddLP = gt.nodeData(git);
       std::cout << ++i << " P " << ddLP.name() << std::endl;
       if (!git->empty()) { 
-	DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
-	DDCompactView::graph_type::edge_list::const_iterator cend = git->end();
+	DDCompactView::GraphType::edge_list::const_iterator cit  = git->begin();
+	DDCompactView::GraphType::edge_list::const_iterator cend = git->end();
 	for (; cit != cend; ++cit) {
 	  const DDLogicalPart & ddcurLP = gt.nodeData(cit->first);
 	  std::cout << ++i << " c--> " << gt.edgeData(cit->second)->copyno() << " " << ddcurLP.name() << std::endl;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
       }
     }
 
-    cpv.writeableGraph().clear();
+    // FIXME: cpv.graph().clear();
     //    cpv.clear();
     std::cout << "cleared DDCompactView.  " << std::endl;
 

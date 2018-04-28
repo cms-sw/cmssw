@@ -20,12 +20,12 @@ DDCompareEPV::DDCompareEPV(const DDCompOptions& ddco) : ddco_(ddco) { }
 
 bool DDCompareEPV::operator()(DDExpandedView& lhs, DDExpandedView& rhs) const {
   bool ret(true);
-  /* struct DDCompareCPVGraph : public std::binary_function<DDCompactView::graph_type, DDCompactView::graph_type, bool> { */
-  /*   bool operator()(const DDCompactView::graph_type& lhs, const DDCompactView::graph_type& rhs) const { */
+  /* struct DDCompareCPVGraph : public std::binary_function<DDCompactView::GraphType, DDCompactView::GraphType, bool> { */
+  /*   bool operator()(const DDCompactView::GraphType& lhs, const DDCompactView::GraphType& rhs) const { */
   /*     bool ret; */
   //    const graph<DDLogicalPart, DDPosData*>& g1= lhs;
   //    graph<DDLogicalPart, DDPosData*>::const_iterator beg1 = g1.begin();
-  //DDCompactView::graph_type::const_iterator beg1 = lhs.begin();
+  //DDCompactView::GraphType::const_iterator beg1 = lhs.begin();
   /*     std::cout << "size of lhs = " << lhs.edge_size() << std::endl;     */
   /*     std::cout << "size of rhs = " << rhs.edge_size() << std::endl;     */
   /*     std::cout << "iterating over lhs edges?" << std::endl; */
@@ -121,18 +121,18 @@ DDCompareCPV::DDCompareCPV(const DDCompOptions& ddco) : ddco_(ddco) { }
 bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs) const {
   bool ret(true);
 
-  const DDCompactView::graph_type & g1 = lhs.graph();
-  const DDCompactView::graph_type & g2 = rhs.graph();
+  const DDCompactView::GraphType & g1 = lhs.graph();
+  const DDCompactView::GraphType & g2 = rhs.graph();
 
-  typedef DDCompactView::graph_type::const_adj_iterator adjl_iterator;
+  typedef DDCompactView::GraphType::const_adj_iterator adjl_iterator;
   adjl_iterator git1 = g1.begin();
   adjl_iterator gend1 = g1.end();
   adjl_iterator git2 = g2.begin();
   adjl_iterator gend2 = g2.end();
   /*     std::cout << "uniqueness test: " << &(*git1) << " != " << &(*git2)  */
   /* 	      << " and " << &(*gend1) << " != " << &(*gend2) << std::endl; */
-  //    DDCompactView::graph_type::const_iterator bit = g1.begin_iter();
-  DDCompactView::graph_type::index_type i=0;
+  //    DDCompactView::GraphType::const_iterator bit = g1.begin_iter();
+  DDCompactView::GraphType::index_type i=0;
   //    for (; git1 != gend1; ++git1) {
   while ( git1 != gend1 && git2 != gend2 && ret ) {
     const DDLogicalPart & ddLP1 = g1.nodeData(git1);
@@ -142,10 +142,10 @@ bool DDCompareCPV::operator()(const DDCompactView& lhs, const DDCompactView& rhs
       ret = false;
       break;
     } else if (!git1->empty() && !git2->empty() ) { 
-      DDCompactView::graph_type::edge_list::const_iterator cit1  = git1->begin();
-      DDCompactView::graph_type::edge_list::const_iterator cend1 = git1->end();
-      DDCompactView::graph_type::edge_list::const_iterator cit2  = git2->begin();
-      DDCompactView::graph_type::edge_list::const_iterator cend2 = git2->end();
+      DDCompactView::GraphType::edge_list::const_iterator cit1  = git1->begin();
+      DDCompactView::GraphType::edge_list::const_iterator cend1 = git1->end();
+      DDCompactView::GraphType::edge_list::const_iterator cit2  = git2->begin();
+      DDCompactView::GraphType::edge_list::const_iterator cend2 = git2->end();
       //for (; cit != cend; ++cit) {
       while ( cit1 != cend1 && cit2 != cend2 ) {
 	const DDLogicalPart & ddcurLP1 = g1.nodeData(cit1->first);

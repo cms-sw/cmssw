@@ -92,7 +92,7 @@ bool DDExpandedView::nextSibling()
   else {
     if ((*walker_).nextSibling()) {
       DDExpandedNode & expn(history_.back()); // back of history_ is always current node
-      DDCompactView::walker_type::value_type curr = (*walker_).current();
+      DDCompactView::WalkerType::value_type curr = (*walker_).current();
       DDPosData const * posdOld = expn.posd_;
       expn.logp_=curr.first;
       expn.posd_=curr.second;
@@ -142,7 +142,7 @@ bool DDExpandedView::firstChild()
   if (depthNotReached) {
     if ((*walker_).firstChild()) {
       DDExpandedNode & expnBefore(history_.back());
-      DDCompactView::walker_type::value_type curr = (*walker_).current();
+      DDCompactView::WalkerType::value_type curr = (*walker_).current();
  
       DDPosData * newPosd = curr.second;
     

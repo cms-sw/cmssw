@@ -40,13 +40,11 @@ CompareDDCompactViews::beginRun( const edm::Run&, edm::EventSetup const& es )
   DDLParser parser1( cpv1 );
   parser1.parseOneFile( m_fname1 );
   DDCheckMaterials( std::cout );
-  cpv1.lockdown();
 
   DDCompactView cpv2;
   DDLParser parser2( cpv2 );
   parser2.parseOneFile( m_fname2 );
   DDCheckMaterials( std::cout );
-  cpv2.lockdown();
 
   DDCompOptions ddco;
   DDCompareCPV ddccpv( ddco );

@@ -13,10 +13,8 @@
 using namespace cms::xerces;
 
 DDLSAX2ConfigHandler::DDLSAX2ConfigHandler( DDCompactView& cpv)
-  : doValidation_(false),
-    files_(),
+  : files_(),
     urls_(),
-    schemaLocation_(),
     cpv_(cpv)
 {}
 
@@ -49,21 +47,6 @@ DDLSAX2ConfigHandler::startElement( const XMLCh* const uri,
     files_.emplace_back(name);
     urls_.emplace_back(url);
   }
-  else if( XMLString::equals( qname, uStr("Root").ptr()))
-  {
-    std::string fileName = toString(attrs.getValue(uStr("fileName").ptr()));
-    std::string logicalPartName = toString(attrs.getValue(uStr("logicalPartName").ptr()));
-
-    fileName = fileName.substr(0, fileName.find("."));
-    DDLogicalPart root(DDName(logicalPartName,fileName));
-    DDRootDef::instance().set(root);
-    cpv_.setRoot(root);
-  }
-  else if( XMLString::equals( qname, uStr("Schema").ptr()))
-  {
-    schemaLocation_ = toString(attrs.getValue(uStr("schemaLocation").ptr()));
-    doValidation_ = XMLString::equals(attrs.getValue(uStr("validation").ptr()), uStr("true").ptr());
-  }
 }
 
 const std::vector<std::string>&
@@ -76,16 +59,4 @@ const std::vector<std::string>&
 DDLSAX2ConfigHandler::getURLs( void ) const
 {
   return urls_;
-}
-
-const std::string
-DDLSAX2ConfigHandler::getSchemaLocation( void ) const
-{
-  return schemaLocation_;
-}
-
-const bool
-DDLSAX2ConfigHandler::doValidation( void ) const
-{
-  return doValidation_;
 }

@@ -35,20 +35,8 @@ class DDDivision;
 */    
 // 
 DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
-  : rep_( new DDCompactViewImpl( rootnodedata )),
-    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
-{
-  // 2010-01-27 I am leaving this here so that we are sure the global stores
-  // are open when a new DDCompactView is being made.  Eventually I want to
-  // get rid of the need for this somehow? think about it...
-  DDMaterial::StoreT::instance().setReadOnly(false);
-  DDSolid::StoreT::instance().setReadOnly(false);
-  DDLogicalPart::StoreT::instance().setReadOnly(false);
-  DDSpecifics::StoreT::instance().setReadOnly(false);
-  DDRotation::StoreT::instance().setReadOnly(false);
-}
-
-DDCompactView::~DDCompactView() 
+  : rep_( std::make_shared<DDCompactViewImpl>( rootnodedata )),
+    worldpos_( std::make_shared<DDPosData>( DDTranslation(), DDRotation(), 0 ))
 {}
 
 /** 
@@ -56,31 +44,28 @@ DDCompactView::~DDCompactView()
    by an instance of class Graph<DDLogicalPart, DDPosData*). 
    Graph provides methods for navigating its content.
 */      
-const DDCompactView::graph_type & DDCompactView::graph() const 
+const DDCompactView::GraphType &
+DDCompactView::graph() const 
 { 
   return rep_->graph(); 
 }
 
-DDCompactView::graph_type & DDCompactView::writeableGraph() 
-{
-  return const_cast<graph_type&>(rep_->graph());
-}
-
-const DDLogicalPart & DDCompactView::root() const
+const DDLogicalPart &
+DDCompactView::root() const
 {
   return rep_->root(); 
 } 
   
-const DDPosData* DDCompactView::worldPosition() const
+const DDPosData*
+DDCompactView::worldPosition() const
 {
   return worldpos_.get();
 }
 
-DDCompactView::walker_type DDCompactView::walker() const
+DDCompactView::WalkerType DDCompactView::walker() const
 {
   return rep_->walker();
 }
-
     
 /** 
    Example:
@@ -126,42 +111,9 @@ void DDCompactView::position (const DDLogicalPart & self,
   rep_->position( self, parent, copyno, trans, rot, div );
 }
 
-
-// >>---==========================<()>==========================---<<
-
-// UNSTABLE STUFF below ...
-void DDCompactView::setRoot(const DDLogicalPart & root)
-{
-  rep_->setRoot(root);
-}  
-
-void DDCompactView::swap( DDCompactView& repToSwap ) {
-  rep_->swap ( *(repToSwap.rep_) );
-}
-
 DDCompactView::DDCompactView()
-  : rep_(new DDCompactViewImpl),
-    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
+  : rep_( std::make_shared<DDCompactViewImpl>()),
+    worldpos_( std::make_shared<DDPosData>( DDTranslation(), DDRotation(), 0 ))
 { }
 
-void DDCompactView::lockdown() {
-  // at this point we should have a valid store of DDObjects and we will move these
-  // to the local storage area using swaps with the existing Singleton<Store...>'s
-  // 2010-01-27 memory patch
-  DDMaterial::StoreT::instance().swap(matStore_);
-  DDSolid::StoreT::instance().swap(solidStore_);
-  DDLogicalPart::StoreT::instance().swap(lpStore_);
-  DDSpecifics::StoreT::instance().swap(specStore_);
-  DDRotation::StoreT::instance().swap(rotStore_);
-
-  // 2010-01-27 memory patch
-  // not sure this will stay, but for now we want to explicitely lock the global stores.
-  // lock the global stores.
-  DDMaterial::StoreT::instance().setReadOnly(false);
-  DDSolid::StoreT::instance().setReadOnly(false);
-  DDLogicalPart::StoreT::instance().setReadOnly(false);
-  DDSpecifics::StoreT::instance().setReadOnly(false);
-  DDRotation::StoreT::instance().setReadOnly(false);
-
-}
 

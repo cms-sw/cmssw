@@ -106,8 +106,8 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    }
 
    std::cout << "about to initialize the DDCompactView walker" << std::endl;
-   DDCompactView::walker_type             walker(viewH->graph());
-   DDCompactView::walker_type::value_type info = walker.current();
+   DDCompactView::WalkerType             walker(viewH->graph());
+   DDCompactView::WalkerType::value_type info = walker.current();
 
    // The top most item is actually the volume holding both the
    // geometry AND the magnetic field volumes!
@@ -133,7 +133,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
 
    do
    {
-      DDCompactView::walker_type::value_type info = walker.current();
+      DDCompactView::WalkerType::value_type info = walker.current();
 
       if (m_verbose)
       {
