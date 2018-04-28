@@ -44,6 +44,11 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
         std::string hname = dqmDir_+"/EB/"+std::to_string(int(i/100))+"/eb_" + std::to_string(i);
         MonitorElement* ch= igetter_.get(hname);
+        if(ch == nullptr) {
+          edm::LogWarning("MissingMonitorElement")<<"failed to find MonitorElement "<<hname;
+          entriesEB_[i] = 0;
+          continue;
+        }
         double mean = ch->getMean();
         double rms  = ch->getRMS();
         entriesEB_[i] = ch->getEntries();
@@ -83,6 +88,11 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         std::string hname = dqmDir_+"/EE/"+std::to_string(int(i/100))+"/ee_" + std::to_string(i);
      
         MonitorElement* ch= igetter_.get(hname);
+        if(ch == nullptr) {
+          edm::LogWarning("MissingMonitorElement")<<"failed to find MonitorElement "<<hname;
+          entriesEE_[i] = 0;
+          continue;
+        }
         double mean = ch->getMean();
         double rms  = ch->getRMS();
         entriesEE_[i] = ch->getEntries(); 
