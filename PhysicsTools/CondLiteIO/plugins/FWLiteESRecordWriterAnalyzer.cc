@@ -110,7 +110,7 @@ namespace  {
                     TFile* iFile,
                     std::vector<DataInfo>& ioInfo):
       m_key(iRec),
-      m_record(nullptr),
+      m_record(),
       m_writer(m_key.name(),iFile),
       m_cacheID(0) {
          m_dataInfos.swap(ioInfo);
