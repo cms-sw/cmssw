@@ -495,7 +495,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
     } else {
       if (std::find(php.layer_.begin(),php.layer_.end(),lay) == 
 	  php.layer_.end()) php.layer_.emplace_back(lay);
-      std::map<int,HGCalGeomParameters::layerParameters>::iterator itr = layers.find(lay);
+      auto itr = layers.find(lay);
       if (itr == layers.end()) {
 	const DDTubs & tube = static_cast<DDTubs>(sol);
 	double rin = k_ScaleFromDDD*tube.rIn();
