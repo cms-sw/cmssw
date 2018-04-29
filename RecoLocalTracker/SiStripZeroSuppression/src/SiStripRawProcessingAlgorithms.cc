@@ -45,83 +45,87 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const
   if ( restorer.get() && doAPVRestore&&useCMMeanMap ) restorer->LoadMeanCMMap(e);
 }
 
-
-//Suppressors Hybrid
-//--------------------------------------------------------
-
-uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const edm::DetSet<SiStripDigi>& inDigis, edm::DetSet<SiStripDigi>& suppressedDigis, std::vector<int16_t>& RawDigis){
-     
-     uint32_t id = inDigis.id;
-     this->ConvertHybridDigiToRawDigiVector(id, inDigis, RawDigis);
-  
-     return this->SuppressHybridData(id, 0, RawDigis , suppressedDigis );
-}
-
-
+/**
+ * Zero-suppress "hybrid" raw data
+ *
+ * Subtracts common-mode noise, and inspects the digis then.
+ * If flagged by the APV inspector, the zero-suppression is performed as usual.
+ * Otherwise, the positive inputs are copied.
+ *
+ * @param id module DetId
+ * @param firstAPV index of the first APV considered
+ * @param procRawDigis input (processed raw) ADCs. Output: the ADCs after all subtractions, but before zero-suppression
+ * @param output zero-suppressed digis
+ * @return number of restored APVs
+ */
 //IMPORTANT: don't forget the conversion from  hybrids on the bad APVs (*2 -1024)
-uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
-	  std::vector<int16_t>  processedRawDigisPedSubtracted ;
-      processedRawDigisPedSubtracted.clear();
-      int16_t nAPVFlagged =0;
-     
-     processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
-     subtractorCMN->subtract(id, firstAPV,  processedRawDigis);
-    
-     nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, processedRawDigisPedSubtracted, processedRawDigis, subtractorCMN->getAPVsCM() );
-     
-     
-     
-      const std::vector<bool>& apvf = this->GetAPVFlags();
-      for(uint16_t APV=firstAPV ; APV< processedRawDigis.size()/128 + firstAPV; ++APV){
-  		 
-      	if(apvf[APV]){
-      	    std::vector<int16_t> singleAPVdigi;
-  			singleAPVdigi.clear();
-      		singleAPVdigi.assign(processedRawDigis[(APV-firstAPV)*128], processedRawDigis[(APV-firstAPV+1)*128-1]);  
-      		//for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) singleAPVdigi.push_back(processedRawDigis[strip]);     		
-      		suppressor->suppress(singleAPVdigi, APV,  suppressedDigis );
-      	}else{
-      		for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip){
-        		if(processedRawDigisPedSubtracted[strip] > 0) suppressedDigis.push_back(SiStripDigi(strip+firstAPV*128, processedRawDigisPedSubtracted[strip] ));
-        		//suppressedDigis.push_back(SiStripDigi(strip+firstAPV*128, ( processedRawDigisPedSubtracted[strip] < 0 ? 0 : suppressor->truncate(processedRawDigisPedSubtracted[strip])))); 
-      		}
-      	}
-      }	
-      	  	
-     return nAPVFlagged;
-}
+uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& procRawDigis, edm::DetSet<SiStripDigi>& suppressedDigis)
+{
+  std::vector<int16_t> procRawDigisPedSubtracted(procRawDigis);
 
+  subtractorCMN->subtract(id, firstAPV, procRawDigis);
 
-void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(uint32_t id, const edm::DetSet<SiStripDigi>& inDigis, std::vector<int16_t>& RawDigis){
-     
-	 const StripGeomDetUnit* StripModuleGeom =(const StripGeomDetUnit*)trGeo->idToDetUnit(id);
-	 uint16_t nStrips = (StripModuleGeom->specificTopology()).nstrips(); 
-	 uint16_t nAPVs = nStrips/128;
-	 
-     RawDigis.clear();
-     RawDigis.insert(RawDigis.begin(), nStrips, 0);
-     
-	 std::vector<uint16_t> stripsPerAPV;
-	 stripsPerAPV.clear();
-	 stripsPerAPV.insert(stripsPerAPV.begin(), nAPVs, 0);
-	 edm::DetSet<SiStripDigi>::const_iterator itDigis = inDigis.begin();
-     for(; itDigis != inDigis.end(); ++ itDigis){
-    	 uint16_t strip = itDigis->strip(); 
-         RawDigis[strip] = itDigis->adc();
-         ++stripsPerAPV[strip/128];
+  const auto nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, procRawDigisPedSubtracted, procRawDigis, subtractorCMN->getAPVsCM());
+
+  const std::vector<bool>& apvf = GetAPVFlags();
+  const std::size_t nAPVs = procRawDigis.size()/128;
+  for ( uint16_t iAPV = firstAPV; iAPV < firstAPV+nAPVs; ++iAPV ) {
+    if ( apvf[iAPV] ) {
+      const auto firstDigiIt = std::begin(procRawDigis)+128*(iAPV-firstAPV);
+      std::vector<int16_t> singleAPVdigi(firstDigiIt, firstDigiIt+128);
+      suppressor->suppress(singleAPVdigi, iAPV, suppressedDigis);
+    } else {
+      for ( uint16_t i = 0; i < 128; ++i ) {
+        const int16_t digi = procRawDigisPedSubtracted[128*(iAPV-firstAPV)+i];
+        if ( digi > 0 ) { suppressedDigis.push_back(SiStripDigi(iAPV*128+i, digi)); }
       }
-      
-      for(uint16_t APV=0; APV<nAPVs; ++APV){
-       		if(stripsPerAPV[APV]>64){
-       			for(uint16_t strip = APV*128; strip < (APV+1)*128; ++strip) RawDigis[strip] = RawDigis[strip] * 2 - 1024;
-       		}
-       	}
+    }
+  }
+
+  return nAPVFlagged;
 }
 
+/**
+ * Zero-suppress "hybrid" raw data
+ *
+ * Subtracts common-mode noise, and inspects the digis then.
+ * If flagged by the APV inspector, the zero-suppression is performed as usual.
+ * Otherwise, the positive inputs are copied.
+ *
+ * @param hybridDigis input (processed raw) ADCs in ZS format
+ * @param output zero-suppressed digis
+ * @param RawDigis processed ADCs
+ * @return number of restored APVs
+ */
+uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis, edm::DetSet<SiStripDigi>& suppressedDigis, std::vector<int16_t>& RawDigis)
+{
+  const uint32_t detId = hybridDigis.id;
+  ConvertHybridDigiToRawDigiVector(detId, hybridDigis, RawDigis);
+  return SuppressHybridData(detId, 0, RawDigis , suppressedDigis);
+}
 
-//Suppressors Virgin Raw And Processed Raw
-//--------------------------------------------------------
-//
+void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(uint32_t id, const edm::DetSet<SiStripDigi>& inDigis, std::vector<int16_t>& RawDigis)
+{
+  const auto stripModuleGeom = dynamic_cast<const StripGeomDetUnit*>(trGeo->idToDetUnit(id));
+  const std::size_t nStrips = stripModuleGeom->specificTopology().nstrips();
+  const std::size_t nAPVs = nStrips/128;
+
+  RawDigis.assign(nStrips, 0);
+  std::vector<uint16_t> stripsPerAPV(nAPVs, 0);
+
+  for ( SiStripDigi digi : inDigis ) {
+    RawDigis[digi.strip()] = digi.adc();
+    ++stripsPerAPV[digi.strip()/128];
+  }
+
+  for ( uint16_t iAPV = 0; iAPV < nAPVs; ++iAPV ) {
+    if ( stripsPerAPV[iAPV] > 64 ) {
+      for ( uint16_t strip = iAPV*128; strip < (iAPV+1)*128; ++strip )
+        RawDigis[strip] = RawDigis[strip] * 2 - 1024;
+    }
+  }
+}
+
 /**
  * Zero-suppress virgin raw data.
  *
@@ -202,63 +206,73 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::Det
   return SuppressProcessedRawData(rawDigis.id, 0, RawDigis, output);
 }
 
+/**
+ * Zero-suppress virgin raw data in "hybrid" mode
+ *
+ * Subtracts pedestals and common-mode noise, and inspects the digis then.
+ * If flagged by the hybrid APV inspector, the zero-suppression is performed as usual
+ * (evaluation and subtraction of the baseline, truncation).
+ * Otherwise, the pedestal-subtracted digis are saved in one 128-strip cluster.
+ *
+ * @param id module DetId
+ * @param firstAPV index of the first APV considered
+ * @param procRawDigis input (virgin raw) ADCs. Output: the ADCs after all subtractions, but before zero-suppression
+ * @param output zero-suppressed digis (or pedestal-subtracted digis, see above)
+ * @return number of restored APVs
+ */
+uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& procRawDigis, edm::DetSet<SiStripDigi>& output)
+{
+  std::vector<int16_t> procRawDigisPedSubtracted;
+  std::vector<bool> markedVRAPVs;
 
-//Convert to Hybrid Format 
-//--------------------------------------------------------
+  for ( auto& digi : procRawDigis ) { digi += 1024; } // adding one MSB
 
-uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+  subtractorPed->subtract(id, firstAPV*128, procRawDigis); // all strips are pedestals subtracted
 
-      //std::vector<int16_t>  tmpVR;
-      //tmpVR.clear();
-      //tmpVR.assign(processedRawDigis.begin(), processedRawDigis.end());
-      
-      std::vector<int16_t>  processedRawDigisPedSubtracted;
-      std::vector<bool> markedVRAPVs;
-     
-      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] += 1024;   //adding one MSB
+  for ( auto& digi : procRawDigis ) { digi /= 2; }
 
-      
-      subtractorPed->subtract( id, firstAPV*128,processedRawDigis);      //all strips are pedestals subtracted
-      
-      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] /= 2;
-      processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
-      
-      subtractorCMN->subtract(id, firstAPV,  processedRawDigis);      
-      int16_t nAPVFlagged = restorer->InspectForHybridFormatEmulation(id, firstAPV, processedRawDigis, subtractorCMN->getAPVsCM(), markedVRAPVs);
-      
-      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip){
-      	 processedRawDigis[strip] *= 2;
+  procRawDigisPedSubtracted.assign(procRawDigis.begin(), procRawDigis.end());
+
+  subtractorCMN->subtract(id, firstAPV, procRawDigis);
+
+  const int16_t nAPVFlagged = restorer->InspectForHybridFormatEmulation(id, firstAPV, procRawDigis, subtractorCMN->getAPVsCM(), markedVRAPVs);
+
+  for ( auto& digi : procRawDigis ) { digi *= 2; }
+
+  const std::size_t nAPVs = procRawDigis.size()/128;
+  for ( uint16_t iAPV = firstAPV; iAPV < nAPVs+firstAPV; ++iAPV ) {
+    if ( markedVRAPVs[iAPV] ) {
+      //GB 23/6/08: truncation should be done at the very beginning
+      for ( uint16_t i = 0; i < 128; ++i ) {
+        const int16_t digi = procRawDigisPedSubtracted[128*(iAPV-firstAPV)+i];
+        output.push_back(SiStripDigi(128*iAPV+i, ( digi < 0 ? 0 : suppressor->truncate(digi) )));
       }
-      
-      for(uint16_t APV=firstAPV ; APV< processedRawDigis.size()/128 + firstAPV; ++APV){
-      	
-      	if(markedVRAPVs[APV]){
-      		//GB 23/6/08: truncation should be done at the very beginning
-      		for(uint16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) {
-      			suppressedDigis.push_back(SiStripDigi(strip+firstAPV*128, ( processedRawDigisPedSubtracted[strip] < 0 ? 0 : suppressor->truncate(processedRawDigisPedSubtracted[strip]))));  
-      		//	std::cout << "detID: " << id <<  " strip: " << strip <<  " ADC: " << tmpVR[strip] << std::endl;		   			
-      		}
-      	}else{
-      		std::vector<int16_t> singleAPVdigi;
-  		 	singleAPVdigi.clear();
-  		 	for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) singleAPVdigi.push_back(processedRawDigis[strip]); 
-      	  	suppressor->suppress(singleAPVdigi, APV,  suppressedDigis );
-      	}
-      }
-       
-      return nAPVFlagged;
+    } else {
+      const auto firstDigiIt = std::begin(procRawDigis)+128*(iAPV-firstAPV);
+      std::vector<int16_t> singleAPVdigi(firstDigiIt, firstDigiIt+128);
+      suppressor->suppress(singleAPVdigi, iAPV, output);
+    }
+  }
 
+  return nAPVFlagged;
 }
 
-uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
-   
-   std::vector<int16_t> RawDigis;
-   RawDigis.clear();
-   edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
-   for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
-   return this->ConvertVirginRawToHybrid(rawDigis.id, 0,RawDigis , suppressedDigis);
+/**
+ * Zero-suppress virgin raw data in "hybrid" mode
+ *
+ * Subtracts pedestals and common-mode noise, and inspects the digis then.
+ * If flagged by the hybrid APV inspector, the zero-suppression is performed as usual
+ * (evaluation and subtraction of the baseline, truncation).
+ * Otherwise, the pedestal-subtracted digis are saved in one 128-strip cluster.
+ *
+ * @param rawDigis input (virgin) raw digis
+ * @param output zero-suppressed digis (or pedestal-subtracted digis, see above)
+ * @return number of restored APVs
+ */
+uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis)
+{
+  std::vector<int16_t> RawDigis; RawDigis.reserve(rawDigis.size());
+  std::transform(std::begin(rawDigis), std::end(rawDigis), std::back_inserter(RawDigis),
+      [] ( SiStripRawDigi digi ) { return digi.adc(); } );
+  return ConvertVirginRawToHybrid(rawDigis.id, 0, RawDigis, suppressedDigis);
 }
-  
-
-
-
