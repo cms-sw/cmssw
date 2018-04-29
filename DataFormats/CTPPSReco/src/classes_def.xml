@@ -59,7 +59,7 @@
 
 
   <class name="TotemTimingRecHit" ClassVersion="3">
-    <version ClassVersion="3" checksum="2343141511"/>
+    <version ClassVersion="3" checksum="156399384"/>
   </class>
   <class name="edm::Ptr<TotemTimingRecHit>"/>
   <class name="edm::Wrapper<TotemTimingRecHit>"/>

@@ -1,9 +1,9 @@
 /****************************************************************************
 *
 * Authors:
-*  Jan Kaspar (jan.kaspar@gmail.com) 
+*  Jan Kaspar (jan.kaspar@gmail.com)
 *  Dominik Mierzejewski <dmierzej@cern.ch>
-*    
+*
 ****************************************************************************/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
- 
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -22,6 +22,7 @@
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
@@ -35,6 +36,8 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
+
+#include <regex>
 
 /**
  * \brief Builds ideal, real and misaligned geometries.
@@ -122,7 +125,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
       || name == DDD_CTPPS_DIAMONDS_RP_NAME
       || name == DDD_CTPPS_PIXELS_RP_NAME ) {
       unsigned int rpId = pD->geographicalID();
-      
+
       if ( alignments.isValid() ) {
         const RPAlignmentCorrectionData& ac = alignments->getRPCorrection( rpId );
         pD->ApplyAlignment( ac );
@@ -133,7 +136,7 @@ CTPPSGeometryESModule::applyAlignments( const edm::ESHandle<DetGeomDesc>& idealG
     for ( unsigned int i = 0; i < sD->components().size(); i++ ) {
       const DetGeomDesc* sDC = sD->components()[i];
       buffer.emplace_back( sDC );
-    
+
       // create new node with the same information as in sDC and add it as a child of pD
       DetGeomDesc* cD = new DetGeomDesc( *sDC );
       pD->addComponent( cD );
@@ -192,6 +195,19 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
         const unsigned int rpIdx = decRPId % 10;
         newGD->setGeographicalID( TotemRPDetId( armIdx, stIdx, rpIdx ) );
       }
+    }
+
+    else if ( std::regex_match( name, std::regex( DDD_TOTEM_TIMING_SENSOR_TMPL ) ) ) {
+      const std::vector<int>& copy_num = fv->copyNumbers();
+      // check size of copy numbers array
+      if ( copy_num.size() < 4 )
+        throw cms::Exception("DDDTotemRPContruction") << "size of copyNumbers for TOTEM timing sensor is "
+          << copy_num.size() << ". It must be >= 4.";
+
+      const unsigned int decRPId = copy_num[copy_num.size()-4];
+      const unsigned int arm = decRPId / 100, station = ( decRPId % 100 )/10, rp = decRPId % 10;
+      const unsigned int plane = copy_num[copy_num.size()-2], channel = copy_num[copy_num.size()-1];
+      newGD->setGeographicalID( TotemTimingDetId( arm, station, rp, plane, channel ) );
     }
 
     // pixel sensors
@@ -268,7 +284,7 @@ CTPPSGeometryESModule::produceIdealGD( const IdealGeometryRecord& iRecord )
   // conversion to DetGeomDesc structure
   DetGeomDesc* root = new DetGeomDesc( &fv );
   buildDetGeomDesc( &fv, root );
-  
+
   // construct the tree of DetGeomDesc
   return std::unique_ptr<DetGeomDesc>( const_cast<DetGeomDesc*>( root ) );
 }
