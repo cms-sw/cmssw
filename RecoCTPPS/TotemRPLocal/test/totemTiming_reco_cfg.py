@@ -20,7 +20,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
 #)
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        '/store/data/Commissioning2018/ZeroBias/RAW/v1/000/314/816/00000/28999A0C-5445-E811-8C7D-FA163EBC8376.root',
+        '/store/data/Commissioning2018/ZeroBias/RAW/v1/000/314/816/00000/FCDB2DE6-4845-E811-91A1-FA163E6CD0D3.root',
     ),
 )
 
@@ -37,6 +37,13 @@ process.load('RecoCTPPS.TotemRPLocal.totemTimingRecHits_cfi')
 # rechits production
 process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
 process.load('RecoCTPPS.TotemRPLocal.totemTimingRecHits_cfi')
+process.totemTimingRecHits.baselinePoints = cms.int32(6);
+process.totemTimingRecHits.risingEdgePointsBeforeTh = cms.int32(1);
+process.totemTimingRecHits.risingEdgePoints = cms.int32(4);
+process.totemTimingRecHits.saturationLimit = cms.double(0.85);
+process.totemTimingRecHits.thresholdFactor = cms.double(3);
+process.totemTimingRecHits.cfdFraction = cms.double(0.5);
+process.totemTimingRecHits.hysteresis = cms.double(5e-3);
 
 
 process.output = cms.OutputModule("PoolOutputModule",
@@ -54,4 +61,3 @@ process.p = cms.Path(
 )
 
 process.outpath = cms.EndPath(process.output)
-
