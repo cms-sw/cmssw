@@ -13,35 +13,52 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
 
 /// Reconstructed hit in totem ufsd detectors.
+/*
+ *  TotemTimingRecHit
+ *  t: time computed using algorithm getTimingAlgorithm()
+ *
+ *
+ */
 class TotemTimingRecHit : public CTPPSTimingRecHit {
 public:
-  enum TimingAlgorithm
-  {NOT_SET, CFD, SMART, SIMPLE};
+  enum TimingAlgorithm { NOT_SET, CFD, SMART, SIMPLE };
 
   TotemTimingRecHit()
-      : CTPPSTimingRecHit(), amplitude_(0), baseline_rms_(0), mode_(NOT_SET)
-      {}
+      : CTPPSTimingRecHit(), sampicThresholdTime_(0), tPrecision_(0),
+        amplitude_(0), baselineRMS_(0), mode_(NOT_SET) {}
 
-  TotemTimingRecHit(float x, float x_width, float y, float y_width, float z,
-                    float z_width, float t, float tot, float t_precision,
-                    float amplitude, float baseline_rms, TimingAlgorithm mode)
-      : CTPPSTimingRecHit(x, x_width, y, y_width, z, z_width, t, tot,
-                          t_precision),
-        amplitude_(amplitude), baseline_rms_(baseline_rms), mode_(mode)
-      {}
+  TotemTimingRecHit(float x, float xWidth, float y, float yWidth, float z, float zWidth,
+                    float t, float sampicThresholdTime, float tPrecision,
+                    float amplitude, float baselineRMS,
+                    TimingAlgorithm mode)
+      : CTPPSTimingRecHit(x, xWidth, y, yWidth, z, zWidth, t),
+        sampicThresholdTime_(sampicThresholdTime), tPrecision_(tPrecision),
+        amplitude_(amplitude), baselineRMS_(baselineRMS), mode_(mode) {}
 
+  inline void setSampicThresholdTime(const float &sampicThresholdTime) {
+    sampicThresholdTime_ = sampicThresholdTime;
+  }
+  inline float getSampicThresholdTime() const { return sampicThresholdTime_; }
+
+  inline void setTPrecision(const float &tPrecision) {
+    tPrecision_ = tPrecision;
+  }
+  inline float getTPrecision() const { return tPrecision_; }
 
   inline void setAmplitude(const float &amplitude) { amplitude_ = amplitude; }
   inline float getAmplitude() const { return amplitude_; }
 
-  inline void setBaselineRMS(const float &baseline_rms) { baseline_rms_ = baseline_rms; }
-  inline float getBaselineRMS() const { return baseline_rms_; }
+  inline void setBaselineRMS(const float &baselineRMS) {
+    baselineRMS_ = baselineRMS;
+  }
+  inline float getBaselineRMS() const { return baselineRMS_; }
 
   inline TimingAlgorithm getTimingAlgorithm() const { return mode_; }
 
 private:
+  float sampicThresholdTime_, tPrecision_;
   float amplitude_;
-  float baseline_rms_;
+  float baselineRMS_;
   TimingAlgorithm mode_;
 };
 
