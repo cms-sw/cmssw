@@ -1,48 +1,58 @@
 /****************************************************************************
-*
-* This is a part of CTPPS offline software.
-* Authors:
-*   Laurent Forthomme (laurent.forthomme@cern.ch)
-*   Nicola Minafra (nicola.minafra@cern.ch)
-*
-****************************************************************************/
+ *
+ * This is a part of CTPPS offline software.
+ * Authors:
+ *   Laurent Forthomme (laurent.forthomme@cern.ch)
+ *   Nicola Minafra (nicola.minafra@cern.ch)
+ *
+ ****************************************************************************/
 
 #ifndef DataFormats_CTPPSReco_CTPPSDiamondRecHit
 #define DataFormats_CTPPSReco_CTPPSDiamondRecHit
 
-#include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
 #include "DataFormats/CTPPSDigi/interface/HPTDCErrorFlags.h"
+#include "DataFormats/CTPPSReco/interface/CTPPSTimingRecHit.h"
 
 /// Reconstructed hit in diamond detectors.
-class CTPPSDiamondRecHit : public CTPPSTimingRecHit
-{
-  public:
-    CTPPSDiamondRecHit() :
-      CTPPSTimingRecHit(),
-      ts_index_( 0 ), hptdc_err_( 0 ), mh_( false )
-    {}
-    CTPPSDiamondRecHit( float x, float x_width, float y, float y_width, float z, float z_width, float t, float tot, float t_precision, int oot_idx, const HPTDCErrorFlags& hptdc_err, const bool mh ) :
-      CTPPSTimingRecHit( x, x_width, y, y_width, z, z_width, t, tot, t_precision ),
-      ts_index_( oot_idx ), hptdc_err_( hptdc_err ), mh_( mh )
-    {}
-    
-    static constexpr int TIMESLICE_WITHOUT_LEADING = -10;
-    
-    inline void setOOTIndex( const int& i ) { ts_index_ = i; }
-    inline int getOOTIndex() const { return ts_index_; }
+class CTPPSDiamondRecHit : public CTPPSTimingRecHit {
+public:
+  CTPPSDiamondRecHit()
+      : CTPPSTimingRecHit(), tot_(0), tPrecision_(0), tsIndex_(0), hptdcErr_(0),
+        mh_(false) {}
+  CTPPSDiamondRecHit(float x, float xWidth, float y, float yWidth, float z, float zWidth,
+                     float t, float tot, float tPrecision, int ootIdx,
+                     const HPTDCErrorFlags &hptdcErr, const bool mh)
+      : CTPPSTimingRecHit(x, xWidth, y, yWidth, z, zWidth, t),
+        tot_(tot), tPrecision_(tPrecision), tsIndex_(ootIdx),
+        hptdcErr_(hptdcErr), mh_(mh) {}
 
-    inline void setMultipleHits( const bool mh ) { mh_ = mh; }
-    inline bool getMultipleHits() const { return mh_; }
+  static constexpr int TIMESLICE_WITHOUT_LEADING = -10;
 
-    inline void setHPTDCErrorFlags( const HPTDCErrorFlags& err ) { hptdc_err_ = err; }
-    inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdc_err_; }
+  inline void setToT(const float &tot) { tot_ = tot; }
+  inline float getToT() const { return tot_; }
 
-  private:
-    /// Time slice index
-    int ts_index_;
-    HPTDCErrorFlags hptdc_err_;
-    bool mh_;
+  inline void setTPrecision(const float &tPrecision) {
+    tPrecision_ = tPrecision;
+  }
+  inline float getTPrecision() const { return tPrecision_; }
+
+  inline void setOOTIndex(const int &i) { tsIndex_ = i; }
+  inline int getOOTIndex() const { return tsIndex_; }
+
+  inline void setMultipleHits(const bool mh) { mh_ = mh; }
+  inline bool getMultipleHits() const { return mh_; }
+
+  inline void setHPTDCErrorFlags(const HPTDCErrorFlags &err) {
+    hptdcErr_ = err;
+  }
+  inline HPTDCErrorFlags getHPTDCErrorFlags() const { return hptdcErr_; }
+
+private:
+  /// Time slice index
+  float tot_, tPrecision_;
+  int tsIndex_;
+  HPTDCErrorFlags hptdcErr_;
+  bool mh_;
 };
 
 #endif
-
