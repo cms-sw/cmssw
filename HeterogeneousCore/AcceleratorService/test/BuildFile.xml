@@ -1,0 +1,18 @@
+<library file="TestAcceleratorServiceProducerGPUMock.cc TestAcceleratorServiceAnalyzer.cc" name="HeterogeneousCoreAcceleratorServiceTest">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="HeterogeneousCore/AcceleratorService"/>
+  <use name="HeterogeneousCore/Product"/>
+</library>
+<library file="TestAcceleratorServiceProducerGPU.cc TestAcceleratorServiceProducerGPUHelpers.cu" name="HeterogeneousCoreAcceleratorServiceTestGPU">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="HeterogeneousCore/AcceleratorService"/>
+  <use name="HeterogeneousCore/Product"/>
+  <use name="cuda"/>
+  <use name="cuda-api-wrappers"/>
+</library>
