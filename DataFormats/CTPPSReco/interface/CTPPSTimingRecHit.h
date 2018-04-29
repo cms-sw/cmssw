@@ -14,12 +14,11 @@
 class CTPPSTimingRecHit {
 public:
   CTPPSTimingRecHit()
-      : x_(0.), x_width_(0.), y_(0.), y_width_(0.), z_(0.), z_width_(0.),
-        t_(0.), tot_(0.), t_precision_(0.) {}
-  CTPPSTimingRecHit(float x, float x_width, float y, float y_width, float z,
-                    float z_width, float t, float tot, float t_precision)
-      : x_(x), x_width_(x_width), y_(y), y_width_(y_width), z_(z),
-        z_width_(z_width), t_(t), tot_(tot), t_precision_(t_precision) {}
+      : x_(0.), xWidth_(0.), y_(0.), yWidth_(0.), z_(0.), zWidth_(0.), t_(0.) {}
+  CTPPSTimingRecHit(float x, float xWidth, float y, float yWidth, float z,
+                    float zWidth, float t)
+      : x_(x), xWidth_(xWidth), y_(y), yWidth_(yWidth), z_(z), zWidth_(zWidth),
+        t_(t) {}
 
   inline void setX(const float &x) { x_ = x; }
   inline float getX() const { return x_; }
@@ -30,31 +29,23 @@ public:
   inline void setZ(const float &z) { z_ = z; }
   inline float getZ() const { return z_; }
 
-  inline void setXWidth(const float &xwidth) { x_width_ = xwidth; }
-  inline float getXWidth() const { return x_width_; }
+  inline void setXWidth(const float &xWidth) { xWidth_ = xWidth; }
+  inline float getXWidth() const { return xWidth_; }
 
-  inline void setYWidth(const float &ywidth) { y_width_ = ywidth; }
-  inline float getYWidth() const { return y_width_; }
+  inline void setYWidth(const float &yWidth) { yWidth_ = yWidth; }
+  inline float getYWidth() const { return yWidth_; }
 
-  inline void setZWidth(const float &zwidth) { z_width_ = zwidth; }
-  inline float getZWidth() const { return z_width_; }
+  inline void setZWidth(const float &zWidth) { zWidth_ = zWidth; }
+  inline float getZWidth() const { return zWidth_; }
 
   inline void setT(const float &t) { t_ = t; }
   inline float getT() const { return t_; }
 
-  inline void setToT(const float &tot) { tot_ = tot; }
-  inline float getToT() const { return tot_; }
-
-  inline void setTPrecision(const float &t_precision) {
-    t_precision_ = t_precision;
-  }
-  inline float getTPrecision() const { return t_precision_; }
-
 protected:
-  float x_, x_width_;
-  float y_, y_width_;
-  float z_, z_width_;
-  float t_, tot_, t_precision_;
+  float x_, xWidth_;
+  float y_, yWidth_;
+  float z_, zWidth_;
+  float t_;
 };
 
 //----------------------------------------------------------------------------------------------------

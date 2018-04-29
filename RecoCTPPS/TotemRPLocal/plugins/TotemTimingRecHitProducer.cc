@@ -82,6 +82,8 @@ TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& des
 
   desc.add<edm::InputTag>( "digiTag", edm::InputTag( "totemTimingRawToDigi", "TotemTiming" ) )
     ->setComment( "input digis collection to retrieve" );
+  desc.add<std::string>( "calibrationFile", "/dev/null" )
+    ->setComment( "file with SAMPIC calibrations, ADC and INL; if /dev/null or corrupted, no calibration will be applied" );
   desc.add<int>( "baselinePoints", 8 )
     ->setComment( "number of points to be used for the baseline" );
   desc.add<int>( "risingEdgePointsBeforeTh", 2 )
