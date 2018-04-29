@@ -142,9 +142,9 @@ class TotemSampicFrame
     }
 
     inline uint64_t getFPGATimestamp() const {
-      uint32_t tmp = 0;
+      uint64_t tmp = 0;
       if ( status_ ) {
-        tmp = *( ( const uint32_t* ) ( totemSampicInfoPtr_ + TotemSampicConstant::fpgaTime_Position ) );
+        tmp = *( ( const uint64_t* ) ( totemSampicInfoPtr_ + TotemSampicConstant::fpgaTime_Position ) ) & 0xFFFFFFFFFF;
       }
       return tmp;
     }
@@ -154,7 +154,7 @@ class TotemSampicFrame
       if ( status_ ) {
         tmp = *( ( const uint16_t* ) ( totemSampicInfoPtr_ + TotemSampicConstant::timestampA_Position ) );
       }
-//       tmp = 0xFFF - tmp;
+      tmp = 0xFFF - tmp;
       return grayToBinary<uint16_t> ( tmp );
     }
 
@@ -210,9 +210,9 @@ class TotemSampicFrame
     }
 
     inline uint64_t getL1ATimestamp() const {
-      uint32_t tmp = 0;
+      uint64_t tmp = 0;
       if ( status_ ) {
-        tmp = *( ( const uint32_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::l1ATimestamp_Position ) );
+        tmp = *( ( const uint64_t* ) ( totemSampicEventInfoPtr_ + TotemSampicConstant::l1ATimestamp_Position ) ) & 0xFFFFFFFFFF;
       }
       return tmp;
     }
