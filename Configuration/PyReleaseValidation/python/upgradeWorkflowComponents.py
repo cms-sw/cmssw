@@ -212,7 +212,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2017_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run2_2017',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
     '2017Design' : {
         'Geom' : 'DB:Extended',
@@ -227,7 +227,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2018_realistic',
         'HLTmenu': '@relval2018',
         'Era' : 'Run2_2018',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
     '2018Design' : {
         'Geom' : 'DB:Extended',
@@ -242,7 +242,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2019_realistic',
         'HLTmenu': '@relval2017',
         'Era' : 'Run3',
-        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','ALCAFull','HARVESTFull'],
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
     '2019Design' : {
         'Geom' : 'Extended2019',

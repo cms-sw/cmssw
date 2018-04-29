@@ -365,6 +365,7 @@ steps['RunExpressPhy2017F']={'INPUT':InputInfo(dataSet='/ExpressPhysics/Run2017F
 
 steps['RunJetHT2017F_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-17Nov2017-v1/AOD',label='rmaod_jetHT2017F',events=100000,location='STD', ls=Run2017F)}
 
+steps['RunJetHT2017C_94Xv2NanoAODINPUT']={'INPUT':InputInfo(dataSet='/JetHT/CMSSW_9_4_5_cand1-94X_dataRun2_relval_v11_RelVal_rmaod_jetHT2017C-v1/MINIAOD',label='nano_jetHT2017C',events=100000,location='STD', ls=Run2017C)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -914,7 +915,6 @@ FS_PREMIXUP15_PU25_OVERLAY = merge([
          "--datamix" : "PreMix",
          "--procModifiers": "premix_stage2",
          "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
-         "--customise":"SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
          },
         Kby(100,500),step1FastUpg2015Defaults])
 
@@ -1276,6 +1276,18 @@ digiPremixUp2015Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2016'
     }
+# Specifying explicitly the --filein is not nice but that was the
+# easiest way to "skip" the output of step2 (=premixing stage1) for
+# filein (as it goes to pileup_input). It works (a bit accidentally
+# though) also for "-i all" because in that case the --filein for DAS
+# input is after this one in the list of command line arguments to
+# cmsDriver, and gets then used in practice.
+digiPremixLocalPileup = {
+    "--filein": "file:step1.root",
+    "--pileup_input": "file:step2.root"
+}
+digiPremixLocalPileupUp2015Defaults25ns = merge([digiPremixLocalPileup,
+                                                 digiPremixUp2015Defaults25ns])
 digiPremixUp2015Defaults50ns=merge([{'-s':'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns'},
                                     {'--conditions':'auto:run2_mc_50ns'},
                                     {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[6]},
@@ -1292,6 +1304,8 @@ digiPremixUp2017Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2017'
     }
+digiPremixLocalPileupUp2017Defaults25ns = merge([digiPremixLocalPileup,
+                                                 digiPremixUp2017Defaults25ns])
 
 
 digiPremixUp2018Defaults25ns = {
@@ -1304,12 +1318,17 @@ digiPremixUp2018Defaults25ns = {
     '--procModifiers': 'premix_stage2',
     '--era'          : 'Run2_2018'
     }
+digiPremixLocalPileupUp2018Defaults25ns = merge([digiPremixLocalPileup,
+                                                 digiPremixUp2018Defaults25ns])
 
 
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXLOCALUP15_PU25']=merge([digiPremixLocalPileupUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 steps['DIGIPRMXUP17_PU25']=merge([digiPremixUp2017Defaults25ns])
+steps['DIGIPRMXLOCALUP17_PU25']=merge([digiPremixLocalPileupUp2017Defaults25ns])
 steps['DIGIPRMXUP18_PU25']=merge([digiPremixUp2018Defaults25ns])
+steps['DIGIPRMXLOCALUP18_PU25']=merge([digiPremixLocalPileupUp2018Defaults25ns])
 
 premixProd25ns = {'-s'             : 'DIGI,DATAMIX,L1,DIGI2RAW,HLT:@relval2016',
                  '--eventcontent' : 'PREMIXRAW',
@@ -1473,6 +1492,8 @@ steps['ALCAEXPLP']={'-s':'ALCAOUTPUT:AlCaPCCRandom,ALCA:PromptCalibProdLumiPCC',
 steps['ALCAHARVLP']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdLumiPCC']),
                      '--conditions':'auto:run2_data',
                      '--scenario':'pp',
+                     '--datatier':'DQM',
+                     '--eventcontent': 'DQM',
                      '--data':'',
                      '--filein':'file:PromptCalibProdLumiPCC.root'}
 
@@ -1777,17 +1798,17 @@ steps['RECOUP15_PU25HS']=merge([PU25HS,step3Up2015Defaults])
 
 # for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
 steps['RECOPRMXUP15_PU25']=merge([
-        {'--era':'Run2_2016','--customise':'SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
+        {'--era':'Run2_2016','--procModifiers':'premix_stage2'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
-        {'--era':'Run2_50ns','--customise':'SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'},
+        {'--era':'Run2_50ns','--procModifiers':'premix_stage2'},
         step3Up2015Defaults50ns])
 steps['RECOPRMXUP17_PU25']=merge([
-        {'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--customise':'SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'},
+        {'--conditions':'auto:phase1_2017_realistic','--era':'Run2_2017','--procModifiers':'premix_stage2'},
         step3Up2015Defaults])
 
 steps['RECOPRMXUP18_PU25']=merge([
-        {'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--customise':'SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'},
+        {'--conditions':'auto:phase1_2018_realistic','--era':'Run2_2018','--procModifiers':'premix_stage2'},
         step3Up2015Defaults])
 steps['RECOPRMXUP18_PU25_L1TEgDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TEgamma'},steps['RECOPRMXUP18_PU25']])
 steps['RECOPRMXUP18_PU25_L1TMuDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TMuon'},steps['RECOPRMXUP18_PU25']])
@@ -2023,6 +2044,7 @@ steps['DQMHLTonRAWAOD_2017']={
     '--era':'Run2_2017',
     '--secondfilein':'filelist:step1_dasparentquery.log',
     '--customise_commands':'"process.HLTAnalyzerEndpath.remove(process.hltL1TGlobalSummary)"',
+    '--fileout':'DQMHLTonAOD.root',
     }
 
 steps['HARVESTDQMHLTonAOD_2017'] = merge([ {'--filein':'file:DQMHLTonAOD.root','-s':'HARVESTING:hltOfflineDQMClient'}, steps['HARVEST2017'] ]) ### Harvesting step for the DQM-only workflow
@@ -2508,7 +2530,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--geometry' : geom,
                                     '--scenario' : 'pp',
                                     '--filetype':'DQM',
-				    '--filein':'file:step3_inDQM.root'
                                     }
 
     upgradeStepDict['HARVESTFullGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVESTFull'][k]])
@@ -2518,7 +2539,8 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--datatier':'ALCARECO',
                                       '-n':'10',
                                       '--eventcontent':'ALCARECO',
-                                      '--geometry' : geom
+                                      '--geometry' : geom,
+                                      '--filein':'file:step3.root'
                                       }
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
@@ -2661,11 +2683,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     "--procModifiers": "premix_stage2"},
                                    d])
                     elif "Reco" in step:
-                        custNew = "SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
-                        if "--customise" in d:
-                            d["--customise"] += ","+custNew
+                        if "--procModifiers" in d:
+                            d["--procModifiers"] += ",premix_stage2"
                         else:
-                            d["--customise"] = custNew
+                            d["--procModifiers"] = "premix_stage2"
                     upgradeStepDict[stepNamePUpmx][k] = d
 
 for step in upgradeStepDict.keys():
