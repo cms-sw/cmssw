@@ -4,7 +4,7 @@
 #include <initializer_list>
 
 // CUDA does not support C++17 yet, so we define here some of the missing library functions
-#if __cplusplus < 201703L
+#if __cplusplus <= 201402L
 
 namespace std {
 
