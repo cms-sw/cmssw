@@ -32,35 +32,34 @@ void TotemTimingRecHitProducerAlgorithm::build(
   for (const auto &vec : input) {
     const TotemTimingDetId detid(vec.detId());
 
-    float x_pos = 0, y_pos = 0, z_pos = 0, x_width = 0, y_width = 0,
-          z_width = 0;
+    float x_pos = 0, y_pos = 0, z_pos = 0, x_width = 0, y_width = 0, z_width = 0;
 
     // retrieve the geometry element associated to this DetID ( if present )
     const DetGeomDesc *det = nullptr;
     try { // no other efficient way to check presence
-      det = geom->getSensor(detid);
-    } catch (cms::Exception &) {
+      det = geom->getSensor( detid );
+    } catch ( const cms::Exception& ) {
       det = nullptr;
     }
 
     if ( det ) {
-      edm::LogWarning("TotemTimingRecHitProducerAlgorithm") << "Found the sensor!!!";
       x_pos = det->translation().x(), y_pos = det->translation().y();
       if (det->parents().empty())
         edm::LogWarning("TotemTimingRecHitProducerAlgorithm")
             << "The geometry element for " << detid
             << " has no parents. Check the geometry hierarchy!";
       else
-        z_pos = det->parents()[det->parents().size() - 1]
+        z_pos = det->parents()[det->parents().size()-1]
                     .absTranslation()
                     .z(); // retrieve the plane position;
 
       x_width = 2.0 * det->params().at(0), // parameters stand for half the size
-          y_width = 2.0 * det->params().at(1),
+      y_width = 2.0 * det->params().at(1),
       z_width = 2.0 * det->params().at(2);
     }
     else
-      edm::LogError("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for detId = " << detid;
+      edm::LogWarning("TotemTimingRecHitProducerAlgorithm")
+        << "Failed to retrieve a sensor for " << detid;
 
     edm::DetSet<TotemTimingRecHit> &rec_hits = output.find_or_insert(detid);
 
