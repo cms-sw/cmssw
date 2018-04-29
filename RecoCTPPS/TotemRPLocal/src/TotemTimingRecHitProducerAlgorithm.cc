@@ -19,8 +19,8 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm( const ed
   baselinePoints_               ( iConfig.getParameter<int>( "baselinePoints" ) ),
   risingEdgePointsBeforeTh_     ( iConfig.getParameter<int>( "risingEdgePointsBeforeTh" ) ),
   risingEdgePoints_             ( iConfig.getParameter<int>( "risingEdgePoints" ) ),
-  saturationLimit_               ( iConfig.getParameter<double>( "saturationLimit" ) ),
-  thresholdFactor_               ( iConfig.getParameter<double>( "thresholdFactor" ) ),
+  saturationLimit_              ( iConfig.getParameter<double>( "saturationLimit" ) ),
+  thresholdFactor_              ( iConfig.getParameter<double>( "thresholdFactor" ) ),
   cfdFraction_                  ( iConfig.getParameter<double>( "cfdFraction" ) ),
   hysteresis_                   ( iConfig.getParameter<double>( "hysteresis" ) )
 {}
@@ -43,10 +43,10 @@ TotemTimingRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm:
     try { // no other efficient way to check presence
       det = geom->getSensor( detid );
     }
-    catch (cms::Exception&)  { det = nullptr; }
+    catch ( const cms::Exception& )  { det = nullptr; }
 
-    if ( det != nullptr )
-    {
+    if ( det ) {
+      edm::LogWarning("TotemTimingRecHitProducerAlgorithm") << "Found the sensor!!!";
       x_pos = det->translation().x(),
       y_pos = det->translation().y();
       if ( det->parents().empty() )
@@ -58,6 +58,8 @@ TotemTimingRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm:
       y_width = 2.0 * det->params().at( 1 ),
       z_width = 2.0 * det->params().at( 2 );
     }
+    else
+      edm::LogError("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for detId = " << detid;
 
     edm::DetSet<TotemTimingRecHit>& rec_hits = output.find_or_insert( detid );
 
@@ -73,8 +75,7 @@ TotemTimingRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm:
       unsigned int timestamp = digi.getCellInfo() <= 32 ? digi.getTimestampA() : digi.getTimestampB();
 
       cell0TimeClock =  timestamp + ( ( digi.getFPGATimestamp() - timestamp ) & 0xFFFFFFF000 ) - digi.getEventInfo().getL1ATimestamp() + digi.getEventInfo().getL1ALatency();
-      if ( std::abs( cell0TimeClock ) > 1 )
-      {
+      if ( std::abs( cell0TimeClock ) > 1 ) {
         std::cout << "cell0TimeClock " << cell0TimeClock << '\n';
         continue;
       }

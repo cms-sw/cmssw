@@ -46,22 +46,22 @@
     </PosPart>
     <PosPart copyNumber="0">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane0:TotemTiming_Plane0"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane1:TotemTiming_Plane1"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane2:TotemTiming_Plane2"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane3:TotemTiming_Plane3"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
     <PosPart copyNumber="021"> <!-- bottom pot -->
@@ -72,22 +72,22 @@
     </PosPart>
     <PosPart copyNumber="0">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane0:TotemTiming_Plane0"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane1:TotemTiming_Plane1"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane2:TotemTiming_Plane2"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane3:TotemTiming_Plane3"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
     <!-- RIGHT ARM / ARM 1 -->
@@ -99,22 +99,22 @@
     </PosPart>
     <PosPart copyNumber="0">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane0:TotemTiming_Plane0"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane1:TotemTiming_Plane1"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane2:TotemTiming_Plane2"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane3:TotemTiming_Plane3"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
     <PosPart copyNumber="121"> <!-- bottom pot -->
@@ -126,22 +126,22 @@
     </PosPart>
     <PosPart copyNumber="0">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane0:TotemTiming_Plane0"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane1:TotemTiming_Plane1"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane2:TotemTiming_Plane2"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="TotemTiming_Main_Box"/>
-      <rChild name="TotemTiming_Plane3:TotemTiming_Plane3"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
       <Translation y="0*cm" x="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
     </PosPart>
   </PosPartSection>
