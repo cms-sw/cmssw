@@ -78,19 +78,35 @@ void TotemTimingRecHitProducerAlgorithm::build(
       // remove baseline
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i)
-        dataCorrected.at(i) = data.at(i) - (baselineRegression.q);
+        dataCorrected.at(i) = data.at(i) - (baselineRegression.q + baselineRegression.m * time.at(i)) ;
       auto max_corrected_it =
           std::max_element(dataCorrected.begin(), dataCorrected.end());
 
+
+      //Smoothing
+      std::vector<float> dataSmoothed(dataCorrected.size(),.0);
+      const float pi = std::acos(-1);
+      for (int i=0; i<(int)data.size(); ++i) {
+        for (int j=-10; j<=+10; ++j) {
+          if ((i+j)>=0 && (i+j)<(int)data.size()) {
+            float x=1;
+            if (j!=0) x=2*pi*0.9*j/7.8;
+            dataSmoothed.at(i) += data.at(i+j) * std::sin(x)/x;
+          }
+        }
+      }
+      auto max_smoothed_it =
+          std::max_element(dataSmoothed.begin(), dataSmoothed.end());
+      float factor=*max_corrected_it / *max_smoothed_it;
+      std::for_each(dataSmoothed.begin(), dataSmoothed.end(), [&](float value) { value *= factor; });
+      //end smoothing
+      dataSmoothed = dataCorrected;
+
       if (*max_it < saturationLimit_)
         t = constantFractionDiscriminator(time, dataCorrected);
-      if (t!=NO_T_AVAILABLE)
-        t -= triggerCellTimeInstant;
 
       float t_smart = smartTimeOfArrival(time, dataCorrected,
-                             thresholdFactor_ * baselineRegression.rms);
-      if (t_smart!=NO_T_AVAILABLE)
-        t_smart += triggerCellTimeInstant;
+                             thresholdFactor_ * *max_corrected_it);
 
       mode_ = TotemTimingRecHit::CFD;
 
@@ -211,8 +227,9 @@ float TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(
     RegressionResults risingEdgeRegression = simplifiedLinearRegression(
         time, data, indexOfThresholdCrossing - risingEdgePoints_/2,
         risingEdgePoints_);
-    // Find intersection with threshold
+      // Find intersection with threshold
       t = (threshold - risingEdgeRegression.q / risingEdgeRegression.m);
+      std::cout<<"rechit: index: "<<indexOfThresholdCrossing<<"\ttime"<<t<<"\n";
   }
   // if (indexOfThresholdCrossing>=baselinePoints_ && indexOfThresholdCrossing<(int)time.size())
   // {
@@ -220,7 +237,6 @@ float TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(
   //       (data.at(indexOfThresholdCrossing-1) - data.at(indexOfThresholdCrossing)) *
   //       (threshold - data.at(indexOfThresholdCrossing)) + time.at(indexOfThresholdCrossing);
   // }
-  std::cout<<"rechit: index: "<<indexOfThresholdCrossing<<"\ttime"<<t<<"\n";
 
   return t;
 }
