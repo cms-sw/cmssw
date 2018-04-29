@@ -28,15 +28,9 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
     const DetGeomDesc *d = buffer.front();
     buffer.pop_front();
 
-    //if ( std::regex_match( d->name().name(), DDD_TOTEM_TIMING_SENSOR_NAME ) )
-    //if ( d->name().name() == DDD_TOTEM_TIMING_SENSOR_NAME )
-    if ( std::regex_match( d->name().name(), std::regex( DDD_TOTEM_TIMING_SENSOR_TMPL ) ) )
-      std::cout << d->geographicalID() << std::endl;
-
     // check if it is a sensor
     if ( d->name().name() == DDD_TOTEM_RP_SENSOR_NAME
-//      || std::regex_match( d->name().name(), DDD_TOTEM_TIMING_SENSOR_NAME )
-//      || d->name().name() == DDD_TOTEM_TIMING_SENSOR_NAME
+      || std::regex_match( d->name().name(), std::regex( DDD_TOTEM_TIMING_SENSOR_TMPL ) )
       || d->name().name() == DDD_CTPPS_DIAMONDS_SEGMENT_NAME
       || d->name().name() == DDD_CTPPS_UFSD_SEGMENT_NAME
       || d->name().name() == DDD_CTPPS_PIXELS_SENSOR_NAME )
