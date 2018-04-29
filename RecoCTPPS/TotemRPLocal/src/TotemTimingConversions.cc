@@ -44,7 +44,7 @@ void TotemTimingConversions::openCalibrationFile(const std::string& calibrationF
 
 //----------------------------------------------------------------------------------------------------
 
-const float TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi) const
+const float TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& digi) const
 {
   unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
   if (offsetOfSamples == 0)
@@ -73,7 +73,18 @@ const float TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi) 
         (SAMPIC_MAX_NUMBER_OF_SAMPLES - digi.getCellInfo()) *
             SAMPIC_SAMPLING_PERIOD_NS;
 
-  float triggerCellTimeInstant = firstCellTimeInstant +
+  return firstCellTimeInstant;
+}
+
+//----------------------------------------------------------------------------------------------------
+
+const float TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi) const
+{
+  unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
+  if (offsetOfSamples == 0)
+    offsetOfSamples = 30; // FW 0 is not sending this, FW > 0 yes
+
+  float triggerCellTimeInstant = getTimeOfFirstSample(digi) +
         (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) *
         SAMPIC_SAMPLING_PERIOD_NS;
 
@@ -85,17 +96,11 @@ const float TotemTimingConversions::getTriggerTime(const TotemTimingDigi& digi) 
 std::vector<float> TotemTimingConversions::getTimeSamples(const TotemTimingDigi& digi) const
 {
   std::vector<float> time(digi.getNumberOfSamples());
-  unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
-  if (offsetOfSamples == 0)
-    offsetOfSamples = 30; // FW 0 is not sending this, FW > 0 yes
-  float firstCellTimeInstant = 0 -
-          (SAMPIC_MAX_NUMBER_OF_SAMPLES - offsetOfSamples) *
-          SAMPIC_SAMPLING_PERIOD_NS;
   // firstCellTimeInstant = 0;
   if (!calibrationFileOk_)
   {
     for (unsigned int i = 0; i < time.size(); ++i)
-      time.at(i) = firstCellTimeInstant + i * SAMPIC_SAMPLING_PERIOD_NS;
+      time.at(i) = getTimeOfFirstSample(digi) + i * SAMPIC_SAMPLING_PERIOD_NS;
   }
   return time;
 }

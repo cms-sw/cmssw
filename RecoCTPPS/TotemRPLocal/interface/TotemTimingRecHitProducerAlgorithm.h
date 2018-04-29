@@ -63,6 +63,7 @@ private:
   float smartTimeOfArrival(const std::vector<float> &time,
                            const std::vector<float> &data,
                            const float threshold);
+                           
   float constantFractionDiscriminator(const std::vector<float> &time,
                                       const std::vector<float> &data);
 };
