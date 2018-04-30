@@ -1,11 +1,11 @@
 
 #include "SimG4Core/MagneticField/interface/LocalFieldManager.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4ChordFinder.hh"
 #include "G4Track.hh"
 
-#include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <iostream>
 
@@ -28,7 +28,7 @@ void LocalFieldManager::ConfigureForTrack(const G4Track* trk)
 
    int PID = trk->GetDynamicParticle()->GetDefinition()->GetPDGEncoding();
    
-   if ( abs(PID)!=13 ) // maybe also high energy pions ?... what else ?
+   if ( std::abs(PID)!=13 ) // maybe also high energy pions ?... what else ?
    {
       if ( fCurrentFM != fAlternativeFM )
       {
@@ -46,9 +46,6 @@ void LocalFieldManager::ConfigureForTrack(const G4Track* trk)
          if ( fVerbosity) print(trk);
       }
    }
-   
-   return ;
-
 }
 
 const G4FieldManager* LocalFieldManager::CopyValuesAndChordFinder(G4FieldManager * fm)
@@ -66,22 +63,15 @@ const G4FieldManager* LocalFieldManager::CopyValuesAndChordFinder(G4FieldManager
 
 void LocalFieldManager::print(const G4Track* trk)
 {
+  std::string ss = (fCurrentFM==fAlternativeFM) 
+    ? "Alternative field manager with"
+    : "Global field manager with";
 
-  if (fCurrentFM==fAlternativeFM) 
-  {
-     std::cout << " Alternative field manager with";
-  }
-  else 
-  {
-     std::cout << " Global field manager with";
-  }
-  std::cout << " DeltaIntersection " << G4FieldManager::GetDeltaIntersection()
-            << ", DeltaOneStep " << G4FieldManager::GetDeltaOneStep()
-            << " and DeltaChord " << G4FieldManager::GetChordFinder()->GetDeltaChord()
-            << " for " << trk->GetDynamicParticle()->GetDefinition()->GetPDGEncoding()
-            << " with " << trk->GetKineticEnergy()/MeV << " MeV in "
-            << trk->GetVolume()->GetName() << std::endl;
-
-   return ;
-
+  edm::LogInfo("SimG4CoreMagneticField") 
+    << ss << " DeltaIntersection= " << G4FieldManager::GetDeltaIntersection()
+    << ", DeltaOneStep= " << G4FieldManager::GetDeltaOneStep()
+    << ", DeltaChord= " << G4FieldManager::GetChordFinder()->GetDeltaChord()
+    << " for " << trk->GetDynamicParticle()->GetDefinition()->GetPDGEncoding()
+    << " with " << trk->GetKineticEnergy()/CLHEP::GeV << " GeV in "
+    << trk->GetVolume()->GetName();
 }
