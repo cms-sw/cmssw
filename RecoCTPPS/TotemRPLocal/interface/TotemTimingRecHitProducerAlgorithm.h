@@ -40,7 +40,6 @@ public:
   };
 
 private:
-  static const float NO_T_AVAILABLE;
   static const float SINC_COEFFICIENT;
 
   TotemTimingConversions sampicConversions_;
