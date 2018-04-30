@@ -8,6 +8,7 @@
 //                       Geant4 extended example "monopole"
 //
 // Adopted for CMSSW by V.Ivanchenko 30 April 2018
+// from Geant4 global tag geant4-10-04-ref-03                   
 //
 // =======================================================================
 // 
@@ -51,32 +52,32 @@ public:
 
   MonopoleTransportation(const Monopole* p, sim::ChordFinderSetter * cfs,
                          G4int verbosityLevel= 1);
-  ~MonopoleTransportation(); 
+  ~MonopoleTransportation() override; 
 
-  virtual G4double AlongStepGetPhysicalInteractionLength(
+  G4double AlongStepGetPhysicalInteractionLength(
                              const G4Track& track,
                                    G4double  previousStepSize,
                                    G4double  currentMinimumStep, 
                                    G4double& currentSafety,
                                    G4GPILSelection* selection
-							 );
+							 ) override;
 
-  virtual G4VParticleChange* AlongStepDoIt(
+  G4VParticleChange* AlongStepDoIt(
                              const G4Track& track,
                              const G4Step& stepData
-					   );
+					   ) override;
 
-  virtual G4VParticleChange* PostStepDoIt(
+  G4VParticleChange* PostStepDoIt(
                              const G4Track& track,
                              const G4Step&  stepData
-					  );
+					  ) override;
   // Responsible for the relocation.
 
-  virtual G4double PostStepGetPhysicalInteractionLength(
+  G4double PostStepGetPhysicalInteractionLength(
                              const G4Track& ,
                              G4double   previousStepSize,
                              G4ForceCondition* pForceCond
-							);
+							) override;
   // Forces the PostStepDoIt action to be called, 
   // but does not limit the step.
 
@@ -105,19 +106,19 @@ public:
   inline void EnableShortStepOptimisation(G4bool optimise=true); 
   // Whether short steps < safety will avoid to call Navigator (if field=0)
 
-  virtual G4double AtRestGetPhysicalInteractionLength(
+  G4double AtRestGetPhysicalInteractionLength(
                              const G4Track& ,
                              G4ForceCondition* 
-                            ) { return -1.0; };
+                            ) override { return -1.0; };
   // No operation in  AtRestDoIt.
 
-  virtual G4VParticleChange* AtRestDoIt(
+  G4VParticleChange* AtRestDoIt(
                              const G4Track& ,
                              const G4Step&
-                            ) {return 0;};
+                            ) override {return nullptr;};
   // No operation in  AtRestDoIt.
 
-  virtual void StartTracking(G4Track* aTrack);
+  void StartTracking(G4Track* aTrack) override;
   // Reset state for new (potentially resumed) track 
 
 protected:

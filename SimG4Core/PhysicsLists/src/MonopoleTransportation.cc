@@ -38,8 +38,8 @@ MonopoleTransportation::MonopoleTransportation(const Monopole* mpl,
     fParticleDef(mpl),
     fChordFinderSetter(chordFinderSetter),
     fieldMgrCMS(nullptr),
-    fLinearNavigator(0),
-    fFieldPropagator(0),
+    fLinearNavigator(nullptr),
+    fFieldPropagator(nullptr),
     fParticleIsLooping( false ),
     fPreviousSftOrigin (0.,0.,0.),
     fPreviousSafety    ( 0.0 ),
@@ -49,7 +49,7 @@ MonopoleTransportation::MonopoleTransportation(const Monopole* mpl,
     fNoLooperTrials(0),
     fSumEnergyKilled( 0.0 ), fMaxEnergyKilled( 0.0 ), 
     fShortStepOptimisation(false),    // Old default: true (=fast short steps)
-    fpSafetyHelper(0)
+    fpSafetyHelper(nullptr)
 {
   verboseLevel = verb;
 
@@ -131,7 +131,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   // Get initial Energy/Momentum of the track
   //
   const G4DynamicParticle* pParticle      = track.GetDynamicParticle() ;
-  G4ThreeVector startMomentumDir          = pParticle->GetMomentumDirection() ;
+  const G4ThreeVector& startMomentumDir          = pParticle->GetMomentumDirection() ;
   G4ThreeVector startPosition             = track.GetPosition() ;
 
   // The Step Point safety can be limited by other geometries and/or the 
@@ -171,7 +171,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
     //   to a finite field  status
 
     // If the field manager has no field, there is no field !
-    fieldExertsForce = (fieldMgrCMS->GetDetectorField() != 0);      
+    fieldExertsForce = (fieldMgrCMS->GetDetectorField() != nullptr);      
   }
 
   // G4cout << " G4Transport:  field exerts force= " << fieldExertsForce
@@ -523,7 +523,7 @@ G4VParticleChange* MonopoleTransportation::PostStepDoIt( const G4Track& track,
     // Check whether the particle is out of the world volume 
     // If so it has exited and must be killed.
     //
-    if( fCurrentTouchableHandle->GetVolume() == 0 )
+    if( fCurrentTouchableHandle->GetVolume() == nullptr )
     {
        fParticleChange.ProposeTrackStatus( fStopAndKill ) ;
     }
@@ -546,10 +546,10 @@ G4VParticleChange* MonopoleTransportation::PostStepDoIt( const G4Track& track,
   }         // endif ( fGeometryLimitedStep ) 
 
   const G4VPhysicalVolume* pNewVol = retCurrentTouchable->GetVolume() ;
-  const G4Material* pNewMaterial   = 0 ;
-  const G4VSensitiveDetector* pNewSensitiveDetector   = 0 ;
+  const G4Material* pNewMaterial   = nullptr ;
+  const G4VSensitiveDetector* pNewSensitiveDetector   = nullptr ;
                                                                                        
-  if( pNewVol != 0 )
+  if( pNewVol != nullptr )
   {
     pNewMaterial= pNewVol->GetLogicalVolume()->GetMaterial();
     pNewSensitiveDetector= pNewVol->GetLogicalVolume()->GetSensitiveDetector();
@@ -563,13 +563,13 @@ G4VParticleChange* MonopoleTransportation::PostStepDoIt( const G4Track& track,
   fParticleChange.SetSensitiveDetectorInTouchable( 
                      (G4VSensitiveDetector *) pNewSensitiveDetector ) ;
 
-  const G4MaterialCutsCouple* pNewMaterialCutsCouple = 0;
-  if( pNewVol != 0 )
+  const G4MaterialCutsCouple* pNewMaterialCutsCouple = nullptr;
+  if( pNewVol != nullptr )
   {
     pNewMaterialCutsCouple=pNewVol->GetLogicalVolume()->GetMaterialCutsCouple();
   }
 
-  if( pNewVol!=0 && pNewMaterialCutsCouple!=0 && 
+  if( pNewVol!=nullptr && pNewMaterialCutsCouple!=nullptr && 
       pNewMaterialCutsCouple->GetMaterial()!=pNewMaterial )
   {
     // for parametrized volume
