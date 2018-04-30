@@ -29,12 +29,12 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   bool thermal = p.getUntrackedParameter<bool>("ThermalNeutrons");
-  double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
+  double timeLimit = p.getParameter<double>("MaxTrackTime")*CLHEP::ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "FTFP_BERT_HP_EML \n Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking
-			      << "   t(ns)= " << timeLimit/ns
+			      << "   t(ns)= " << timeLimit/CLHEP::ns
 			      << " ThermalNeutrons: " << thermal;
 
   if (emPhys) {
