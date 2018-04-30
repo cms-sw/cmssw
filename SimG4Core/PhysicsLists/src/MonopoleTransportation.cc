@@ -90,10 +90,12 @@ MonopoleTransportation::MonopoleTransportation(const Monopole* mpl,
 MonopoleTransportation::~MonopoleTransportation()
 {
   if( (verboseLevel > 0) && (fSumEnergyKilled > 0.0 ) ){ 
+    /*
     G4cout << " MonopoleTransportation: Statistics for looping particles " 
            << G4endl;
     G4cout << "   Sum of energy of loopers killed: " <<  fSumEnergyKilled << G4endl;
     G4cout << "   Max energy of loopers killed: " <<  fMaxEnergyKilled << G4endl;
+    */
   } 
 }
 

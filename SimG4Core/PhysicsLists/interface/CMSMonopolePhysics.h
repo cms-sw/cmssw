@@ -25,6 +25,7 @@ public:
   void ConstructProcess() override;
 
 private:
+
   sim::ChordFinderSetter * chordFinderSetter;
   G4int                    verbose, magCharge;
   G4bool                   deltaRay, multiSc, transport;
@@ -35,9 +36,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
