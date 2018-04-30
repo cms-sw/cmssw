@@ -179,8 +179,8 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
     }
 
     // strip and pixels RPs
-    else if ( name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME) {
-      uint32_t decRPId = uint32_t(fv->copyno());
+    else if ( name == DDD_TOTEM_RP_RP_NAME || name == DDD_CTPPS_PIXELS_RP_NAME ) {
+      unsigned int decRPId = fv->copyno();
 
       // check if it is a pixel RP
       if ( decRPId >= 10000 ){
@@ -188,8 +188,9 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
         const unsigned int armIdx = ( decRPId / 100 ) % 10;
         const unsigned int stIdx = ( decRPId / 10 ) % 10;
         const unsigned int rpIdx = decRPId % 10;
-         newGD->setGeographicalID( CTPPSPixelDetId( armIdx, stIdx, rpIdx ) );
-      }else{
+        newGD->setGeographicalID( CTPPSPixelDetId( armIdx, stIdx, rpIdx ) );
+      }
+      else {
         const unsigned int armIdx = ( decRPId / 100 ) % 10;
         const unsigned int stIdx = ( decRPId / 10 ) % 10;
         const unsigned int rpIdx = decRPId % 10;
@@ -208,6 +209,11 @@ CTPPSGeometryESModule::buildDetGeomDesc( DDFilteredView* fv, DetGeomDesc* gd )
       const unsigned int arm = decRPId / 100, station = ( decRPId % 100 )/10, rp = decRPId % 10;
       const unsigned int plane = copy_num[copy_num.size()-2], channel = copy_num[copy_num.size()-1];
       newGD->setGeographicalID( TotemTimingDetId( arm, station, rp, plane, channel ) );
+    }
+
+    else if ( name == DDD_TOTEM_TIMING_RP_NAME ) {
+      const unsigned int arm = fv->copyno() / 100, station = ( fv->copyno() % 100 )/10, rp = fv->copyno() % 10;
+      newGD->setGeographicalID( TotemTimingDetId( arm, station, rp ) );
     }
 
     // pixel sensors
