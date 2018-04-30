@@ -1,7 +1,7 @@
 #include "SimG4Core/Physics/interface/Monopole.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "G4ParticleTable.hh"
-#include "G4PhysicalConstants.hh"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 Monopole::Monopole(const G4String& aName, G4int pdgEncoding, G4double mass,
                    G4int mCharge, G4int eCharge) : G4ParticleDefinition(aName, 
