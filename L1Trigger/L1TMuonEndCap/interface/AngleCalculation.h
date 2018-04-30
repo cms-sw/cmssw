@@ -10,7 +10,7 @@ public:
       int verbose, int endcap, int sector, int bx,
       int bxWindow,
       int thetaWindow, int thetaWindowZone0,
-      bool bugME11Dupes, bool bugAmbigThetaWin
+      bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX
   );
 
   void process(
@@ -28,7 +28,7 @@ private:
 
   int bxWindow_;
   int thetaWindow_, thetaWindowZone0_;
-  bool bugME11Dupes_, bugAmbigThetaWin_;
+  bool bugME11Dupes_, bugAmbigThetaWin_, twoStationSameBX_;
 };
 
 #endif
