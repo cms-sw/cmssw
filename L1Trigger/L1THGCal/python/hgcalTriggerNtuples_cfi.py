@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
-import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam
 import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 
@@ -65,14 +65,14 @@ ntuple_triggercells = cms.PSet(
     keV2fC = keV2fC,
     layerWeights = layerWeights,
     thicknessCorrections = thicknessCorrections,
-    FilterCellsInMulticlusters = cms.bool(True)
+    FilterCellsInMulticlusters = cms.bool(False)
 )
 
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
     Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster2D'),
     Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
-    FilterClustersInMulticlusters = cms.bool(True)
+    FilterClustersInMulticlusters = cms.bool(False)
 )
 
 from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_cone
