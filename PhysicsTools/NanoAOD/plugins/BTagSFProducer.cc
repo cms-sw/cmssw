@@ -194,7 +194,7 @@ BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                     }
                 }
                           
-                flavour=jet.partonFlavour();
+                flavour=jet.hadronFlavour();
 
                 if (cut_(jet)) {                                    //multiply SF of only the jets that pass the cut
                     if (fabs(flavour) == 5) {           // b jets
