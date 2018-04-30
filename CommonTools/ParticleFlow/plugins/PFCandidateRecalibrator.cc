@@ -177,7 +177,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 
 	//deal with HE
 	if( pf.particleId() == reco::PFCandidate::ParticleType::h0 && 
-	    badChHE_.size() > 0 &&  //don't touch if no miscalibration is found
+	    !badChHE_.empty() &&  //don't touch if no miscalibration is found
 	    absEta > 1.4  && absEta < 3.)
 	  {
 	    bool toKill = false;
@@ -202,7 +202,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 	  }
 	//deal with HF
 	else if( (pf.particleId() == reco::PFCandidate::ParticleType::h_HF || pf.particleId() == reco::PFCandidate::ParticleType::egamma_HF) &&
-		 badChHF_.size() > 0 &&  //don't touch if no miscalibration is found
+		 !badChHF_.empty() &&  //don't touch if no miscalibration is found
 		 absEta >= 3.)
 	  {
 	    const math::XYZPointF& ecalPoint = pf.positionAtECALEntrance();
