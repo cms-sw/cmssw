@@ -69,10 +69,16 @@ public:
     data_.shrink_to_fit();
   }
 
+  /**
+   * Adds data for a given detId, energyIndex, and sampleIndex.
+   *
+   * It is the caller's responsibility to ensure that energyIndex,
+   * sampleIndex, and data fit in the space reserved for them in the
+   * Data bitfield above.
+   */
   void emplace_back(unsigned int detId, unsigned short energyIndex, unsigned short sampleIndex, unsigned short data) {
     assert( (detId >> DetId::kSubdetOffset) == detSubdetId_ );
 
-    // TODO: add checks
     if(detIdSize_.empty() || detIdSize_.back().detIdDetails() != (detId & DetIdSize::detIdMask)) {
       detIdSize_.emplace_back(detId);
     }
