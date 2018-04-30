@@ -31,6 +31,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 				   const edm::EventSetup& iSetup) {
 
   edm::LogVerbatim("HGCalGeomr") << "HGCalParameter::Here I am";
+  auto start = std::chrono::high_resolution_clock::now();
   
   edm::ESHandle<HGCalParameters> phgp;
   iSetup.get<IdealGeometryRecord>().get(name_, phgp);
@@ -869,6 +870,10 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
   }
+
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
+  std::cout << "Elapsed time: " << elapsed.count() << " s\n";
 }
 
 DEFINE_FWK_MODULE(HGCalParameterTester);
