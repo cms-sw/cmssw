@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
+#include "SimG4Core/PhysicsLists/interface/MonopoleTransportation.h"
 #include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -7,7 +8,6 @@
 
 #include "G4StepLimiter.hh"
 #include "G4Transportation.hh"
-#include "G4MonopoleTransportation.hh"
 #include "G4mplIonisation.hh"
 #include "G4mplIonisationWithDeltaModel.hh"
 #include "G4hMultipleScattering.hh"
@@ -17,9 +17,9 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
-				       sim::ChordFinderSetter * cfs_, 
+				       sim::ChordFinderSetter * cfs, 
 				       const edm::ParameterSet & p) :
-  G4VPhysicsConstructor("Monopole Physics"), chordFinderSetter(cfs_) {
+  G4VPhysicsConstructor("Monopole Physics"), chordFinderSetter(cfs) {
   
   verbose   = p.getUntrackedParameter<int>("Verbosity",0);
   magCharge = p.getUntrackedParameter<int>("MonopoleCharge",1);
@@ -72,13 +72,14 @@ void CMSMonopolePhysics::ConstructParticle() {
   
   for (unsigned int ii=0; ii<names.size(); ++ii) {
     if (!monopoles[ii]) {
-      G4Monopole* mpl = new G4Monopole(names[ii], pdgEncodings[ii],
-				       masses[ii], ((pdgEncodings[ii] > 0 ) ? magCharge : -magCharge), elCharges[ii]);;
+      Monopole* mpl = new Monopole(names[ii], pdgEncodings[ii], masses[ii],
+          ((pdgEncodings[ii] >= 0 ) ? magCharge : -magCharge), elCharges[ii]);
       monopoles[ii] = mpl;
       //std::cout << "Create G4Monopole " << names[ii] 
-      if (verbose > 0) G4cout << "Create G4Monopole " << names[ii] 
+      if (verbose > 0) G4cout << "Create Monopole " << names[ii] 
 			      << " of mass " << masses[ii]/CLHEP::GeV
-			      << " GeV, magnetic charge " << ((pdgEncodings[ii] > 0) ? magCharge : -magCharge)
+			      << " GeV, magnetic charge " 
+                              << ((pdgEncodings[ii] >= 0) ? magCharge : -magCharge)
 			      << ", electric charge " << elCharges[ii]
 			      << " and PDG encoding " << pdgEncodings[ii]
 			      << " at " << monopoles[ii] << G4endl;
@@ -92,7 +93,7 @@ void CMSMonopolePhysics::ConstructProcess() {
     G4cout << "### CMSMonopolePhysics ConstructProcess()" << G4endl;
   for (unsigned int ii=0; ii<monopoles.size(); ++ii) {
     if (monopoles[ii]) {
-      G4Monopole* mpl = monopoles[ii];
+      Monopole* mpl = monopoles[ii];
       G4ProcessManager *pmanager = mpl->GetProcessManager();
       if(!pmanager) {
         std::ostringstream o;
@@ -109,7 +110,8 @@ void CMSMonopolePhysics::ConstructProcess() {
         G4VProcess *proc = pmanager->RemoveProcess(ip);
         if(!proc) {
           std::ostringstream o;
-          o << "Clearing Monopole Process Manager failed for process " << ip << ", total number of processes " << procLength;
+          o << "Clearing Monopole Process Manager failed for process " << ip 
+            << ", total number of processes " << procLength;
           G4Exception("CMSMonopolePhysics::ConstructProcess()","",
                       FatalException,o.str().c_str());
         }
@@ -125,10 +127,8 @@ void CMSMonopolePhysics::ConstructProcess() {
 	       << G4endl;
 
       // defined monopole parameters and binning
-
-      G4double emin = mass/20000.;
-      if(emin < CLHEP::keV) emin = CLHEP::keV;
-      G4double emax = std::max(10.*CLHEP::TeV, mass*100);
+      G4double emin = std::min(CLHEP::keV, mass/20000.);
+      G4double emax = std::max(100.*CLHEP::TeV, mass*100);
       G4int nbin = G4int(std::log10(emax/emin));
       if (nbin < 1) nbin = 1;
       nbin *= 10;
@@ -140,9 +140,10 @@ void CMSMonopolePhysics::ConstructProcess() {
 	       << nbin << " in the range " << emin << ":" << emax << G4endl;
   
       if (magn == 0.0 || (!transport)) {
-	pmanager->AddProcess( new G4Transportation(verbose), -1, 0, 0);
+	pmanager->AddProcess(new G4Transportation(verbose), -1, 0, 0);
       } else {
-	pmanager->AddProcess( new G4MonopoleTransportation(mpl,chordFinderSetter,verbose), -1, 0, 0);
+	pmanager->AddProcess(new MonopoleTransportation(mpl,chordFinderSetter,verbose),
+                                                        -1, 0, 0);
       }
 
       if (mpl->GetPDGCharge() != 0.0) {
