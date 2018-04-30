@@ -68,10 +68,15 @@ class PFCandidateRecalibrator : public edm::stream::EDProducer<> {
 
         std::vector<HEChannel> badChHE_;
         std::vector<HFChannel> badChHF_;
+
+        float shortFibreThr_;
+        float longFibreThr_;
 };
 
 PFCandidateRecalibrator::PFCandidateRecalibrator(const edm::ParameterSet &iConfig) :
-  pfcandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfcandidates")))
+  pfcandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfcandidates"))),
+  shortFibreThr_(iConfig.getParameter<double>("shortFibreThr")),
+  longFibreThr_(iConfig.getParameter<double>("longFibreThr"))
 {
     produces<reco::PFCandidateCollection>();
     produces<reco::PFCandidateCollection>("discarded");
@@ -114,7 +119,7 @@ void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSet
 	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
 	    float ratio = currentRespCorr/buggedRespCorr;
 	    
-	    if(ratio != 1.f)
+	    if( std::abs(ratio - 1.f) > 0.001 )
 	      {
 		GlobalPoint pos = hgeom->getPosition(id);
 		badChHE_.push_back(HEChannel(pos.eta(),pos.phi(),ratio));
@@ -129,7 +134,7 @@ void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSet
 	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
 	    float ratio = currentRespCorr/buggedRespCorr;
 	    
-	    if(ratio != 1.f)
+	    if( std::abs(ratio - 1.f) > 0.001 )
 	      {
 		HcalDetId dummyId(id);
 		badChHF_.push_back(HFChannel(dummyId.ieta(), dummyId.iphi(), dummyId.depth(), ratio));
@@ -172,6 +177,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 
 	//deal with HE
 	if( pf.particleId() == reco::PFCandidate::ParticleType::h0 && 
+	    badChHE_.size() > 0 &&  //don't touch if no miscalibration is found
 	    absEta > 1.4  && absEta < 3.)
 	  {
 	    bool toKill = false;
@@ -195,7 +201,9 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 	      }
 	  }
 	//deal with HF
-	else if(absEta >= 3.)
+	else if( (pf.particleId() == reco::PFCandidate::ParticleType::h_HF || pf.particleId() == reco::PFCandidate::ParticleType::egamma_HF) &&
+		 badChHF_.size() > 0 &&  //don't touch if no miscalibration is found
+		 absEta >= 3.)
 	  {
 	    const math::XYZPointF& ecalPoint = pf.positionAtECALEntrance();
 	    GlobalPoint ecalGPoint(ecalPoint.X(),ecalPoint.Y(),ecalPoint.Z());
@@ -238,8 +246,8 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 			    totEnergy = ecalEnergy + hcalEnergy;
 			  }
 			//kill candidate if goes below thr
-			if((pf.particleId() == reco::PFCandidate::ParticleType::h_HF && shortE < 1.4) || 
-			   (pf.particleId() == reco::PFCandidate::ParticleType::egamma_HF && longE < 1.4))
+			if((pf.particleId() == reco::PFCandidate::ParticleType::h_HF && shortE < shortFibreThr_) ||
+			   (pf.particleId() == reco::PFCandidate::ParticleType::egamma_HF && longE < longFibreThr_))
 			  toKill = true;
 
 			LogDebug("PFCandidateRecalibrator") << "====> ieta,iphi,depth: " 
@@ -266,7 +274,9 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 		    
 		    copy->back().setHcalEnergy(hcalEnergy, hcalEnergy);
 		    copy->back().setEcalEnergy(ecalEnergy, ecalEnergy);
-		    math::XYZTLorentzVector recalibP4(pf.px()*(totEnergy/totEnergyOrig), pf.py()*(totEnergy/totEnergyOrig), pf.pz()*(totEnergy/totEnergyOrig), totEnergy);
+
+		    float scalingFactor = totEnergy/totEnergyOrig;
+		    math::XYZTLorentzVector recalibP4 = pf.p4() * scalingFactor;
 		    copy->back().setP4( recalibP4 );
 
 		    LogDebug("PFCandidateRecalibrator") << "====> stored en (tot,H,E): " 
@@ -297,11 +307,11 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
     std::vector<reco::PFCandidateRef> refs; refs.reserve(nPfCand);
 
     // old to new
-    for (i = 0; i < nPfCand; ++i) {
-      if (oldToNew[i] > 0) {
-	refs.push_back(reco::PFCandidateRef(newpf, oldToNew[i]-1));
+    for (auto iOldToNew : oldToNew){
+      if (iOldToNew > 0) {
+	refs.push_back(reco::PFCandidateRef(newpf, iOldToNew-1));
       } else {
-	refs.push_back(reco::PFCandidateRef(badpf,-oldToNew[i]-1));
+	refs.push_back(reco::PFCandidateRef(badpf,-iOldToNew-1));
       }
     }
     filler.insert(pfcandidates, refs.begin(), refs.end());
