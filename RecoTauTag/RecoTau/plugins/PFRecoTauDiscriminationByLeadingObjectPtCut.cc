@@ -51,32 +51,3 @@ double PFRecoTauDiscriminationByLeadingObjectPtCut::discriminate(const PFTauRef&
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByLeadingObjectPtCut);
-
-/*
-void PFRecoTauDiscriminationByLeadingPionPtCut::produce(edm::Event& iEvent,const edm::EventSetup& iEventSetup){
-   edm::Handle<PFTauCollection> thePFTauCollection;
-   iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
-
-
-   auto thePFTauDiscriminatorByLeadingPionPtCut = std::make_unique<PFTauDiscriminator(PFTauRefProd>(thePFTauCollection));
-
-   //loop over the PFTau candidates
-   for(size_t iPFTau=0;iPFTau<thePFTauCollection->size();++iPFTau) {
-      PFTauRef thePFTauRef(thePFTauCollection,iPFTau);
-      PFTau thePFTau=*thePFTauRef;
-      double theleadTrackPtCutDiscriminator = 0.;   
-      // fill the AssociationVector object
-      if (!thePFTau.leadCand() || !thePFTau.leadChargedHadrCand()) 
-      {
-         theleadTrackPtCutDiscriminator=0.;
-      }
-      else if(thePFTau.leadCand()->pt() > minPtLeadTrack_) theleadTrackPtCutDiscriminator=1.;
-
-      thePFTauDiscriminatorByLeadingPionPtCut->setValue(iPFTau,theleadTrackPtCutDiscriminator);
-   }
-
-   iEvent.put(std::move(thePFTauDiscriminatorByLeadingPionPtCut));
-
-}
-   
-*/
