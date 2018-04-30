@@ -199,22 +199,17 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
     chargedHadron->chargedPFCandidate_ = (*cand);
     chargedHadron->addDaughter(*cand);
     
-
-    // reco::PFCandidate::ParticleType chargedPFCandidateType = chargedHadron->chargedPFCandidate_->particleId();
     int pdgId = std::abs(chargedHadron->chargedPFCandidate_->pdgId());
 
     if ( chargedHadron->pt() > minMergeChargedHadronPt_ ) {
-      std::vector<reco::CandidatePtr> jetConstituents = jet.daughterPtrVector();
-      for ( std::vector<reco::CandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
-	    jetConstituent != jetConstituents.end(); ++jetConstituent ) {
+      for (const auto& jetConstituent : jet.daughterPtrVector()) {
 	// CV: take care of not double-counting energy in case "charged" PFCandidate is in fact a PFNeutralHadron
-	if ( (*jetConstituent) == chargedHadron->chargedPFCandidate_ ) continue;
+	if ( jetConstituent == chargedHadron->chargedPFCandidate_ ) continue;
 	
-	// reco::PFCandidate::ParticleType jetConstituentType = (*jetConstituent)->particleId();
-        int jetConstituentPdgId = std::abs((*jetConstituent)->pdgId());
+	int jetConstituentPdgId = std::abs(jetConstituent->pdgId());
 	if ( !(jetConstituentPdgId == 130 || jetConstituentPdgId == 22) ) continue;
 
-	double dR = deltaR(atECALEntrance(&**jetConstituent, bField_), atECALEntrance(&*chargedHadron, bField_));
+	double dR = deltaR(atECALEntrance(jetConstituent.get(), bField_), atECALEntrance(&*chargedHadron, bField_));
 	double dRmerge = -1.;      
 	int minBlockElementMatches = 1000;
 	int maxUnmatchedBlockElements = 0;
@@ -237,19 +232,18 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
 	  minMergeEt = minMergeGammaEt_;
 	}
 
-	if ((*jetConstituent)->et() > minMergeEt) {
+	if (jetConstituent->et() > minMergeEt) {
 	  if (dR < dRmerge) {
-	    chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
-	    chargedHadron->addDaughter(*jetConstituent);
+	    chargedHadron->neutralPFCandidates_.push_back(jetConstituent);
+	    chargedHadron->addDaughter(jetConstituent);
 	  }
 	  else {
 	    // TauReco@MiniAOD: No access to PF blocks at MiniAOD level, but the code below seems to have very minor impact
-	    const reco::PFCandidate* pfCHCand = dynamic_cast<const reco::PFCandidate*>(&*chargedHadron->chargedPFCandidate_);
-	    const reco::PFCandidate* pfJetConstituent = dynamic_cast<const reco::PFCandidate*>(&**jetConstituent);
-	    if (pfCHCand != nullptr && pfJetConstituent != nullptr) {
-	      if (isMatchedByBlockElement(*pfJetConstituent, *pfCHCand, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements)) {
-		chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
-		chargedHadron->addDaughter(*jetConstituent);
+	    const reco::PFCandidate* pfJetConstituent = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
+	    if (pfCand != nullptr && pfJetConstituent != nullptr) {
+	      if (isMatchedByBlockElement(*pfJetConstituent, *pfCand, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements)) {
+		chargedHadron->neutralPFCandidates_.push_back(jetConstituent);
+		chargedHadron->addDaughter(jetConstituent);
 	      }
 	    }
 	  }
