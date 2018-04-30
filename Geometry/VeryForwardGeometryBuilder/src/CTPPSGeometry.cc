@@ -34,7 +34,7 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
       || d->name().name() == DDD_CTPPS_DIAMONDS_SEGMENT_NAME
       || d->name().name() == DDD_CTPPS_UFSD_SEGMENT_NAME
       || d->name().name() == DDD_CTPPS_PIXELS_SENSOR_NAME )
-  	  addSensor( d->geographicalID(), d );
+      addSensor( d->geographicalID(), d );
 
     // check if it is a RP
     if ( d->name().name() == DDD_TOTEM_RP_RP_NAME
