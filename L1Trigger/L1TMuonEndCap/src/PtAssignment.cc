@@ -8,7 +8,7 @@ void PtAssignment::configure(
     int verbose, int endcap, int sector, int bx,
     bool readPtLUTFile, bool fixMode15HighPt,
     bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt,
-    bool bugGMTPhi, bool promoteMode7
+    bool bugGMTPhi, bool promoteMode7, int modeQualVer
 ) {
   if (not(pt_assign_engine != nullptr))
     { edm::LogError("L1T") << "pt_assign_engine == nullptr "; return; }
@@ -26,8 +26,9 @@ void PtAssignment::configure(
       bug9BitDPhi, bugMode7CLCT, bugNegPt
   );
 
-  bugGMTPhi_ = bugGMTPhi;
+  bugGMTPhi_    = bugGMTPhi;
   promoteMode7_ = promoteMode7;
+  modeQualVer_  = modeQualVer;
 }
 
 void PtAssignment::process(
@@ -90,7 +91,7 @@ void PtAssignment::process(
 
     int gmt_quality = 0;
     if (track.Mode() != 1) {
-      gmt_quality = aux().getGMTQuality(track.Mode(), track.Theta_fp(), promoteMode7_);
+      gmt_quality = aux().getGMTQuality(track.Mode(), track.Theta_fp(), promoteMode7_, modeQualVer_);
     }
     else { // Special quality for single-hit tracks from ME1/1
       gmt_quality = track.Hits().front().Pattern() / 4;
