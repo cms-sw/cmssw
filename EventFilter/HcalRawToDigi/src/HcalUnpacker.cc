@@ -939,7 +939,7 @@ void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int de
 
   nPrinted_++;
 
-  int limit = 2;//print up to limit-1 messages
+  constexpr int limit = 2;//print up to limit-1 messages
   if( nPrinted_ >= limit ) {
 
       if( nPrinted_ == limit ) edm::LogInfo("Invalid Data") << "Suppressing further error messages";
