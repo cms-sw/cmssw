@@ -160,6 +160,8 @@ void PrimitiveConversion::convert_csc(
   conv_hit.set_pattern       ( tp_data.pattern );
   conv_hit.set_bend          ( tp_data.bend );
   //conv_hit.set_time          ( tp_data.time );
+  conv_hit.set_alct_quality  ( tp_data.alct_quality );
+  conv_hit.set_clct_quality  ( tp_data.clct_quality );
 
   conv_hit.set_neighbor      ( is_neighbor );
   conv_hit.set_sector_idx    ( (endcap_ == 1) ? sector_ - 1 : sector_ + 5 );
@@ -509,6 +511,8 @@ void PrimitiveConversion::convert_rpc(
   conv_hit.set_pattern       ( 0 );  // In firmware, this marks RPC stub
   //conv_hit.set_bend          ( tp_data.bend );
   conv_hit.set_time          ( tp_data.time );
+  //conv_hit.set_alct_quality  ( tp_data.alct_quality );
+  //conv_hit.set_clct_quality  ( tp_data.clct_quality );
 
   conv_hit.set_neighbor      ( is_neighbor );
   conv_hit.set_sector_idx    ( (endcap_ == 1) ? sector_ - 1 : sector_ + 5 );
@@ -777,6 +781,8 @@ void PrimitiveConversion::convert_gem(
   conv_hit.set_pattern       ( 1 );  // In firmware, this marks GEM stub (unconfirmed!)
   conv_hit.set_bend          ( tp_data.bend );
   //conv_hit.set_time          ( tp_data.time );
+  //conv_hit.set_alct_quality  ( tp_data.alct_quality );
+  //conv_hit.set_clct_quality  ( tp_data.clct_quality );
 
   conv_hit.set_neighbor      ( is_neighbor );
   conv_hit.set_sector_idx    ( (endcap_ == 1) ? sector_ - 1 : sector_ + 5 );

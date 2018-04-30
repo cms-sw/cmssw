@@ -17,6 +17,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
     tokenRPC_(iConsumes.consumes<RPCTag::digi_collection>(iConfig.getParameter<edm::InputTag>("RPCInput"))),
     tokenGEM_(iConsumes.consumes<GEMTag::digi_collection>(iConfig.getParameter<edm::InputTag>("GEMInput"))),
     verbose_(iConfig.getUntrackedParameter<int>("verbosity")),
+    fwConfig_(iConfig.getParameter<bool>("FWConfig")),
     useCSC_(iConfig.getParameter<bool>("CSCEnable")),
     useRPC_(iConfig.getParameter<bool>("RPCEnable")),
     useGEM_(iConfig.getParameter<bool>("GEMEnable")),
@@ -59,6 +60,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugSt2PhDiff       = spTBParams16.getParameter<bool>("BugSt2PhDiff");
   auto bugME11Dupes       = spTBParams16.getParameter<bool>("BugME11Dupes");
   auto bugAmbigThetaWin   = spTBParams16.getParameter<bool>("BugAmbigThetaWin");
+  auto twoStationSameBX   = spTBParams16.getParameter<bool>("TwoStationSameBX");
 
   const auto& spGCParams16 = config_.getParameter<edm::ParameterSet>("spGCParams16");
   auto maxRoadsPerZone    = spGCParams16.getParameter<int>("MaxRoadsPerZone");
@@ -74,6 +76,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   auto bugNegPt           = spPAParams16.getParameter<bool>("BugNegPt");
   auto bugGMTPhi          = spPAParams16.getParameter<bool>("BugGMTPhi");
   auto promoteMode7       = spPAParams16.getParameter<bool>("PromoteMode7");
+  auto modeQualVer        = spPAParams16.getParameter<int>("ModeQualVer");
 
   // Configure sector processors
   for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
@@ -91,9 +94,9 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
           zoneBoundaries, zoneOverlap,
           includeNeighbor, duplicateTheta, fixZonePhi, useNewZones, fixME11Edges,
           pattDefinitions, symPattDefinitions, useSymPatterns,
-          thetaWindow, thetaWindowZone0, useSingleHits, bugSt2PhDiff, bugME11Dupes, bugAmbigThetaWin,
+          thetaWindow, thetaWindowZone0, useSingleHits, bugSt2PhDiff, bugME11Dupes, bugAmbigThetaWin, twoStationSameBX,
           maxRoadsPerZone, maxTracks, useSecondEarliest, bugSameSectorPt0,
-          readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi, promoteMode7
+          readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi, promoteMode7, modeQualVer
       );
     }
   }
@@ -156,7 +159,7 @@ void TrackFinder::process(
       const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
 
       // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
-      if (iEvent.isRealData()) {
+      if (iEvent.isRealData() && fwConfig_) {
         sector_processors_.at(es).configure_by_fw_version(condition_helper_.get_fw_version());
       }
 

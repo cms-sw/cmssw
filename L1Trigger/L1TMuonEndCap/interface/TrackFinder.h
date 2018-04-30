@@ -44,7 +44,7 @@ private:
 
   int verbose_;
 
-  bool useCSC_, useRPC_, useGEM_;
+  bool fwConfig_, useCSC_, useRPC_, useGEM_;
 
   std::string era_;
 };

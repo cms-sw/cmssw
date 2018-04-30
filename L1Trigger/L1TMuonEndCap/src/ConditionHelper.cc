@@ -74,11 +74,11 @@ unsigned int ConditionHelper::get_pt_lut_version() const {
 unsigned int ConditionHelper::get_pc_lut_version() const {
   // "PhiMatchWindowSt1" arbitrarily re-mapped to Primitive conversion (PC LUT) version
   // because of rigid CondFormats naming conventions - AWB 02.06.17
-  // std::cout << "    - Getting PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
+  // std::cout << "    - Getting proper PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
   // return params_->PhiMatchWindowSt1_;
 
   // Hack until we figure out why the database is returning "0" for 2017 data - AWB 04.08.17
-  // std::cout << "    - Getting PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
+  // std::cout << "    - Getting hacked PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
   if (params_->firmwareVersion_ < 50000)  // for 2016
     return 0;
   return 1;

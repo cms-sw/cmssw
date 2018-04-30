@@ -15,7 +15,7 @@ void AngleCalculation::configure(
     int verbose, int endcap, int sector, int bx,
     int bxWindow,
     int thetaWindow, int thetaWindowZone0,
-    bool bugME11Dupes, bool bugAmbigThetaWin
+    bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX
 ) {
   verbose_ = verbose;
   endcap_  = endcap;
@@ -27,6 +27,7 @@ void AngleCalculation::configure(
   thetaWindowZone0_ = thetaWindowZone0;
   bugME11Dupes_     = bugME11Dupes;
   bugAmbigThetaWin_ = bugAmbigThetaWin;
+  twoStationSameBX_ = twoStationSameBX;
 }
 
 void AngleCalculation::process(
@@ -46,6 +47,7 @@ void AngleCalculation::process(
 
     // Erase tracks with rank = 0
     // Erase hits that are not selected as the best phi and theta in each station
+    // Erase two-station tracks with hits in different BX (2018)
     erase_tracks(tracks);
 
     tracks_it  = tracks.begin();
@@ -524,7 +526,19 @@ void AngleCalculation::erase_tracks(EMTFTrackCollection& tracks) const {
     }
   } rank_zero_pred;
 
+  // Erase two-station tracks with hits in different BX
+  struct {
+    typedef EMTFTrack value_type;
+    bool operator()(const value_type& x) const {
+      return (x.NumHits() == 2 && x.Hits().at(0).BX() != x.Hits().at(1).BX());
+    }
+  } two_station_mistime;
+
   tracks.erase(std::remove_if(tracks.begin(), tracks.end(), rank_zero_pred), tracks.end());
+
+  if (twoStationSameBX_) { // Modified at the beginning of 2018
+    tracks.erase(std::remove_if(tracks.begin(), tracks.end(), two_station_mistime), tracks.end());
+  }
 
   for (const auto& track : tracks) {
     if (not(!track.Hits().empty()))
