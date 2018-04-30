@@ -12,6 +12,7 @@
 //----------------------------------------------------------------------------------------------------
 
 const float TotemTimingRecHitProducerAlgorithm::NO_T_AVAILABLE = -100;
+const float TotemTimingRecHitProducerAlgorithm::SINC_COEFFICIENT = std::acos(-1) * 2 / 7.8;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -19,11 +20,10 @@ TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(
     const edm::ParameterSet &iConfig)
     : sampicConversions_(iConfig.getParameter<std::string>("calibrationFile")),
       baselinePoints_(iConfig.getParameter<int>("baselinePoints")),
-      risingEdgePointsBeforeTh_(iConfig.getParameter<int>("risingEdgePointsBeforeTh")),
-      risingEdgePoints_(iConfig.getParameter<int>("risingEdgePoints")),
       saturationLimit_(iConfig.getParameter<double>("saturationLimit")),
-      thresholdFactor_(iConfig.getParameter<double>("thresholdFactor")),
       cfdFraction_(iConfig.getParameter<double>("cfdFraction")),
+      smoothingPoints_(iConfig.getParameter<int>("smoothingPoints")),
+      lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
       hysteresis_(iConfig.getParameter<double>("hysteresis")) {}
 
 void TotemTimingRecHitProducerAlgorithm::build(
@@ -32,45 +32,44 @@ void TotemTimingRecHitProducerAlgorithm::build(
   for (const auto &vec : input) {
     const TotemTimingDetId detid(vec.detId());
 
-    float x_pos = 0, y_pos = 0, z_pos = 0, x_width = 0, y_width = 0, z_width = 0;
+    float x_pos = 0, y_pos = 0, z_pos = 0, x_width = 0, y_width = 0,
+          z_width = 0;
 
     // retrieve the geometry element associated to this DetID ( if present )
     const DetGeomDesc *det = nullptr;
     try { // no other efficient way to check presence
-      det = geom->getSensor( detid );
-    } catch ( const cms::Exception& ) {
+      det = geom->getSensor(detid);
+    } catch (const cms::Exception &) {
       det = nullptr;
     }
 
-    if ( det ) {
+    if (det) {
       x_pos = det->translation().x(), y_pos = det->translation().y();
-      if ( det->parents().empty() )
+      if (det->parents().empty())
         edm::LogWarning("TotemTimingRecHitProducerAlgorithm")
             << "The geometry element for " << detid
             << " has no parents. Check the geometry hierarchy!";
       else
-        z_pos = det->parents()[det->parents().size()-1]
+        z_pos = det->parents()[det->parents().size() - 1]
                     .absTranslation()
                     .z(); // retrieve the plane position;
 
       x_width = 2.0 * det->params().at(0), // parameters stand for half the size
-      y_width = 2.0 * det->params().at(1),
+          y_width = 2.0 * det->params().at(1),
       z_width = 2.0 * det->params().at(2);
-    }
-    else
+    } else
       edm::LogWarning("TotemTimingRecHitProducerAlgorithm")
-        << "Failed to retrieve a sensor for " << detid;
+          << "Failed to retrieve a sensor for " << detid;
 
     edm::DetSet<TotemTimingRecHit> &rec_hits = output.find_or_insert(detid);
 
     for (const auto &digi : vec) {
-      const float triggerCellTimeInstant(sampicConversions_.getTriggerTime(digi));
+      const float triggerCellTimeInstant(
+          sampicConversions_.getTriggerTime(digi));
       const std::vector<float> time(sampicConversions_.getTimeSamples(digi));
       std::vector<float> data(sampicConversions_.getVoltSamples(digi));
 
       auto max_it = std::max_element(data.begin(), data.end());
-
-      float t = NO_T_AVAILABLE;
 
       RegressionResults baselineRegression =
           simplifiedLinearRegression(time, data, 0, baselinePoints_);
@@ -78,44 +77,21 @@ void TotemTimingRecHitProducerAlgorithm::build(
       // remove baseline
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i)
-        dataCorrected.at(i) = data.at(i) - (baselineRegression.q + baselineRegression.m * time.at(i)) ;
+        dataCorrected.at(i) = data.at(i) -
+                   (baselineRegression.q + baselineRegression.m * time.at(i));
       auto max_corrected_it =
           std::max_element(dataCorrected.begin(), dataCorrected.end());
 
-
-      //Smoothing
-      std::vector<float> dataSmoothed(dataCorrected.size(),.0);
-      const float pi = std::acos(-1);
-      for (int i=0; i<(int)data.size(); ++i) {
-        for (int j=-10; j<=+10; ++j) {
-          if ((i+j)>=0 && (i+j)<(int)data.size()) {
-            float x=1;
-            if (j!=0) x=2*pi*0.9*j/7.8;
-            dataSmoothed.at(i) += data.at(i+j) * std::sin(x)/x;
-          }
-        }
-      }
-      auto max_smoothed_it =
-          std::max_element(dataSmoothed.begin(), dataSmoothed.end());
-      float factor=*max_corrected_it / *max_smoothed_it;
-      std::for_each(dataSmoothed.begin(), dataSmoothed.end(), [&](float value) { value *= factor; });
-      //end smoothing
-      dataSmoothed = dataCorrected;
-
+      float t = NO_T_AVAILABLE;
       if (*max_it < saturationLimit_)
         t = constantFractionDiscriminator(time, dataCorrected);
-
-      float t_smart = smartTimeOfArrival(time, dataCorrected,
-                             thresholdFactor_ * *max_corrected_it);
 
       mode_ = TotemTimingRecHit::CFD;
 
       rec_hits.push_back(TotemTimingRecHit(
           x_pos, x_width, y_pos, y_width, z_pos, z_width, // spatial information
-          t, triggerCellTimeInstant, t_smart, *max_corrected_it,
+          t, triggerCellTimeInstant, .0, *max_corrected_it,
           baselineRegression.rms, mode_));
-
-      std::cout<<"rechit: triggert: "<<triggerCellTimeInstant<<"\tfirstcell: "<<time.at(0)<< "\tt CFD: "<< t<<"\tt smart: "<<t_smart<<"\tmax corrected: "<<*max_it<<"\n";
     }
   }
 }
@@ -196,47 +172,37 @@ int TotemTimingRecHitProducerAlgorithm::fastDiscriminator(
   return threholdCrossingIndex;
 }
 
-float TotemTimingRecHitProducerAlgorithm::smartTimeOfArrival(
-    const std::vector<float> &time, const std::vector<float> &data,
-    const float threshold) {
-  int indexOfThresholdCrossing = fastDiscriminator(data, threshold);
-
-  float t = NO_T_AVAILABLE;
-  if (indexOfThresholdCrossing - risingEdgePointsBeforeTh_ > 0) {
-    RegressionResults risingEdgeRegression = simplifiedLinearRegression(
-        time, data, indexOfThresholdCrossing - risingEdgePointsBeforeTh_,
-        risingEdgePoints_);
-    // Find intersection with zero (baseline subtracted before)
-    if (risingEdgeRegression.m > 0.1 && risingEdgeRegression.m < 5)
-      t = (.0 - risingEdgeRegression.q / risingEdgeRegression.m);
-  }
-
-  return t;
-}
-
 float TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(
     const std::vector<float> &time, const std::vector<float> &data) {
-  auto max_it = std::max_element(data.begin(), data.end());
+  std::vector<float> dataProcessed(data);
+  if (lowPassFrequency_ != 0) {
+    // Smoothing
+    for (int i = 0; i < (int)data.size(); ++i) {
+      for (int j = -smoothingPoints_ / 2;
+           j <= +smoothingPoints_; ++j) {
+        if ((i + j) >= 0 && (i + j) < (int)data.size() && j != 0) {
+          float x = SINC_COEFFICIENT * lowPassFrequency_ * j;
+          dataProcessed.at(i) += data.at(i + j) * std::sin(x) / x;
+        }
+      }
+    }
+  }
+  auto max_it = std::max_element(dataProcessed.begin(), dataProcessed.end());
   float max = *max_it;
 
   float threshold = cfdFraction_ * max;
-  int indexOfThresholdCrossing = fastDiscriminator(data, threshold);
+  int indexOfThresholdCrossing = fastDiscriminator(dataProcessed, threshold);
 
   float t = NO_T_AVAILABLE;
-  if (indexOfThresholdCrossing>=baselinePoints_) {
-    RegressionResults risingEdgeRegression = simplifiedLinearRegression(
-        time, data, indexOfThresholdCrossing - risingEdgePoints_/2,
-        risingEdgePoints_);
-      // Find intersection with threshold
-      t = (threshold - risingEdgeRegression.q / risingEdgeRegression.m);
-      std::cout<<"rechit: index: "<<indexOfThresholdCrossing<<"\ttime"<<t<<"\n";
+  if (indexOfThresholdCrossing >= baselinePoints_ &&
+      indexOfThresholdCrossing < (int)time.size()) {
+    t = (time.at(indexOfThresholdCrossing - 1) -
+         time.at(indexOfThresholdCrossing)) /
+            (dataProcessed.at(indexOfThresholdCrossing - 1) -
+             dataProcessed.at(indexOfThresholdCrossing)) *
+            (threshold - dataProcessed.at(indexOfThresholdCrossing)) +
+        time.at(indexOfThresholdCrossing);
   }
-  // if (indexOfThresholdCrossing>=baselinePoints_ && indexOfThresholdCrossing<(int)time.size())
-  // {
-  //   t = (time.at(indexOfThresholdCrossing-1) - time.at(indexOfThresholdCrossing)) /
-  //       (data.at(indexOfThresholdCrossing-1) - data.at(indexOfThresholdCrossing)) *
-  //       (threshold - data.at(indexOfThresholdCrossing)) + time.at(indexOfThresholdCrossing);
-  // }
 
   return t;
 }

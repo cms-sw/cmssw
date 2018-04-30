@@ -70,7 +70,7 @@ TotemTimingRecHitProducer::produce( edm::Event& iEvent, const edm::EventSetup& i
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry );
 
   // produce the rechits collection
-  algo_.build( geometry.product(), *digis, *pOut );
+  algo_.build( geometry.product(), *( digis ), *( pOut ) );
 
   iEvent.put( std::move( pOut ) );
 }
@@ -86,16 +86,14 @@ TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& des
     ->setComment( "file with SAMPIC calibrations, ADC and INL; if /dev/null or corrupted, no calibration will be applied" );
   desc.add<int>( "baselinePoints", 8 )
     ->setComment( "number of points to be used for the baseline" );
-  desc.add<int>( "risingEdgePointsBeforeTh", 2 )
-    ->setComment( "number of points to be used for the rising edge, before the threshold" );
-  desc.add<int>( "risingEdgePoints", 4 )
-    ->setComment( "number of points to be used for the rising edge" );
   desc.add<double>( "saturationLimit", 0.85 )
     ->setComment( "all signals with max > saturationLimit will be considered as saturated" );
-  desc.add<double>( "thresholdFactor", 6. )
-    ->setComment( "the threshold will be thresholdFactor*RMS of noise" );
   desc.add<double>( "cfdFraction", 0.5 )
     ->setComment( "fraction of the CFD" );
+  desc.add<int>( "smoothingPoints", 20 )
+    ->setComment( "number of points to be used for the smoothing using sinc (lowpass)" );
+  desc.add<double>( "lowPassFrequency", 0 )
+    ->setComment( "Frequency (in GHz) for CFD smoothing, 0 for disabling the filter" );
   desc.add<double>( "hysteresis", 5e-3 )
     ->setComment( "hysteresis of the discriminator" );
 
@@ -104,4 +102,3 @@ TotemTimingRecHitProducer::fillDescriptions( edm::ConfigurationDescriptions& des
 }
 
 DEFINE_FWK_MODULE( TotemTimingRecHitProducer );
-
