@@ -11,7 +11,6 @@
 
 //----------------------------------------------------------------------------------------------------
 
-const float TotemTimingRecHitProducerAlgorithm::NO_T_AVAILABLE = -100;
 const float TotemTimingRecHitProducerAlgorithm::SINC_COEFFICIENT = std::acos(-1) * 2 / 7.8;
 
 //----------------------------------------------------------------------------------------------------
@@ -82,7 +81,7 @@ void TotemTimingRecHitProducerAlgorithm::build(
       auto max_corrected_it =
           std::max_element(dataCorrected.begin(), dataCorrected.end());
 
-      float t = NO_T_AVAILABLE;
+      float t = TotemTimingRecHit::NO_T_AVAILABLE;
       if (*max_it < saturationLimit_)
         t = constantFractionDiscriminator(time, dataCorrected);
 
@@ -193,7 +192,7 @@ float TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(
   float threshold = cfdFraction_ * max;
   int indexOfThresholdCrossing = fastDiscriminator(dataProcessed, threshold);
 
-  float t = NO_T_AVAILABLE;
+  float t = TotemTimingRecHit::NO_T_AVAILABLE;
   if (indexOfThresholdCrossing >= baselinePoints_ &&
       indexOfThresholdCrossing < (int)time.size()) {
     t = (time.at(indexOfThresholdCrossing - 1) -
