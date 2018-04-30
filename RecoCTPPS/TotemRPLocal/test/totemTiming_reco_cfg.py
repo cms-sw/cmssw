@@ -32,32 +32,21 @@ process.maxEvents = cms.untracked.PSet(
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # rechits production
-process.load('RecoCTPPS.TotemRPLocal.totemTimingRecHits_cfi')
-
-# rechits production
 process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
-process.load('RecoCTPPS.TotemRPLocal.totemTimingRecHits_cfi')
-process.totemTimingRecHits.baselinePoints = cms.int32(6);
-process.totemTimingRecHits.risingEdgePointsBeforeTh = cms.int32(1);
-process.totemTimingRecHits.risingEdgePoints = cms.int32(4);
-process.totemTimingRecHits.saturationLimit = cms.double(0.85);
-process.totemTimingRecHits.thresholdFactor = cms.double(3);
-process.totemTimingRecHits.cfdFraction = cms.double(0.5);
-process.totemTimingRecHits.hysteresis = cms.double(5e-3);
-
+process.load('RecoCTPPS.TotemRPLocal.totemTimingLocalReconstruction_cff')
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string("file:AOD.root"),
     outputCommands = cms.untracked.vstring(
         'drop *',
-        'keep *_totem*_*_*',
+        'keep *_totemTiming*_*_*',
     ),
 )
 
 # execution configuration
 process.p = cms.Path(
     process.ctppsRawToDigi*
-    process.totemTimingRecHits
+    process.totemTimingLocalReconstruction
 )
 
 process.outpath = cms.EndPath(process.output)
