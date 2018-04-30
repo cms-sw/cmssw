@@ -10,7 +10,7 @@
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
-     |        *|| ch  4: 3.5 x 3.1 mm2 |*|    ch  0: 5.5 x 3.1 mm2       ||*
+     |        *|| ch  7: 3.5 x 3.1 mm2 |*|    ch  8: 5.5 x 3.1 mm2       ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
@@ -22,7 +22,7 @@
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
-     |        *|| ch  5: 3.5 x 3.1 mm2 |*|    ch  1: 5.5 x 3.1 mm2       ||*
+     |        *|| ch  6: 3.5 x 3.1 mm2 |*|    ch  9: 5.5 x 3.1 mm2       ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
@@ -31,30 +31,30 @@
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
-     |        *|| ch  6: 3.5 x 1.7 mm2 |*|                               ||*
+     |        *|| ch  5: 3.5 x 1.7 mm2 |*|                               ||*
      |        *||                      |*|                               ||*
      |        *||______________________|*|                               ||*
-     |        *||                      |*|    ch  2: 5.5 x 3.1 mm2       ||*
+     |        *||                      |*|    ch  10: 5.5 x 3.1 mm2      ||*
      |        *||                      |*|                               ||*
      |        *||                      |*|                               ||*
-     |        *|| ch  7: 3.5 x 1.4 mm2 |*|                               ||*
+     |        *|| ch  4: 3.5 x 1.4 mm2 |*|                               ||*
      |        *||                      |*|                               ||*
      |        *||______________________|*|_______________________________||*
      |        *||                      |*|                               ||*
-     |        *|| ch  8: 3.5 x 0.9 mm2 |*|                               ||*
+     |        *|| ch  3: 3.5 x 0.9 mm2 |*|                               ||*
      |        *||______________________|*|                               ||*
      |        *||                      |*|                               ||*
-     |        *|| ch  9: 3.5 x 0.9 mm2 |*|                               ||*
+     |        *|| ch  2: 3.5 x 0.9 mm2 |*|                               ||*
      |        *||______________________|*|                               ||*
-     |        *||                      |*|    ch  3: 5.5 x 3.1 mm2       ||*
-     |        *|| ch 10: 3.5 x 0.7 mm2 |*|                               ||*
+     |        *||                      |*|    ch  11: 5.5 x 3.1 mm2      ||*
+     |        *|| ch  1: 3.5 x 0.7 mm2 |*|                               ||*
      |        *||______________________|*|                               ||*
      |        *||                      |*|                               ||*
-     |        *|| ch 11: 3.5 x 0.6 mm2 |*|                               ||*
+     |        *|| ch  0: 3.5 x 0.6 mm2 |*|                               ||*
      |        *||______________________|*|_______________________________||*
      |
      |____________________________________________________________________________\ x
-      
+
   -->
 
   <ConstantsSection label="TotemTiming_Parameters.xml" eval="true">
@@ -66,62 +66,62 @@
     <Constant name="UFSD_x" value="2*mm"/>
     <Constant name="UFSD_y" value="0*mm"/>
     <Constant name="UFSD_z" value="0*mm"/>
-    
-    
+
+
     <!-- pad dimensions -->
-    <Constant name="ch0_dx" value="5.5*mm/2"/>
-    <Constant name="ch0_dy" value="3.1*mm/2"/>
-    <Constant name="ch1_dx" value="5.5*mm/2"/>
-    <Constant name="ch1_dy" value="3.1*mm/2"/>
-    <Constant name="ch2_dx" value="5.5*mm/2"/>
-    <Constant name="ch2_dy" value="3.1*mm/2"/>
-    <Constant name="ch3_dx" value="5.5*mm/2"/>
-    <Constant name="ch3_dy" value="3.1*mm/2"/>
+    <Constant name="ch0_dx" value="3.5*mm/2"/>
+    <Constant name="ch0_dy" value="0.6*mm/2"/>
+    <Constant name="ch1_dx" value="3.5*mm/2"/>
+    <Constant name="ch1_dy" value="0.7*mm/2"/>
+    <Constant name="ch2_dx" value="3.5*mm/2"/>
+    <Constant name="ch2_dy" value="0.9*mm/2"/>
+    <Constant name="ch3_dx" value="3.5*mm/2"/>
+    <Constant name="ch3_dy" value="0.9*mm/2"/>
     <Constant name="ch4_dx" value="3.5*mm/2"/>
-    <Constant name="ch4_dy" value="3.1*mm/2"/>
+    <Constant name="ch4_dy" value="1.4*mm/2"/>
     <Constant name="ch5_dx" value="3.5*mm/2"/>
-    <Constant name="ch5_dy" value="3.1*mm/2"/>
+    <Constant name="ch5_dy" value="1.7*mm/2"/>
     <Constant name="ch6_dx" value="3.5*mm/2"/>
-    <Constant name="ch6_dy" value="1.7*mm/2"/>
+    <Constant name="ch6_dy" value="3.1*mm/2"/>
     <Constant name="ch7_dx" value="3.5*mm/2"/>
-    <Constant name="ch7_dy" value="1.4*mm/2"/>
-    <Constant name="ch8_dx" value="3.5*mm/2"/>
-    <Constant name="ch8_dy" value="0.9*mm/2"/>
-    <Constant name="ch9_dx" value="3.5*mm/2"/>
-    <Constant name="ch9_dy" value="0.9*mm/2"/>
-    <Constant name="ch10_dx" value="3.5*mm/2"/>
-    <Constant name="ch10_dy" value="0.7*mm/2"/>
-    <Constant name="ch11_dx" value="3.5*mm/2"/>
-    <Constant name="ch11_dy" value="0.6*mm/2"/>
+    <Constant name="ch7_dy" value="3.1*mm/2"/>
+    <Constant name="ch8_dx" value="5.5*mm/2"/>
+    <Constant name="ch8_dy" value="3.1*mm/2"/>
+    <Constant name="ch9_dx" value="5.5*mm/2"/>
+    <Constant name="ch9_dy" value="3.1*mm/2"/>
+    <Constant name="ch10_dx" value="5.5*mm/2"/>
+    <Constant name="ch10_dy" value="3.1*mm/2"/>
+    <Constant name="ch11_dx" value="5.5*mm/2"/>
+    <Constant name="ch11_dy" value="3.1*mm/2"/>
 
     <!-- pad positions -->
-    <Constant name="ch0_x" value="[ch3_x]"/>
-    <Constant name="ch1_x" value="[ch3_x]"/>
-    <Constant name="ch2_x" value="[ch3_x]"/>
-    <Constant name="ch3_x" value="[UFSD_x] + [ch3_dx]"/>
-    <Constant name="ch4_x" value="[ch11_x]"/>
-    <Constant name="ch5_x" value="[ch11_x]"/>
-    <Constant name="ch6_x" value="[ch11_x]"/>
-    <Constant name="ch7_x" value="[ch11_x]"/>
+    <Constant name="ch0_x" value="[UFSD_x] - [ch0_dx]"/>
+    <Constant name="ch1_x" value="[ch0_x]"/>
+    <Constant name="ch2_x" value="[ch0_x]"/>
+    <Constant name="ch3_x" value="[ch0_x]"/>
+    <Constant name="ch4_x" value="[ch0_x]"/>
+    <Constant name="ch5_x" value="[ch0_x]"/>
+    <Constant name="ch6_x" value="[ch0_x]"/>
+    <Constant name="ch7_x" value="[ch0_x]"/>
     <Constant name="ch8_x" value="[ch11_x]"/>
     <Constant name="ch9_x" value="[ch11_x]"/>
     <Constant name="ch10_x" value="[ch11_x]"/>
-    <Constant name="ch11_x" value="[UFSD_x] - [ch11_dx]"/>
-        
-    <Constant name="ch0_y" value="[ch1_y] + [ch1_dy] + [ch0_dy]"/>
-    <Constant name="ch1_y" value="[ch2_y] + [ch2_dy] + [ch1_dy]"/>
-    <Constant name="ch2_y" value="[ch3_y] + [ch3_dy] + [ch2_dy]"/>
-    <Constant name="ch3_y" value="[UFSD_y] + [ch3_dy]"/>
-   
-    <Constant name="ch4_y" value="[ch5_y] + [ch5_dy] + [ch4_dy]"/>
-    <Constant name="ch5_y" value="[ch6_y] + [ch6_dy] + [ch5_dy]"/>
-    <Constant name="ch6_y" value="[ch7_y] + [ch7_dy] + [ch6_dy]"/>
-    <Constant name="ch7_y" value="[ch8_y] + [ch8_dy] + [ch7_dy]"/>
+    <Constant name="ch11_x" value="[UFSD_x] + [ch11_dx]"/>
+
     <Constant name="ch8_y" value="[ch9_y] + [ch9_dy] + [ch8_dy]"/>
     <Constant name="ch9_y" value="[ch10_y] + [ch10_dy] + [ch9_dy]"/>
     <Constant name="ch10_y" value="[ch11_y] + [ch11_dy] + [ch10_dy]"/>
     <Constant name="ch11_y" value="[UFSD_y] + [ch11_dy]"/>
-      
+
+    <Constant name="ch7_y" value="[ch6_y] + [ch6_dy] + [ch7_dy]"/>
+    <Constant name="ch6_y" value="[ch5_y] + [ch5_dy] + [ch6_dy]"/>
+    <Constant name="ch5_y" value="[ch4_y] + [ch4_dy] + [ch5_dy]"/>
+    <Constant name="ch4_y" value="[ch3_y] + [ch3_dy] + [ch4_dy]"/>
+    <Constant name="ch3_y" value="[ch2_y] + [ch2_dy] + [ch3_dy]"/>
+    <Constant name="ch2_y" value="[ch1_y] + [ch1_dy] + [ch2_dy]"/>
+    <Constant name="ch1_y" value="[ch0_y] + [ch0_dy] + [ch1_dy]"/>
+    <Constant name="ch0_y" value="[UFSD_y] + [ch0_dy]"/>
+
     <!-- Metalized Layers -->
     <Constant name="Aluminium_thick" value="1.5e-6*m"/>
     <Constant name="Metalized_thick" value="[Aluminium_thick]"/>
@@ -147,7 +147,7 @@
     <Constant name="Main_Box_dz" value="[Plane_dz]"/>
 
   </ConstantsSection>
-  
+
   <SolidSection label="TotemTiming_Parameters.xml">
     <Box name="UFSD_ch0" dx="[TotemTiming_Parameters:ch0_dx]" dy="[TotemTiming_Parameters:ch0_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
     <Box name="UFSD_ch1" dx="[TotemTiming_Parameters:ch1_dx]" dy="[TotemTiming_Parameters:ch1_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
