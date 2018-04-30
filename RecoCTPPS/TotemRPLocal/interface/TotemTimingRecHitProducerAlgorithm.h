@@ -41,14 +41,14 @@ public:
 
 private:
   static const float NO_T_AVAILABLE;
+  static const float SINC_COEFFICIENT;
 
   TotemTimingConversions sampicConversions_;
   int baselinePoints_;
-  int risingEdgePointsBeforeTh_;
-  int risingEdgePoints_;
   double saturationLimit_;
-  double thresholdFactor_;
   double cfdFraction_;
+  int smoothingPoints_;
+  double lowPassFrequency_;
   double hysteresis_;
   TotemTimingRecHit::TimingAlgorithm mode_;
 
@@ -60,10 +60,6 @@ private:
   int fastDiscriminator(const std::vector<float> &data,
                         const float &threshold) const;
 
-  float smartTimeOfArrival(const std::vector<float> &time,
-                           const std::vector<float> &data,
-                           const float threshold);
-                           
   float constantFractionDiscriminator(const std::vector<float> &time,
                                       const std::vector<float> &data);
 };
