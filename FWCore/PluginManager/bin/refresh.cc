@@ -37,6 +37,8 @@ using namespace edmplugin;
 // memory usage low as well.
 #ifdef __APPLE__
 #define PER_PROCESS_DSO 20
+#elif defined(__aarch64__)
+#define PER_PROCESS_DSO 20
 #else
 #define PER_PROCESS_DSO 2000
 #endif
