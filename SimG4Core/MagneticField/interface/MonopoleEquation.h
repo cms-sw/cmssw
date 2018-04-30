@@ -8,6 +8,7 @@
 //                       Geant4 extended example "monopole"
 //
 // Adopted for CMSSW by V.Ivanchenko 30 April 2018
+// from Geant4 global tag geant4-10-04-ref-03                   
 //
 // =======================================================================
 //
