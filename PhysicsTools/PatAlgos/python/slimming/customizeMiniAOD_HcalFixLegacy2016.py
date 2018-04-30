@@ -15,10 +15,9 @@ def loadJetMETBTag(process):
     task.add(process.ak4PFJets)
     process.ak8PFJetsCHS = RecoJets.Configuration.RecoPFJets_cff.ak8PFJetsCHS.clone()
     task.add(process.ak8PFJetsCHS)
-    process.load("RecoMET.METProducers.PFMET_cfi")
-    task.add(process.pfMet)
     process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
     task.add(process.ak4JetTracksAssociatorAtVertexPF)
+
     process.load("RecoBTag.ImpactParameter.impactParameter_cff")
     task.add(process.impactParameterTask)
     process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
@@ -33,6 +32,9 @@ def loadJetMETBTag(process):
     task.add(process.inclusiveVertexingTask)
     task.add(process.inclusiveCandidateVertexingTask)
     task.add(process.inclusiveCandidateVertexingCvsLTask)
+
+    process.load("RecoMET.METProducers.PFMET_cfi")
+    task.add(process.pfMet)
 
 
 def cleanPfCandidates(process, verbose=False):
@@ -60,7 +62,7 @@ def cleanPfCandidates(process, verbose=False):
     process.GlobalTag.toGet.append(cms.PSet(
         record = cms.string("HcalRespCorrsRcd"),
         label = cms.untracked.string("bugged"),
-        tag = cms.string("HcalRespCorrs_v6.3_offline") #to be replaced with proper bugged tag
+        tag = cms.string("HcalRespCorrs_v6.3_offline")
         )
     )
 
@@ -72,7 +74,7 @@ def cleanPfCandidates(process, verbose=False):
     #                               timetype = cms.string('runnumber'),
     #                               toGet = cms.VPSet(
     #                                            cms.PSet(record = cms.string("HcalRespCorrsRcd"),
-    #                                            tag = cms.string("HcalRespCorrs_2016legacy_fixBadCalib")  #based on HcalRespCorrs_v6.3_offline
+    #                                            tag = cms.string("HcalRespCorrs_2016legacy_fixBadCalib")
     #                                                     )
     #                                            ),
     #                               connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
