@@ -376,8 +376,10 @@ HcalTriggerPrimitiveAlgo::analyze2017(IntegerCaloSamples& samples, HcalTriggerPr
 	//add up value * scale factor
 	// In addition, divide by two in the 10 degree phi segmentation region
 	// to mimic 5 degree segmentation for the trigger
-	if(ids.size()==2) algosumvalue += int(samples[ibin+i] * 0.5 * weights_[i]);
-	else algosumvalue += int(samples[ibin+i] * weights_[i]);
+	unsigned int sample = samples[ibin+i];
+	if(sample>QIE11_MAX_LINEARIZATION_ET) sample = QIE11_MAX_LINEARIZATION_ET;
+	if(ids.size()==2) algosumvalue += int(sample * 0.5 * weights_[i]);
+	else algosumvalue += int(sample * weights_[i]);
       }
       if (algosumvalue<0) sum[ibin]=0;            // low-side
                                                   //high-side
