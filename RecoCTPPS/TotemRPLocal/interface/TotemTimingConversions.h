@@ -22,6 +22,8 @@ public:
 
   void openCalibrationFile(const std::string& calibrationFile="/dev/null");
 
+  const float getTimeOfFirstSample(const TotemTimingDigi& digi) const;
+
   const float getTriggerTime(const TotemTimingDigi& digi) const;
 
   std::vector<float> getTimeSamples(const TotemTimingDigi& digi) const;
