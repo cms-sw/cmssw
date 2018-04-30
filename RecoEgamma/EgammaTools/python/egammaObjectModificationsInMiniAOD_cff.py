@@ -138,15 +138,37 @@ egamma8XObjectUpdateModifier = cms.PSet(
     ecalRecHitsEE = cms.InputTag("reducedEgamma","reducedEERecHits"),
 )
 
+#############################################################
+# 8X legacy needs an extra Et scale systematic
+# due to an inflection around 45 GeV which is handled as a
+# patch on top of the standard scale and smearing systematics
+#############################################################
+from RecoEgamma.EgammaTools.calibratedEgammas_cff import ecalTrkCombinationRegression
+egamma8XLegacyEtScaleSysModifier = cms.PSet(
+    modifierName = cms.string('EGEtScaleSysModifier'),
+    epCombConfig = ecalTrkCombinationRegression,
+    uncertFunc = cms.PSet(
+        name = cms.string("UncertFuncV1"),
+        lowEt = cms.double(43.5),
+        highEt = cms.double(46.5),
+        lowEtUncert = cms.double(0.002),
+        highEtUncert = cms.double(-0.002)
+        )
+    )
+
 def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
     modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
 
 def prependEgamma8XObjectUpdateModifier(modifiers):
     modifiers.insert(0,egamma8XObjectUpdateModifier)
 
+def appendReducedEgammaEnergyScaleAndSmearingModifierWith8XLegacyEtSys(modifiers):
+    modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
+    modifiers.append(egamma8XLegacyEtScaleSysModifier)
+
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
    
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
+run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifierWith8XLegacyEtSys)
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)

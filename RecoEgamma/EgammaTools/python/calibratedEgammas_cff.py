@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-#2016 legacy file not yet availible, this is a dummy file in its place
-_correctionFile2016Legacy = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"
+_correctionFile2016Legacy = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Legacy2016_07Aug2017_FineEtaR9_v3_ele_unc"
 _correctionFile2017Nov17 = "EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc"
 
 calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
