@@ -49,5 +49,3 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
 # timing
-
-

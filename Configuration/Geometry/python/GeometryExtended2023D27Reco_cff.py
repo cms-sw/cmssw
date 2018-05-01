@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2023Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2023D25_cff import *
+from Configuration.Geometry.GeometryExtended2023D27_cff import *
 
 # tracker
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
@@ -48,4 +48,3 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 # forward
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 
-# timing
