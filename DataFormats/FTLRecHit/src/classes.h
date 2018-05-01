@@ -2,6 +2,7 @@
 #include "DataFormats/FTLRecHit/interface/FTLRecHit.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
 #include "DataFormats/FTLRecHit/interface/FTLSeverityLevel.h"
+#include "DataFormats/FTLRecHit/interface/FTLTrackingRecHit.h"
 #include "DataFormats/Common/interface/RefProd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -29,6 +30,12 @@ namespace DataFormats_FTLRecHit {
     FTLRecHitRef _FTLRHitRef;
     FTLRecHitRefs _FTLRHitRefs;
     FTLRecHitsRef _FTLRHitsRef;
+    
+    FTLTrackingRecHitFromHit _FTLTTrackingRecHitFromRef;
+    FTLTrackingRecHitCollection _FTLTTrackingRecHitCollection;
+    edm::Wrapper<FTLTrackingRecHitCollection> _FTLTTrackingRecHitProd;
+    
+    
   };
 }
 
