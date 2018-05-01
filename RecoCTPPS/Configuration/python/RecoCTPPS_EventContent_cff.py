@@ -23,6 +23,7 @@ RecoCTPPSAOD = cms.PSet(
 
     # TOTEM timing
     'keep TotemTimingDigiedmDetSetVector_totemTimingRawToDigi_*_*',
+    'keep TotemTimingRecHitedmDetSetVector_totemTimingRecHits_*_*',
 
     # tracking pixels
     'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigis_*_*',
