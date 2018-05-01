@@ -110,15 +110,6 @@ void CMSMonopolePhysics::ConstructProcess() {
 	       << " GeV Mag " << magn  << " Process manager " << pmanager 
 	       << G4endl;
       }
-      // defined monopole parameters and binning
-      G4double emin = std::min(CLHEP::keV, mass/20000.);
-      G4double emax = std::max(100.*CLHEP::TeV, mass*100);
-      G4int nbin = 10*std::max(1,G4lrint(std::log10(emax/emin)));
-
-      if (verbose > 1)
-	G4cout << "### Magnetic charge " << magn << " and electric charge " 
-	       << mpl->GetPDGCharge() <<"\n   # of bins in dE/dx table = "
-	       << nbin << " in the range " << emin << ":" << emax << G4endl;
   
       if (magn != 0.0) {
 	pmanager->RemoveProcess(0);
@@ -132,16 +123,10 @@ void CMSMonopolePhysics::ConstructProcess() {
 	  ph->RegisterProcess(hmsc, mpl);
 	}
 	G4hIonisation* hioni = new G4hIonisation();
-	hioni->SetDEDXBinning(nbin);
-	hioni->SetMinKinEnergy(emin);
-	hioni->SetMaxKinEnergy(emax);
 	ph->RegisterProcess(hioni, mpl);
       }
       if(magn != 0.0) {
 	G4mplIonisation* mplioni = new G4mplIonisation(magn);
-	mplioni->SetDEDXBinning(nbin);
-	mplioni->SetMinKinEnergy(emin);
-	mplioni->SetMaxKinEnergy(emax);
 	ph->RegisterProcess(mplioni, mpl);
       }
       pmanager->AddDiscreteProcess(new G4StepLimiter());
