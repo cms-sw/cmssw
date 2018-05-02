@@ -1472,6 +1472,8 @@ steps['ALCAEXPLP']={'-s':'ALCAOUTPUT:AlCaPCCRandom,ALCA:PromptCalibProdLumiPCC',
 steps['ALCAHARVLP']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdLumiPCC']),
                      '--conditions':'auto:run2_data',
                      '--scenario':'pp',
+                     '--datatier':'DQM',
+                     '--eventcontent': 'DQM',
                      '--data':'',
                      '--filein':'file:PromptCalibProdLumiPCC.root'}
 
