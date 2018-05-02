@@ -8,7 +8,18 @@ const HcalDetId HcalDetId::Undefined(HcalEmpty,0,0,0);
 HcalDetId::HcalDetId() : DetId() {
 }
 
-HcalDetId::HcalDetId(uint32_t rawid) : DetId(newForm(rawid)) {
+HcalDetId::HcalDetId(uint32_t rawid) {
+  if ((DetId::Detector(rawid>>DetId::kDetOffset)&DetId::kDetMask) != Hcal) {
+    id_ = rawid;
+  } else  {
+    HcalSubdetector subdet = (HcalSubdetector)((rawid>>DetId::kSubdetOffset)&DetId::kSubdetMask);
+    if ((subdet==HcalBarrel) || (subdet==HcalEndcap) ||
+	(subdet==HcalOuter) || (subdet==HcalForward)) {
+      id_ = newForm(rawid);
+    } else {
+      id_ = rawid;
+    }
+  }
 }
 
 HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth) : DetId(Hcal,subdet) {
@@ -27,7 +38,12 @@ HcalDetId::HcalDetId(const DetId& gen) {
 	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
       throw cms::Exception("Invalid DetId") << "Cannot initialize HcalDetId from " << std::hex << gen.rawId() << std::dec; 
     }  
-    id_ = newForm(gen.rawId());
+    if ((subdet==HcalBarrel) || (subdet==HcalEndcap) ||
+	(subdet==HcalOuter) || (subdet==HcalForward)) {
+      id_ = newForm(gen.rawId());
+    } else {
+      id_ = gen.rawId();
+    }
   } else {
     id_ = gen.rawId();
   }
@@ -42,7 +58,12 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
 	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
       throw cms::Exception("Invalid DetId") << "Cannot assign HcalDetId from " << std::hex << gen.rawId() << std::dec; 
     }
-    id_ = newForm(gen.rawId());
+    if ((subdet==HcalBarrel) || (subdet==HcalEndcap) ||
+	(subdet==HcalOuter) || (subdet==HcalForward)) {
+      id_ = newForm(gen.rawId());
+    } else {
+      id_ = gen.rawId();
+    }
   } else {
     id_ = gen.rawId();
   }

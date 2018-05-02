@@ -93,7 +93,6 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
   setNames(temp);  
 
   theG4ProcTypeEnumerator.reset(new G4ProcessTypeEnumerator);
-  theG4TrackToParticleID.reset(new G4TrackToParticleID);
   theNumberingScheme.reset(nullptr);
 }
 
@@ -232,7 +231,7 @@ void TkAccumulatingSensitiveDetector::createHit(const G4Step * aStep)
     float thePabs             = preStepPoint->GetMomentum().mag()/GeV;
     float theTof              = preStepPoint->GetGlobalTime()/nanosecond;
     float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
-    int theParticleType       = theG4TrackToParticleID.get()->particleID(theTrack);
+    int theParticleType       = G4TrackToParticleID::particleID(theTrack);
     uint32_t theDetUnitId     = setDetUnitId(aStep);
     int theTrackID            = theTrack->GetTrackID();
     if (theDetUnitId == 0)

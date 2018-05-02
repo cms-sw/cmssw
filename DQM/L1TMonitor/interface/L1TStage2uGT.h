@@ -15,7 +15,7 @@
 // System include files
 #include <memory>
 #include <vector>
-
+#include <utility>
 // User include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -75,9 +75,14 @@ private:
    int algoBitLastBxInTrain_;
    const std::string algoNameFirstBxInTrain_;
    const std::string algoNameLastBxInTrain_;
-   
+ 
+   std::vector<std::string> unprescaledAlgoShortList_ ;
+   std::vector<std::string> prescaledAlgoShortList_; 
+
    // Booking of histograms for the module
-   
+   std::vector<std::pair<std::string,int>> unprescaledAlgoBitName_;
+   std::vector<std::pair<std::string,int>> prescaledAlgoBitName_; 
+
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
    MonitorElement* algoBits_before_prescale_;
@@ -115,6 +120,19 @@ private:
    MonitorElement* den_last_collision_run_;
    MonitorElement* den_isolated_collision_run_;
 
+   // Prescaled and unprescaled aglo trigger bits
+    MonitorElement* prescaled_algo_first_collision_in_train_;
+    MonitorElement* prescaled_algo_first_collision_in_train_den_;
+    MonitorElement* unprescaled_algo_first_collision_in_train_;
+    MonitorElement* unprescaled_algo_first_collision_in_train_den_;
+    MonitorElement* prescaled_algo_isolated_collision_in_train_;
+    MonitorElement* prescaled_algo_isolated_collision_in_train_den_;
+    MonitorElement* unprescaled_algo_isolated_collision_in_train_;
+    MonitorElement* unprescaled_algo_isolated_collision_in_train_den_;
+    MonitorElement* prescaled_algo_last_collision_in_train_;
+    MonitorElement* prescaled_algo_last_collision_in_train_den_;
+    MonitorElement* unprescaled_algo_last_collision_in_train_;
+    MonitorElement* unprescaled_algo_last_collision_in_train_den_;
 };
 
 #endif

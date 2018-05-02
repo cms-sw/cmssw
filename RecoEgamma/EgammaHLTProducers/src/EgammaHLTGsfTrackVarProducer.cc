@@ -134,18 +134,21 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     float oneOverESuperMinusOneOverPValue=999999;
     float oneOverESeedMinusOneOverPValue=999999;
     
-    if(static_cast<int>(gsfTracks.size())>=upperTrackNrToRemoveCut_ || 
-       static_cast<int>(gsfTracks.size())<=lowerTrackNrToRemoveCut_ ||
-       (isBarrel && useDefaultValuesForBarrel_) ||
-       (!isBarrel && useDefaultValuesForEndcap_)){
+    const int nrTracks = gsfTracks.size();
+    const bool rmCutsDueToNrTracks = nrTracks <= lowerTrackNrToRemoveCut_ ||
+                                     nrTracks >= upperTrackNrToRemoveCut_;
+    //to use the default values, we require at least one track...
+    const bool useDefaultValues = isBarrel ? useDefaultValuesForBarrel_ && nrTracks>=1 : useDefaultValuesForEndcap_ && nrTracks>=1;
+
+    if(rmCutsDueToNrTracks || useDefaultValues){
       dEtaInValue=0;
       dEtaSeedInValue=0;
       dPhiInValue=0;
       missingHitsValue = 0;
       validHitsValue = 100;
       chi2Value = 0;
-      oneOverESuperMinusOneOverPValue = 1;
-      oneOverESeedMinusOneOverPValue = 1;
+      oneOverESuperMinusOneOverPValue = 0;
+      oneOverESeedMinusOneOverPValue = 0;
     }else{
       for(size_t trkNr=0;trkNr<gsfTracks.size();trkNr++){
       

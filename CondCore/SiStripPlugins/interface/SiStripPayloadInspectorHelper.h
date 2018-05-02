@@ -5,6 +5,7 @@
 #include <numeric>
 #include <string>
 #include "TH1.h"
+#include "TH2.h"
 #include "TPaveText.h"
 #include "TStyle.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
@@ -21,6 +22,157 @@
 
 namespace SiStripPI {
   
+  //##### for plotting
+
+  enum OpMode {STRIP_BASED, APV_BASED, MODULE_BASED};
+
+  class Entry{
+  public:
+    Entry():
+      entries(0),
+      sum(0),
+      sq_sum(0){}
+
+    double mean() {return sum / entries;}
+    double std_dev() {
+      double tmean = mean();
+      return sqrt((sq_sum - entries*tmean*tmean)/(entries-1));
+    }
+    double mean_rms() { return std_dev()/sqrt(entries); }
+
+    void add(double val){
+      entries++;
+      sum += val;
+      sq_sum += val*val;
+    }
+
+    void reset() {
+      entries = 0;
+      sum = 0;
+      sq_sum = 0;
+    }
+  private:
+    long int entries;
+    double sum, sq_sum;
+  };
+
+  // class Monitor1D
+
+  class Monitor1D {
+  public:
+    Monitor1D(OpMode mode, const char* name,const char* title, int nbinsx, double xmin, double xmax):
+      entry_(),
+      mode_(mode),
+      obj_(name, title, nbinsx, xmin, xmax) {}
+
+    Monitor1D():
+      entry_(),
+      mode_(OpMode::STRIP_BASED),
+      obj_() {}
+
+    ~Monitor1D() {}
+
+    void Fill(int apv, int det, double vx) {
+      switch(mode_) {
+      case (OpMode::APV_BASED):
+	if(!((apv == prev_apv_ && det == prev_det_) || prev_apv_ == 0)){
+	  flush();
+	}
+	prev_apv_ = apv;
+	prev_det_ = det;
+	break;
+      case (OpMode::MODULE_BASED):
+	if(!(det == prev_det_ || prev_det_ == 0)){
+	  flush();
+	}
+	prev_det_ = det;
+	break;
+      case (OpMode::STRIP_BASED):
+	flush();
+	break;
+      }
+      entry_.add(vx);
+    }
+
+    void flush() {
+      obj_.Fill(entry_.mean());
+      entry_.reset();
+    }
+
+    TH1F& hist() {
+      flush();
+      return obj_;
+    }
+
+    TH1F& getHist() {
+      return obj_;
+    }
+
+  private:
+    int prev_apv_=0, prev_det_=0;
+    Entry entry_;
+    OpMode mode_;
+    TH1F obj_;
+  };
+
+  // class monitor 2D
+
+  class Monitor2D {
+  public:
+    Monitor2D(OpMode mode, const char* name,const char* title, int nbinsx, double xmin, double xmax, int nbinsy, double ymin, double ymax):
+      entryx_(),
+      entryy_(),
+      mode_(mode),
+      obj_(name, title, nbinsx, xmin, xmax, nbinsy, ymin, ymax) {}
+
+    Monitor2D():
+      entryx_(),
+      entryy_(),
+      mode_(OpMode::STRIP_BASED),
+      obj_() {}
+
+    ~Monitor2D() {}
+
+    void Fill(int apv, int det, double vx, double vy) {
+      switch(mode_) {
+      case (OpMode::APV_BASED):
+	if(!((apv == prev_apv_ && det == prev_det_) || prev_apv_ == 0)){
+	  flush();
+	}
+	prev_apv_ = apv;
+	prev_det_ = det;
+	break;
+      case (OpMode::MODULE_BASED):
+	if(!(det == prev_det_ || prev_det_ == 0)){
+	  flush();
+	}
+	prev_det_ = det;
+	break;
+      case (OpMode::STRIP_BASED):
+	flush();
+	break;
+      }
+      entryx_.add(vx);
+      entryy_.add(vy);
+    }
+
+    void flush() {
+      obj_.Fill(entryx_.mean(), entryy_.mean());
+      entryx_.reset();
+      entryy_.reset();
+    }
+
+    TH2F& hist() {
+      flush();
+      return obj_;
+    }
+  private:
+    int prev_apv_=0, prev_det_=0;
+    Entry entryx_, entryy_;
+    OpMode mode_;
+    TH2F obj_;
+  };
+
   enum estimator {
     min,
     max,

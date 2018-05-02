@@ -25,6 +25,8 @@ class OptoScanHistosUsingDb : public CommissioningHistosUsingDb, public OptoScan
 
   // parameters
   bool skipGainUpdate_;
+  // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                    
+  bool allowSelectiveUpload_;
 
 };
 

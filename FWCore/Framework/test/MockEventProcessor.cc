@@ -30,7 +30,8 @@ namespace {
 }
 
 namespace edm {
-struct LuminosityBlockPrincipal {
+class LuminosityBlockPrincipal {
+public:
   LuminosityBlockPrincipal(int iRun,int iLumi): run_(iRun),lumi_(iLumi){}
   int run_;
   int lumi_;

@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimCalorimetry.Configuration.SimCalorimetry_cff import *
 
-from SimGeneral.DataMixingModule.mixOne_simraw_on_sim_cfi import *
+from SimGeneral.PreMixingModule.mixOne_premix_on_sim_cfi import *
 
 # Run after the DataMixer only.
 #

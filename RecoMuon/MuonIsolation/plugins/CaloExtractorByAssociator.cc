@@ -105,9 +105,9 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits( const Event & event
   if (theDepositInstanceLabels.size() != 3){
     LogError("MuonIsolation")<<"Configuration is inconsistent: Need 3 deposit instance labels";
   }
-  if (! theDepositInstanceLabels[0].compare(0,1, std::string("e")) == 0
-      || ! theDepositInstanceLabels[1].compare(0,1, std::string("h")) == 0
-      || ! theDepositInstanceLabels[2].compare(0,2, std::string("ho")) == 0){
+  if (! (theDepositInstanceLabels[0].compare(0,1, std::string("e")) == 0)
+      || ! (theDepositInstanceLabels[1].compare(0,1, std::string("h")) == 0)
+      || ! (theDepositInstanceLabels[2].compare(0,2, std::string("ho")) == 0)){
     LogWarning("MuonIsolation")<<"Deposit instance labels do not look like  (e*, h*, ho*):"
 			       <<"proceed at your own risk. The extractor interprets lab0=from ecal; lab1=from hcal; lab2=from ho";
   }

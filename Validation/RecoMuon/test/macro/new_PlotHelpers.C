@@ -16,6 +16,9 @@
 void NormalizeHistogramsToFirst(TH1* h1, TH1* h2);
 void NormalizeHistogramsToOne(TH1* h1, TH1* h2);
 void NormalizeHistogramsAsDensity(TH1* h1, TH1* h2);
+TH1* PlotRatiosHistograms(TH1* h1, TH1* h2);
+
+int ratioCounter = 0;
 
 // debugging printouts
 bool DEBUGP = false;
@@ -38,6 +41,7 @@ void SetGlobalStyle() {
   //tyle->SetTitleYSize(0.3);
   //gStyle->SetLabelSize(0.6) 
   //gStyle->SetTextSize(0.5);
+  gStyle->SetOptStat(0);
 }
 //
 ////////////////////////////////////////////////////////////
@@ -60,6 +64,10 @@ void SetHistogramStyle(TH1* h, Style_t mstyle, Color_t color, Size_t msize = 0.7
   h->SetLineWidth(lwidth);
   h->GetYaxis()->SetTitleSize(tsize);
   h->GetYaxis()->SetTitleOffset(toffset);
+  h->GetXaxis()->SetLabelFont(63);
+  h->GetXaxis()->SetLabelSize(14); // labels will be 14 pixels
+  h->GetYaxis()->SetLabelFont(63);
+  h->GetYaxis()->SetLabelSize(14);
 }
 //
 ////////////////////////////////////////////////////////////
@@ -467,9 +475,24 @@ void PlotNHistograms(const TString& pdfFile,
     // Move to subpad
     canvas->cd(i+1);
     
-    // Check Logy
+    TPad* pad1 = NULL;
+    TPad* pad2 = NULL;
+
+    pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1.0);
+    pad2 = new TPad("pad2", "pad2", 0, 0.0, 1, 0.3);
+
+    pad1->SetTopMargin   (0.08);
+    pad1->SetBottomMargin(0.01);
+    pad1->Draw();
+
+    pad2->SetTopMargin   (0.05);
+    pad2->SetBottomMargin(0.45);
+    pad2->Draw();// Set stat boxes                                                                      
+    pad1->cd();
+
+    // Check Logy                                                                                       
     if (logy[i]) gPad->SetLogy();
-    if (logx[i]) gPad->SetLogx();
+    if (logx[i]) {gPad->SetLogx(); pad2->SetLogx();}
 
     // Set stat boxes
 
@@ -501,7 +524,13 @@ void PlotNHistograms(const TString& pdfFile,
 	  gPad->SetFillColor(kBlue-10);
       }
     }
-  } // End loop
+ 
+    pad2->cd();
+
+    TH1* ratioplot = PlotRatiosHistograms(rh, sh);
+    SetHistogramStyle(ratioplot, 21, 4);
+    ratioplot->Draw("ep");
+ } // End loop
   
    // Draw Legend
 
@@ -526,7 +555,8 @@ void PlotNHistograms(const TString& pdfFile,
   l->Draw();
   
   // Print Canvas
-  canvas->Print(pdfFile);
+  canvas->SaveAs(pdfFile+".pdf");
+  canvas->SaveAs(pdfFile+".png");
 
   // Clean memory
   // delete l;
@@ -660,4 +690,48 @@ void NormalizeHistogramsAsDensity(TH1* h1, TH1* h2) {
     h1->Scale(scale1, "width");
     h2->Scale(scale2, "width");
   }
+}
+///////////////////////////////////////////////////////////
+// 
+// ratio plot from the two histograms
+//  
+/////////////////////////////////////////////////////////
+
+TH1* PlotRatiosHistograms(TH1* h1, TH1* h2){
+
+  ++ratioCounter;
+
+  Int_t nbinsx = h1->GetNbinsX();
+
+  Double_t xmin = h1->GetBinLowEdge(0);
+  Double_t xmax = h1->GetBinLowEdge(nbinsx+1);
+
+  TH1F* h_ratio = new TH1F(Form("h_ratio_%d", ratioCounter), "", nbinsx, xmin, xmax);
+
+  for (Int_t ibin=1; ibin<=nbinsx; ibin++) {
+
+    Float_t h1Value = h1->GetBinContent(ibin);
+    Float_t h2Value = h2->GetBinContent(ibin);
+
+    Float_t h1Error = h1->GetBinError(ibin);
+    Float_t h2Error = h2->GetBinError(ibin);
+
+    Float_t ratioVal = 999;
+    Float_t ratioErr = 999;
+
+    if (h2Value > 0) {
+      ratioVal = h1Value / h2Value;
+      ratioErr = h1Error / h2Value;
+    }
+
+    h_ratio->SetBinContent(ibin, ratioVal);
+    h_ratio->SetBinError  (ibin, ratioErr);
+
+  }
+
+  h_ratio->SetTitle("");
+  h_ratio->GetYaxis()->SetTitle("");
+  h_ratio->GetYaxis()->SetRangeUser(0.4, 1.6);
+
+  return h_ratio;
 }

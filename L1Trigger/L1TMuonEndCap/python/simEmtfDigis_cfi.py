@@ -40,7 +40,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     BXWindow = cms.int32(2),  # Number of BX whose primitives can be included in the same track
 
     # CSC LCT BX offset correction
-    CSCInputBXShift = cms.int32(-6), # Shift applied to input CSC LCT primitives, to center at BX = 0
+    CSCInputBXShift = cms.int32(-8), # Shift applied to input CSC LCT primitives, to center at BX = 0
     RPCInputBXShift = cms.int32(0),
     GEMInputBXShift = cms.int32(0),
 

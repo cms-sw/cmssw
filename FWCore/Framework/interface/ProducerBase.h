@@ -60,7 +60,7 @@ namespace edm {
   public:
     typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     ProducerBase ();
-    ~ProducerBase() override;
+    ~ProducerBase() noexcept(false) override;
  
     /// used by the fwk to register list of products
     std::function<void(BranchDescription const&)> registrationCallback() const;

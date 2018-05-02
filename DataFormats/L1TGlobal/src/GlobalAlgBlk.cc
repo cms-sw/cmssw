@@ -161,16 +161,39 @@ void GlobalAlgBlk::reset()
 // compare the content of this GlobalAlgBlk with another one
 bool GlobalAlgBlk::operator==(const GlobalAlgBlk& rhs) const
 {
-    return m_orbitNr == rhs.getL1MenuUUID()
+    // Not all variables can be compared since the prescale counters are
+    // generally not the same when producing the collections and so the
+    // prescaled algo decisions do not match.
+    bool eq = m_orbitNr == rhs.getL1MenuUUID()
         && m_bxNr == rhs.getL1FirmwareUUID()
         && m_bxInEvent == rhs.getbxInEventNr()
-        && m_finalOR == rhs.getFinalOR()
-        && m_finalORPreVeto == rhs.getFinalORPreVeto()
-        && m_finalORVeto == rhs.getFinalORVeto()
-        && m_preScColumn == rhs.getPreScColumn()
+        //&& m_finalOR == rhs.getFinalOR()
+        //&& m_finalORPreVeto == rhs.getFinalORPreVeto()
+        //&& m_finalORVeto == rhs.getFinalORVeto()
+        //&& m_preScColumn == rhs.getPreScColumn()
         && m_algoDecisionInitial == rhs.getAlgoDecisionInitial()
-        && m_algoDecisionPreScaled == rhs.getAlgoDecisionInterm()
-        && m_algoDecisionFinal == rhs.getAlgoDecisionFinal();
+        //&& m_algoDecisionPreScaled == rhs.getAlgoDecisionInterm()
+        //&& m_algoDecisionFinal == rhs.getAlgoDecisionFinal()
+        ;
+
+    //if (not eq) {
+    //    std::cout << "m_orbitNr: " << m_orbitNr << " : " << rhs.getL1MenuUUID() << std::endl
+    //              << "m_bxNr: " << m_bxNr << " : " << rhs.getL1FirmwareUUID() << std::endl
+    //              << "m_bxInEvent: " << m_bxInEvent << " : " << rhs.getbxInEventNr() << std::endl
+    //              << "m_finalOR: " << m_finalOR << " : " << rhs.getFinalOR() << std::endl
+    //              << "m_finalORPreVeto: " << m_finalORPreVeto << " : " << rhs.getFinalORPreVeto() << std::endl
+    //              << "m_finalORVeto: " << m_finalORVeto << " : " << rhs.getFinalORVeto() << std::endl
+    //              << "m_preScColumn: " << m_preScColumn << " : " << rhs.getPreScColumn() << std::endl
+    //              << std::endl;
+    //    std::cout << "algoDecisions" << std::endl;
+    //    for (size_t i = 0; i < m_algoDecisionInitial.size(); ++i) {
+    //        std::cout << "bit " << i << ":   " << m_algoDecisionInitial.at(i) << " : " << rhs.getAlgoDecisionInitial(i)
+    //                  << "     " << m_algoDecisionPreScaled.at(i) << " : " << rhs.getAlgoDecisionInterm(i)
+    //                  << "     " << m_algoDecisionFinal.at(i) << " : " << rhs.getAlgoDecisionFinal(i) << std::endl;
+    //    }
+    //}
+
+    return eq;
 }
 
 // pretty print the content of a GlobalAlgBlk
