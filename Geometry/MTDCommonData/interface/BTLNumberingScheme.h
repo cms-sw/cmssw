@@ -6,7 +6,7 @@
 class BTLNumberingScheme : public MTDNumberingScheme {
  public:
   BTLNumberingScheme();
-  ~BTLNumberingScheme();
+  ~BTLNumberingScheme() override;
   uint32_t getUnitID(const MTDBaseNumber& baseNumber) const override ;
 };
 

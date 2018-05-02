@@ -40,7 +40,7 @@ class FTLDigitizerBase {
     iC.consumes<std::vector<PSimHit> >(inputSimHits_);
 
     isBTL_ = true;
-    if ( name_.compare("BTLDigitizer") == 0 )
+    if ( name_ == "BTLDigitizer" )
       parent.produces<BTLDigiCollection>(digiCollection_);  
     else {
       parent.produces<ETLDigiCollection>(digiCollection_);  
