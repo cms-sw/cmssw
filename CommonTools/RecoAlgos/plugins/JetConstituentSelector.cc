@@ -41,8 +41,7 @@ public:
   
   JetConstituentSelector(edm::ParameterSet const& params) :
     srcToken_{consumes<edm::View<T>>(params.getParameter<edm::InputTag>("src"))},
-    selector_{params.getParameter<std::string>("cut")},
-    unpackAK8_{params.getParameter<bool>("unpackAK8")}
+    selector_{params.getParameter<std::string>("cut")}
   {
     produces<JetsOutput>();
     produces<ConstituentsOutput>("constituents");
@@ -54,7 +53,6 @@ public:
     desc.add<edm::InputTag>("src")->setComment("InputTag used for retrieving jets in event.");
     desc.add<std::string>("cut")->setComment("Cut used by which to select jets.  For example:\n"
                                              "  \"pt > 100.0 && abs(rapidity()) < 2.4\".");
-    desc.add<bool>("unpackAK8", false)->setComment("Assume the jets are AK8 jets from miniAOD and need to be unpacked.");
 
     // addDefault must be used here instead of add unless this function is specialized
     // for different sets of template parameter types. Each specialization would need
@@ -84,25 +82,8 @@ public:
 	// Add the jets that pass to the output collection
 	jets->push_back(jet);
 
-	if ( !unpackAK8_) {
-	  for (unsigned int ida {}; ida < jet.numberOfDaughters(); ++ida) {
+	for (unsigned int ida {}; ida < jet.numberOfDaughters(); ++ida) {
 	    candsOut->emplace_back( initptr(jet.daughterPtr(ida)) );
-	  }
-	}
-	else {
-	  // Special case for AK8 pat::Jets from miniAOD, which store the subjets in the first two
-	  // daughter links, and then the rest of the daughters that do not satisfy the jet groomer.
-	  for (unsigned int ida {}; ida < jet.numberOfDaughters(); ++ida) {
-	    auto const & dau = jet.daughterPtr(ida);
-	    if ( dau->numberOfDaughters() == 0 ) {
-	      candsOut->emplace_back( initptr(dau) );
-	    } else {
-	      auto const * dauJet = dynamic_cast<pat::Jet const *>(dau.get());
-	      for ( unsigned int jda {}; jda < dauJet->numberOfDaughters(); ++jda ) {
-		candsOut->emplace_back( initptr(dauJet->daughterPtr(jda)) );
-	      }
-	    }
-	  }
 	}
       }
     }
@@ -114,7 +95,6 @@ public:
 private:
   edm::EDGetTokenT<edm::View<T>> const srcToken_;
   StringCutObjectSelector<T> const selector_;
-  bool unpackAK8_;
 };
 
 template<>
