@@ -19,7 +19,7 @@ SectorProcessorLUT::~SectorProcessorLUT() {
 
 }
 
-void SectorProcessorLUT::read(unsigned pc_lut_version) {
+void SectorProcessorLUT::read(int pc_lut_version) {
   if (version_ == pc_lut_version)  return;
 
   edm::LogInfo("L1T") << "EMTF using pc_lut_ver: " << pc_lut_version;
@@ -29,6 +29,8 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
     coord_lut_dir = "ph_lut_v1";  // All year 2016
   else if (pc_lut_version == 1)
     coord_lut_dir = "ph_lut_v2";  // Beginning of 2017
+  else if (pc_lut_version == -1)
+    coord_lut_dir = "ph_lut_v2";  // Beginning of 2017, use local CPPF LUTs
   else
     throw cms::Exception("SectorProcessorLUT")
       << "Trying to use EMTF pc_lut_version = " << pc_lut_version << ", does not exist!";
@@ -43,9 +45,13 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
   read_file(coord_lut_path+"th_lut_neighbor.txt",      th_lut_neighbor_);
   read_file(coord_lut_path+"th_corr_lut_neighbor.txt", th_corr_lut_neighbor_);
 
-  std::string cppf_coord_lut_path = "L1Trigger/L1TMuon/data/cppf_luts/angleScale_v1/";
+  std::string cppf_coord_lut_path = "L1Trigger/L1TMuon/data/cppf/";  // Coordinate LUTs actually used by CPPF
+  bool use_local_cppf_files = (pc_lut_version == -1);
+  if (use_local_cppf_files) {  // More accurate coordinate transformation LUTs from Jia Fu
+    cppf_coord_lut_path = "L1Trigger/L1TMuon/data/cppf_luts/angleScale_v1/";
+  }
 
-  read_cppf_file(cppf_coord_lut_path, cppf_ph_lut_, cppf_th_lut_);  // cppf filenames are hardcoded in the function
+  read_cppf_file(cppf_coord_lut_path, cppf_ph_lut_, cppf_th_lut_, use_local_cppf_files);  // cppf filenames are hardcoded in the function
 
   if (ph_init_neighbor_.size() != 2*6*61) {  // [endcap_2][sector_6][chamber_61]
     throw cms::Exception("SectorProcessorLUT")
@@ -94,7 +100,6 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
         << "Expected cppf_th_lut_ to get " << 2*6*6*6*3 << " values, "
         << "got " << cppf_th_lut_.size() << " values.";
   }
-
 
   // clct pattern convertion array from CMSSW
   //{0.0, 0.0, -0.60,  0.60, -0.64,  0.64, -0.23,  0.23, -0.21,  0.21, 0.0}
@@ -265,7 +270,7 @@ void SectorProcessorLUT::read_file(const std::string& filename, std::vector<uint
   infile.close();
 }
 
-void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2) {
+void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2, bool local) {
   auto get_rpc_region = [](uint32_t id) { return (static_cast<int>((id >> 0) & 0X3) + (-1)); };
   auto get_rpc_sector = [](uint32_t id) { return (static_cast<int>((id >> 7) & 0XF) + (1)); };
   auto get_rpc_ring = [](uint32_t id) { return (static_cast<int>((id >> 2) & 0X7) + (1)); };
@@ -294,9 +299,33 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector
     std::ifstream infile;
     infile.open(edm::FileInPath(filename + cppf_filenames.at(i)).fullPath().c_str());
 
+    // std::cout << "\n\nOpening CPPF LUT file " << cppf_filenames.at(i) << std::endl;
+
     int buf1, buf2, buf3, buf4, buf5, buf6;
+    // Special variables for transforming centrally-provided CPPF LUTs
+    int buf1_prev = 0, buf2_prev = 0, halfstrip_prev = 0; // Values from previous line in file
+    int line_num = 0;   // Line number in file
+    int count_dir = -1; // Direction of half-strip counting: +1 is up, -1 is down
+    int dStrip = 0;     // Offset for half-strip from full strip
     while ((infile >> buf1) && (infile >> buf2) && (infile >> buf3) && (infile >> buf4) && (infile >> buf5) && (infile >> buf6)) {
-      uint32_t id           = buf1;
+
+      if ((line_num % 192) == 191) line_num += 1; // Gap in central files vs. Jia Fu's files
+      line_num += 1;
+      // On roughly every-other line, files in L1Trigger/L1TMuon/data/cppf have 0 in the first three columns
+      // Skips a "0 0 0" line once every 192 lines
+      if ((line_num % 2) == 1) {
+	buf1_prev = buf1;
+	buf2_prev = buf2;
+      }
+
+      if (local && (buf1 == 0 || buf2 == 0)) {
+	throw cms::Exception("SectorProcessorLUT") << "Expected non-0 values, got buf1 = " << buf1 << ", buf2 = " << buf2;
+      }
+      if (!local && (buf1_prev == 0 || buf2_prev == 0)) {
+	throw cms::Exception("SectorProcessorLUT") << "Expected non-0 values, got buf1_prev = " << buf1_prev << ", buf2_prev = " << buf2_prev;
+      }
+
+      uint32_t id           = (local ? buf1 : buf1_prev);
       int32_t rpc_region    = get_rpc_region(id);
       int32_t rpc_sector    = get_rpc_sector(id);
       int32_t rpc_station   = get_rpc_station(id);
@@ -304,8 +333,19 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector
       int32_t rpc_subsector = get_rpc_subsector(id);
       int32_t rpc_roll      = get_rpc_roll(id);
 
+      // Offset into halfstrips from centrally-provided LUTs
+      if ( buf2_prev*2 > halfstrip_prev + 8 ||
+	   buf2_prev*2 < halfstrip_prev - 8 ) { // Starting a new series of strips
+	if (buf2_prev == 1) count_dir = +1; // Starting from a low number, counting up
+	else                count_dir = -1; // Starting from a high number, counting down
+      }
+      if (count_dir == -1) dStrip = (buf2_prev*2 == halfstrip_prev     ? 1 : 0);
+      if (count_dir == +1) dStrip = (buf2_prev*2 == halfstrip_prev + 2 ? 1 : 0);
+      if (buf2_prev*2 < halfstrip_prev - 8 && buf2_prev == 1) dStrip = 1;
+
       //uint32_t strip        = buf2;
-      uint32_t halfstrip    = buf2;  // I modified the text files to use 'halfstrip' instead of 'strip' in column 2
+      uint32_t halfstrip    = (local ? buf2 : buf2_prev*2 - dStrip);  // I modified the local text files to use 'halfstrip' instead of 'strip' in column 2
+      halfstrip_prev        = halfstrip;
 
       uint32_t ph           = buf5;
       uint32_t th           = buf6;
@@ -313,12 +353,18 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector
       size_t th_index       = get_cppf_lut_id(rpc_region, rpc_sector, rpc_station, rpc_ring, rpc_subsector, rpc_roll);
       size_t ph_index       = (th_index * 64) + (halfstrip - 1);
 
-      //std::cout << id << " " << rpc_region << " " << rpc_sector << " " << rpc_station << " " << rpc_ring << " " << rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
+      // std::cout << id << " " << rpc_region << " " << rpc_sector << " " << rpc_station << " " << rpc_ring << " "
+      // 		<< rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
 
       vec1.at(ph_index) = ph;
       if (halfstrip == 1)
         vec2.at(th_index) = th;
-    }
+
+      // Fill gap in centrally-provided LUTs once every 192 lines
+      if (!local && (line_num % 192) == 191)
+	vec1.at(ph_index+1) = ph;
+
+    } // End while ((infile >> buf1) && ... && (infile >> buf6))
     infile.close();
-  }
+  } // End loop over CPPF LUT files
 }

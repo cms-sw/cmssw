@@ -11,7 +11,7 @@ public:
   explicit SectorProcessorLUT();
   ~SectorProcessorLUT();
 
-  void read(unsigned pc_lut_version);
+  void read(int pc_lut_version);
 
   uint32_t get_ph_init(int fw_endcap, int fw_sector, int pc_lut_id) const;
 
@@ -42,7 +42,7 @@ public:
 private:
   void read_file(const std::string& filename, std::vector<uint32_t>& vec);
 
-  void read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2);
+  void read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2, bool local);
 
   std::vector<uint32_t> ph_init_neighbor_;
   std::vector<uint32_t> ph_disp_neighbor_;
@@ -59,7 +59,7 @@ private:
   std::vector<uint32_t> cppf_ph_lut_;
   std::vector<uint32_t> cppf_th_lut_;
 
-  unsigned version_;  // init: 0xFFFFFFFF
+  int version_;  // init: 0xFFFFFFFF
 };
 
 #endif

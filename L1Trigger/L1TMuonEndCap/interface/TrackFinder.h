@@ -42,7 +42,7 @@ private:
 
   const edm::EDGetToken tokenCSC_, tokenRPC_, tokenGEM_;
 
-  int verbose_;
+  int verbose_, primConvLUT_;
 
   bool fwConfig_, useCSC_, useRPC_, useGEM_;
 
