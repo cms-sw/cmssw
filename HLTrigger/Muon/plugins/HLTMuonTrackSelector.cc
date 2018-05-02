@@ -108,7 +108,7 @@ void HLTMuonTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   } // -- end of muon iteration
 
-  assert( producer.selTracks_->size() == 0U );
+  assert( producer.selTracks_->empty() );
 
   // -- produces tracks and associated informations
   producer( collectionClonerTokens, selectedIter );
