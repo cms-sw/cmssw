@@ -522,6 +522,11 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	nch = patJet->chargedMultiplicity();
 	nconstituents = patJet->numberOfDaughters();
 	nneutrals = patJet->neutralMultiplicity();
+        // Handle the special case of PUPPI jets with weighted multiplicities
+        if (patJet->hasUserFloat("patPuppiJetSpecificProducer:puppiMultiplicity"))
+           nconstituents = patJet->userFloat("patPuppiJetSpecificProducer:puppiMultiplicity");
+        if (patJet->hasUserFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity"))
+           nneutrals = patJet->userFloat("patPuppiJetSpecificProducer:neutralPuppiMultiplicity");
       }
       // Handle the special case where this is a composed jet for
       // subjet analyses
