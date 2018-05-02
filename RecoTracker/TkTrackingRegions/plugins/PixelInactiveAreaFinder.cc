@@ -503,7 +503,7 @@ PixelInactiveAreaFinder::PixelInactiveAreaFinder(const edm::ParameterSet& iConfi
 
 void PixelInactiveAreaFinder::fillDescriptions(edm::ParameterSetDescription& desc) {
   desc.add<std::vector<edm::InputTag>>("inactivePixelDetectorLabels", std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})->setComment("One or more DetIdCollections of modules to mask on the fly for a given event");
-  desc.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollectionLabels", std::vector<edm::InputTag>())->setComment("One or more PixelFEDChannelCollections of modules+ROCs to mask on the fly for a given event");
+  desc.add<std::vector<edm::InputTag>>("badPixelFEDChannelCollectionLabels", std::vector<edm::InputTag>{{edm::InputTag("siPixelDigis")}})->setComment("One or more PixelFEDChannelCollections of modules+ROCs to mask on the fly for a given event");
   desc.add<bool>("ignoreSingleFPixPanelModules", false);
 
   desc.addUntracked<bool>("debug", false);

@@ -1683,6 +1683,16 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::readoutALCTs() {
 
     tmpV.push_back(*plct);
   }
+
+  // shift the BX from 8 to 3
+  // ALCTs in real data have the central BX in bin 3
+  // which is the middle of the 7BX wide L1A window
+  // ALCTs used in the TMB emulator have central BX at bin 8
+  // but right before we put emulated ALCTs in the event, we shift the BX
+  // by -5 to make sure they are compatible with real data ALCTs!
+  for (auto& p : tmpV){
+    p.setBX(p.getBX() - (CSCConstants::LCT_CENTRAL_BX - l1a_window_width/2));
+  }
   return tmpV;
 }
 

@@ -55,36 +55,6 @@ def customiseForUncollapsed(process):
     return process    
 
 
-def customiseFor22621_forIsoTrackHBHE(process):
-    """Adapt the HLT to run with different setting
-    of thresholds for EB/EE in """
-
-    for producer in producers_by_type(process, "IsolatedEcalPixelTrackCandidateProducer"):
-        del producer.ECHitEnergyThreshold
-        del producer.ECHitCountEnergyThreshold
-        del producer.EcalConeSizeEta0
-        del producer.EcalConeSizeEta1
-        producer.EBHitEnergyThreshold = cms.double(0.10)   
-        producer.EBHitCountEnergyThreshold = cms.double(0.5)
-        producer.EEHitEnergyThreshold0     = cms.double(-20.5332)
-        producer.EEHitEnergyThreshold1     = cms.double(34.3975)
-        producer.EEHitEnergyThreshold2     = cms.double(-19.0741)
-        producer.EEHitEnergyThreshold3     = cms.double(3.52151)
-        producer.EEFacHitCountEnergyThreshold= cms.double(10.0)
-        producer.EcalConeSizeEta0          = cms.double(0.09)
-        producer.EcalConeSizeEta1          = cms.double(0.14)
-
-    for filter in filters_by_type(process, "HLTEcalPixelIsolTrackFilter"):
-        del filter.MaxEnergyIn
-        del filter.MaxEnergyOut
-        filter.MaxEnergyInEB = cms.double( 2.0 )     
-        filter.MaxEnergyOutEB = cms.double( 1.2 )
-        filter.MaxEnergyInEE = cms.double( 2.0 )
-        filter.MaxEnergyOutEE = cms.double( 1.2 )
-
-    return process
-
-
 def customiseFor21664_forMahiOn(process):
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
         producer.algorithm.useMahi   = cms.bool(True)
@@ -224,6 +194,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-    process = customiseFor22621_forIsoTrackHBHE(process)
 
     return process

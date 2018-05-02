@@ -21,7 +21,12 @@ anEff = cms.EDAnalyzer("HitEff",
                        # do not cut on the total number of tracks
                        cutOnTracks = cms.untracked.bool(True),
                        # compatibility
-                       trackMultiplicity = cms.untracked.uint32(100)
+                       trackMultiplicity = cms.untracked.uint32(100),
+                       # use or not first and last measurement of a trajectory (biases), default is false
+                       useFirstMeas = cms.untracked.bool(False),
+                       useLastMeas = cms.untracked.bool(False),
+                       # use or not all hits when some missing hits in the trajectory (bias), default is false
+                       useAllHitsFromTracksWithMissingHits = cms.untracked.bool(False)
                        )
 
 hiteff = cms.Sequence( anEff )

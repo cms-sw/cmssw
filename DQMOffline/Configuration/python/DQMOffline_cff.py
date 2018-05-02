@@ -47,7 +47,7 @@ from DQM.Physics.DQMTopMiniAOD_cff import *
 from Validation.RecoTau.DQMSequences_cfi import *
 from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_cff import *
 from DQM.TrackingMonitorSource.pixelTracksMonitoring_cff import *
-from DQM.Phase2OuterTracker.OuterTrackerSourceConfig_cff import *
+from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
 from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import * 
@@ -88,7 +88,7 @@ _ctpps_2016_DQMOffline = DQMOffline.copy()
 #_ctpps_2016_DQMOffline *= ctppsDQM
 ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
 
-DQMOfflineExtraHLT = cms.Sequence( 
+DQMOfflineExtraHLT = cms.Sequence(
     offlineValidationHLTSource
 )
 
@@ -102,7 +102,7 @@ DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
 
 DQMOfflinePOGMC = cms.Sequence( DQMOfflinePrePOGMC *
                                 DQMMessageLogger )
-    
+
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
 
@@ -132,12 +132,12 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  castorSources *
                                  dqmPhysics *
                                  produceDenoms *
-                                 pfTauRunDQMValidation 
+                                 pfTauRunDQMValidation
                                 )
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0MinBias *
-                                 TrackingDQMSourceTier0MinBias *               
+                                 TrackingDQMSourceTier0MinBias *
                                  siPixelOfflineDQM_source *
                                  l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
@@ -147,7 +147,7 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  pvMonitor *
                                  materialDumperAnalyzer *
                                  produceDenoms *
-                                 pfTauRunDQMValidation 
+                                 pfTauRunDQMValidation
                                  )
 DQMOfflineLumi = cms.Sequence ( zcounting )
 
@@ -171,8 +171,8 @@ DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 
-from DQMOffline.Muon.miniAOD_cff import * 
-                                                                 
+from DQMOffline.Muon.miniAOD_cff import *
+
 DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*muonMonitors_miniAOD*MuonMiniAOD)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
@@ -198,4 +198,3 @@ DQMOfflineL1TMonitoring = cms.Sequence( l1TriggerDqmOffline ) # L1 emulator is r
 DQMOfflineL1TEgamma = cms.Sequence( l1TriggerEgDqmOffline )
 
 DQMOfflineL1TMuon = cms.Sequence( l1TriggerMuonDqmOffline )
-

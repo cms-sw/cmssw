@@ -17,7 +17,7 @@ process.source = cms.Source("EmptyIOVSource",
 # XML files, but there is no way to directly build the
 # DDCompactView from this.
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
-                                           XMLFileName = cms.untracked.string("./geSingleBigFile.xml"),
+                                           XMLFileName = cms.untracked.string("./ge2017SingleBigFile.xml"),
                                            ZIP = cms.untracked.bool(True)
                                            )
 
@@ -26,7 +26,7 @@ process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),
-                                                                     tag = cms.string('XMLFILE_CTPPS_Geometry_TagXX'))
+                                                                     tag = cms.string('XMLFILE_CTPPS_Geometry_2017_TagXX'))
                                                             )
                                           )
 

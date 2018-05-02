@@ -1,4 +1,4 @@
-# /dev/CMSSW_10_0_0/GRun
+# /dev/CMSSW_10_1_0/GRun
 
 import FWCore.ParameterSet.Config as cms
 
@@ -733,6 +733,8 @@ streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring(
     'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_v1', 
     'HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4_v1', 
     'HLT_DoubleL2Mu25NoVtx_2Cha_v1', 
+    'HLT_DoubleL2Mu30NoVtx_2Cha_CosmicSeed_Eta2p4_v1', 
+    'HLT_DoubleL2Mu30NoVtx_2Cha_Eta2p4_v1', 
     'HLT_DoubleL2Mu50_v2', 
     'HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v8', 
     'HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v8', 

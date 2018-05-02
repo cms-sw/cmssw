@@ -31,7 +31,7 @@ TrackingParticleConversionRefSelector::TrackingParticleConversionRefSelector(con
 void TrackingParticleConversionRefSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("mix", "MergedTrackTruth"));
-  descriptions.add("trackingParticleConversionRefSelector", desc);
+  descriptions.add("trackingParticleConversionRefSelectorDefault", desc);
 }
 
 void TrackingParticleConversionRefSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {

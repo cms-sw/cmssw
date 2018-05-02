@@ -52,14 +52,30 @@
 using namespace pat;
 using namespace std;
 
+PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfig) {
 
-PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : 
+  if (iConfig.getParameter<bool>("computeMuonMVA")) {
+    std::string mvaTrainingFile = iConfig.getParameter<std::string>("mvaTrainingFile");
+    // xml training file
+    edm::FileInPath fip(mvaTrainingFile);
+    float mvaDrMax = iConfig.getParameter<double>("mvaDrMax");
+    muonMvaEstimator_ = std::make_unique<MuonMvaEstimator>(fip.fullPath(), mvaDrMax);
+  }
+
+  if (iConfig.getParameter<bool>("computeSoftMuonMVA")) {
+    std::string softMvaTrainingFile = iConfig.getParameter<std::string>("softMvaTrainingFile");
+    // xml soft mva training file
+    edm::FileInPath softfip(softMvaTrainingFile);
+    softMuonMvaEstimator_ = std::make_unique<SoftMuonMvaEstimator>(softfip.fullPath());
+  }
+}
+
+PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavyObjectCache const*) :
   relMiniIsoPUCorrected_(0),
   useUserData_(iConfig.exists("userData")),
   computeMuonMVA_(false),
   computeSoftMuonMVA_(false),
   recomputeBasicSelectors_(false),
-  mvaDrMax_(0),
   mvaUseJec_(false),
   isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false)
 {
@@ -146,7 +162,6 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   // standard selectors
   recomputeBasicSelectors_ = iConfig.getParameter<bool>("recomputeBasicSelectors");
   computeMuonMVA_ = iConfig.getParameter<bool>("computeMuonMVA");
-  mvaTrainingFile_ = iConfig.getParameter<std::string>("mvaTrainingFile");
   if (computeMuonMVA_ and not computeMiniIso_) 
     throw cms::Exception("ConfigurationError") << "MiniIso is needed for Muon MVA calculation.\n";
 
@@ -157,21 +172,9 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     mvaL1L2L3ResCorrector_ = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("mvaL1L2L3ResCorrector"));
     rho_                   = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
     mvaUseJec_ = iConfig.getParameter<bool>("mvaUseJec");
-    mvaDrMax_  = iConfig.getParameter<double>("mvaDrMax");
-
-    // xml training file
-    edm::FileInPath fip(mvaTrainingFile_);
-    mvaEstimator_.initialize(fip.fullPath(),mvaDrMax_);
   }
 
   computeSoftMuonMVA_ = iConfig.getParameter<bool>("computeSoftMuonMVA");
-  softMvaTrainingFile_ = iConfig.getParameter<std::string>("softMvaTrainingFile");
-
-  if(computeSoftMuonMVA_) {
-    // xml soft mva training file
-    edm::FileInPath softfip(softMvaTrainingFile_);
-    softMvaEstimator_.initialize(softfip.fullPath());
-  }
 
   // MC info
   simInfo_        = consumes<edm::ValueMap<reco::MuonSimInfo> >(iConfig.getParameter<edm::InputTag>("muonSimInfo"));
@@ -535,21 +538,28 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       muon.setSelector(reco::Muon::MiniIsoTight,     miniIsoValue<0.10);
       muon.setSelector(reco::Muon::MiniIsoVeryTight, miniIsoValue<0.05);
     }
+    float jetPtRatio = 0.0;
+    float jetPtRel = 0.0;
+    float mva = 0.0;
     if (computeMuonMVA_ && primaryVertexIsValid){
       if (mvaUseJec_)
-	mvaEstimator_.computeMva(muon,
-				 primaryVertex,
-				 *(mvaBTagCollectionTag.product()),
-				 &*mvaL1Corrector,
-				 &*mvaL1L2L3ResCorrector);
+        mva = globalCache()->muonMvaEstimator()->computeMva(muon,
+                                                            primaryVertex,
+                                                            *(mvaBTagCollectionTag.product()),
+                                                            jetPtRatio,
+                                                            jetPtRel,
+                                                            &*mvaL1Corrector,
+                                                            &*mvaL1L2L3ResCorrector);
       else
-	mvaEstimator_.computeMva(muon,
-				 primaryVertex,
-				 *(mvaBTagCollectionTag.product()));
-      
-      muon.setMvaValue(mvaEstimator_.mva());
-      muon.setJetPtRatio(mvaEstimator_.jetPtRatio());
-      muon.setJetPtRel(mvaEstimator_.jetPtRel());
+	mva = globalCache()->muonMvaEstimator()->computeMva(muon,
+                                                            primaryVertex,
+                                                            *(mvaBTagCollectionTag.product()),
+                                                            jetPtRatio,
+                                                            jetPtRel);
+
+      muon.setMvaValue(mva);
+      muon.setJetPtRatio(jetPtRatio);
+      muon.setJetPtRel(jetPtRel);
 
       // multi-isolation
       if (computeMiniIso_){
@@ -577,8 +587,8 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
     //SOFT MVA
     if (computeSoftMuonMVA_){
-      softMvaEstimator_.computeMva(muon);
-      muon.setSoftMvaValue(softMvaEstimator_.mva());
+      float mva = globalCache()->softMuonMvaEstimator()->computeMva(muon);
+      muon.setSoftMvaValue(mva);
       //preselection in SoftMuonMvaEstimator.cc
       muon.setSelector(reco::Muon::SoftMvaId,  muon.softMvaValue() >   0.58  ); //WP choose for bmm4
       

@@ -255,8 +255,10 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 		}
 		
 		// for each transient vertex state determine if a time can be measured and fill covariance
-		for(auto& vtx : vertices) {
-		  svhelper::updateVertexTime(vtx);
+		if( pv.covariance(3,3) > 0. ) {
+		  for(auto& vtx : vertices) {		  
+		    svhelper::updateVertexTime(vtx);
+		  }
 		}
 
 		for(std::vector<TransientVertex>::const_iterator v = vertices.begin();

@@ -15,20 +15,18 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/FlatTrd.h"
+#include "Geometry/CaloGeometry/interface/FlatHexagon.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/Records/interface/HGCalGeometryRecord.h"
 #include <vector>
 
-class FlatTrd;
-
 class HGCalGeometry final: public CaloSubdetectorGeometry {
 
 public:
   
-  typedef std::vector<FlatTrd> CellVec ;
+  typedef std::vector<FlatHexagon> CellVec ;
   
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
@@ -40,7 +38,8 @@ public:
   typedef HGCalGeometryRecord        AlignedRecord   ; // NOTE: not aligned yet
   typedef PHGCalRcd                  PGeometryRecord ;
 
-  enum { k_NumberOfParametersPerShape = 12 } ; // FlatTrd
+//enum { k_NumberOfParametersPerShape = 12 } ; // FlatTrd
+  enum { k_NumberOfParametersPerShape = 3 } ; // FlatHexagon
   enum { k_NumberOfShapes = 50 } ; 
 
   static std::string dbString() { return "PHGCalRcd" ; }
@@ -123,6 +122,7 @@ private:
   std::vector<DetId>      m_validGeomIds;
   bool                    m_halfType;
   ForwardSubdetector      m_subdet;
+  const double            twoBysqrt3_;
 };
 
 #endif
