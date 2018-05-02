@@ -8,6 +8,10 @@
 #include <TBranch.h>
 
 ShallowTree::ShallowTree(const edm::ParameterSet& iConfig) {
+  //int compSettings= iConfig.getParameter<int>("CompressionSettings",-1);
+  int compSettings= iConfig.getUntrackedParameter<int>("CompressionSettings",-1);
+  if(compSettings>0)
+  	fs_->file().SetCompressionSettings(compSettings);
   tree_ = fs_->make<TTree>("tree", ""); 
 
   std::map<std::string, LEAFTYPE> leafmap;
@@ -120,7 +124,7 @@ TypedBranchConnector(edm::BranchDescription const* desc,
 {
   object_ptr_ = &object_;  
   std::string s=pin+t;  
-  if(t!="")  { tree->Branch(pin.c_str(),  object_ptr_, s.c_str() );}  //raw type
+  if(!t.empty())  { tree->Branch(pin.c_str(),  object_ptr_, s.c_str() );}  //raw type
   else       { tree->Branch(pin.c_str(), &object_ptr_            );}  //vector<type>
 }
 
