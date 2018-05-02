@@ -25,12 +25,15 @@
 #include <type_traits>
 #include <vector>
 
+#include <boost/optional.hpp>
+
 // user include files
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/HCMethods.h"
+#include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 
 // forward declarations
 
@@ -41,6 +44,7 @@ namespace edm {
    namespace eventsetup {
       class EventSetupProvider;
       class EventSetupRecord;
+      class EventSetupRecordImpl;
       template<class T> struct data_default_record_trait;
       class EventSetupKnownRecordsSupplier;
    }
@@ -56,26 +60,38 @@ namespace edm {
       /** returns the Record of type T.  If no such record available
           a eventsetup::NoRecordException<T> is thrown */
       template< typename T>
-         const T& get() const {
+         T get() const {
+           using namespace eventsetup;
+           using namespace eventsetup::heterocontainer;
             //NOTE: this will catch the case where T does not inherit from EventSetupRecord
             //  HOWEVER the error message under gcc 3.x is awful
             static_assert(std::is_base_of<edm::eventsetup::EventSetupRecord, T>::value, "Trying to get a class that is not a Record from EventSetup");
-            const T* value = nullptr;
-            eventSetupGetImplementation(*this, value);
-            //NOTE: by construction, eventSetupGetImplementation should thrown an exception rather than return a null value
-            assert(nullptr != value);
-            return *value;
+
+           auto const temp = findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
+           if(nullptr == temp) {
+             throw eventsetup::NoRecordException<T>(recordDoesExist(*this, eventsetup::EventSetupRecordKey::makeKey<T>()));
+           }
+           T returnValue;
+           returnValue.setImpl(temp);
+           return returnValue;
          }
       /** returns the Record of type T.  If no such record available
        a null pointer is returned */
       template< typename T>
-      const T* tryToGet() const {
-        //NOTE: this will catch the case where T does not inherit from EventSetupRecord
-        static_assert((std::is_base_of<edm::eventsetup::EventSetupRecord, T>::value),"Trying to get a class that is not a Record from EventSetup");
-        const T* value = nullptr;
-        eventSetupTryToGetImplementation(*this, value);
-        return value;
-      }
+        boost::optional<T> tryToGet() const {
+           using namespace eventsetup;
+           using namespace eventsetup::heterocontainer;
+
+           //NOTE: this will catch the case where T does not inherit from EventSetupRecord
+           static_assert((std::is_base_of<edm::eventsetup::EventSetupRecord, T>::value),"Trying to get a class that is not a Record from EventSetup");
+           auto const temp = findImpl(makeKey<typename type_from_itemtype<eventsetup::EventSetupRecordKey,T>::Type,eventsetup::EventSetupRecordKey>());
+           if(temp != nullptr) {
+              T rec;
+              rec.setImpl(temp);
+              return rec;
+           }
+           return boost::none;
+        }
 
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
       template< typename T>
@@ -101,8 +117,8 @@ namespace edm {
            rec.get(iTag,iHolder);
         }
    
-      const eventsetup::EventSetupRecord* find(const eventsetup::EventSetupRecordKey&) const;
-      
+      boost::optional<eventsetup::EventSetupRecordGeneric> find(const eventsetup::EventSetupRecordKey&) const;
+
       ///clears the oToFill vector and then fills it with the keys for all available records
       void fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>& oToFill) const;
   
@@ -118,7 +134,7 @@ namespace edm {
             iValue = &(get<T>());
          }
 
-      friend class eventsetup::EventSetupRecord;
+      friend class eventsetup::EventSetupRecordImpl;
 
     protected:
       //Only called by EventSetupProvider
@@ -126,7 +142,7 @@ namespace edm {
         knownRecords_ = iSupplier;
       }
 
-      void add(const eventsetup::EventSetupRecord& iRecord);
+      void add(const eventsetup::EventSetupRecordImpl& iRecord);
       
       void clear();
       
@@ -138,14 +154,16 @@ namespace edm {
       EventSetup const& operator=(EventSetup const&) = delete; // stop default
 
       ActivityRegistry* activityRegistry() const { return activityRegistry_; }
+      eventsetup::EventSetupRecordImpl const* findImpl(const eventsetup::EventSetupRecordKey&) const;
+     
 
       void insert(const eventsetup::EventSetupRecordKey&,
-                  const eventsetup::EventSetupRecord*);
+                  const eventsetup::EventSetupRecordImpl*);
 
       // ---------- member data --------------------------------
     
       //NOTE: the records are not owned
-      std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> recordMap_;
+      std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecordImpl const *> recordMap_;
       eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;
       ActivityRegistry* activityRegistry_;
   };
