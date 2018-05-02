@@ -77,7 +77,7 @@ void PFTauMiniAODPrimaryVertexProducer::nonTauTracksInPVFromPackedCands(const si
     bool matched = false;
     for(const auto& tauTrack: tauTracks){
       if(std::abs(tauTrack->eta()-track->eta())<0.005
-	 && deltaPhi(tauTrack->phi(),track->phi())<0.005
+	 && std::abs(deltaPhi(tauTrack->phi(),track->phi()))<0.005
 	 && std::abs(tauTrack->pt()/track->pt()-1.)<0.005
 	 ){
 	matched = true;
