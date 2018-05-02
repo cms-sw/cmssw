@@ -145,8 +145,8 @@ namespace edm {
           it != itEnd;
           ++it) {
          //std::cout <<"  "<<it->name()<<std::endl;
-         const eventsetup::EventSetupRecord* r = iES.find(*it);
-         assert(r != nullptr);
+         auto r = iES.find(*it);
+         assert(r);
          
          RetrievedDataMap::iterator itRetrievedData =  m_retrievedDataMap.find(*it);
          if(itRetrievedData == m_retrievedDataMap.end()) {

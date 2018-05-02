@@ -19,7 +19,6 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
-#include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -298,7 +297,8 @@ EventSetupProvider::finishConfiguration()
          Providers::iterator itFound = providers_.find(*itKey);
          if(providers_.end() == itFound) {
             //create a provider for this record
-            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
+            insert(*itKey,
+                   std::make_unique<EventSetupRecordProvider>(*itKey) );
             itFound = providers_.find(*itKey);
          }
          itFound->second->addFinder(*itFinder);
@@ -333,7 +333,7 @@ EventSetupProvider::finishConfiguration()
          Providers::iterator itFound = providers_.find(*itKey);
          if(providers_.end() == itFound) {
             //create a provider for this record
-            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
+            insert(*itKey, std::make_unique<EventSetupRecordProvider>(*itKey));
             itFound = providers_.find(*itKey);
          }
          itFound->second->add(*itProvider);
@@ -734,11 +734,17 @@ EventSetupProvider::clearInitializationData() {
 }
 
 void
-EventSetupProvider::addRecordToEventSetup(EventSetupRecord& iRecord) {
+EventSetupProvider::addRecordToEventSetup(EventSetupRecordImpl& iRecord) {
    iRecord.setEventSetup(&eventSetup_);
    eventSetup_.add(iRecord);
 }
-      
+     
+void
+EventSetupProvider::insert(std::unique_ptr<EventSetupRecordProvider> iRecordProvider) {
+   auto key =iRecordProvider->key();
+   insert( key, std::move(iRecordProvider));
+}
+
 //
 // const member functions
 //
