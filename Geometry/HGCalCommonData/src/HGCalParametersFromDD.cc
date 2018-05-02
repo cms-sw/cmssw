@@ -76,7 +76,10 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "GeometryMode " << php.mode_ 
 				  << ":" << HGCalGeometryMode::Hexagon << ":" 
-				  << HGCalGeometryMode::HexagonFull;
+				  << HGCalGeometryMode::HexagonFull << ":"
+				  << ":" << HGCalGeometryMode::Hexagon8 << ":"
+				  << HGCalGeometryMode::Hexagon8Full << ":"
+				  << ":" << HGCalGeometryMode::Trapezoid;
 #endif
     HGCalGeomParameters *geom = new HGCalGeomParameters();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) ||
@@ -97,6 +100,39 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 #endif
       }
     }
+    if ((php.mode_ == HGCalGeometryMode::Hexagon8) ||
+	(php.mode_ == HGCalGeometryMode::Hexagon8Full)) {
+      attribute  = "OnlyForHGCalNumbering";
+      value      = "HGCal";
+      DDValue val2(attribute, value, 0.0);
+      DDSpecificsMatchesValueFilter filter2{val2};
+      DDFilteredView fv2(*cpv,filter2);
+      bool ok2 = fv2.firstChild();
+      if (ok2) {
+	DDsvalues_type sv2(fv2.mergedSpecifics());
+	mode = getGeometryWaferMode("WaferMode", sv2);
+	php.nCellsFine_       = (int)(getDDDValue("NumberOfCellsFine",  sv2));
+	php.nCellsCoarse_     = (int)(getDDDValue("NumberOfCellsCoarse",sv2));
+	php.waferSize_        = getDDDValue("WaferSize", sv2);
+	php.waferThick_       = getDDDValue("WaferThickness", sv2);
+	php.sensorSeparation_ = getDDDValue("SensorSeparation", sv2);
+	php.mouseBite_        = getDDDValue("MouseBite", sv2);
+	php.waferR_           = php.waferSize_/std::sqrt(3.0);
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("HGCalGeom") << "WaferMode " << mode << ":" 
+				      << HGCalGeometryMode::Polyhedra << ":" 
+				      << HGCalGeometryMode::ExtrudedPolygon
+				      << "# of cells in fine/coarse wafers "
+				      << php.nCellsFine_ << ":" 
+				      << php.nCellsCoarse_ << " wafer Params "
+				      << php.waferSize_ << ":"
+				      << php.waferR_ << ":"
+				      << php.waferThick_ << ":"
+				      << php.sensorSeparation_ << ":"
+				      << php.mouseBite_;
+#endif
+      }
+    }
     if (php.mode_ == HGCalGeometryMode::Hexagon) {
       //Load the SpecPars
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
@@ -104,6 +140,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadGeometryHexagon(fv, php, name, cpv, namew, namec, mode);
       //Load cell parameters
       geom->loadCellParsHexagon(cpv, php);
+      //Set complete fill mode
+      php.defineFull_ = false;
     } else if (php.mode_ == HGCalGeometryMode::HexagonFull) {
       //Load the SpecPars
       geom->loadSpecParsHexagon(fv, php, cpv, namew, namec);
@@ -113,6 +151,33 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       geom->loadWaferHexagon(php);
       //Load cell parameters
       geom->loadCellParsHexagon(cpv, php);
+      //Set complete fill mode
+      php.defineFull_ = true;
+    } else if (php.mode_ == HGCalGeometryMode::Hexagon8) {
+      //Load the SpecPars
+      geom->loadSpecParsHexagon8(fv, php);
+      //Load Geometry parameters
+      geom->loadGeometryHexagon8(fv, php);
+      //Load wafer positions
+      geom->loadWaferHexagon8(php);
+      //Set complete fill mode
+      php.defineFull_ = false;
+    } else if (php.mode_ == HGCalGeometryMode::Hexagon8Full) {
+      //Load the SpecPars
+      geom->loadSpecParsHexagon8(fv, php);
+      //Load Geometry parameters
+      geom->loadGeometryHexagon8(fv, php);
+      //Load wafer positions
+      geom->loadWaferHexagon8(php);
+      //Set complete fill mode
+      php.defineFull_ = true;
+    } else if (php.mode_ == HGCalGeometryMode::Trapezoid) {
+      //Load maximum eta
+      php.etaMaxBH_ = getDDDValue("etaMaxBH", sv);
+      //Load the SpecPars
+      geom->loadSpecParsTrapezoid(fv, php);
+      //Load Geometry parameters
+      geom->loadGeometryHexagon8(fv, php);
     } else {
       edm::LogError("HGCalGeom") << "Unknown Geometry type " << php.mode_
 				 << " for HGCal " << name << ":" << namew
