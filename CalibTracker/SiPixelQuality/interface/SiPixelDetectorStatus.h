@@ -25,16 +25,16 @@ public:
   void addModule(int detid, SiPixelModuleStatus a);
 
   // fill hit in double idc in ROC roc into module detid
-  void fillDIGI(int detid, int roc, int idc);
-  // fill stuck TBM info
-  void fillStuckTBM(int detid, PixelFEDChannel ch, std::time_t time);
+  void fillDIGI(int detid, int roc);
+  // fill FEDerror25 info
+  void fillFEDerror25(int detid, PixelFEDChannel ch);
 
-  std::map<int, std::vector<int>> getStuckTBMsRocs();
+  std::map<int, std::vector<int>> getFEDerror25Rocs();
 
   // determine detector average nhits and RMS
-  void digiOccupancy();
-  double perRocDigiOcc(){ digiOccupancy(); return fDetAverage; }
-  double perRocDigiOccVar(){ digiOccupancy(); return fDetSigma; }
+  double perRocDigiOcc();
+  double perRocDigiOccVar();
+
   unsigned long int digiOccDET(){ return fDetHits; }
 
   // number of modules in detector
@@ -54,21 +54,17 @@ public:
   std::pair<int,int> getRunRange() {return std::make_pair(fRun0,fRun1);}
   void setLSRange(int ls0, int ls1)  {fLS0 = ls0; fLS1 = ls1;}
   std::pair<int,int> getLSRange() {return std::make_pair(fLS0,fLS1);}
-  void setRefTime(std::time_t refTime0, std::time_t refTime1) {fTime0 = refTime0; fTime1 = refTime1;}
-  std::pair<std::time_t,std::time_t> getRefTime() {return std::make_pair(fTime0,fTime1);}
 
   // total processed events
   void setNevents(unsigned long int N){ fNevents = N; }
   unsigned long int getNevents(){ return fNevents; }
 
-  void resetDetectorStatus() { fModules.clear(); fDetAverage=0; fDetSigma=0; fDetHits=0; fNevents=0;
+  void resetDetectorStatus() { fModules.clear(); fDetHits=0; fNevents=0;
                                fRun0 = 99999999; fRun1 = 0; fLS0 = 99999999; fLS1 = 0; 
-                               fTime0 = 0; fTime1 = 0;
                              }
 
   // combine detector status
   void updateDetectorStatus(SiPixelDetectorStatus newData);
-  SiPixelDetectorStatus combineDetectorStatus(SiPixelDetectorStatus newData);
 
   // detector status
   std::map<int, SiPixelModuleStatus> getDetectorStatus(){ return fModules; }
@@ -79,18 +75,11 @@ public:
 
   // first and last lumisection seen in this instance
   int fLS0, fLS1;
-
-  // first and last run seen in this instance (likely to be the same number!)
+  // first and last run seen in this instance (should be the same number!)
   int fRun0, fRun1;
 
-  // being and end time stamp
-  std::time_t fTime0, fTime1;
-  
   // number of events processed
   unsigned long int fNevents;
-
-  // average (per module) number of hits over entire detector
-  double fDetAverage, fDetSigma;
 
   // total hits in detector
   unsigned long int fDetHits;

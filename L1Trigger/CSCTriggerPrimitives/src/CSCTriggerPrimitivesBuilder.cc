@@ -433,13 +433,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
   // run MPC simulation
   m_muonportcard->loadDigis(oc_lct);
 
-  // temporary hack to ensure that all MPC LCTs are read out
-  // in the correct readout window
-  if (runOnData_) {
-    m_minBX = 5;
-    m_maxBX = 11;
-  }
-
   // sort the LCTs per sector
   // insert them into the result vector
   std::vector<csctf::TrackStub> result;

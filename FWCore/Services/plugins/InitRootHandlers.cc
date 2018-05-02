@@ -252,7 +252,8 @@ namespace {
       // be fatal, but we do want an error to print.
       bool alreadyPrinted = false;
       if ((el_message.find("number of iterations was insufficient") != std::string::npos) ||
-          (el_message.find("bad integrand behavior") != std::string::npos)) {
+          (el_message.find("bad integrand behavior") != std::string::npos) ||
+          (el_message.find("integral is divergent, or slowly convergent") != std::string::npos)) {
         el_severity = SeverityLevel::kInfo;
         edm::LogError("Root_Error") << el_location << el_message;
         alreadyPrinted = true;

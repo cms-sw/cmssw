@@ -101,7 +101,11 @@ void CalibrationTask::fill( const SiStripEventSummary& summary,
   isub = ical<4 ? ical+4 : ical-4;
   checkAndSave(ical);
   // retrieve the delay from the EventSummary
-  int bin = (100-summary.latency())*8+(7-summary.calSel());
+  int bin = 0;
+  if(runType_ == sistrip::CALIBRATION)
+    bin = (100-summary.latency())*8+(7-summary.calSel());
+  else if(runType_ == sistrip::CALIBRATION_DECO)
+    bin = (102-summary.latency())*8+(7-summary.calSel());
   // Fill the histograms.
   // data-ped -(data-ped)_isub
   // the second term corresponds to the common mode substraction, looking at a strip far away.

@@ -62,7 +62,7 @@ SiPixelPhase1Summary::SiPixelPhase1Summary(const edm::ParameterSet& iConfig) :
    for (auto const mapPSet : mapPSets){
      summaryPlotName_[mapPSet.getParameter<std::string>("MapName")] = mapPSet.getParameter<std::string>("MapHist");
    }
-
+   deadRocThresholds_ = conf_.getParameter<std::vector<double> >("DeadROCErrorThreshold");
 }
 
 SiPixelPhase1Summary::~SiPixelPhase1Summary()
@@ -83,9 +83,9 @@ void SiPixelPhase1Summary::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQ
   }
 
   if (runOnEndLumi_){
-    fillSummaries(iBooker,iGetter);
     int lumiSec = lumiSeg.id().luminosityBlock();
     fillTrendPlots(iBooker,iGetter,lumiSec);
+    fillSummaries(iBooker,iGetter);
   }
 
   //  iBooker.cd();
@@ -103,8 +103,9 @@ void SiPixelPhase1Summary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
     firstLumi = false;
   }
   if (runOnEndJob_){
-    fillSummaries(iBooker,iGetter);
     if (!runOnEndLumi_) fillTrendPlots(iBooker,iGetter); //If we're filling these plots at the end lumi step, it doesn't really make sense to also do them at the end job
+    fillSummaries(iBooker,iGetter);
+
   }
 
 }
@@ -125,13 +126,37 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
     auto name = mapInfo.first;
     summaryMap_[name] = iBooker.book2D("pixel"+name+"Summary","Pixel "+name+" Summary",12,0,12,4,0,4);
   }
-  //Now book the overall summary map
+  //Make the new 6 bin ROC summary
+  deadROCSummary = iBooker.book2D("deadROCSummary","Percentage of dead ROCs per layer/ring",2,0,2,4,0,4);
+  std::vector<std::string> xAxisLabelsReduced_ = {"Barrel","Forward"};
+  deadROCSummary->setAxisTitle("Subdetector",1);
+  for (unsigned int i = 0; i < xAxisLabelsReduced_.size(); i++){
+    deadROCSummary->setBinLabel(i+1,xAxisLabelsReduced_[i]);
+  }
+
+  //Book the summary plot
   iBooker.setCurrentFolder("PixelPhase1/EventInfo");
-  summaryMap_["Grand"] = iBooker.book2D("reportSummaryMap","Pixel Summary Map",12,0,12,4,0,4);
+
+  if (runOnEndLumi_){
+  //New less granular summary plot - this is currently only done online
+    summaryMap_["Grand"] = iBooker.book2D("reportSummaryMap","Pixel Summary Map",2,0,2,4,0,4);
+    summaryMap_["Grand"]->setAxisTitle("Subdetector",1);
+    for (unsigned int i = 0; i < xAxisLabelsReduced_.size(); i++){
+      summaryMap_["Grand"]->setBinLabel(i+1,xAxisLabelsReduced_[i]);
+      for (unsigned int j = 0; j < 4; j++){ summaryMap_["Grand"]->setBinContent(i,j,-1);}
+    }
+  }
+  else{
+    //Book the original summary plot, for now juts doing this one offline.
+    summaryMap_["Grand"] = iBooker.book2D("reportSummaryMap","Pixel Summary Map",12,0,12,4,0,4);
+  }
+  
   reportSummary = iBooker.bookFloat("reportSummary");
+  
 
   //Now set up axis and bin labels
   for (auto summaryMapEntry: summaryMap_){
+    if (summaryMapEntry.first == "Grand") continue;
     auto summaryMap = summaryMapEntry.second;
     for (unsigned int i = 0; i < xAxisLabels_.size(); i++){
       summaryMap->setBinLabel(i+1, xAxisLabels_[i],1);
@@ -141,13 +166,14 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
     }
     summaryMap->setAxisTitle("Subdetector",1);
     summaryMap->setAxisTitle("Layer/disk",2);
-    for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
-      for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
+    for (int i = 0; i < summaryMap->getTH1()->GetXaxis()->GetNbins(); i++){ // !??!?!? xAxisLabels_.size() ?!?!
+      for (int j = 0; j < summaryMap->getTH1()->GetYaxis()->GetNbins(); j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
 	summaryMap->Fill(i,j,-1.);
       }
     }
   }
   reportSummary->Fill(-1.);
+
   //Reset the iBooker
   iBooker.setCurrentFolder("PixelPhase1/");
 }
@@ -175,8 +201,8 @@ void SiPixelPhase1Summary::bookTrendPlots(DQMStore::IBooker & iBooker){
     }
   }
   else {
-    deadROCTrends_[offline] = iBooker.book1D("deadRocTotal","N dead ROCs",6,0,6);
-    ineffROCTrends_[offline] = iBooker.book1D("ineffRocTotal","N inefficient ROCs",6,0,6); 
+    deadROCTrends_[offline] = iBooker.bookProfile("deadRocTotal","N dead ROCs",6,0,6,0.,8192,"");
+    ineffROCTrends_[offline] = iBooker.bookProfile("ineffRocTotal","N inefficient ROCs",6,0,6,0.,8192,""); 
     deadROCTrends_[offline]->setAxisTitle("Subdetector",1);
     ineffROCTrends_[offline]->setAxisTitle("Subdetector",1);
     for (unsigned int i = 1; i <= binAxisLabels.size(); i++){
@@ -223,28 +249,68 @@ void SiPixelPhase1Summary::fillSummaries(DQMStore::IBooker & iBooker, DQMStore::
       }  
     }    
   }
+
+  //Fill the dead ROC summary
+  std::vector<trendPlots> trendOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
+  std::vector<int> nRocsPerTrend = {1536,3584,5632,8192,4224,6528};
+  for (unsigned int i = 0; i < trendOrder.size(); i++){
+    int xBin = i < 4 ? 1 : 2;
+    int yBin = i%4 + 1;
+    float nROCs = 0.;
+    if (runOnEndLumi_){ //Online case
+      TH1 * tempProfile = deadROCTrends_[trendOrder[i]]->getTH1();
+      nROCs = tempProfile->GetBinContent(tempProfile->FindLastBinAbove());
+    }
+    else { //Offline case
+      TH1* tempProfile = deadROCTrends_[offline]->getTH1();
+      nROCs = tempProfile->GetBinContent(i+1);
+    }
+    deadROCSummary->setBinContent(xBin,yBin,nROCs/nRocsPerTrend[i]);
+  }
+
   //Sum of non-negative bins for the reportSummary
   float sumOfNonNegBins = 0.;
   //Now we will use the other summary maps to create the overall map.
-  for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
-    if (summaryMap_["Grand"]==nullptr){
-      edm::LogWarning("SiPixelPhase1Summary") << "Grand summary does not exist!";
-      break;
-    }
-    for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
-      summaryMap_["Grand"]->setBinContent(i+1,j+1,1); // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
-      for (auto const mapInfo: summaryPlotName_){ //Check summary maps
-	auto name = mapInfo.first;
-	if (summaryMap_[name]==nullptr){
-	  edm::LogWarning("SiPixelPhase1Summary") << "Summary " << name << " does not exist!";
-	  continue;
-	}
-	if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > summaryMap_[name]->getBinContent(i+1,j+1)) summaryMap_["Grand"]->setBinContent(i+1,j+1,summaryMap_[name]->getBinContent(i+1,j+1));
+  //For now we only want to do this offline
+  if (!runOnEndLumi_){
+    for (int i = 0; i < 12; i++){ // !??!?!? xAxisLabels_.size() ?!?!
+      if (summaryMap_["Grand"]==nullptr){
+	edm::LogWarning("SiPixelPhase1Summary") << "Grand summary does not exist!";
+	break;
       }
-      if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > -0.1) sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i+1,j+1);
+      for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
+	summaryMap_["Grand"]->setBinContent(i+1,j+1,1); // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
+	for (auto const mapInfo: summaryPlotName_){ //Check summary maps
+	  auto name = mapInfo.first;
+	  if (summaryMap_[name]==nullptr){
+	    edm::LogWarning("SiPixelPhase1Summary") << "Summary " << name << " does not exist!";
+	    continue;
+	    }
+	  if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > summaryMap_[name]->getBinContent(i+1,j+1)) summaryMap_["Grand"]->setBinContent(i+1,j+1,summaryMap_[name]->getBinContent(i+1,j+1));
+	}
+	if (summaryMap_["Grand"]->getBinContent(i+1,j+1) > -0.1) sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i+1,j+1);
+      }
+    }
+    reportSummary->Fill(sumOfNonNegBins/40.); // The average of the 40 useful bins in the summary map.
+  }
+
+  //Fill the new overall map
+  //  if (!runOnEndLumi_) return;
+  else{ //Do this for online only
+    for (int i = 0; i < 2; i++){
+      if (summaryMap_["Grand"]==nullptr){
+	edm::LogWarning("SiPixelPhase1Summary") << "Grand summary does not exist!";
+	break;
+      }
+      for (int j = 0; j < 4; j++){ // !??!?!? yAxisLabels_.size() ?!?!?!
+	//Ignore the bins without detectors in them
+	if (i == 1 && j > 1) continue;
+	summaryMap_["Grand"]->setBinContent(i+1,j+1,1); // This resets the map to be good. We only then set it to 0 if there has been a problem in one of the other summaries.
+	if (deadROCSummary->getBinContent(i+1,j+1) > deadRocThresholds_[i*4+j]) summaryMap_["Grand"]->setBinContent(i+1,j+1,0);
+	sumOfNonNegBins += summaryMap_["Grand"]->getBinContent(i+1,j+1);
+      }
     }
   }
-  reportSummary->Fill(sumOfNonNegBins/40.); // The average of the 40 useful bins in the summary map.
 
 }
 
@@ -256,9 +322,17 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   // If we're running in online mode and the lumi section is not modulo 10, return. Offline running always uses lumiSec=0, so it will pass this test.
   if (lumiSec%10 != 0) return;
 
+  if (runOnEndLumi_) {
+    MonitorElement * nClustersAll = iGetter.get("PixelPhase1/Phase1_MechanicalView/num_clusters_per_Lumisection_PXAll");
+    if (nClustersAll==nullptr){
+      edm::LogWarning("SiPixelPhase1Summary") << "All pixel cluster trend plot not available!!";
+      return;
+    }
+    if (nClustersAll->getTH1()->GetBinContent(lumiSec) < 100) return;
+  }
+  
   std::string histName;
   
-
   //Find the total number of filled bins and hi efficiency bins
   std::vector<trendPlots> trendOrder = {layer1,layer2,layer3,layer4,ring1,ring2};
   std::vector<int> nFilledROCs(trendOrder.size(),0);
@@ -294,8 +368,8 @@ void SiPixelPhase1Summary::fillTrendPlots(DQMStore::IBooker & iBooker, DQMStore:
   
   if (!runOnEndLumi_) { //offline
     for (unsigned int i = 0; i < trendOrder.size(); i++){
-      deadROCTrends_[offline]->setBinContent(i+1,nRocsPerTrend[i]-nFilledROCs[i]);
-      ineffROCTrends_[offline]->setBinContent(i+1,nFilledROCs[i]-hiEffROCs[i]);
+      deadROCTrends_[offline]->Fill(i,nRocsPerTrend[i]-nFilledROCs[i]);
+      ineffROCTrends_[offline]->Fill(i,nFilledROCs[i]-hiEffROCs[i]);
     }
   }
   else { //online

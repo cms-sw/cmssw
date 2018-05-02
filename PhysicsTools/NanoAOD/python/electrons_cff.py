@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 from PhysicsTools.NanoAOD.common_cff import *
 import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
 from math import ceil,log
@@ -93,26 +94,27 @@ run2_miniAOD_80XLegacy.toModify(isoForEle, src = "slimmedElectronsUpdated",
 run2_nanoAOD_92X.toModify(isoForEle, src = "slimmedElectronsUpdated")
 
 ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
-    srcJet = cms.InputTag("slimmedJets"),
+    srcJet = cms.InputTag("updatedJets"),
     srcLep = cms.InputTag("slimmedElectrons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
 run2_miniAOD_80XLegacy.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 run2_nanoAOD_92X.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 
-from EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi import calibratedPatElectrons
-calibratedPatElectrons.correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV1_2016_ele") # hack, should go somewhere in EgammaAnalysis
-calibratedPatElectrons.semiDeterministic = cms.bool(True)
-run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")
-
-energyCorrForEle =  cms.EDProducer("ElectronEnergyVarProducer",
-    srcRaw = cms.InputTag("slimmedElectrons"),
-    srcCorr = cms.InputTag("calibratedPatElectrons"),
+import EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi
+calibratedPatElectrons80X = EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi.calibratedPatElectrons.clone(
+    electrons = cms.InputTag("slimmedElectronsUpdated"),
+    correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV1_2016_ele"),
+    semiDeterministic = cms.bool(True)
 )
-run2_miniAOD_80XLegacy.toModify(energyCorrForEle, srcRaw = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(energyCorrForEle, srcRaw = "slimmedElectronsUpdated")
-
+energyCorrForEle80X =  cms.EDProducer("ElectronEnergyVarProducer",
+    srcRaw = cms.InputTag("slimmedElectronsUpdated"),
+    srcCorr = cms.InputTag("calibratedPatElectrons80X"),
+)
+import RecoEgamma.EgammaTools.calibratedEgammas_cff
+calibratedPatElectrons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatElectrons.clone(
+    produceCalibratedObjs = False
+)
 
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     src = cms.InputTag("slimmedElectrons"),
@@ -127,7 +129,6 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         ptRatio = cms.InputTag("ptRatioRelForEle:ptRatio"),
         ptRel = cms.InputTag("ptRatioRelForEle:ptRel"),
         jetNDauChargedMVASel = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"),
-        eCorr = cms.InputTag("energyCorrForEle:eCorr"),
     ),
     userIntFromBools = cms.PSet(
         mvaFall17Iso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp90"),
@@ -156,6 +157,12 @@ run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userFloats,
     mvaSpring16HZZ = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
     mvaFall17Iso = None,
     mvaFall17noIso = None,
+    eCorr = cms.InputTag("energyCorrForEle80X","eCorr")
+)
+run2_nanoAOD_94XMiniAODv1.toModify(slimmedElectronsWithUserData.userFloats,
+    ecalTrkEnergyErrPostCorr = cms.InputTag("calibratedPatElectrons94Xv1","ecalTrkEnergyErrPostCorr"),
+    ecalTrkEnergyPreCorr     = cms.InputTag("calibratedPatElectrons94Xv1","ecalTrkEnergyPreCorr"),
+    ecalTrkEnergyPostCorr    = cms.InputTag("calibratedPatElectrons94Xv1","ecalTrkEnergyPostCorr"),
 )
 run2_miniAOD_80XLegacy.toReplaceWith(slimmedElectronsWithUserData.userIntFromBools,
     cms.PSet(
@@ -215,8 +222,8 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(CandVars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the associated photon (-1 if none)"),
-        energyErr = Var("p4Error('P4_COMBINATION')*userFloat('eCorr')",float,doc="energy error of the cluster-track combination",precision=6),
-        eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+        energyErr = Var("userFloat('ecalTrkEnergyErrPostCorr')",float,doc="energy error of the cluster-track combination",precision=6),
+        eCorr = Var("userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
         dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
@@ -255,7 +262,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
     ),
 )
-electronTable.variables.pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} after energy correction & smearing")
+electronTable.variables.pt = Var("pt*userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')",  float, precision=-1, doc="p_{T}")
 run2_miniAOD_80XLegacy.toModify(electronTable.variables,
     cutBased_HLTPreSel = Var("userInt('cutbasedID_HLT')",int,doc="cut-based HLT pre-selection ID"),
     mvaSpring16GP = Var("userFloat('mvaSpring16GP')",float,doc="MVA general-purpose ID score"),
@@ -271,6 +278,14 @@ run2_miniAOD_80XLegacy.toModify(electronTable.variables,
     mvaFall17noIso_WP80 = None,
     mvaFall17noIso_WP90 = None,
     mvaFall17noIso_WPL = None,
+    pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} after energy correction & smearing"),
+    energyErr = Var("p4Error('P4_COMBINATION')*userFloat('eCorr')",float,doc="energy error of the cluster-track combination",precision=6),
+    eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+)
+run2_nanoAOD_92X.toModify(electronTable.variables,
+    pt = Var("pt",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
+    energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6),
+    eCorr = None,
 )
 
 electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
@@ -294,10 +309,18 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 electrons or photons"),
 )
 
-electronSequence = cms.Sequence(heepIDVarValueMaps + egmGsfElectronIDSequence + bitmapVIDForEle + isoForEle + ptRatioRelForEle + calibratedPatElectrons + energyCorrForEle + slimmedElectronsWithUserData + finalElectrons)
+electronSequence = cms.Sequence(heepIDVarValueMaps + egmGsfElectronIDSequence + bitmapVIDForEle + isoForEle + ptRatioRelForEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 
 _withUpdate_sequence = cms.Sequence(slimmedElectronsUpdated + electronSequence.copy())
 run2_nanoAOD_92X.toReplaceWith(electronSequence, _withUpdate_sequence)
-run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withUpdate_sequence)
+
+_withUpdateAnd80XScale_sequence = _withUpdate_sequence.copy()
+_withUpdateAnd80XScale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons80X + energyCorrForEle80X + slimmedElectronsWithUserData)
+run2_miniAOD_80XLegacy.toReplaceWith(electronSequence, _withUpdateAnd80XScale_sequence)
+
+_with94Xv1Scale_sequence = electronSequence.copy()
+_with94Xv1Scale_sequence.replace(slimmedElectronsWithUserData, calibratedPatElectrons94Xv1 + slimmedElectronsWithUserData)
+run2_nanoAOD_94XMiniAODv1.toReplaceWith(electronSequence, _with94Xv1Scale_sequence)
+

@@ -63,6 +63,7 @@ ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjec
 ALCAHARVESTBeamSpotHPByRun = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("runbased")
 ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdHPByRun")
+ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHP')
 
 ALCAHARVESTBeamSpotHPByRun_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdHPByRun'))
 
@@ -76,6 +77,7 @@ ALCAHARVESTBeamSpotHPByRun_dbOutput = cms.PSet(record = cms.string('BeamSpotObje
 ALCAHARVESTBeamSpotHPByLumi = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased")
 ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdHPByLumi")
+ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHP')
 ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.DumpTxt = cms.untracked.bool(True)
 
 # configuration of DropBox metadata and DB output
@@ -164,6 +166,14 @@ ALCAHARVESTSiPixelQuality_dbOutput = cms.VPSet(cms.PSet(record = cms.string('SiP
                                                         timetype = cms.untracked.string('lumiid')
                                                         )
                                                )
+
+if ALCAHARVESTSiPixelQuality.debug == cms.untracked.bool(True) :
+   ALCAHARVESTSiPixelQuality_dbOutput.append(
+       cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_PCL'),
+                tag = cms.string('SiPixelQualityFromDbRcd_PCL'),
+                timetype = cms.untracked.string('lumiid')
+                )
+   )
 
 # define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)

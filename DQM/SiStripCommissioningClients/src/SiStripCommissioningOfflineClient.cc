@@ -10,6 +10,7 @@
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedsOnlyHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/PedsFullNoiseHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/NoiseHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/SamplingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/CalibrationHistograms.h"
@@ -401,6 +402,7 @@ void SiStripCommissioningOfflineClient::createHistos( const edm::ParameterSet& p
   else if ( runType_ == sistrip::OPTO_SCAN )            { histos_ = new OptoScanHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::VPSP_SCAN )            { histos_ = new VpspScanHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::PEDESTALS )            { histos_ = new PedestalsHistograms( pset, bei_ ); }
+  else if ( runType_ == sistrip::PEDS_FULL_NOISE )      { histos_ = new PedsFullNoiseHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::PEDS_ONLY )            { histos_ = new PedsOnlyHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::NOISE )                { histos_ = new NoiseHistograms( pset, bei_ ); }
   else if ( runType_ == sistrip::APV_LATENCY      ||
