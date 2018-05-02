@@ -553,12 +553,9 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   Float_t TauEmFraction = std::max(thePFTau.emFraction(), (Float_t)0.);
   Float_t TauLeadPFChargedHadrHoP = 0.;
   Float_t TauLeadPFChargedHadrEoP = 0.;
-  if ( thePFTau.leadChargedHadrCand()->p() > 0. ) {
-    const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadChargedHadrCand().get());
-    if (pflch != nullptr) {
-      TauLeadPFChargedHadrHoP = pflch->hcalEnergy()/pflch->p();
-      TauLeadPFChargedHadrEoP = pflch->ecalEnergy()/pflch->p();
-    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n";
+  if ( thePFTau.leadPFChargedHadrCand()->p() > 0. ) {
+    TauLeadPFChargedHadrHoP = thePFTau.leadPFChargedHadrCand()->hcalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
+    TauLeadPFChargedHadrEoP = thePFTau.leadPFChargedHadrCand()->ecalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
   }
 
   std::vector<Float_t> GammasdEtaInSigCone;
@@ -642,12 +639,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   }
   Float_t TaudCrackPhi = dCrackPhi(TauPhi, TauEtaAtEcalEntrance);
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance);
-  Float_t TauHasGsf = false;
-  const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadChargedHadrCand().get());
-  if (pflch != nullptr) {
-    TauHasGsf = pflch->gsfTrackRef().isNonnull();
-  } else {
-    throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n"; }
+  Float_t TauHasGsf = thePFTau.leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
   
   // === electron variables ===
   Float_t ElecEta = theGsfEle.eta();
@@ -773,12 +765,9 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   Float_t TauEmFraction = std::max(thePFTau.emFraction(), (Float_t)0.);
   Float_t TauLeadPFChargedHadrHoP = 0.;
   Float_t TauLeadPFChargedHadrEoP = 0.;
-  if ( thePFTau.leadChargedHadrCand()->p() > 0. ) {
-    const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadChargedHadrCand().get());
-    if (pflch != nullptr) {
-      TauLeadPFChargedHadrHoP = pflch->hcalEnergy()/pflch->p();
-      TauLeadPFChargedHadrEoP = pflch->ecalEnergy()/pflch->p();
-    } else { throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n"; }
+  if ( thePFTau.leadPFChargedHadrCand()->p() > 0. ) {
+    TauLeadPFChargedHadrHoP = thePFTau.leadPFChargedHadrCand()->hcalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
+    TauLeadPFChargedHadrEoP = thePFTau.leadPFChargedHadrCand()->ecalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
   }
 
   std::vector<Float_t> GammasdEtaInSigCone;
@@ -862,12 +851,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   }
   Float_t TaudCrackPhi = dCrackPhi(TauPhi, TauEtaAtEcalEntrance);
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance);
-  Float_t TauHasGsf = false;
-  const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadChargedHadrCand().get());
-  if (pflch != nullptr) {
-    TauHasGsf = pflch->gsfTrackRef().isNonnull();
-  } else {
-    throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n"; }
+  Float_t TauHasGsf = thePFTau.leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
 
   
   // === electron variables ===

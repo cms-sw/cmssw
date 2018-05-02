@@ -145,10 +145,8 @@ std::pair<std::vector<reco::CandidatePtr>, std::vector<reco::CandidatePtr>> PFTa
 std::vector<reco::CandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   std::vector<reco::CandidatePtr> filteredPFChargedHadrCands;
   for(std::vector<reco::CandidatePtr>::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(iPFCand->get());
-    if (pfcand != nullptr) {
-      TrackRef PFChargedHadrCand_track = pfcand->trackRef();
-      if (!PFChargedHadrCand_track)continue;
+    const reco::Track* PFChargedHadrCand_track = (*iPFCand)->bestTrack();
+    if (PFChargedHadrCand_track != nullptr) {
       if (fabs((*PFChargedHadrCand_track).dz(myPV.position())-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
     } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
   }

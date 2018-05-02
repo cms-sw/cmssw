@@ -122,12 +122,14 @@ namespace {
     oCache.set( std::make_unique<T>(std::move(iFrom)));
   }
 
-  reco::PFCandidatePtr convertToPFPtr(const reco::CandidatePtr& ptr) {
-    const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
-    if (pf_cand != nullptr) {
-      return edm::Ptr<reco::PFCandidate>(ptr);
-    } else throw cms::Exception("Type Mismatch") << "This PFTau was not made from PFCandidates, but it is being tried to access a PFCandidate.\n";
-    return reco::PFCandidatePtr();
+  std::unique_ptr<reco::PFCandidatePtr> convertToPFPtr(const reco::CandidatePtr& ptr) {
+    if (ptr.isNonnull()) {
+      const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
+      if (pf_cand != nullptr) {
+        return std::unique_ptr<reco::PFCandidatePtr>(new reco::PFCandidatePtr(ptr));
+      } else throw cms::Exception("Type Mismatch") << "This PFTau was not made from PFCandidates, but it is being tried to access a PFCandidate.\n";
+    }
+    return std::unique_ptr<reco::PFCandidatePtr>(new reco::PFCandidatePtr());
   }
 
   std::unique_ptr<std::vector<reco::PFCandidatePtr> > convertToPFPtrs(const std::vector<reco::CandidatePtr>& cands) {
@@ -150,21 +152,21 @@ namespace {
 }
 
 const PFCandidatePtr PFTau::leadPFChargedHadrCand() const {
-  if (leadChargedHadrCand_.isNonnull())
-    return convertToPFPtr(leadChargedHadrCand_);
-  return PFCandidatePtr();
+  if (!leadPFChargedHadrCand_.isSet())
+    leadPFChargedHadrCand_.set(std::move(convertToPFPtr(leadChargedHadrCand_)));
+  return *leadPFChargedHadrCand_;
 }
 
 const PFCandidatePtr PFTau::leadPFNeutralCand() const {
-  if (leadNeutralCand_.isNonnull())
-    return convertToPFPtr(leadNeutralCand_);
-  return PFCandidatePtr();
+  if (!leadPFNeutralCand_.isSet())
+    leadPFNeutralCand_.set(std::move(convertToPFPtr(leadNeutralCand_)));
+  return *leadPFNeutralCand_;
 }
 
 const PFCandidatePtr PFTau::leadPFCand() const {
-  if (leadCand_.isNonnull())
-    return convertToPFPtr(leadCand_);
-  return PFCandidatePtr();
+  if (!leadPFCand_.isSet())
+    leadPFCand_.set(std::move(convertToPFPtr(leadCand_)));
+  return *leadPFCand_;
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::signalPFCands() const {

@@ -107,14 +107,11 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     for(std::vector<reco::CandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (std::abs((*iPFCand)->pdgId()) == 211 || std::abs((*iPFCand)->pdgId()) == 13 || std::abs((*iPFCand)->pdgId()) == 11){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
-	const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(iPFCand->get());
-	if (pfcand != nullptr) {
-	  TrackRef PFChargedHadrCand_rectk = pfcand->trackRef();
-
-	  if (!PFChargedHadrCand_rectk)continue;
+	const reco::Track* PFChargedHadrCand_rectk = (*iPFCand)->bestTrack();
+	if (PFChargedHadrCand_rectk != nullptr) {
 	  if ( (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn )
 	    filteredPFChargedHadrCands.push_back(*iPFCand);
-	} else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+	}
       }
     }
     return filteredPFChargedHadrCands;
