@@ -1,7 +1,12 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#define EDM_ML_DEBUG
 
-HGCalParameters::HGCalParameters(const std::string& nam): name_(nam) { }
+HGCalParameters::HGCalParameters(const std::string& nam): name_(nam) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Construct HGCalParameters for " << name_;
+#endif
+ }
 
 HGCalParameters::~HGCalParameters() { }
 
@@ -68,15 +73,19 @@ void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
   indx          |= ((mytr.sec & kMaskSector) << kShiftSector);
   indx          |= ((mytr.subsec & kMaskSubSec) << kShiftSubSec);
 #ifdef EDM_ML_DEBUG
-  std::cout << "ZP " << zp << ":" << kMaskZside << ":" << kShiftZside 
-	    << ((zp & kMaskZside) << kShiftZside) << " Lay " << mytr.lay 
-	    << ":" << kMaskLayer << ":" << kShiftLayer << ":" 
-	    << ((mytr.lay & kMaskLayer) << kShiftLayer) << " Sector " 
-	    << mytr.sec << ":" << kMaskSector << ":" << kShiftSector << ":" 
-	    << ((mytr.sec & kMaskSector) << kShiftSector) << " SubSec " 
-	    << mytr.subsec << ":" << kMaskSubSec << ":" << kShiftSubSec << ":"
-	    << ((mytr.subsec & kMaskSubSec) << kShiftSubSec) << " Index " 
-	    << std::hex << indx << std::dec << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "ZP " << zp << ":" << kMaskZside << ":" 
+				<< kShiftZside 
+				<< ((zp & kMaskZside) << kShiftZside) 
+				<< " Lay " << mytr.lay << ":" << kMaskLayer
+				<< ":" << kShiftLayer << ":" 
+				<< ((mytr.lay & kMaskLayer) << kShiftLayer)
+				<< " Sector " << mytr.sec << ":" 
+				<< kMaskSector << ":" << kShiftSector << ":" 
+				<< ((mytr.sec & kMaskSector) << kShiftSector)
+				<< " SubSec " << mytr.subsec << ":" 
+				<< kMaskSubSec << ":" << kShiftSubSec << ":"
+				<<((mytr.subsec & kMaskSubSec) << kShiftSubSec)
+				<< " Index " << std::hex << indx << std::dec;
 #endif
   trformIndex_.emplace_back(indx);
   trformTranX_.emplace_back(mytr.h3v.x());
@@ -93,15 +102,18 @@ void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
   trformRotZZ_.emplace_back(mytr.hr.zz());
 #ifdef EDM_ML_DEBUG
   unsigned int k = trformIndex_.size() - 1;
-  std::cout << "HGCalParameters[" << k << "] Index " << std::hex
-	    << trformIndex_[k] << std::dec << " (" << mytr.zp << ", "<< mytr.lay
-	    << ", " << mytr.sec << ", " << mytr.subsec << ") Translation ("
-	    << trformTranX_[k] << ", " << trformTranY_[k] << ", "
-	    << trformTranZ_[k] << ") Rotation (" << trformRotXX_[k] << ", "
-	    << trformRotYX_[k] << ", " << trformRotZX_[k] << ", "
-	    << trformRotXY_[k] << ", " << trformRotYY_[k] << ", "
-	    << trformRotZY_[k] << ", " << trformRotXZ_[k] << ", "
-	    << trformRotYZ_[k] << ", " << trformRotZZ_[k] << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "HGCalParameters[" << k << "] Index " 
+				<< std::hex << trformIndex_[k] << std::dec 
+				<< " (" << mytr.zp << ", "<< mytr.lay
+				<< ", " << mytr.sec << ", " << mytr.subsec 
+				<< ") Translation (" << trformTranX_[k] << ", "
+				<< trformTranY_[k] << ", " << trformTranZ_[k]
+				<< ") Rotation (" << trformRotXX_[k] << ", "
+				<< trformRotYX_[k] << ", " << trformRotZX_[k]
+				<< ", "  << trformRotXY_[k] << ", "
+				<< trformRotYY_[k] << ", " << trformRotZY_[k]
+				<< ", " << trformRotXZ_[k] << ", "
+				<< trformRotYZ_[k] << ", " << trformRotZZ_[k];
 #endif
 }
 
@@ -123,14 +135,17 @@ HGCalParameters::hgtrform HGCalParameters::getTrForm(unsigned int k) const {
     mytr.zp = mytr.lay = mytr.sec = mytr.subsec = 0;
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCalParameters[" << k << "] Index " << std::hex
-	    << trformIndex_[k] << std::dec << " (" << mytr.zp << ", "<< mytr.lay
-	    << ", " << mytr.sec << ", " << mytr.subsec << ") Translation ("
-	    << mytr.h3v.x() << ", " << mytr.h3v.y() << ", " << mytr.h3v.z() 
-	    << ") Rotation (" << mytr.hr.xx() << ", " << mytr.hr.yx() << ", " 
-	    << mytr.hr.zx() << ", "  << mytr.hr.xy() << ", " << mytr.hr.yy() 
-	    << ", " << mytr.hr.zy() << ", " << mytr.hr.xz() << ", "
-	    << mytr.hr.yz() << ", " << mytr.hr.zz() << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "HGCalParameters[" << k << "] Index " 
+				<< std::hex << trformIndex_[k] << std::dec 
+				<< " (" << mytr.zp << ", "<< mytr.lay
+				<< ", " << mytr.sec << ", " << mytr.subsec 
+				<< ") Translation (" << mytr.h3v.x() << ", " 
+				<< mytr.h3v.y() << ", " << mytr.h3v.z() 
+				<< ") Rotation (" << mytr.hr.xx() << ", "
+				<< mytr.hr.yx() << ", " << mytr.hr.zx() << ", "
+				<< mytr.hr.xy() << ", " << mytr.hr.yy() 
+				<< ", " << mytr.hr.zy() << ", " << mytr.hr.xz()
+				<< ", " << mytr.hr.yz() <<", " << mytr.hr.zz();
 #endif
   return mytr;
 }
@@ -152,6 +167,33 @@ void HGCalParameters::scaleTrForm(double scale) {
     trformTranY_[k-1] *= scale;
     trformTranZ_[k-1] *= scale;
   }
+}
+
+int HGCalParameters::waferIndex(int layer, int waferU, int waferV) {
+  int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
+  int waferUsign = (waferU >= 0) ? 0 : 1;
+  int waferVsign = (waferV >= 0) ? 0 : 1;
+  int id(0);
+  id |= (((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
+	 ((waferUsign& kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
+	 ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
+	 ((waferVsign& kHGCalWaferVSignMask) << kHGCalWaferVSignOffset) |
+	 ((layer     & kHGCalLayerMask) << kHGCalLayerOffset));
+  return id;
+}
+
+int HGCalParameters::waferLayer(const int id) const {
+  return (id>>kHGCalLayerOffset)&kHGCalLayerMask; 
+}
+
+int HGCalParameters::waferU(const int id) const {
+  int iu = (id>>kHGCalWaferUOffset)&kHGCalWaferUMask;
+  return (((id>>kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -iu : iu);
+}
+
+int HGCalParameters::waferV(const int id) const {
+  int iv = (id>>kHGCalWaferVOffset)&kHGCalWaferVMask;
+  return (((id>>kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -iv : iv);
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

@@ -16,6 +16,7 @@ class HGCalParameters {
 public:
 
   typedef std::vector<std::unordered_map<int32_t,int32_t> > layer_map;
+  typedef std::unordered_map<int32_t, int32_t>              wafer_map;
 
   struct hgtrap {
     int           lay;
@@ -36,15 +37,10 @@ public:
   hgtrform getTrForm(unsigned int k) const;
   void     addTrForm(const CLHEP::Hep3Vector& h3v);
   void     scaleTrForm(double);
-
-  static const int kMaskZside   = 0x1;
-  static const int kMaskLayer   = 0x7F;
-  static const int kMaskSector  = 0x3FF;
-  static const int kMaskSubSec  = 0x1;
-  static const int kShiftZside  = 19;
-  static const int kShiftLayer  = 12;
-  static const int kShiftSector = 1;
-  static const int kShiftSubSec = 0;
+  int      waferIndex(int layer, int waferU, int waferV);
+  int      waferLayer(const int index) const;
+  int      waferU(const int index) const;
+  int      waferV(const int index) const;
 
   std::string                     name_;
   int                             nCells_;
@@ -109,8 +105,53 @@ public:
   HGCalGeometryMode::GeometryMode mode_;
   double                          slopeMin_;
   layer_map                       copiesInLayers_;
-
+  int                             nCellsFine_;
+  int                             nCellsCoarse_;
+  double                          waferSize_;
+  double                          waferThick_;
+  double                          sensorSeparation_;
+  double                          mouseBite_;
+  bool                            defineFull_;
+  std::vector<double>             cellThickness_;
+  std::vector<double>             radius100to200_;
+  std::vector<double>             radius200to300_;
+  int                             nCornerCut_;
+  double                          zMinForRad_;
+  std::vector<double>             radiusMixBoundary_;
+  std::vector<int>                nPhiBinBH_;
+  std::vector<double>             dPhiEta_;
+  std::vector<double>             slopeTop_;
+  std::vector<double>             zFront_;
+  std::vector<double>             rMaxFront_;
+  std::vector<double>             zRanges_;
+  double                          etaMaxBH_;
+  wafer_map                       wafersInLayers_;
+  wafer_map                       typesInLayers_;
+ 
   COND_SERIALIZABLE;
+
+private:
+
+  const int kHGCalWaferUOffset     = 0;
+  const int kHGCalWaferUMask       = 0x1F;
+  const int kHGCalWaferUSignOffset = 5;
+  const int kHGCalWaferUSignMask   = 0x1;
+  const int kHGCalWaferVOffset     = 6;
+  const int kHGCalWaferVMask       = 0x1F;
+  const int kHGCalWaferVSignOffset = 11;
+  const int kHGCalWaferVSignMask   = 0x1;
+  const int kHGCalLayerOffset      = 12;
+  const int kHGCalLayerMask        = 0x1F;
+
+  const int kMaskZside   = 0x1;
+  const int kMaskLayer   = 0x7F;
+  const int kMaskSector  = 0x3FF;
+  const int kMaskSubSec  = 0x1;
+  const int kShiftZside  = 19;
+  const int kShiftLayer  = 12;
+  const int kShiftSector = 1;
+  const int kShiftSubSec = 0;
+
 };
 
 #endif
