@@ -51,6 +51,9 @@ SiStripZeroSuppression::SiStripZeroSuppression(edm::ParameterSet const& conf)
     }
   }
 
+  if ( produceHybridFormat && ( "HybridEmulation" != conf.getParameter<edm::ParameterSet>("Algorithms").getParameter<std::string>("APVInspectMode") ) )
+    throw cms::Exception("Invalid option") << "When producing data in the hybrid format, the APV restorer must be configured with APVInspectMode='HybridEmulation'";
+
   if ( ! ( rawInputs.empty() && hybridInputs.empty() ) ) {
     output_base.reserve(16000);
     if (produceRawDigis) output_base_raw.reserve(16000);
@@ -190,7 +193,7 @@ inline void SiStripZeroSuppression::storeExtraOutput(uint32_t id, int16_t nAPVfl
 
 inline void SiStripZeroSuppression::storeBaseline(uint32_t id, const medians_t& vmedians)
 {
-  auto& baselinemap = algorithms->GetBaselineMap();
+  const auto& baselinemap = algorithms->GetBaselineMap();
 
   edm::DetSet<SiStripProcessedRawDigi> baselineDetSet(id);
   baselineDetSet.reserve(vmedians.size()*128);

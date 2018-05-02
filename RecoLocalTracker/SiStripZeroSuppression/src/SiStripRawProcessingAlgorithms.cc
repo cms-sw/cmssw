@@ -213,6 +213,7 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::Det
  * If flagged by the hybrid APV inspector, the zero-suppression is performed as usual
  * (evaluation and subtraction of the baseline, truncation).
  * Otherwise, the pedestal-subtracted digis are saved in one 128-strip cluster.
+ * Note: the APV restorer is used, it must be configured with APVInspectMode='HybridEmulation' if this method is called.
  *
  * @param id module DetId
  * @param firstAPV index of the first APV considered
@@ -223,7 +224,6 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::Det
 uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, uint16_t firstAPV, std::vector<int16_t>& procRawDigis, edm::DetSet<SiStripDigi>& output)
 {
   std::vector<int16_t> procRawDigisPedSubtracted;
-  std::vector<bool> markedVRAPVs;
 
   for ( auto& digi : procRawDigis ) { digi += 1024; } // adding one MSB
 
@@ -235,13 +235,14 @@ uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, u
 
   subtractorCMN->subtract(id, firstAPV, procRawDigis);
 
-  const int16_t nAPVFlagged = restorer->InspectForHybridFormatEmulation(id, firstAPV, procRawDigis, subtractorCMN->getAPVsCM(), markedVRAPVs);
+  const auto nAPVFlagged = restorer->inspect(id, firstAPV, procRawDigis, subtractorCMN->getAPVsCM());
 
   for ( auto& digi : procRawDigis ) { digi *= 2; }
 
+  const std::vector<bool>& apvf = GetAPVFlags();
   const std::size_t nAPVs = procRawDigis.size()/128;
   for ( uint16_t iAPV = firstAPV; iAPV < nAPVs+firstAPV; ++iAPV ) {
-    if ( markedVRAPVs[iAPV] ) {
+    if ( apvf[iAPV] ) {
       //GB 23/6/08: truncation should be done at the very beginning
       for ( uint16_t i = 0; i < 128; ++i ) {
         const int16_t digi = procRawDigisPedSubtracted[128*(iAPV-firstAPV)+i];
