@@ -17,7 +17,7 @@ class SiStripCommonModeNoiseSubtractor {
   virtual void subtract(uint32_t detId, uint16_t firstStrip, std::vector<int16_t>& digis) = 0;
   virtual void subtract(uint32_t detId, uint16_t firstStrip, std::vector<float>& digis) = 0;
 
-  const std::vector< std::pair<short,float> >& getAPVsCM() { return _vmedians; }
+  const std::vector< std::pair<short,float> >& getAPVsCM() const { return _vmedians; }
 
  protected:
 
