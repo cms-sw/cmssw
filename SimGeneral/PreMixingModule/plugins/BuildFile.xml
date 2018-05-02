@@ -1,0 +1,14 @@
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="Mixing/Base"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimGeneral/MixingModule"/>
+<use   name="SimGeneral/PreMixingModule"/>
+<library   file="*.cc" name="SimGeneralPreMixingModulePlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

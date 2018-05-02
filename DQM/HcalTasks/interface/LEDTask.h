@@ -45,7 +45,7 @@ class LEDTask : public hcaldqm::DQTask
 
 		//	tags and tokens
 		edm::InputTag	_tagHBHE;
-		edm::InputTag	_tagHEP17;
+		edm::InputTag	_tagHE;
 		edm::InputTag	_tagHO;
 		edm::InputTag	_tagHF;
 		edm::InputTag	_tagTrigger;

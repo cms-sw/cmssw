@@ -60,6 +60,8 @@ class L1TMP7ZeroSupp : public DQMEDAnalyzer {
 
   int maxFedReadoutSize_;
 
+  bool checkOnlyCapIdsWithMasks_;
+
   std::string monitorDir_;
   bool verbose_;
 

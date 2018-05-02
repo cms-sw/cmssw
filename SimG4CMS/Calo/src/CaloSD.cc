@@ -6,6 +6,7 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Application/interface/EventAction.h"
 
 #include "G4EventManager.hh"
@@ -109,11 +110,8 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 
   if (aSpot != nullptr) {   
     theTrack = const_cast<G4Track *>(aSpot->GetOriginatorTrack()->GetPrimaryTrack());
-    G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
     
-    if (particleCode == emPDG ||
-        particleCode == epPDG ||
-        particleCode == gammaPDG ) {
+    if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
       edepositEM  = aSpot->GetEnergySpot()->GetEnergy();
       edepositHAD = 0.;
     } else {
@@ -253,10 +251,7 @@ bool CaloSD::getStepInfo(G4Step* aStep) {
 #endif
   }
   
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if (particleCode == emPDG ||
-      particleCode == epPDG ||
-      particleCode == gammaPDG ) {
+  if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
     edepositEM  = getEnergyDeposit(aStep);
     edepositHAD = 0.;
   } else {
@@ -459,15 +454,6 @@ double CaloSD::getAttenuation(const G4Step* aStep, double birk1, double birk2, d
 }
 
 void CaloSD::update(const BeginOfRun *) {
-  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
-  G4String particleName;
-  emPDG = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
-#ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD: Particle code for e- = " << emPDG
-			  << " for e+ = " << epPDG << " for gamma = " << gammaPDG;
-#endif
   initRun();
   runInit = true;
 } 

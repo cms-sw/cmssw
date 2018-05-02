@@ -34,7 +34,6 @@ public:
 
 private:
   std::vector<double> m_valuePerModuleGeometry;
-  edm::FileInPath m_file;
 };
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,7 +47,6 @@ SiStripBackPlaneCorrectionFakeESSource::SiStripBackPlaneCorrectionFakeESSource(c
   findingRecord<SiStripBackPlaneCorrectionRcd>();
 
   m_valuePerModuleGeometry = iConfig.getParameter<std::vector<double>>("BackPlaneCorrection_PerModuleGeometry");
-  m_file = iConfig.getParameter<edm::FileInPath>("file");
 }
 
 SiStripBackPlaneCorrectionFakeESSource::~SiStripBackPlaneCorrectionFakeESSource() {}
@@ -69,9 +67,8 @@ SiStripBackPlaneCorrectionFakeESSource::produce(const SiStripBackPlaneCorrection
 
   auto backPlaneCorrection = std::make_unique<SiStripBackPlaneCorrection>();
 
-  SiStripDetInfoFileReader reader{m_file.fullPath()};
-
-  for ( const auto& detId : reader.getAllDetIds() ) {
+  const edm::Service<SiStripDetInfoFileReader> reader;
+  for ( const auto& detId : reader->getAllDetIds() ) {
     unsigned int moduleGeometry = tTopo->moduleGeometry(DetId(detId))-1;
     if ( moduleGeometry > m_valuePerModuleGeometry.size() ) {
       edm::LogError("SiStripBackPlaneCorrectionGenerator") << " BackPlaneCorrection_PerModuleGeometry only contains " << m_valuePerModuleGeometry.size() << "elements and module is out of range";

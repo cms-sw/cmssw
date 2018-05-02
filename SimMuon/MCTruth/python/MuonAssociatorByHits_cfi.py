@@ -94,6 +94,13 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     inputCSCSegmentCollection = cms.InputTag("cscSegments"),
 )
 
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+run3_GEM.toModify(muonAssociatorByHitsCommonParameters, useGEMs = True)
+phase2_tracker.toModify(muonAssociatorByHitsCommonParameters,
+    usePhase2Tracker = True,
+    pixelSimLinkSrc = "simSiPixelDigis:Pixel",
+)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(muonAssociatorByHitsCommonParameters,
@@ -106,6 +113,16 @@ fastSim.toModify(muonAssociatorByHitsCommonParameters,
     CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits",
     RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits",
     ROUList = ['fastSimProducerTrackerHits']
+)
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(muonAssociatorByHitsCommonParameters,
+    DTdigisimlinkTag = "mixData:simMuonDTDigis",
+    CSClinksTag = "mixData:MuonCSCStripDigiSimLinks",
+    CSCwireLinksTag = "mixData:MuonCSCWireDigiSimLinks",
+    RPCdigisimlinkTag = "mixData:RPCDigiSimLink",
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
 )
   
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
@@ -139,8 +156,4 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
 
-from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( muonAssociatorByHits, usePhase2Tracker = cms.bool(True) )
-phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
+premix_stage2.toModify(muonAssociatorByHits, tpTag = "mixData:MergedTrackTruth")

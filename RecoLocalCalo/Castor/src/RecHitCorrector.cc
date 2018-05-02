@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,15 +44,13 @@
 // class declaration
 //
 
-class RecHitCorrector : public edm::EDProducer {
+class RecHitCorrector : public edm::stream::EDProducer<> {
    public:
       explicit RecHitCorrector(const edm::ParameterSet&);
       ~RecHitCorrector() override;
 
    private:
-      void beginJob() override ;
       void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
       
       // ----------member data ---------------------------
       edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
@@ -114,7 +112,7 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<CastorChannelQualityRcd>().get(p);
    CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
    
-   if (!rechits.isValid()) std::cout << "No valid CastorRecHitCollection found, please check the InputLabel..." << std::endl;
+   if (!rechits.isValid()) edm::LogWarning("CastorRecHitCorrector") << "No valid CastorRecHitCollection found, please check the InputLabel...";
    
    CastorCalibrations calibrations;
    
@@ -122,64 +120,41 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    for (unsigned int i=0;i<rechits->size();i++) {
    	CastorRecHit rechit = (*rechits)[i];
-	//std::cout << "rechit energy = " << rechit.energy() << std::endl;
-	double fC = factor_*rechit.energy();
 	double time = rechit.time();
-	//std::cout << "rechit energy(fC) = " << fC << " time = " << time << std::endl;
+	double correctedenergy = factor_*rechit.energy();
 	
-	// do proper gain calibration reading the latest entries in the condDB
-	const CastorCalibrations& calibrations=conditions->getCastorCalibrations(rechit.id());
-	int capid = 0; // take some capid, gains are the same for all capid's
-	
-	double correctedenergy = 0;
 	if (doInterCalib_) {
-		if (rechit.id().module() <= 2) {
-			correctedenergy = 0.5*fC*calibrations.gain(capid);
-			//std::cout << " correctedenergy = " << correctedenergy << " gain = " << calibrations.gain(capid) << std::endl;
-		} else {
-			correctedenergy = fC*calibrations.gain(capid);
-		}
-	} else {
-		if (rechit.id().module() <= 2) {
-			correctedenergy = 0.5*fC;
-		} else {
-			correctedenergy = fC;
-		}
+		// do proper gain calibration reading the latest entries in the condDB
+		const CastorCalibrations& calibrations=conditions->getCastorCalibrations(rechit.id());
+		int capid = 0; // take some capid, gains are the same for all capid's
+		correctedenergy *= calibrations.gain(capid);
 	}
 	
 	// now check the channelquality of this rechit
 	bool ok = true;
 	DetId detcell=(DetId)rechit.id();
 	std::vector<DetId> channels = myqual->getAllChannels();
-	//std::cout << "number of specified quality flags = " << channels.size() << std::endl;
-	for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
-		if (channel->rawId() == detcell.rawId()) {
-			const CastorChannelStatus* mydigistatus=myqual->getValues(*channel);
-			//std::cout << "CastorChannelStatus = " << mydigistatus->getValue() << std::endl;
-			if (mydigistatus->getValue() == 2989) ok = false; // 2989 = BAD
+	for (auto channel : channels) {	
+		if (channel.rawId() == detcell.rawId()) {
+			const CastorChannelStatus* mydigistatus=myqual->getValues(channel);
+			if (mydigistatus->getValue() == 2989) {
+				ok = false; // 2989 = BAD
+				break;
+			}
 		}
 	}
 	
 	if (ok) {
-	    CastorRecHit *correctedhit = new CastorRecHit(rechit.id(),correctedenergy,time);
-	    rec->push_back(*correctedhit);
+	    rec->emplace_back(rechit.id(),correctedenergy,time);
 	}
    }
    
    iEvent.put(std::move(rec));
+   
+   delete myqual;
  
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RecHitCorrector::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RecHitCorrector::endJob() {
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RecHitCorrector);

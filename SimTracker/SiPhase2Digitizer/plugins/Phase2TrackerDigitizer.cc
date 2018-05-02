@@ -82,7 +82,7 @@ namespace cms
     hitsProducer_(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers_(iConfig.getParameter<std::vector<std::string> >("ROUList")),
     geometryType_(iConfig.getParameter<std::string>("GeometryType")),
-    iconfig_(iConfig)
+    isOuterTrackerReadoutAnalog(iConfig.getParameter<bool>("isOTreadoutAnalog"))
   {
     //edm::LogInfo("Phase2TrackerDigitizer") << "Initialize Digitizer Algorithms";
     const std::string alias1("simSiPixelDigis"); 
@@ -93,17 +93,14 @@ namespace cms
     mixMod.produces<edm::DetSetVector<Phase2TrackerDigi> >("Tracker").setBranchAlias(alias2);
     mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
 
+    // creating algorithm objects and pushing them into the map
+    algomap_[AlgorithmType::InnerPixel] = std::make_unique<PixelDigitizerAlgorithm>(iConfig);
+    algomap_[AlgorithmType::PixelinPS]  = std::make_unique<PSPDigitizerAlgorithm>(iConfig);
+    algomap_[AlgorithmType::StripinPS]  = std::make_unique<PSSDigitizerAlgorithm>(iConfig);
+    algomap_[AlgorithmType::TwoStrip]   = std::make_unique<SSDigitizerAlgorithm>(iConfig);
   }
 
   void Phase2TrackerDigitizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    if (!rng.isAvailable()) {
-      throw cms::Exception("Configuration")
-        << "Phase2TrackerDigitizer requires the RandomNumberGeneratorService\n"
-           "which is not present in the configuration file.  You must add the service\n"
-           "in the configuration file or remove the modules that require it.";
-    }
-    rndEngine_ = &(rng->getEngine(lumi.index()));
 
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup_);
     iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
@@ -123,21 +120,9 @@ namespace cms
 	}
       }
     }
-  
-    // one type of Digi and DigiSimLink suffices 
-    // changes in future: InnerPixel -> Tracker
-    // creating algorithm objects and pushing them into the map
-    algomap_[AlgorithmType::InnerPixel] = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PixelDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[AlgorithmType::PixelinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSPDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[AlgorithmType::StripinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
-    algomap_[AlgorithmType::TwoStrip]   = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new SSDigitizerAlgorithm(iconfig_, (*rndEngine_)));
   }
 
-  void Phase2TrackerDigitizer::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
-    algomap_.clear();
-  }
   Phase2TrackerDigitizer::~Phase2TrackerDigitizer() {  
-    edm::LogInfo("Phase2TrackerDigitizer") << "Destroying the Digitizer";
   }
   void
   Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
@@ -170,10 +155,19 @@ namespace cms
   void
   Phase2TrackerDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
     
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if (!rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+	<< "Phase2TrackerDigitizer requires the RandomNumberGeneratorService\n"
+	"which is not present in the configuration file.  You must add the service\n"
+	"in the configuration file or remove the modules that require it.";
+    }
+    
     // Must initialize all the algorithms
     for (auto const & el : algomap_) {
       if (first_) el.second->init(iSetup); 
-      el.second->initializeEvent(); 
+      
+      el.second->initializeEvent(rng->getEngine(e.streamID())); 
     }
     first_ = false;
     // Make sure that the first crossing processed starts indexing the sim hits from zero.
@@ -213,7 +207,6 @@ namespace cms
      }
   }
   void Phase2TrackerDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    const bool isOuterTrackerReadoutAnalog = iconfig_.getParameter<bool>("isOTreadoutAnalog");
     //Decide if we want analog readout for Outer Tracker.
     addPixelCollection(iEvent, iSetup, isOuterTrackerReadoutAnalog);
     if(!isOuterTrackerReadoutAnalog)

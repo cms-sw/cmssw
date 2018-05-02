@@ -39,13 +39,14 @@
 //                               information (m=1/0 for having 50 or 100 bins
 //                               in the response distribution with range 0:5;
 //                               l=1/0 for (not) making plots for each RBX;
-//                               t=1/0 for doing or not the PU correction;
-//                               h = 0/1/2 for not creating/creating in recreate
-//                               mode/creating in append mode the output text 
-//                               file; d = 0/1/2/3 produces 3 standard (0,1,2) 
-//                               or extended (3) set of histograms; o = 0/1/2 
-//                               for tight/loose/flexible selection).
-//                               Default = 1031
+//                               t=(>1)/1/0 for correcting PU using rho /
+//                               for correcting PU using Delta / for applying
+//                               no PU correction; h = 0/1/2 for not creating /
+//                               creating in recreate mode / creating in append
+//                               mode the output text file; d = 0/1/2/3 
+//                               produces 3 standard (0,1,2) or extended (3) 
+//                               set of histograms; o = 0/1/2 for tight / loose
+//                               / flexible selection). Default = 1031
 //   numb   (int)              = number of eta bins (50 for -25:25)
 //   dataMC (bool)             = true/false for data/MC (default true)
 //   truncateFlag    (int)     = Flag to treat different depths differently (0)
@@ -245,8 +246,8 @@ private:
   const int                 etalo_, etahi_, runlo_, runhi_;
   const int                 phimin_,phimax_,zside_, rbx_;
   const double              scale_;
-  bool                      exclude_, corrPU_, corrE_, selRBX_, coarseBin_;
-  int                       etamp_, etamn_, plotType_, flexibleSelect_;
+  bool                      exclude_, corrE_, selRBX_, coarseBin_;
+  int                       corrPU_, etamp_, etamn_, plotType_, flexibleSelect_;
   double                    log2by18_, cfacmp_, cfacmn_;
   std::ofstream             fileout_;
   std::vector<Long64_t>     entries_;
@@ -290,7 +291,7 @@ CalibMonitor::CalibMonitor(const std::string& fname,
   plotType_        = ((flag_/10)%10);
   if (plotType_ < 0 || plotType_ > 3) plotType_ = 3;
   flexibleSelect_  = (((flag_/1) %10));
-  corrPU_          = (((flag_/1000) %10) > 0);
+  corrPU_          = ((flag_/1000) %10);
   selRBX_          = (((flag_/10000) %10) > 0);
   coarseBin_       = (((flag_/100000) %10) > 0);
   log2by18_        = std::log(2.5)/18.0;
@@ -945,7 +946,7 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
     cut        = 8.0*exp(eta*log2by18_);
   }
-  if (corrPU_ && pmom > 0) {
+  if ((corrPU_ == 1) && (pmom > 0)) {
     double ediff = (t_eHcal30-t_eHcal10);
     if (t_DetIds1 != 0 && t_DetIds3 != 0) {
       double Etot1(0), Etot3(0);
@@ -980,7 +981,8 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
     }
     double fac = puFactor(t_ieta,pmom,eHcal,ediff);
     eHcal     *= fac;
-    }
+  } else if (corrPU_ > 1) {
+    eHcal      = puFactorRho(corrPU_-1,t_ieta,t_rhoh,eHcal);
   }
   select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
 	    (t_eMipDR < 1.0));

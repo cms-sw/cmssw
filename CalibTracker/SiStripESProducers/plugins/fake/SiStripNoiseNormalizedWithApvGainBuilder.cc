@@ -11,7 +11,6 @@
 #include <algorithm>
 
 SiStripNoiseNormalizedWithApvGainBuilder::SiStripNoiseNormalizedWithApvGainBuilder( const edm::ParameterSet& iConfig ):
-  fp_(iConfig.getUntrackedParameter<edm::FileInPath>("file",edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))),
   printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug",1)),
   pset_(iConfig),
   electronsPerADC_(0.),
@@ -36,9 +35,6 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
   // Prepare the new object
   SiStripNoises* obj = new SiStripNoises();
 
-  SiStripDetInfoFileReader reader(fp_.fullPath());
-
-
 
   stripLengthMode_ = pset_.getParameter<bool>("StripLengthMode");
   
@@ -54,8 +50,9 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
 
   printDebug_ = pset_.getUntrackedParameter<uint32_t>("printDebug", 5);
 
+  const edm::Service<SiStripDetInfoFileReader> reader;
   unsigned int count = 0;
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos = reader.getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos = reader->getAllData();
   for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++) {
 
     // Find if this DetId is in the input tag and if so how many are the Apvs for which it contains information

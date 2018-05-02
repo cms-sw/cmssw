@@ -1,4 +1,4 @@
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 int16_t convertPackedEtaToPackedY(int16_t packedPt_, int16_t packedEta_,int16_t packedM_)
 {

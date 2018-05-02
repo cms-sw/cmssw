@@ -54,19 +54,48 @@ using namespace reco;
 // class declaration
 //
 
-class DeepFlavourJetTagsProducer : public edm::stream::EDProducer<> {
+namespace {
+
+struct MVAVar {
+	std::string name;
+	reco::btau::TaggingVariableName id;
+	int index;
+	double default_value;
+};
+
+class NeuralNetworkAndConstants {
 public:
-	explicit DeepFlavourJetTagsProducer(const edm::ParameterSet&);
+
+	NeuralNetworkAndConstants(const edm::ParameterSet&);
+
+	std::unique_ptr<const lwt::LightweightNeuralNetwork> const& neural_network() const { return neural_network_; }
+	vector<string> const& outputs() const { return outputs_; }
+	bool check_sv_for_defaults() const { return check_sv_for_defaults_; }
+	map<string, string> const& toadd() const { return toadd_; }
+	vector<MVAVar> const& variables() const { return variables_; }
+
+private:
+
+	std::unique_ptr<const lwt::LightweightNeuralNetwork> neural_network_;
+	vector<string> outputs_;
+	bool check_sv_for_defaults_;
+	map<string, string> toadd_;
+	vector<MVAVar> variables_;
+};
+}
+
+class DeepFlavourJetTagsProducer : public edm::stream::EDProducer<edm::GlobalCache<NeuralNetworkAndConstants>> {
+public:
+	explicit DeepFlavourJetTagsProducer(const edm::ParameterSet&, NeuralNetworkAndConstants const*);
 	~DeepFlavourJetTagsProducer() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-	struct MVAVar {
-		std::string name;
-		reco::btau::TaggingVariableName id;
-		int index;
-		double default_value;
-	};
+	static std::unique_ptr<NeuralNetworkAndConstants> initializeGlobalCache(const edm::ParameterSet& iConfig) {
+		return std::make_unique<NeuralNetworkAndConstants>(iConfig);
+	}
+
+	static void globalEndJob(NeuralNetworkAndConstants*) { }
 
 private:
 	typedef std::vector<reco::ShallowTagInfo> INFOS;
@@ -76,14 +105,7 @@ private:
 
 	// ----------member data ---------------------------
 	const edm::EDGetTokenT< INFOS > src_;
-	edm::FileInPath nnconfig_;
-	bool check_sv_for_defaults_;
-	bool mean_padding_;
-	lwt::LightweightNeuralNetwork *neural_network_;
 	lwt::ValueMap inputs_; //typedef of unordered_map<string, float>
-	vector<string> outputs_;
-	vector<MVAVar> variables_;
-	map<string, string> toadd_;
 };
 
 //
@@ -98,29 +120,27 @@ private:
 //
 // constructors and destructor
 //
-DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& iConfig) :
-  src_( consumes< INFOS >(iConfig.getParameter<edm::InputTag>("src")) ),
-	nnconfig_(iConfig.getParameter<edm::FileInPath>("NNConfig")),
-	check_sv_for_defaults_(iConfig.getParameter<bool>("checkSVForDefaults")),
-	mean_padding_(iConfig.getParameter<bool>("meanPadding")),
-	neural_network_(nullptr),
-	inputs_(),
-	outputs_(),
-	variables_()
+
+NeuralNetworkAndConstants::NeuralNetworkAndConstants(const edm::ParameterSet& iConfig) :
+	check_sv_for_defaults_(iConfig.getParameter<bool>("checkSVForDefaults"))
 {
+	bool mean_padding = iConfig.getParameter<bool>("meanPadding");
+
 	//parse json
-	ifstream jsonfile(nnconfig_.fullPath());
+	edm::FileInPath nnconfig = iConfig.getParameter<edm::FileInPath>("NNConfig");
+	ifstream jsonfile(nnconfig.fullPath());
 	auto config = lwt::parse_json(jsonfile);
 
 	//create NN and store the output names for the future
-	neural_network_ = new lwt::LightweightNeuralNetwork(config.inputs, config.layers, config.outputs);
+	neural_network_ = std::make_unique<const lwt::LightweightNeuralNetwork>(config.inputs, config.layers, config.outputs);
+
 	outputs_ = config.outputs;
 	set<string> outset(outputs_.begin(), outputs_.end());
 
 	//in case we want to merge some different outputs together
-	edm::ParameterSet toadd = iConfig.getParameter<edm::ParameterSet>("toAdd");
-	for(auto output : toadd.getParameterNamesForType<string>()) {		
-		string target = toadd.getParameter<string>(output);
+	edm::ParameterSet toaddPSet = iConfig.getParameter<edm::ParameterSet>("toAdd");
+	for(auto const& output : toaddPSet.getParameterNamesForType<string>()) {
+		string target = toaddPSet.getParameter<string>(output);
 		if(outset.find(output) == outset.end())
 			throw cms::Exception("RuntimeError") << "The required output: " << output << " to be added to " << target << " could not be found among the NN outputs" << endl;
 		if(outset.find(target) == outset.end())
@@ -128,16 +148,8 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 		toadd_[output] = target;
 	}
 
-	//produce one output kind per node 	
-	for(auto outnode : config.outputs)	{
-		if(toadd_.find(outnode) == toadd_.end()){ //produce output only if does not get added
-			produces<JetTagCollection>(outnode);
-		}
-	}
-
-
 	//get the set-up for the inputs
-	for(auto& input : config.inputs) {
+	for(auto const& input : config.inputs) {
 		MVAVar var;
 		var.name = input.name;
 		//two paradigms 
@@ -151,21 +163,31 @@ DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& 
 		//die grafully if the tagging variable is not found!
 		if(var.id == reco::btau::lastTaggingVariable) {
 			throw cms::Exception("ValueError") << "I could not find the TaggingVariable named " << tokens.at(0) 
-																				 << " from the NN input variable: " << input.name 
-																				 << ". Please check the spelling" <<  std::endl;
+				<< " from the NN input variable: " << input.name
+				<< ". Please check the spelling" <<  std::endl;
 		}
 		var.index = (tokens.size() == 2) ? stoi(tokens.at(1)) : -1;
-		var.default_value = (mean_padding_) ? 0. : -1*input.offset; //set default to -offset so that when scaling (val+offset)*scale the outcome is 0
+		var.default_value = (mean_padding) ? 0. : -1*input.offset; //set default to -offset so that when scaling (val+offset)*scale the outcome is 0
 		//for mean padding it is set to zero so that undefined values are assigned -mean/scale
 		
 		variables_.push_back(var);
 	}
 }
 
+DeepFlavourJetTagsProducer::DeepFlavourJetTagsProducer(const edm::ParameterSet& iConfig, NeuralNetworkAndConstants const* gc) :
+	src_( consumes< INFOS >(iConfig.getParameter<edm::InputTag>("src")) ),
+	inputs_()
+{
+	//produce one output kind per node
+	for(auto const& outnode : gc->outputs())	{
+		if(gc->toadd().find(outnode) == gc->toadd().end()){ //produce output only if does not get added
+			produces<JetTagCollection>(outnode);
+		}
+	}
+}
 
 DeepFlavourJetTagsProducer::~DeepFlavourJetTagsProducer()
 {
-	delete neural_network_;
 }
 
 
@@ -177,6 +199,10 @@ DeepFlavourJetTagsProducer::~DeepFlavourJetTagsProducer()
 void
 DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+	NeuralNetworkAndConstants const* gc = globalCache();
+	vector<string> const& outputs = gc->outputs();
+	map<string, string> const& toadd = gc->toadd();
+
 	// get input TagInfos
 	edm::Handle<INFOS> taginfos;
 	iEvent.getByToken(src_, taginfos);
@@ -184,8 +210,8 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	// create the output collection
 	// which is a "map" RefToBase<Jet> --> float
 	vector< std::unique_ptr<JetTagCollection> > output_tags;
-	output_tags.reserve(outputs_.size());
-	for(size_t i=0; i<outputs_.size(); ++i) {
+	output_tags.reserve(outputs.size());
+	for(size_t i = 0; i < outputs.size(); ++i) {
 		if(!taginfos->empty()) {
 			edm::RefToBase<Jet> jj = taginfos->begin()->jet();
 			output_tags.push_back(
@@ -207,11 +233,11 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     //if there are no tracks there's no point in doing it
 		bool notracks = (vars.get(reco::btau::jetNSelectedTracks) == 0); 
 		bool novtx = (vars.get(reco::btau::jetNSecondaryVertices) == 0); 
-		bool defaulted = (check_sv_for_defaults_) ? (notracks && novtx) : notracks;
+		bool defaulted = (gc->check_sv_for_defaults()) ? (notracks && novtx) : notracks;
 		lwt::ValueMap nnout; //returned value
 
 		if(!defaulted) {
-			for(auto& var : variables_) {
+			for(auto const& var : gc->variables()) {
 				if(var.index >= 0){
 					std::vector<float> vals = vars.getList(var.id, false);
 					inputs_[var.name] = (((int) vals.size()) > var.index) ? vals.at(var.index) : var.default_value;
@@ -223,10 +249,10 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 			}
 
 			//compute NN output(s)
-			nnout = neural_network_->compute(inputs_);
+			nnout = gc->neural_network()->compute(inputs_);
 			
 			//merge outputs
-			for(auto entry : toadd_) {
+			for(auto const& entry : toadd) {
 				nnout[entry.second] += nnout[entry.first];
 			}
 		}
@@ -235,15 +261,15 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 		edm::RefToBase<Jet> key = info.jet();
 		
 		//dump the NN output(s)
-		for(size_t i=0; i<outputs_.size(); ++i) {
-			(*output_tags[i])[key] = (defaulted) ? -1 : nnout[outputs_[i]];
+		for(size_t i = 0; i < outputs.size(); ++i) {
+			(*output_tags[i])[key] = (defaulted) ? -1 : nnout[outputs[i]];
 		}
 	}
 
 	// put the output in the event
-	for(size_t i=0; i<outputs_.size(); ++i) {
-		if(toadd_.find(outputs_[i]) == toadd_.end()) {
-			iEvent.put(std::move(output_tags[i]), outputs_[i]);
+	for(size_t i = 0; i < outputs.size(); ++i) {
+		if(toadd.find(outputs[i]) == toadd.end()) {
+			iEvent.put(std::move(output_tags[i]), outputs[i]);
 		}
 	}
 }

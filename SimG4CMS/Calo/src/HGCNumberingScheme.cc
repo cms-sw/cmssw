@@ -39,9 +39,11 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     } else {
       hgcons_.waferFromPosition(pos.x(),pos.y(),wafer,icell,celltyp);
     }
-    if (celltyp != 1) celltyp = 0;    
-    index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
-						   celltyp,icell);    
+    if (wafer >= 0) {
+      if (celltyp != 1) celltyp = 0;    
+      index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
+						     celltyp,icell);    
+    }
   } else if (hgcons_.geomMode() == HGCalGeometryMode::Hexagon) {
     wafer =  hgcons_.waferFromCopy(module);
     celltyp = cell/1000;

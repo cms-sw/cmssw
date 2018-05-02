@@ -1,6 +1,5 @@
 
 import FWCore.ParameterSet.Config as cms
-from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import *
 
 #until we are actually clustering across the EB/EE boundary
 #it is faster to cluster EB and EE as separate

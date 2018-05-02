@@ -89,8 +89,17 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom,
 		      << id1.rawId() << ":" << idc1.rawId() << std::dec
 		      << ":" << HGCalDetId(id1) << ":" << HGCalDetId(idc1)
 		      << " parameter[11] = " << icell1->param()[10] << ":"
-		      << icell1->param()[11] << std::endl;
-	    if (id1.rawId() != idc1.rawId()) std::cout <<"***** ERROR *****\n";
+		      << icell1->param()[11];
+	    if (id1.rawId() != idc1.rawId()) 
+	      std::cout << "***** ERROR *****" << std::endl;
+	    else
+	      std::cout << std::endl;
+	    std::vector<GlobalPoint> corners = geom->getCorners(idc1);
+	    std::cout << corners.size() << " corners";
+	    for (auto const & cor : corners)
+	      std::cout << " [" << cor.x() << "," << cor.y() << "," << cor.z()
+			<< "]";
+	    std::cout << std::endl;
 	  }
 	}
       }
