@@ -53,24 +53,30 @@ if __name__ == '__main__':
                      25, #MC ttbar
                      4.22, #cosmic data
                      4.53, #run1 data + miniAOD
+                     9.0, #Higgs200 charged taus
                      1000, #data+prompt
                      1001, #data+express
+                     101.0, #SingleElectron120E120EHCAL
                      136.731, #2016B Photon data
                      136.7611, #2016E JetHT reMINIAOD from 80X legacy
                      136.8311, #2017F JetHT reMINIAOD from 94X reprocessing
                      136.788, #2017B Photon data
                      140.53, #2011 HI data
                      150.0, #2018 HI MC
+                     1306.0, #SingleMu Pt1 UP15
                      1325.7, #test NanoAOD from existing MINI
                      1330, #Run2 MC Zmm
                      135.4, #Run 2 Zee ttbar
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
+                     10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
                      11624.0, #2019 ttbar
                      20034.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
                      20434.0, #2023D19 to exercise timing layer
                      21234.0, #2023D21 ttbar (Inner Tracker with lower radii than in TDR)
+                     25202.0, #2016 ttbar UP15 PU
+                     250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
