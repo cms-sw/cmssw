@@ -79,7 +79,11 @@ ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 ###########################################
 # no castor, zdc, Totem/CTPPS RP in FastSim
 ###########################################
-_fastSim_localreco = localreco.copyAndExclude([castorreco,totemRPLocalReconstruction,ctppsDiamondLocalReconstruction,ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstruction,trackerlocalreco])
+_fastSim_localreco = localreco.copyAndExclude([
+    castorreco,
+    totemRPLocalReconstruction,totemTimingLocalReconstruction,ctppsDiamondLocalReconstruction,ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstruction,
+    trackerlocalreco
+])
 fastSim.toReplaceWith(localreco, _fastSim_localreco)
 
 #
@@ -109,7 +113,7 @@ fastSim.toReplaceWith(globalreco_tracking,_fastSim_globalreco_tracking)
 globalreco = cms.Sequence(globalreco_tracking*
                           particleFlowCluster*
                           ecalClusters*
-                          caloTowersRec*                          
+                          caloTowersRec*
                           egammaGlobalReco*
                           jetGlobalReco*
                           muonGlobalReco*
