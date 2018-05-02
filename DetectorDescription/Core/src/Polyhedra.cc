@@ -19,7 +19,7 @@ Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
                       const std::vector<double> & z,
                       const std::vector<double> & rmin,
                       const std::vector<double> & rmax)
-  : Solid(ddpolyhedra_rrz)	      
+  : Solid(DDSolidShape::ddpolyhedra_rrz)	      
 {
   p_.emplace_back(sides);
   p_.emplace_back(startPhi);
@@ -41,7 +41,7 @@ Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
 
 Polyhedra::Polyhedra( int sides, double startPhi, double deltaPhi,
                       const std::vector<double> & z,
-                      const std::vector<double> & r) : Solid(ddpolyhedra_rz)	      
+                      const std::vector<double> & r) : Solid(DDSolidShape::ddpolyhedra_rz)	      
 {
   p_.emplace_back(sides);
   p_.emplace_back(startPhi);
@@ -86,7 +86,7 @@ double Polyhedra::volume() const
      Read Polycone documentation in code first if you do not understand this */
    
   //FIXME: rz, rrz !!
-  if (shape()==ddpolyhedra_rrz) 
+  if (shape()==DDSolidShape::ddpolyhedra_rrz) 
   {
     int loop = (p_.size()-3)/3 -1;
     double sec=0;

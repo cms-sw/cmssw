@@ -28,23 +28,6 @@ namespace DDI {
     DDRotation r_;
   };
 
-  class MultiUnion : public Solid
-  {
-  public:
-    MultiUnion(const std::vector<DDSolid> & a,
-	       const std::vector<DDTranslation> & t,
-	       const std::vector<DDRotation> & r);
-    
-    const std::vector<DDSolid> & solids() const { return a_; }
-    const std::vector<DDTranslation> & t() const { return t_; }
-    const std::vector<DDRotation> & r() const { return r_; }
-    
-  protected:
-    std::vector<DDSolid> a_;
-    std::vector<DDTranslation> t_;
-    std::vector<DDRotation> r_;
-  };
-
   class Union : public BooleanSolid
   {
   public:

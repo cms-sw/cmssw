@@ -17,7 +17,7 @@ DDI::Cons::Cons(double zhalf,
 		double rOutPlusZ,
 		double startPhi,
 		double deltaPhi)
-  : Solid(ddcons)
+  : Solid(DDSolidShape::ddcons)
 {
   p_.emplace_back(zhalf);
   p_.emplace_back(rInMinusZ);

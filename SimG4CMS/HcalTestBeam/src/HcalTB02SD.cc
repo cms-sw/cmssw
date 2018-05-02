@@ -132,7 +132,7 @@ void HcalTB02SD::initMap(const std::string& sd, const DDCompactView & cpv) {
     LogDebug("HcalTBSim") << "HcalTB02SD::initMap (for " << sd << "): Solid " 
 			  << name << " Shape " << sol.shape() 
 			  << " Parameter 0 = " << paras[0];
-    if (sol.shape() == ddtrap) {
+    if (sol.shape() == DDSolidShape::ddtrap) {
       double dz = 2*paras[0];
       lengthMap.insert(std::pair<G4String,double>(name,dz));
     }
