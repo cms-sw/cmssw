@@ -80,6 +80,8 @@ process.EcalEBtp_step = cms.Path(process.simEcalEBTriggerPrimitiveDigis)
 #process.TTClusterAssociatorFromPixelDigis.digiSimLinks          = cms.InputTag( "simSiPixelDigis","Tracker" )
 process.L1TrackTrigger_step = cms.Path(process.L1TrackletTracksWithAssociators)
 
+process.VertexProducer.l1TracksInputTag = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks")
+
 # Path and EndPath definitions
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.endjob_step = cms.EndPath(process.endOfProcess)

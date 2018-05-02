@@ -82,6 +82,9 @@ premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
 # ########################################################################
 phase2_SimL1Emulator = SimL1Emulator.copy()
 
+from L1Trigger.VertexFinder.VertexProducer_cff import *
+phase2_SimL1Emulator += VertexProducer
+
 from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
 phase2_SimL1Emulator += L1TkElectrons
 phase2_SimL1Emulator += L1TkIsoElectrons
