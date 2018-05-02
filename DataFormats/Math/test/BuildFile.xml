@@ -65,3 +65,7 @@
 
 <bin file="testGraph.cpp">
 </bin>
+
+<bin name="testDataFormatsMathPacking" file="testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp">
+  <use   name="cppunit"/>
+</bin>

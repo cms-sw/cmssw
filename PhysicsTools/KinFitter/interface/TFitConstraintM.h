@@ -50,7 +50,10 @@ protected :
   std::vector<TAbsFitParticle*> _ParList1;   // Vector containing first list of constrained particles ( sum[ m_i ] - sum[ m_j ] == 0 )
   std::vector<TAbsFitParticle*> _ParList2;   // Vector containing second list of constrained particles ( sum[ m_i ] - sum[ m_j ] == 0 )
   Double_t _TheMassConstraint;
-  
+
+private :
+
+  ClassDefOverride(TFitConstraintM, 0)
 };
 
 #endif

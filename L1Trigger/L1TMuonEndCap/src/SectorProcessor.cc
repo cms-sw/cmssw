@@ -111,7 +111,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
     // ___________________________________________________________________________
     // Versions in 2017 - no full documentation, can refer to https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1KnownIssues
-    
+
     // Before July 9th (runs < 298653), all mode 7 tracks (station 2-3-4) assigned quality 11
     // July 9th - 29th (runs 298653 - 300087), mode 7 tracks with |eta| > 1.6 in sector -6 assigned quality 12
     // After July 29th (runs >= 300088), mode 7 track promotion applied in all sectors
@@ -140,20 +140,20 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     fixME11Edges_    = false;
 
     pattDefinitions_    = { "4,15:15,7:7,7:7,7:7",
-			    "3,16:16,7:7,7:6,7:6",
-			    "3,14:14,7:7,8:7,8:7",
-			    "2,18:17,7:7,7:5,7:5",  // Should be 7:4 in ME3,4 (FW bug)
-			    "2,13:12,7:7,10:7,10:7",
-			    "1,22:19,7:7,7:0,7:0",
-			    "1,11:8,7:7,14:7,14:7",
-			    "0,30:23,7:7,7:0,7:0",
-			    "0,7:0,7:7,14:7,14:7" };
+                            "3,16:16,7:7,7:6,7:6",
+                            "3,14:14,7:7,8:7,8:7",
+                            "2,18:17,7:7,7:5,7:5",  // Should be 7:4 in ME3,4 (FW bug)
+                            "2,13:12,7:7,10:7,10:7",
+                            "1,22:19,7:7,7:0,7:0",
+                            "1,11:8,7:7,14:7,14:7",
+                            "0,30:23,7:7,7:0,7:0",
+                            "0,7:0,7:7,14:7,14:7" };
     // Straightness, hits in ME1, hits in ME2, hits in ME3, hits in ME4
     symPattDefinitions_ = { "4,15:15:15:15,7:7:7:7,7:7:7:7,7:7:7:7",
-			    "3,16:16:14:14,7:7:7:7,8:7:7:6,8:7:7:6",
-			    "2,18:17:13:12,7:7:7:7,10:7:7:4,10:7:7:4",
-			    "1,22:19:11:8,7:7:7:7,14:7:7:0,14:7:7:0",
-			    "0,30:23:7:0,7:7:7:7,14:7:7:0,14:7:7:0" };
+                            "3,16:16:14:14,7:7:7:7,8:7:7:6,8:7:7:6",
+                            "2,18:17:13:12,7:7:7:7,10:7:7:4,10:7:7:4",
+                            "1,22:19:11:8,7:7:7:7,14:7:7:0,14:7:7:0",
+                            "0,30:23:7:0,7:7:7:7,14:7:7:0,14:7:7:0" };
 
     thetaWindow_   = 4;      // Maximum dTheta between primitives in the same track
     useSingleHits_ = false;  // Build "tracks" from single LCTs in ME1/1
@@ -164,7 +164,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     bugGMTPhi_ = true;
     promoteMode7_ = false;  // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
   } // End default settings for 2016
-			    
+
 
   // ___________________________________________________________________________
   // Versions in 2016 - refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx

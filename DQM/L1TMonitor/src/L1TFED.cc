@@ -34,13 +34,14 @@ void L1TFED::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, 
   fedentries = ibooker.book1D("FEDEntries", "Fed ID occupancy", l1feds_.size(), 0.,l1feds_.size() );	  
   fedfatal = ibooker.book1D("FEDFatal", "Fed ID non present ", l1feds_.size(), 0., l1feds_.size());	  
   fednonfatal = ibooker.book1D("FEDNonFatal", "Fed corrupted data ", l1feds_.size(), 0.,l1feds_.size() );
-  hfedprof = ibooker.bookProfile("fedprofile","FED Size by ID", l1feds_.size(), 0., l1feds_.size(),0,0.,5000.);
+  hfedprof = ibooker.bookProfile("fedprofile","FED Size by ID", l1feds_.size(), 0., l1feds_.size(),0,0.,10000.);
   for(unsigned int i=0;i<l1feds_.size();i++){
     ostringstream sfed;
     sfed << l1feds_[i];
     fedentries->setBinLabel(i+1,"FED "+ sfed.str());
     fedfatal->setBinLabel(i+1,"FED "+ sfed.str());
     fednonfatal->setBinLabel(i+1,"FED "+ sfed.str());
+    hfedprof->setBinLabel(i+1,"FED "+ sfed.str());
   }
   
   hfedsize = ibooker.book1D("fedsize","FED Size Distribution",100,0.,10000.);

@@ -9,7 +9,6 @@
 #include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDDivision;
-class DDPartSelector;
 struct DDPosData;
 
 class DDCompactViewImpl 

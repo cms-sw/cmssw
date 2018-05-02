@@ -59,12 +59,14 @@ namespace {
     for(size_t i=0; i<labels.size(); ++i) {
       h.setBinLabel(i+1, labels[i]);
     }
+    h.disableAlphanumeric();
   }
 
   void setBinLabelsAlgo(ConcurrentMonitorElement& h, int axis=1) {
     for(size_t i=0; i<reco::TrackBase::algoSize; ++i) {
       h.setBinLabel(i+1, reco::TrackBase::algoName(static_cast<reco::TrackBase::TrackAlgorithm>(i)), axis);
     }
+    h.disableAlphanumeric();
   }
 
   void fillMVAHistos(const std::vector<ConcurrentMonitorElement>& h_mva,
@@ -470,6 +472,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::ConcurrentBooker& 
   histograms.h_algo.push_back( ibook.book1D("h_algo","Tracks by algo",reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize) ) );
   for (size_t ibin=0; ibin<reco::TrackBase::algoSize-1; ibin++)
     histograms.h_algo.back().setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
+  histograms.h_algo.back().disableAlphanumeric();
 
   /// these are needed to calculate efficiency during the harvesting for the automated validation
   histograms.h_recoeta.push_back( ibook.book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );

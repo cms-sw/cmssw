@@ -29,3 +29,6 @@
 
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
+
+<use name="DataFormats/L1TrackTrigger"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
