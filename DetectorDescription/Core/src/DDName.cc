@@ -12,8 +12,6 @@
 std::ostream & operator<<(std::ostream & os, const DDName & n)
 { 
   os << n.ns() << ':' << n.name();
-  static const char * ev = getenv("DDNAMEID");
-  if (ev) os << '[' << n.id() << ']';
   return os;
 }  
 
@@ -28,7 +26,7 @@ DDName::DDName( const std::string & name )
  : id_(0)
 { 
   std::pair<std::string,std::string> result = DDSplit(name);
-  if (result.second == "") {
+  if (result.second.empty()) {
     id_ = registerName(std::make_pair(result.first,DDCurrentNamespace::ns()))->second;
   }  
   else {
@@ -41,7 +39,7 @@ DDName::DDName( const char* name )
  : id_(0)
 { 
   std::pair<std::string,std::string> result = DDSplit(name);
-  if (result.second == "") {
+  if (result.second.empty()) {
     id_ = registerName(std::make_pair(result.first,DDCurrentNamespace::ns()))->second;
   }  
   else {

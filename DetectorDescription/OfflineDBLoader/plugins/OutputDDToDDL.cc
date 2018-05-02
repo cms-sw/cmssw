@@ -76,7 +76,7 @@ OutputDDToDDL::OutputDDToDDL( const edm::ParameterSet& iConfig )
 {
   m_rotNumSeed = iConfig.getParameter<int>("rotNumSeed");
   m_fname = iConfig.getUntrackedParameter<std::string>("fileName");
-  if( m_fname == "" ) {
+  if( m_fname.empty() ) {
     m_xos = &std::cout;
   } else {
     m_xos = new std::ofstream( m_fname.c_str());
@@ -236,7 +236,7 @@ void
 OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore )
 {
   solStore.insert(sol);
-  if( sol.shape() == ddunion || sol.shape() == ddsubtraction || sol.shape() == ddintersection ) {
+  if( sol.shape() == DDSolidShape::ddunion || sol.shape() == DDSolidShape::ddsubtraction || sol.shape() == DDSolidShape::ddintersection ) {
     const DDBooleanSolid& bs (sol);
     if( solStore.find( bs.solidA()) == solStore.end()) {
       addToSolStore( bs.solidA(), solStore, rotStore );
@@ -245,15 +245,6 @@ OutputDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, 
       addToSolStore( bs.solidB(), solStore, rotStore );
     }
     rotStore.insert( bs.rotation());
-  }
-  if( sol.shape() == ddmultiunion ) {
-    const DDMultiUnionSolid& ms( sol );
-    for( auto it : ms.solids())
-      if( solStore.find(it) == solStore.end()) {
-	addToSolStore( it, solStore, rotStore );
-      }
-    for( auto it : ms.rotations())
-      rotStore.insert( it );
   }
 }
 

@@ -17,7 +17,7 @@ DDI::Trap::Trap( double pDz,
                  double pAlp1,
                  double pDy2, double pDx3, double pDx4,
                  double pAlp2 )
- : Solid(ddtrap) 
+ : Solid(DDSolidShape::ddtrap) 
 {		 
   p_.emplace_back(pDz); // ......... 0
   p_.emplace_back(pTheta); // .. 1

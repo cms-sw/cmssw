@@ -27,11 +27,9 @@ private:
     static G4VSolid * cuttubs(const DDSolid &);
     static G4VSolid * trap(const DDSolid &);
     static G4VSolid * cons(const DDSolid &);
-    static G4VSolid * reflected(const DDSolid &);
     static G4VSolid * unionsolid(const DDSolid &);
     static G4VSolid * subtraction(const DDSolid &);
     static G4VSolid * intersection(const DDSolid &);
-    static G4VSolid * multiunion(const DDSolid &);    
     static G4VSolid * shapeless(const DDSolid &);
     static G4VSolid * polycone_rz(const DDSolid &);
     static G4VSolid * polycone_rrz(const DDSolid &);
@@ -42,10 +40,7 @@ private:
     static G4VSolid * torus(const DDSolid &);
     static G4VSolid * trunctubs(const DDSolid &);
     static G4VSolid * sphere(const DDSolid &);
-    static G4VSolid * orb(const DDSolid &);
-    static G4VSolid * ellipsoid(const DDSolid &);
     static G4VSolid * ellipticaltube(const DDSolid &);
-    static G4VSolid * para(const DDSolid &);
     static const std::vector<double>* par_;
     std::map<DDSolidShape,FNPTR> convDispatch_;
 
