@@ -84,27 +84,32 @@ class HitEff : public edm::EDAnalyzer {
   TTree* traj;
   int events,EventTrackCKF;
   
+  int compSettings;
   unsigned int layers;
   bool DEBUG;
   unsigned int whatlayer;
   
   // Tree declarations
   // Trajectory positions for modules included in the study
+  #ifdef ExtendedCALIBTree
+  float timeDT, timeDTErr; 
+  int timeDTDOF; 
+  float timeECAL, dedx; 
+  int dedxNOM; 
+  int nLostHits; 
+  float p, chi2; 
+  #endif
   float TrajGlbX, TrajGlbY, TrajGlbZ;
-  float TrajLocX, TrajLocY, TrajLocErrX, TrajLocErrY, TrajLocAngleX, TrajLocAngleY;
+  float TrajLocX, TrajLocY, TrajLocAngleX, TrajLocAngleY;
+  float TrajLocErrX, TrajLocErrY;
   float ClusterLocX, ClusterLocY, ClusterLocErrX, ClusterLocErrY, ClusterStoN;
   float ResX, ResXSig;
   unsigned int ModIsBad; unsigned int Id; unsigned int SiStripQualBad; bool withinAcceptance;
-  int nHits, nLostHits; 
-  float p, pT, chi2;
   bool highPurity;
+  int nHits; 
+  float pT;
   unsigned int trajHitValid, run, event, bunchx;
-  float timeDT, timeDTErr;
-  int timeDTDOF;
-  float timeECAL, dedx;
-  int dedxNOM;
   int tquality;
-  int istep;
   float instLumi, PU;
   float commonMode;
 };
