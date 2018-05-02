@@ -121,7 +121,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // --------------------------------------------------------------------------------------------------------
 
     // spTBParams16 : Sector processor track-building parameters
-    // Defaults : ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
+    // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
     //            DuplicateThteta(T), FixZonePhi(T), UseNewZones(F), FixME11Edges(T)
     // ------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     bxWindow_ = 3;            // Number of BX whose primitives can be included in the same track
 
     // spTBParams16 : Sector processor track-building parameters
-    // Defaults : ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
+    // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
     //            DuplicateThteta(T), FixZonePhi(T), UseNewZones(F), FixME11Edges(T)
     // ------------------------------------------------------------------------------
 
@@ -225,9 +225,10 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     bxWindow_ = 3;            // Number of BX whose primitives can be included in the same track
 
     // spTBParams16 : Sector processor track-building parameters
-    // Defaults : ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
+    // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
     //            DuplicateThteta(T), FixZonePhi(T), UseNewZones(F), FixME11Edges(T)
     // ------------------------------------------------------------------------------
+    // primConvLUT_         // Should be 0 for 2016, set using get_pc_lut_version() from ConditionsHelper.cc
     // fixZonePhi_          // Depends on FW version, see below
     fixME11Edges_ = false;  // Improved small fraction of buggy LCT coordinate transformations
 

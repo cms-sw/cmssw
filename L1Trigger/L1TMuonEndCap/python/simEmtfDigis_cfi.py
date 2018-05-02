@@ -46,6 +46,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
 
     # Sector processor primitive-conversion parameters
     spPCParams16 = cms.PSet(
+        PrimConvLUT     = cms.int32(1),    # v0 and v1 LUTs used at different times, "-1" for local CPPF files (only works if FWConfig = False)
         ZoneBoundaries  = cms.vint32(0,41,49,87,127), # Vertical boundaries of track-building zones, in integer theta (5 for 4 zones)
         # ZoneBoundaries  = cms.vint32(0,36,54,96,127), # New proposed zone boundaries
         ZoneOverlap     = cms.int32(2),    # Overlap between zones
