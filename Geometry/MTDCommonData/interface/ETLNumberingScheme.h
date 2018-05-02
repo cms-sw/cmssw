@@ -6,7 +6,7 @@
 class ETLNumberingScheme : public MTDNumberingScheme {
  public:
   ETLNumberingScheme();
-  ~ETLNumberingScheme();
+  ~ETLNumberingScheme() override;
   uint32_t getUnitID(const MTDBaseNumber& baseNumber) const override ;
 };
 
