@@ -37,7 +37,9 @@
 //                              factor is to be determined (23)
 //  sysmode         (int)     = systematic error study (-1 if default)
 //                              -1 loose, -2 flexible, > 0 for systematic
-//  puCorr          (bool)    = PU correction to be applied or not (true)
+//  puCorr          (int)     = PU correction to be applied or not: 0 no
+//                              correction; -1 use eDelta; > 0 rho dependent
+//                              correction (-1)
 //  applyL1Cut      (int)     = Flag to see if closeness to L1 object to be
 //                              applied: 0 no check; 1 only to events with
 //                              datatype not equal to 1; 2 to all (1)
@@ -99,7 +101,7 @@ void Run(const char *inFileName="Silver",
 	 const char *rcorFileName="",
 	 bool useweight=true, bool useMean=false, int nMin=0, bool inverse=true,
 	 double ratMin=0.25, double ratMax=3., int ietaMax=23, 
-	 int sysmode=-1, bool puCorr=true, int applyL1Cut=1, double l1Cut=0.5, 
+	 int sysmode=-1, int puCorr=-1, int applyL1Cut=1, double l1Cut=0.5, 
 	 int truncateFlag=0, int maxIter=30, bool useGen=false, 
 	 int runlo=-1, int runhi=99999999, int phimin=1, int phimax=72,
 	 int zside=0, int rbx=0, bool exclude=true, int higheta=1,
@@ -199,9 +201,9 @@ public :
   const int                                         truncateFlag_;
   const bool                                        useMean_;
   const int                                         runlo_, runhi_;
-  const int                                         phimin_, phimax_;
-  const int                                         zside_, sysmode_, rbx_;
-  const bool                                        puCorr_, useGen_, exclude_;
+  const int                                         phimin_, phimax_, zside_;
+  const int                                         sysmode_, rbx_, puCorr_;
+  const bool                                        useGen_, exclude_;
   const int                                         higheta_;
   double                                            log2by18_, eHcalDelta_;
   std::vector<Long64_t>                             entries;
@@ -218,7 +220,7 @@ public :
 
   CalibTree(const char *dupFileName, const char* rcorFileName, int truncateFlag,
 	    bool useMean, int runlo, int runhi, int phimin, int phimax,
-	    int zside, int sysmode, int rbx, bool puCorr, bool useGen, 
+	    int zside, int sysmode, int rbx, int puCorr, bool useGen, 
 	    bool exclude, int higheta, TTree *tree=0);
   virtual ~CalibTree();
   virtual Int_t    Cut(Long64_t entry);
@@ -260,7 +262,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 	 const char *outFileName, const char *corrFileName,
 	 const char *dupFileName, const char* rcorFileName, 
 	 bool useweight, bool useMean, int nMin, bool inverse, double ratMin, 
-	 double ratMax, int ietaMax, int sysmode, bool puCorr, int applyL1Cut,
+	 double ratMax, int ietaMax, int sysmode, int puCorr, int applyL1Cut,
 	 double l1Cut, int truncateFlag, int maxIter, bool useGen, int runlo,
 	 int runhi, int phimin, int phimax, int zside, int rbx, bool exclude,
 	 int higheta, double fraction, bool writeHisto, bool debug) {
@@ -320,7 +322,7 @@ void Run(const char *inFileName, const char *dirName, const char *treeName,
 CalibTree::CalibTree(const char *dupFileName, const char* rcorFileName,
 		     int flag, bool useMean, int runlo, int runhi, 
 		     int phimin, int phimax, int zside, int mode, 
-		     int rbx, bool pu, bool gen, bool exclude, int higheta,
+		     int rbx, int pu, bool gen, bool exclude, int higheta,
 		     TTree *tree) : fChain(nullptr), cFactor_(nullptr),
 				    cSelect_(nullptr), truncateFlag_(flag),
 				    useMean_(useMean), runlo_(runlo), 
@@ -653,12 +655,15 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       eHcalDelta_ = Etot3-Etot1;
       double evWt = (useweight) ? t_EventWeight : 1.0; 
       // PU correction only for loose isolation cut
-      double pufac = puCorr_ ? puFactor(t_ieta,pmom,Etot,eHcalDelta_) : 1.0;
-      double ratio = Etot*pufac/(pmom-t_eMipDR);
+      double ehcal = ((puCorr_ == 0) ? Etot : 
+		      ((puCorr_ < 0) ? (Etot*puFactor(t_ieta,pmom,Etot,eHcalDelta_)) :
+		       puFactorRho(puCorr_,t_ieta,t_rhoh,Etot)));
+      double pufac = (Etot > 0) ? (ehcal/Etot) : 1.0;
+      double ratio = ehcal/(pmom-t_eMipDR);
       if (debug) std::cout << " Weights " << evWt << ":" << pufac << " Energy "
 			   << Etot2 << ":" << Etot << ":" << pmom << ":" 
-			   << t_eMipDR << ":" << t_eHcal << " ratio " << ratio
-			   << std::endl;
+			   << t_eMipDR << ":" << t_eHcal << ":" << ehcal 
+			   << " ratio " << ratio  << std::endl;
       if (loop==0) {
 	h_pbyE->Fill(ratio, evWt);
         h_Ebyp_bfr->Fill(t_ieta, ratio, evWt);
@@ -686,8 +691,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
 	      hitEn = (*t_HitEnergies)[idet];
 	    if (cFactor_) hitEn *= cFactor_->getCorr(t_Run,id);
 	    double Wi  = evWt * hitEn/Etot;
-	    double Fac = (inverse) ? (pufac*Etot/(pmom-t_eMipDR)) : 
-	      ((pmom-t_eMipDR)/(pufac*Etot));
+	    double Fac = (inverse) ? (ehcal/(pmom-t_eMipDR)) : 
+	      ((pmom-t_eMipDR)/ehcal);
 	    double Fac2= Wi*Fac*Fac;
 	    TH1D* hist(0);
 	    std::map<unsigned int,TH1D*>::const_iterator itr = histos.find(detid);

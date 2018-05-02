@@ -175,13 +175,26 @@ BTVEfficiency_PFJet = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
+BTVEfficiency_TurnOnCurves = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring(
+        "HLT/BTV/HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_*",
+    ),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+        "turnon_loose  'turn-on (loose online OP); discriminator; efficiency'  Turnon_loose_Discr_numerator   Turnon_loose_Discr_denominator",
+        "turnon_medium 'turn-on (medium online OP); discriminator; efficiency' Turnon_medium_Discr_numerator  Turnon_medium_Discr_denominator",
+        "turnon_tight  'turn-on (tight online OP); discriminator; efficiency'  Turnon_tight_Discr_numerator   Turnon_tight_Discr_denominator",
+    ),
+)
+
 
 btaggingClient = cms.Sequence(
 
-    BTVEfficiency_BTagMu_DiJet
+    BTVEfficiency_TurnOnCurves
+    + BTVEfficiency_BTagMu_DiJet
     + BTVEfficiency_BTagMu_Jet
     + BTVEfficiency_BTagDiMu_Jet
     + BTVEfficiency_PFJet
 
 )
-

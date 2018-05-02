@@ -33,6 +33,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -75,6 +76,7 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
   commonModeToken_( mayConsume< edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode")) ),
   combinatorialTracks_token_( consumes< reco::TrackCollection >(conf.getParameter<edm::InputTag>("combinatorialTracks")) ),
   trajectories_token_( consumes< std::vector<Trajectory> >(conf.getParameter<edm::InputTag>("trajectories")) ),
+  trajTrackAsso_token_( consumes< TrajTrackAssociationCollection >(conf.getParameter<edm::InputTag>("trajectories")) ),
   clusters_token_( consumes< edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("siStripClusters")) ),
   digis_token_( consumes< DetIdCollection >(conf.getParameter<edm::InputTag>("siStripDigis")) ),
   trackerEvent_token_( consumes< MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent")) ),
@@ -86,6 +88,9 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
   addCommonMode_ = conf_.getUntrackedParameter<bool>("addCommonMode", false);
   cutOnTracks_ = conf_.getUntrackedParameter<bool>("cutOnTracks", false);
   trackMultiplicityCut_ = conf.getUntrackedParameter<unsigned int>("trackMultiplicity",100);
+  useFirstMeas_ = conf_.getUntrackedParameter<bool>("useFirstMeas", false);
+  useLastMeas_ = conf_.getUntrackedParameter<bool>("useLastMeas", false);
+  useAllHitsFromTracksWithMissingHits_ = conf_.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
 }
 
 // Virtual destructor needed.
@@ -120,6 +125,7 @@ void HitEff::beginJob(){
   traj->Branch("chi2",&chi2,"chi2/F");
   traj->Branch("p",&p,"p/F");
   traj->Branch("pT",&pT,"pT/F");
+  traj->Branch("highPurity",&highPurity,"highPurity/O");
   traj->Branch("trajHitValid", &trajHitValid, "trajHitValid/i");
   traj->Branch("Id",&Id,"Id/i");
   traj->Branch("run",&run,"run/i");
@@ -187,6 +193,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   edm::Handle<std::vector<Trajectory> > TrajectoryCollectionCKF;
   //edm::InputTag TkTrajCKF = conf_.getParameter<edm::InputTag>("trajectories");
   e.getByToken(trajectories_token_,TrajectoryCollectionCKF);
+  
+  edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+  e.getByToken(trajTrackAsso_token_, trajTrackAssociationHandle);
   
   // Clusters
   // get the SiStripClusters from the event
@@ -312,11 +321,14 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       timeDT = -999.0; timeDTErr = -999.0; timeDTDOF = -999; timeECAL = -999.0;
     }
 
-    // actually should do a loop over all the tracks in the event here
 
-    for (vector<Trajectory>::const_iterator itraj = TrajectoryCollectionCKF.product()->begin();
-	 itraj != TrajectoryCollectionCKF.product()->end();
-	 itraj++) {
+    // Looping over traj-track associations to be able to get traj & track informations
+	for(TrajTrackAssociationCollection::const_iterator it = trajTrackAssociationHandle->begin();
+	 it!=trajTrackAssociationHandle->end();
+	 it++) {
+	 
+	  edm::Ref<std::vector<Trajectory> > itraj  = it->key;
+	  reco::TrackRef itrack  = it->val;
 
       // for each track, fill some variables such as number of hits and momentum
       nHits = itraj->foundHits();
@@ -328,7 +340,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		   itraj->lastMeasurement().updatedState().globalMomentum().y()) );
       p = itraj->lastMeasurement().updatedState().globalMomentum().mag();
       
-      //Put in code to check track quality
+      // track quality
+	  highPurity = itrack->quality(reco::TrackBase::TrackQuality::highPurity);
+
       
       
       std::vector<TrajectoryMeasurement> TMeas=itraj->measurements();
@@ -340,8 +354,19 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       double angleX = -999.;
       double angleY = -999.;
       double xglob,yglob,zglob;
-      
-      for (itm=TMeas.begin();itm!=TMeas.end();itm++){
+	  
+	  // Check whether the trajectory has some missing hits
+	  bool hasMissingHits=false;
+	  for (itm=TMeas.begin();itm!=TMeas.end();itm++){
+	    auto theHit = (*itm).recHit();
+		if(theHit->getType()==TrackingRecHit::Type::missing) hasMissingHits=true;  
+	  }
+	
+	
+	// Loop on each measurement and take it into consideration
+	//--------------------------------------------------------
+	
+	      for (itm=TMeas.begin();itm!=TMeas.end();itm++){
 	auto theInHit = (*itm).recHit();
 	
 	if(DEBUG) cout << "theInHit is valid = " << theInHit->isValid() << endl;
@@ -351,6 +376,20 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	unsigned int TKlayers = checkLayer(iidd, tTopo);
 	if (DEBUG)	cout << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd <<  "   matched/stereo/rphi = " << ((iidd & 0x3)==0) << "/" << ((iidd & 0x3)==1) << "/" << ((iidd & 0x3)==2) << endl;
 
+	
+	// Test first and last points of the trajectory
+	// the list of measurements starts from outer layers  !!! This could change -> should add a check
+	bool isFirstMeas = (itm==(TMeas.end()-1));
+	bool isLastMeas = (itm==(TMeas.begin()));
+	
+	if(!useFirstMeas_ && isFirstMeas) continue;
+	if(!useLastMeas_ && isLastMeas) continue;
+	
+	// In case of missing hit in the track, check whether to use the other hits or not.
+	if(hasMissingHits && theInHit->getType()!=TrackingRecHit::Type::missing && !useAllHitsFromTracksWithMissingHits_) continue;
+
+	
+		
 	// If Trajectory measurement from TOB 6 or TEC 9, skip it because it's always valid they are filled later
 	if ( TKlayers == 10 || TKlayers == 22 ) {
 	  if (DEBUG) cout << "skipping original TM for TOB 6 or TEC 9" << endl;

@@ -399,7 +399,7 @@ SKIMStreamEXOEMu = cms.FilteredStream(
 from Configuration.Skimming.PDWG_MuonPOGSkim_cff import *
 MuonPOGSkimTrackPath = cms.Path(MuonPOGSkimTrackSequence)
 MuonPOGSkimSTAPath   = cms.Path(MuonPOGSkimSTASequence)
-MuonPOGSkim     = cms.FilteredStream(
+SKIMStreamMuonPOGSkim     = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'MuonPOGSkim',
     paths = (MuonPOGSkimTrackPath,MuonPOGSkimSTAPath),
@@ -412,7 +412,7 @@ MuonPOGSkim     = cms.FilteredStream(
 MuonPOGJPsiSkimTrackPath = cms.Path(MuonPOGJPsiSkimTrackSequence)
 MuonPOGJPsiSkimSTAPath   = cms.Path(MuonPOGJPsiSkimSTASequence)
 
-MuonPOGJPsiSkim     = cms.FilteredStream(
+SKIMStreamMuonPOGJPsiSkim     = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'MuonPOGJPsiSkim',
     paths = (MuonPOGJPsiSkimTrackPath,MuonPOGJPsiSkimSTAPath),

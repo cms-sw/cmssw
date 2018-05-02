@@ -51,6 +51,8 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag> ("JetInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger Jet (required parameter:  default value is invalid)");
   desc.add<edm::InputTag> ("EtSumInputTag", edm::InputTag(""))->setComment("InputTag for Calo Trigger EtSum (required parameter:  default value is invalid)");
   desc.add<edm::InputTag> ("ExtInputTag", edm::InputTag(""))->setComment("InputTag for external conditions (not required, but recommend to specify explicitly in config)");
+  desc.add<edm::InputTag> ("AlgoBlkInputTag", edm::InputTag("gtDigis"))->setComment("InputTag for unpacked Algblk (required only if GetPrescaleColumnFromData set to true)");
+  desc.add<bool> ("GetPrescaleColumnFromData",false)->setComment("Get prescale column from unpacked GlobalAlgBck. Otherwise use value specified in PrescaleSet");
   desc.add<bool> ("AlgorithmTriggersUnprescaled", false)->setComment("not required, but recommend to specify explicitly in config");
   desc.add<bool> ("AlgorithmTriggersUnmasked", false)->setComment("not required, but recommend to specify explicitly in config");
   // These parameters have well defined  default values and are not currently 
@@ -97,15 +99,19 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 
             m_verbosity(parSet.getUntrackedParameter<int>("Verbosity")),
 	    m_printL1Menu(parSet.getUntrackedParameter<bool>("PrintL1Menu")),
-            m_isDebugEnabled(edm::isDebugEnabled())
+            m_isDebugEnabled(edm::isDebugEnabled()),
+	    m_getPrescaleColumnFromData(parSet.getParameter<bool>("GetPrescaleColumnFromData")),
+	    m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag"))
 {
 
-  m_egInputToken = consumes <BXVector<EGamma> > (m_egInputTag);
-  m_tauInputToken = consumes <BXVector<Tau> > (m_tauInputTag);
-  m_jetInputToken = consumes <BXVector<Jet> > (m_jetInputTag);
-  m_sumInputToken = consumes <BXVector<EtSum> > (m_sumInputTag);
-  m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
-  m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
+    m_egInputToken = consumes <BXVector<EGamma> > (m_egInputTag);
+    m_tauInputToken = consumes <BXVector<Tau> > (m_tauInputTag);
+    m_jetInputToken = consumes <BXVector<Jet> > (m_jetInputTag);
+    m_sumInputToken = consumes <BXVector<EtSum> > (m_sumInputTag);
+    m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
+    m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
+    if (m_getPrescaleColumnFromData) 
+      m_algoblkInputToken = consumes <BXVector<GlobalAlgBlk> > (m_algoblkInputTag);
 
     if (m_verbosity) {
 
@@ -222,6 +228,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 
     m_l1GtTmVetoAlgoCacheID = 0ULL;
 
+    m_currentLumi = 0;
 
     // Set default, initial, dummy prescale factor table
     std::vector<std::vector<int> > temp_prescaleTable;
@@ -395,6 +402,21 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	m_triggerMaskVetoAlgoTrig = &(m_l1GtPrescalesVetoes->triggerMaskVeto());
 
 	m_l1GtPfAlgoCacheID = l1GtPfAlgoCacheID;
+      }
+      if (m_getPrescaleColumnFromData && (m_currentLumi != iEvent.luminosityBlock()) ){ // get prescale column from unpacked data
+
+	m_currentLumi=iEvent.luminosityBlock();
+
+	edm::Handle<BXVector<GlobalAlgBlk>> m_uGtAlgBlk;
+	iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
+
+	if(m_uGtAlgBlk.isValid() && !m_uGtAlgBlk->isEmpty(0)) {
+	  std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
+	  m_prescaleSet=static_cast<unsigned int>(algBlk->getPreScColumn());
+	}else{
+	  m_prescaleSet=1;
+	  edm::LogError("L1TGlobalProduce") << "Could not find valid algo block. Setting prescale column to 1" << std::endl;
+	}
       }
     }
     else{

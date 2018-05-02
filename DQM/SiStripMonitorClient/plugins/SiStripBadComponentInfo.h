@@ -50,18 +50,22 @@ class SiStripBadComponentInfo: public DQMEDHarvester {
 protected:
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
-  void checkBadComponents();
+  void checkBadComponents(edm::EventSetup const& eSetup);
   void bookBadComponentHistos(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
-  void fillBadComponentHistos(int xbin, int component,SiStripQuality::BadComponent& BC);
-  void createSummary(MonitorElement* me);
+  void fillBadComponentMaps(int xbin, int component,SiStripQuality::BadComponent& BC);
+  void createSummary(MonitorElement* me,const std::map<std::pair<int,int>,float >& map);
 
   MonitorElement * badAPVME_;
   MonitorElement * badFiberME_;
   MonitorElement * badStripME_;
 
+  std::map<std::pair<int,int>,float > mapBadAPV;
+  std::map<std::pair<int,int>,float > mapBadFiber;
+  std::map<std::pair<int,int>,float > mapBadStrip;
 
   unsigned long long m_cacheID_;
   bool bookedStatus_;

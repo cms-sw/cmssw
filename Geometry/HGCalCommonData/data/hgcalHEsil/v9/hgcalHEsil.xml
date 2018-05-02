@@ -43,11 +43,17 @@
       0, 0, 0, 0, 0, 0, 1, 0, 0 </Vector>
     <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="zMinBlock"        value="[hgcal:zMinHEsil]"/>
-    <Numeric name="rMaxFine"         value="[hgcal:rMaxFine]"/>
-    <Numeric name="rMinThick"        value="[hgcal:rMaxMiddle]"/>
+    <Vector name="rad100to200" type="numeric" nEntries="5">
+      [hgcal:rad100200P0], [hgcal:rad100200P1], [hgcal:rad100200P2],
+      [hgcal:rad100200P3], [hgcal:rad100200P4]</Vector>
+    <Vector name="rad200to300" type="numeric" nEntries="5">
+      [hgcal:rad200300P0], [hgcal:rad200300P1], [hgcal:rad200300P2],
+      [hgcal:rad200300P3], [hgcal:rad200300P4]</Vector>
+    <Numeric name="zMinForRadPar"    value="[hgcal:zMinForRadPar]"/>
+    <Numeric name="nCornerCut"       value="[hgcal:NCornerCut]"/>
     <Numeric name="waferSize"        value="[hgcal:WaferSize]"/>
     <Numeric name="SensorSeparation" value="[hgcal:SensorSeparation]"/>
-    <Numeric name="Sectors"          value="18"/>
+    <Numeric name="Sectors"          value="36"/>
     <Vector name="SlopeBottom" type="numeric" nEntries="2">
       [etaMax:slope], [etaMax:slope]</Vector>
     <Vector name="SlopeTop" type="numeric" nEntries="4">

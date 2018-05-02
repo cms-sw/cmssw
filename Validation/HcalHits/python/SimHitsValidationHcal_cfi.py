@@ -12,4 +12,4 @@ from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify( simHitsValidationHcal, ModuleLabel = cms.string("fastSimProducer") )
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify( simHitsValidationHcal, TestNumber = cms.bool(True) )
+(run2_HCAL_2017 & ~fastSim).toModify( simHitsValidationHcal, TestNumber = cms.bool(True) )

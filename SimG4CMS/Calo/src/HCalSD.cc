@@ -8,6 +8,7 @@
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "SimG4CMS/Calo/interface/HcalTestNS.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -296,7 +297,7 @@ HCalSD::HCalSD(const std::string& name, const DDCompactView & cpv,
     edm::LogInfo("HcalSim") << "HCalSD: (" << i << ") " << matNames[i]
                             << " pointer " << materials[i];
 
-  mumPDG = mupPDG = 0;
+  isEM = false;
   
   if (useLayerWt) readWeightFromFile(file);
 
@@ -365,20 +366,20 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     depth_ = (aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(0))%10;
     const G4LogicalVolume* lv =
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+    isEM = (G4TrackToParticleID::isGammaElectronPositron(aStep->GetTrack())) ? true : false;
     G4String nameVolume = lv->GetName();
     if (isItHF(aStep)) {
-      G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       double weight(1.0);
       if (m_HFDarkening) {
 	G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
 	double r = hitPoint.perp()/CLHEP::cm;
 	double z = std::abs(hitPoint.z())/CLHEP::cm;
 	double dose_acquired = 0.;
-  if (z>=HFDarkening::lowZLimit && z <= HFDarkening::upperZLimit) {
-    unsigned int hfZLayer = (int)((z - HFDarkening::lowZLimit)/5);
-    if (hfZLayer >= HFDarkening::upperZLimit) hfZLayer = (HFDarkening::upperZLimit-1);
+	if (z>=HFDarkening::lowZLimit && z <= HFDarkening::upperZLimit) {
+	  unsigned int hfZLayer = (int)((z - HFDarkening::lowZLimit)/5);
+	  if (hfZLayer >= HFDarkening::upperZLimit) hfZLayer = (HFDarkening::upperZLimit-1);
 	  float normalized_lumi = m_HFDarkening->int_lumi(deliveredLumi);
-    for (int i = hfZLayer; i != HFDarkening::numberOfZLayers; ++i) {
+	  for (int i = hfZLayer; i != HFDarkening::numberOfZLayers; ++i) {
 	    dose_acquired = m_HFDarkening->dose(i,r);
 	    weight *= m_HFDarkening->degradation(normalized_lumi*dose_acquired);
 	  }
@@ -403,16 +404,18 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 			    << " hits afterParamS*";
 #endif 
       } else {
-        bool notaMuon = true;
-        if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
-        if (useShowerLibrary && notaMuon) {
+	// shower library is applied only for gamma, e+- or stable hadrons
+	// muons are tracked via HF, hyperons does not interact
+        if (useShowerLibrary && !G4TrackToParticleID::isMuon(aStep->GetTrack())) {
+	  if(isEM || G4TrackToParticleID::isStableHadronIon(aStep->GetTrack())) {
+	    getFromLibrary(aStep, weight);
+	  }
 #ifdef EDM_ML_DEBUG
           LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
                               << nameVolume << " for Track " 
                               << aStep->GetTrack()->GetTrackID() << " ("
                               << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-          getFromLibrary(aStep, weight);
         } else if (isItFibre(lv)) {
 #ifdef EDM_ML_DEBUG
           LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
@@ -608,13 +611,6 @@ void HCalSD::update(const BeginOfJob * job) {
 
 void HCalSD::initRun() {
   G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
-  G4String          particleName;
-  mumPDG = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
-  mupPDG = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
-#ifdef EDM_ML_DEBUG
-  LogDebug("HcalSim") << "HCalSD: Particle code for mu- = " << mumPDG
-		      << " for mu+ = " << mupPDG;
-#endif
   if (showerLibrary) showerLibrary->initRun(theParticleTable,hcalConstants);
   if (showerParam)   showerParam->initRun(theParticleTable,hcalConstants);
   if (hfshower)      hfshower->initRun(theParticleTable,hcalConstants);
@@ -785,52 +781,50 @@ bool HCalSD::isItinFidVolume (const G4ThreeVector& hitPoint) {
 void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
   preStepPoint  = aStep->GetPreStepPoint(); 
   theTrack = aStep->GetTrack();   
-  int det       = 5;
-  bool ok;
+  int det  = 5;
+  bool ok(false);
 
   std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok, weight, false);
 
-  double etrack    = preStepPoint->GetKineticEnergy();
-  int    primaryID = setTrackID(aStep);
+  if(!hits.empty()) {
+    double etrack    = preStepPoint->GetKineticEnergy();
+    int    primaryID = setTrackID(aStep);
 
-  // Reset entry point for new primary
-  posGlobal = preStepPoint->GetPosition();
-  resetForNewPrimary(posGlobal, etrack);
+    // Reset entry point for new primary
+    posGlobal = preStepPoint->GetPosition();
+    resetForNewPrimary(posGlobal, etrack);
 
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
-    edepositEM  = 1.*GeV;
-    edepositHAD = 0.;
-  } else {
-    edepositEM  = 0.;
-    edepositHAD = 1.*GeV;
-  }
+    if (isEM) {
+      edepositEM  = 1.*GeV;
+      edepositHAD = 0.;
+    } else {
+      edepositEM  = 0.;
+      edepositHAD = 1.*GeV;
+    }
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalSim") << "HCalSD::getFromLibrary " <<hits.size() 
-                          << " hits for " << GetName() << " of " << primaryID 
-                          << " with " << theTrack->GetDefinition()->GetParticleName() 
-                          << " of " << preStepPoint->GetKineticEnergy()/GeV << " GeV";
+    edm::LogInfo("HcalSim") << "HCalSD::getFromLibrary " <<hits.size() 
+			    << " hits for " << GetName() << " of " << primaryID 
+			    << " with " << theTrack->GetDefinition()->GetParticleName() 
+			    << " of " << preStepPoint->GetKineticEnergy()/GeV << " GeV";
 #endif
-  for (unsigned int i=0; i<hits.size(); ++i) {
-    G4ThreeVector hitPoint = hits[i].position;
-    if (isItinFidVolume (hitPoint)) {
-      int depth              = hits[i].depth;
-      double time            = hits[i].time;
-      unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID, 0);
+    for (unsigned int i=0; i<hits.size(); ++i) {
+      G4ThreeVector hitPoint = hits[i].position;
+      if (isItinFidVolume (hitPoint)) {
+	int depth              = hits[i].depth;
+	double time            = hits[i].time;
+	unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
+	currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
-      plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
-      bool emType = false;
-      if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG)
-	emType = true;
-      plotHF(hitPoint,emType);
+	plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
+	plotHF(hitPoint,isEM);
 #endif
    
-      // check if it is in the same unit and timeslice as the previous one
-      if (currentID == previousID) {
-	updateHit(currentHit);
-      } else {
-	if (!checkHit()) currentHit = createNewHit();
+	// check if it is in the same unit and timeslice as the previous one
+	if (currentID == previousID) {
+	  updateHit(currentHit);
+	} else {
+	  if (!checkHit()) currentHit = createNewHit();
+	}
       }
     }
   }
@@ -848,14 +842,12 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
 void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamShower
 
   const G4StepPoint* preStepPoint  = aStep->GetPreStepPoint();
-  const G4Track*     theTrack      = aStep->GetTrack();
   int primaryID = setTrackID(aStep);
 
   int det   = 5;
   std::vector<HFShower::Hit> hits = hfshower->getHits(aStep, weight);
 
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG) {
+  if (isEM) {
     edepositEM  = 1.*GeV;
     edepositHAD = 0.;
   } else {
@@ -880,10 +872,7 @@ void HCalSD::hitForFibre (const G4Step* aStep, double weight) { // if not ParamS
 	currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
 	plotProfile(aStep, hitPoint, edepositEM, time, depth);
-	bool emType = false;
-	if (particleCode==emPDG || particleCode==epPDG || particleCode==gammaPDG)
-	  emType = true;
-	plotHF(hitPoint,emType);
+	plotHF(hitPoint,isEM);
 #endif
 	// check if it is in the same unit and timeslice as the previous one
 	if (currentID == previousID) {

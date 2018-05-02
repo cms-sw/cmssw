@@ -16,6 +16,10 @@ import FWCore.ParameterSet.Config as cms
 # DQM quality tests 
 from DQM.L1TMonitorClient.L1TStage2QualityTests_cff import *
 
+
+# L1T Objects Ration Timing Plots
+from DQM.L1TMonitorClient.L1TObjectsTimingClient_cff import *
+
 # L1 event info DQM client 
 from DQM.L1TMonitorClient.L1TStage2EventInfoClient_cfi import *
 
@@ -45,6 +49,7 @@ l1TStage2Clients = cms.Sequence(
                       + l1tStage2uGMTClient
                       + l1tStage2uGTClient
                       + l1tStage2EMTFEventInfoClient
+                      + l1tObjectsTimingClient
                         )
 
 l1tStage2MonitorClient = cms.Sequence(

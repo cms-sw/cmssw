@@ -109,6 +109,9 @@ private:
   // counter
   int nevtot;
 
+  // sampling factors
+  double hf1_;
+  double hf2_;
 };
 
 #endif

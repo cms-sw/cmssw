@@ -1,12 +1,16 @@
 //
-//  SiPixelGenError.cc  Version 2.00
+//  SiPixelGenError.cc  Version 2.20
 //
 //  Object stores Lorentz widths, bias corrections, and errors for the Generic Algorithm
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Add some debugging messages. d.k. 5/14
 //  Update for Phase 1 FPix, M.S. 1/15/17
-//
+//  V2.01 - Allow subdetector ID=5 for FPix R2P2, Fix error message
+//  V2.10 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
+//  V2.20 - Add directory path selection to the ascii pushfile method
+//  V2.21 - Move templateStore to the heap, fix variable name in pushfile()
+
 
 //#include <stdlib.h>
 //#include <stdio.h>
@@ -50,7 +54,7 @@ using namespace edm;
 //! digits of filenum.
 //! \param filenum - an integer NNNN used in the filename generror_summary_zpNNNN
 //****************************************************************
-bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > & thePixelTemp_)
+bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > & pixelTemp , std::string dir)
 {
    // Add info stored in external file numbered filenum to theGenErrorStore
    
@@ -71,7 +75,7 @@ bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > 
    //  Create different path in CMSSW than standalone
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-   tout << "CalibTracker/SiPixelESProducers/data/generror_summary_zp"
+   tout << dir << "generror_summary_zp"
    << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
    std::string tempf = tout.str();
    edm::FileInPath file( tempf.c_str() );
@@ -127,6 +131,11 @@ bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > 
 #ifdef SI_PIXEL_TEMPLATE_USE_BOOST
       
       // next, layout the 1-d/2-d structures needed to store GenError info
+      
+       
+      theCurrentTemp.cotbetaY = new float[theCurrentTemp.head.NTy];
+      theCurrentTemp.cotbetaX = new float[theCurrentTemp.head.NTyx];
+      theCurrentTemp.cotalphaX = new float[theCurrentTemp.head.NTxx];
       
       theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);
       
@@ -214,9 +223,9 @@ bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > 
       
       // Add this info to the store
       
-      thePixelTemp_.push_back(theCurrentTemp);
+      pixelTemp.push_back(theCurrentTemp);
       
-      postInit(thePixelTemp_);
+      postInit(pixelTemp);
       
       return true;
       
@@ -240,7 +249,7 @@ bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > 
 //! \param dbobject - db storing multiple generic calibrations
 //****************************************************************
 bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject,
-                               std::vector< SiPixelGenErrorStore > & thePixelTemp_) {
+                               std::vector< SiPixelGenErrorStore > & pixelTemp) {
    // Add GenError stored in external dbobject to theGenErrorStore
    
    // Local variables
@@ -253,7 +262,9 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject,
    SiPixelGenErrorDBObject db = dbobject;
    
    // Create a local GenError storage entry
-   SiPixelGenErrorStore theCurrentTemp;
+   /// SiPixelGenErrorStore theCurrentTemp;    // not on the stack...
+   auto tmpPtr = std::make_unique<SiPixelGenErrorStore>(); // must be allocated on the heap instead
+   auto & theCurrentTemp = *tmpPtr;
    
    // Fill the GenError storage for each GenError calibration stored in the db
    for(int m=0; m<db.numOfTempl(); ++m) {
@@ -307,6 +318,11 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject,
 #ifdef SI_PIXEL_TEMPLATE_USE_BOOST
       
       // next, layout the 1-d/2-d structures needed to store GenError
+      
+      // &&&  Who is going to delete these?  Are we leaking memory?
+      theCurrentTemp.cotbetaY = new float[theCurrentTemp.head.NTy];
+      theCurrentTemp.cotbetaX = new float[theCurrentTemp.head.NTyx];
+      theCurrentTemp.cotalphaX = new float[theCurrentTemp.head.NTxx];
       
       theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);
       
@@ -382,9 +398,9 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject,
       
       // Add this GenError to the store
       
-      thePixelTemp_.push_back(theCurrentTemp);
+      pixelTemp.push_back(theCurrentTemp);
       
-      postInit(thePixelTemp_);
+      postInit(pixelTemp);
       
    }
    return true;
@@ -543,6 +559,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
       case 2:
       case 3:
       case 4:
+      case 5:
          if(locBx*locBz < 0.f) {
             cota = -cotalpha;
             flip_x = true;
@@ -556,9 +573,9 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
          break;
       default:
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-         throw cms::Exception("DataCorrupt") << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+         throw cms::Exception("DataCorrupt") << "SiPixelGenError::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
 #else
-         std::cout << "SiPixelTemplate::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+         std::cout << "SiPixelGenError::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
 #endif
    }
    
@@ -657,8 +674,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    auto yrmsgen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yrmsgen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yrmsgen[binq];
    sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
-   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;
-   
+   sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;   
    
    // next, loop over all x-angle entries, first, find relevant y-slices
    
@@ -738,3 +754,22 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    return binq;
    
 } // qbin
+
+int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, float locBx, float qclus,
+                          float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax,
+                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1,
+                          float& sx2, float& dx2)
+{
+   // Interpolate for a new set of track angles
+   
+   bool irradiationCorrections = true;
+   int ipixmx, ibin;
+   
+   ibin = SiPixelGenError::qbin(id, cotalpha, cotbeta, locBz, locBx, qclus, irradiationCorrections,
+                                ipixmx, sigmay, deltay, sigmax, deltax, sy1, dy1, sy2, dy2, sx1, dx1, sx2, dx2);
+                                
+   pixmx = (float)ipixmx;
+   
+   return ibin;
+   
+}

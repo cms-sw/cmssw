@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "TLorentzVector.h"
 
 #include <vector>
 #include <iostream>
@@ -13,9 +14,14 @@
 class LHETablesProducer : public edm::global::EDProducer<> {
     public:
         LHETablesProducer( edm::ParameterSet const & params ) :
-            lheTag_(consumes<LHEEventProduct>(params.getParameter<edm::InputTag>("lheInfo")))
+            lheTag_(consumes<LHEEventProduct>(params.getParameter<edm::InputTag>("lheInfo"))),
+            precision_( params.getParameter<int>("precision") ),
+            storeLHEParticles_( params.getParameter<bool>("storeLHEParticles") )
         {
-            produces<nanoaod::FlatTable>();
+            produces<nanoaod::FlatTable>("LHE");
+            if (storeLHEParticles_)
+              produces<nanoaod::FlatTable>("LHEPart");
+
         }
 
         ~LHETablesProducer() override {}
@@ -25,13 +31,19 @@ class LHETablesProducer : public edm::global::EDProducer<> {
 
             edm::Handle<LHEEventProduct> lheInfo;
             if (iEvent.getByToken(lheTag_, lheInfo)) {
-                fillLHEObjectTable(*lheInfo, *lheTab);
+              auto lhePartTab = fillLHEObjectTable(*lheInfo, *lheTab);
+              if (storeLHEParticles_) iEvent.put(std::move(lhePartTab), "LHEPart");
+            } else {
+              if (storeLHEParticles_) { // need to store a dummy table anyway to make the framework happy
+                  auto lhePartTab = std::make_unique<nanoaod::FlatTable>(1, "LHEPart", true);
+                  iEvent.put(std::move(lhePartTab), "LHEPart");
+              }
             }
+            iEvent.put(std::move(lheTab), "LHE");
 
-            iEvent.put(std::move(lheTab));
         }
 
-        void fillLHEObjectTable(const LHEEventProduct & lheProd, nanoaod::FlatTable & out) const {
+        std::unique_ptr<nanoaod::FlatTable> fillLHEObjectTable(const LHEEventProduct & lheProd, nanoaod::FlatTable & out) const {
             double lheHT = 0, lheHTIncoming = 0;
             unsigned int lheNj = 0, lheNb = 0, lheNc = 0, lheNuds = 0, lheNglu = 0;
             double lheVpt = 0;
@@ -39,9 +51,22 @@ class LHETablesProducer : public edm::global::EDProducer<> {
             const auto & hepeup = lheProd.hepeup();
             const auto & pup = hepeup.PUP;
             int lep = -1, lepBar = -1, nu = -1, nuBar = -1;
+            std::vector<float> vals_pt;
+            std::vector<float> vals_eta;
+            std::vector<float> vals_phi;
+            std::vector<float> vals_mass;
+            std::vector<int>   vals_pid;
             for (unsigned int i = 0, n = pup.size(); i  < n; ++i) {
                 int status = hepeup.ISTUP[i];
                 int idabs = std::abs(hepeup.IDUP[i]);
+                if (status == 1){  
+                  TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2], pup[i][3]); // x,y,z,t
+                  vals_pt.push_back(p4.Pt());
+                  vals_eta.push_back(p4.Eta());
+                  vals_phi.push_back(p4.Phi());
+                  vals_mass.push_back(p4.M());
+                  vals_pid.push_back(hepeup.IDUP[i]);
+                }  
                 if ( (status == 1) && ( ( idabs == 21 ) || (idabs > 0 && idabs < 7) ) ) { //# gluons and quarks
                     // object counters
                     lheNj++;
@@ -83,16 +108,30 @@ class LHETablesProducer : public edm::global::EDProducer<> {
             out.addColumnValue<float>("Vpt", lheVpt, "pT of the W or Z boson at LHE step", nanoaod::FlatTable::FloatColumn);
             out.addColumnValue<uint8_t>("NpNLO", lheProd.npNLO(), "number of partons at NLO", nanoaod::FlatTable::UInt8Column);
             out.addColumnValue<uint8_t>("NpLO", lheProd.npLO(), "number of partons at LO", nanoaod::FlatTable::UInt8Column);
+ 
+  
+            auto outPart  = std::make_unique<nanoaod::FlatTable>(vals_pt.size(), "LHEPart", false);
+            outPart->addColumn<float>("pt",     vals_pt,     "Pt of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
+            outPart->addColumn<float>("eta",    vals_eta,    "Pseodorapidity of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
+            outPart->addColumn<float>("phi",    vals_phi,    "Phi of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
+            outPart->addColumn<float>("mass",   vals_mass,   "Mass of LHE particles", nanoaod::FlatTable::FloatColumn, this->precision_);
+            outPart->addColumn<int>  ("pdgId",  vals_pid,    "PDG ID of LHE particles", nanoaod::FlatTable::IntColumn);
+
+            return outPart;
         }
 
         static void fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
             edm::ParameterSetDescription desc;
             desc.add<edm::InputTag>("lheInfo", edm::InputTag("externalLHEProducer"))->setComment("tag for the LHE information (LHEEventProduct)");
+            desc.add<int>("precision", -1)->setComment("precision on the 4-momenta of the LHE particles");
+            desc.add<bool>("storeLHEParticles", false)->setComment("Whether we want to store the 4-momenta of the status 1 particles at LHE level");
             descriptions.add("lheInfoTable", desc);
         }
 
     protected:
         const edm::EDGetTokenT<LHEEventProduct> lheTag_;
+        const unsigned int precision_;
+        const bool storeLHEParticles_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

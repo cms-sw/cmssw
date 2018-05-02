@@ -70,6 +70,7 @@ hltTOPmonitoring.histoPSet.MHTPSet = cms.PSet(
 
 
 hltTOPmonitoring.enablePhotonPlot = cms.bool(False)
+hltTOPmonitoring.enableMETplot = cms.bool(False)
 
 #MET and HT binning
 hltTOPmonitoring.histoPSet.metBinning = cms.vdouble(0,20,40,60,80,100,125,150,175,200)

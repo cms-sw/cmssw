@@ -73,6 +73,8 @@ class SiPixelGainCalibrationServicePayloadGetter : public SiPixelGainCalibration
 
   void    setESObjects(const edm::EventSetup& es ) override;
 
+  thePayloadObject const & payload() const { return *ped; }
+
   std::vector<uint32_t> getDetIds() override;
   double getGainLow() override;
   double getGainHigh() override;
