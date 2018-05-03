@@ -104,9 +104,9 @@ mssmHbbMonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI ar
 #Suvankar
 mssmHbbMonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 
-# Marina
-mssmHbbMonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
-mssmHbbMonitoring.workingpoint     = cms.double(0.92) # tight
+#Antonio
+mssmHbbMonitoring.btagalgo        = cms.InputTag("pfDeepCSVJetTags")
+mssmHbbMonitoring.workingpoint    = cms.double(0.45) # medium
 
 mssmHbbMonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
 #mssmHbbMonitoring.leptJetDeltaRmin = cms.double(0.4) # MuonJet dRcone
