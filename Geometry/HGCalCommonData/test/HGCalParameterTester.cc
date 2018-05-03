@@ -281,6 +281,13 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
   
+    std::cout << "cellFineHalf with " << phgp->cellFineHalf_.size() << " elements\n";
+    for (auto const& it : phgp->cellFineHalf_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
     std::cout << "cellCoarseX with " << phgp->cellCoarseX_.size()
 	      << " elements\n";
     for (auto const& it : phgp->cellCoarseX_) {
@@ -292,6 +299,13 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     std::cout << "cellCoarseY with " << phgp->cellCoarseY_.size()
 	      << " elements\n";
     for (auto const& it : phgp->cellCoarseY_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "cellCoarseHalf with " << phgp->cellCoarseHalf_.size() << " elements\n";
+    for (auto const& it : phgp->cellCoarseHalf_) {
       std::cout << it << ", "; ++k; 
       if (k == 10) { std::cout << "\n"; k = 0;}
     }
@@ -426,16 +440,34 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     std::cout << "nCells_: "   << phgp->nCells_   << "\n";
     std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
     std::cout << "mode_: "     << phgp->mode_     << "\n";
+
+    std::cout << "levelTop with " << phgp->levelT_.size() << " elements\n";
+    for (auto const& it : phgp->levelT_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+
   } else if (mode_ == 1) {
 
-    std::cout << "SlopeMin_: " << phgp->slopeMin_ << "\n";
+    std::cout << "SlopeMin_: "   << phgp->slopeMin_ << "\n";
     std::cout << "Wafer Parameters: " << phgp->waferSize_ << ":"
-	      << phgp->waferR_   << ":" << phgp->waferThick_ << ":"
+	      << phgp->waferR_  << ":" << phgp->waferThick_ << ":"
 	      << phgp->sensorSeparation_ << ":" << phgp->mouseBite_ << "\n";
-    std::cout << "nCells_: "  << phgp->nCells_   << ":" << phgp->nCellsFine_
-	      << ":" << phgp->nCellsCoarse_ << "\n";
-    std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
-    std::cout << "mode_: "     << phgp->mode_     << "\n";
+    std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
+	      << phgp->nCellsCoarse_ << "\n";
+    std::cout << "nSectors_: "  << phgp->nSectors_ << "\n";
+    std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
+    std::cout << "mode_: "      << phgp->mode_     << "\n";
+    std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
+    std::cout << "waferUVMaxLayer with " << phgp->waferUVMaxLayer_.size()
+	      << " elements\n";
+    for (auto const& it : phgp->waferUVMaxLayer_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 20) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
     std::cout << "CellThickness with " << phgp->cellThickness_.size() 
 	      << " elements\n";
     for (auto const& it : phgp->cellThickness_) {
@@ -495,6 +527,94 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
   
     std::cout << "zRanges with " << phgp->zRanges_.size() << " elements\n";
     for (auto const& it : phgp->zRanges_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleBls with " << phgp->moduleBlS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleBlS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleTls with " << phgp->moduleTlS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleTlS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleHS with " << phgp->moduleHS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleHS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleDzs with " << phgp->moduleDzS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleDzS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleAlphaS with " << phgp->moduleAlphaS_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->moduleAlphaS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleCellS with " << phgp->moduleCellS_.size()
+	      << " elements\n";
+    for (auto const& it : phgp->moduleCellS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleBlR with " << phgp->moduleBlR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleBlR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleTlR with " << phgp->moduleTlR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleTlR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleHR with " << phgp->moduleHR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleHR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleDzR with " << phgp->moduleDzR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleDzR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleAlphaR with " << phgp->moduleAlphaR_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->moduleAlphaR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleCellR with " << phgp->moduleCellR_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->moduleCellR_) {
       std::cout << it << ", "; ++k; 
       if (k == 10) { std::cout << "\n"; k = 0;}
     }
@@ -633,6 +753,52 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
   
+    std::cout << "cellFineIndex with " << phgp->cellFineIndex_.size() << " elements\n";
+    for (auto itr = phgp->cellFineIndex_.begin(); 
+	 itr != phgp->cellFineIndex_.end(); ++itr) {
+      std::cout << itr->first << ":" << itr->second << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "cellFineX with " << phgp->cellFineX_.size() << " elements\n";
+    for (auto const& it : phgp->cellFineX_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "cellFineY with " << phgp->cellFineY_.size() << " elements\n";
+    for (auto const& it : phgp->cellFineY_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "cellCoarseIndex with " << phgp->cellCoarseIndex_.size() << " elements\n";
+    for (auto itr = phgp->cellCoarseIndex_.begin(); 
+	 itr != phgp->cellCoarseIndex_.end(); ++itr) {
+      std::cout << itr->first << ":" << itr->second << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "cellCoarseX with " << phgp->cellCoarseX_.size()
+	      << " elements\n";
+    for (auto const& it : phgp->cellCoarseX_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "cellCoarseY with " << phgp->cellCoarseY_.size()
+	      << " elements\n";
+    for (auto const& it : phgp->cellCoarseY_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
     std::cout << "layer with " << phgp->layer_.size() << " elements\n";
     for (auto const& it : phgp->layer_) {
       std::cout << it << ", "; ++k; 
@@ -648,6 +814,29 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
   
+    std::cout << "depth with " << phgp->depth_.size() << " elements\n";
+    for (auto const& it : phgp->depth_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 18) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "depthIndex with " << phgp->depthIndex_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->depthIndex_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 18) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "depthLayerF with " << phgp->depthLayerF_.size()
+	      << " elements\n";
+    for (auto const& it : phgp->depthLayerF_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 18) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
     std::cout << "waferCopy with " << phgp->waferCopy_.size() << " elements\n";
     for (auto const& it : phgp->waferCopy_) {
       std::cout << it << ", "; ++k; 
@@ -655,7 +844,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
     
-    std::cout << "waferTypeL with " << phgp->waferTypeL_.size()
+    std::cout << "waferTypeL with " << phgp->waferTypeT_.size()
 	      << " elements\n";
     for (auto const& it : phgp->waferTypeL_) {
       std::cout << it << ", "; ++k; 
@@ -671,11 +860,22 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
 
+    std::cout << "levelTop with " << phgp->levelT_.size() << " elements\n";
+    for (auto const& it : phgp->levelT_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+
   } else {
 
-    std::cout << "SlopeMin_: " << phgp->slopeMin_ << "\n";
-    std::cout << "EtaMaxBH: "  << phgp->etaMaxBH_ << "\n";
-    std::cout << "mode_: "     << phgp->mode_     << "\n";
+    std::cout << "SlopeMin_: "  << phgp->slopeMin_   << "\n";
+    std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
+	      << phgp->nCellsCoarse_ << "\n";
+    std::cout << "EtaMinBH: "   << phgp->etaMinBH_   << "\n";
+    std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
+    std::cout << "mode_: "      << phgp->mode_       << "\n";
+    std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
   
     std::cout << "radiusMixBoundary with " << phgp->radiusMixBoundary_.size()
 	      << " elements\n";
@@ -692,8 +892,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
   
-    std::cout << "dPhiEta with " << phgp->dPhiEta_.size() << " elements\n";
-    for (auto const& it : phgp->dPhiEta_) {
+    std::cout << "dPhiEtaBH with " << phgp->dPhiEtaBH_.size() << " elements\n";
+    for (auto const& it : phgp->dPhiEtaBH_) {
       std::cout << it << ", "; ++k; 
       if (k == 10) { std::cout << "\n"; k = 0;}
     }
@@ -723,6 +923,115 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
   
     std::cout << "zRanges with " << phgp->zRanges_.size() << " elements\n";
     for (auto const& it : phgp->zRanges_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "firstModule with " << phgp->firstModule_.size() << " elements\n";
+    for (auto const& it : phgp->firstModule_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "lastModule with " << phgp->lastModule_.size() << " elements\n";
+    for (auto const& it : phgp->lastModule_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "iEtaMinBH with " << phgp->iEtaMinBH_.size() << " elements\n";
+    for (auto const& it : phgp->iEtaMinBH_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 20) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleBls with " << phgp->moduleBlS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleBlS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleTls with " << phgp->moduleTlS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleTlS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleHS with " << phgp->moduleHS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleHS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleDzs with " << phgp->moduleDzS_.size() << " elements\n";
+    for (auto const& it : phgp->moduleDzS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleAlphaS with " << phgp->moduleAlphaS_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->moduleAlphaS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleCellS with " << phgp->moduleCellS_.size()
+	      << " elements\n";
+    for (auto const& it : phgp->moduleCellS_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleBlR with " << phgp->moduleBlR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleBlR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleTlR with " << phgp->moduleTlR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleTlR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleHR with " << phgp->moduleHR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleHR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleDzR with " << phgp->moduleDzR_.size() << " elements\n";
+    for (auto const& it : phgp->moduleDzR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleAlphaR with " << phgp->moduleAlphaR_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->moduleAlphaR_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "moduleCellR with " << phgp->moduleCellR_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->moduleCellR_) {
       std::cout << it << ", "; ++k; 
       if (k == 10) { std::cout << "\n"; k = 0;}
     }
@@ -862,9 +1171,39 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     }
     if (k > 0) {std::cout << "\n"; k = 0;}
   
+    std::cout << "depth with " << phgp->depth_.size() << " elements\n";
+    for (auto const& it : phgp->depth_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 18) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "depthIndex with " << phgp->depthIndex_.size() 
+	      << " elements\n";
+    for (auto const& it : phgp->depthIndex_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 18) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
+    std::cout << "depthLayerF with " << phgp->depthLayerF_.size()
+	      << " elements\n";
+    for (auto const& it : phgp->depthLayerF_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 18) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+  
     std::cout << "trformIndex with " << phgp->trformIndex_.size() 
 	      << " elements\n";
     for (auto const& it : phgp->trformIndex_) {
+      std::cout << it << ", "; ++k; 
+      if (k == 10) { std::cout << "\n"; k = 0;}
+    }
+    if (k > 0) {std::cout << "\n"; k = 0;}
+
+    std::cout << "levelTop with " << phgp->levelT_.size() << " elements\n";
+    for (auto const& it : phgp->levelT_) {
       std::cout << it << ", "; ++k; 
       if (k == 10) { std::cout << "\n"; k = 0;}
     }

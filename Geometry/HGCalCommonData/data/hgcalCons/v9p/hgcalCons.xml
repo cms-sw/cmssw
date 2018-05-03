@@ -41,14 +41,14 @@
   <SpecPar name="HGCalEE">
     <PartSelector path="//HGCalEESensitive.*"/>    
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8" eval="false"/>
     <Parameter name="LevelTop"            value="5"/>
     <Parameter name="LevelTop"            value="5"/>
   </SpecPar>
   <SpecPar name="HGCalHEsil">
     <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8" eval="false"/>
     <Parameter name="LevelTop"            value="5"/>
     <Parameter name="LevelTop"            value="7"/>
   </SpecPar>
