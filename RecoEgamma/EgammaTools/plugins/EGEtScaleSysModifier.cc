@@ -57,16 +57,19 @@ private:
     UncertFuncV1(const edm::ParameterSet& conf):
       lowEt_(conf.getParameter<double>("lowEt")),highEt_(conf.getParameter<double>("highEt")),
       lowEtUncert_(conf.getParameter<double>("lowEtUncert")),
-      highEtUncert_(conf.getParameter<double>("highEtUncert")){}
+      highEtUncert_(conf.getParameter<double>("highEtUncert")),
+      dEt_(highEt_-lowEt_),
+      dUncert_(highEtUncert_ - lowEtUncert_)
+    {
+      if(highEt_<=lowEt_) throw cms::Exception("ConfigError") <<" highEt "<<highEt_<<" is not higher than lowEt "<<lowEt_;
+    }
     ~UncertFuncV1() override{}
    
     float val(const float et)const override{
       if(et<=lowEt_) return lowEtUncert_;
       else if(et>=highEt_) return highEtUncert_;
       else{
-	const float dEt = highEt_-lowEt_;
-	const float dUncert = highEtUncert_ - lowEtUncert_;
-	return (et-lowEt_)*dUncert/dEt+lowEtUncert_;
+	return (et-lowEt_)*dUncert_/dEt_+lowEtUncert_;
       }
     }
   private:
@@ -74,6 +77,8 @@ private:
     float highEt_;
     float lowEtUncert_;
     float highEtUncert_;
+    float dEt_;
+    float dUncert_;
   };
     
   EpCombinationTool epCombTool_;

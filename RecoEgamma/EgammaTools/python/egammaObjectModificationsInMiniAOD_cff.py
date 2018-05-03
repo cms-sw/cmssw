@@ -162,7 +162,7 @@ def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
 def prependEgamma8XObjectUpdateModifier(modifiers):
     modifiers.insert(0,egamma8XObjectUpdateModifier)
 
-def appendReducedEgammaEnergyScaleAndSmearingModifierWith8XLegacyEtSys(modifiers):
+def appendEgamma8XLegacyAppendableModifiers (modifiers):
     modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
     modifiers.append(egamma8XLegacyEtScaleSysModifier)
 
@@ -170,5 +170,5 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
 run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
    
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
-run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifierWith8XLegacyEtSys)
+run2_miniAOD_80XLegacy.toModify(egamma_modifications,appendEgamma8XLegacyAppendableModifiers)
 run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdateModifier)
