@@ -283,11 +283,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::LumiSection(_maxLS),
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-		_cCapidMinusBXmod4_SubdetPM.initialize(_name, 
-			"CapID", hcaldqm::hashfunctions::fSubdetPM,
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fCapidMinusBXmod4),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	}
+	_cCapidMinusBXmod4_SubdetPM.initialize(_name, 
+		"CapID", hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fCapidMinusBXmod4),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+
 	if (_ptype != fOffline) { // hidefed2crate
 		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
 		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
@@ -480,6 +481,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cBadTDCvsLS_SubdetPM.book(ib, _emap, _subsystem);
 	_cBadTDCCount_depth.book(ib, _emap, _subsystem);
 
+	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
+
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
 	_dhashmap.initialize(_emap, electronicsmap::fE2DHashMap);
@@ -505,7 +508,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
 //		_cOccupancyCutvsSlotvsLS_HFPM.book(ib, _emap, _filter_QIE1011, _subsystem);
 		_cOccupancyCutvsiphivsLS_SubdetPM.book(ib, _emap, _subsystem);
-		_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
 		_cSummaryvsLS_FED.book(ib, _emap, _subsystem);
 		_cSummaryvsLS.book(ib, _subsystem);
 
@@ -651,6 +653,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 		HcalElectronicsId const& eid(rawid);
 
+		//	filter out channels that are masked out
+		if (_xQuality.exists(did)) 
+		{
+			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+			if (
+				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+				continue;
+		}
+
 		unsigned short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
 		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
 		bool good_capidmbx = false;
@@ -667,16 +679,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, *it);
 		double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
-
-		//	filter out channels that are masked out
-		if (_xQuality.exists(did)) 
-		{
-			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
-			if (
-				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
-				cs.isBitSet(HcalChannelStatus::HcalCellDead))
-				continue;
-		}
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
@@ -812,6 +814,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 		HcalElectronicsId const& eid(rawid);
 
+		//	filter out channels that are masked out
+		if (_xQuality.exists(did)) 
+		{
+			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+			if (
+				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+				continue;
+		}
+
 		// (capid - BX) % 4
 		short soi = -1;
 		for (int i=0; i<digi.samples(); i++) {
@@ -835,16 +847,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
 		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
-
-		//	filter out channels that are masked out
-		if (_xQuality.exists(did)) 
-		{
-			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
-			if (
-				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
-				cs.isBitSet(HcalChannelStatus::HcalCellDead))
-				continue;
-		}
 
 		_cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
@@ -996,6 +998,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 		HcalElectronicsId const& eid(rawid);
 
+		//	filter out channels that are masked out
+		if (_xQuality.exists(did)) 
+		{
+			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+			if (
+				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+				cs.isBitSet(HcalChannelStatus::HcalCellDead))
+				continue;
+		}
+
 		short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
 		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
 		bool good_capidmbx = false;
@@ -1012,16 +1024,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
 		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
-
-		//	filter out channels that are masked out
-		if (_xQuality.exists(did)) 
-		{
-			HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
-			if (
-				cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
-				cs.isBitSet(HcalChannelStatus::HcalCellDead))
-				continue;
-		}
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
@@ -1148,6 +1150,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			}
 			HcalElectronicsId const& eid(rawid);
 
+			//	filter out channels that are masked out
+			if (_xQuality.exists(did)) 
+			{
+				HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+				if (
+					cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
+					cs.isBitSet(HcalChannelStatus::HcalCellDead))
+					continue;
+			}
+
 			// (capid - BX) % 4
 			short soi = -1;
 			for (int i=0; i<digi.samples(); i++) {
@@ -1173,16 +1185,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 			//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
 
-
-			//	filter out channels that are masked out
-			if (_xQuality.exists(did)) 
-			{
-				HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
-				if (
-					cs.isBitSet(HcalChannelStatus::HcalCellMask) ||
-					cs.isBitSet(HcalChannelStatus::HcalCellDead))
-					continue;
-			}
 			//if (!_filter_QIE1011.filter(did)) {
 			_cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
 			//}
