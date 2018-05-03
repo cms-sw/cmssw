@@ -4,8 +4,8 @@ from DQMOffline.Trigger.MssmHbbMonitoring_cfi import mssmHbbMonitoring
 
 #Define MssmHbb specific cuts 
 hltMssmHbbmonitoring =  mssmHbbMonitoring.clone()
-hltMssmHbbmonitoring.btagalgo  = cms.InputTag("pfCombinedSecondaryVertexV2BJetTags")
-hltMssmHbbmonitoring.workingpoint     = cms.double(0.92) # tight WP
+hltMssmHbbmonitoring.btagalgo  = cms.InputTag("pfDeepCSVJetTags")
+hltMssmHbbmonitoring.workingpoint    = cms.double(0.49) # medium WP
 hltMssmHbbmonitoring.bJetDeltaEtaMax = cms.double(1.6)   # deta cut between leading bjets
 hltMssmHbbmonitoring.bJetMuDeltaRmax = cms.double(0.4)   # dR(mu,nbjet) cone; only if #mu >1
 
