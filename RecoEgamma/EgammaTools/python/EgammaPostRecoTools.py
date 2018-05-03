@@ -63,6 +63,7 @@ def _setupEgammaPostRECOSequence(process,applyEnergyCorrections=False,applyVIDOn
     
     if hasattr(process,'heepIDVarValueMaps'):
         process.heepIDVarValueMaps.elesAOD = eleSrc
+        process.heepIDVarValueMaps.dataFormat = 1
         
         
                                           
@@ -106,6 +107,7 @@ def _setupEgammaPostRECOSequenceMiniAOD(process,applyEnergyCorrections=False,app
     process.egmPhotonIsolation.srcToIsolate = phoSrc
     if hasattr(process,'heepIDVarValueMaps'):
         process.heepIDVarValueMaps.elesMiniAOD = eleSrc
+        process.heepIDVarValueMaps.dataFormat = 2
 
 
 
