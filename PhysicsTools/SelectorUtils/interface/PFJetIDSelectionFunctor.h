@@ -61,135 +61,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
    else if ( qualityStr == "TIGHTLEPVETO") quality_ = TIGHTLEPVETO;
    else quality_ = TIGHT;
 
-    push_back("CHF" );
-    push_back("NHF" );
-    if( (version_ != WINTER17 && version_!=WINTER17PUPPI) || quality_ != TIGHT ) push_back("CEF" );
-    push_back("NEF" );
-    push_back("NCH" );
-    push_back("nConstituents");
-    if(version_ == RUNIISTARTUP ){
-      push_back("NEF_FW");
-      push_back("nNeutrals_FW");
-    }
-    if(version_ == WINTER16 ){
-      push_back("NHF_EC");
-      push_back("NEF_EC");
-      push_back("nNeutrals_EC");
-      push_back("NEF_FW");
-      push_back("nNeutrals_FW");
-    }
-    if(version_ == WINTER17 ){
-      push_back("NEF_EC_L");
-      push_back("NEF_EC_U");
-      push_back("nNeutrals_EC");
-      push_back("NEF_FW");
-      push_back("NHF_FW");
-      push_back("nNeutrals_FW");
-      if (quality_ == TIGHTLEPVETO) push_back("MUF");
-    }
-    if(version_ == WINTER17PUPPI ){
-      push_back("NHF_EC");
-      push_back("NEF_FW");
-      push_back("NHF_FW");
-      push_back("nNeutrals_FW_L");
-      push_back("nNeutrals_FW_U");
-      if (quality_ == TIGHTLEPVETO) push_back("MUF");
-    }
- 
-
-    if( (version_ == WINTER17 || version_ == WINTER17PUPPI) && quality_ == LOOSE ){
-      edm::LogWarning("BadJetIDVersion") << "Winter17 JetID version does not support the LOOSE operating point -- defaulting to TIGHT";
-      quality_ = TIGHT;
-      }
-
-   if( (version_ != WINTER17 && version_ != WINTER17PUPPI) && quality_ ==  TIGHTLEPVETO){
-      edm::LogWarning("BadJetIDVersion") << "JetID version does not support the TIGHTLEPVETO operating point -- defaulting to TIGHT";
-      quality_ = TIGHT;
-      }
- 
-
-    // Set some default cuts for LOOSE, TIGHT
-    if ( quality_ == LOOSE ) {
-      set("CHF", 0.0);
-      set("NHF", 0.99);
-      set("CEF", 0.99);
-      set("NEF", 0.99);
-      set("NCH", 0);
-      set("nConstituents", 1);
-      if(version_ == RUNIISTARTUP){
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER16){
-	set("NHF_EC",0.98);
-	set("NEF_EC",0.01);
-	set("nNeutrals_EC",2);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-
-
-    } else if ( quality_ == TIGHT ) {
-      set("CHF", 0.0);
-      set("NHF", 0.9);
-      if(version_ != WINTER17 && version_ != WINTER17PUPPI ) set("CEF", 0.99);
-      set("NEF", 0.9);
-      set("NCH", 0);
-      set("nConstituents", 1);
-      if(version_ == RUNIISTARTUP){
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER16){
-	set("NHF_EC",0.98);
-	set("NEF_EC",0.01);
-	set("nNeutrals_EC",2);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER17){
-	set("NEF_EC_L",0.02);
-	set("NEF_EC_U",0.99);
-	set("nNeutrals_EC",2);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER17PUPPI){
-	set("NHF_EC",0.99);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW_L",2);
-	set("nNeutrals_FW_U",15);
-      }
-
-    }else if ( quality_ == TIGHTLEPVETO ) {
-      set("CHF", 0.0);
-      set("NHF", 0.9);
-      set("CEF", 0.8);
-      set("NEF", 0.9);
-      set("NCH", 0);
-      set("nConstituents", 1);
-      if(version_ == WINTER17){
-	set("NEF_EC_L",0.02);
-	set("NEF_EC_U",0.99);
-	set("nNeutrals_EC",2);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-        set("MUF", 0.8);
-      }
-      if(version_ == WINTER17PUPPI){
-	set("NHF_EC",0.99);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW_L",2);
-	set("nNeutrals_FW_H",15);
-        set("MUF", 0.8);
-      }
-
-    }
-
+   initCuts();
 
     // Now check the configuration to see if the user changed anything
     if ( params.exists("CHF") ) set("CHF", params.getParameter<double>("CHF") );
@@ -231,46 +103,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     if ( params.exists("cutsToIgnore") )
       setIgnoredCuts( params.getParameter<std::vector<std::string> >("cutsToIgnore") );
 
-
-    indexNConstituents_ = index_type (&bits_, "nConstituents");
-    indexNEF_ = index_type (&bits_, "NEF");
-    indexNHF_ = index_type (&bits_, "NHF");
-    if((version_ != WINTER17 && version_ != WINTER17PUPPI) || quality_ != TIGHT ) indexCEF_ = index_type (&bits_, "CEF");
-
-    indexCHF_ = index_type (&bits_, "CHF");
-    indexNCH_ = index_type (&bits_, "NCH");
-    if(version_ == RUNIISTARTUP){
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
-    }
-    if(version_ == WINTER16){
-      indexNHF_EC_ = index_type (&bits_, "NHF_EC");
-      indexNEF_EC_ = index_type (&bits_, "NEF_EC");
-      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
-    }
-    if(version_ == WINTER17){
-      indexNEF_EC_L_ = index_type (&bits_, "NEF_EC_L");
-      indexNEF_EC_U_ = index_type (&bits_, "NEF_EC_U");
-      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
-      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
-      if ( quality_ == TIGHTLEPVETO ) {indexMUF_ = index_type (&bits_, "MUF");}
-    }
-    if(version_ == WINTER17PUPPI){
-      indexNHF_EC_ = index_type (&bits_, "NHF_EC");
-      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_L_ = index_type (&bits_, "nNeutrals_FW_L");
-      indexNNeutrals_FW_U_ = index_type (&bits_, "nNeutrals_FW_U");
-      if ( quality_ == TIGHTLEPVETO ) {indexMUF_ = index_type (&bits_, "MUF");}
-    }
-
-
-
-    retInternal_ = getBitTemplate();
+    initIndex();
 
   }
 
@@ -279,176 +112,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 			  Quality_t quality ) :
   version_(version), quality_(quality)
  {
-
-    push_back("CHF" );
-    push_back("NHF" );
-    if( (version_ != WINTER17 && version_!=WINTER17PUPPI) || quality_ != TIGHT ) push_back("CEF" );
-    push_back("NEF" );
-    push_back("NCH" );
-    push_back("nConstituents");
-    if(version_ == RUNIISTARTUP ){
-      push_back("NEF_FW");
-      push_back("nNeutrals_FW");
-    }
-    if(version_ == WINTER16 ){
-      push_back("NHF_EC");
-      push_back("NEF_EC");
-      push_back("nNeutrals_EC");
-      push_back("NEF_FW");
-      push_back("nNeutrals_FW");
-    }
-    if(version_ == WINTER17 ){
-      push_back("NEF_EC_L");
-      push_back("NEF_EC_U");
-      push_back("nNeutrals_EC");
-      push_back("NEF_FW");
-      push_back("NHF_FW");
-      push_back("nNeutrals_FW");
-      if (quality_ == TIGHTLEPVETO) push_back("MUF");
-    }
-    if(version_ == WINTER17PUPPI ){
-      push_back("NHF_EC");
-      push_back("NEF_FW");
-      push_back("NHF_FW");
-      push_back("nNeutrals_FW_L");
-      push_back("nNeutrals_FW_U");
-      if (quality_ == TIGHTLEPVETO) push_back("MUF");
-    }
- 
-
-    if( (version_ == WINTER17 || version_ == WINTER17PUPPI) && quality_ == LOOSE ){
-      edm::LogWarning("BadJetIDVersion") << "Winter17 JetID version does not support the LOOSE operating point -- defaulting to TIGHT";
-      quality_ = TIGHT;
-      }
-
-   if( (version_ != WINTER17 && version_ != WINTER17PUPPI) && quality_ ==  TIGHTLEPVETO){
-      edm::LogWarning("BadJetIDVersion") << "JetID version does not support the TIGHTLEPVETO operating point -- defaulting to TIGHT";
-      quality_ = TIGHT;
-      }
- 
-
-    // Set some default cuts for LOOSE, TIGHT
-    if ( quality_ == LOOSE ) {
-      set("CHF", 0.0);
-      set("NHF", 0.99);
-      set("CEF", 0.99);
-      set("NEF", 0.99);
-      set("NCH", 0);
-      set("nConstituents", 1);
-      if(version_ == RUNIISTARTUP){
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER16){
-	set("NHF_EC",0.98);
-	set("NEF_EC",0.01);
-	set("nNeutrals_EC",2);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-
-
-    } else if ( quality_ == TIGHT ) {
-      set("CHF", 0.0);
-      set("NHF", 0.9);
-      if(version_ != WINTER17 && version_ != WINTER17PUPPI ) set("CEF", 0.99);
-      set("NEF", 0.9);
-      set("NCH", 0);
-      set("nConstituents", 1);
-      if(version_ == RUNIISTARTUP){
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER16){
-	set("NHF_EC",0.98);
-	set("NEF_EC",0.01);
-	set("nNeutrals_EC",2);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER17){
-	set("NEF_EC_L",0.02);
-	set("NEF_EC_U",0.99);
-	set("nNeutrals_EC",2);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-      }
-      if(version_ == WINTER17PUPPI){
-	set("NHF_EC",0.99);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW_L",2);
-	set("nNeutrals_FW_U",15);
-      }
-
-    }else if ( quality_ == TIGHTLEPVETO ) {
-      set("CHF", 0.0);
-      set("NHF", 0.9);
-      set("CEF", 0.8);
-      set("NEF", 0.9);
-      set("NCH", 0);
-      set("nConstituents", 1);
-      if(version_ == WINTER17){
-	set("NEF_EC_L",0.02);
-	set("NEF_EC_U",0.99);
-	set("nNeutrals_EC",2);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW",10);
-        set("MUF", 0.8);
-      }
-      if(version_ == WINTER17PUPPI){
-	set("NHF_EC",0.99);
-	set("NHF_FW",0.02);
-	set("NEF_FW",0.90);
-	set("nNeutrals_FW_L",2);
-	set("nNeutrals_FW_H",15);
-        set("MUF", 0.8);
-      }
-
-    }
-
-
-    indexNConstituents_ = index_type (&bits_, "nConstituents");
-    indexNEF_ = index_type (&bits_, "NEF");
-    indexNHF_ = index_type (&bits_, "NHF");
-    if((version_ != WINTER17 && version_ != WINTER17PUPPI) || quality_ != TIGHT ) indexCEF_ = index_type (&bits_, "CEF");
-
-    indexCHF_ = index_type (&bits_, "CHF");
-    indexNCH_ = index_type (&bits_, "NCH");
-    if(version_ == RUNIISTARTUP){
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
-    }
-    if(version_ == WINTER16){
-      indexNHF_EC_ = index_type (&bits_, "NHF_EC");
-      indexNEF_EC_ = index_type (&bits_, "NEF_EC");
-      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
-    }
-    if(version_ == WINTER17){
-      indexNEF_EC_L_ = index_type (&bits_, "NEF_EC_L");
-      indexNEF_EC_U_ = index_type (&bits_, "NEF_EC_U");
-      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
-      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
-      if ( quality_ == TIGHTLEPVETO ) {indexMUF_ = index_type (&bits_, "MUF");}
-    }
-    if(version_ == WINTER17PUPPI){
-      indexNHF_EC_ = index_type (&bits_, "NHF_EC");
-      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
-      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
-      indexNNeutrals_FW_L_ = index_type (&bits_, "nNeutrals_FW_L");
-      indexNNeutrals_FW_U_ = index_type (&bits_, "nNeutrals_FW_U");
-      if ( quality_ == TIGHTLEPVETO ) {indexMUF_ = index_type (&bits_, "MUF");}
-    }
-
-
-
-    retInternal_ = getBitTemplate();
+   initCuts();
+   initIndex();
  }
 
 
@@ -706,6 +371,179 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   }
 
  private: // member variables
+
+  void initCuts()
+  {
+    push_back("CHF" );
+    push_back("NHF" );
+    if( (version_ != WINTER17 && version_!=WINTER17PUPPI) || quality_ != TIGHT ) push_back("CEF" );
+    push_back("NEF" );
+    push_back("NCH" );
+    push_back("nConstituents");
+    if(version_ == RUNIISTARTUP ){
+      push_back("NEF_FW");
+      push_back("nNeutrals_FW");
+    }
+    if(version_ == WINTER16 ){
+      push_back("NHF_EC");
+      push_back("NEF_EC");
+      push_back("nNeutrals_EC");
+      push_back("NEF_FW");
+      push_back("nNeutrals_FW");
+    }
+    if(version_ == WINTER17 ){
+      push_back("NEF_EC_L");
+      push_back("NEF_EC_U");
+      push_back("nNeutrals_EC");
+      push_back("NEF_FW");
+      push_back("NHF_FW");
+      push_back("nNeutrals_FW");
+      if (quality_ == TIGHTLEPVETO) push_back("MUF");
+    }
+    if(version_ == WINTER17PUPPI ){
+      push_back("NHF_EC");
+      push_back("NEF_FW");
+      push_back("NHF_FW");
+      push_back("nNeutrals_FW_L");
+      push_back("nNeutrals_FW_U");
+      if (quality_ == TIGHTLEPVETO) push_back("MUF");
+    }
+ 
+
+    if( (version_ == WINTER17 || version_ == WINTER17PUPPI) && quality_ == LOOSE ){
+      edm::LogWarning("BadJetIDVersion") << "Winter17 JetID version does not support the LOOSE operating point -- defaulting to TIGHT";
+      quality_ = TIGHT;
+      }
+
+   if( (version_ != WINTER17 && version_ != WINTER17PUPPI) && quality_ ==  TIGHTLEPVETO){
+      edm::LogWarning("BadJetIDVersion") << "JetID version does not support the TIGHTLEPVETO operating point -- defaulting to TIGHT";
+      quality_ = TIGHT;
+      }
+ 
+
+    // Set some default cuts for LOOSE, TIGHT
+    if ( quality_ == LOOSE ) {
+      set("CHF", 0.0);
+      set("NHF", 0.99);
+      set("CEF", 0.99);
+      set("NEF", 0.99);
+      set("NCH", 0);
+      set("nConstituents", 1);
+      if(version_ == RUNIISTARTUP){
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
+      if(version_ == WINTER16){
+	set("NHF_EC",0.98);
+	set("NEF_EC",0.01);
+	set("nNeutrals_EC",2);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
+
+
+    } else if ( quality_ == TIGHT ) {
+      set("CHF", 0.0);
+      set("NHF", 0.9);
+      if(version_ != WINTER17 && version_ != WINTER17PUPPI ) set("CEF", 0.99);
+      set("NEF", 0.9);
+      set("NCH", 0);
+      set("nConstituents", 1);
+      if(version_ == RUNIISTARTUP){
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
+      if(version_ == WINTER16){
+	set("NHF_EC",0.98);
+	set("NEF_EC",0.01);
+	set("nNeutrals_EC",2);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
+      if(version_ == WINTER17){
+	set("NEF_EC_L",0.02);
+	set("NEF_EC_U",0.99);
+	set("nNeutrals_EC",2);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
+      if(version_ == WINTER17PUPPI){
+	set("NHF_EC",0.99);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW_L",2);
+	set("nNeutrals_FW_U",15);
+      }
+
+    }else if ( quality_ == TIGHTLEPVETO ) {
+      set("CHF", 0.0);
+      set("NHF", 0.9);
+      set("CEF", 0.8);
+      set("NEF", 0.9);
+      set("NCH", 0);
+      set("nConstituents", 1);
+      if(version_ == WINTER17){
+	set("NEF_EC_L",0.02);
+	set("NEF_EC_U",0.99);
+	set("nNeutrals_EC",2);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+        set("MUF", 0.8);
+      }
+      if(version_ == WINTER17PUPPI){
+	set("NHF_EC",0.99);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW_L",2);
+	set("nNeutrals_FW_U",15);
+        set("MUF", 0.8);
+      }
+
+    }
+  }
+
+  void initIndex()
+  {
+    indexNConstituents_ = index_type (&bits_, "nConstituents");
+    indexNEF_ = index_type (&bits_, "NEF");
+    indexNHF_ = index_type (&bits_, "NHF");
+    if((version_ != WINTER17 && version_ != WINTER17PUPPI) || quality_ != TIGHT ) indexCEF_ = index_type (&bits_, "CEF");
+
+    indexCHF_ = index_type (&bits_, "CHF");
+    indexNCH_ = index_type (&bits_, "NCH");
+    if(version_ == RUNIISTARTUP){
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
+    }
+    if(version_ == WINTER16){
+      indexNHF_EC_ = index_type (&bits_, "NHF_EC");
+      indexNEF_EC_ = index_type (&bits_, "NEF_EC");
+      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
+    }
+    if(version_ == WINTER17){
+      indexNEF_EC_L_ = index_type (&bits_, "NEF_EC_L");
+      indexNEF_EC_U_ = index_type (&bits_, "NEF_EC_U");
+      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
+      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
+      if ( quality_ == TIGHTLEPVETO ) {indexMUF_ = index_type (&bits_, "MUF");}
+    }
+    if(version_ == WINTER17PUPPI){
+      indexNHF_EC_ = index_type (&bits_, "NHF_EC");
+      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_L_ = index_type (&bits_, "nNeutrals_FW_L");
+      indexNNeutrals_FW_U_ = index_type (&bits_, "nNeutrals_FW_U");
+      if ( quality_ == TIGHTLEPVETO ) {indexMUF_ = index_type (&bits_, "MUF");}
+    }
+
+    retInternal_ = getBitTemplate();
+  }
 
   Version_t version_;
   Quality_t quality_;
