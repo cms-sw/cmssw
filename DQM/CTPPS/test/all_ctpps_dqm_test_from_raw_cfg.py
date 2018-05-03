@@ -53,7 +53,7 @@ process.load("DQM.CTPPS.ctppsDQM_cff")
 process.path = cms.Path(
   process.ctppsRawToDigi *
   process.recoCTPPS *
-  process.ctppsDQM
+  process.ctppsDQMElastic
 )
 
 process.end_path = cms.EndPath(
