@@ -155,7 +155,7 @@ TestProcessor::testImpl() {
   setupProcessing();
   event();
   
-  return edm::test::Event(principalCache_.eventPrincipal(0));
+  return edm::test::Event(principalCache_.eventPrincipal(0),labelOfTestModule_,processConfiguration_->processName());
 }
 
 

@@ -10,6 +10,8 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
+#include "DataFormats/TestObjects/interface/ToyProducts.h"
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <memory>
@@ -46,7 +48,12 @@ void testTestProcessor::simpleProcessTest() {
   edm::test::TestProcessor tester(config);
   CPPUNIT_ASSERT(tester.labelOfTestModule() == "foo");
   
-  (void) tester.test();
+  auto event=tester.test();
+  
+  CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 1);
+
+  CPPUNIT_ASSERT(not event.get<edmtest::IntProduct>("doesNotExist"));
+  CPPUNIT_ASSERT_THROW( *event.get<edmtest::IntProduct>("doesNotExist"), cms::Exception);
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

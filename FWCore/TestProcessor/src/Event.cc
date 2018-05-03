@@ -1,12 +1,12 @@
 // -*- C++ -*-
 //
-// Package:     Subsystem/Package
+// Package:     FWCore/TestProcessor
 // Class  :     Event
 // 
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  root
+// Original Author:  Chris Jones
 //         Created:  Mon, 30 Apr 2018 18:51:33 GMT
 //
 
@@ -29,10 +29,10 @@ namespace test {
 //
 // constructors and destructor
 //
-  Event::Event(EventPrincipal const& iPrincipal):
-  principal_(&iPrincipal)
-{
-}
+  Event::Event(EventPrincipal const& iPrincipal, std::string iModuleLabel, std::string iProcessName):
+  principal_{&iPrincipal},
+  label_{std::move(iModuleLabel)},
+  processName_{std::move(iProcessName)} {}
 
 
 //
