@@ -1,4 +1,5 @@
 #include "DQM/HcalTasks/interface/TPTask.h"
+#include "DQM/L1TMonitor/interface/L1TStage2CaloLayer1.h" // For ComparisonHelper::zip
 
 
 using namespace hcaldqm;
@@ -8,12 +9,15 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 {
 	_tagData = ps.getUntrackedParameter<edm::InputTag>("tagData",
 		edm::InputTag("hcalDigis"));
+	_tagDataL1Rec = ps.getUntrackedParameter<edm::InputTag>("tagDataL1Rec",
+		edm::InputTag("caloLayer1Digis"));
 	_tagEmul = ps.getUntrackedParameter<edm::InputTag>("tagEmul",
 		edm::InputTag("emulDigis"));
 	_tagEmulNoTDCCut = ps.getUntrackedParameter<edm::InputTag>("tagEmulNoTDCCut",
 		edm::InputTag("emulTPDigisNoTDCCut"));
 
 	_tokData = consumes<HcalTrigPrimDigiCollection>(_tagData);
+	_tokDataL1Rec = consumes<HcalTrigPrimDigiCollection>(_tagDataL1Rec);
 	_tokEmul = consumes<HcalTrigPrimDigiCollection>(_tagEmul);
 	_tokEmulNoTDCCut = consumes<HcalTrigPrimDigiCollection>(_tagEmulNoTDCCut);
 
@@ -129,6 +133,15 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+	// Mismatches: sent vs received
+	_cEtMsm_uHTR_L1T_depthlike.initialize(_name, "EtMsm_uHTR", 
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+	_cEtMsm_uHTR_L1T_LS.initialize(_name, "EtMsm_uHTR_L1T_LS", 
+		new hcaldqm::quantity::LumiSection(_maxLS),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0),
 
 	//	Missing Data w.r.t. Emulator
 	_cMsnData_depthlike.initialize(_name, "MsnData",
@@ -319,7 +332,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		for (std::vector<int>::const_iterator it=vFEDsuTCA.begin();
 			it!=vFEDsuTCA.end(); ++it)
 		{
-	        std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
+			std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
 			_vhashFEDs.push_back(HcalElectronicsId(cspair.first, 
 				cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
 		}
@@ -500,6 +513,9 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	_cMsnData_depthlike.book(ib, _subsystem);
 	_cMsnEmul_depthlike.book(ib, _subsystem);
 
+	_cEtMsm_uHTR_L1T_depthlike.book(ib, _subsystem);
+	_cEtMsm_uHTR_L1T_LS.book(ib, _subsystem);
+
 	if (_ptype != fOffline) { // hidefed2crate
 		_cEtMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
 		_cEtMsm_ElectronicsuTCA.book(ib, _emap, _filter_VME, _subsystem);
@@ -591,11 +607,15 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	edm::EventSetup const&)
 {
 	edm::Handle<HcalTrigPrimDigiCollection> cdata;
+	edm::Handle<HcalTrigPrimDigiCollection> cdataL1Rec;
 	edm::Handle<HcalTrigPrimDigiCollection> cemul;
 	edm::Handle<HcalTrigPrimDigiCollection> cemul_noTDCCut;
 	if (!e.getByToken(_tokData, cdata))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagData.label() + " " + _tagData.instance());
+	if (!e.getByToken(_tokDataL1Rec, cdataL1Rec))
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
+			+ _tagDataL1Rec.label() + " " + _tagDataL1Rec.instance());
 	if (!e.getByToken(_tokEmul, cemul))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagEmul.label() + " " + _tagEmul.instance());
@@ -1043,6 +1063,41 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				bx, numMsnCutHF);
 		}
 		//	^^^ONLINE ONLY!
+	}
+
+	// Compare the sent ("uHTR") and received (L1T "layer1") TPs
+	// This algorithm is copied from DQM/L1TMonitor/src/L1TStage2CaloLayer1.cc 
+	// ...but it turns out to be extremely useful for detecting uHTR problems
+	_vTPDigis_SentRec.clear();
+	ComparisonHelper::zip(cdata->begin(), cdata->end(), 
+						cdataL1Rec->begin(), cdataL1Rec->end(), 
+						std::inserter(_vTPDigis_SentRec, _vTPDigis_SentRec.begin()), 
+						HcalTrigPrimDigiCollection::key_compare());
+
+	for ( const auto& tpPair : _vTPDigis_SentRec) {
+		// From here, literal copy pasta from L1T
+		const auto& sentTp = tpPair.first;
+		const auto& recdTp = tpPair.second;
+		const int ieta = sentTp.id().ieta();
+		if ( abs(ieta) > 28 && sentTp.id().version() != 1 ) continue;
+		//const int iphi = sentTp.id().iphi();
+		const bool towerMasked = recdTp.sample(0).raw() & (1<<13);
+		//const bool linkMasked  = recdTp.sample(0).raw() & (1<<14);
+		const bool linkError   = recdTp.sample(0).raw() & (1<<15);
+
+		if ( towerMasked || linkError ) {
+			// Do not compare if known to be bad
+			continue;
+		}
+		const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
+		const bool Hfb1Agreement = sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain();
+		// Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
+		const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)));
+		if (!(HetAgreement && Hfb1Agreement && Hfb2Agreement)) {
+			HcalTrigTowerDetId tid = sentTp.id();
+			_cEtMsm_uHTR_L1T_depthlike.fill(tid);
+			_cEtMsm_uHTR_L1T_LS.fill(_currentLS);
+		}
 	}
 }
 
