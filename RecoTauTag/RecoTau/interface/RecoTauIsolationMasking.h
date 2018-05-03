@@ -38,7 +38,7 @@ class RecoTauIsolationMasking {
     // Get the energy resoltuion of a gamma or h0 candidate
     double resolution(const reco::Candidate& cand) const;
     // Check if the candidate is in the correct cone
-    bool inCone(const reco::Candidate& track,
+    bool inCone(const reco::PFCandidate& track,
         const reco::Candidate& cand) const;
 
     double ecalCone_;
