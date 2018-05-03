@@ -104,6 +104,8 @@ process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
 	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
 )
 
+# For sent-received comparison
+process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
@@ -183,6 +185,7 @@ process.preRecoPath = cms.Path(
 		*process.castorDigis
 		*process.emulTPDigis
 		*process.emulTPDigisNoTDCCut
+		*process.L1TRawToDigi
 )
 
 process.dqmPath = cms.EndPath(
