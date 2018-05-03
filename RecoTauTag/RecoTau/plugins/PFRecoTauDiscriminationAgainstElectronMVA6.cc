@@ -147,11 +147,11 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron, usePhiAtEcalEntranceExtrapolation_);
-	  const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadChargedHadrCand().get());
+	  const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
 	  bool hasGsfTrack = false;
-	  if (lpfch != nullptr) {
+	  if (lpfch.isNonnull()) {
 	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
-	  } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
+	  }
 
 	  if ( !hasGsfTrack )
             hasGsfTrack = theGsfElectron->gsfTrack().isNonnull();
@@ -189,11 +189,11 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
     if ( !isGsfElectronMatched ) {
       mvaValue = mva_->MVAValue(*thePFTauRef, usePhiAtEcalEntranceExtrapolation_);
-      const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadChargedHadrCand().get());
+      const reco::PFCandidatePtr& lpfch = thePFTauRef->leadPFChargedHadrCand();
       bool hasGsfTrack = false;
-      if (lpfch != nullptr) {
+      if (lpfch.isNonnull()) {
 	hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
-      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
+      }
       
       //// Veto taus that go to Ecal crack
       if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {

@@ -276,7 +276,11 @@ class PFTau : public BaseTau {
     std::vector<reco::CandidatePtr> selectedIsolationNeutrHadrCands_;
     std::vector<reco::CandidatePtr> selectedIsolationGammaCands_;
 
-    // Caches for PFCandidate-based accessors
+    // Transient caches for PFCandidate-based accessors
+    edm::AtomicPtrCache<reco::PFCandidatePtr> leadPFChargedHadrCand_;
+    edm::AtomicPtrCache<reco::PFCandidatePtr> leadPFNeutralCand_;
+    edm::AtomicPtrCache<reco::PFCandidatePtr> leadPFCand_;
+    
     edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientSignalPFCands_;
     edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientSignalPFChargedHadrCands_;
     edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientSignalPFNeutrHadrCands_;

@@ -153,7 +153,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 			process.miniAODTausTask.remove(getattr(process, moduleName))
 
 	# Instead add against-mu discriminants which are MiniAOD compatible
-	from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuonSimple_cfi import hpsPFTauDiscriminationByLooseMuonRejectionSimple, hpsPFTauDiscriminationByTightMuonRejectionSimple
+	from RecoTauTag.RecoTau.hpsPFTauDiscriminationByAMuonRejectionSimple_cff import hpsPFTauDiscriminationByLooseMuonRejectionSimple, hpsPFTauDiscriminationByTightMuonRejectionSimple
 	
 	process.hpsPFTauDiscriminationByLooseMuonRejectionSimple = hpsPFTauDiscriminationByLooseMuonRejectionSimple
 	process.hpsPFTauDiscriminationByTightMuonRejectionSimple = hpsPFTauDiscriminationByTightMuonRejectionSimple

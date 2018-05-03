@@ -2,12 +2,15 @@
  * PFRecoTauChargedHadronFromGenericTrackPlugin
  *
  * Build PFRecoTauChargedHadron objects
- * using charged PFCandidates as input
+ * using tracks as input, from either collection of RECO/AOD reco::Tracks 
+ * (PFRecoTauChargedHadronFromTrackPlugin) or from a collection of MINIAOD
+ * pat::PackedCandidates (PFRecoTauChargedHadronFromLostTrackPlugin), typically
+ * using the 'lostTracks' collection
  *
  * Author: Christian Veelken, LLR
  *
- * inclusion of lost tracks based on 
- * PFRecoTauChargedHadronFromLostTrackPlugin by Michal Bluj, NCBJ, Poland
+ * inclusion of lost tracks based on original implementation
+ * by Michal Bluj, NCBJ, Poland
  */
 
 #include "RecoTauTag/RecoTau/interface/PFRecoTauChargedHadronPlugins.h"
@@ -281,8 +284,7 @@ typename PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::return_type P
     }
 
     std::vector<Candidate_withDistance> neutralJetConstituents_withDistance;
-    std::vector<reco::CandidatePtr> jetConstituents = jet.daughterPtrVector();
-    for ( const auto& jetConstituent : jetConstituents ) {
+    for ( const auto& jetConstituent : jet.daughterPtrVector() ) {
       int pdgId = jetConstituent->pdgId();
       if ( !(pdgId == 130 || pdgId == 22) ) continue;
       double dR = deltaR(atECALEntrance(&*jetConstituent, magneticFieldStrength_.z()), chargedHadron->positionAtECALEntrance_);
@@ -327,9 +329,7 @@ typename PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::return_type P
   return output.release();
 }
 
-template class PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track>;
 typedef PFRecoTauChargedHadronFromGenericTrackPlugin<reco::Track> PFRecoTauChargedHadronFromTrackPlugin;
-template class PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate>;
 typedef PFRecoTauChargedHadronFromGenericTrackPlugin<pat::PackedCandidate> PFRecoTauChargedHadronFromLostTrackPlugin;
 
 }} // end namespace reco::tau

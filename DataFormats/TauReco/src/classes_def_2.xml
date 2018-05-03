@@ -2,6 +2,9 @@
   
   <class name="reco::PFTau" ClassVersion="21">
    <version ClassVersion="21" checksum="759808483"/>
+     <field name="leadPFChargedHadrCand_" transient="true"/>
+     <field name="leadPFNeutralCand_" transient="true"/>
+     <field name="leadPFCand_" transient="true"/>
      <field name="selectedTransientSignalPFCands_" transient="true"/>
      <field name="selectedTransientSignalPFChargedHadrCands_" transient="true"/>
      <field name="selectedTransientSignalPFNeutrHadrCands_" transient="true"/>

@@ -209,9 +209,8 @@ void RecoTauGenericJetRegionProducer<JetType, CandType>::produce(edm::Event& evt
   }
   evt.put(std::move(matching));
 }
-template class RecoTauGenericJetRegionProducer<reco::PFJet, reco::PFCandidate>;
+
 typedef RecoTauGenericJetRegionProducer<reco::PFJet, reco::PFCandidate> RecoTauJetRegionProducer;
-template class RecoTauGenericJetRegionProducer<pat::Jet, pat::PackedCandidate>;
 typedef RecoTauGenericJetRegionProducer<pat::Jet, pat::PackedCandidate> RecoTauPatJetRegionProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"

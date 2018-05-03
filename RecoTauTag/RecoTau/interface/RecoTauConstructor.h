@@ -81,7 +81,6 @@ class RecoTauConstructor {
     }
 
     /// Append a PFCandidateRef/Ptr to a given collection
-    // void addPFCand(Region region, ParticleType type, const CandidateRef& ref, bool skipAddToP4 = false);
     void addPFCand(Region region, ParticleType type, const CandidatePtr& ptr, bool skipAddToP4 = false);
 
     /// Reserve a set amount of space for a given RefVector
@@ -154,7 +153,6 @@ class RecoTauConstructor {
     // Helper functions for dealing with refs
     CandidatePtr convertToPtr(const PFCandidatePtr& pfPtr) const;
     CandidatePtr convertToPtr(const CandidatePtr& candPtr) const;
-    // CandidatePtr convertToPtr(const PFCandidateRef& pfRef) const;
 
     const edm::Handle<edm::View<reco::Candidate> >& pfCands_;
     std::auto_ptr<reco::PFTau> tau_;
