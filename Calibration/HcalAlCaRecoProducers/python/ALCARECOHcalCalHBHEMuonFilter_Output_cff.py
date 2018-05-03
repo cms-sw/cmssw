@@ -13,6 +13,7 @@ OutALCARECOHcalCalHBHEMuonFilter_noDrop = cms.PSet(
         'keep *_ecalRecHit_*_*',
         'keep *_offlineBeamSpot_*_*',
         'keep *_TriggerResults_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep recoTracks_globalMuons_*_*',
         'keep recoTrackExtras_globalMuons_*_*',
         'keep recoTracks_standAloneMuons_*_*',
