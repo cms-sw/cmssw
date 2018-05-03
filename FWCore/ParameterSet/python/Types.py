@@ -3,6 +3,7 @@ from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
 import copy
+import math
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -110,6 +111,19 @@ class double(_SimpleParameterTypeBase):
         parameterSet.addDouble(self.isTracked(), myname, float(self.value()))
     def __nonzero__(self):
         return self.value()!=0.
+    def configValue(self, options=PrintOptions()):
+        return double._pythonValue(self._value)
+    @staticmethod
+    def _pythonValue(value):
+        if math.isinf(value):
+            if value > 0:
+                return "float('inf')"
+            else:
+                return "-float('inf')"
+        if math.isnan(value):
+            return "float('nan')"
+        return str(value)
+
 
 
 import __builtin__
@@ -737,6 +751,9 @@ class vdouble(_ValidatingParameterListBase):
         return vdouble(*_ValidatingParameterListBase._itemsFromStrings(value,double._valueFromString))
     def insertInto(self, parameterSet, myname):
         parameterSet.addVDouble(self.isTracked(), myname, self.value())
+    def pythonValueForItem(self,item, options):
+        return double._pythonValue(item)
+
 
 
 
@@ -1225,6 +1242,32 @@ if __name__ == "__main__":
             i = uint32._valueFromString("0xA")
             self.assertEqual(i.value(),10)
 
+        def testdouble(self):
+            d = double(1)
+            self.assertEqual(d.value(),1)
+            self.assertEqual(d.pythonValue(),'1')
+            d = double(float('Inf'))
+            self.assertEqual(d,float('Inf'))
+            self.assertEqual(d.pythonValue(),"float('inf')")
+            d = double(-float('Inf'))
+            self.assertEqual(d,-float('Inf'))
+            self.assertEqual(d.pythonValue(),"-float('inf')")
+            d = double(float('Nan'))
+            self.assert_(math.isnan(d.value()))
+            self.assertEqual(d.pythonValue(),"float('nan')")
+        def testvdouble(self):
+            d = vdouble(1)
+            self.assertEqual(d.value(),[1])
+            self.assertEqual(d.dumpPython(),'cms.vdouble(1)')
+            d = vdouble(float('inf'))
+            self.assertEqual(d,[float('inf')])
+            self.assertEqual(d.dumpPython(),"cms.vdouble(float('inf'))")
+            d = vdouble(-float('Inf'))
+            self.assertEqual(d,[-float('inf')])
+            self.assertEqual(d.dumpPython(),"cms.vdouble(-float('inf'))")
+            d = vdouble(float('nan'))
+            self.assert_(math.isnan(d[0]))
+            self.assertEqual(d.dumpPython(),"cms.vdouble(float('nan'))")
         def testvint32(self):
             v = vint32()
             self.assertEqual(len(v),0)
