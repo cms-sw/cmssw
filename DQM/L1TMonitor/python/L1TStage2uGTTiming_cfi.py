@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 l1tStage2uGTTiming = DQMEDAnalyzer('L1TStage2uGTTiming',
     l1tStage2uGtSource = cms.InputTag("gtStage2Digis"),    
-    monitorDir = cms.untracked.string("L1T/L1TStage2uGT/timing_extra"),
+    monitorDir = cms.untracked.string("L1T/L1TStage2uGT/timing_aux"),
     verbose = cms.untracked.bool(False),
     firstBXInTrainAlgo = cms.untracked.string("L1_FirstCollisionInTrain"),
     lastBXInTrainAlgo = cms.untracked.string("L1_LastCollisionInTrain"),    
