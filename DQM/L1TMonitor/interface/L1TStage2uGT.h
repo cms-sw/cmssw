@@ -18,15 +18,12 @@
 #include <utility>
 // User include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/typedefs.h"
 
 // L1 trigger include files
 //#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
@@ -66,25 +63,9 @@ private:
 
    bool verbose_; // verbosity switch
 
-   // To get the algo bits corresponding to algo names
+   // To get the number of algorithms
    std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
-
-   // For the timing histograms
-   int algoBitFirstBxInTrain_;
-   int algoBitLastBxInTrain_;
-   int algoBitIsoBx_;
-   const std::string algoNameFirstBxInTrain_;
-   const std::string algoNameLastBxInTrain_;
-   const std::string algoNameIsoBx_;
-
-   unsigned int useAlgoDecision_;
- 
-   std::vector<std::string> unprescaledAlgoShortList_;
-   std::vector<std::string> prescaledAlgoShortList_; 
-
-   // Booking of histograms for the module
-   std::vector<std::pair<std::string,int>> unprescaledAlgoBitName_;
-   std::vector<std::pair<std::string,int>> prescaledAlgoBitName_; 
+   int numAlgs_; // number of algorithms
 
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
@@ -113,41 +94,6 @@ private:
  
    // Prescale factor index 
    MonitorElement* prescaleFactorSet_;
-
-   // Pre- Post- firing timing dedicated plots
-   MonitorElement* first_collision_minus2_run_;
-   MonitorElement* first_collision_minus1_run_;
-   MonitorElement* first_collision_run_;
-   MonitorElement* isolated_collision_run_;
-   MonitorElement* last_collision_run_;
-
-   MonitorElement* den_first_collision_minus2_run_; 
-   MonitorElement* den_first_collision_minus1_run_; 
-   MonitorElement* den_first_collision_run_; 
-   MonitorElement* den_last_collision_run_;
-   MonitorElement* den_isolated_collision_run_;
-
-   // Prescaled and unprescaled aglo trigger bits
-   MonitorElement* prescaled_algo_two_bucket_before_train_;
-   MonitorElement* prescaled_algo_two_bucket_before_train_den_;
-   MonitorElement* unprescaled_algo_two_bucket_before_train_;
-   MonitorElement* unprescaled_algo_two_bucket_before_train_den_;
-   MonitorElement* prescaled_algo_one_bucket_before_train_;
-   MonitorElement* prescaled_algo_one_bucket_before_train_den_;
-   MonitorElement* unprescaled_algo_one_bucket_before_train_;
-   MonitorElement* unprescaled_algo_one_bucket_before_train_den_;
-   MonitorElement* prescaled_algo_first_collision_in_train_;
-   MonitorElement* prescaled_algo_first_collision_in_train_den_;
-   MonitorElement* unprescaled_algo_first_collision_in_train_;
-   MonitorElement* unprescaled_algo_first_collision_in_train_den_;
-   MonitorElement* prescaled_algo_isolated_collision_in_train_;
-   MonitorElement* prescaled_algo_isolated_collision_in_train_den_;
-   MonitorElement* unprescaled_algo_isolated_collision_in_train_;
-   MonitorElement* unprescaled_algo_isolated_collision_in_train_den_;
-   MonitorElement* prescaled_algo_last_collision_in_train_;
-   MonitorElement* prescaled_algo_last_collision_in_train_den_;
-   MonitorElement* unprescaled_algo_last_collision_in_train_;
-   MonitorElement* unprescaled_algo_last_collision_in_train_den_;
 };
 
 #endif
