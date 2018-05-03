@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 
 options = VarParsing.VarParsing ('analysis')
 options.register(
-    "inputPath",
+    "inPath",
     "./",
     VarParsing.VarParsing.multiplicity.singleton,
     VarParsing.VarParsing.varType.string,
@@ -40,13 +40,13 @@ options.parseArguments()
 
 
 # Input source
-if os.path.isdir(options.inputPath):
-    entries = os.listdir(options.inputPath)
+if os.path.isdir(options.inPath):
+    entries = os.listdir(options.inPath)
     entries = [each for each in entries if each.startswith("dqm") and each.endswith(".root")]
-    entries = ["file:" + os.path.join(options.inputPath, each) for each in entries]
+    entries = ["file:" + os.path.join(options.inPath, each) for each in entries]
     fileNames = cms.untracked.vstring(*entries)
 else:
-    fileNames = cms.untracked.vstring(options.inputPath)
+    fileNames = cms.untracked.vstring(options.inPath)
 
 process.source = cms.Source("DQMRootSource",
     fileNames=fileNames

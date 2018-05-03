@@ -1,12 +1,12 @@
 #!/bin/sh
 FILE_LIST=${1:-"./listOfOutDigi.txt"}
-JOB_NAME=${2:-"GEMQC8-Reco_$(date +%y%m%d-%H%M%S)"}
+JOB_NAME=${2:-"GEMCRS-Reco_$(date +%y%m%d-%H%M%S)"}
 
-JOB_DIR=/xrootd/store/user/slowmoyang/${JOB_NAME}
+JOB_DIR=/xrootd/store/user/slowmoyang/GEMCRS/${JOB_NAME}
 mkdir -v ${JOB_DIR}
 
 create-batch --jobName ${JOB_NAME} \
              --cfg runGEMCosmicStand_reco.py \
              --maxFiles 1 \
-             --transferDest "root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang/${JOB_NAME}" \
+             --transferDest "root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang/GEMCRS/${JOB_NAME}" \
              --fileList=${FILE_LIST}
