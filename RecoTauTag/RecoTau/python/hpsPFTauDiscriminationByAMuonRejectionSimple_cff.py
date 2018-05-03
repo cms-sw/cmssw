@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.Configuration.HPSPFTaus_cff import hpsPFTauDiscriminationByLooseMuonRejection3, hpsPFTauDiscriminationByTightMuonRejection3
 
-hpsPFTauDiscriminationByLooseMuonRejectionSimple2 = hpsPFTauDiscriminationByLooseMuonRejection3.clone(
+hpsPFTauDiscriminationByLooseMuonRejectionSimple = hpsPFTauDiscriminationByLooseMuonRejection3.clone(
     PFTauProducer=cms.InputTag("hpsPFTauProducer"),
     HoPMin=cms.double(0.1), #use smaller value than with AOD as raw energy is used
     doCaloMuonVeto=cms.bool(False), #do not use it until tuned
@@ -11,12 +11,12 @@ hpsPFTauDiscriminationByLooseMuonRejectionSimple2 = hpsPFTauDiscriminationByLoos
     maxNumberOfRPCMuons=cms.int32(-1)
     )
 
-hpsPFTauDiscriminationByLooseMuonRejectionSimple2.__dict__['_TypedParameterizable__type'] = "PFRecoTauDiscriminationAgainstMuonSimple"
+hpsPFTauDiscriminationByLooseMuonRejectionSimple.__dict__['_TypedParameterizable__type'] = "PFRecoTauDiscriminationAgainstMuonSimple"
 
 for attr in ['discriminatorOption', 'srcMuons']:
-    delattr(hpsPFTauDiscriminationByLooseMuonRejectionSimple2, attr)
+    delattr(hpsPFTauDiscriminationByLooseMuonRejectionSimple, attr)
 
 
 hpsPFTauDiscriminationByTightMuonRejectionSimple = hpsPFTauDiscriminationByLooseMuonRejectionSimple.clone(
-    maxNumberOfHitsLast2Stations = hpsPFTauDiscriminationByTightMuonRejection3.maxNumberOfHitsLast2Stations
+    maxNumberOfHitsLast2Stations=hpsPFTauDiscriminationByTightMuonRejection3.maxNumberOfHitsLast2Stations
 )

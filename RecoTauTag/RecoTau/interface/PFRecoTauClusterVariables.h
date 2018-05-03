@@ -23,17 +23,17 @@ class TauIdMVAAuxiliaries {
     /// return chi2 of the leading track ==> deprecated? <==
     float tau_leadTrackChi2(const reco::PFTau& tau) const {
       float LeadingTracknormalizedChi2 = 0;
-      const auto& leadingPFCharged = tau.leadPFChargedHadrCand();
+      const reco::CandidatePtr& leadingPFCharged = tau.leadChargedHadrCand();
       if (leadingPFCharged.isNonnull()) {
-        reco::TrackRef tref = leadingPFCharged->trackRef();
-        if (tref.isNonnull()) {
-          LeadingTracknormalizedChi2 = tref->normalizedChi2();
+        const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
+        if (pfcand != nullptr) {
+          reco::TrackRef tref = pfcand->trackRef();
+          if (tref.isNonnull()) {
+            LeadingTracknormalizedChi2 = tref->normalizedChi2();
+          }
         }
-      }
-      else {
-        const auto& leadingCharged = tau.leadChargedHadrCand();
-        if (leadingCharged.isNonnull()) {
-          const pat::PackedCandidate* patcand = dynamic_cast<const pat::PackedCandidate*>(leadingCharged.get());
+        else {
+          const pat::PackedCandidate* patcand = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
           if (patcand != nullptr && patcand->hasTrackDetails()) {
             LeadingTracknormalizedChi2 = patcand->pseudoTrack().normalizedChi2();
           }

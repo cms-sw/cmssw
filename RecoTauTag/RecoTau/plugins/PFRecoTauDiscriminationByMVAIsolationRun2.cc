@@ -224,7 +224,6 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
     float ptWeightedDphiStrip = clusterVariables_.tau_pt_weighted_dphi_strip(*tau, tauDecayMode);
     float ptWeightedDrSignal = clusterVariables_.tau_pt_weighted_dr_signal(*tau, tauDecayMode);
     float ptWeightedDrIsolation = clusterVariables_.tau_pt_weighted_dr_iso(*tau, tauDecayMode);
-    float leadingTrackChi2 = clusterVariables_.tau_leadTrackChi2(*tau);
     float eRatio = clusterVariables_.tau_Eratio(*tau);
 
     // Difference between measured and maximally allowed Gottfried-Jackson angle
@@ -275,7 +274,7 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
       mvaInput_[9]  = std::min(0.5f, ptWeightedDphiStrip);
       mvaInput_[10] = std::min(0.5f, ptWeightedDrSignal);
       mvaInput_[11] = std::min(0.5f, ptWeightedDrIsolation);
-      mvaInput_[12] = std::min(100.f, leadingTrackChi2);
+      mvaInput_[12] = std::min(100.f, clusterVariables_.tau_leadTrackChi2(*tau));
       mvaInput_[13] = std::min(1.f, eRatio);
       mvaInput_[14]  = std::copysign(+1.f, (float)tauLifetimeInfo.dxy());
       mvaInput_[15]  = std::sqrt(std::min(1.f, std::abs((float)tauLifetimeInfo.dxy())));
@@ -299,7 +298,7 @@ double PFRecoTauDiscriminationByMVAIsolationRun2::discriminate(const PFTauRef& t
       mvaInput_[9]  = std::min(0.5f, ptWeightedDphiStrip);
       mvaInput_[10] = std::min(0.5f, ptWeightedDrSignal);
       mvaInput_[11] = std::min(0.5f, ptWeightedDrIsolation);
-      mvaInput_[12] = std::min(100.f, leadingTrackChi2);
+      mvaInput_[12] = std::min(100.f, clusterVariables_.tau_leadTrackChi2(*tau));
       mvaInput_[13] = std::min(1.f, eRatio);
       mvaInput_[14]  = std::copysign(+1.f, (float)tauLifetimeInfo.dxy());
       mvaInput_[15]  = std::sqrt(std::min(1.f, std::abs((float)tauLifetimeInfo.dxy())));
