@@ -230,8 +230,9 @@ namespace hcaldqm
 		{
 			switch (type)
 			{
-				case tNull : return "Nill";
+				case tNull : return "Null";
 				case tPedestal : return "Pedestal";
+				case tLED : return "LED";
 				case tHFRaddam : return "HFRaddam";
 				case tHBHEHPD : return "HBHEHPD";
 				case tHO : return "HO";
@@ -244,7 +245,7 @@ namespace hcaldqm
 				case tCRF : return "CRF";
 				case tCalib : return "Calib";
 				case tSafe : return "Safe";
-				default : return "Unknonw";
+				default : return "Unknown";
 			}
 		}
 
