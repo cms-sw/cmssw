@@ -14,6 +14,7 @@ OutALCARECOHcalCalIsolatedBunchFilter_noDrop = cms.PSet(
         'keep *_ecalRecHit_*_*',
         'keep *_hltTriggerSummaryAOD_*_*',
         'keep *_TriggerResults_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep  FEDRawDataCollection_rawDataCollector_*_*',
         'keep  FEDRawDataCollection_source_*_*',
         )

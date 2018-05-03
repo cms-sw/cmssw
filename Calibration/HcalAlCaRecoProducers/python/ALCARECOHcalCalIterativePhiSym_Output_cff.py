@@ -13,6 +13,7 @@ OutALCARECOHcalCalIterativePhiSym_noDrop = cms.PSet(
                                             "keep *_hfreco_*_*",
                                             "keep *_hbhereco_*_*",
                                             "keep *_offlinePrimaryVertices_*_*",
+                                            'keep HcalNoiseSummary_hcalnoise_*_*',
                                             "keep *_scalersRawToDigi_*_*",
                                             "keep edmTriggerResults_*_*_HLT")
 
