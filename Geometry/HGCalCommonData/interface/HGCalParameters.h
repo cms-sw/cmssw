@@ -37,10 +37,6 @@ public:
   hgtrform getTrForm(unsigned int k) const;
   void     addTrForm(const CLHEP::Hep3Vector& h3v);
   void     scaleTrForm(double);
-  int      waferIndex(int layer, int waferU, int waferV);
-  int      waferLayer(const int index) const;
-  int      waferU(const int index) const;
-  int      waferV(const int index) const;
 
   std::string                     name_;
   int                             nCells_;
@@ -90,9 +86,11 @@ public:
   std::vector<double>             waferPosY_;
   std::vector<double>             cellFineX_;
   std::vector<double>             cellFineY_;
+  wafer_map                       cellFineIndex_;
   std::vector<bool>               cellFineHalf_;
   std::vector<double>             cellCoarseX_;
   std::vector<double>             cellCoarseY_;
+  wafer_map                       cellCoarseIndex_;
   std::vector<bool>               cellCoarseHalf_;
   std::vector<int>                layerGroupM_;
   std::vector<int>                layerGroupO_;
@@ -101,7 +99,7 @@ public:
   std::vector<int>                cellFine_;
   std::vector<int>                cellCoarse_;
   double                          waferR_;
-  int                             levelT_;
+  std::vector<int>                levelT_;
   HGCalGeometryMode::GeometryMode mode_;
   double                          slopeMin_;
   layer_map                       copiesInLayers_;
@@ -111,6 +109,8 @@ public:
   double                          waferThick_;
   double                          sensorSeparation_;
   double                          mouseBite_;
+  int                             waferUVMax_;
+  std::vector<int>                waferUVMaxLayer_;
   bool                            defineFull_;
   std::vector<double>             cellThickness_;
   std::vector<double>             radius100to200_;
@@ -119,29 +119,22 @@ public:
   double                          zMinForRad_;
   std::vector<double>             radiusMixBoundary_;
   std::vector<int>                nPhiBinBH_;
-  std::vector<double>             dPhiEta_;
+  std::vector<double>             dPhiEtaBH_;
+  std::vector<int>                firstModule_;
+  std::vector<int>                lastModule_;
   std::vector<double>             slopeTop_;
   std::vector<double>             zFront_;
   std::vector<double>             rMaxFront_;
   std::vector<double>             zRanges_;
-  double                          etaMaxBH_;
+  double                          etaMinBH_;
+  std::vector<int>                iEtaMinBH_;
+  int                             firstLayer_;
   wafer_map                       wafersInLayers_;
   wafer_map                       typesInLayers_;
  
   COND_SERIALIZABLE;
 
 private:
-
-  const int kHGCalWaferUOffset     = 0;
-  const int kHGCalWaferUMask       = 0x1F;
-  const int kHGCalWaferUSignOffset = 5;
-  const int kHGCalWaferUSignMask   = 0x1;
-  const int kHGCalWaferVOffset     = 6;
-  const int kHGCalWaferVMask       = 0x1F;
-  const int kHGCalWaferVSignOffset = 11;
-  const int kHGCalWaferVSignMask   = 0x1;
-  const int kHGCalLayerOffset      = 12;
-  const int kHGCalLayerMask        = 0x1F;
 
   const int kMaskZside   = 0x1;
   const int kMaskLayer   = 0x7F;

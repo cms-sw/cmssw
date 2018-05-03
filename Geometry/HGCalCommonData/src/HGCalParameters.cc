@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //#define EDM_ML_DEBUG
 
@@ -167,33 +168,6 @@ void HGCalParameters::scaleTrForm(double scale) {
     trformTranY_[k-1] *= scale;
     trformTranZ_[k-1] *= scale;
   }
-}
-
-int HGCalParameters::waferIndex(int layer, int waferU, int waferV) {
-  int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
-  int waferUsign = (waferU >= 0) ? 0 : 1;
-  int waferVsign = (waferV >= 0) ? 0 : 1;
-  int id(0);
-  id |= (((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
-	 ((waferUsign& kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
-	 ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
-	 ((waferVsign& kHGCalWaferVSignMask) << kHGCalWaferVSignOffset) |
-	 ((layer     & kHGCalLayerMask) << kHGCalLayerOffset));
-  return id;
-}
-
-int HGCalParameters::waferLayer(const int id) const {
-  return (id>>kHGCalLayerOffset)&kHGCalLayerMask; 
-}
-
-int HGCalParameters::waferU(const int id) const {
-  int iu = (id>>kHGCalWaferUOffset)&kHGCalWaferUMask;
-  return (((id>>kHGCalWaferUSignOffset) & kHGCalWaferUSignMask) ? -iu : iu);
-}
-
-int HGCalParameters::waferV(const int id) const {
-  int iv = (id>>kHGCalWaferVOffset)&kHGCalWaferVMask;
-  return (((id>>kHGCalWaferVSignOffset) & kHGCalWaferVSignMask) ? -iv : iv);
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

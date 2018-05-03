@@ -3,6 +3,7 @@
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include <string>
+#include <vector>
 
 class DDCompactView;
 class HGCalParameters;
@@ -16,7 +17,9 @@ public:
 	     const std::string&, const std::string&);
 
 private:
-  double getDDDValue(const char* s, const DDsvalues_type& sv);
+  void                getCellPosition(HGCalParameters& php, int type);
+  double              getDDDValue(const char* s, const DDsvalues_type& sv);
+  std::vector<double> getDDDArray(const char* s, const DDsvalues_type& sv);
 };
 
 #endif

@@ -50,7 +50,7 @@
     <Vector name="TopVolumeNames" type="string" nEntries="3">
       CableConnector, HEScintillatorSensitive, TopPCB</Vector>
     <Vector name="TopLayerThickness" type="numeric" nEntries="3">
-      3.3*mm, 3.0*mm,  1.6*mm</Vector>
+      3.3*mm, [hgcal:ScintillatorThickness],  1.6*mm</Vector>
     <Vector name="TopLayerType" type="numeric" nEntries="3"> 
       0, 1, 2</Vector>
     <Vector name="BottomMaterialNames" type="string" nEntries="5">
