@@ -578,6 +578,10 @@ namespace {
   const std::string k_TMath__Erf("TMath::Erf");
   const std::string k_erf("erf");
   const std::string k_TMath__Landau("TMath::Landau");
+  const std::string k_sqrt("sqrt");
+  const std::string k_TMath__Sqrt("TMath::Sqrt");
+  const std::string k_abs("abs");
+  const std::string k_TMath__Abs("TMath::Abs");
 
 
   EvaluatorInfo 
@@ -622,6 +626,30 @@ namespace {
 
     info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
                                      k_exp, [](double iArg)->double { return std::exp(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_sqrt, [](double iArg)->double { return std::sqrt(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_TMath__Sqrt, [](double iArg)->double { return std::sqrt(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_abs, [](double iArg)->double { return std::abs(iArg); } );
+    if(info.evaluator.get() != nullptr) {
+      return info;
+    }
+
+    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
+                                     k_TMath__Abs, [](double iArg)->double { return std::abs(iArg); } );
     if(info.evaluator.get() != nullptr) {
       return info;
     }
