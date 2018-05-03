@@ -144,9 +144,24 @@ namespace l1t {
 	       ((data16[14] >> 15) != 0) || ((data16[15] >> 15) != 0)) {
       edm::LogError("L1T") << "MTF7 payload has invalid counter block!";
       data_ = end_;
-    } else if (
-	       false) {
-      // TODO: check trailer
+    }
+
+    // Check bits for EMTF Event Record Trailer, get firmware version
+    algo_ = 0; // Firmware version
+    for (int i = 4; i < 1590; i++) { // Start after Counters block, up to 108 ME / 84 RPC / 3 SP blocks per BX, 8 BX
+      if ( ((data16[4*i+0] >> 12) == 0xF) && ((data16[4*i+1] >> 12) == 0xF) &&
+	   ((data16[4*i+2] >> 12) == 0xF) && ((data16[4*i+3] >> 12) == 0xF) &&
+	   ((data16[4*i+4] >> 12) == 0xE) && ((data16[4*i+5] >> 12) == 0xE) &&
+	   ((data16[4*i+6] >> 12) == 0xE) && ((data16[4*i+7] >> 12) == 0xE) ) { // Indicators for the Trailer block
+       algo_  = (((data16[4*i+2] >> 4) & 0x3F) << 9); // Year  (6 bits)
+       algo_ |= (((data16[4*i+2] >> 0) & 0x0F) << 5); // Month (4 bits)
+       algo_ |= (((data16[4*i+4] >> 0) & 0x1F) << 0); // Day   (5 bits)
+       break;
+      }
+    }
+    if (algo_ == 0) {
+      edm::LogError("L1T") << "MTF7 payload has no valid EMTF firmware version!";
+      data_ = end_;
     }
   }
 
