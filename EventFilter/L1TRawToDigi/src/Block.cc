@@ -130,16 +130,16 @@ namespace l1t {
     if (end16 - data16 < header_size + counter_size + trailer_size) {
       edm::LogError("L1T") << "MTF7 payload smaller than allowed!";
       data_ = end_;
-    } else if (
-	       ((data16[0] >> 12) != 0x9) || ((data16[1] >> 12) != 0x9) ||
-	       ((data16[2] >> 12) != 0x9) || ((data16[3] >> 12) != 0x9) ||
-	       ((data16[4] >> 12) != 0xA) || ((data16[5] >> 12) != 0xA) ||
-	       ((data16[6] >> 12) != 0xA) || ((data16[7] >> 12) != 0xA) ||
-	       ((data16[8] >> 9) != 0b1000000) || ((data16[9] >> 11) != 0) ||
-	       ((data16[10] >> 11) != 0) || ((data16[11] >> 11) != 0)) {
+    } else if ( // Check bits for EMTF Event Record Header
+	       ((data16[0]  >> 12) != 0x9) || ((data16[1]  >> 12) != 0x9) ||
+	       ((data16[2]  >> 12) != 0x9) || ((data16[3]  >> 12) != 0x9) ||
+	       ((data16[4]  >> 12) != 0xA) || ((data16[5]  >> 12) != 0xA) ||
+	       ((data16[6]  >> 12) != 0xA) || ((data16[7]  >> 12) != 0xA) ||
+	       ((data16[8]  >> 15) != 0x1) || ((data16[9]  >> 15) != 0x0) ||
+	       ((data16[10] >> 15) != 0x0) || ((data16[11] >> 15) != 0x0)) {
          edm::LogError("L1T") << "MTF7 payload has invalid header!";
          data_ = end_;
-    } else if (
+    } else if ( // Check bits for EMTF MPC Link Errors
 	       ((data16[12] >> 15) != 0) || ((data16[13] >> 15) != 1) ||
 	       ((data16[14] >> 15) != 0) || ((data16[15] >> 15) != 0)) {
       edm::LogError("L1T") << "MTF7 payload has invalid counter block!";
