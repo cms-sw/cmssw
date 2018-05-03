@@ -44,6 +44,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   bool verbose_;
 
   MonitorElement* stage2CaloLayer2CenJetEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2CenJetEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2CenJetEta_;
   MonitorElement* stage2CaloLayer2CenJetPhi_;
   MonitorElement* stage2CaloLayer2CenJetRank_;
@@ -52,6 +53,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2CenJetQual_;
 
   MonitorElement* stage2CaloLayer2ForJetEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2ForJetEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2ForJetEta_;
   MonitorElement* stage2CaloLayer2ForJetPhi_;
   MonitorElement* stage2CaloLayer2ForJetRank_;
@@ -62,6 +64,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2EGIso_;
 
   MonitorElement* stage2CaloLayer2IsoEGEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2IsoEGEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2IsoEGEta_;
   MonitorElement* stage2CaloLayer2IsoEGPhi_;
   MonitorElement* stage2CaloLayer2IsoEGRank_;
@@ -70,6 +73,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2IsoEGQual_;
 
   MonitorElement* stage2CaloLayer2NonIsoEGEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2NonIsoEGEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2NonIsoEGEta_;
   MonitorElement* stage2CaloLayer2NonIsoEGPhi_;
   MonitorElement* stage2CaloLayer2NonIsoEGRank_;
@@ -80,6 +84,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2TauIso_;
 
   MonitorElement* stage2CaloLayer2IsoTauEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2IsoTauEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2IsoTauEta_;
   MonitorElement* stage2CaloLayer2IsoTauPhi_;
   MonitorElement* stage2CaloLayer2IsoTauRank_;
@@ -88,6 +93,7 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* stage2CaloLayer2IsoTauQual_;
 
   MonitorElement* stage2CaloLayer2TauEtEtaPhi_;
+  MonitorElement* stage2CaloLayer2TauEtEtaPhi_shift_;
   MonitorElement* stage2CaloLayer2TauEta_;
   MonitorElement* stage2CaloLayer2TauPhi_;
   MonitorElement* stage2CaloLayer2TauRank_;
