@@ -469,6 +469,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			_xDataTotal.initialize(hcaldqm::hashfunctions::fFED);
 			_xEmulMsn.initialize(hcaldqm::hashfunctions::fFED);
 			_xEmulTotal.initialize(hcaldqm::hashfunctions::fFED);
+			_xSentRecL1Msm.initialize(hcaldqm::hashfunctions::fFED);
 		}
 	}
 
@@ -571,6 +572,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_xDataTotal.book(_emap);
 		_xEmulMsn.book(_emap);
 		_xEmulTotal.book(_emap);
+		_xSentRecL1Msm.book(_emap);
 
 		_cOccupancy_HF_depth.book(ib, _subsystem);
 		_cOccupancyNoTDC_HF_depth.book(ib, _subsystem);
@@ -1095,8 +1097,15 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)));
 		if (!(HetAgreement && Hfb1Agreement && Hfb2Agreement)) {
 			HcalTrigTowerDetId tid = sentTp.id();
+			uint32_t rawid = _ehashmap.lookup(tid);
+			if (rawid==0) {
+				continue;
+			}
+			HcalElectronicsId const& eid(rawid);
+
 			_cEtMsm_uHTR_L1T_depthlike.fill(tid);
 			_cEtMsm_uHTR_L1T_LS.fill(_currentLS);
+			_xSentRecL1Msm.get(eid)++;
 		}
 	}
 }
@@ -1165,12 +1174,20 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			else
 				_vflags[fEmulMsn]._state = flag::fGOOD;
 				*/
+			
+			if (_xSentRecL1Msm.get(eid) >= 1) {
+				_vflags[fSentRecL1Msm]._state = flag::fBAD;
+			} else {
+				_vflags[fSentRecL1Msm]._state = flag::fGOOD;
+			}
 		}
 
 		if (_unknownIdsPresent)
 			_vflags[fUnknownIds]._state = flag::fBAD;
 		else
 			_vflags[fUnknownIds]._state = flag::fGOOD;
+
+
 
 		int iflag=0;
 		for (std::vector<flag::Flag>::iterator ft=_vflags.begin();
