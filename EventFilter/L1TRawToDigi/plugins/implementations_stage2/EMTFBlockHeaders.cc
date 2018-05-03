@@ -69,19 +69,15 @@ namespace l1t {
 	if(GetHexBits(HD1a, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1a are incorrect"; }
 	if(GetHexBits(HD1b, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1b are incorrect"; }
 	if(GetHexBits(HD1c, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1c are incorrect"; }
-	if(GetHexBits(HD1c, 0, 11)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1c are incorrect"; }
 	if(GetHexBits(HD1d, 12, 15) != 9) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD1d are incorrect"; }
 	if(GetHexBits(HD2a, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2a are incorrect"; }
-	if(GetHexBits(HD2a, 0, 11)  != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2a are incorrect"; }
 	if(GetHexBits(HD2b, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2b are incorrect"; }
 	if(GetHexBits(HD2c, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2c are incorrect"; }
-	if(GetHexBits(HD2c, 11, 11) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2c are incorrect"; }
 	if(GetHexBits(HD2d, 12, 15) != 10) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD2d are incorrect"; }
-	if(GetHexBits(HD3a, 9, 14) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3a are incorrect"; }
 	if(GetHexBits(HD3a, 15, 15) != 1) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3a are incorrect"; }
-	if(GetHexBits(HD3b, 11, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3b are incorrect"; }
-	if(GetHexBits(HD3c, 11, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3c are incorrect"; }
-	if(GetHexBits(HD3d, 11, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3d are incorrect"; }
+	if(GetHexBits(HD3b, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3b are incorrect"; }
+	if(GetHexBits(HD3c, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3c are incorrect"; }
+	if(GetHexBits(HD3d, 15, 15) != 0) { errors += 1; edm::LogError("L1T|EMTF") << "Format identifier bits in HD3d are incorrect"; }
 
 	return errors;
 
@@ -203,6 +199,8 @@ namespace l1t {
 	EventHeader_.set_me2     ( GetHexBits(HD3b,  0, 10) );
 	EventHeader_.set_me3     ( GetHexBits(HD3c,  0, 10) );
 	EventHeader_.set_me4     ( GetHexBits(HD3d,  0, 10) );
+	EventHeader_.set_cppf    ( GetHexBits(HD3a, 11, 14, HD3b, 11, 13) );
+	EventHeader_.set_cppf_crc( GetHexBits(HD3c, 11, 14, HD3d, 11, 13) );
 	// EventHeader_.set_dataword(uint64_t bits)  { dataword = bits;  };
 
       write_Event:
