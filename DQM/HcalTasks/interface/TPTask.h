@@ -53,7 +53,8 @@ class TPTask : public hcaldqm::DQTask
 			fDataMsn=1,
 			fEmulMsn=2,
 			fUnknownIds=3,
-			nTPFlag=4
+			fSentRecL1Msm=4,
+			nTPFlag=5
 		};
 
 		//	switches/cuts/etc...
@@ -176,7 +177,7 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xEtMsm, _xFGMsm, _xNumCorr,
-			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal;
+			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal, _xSentRecL1Msm;
 
 		// Temporary storage for occupancy with and without HF TDC cut
 		hcaldqm::ContainerSingle2D _cOccupancy_HF_depth, _cOccupancyNoTDC_HF_depth;
