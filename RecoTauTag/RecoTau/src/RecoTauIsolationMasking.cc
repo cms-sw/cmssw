@@ -160,12 +160,9 @@ double RecoTauIsolationMasking::resolution(
   return -1;
 }
 
-bool RecoTauIsolationMasking::inCone(const reco::Candidate& track,
+bool RecoTauIsolationMasking::inCone(const reco::PFCandidate& track,
     const reco::Candidate& cand) const {
-  const reco::PFCandidate* pf_track = dynamic_cast<const reco::PFCandidate*>(&track);
-    if (pf_track == nullptr)
-      throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
-  double openingDR = reco::deltaR(pf_track->positionAtECALEntrance(), cand.p4());
+  double openingDR = reco::deltaR(track.positionAtECALEntrance(), cand.p4());
   if (cand.pdgId() == 130) {
     return (openingDR < hcalCone_);
   } else if (cand.pdgId() == 22 ||
