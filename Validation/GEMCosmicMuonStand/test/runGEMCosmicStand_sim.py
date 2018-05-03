@@ -182,7 +182,7 @@ process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.validation_step = cms.Path(process.gemCosmicMuonStandSim+process.gemCosmicMuonStandEfficiency)
 process.dqmoffline_step = cms.EndPath(process.DQMOffline)
-process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+#process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,
                                 process.digitisation_step,

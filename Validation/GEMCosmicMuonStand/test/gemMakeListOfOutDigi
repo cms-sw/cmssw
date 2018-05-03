@@ -8,9 +8,6 @@ def main():
     in_path = sys.argv[1]
     out_path = "./listOfOutDigi.txt"
 
-    if os.path.exists(out_path):
-        raise IOError("'{}' already exists!".format(out_path))
-
     entries = os.listdir(in_path)
     entries = [each for each in entries if each.endswith(".root")]
     entries = [each for each in entries if each.startswith("out_digi")]

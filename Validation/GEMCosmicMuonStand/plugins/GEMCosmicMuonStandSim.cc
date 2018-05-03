@@ -13,61 +13,129 @@
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 
+#include "TMath.h"
+
 #include <vector>
 #include <iostream>
 #include <iterator> // std::distance
-#include <algorithm> // std::find
+#include <algorithm> // std::find, std::transform, std::replace_if, std::min
 #include <numeric> // std::iota
 #include <string>
+#include <cmath> // std::remainder, std::fabs
 
 using namespace std;
 
-GEMCosmicMuonStandSim::GEMCosmicMuonStandSim(const edm::ParameterSet& cfg) {
+GEMCosmicMuonStandSim::GEMCosmicMuonStandSim(const edm::ParameterSet& cfg)
+{
   simHitToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simHitToken"));
   recHitToken_ = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitToken"));
+
+
 }
+
+
+GEMCosmicMuonStandSim::~GEMCosmicMuonStandSim() {}
+
+
+
+
+TString GEMCosmicMuonStandSim::ConvertTitleToName(TString const& title)
+{
+  //
+  std::string tmp_name = title.Data();
+  std::replace_if(tmp_name.begin(), tmp_name.end(), ::ispunct, '_');
+  std::replace_if(tmp_name.begin(), tmp_name.end(), ::isspace, '_');
+  std::transform(tmp_name.begin(), tmp_name.end(), tmp_name.begin(), ::tolower);
+  //
+  TString name = tmp_name;
+  name.ReplaceAll("__", "_");
+  //
+  return name;
+}
+
 
 MonitorElement* GEMCosmicMuonStandSim::BookHist1D(DQMStore::IBooker &ibooker,
-                                                  const char* name, const char* label,
-                                                  unsigned int row, unsigned int coll,
-                                                  unsigned int layer_num, unsigned int vfat_num,
-                                                  const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {
-  string hist_name,hist_label;
-  return ibooker.book1D( hist_name, hist_label,Nbin,xMin,xMax ); 
-}
-
-MonitorElement* GEMCosmicMuonStandSim::BookHist1D(DQMStore::IBooker &ibooker,
-                                                  const char* name, const char* label,
-                                                  const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {
-  return ibooker.book1D( name, label,Nbin,xMin,xMax );
+                                                  TString title,
+                                                  Int_t nchX, Double_t lowX, Double_t highX)
+{
+  TString name = ConvertTitleToName(title);
+  return ibooker.book1D(name, title, nchX, lowX, highX);
 }
 
 
-void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup) {
+MonitorElement* GEMCosmicMuonStandSim::BookHist2D(DQMStore::IBooker &ibooker,
+                                                TString title,
+                                                Int_t nchX, Double_t lowX, Double_t highX,
+                                                Int_t nchY, Double_t lowY, Double_t highY)
+{
+  TString name = ConvertTitleToName(title);
+  return ibooker.book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
+}
+
+
+void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker,
+                                           edm::Run const & Run,
+                                           edm::EventSetup const & iSetup) {
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
+
   const GEMGeometry*  GEMGeometry_ = &*hGeom;
   if ( GEMGeometry_ == nullptr) return ;  
 
-  LogDebug("GEMCosmicMuonStandSim")<<"Geometry is acquired from MuonGeometryRecord\n";
+  LogDebug("GEMCosmicMuonStandSim") << "Geometry is acquired from MuonGeometryRecord\n";
   ibooker.setCurrentFolder("GEMCosmicMuonStandSim");
-  LogDebug("GEMCosmicMuonStandSim")<<"ibooker set current folder\n";
 
-  TString vfat_name_fmt = "gem_vfat_%s_%dth_chamber";
+  LogDebug("GEMCosmicMuonStandSim") << "ibooker set current folder\n";
 
+  meVFATTotal_ = BookHist2D(ibooker, "The Number Of Total Events", 15, 0, 15, 24, 1, 24 + 1);
+  meVFATPassed_ = BookHist2D(ibooker, "The Number Of Passed Events", 15, 0, 15, 24, 1, 24 + 1);
 
   for(Int_t chamber_id = 1; chamber_id <= 29; chamber_id += 2) {
     Int_t index = GetChamberIndex(chamber_id);
 
-    TString total_name = TString::Format(vfat_name_fmt, "total", chamber_id);
-    TString total_title = TString::Format("Total events of %d GEM Chamber", chamber_id);
-    gem_vfat_total_[index] = ibooker.book2D(total_name, total_title, 8, 1, 8+1, 3, 1, 3+1);
+    meVFATTotalPerChamber_[index] = BookHist2D(ibooker,
+      TString::Format("The Number Of Total Events (Chamber %d)", chamber_id),
+      kNumPhiSegments_, 1, kNumPhiSegments_ + 1,
+      kNumEtaSegments_, 1, kNumEtaSegments_ + 1);
 
-    TString passed_name = TString::Format(vfat_name_fmt, "passed", chamber_id);
-    TString passed_title = TString::Format("Passed events of %d GEM Chamber", chamber_id);
-    gem_vfat_passed_[index] = ibooker.book2D(passed_name, passed_title, 8, 1, 8+1, 3, 1, 3+1);
+    meVFATPassedPerChamber_[index] = BookHist2D(ibooker,
+      TString::Format("The Number Of Passed Events (Chamber %d)", chamber_id),
+      kNumPhiSegments_, 1, kNumPhiSegments_ + 1,
+      kNumEtaSegments_, 1, kNumEtaSegments_ + 1);
+
+    meVFATOccupancyPerChamber_[index] = BookHist2D(ibooker,
+      TString::Format("Occupancy (Chamber %d)", chamber_id),
+      kNumPhiSegments_, 1, kNumPhiSegments_ + 1,
+      kNumEtaSegments_, 1, kNumEtaSegments_ + 1);
   }
- 
+
+  meResidualLocalX_ = BookHist1D(ibooker, "The Residuals of The Local X", 100, -1, 1);
+  meResidualLocalY_ = BookHist1D(ibooker, "The Residuals of The Local Y", 100, -10, 10);
+  meResidualLocalPhi_ = BookHist1D(ibooker, "The Residuals of The Local Phi", 100, 1.5, 1.5);
+
+  meLocalPosErrorX_ = BookHist1D(ibooker, "Local Postion Error X", 100, 0, 0.3);
+  meLocalPosErrorY_ = BookHist1D(ibooker, "Local Postion Error Y", 100, 0, 100);
+
+  mePullLocalX_ = BookHist1D(ibooker, "The Pulls of The Local X", 100, -10, 10);
+  mePullLocalY_ = BookHist1D(ibooker, "The Pulls of The Local Y", 100, -0.6, 0.6);
+
+  meCLS_ = BookHist1D(ibooker, "The Cluster Size of RecHit", 10, 0, 10);
+  meCLSvsChamber_ = BookHist2D(ibooker, "CLS vs Chamber", 15, 0, 15, 10, 0, 10);
+  meNumClustersvsChamber_ = BookHist2D(ibooker, "Number of Cluster vs Chamber", 15, 0, 15, 10, 0, 10);
+  meNumClusters_ = BookHist1D(ibooker, "The Number of Clusters", 8, 1, 9);
+  meNumSimHits_ = BookHist1D(ibooker, "The Number of SimHits", 25, 0, 26);
+  meNumRecHits_ = BookHist1D(ibooker, "The Number of RecHits", 25, 0, 26);
+  meSimHitBareLocalPhi_ = BookHist1D(ibooker, "Bare Local Phi of SimHits", 100, -3*TMath::Pi(), 3*TMath::Pi());
+  meSimHitLocalPhi_ = BookHist1D(ibooker, "Local Phi of SimHits", 100, -3*TMath::Pi(), 3*TMath::Pi());
+  meRecHitLocalPhi_ = BookHist1D(ibooker, "Local Phi of RecHits", 100, -1 * TMath::Pi() / 18, TMath::Pi() / 18);
+
+
+  /************
+   * 
+   ****************************/
+  meMatChamber_ = BookHist1D(ibooker, "Matching Case - Chamber Id", 15, 0, 30);
+  meMisChamber_ = BookHist1D(ibooker, "Mismatching Case - Chamber Id", 15, 0, 30);
+
   LogDebug("GEMCosmicMuonStandSim")<<"Booking End.\n";
 }
 
@@ -91,7 +159,9 @@ Int_t GEMCosmicMuonStandSim::GetVFATId(Float_t x, const GEMEtaPartition* roll) {
 }
 
 
-void GEMCosmicMuonStandSim::analyze(const edm::Event& e,const edm::EventSetup& iSetup) {
+void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
+                                    const edm::EventSetup& iSetup)
+{
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry*  GEMGeometry_ = &*hGeom;
@@ -107,57 +177,99 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,const edm::EventSetup& i
     return ;
   }
 
- // if( isMC) 
- for(edm::PSimHitContainer::const_iterator simHit = gemSimHits->begin();
-                                           simHit != gemSimHits->end();
-                                           ++simHit) {
+  // if( isMC) 
+  Int_t numSimHits = gemSimHits->size();
+  if(numSimHits == 0) return ;
+  Int_t numRecHits = std::distance(gemRecHits->begin(), gemRecHits->end());
+  if(numRecHits == 0) return ;
 
+  meNumSimHits_->Fill(numSimHits);
+  meNumRecHits_->Fill(numRecHits);
+
+  for(edm::PSimHitContainer::const_iterator simHit = gemSimHits->begin(); simHit != gemSimHits->end(); ++simHit)
+  {
     Local3DPoint simHitLP = simHit->localPosition();
     GEMDetId simDetId(simHit->detUnitId());
 
-    GlobalPoint simHitGP = GEMGeometry_->idToDet(simDetId)->surface().toGlobal(simHitLP);
+    // XXX +1 ?
+    Int_t simFiredStrip = GEMGeometry_->etaPartition(simDetId)->strip(simHit->entryPoint()) + 1;
 
-    //
-    //Int_t simFiredStrip = GEMGeometry_->etaPartition(simDetId)->strip(simHitLP);
-    Int_t simFiredStrip = GEMGeometry_->etaPartition(simDetId)->strip(simHit->entryPoint());
-    //Int_t simFiredStrip = GEMGeometry_->etaPartition(simDetId)->strip(simHit->exitPoint());
+    const GEMEtaPartition* kSimRoll = GEMGeometry_->etaPartition(simDetId);
+    Int_t simVFATId = GetVFATId(simHitLP.x(), kSimRoll);
+    Int_t simChamberIdx = GetChamberIndex(simDetId.chamber());
+
+    Int_t y_overall_vfat = 3 * simDetId.roll() + simVFATId - 3; // 1 ~ 24
+    meVFATTotal_->Fill(simChamberIdx, y_overall_vfat);
+    meVFATTotalPerChamber_[simChamberIdx]->Fill(simVFATId, simDetId.roll());
 
     GEMRecHitCollection::range range = gemRecHits->get(simDetId);
-    for(GEMRecHitCollection::const_iterator recHit = range.first;
-                                            recHit != range.second;
-                                            ++recHit) {
 
-      LocalPoint recHitLP = recHit->localPosition();
-      GEMDetId recDetId = recHit->gemId();
-      GlobalPoint recHitGP = GEMGeometry_->idToDet(recDetId)->surface().toGlobal(recHitLP);
+    Int_t numClusters = std::distance(range.first, range.second);
+    meNumClusters_->Fill(numClusters);
+    // if(numClusters == 0) continue;
 
-      const GEMEtaPartition* kRecRoll = GEMGeometry_->etaPartition(recDetId);
-      Int_t recVFATId = GetVFATId(recHitLP.x(), kRecRoll);
-      if(recVFATId == -1) continue;
-
-      Int_t recChamberIdx = GetChamberIndex(recDetId.chamber());
-      std::cout << "Chamber Index: " << recChamberIdx << std::endl;
-      gem_vfat_total_[recChamberIdx]->Fill(recDetId.roll(), recVFATId);
-
-      // XXX SimHit RecHit Matching
-      // FIXME Discard useless conditions
-      if(simDetId.layer() != recDetId.layer()) continue;
-      if(simDetId.chamber() != recDetId.chamber()) continue;
-      if(simDetId.roll() != recDetId.roll()) continue;
-
-      Int_t recHitCLS = recHit->clusterSize();
+    Bool_t isMatching = false;
+    for(GEMRecHitCollection::const_iterator recHit = range.first; recHit != range.second; ++recHit)
+    {
       Int_t recFirstFiredStrip = recHit->firstClusterStrip();
-      Int_t recLastFiredStrip = recFirstFiredStrip + recHitCLS;
+      Int_t recCLS = recHit->clusterSize();
+      Int_t recLastFiredStrip = recFirstFiredStrip + recCLS - 1;
 
-      if((simFiredStrip < recFirstFiredStrip) or (simFiredStrip > recLastFiredStrip)) continue;
+      isMatching = (simFiredStrip >= recFirstFiredStrip) and (simFiredStrip <= recLastFiredStrip);
+      if( isMatching )
+      {
+        LocalPoint recHitLP = recHit->localPosition();
+        GEMDetId recDetId = recHit->gemId();
+        // GlobalPoint recHitGP = GEMGeometry_->idToDet(recDetId)->surface().toGlobal(recHitLP);
 
-      gem_vfat_passed_[recChamberIdx]->Fill(recDetId.roll(), recVFATId);
+        const GEMEtaPartition* kRecRoll = GEMGeometry_->etaPartition(recDetId);
+        
+        Float_t sim_hit_local_phi = GetLocalPhi(kRecRoll->strip(simHitLP));
+        Float_t rec_hit_local_phi = GetLocalPhi(kRecRoll->strip(recHitLP));
+        Float_t residual_local_phi = rec_hit_local_phi - sim_hit_local_phi;
 
-      std::cout << simHitGP.x() << " " << recHitGP.x() << std::endl;
-    }
-  }
+        // Int_t recVFATId = GetVFATId(recHitLP.x(), kRecRoll);
+        // Int_t recChamberIdx = GetChamberIndex(recDetId.chamber());
+        meVFATPassed_->Fill(simChamberIdx, y_overall_vfat);
+        meVFATPassedPerChamber_[simChamberIdx]->Fill(simVFATId, simDetId.roll());
 
-  // if( not isMC )
+        Float_t residual_local_x = recHitLP.x() - simHitLP.x();
+        Float_t residual_local_y = recHitLP.y() - simHitLP.y();
+        Float_t error_x = recHit->localPositionError().xx();
+        Float_t error_y = recHit->localPositionError().yy();
+        Float_t pull_x = residual_local_x / error_x;
+        Float_t pull_y = residual_local_y / error_y;
+
+        meResidualLocalX_->Fill(residual_local_x);
+        meResidualLocalY_->Fill(residual_local_y);
+        meResidualLocalPhi_->Fill(residual_local_phi);
+        meLocalPosErrorX_->Fill(error_x);
+        meLocalPosErrorY_->Fill(error_y);
+        mePullLocalX_->Fill(pull_x);
+        mePullLocalY_->Fill(pull_y);
+
+        meCLS_->Fill(recCLS);
+        meCLSvsChamber_->Fill(simChamberIdx, recCLS);
+        meNumClustersvsChamber_->Fill(simChamberIdx, numClusters);
+        meSimHitBareLocalPhi_->Fill(simHitLP.phi());
+        meSimHitLocalPhi_->Fill(sim_hit_local_phi);
+        meRecHitLocalPhi_->Fill(rec_hit_local_phi);
+        break;
+      } // MATCING IF STATEMENT END
+
+      if(isMatching)
+      {
+        meMatChamber_->Fill(simDetId.chamber());
+      }
+      else
+      {
+        meMisChamber_->Fill(simDetId.chamber());
+      }
+
+
+    } // RECHIT LOOP END
+  } // SIMHIT LOOP END
+
 
  
  }
