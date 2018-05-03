@@ -64,7 +64,6 @@ void SiStripMergeZeroSuppression::produce(edm::Event& event, const edm::EventSet
       if ( isModuleRestored ) {
         std::cout << "apply the ZS to the raw data collection" << std::endl;
         edm::DetSet<SiStripDigi> suppressedDigis(rawDetId);
-        std::vector<int16_t> processedRawDigis(rawDigis.size());
         m_algorithms->SuppressVirginRawData(rawDigis, suppressedDigis);
 
         if ( ! suppressedDigis.empty() ) {
