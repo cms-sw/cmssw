@@ -12,10 +12,11 @@ OutALCARECOHcalCalIsoTrkNoHLT_noDrop = cms.PSet(
         'keep *_IsoProd_*_*',
         'keep *_TkAlIsoProd_*_*',
 	'keep *_offlineBeamSpot_*_*',
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep recoTracks_generalTracks_*_*',
         'keep recoTrackExtras_generalTracks_*_*',
         'keep *_gtStage2Digis_*_*',
-        'keep *_hbheprereco_*_*',
+        'keep *_hbhereco_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*',
         )
