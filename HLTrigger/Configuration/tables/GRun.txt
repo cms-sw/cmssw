@@ -649,6 +649,7 @@ HLT_Mu8_IP3_part2_v*	#	CMSHLT-1805
 HLT_Mu8_IP3_part3_v*	#	CMSHLT-1805
 HLT_Mu8_IP3_part4_v*	#	CMSHLT-1805
 HLT_Mu8_IP3_part5_v*	#	CMSHLT-1805
+HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_v*	#	CMSHLT-1826
 
 ## EndPath ##
 
@@ -657,14 +658,9 @@ PhysicsCommissioningOutput
 PhysicsEGammaOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
-#PhysicsMinimumBias0Output                 # CMSHLT-1027
-#PhysicsMinimumBias1Output                 # CMSHLT-1027
-#PhysicsMinimumBias2Output                 # CMSHLT-1027
-#PhysicsCirculating                       # CMSHLT-1006
-ParkingOutput                             # CMSHLT-487, CMSHLT-603
 ParkingHLTPhysicsOutput
 ParkingZeroBiasOutput
-PhysicsParkingScoutingMonitorOutput       # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
+PhysicsScoutingMonitorOutput       # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
 ScoutingCaloMuonOutput                    # CMSHLT-1243
 ScoutingPFOutput                          # CMSHLT-548
 DQMOutput
@@ -674,16 +670,13 @@ DQMOnlineBeamspotOutput                   # CMSHLT-1288
 HLTMonitorOutput                          # CMSHLT-462, CMSHLT-481
 CalibrationOutput
 EcalCalibrationOutput
-#TrackerCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALUMIPIXELSOutput
 ALCALUMIPIXELSEXPRESSOutput	#	CMSHLT-1762
-#ALCAELECTRONOutput                       # CMSHLT-366, renamed
 ExpressOutput
 ExpressAlignmentOutput
-#LookAreaOutput
 NanoDSTOutput
 
 PhysicsHLTPhysics1Output                  # CMSHLT-1534
@@ -723,13 +716,8 @@ MC_Ele5_WPTight_Gsf_v*                                   # CMSHLT-325
 MC_Ele15_Ele10_CaloIdL_TrackIdL_IsoVL_DZ_v*              # CMSHLT-325
 MC_Diphoton10_10_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass10_v* # CMSHLT-325, mod CMSHLT-361
 MC_IsoMu_v*                                              # CMSHLT-322, CMSHLT-335
-#MC_IsoTkMu15_v*                                          # CMSHLT-322, CMSHLT-335
 MC_DoubleMu_TrkIsoVVL_DZ_v*                              # CMSHLT-322
-#MC_DoubleGlbTrkMu_TrkIsoVVL_DZ_v*                        # CMSHLT-322
 MC_DoubleMuNoFiltersNoVtx_v*                             # CMSHLT-322
-#MC_DoubleL1Tau_MediumIsoPFTau32_Trk1_eta2p1_Reg_v*       # CMSHLT-839
-#MC_LooseIsoPFTau20_v*                                    # CMSHLT-839
-#MC_LooseIsoPFTau50_Trk30_eta2p1_v*                       # CMSHLT-839
 MC_PFBTagDeepCSV_v*                                          # CMSHLT-1241
 MC_CaloBTagDeepCSV_v*                                        # CMSHLT-1241
 MC_AK4CaloJetsFromPV_v*                                  # CMSHLT-1241

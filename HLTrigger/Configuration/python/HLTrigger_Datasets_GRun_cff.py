@@ -3,39 +3,6 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# stream Parking
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParking_datasetParkingHT_selector
-streamParking_datasetParkingHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamParking_datasetParkingHT_selector.l1tResults = cms.InputTag('')
-streamParking_datasetParkingHT_selector.throw      = cms.bool(False)
-streamParking_datasetParkingHT_selector.triggerConditions = cms.vstring(
-    'DST_CaloJet40_BTagScouting_v14', 
-    'DST_CaloJet40_CaloBTagScouting_v13', 
-    'DST_CaloJet40_CaloScouting_PFScouting_v14', 
-    'DST_HT250_CaloBTagScouting_v9', 
-    'DST_HT250_CaloScouting_v10', 
-    'DST_HT410_BTagScouting_v15', 
-    'DST_HT410_PFScouting_v15', 
-    'DST_L1HTT_BTagScouting_v14', 
-    'DST_L1HTT_CaloBTagScouting_v13', 
-    'DST_L1HTT_CaloScouting_PFScouting_v14', 
-    'DST_ZeroBias_BTagScouting_v14', 
-    'DST_ZeroBias_CaloScouting_PFScouting_v13'
-)
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParking_datasetParkingMuon_selector
-streamParking_datasetParkingMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamParking_datasetParkingMuon_selector.l1tResults = cms.InputTag('')
-streamParking_datasetParkingMuon_selector.throw      = cms.bool(False)
-streamParking_datasetParkingMuon_selector.triggerConditions = cms.vstring(
-    'DST_DoubleMu1_noVtx_CaloScouting_v2', 
-    'DST_DoubleMu3_noVtx_CaloScouting_v6', 
-    'DST_L1DoubleMu_BTagScouting_v15', 
-    'DST_L1DoubleMu_CaloScouting_PFScouting_v14'
-)
-
-
 # stream ParkingBPH1
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingBPH1_datasetParkingBPH1_selector
@@ -247,6 +214,7 @@ streamPhysicsEGamma_datasetEGamma_selector.triggerConditions = cms.vstring(
     'HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v13', 
     'HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v14', 
     'HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_Mass55_v1', 
+    'HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_v1', 
     'HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v13', 
     'HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v13', 
     'HLT_DoubleEle25_CaloIdL_MW_v3', 
@@ -944,13 +912,13 @@ streamPhysicsMuons_datasetSingleMuon_selector.triggerConditions = cms.vstring(
 )
 
 
-# stream PhysicsParkingScoutingMonitor
+# stream PhysicsScoutingMonitor
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector
-streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.l1tResults = cms.InputTag('')
-streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.throw      = cms.bool(False)
-streamPhysicsParkingScoutingMonitor_datasetParkingScoutingMonitor_selector.triggerConditions = cms.vstring(
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector
+streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.l1tResults = cms.InputTag('')
+streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.throw      = cms.bool(False)
+streamPhysicsScoutingMonitor_datasetScoutingMonitor_selector.triggerConditions = cms.vstring(
     'DST_CaloJet40_BTagScouting_v14', 
     'DST_CaloJet40_CaloBTagScouting_v13', 
     'DST_CaloJet40_CaloScouting_PFScouting_v14', 

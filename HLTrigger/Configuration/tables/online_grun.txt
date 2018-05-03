@@ -648,6 +648,7 @@ HLT_Mu8_IP3_part2_v*	#	CMSHLT-1805
 HLT_Mu8_IP3_part3_v*	#	CMSHLT-1805
 HLT_Mu8_IP3_part4_v*	#	CMSHLT-1805
 HLT_Mu8_IP3_part5_v*	#	CMSHLT-1805
+HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_v*	#	CMSHLT-1826
 
 ## EndPath ##
 
@@ -656,14 +657,9 @@ PhysicsCommissioningOutput
 PhysicsEGammaOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
-#PhysicsMinimumBias0Output                 # CMSHLT-1027
-#PhysicsMinimumBias1Output                 # CMSHLT-1027
-#PhysicsMinimumBias2Output                 # CMSHLT-1027
-#PhysicsCirculating                       # CMSHLT-1006
-ParkingOutput                             # CMSHLT-487, CMSHLT-603
 ParkingHLTPhysicsOutput
 ParkingZeroBiasOutput
-PhysicsParkingScoutingMonitorOutput       # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
+PhysicsScoutingMonitorOutput       # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
 ScoutingCaloMuonOutput                    # CMSHLT-1243
 ScoutingPFOutput                          # CMSHLT-548
 DQMOutput
@@ -673,16 +669,13 @@ DQMOnlineBeamspotOutput                   # CMSHLT-1288
 HLTMonitorOutput                          # CMSHLT-462, CMSHLT-481
 CalibrationOutput
 EcalCalibrationOutput
-#TrackerCalibrationOutput
 RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALUMIPIXELSOutput
 ALCALUMIPIXELSEXPRESSOutput	#	CMSHLT-1762
-#ALCAELECTRONOutput                       # CMSHLT-366, renamed
 ExpressOutput
 ExpressAlignmentOutput
-#LookAreaOutput
 NanoDSTOutput
 
 PhysicsHLTPhysics1Output                  # CMSHLT-1534
