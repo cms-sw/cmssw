@@ -150,6 +150,17 @@ DDNamespace::addConstantNS( const string& nam, const string& val, const string& 
   context->description->addConstant( c );
 }
 
+void
+DDNamespace::addVector( const string& name, const vector<double>& value ) const
+{
+  const vector<double>& v = value;
+  const string& n = name;
+  dd4hep::printout( context->debug_constants ? dd4hep::ALWAYS : dd4hep::DEBUG,
+		    "MyDDCMS","+++ Add constant object: %-40s = %s ",
+		    n.c_str(), "vector<double>");
+  context->addVector( n, v );
+}
+
 dd4hep::Material
 DDNamespace::material( const string& name ) const
 {
