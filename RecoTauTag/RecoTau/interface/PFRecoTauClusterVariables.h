@@ -25,8 +25,8 @@ class TauIdMVAAuxiliaries {
       float LeadingTracknormalizedChi2 = 0;
       const reco::CandidatePtr& leadingPFCharged = tau.leadChargedHadrCand();
       if (leadingPFCharged.isNonnull()) {
-      	const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
-      	if (pfcand != nullptr) {
+        const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
+        if (pfcand != nullptr) {
           reco::TrackRef tref = pfcand->trackRef();
           if (tref.isNonnull()) {
             LeadingTracknormalizedChi2 = tref->normalizedChi2();
