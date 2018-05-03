@@ -9,7 +9,7 @@
 
 namespace l1t {
    namespace stage2 {
-      MuonUnpacker::MuonUnpacker() : res_(nullptr), algoVersion_(0), muonCopy_(0)
+      MuonUnpacker::MuonUnpacker() : res_(nullptr), muonCopy_(0)
       {
       }
 
@@ -74,7 +74,7 @@ namespace l1t {
 
                Muon mu;
                    
-               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, algoVersion_);
+               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, fed_, getAlgoVersion());
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
