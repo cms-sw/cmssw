@@ -347,7 +347,7 @@ namespace hcaldqm
 					{
 						//	for LS axis - set the bit
 						//	set extendable axes.
-						o->SetBit(BIT(BIT_OFFSET+BIT_AXIS_LS));
+						o->SetBit(BIT(constants::BIT_OFFSET+constants::BIT_AXIS_LS));
 		//				o->SetCanExtend(TH1::kXaxis);
 					}
 				}
@@ -552,8 +552,7 @@ namespace hcaldqm
 					std::cout << "SIZE = " << _types.size() << std::endl;
 					BOOST_FOREACH(TypeMap::value_type &v, _types)
 					{
-						labels[v.second] = utilities::ogtype2string((OrbitGapType) 
-							v.first);
+						labels[v.second] = utilities::ogtype2string((constants::OrbitGapType)v.first);
 					}
 					return labels;
 				}

@@ -5,6 +5,7 @@ namespace hcaldqm
 {
 	using namespace mapper;
 	using namespace constants;
+	using namespace quantity;
 
 	Container1D::Container1D():
 		_qx(nullptr), _qy(nullptr)
