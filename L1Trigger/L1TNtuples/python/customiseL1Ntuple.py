@@ -254,6 +254,14 @@ def L1NtupleAODEMUGEN_MC(process):
 
     return process
 
+def L1NtupleAODRAWEMUGEN_MC(process):
+
+    L1NtupleRAW(process)
+    L1NtupleEMU(process)
+    L1NtupleAOD_MC(process)
+    L1NtupleGEN(process)
+
+    return process
 
 def L1NtupleEMUNoEventTree(process):
 
