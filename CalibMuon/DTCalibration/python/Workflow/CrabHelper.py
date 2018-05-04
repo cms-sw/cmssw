@@ -30,8 +30,9 @@ class CrabHelper(object):
         #submit crab job
         log.info("Submitting crab job")
         self.crab.submit(full_crab_config_filename)
-        log.info("crab job submitted. Waiting 30 seconds before first status call")
-        time.sleep( 30 )
+        log.info("crab job submitted. Waiting 120 seconds before first status call")
+        time.sleep( 120 )
+
         task = self.crabFunctions.CrabTask(crab_config = full_crab_config_filename)
         task.update()
         success_states = ( 'QUEUED', 'SUBMITTED', "COMPLETED", "FINISHED")
