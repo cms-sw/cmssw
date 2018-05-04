@@ -38,7 +38,7 @@ DTResidualCalibration::DTResidualCalibration(const edm::ParameterSet& pset):
   rootBaseDir_(pset.getUntrackedParameter<std::string>("rootBaseDir","DT/Residuals")),
   detailedAnalysis_(pset.getUntrackedParameter<bool>("detailedAnalysis",false)) {
 
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Constructor called.";
+  LogDebug("Calibration") << "[DTResidualCalibration] Constructor called.";
   consumes< DTRecSegment4DCollection >(edm::InputTag(segment4DLabel_));
   std::string rootFileName = pset.getUntrackedParameter<std::string>("rootFileName","residuals.root");
   rootFile_ = new TFile(rootFileName.c_str(), "RECREATE");
@@ -174,7 +174,7 @@ float DTResidualCalibration::segmentToWireDistance(const DTRecHit1D& recHit1D, c
 
 void DTResidualCalibration::endJob(){
   
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Writing histos to file.";
+  LogDebug("Calibration") << "[DTResidualCalibration] Writing histos to file.";
   rootFile_->cd();
   rootFile_->Write();
   rootFile_->Close();
@@ -197,7 +197,7 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
   TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Booking histos for SL: " << slId;
+  LogDebug("Calibration") << "[DTResidualCalibration] Booking histos for SL: " << slId;
 
   // Compose the chamber name
   // Define the step
@@ -214,16 +214,16 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
     "_Sec" +  sectorStr +
     "_SL" + std::to_string(slId.superlayer());
 
-  edm::LogVerbatim("Calibration") << "Accessing " << rootBaseDir_;
+  LogDebug("Calibration") << "Accessing " << rootBaseDir_;
   TDirectory* baseDir = rootFile_->GetDirectory(rootBaseDir_.c_str());
   if(!baseDir) baseDir = rootFile_->mkdir(rootBaseDir_.c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Wheel" + wheelStr);
+  LogDebug("Calibration") << "Accessing " << ("Wheel" + wheelStr);
   TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr).c_str());
   if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Station" + stationStr);
+  LogDebug("Calibration") << "Accessing " << ("Station" + stationStr);
   TDirectory* stationDir = wheelDir->GetDirectory(("Station" + stationStr).c_str());
   if(!stationDir) stationDir = wheelDir->mkdir(("Station" + stationStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Sector" + sectorStr);
+  LogDebug("Calibration") << "Accessing " << ("Sector" + sectorStr);
   TDirectory* sectorDir = stationDir->GetDirectory(("Sector" + sectorStr).c_str());
   if(!sectorDir) sectorDir = stationDir->mkdir(("Sector" + sectorStr).c_str()); 
 
@@ -246,7 +246,7 @@ void DTResidualCalibration::bookHistos(DTLayerId layerId) {
   TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
-  edm::LogVerbatim("Calibration") << "[DTResidualCalibration] Booking histos for layer: " << layerId;
+  LogDebug("Calibration") << "[DTResidualCalibration] Booking histos for layer: " << layerId;
 
   // Compose the chamber name
   std::string wheelStr = std::to_string(layerId.wheel());
@@ -265,19 +265,19 @@ void DTResidualCalibration::bookHistos(DTLayerId layerId) {
     "_SL" + superLayerStr + 
     "_Layer" + layerStr;
   
-  edm::LogVerbatim("Calibration") << "Accessing " << rootBaseDir_;
+  LogDebug("Calibration") << "Accessing " << rootBaseDir_;
   TDirectory* baseDir = rootFile_->GetDirectory(rootBaseDir_.c_str());
   if(!baseDir) baseDir = rootFile_->mkdir(rootBaseDir_.c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Wheel" + wheelStr);
+  LogDebug("Calibration") << "Accessing " << ("Wheel" + wheelStr);
   TDirectory* wheelDir = baseDir->GetDirectory(("Wheel" + wheelStr).c_str());
   if(!wheelDir) wheelDir = baseDir->mkdir(("Wheel" + wheelStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Station" + stationStr);
+  LogDebug("Calibration") << "Accessing " << ("Station" + stationStr);
   TDirectory* stationDir = wheelDir->GetDirectory(("Station" + stationStr).c_str());
   if(!stationDir) stationDir = wheelDir->mkdir(("Station" + stationStr).c_str());
-  edm::LogVerbatim("Calibration") << "Accessing " << ("Sector" + sectorStr);
+  LogDebug("Calibration") << "Accessing " << ("Sector" + sectorStr);
   TDirectory* sectorDir = stationDir->GetDirectory(("Sector" + sectorStr).c_str());
   if(!sectorDir) sectorDir = stationDir->mkdir(("Sector" + sectorStr).c_str()); 
-  edm::LogVerbatim("Calibration") << "Accessing " << ("SL" + superLayerStr);
+  LogDebug("Calibration") << "Accessing " << ("SL" + superLayerStr);
   TDirectory* superLayerDir = sectorDir->GetDirectory(("SL" + superLayerStr).c_str());
   if(!superLayerDir) superLayerDir = sectorDir->mkdir(("SL" + superLayerStr).c_str()); 
 
