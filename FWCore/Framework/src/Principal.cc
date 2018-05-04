@@ -241,17 +241,23 @@ namespace edm {
         }
       }
       //Need to know if the product from this processes is added at end of transition
-      bool productMadeAtEnd = false;
-      for(unsigned int i=0; i< matchingHolders.size();++i) {
-        if( (not ambiguous[i]) and
-           ProductResolverIndexInvalid != matchingHolders[i] and
-           productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
-          productMadeAtEnd = true;
-          break;
+      if ((numberOfMatches == 1) and
+          (lastMatchIndex != ProductResolverIndexAmbiguous)) {
+        //only one choice so use a special resolver
+        productResolvers_.at(productResolverIndex) = std::make_shared<SingleChoiceNoProcessProductResolver>(lastMatchIndex);
+      } else {
+        bool productMadeAtEnd = false;
+        for(unsigned int i=0; i< matchingHolders.size();++i) {
+          if( (not ambiguous[i]) and
+             ProductResolverIndexInvalid != matchingHolders[i] and
+             productResolvers_[matchingHolders[i]]->branchDescription().availableOnlyAtEndTransition()) {
+            productMadeAtEnd = true;
+            break;
+          }
         }
+        std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
+        productResolvers_.at(productResolverIndex) = newHolder;
       }
-      std::shared_ptr<ProductResolverBase> newHolder = std::make_shared<NoProcessProductResolver>(matchingHolders, ambiguous, productMadeAtEnd);
-      productResolvers_.at(productResolverIndex) = newHolder;
     }
   }
 
