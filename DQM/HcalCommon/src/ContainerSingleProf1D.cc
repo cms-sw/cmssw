@@ -41,8 +41,8 @@ namespace hcaldqm
 		std::string subsystem, std::string aux)
 	{
 		ib.setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = ib.bookProfile(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = ib.bookProfile(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->min(), _qy->max());
 		customize();
@@ -52,8 +52,8 @@ namespace hcaldqm
 		std::string subsystem, std::string aux)
 	{
 		store->setCurrentFolder(subsystem+"/"+_folder+"/"+_qname);
-		_me = store->bookProfile(_qname+(aux==""?aux:"_"+aux), 
-			_qname+(aux==""?aux:" "+aux),
+		_me = store->bookProfile(_qname+(aux.empty()?aux:"_"+aux), 
+			_qname+(aux.empty()?aux:" "+aux),
 			_qx->nbins(), _qx->min(), _qx->max(),
 			_qy->min(), _qy->max());
 		customize();
