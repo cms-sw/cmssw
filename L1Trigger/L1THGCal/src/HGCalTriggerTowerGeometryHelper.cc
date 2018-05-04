@@ -8,11 +8,11 @@ void HGCalTriggerTowerGeometryHelper::createTowerCoordinates(const std::vector<u
     coord.reserve(tower_ids.size());
     for (auto towerId : tower_ids) {
       GlobalPoint center = getPositionAtReferenceSurface(l1t::HGCalTowerID(towerId));
-      std::cout << l1t::HGCalTowerID(towerId).zside() << " "
-                << l1t::HGCalTowerID(towerId).iX() << " "
-                << l1t::HGCalTowerID(towerId).iY()
-                << "  eta: " << center.eta()
-                << " phi: " << center.phi() << std::endl;
+      // std::cout << l1t::HGCalTowerID(towerId).zside() << " "
+      //           << l1t::HGCalTowerID(towerId).coord1() << " "
+      //           << l1t::HGCalTowerID(towerId).coord2()
+      //           << "  eta: " << center.eta()
+      //           << " phi: " << center.phi() << std::endl;
       coord.emplace_back(towerId, center.eta(), center.phi());
     }
   }
@@ -31,13 +31,13 @@ GlobalPoint HGCalTriggerTowerGeometryHelper::getPositionAtReferenceSurface(const
   GlobalPoint surface_center;
   if(type_ == HGCalTriggerTowerType::regular_xy) {
     GlobalPoint referencePoint = towerId.zside() < 0 ?  GlobalPoint(refCoord1_, refCoord2_ , -1*referenceZ_) : GlobalPoint(refCoord1_, refCoord2_ , referenceZ_);
-    surface_center = GlobalPoint(referencePoint.x()+towerId.iX()*binSizeCoord1_,
-                                 referencePoint.y()+towerId.iY()*binSizeCoord2_,
+    surface_center = GlobalPoint(referencePoint.x()+towerId.coord1()*binSizeCoord1_,
+                                 referencePoint.y()+towerId.coord2()*binSizeCoord2_,
                                  referencePoint.z());
 
   } else if(type_ == HGCalTriggerTowerType::regular_etaphi) {
-    float radius = fabs(referenceZ_/sinh(refCoord1_+towerId.iX()*binSizeCoord1_));
-    float phi = refCoord2_+towerId.iY()*binSizeCoord2_;
+    float radius = fabs(referenceZ_/sinh(refCoord1_+towerId.coord1()*binSizeCoord1_));
+    float phi = refCoord2_+towerId.coord2()*binSizeCoord2_;
     float zcoord = towerId.zside() < 0 ?  -1*referenceZ_ : referenceZ_;
     surface_center =  GlobalPoint(GlobalPoint::Cylindrical(radius, phi, zcoord));
   }

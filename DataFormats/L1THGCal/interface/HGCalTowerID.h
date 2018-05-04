@@ -1,20 +1,23 @@
 #ifndef DataFormats_L1TCalorimeter_HGCalTowerID_h
 #define DataFormats_L1TCalorimeter_HGCalTowerID_h
 
+// NOTE: in the current implementation HGCalTowerID can only
+// accomodate 127 bins per coordinate x2 zsides
+
 namespace l1t {
   class HGCalTowerID {
   public:
     HGCalTowerID(unsigned short rawId): rawId_(rawId) {}
 
-    HGCalTowerID(short zside, unsigned short iX, unsigned short iY) {
-      rawId_ = ((iX & coordMask) << xShift) | ((iY & coordMask) << yShift) | (((zside > 0) & zsideMask) << zsideShift);
+    HGCalTowerID(short zside, unsigned short coord1, unsigned short coord2) {
+      rawId_ = ((coord1 & coordMask) << coord1Shift) | ((coord2 & coordMask) << coord2Shift) | (((zside > 0) & zsideMask) << zsideShift);
     }
 
     short zside() const { return ((rawId_ >> zsideShift) & zsideMask) ? 1 : -1;}
 
-    unsigned short iX() const { return (rawId_ >> xShift) & coordMask; }
+    unsigned short coord1() const { return (rawId_ >> coord1Shift) & coordMask; }
 
-    unsigned short iY() const { return (rawId_ >> yShift) & coordMask;}
+    unsigned short coord2() const { return (rawId_ >> coord2Shift) & coordMask;}
 
     unsigned short rawId() const {return rawId_;}
 
@@ -25,8 +28,8 @@ namespace l1t {
     static const int zsideMask = 0x1;
     static const int zsideShift = 15;
     static const int coordMask = 0x007F;
-    static const int xShift = 7;
-    static const int yShift = 0;
+    static const int coord1Shift = 7;
+    static const int coord2Shift = 0;
   };
 
 
