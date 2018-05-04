@@ -29,10 +29,12 @@ namespace test {
 //
 // constructors and destructor
 //
-  Event::Event(EventPrincipal const& iPrincipal, std::string iModuleLabel, std::string iProcessName):
+  Event::Event(EventPrincipal const& iPrincipal, std::string iModuleLabel, std::string iProcessName,
+               bool modulePassed):
   principal_{&iPrincipal},
   label_{std::move(iModuleLabel)},
-  processName_{std::move(iProcessName)} {}
+  processName_{std::move(iProcessName)},
+  modulePassed_(modulePassed){}
 
 
 //

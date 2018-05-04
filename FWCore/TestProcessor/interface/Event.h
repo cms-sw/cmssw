@@ -38,7 +38,7 @@ class Event
 {
 
 public:
-  Event(EventPrincipal const& iPrincipal, std::string iModuleLabel, std::string iProcessName);
+  Event(EventPrincipal const& iPrincipal, std::string iModuleLabel, std::string iProcessName, bool modulePassed);
   
   // ---------- const member functions ---------------------
   template<typename T>
@@ -62,6 +62,7 @@ public:
     return TestHandle<T>(wrapper->product());
   }
   
+  bool modulePassed() const { return modulePassed_;}
   // ---------- static member functions --------------------
   
   // ---------- member functions ---------------------------
@@ -72,6 +73,7 @@ private:
   EventPrincipal const* principal_;
   std::string label_;
   std::string processName_;
+  bool modulePassed_;
 };
 }
 }
