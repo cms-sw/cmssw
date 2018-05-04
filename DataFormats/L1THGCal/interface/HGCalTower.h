@@ -40,8 +40,6 @@ namespace l1t {
     const HGCalTower& operator+=(const HGCalTower& tower);
 
     HGCalTowerID id() const { return id_;}
-    unsigned short iX() const { return id_.iX();}
-    unsigned short iY() const { return id_.iY();}
     short zside() const { return id_.zside(); }
 
   private:
