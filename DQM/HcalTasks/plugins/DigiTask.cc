@@ -663,17 +663,19 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				continue;
 		}
 
-		unsigned short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
-		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-		bool good_capidmbx = false;
-		if (_capidmbx[did.subdet()] == -1) {
-			_capidmbx[did.subdet()] = this_capidmbx;
-			good_capidmbx = true;
-		} else {
-			good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-		}
-		if (!good_capidmbx) {
-			_xBadCapid.get(eid)++;
+		if (_ptype == fOnline) {
+			unsigned short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+			bool good_capidmbx = false;
+			if (_capidmbx[did.subdet()] == -1) {
+				_capidmbx[did.subdet()] = this_capidmbx;
+				good_capidmbx = true;
+			} else {
+				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+			}
+			if (!good_capidmbx) {
+				_xBadCapid.get(eid)++;
+			}
 		}
 
 		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
@@ -825,24 +827,26 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 
 		// (capid - BX) % 4
-		short soi = -1;
-		for (int i=0; i<digi.samples(); i++) {
-			if (digi[i].soi()) {
-				soi = i;
-				break;
+		if (_ptype == fOnline) {
+			short soi = -1;
+			for (int i=0; i<digi.samples(); i++) {
+				if (digi[i].soi()) {
+					soi = i;
+					break;
+				}
 			}
-		}
-		unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
-		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-		bool good_capidmbx = false;
-		if (_capidmbx[did.subdet()] == -1) {
-			_capidmbx[did.subdet()] = this_capidmbx;
-			good_capidmbx = true;
-		} else {
-			good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-		}
-		if (!good_capidmbx) {
-			_xBadCapid.get(eid)++;
+			unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
+			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+			bool good_capidmbx = false;
+			if (_capidmbx[did.subdet()] == -1) {
+				_capidmbx[did.subdet()] = this_capidmbx;
+				good_capidmbx = true;
+			} else {
+				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+			}
+			if (!good_capidmbx) {
+				_xBadCapid.get(eid)++;
+			}
 		}
 
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
@@ -1008,17 +1012,19 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				continue;
 		}
 
-		short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
-		_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-		bool good_capidmbx = false;
-		if (_capidmbx[did.subdet()] == -1) {
-			_capidmbx[did.subdet()] = this_capidmbx;
-			good_capidmbx = true;
-		} else {
-			good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-		}
-		if (!good_capidmbx) {
-			_xBadCapid.get(eid)++;
+		if (_ptype == fOnline) {
+			short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+			bool good_capidmbx = false;
+			if (_capidmbx[did.subdet()] == -1) {
+				_capidmbx[did.subdet()] = this_capidmbx;
+				good_capidmbx = true;
+			} else {
+				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+			}
+			if (!good_capidmbx) {
+				_xBadCapid.get(eid)++;
+			}
 		}
 
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
@@ -1161,24 +1167,26 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			}
 
 			// (capid - BX) % 4
-			short soi = -1;
-			for (int i=0; i<digi.samples(); i++) {
-				if (digi[i].soi()) {
-					soi = i;
-					break;
+			if (_ptype == fOnline) {
+				short soi = -1;
+				for (int i=0; i<digi.samples(); i++) {
+					if (digi[i].soi()) {
+						soi = i;
+						break;
+					}
 				}
-			}
-			unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
-			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-			bool good_capidmbx = false;
-			if (_capidmbx[did.subdet()] == -1) {
-				_capidmbx[did.subdet()] = this_capidmbx;
-				good_capidmbx = true;
-			} else {
-				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-			}
-			if (!good_capidmbx) {
-				_xBadCapid.get(eid)++;
+				unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
+				_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+				bool good_capidmbx = false;
+				if (_capidmbx[did.subdet()] == -1) {
+					_capidmbx[did.subdet()] = this_capidmbx;
+					good_capidmbx = true;
+				} else {
+					good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+				}
+				if (!good_capidmbx) {
+					_xBadCapid.get(eid)++;
+				}
 			}
 
 			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
