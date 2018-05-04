@@ -34,6 +34,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_vflags[fNChsHF]=hcaldqm::flag::Flag("NChsHF");
 	_vflags[fUnknownIds]=hcaldqm::flag::Flag("UnknownIds");
 	_vflags[fLED]=hcaldqm::flag::Flag("LEDMisfire");
+	_vflags[fCapId]=hcaldqm::flag::Flag("BadCapId");
 
 	_qie10InConditions = ps.getUntrackedParameter<bool>("qie10InConditions", true);
 

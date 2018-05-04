@@ -43,6 +43,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	_vflags[fDataMsn]=flag::Flag("DataMsn");
 	_vflags[fEmulMsn]=flag::Flag("EmulMsn");
 	_vflags[fUnknownIds]=flag::Flag("UnknownIds");
+	_vflags[fSentRecL1Msm]=flag::Flag("uHTR-L1TMsm");
 }
 
 /* virtual */ void TPTask::bookHistograms(DQMStore::IBooker& ib,
@@ -135,7 +136,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	// Mismatches: sent vs received
-	_cEtMsm_uHTR_L1T_depthlike.initialize(_name, "EtMsm_uHTR", 
+	_cEtMsm_uHTR_L1T_depthlike.initialize(_name, "EtMsm_uHTR_L1T", 
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
