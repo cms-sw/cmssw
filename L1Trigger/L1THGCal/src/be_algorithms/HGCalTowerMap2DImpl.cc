@@ -33,20 +33,6 @@ std::map<int, l1t::HGCalTowerMap> HGCalTowerMap2DImpl::newTowerMaps() {
 void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
 					                                l1t::HGCalTowerMapBxCollection & towerMaps){
 
-<<<<<<< HEAD
-  for(const auto& tc : triggerCellsPtrs){
-
-    unsigned layer = triggerTools_.layerWithOffset(tc->detId());
-    int iEta = towerMapsTmp[layer-1].iEta(tc->eta());
-    int iPhi = towerMapsTmp[layer-1].iPhi(tc->phi());
-
-    double calibPt = tc->pt();
-    if(useLayerWeights_) calibPt = layerWeights_[layer]*(tc->mipPt());
-    math::PtEtaPhiMLorentzVector p4(calibPt,
-				    tc->eta(),
-				    tc->phi(),
-				    0. );
-=======
   std::map<int, l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
 
   for(auto tc:  triggerCellsPtrs) {
@@ -54,7 +40,6 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
     // FIXME: should actually sum the energy not the Et...
     double calibPt = tc->pt();
     if(useLayerWeights_) calibPt = layerWeights_[layer] * tc->mipPt();
->>>>>>> get the trigger tower grid and mapping from the geometry and switch to iX iY mapping
 
     double etEm = layer<=triggerTools_.lastLayerEE() ? calibPt : 0;
     double etHad = layer>triggerTools_.lastLayerEE() ? calibPt : 0;
