@@ -39,6 +39,8 @@ private:
   edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondLocalTrack> > diamondTrackToken_;
   edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelLocalTrack> > pixelTrackToken_;
 
+  std::vector<double> pixelTrackTxRange_;
+  std::vector<double> pixelTrackTyRange_;
 /// if true, this module will do nothing
 /// needed for consistency with CTPPS-less workflows
   bool doNothing_;
@@ -58,7 +60,8 @@ CTPPSLocalTrackLiteProducer::CTPPSLocalTrackLiteProducer( const edm::ParameterSe
     pixelTrackToken_   = consumes< edm::DetSetVector<CTPPSPixelLocalTrack> >  (tagPixelTrack);
   }
 
-
+  pixelTrackTxRange_ = iConfig.getParameter<std::vector<double> >("pixelTrackTxRange");
+  pixelTrackTyRange_ = iConfig.getParameter<std::vector<double> >("pixelTrackTyRange");
   produces< std::vector<CTPPSLocalTrackLite> >();
 }
 
@@ -107,6 +110,8 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
 //----- pixel detectors
 
 // get input from pixel detectors
+  if(pixelTrackTxRange_.size() != 2 || pixelTrackTyRange_.size() != 2) throw cms::Exception("CTPPSLocalTrackLiteProducer") 
+							   << "Wrong number of parameters in pixel track Tx/Ty range";
   edm::Handle< edm::DetSetVector<CTPPSPixelLocalTrack> > inputPixelTracks;
   if (not pixelTrackToken_.isUninitialized()){
     iEvent.getByToken( pixelTrackToken_, inputPixelTracks );
@@ -116,7 +121,9 @@ CTPPSLocalTrackLiteProducer::produce( edm::Event& iEvent, const edm::EventSetup&
       const uint32_t rpId = rpv.detId();
       for ( const auto& trk : rpv ) {
 	if ( !trk.isValid() ) continue;
-	pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma() );
+	if(trk.getTx()>pixelTrackTxRange_.at(0) && trk.getTx()<pixelTrackTxRange_.at(1)
+	   && trk.getTy()>pixelTrackTyRange_.at(0) && trk.getTy()<pixelTrackTyRange_.at(1) )
+	  pOut->emplace_back( rpId, trk.getX0(), trk.getX0Sigma(), trk.getY0(), trk.getY0Sigma() );
       }
     }
   }
@@ -139,6 +146,9 @@ CTPPSLocalTrackLiteProducer::fillDescriptions( edm::ConfigurationDescriptions& d
     ->setComment( "input pixel detectors' local tracks collection to retrieve" );
   desc.add<bool>( "doNothing", true ) // disable the module by default
     ->setComment( "disable the module" );
+
+  desc.add<std::vector<double> >("pixelTrackTxRange",std::vector<double>({-0.03,0.03}) );
+  desc.add<std::vector<double> >("pixelTrackTyRange",std::vector<double>({-0.04,0.04}) );
 
   descr.add( "ctppsLocalTrackLiteDefaultProducer", desc );
 }
