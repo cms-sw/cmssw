@@ -2,6 +2,7 @@
 #define __L1Trigger_L1THGCal_HGCalTriggerGeometryGenericMapping_h__
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "DataFormats/L1THGCal/interface/HGCalTowerID.h"
 
 /*******
  *
@@ -11,17 +12,17 @@
  *
  * This class is the base class for all HGCal trigger geometry definitions.
  * Typically this is just a ganging of cells and nearest-neighbour relationships.
- * 
+ *
  * Classes for TriggerCells and Modules are defined. They are containers for
  * maps relating modules to modules and trigger cells to trigger cells and
  * raw HGC cells.
- * 
+ *
  * It is up to the user of the class to define what these mappings are through the
  * initialize() function. This function takes the full HGC geometry as input and
- * creates all the necessary maps for navigating the trigger system. All of the 
+ * creates all the necessary maps for navigating the trigger system. All of the
  * containers for parts of the map are available through protected members of the base
  * class.
- * 
+ *
  * All unsigned ints used here are DetIds, or will become them once we sort out the
  * full nature of the trigger detids.
  *******/
@@ -42,11 +43,11 @@ namespace HGCalTriggerGeometry {
       components_(comps)
       {}
     ~TriggerCell() {}
-   
-    
+
+
     unsigned triggerCellId() const { return trigger_cell_id_; }
     unsigned moduleId()      const { return module_id_; }
-    
+
     bool containsCell(const unsigned cell) const {
       return ( components_.find(cell) != components_.end() );
     }
@@ -63,12 +64,12 @@ namespace HGCalTriggerGeometry {
     list_type neighbours_; // neighbouring trigger cells
     list_type components_; // contained HGC cells
   };
-  
+
   class Module {
   public:
     typedef std::unordered_set<unsigned> list_type;
     typedef std::unordered_multimap<unsigned,unsigned> tc_map_type;
-    
+
     Module(unsigned mod_id, const GlobalPoint& pos,
            const list_type& neighbs, const list_type& comps,
            const tc_map_type& tc_comps):
@@ -76,10 +77,10 @@ namespace HGCalTriggerGeometry {
       position_(pos),
       neighbours_(neighbs),
       components_(comps),
-      tc_components_(tc_comps)  
+      tc_components_(tc_comps)
       {}
     ~Module() {}
-    
+
     unsigned moduleId()      const { return module_id_; }
 
     bool containsTriggerCell(const unsigned trig_cell) const {
@@ -100,17 +101,17 @@ namespace HGCalTriggerGeometry {
 
     const tc_map_type& triggerCellComponents() const { return tc_components_; }
 
-  private:    
+  private:
     unsigned module_id_; // module this TC belongs to
     GlobalPoint position_;
     list_type neighbours_; // neighbouring Modules
     list_type components_; // contained HGC trigger cells
     tc_map_type tc_components_; // cells contained by trigger cells
   };
-}  
+}
 
-class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase { 
- public:  
+class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
+ public:
 
   typedef std::unordered_map<unsigned,std::unique_ptr<const HGCalTriggerGeometry::Module> > module_map;
   typedef std::unordered_map<unsigned,std::unique_ptr<const HGCalTriggerGeometry::TriggerCell> > trigger_cell_map;
@@ -141,13 +142,16 @@ class HGCalTriggerGeometryGenericMapping : public HGCalTriggerGeometryBase {
   bool disconnectedModule(const unsigned module_id) const final;
   unsigned triggerLayer(const unsigned id) const final;
 
+  virtual unsigned short getTriggerTowerFromTriggerCell(const unsigned) const override final;
+  virtual const std::vector<l1t::HGCalTowerCoord>& getTriggerTowers() const override final;
+
  protected:
   geom_map cells_to_trigger_cells_;
   geom_map trigger_cells_to_modules_;
-  
+
   module_map modules_;
   trigger_cell_map trigger_cells_;
-  
+  std::vector<l1t::HGCalTowerCoord> towers_;
 };
 
 
