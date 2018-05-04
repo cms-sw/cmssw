@@ -4,6 +4,7 @@
 namespace hcaldqm
 {
 	using namespace quantity;
+	using namespace constants;
 	ContainerSingle1D::ContainerSingle1D()
 	{
 		_qx = nullptr;

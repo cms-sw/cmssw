@@ -20,19 +20,19 @@ namespace hcaldqm
 		public:
 			ContainerSingleProf2D();
 			ContainerSingleProf2D(std::string const& folder, 
-				Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN));
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN));
 			~ContainerSingleProf2D() override {}
 
 			void initialize(std::string const& folder, 
-				Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN),
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
 				int debug=0) override;
 
 			void initialize(std::string const& folder, 
 				std::string const&,
-				Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN),
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
 				int debug=0) override;
 
 			//	booking
