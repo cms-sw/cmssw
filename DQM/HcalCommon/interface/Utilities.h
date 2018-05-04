@@ -14,7 +14,6 @@
 
 namespace hcaldqm
 {
-	using namespace constants;
 	namespace utilities
 	{
 		/*
@@ -48,7 +47,7 @@ namespace hcaldqm
 				sumQ += q;
 				sumQT += (i+1)*q;
 			}
-			return (sumQ > 0 ? sumQT/sumQ-1 : GARBAGE_VALUE);
+			return (sumQ > 0 ? sumQT/sumQ-1 : constants::GARBAGE_VALUE);
 		}
 
 		template<class Digi>
@@ -75,7 +74,7 @@ namespace hcaldqm
 				sumQT += (ii+1)*q;
 			}
 
-			return sumQ>0 ? sumQT/sumQ-1 : GARBAGE_VALUE;
+			return sumQ>0 ? sumQT/sumQ-1 : constants::GARBAGE_VALUE;
 		}
 
 		template<typename FRAME>
@@ -115,7 +114,7 @@ namespace hcaldqm
 				sumQT +=(ii+1)*(digi.sample(ii).nominal_fC()-ped);
 			}
 			
-			return sumQ>0 ? sumQT/sumQ-1 : GARBAGE_VALUE;
+			return sumQ>0 ? sumQT/sumQ-1 : constants::GARBAGE_VALUE;
 		}
 
 		template<typename DIGI>
@@ -193,7 +192,7 @@ namespace hcaldqm
 		/*
 		 *	Orbit Gap Related
 		 */	
-		std::string ogtype2string(OrbitGapType type);
+		std::string ogtype2string(constants::OrbitGapType type);
 
 		int getRBX(uint32_t iphi);
 	}
