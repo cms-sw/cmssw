@@ -256,6 +256,11 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
+                                QualityTestName = cms.string("uGMT_EMTFhwSignUniform"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/EMTFInput/ugmtEMTFhwSign"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
                                 QualityTestName = cms.string("BMTFvsuGMT_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/BMTFoutput_vs_uGMTinput/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
