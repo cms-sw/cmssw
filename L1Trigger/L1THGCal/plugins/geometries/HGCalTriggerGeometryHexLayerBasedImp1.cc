@@ -575,17 +575,13 @@ fillMaps()
         throw cms::Exception("MissingDataFile")
             << "Cannot open HGCalTriggerGeometry L1TTriggerTowerMapping file\n";
     }
-    std::cout << "cells_to_trigger_cells_ size: " << cells_to_trigger_cells_.size() << std::endl;
-    std::cout << "cells_to_trigger_cells_bh_ size: " << cells_to_trigger_cells_bh_.size() << std::endl;
 
-    std::cout << "About to read " << l1tTriggerTowerMapping_.fullPath() << std::endl;
     unsigned trigger_cell_id = 0;
     unsigned short ix = 0;
     unsigned short iy = 0;
 
     std::set<unsigned short> tt_ids;
     for(; l1tTriggerTowerMappingStream >> trigger_cell_id >> ix >> iy;) {
-      // std::cout << trigger_cell_id << " " << ix << " " << iy << std::endl;
       HGCalDetId detId(trigger_cell_id);
       int zside = detId.zside();
       l1t::HGCalTowerID towerId(zside, ix, iy);
@@ -595,10 +591,6 @@ fillMaps()
     trigger_towers_.reserve(tt_ids.size());
     std::copy(tt_ids.begin(), tt_ids.end(), std::back_inserter(trigger_towers_));
     towerGeometryHelper_.createTowerCoordinates(trigger_towers_);
-
-    std::cout << "...done" << std::endl;
-    std::cout << "# of trigger cells: " << cells_to_trigger_towers_.size() << std::endl;
-    std::cout << "# of Trigger Towers: " << trigger_towers_.size() << std::endl;
 
     l1tTriggerTowerMappingStream.close();
 }
