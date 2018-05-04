@@ -57,7 +57,22 @@ namespace edm {
   }
 
 namespace test {
-
+  class TestProcessorConfig;
+  
+  class ProcessToken {
+    friend TestProcessorConfig;
+  public:
+    ProcessToken() : index_{undefinedIndex() } {}
+    
+    int index() const { return index_;}
+    
+    static int undefinedIndex() { return -1;}
+  private:
+    explicit ProcessToken(int index): index_{index} {}
+    
+    int index_;
+  };
+  
 class TestProcessorConfig {
   public:
     TestProcessorConfig(std::string const& iPythonConfiguration):
@@ -68,7 +83,10 @@ class TestProcessorConfig {
     
     /** add a Process name to the Process history. If multiple calls are made to addProcess,
      then the call order will be the order of the Processes in the history.*/
-    void addExtraProcess(std::string const& iProcessName);
+    ProcessToken addExtraProcess(std::string const& iProcessName) {
+      extraProcesses_.emplace_back(iProcessName);
+      return ProcessToken( extraProcesses_.size() -1);
+    }
     
     std::vector<std::string> const& extraProcesses() const { return extraProcesses_;}
     
@@ -78,10 +96,10 @@ class TestProcessorConfig {
     template<typename T>
     edm::EDPutTokenT<T> produces(std::string iModuleLabel,
                                  std::string iProductInstanceLabel = std::string(),
-                                 std::string iProcessName = std::string()) {
+                                 ProcessToken iToken= ProcessToken()) {
       produceEntries_.emplace_back(edm::TypeID(typeid(T)), std::move(iModuleLabel),
                                    std::move(iProductInstanceLabel),
-                                   std::move(iProcessName));
+                                   processName(iToken));
       return edm::EDPutTokenT<T>(produceEntries_.size()-1);
     }
     
@@ -105,6 +123,13 @@ class TestProcessorConfig {
     std::string config_;
     std::vector<std::string> extraProcesses_;
     std::vector<ProduceEntry> produceEntries_;
+  
+  std::string processName(ProcessToken iToken) {
+    if(iToken.index() == ProcessToken::undefinedIndex()) {
+      return std::string();
+    }
+    return extraProcesses_[iToken.index()];
+  }
   };
 
 class TestProcessor
