@@ -25,6 +25,7 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelIterator.h"
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFinegrainBit.h"
 
 
 
@@ -98,6 +99,9 @@ class HcalLutManager{
 
   std::map<int, boost::shared_ptr<LutXml> > getZdcLutXml( std::string _tag,
 						   bool split_by_crate = true );
+
+  std::map<int, boost::shared_ptr<LutXml> > getHEFineGrainLUTs(std::string _tag, bool split_by_crate = true );
+
 
   // add two std::map<s with LUTs. Designed mainly for joining compression LUTs to linearization ones.
   void addLutMap(std::map<int,
