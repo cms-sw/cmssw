@@ -38,6 +38,8 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+
 #include "FWCore/TestProcessor/interface/Event.h"
 
 #include "FWCore/Utilities/interface/EDPutToken.h"
@@ -55,14 +57,10 @@ namespace edm {
   }
 
 namespace test {
-  
-class TestProcessor
-{
+
+class TestProcessorConfig {
   public:
-  
-  class Config {
-  public:
-    Config(std::string const& iPythonConfiguration):
+    TestProcessorConfig(std::string const& iPythonConfiguration):
     config_(iPythonConfiguration)
     {}
     std::string const& pythonConfiguration() const { return config_;}
@@ -71,21 +69,48 @@ class TestProcessor
     /** add a Process name to the Process history. If multiple calls are made to addProcess,
      then the call order will be the order of the Processes in the history.*/
     void addExtraProcess(std::string const& iProcessName);
-
+    
     std::vector<std::string> const& extraProcesses() const { return extraProcesses_;}
     
-    /** A blank iProcessName means it to produce in the primary process.
-    The use of any other name requires that it is first added via `addExtraProcess`.
-    */
+    /** A blank iProcessName means it produces in the primary process.
+     The use of any other name requires that it is first added via `addExtraProcess`.
+     */
     template<typename T>
-    edm::EDPutTokenT<T> produces(std::string const& iModuleName,
-                                 std::string const& iProductInstanceLabel = std::string(),
-                                 std::string const& iProcessName = std::string());
-
+    edm::EDPutTokenT<T> produces(std::string iModuleLabel,
+                                 std::string iProductInstanceLabel = std::string(),
+                                 std::string iProcessName = std::string()) {
+      produceEntries_.emplace_back(edm::TypeID(typeid(T)), std::move(iModuleLabel),
+                                   std::move(iProductInstanceLabel),
+                                   std::move(iProcessName));
+      return edm::EDPutTokenT<T>(produceEntries_.size()-1);
+    }
+    
+    struct ProduceEntry {
+      ProduceEntry(edm::TypeID const& iType,
+                   std::string moduleLabel,
+                   std::string instanceLabel,
+                   std::string processName):
+      type_{iType},
+      moduleLabel_{std::move(moduleLabel)},
+      instanceLabel_{std::move(instanceLabel)},
+      processName_{std::move(processName)} {}
+      edm::TypeID type_;
+      std::string moduleLabel_;
+      std::string instanceLabel_;
+      std::string processName_;
+    };
+  
+  std::vector<ProduceEntry> const& produceEntries() const { return produceEntries_;}
   private:
     std::string config_;
     std::vector<std::string> extraProcesses_;
+    std::vector<ProduceEntry> produceEntries_;
   };
+
+class TestProcessor
+{
+  public:
+  using Config = TestProcessorConfig;
   
   TestProcessor(Config const& iConfig);
   ~TestProcessor() noexcept(false);
@@ -95,7 +120,7 @@ class TestProcessor
      */
   template< typename... T>
   edm::test::Event test(T&&... iArgs) {
-    return testImpl(std::forward(iArgs)...);
+    return testImpl(std::forward<T>(iArgs)...);
   }
  
   void setRunNumber(edm::RunNumber_t);
@@ -111,13 +136,17 @@ class TestProcessor
   const TestProcessor& operator=(const TestProcessor&) = delete; // stop default
 
   template< typename T, typename... U>
-  edm::test::Event testImpl(std::pair<edm::EDPutTokenT<T>,std::unique_ptr<T>> const& iPut, U&&... iArgs) {
-    put(iPut);
+  edm::test::Event testImpl(std::pair<edm::EDPutTokenT<T>,std::unique_ptr<T>>&& iPut, U&&... iArgs) {
+    put(std::move(iPut));
     return testImpl(std::forward(iArgs)...);
   }
   
   template< typename T>
-  void put(std::pair<edm::EDPutTokenT<T>,std::unique_ptr<T>> const& iPut) {}
+  void put(std::pair<edm::EDPutTokenT<T>,std::unique_ptr<T>>&& iPut) {
+    put(iPut.first.index(), std::make_unique<edm::Wrapper<T>>(std::move(iPut.second)));
+  }
+  
+  void put(unsigned int, std::unique_ptr<WrapperBase>);
   
   edm::test::Event testImpl();
   
@@ -155,6 +184,8 @@ class TestProcessor
   std::shared_ptr<ModuleRegistry> moduleRegistry_;
   std::unique_ptr<Schedule> schedule_;
   std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
+  
+  std::vector<std::pair<edm::BranchDescription,std::unique_ptr<WrapperBase>>> dataProducts_;
   
   RunNumber_t runNumber_=1;
   LuminosityBlockNumber_t lumiNumber_=1;

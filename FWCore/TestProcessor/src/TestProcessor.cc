@@ -24,6 +24,7 @@
 #include "FWCore/Framework/src/EventSetupsController.h"
 #include "FWCore/Framework/src/streamTransitionAsync.h"
 #include "FWCore/Framework/src/globalTransitionAsync.h"
+#include "FWCore/Framework/interface/DelayedReader.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -77,8 +78,9 @@ namespace test {
 // constructors and destructor
 //
 TestProcessor::TestProcessor(Config const& iConfig):
-  espController_(new eventsetup::EventSetupsController),
-  moduleRegistry_(new ModuleRegistry())
+  espController_(std::make_unique<eventsetup::EventSetupsController>()),
+  historyAppender_(std::make_unique<HistoryAppender>()),
+  moduleRegistry_(std::make_shared<ModuleRegistry>())
 {
   //Setup various singletons
   (void) oneTimeInitialization();
@@ -115,19 +117,49 @@ TestProcessor::TestProcessor(Config const& iConfig):
   auto nConcurrentRuns = 1U;
   preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
+  preg_ = items.preg();
+  processConfiguration_ = items.processConfiguration();
+
+  //setup the products we will be adding to the event
+  edm::ParameterSet emptyPSet;
+  emptyPSet.registerIt();
+  auto psetid = emptyPSet.id();
+  for(auto const& produce: iConfig.produceEntries()) {
+    auto processName = produce.processName_;
+    if(processName.size() == 0) {
+      processName =processConfiguration_->processName();
+    }
+    edm::TypeWithDict twd( produce.type_.typeInfo());
+    edm::BranchDescription product(edm::InEvent,
+                                   produce.moduleLabel_,
+                                   processName,
+                                   twd.userClassName(),
+                                   twd.friendlyClassName(),
+                                   produce.instanceLabel_,
+                                   "",
+                                   psetid,
+                                   twd,
+                                   true //force this to come from 'source'
+                                   );
+    product.init();
+    dataProducts_.emplace_back(product, std::unique_ptr<WrapperBase>());
+    preg_->addProduct(product);
+  }
+
+  
   schedule_ = items.initSchedule(*psetPtr,false,preallocations_,&processContext_);
   // set the data members
   act_table_ = std::move(items.act_table_);
   actReg_ = items.actReg_;
-  preg_ = items.preg();
   branchIDListHelper_ = items.branchIDListHelper();
   thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
-  processConfiguration_ = items.processConfiguration();
   processContext_.setProcessConfiguration(processConfiguration_.get());
   principalCache_.setProcessHistoryRegistry(processHistoryRegistry_);
 
   principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
 
+
+  
   preg_->setFrozen();
   for(unsigned int index = 0; index<preallocations_.numberOfStreams(); ++index ) {
     // Reusable event principal
@@ -150,6 +182,12 @@ TestProcessor::~TestProcessor() noexcept(false) {
 // member functions
 //
   
+  
+void
+TestProcessor::put(unsigned int index, std::unique_ptr<WrapperBase> iWrapper) {
+  dataProducts_[index].second = std::move(iWrapper);
+}
+
 edm::test::Event
 TestProcessor::testImpl() {
   setupProcessing();
@@ -202,7 +240,9 @@ TestProcessor::beginJob() {
   schedule_->convertCurrentProcessAlias(processConfiguration_->processName());
   PathsAndConsumesOfModules  pathsAndConsumesOfModules;
 
-  pathsAndConsumesOfModules.initialize(schedule_.get(), preg_);
+  //The code assumes only modules make data in the current process
+  // Since the test os also allowed to do so, it can lead to problems.
+  //pathsAndConsumesOfModules.initialize(schedule_.get(), preg_);
   
   //NOTE: this may throw
   //checkForModuleDependencyCorrectness(pathsAndConsumesOfModules, false);
@@ -333,7 +373,26 @@ TestProcessor::beginLuminosityBlock() {
 void
 TestProcessor::event() {
   auto pep = &(principalCache_.eventPrincipal(0));
+
+  //this resets the EventPrincipal (if it had been used before)
+  pep->clearEventPrincipal();
+  pep->fillEventPrincipal(edm::EventAuxiliary(EventID(runNumber_,lumiNumber_,eventNumber_), "", Timestamp(),
+                                              false),
+                          processHistoryRegistry_,
+                          nullptr
+                          );
   pep->setLuminosityBlockPrincipal(lumiPrincipal_.get());
+  
+  for(auto& p: dataProducts_) {
+    if(p.second) {
+      pep->put(p.first, std::move(p.second), ProductProvenance(p.first.branchID()));
+    } else {
+      //The data product was not set so we need to
+      // tell the ProductResolver not to wait
+      auto r = pep->getProductResolver(p.first.branchID());
+      r->putProduct(std::unique_ptr<WrapperBase>());
+    }
+  }
   
   ServiceRegistry::Operate operate(serviceToken_);
 
