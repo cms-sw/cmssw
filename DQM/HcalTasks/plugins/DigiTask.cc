@@ -665,7 +665,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 
 		if (_ptype == fOnline) {
-			unsigned short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+			short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+			if (this_capidmbx < 0) {
+				this_capidmbx += 4;
+			}
 			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
 			bool good_capidmbx = false;
 			if (_capidmbx[did.subdet()] == -1) {
@@ -836,7 +839,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					break;
 				}
 			}
-			unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
+			short this_capidmbx = (digi[soi].capid() - bx) % 4;
+			if (this_capidmbx < 0) {
+				this_capidmbx += 4;
+			}
 			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
 			bool good_capidmbx = false;
 			if (_capidmbx[did.subdet()] == -1) {
@@ -1015,6 +1021,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 		if (_ptype == fOnline) {
 			short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+			if (this_capidmbx < 0) {
+				this_capidmbx += 4;
+			}
 			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
 			bool good_capidmbx = false;
 			if (_capidmbx[did.subdet()] == -1) {
@@ -1176,7 +1185,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 						break;
 					}
 				}
-				unsigned short this_capidmbx = (digi[soi].capid() - bx) % 4;
+				short this_capidmbx = (digi[soi].capid() - bx) % 4;
+				if (this_capidmbx < 4) {
+					this_capidmbx += 4;
+				}
 				_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
 				bool good_capidmbx = false;
 				if (_capidmbx[did.subdet()] == -1) {
