@@ -193,7 +193,9 @@ TestProcessor::testImpl() {
   setupProcessing();
   event();
   
-  return edm::test::Event(principalCache_.eventPrincipal(0),labelOfTestModule_,processConfiguration_->processName());
+  bool result = schedule_->totalEventsPassed()> 0;
+  schedule_->clearCounters();
+  return edm::test::Event(principalCache_.eventPrincipal(0),labelOfTestModule_,processConfiguration_->processName(), result);
 }
 
 

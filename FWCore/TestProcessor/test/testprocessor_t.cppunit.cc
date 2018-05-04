@@ -29,6 +29,7 @@ CPPUNIT_TEST_SUITE(testTestProcessor);
 CPPUNIT_TEST(simpleProcessTest);
 CPPUNIT_TEST(addProductTest);
 CPPUNIT_TEST(missingProductTest);
+CPPUNIT_TEST(filterTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -36,6 +37,7 @@ public:
   void simpleProcessTest();
   void addProductTest();
   void missingProductTest();
+  void filterTest();
 private:
 
 };
@@ -98,6 +100,23 @@ void testTestProcessor::missingProductTest() {
   
   CPPUNIT_ASSERT_THROW(tester.test(), cms::Exception);
   
+}
+
+void testTestProcessor::filterTest() {
+  char const* kTest = "from FWCore.TestProcessor.TestProcess import *\n"
+  "process = TestProcess()\n"
+  "process.foo = cms.EDFilter('TestFilterModule', acceptValue=cms.untracked.int32(2),\n"
+  "   onlyOne = cms.untracked.bool(True))\n"
+  "process.moduleToTest(process.foo)\n";
+  edm::test::TestProcessor::Config config(kTest);
+  edm::test::TestProcessor tester(config);
+  CPPUNIT_ASSERT(tester.labelOfTestModule() == "foo");
+  
+  CPPUNIT_ASSERT(not tester.test().modulePassed());
+  CPPUNIT_ASSERT(tester.test().modulePassed());
+  CPPUNIT_ASSERT(not tester.test().modulePassed());
+  CPPUNIT_ASSERT(tester.test().modulePassed());
+
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

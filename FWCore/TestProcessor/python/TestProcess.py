@@ -6,12 +6,16 @@ class TestProcess(cms.Process):
         self.__dict__["_TestProcess__moduleToTest"] = None
     def moduleToTest(self,mod):
         self.__dict__["_TestProcess__moduleToTest"] = mod
-        self._test_endpath = cms.EndPath(mod)
+        if isinstance(mod,cms.EDFilter):
+          self._test_path = cms.Path(mod)
+        else:
+          self._test_endpath = cms.EndPath(mod)
     def fillProcessDesc(self, processPSet):
         if self.__dict__["_TestProcess__moduleToTest"] is None:
             raise LogicError("moduleToTest was not called")
         for p in self.paths.iterkeys():
-            delattr(self,p)
+            if p != "_test_path":
+                delattr(self,p)
         for p in self.endpaths.iterkeys():
             if p != "_test_endpath":
                 delattr(self,p)
