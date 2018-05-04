@@ -17,7 +17,7 @@ namespace cms {
   protected:
     DDSingleton() {
       static bool static_init __attribute__(( unused )) = []()->bool {
-	m_instance = std::make_shared<T>();
+	m_instance = std::make_unique<T>();
 	return true;
       }();
     }
@@ -30,11 +30,11 @@ namespace cms {
     }
     
   private:
-    static std::shared_ptr<T> m_instance;
+    static std::unique_ptr<T> m_instance;
   };
 }
 
 template < typename T, typename CONTEXT >
-  std::shared_ptr<T> cms::DDSingleton< T, CONTEXT >::m_instance;
+  std::unique_ptr<T> cms::DDSingleton< T, CONTEXT >::m_instance;
   
 #endif
