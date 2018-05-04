@@ -24,11 +24,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '101X_mcRun2_pA_v5',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '101X_dataRun2_v8',
+    'run1_data'         :   '102X_dataRun2_v1',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '101X_dataRun2_v8',
+    'run2_data'         :   '102X_dataRun2_v1',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '101X_dataRun2_relval_v8',
+    'run2_data_relval'  :   '102X_dataRun2_relval_v1',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
     'run2_data_promptlike' : '101X_dataRun2_PromptLike_v9',
     # GlobalTag for Run1 HLT: it points to the online GT
