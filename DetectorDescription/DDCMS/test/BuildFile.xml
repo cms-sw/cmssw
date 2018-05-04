@@ -1,2 +1,3 @@
 <use   name="cppunit"/>
 <bin   name="testDDUnits" file="DDUnits.cppunit.cc,testRunner.cpp"/>
+<bin   name="testSingleton" file="DDSingleton.cppunit.cc,testRunner.cpp"/>
