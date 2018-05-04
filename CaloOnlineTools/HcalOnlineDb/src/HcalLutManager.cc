@@ -757,7 +757,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getMasks(int masktype,
 	int crate=crot/100;
 
 	LutXml::Config _cfg;
-	_cfg.lut_type = 3+masktype; 
+	_cfg.lut_type = 5+masktype;
 	_cfg.crate = crate;
 	_cfg.slot = crot%100;
 	_cfg.generalizedindex = crot;
@@ -851,6 +851,82 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getLinearizationLutXml
   }
   edm::LogInfo("HcalLutManager") << "Generated LUTs: " << _counter.getCount() << std::endl
     << "Generating linearization (input) LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
+  return _xml;
+}
+
+std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getHEFineGrainLUTs(std::string _tag, bool split_by_crate )
+{
+  edm::LogInfo("HcalLutManager") << "Generating HE fine grain LUTs";
+  std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
+
+  EMap _emap(emap);
+  std::vector<EMap::EMapRow> & _map = _emap.get_map();
+  edm::LogInfo("HcalLutManager") << "EMap contains " << _map . size() << " entries";
+
+  RooGKCounter _counter;
+  //loop over all EMap channels
+  for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
+    if( row->subdet.find("HE")!=string::npos && row->subdet.size()==2 ){
+      LutXml::Config _cfg;
+
+      if ( _xml.count(row->crate) == 0 && split_by_crate ){
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
+      }
+      else if ( _xml.count(0) == 0 && !split_by_crate ){
+	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(0,boost::shared_ptr<LutXml>(new LutXml())) );
+      }
+      _cfg.ieta = row->ieta;
+      _cfg.iphi = row->iphi;
+      _cfg.depth = row->idepth;
+      _cfg.crate = row->crate;
+      _cfg.slot = row->slot;
+      if (row->topbottom . find("t") != std::string::npos) _cfg.topbottom = 1;
+      else if (row->topbottom . find("b") != std::string::npos) _cfg.topbottom = 0;
+      else if (row->topbottom . find("u") != std::string::npos) _cfg.topbottom = 2;
+      else edm::LogWarning("HcalLutManager") << "fpga out of range...";
+      _cfg.fiber = row->fiber;
+      _cfg.fiberchan = row->fiberchan;
+      _cfg.lut_type = 4;
+      _cfg.creationtag = _tag;
+      _cfg.creationstamp = get_time_stamp( time(nullptr) );
+      _cfg.targetfirmware = "1.0.0";
+      _cfg.formatrevision = "1"; //???
+      _cfg.generalizedindex =
+	_cfg.iphi*10000 + _cfg.depth*1000 +
+	(row->ieta>0)*100 + abs(row->ieta) +
+	(((row->subdet.find("HF")!=string::npos) && abs(row->ieta)==29)?(4*10000):(0));
+      // fine grain LUTs only relevant for HE
+      HcalSubdetector _subdet = HcalEndcap;
+      HcalDetId _detid(_subdet, row->ieta, row->iphi, row->idepth);
+
+      // only algo=0 is supported
+      const int fg_algo_version = 0;
+      const int n_fgab_bits = 2048;
+      HcalFinegrainBit fg_algo(fg_algo_version);
+
+      // loop over all possible configurations,
+      // computing the LUT for each
+      for (int i=0; i < 2*n_fgab_bits; i++) {
+	HcalFinegrainBit::Tower tow;
+	for( int k = 0; k < 6; k++) {
+	  tow[0][k] = (1 << k) & i;
+	  tow[1][k] = (1 << (k + 6)) & i;
+	}
+	_cfg.lut.push_back(fg_algo.compute(tow).to_ulong());
+      }
+
+      if (split_by_crate ){
+	_xml[row->crate]->addLut( _cfg, lut_checksums_xml );
+	_counter.count();
+      }
+      else{
+	_xml[0]->addLut( _cfg, lut_checksums_xml );
+	_counter.count();
+      }
+    }
+  }
+  edm::LogInfo("HcalLutManager") << "Generated LUTs: " << _counter.getCount() << std::endl
+    << "Generating HE fine grain LUTs from HcaluLUTTPGCoder...DONE" << std::endl;
   return _xml;
 }
 
@@ -1140,7 +1216,10 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii( std::string _ta
   //
   const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
-  
+
+  const std::map<int, boost::shared_ptr<LutXml> > _HE_FG_lut_xml = getHEFineGrainLUTs(_tag, split_by_crate );
+  addLutMap( xml, _HE_FG_lut_xml );
+
   writeLutXmlFiles( xml, _tag, split_by_crate );
   
   std::string checksums_file = _tag + "_checksums.xml";
@@ -1643,6 +1722,9 @@ int HcalLutManager::createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( std::string
   //
   const std::map<int, boost::shared_ptr<LutXml> > _comp_lut_xml = getCompressionLutXmlFromCoder( _transcoder, _tag, split_by_crate );
   addLutMap( xml, _comp_lut_xml );
+
+  const std::map<int, boost::shared_ptr<LutXml> > _HE_FG_lut_xml = getHEFineGrainLUTs(_tag, split_by_crate );
+  addLutMap( xml, _HE_FG_lut_xml );
 
   for(auto masktype: {0,1,2}){
       const auto masks=getMasks(masktype, _tag, split_by_crate);
