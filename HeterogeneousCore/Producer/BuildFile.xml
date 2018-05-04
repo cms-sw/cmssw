@@ -3,7 +3,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="DataFormats/Provenance"/>
-<use name="HeterogeneousCore/CUDAServices"/>
 
 <export>
     <lib name="1"/>

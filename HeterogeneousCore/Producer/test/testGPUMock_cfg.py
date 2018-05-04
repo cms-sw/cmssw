@@ -14,9 +14,8 @@ process.options = cms.untracked.PSet(
 
 
 #process.Tracer = cms.Service("Tracer")
-process.AcceleratorService = cms.Service("AcceleratorService")
-process.prod1 = cms.EDProducer('TestAcceleratorServiceProducerGPUMock')
-process.prod2= cms.EDProducer('TestAcceleratorServiceProducerGPUMock',
+process.prod1 = cms.EDProducer('TestHeterogeneousEDProducerGPUMock')
+process.prod2= cms.EDProducer('TestHeterogeneousEDProducerGPUMock',
     src = cms.InputTag("prod1")
 )
 

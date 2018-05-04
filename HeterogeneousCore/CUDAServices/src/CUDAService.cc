@@ -6,7 +6,10 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <cuda.h>
+#include <cuda/api_wrappers.h>
 #include "HeterogeneousCore/CUDAUtilities/interface/getCudaDrvErrorString.h"
+
+#include <dlfcn.h>
 
 CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry) {
   bool configEnabled = iConfig.getUntrackedParameter<bool>("enabled");
@@ -54,4 +57,34 @@ void CUDAService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
   desc.addUntracked<bool>("enabled", true);
 
   descriptions.add("CUDAService", desc);
+}
+
+int CUDAService::deviceWithMostFreeMemory() const {
+  size_t freeMem = 0;
+  int devId = -1;
+  for(int i=0; i<numberOfDevices_; ++i) {
+    // TODO: understand why the api-wrappers version gives same value for all devices
+    /*
+    auto device = cuda::device::get(i);
+    auto mem = device.memory.amount_free();
+    */
+    size_t free, tot;
+    cudaSetDevice(i);
+    cudaMemGetInfo(&free, &tot);
+    auto mem = free;
+    edm::LogPrint("CUDAService") << "Device " << i << " free memory " << mem;
+    if(mem > freeMem) {
+      freeMem = mem;
+      devId = i;
+    }
+  }
+  return devId;
+}
+
+void CUDAService::setCurrentDevice(int device) const {
+  cuda::device::current::set(device);
+}
+
+int CUDAService::getCurrentDevice() const {
+  return cuda::device::current::get().id();
 }

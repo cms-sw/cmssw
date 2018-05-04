@@ -26,7 +26,7 @@ int main()
     // Enable the service only if there are CUDA capable GPUs installed
     if( ret != cudaSuccess )
     {
-      std::cout << "=== Test #1: SKIPPED. Unable to query the CUDA capable devices from the CUDA runtime API: ("
+      std::cout << "=== Tests #1-2: SKIPPED. Unable to query the CUDA capable devices from the CUDA runtime API: ("
 		<< ret << ") " << cudaGetErrorString( ret ) 
 		<< ". Is the host equipped with CUDA capable GPUs? ===" << std::endl;
     } else
@@ -103,11 +103,41 @@ int main()
 		  << std::endl;
 	std::cout << std::endl;
       }
+      std::cout << "=== END Test #1. ===\n" << std::endl;
+
+      // Test the device memory query
+      std::cout << "=== Test #2: CUDAService device free memory ===" << std::endl;
+      size_t mem=0;
+      int dev=-1;
+      for(int i=0; i<deviceCount; ++i) {
+        size_t free, tot;
+        cudaSetDevice(i);
+        cudaMemGetInfo(&free, &tot);
+        std::cout << "Device " << i << " memory total " << tot << " free " << free << std::endl;
+        if(free > mem) {
+          mem = free;
+          dev = i;
+        }
+      }
+      std::cout << "Device with most free memory " << dev << std::endl;
+      std::cout << "     as given by CUDAService " << cs.deviceWithMostFreeMemory() << std::endl;
+      std::cout << "=== END Test #2. ===\n" << std::endl;
+
+      // Test setting the current device
+      std::cout << "=== Test #3: CUDAService set/get device ===" << std::endl;
+      for(int i=0; i<deviceCount; ++i) {
+        cs.setCurrentDevice(i);
+        int device=-1;
+        cudaGetDevice(&device);
+        assert(device == i);
+        assert(device == cs.getCurrentDevice());
+      }
+      std::cout << "=== END Test #3. ===\n" << std::endl;
     }
-    std::cout << "=== END Test #1. ===\n" << std::endl;
+
 
     // Now forcing the service to be disabled...
-    std::cout << "=== Test #2: CUDAService forced to be disabled. ===" << std::endl;
+    std::cout << "=== Test #4: CUDAService forced to be disabled. ===" << std::endl;
     edm::ParameterSet psf;
     configEnabled = false;
     psf.addUntrackedParameter( "enabled", configEnabled );
@@ -117,7 +147,7 @@ int main()
     // Test that the service is actually disabled
     assert( csf.enabled() == configEnabled );
     assert( csf.numberOfDevices() == 0 );
-    std::cout << "=== END Test #2. ===\n" << std::endl;
+    std::cout << "=== END Test #4. ===\n" << std::endl;
 
     //Fake the end-of-job signal.
     ar.postEndJobSignal_();

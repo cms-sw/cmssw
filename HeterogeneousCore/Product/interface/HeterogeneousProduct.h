@@ -1,49 +1,26 @@
-#ifndef HeterogeneousCore_Product_interface_HeterogeneousData_h
-#define HeterogeneousCore_Product_interface_HeterogeneousData_h
+#ifndef HeterogeneousCore_Product_HeterogeneousProduct_h
+#define HeterogeneousCore_Product_HeterogeneousProduct_h
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <bitset>
+#include "HeterogeneousCore/Product/interface/HeterogeneousDeviceId.h"
+#include "HeterogeneousCore/Product/interface/HeterogeneousProductBase.h"
+
+#include <cassert>
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <tuple>
 
-/**
- * Enumerator for heterogeneous device types
- */
-enum class HeterogeneousDevice {
-  kCPU = 0,
-  kGPUMock,
-  kGPUCuda,
-  kSize
-};
-
-/**
- * Class to represent an identifier for a heterogeneous device.
- * Contains device type and an integer identifier.
- *
- * TODO: actually make use of this class elsewhere.
- */
-class HeterogeneousDeviceId {
-public:
-  HeterogeneousDeviceId():
-    deviceType_(HeterogeneousDevice::kCPU),
-    deviceId_(0)
-  {}
-  explicit HeterogeneousDeviceId(HeterogeneousDevice device, unsigned int id=0):
-    deviceType_(device), deviceId_(id)
-  {}
-
-  HeterogeneousDevice deviceType() const { return deviceType_; }
-
-  unsigned int deviceId() const { return deviceId_; }
-private:
-  HeterogeneousDevice deviceType_;
-  unsigned int deviceId_;
-};
-
 namespace heterogeneous {
+  template <typename T>
+  std::string bitsetArrayToString(const T& bitsetArray) {
+    std::string ret;
+    for(const auto& bitset: bitsetArray) {
+      ret += bitset.to_string() + " ";
+    }
+    return ret;
+  }
+
   /**
    * The *Product<T> templates are to specify in a generic way which
    * data locations and device-specific types the
@@ -58,59 +35,25 @@ namespace heterogeneous {
   // Mapping from *Product<T> to HeterogeneousDevice enumerator
   template <typename T> struct ProductToEnum {};
 
-  // CPU
-  template <typename T>
-  class CPUProduct {
-  public:
-    using DataType = T;
-    static constexpr const HeterogeneousDevice tag = HeterogeneousDevice::kCPU;
+#define DEFINE_DEVICE_PRODUCT(ENUM) \
+    template <typename T> \
+    class ENUM##Product { \
+    public: \
+      using DataType = T; \
+      static constexpr const HeterogeneousDevice tag = HeterogeneousDevice::k##ENUM; \
+      ENUM##Product() = default; \
+      ENUM##Product(T&& data): data_(std::move(data)) {} \
+      const T& product() const { return data_; } \
+      T& product() { return data_; } \
+    private: \
+      T data_; \
+    }; \
+    template <typename T> struct ProductToEnum<ENUM##Product<T>> { static constexpr const HeterogeneousDevice value = HeterogeneousDevice::k##ENUM; }
 
-    CPUProduct() = default;
-    CPUProduct(T&& data): data_(std::move(data)) {}
-
-    const T& product() const { return data_; }
-    T& product() { return data_; }
-  private:
-    T data_;
-  };
-  template <typename T> struct ProductToEnum<CPUProduct<T>> { static constexpr const HeterogeneousDevice value = HeterogeneousDevice::kCPU; };
-  template <typename T> auto cpuProduct(T&& data) { return CPUProduct<T>(std::move(data)); }
-
-  // GPU Mock
-  template <typename T>
-  class GPUMockProduct {
-  public:
-    using DataType = T;
-    static constexpr const HeterogeneousDevice tag = HeterogeneousDevice::kGPUMock;
-
-    GPUMockProduct() = default;
-    GPUMockProduct(T&& data): data_(std::move(data)) {}
-
-    const T& product() const { return data_; }
-    T& product() { return data_; }
-private:
-    T data_;
-  };
-  template <typename T> struct ProductToEnum<GPUMockProduct<T>> { static constexpr const HeterogeneousDevice value = HeterogeneousDevice::kGPUMock; };
-  template <typename T> auto gpuMockProduct(T&& data) { return GPUMockProduct<T>(std::move(data)); }
-
-  // GPU Cuda
-  template <typename T>
-  class GPUCudaProduct {
-  public:
-    using DataType = T;
-    static constexpr const HeterogeneousDevice tag = HeterogeneousDevice::kGPUCuda;
-
-    GPUCudaProduct() = default;
-    GPUCudaProduct(T&& data): data_(std::move(data)) {}
-
-    const T& product() const { return data_; }
-    T& product() { return data_; }
-private:
-    T data_;
-  };
-  template <typename T> struct ProductToEnum<GPUCudaProduct<T>> { static constexpr const HeterogeneousDevice value = HeterogeneousDevice::kGPUCuda; };
-  template <typename T> auto gpuCudaProduct(T&& data) { return GPUCudaProduct<T>(std::move(data)); }
+  DEFINE_DEVICE_PRODUCT(CPU);
+  DEFINE_DEVICE_PRODUCT(GPUMock);
+  DEFINE_DEVICE_PRODUCT(GPUCuda);
+#undef DEFINE_DEVICE_PRODUCT
 
   /**
    * Below are various helpers
@@ -164,14 +107,15 @@ private:
   using TupleElement_t = typename TupleElement<index, Tuple>::type;
 
 
-  // Metaprogram to loop over two tuples and a bitset (of equal
-  // length), and if bitset is set to true call a function from one of
-  // the tuples with arguments from the second tuple
-  template <typename FunctionTuple, typename ProductTuple, typename BitSet, typename FunctionTupleElement, size_t sizeMinusIndex>
+  // Metaprogram to loop over two tuples and an array of bitsets (of
+  // equal length), and if any element of bitset is set to true call a
+  // function from one of the tuples with arguments from the second
+  // tuple
+  template <typename FunctionTuple, typename ProductTuple, typename BitSetArray, typename FunctionTupleElement, size_t sizeMinusIndex>
   struct CallFunctionIf {
-    static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSet& bitSet) {
-      constexpr const auto index = bitSet.size()-sizeMinusIndex;
-      if(bitSet[index]) {
+    static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSetArray& bitsetArray) {
+      constexpr const auto index = bitsetArray.size()-sizeMinusIndex;
+      if(bitsetArray[index].any()) {
         const auto func = std::get<index>(functionTuple);
         if(!func) {
           throw cms::Exception("Assert") << "Attempted to call transfer-to-CPU function for device " << index << " but the std::function object is not valid!";
@@ -179,21 +123,21 @@ private:
         func(std::get<index>(productTuple).product(), std::get<0>(productTuple).product());
         return true;
       }
-      return CallFunctionIf<FunctionTuple, ProductTuple, BitSet,
-                            TupleElement_t<index+1, FunctionTuple>, sizeMinusIndex-1>::call(functionTuple, productTuple, bitSet);
+      return CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray,
+                            TupleElement_t<index+1, FunctionTuple>, sizeMinusIndex-1>::call(functionTuple, productTuple, bitsetArray);
     }
   };
-  template <typename FunctionTuple, typename ProductTuple, typename BitSet, size_t sizeMinusIndex>
-  struct CallFunctionIf<FunctionTuple, ProductTuple, BitSet, Empty, sizeMinusIndex> {
-    static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSet& bitSet) {
-      constexpr const auto index = bitSet.size()-sizeMinusIndex;
-      return CallFunctionIf<FunctionTuple, ProductTuple, BitSet,
-                            TupleElement_t<index+1, FunctionTuple>, sizeMinusIndex-1>::call(functionTuple, productTuple, bitSet);
+  template <typename FunctionTuple, typename ProductTuple, typename BitSetArray, size_t sizeMinusIndex>
+  struct CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray, Empty, sizeMinusIndex> {
+    static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSetArray& bitsetArray) {
+      constexpr const auto index = bitsetArray.size()-sizeMinusIndex;
+      return CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray,
+                            TupleElement_t<index+1, FunctionTuple>, sizeMinusIndex-1>::call(functionTuple, productTuple, bitsetArray);
     }
   };
-  template <typename FunctionTuple, typename ProductTuple, typename BitSet>
-  struct CallFunctionIf<FunctionTuple, ProductTuple, BitSet, Empty, 0> {
-    static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSet& bitSet) {
+  template <typename FunctionTuple, typename ProductTuple, typename BitSetArray>
+  struct CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray, Empty, 0> {
+    static bool call(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSetArray& bitsetArray) {
       return false;
     }
   };
@@ -201,11 +145,11 @@ private:
   // Metaprogram to specialize getProduct() for CPU
   template <HeterogeneousDevice device>
   struct GetOrTransferProduct {
-    template <typename FunctionTuple, typename ProductTuple, typename BitSet>
-    static const auto& getProduct(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSet& bitSet) {
+    template <typename FunctionTuple, typename ProductTuple, typename BitSetArray>
+    static const auto& getProduct(const FunctionTuple& functionTuple, ProductTuple& productTuple, const BitSetArray& location) {
       constexpr const auto index = static_cast<unsigned int>(device);
-      if(!bitSet[index]) {
-        throw cms::Exception("LogicError") << "Called getProduct() for device " << index << " but the data is not there! Location bitfield is " << bitSet.to_string();
+      if(!location[index].any()) {
+        throw cms::Exception("LogicError") << "Called getProduct() for device " << index << " but the data is not there! Location bitfield is " << bitsetArrayToString(location);
       }
       return std::get<index>(productTuple).product();
     }
@@ -213,27 +157,31 @@ private:
 
   template <>
   struct GetOrTransferProduct<HeterogeneousDevice::kCPU> {
-    template <typename FunctionTuple, typename ProductTuple, typename BitSet>
-    static const auto& getProduct(const FunctionTuple& functionTuple, ProductTuple& productTuple, BitSet& bitSet) {
+    template <typename FunctionTuple, typename ProductTuple, typename BitSetArray>
+    static const auto& getProduct(const FunctionTuple& functionTuple, ProductTuple& productTuple, BitSetArray& location) {
       constexpr const auto index = static_cast<unsigned int>(HeterogeneousDevice::kCPU);
-      if(!bitSet[index]) {
-        auto found = CallFunctionIf<FunctionTuple, ProductTuple, BitSet,
-                                    std::tuple_element_t<1, FunctionTuple>, bitSet.size()-1>::call(functionTuple, productTuple, bitSet);
+      if(!location[index].any()) {
+        auto found = CallFunctionIf<FunctionTuple, ProductTuple, BitSetArray,
+                                    std::tuple_element_t<1, FunctionTuple>, location.size()-1>::call(functionTuple, productTuple, location);
         if(!found) {
-          throw cms::Exception("LogicError") << "Attempted to transfer data to CPU, but the data is not available anywhere! Location bitfield is " << bitSet.to_string();
+          throw cms::Exception("LogicError") << "Attempted to transfer data to CPU, but the data is not available anywhere! Location bitfield is " << bitsetArrayToString(location);
         }
       }
-      bitSet.set(index);
+      location[index].set(0);
       return std::get<index>(productTuple).product();
     }
   };
-}
 
-// For type erasure to ease dictionary generation
-class HeterogeneousProductBase {
-public:
-  virtual ~HeterogeneousProductBase() = 0;
-};
+  // Metaprogram to return DataType or Empty
+  template <typename T>
+  struct DataTypeOrEmpty {
+    using type = typename T::DataType;
+  };
+  template<>
+  struct DataTypeOrEmpty<Empty> {
+    using type = Empty;
+  };
+}
 
 /**
  * Generic data product for holding data on CPU or a heterogeneous
@@ -254,12 +202,22 @@ class HeterogeneousProductImpl: public HeterogeneousProductBase {
                                         heterogeneous::CallBackType_t<CPUProduct, std::tuple_element_t<static_cast<unsigned int>(HeterogeneousDevice::kGPUMock), ProductTuple>>,
                                         heterogeneous::CallBackType_t<CPUProduct, std::tuple_element_t<static_cast<unsigned int>(HeterogeneousDevice::kGPUCuda), ProductTuple>>
                                         >;
-  using BitSet = std::bitset<static_cast<unsigned int>(HeterogeneousDevice::kSize)>;
-
   // Some sanity checks
   static_assert(std::tuple_size<ProductTuple>::value == std::tuple_size<TransferToCPUTuple>::value, "Size mismatch");
   static_assert(std::tuple_size<ProductTuple>::value == static_cast<unsigned int>(HeterogeneousDevice::kSize), "Size mismatch");
 public:
+  template <HeterogeneousDevice Device, typename Type>
+  struct CanGet {
+    using FromType = typename heterogeneous::DataTypeOrEmpty<std::tuple_element_t<static_cast<unsigned int>(Device), ProductTuple> >::type;
+    static const bool value = std::is_same<Type, FromType>::value;
+  };
+
+  template<HeterogeneousDevice Device, typename Type>
+  struct CanPut {
+    using ToType = typename heterogeneous::DataTypeOrEmpty<std::tuple_element_t<static_cast<unsigned int>(Device), ProductTuple> >::type;
+    static const bool value = std::is_same<ToType, Type>::value;
+  };
+
   HeterogeneousProductImpl() = default;
   ~HeterogeneousProductImpl() override = default;
   HeterogeneousProductImpl(HeterogeneousProductImpl<CPUProduct, Types...>&& other) {
@@ -283,30 +241,25 @@ public:
   }
 
   // Constructor for CPU data
-  HeterogeneousProductImpl(CPUProduct&& data) {
+  template <HeterogeneousDevice Device, typename D>
+  HeterogeneousProductImpl(heterogeneous::HeterogeneousDeviceTag<Device>, D&& data) {
+    static_assert(Device == HeterogeneousDevice::kCPU, "This overload allows only CPU device");
     constexpr const auto index = static_cast<unsigned int>(HeterogeneousDevice::kCPU);
     std::get<index>(products_) = std::move(data);
-    location_.set(index);
+    location_[index].set(0);
   }
 
   /**
    * Generic constructor for device data. A function to transfer the
    * data to CPU has to be provided as well.
    */
-  template <typename H, typename F>
-  HeterogeneousProductImpl(H&& data, F transferToCPU) {
-    constexpr const auto index = static_cast<unsigned int>(heterogeneous::ProductToEnum<std::remove_reference_t<H> >::value);
-    static_assert(!std::is_same<std::tuple_element_t<index, ProductTuple>,
-                                heterogeneous::Empty>::value,
-                  "This HeterogeneousProduct does not support this type");
+  template <HeterogeneousDevice Device, typename D, typename F>
+  HeterogeneousProductImpl(heterogeneous::HeterogeneousDeviceTag<Device>, D&& data, HeterogeneousDeviceId location, F transferToCPU) {
+    constexpr const auto index = static_cast<unsigned int>(Device);
+    assert(location.deviceType() == Device);
     std::get<index>(products_) = std::move(data);
     std::get<index>(transfersToCPU_) = std::move(transferToCPU);
-    location_.set(index);
-  }
-
-  bool isProductOn(HeterogeneousDevice loc) const {
-    // should this be protected with the mutex?
-    return location_[static_cast<unsigned int>(loc)];
+    location_[index].set(location.deviceId());
   }
 
   template <HeterogeneousDevice device>
@@ -323,21 +276,22 @@ public:
   }
 
 private:
-  mutable std::mutex mutex_;
   mutable ProductTuple products_;
   TransferToCPUTuple transfersToCPU_;
-  mutable BitSet location_;
 };
 
+/**
+ * The main purpose of the HeterogeneousProduct,
+ * HeterogeneousProductBase, HeterogeneousProductImpl<...> class
+ * hierarchy is to avoid the dictionary generation for the concrete
+ * HeterogeneousProductImpl<...>'s.
+ */
 class HeterogeneousProduct {
 public:
   HeterogeneousProduct() = default;
 
   template <typename... Args>
   HeterogeneousProduct(HeterogeneousProductImpl<Args...>&& impl) {
-    //impl_.reset(new HeterogeneousProductImpl<Args...>(std::move(impl)));
-    //std::make_unique<HeterogeneousProductImpl<Args...>>(std::move(impl)))
-    //impl_ = std::make_unique<HeterogeneousProductImpl<Args...>>(std::move(impl));
     impl_.reset(static_cast<HeterogeneousProductBase *>(new HeterogeneousProductImpl<Args...>(std::move(impl))));
   }
 
@@ -348,6 +302,8 @@ public:
 
   bool isNonnull() const { return static_cast<bool>(impl_); }
   bool isNull() const { return !isNonnull(); }
+
+  const HeterogeneousProductBase *getBase() const { return impl_.get(); }
 
   template <typename T>
   const T& get() const {

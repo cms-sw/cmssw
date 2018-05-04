@@ -46,7 +46,7 @@ void testHeterogeneousProduct::testDefault() {
 void testHeterogeneousProduct::testCPU() {
   HeterogeneousProductImpl<heterogeneous::CPUProduct<int>,
                            heterogeneous::GPUMockProduct<int>
-                           > prod{heterogeneous::cpuProduct(5)};
+                           > prod{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kCPU>(), 5};
 
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kCPU) == true);
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kGPUMock) == false);
@@ -59,12 +59,16 @@ void testHeterogeneousProduct::testCPU() {
 void testHeterogeneousProduct::testGPUMock() {
   HeterogeneousProductImpl<heterogeneous::CPUProduct<int>,
                            heterogeneous::GPUMockProduct<int>
-                           > prod{heterogeneous::gpuMockProduct(5),
+                           > prod{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kGPUMock>(), 5,
+                                  HeterogeneousDeviceId(HeterogeneousDevice::kGPUMock, 0),
                                   [](const int& src, int& dst) { dst = src; }};
 
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kGPUMock) == true);
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kGPUCuda) == false);
+
+  CPPUNIT_ASSERT(prod.onDevices(HeterogeneousDevice::kGPUMock)[0] == true);
+  CPPUNIT_ASSERT(prod.onDevices(HeterogeneousDevice::kGPUMock)[1] == false);
 
   CPPUNIT_ASSERT(prod.getProduct<HeterogeneousDevice::kGPUMock>() == 5);
 
@@ -79,12 +83,17 @@ void testHeterogeneousProduct::testGPUMock() {
 void testHeterogeneousProduct::testGPUCuda() {
   HeterogeneousProductImpl<heterogeneous::CPUProduct<int>,
                            heterogeneous::GPUCudaProduct<int>
-                           > prod{heterogeneous::gpuCudaProduct(5),
+                           > prod{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kGPUCuda>(), 5,
+                                  HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, 1),
                                   [](const int& src, int& dst) { dst = src; }};
 
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kGPUMock) == false);
   CPPUNIT_ASSERT(prod.isProductOn(HeterogeneousDevice::kGPUCuda) == true);
+
+  CPPUNIT_ASSERT(prod.onDevices(HeterogeneousDevice::kGPUCuda)[0] == false);
+  CPPUNIT_ASSERT(prod.onDevices(HeterogeneousDevice::kGPUCuda)[1] == true);
+  CPPUNIT_ASSERT(prod.onDevices(HeterogeneousDevice::kGPUCuda)[2] == false);
 
   CPPUNIT_ASSERT(prod.getProduct<HeterogeneousDevice::kGPUCuda>() == 5);
 
@@ -101,7 +110,7 @@ void testHeterogeneousProduct::testGPUAll() {
   HeterogeneousProductImpl<heterogeneous::CPUProduct<int>,
                            heterogeneous::GPUMockProduct<int>,
                            heterogeneous::GPUCudaProduct<int>
-                           > prod1{heterogeneous::cpuProduct(5)};
+                           > prod1{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kCPU>(), 5};
 
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kCPU) == true);
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kGPUMock) == false);
@@ -115,12 +124,16 @@ void testHeterogeneousProduct::testGPUAll() {
   HeterogeneousProductImpl<heterogeneous::CPUProduct<int>,
                            heterogeneous::GPUMockProduct<int>,
                            heterogeneous::GPUCudaProduct<int>
-                           > prod2{heterogeneous::gpuMockProduct(5),
+                           > prod2{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kGPUMock>(), 5,
+                                   HeterogeneousDeviceId(HeterogeneousDevice::kGPUMock, 0),
                                    [](const int& src, int& dst) { dst = src; }};
 
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUMock) == true);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUCuda) == false);
+
+  CPPUNIT_ASSERT(prod2.onDevices(HeterogeneousDevice::kGPUMock)[0] == true);
+  CPPUNIT_ASSERT(prod2.onDevices(HeterogeneousDevice::kGPUMock)[1] == false);
 
   CPPUNIT_ASSERT(prod2.getProduct<HeterogeneousDevice::kGPUMock>() == 5);
   CPPUNIT_ASSERT_THROW(prod2.getProduct<HeterogeneousDevice::kGPUCuda>(), cms::Exception);
@@ -137,12 +150,18 @@ void testHeterogeneousProduct::testGPUAll() {
   HeterogeneousProductImpl<heterogeneous::CPUProduct<int>,
                            heterogeneous::GPUMockProduct<int>,
                            heterogeneous::GPUCudaProduct<int>
-                           > prod3{heterogeneous::gpuCudaProduct(5),
+                           > prod3{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kGPUCuda>(), 5,
+                                   HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, 2),
                                    [](const int& src, int& dst) { dst = src; }};
 
   CPPUNIT_ASSERT(prod3.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod3.isProductOn(HeterogeneousDevice::kGPUMock) == false);
   CPPUNIT_ASSERT(prod3.isProductOn(HeterogeneousDevice::kGPUCuda) == true);
+
+  CPPUNIT_ASSERT(prod3.onDevices(HeterogeneousDevice::kGPUCuda)[0] == false);
+  CPPUNIT_ASSERT(prod3.onDevices(HeterogeneousDevice::kGPUCuda)[1] == false);
+  CPPUNIT_ASSERT(prod3.onDevices(HeterogeneousDevice::kGPUCuda)[2] == true);
+  CPPUNIT_ASSERT(prod3.onDevices(HeterogeneousDevice::kGPUCuda)[3] == false);
 
   CPPUNIT_ASSERT_THROW(prod3.getProduct<HeterogeneousDevice::kGPUMock>(), cms::Exception);
   CPPUNIT_ASSERT(prod3.getProduct<HeterogeneousDevice::kGPUCuda>() == 5);
@@ -163,16 +182,19 @@ void testHeterogeneousProduct::testMoveGPUMock() {
                                         heterogeneous::GPUMockProduct<int>,
                                         heterogeneous::GPUCudaProduct<int>
                                         >;
-  Type prod1{heterogeneous::gpuMockProduct(5),
+  Type prod1{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kGPUMock>(), 5,
+             HeterogeneousDeviceId(HeterogeneousDevice::kGPUMock, 0),
              [](const int& src, int& dst) { dst = src; }};
   Type prod2;
 
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kGPUMock) == true);
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kGPUCuda) == false);
+  CPPUNIT_ASSERT(prod1.onDevices(HeterogeneousDevice::kGPUMock)[0] == true);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUMock) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUCuda) == false);
+  CPPUNIT_ASSERT(prod2.onDevices(HeterogeneousDevice::kGPUMock).none() == true);
 
   CPPUNIT_ASSERT(prod1.getProduct<HeterogeneousDevice::kGPUMock>() == 5);
   CPPUNIT_ASSERT_THROW(prod1.getProduct<HeterogeneousDevice::kGPUCuda>(), cms::Exception);
@@ -185,6 +207,7 @@ void testHeterogeneousProduct::testMoveGPUMock() {
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUMock) == true);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUCuda) == false);
+  CPPUNIT_ASSERT(prod2.onDevices(HeterogeneousDevice::kGPUMock)[0] == true);
 
   CPPUNIT_ASSERT(prod2.getProduct<HeterogeneousDevice::kGPUMock>() == 5);
   CPPUNIT_ASSERT_THROW(prod2.getProduct<HeterogeneousDevice::kGPUCuda>(), cms::Exception);
@@ -204,16 +227,19 @@ void testHeterogeneousProduct::testMoveGPUCuda() {
                                         heterogeneous::GPUMockProduct<int>,
                                         heterogeneous::GPUCudaProduct<int>
                                         >;
-  Type prod1{heterogeneous::gpuCudaProduct(5),
+  Type prod1{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kGPUCuda>(), 5,
+             HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, 3),
              [](const int& src, int& dst) { dst = src; }};
   Type prod2;
 
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kGPUMock) == false);
   CPPUNIT_ASSERT(prod1.isProductOn(HeterogeneousDevice::kGPUCuda) == true);
+  CPPUNIT_ASSERT(prod1.onDevices(HeterogeneousDevice::kGPUCuda)[3] == true);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUMock) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUCuda) == false);
+  CPPUNIT_ASSERT(prod2.onDevices(HeterogeneousDevice::kGPUCuda).none() == true);
 
   CPPUNIT_ASSERT_THROW(prod1.getProduct<HeterogeneousDevice::kGPUMock>(), cms::Exception);
   CPPUNIT_ASSERT(prod1.getProduct<HeterogeneousDevice::kGPUCuda>() == 5);
@@ -226,6 +252,7 @@ void testHeterogeneousProduct::testMoveGPUCuda() {
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kCPU) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUMock) == false);
   CPPUNIT_ASSERT(prod2.isProductOn(HeterogeneousDevice::kGPUCuda) == true);
+  CPPUNIT_ASSERT(prod2.onDevices(HeterogeneousDevice::kGPUCuda)[3] == true);
 
   CPPUNIT_ASSERT_THROW(prod2.getProduct<HeterogeneousDevice::kGPUMock>(), cms::Exception);
   CPPUNIT_ASSERT(prod2.getProduct<HeterogeneousDevice::kGPUCuda>() == 5);
@@ -247,8 +274,8 @@ void testHeterogeneousProduct::testProduct() {
                                          heterogeneous::GPUCudaProduct<int>
                                          >;
 
-  Type1 data1{heterogeneous::cpuProduct(5)};
-  Type2 data2{heterogeneous::cpuProduct(10)};
+  Type1 data1{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kCPU>(), 5};
+  Type2 data2{heterogeneous::HeterogeneousDeviceTag<HeterogeneousDevice::kCPU>(), 10};
 
   HeterogeneousProduct prod{};
   CPPUNIT_ASSERT(prod.isNull() == true);

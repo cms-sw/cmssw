@@ -9,10 +9,10 @@
 
 #include <vector>
 
-class TestAcceleratorServiceAnalyzer: public edm::global::EDAnalyzer<> {
+class TestHeterogeneousEDProducerAnalyzer: public edm::global::EDAnalyzer<> {
 public:
-  explicit TestAcceleratorServiceAnalyzer(edm::ParameterSet const& iConfig);
-  ~TestAcceleratorServiceAnalyzer() = default;
+  explicit TestHeterogeneousEDProducerAnalyzer(edm::ParameterSet const& iConfig);
+  ~TestHeterogeneousEDProducerAnalyzer() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -25,7 +25,7 @@ private:
   std::vector<edm::EDGetTokenT<HeterogeneousProduct>> srcTokens_;
 };
 
-TestAcceleratorServiceAnalyzer::TestAcceleratorServiceAnalyzer(const edm::ParameterSet& iConfig):
+TestHeterogeneousEDProducerAnalyzer::TestHeterogeneousEDProducerAnalyzer(const edm::ParameterSet& iConfig):
   label_(iConfig.getParameter<std::string>("@module_label")),
   srcTokens_(edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("src"),
                                    [this](const edm::InputTag& tag) {
@@ -33,18 +33,18 @@ TestAcceleratorServiceAnalyzer::TestAcceleratorServiceAnalyzer(const edm::Parame
                                    }))
 {}
 
-void TestAcceleratorServiceAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void TestHeterogeneousEDProducerAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::vector<edm::InputTag>>("src", std::vector<edm::InputTag>{});
-  descriptions.add("testAcceleratorServiceAnalyzer", desc);
+  descriptions.add("testHeterogeneousEDProducerAnalyzer", desc);
 }
 
-void TestAcceleratorServiceAnalyzer::analyze(edm::StreamID streamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+void TestHeterogeneousEDProducerAnalyzer::analyze(edm::StreamID streamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<HeterogeneousProduct> hinput;
   int inp=0;
   for(const auto& token: srcTokens_) {
     iEvent.getByToken(token, hinput);
-    edm::LogPrint("TestAcceleratorServiceAnalyzer") << "Analyzer event " << iEvent.id().event()
+    edm::LogPrint("TestHeterogeneousEDProducerAnalyzer") << "Analyzer event " << iEvent.id().event()
                                                     << " stream " << streamID
                                                     << " label " << label_
                                                     << " coll " << inp
@@ -53,4 +53,4 @@ void TestAcceleratorServiceAnalyzer::analyze(edm::StreamID streamID, const edm::
   }
 }
 
-DEFINE_FWK_MODULE(TestAcceleratorServiceAnalyzer);
+DEFINE_FWK_MODULE(TestHeterogeneousEDProducerAnalyzer);
