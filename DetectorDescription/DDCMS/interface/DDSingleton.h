@@ -1,6 +1,8 @@
 #ifndef DETECTOR_DESCRIPTION_DD_SINGLETON_H
 #define DETECTOR_DESCRIPTION_DD_SINGLETON_H
 
+#include <memory>
+
 namespace cms {
 
   template< typename T, typename CONTEXT >
@@ -15,7 +17,7 @@ namespace cms {
   protected:
     DDSingleton() {
       static bool static_init __attribute__(( unused )) = []()->bool {
-	m_instance = new T;
+	m_instance = std::make_shared<T>();
 	return true;
       }();
     }
@@ -28,11 +30,11 @@ namespace cms {
     }
     
   private:
-    static T *m_instance;
+    static std::shared_ptr<T> m_instance;
   };
 }
 
 template < typename T, typename CONTEXT >
-  T *cms::DDSingleton< T, CONTEXT >::m_instance;
+  std::shared_ptr<T> cms::DDSingleton< T, CONTEXT >::m_instance;
   
 #endif
