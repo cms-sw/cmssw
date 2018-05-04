@@ -30,6 +30,7 @@ CPPUNIT_TEST(simpleProcessTest);
 CPPUNIT_TEST(addProductTest);
 CPPUNIT_TEST(missingProductTest);
 CPPUNIT_TEST(filterTest);
+CPPUNIT_TEST(extraProcessTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -38,6 +39,7 @@ public:
   void addProductTest();
   void missingProductTest();
   void filterTest();
+  void extraProcessTest();
 private:
 
 };
@@ -117,6 +119,25 @@ void testTestProcessor::filterTest() {
   CPPUNIT_ASSERT(not tester.test().modulePassed());
   CPPUNIT_ASSERT(tester.test().modulePassed());
 
+}
+
+void testTestProcessor::extraProcessTest() {
+  char const* kTest = "from FWCore.TestProcessor.TestProcess import *\n"
+  "process = TestProcess()\n"
+  "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
+  "process.moduleToTest(process.add)\n";
+  edm::test::TestProcessor::Config config(kTest);
+  auto processToken = config.addExtraProcess("HLT");
+  auto token = config.produces<edmtest::IntProduct>("in","",processToken);
+  
+  edm::test::TestProcessor tester(config);
+  
+  {
+    auto event=tester.test(std::make_pair(token,std::make_unique<edmtest::IntProduct>(1)));
+    
+    CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 1);
+  }
+  
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

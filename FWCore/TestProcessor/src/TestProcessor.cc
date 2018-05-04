@@ -42,6 +42,10 @@
 
 #include "tbb/task_scheduler_init.h"
 
+#define xstr(s) str(s)
+#define str(s) #s
+
+
 namespace edm {
 namespace test {
   
@@ -120,10 +124,18 @@ TestProcessor::TestProcessor(Config const& iConfig):
   preg_ = items.preg();
   processConfiguration_ = items.processConfiguration();
 
-  //setup the products we will be adding to the event
+
   edm::ParameterSet emptyPSet;
   emptyPSet.registerIt();
   auto psetid = emptyPSet.id();
+
+  ProcessHistory oldHistory;
+  for(auto const&p: iConfig.extraProcesses() ) {
+    oldHistory.emplace_back(p, psetid, xstr(PROJECT_VERSION), "0");
+    processHistoryRegistry_.registerProcessHistory(oldHistory);
+  }
+  
+  //setup the products we will be adding to the event
   for(auto const& produce: iConfig.produceEntries()) {
     auto processName = produce.processName_;
     if(processName.size() == 0) {
