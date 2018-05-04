@@ -54,7 +54,7 @@ bool SiPixelStatusManager::rankByLumi(SiPixelDetectorStatus status1,SiPixelDetec
 { return (status1.getLSRange().first < status2.getLSRange().first); }
 
 void SiPixelStatusManager::createPayloads(){
-  if(siPixelStatusVtr_.size()>0){ //only create std::map payloads when the number of non-zero DIGI lumi sections is greater than ZERO otherwise segmentation fault
+  if(!siPixelStatusVtr_.empty()){ //only create std::map payloads when the number of non-zero DIGI lumi sections is greater than ZERO otherwise segmentation fault
 
    // sort the vector according to lumi
    std::sort(siPixelStatusVtr_.begin(), siPixelStatusVtr_.end(), SiPixelStatusManager::rankByLumi);
