@@ -27,11 +27,15 @@
 class testTestProcessor: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testTestProcessor);
 CPPUNIT_TEST(simpleProcessTest);
+CPPUNIT_TEST(addProductTest);
+CPPUNIT_TEST(missingProductTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
   void tearDown(){}
   void simpleProcessTest();
+  void addProductTest();
+  void missingProductTest();
 private:
 
 };
@@ -54,6 +58,46 @@ void testTestProcessor::simpleProcessTest() {
 
   CPPUNIT_ASSERT(not event.get<edmtest::IntProduct>("doesNotExist"));
   CPPUNIT_ASSERT_THROW( *event.get<edmtest::IntProduct>("doesNotExist"), cms::Exception);
+}
+
+void testTestProcessor::addProductTest() {
+  char const* kTest = "from FWCore.TestProcessor.TestProcess import *\n"
+  "process = TestProcess()\n"
+  "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
+  "process.moduleToTest(process.add)\n";
+  edm::test::TestProcessor::Config config(kTest);
+  auto token = config.produces<edmtest::IntProduct>("in");
+
+  edm::test::TestProcessor tester(config);
+
+  {
+    auto event=tester.test(std::make_pair(token,std::make_unique<edmtest::IntProduct>(1)));
+  
+    CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 1);
+  }
+  
+  {
+    auto event=tester.test(std::make_pair(token,std::make_unique<edmtest::IntProduct>(2)));
+    
+    CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 2);
+  }
+
+  //Check that event gets reset so the data product is not available
+  CPPUNIT_ASSERT_THROW( tester.test(), cms::Exception);
+  
+}
+
+void testTestProcessor::missingProductTest() {
+  char const* kTest = "from FWCore.TestProcessor.TestProcess import *\n"
+  "process = TestProcess()\n"
+  "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
+  "process.moduleToTest(process.add)\n";
+  edm::test::TestProcessor::Config config(kTest);
+  
+  edm::test::TestProcessor tester(config);
+  
+  CPPUNIT_ASSERT_THROW(tester.test(), cms::Exception);
+  
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
