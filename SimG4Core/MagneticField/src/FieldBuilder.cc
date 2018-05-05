@@ -8,7 +8,7 @@
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
-#include "SimG4Core/MagneticField/interface/G4MonopoleEquation.hh"
+#include "SimG4Core/MagneticField/interface/MonopoleEquation.h"
 
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4ClassicalRK4.hh"
@@ -45,7 +45,7 @@ void FieldBuilder::build( CMSFieldManager* fM, G4PropagatorInField* fP)
     
   configureForVolume( volName, volPSet, fM, fP);
 
-  edm::LogInfo("SimG4CoreApplication") 
+  edm::LogInfo("SimG4CoreMagneticField") 
     << " FieldBuilder::build: Global magnetic field is used";
 }
 
@@ -55,10 +55,10 @@ void FieldBuilder::configureForVolume( const std::string& volName,
 				       G4PropagatorInField * fP) 
 {
   G4LogicalVolumeStore* theStore = G4LogicalVolumeStore::GetInstance();
-  for (unsigned int i=0; i<(*theStore).size(); ++i ) {
-    std::string curVolName = ((*theStore)[i])->GetName();
-    if ( curVolName == volName ) {
-      theTopVolume = (*theStore)[i] ;
+  for (auto vol : *theStore) {
+    if ( (std::string)vol->GetName() == volName ) {
+      theTopVolume = vol;
+      break;
     }
   }
 
@@ -66,7 +66,7 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   std::string stepper   = volPSet.getParameter<std::string>("Stepper");
 
   edm::ParameterSet stpPSet = volPSet.getParameter<edm::ParameterSet>("StepperParam");
-  double minStep        = stpPSet.getParameter<double>("MinStep") ;
+  double minStep = stpPSet.getParameter<double>("MinStep") ;
   int maxLoopCount = 
     (int)stpPSet.getUntrackedParameter<double>("MaximumLoopCounts",1000);
   double minEpsilonStep = 
@@ -78,7 +78,7 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   theStepper->select(stepper);
   G4ChordFinder * cf = new G4ChordFinder(theField,minStep,theStepper);
 
-  G4MonopoleEquation* monopoleEquation = new G4MonopoleEquation(theField);
+  MonopoleEquation* monopoleEquation = new MonopoleEquation(theField);
   G4MagIntegratorStepper* theStepperMon = new G4ClassicalRK4(monopoleEquation,8);
   G4ChordFinder * cfmon = new G4ChordFinder(theField,minStep,theStepperMon);
 
