@@ -258,15 +258,15 @@ namespace ecaldqm
       }
 
       // Fill TT Flag MEs
-      float ttF( tpItr->ttFlag() );
-      meTTFlags.fill( ttid, ttF );
-      meTTFlagsVsEt.fill(ttid, et, ttF);
+      int ttF( tpItr->ttFlag() );
+      meTTFlags.fill( ttid, 1.0*ttF );
+      meTTFlagsVsEt.fill(ttid, et, 1.0*ttF);
       // Monitor occupancy of TTF=4
       // which contains info about TT auto-masking
-      if ( ttF == 4. )
+      if ( ttF >= 4 )
         meTTFlags4.fill( ttid );
 
-      if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
+      if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] != getTrigTowerMap()->constituentsOf(ttid).size())
         meTTFMismatch.fill(ttid);
     }
 
@@ -345,8 +345,8 @@ namespace ecaldqm
 
         if(realEt > 0){
 
-          int interest(realItr->ttFlag() & 0x3);
-          if((interest == 1 || interest == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
+          int ttF(realItr->ttFlag());
+          if((ttF == 1 || ttF == 3) && towerReadouts_[ttid.rawId()] == getTrigTowerMap()->constituentsOf(ttid).size()){
 
             if(et != realEt) match = false;
             if(tpItr->fineGrain() != realItr->fineGrain()) matchFG = false;
