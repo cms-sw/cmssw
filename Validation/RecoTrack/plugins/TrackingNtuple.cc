@@ -55,6 +55,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
@@ -1113,6 +1114,7 @@ private:
   std::vector<float>
       str_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> str_bbxi;
+  std::vector<float> str_chargePerCM;
   ////////////////////
   // strip matched hits
   // (first) index runs through hits
@@ -1133,6 +1135,7 @@ private:
   std::vector<float>
       glu_radL;  //http://cmslxr.fnal.gov/lxr/source/DataFormats/GeometrySurface/interface/MediumProperties.h
   std::vector<float> glu_bbxi;
+  std::vector<float> glu_chargePerCM ;
   ////////////////////
   // phase2 Outer Tracker hits
   // (first) index runs through hits
@@ -1584,6 +1587,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("str_zx", &str_zx);
       t->Branch("str_radL", &str_radL);
       t->Branch("str_bbxi", &str_bbxi);
+      t->Branch("str_chargePerCM", &str_chargePerCM);
       //matched hits
       t->Branch("glu_isBarrel", &glu_isBarrel);
       glu_detId.book("glu", t);
@@ -1603,6 +1607,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("glu_zx", &glu_zx);
       t->Branch("glu_radL", &glu_radL);
       t->Branch("glu_bbxi", &glu_bbxi);
+      t->Branch("glu_chargePerCM", &glu_chargePerCM);
     }
     //phase2 OT
     if (includePhase2OTHits_) {
@@ -1944,6 +1949,7 @@ void TrackingNtuple::clearVariables() {
   str_zx.clear();
   str_radL.clear();
   str_bbxi.clear();
+  str_chargePerCM.clear();
   //matched hits
   glu_isBarrel.clear();
   glu_detId.clear();
@@ -1961,6 +1967,7 @@ void TrackingNtuple::clearVariables() {
   glu_zx.clear();
   glu_radL.clear();
   glu_bbxi.clear();
+  glu_chargePerCM.clear();
   //phase2 OT
   ph2_isBarrel.clear();
   ph2_detId.clear();
@@ -2785,6 +2792,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_chargeFraction.resize(totalStripHits);
   str_radL.resize(totalStripHits);
   str_bbxi.resize(totalStripHits);
+  str_chargePerCM.resize(totalStripHits);
 
   auto fill = [&](const SiStripRecHit2DCollection& hits, const char* name) {
     for (const auto& detset : hits) {
@@ -2811,6 +2819,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
         str_chargeFraction[key] = simHitData.chargeFraction;
         str_radL[key] = ttrh->surface()->mediumProperties().radLen();
         str_bbxi[key] = ttrh->surface()->mediumProperties().xi();
+        str_chargePerCM[key] = siStripClusterTools::chargePerCM(hitId,hit.firstClusterRef().stripCluster());
         LogTrace("TrackingNtuple") << name << " cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
                                    << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
 
@@ -2874,6 +2883,7 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
   glu_zx.push_back(ttrh->globalPositionError().czx());
   glu_radL.push_back(ttrh->surface()->mediumProperties().radLen());
   glu_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
+  glu_chargePerCM.push_back(siStripClusterTools::chargePerCM(hitId,hit->firstClusterRef().stripCluster()));
   LogTrace("TrackingNtuple") << "stripMatchedHit"
                              << " cluster0=" << hit.stereoHit().cluster().key()
                              << " cluster1=" << hit.monoHit().cluster().key() << " subdId=" << hitId.subdetId()
