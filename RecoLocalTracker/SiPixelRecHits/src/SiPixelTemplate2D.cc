@@ -456,7 +456,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    int i, j, imidx;
    //   int pixx, pixy, k0, k1, l0, l1, deltax, deltay, iflipy, jflipx, imin, imax, jmin, jmax;
    //   int m, n;
-   float acotb, dcota, dcotb;
+   float acota, acotb, dcota, dcotb;
    
    // Check to see if interpolation is valid
    
@@ -541,19 +541,21 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    
    // Check angle limits and et up interpolation parameters
    
-   if(cotalpha < cotalpha0_) {
+   acota = std::abs(cotalpha);
+   
+   if(acota < cotalpha0_) {
       success_ = false;
       jx0_ = 0;
       jx1_ = 1;
       adcota_ = 0.f;
-   } else if(cotalpha > cotalpha1_) {
+   } else if(acota > cotalpha1_) {
       success_ = false;
       jx0_ = Nxx_ - 1;
       jx1_ = jx0_ - 1;
       adcota_ = 0.f;
    } else {
-      jx0_ = (int)((cotalpha-cotalpha0_)/deltacota_+0.5f);
-      dcota = (cotalpha - (cotalpha0_ + jx0_*deltacota_))/deltacota_;
+      jx0_ = (int)((acota-cotalpha0_)/deltacota_+0.5f);
+      dcota = (acota - (cotalpha0_ + jx0_*deltacota_))/deltacota_;
       adcota_ = fabs(dcota);
       if(dcota > 0.f) {jx1_ = jx0_ + 1;if(jx1_ > Nxx_-1) jx1_ = jx0_-1;} else {jx1_ = jx0_ - 1; if(jx1_ < 0) jx1_ = jx0_+1;}
    }
