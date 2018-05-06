@@ -146,14 +146,16 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         }
     }
 
+    if (!enough_stat) return;
+
     // write out pedestal record
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
     if ( !poolDbService.isAvailable() ) {
         throw std::runtime_error("PoolDBService required.");
     }
-    if (enough_stat)
-        poolDbService->writeOne( &pedestals, poolDbService->currentTime(),"EcalPedestalsRcd"  );
+    
+    poolDbService->writeOne( &pedestals, poolDbService->currentTime(),"EcalPedestalsRcd"  );
 
 }
 
