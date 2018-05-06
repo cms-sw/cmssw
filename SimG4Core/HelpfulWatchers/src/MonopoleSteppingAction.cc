@@ -3,7 +3,7 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
-#include "SimG4Core/Physics/interface/G4Monopole.hh"
+#include "SimG4Core/Physics/interface/Monopole.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -51,7 +51,7 @@ void MonopoleSteppingAction::update(const BeginOfRun* ) {
     G4ParticleDefinition * particle = partTable->GetParticle(ii);
     std::string particleName = (particle->GetParticleName()).substr(0,8);
     if (strcmp(particleName.c_str(),"Monopole") == 0) {
-      magCharge = CLHEP::e_SI*((G4Monopole*)(particle))->MagneticCharge();
+      magCharge = CLHEP::e_SI*((Monopole*)(particle))->MagneticCharge();
       pdgCode.push_back(particle->GetPDGEncoding());
     }
   }
