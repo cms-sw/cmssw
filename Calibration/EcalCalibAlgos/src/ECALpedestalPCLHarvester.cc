@@ -35,10 +35,10 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
     // calculate pedestals and fill db record
     EcalPedestals pedestals;
-    int kBarrelSize = 61200;
-    int kEndcapSize = 2*7324;
-    int skipped_channels_EB = 0;
-    int skipped_channels_EE = 0;
+    float kBarrelSize = 61200;
+    float kEndcapSize = 2*7324;
+    float skipped_channels_EB = 0;
+    float skipped_channels_EE = 0;
 
 
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
