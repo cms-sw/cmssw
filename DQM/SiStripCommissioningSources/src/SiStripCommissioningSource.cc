@@ -57,10 +57,13 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   fedCabling_(nullptr),
   fecCabling_(nullptr),
   inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
+  inputModuleLabelAlt_(pset.existsAs<std::string>("InputModuleLabelAlt")?pset.getParameter<std::string>( "InputModuleLabelAlt" ):""),
   inputModuleLabelSummary_( pset.getParameter<std::string>( "SummaryInputModuleLabel" ) ),
   filename_( pset.getUntrackedParameter<std::string>("RootFileName",sistrip::dqmSourceFileName_) ),
   run_(0),
+  partitionName_(pset.existsAs<std::string>("PartitionName") ? pset.getParameter<std::string>("PartitionName") : ""),
   time_(0),
+  isSpy_(pset.existsAs<bool>("isSpy")?pset.getParameter<bool>("isSpy"):false),
   taskConfigurable_( pset.getUntrackedParameter<std::string>("CommissioningTask","UNDEFINED") ),
   task_(sistrip::UNDEFINED_RUN_TYPE),
   tasks_(),
@@ -74,7 +77,11 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
 {
   inputModuleSummaryToken_     = consumes<SiStripEventSummary>(edm::InputTag(inputModuleLabelSummary_) );
   digiVirginRawToken_          = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"VirginRaw") );
-  digiScopeModeToken_          = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"ScopeMode") );
+  digiReorderedToken_          = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"Reordered") );
+  if(not isSpy_)
+    digiScopeModeToken_          = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"ScopeMode") );
+  else
+    digiScopeModeToken_ = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabelAlt_,"ScopeRawDigis") );
   digiFineDelaySelectionToken_ = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_,"FineDelaySelection") );
 
   LogTrace(mlDqmSource_)
@@ -219,6 +226,8 @@ void SiStripCommissioningSource::endJob() {
 
   // Add filename with run number, host ip, pid and .root extension
   ss << name << "_";
+  if(task_ == sistrip::DAQ_SCOPE_MODE and not partitionName_.empty())
+    ss << partitionName_ << "_";
   directory(ss,run_);
   ss << ".root";
 
@@ -302,13 +311,16 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
+  edm::Handle< edm::DetSetVector<SiStripRawDigi> > rawAlt;
   if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
-    if ( summary->fedReadoutMode() == FED_VIRGIN_RAW ) {
-      //      event.getByLabel( inputModuleLabel_, "VirginRaw", raw );
+    if ( not isSpy_ and summary->fedReadoutMode() == FED_VIRGIN_RAW ) {
       event.getByToken( digiVirginRawToken_, raw );
-    } else if ( summary->fedReadoutMode() == FED_SCOPE_MODE ) {
-      //      event.getByLabel( inputModuleLabel_, "ScopeMode", raw );
+    } else if (not isSpy_ and summary->fedReadoutMode() == FED_SCOPE_MODE ) {
       event.getByToken( digiScopeModeToken_, raw );
+    }
+    else if(isSpy_){ // spy case take both re-ordered and scope mode
+      event.getByToken( digiScopeModeToken_, rawAlt );
+      event.getByToken( digiReorderedToken_, raw );      
     } else {
       std::stringstream ss;
       ss << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -359,9 +371,18 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     edm::LogWarning(mlDqmSource_) << ss.str();
     return;
   }
+
+  if(isSpy_ and  &(*rawAlt) == nullptr){
+    std::stringstream ss;
+    ss << "[SiStripCommissioningSource::" << __func__ << "]" << std::endl
+       << " NULL pointer to DetSetVector!" << std::endl
+       << " Unable to fill histograms!";
+    edm::LogWarning(mlDqmSource_) << ss.str();
+    return;
+  }
   
-  if ( !cablingTask_ ) { fillHistos( summary.product(), *raw );  }
-  else { fillCablingHistos( summary.product(), *raw ); }
+  if ( !cablingTask_ ) { fillHistos( summary.product(), *raw, *rawAlt);  }
+  else { fillCablingHistos( summary.product(), *raw); }
   
 }
 
@@ -601,7 +622,8 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
 // ----------------------------------------------------------------------------
 //
 void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const summary, 
-					     const edm::DetSetVector<SiStripRawDigi>& raw ) {
+					     const edm::DetSetVector<SiStripRawDigi>& raw,
+					     const edm::DetSetVector<SiStripRawDigi>& rawAlt) {
 
     // Iterate through FED ids and channels
     auto ifed = fedCabling_->fedIds().begin();
@@ -612,12 +634,8 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
       for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
 
         if ( !(iconn->fedId()) || iconn->fedId() > sistrip::valid_ ) { continue; }
+	if ( !iconn->isConnected() ) { continue; }
      
-        //       // Create FED key and check if non-zero
-        //       uint32_t fed_key = SiStripFedKey( iconn->fedId(), 
-        // 					SiStripFedKey::feUnit(iconn->fedCh()),
-        // 					SiStripFedKey::feChan(iconn->fedCh()) ).key();
-
         // Create FED key and check if non-zero
         // note: the key is not computed using the same formula as in commissioning histograms.
         // beware that changes here must match changes in raw2digi and in SiStripFineDelayHit
@@ -625,6 +643,12 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
 
         // Retrieve digis for given FED key and check if found
         std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find( fed_key ); 
+	// only for spy data-taking --> tick measurement
+	std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digisAlt;
+	if(not rawAlt.empty()){
+	  digisAlt = rawAlt.find( fed_key );
+	  if(digisAlt == rawAlt.end()) continue;
+	}
 
         if ( digis != raw.end() ) {
           // tasks involving tracking have partition-level histos, so treat separately
@@ -650,8 +674,11 @@ void SiStripCommissioningSource::fillHistos( const SiStripEventSummary* const su
           // now do any other task
           } else {
             if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
-              tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
-            } else {
+	      if(digisAlt->empty() or digisAlt == rawAlt.end())
+		tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis );
+	      else
+		tasks_[iconn->fedId()][iconn->fedCh()]->fillHistograms( *summary, *digis, *digisAlt);		
+	    } else {
               std::stringstream ss;
               ss << "[SiStripCommissioningSource::" << __func__ << "]"
                  << " Unable to find CommissioningTask object with FED key " 
@@ -1030,7 +1057,7 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           } else if ( task_ == sistrip::PEDS_FULL_NOISE ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new PedsFullNoiseTask( dqm(), *iconn, parameters_ );
           } else if ( task_ == sistrip::DAQ_SCOPE_MODE ) { 
-            tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn );
+	    tasks_[iconn->fedId()][iconn->fedCh()] = new DaqScopeModeTask( dqm(), *iconn, parameters_ );
           } else if ( task_ == sistrip::CALIBRATION_SCAN || 
                       task_ == sistrip::CALIBRATION_SCAN_DECO ) { 
             tasks_[iconn->fedId()][iconn->fedCh()] = new CalibrationScanTask( dqm(), 
