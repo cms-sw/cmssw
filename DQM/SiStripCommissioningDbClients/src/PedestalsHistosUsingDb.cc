@@ -152,7 +152,7 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
             Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
 
 
-	    if ( anal->peds()[iapv][istr] < 1.e-6 ) { //@@ ie, zero
+	    if ( anal->peds()[iapv][istr] < 1.) { //@@ ie, zero
 	      edm::LogWarning(mlDqmClient_) 
 		<< "[PedestalsHistosUsingDb::" << __func__ << "]"
 		<< " Skipping ZERO pedestal value (ie, NO UPLOAD TO DB!) for FedKey/Id/Ch: " 
