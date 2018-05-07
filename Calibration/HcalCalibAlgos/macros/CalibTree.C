@@ -38,7 +38,7 @@
 //  sysmode         (int)     = systematic error study (-1 if default)
 //                              -1 loose, -2 flexible, > 0 for systematic
 //  puCorr          (int)     = PU correction to be applied or not: 0 no
-//                              correction; -1 use eDelta; > 0 rho dependent
+//                              correction; < 0 use eDelta; > 0 rho dependent
 //                              correction (-1)
 //  applyL1Cut      (int)     = Flag to see if closeness to L1 object to be
 //                              applied: 0 no check; 1 only to events with
@@ -656,7 +656,7 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       double evWt = (useweight) ? t_EventWeight : 1.0; 
       // PU correction only for loose isolation cut
       double ehcal = ((puCorr_ == 0) ? Etot : 
-		      ((puCorr_ < 0) ? (Etot*puFactor(t_ieta,pmom,Etot,eHcalDelta_)) :
+		      ((puCorr_ < 0) ? (Etot*puFactor(-puCorr_,t_ieta,pmom,Etot,eHcalDelta_)) :
 		       puFactorRho(puCorr_,t_ieta,t_rhoh,Etot)));
       double pufac = (Etot > 0) ? (ehcal/Etot) : 1.0;
       double ratio = ehcal/(pmom-t_eMipDR);
