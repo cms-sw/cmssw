@@ -15,6 +15,6 @@ logErrorSkimFilter = cms.EDFilter("LogErrorFilter",
                               useThresholdsPerKind = cms.bool(True),
                               maxErrorKindsPerLumi = cms.uint32(1),    
                               maxWarningKindsPerLumi = cms.uint32(1),    
-                              avoidCategories = cms.vstring('MemoryCheck', 'HLTObjectsMonitor')
+                              avoidCategories = cms.vstring('MemoryCheck')
                               )
 
