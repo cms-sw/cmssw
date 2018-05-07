@@ -395,6 +395,7 @@ TestProcessor::event() {
                           processHistoryRegistry_,
                           nullptr
                           );
+  assert(lumiPrincipal_.get() != nullptr);
   pep->setLuminosityBlockPrincipal(lumiPrincipal_.get());
   
   for(auto& p: dataProducts_) {
@@ -425,118 +426,121 @@ TestProcessor::event() {
   
 void
 TestProcessor::endLuminosityBlock() {
+  if(beginLumiCalled_) {
+    beginLumiCalled_ = false;
+    auto lumiPrincipal = lumiPrincipal_;
+    lumiPrincipal_.reset();
 
-  auto lumiPrincipal = lumiPrincipal_;
-  lumiPrincipal_.reset();
-
-  IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_),
-                  lumiPrincipal->endTime());
-  espController_->eventSetupForInstance(ts);
-  
-  EventSetup const& es = esp_->eventSetup();
-
-  std::vector<edm::SubProcess> emptyList;
-
-  //To wait, the ref count has to be 1+#streams
-  {
-    auto streamLoopWaitTask = make_empty_waiting_task();
-    streamLoopWaitTask->increment_ref_count();
+    IOVSyncValue ts(EventID(runNumber_, lumiNumber_, eventNumber_),
+                    lumiPrincipal->endTime());
+    espController_->eventSetupForInstance(ts);
     
-    using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
-    
-    endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
-                                      *schedule_,
-                                      preallocations_.numberOfStreams(),
-                                      *lumiPrincipal,
-                                      ts,
-                                      es,
-                                      serviceToken_,
-                                      emptyList,
-                                      false);
-    
-    streamLoopWaitTask->wait_for_all();
-    if(streamLoopWaitTask->exceptionPtr() != nullptr) {
-      std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
+    EventSetup const& es = esp_->eventSetup();
+
+    std::vector<edm::SubProcess> emptyList;
+
+    //To wait, the ref count has to be 1+#streams
+    {
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
+      using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
+      
+      endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+                                        *schedule_,
+                                        preallocations_.numberOfStreams(),
+                                        *lumiPrincipal,
+                                        ts,
+                                        es,
+                                        serviceToken_,
+                                        emptyList,
+                                        false);
+      
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
+      }
+    }
+    {
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+      
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
+      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                       *schedule_,
+                                       *lumiPrincipal,
+                                       ts,
+                                       es,
+                                       serviceToken_,
+                                       emptyList,
+                                       false);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
     }
   }
-  {
-    auto globalWaitTask = make_empty_waiting_task();
-    globalWaitTask->increment_ref_count();
-    
-    typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
-                                     *schedule_,
-                                     *lumiPrincipal,
-                                     ts,
-                                     es,
-                                     serviceToken_,
-                                     emptyList,
-                                     false);
-    globalWaitTask->wait_for_all();
-    if(globalWaitTask->exceptionPtr() != nullptr) {
-      std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
-    }
-  }
-
 }
 
 void
 TestProcessor::endRun() {
-  ProcessHistoryID phid;
-  
-  RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, runNumber_);
-  
-  IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
-                  runPrincipal.endTime());
-  espController_->eventSetupForInstance(ts);
-  
-  EventSetup const& es = esp_->eventSetup();
-  
-  std::vector<edm::SubProcess> emptyList;
-  
-  //To wait, the ref count has to be 1+#streams
-  {
-    auto streamLoopWaitTask = make_empty_waiting_task();
-    streamLoopWaitTask->increment_ref_count();
+  if(beginRunCalled_) {
+    beginRunCalled_ = false;
+    ProcessHistoryID phid;
     
-    using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
+    RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, runNumber_);
     
-    endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
-                                      *schedule_,
-                                      preallocations_.numberOfStreams(),
-                                      runPrincipal,
-                                      ts,
-                                      es,
-                                      serviceToken_,
-                                      emptyList,
-                                      false);
+    IOVSyncValue ts(EventID(runPrincipal.run(), LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
+                    runPrincipal.endTime());
+    espController_->eventSetupForInstance(ts);
     
-    streamLoopWaitTask->wait_for_all();
-    if(streamLoopWaitTask->exceptionPtr() != nullptr) {
-      std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
+    EventSetup const& es = esp_->eventSetup();
+    
+    std::vector<edm::SubProcess> emptyList;
+    
+    //To wait, the ref count has to be 1+#streams
+    {
+      auto streamLoopWaitTask = make_empty_waiting_task();
+      streamLoopWaitTask->increment_ref_count();
+      
+      using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
+      
+      endStreamsTransitionAsync<Traits>(WaitingTaskHolder(streamLoopWaitTask.get()),
+                                        *schedule_,
+                                        preallocations_.numberOfStreams(),
+                                        runPrincipal,
+                                        ts,
+                                        es,
+                                        serviceToken_,
+                                        emptyList,
+                                        false);
+      
+      streamLoopWaitTask->wait_for_all();
+      if(streamLoopWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
+      }
     }
-  }
-  {
-    auto globalWaitTask = make_empty_waiting_task();
-    globalWaitTask->increment_ref_count();
-    
-    typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
-                                     *schedule_,
-                                     runPrincipal,
-                                     ts,
-                                     es,
-                                     serviceToken_,
-                                     emptyList,
-                                     false);
-    globalWaitTask->wait_for_all();
-    if(globalWaitTask->exceptionPtr() != nullptr) {
-      std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+    {
+      auto globalWaitTask = make_empty_waiting_task();
+      globalWaitTask->increment_ref_count();
+      
+      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Traits;
+      endGlobalTransitionAsync<Traits>(WaitingTaskHolder(globalWaitTask.get()),
+                                       *schedule_,
+                                       runPrincipal,
+                                       ts,
+                                       es,
+                                       serviceToken_,
+                                       emptyList,
+                                       false);
+      globalWaitTask->wait_for_all();
+      if(globalWaitTask->exceptionPtr() != nullptr) {
+        std::rethrow_exception(* (globalWaitTask->exceptionPtr()) );
+      }
     }
+    
+    principalCache_.deleteRun(phid, runNumber_);
   }
-  
-  principalCache_.deleteRun(phid, runNumber_);
-
 }
 
 void
@@ -560,7 +564,21 @@ TestProcessor::endJob() {
   }
 }
 
-  
+void
+TestProcessor::setRunNumber(edm::RunNumber_t iRun) {
+  if(beginRunCalled_) {
+    endLuminosityBlock();
+    endRun();
+  }
+  runNumber_=iRun;
+
+}
+void
+TestProcessor::setLuminosityBlockNumber(edm::LuminosityBlockNumber_t iLumi) {
+  endLuminosityBlock();
+  lumiNumber_ = iLumi;
+}
+
 //
 // const member functions
 //
