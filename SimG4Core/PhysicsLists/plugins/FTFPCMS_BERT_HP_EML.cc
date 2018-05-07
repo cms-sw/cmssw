@@ -1,6 +1,5 @@
 #include "FTFPCMS_BERT_HP_EML.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
-#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSThermalNeutrons.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -16,11 +15,8 @@
 #include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsFTFP_BERT_HP.hh"
 
-FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
-			   const HepPDT::ParticleDataTable * table_,
-			   sim::ChordFinderSetter *chordFinderSetter_, 
-			   const edm::ParameterSet & p) 
-  : PhysicsList(map, table_, chordFinderSetter_, p) {
+FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(const edm::ParameterSet & p) 
+  : PhysicsList(p) {
 
   G4DataQuestionaire it(photon);
   
@@ -74,8 +70,5 @@ FTFPCMS_BERT_HP_EML::FTFPCMS_BERT_HP_EML(G4LogicalVolumeToDDLogicalPartMap& map,
       RegisterPhysics(new CMSThermalNeutrons(ver));
     }
   }
-
-  // Monopoles
-  //RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 
