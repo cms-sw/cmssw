@@ -53,8 +53,9 @@ void SiPixelStatusManager::reset(){
 bool SiPixelStatusManager::rankByLumi(SiPixelDetectorStatus status1,SiPixelDetectorStatus status2) 
 { return (status1.getLSRange().first < status2.getLSRange().first); }
 
-
 void SiPixelStatusManager::createPayloads(){
+  if(!siPixelStatusVtr_.empty()){ //only create std::map payloads when the number of non-zero DIGI lumi sections is greater than ZERO otherwise segmentation fault
+
    // sort the vector according to lumi
    std::sort(siPixelStatusVtr_.begin(), siPixelStatusVtr_.end(), SiPixelStatusManager::rankByLumi);
    
@@ -64,6 +65,9 @@ void SiPixelStatusManager::createPayloads(){
      
    // realse the cost of siPixelStatusVtr_ since it is not needed anymore
    siPixelStatusVtr_.clear();
+
+  }
+
 }
 
 //--------------------------------------------------------------------------------------------------
