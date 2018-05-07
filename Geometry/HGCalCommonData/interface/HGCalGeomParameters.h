@@ -68,6 +68,7 @@ private:
 					std::vector<cellParameters>::const_iterator& itrf,
 					int wafer, double xx, double yy);
 
+  const double          sqrt3_;
   double                waferSize_;
 };
 

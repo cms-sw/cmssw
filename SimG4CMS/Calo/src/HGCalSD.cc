@@ -40,7 +40,7 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
          (float)(p.getParameter<edm::ParameterSet>("HGCSD").getParameter<double>("TimeSliceUnit")),
          p.getParameter<edm::ParameterSet>("HGCSD").getParameter<bool>("IgnoreTrackID")), 
   numberingScheme_(nullptr), mouseBite_(nullptr), slopeMin_(0), levelT1_(99), 
-  levelT2_(99), isScint_(false) {
+  levelT2_(99), isScint_(false), tan30deg_(std::tan(30.0*CLHEP::deg)) {
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit_         = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
@@ -104,7 +104,7 @@ bool HGCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 #ifdef EDM_ML_DEBUG
     G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    bool notaMuon = (parCode == mupPDG_ || parCode == mumPDG_ ) ? false : true;
+    bool notaMuon = !(parCode == mupPDG_ || parCode == mumPDG_ );
     G4LogicalVolume* lv =
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
     edm::LogVerbatim("HGCSim") << "HGCalSD: Hit from standard path from "
@@ -190,7 +190,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
   
   uint32_t id = setDetUnitId (layer, module, cell, iz, hitPoint);
   if (rejectMB_ && id != 0 && (!isScint_)) {
-    std::pair<int,int> uv = HGCSiliconDetId(id).waferUV();
+    auto uv = HGCSiliconDetId(id).waferUV();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec 
 			       << " " << HGCSiliconDetId(id);
@@ -219,7 +219,7 @@ void HGCalSD::update(const BeginOfJob * job) {
     isScint_         = (m_mode == HGCalGeometryMode::Trapezoid);
     double waferSize = hgcons->waferSize(false);
     double mouseBite = hgcons->mouseBite(false);
-    mouseBiteCut_    = waferSize*tan(30.0*CLHEP::deg) - mouseBite;
+    mouseBiteCut_    = waferSize*tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << m_mode 
 			       << " Slope cut " << slopeMin_ << " top Level "

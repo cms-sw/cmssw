@@ -18,6 +18,10 @@ public:
   typedef std::vector<std::unordered_map<int32_t,int32_t> > layer_map;
   typedef std::unordered_map<int32_t, int32_t>              wafer_map;
 
+  static constexpr double   k_ScaleFromDDD = 0.1;
+  static constexpr double   k_ScaleToDDD   = 10.0;
+  static constexpr uint32_t k_CornerSize   = 6;
+
   struct hgtrap {
     int           lay;
     float         bl, tl, h, dz, alpha, cellSize;
