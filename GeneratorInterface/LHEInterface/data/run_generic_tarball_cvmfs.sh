@@ -88,6 +88,19 @@ do
     mv lheevent_$thread/cmsgrid_final.lhe $LHEWORKDIR/cmsgrid_final_$thread.lhe
 done
 
+# merge multiple lhe files if needed
+ls -lrt $LHEWORKDIR/cmsgrid_final_*.lhe
+if [  $thread -gt "1" ]; then
+    echo "Merging files and deleting unmerged ones"
+    cp /cvmfs/cms.cern.ch/phys_generator/gridpacks/lhe_merger/merge.pl ./
+    chmod 755 merge.pl
+    ./merge.pl $LHEWORKDIR/cmsgrid_final_*.lhe cmsgrid_final.lhe banner.txt
+    rm $LHEWORKDIR/cmsgrid_final_*.lhe banner.txt;
+else
+    mv $LHEWORKDIR/cmsgrid_final_$thread.lhe $LHEWORKDIR/cmsgrid_final.lhe
+fi
+
+
 cd $LHEWORKDIR
 
 #cleanup working directory (save space on worker node for edm output)
