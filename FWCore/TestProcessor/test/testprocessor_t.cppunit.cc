@@ -32,6 +32,7 @@ class testTestProcessor: public CppUnit::TestFixture {
   CPPUNIT_TEST(filterTest);
   CPPUNIT_TEST(extraProcessTest);
   CPPUNIT_TEST(eventSetupTest);
+  CPPUNIT_TEST(taskTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -43,6 +44,8 @@ public:
   void filterTest();
   void extraProcessTest();
   void eventSetupTest();
+  void taskTest();
+  
 private:
 
 };
@@ -165,5 +168,23 @@ void testTestProcessor::eventSetupTest() {
   (void) tester.test();
 }
 
+void testTestProcessor::taskTest() {
+  char const* kTest = "from FWCore.TestProcessor.TestProcess import *\n"
+  "process = TestProcess()\n"
+  "process.mid = cms.EDProducer('AddIntsProducer', labels=cms.vstring('in'))\n"
+  "process.add = cms.EDProducer('AddIntsProducer', labels=cms.vstring('mid','in'))\n"
+  "process.moduleToTest(process.add,cms.Task(process.mid))\n";
+  edm::test::TestProcessor::Config config(kTest);
+  auto token = config.produces<edmtest::IntProduct>("in");
+  
+  edm::test::TestProcessor tester(config);
+  
+  {
+    auto event=tester.test(std::make_pair(token,std::make_unique<edmtest::IntProduct>(1)));
+    
+    CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 2);
+  }
+
+}
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 
