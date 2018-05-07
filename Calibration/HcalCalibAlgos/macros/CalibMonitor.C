@@ -707,13 +707,13 @@ void CalibMonitor::Loop() {
   //by  b_branchname->GetEntry(ientry); //read only this branch
   if (fChain == 0) return;
   const bool debug(false);
+  std::map<int,unsigned int> runSum;
 
   // Find list of duplicate events  
   Long64_t nentries = fChain->GetEntriesFast();
   std::cout << "Total entries " << nentries << std::endl;
   Long64_t nbytes(0), nb(0);
   unsigned int  duplicate(0), good(0), kount(0);
-  int           goodR(0), goodK(0);
   unsigned int  kp1 = ps_.size() - 1;
   unsigned int  kv1 = 0;
   std::vector<int> kounts(kp1,0);
@@ -723,12 +723,6 @@ void CalibMonitor::Loop() {
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     if (jentry%100000 == 0) std::cout << "Entry " << jentry << " Run " << t_Run
 				      << " Event " << t_Event << std::endl;
-    if (t_Run != goodR) {
-      if (goodK > 0 && debug) 
-	std::cout << "Run " << goodR << " Kount " << goodK << "\n";
-      goodR = t_Run;
-      goodK = 0;
-    }
     bool select = (std::find(entries_.begin(),entries_.end(),jentry) == entries_.end());
     if (!select) {
       ++duplicate;
@@ -899,7 +893,11 @@ void CalibMonitor::Loop() {
 	  if (jp > 0) h_etaR[kp][jp]->Fill(rat,t_EventWeight);
 	  h_etaR[kp][0]->Fill(rat,t_EventWeight);
 	}
-	if (kp == (int)(kp50)) ++goodK;
+	if (kp == (int)(kp50)) {
+	  std::map<int,unsigned int>::const_iterator itr = runSum.find(t_Run);
+	  if (itr == runSum.end()) runSum[t_Run] = 1;
+	  else                     ++runSum[t_Run];
+	}
 	if ((!dataMC_) || (t_mindR1 > 0.5) || (t_DataType == 1)) {
 	  ++kounts[kp];
 	  if (plotType_ <= 1) {
@@ -942,7 +940,11 @@ void CalibMonitor::Loop() {
       }
     }
   }
-  if (goodK > 0) std::cout << "Run " << goodR << " Kount " << goodK << "\n";
+  unsigned int k(0);
+  for (std::map<int,unsigned int>::iterator itr=runSum.begin(); 
+       itr != runSum.end(); ++itr, ++k)
+    std::cout << "[" << k << "] Run " << itr->first << " # " << itr->second
+	      << std::endl;
   if (((flag_/100)%10)>0) {
     fileout_.close();
     std::cout << "Writes " << good << " events in the file " << outFileName_
