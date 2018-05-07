@@ -15,7 +15,7 @@
 class QGSPCMS_FTFP_BERT_EMZ: public PhysicsList {
 
 public:
-  QGSPCMS_FTFP_BERT_EMZ(G4LogicalVolumeToDDLogicalPartMap& map, const HepPDT::ParticleDataTable * table_, sim::ChordFinderSetter *chordFinderSetter_, const edm::ParameterSet & p);
+  QGSPCMS_FTFP_BERT_EMZ(const edm::ParameterSet & p);
 };
 
 #endif
