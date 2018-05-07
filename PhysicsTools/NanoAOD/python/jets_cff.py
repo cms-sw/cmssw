@@ -177,10 +177,9 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(
-        bReg = ExtVar(cms.InputTag("bjetMVA"),float, doc="pt corrected with b-jet regression",precision=14),
-        bRegNN= ExtVar(cms.InputTag("bjetNN:corrNNnoJEC"),float, doc="pt corrected with b-jet regression",precision=14),
-        bRegNN2 = ExtVar(cms.InputTag("bjetNN2:corr"),float, doc="pt corrected with b-jet regression",precision=14),
-        bRegNN2res = ExtVar(cms.InputTag("bjetNN2:res"),float, doc="res on pt corrected with b-jet regression",precision=14),
+        bRegOld = ExtVar(cms.InputTag("bjetMVA"),float, doc="pt corrected with b-jet regression",precision=14),
+        bReg = ExtVar(cms.InputTag("bjetNN2:corr"),float, doc="pt corrected with b-jet regression",precision=14),
+        bRegRes = ExtVar(cms.InputTag("bjetNN2:res"),float, doc="res on pt corrected with b-jet regression",precision=14),
     ),
     variables = cms.PSet(P4Vars,
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
@@ -266,59 +265,6 @@ bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     )
 
 )
-
-norms={u'Jet_chHEF': {u'scale': u'5.3589148912', u'offset': u'-0.570554520102'}, u'Jet_vtxPt': {u'scale': u'0.0512038544596', u'offset': u'-17.3379903923'}, u'Jet_vtxNtrk': {u'scale': u'0.491718281889', u'offset': u'-2.34592626061'}, u'Jet_vtx3deL': {u'scale': u'0.0436824436176', u'offset': u'-16.271010024'}, u'Jet_mt': {u'scale': u'0.0192136466589', u'offset': u'-79.5289027235'}, u'Jet_pt': {u'scale': u'0.0193607564269', u'offset': u'-78.5768487322'}, u'Jet_chEmEF': {u'scale': u'9.5492257452', u'offset': u'-0.0388051523025'}, u'Jet_leptonPtRelInv': {u'scale': u'0.287916371059', u'offset': u'-1.52232979489'}, u'Jet_leptonPt': {u'scale': u'0.0833792294794', u'offset': u'-5.3682820854'}, u'nPVs': {u'scale': u'0.138597756712', u'offset': u'-19.1268252508'}, u'Jet_neHEF': {u'scale': u'10.1788027231', u'offset': u'-0.0823817629694'}, u'Jet_leadTrackPt': {u'scale': u'0.0754859677842', u'offset': u'-16.1239589574'}, u'Jet_eta': {u'scale': u'0.88415389899', u'offset': u'-0.000656532933447'}, u'Jet_mass': {u'scale': u'0.13977195521', u'offset': u'-11.8468109055'}, u'Jet_vtxMass': {u'scale': u'0.881275866253', u'offset': u'-1.19430690076'}, u'Jet_neEmEF': {u'scale': u'6.54513832092', u'offset': u'-0.273723323526'}, u'Jet_leptonDeltaR': {u'scale': u'26.6190777888', u'offset': u'-0.0199096893219'}, u'Jet_leptonPtRel': {u'scale': u'1.37953633485', u'offset': u'-0.306057605907'}, u'Jet_vtx3dL': {u'scale': u'0.951663423918', u'offset': u'-0.700124323902'}, u'Jet_leptonPdgId': {u'scale': u'1.44580953594', u'offset': u'0.59152841422'}, u'Jet_ptd': {u'scale': u'1.16819217799', u'offset': u'-0.369127101198'}} 
-
-bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
-    backend = cms.string("TF"),
-    src = cms.InputTag("linkedObjects","jets"),
-    pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    svsrc = cms.InputTag("slimmedSecondaryVertices"),
-    rhosrc = cms.InputTag("fixedGridRhoFastjetAll"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/model_noJec.pb"),
-    name = cms.string("JetRegNN"),
-    isClassifier = cms.bool(False),
-    variablesOrder = cms.vstring(["Jet_pt", "Jet_mt", "Jet_eta", "Jet_mass", "Jet_ptd", "Jet_chHEF", "Jet_neHEF", "Jet_chEmEF", "Jet_neEmEF", "Jet_leadTrackPt", "nPVs", "Jet_vtxNtrk", "Jet_vtxMass", "Jet_vtx3dL", "Jet_vtx3deL", "Jet_vtxPt", "Jet_leptonPt", "Jet_leptonPtRel", "Jet_leptonPtRelInv", "Jet_leptonDeltaR", "Jet_leptonPdgId"]),
-    variables = cms.PSet(
-    Jet_pt = cms.string("pt"),
-    Jet_mt = cms.string("mt"),
-    Jet_eta = cms.string("eta"),
-    Jet_mass = cms.string("mass"),
-    Jet_ptd = cms.string("userFloat('ptD')"),
-    Jet_leadTrackPt = cms.string("userFloat('leadTrackPt')"),
-    Jet_vtxNtrk = cms.string("userInt('vtxNtrk')"),
-    Jet_vtxMass = cms.string("userFloat('vtxMass')"),
-    Jet_vtx3dL = cms.string("userFloat('vtx3dL')"),
-    Jet_vtx3deL = cms.string("userFloat('vtx3deL')"),
-    Jet_vtxPt = cms.string("userFloat('vtxPt')"),
-    Jet_leptonPt = cms.string("userFloat('leptonPt')"),
-    Jet_leptonPtRel = cms.string("userFloat('leptonPtRelv0')"),
-    Jet_leptonPtRelInv = cms.string("userFloat('leptonPtRelInvv0')"),
-    Jet_leptonDeltaR = cms.string("userFloat('leptonDeltaR')"),
-    Jet_leptonPdgId = cms.string("userInt('leptonPdgId')"),
-    Jet_neHEF = cms.string("neutralHadronEnergyFraction()"),
-    Jet_neEmEF = cms.string("neutralEmEnergyFraction()"),
-    Jet_chHEF = cms.string("chargedHadronEnergyFraction()"),
-    Jet_chEmEF = cms.string("chargedEmEnergyFraction()"),
-
-    ),
-     inputTensorName = cms.string("dense_1_input"),
-     outputTensorName = cms.string("output_node0"),
-     outputNames = cms.vstring(["corrNNnoJEC"]),
-     outputFormulas = cms.vstring(["at(0)"]),
-     nThreads = cms.uint32(1),
-     singleThreadPool = cms.string("no_threads"),
-)
-
-for k in norms:
- try:
-  var=getattr(bjetNN.variables,k)
-  val=var.value()
-  updatedString="(%s+(%s))*%s"%(val,norms[k]["offset"],norms[k]["scale"])
-  var.setValue(updatedString.encode("utf8"))
-  #print k, var.value()
- except:
-  pass
 
 bjetNN2= cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("TF"),
