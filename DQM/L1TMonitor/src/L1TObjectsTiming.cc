@@ -27,6 +27,7 @@ L1TObjectsTiming::L1TObjectsTiming(const edm::ParameterSet& ps)
     etsum_eta_phi_METHF.reserve(bxrange_);
     etsum_eta_phi_MHT.reserve(bxrange_);
     etsum_eta_phi_MHTHF.reserve(bxrange_);
+
     muons_eta_phi_isolated.reserve(bxrange_);
     jet_eta_phi_isolated.reserve(bxrange_);
     egamma_eta_phi_isolated.reserve(bxrange_);
@@ -35,6 +36,7 @@ L1TObjectsTiming::L1TObjectsTiming(const edm::ParameterSet& ps)
     etsum_eta_phi_METHF_isolated.reserve(bxrange_);
     etsum_eta_phi_MHT_isolated.reserve(bxrange_);
     etsum_eta_phi_MHTHF_isolated.reserve(bxrange_);
+
     muons_eta_phi_firstbunch.reserve(bxrange_);
     jet_eta_phi_firstbunch.reserve(bxrange_);
     egamma_eta_phi_firstbunch.reserve(bxrange_);
@@ -43,6 +45,7 @@ L1TObjectsTiming::L1TObjectsTiming(const edm::ParameterSet& ps)
     etsum_eta_phi_METHF_firstbunch.reserve(bxrange_);
     etsum_eta_phi_MHT_firstbunch.reserve(bxrange_);
     etsum_eta_phi_MHTHF_firstbunch.reserve(bxrange_);
+
     muons_eta_phi_lastbunch.reserve(bxrange_);
     jet_eta_phi_lastbunch.reserve(bxrange_);
     egamma_eta_phi_lastbunch.reserve(bxrange_);
@@ -94,6 +97,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   std::string bx_obj[5]={"minus2","minus1","0","plus1","plus2"};
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"); 
+  denominator_muons = ibooker.book2D("denominator_muons","Denominator for L1TMuon",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_muons->setAxisTitle("#eta", 1);
+  denominator_muons->setAxisTitle("#phi", 2);
   for(unsigned int i=0; i<bxrange_; ++i) {
     muons_eta_phi.push_back(ibooker.book2D("muons_eta_phi_bx_"+bx_obj[i],"L1T Muon #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     muons_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -101,6 +107,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
   
   ibooker.setCurrentFolder(monitorDir_+"/L1TJet"+"/timing"); 
+  denominator_jet = ibooker.book2D("denominator_jet","Denominator for L1TJet",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_jet->setAxisTitle("#eta", 1);
+  denominator_jet->setAxisTitle("#phi", 2);
   for(unsigned int i=0; i<bxrange_; ++i) { 
     jet_eta_phi.push_back(ibooker.book2D("jet_eta_phi_bx_"+bx_obj[i],"L1T Jet #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     jet_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -108,6 +117,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
    
   ibooker.setCurrentFolder(monitorDir_+"/L1TEGamma"+"/timing"); 
+  denominator_egamma = ibooker.book2D("denominator_egamma","Denominator for L1TEGamma",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_egamma->setAxisTitle("#eta", 1);
+  denominator_egamma->setAxisTitle("#phi", 2);
   for(unsigned int i=0; i<bxrange_; ++i) {
     egamma_eta_phi.push_back(ibooker.book2D("egamma_eta_phi_bx_"+bx_obj[i],"L1T EGamma #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     egamma_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -115,6 +127,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing");
+  denominator_tau = ibooker.book2D("denominator_tau","Denominator for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_tau->setAxisTitle("#eta", 1);
+  denominator_tau->setAxisTitle("#phi", 2);
   for(unsigned int i=0; i<bxrange_; ++i) {
     tau_eta_phi.push_back(ibooker.book2D("tau_eta_phi_bx_"+bx_obj[i],"L1T Tau #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     tau_eta_phi.at(i)->setAxisTitle("#eta", 1);
@@ -122,6 +137,14 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing");
+  denominator_etsum_MET = ibooker.book1D("denominator_etsum_MET","Denominator for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_MET->setAxisTitle("#phi", 1);
+  denominator_etsum_METHF = ibooker.book1D("denominator_etsum_METHF","Denominator for L1TEtSum METHF", 25, -3.2, 3.2);
+  denominator_etsum_METHF->setAxisTitle("#phi", 1);
+  denominator_etsum_MHT = ibooker.book1D("denominator_etsum_MHT","Denominator for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_MHT->setAxisTitle("#phi", 1);
+  denominator_etsum_MHTHF = ibooker.book1D("denominator_etsum_MHTHF","Denominator for L1TEtSum MHTHF", 25, -3.2, 3.2);
+  denominator_etsum_MHTHF->setAxisTitle("#phi", 1);
   for(unsigned int i=0; i<bxrange_; ++i) {
     etsum_eta_phi_MET.push_back(ibooker.book1D("etsum_phi_bx_MET_"+bx_obj[i],"L1T MET #phi BX="+bx_obj[i],25, -3.2, 3.2));
     etsum_eta_phi_MET.at(i)->setAxisTitle("#phi", 1);
@@ -134,6 +157,32 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
 if(algoBitFirstBxInTrain_ > -1 && algoBitLastBxInTrain_ > -1) {
+  ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Isolated_bunch");
+  denominator_muons_isolated = ibooker.book2D("denominator_muons_isolated","Denominator for Isolated Bunch for L1TMuon",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_muons_isolated->setAxisTitle("#eta", 1);
+  denominator_muons_isolated->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TJet"+"/timing"+"/Isolated_bunch");
+  denominator_jet_isolated = ibooker.book2D("denominator_jet_isolated","Denominator for Isolated Bunch for L1TJet",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_jet_isolated->setAxisTitle("#eta", 1);
+  denominator_jet_isolated->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TEGamma"+"/timing"+"/Isolated_bunch");
+  denominator_egamma_isolated = ibooker.book2D("denominator_egamma_isolated","Denominator for Isolated Bunch for L1EGamma",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_egamma_isolated->setAxisTitle("#eta", 1);
+  denominator_egamma_isolated->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing"+"/Isolated_bunch");
+  denominator_tau_isolated = ibooker.book2D("denominator_tau_isolated","Denominator for Isolated Bunch for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_tau_isolated->setAxisTitle("#eta", 1);
+  denominator_tau_isolated->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing"+"/Isolated_bunch");
+  denominator_etsum_isolated_MET = ibooker.book1D("denominator_etsum_isolated_MET","Denominator for Isolated Bunch for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_isolated_MET->setAxisTitle("#phi", 1);
+  denominator_etsum_isolated_METHF = ibooker.book1D("denominator_etsum_isolated_METHF","Denominator for Isolated Bunch for L1TEtSum METHF", 25, -3.2, 3.2); 
+  denominator_etsum_isolated_METHF->setAxisTitle("#phi", 1);
+  denominator_etsum_isolated_MHT = ibooker.book1D("denominator_etsum_isolated_MHT","Denominator for Isolated Bunch for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_isolated_MHT->setAxisTitle("#phi", 1);
+  denominator_etsum_isolated_MHTHF = ibooker.book1D("denominator_etsum_isolated_MHTHF","Denominator for Isolated Bunch for L1TEtSum MHTHF", 25, -3.2, 3.2);
+  denominator_etsum_isolated_MHTHF->setAxisTitle("#phi", 1);
+
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Isolated_bunch");  
   for(unsigned int i=0; i<bxrange_; ++i) {
     muons_eta_phi_isolated.push_back(ibooker.book2D("muons_eta_phi_bx_isolated_"+bx_obj[i],"L1T Muon #eta vs #phi for isolated bunch BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -177,6 +226,32 @@ if(algoBitFirstBxInTrain_ > -1 && algoBitLastBxInTrain_ > -1) {
  
 if(algoBitFirstBxInTrain_ > -1) {
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/First_bunch");
+  denominator_muons_firstbunch = ibooker.book2D("denominator_muons_firstbunch","Denominator for First Bunch for L1TMuon",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_muons_firstbunch->setAxisTitle("#eta", 1);
+  denominator_muons_firstbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TJet"+"/timing"+"/First_bunch");
+  denominator_jet_firstbunch = ibooker.book2D("denominator_jet_firstbunch","Denominator for First Bunch for L1TJet",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_jet_firstbunch->setAxisTitle("#eta", 1);
+  denominator_jet_firstbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TEGamma"+"/timing"+"/First_bunch");
+  denominator_egamma_firstbunch = ibooker.book2D("denominator_egamma_firstbunch","Denominator for First Bunch for L1TEGamma",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_egamma_firstbunch->setAxisTitle("#eta", 1);
+  denominator_egamma_firstbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing"+"/First_bunch");
+  denominator_tau_firstbunch = ibooker.book2D("denominator_tau_firstbunch","Denominator for First Bunch for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_tau_firstbunch->setAxisTitle("#eta", 1);
+  denominator_tau_firstbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing"+"/First_bunch");
+  denominator_etsum_firstbunch_MET = ibooker.book1D("denominator_etsum_firstbunch_MET","Denominator for First Bunch for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_firstbunch_MET->setAxisTitle("#phi", 1);
+  denominator_etsum_firstbunch_METHF = ibooker.book1D("denominator_etsum_firstbunch_METHF","Denominator for First Bunch for L1TEtSum METHF", 25, -3.2, 3.2);
+  denominator_etsum_firstbunch_METHF->setAxisTitle("#phi", 1);
+  denominator_etsum_firstbunch_MHT = ibooker.book1D("denominator_etsum_firstbunch_MHT","Denominator for First Bunch for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_firstbunch_MHT->setAxisTitle("#phi", 1);
+  denominator_etsum_firstbunch_MHTHF = ibooker.book1D("denominator_etsum_firstbunch_MHTHF","Denominator for First Bunch for L1TEtSum MHTHF", 25, -3.2, 3.2);
+  denominator_etsum_firstbunch_MHTHF->setAxisTitle("#phi", 1);
+
+  ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/First_bunch");
   for(unsigned int i=0; i<bxrange_-2; ++i) {
     muons_eta_phi_firstbunch.push_back(ibooker.book2D("muons_eta_phi_bx_firstbunch_"+bx_obj[i],"L1T Muon #eta vs #phi for first bunch BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     muons_eta_phi_firstbunch.at(i)->setAxisTitle("#eta", 1);
@@ -218,6 +293,32 @@ if(algoBitFirstBxInTrain_ > -1) {
 } 
   
 if(algoBitLastBxInTrain_ > -1) {
+  ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Last_bunch");
+  denominator_muons_lastbunch = ibooker.book2D("denominator_muons_lastbunch","Denominator for Last Bunch for L1TMuon",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_muons_lastbunch->setAxisTitle("#eta", 1);
+  denominator_muons_lastbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TJet"+"/timing"+"/Last_bunch");
+  denominator_jet_lastbunch = ibooker.book2D("denominator_jet_lastbunch","Denominator for Last Bunch for L1TJet",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_jet_lastbunch->setAxisTitle("#eta", 1);
+  denominator_jet_lastbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TEGamma"+"/timing"+"/Last_bunch");
+  denominator_egamma_lastbunch = ibooker.book2D("denominator_egamma_lastbunch","Denominator for Last Bunch for L1TEGamma",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_egamma_lastbunch->setAxisTitle("#eta", 1);
+  denominator_egamma_lastbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing"+"/Last_bunch");
+  denominator_tau_lastbunch = ibooker.book2D("denominator_tau_lastbunch","Denominator for Last Bunch for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
+  denominator_tau_lastbunch->setAxisTitle("#eta", 1);
+  denominator_tau_lastbunch->setAxisTitle("#phi", 2);
+  ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing"+"/Last_bunch");
+  denominator_etsum_lastbunch_MET = ibooker.book1D("denominator_etsum_lastbunch_MET","Denominator for Last Bunch for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_MET->setAxisTitle("#phi", 1);
+  denominator_etsum_lastbunch_METHF = ibooker.book1D("denominator_etsum_lastbunch_METHF","Denominator for Last Bunch for L1TEtSum METHF", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_METHF->setAxisTitle("#phi", 1);
+  denominator_etsum_lastbunch_MHT = ibooker.book1D("denominator_etsum_lastbunch_MHT","Denominator for Last Bunch for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_MHT->setAxisTitle("#phi", 1);
+  denominator_etsum_lastbunch_MHTHF = ibooker.book1D("denominator_etsum_lastbunch_MHTHF","Denominator for Last Bunch for L1TEtSum MHTHF", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_MHTHF->setAxisTitle("#phi", 1);
+
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Last_bunch");
   for(unsigned int i=0; i<bxrange_-2; ++i) {
     muons_eta_phi_lastbunch.push_back(ibooker.book2D("muons_eta_phi_bx_lastbunch_"+bx_obj[i+2],"L1T Muon #eta vs #phi for last bunch BX="+bx_obj[i+2],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -292,6 +393,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Filling eta-phi map for muons for BX=-2,-1,0,+1,+2
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
     for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
+      denominator_muons->Fill(Muon->eta(), Muon->phi());
       int index = (int)itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
       muons_eta_phi.at(index)->Fill(Muon->eta(), Muon->phi());
     }
@@ -300,6 +402,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Filling eta-phi map for jets for BX=-2,-1,0,+1,+2
   for (int itBX = JetBxCollection->getFirstBX(); itBX <= JetBxCollection->getLastBX(); ++itBX) {
     for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
+      denominator_jet->Fill(jet->eta(), jet->phi());
       int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
       jet_eta_phi.at(index)->Fill(jet->eta(), jet->phi());
     }
@@ -308,6 +411,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Filling eta-phi map for egamma for BX=-2,-1,0,+1,+2
   for (int itBX = EGammaBxCollection->getFirstBX(); itBX <= EGammaBxCollection->getLastBX(); ++itBX) {
     for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
+      denominator_egamma->Fill(egamma->eta(), egamma->phi());
       int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
       egamma_eta_phi.at(index)->Fill(egamma->eta(), egamma->phi());
     }
@@ -316,6 +420,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Filling eta-phi map for tau for BX=-2,-1,0,+1,+2
   for (int itBX = TauBxCollection->getFirstBX(); itBX <= TauBxCollection->getLastBX(); ++itBX) {
     for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
+      denominator_tau->Fill(tau->eta(), tau->phi());
       int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
       tau_eta_phi.at(index)->Fill(tau->eta(), tau->phi());
     }
@@ -327,15 +432,21 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
       int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
       if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
         etsum_eta_phi_MET.at(index)->Fill(EtSum->phi());
+        denominator_etsum_MET->Fill(EtSum->phi());
       }
       else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
         etsum_eta_phi_METHF.at(index)->Fill(EtSum->phi());
+        denominator_etsum_METHF->Fill(EtSum->phi());
+        
       }
       else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
         etsum_eta_phi_MHT.at(index)->Fill(EtSum->phi());
+        denominator_etsum_MHT->Fill(EtSum->phi());
+        
       }
       else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
         etsum_eta_phi_MHTHF.at(index)->Fill(EtSum->phi());
+        denominator_etsum_MHTHF->Fill(EtSum->phi());
       }
     }
   }
@@ -345,24 +456,28 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 //    for(GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) 
       for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
         for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
+          denominator_muons_isolated->Fill(muon->eta(),muon->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           muons_eta_phi_isolated.at(index)->Fill(muon->eta(),muon->phi());
         }
       }
       for (int itBX = JetBxCollection->getFirstBX(); itBX <= JetBxCollection->getLastBX(); ++itBX) {
         for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
+          denominator_jet_isolated->Fill(jet->eta(), jet->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           jet_eta_phi_isolated.at(index)->Fill(jet->eta(), jet->phi());
         }
       }
       for (int itBX = EGammaBxCollection->getFirstBX(); itBX <= EGammaBxCollection->getLastBX(); ++itBX) {
         for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
+          denominator_egamma_isolated->Fill(egamma->eta(), egamma->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           egamma_eta_phi_isolated.at(index)->Fill(egamma->eta(), egamma->phi());
         }
       }
       for (int itBX = TauBxCollection->getFirstBX(); itBX <= TauBxCollection->getLastBX(); ++itBX) {
         for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
+          denominator_tau_isolated->Fill(tau->eta(), tau->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           tau_eta_phi_isolated.at(index)->Fill(tau->eta(), tau->phi());
         }
@@ -372,15 +487,22 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
             etsum_eta_phi_MET_isolated.at(index)->Fill(EtSum->phi());
+            denominator_etsum_isolated_MET->Fill(EtSum->phi());
+           
           }
           else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
             etsum_eta_phi_METHF_isolated.at(index)->Fill(EtSum->phi());
+            denominator_etsum_isolated_METHF->Fill(EtSum->phi());
+         
           }
           else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
             etsum_eta_phi_MHT_isolated.at(index)->Fill(EtSum->phi());
+            denominator_etsum_isolated_MHT->Fill(EtSum->phi());
           }
           else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
             etsum_eta_phi_MHTHF_isolated.at(index)->Fill(EtSum->phi());
+            denominator_etsum_isolated_MHTHF->Fill(EtSum->phi());
+            
           }
         }
       }
@@ -390,24 +512,28 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) { // Filling eta-phi map for all objects for first bunch each BX
       for (int itBX = MuonBxCollection->getFirstBX(); itBX <= 0 ; ++itBX) {
         for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
+          denominator_muons_firstbunch->Fill(muon->eta(),muon->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector 
           muons_eta_phi_firstbunch.at(index)->Fill(muon->eta(),muon->phi());
         }
       }
       for (int itBX = JetBxCollection->getFirstBX(); itBX <= 0; ++itBX) {
         for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
+          denominator_jet_firstbunch->Fill(jet->eta(), jet->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           jet_eta_phi_firstbunch.at(index)->Fill(jet->eta(), jet->phi());
         }
       }
       for (int itBX = EGammaBxCollection->getFirstBX(); itBX <= 0; ++itBX) {
         for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
+          denominator_egamma_firstbunch->Fill(egamma->eta(), egamma->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           egamma_eta_phi_firstbunch.at(index)->Fill(egamma->eta(), egamma->phi());
         }
       }
       for (int itBX = TauBxCollection->getFirstBX(); itBX <= 0; ++itBX) {
         for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
+          denominator_tau_firstbunch->Fill(tau->eta(), tau->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           tau_eta_phi_firstbunch.at(index)->Fill(tau->eta(), tau->phi());
         }
@@ -417,15 +543,23 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
             etsum_eta_phi_MET_firstbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_firstbunch_MET->Fill(EtSum->phi());
+           
           }
           else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
             etsum_eta_phi_METHF_firstbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_firstbunch_METHF->Fill(EtSum->phi());
+           
           }
           else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
             etsum_eta_phi_MHT_firstbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_firstbunch_MHT->Fill(EtSum->phi());
+           
           }
           else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
             etsum_eta_phi_MHTHF_firstbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_firstbunch_MHTHF->Fill(EtSum->phi());
+  
           }
         }
       } 
@@ -434,6 +568,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if(algoBitLastBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_)) { // Filling eta-phi map for all objects for last bunch each BX
       for (int itBX = 0; itBX <= MuonBxCollection->getLastBX(); ++itBX) {
         for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
+          denominator_muons_lastbunch->Fill(muon->eta(),muon->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 + (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           muons_eta_phi_lastbunch.at(index)->Fill(muon->eta(),muon->phi());
         }
@@ -441,18 +576,21 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
       
       for (int itBX = 0; itBX <= JetBxCollection->getLastBX(); ++itBX) {
         for (l1t::JetBxCollection::const_iterator jet = JetBxCollection->begin(itBX); jet != JetBxCollection->end(itBX); ++jet) {
+          denominator_jet_lastbunch->Fill(jet->eta(), jet->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 + (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           jet_eta_phi_lastbunch.at(index)->Fill(jet->eta(), jet->phi());
         }
       }
       for (int itBX = 0; itBX <= EGammaBxCollection->getLastBX(); ++itBX) {
         for (l1t::EGammaBxCollection::const_iterator egamma = EGammaBxCollection->begin(itBX); egamma != EGammaBxCollection->end(itBX); ++egamma) {
+          denominator_egamma_lastbunch->Fill(egamma->eta(), egamma->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 + (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           egamma_eta_phi_lastbunch.at(index)->Fill(egamma->eta(), egamma->phi());
         }
       }
       for (int itBX = 0; itBX <= TauBxCollection->getLastBX(); ++itBX) {
         for (l1t::TauBxCollection::const_iterator tau = TauBxCollection->begin(itBX); tau != TauBxCollection->end(itBX); ++tau) {
+          denominator_tau_lastbunch->Fill(tau->eta(), tau->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 + (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           tau_eta_phi_lastbunch.at(index)->Fill(tau->eta(), tau->phi());
         }
@@ -462,15 +600,23 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 + (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
             etsum_eta_phi_MET_lastbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_lastbunch_MET->Fill(EtSum->phi());
+           
           }
           else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
             etsum_eta_phi_METHF_lastbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_lastbunch_METHF->Fill(EtSum->phi());
+          
           }
           else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
             etsum_eta_phi_MHT_lastbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_lastbunch_MHT->Fill(EtSum->phi());
+           
           }
           else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
             etsum_eta_phi_MHTHF_lastbunch.at(index)->Fill(EtSum->phi());
+            denominator_etsum_lastbunch_MHTHF->Fill(EtSum->phi());
+         
           }
         }
       }
