@@ -85,7 +85,7 @@ class FSQDQM : public DQMEDAnalyzer{
 
  protected:
   void analyze(edm::Event const& e, 
-               edm::EventSetup const& eSetup);
+               edm::EventSetup const& eSetup) override;
  private:
   void bookHistograms(DQMStore::IBooker & bei, edm::Run const &, edm::EventSetup const &) override;
   float deltaPhi(float phi1, float phi2);

@@ -346,7 +346,7 @@ FSQDQM::~FSQDQM()
 	 h_ntracks_transverse->Fill(ntracks_transverse);
 	 h_ntracks_away->Fill(ntracks_away);
 
-	   if(T_trackRec_P4.size()>0){
+	   if(!T_trackRec_P4.empty()){
 	 h_leadingtrkpt_ntrk_towards->Fill(T_trackRec_P4.at(0).Pt(),ntracks_towards/8.37);
 	 h_leadingtrkpt_ntrk_transverse->Fill(T_trackRec_P4.at(0).Pt(),ntracks_transverse/8.37);
 	 h_leadingtrkpt_ntrk_away->Fill(T_trackRec_P4.at(0).Pt(),ntracks_away/8.37);
