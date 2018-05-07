@@ -250,8 +250,8 @@ std::pair<double,double> fitOneGauss (TH1D* hist, bool debug) {
   TF1 *g1      = new TF1("g1","gaus",LowEdge,HighEdge); 
   g1->SetLineColor(kGreen);
   TFitResultPtr Fit1 = hist->Fit(g1,option.c_str(),"");
-  LowEdge      = Fit1->Value(1) - 1.2*Fit1->Value(2);
-  HighEdge     = Fit1->Value(1) + 1.2*Fit1->Value(2);
+  LowEdge      = Fit1->Value(1) - 1.0*Fit1->Value(2);
+  HighEdge     = Fit1->Value(1) + 1.0*Fit1->Value(2);
   TFitResultPtr Fit  = hist->Fit("gaus",option.c_str(),"",LowEdge,HighEdge);
   double value = Fit->Value(1);
   double error = Fit->FitResult::Error(1); 
