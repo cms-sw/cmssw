@@ -1186,7 +1186,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					}
 				}
 				short this_capidmbx = (digi[soi].capid() - bx) % 4;
-				if (this_capidmbx < 4) {
+				if (this_capidmbx < 0) {
 					this_capidmbx += 4;
 				}
 				_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
