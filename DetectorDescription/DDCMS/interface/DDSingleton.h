@@ -9,10 +9,19 @@ namespace cms {
     class DDSingleton
   {
   public:
-    T* operator->() { return m_instance; }
+    T* operator->() { return m_instance.get(); }
     const T* operator->() const { return m_instance; }
     T& operator*() { return *m_instance; }
     const T& operator*() const { return *m_instance; }
+
+    static T *getInstance()
+    {
+      static bool static_init __attribute__(( unused )) = []()->bool {
+	m_instance = std::make_unique<T>();
+	return true;
+      }();
+      return m_instance.get();
+    }
     
   protected:
     DDSingleton() {
