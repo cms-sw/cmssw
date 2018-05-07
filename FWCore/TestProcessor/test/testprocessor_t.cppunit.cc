@@ -25,12 +25,14 @@
 #include <set>
 
 class testTestProcessor: public CppUnit::TestFixture {
-CPPUNIT_TEST_SUITE(testTestProcessor);
-CPPUNIT_TEST(simpleProcessTest);
-CPPUNIT_TEST(addProductTest);
-CPPUNIT_TEST(missingProductTest);
-CPPUNIT_TEST(filterTest);
-CPPUNIT_TEST(extraProcessTest);
+  CPPUNIT_TEST_SUITE(testTestProcessor);
+  CPPUNIT_TEST(simpleProcessTest);
+  CPPUNIT_TEST(addProductTest);
+  CPPUNIT_TEST(missingProductTest);
+  CPPUNIT_TEST(filterTest);
+  CPPUNIT_TEST(extraProcessTest);
+  CPPUNIT_TEST(eventSetupTest);
+
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){}
@@ -40,6 +42,7 @@ public:
   void missingProductTest();
   void filterTest();
   void extraProcessTest();
+  void eventSetupTest();
 private:
 
 };
@@ -138,6 +141,28 @@ void testTestProcessor::extraProcessTest() {
     CPPUNIT_ASSERT(event.get<edmtest::IntProduct>()->value == 1);
   }
   
+}
+
+void testTestProcessor::eventSetupTest() {
+  char const* kTest = "from FWCore.TestProcessor.TestProcess import *\n"
+  "process = TestProcess()\n"
+  "process.emptyESSourceA1 = cms.ESSource('EmptyESSource',"
+                                         "recordName = cms.string('ESTestRecordA'),"
+                                         "firstValid = cms.vuint32(1,2),"
+                                         "iovIsRunNotTime = cms.bool(True)"
+                                         ")\n"
+
+  "process.add_(cms.ESProducer('ESTestProducerA') )\n"
+  "process.add = cms.EDAnalyzer('ESTestAnalyzerA', runsToGetDataFor = cms.vint32(1,2), expectedValues=cms.untracked.vint32(1,2))\n"
+  "process.moduleToTest(process.add)\n";
+  edm::test::TestProcessor::Config config(kTest);
+  
+  edm::test::TestProcessor tester(config);
+  
+  (void) tester.test();
+
+  tester.setRunNumber(2);
+  (void) tester.test();
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
