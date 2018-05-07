@@ -14,9 +14,6 @@
 
 //#define EDM_ML_DEBUG
 
-const double k_ScaleFromDDD = 0.1;
-const double k_ScaleToDDD   = 10.0;
-
 namespace {
   HGCalGeometryMode::GeometryMode getGeometryMode(const char* s, 
 						  const DDsvalues_type & sv) {
@@ -121,14 +118,14 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
 	mode = getGeometryWaferMode("WaferMode", sv2);
 	php.nCellsFine_       = (int)(getDDDValue("NumberOfCellsFine",  sv2));
 	php.nCellsCoarse_     = (int)(getDDDValue("NumberOfCellsCoarse",sv2));
-	php.waferSize_        = k_ScaleFromDDD*getDDDValue("WaferSize", sv2);
-	php.waferThick_       = k_ScaleFromDDD*getDDDValue("WaferThickness", sv2);
-	php.sensorSeparation_ = k_ScaleFromDDD*getDDDValue("SensorSeparation", sv2);
-	php.mouseBite_        = k_ScaleFromDDD*getDDDValue("MouseBite", sv2);
-	php.waferR_           = 0.5*k_ScaleToDDD*php.waferSize_/std::cos(30.0*CLHEP::deg);
+	php.waferSize_        = HGCalParameters::k_ScaleFromDDD*getDDDValue("WaferSize", sv2);
+	php.waferThick_       = HGCalParameters::k_ScaleFromDDD*getDDDValue("WaferThickness", sv2);
+	php.sensorSeparation_ = HGCalParameters::k_ScaleFromDDD*getDDDValue("SensorSeparation", sv2);
+	php.mouseBite_        = HGCalParameters::k_ScaleFromDDD*getDDDValue("MouseBite", sv2);
+	php.waferR_           = 0.5*HGCalParameters::k_ScaleToDDD*php.waferSize_/std::cos(30.0*CLHEP::deg);
 	php.etaMinBH_         = 0;
-	php.cellSize_.emplace_back(k_ScaleToDDD*php.waferSize_/php.nCellsFine_);
-	php.cellSize_.emplace_back(k_ScaleToDDD*php.waferSize_/php.nCellsCoarse_);
+	php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD*php.waferSize_/php.nCellsFine_);
+	php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD*php.waferSize_/php.nCellsCoarse_);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "WaferMode " << mode << ":" 
 				      << HGCalGeometryMode::Polyhedra << ":" 
@@ -194,7 +191,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.etaMinBH_        = getDDDValue("etaMinBH", sv);
       php.levelT_          = dbl_to_int(getDDDArray("LevelTop",sv));
       php.firstLayer_      = (int)(getDDDValue("FirstLayer", sv));
-      php.waferThick_      = k_ScaleFromDDD*getDDDValue("WaferThickness", sv);
+      php.waferThick_      = HGCalParameters::k_ScaleFromDDD*getDDDValue("WaferThickness", sv);
       php.waferSize_       = php.waferR_          = 0;
       php.waferThick_      = php.sensorSeparation_= php.mouseBite_       = 0;
 #ifdef EDM_ML_DEBUG

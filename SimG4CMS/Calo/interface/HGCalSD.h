@@ -56,6 +56,7 @@ private:
   int                             levelT1_, levelT2_;
   bool                            storeAllG4Hits_, rejectMB_, waferRot_;
   bool                            useBirk_, isScint_;
+  const double                    tan30deg_;
   double                          birk1_, birk2_, birk3_, weight_;
   std::vector<double>             angles_;
 };

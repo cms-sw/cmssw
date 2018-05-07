@@ -82,8 +82,8 @@ public:
   int                 waferMin() const {return waferMax_[0];}
   std::pair<double,double> waferPosition(int wafer, bool reco=true) const;
   std::pair<double,double> waferPosition(int waferU, int waferV, bool reco) const;
-  double              waferSepar(bool reco) const {return (reco ? hgpar_->sensorSeparation_ : k_ScaleToDDD*hgpar_->sensorSeparation_);}
-  double              waferSize(bool reco) const {return (reco ? hgpar_->waferSize_ : k_ScaleToDDD*hgpar_->waferSize_);}
+  double              waferSepar(bool reco) const {return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD*hgpar_->sensorSeparation_);}
+  double              waferSize(bool reco) const {return (reco ? hgpar_->waferSize_ : HGCalParameters::k_ScaleToDDD*hgpar_->waferSize_);}
   int                 wafers() const;
   int                 wafers(int layer, int type) const;
   int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
@@ -112,8 +112,6 @@ private:
   bool waferInLayer(int wafer, int lay) const;
 
   const double k_horizontalShift = 1.0;
-  const double k_ScaleFromDDD    = 0.1;
-  const double k_ScaleToDDD      = 10.0;
   const float  dPhiMin           = 0.02;
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  
   typedef std::array<int,3>                   HGCWaferParam;
