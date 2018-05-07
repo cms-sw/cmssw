@@ -178,8 +178,8 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(
         bRegOld = ExtVar(cms.InputTag("bjetMVA"),float, doc="pt corrected with b-jet regression",precision=14),
-        bReg = ExtVar(cms.InputTag("bjetNN2:corr"),float, doc="pt corrected with b-jet regression",precision=14),
-        bRegRes = ExtVar(cms.InputTag("bjetNN2:res"),float, doc="res on pt corrected with b-jet regression",precision=14),
+        bReg = ExtVar(cms.InputTag("bjetNN:corr"),float, doc="pt corrected with b-jet regression",precision=14),
+        bRegRes = ExtVar(cms.InputTag("bjetNN:res"),float, doc="res on pt corrected with b-jet regression",precision=14),
     ),
     variables = cms.PSet(P4Vars,
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
@@ -245,7 +245,7 @@ bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
 
 )
 
-bjetNN2= cms.EDProducer("BJetEnergyRegressionMVA",
+bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("TF"),
     src = cms.InputTag("linkedObjects","jets"),
     pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -518,7 +518,7 @@ _jetSequence_80X.insert(1,qgtagger80x)
 run2_miniAOD_80XLegacy.toReplaceWith(jetSequence, _jetSequence_80X)
 
 #after cross linkining
-jetTables = cms.Sequence(bjetMVA+bjetNN+bjetNN2+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
+jetTables = cms.Sequence(bjetMVA+bjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
