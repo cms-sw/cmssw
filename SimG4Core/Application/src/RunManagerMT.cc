@@ -15,6 +15,9 @@
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
+#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
+#include "SimG4Core/CustomPhysics/interface/CMSExoticaPhysics.h"
+
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
@@ -141,14 +144,21 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     throw edm::Exception( edm::errors::Configuration ) 
       << "Unable to find the Physics list requested";
   }
-  m_physicsList = 
-    physicsMaker->make(map_,fPDGTable,m_chordFinderSetter.get(),m_pPhysics,m_registry);
+  m_physicsList = physicsMaker->make(m_pPhysics,m_registry);
 
   PhysicsList* phys = m_physicsList.get(); 
   if (phys==nullptr) { 
     throw edm::Exception( edm::errors::Configuration,
 			  "Physics list construction failed!"); 
   }
+
+  // exotic particle physics
+  double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass",0);
+  if(monopoleMass > 0.0) {
+    phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable,m_chordFinderSetter.get(),m_pPhysics));
+  }
+  bool exotica = m_pPhysics.getUntrackedParameter<bool>("ExoticaTransport",false);
+  if(exotica) { CMSExoticaPhysics exo(phys, m_pPhysics); }
 
   // adding GFlash, Russian Roulette for eletrons and gamma, 
   // step limiters on top of any Physics Lists
