@@ -63,7 +63,8 @@ class DigiTask : public hcaldqm::DQTask
 			fUni = 1,
 			fNChsHF = 2,
 			fUnknownIds = 3,
-			nDigiFlag = 4
+			fLED=4,
+			nDigiFlag = 5
 		};
 
 		//	hashes/FED vectors
@@ -165,6 +166,7 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cLETDCvsADC_SubdetPM;
 		hcaldqm::Container2D _cLETDCvsTS_SubdetPM;
 		hcaldqm::Container1D _cLETDCTime_SubdetPM;
+		hcaldqm::ContainerProf2D _cLETDCTime_depth;
 
 		// Bad TDC histograms
 		hcaldqm::Container1D _cBadTDCValues_SubdetPM;
@@ -176,10 +178,16 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cBadTDCvsBX;
 		hcaldqm::Container1D _cBadTDCvsLS;
 
+		// For monitoring LED misfires: ADC vs BX
+		MonitorElement* _meLEDMon;
+
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
 		bool _unknownIdsPresent;
+		MonitorElement *_meLEDEventCount; // Count events with LED pin diode signal > threshold
+		double _thresh_led;
+		bool _ledSignalPresent;
 
 		hcaldqm::Container2D _cSummaryvsLS_FED; // online only
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only

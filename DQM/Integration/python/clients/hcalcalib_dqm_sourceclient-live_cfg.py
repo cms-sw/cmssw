@@ -104,6 +104,7 @@ process.hbhereco = process.hbheprereco.clone()
 process.load("DQM.HcalTasks.PedestalTask")
 process.load('DQM.HcalTasks.RawTask')
 process.load("DQM.HcalTasks.LaserTask")
+process.load("DQM.HcalTasks.LEDTask")
 process.load("DQM.HcalTasks.UMNioTask")
 process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 process.load("DQM.HcalTasks.HFRaddamTask")
@@ -177,6 +178,8 @@ process.qie11Task_pedestal.tagQIE11 = cms.untracked.InputTag("hcalDigis")
 process.qie11Task_pedestal.subsystem = cms.untracked.string("HcalCalib")
 process.qie11Task_pedestal.eventType = cms.untracked.int32(1)
 
+process.ledTask.name = cms.untracked.string("LEDTask")
+
 #-------------------------------------
 #	Hcal DQM Tasks Sequence Definition
 #-------------------------------------
@@ -194,6 +197,7 @@ process.tasksSequence = cms.Sequence(
 		*process.umnioTask
 		*process.qie11Task_laser
 		*process.qie11Task_pedestal
+		*process.ledTask
 )
 
 process.harvestingSequence = cms.Sequence(
