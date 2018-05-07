@@ -111,6 +111,9 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
 
     const auto& realisticClusters = realisticAssociator.realisticClusters();
     unsigned int nClusters = realisticClusters.size();
+    float bin_norm = 1. / (calibMaxEta_ - calibMinEta_);
+    float egamma_bin_norm = egammaCalib_.size() * bin_norm;
+    float hadron_bin_norm = hadronCalib_.size() * bin_norm;
     for (unsigned ic = 0; ic < nClusters; ++ic)
     {
         float highest_energy = 0.0f;
@@ -128,16 +131,13 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 if ((isEGamma(pdgId) or isPi0(pdgId)) and !egammaCalib_.empty())
                 {
                     unsigned int etabin = std::floor(
-                            ((abseta - calibMinEta_) * egammaCalib_.size())
-                                    / (calibMaxEta_ - calibMinEta_));
-
+                            ((abseta - calibMinEta_) * egamma_bin_norm));
                     energyCorrection = egammaCalib_[etabin];
                 }
                 else if (isHadron(pdgId) and !(isPi0(pdgId)) and !hadronCalib_.empty()) // this function is expensive.. should we treat as hadron everything which is not egamma?
                 {
                     unsigned int etabin = std::floor(
-                            ((abseta - calibMinEta_) * hadronCalib_.size())
-                                    / (calibMaxEta_ - calibMinEta_));
+                            ((abseta - calibMinEta_) * hadron_bin_norm));
                     energyCorrection = hadronCalib_[etabin];
                 }
 
