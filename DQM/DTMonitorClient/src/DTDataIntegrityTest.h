@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+#include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
@@ -49,8 +50,7 @@ protected:
 
 private:
   int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
-
-private:
+  int getROS(int uROS, int link);
 
   //Number of onUpdates
   int nupdates;

@@ -14,5 +14,6 @@
 <use   name="L1TriggerConfig/DTTPGConfig"/>
 <use   name="DQM/DTMonitorModule"/>
 <use   name="CondFormats/RunInfo"/>
+<use   name="PhysicsTools/TensorFlow"/>
 <use   name="boost"/>
 <use   name="rootgraphics"/>
