@@ -121,7 +121,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   edm::LogInfo("SimG4CoreApplication") 
     << "RunManagerMT: start initialisation of magnetic field";
 
-  if (m_pUseMagneticField && "" != m_FieldFile)
+  if (m_pUseMagneticField && !m_FieldFile.empty())
     {
       const GlobalPoint g(0.,0.,0.);
       sim::FieldBuilder fieldBuilder(pMF, m_pField);
@@ -223,7 +223,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   if(verb > 1) { m_physicsList->DumpCutValuesTable(); }
 
   // geometry dump
-  if("" != m_WriteFile) {
+  if(!m_WriteFile.empty()) {
     G4GDMLParser gdml;
     gdml.SetRegionExport(true);
     gdml.SetEnergyCutsExport(true);
@@ -231,7 +231,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   }
 
   // G4Region dump
-  if("" != m_RegionFile) {
+  if(!m_RegionFile.empty()) {
     G4RegionReporter rrep;
     rrep.ReportRegions(m_RegionFile);
   }

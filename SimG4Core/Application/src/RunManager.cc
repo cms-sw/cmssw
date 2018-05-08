@@ -230,7 +230,7 @@ void RunManager::initG4(const edm::EventSetup & es)
       tM->SetFieldManager(fieldManager);
       fieldBuilder.build( fieldManager, tM->GetPropagatorInField());
 
-      if("" != m_FieldFile) { 
+      if(!m_FieldFile.empty()) { 
 	DumpMagneticField(tM->GetFieldManager()->GetDetectorField()); 
       }
     }
@@ -351,14 +351,14 @@ void RunManager::initG4(const edm::EventSetup & es)
     }
   }
 
-  if("" != m_WriteFile) {
+  if(!m_WriteFile.empty()) {
     G4GDMLParser gdml;
     gdml.SetRegionExport(true);
     gdml.SetEnergyCutsExport(true);
     gdml.Write(m_WriteFile, world->GetWorldVolume(), true);
   }
 
-  if("" != m_RegionFile) {
+  if(!m_RegionFile.empty()) {
     G4RegionReporter rrep;
     rrep.ReportRegions(m_RegionFile);
   }
