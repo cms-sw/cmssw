@@ -1,0 +1,22 @@
+#!/bin/sh
+FILE_LIST=${1:-"./listOfOutDigi.txt"}
+JOB_NAME=${2:-"GEMCRS-Reco_$(date +%y%m%d-%H%M%S)"}
+
+if [ ${HOSTNAME} == "gate.sscc.uos.ac.kr" ]
+then
+    STORAGE=/store/user/slowmoyang
+    TRANSFER_DEST=/store/user/slowmoyang
+elif [ [ ${HOSTNAME} == "ui10.sdfarm.kr" ] -o [ ${HOSTNAME} == "ui20.sdfarm.kr" ] ]
+then
+    STORAGE=/xrootd/store/user/slowmoyang
+    TRANSFER_DEST=root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang
+fi
+
+JOB_DIR="${STORE}/GEMCRS/${JOB_NAME}"
+mkdir -v ${JOB_DIR}
+
+create-batch --jobName ${JOB_NAME} \
+             --cfg runGEMCosmicStand_reco.py \
+             --maxFiles 1 \
+             --transferDest "root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang/GEMCRS/${JOB_NAME}" \
+             --fileList=${FILE_LIST}

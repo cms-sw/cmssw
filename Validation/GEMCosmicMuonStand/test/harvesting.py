@@ -4,8 +4,11 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: step5 --conditions auto:phase1_2017_realistic -s HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM --era Run2_2017 --filein file:step3_inDQM.root --scenario pp --filetype DQM --geometry DB:Extended --mc -n 100 --fileout file:step5.root
 import FWCore.ParameterSet.Config as cms
-
+import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.StandardSequences.Eras import eras
+from Configuration.AlCa.GlobalTag import GlobalTag
+
+import os
 
 process = cms.Process('HARVESTING',eras.phase2_muon)
 
@@ -26,22 +29,29 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
 
+options = VarParsing.VarParsing ('analysis')
+options.register(
+    "inPath",
+    "./",
+    VarParsing.VarParsing.multiplicity.singleton,
+    VarParsing.VarParsing.varType.string,
+    "Run number")
+options.parseArguments()
+
+
 # Input source
-import os
-dqm_input_dir = "./"
-entries = [each for each in os.listdir(dqm_input_dir)]
-entries = [each for each in entries if each.endswith(".root")]
-entries = [each for each in entries if each.startswith("dqm")]
-entries = ["file:" + os.path.join(dqm_input_dir, each) for each in entries]
+if os.path.isdir(options.inPath):
+    entries = os.listdir(options.inPath)
+    entries = [each for each in entries if each.startswith("dqm") and each.endswith(".root")]
+    entries = ["file:" + os.path.join(options.inPath, each) for each in entries]
+    fileNames = cms.untracked.vstring(*entries)
+else:
+    fileNames = cms.untracked.vstring(options.inPath)
 
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring(*entries)
-    )
-"""
-process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring('file:dqm.root')
+    fileNames=fileNames
 )
-"""
+
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     fileMode = cms.untracked.string('FULLMERGE')
@@ -59,7 +69,6 @@ process.configurationMetadata = cms.untracked.PSet(
 # Additional output definition
 
 # Other statements
-from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Path and EndPath definitions

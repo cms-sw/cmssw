@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import argparse
+
+def main():
+    in_path = sys.argv[1]
+    out_path = "./listOfOutDigi.txt"
+
+    entries = os.listdir(in_path)
+    entries = [each for each in entries if each.endswith(".root")]
+    entries = [each for each in entries if each.startswith("out_digi")]
+    entries = [os.path.join(in_path, each) for each in entries]
+    entries = [each.replace("/xrootd", "root://cms-xrdr.sdfarm.kr:1094///xrd") for each in entries]
+
+    with open(out_path, "w") as txt_file:
+        for each in entries:
+            line = each + "\n"
+            txt_file.write(line)
+
+
+    print("{} files".format(len(entries)))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,251 @@
+#!/usr/bin/env python
+
+from __future__ import division
+from __future__ import print_function
+
+import ROOT
+from ROOT import TCanvas
+from ROOT import TEfficiency
+from ROOT import gROOT
+from ROOT import gStyle
+from ROOT import gPad
+
+
+import os
+from datetime import datetime
+import argparse
+
+# Global Constants
+NUM_CHAMBERS = 15
+NUM_ROLLS_PER_CHAMBER = 8
+NUM_VFATS_PER_ROLL = 3
+
+MIN_CHAMBER_ID = 1
+MAX_CHAMBER_ID = 29
+
+MIN_ROLL_ID = 1 # iEta
+MAX_ROLL_ID = 8
+
+MIN_VFAT_ID = 1
+MAX_VFAT_ID = 3
+
+
+
+class Directory(object):
+    def __init__(self, path, creation=True):
+        self.path = path
+        self._creation = creation
+        if self._creation:
+            os.makedirs(self.path)
+
+    def make_subdir(self, name):
+        path = os.path.join(self.path, name)
+        setattr(self, name, Directory(path, creation=self._creation))
+
+    def get_entries(self, full_path=True):
+        entries = os.listdir(self.path)
+        if full_path:
+            entries = map(lambda each: os.path.join(self.path, each), entries)
+        return entries
+
+
+
+
+
+def draw_vfat_eff_2d(passed, total, out_fmt):
+    name = total.GetName().replace("total", "eff")
+    title = total.GetTitle().replace("Total events", "Efficiency")
+    nbinsx = total.GetNbinsX()
+    xlow = total.GetXaxis().GetXmin()
+    xup = total.GetXaxis().GetXmax()
+    nbinsy = total.GetNbinsY()
+    ylow = total.GetYaxis().GetXmin()
+    yup = total.GetYaxis().GetXmax()
+    
+    if not TEfficiency.CheckConsistency(passed, total):
+        return None
+    
+    eff = TEfficiency(passed, total)
+    
+    eff_hist = eff.CreateHistogram()
+    title = total.GetTitle().replace("Total events", "Efficiency")
+    x_title = total.GetXaxis().GetTitle()
+    eff_hist.SetTitle(title)
+    eff_hist.GetXaxis().SetTitle("VFAT Id")
+    eff_hist.GetYaxis().SetTitle("iEta")
+
+    for i in range(MIN_VFAT_ID, MAX_VFAT_ID + 1):
+        eff_hist.GetXaxis().SetBinLabel(i, "VFAT {}".format(i))
+
+    for i in range(MIN_ROLL_ID, MAX_ROLL_ID + 1):
+        eff_hist.GetYaxis().SetBinLabel(i, "{}".format(i))
+
+    canvas_name = "can_" + title.replace(" ", "_")
+    can = TCanvas(canvas_name, title, 800, 600)
+    can.cd()
+
+    eff_hist.Draw("colz TEXT")
+    gStyle.SetPaintTextFormat(".3f")
+    eff_hist.SetMarkerSize(2)
+    eff_hist.SetMaximum(1.0)
+    eff_hist.SetMinimum(0.0)
+
+    can.SaveAs(out_fmt.format(ext="png"))
+    can.SaveAs(out_fmt.format(ext="pdf"))
+
+    return eff_hist
+
+    
+def draw_overall_vfat_eff_2d(passed, total, out_fmt):
+    name = total.GetName().replace("total", "eff")
+    title = total.GetTitle().replace("Total events", "Efficiency")
+    nbinsx = total.GetNbinsX()
+    xlow = total.GetXaxis().GetXmin()
+    xup = total.GetXaxis().GetXmax()
+    nbinsy = total.GetNbinsY()
+    ylow = total.GetYaxis().GetXmin()
+    yup = total.GetYaxis().GetXmax()
+    
+    if not TEfficiency.CheckConsistency(passed, total):
+        return None
+ 
+    eff = TEfficiency(passed, total)
+    
+    eff_hist = eff.CreateHistogram()
+    title = total.GetTitle().replace("Total events", "Efficiency")
+    x_title = total.GetXaxis().GetTitle()
+    eff_hist.SetTitle(title)
+
+    eff_hist.GetXaxis().SetTitle("Chamber Id")
+    for chamber_id in range(MIN_CHAMBER_ID, MAX_CHAMBER_ID + 1, 2):
+        bin = int((chamber_id -1) / 2) + 1
+        eff_hist.GetXaxis().SetBinLabel(bin, "{}".format(chamber_id))
+
+    eff_hist.GetYaxis().SetTitle("Roll & VFAT Id")
+    for ieta in range(MIN_ROLL_ID, MAX_ROLL_ID + 1):
+        for vfat in range(MIN_VFAT_ID, MAX_VFAT_ID + 1):
+            bin = 3 * ieta + vfat - 3
+            if vfat == 1:
+                label = "Roll {}, VFAT {}".format(ieta, vfat)
+            else:
+                label = "VFAT {}".format(vfat)
+
+            eff_hist.GetYaxis().SetBinLabel(bin, label)
+
+    canvas_name = "can_" + title.replace(" ", "_")
+    can = TCanvas(canvas_name, title, 1600, 1200)
+    can.cd()
+    can.SetLeftMargin(0.175)
+
+    gStyle.SetPaintTextFormat(".2f")
+
+    eff_hist.SetMarkerSize(1)
+    eff_hist.SetMaximum(1.0)
+    eff_hist.SetMinimum(0.0)
+
+    eff_hist.Draw("colz TEXT")
+    can.SaveAs(out_fmt.format(ext="png"))
+    can.SaveAs(out_fmt.format(ext="pdf"))
+
+    # gDirectory.Remove(canvas_name)
+
+    return eff_hist
+
+
+def draw_all_vfat_eff_2d(directory, out_dir):
+    passed = directory.Get("the_number_of_passed_events")
+    total = directory.Get("the_number_of_total_events")
+
+    out_fmt = os.path.join(out_dir, "vfat_eff.{ext}")
+    eff = draw_overall_vfat_eff_2d(passed, total, out_fmt)
+
+    passed_fmt = "the_number_of_passed_events_chamber_{}_"
+    total_fmt = "the_number_of_total_events_chamber_{}_"
+    for chamber_id in range(MIN_CHAMBER_ID, MAX_CHAMBER_ID + 1, 2):
+        passed = directory.Get(passed_fmt.format(chamber_id))
+        total = directory.Get(total_fmt.format(chamber_id))
+
+        out_fmt = os.path.join(out_dir, "vfat_eff_{}_chamber.{{ext}}".format(chamber_id))
+        eff = draw_vfat_eff_2d(passed, total, out_fmt)
+
+
+def draw_all_residuals_and_pulls(directory, out_dir):
+    residual_fmt = "the_residuals_of_the_local_{}"
+    for each in ["x", "y", "phi"]:
+        can_name = "can_res_" + each
+        can = TCanvas(can_name, can_name, 800, 600)
+        can.cd()
+
+        res = directory.Get(residual_fmt.format(each))
+        res.Draw("hist E")
+        res.GetXaxis().SetTitle("Residual in Local {}".format(each))
+        res.GetYaxis().SetTitle("Entries")
+        res.SetLineWidth(3)
+
+        out_fmt = os.path.join(out_dir, "res_{}.{{ext}}".format(each))
+        can.SaveAs(out_fmt.format(ext="png"))
+        can.SaveAs(out_fmt.format(ext="pdf"))
+
+    pull_fmt = "the_pulls_of_the_local_{}"
+    for each in ["x", "y"]:
+        can_name = "can_pull_" + each
+        can = TCanvas(can_name, can_name, 800, 600)
+        can.cd()
+
+        pull = directory.Get(pull_fmt.format(each))
+        pull.Draw("hist E")
+        pull.GetXaxis().SetTitle("Pulls in Local {}".format(each))
+        pull.GetYaxis().SetTitle("Entries")
+        pull.SetLineWidth(3)
+
+        out_fmt = os.path.join(out_dir, "pull_{}.{{ext}}".format(each))
+        can.SaveAs(out_fmt.format(ext="png"))
+        can.SaveAs(out_fmt.format(ext="pdf"))
+
+def draw_and_save(hist, out_dir, draw_opt="hist", width=800, height=600):
+    can_name = "can_" + hist.GetName()
+    can = TCanvas(can_name, can_name, width, height)
+    can.cd()
+    hist.Draw(draw_opt)
+
+    out_fmt = os.path.join(out_dir, "{}.{{ext}}".format(hist.GetName()))
+
+    can.SaveAs(out_fmt.format(ext="png"))
+    can.SaveAs(out_fmt.format(ext="df"))
+
+
+def draw_others(directory, out_dir):
+    # the number of clusters
+    h_num_cls = directory.Get("the_number_of_clusters")
+    h_num_cls.SetLineWidth(3)
+    draw_and_save(hist=h_num_cls,
+                  out_dir=out_dir,
+                  draw_opt="hist")
+
+
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--in_path", default="./DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO.root", type=str)
+    parser.add_argument("-o", "--out_dir", default="DQM_{}".format(datetime.now().strftime("%y%m%d-%H%M%S")), type=str)
+    args = parser.parse_args()
+
+    out_dir = Directory(args.out_dir, True)
+    out_dir.make_subdir("vfat_efficiency")
+    out_dir.make_subdir("vfat_occupancy")
+    out_dir.make_subdir("residuals_and_pulls")
+    out_dir.make_subdir("others")
+
+    root_file = ROOT.TFile.Open(args.in_path, "READ")
+    sim_dir = root_file.Get("DQMData/Run 1/GEMCosmicMuonStandSim/Run summary")
+
+    draw_all_vfat_eff_2d(sim_dir, out_dir.vfat_efficiency.path) 
+    draw_all_residuals_and_pulls(sim_dir, out_dir.residuals_and_pulls.path)
+
+    draw_others(sim_dir, out_dir.others.path)
+
+
+if __name__ == "__main__":
+    gROOT.SetBatch(True)
+    main()

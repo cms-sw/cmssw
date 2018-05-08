@@ -1,0 +1,21 @@
+#!/bin/sh
+#MAX_EVENT=${1:-1000}
+#N_JOBS=${2:-2}
+
+JOB_NAME="Sim_$(date +%y%m%d-%H%M%S)"
+
+#if [ ${HOSTNAME} == "gate.sscc.uos.ac.kr" ]
+#then
+TRANSFER_DEST=/store/user/slowmoyang/GEMCRS/${JOB_NAME}
+mkdir -v ${TRANSFER_DEST}
+#elif [ [ ${HOSTNAME} == "ui10.sdfarm.kr" ] -o [ ${HOSTNAME} == "ui20.sdfarm.kr" ] ]
+#then
+#    TRANSFER_DEST=root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang/${PROJ_DIR}/${JOB_NAME}
+#    mkdir -v /xrootd/store/user/slowmoyang/${PROJ_DIR}/${JOB_NAME}
+#fi
+
+create-batch --jobName UNKNOW \
+             --cfg runGEMCosmicStand_sim.py \
+             --maxEvent 1000 \
+             --nJobs 2 \
+             --transferDest ${TRANSFER_DEST}
