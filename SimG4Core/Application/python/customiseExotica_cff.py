@@ -13,5 +13,5 @@ def customise(process):
     process.g4SimHits.Physics.ExoticaPhysicsSS     = cms.untracked.bool(False)
     process.g4SimHits.Physics.RhadronPhysics       = cms.bool(False)
     process.g4SimHits.Physics.DarkMPFactor         = cms.double(1.0)
-    process.g4SimHits.Physics.ParticlesDef         = cms.FileInPath('')
+    process.g4SimHits.Physics.ExoticaParticlesDef  = cms.FileInPath('')
     return(process)
