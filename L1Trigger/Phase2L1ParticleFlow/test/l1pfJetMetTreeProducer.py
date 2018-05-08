@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500))
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 
-process.load('FastPUPPI.NtupleProducer.reprocess_L1Phase2_MC_cff')
+process.load('L1Trigger.Phase2L1ParticleFlow.reprocess_L1Phase2_MC_cff')
 process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff')
