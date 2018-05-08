@@ -7,14 +7,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.L1TMonitor.L1TStage2CaloLayer1_cfi import *
 
 # CaloLayer2
-# Since layer2 and layer2 emulation are to be divided by each other
-# in the l1tstage2emulator sourceclient, we process
-# stage 2 occupancy in that client rather than this one
-
-# UPDATE Apr 21: Since emulator client is stalled due to 
-# GlobalTag/CaloParams conflicts, we move back to this client
 from DQM.L1TMonitor.L1TStage2CaloLayer2_cfi import *
-from DQM.L1TMonitor.L1TStage2uGTCaloLayer2Comp_cfi import *
 
 # BMTF
 from DQM.L1TMonitor.L1TStage2BMTF_cff import *
@@ -46,7 +39,6 @@ l1tStage2OnlineDQM = cms.Sequence(
     l1tStage2Emtf +
     l1tStage2uGMTOnlineDQMSeq +
     l1tObjectsTiming +
-    l1tStage2uGTCaloLayer2Comp +
     l1tStage2uGTOnlineDQMSeq
 )
 
