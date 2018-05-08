@@ -25,20 +25,16 @@ CustomPhysicsList::CustomPhysicsList(const std::string& name,
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
-  edm::FileInPath fp;
   if(apinew) {
     dfactor = p.getParameter<double>("DarkMPFactor");
     fHadronicInteraction = p.getParameter<bool>("RhadronPhysics");
-    fp = p.getParameter<edm::FileInPath>("ExoticaParticlesDef");
   } else {
     // this is left for backward compatibility
     dfactor = p.getParameter<double>("dark_factor");
     fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
-    fp = p.getParameter<edm::FileInPath>("particlesDef");
   }
-
+  edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
-
   fParticleFactory.reset(new CustomParticleFactory());
   myHelper.reset(nullptr);
 
