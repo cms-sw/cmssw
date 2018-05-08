@@ -10,16 +10,11 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 
-#include "G4String.hh"
 #include <string>
-#include <TH1F.h>
 
 class DDCompactView;
-class DDFilteredView;
 class G4LogicalVolume;
-class G4Material;
 class G4Step;
 
 class HGCalSD : public CaloSD, public Observer<const BeginOfJob *> {
