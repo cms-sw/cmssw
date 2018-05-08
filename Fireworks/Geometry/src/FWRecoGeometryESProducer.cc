@@ -108,9 +108,11 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   m_fwGeometry = std::make_shared<FWRecoGeometry>();
 
   if( m_tracker || m_muon ) {
-    record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );  
-    DetId detId( DetId::Tracker, 0 );
-    m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
+    record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+    if (m_tracker){
+      DetId detId( DetId::Tracker, 0 );
+      m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
+    }
   }
     
   if( m_tracker )
@@ -126,11 +128,11 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   }
   if( m_muon )
   {
-    addDTGeometry();
-    addCSCGeometry();
-    addRPCGeometry();
+    // addDTGeometry();
+    // addCSCGeometry();
+    // addRPCGeometry();
     addGEMGeometry();
-    addME0Geometry();
+    // addME0Geometry();
   }
   if( m_calo )
   {

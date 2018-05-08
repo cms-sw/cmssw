@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="gembox.xml" eval="true">
+  <Constant name="layers"     value="5"/>
+  <Constant name="separation" value="23*cm"/>
+  <Constant name="dyChamber"      value="3.47*cm"/>
+  <Constant name="dxChamber"      value="56.0*cm"/>
+  <Constant name="dyBox"      value="2*([layers]*[separation]/2+2.0*cm)"/>
+  <Constant name="dxBox"      value="3*([dxChamber]+5)*cm"/>
+  <Constant name="dzBox"      value="200*cm"/>
+</ConstantsSection>
+
+<PosPartSection label="gembox.xml">
+
+  <PosPart copyNumber="27">
+    <rParent name="gembox:GEMBox"/>
+    <rChild name="gem11:GEMBox11L"/>
+    <Translation x="[dxChamber]" y="4*[separation]" z="22*cm" />
+  </PosPart>
+  <PosPart copyNumber="28">
+    <rParent name="gembox:GEMBox"/>
+    <rChild name="gem11:GEMBox11L"/>
+    <Translation x="[dxChamber]" y="4*[separation]+[dyChamber]" z="22*cm" />
+  </PosPart>
+  
+</PosPartSection>
+
+</DDDefinition>
