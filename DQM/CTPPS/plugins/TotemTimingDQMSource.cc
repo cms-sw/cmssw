@@ -723,7 +723,9 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
                 channelPlots_.find(detId) != channelPlots_.end()      )
       {
         // only when there is 1 hit per plane
-        if ( stripTracks.isValid() )
+        if (stripTracks.isValid() &&
+            channelsPerPlaneWithTime.find(detId_plane) != channelsPerPlaneWithTime.end() &&
+            channelsPerPlaneWithTime[detId_plane]<3 )
         {
           for (const auto &ds : *stripTracks) {
             const CTPPSDetId stripId(ds.detId());
@@ -753,6 +755,9 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
                   double y = striplt.getY0() - rp_y;
                   if (stripId.station() == TOTEM_STATION_210)
                   {
+                    // To rotate the strips, uncomment this part
+                    // x = COS_8_DEG * x - SIN_8_DEG * y;
+                    // y = SIN_8_DEG * x + COS_8_DEG * y;
                     potPlots_[detId_pot].stripTomography210->Fill(x + detId.plane()*50, y + y_shift);
                     channelPlots_[detId].stripTomography210->Fill(x, y + y_shift);
                   }
