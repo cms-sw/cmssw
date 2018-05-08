@@ -9,7 +9,7 @@
 
 namespace l1t {
    namespace stage2 {
-      IntermediateMuonUnpacker::IntermediateMuonUnpacker() : res1_(nullptr), res2_(nullptr), algoVersion_(0), coll1Cnt_(0)
+      IntermediateMuonUnpacker::IntermediateMuonUnpacker() : res1_(nullptr), res2_(nullptr), coll1Cnt_(0)
       {
       }
 
@@ -126,7 +126,7 @@ namespace l1t {
                // The intermediate muons of the uGMT (FED number 1402) do not
                // have coordinates estimated at the vertex in the RAW data.
                // The corresponding bits are set to zero.
-               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, 1402, algoVersion_);
+               MuonRawDigiTranslator::fillMuon(mu, raw_data_00_31, raw_data_32_63, 1402, getAlgoVersion());
 
                LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge() << " charge valid " << mu.hwChargeValid();
 
