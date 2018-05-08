@@ -8,7 +8,7 @@
  */
 
 
-#include "DQM/SiStripMonitorClient/interface/SiStripAnalyser.h"
+#include "SiStripAnalyser.h"
 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
