@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // File: HGCalSD.h
 // Description: Stores hits of the High Granularity Calorimeter (HGC) in the
-//              appropriate container (pre TDR version)
+//              appropriate container (post TDR version)
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
