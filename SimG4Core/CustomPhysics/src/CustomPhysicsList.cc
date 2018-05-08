@@ -29,7 +29,7 @@ CustomPhysicsList::CustomPhysicsList(const std::string& name,
   if(apinew) {
     dfactor = p.getParameter<double>("DarkMPFactor");
     fHadronicInteraction = p.getParameter<bool>("RhadronPhysics");
-    fp = p.getParameter<edm::FileInPath>("ParticlesDef");
+    fp = p.getParameter<edm::FileInPath>("ExoticaParticlesDef");
   } else {
     // this is left for backward compatibility
     dfactor = p.getParameter<double>("dark_factor");
