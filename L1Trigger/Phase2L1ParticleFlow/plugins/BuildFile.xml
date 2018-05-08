@@ -6,4 +6,6 @@
 <use name="L1Trigger/Phase2L1ParticleFlow"/>
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
+<use name="CommonTools/Utils"/>
+<use name="CommonTools/UtilAlgos"/>
 <flags EDM_PLUGIN="1"/>
