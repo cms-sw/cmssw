@@ -8,8 +8,8 @@ CMSExoticaPhysics::CMSExoticaPhysics(PhysicsList* phys, const edm::ParameterSet 
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
                  
   if(ssPhys) {
-    phys->RegisterPhysics(new CustomPhysicsListSS("custom",p));
+    phys->RegisterPhysics(new CustomPhysicsListSS("custom",p,true));
   } else {
-    phys->RegisterPhysics(new CustomPhysicsList("custom",p));    
+    phys->RegisterPhysics(new CustomPhysicsList("custom",p,true));    
   }
 }
