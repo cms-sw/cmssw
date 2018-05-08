@@ -298,5 +298,3 @@ void SiStripDaqInfo::findExcludedModule(unsigned short fed_id, const TrackerTopo
   }
   dqmStore_->cd();
 }
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(SiStripDaqInfo);

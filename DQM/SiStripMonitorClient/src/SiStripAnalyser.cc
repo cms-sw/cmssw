@@ -302,5 +302,3 @@ void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
   }
 }
 */
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(SiStripAnalyser);

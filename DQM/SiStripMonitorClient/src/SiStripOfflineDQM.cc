@@ -258,6 +258,3 @@ bool SiStripOfflineDQM::openInputFile() {
   dqmStore_->open(inputFileName_, false); 
   return true;
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(SiStripOfflineDQM);
