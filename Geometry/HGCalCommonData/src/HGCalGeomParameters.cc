@@ -730,11 +730,9 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
         xc[4] = xpos+dx; yc[4] = ypos-0.5*rr;
         xc[5] = xpos;    yc[5] = ypos-rr;
         bool cornerOne(false);
-	bool cornerAll(true);
 	for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
 	  double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
 	  if (rpos >= rin && rpos <= rout) cornerOne = true;
-	  else                             cornerAll = false;
 	}
 	double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	int typet = (rpos < rMaxFine) ? 1 : 2;
@@ -756,9 +754,8 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
 	  edm::LogVerbatim("HGCalGeom") << kount << ":" << ntot << " Copy " 
 					<< copy << " Type " << typel << ":"
 					<< typet << " Location " << cornerOne
-					<< ":" << cornerAll << " Position "
-					<< xpos << ":" << ypos << " Layers "
-					<< php.layer_.size();
+					<< " Position "	<< xpos << ":" << ypos
+					<< " Layers " << php.layer_.size();
 #endif
 	  php.waferCopy_.emplace_back(copy);
 	  php.waferTypeL_.emplace_back(typel);
@@ -766,8 +763,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
 	  php.waferPosX_.emplace_back(xpos);
 	  php.waferPosY_.emplace_back(ypos);
 	  for (unsigned int il=0; il<php.layer_.size(); ++il) {
-	    bool corner(false);
-	    cornerAll = true;
+	    bool corner(false), cornerAll(true);
 	    for (unsigned int k=0; k<HGCalParameters::k_CornerSize; ++k) {
 	      double rpos = std::sqrt(xc[k]*xc[k]+yc[k]*yc[k]);
 	      if (rpos >= php.rMinLayHex_[il] && 
