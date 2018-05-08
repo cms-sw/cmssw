@@ -181,7 +181,7 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
 
       auto jet = srcJet->ptrAt(ij);
 
-      if (jet->genJet()!=NULL){
+      if (jet->genJet()!=nullptr){
           auto genp4 = jet->genJet()->p4(); 
           auto gep4wNu = genp4;
           for(const auto & gp : *srcGP){
