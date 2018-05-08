@@ -42,7 +42,7 @@ namespace l1t {
 	
 	// Check that each word is 16 bits
 	for (unsigned int i = 0; i < 4; i++) {
-	  if (GetHexBits(payload[i], 16, 31) != 0) { errors += 1; 
+	  if (GetHexBits(payload[i], 16, 31) != 0) { errors += 1;
 	    edm::LogError("L1T|EMTF") << "Payload[" << i << "] has more than 16 bits in 'RPC Data Record'"; }
 	}
 	
@@ -52,17 +52,13 @@ namespace l1t {
 	uint16_t RPCd = payload[3];
 	
 	// Check Format
-	if (GetHexBits(RPCa, 11, 15) != 0) { errors += 1; 
+	if (GetHexBits(RPCa, 15, 15) != 0) { errors += 1;
 	  edm::LogError("L1T|EMTF") << "Format identifier bits in RPCa are incorrect"; }
-	if (GetHexBits(RPCb,  5,  7) != 0) { errors += 1; 
+	if (GetHexBits(RPCb, 15, 15) != 0) { errors += 1;
 	  edm::LogError("L1T|EMTF") << "Format identifier bits in RPCb are incorrect"; }
-	if (GetHexBits(RPCb, 15, 15) != 0) { errors += 1; 
-	  edm::LogError("L1T|EMTF") << "Format identifier bits in RPCb are incorrect"; }
-	if (GetHexBits(RPCc, 12, 13) != 0) { errors += 1; 
+	if (GetHexBits(RPCc, 15, 15) != 1) { errors += 1;
 	  edm::LogError("L1T|EMTF") << "Format identifier bits in RPCc are incorrect"; }
-	if (GetHexBits(RPCc, 15, 15) != 1) { errors += 1; 
-	  edm::LogError("L1T|EMTF") << "Format identifier bits in RPCc are incorrect"; }
-	if (GetHexBits(RPCd,  4, 15) != 0) { errors += 1; 
+	if (GetHexBits(RPCd, 15, 15) != 0) { errors += 1;
 	  edm::LogError("L1T|EMTF") << "Format identifier bits in RPCd are incorrect"; }
 
 	return errors;
