@@ -528,10 +528,6 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_station = " << tp_station; return selected; }
     if ( !(1 <= tp_csc_ID && tp_csc_ID <= 9) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_csc_ID = "  << tp_csc_ID; return selected; }
-    if ( !(tp_data.strip < 160) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.strip = "   << tp_data.strip ; return selected; }
-    if ( !(tp_data.keywire < 128) ) {
-      edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.keywire = " << tp_data.keywire; return selected; }
     if ( !(tp_data.valid == true) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.valid = "   << tp_data.valid ; return selected; }
     if ( !(tp_data.pattern <= 10) ) {
@@ -539,20 +535,40 @@ int PrimitiveSelection::select_csc(const TriggerPrimitive& muon_primitive) const
     if ( !(tp_data.quality > 0) ) {
       edm::LogWarning("L1T") << "EMTF CSC format error: tp_data.quality = " << tp_data.quality; return selected; }
 
+    int max_strip = 0;
+    int max_wire  = 0;
+    if        (tp_station == 1 && tp_ring == 4) { // ME1/1a
+      max_strip =  96;
+      max_wire  =  48;
+    } else if (tp_station == 1 && tp_ring == 1) { // ME1/1b
+      max_strip = 128;
+      max_wire  =  48;
+    } else if (tp_station == 1 && tp_ring == 2) { // ME1/2
+      max_strip = 160;
+      max_wire  =  64;
+    } else if (tp_station == 1 && tp_ring == 3) { // ME1/3
+      max_strip = 128;
+      max_wire  =  32;
+    } else if (tp_station == 2 && tp_ring == 1) { // ME2/1
+      max_strip = 160;
+      max_wire  = 112;
+    } else if (tp_station >= 3 && tp_ring == 1) { // ME3/1, ME4/1
+      max_strip = 160;
+      max_wire  =  96;
+    } else if (tp_station >= 2 && tp_ring == 2) { // ME2/2, ME3/2, ME4/2
+      max_strip = 160;
+      max_wire  =  64;
+    }
 
-    // Check using ME1/1a --> ring 4 convention
-    if (tp_station == 1 && tp_ring == 1) {
-      if (not(tp_data.strip < 128))
-	{ edm::LogError("L1T") << "tp_data.strip = " << tp_data.strip; return selected; }
-      if (not(1 <= tp_csc_ID && tp_csc_ID <= 3))
-	{ edm::LogError("L1T") << "tp_csc_ID = " << tp_csc_ID; return selected; }
-    }
-    if (tp_station == 1 && tp_ring == 4) {
-      if (not(tp_data.strip < 128))
-	{ edm::LogError("L1T") << "tp_data.strip = " << tp_data.strip; return selected; }
-      if (not(1 <= tp_csc_ID && tp_csc_ID <= 3))
-	{ edm::LogError("L1T") << "tp_csc_ID = " << tp_csc_ID; return selected; }
-    }
+    if ( !(tp_data.strip < max_strip) ) {
+      edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
+			   << ": tp_data.strip = " << tp_data.strip << " (max = " << max_strip - 1 << ")" << std::endl;
+      return selected; }
+    if ( !(tp_data.keywire < max_wire) ) {
+      edm::LogWarning("L1T") << "EMTF CSC format error in station " << tp_station << ", ring " << tp_ring
+			   << ": tp_data.keywire = " << tp_data.keywire << " (max = " << max_wire - 1 << ")" << std::endl;
+      return selected; }
+
 
     // station 1 --> subsector 1 or 2
     // station 2,3,4 --> subsector 0
