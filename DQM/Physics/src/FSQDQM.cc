@@ -218,6 +218,7 @@ FSQDQM::~FSQDQM()
     */
 
     edm::Handle<edm::View<reco::Vertex> > privtxs;
+    if(!iEvent.getByToken(pvs_, privtxs)) return;
     iEvent.getByToken(pvs_, privtxs);
     const reco::Vertex& pvtx=privtxs->front();
 
@@ -244,12 +245,14 @@ FSQDQM::~FSQDQM()
 	   }
 	 
 	 edm::Handle<reco::BeamSpot> beamSpotH;
+	 if(!iEvent.getByToken(tok_bs_, beamSpotH)) return;
 	 iEvent.getByToken(tok_bs_, beamSpotH);
 	 std::vector<Jet> recoPFJets;
 	 recoPFJets.clear();
 
 	 int  nPFCHSJet=0;
 	 edm::Handle<PFJetCollection> pfjetchscoll;
+	 if(!iEvent.getByToken(tok_pfjet_, pfjetchscoll)) return;
 	 iEvent.getByToken(tok_pfjet_, pfjetchscoll);
 	 const reco::PFJetCollection *pfchsjets = pfjetchscoll.product();
 	 reco::PFJetCollection::const_iterator pfjetchsclus = pfchsjets->begin();
@@ -272,6 +275,7 @@ FSQDQM::~FSQDQM()
 
 
 	 edm::Handle<BasicJetCollection> castorJets;
+	 if(!iEvent.getByToken(tok_castorjet_, castorJets)) return;
 	 iEvent.getByToken(tok_castorjet_, castorJets);
 	 for (unsigned ijet=0; ijet<castorJets->size();ijet++) {
 	   recoCastorJets.push_back((*castorJets)[ijet]);
@@ -284,6 +288,7 @@ FSQDQM::~FSQDQM()
 	 }
 	 
 	 edm::Handle<reco::TrackCollection> itracks;
+	 if(!iEvent.getByToken(tok_track_, itracks)) return;
 	 iEvent.getByToken(tok_track_, itracks);
 	 reco::TrackBase::TrackQuality hiPurity = reco::TrackBase::qualityByName("highPurity");
 	 std::vector<TLorentzVector> T_trackRec_P4;
