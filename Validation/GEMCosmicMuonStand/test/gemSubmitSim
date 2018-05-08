@@ -1,4 +1,5 @@
 #!/bin/sh
+<<<<<<< HEAD
 #MAX_EVENT=${1:-1000}
 #N_JOBS=${2:-2}
 
@@ -19,3 +20,15 @@ create-batch --jobName UNKNOW \
              --maxEvent 1000 \
              --nJobs 2 \
              --transferDest ${TRANSFER_DEST}
+=======
+JOB_NAME=${1:-"GEMCRS-Sim_$(date +%y%m%d-%H%M%S)"}
+
+JOB_DIR=/xrootd/store/user/slowmoyang/GEMCRS/${JOB_NAME}
+mkdir -v ${JOB_DIR}
+
+create-batch --jobName ${JOB_NAME} \
+             --cfg runGEMCosmicStand_sim.py \
+             --maxEvent 5000 \
+             --nJobs 10 \
+             --transferDest "root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang/GEMCRS/${JOB_NAME}"
+>>>>>>> 5f1c83b228fafe1cea1e9e1f785037de97ba9b2a

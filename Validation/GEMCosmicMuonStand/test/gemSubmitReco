@@ -2,6 +2,7 @@
 FILE_LIST=${1:-"./listOfOutDigi.txt"}
 JOB_NAME=${2:-"GEMCRS-Reco_$(date +%y%m%d-%H%M%S)"}
 
+<<<<<<< HEAD
 if [ ${HOSTNAME} == "gate.sscc.uos.ac.kr" ]
 then
     STORAGE=/store/user/slowmoyang
@@ -13,6 +14,9 @@ then
 fi
 
 JOB_DIR="${STORE}/GEMCRS/${JOB_NAME}"
+=======
+JOB_DIR=/xrootd/store/user/slowmoyang/GEMCRS/${JOB_NAME}
+>>>>>>> 5f1c83b228fafe1cea1e9e1f785037de97ba9b2a
 mkdir -v ${JOB_DIR}
 
 create-batch --jobName ${JOB_NAME} \
