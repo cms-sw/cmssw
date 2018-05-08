@@ -99,11 +99,10 @@ DTDAQInfo::~DTDAQInfo() {}
     // the range of DT feds
     static const int FEDIDmin = FEDNumbering::MINDTFEDID;
     static const int FEDIDMax = FEDNumbering::MAXDTFEDID; 
-    
-    //FIXME for uROS FEDIDs once mapping has been defined
-    if (checkUros) { LogTrace("DQM|DTMonitorClient|DTDAQInfo")
-            << "Checking uROS FEDs as Legacy FEDs"<< endl;}
 
+   	if (checkUros) { LogTrace("DQM|DTMonitorClient|DTDAQInfo")
+            << "Checking uROS FEDs as Legacy FEDs"<< endl;}
+ 
     // loop on all active feds
     for(vector<int>::const_iterator fed = fedInIDs.begin();
 	fed != fedInIDs.end();
