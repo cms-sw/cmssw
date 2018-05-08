@@ -29,8 +29,8 @@ class DTvdriftWorkflow( DTWorkflow ):
             fill_function = getattr(self, function_name)
         except AttributeError:
             errmsg = "Class `{}` does not implement `{}`"
-            raise NotImplementedError( errmsg.format(my_cls.__class__.__name__,
-                                                     method_name))
+            raise NotImplementedError( errmsg.format(self.__class__.__name__,
+                                                     function_name))
         log.debug("Preparing workflow with function %s" % function_name)
         # call chosen function
         fill_function()
