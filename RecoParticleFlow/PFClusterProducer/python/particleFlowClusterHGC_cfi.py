@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoParticleFlow.PFClusterProducer.particleFlowRealisticSimClusterHGCCalibrations_cfi import *
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 #### PF CLUSTER HGCal ####
 
 #cleaning (none for now)
@@ -20,13 +21,16 @@ _simClusterMapper_HGCal = cms.PSet(
     maxDistanceFilter = cms.bool(True),
     #filtering out hits outside a cylinder of 10cm radius, built around the center of gravity per each layer
     maxDistance =  cms.double(10.0),
-    useMCFractionsForExclEnergy = cms.bool(False),    
+    maxDforTimingSquared = cms.double(4.0),
+    timeOffset = hgceeDigitizer.tofDelay,
+    minNHitsforTiming = cms.uint32(3),
+    useMCFractionsForExclEnergy = cms.bool(False),
     thresholdsByDetector = cms.VPSet(
     ),
     hadronCalib = hadronCorrections,
-    egammaCalib = egammaCorrections, 
-    calibMinEta = minEtaCorrection, 
-    calibMaxEta = maxEtaCorrection,                                   
+    egammaCalib = egammaCorrections,
+    calibMinEta = minEtaCorrection,
+    calibMaxEta = maxEtaCorrection,
     simClusterSrc = cms.InputTag("mix:MergedCaloTruth")
 )
 
@@ -34,7 +38,8 @@ _simClusterMapper_HGCal = cms.PSet(
 #position calculations
 _positionCalcPCA_HGCal = cms.PSet(
         algoName = cms.string("Cluster3DPCACalculator"),
-        minFractionInCalc = cms.double(1e-9)
+        minFractionInCalc = cms.double(1e-9),
+        updateTiming = cms.bool(False)
 )
 
 _hgcalMultiClusterMapper_HGCal = cms.PSet(

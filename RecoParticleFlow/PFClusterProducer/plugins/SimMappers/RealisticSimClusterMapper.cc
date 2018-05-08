@@ -10,7 +10,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "RealisticHitToClusterAssociator.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/RealisticHitToClusterAssociator.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/RealisticCluster.h"
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
@@ -109,6 +111,9 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
 
     const auto& realisticClusters = realisticAssociator.realisticClusters();
     unsigned int nClusters = realisticClusters.size();
+    float bin_norm = 1. / (calibMaxEta_ - calibMinEta_);
+    float egamma_bin_norm = egammaCalib_.size() * bin_norm;
+    float hadron_bin_norm = hadronCalib_.size() * bin_norm;
     for (unsigned ic = 0; ic < nClusters; ++ic)
     {
         float highest_energy = 0.0f;
@@ -116,6 +121,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         reco::PFCluster& back = output.back();
         edm::Ref < std::vector<reco::PFRecHit> > seed;
         float energyCorrection = 1.f;
+        float timeRealisticSC = -99.;
         if (realisticClusters[ic].isVisible())
         {
             int pdgId = simClusters[ic].pdgId();
@@ -125,20 +131,18 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 if ((isEGamma(pdgId) or isPi0(pdgId)) and !egammaCalib_.empty())
                 {
                     unsigned int etabin = std::floor(
-                            ((abseta - calibMinEta_) * egammaCalib_.size())
-                                    / (calibMaxEta_ - calibMinEta_));
-
+                            ((abseta - calibMinEta_) * egamma_bin_norm));
                     energyCorrection = egammaCalib_[etabin];
                 }
                 else if (isHadron(pdgId) and !(isPi0(pdgId)) and !hadronCalib_.empty()) // this function is expensive.. should we treat as hadron everything which is not egamma?
                 {
                     unsigned int etabin = std::floor(
-                            ((abseta - calibMinEta_) * hadronCalib_.size())
-                                    / (calibMaxEta_ - calibMinEta_));
+                            ((abseta - calibMinEta_) * hadron_bin_norm));
                     energyCorrection = hadronCalib_[etabin];
                 }
 
             }
+	    std::vector<float> timeHits;
             const auto& hitsIdsAndFractions = realisticClusters[ic].hitsIdsAndFractions();
             for (const auto& idAndF : hitsIdsAndFractions)
             {
@@ -153,14 +157,26 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                         highest_energy = hit_energy;
                         seed = ref;
                     }
+                    //select hits good for timing
+                    if(ref->time() > -1. ){
+		      int rhLayer = rhtools_.getLayerWithOffset(ref->detId());
+		      std::array<float,3> scPosition = realisticClusters[ic].getCenterOfGravity(rhLayer);
+		      float distanceSquared = std::pow((ref->position().x() - scPosition[0]),2) + std::pow((ref->position().y() - scPosition[1]),2);
+		      if(distanceSquared < maxDforTimingSquared_){
+			timeHits.push_back(ref->time() - timeOffset_);
+		      }
+		    }
                 }
             }
-        }
+	    //assign time if minimum number of hits
+	    if(timeHits.size() >= minNHitsforTiming_) timeRealisticSC = hgcalsimclustertime::fixSizeHighestDensity(timeHits);
+	}
         if (!back.hitsAndFractions().empty())
         {
             back.setSeed(seed->detId());
             back.setEnergy(realisticClusters[ic].getEnergy());
             back.setCorrectedEnergy(energyCorrection*realisticClusters[ic].getEnergy()); //applying energy correction
+	    back.setTime(timeRealisticSC);
         }
         else
         {
