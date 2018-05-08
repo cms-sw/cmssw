@@ -46,6 +46,28 @@ SiPixelStatusManager::~SiPixelStatusManager(){
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusManager::reset(){
      siPixelStatusMap_.clear();
+     siPixelStatusVtr_.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+bool SiPixelStatusManager::rankByLumi(SiPixelDetectorStatus status1,SiPixelDetectorStatus status2) 
+{ return (status1.getLSRange().first < status2.getLSRange().first); }
+
+void SiPixelStatusManager::createPayloads(){
+  if(!siPixelStatusVtr_.empty()){ //only create std::map payloads when the number of non-zero DIGI lumi sections is greater than ZERO otherwise segmentation fault
+
+   // sort the vector according to lumi
+   std::sort(siPixelStatusVtr_.begin(), siPixelStatusVtr_.end(), SiPixelStatusManager::rankByLumi);
+   
+   // create FEDerror25 ROCs and bad ROCs from PCL
+   SiPixelStatusManager::createFEDerror25();
+   SiPixelStatusManager::createBadComponents();
+     
+   // realse the cost of siPixelStatusVtr_ since it is not needed anymore
+   siPixelStatusVtr_.clear();
+
+  }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,26 +77,25 @@ void SiPixelStatusManager::readLumi(const LuminosityBlock& iLumi){
   iLumi.getByToken(siPixelStatusToken_, siPixelStatusHandle);
 
   if(siPixelStatusHandle.isValid()) { // check the product
-    siPixelStatusMap_[iLumi.luminosityBlock()] = *siPixelStatusHandle;
+    SiPixelDetectorStatus tmpStatus = (*siPixelStatusHandle);
+    if(tmpStatus.digiOccDET()>0){ // only put in SiPixelDetectorStatus with non zero digi (pixel hit)
+      siPixelStatusVtr_.push_back(tmpStatus);
+    }
   }
   else {
-    LogInfo("SiPixelStatusManager")
-        << "Lumi: " << iLumi.luminosityBlock() << std::endl;
-    LogInfo("SiPixelStatusManager")
-        << " SiPixelDetectorStatus is not valid!" << std::endl;
+       edm::LogWarning("SiPixelStatusManager")
+        << " SiPixelDetectorStatus is not valid for run "<<iLumi.run()<<" lumi "<<iLumi.luminosityBlock()<< std::endl;
   }
 
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusManager::createBadComponents(){
 
-  siPixelStatusMap_iterator firstStatus    = siPixelStatusMap_.begin();
-  siPixelStatusMap_iterator lastStatus     = siPixelStatusMap_.end();
+  siPixelStatusVtr_iterator firstStatus    = siPixelStatusVtr_.begin();
+  siPixelStatusVtr_iterator lastStatus     = siPixelStatusVtr_.end();
 
-  std::map<LuminosityBlockNumber_t,SiPixelDetectorStatus> tmpSiPixelStatusMap_;
+  siPixelStatusMap_.clear();
 
   if(outputBase_ == "nLumibased" && nLumi_>1){ // doesn't work for nLumi_=1 cos any integer can be completely divided by 1
 
@@ -84,41 +105,42 @@ void SiPixelStatusManager::createBadComponents(){
 
     LuminosityBlockNumber_t tmpLumi;
     SiPixelDetectorStatus tmpSiPixelStatus;
-    for (siPixelStatusMap_iterator it = firstStatus; it != lastStatus; it++) {
-  
+    for (siPixelStatusVtr_iterator it = firstStatus; it != lastStatus; it++) {
+
         // this is the begining of an IOV
         if(iterationLumi%nLumi_==0){
-           tmpLumi = it->first;
-           tmpSiPixelStatus = it->second; 
+           tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);
+           tmpSiPixelStatus = (*it); 
 	}
 
         // keep update detector status up to nLumi_ lumi sections
         if(iterationLumi%nLumi_>0){
-          tmpSiPixelStatus.updateDetectorStatus(it->second);
+          tmpSiPixelStatus.updateDetectorStatus((*it));
+          tmpSiPixelStatus.setLSRange(int(tmpLumi), (*it).getLSRange().second);
         }
 
-        siPixelStatusMap_iterator currentIt = it;
-        siPixelStatusMap_iterator nextIt = (++currentIt);
+        siPixelStatusVtr_iterator currentIt = it;
+        siPixelStatusVtr_iterator nextIt = (++currentIt);
         // wirte out if current lumi is the last lumi-section in the IOV
         if(iterationLumi%nLumi_==nLumi_-1 || nextIt==lastStatus) 
         {
              // fill it into a new map (with IOV structured)
-             tmpSiPixelStatusMap_[tmpLumi] = tmpSiPixelStatus;
+             siPixelStatusMap_[tmpLumi] = tmpSiPixelStatus;
         }
 
         iterationLumi=iterationLumi+1;
     }
 
     // check whether there is not enough number of Lumi in the last IOV
-    // (only when siPixelStatusMap_.size() > nLumi_ or equivalently tmpSiPixelStatusMap_.size()>1
+    // (only when siPixelStatusVtr_.size() > nLumi_ or equivalently current siPixelStatusMap_.size()>1
     //            (otherwise there will be only one IOV, and not previous IOV before the last IOV)
     //            and the number of lumi can not be completely divided by the nLumi_.
     //                (then the number of lumis in the last IOV is equal to the residual, which is less than nLumi_)
     // if it is, combine last IOV with the IOV before it
-    if(siPixelStatusMap_.size()%nLumi_!=0 && tmpSiPixelStatusMap_.size()>1){
+    if(siPixelStatusVtr_.size()%nLumi_!=0 && siPixelStatusMap_.size()>1){
 
        // start from the iterator of the end of std::map
-       siPixelStatusMap_iterator iterEnd = tmpSiPixelStatusMap_.end();
+       siPixelStatusMap_iterator iterEnd = siPixelStatusMap_.end();
        // the last IOV
        siPixelStatusMap_iterator iterLastIOV = std::prev(iterEnd);
        // the IOV before the last IOV
@@ -126,43 +148,43 @@ void SiPixelStatusManager::createBadComponents(){
 
        // combine the last IOV data to the IOV before the last IOV
        (iterBeforeLastIOV->second).updateDetectorStatus(iterLastIOV->second);
+       (iterBeforeLastIOV->second).setLSRange((iterBeforeLastIOV->second).getLSRange().first, (iterLastIOV->second).getLSRange().second);
+
        // delete the last IOV, so the IOV before the last IOV becomes the new last IOV
-       tmpSiPixelStatusMap_.erase(iterLastIOV);
+       siPixelStatusMap_.erase(iterLastIOV);
 
     }
-
-    siPixelStatusMap_.clear();
-    siPixelStatusMap_ = tmpSiPixelStatusMap_;
 
   }
   else if(outputBase_ == "dynamicLumibased"){
 
     double aveDigiOcc = 1.0*aveDigiOcc_;
   
-    LuminosityBlockNumber_t tmpLumi;
+    edm::LuminosityBlockNumber_t tmpLumi;
     SiPixelDetectorStatus tmpSiPixelStatus;
     bool isNewIOV = true;
 
     int counter = 0;
-    for (siPixelStatusMap_iterator it = firstStatus; it != lastStatus; it++) {
+    for (siPixelStatusVtr_iterator it = firstStatus; it != lastStatus; it++) {
 
          if(isNewIOV){ // if it is new IOV, init with the current data
-               tmpLumi = it->first;
-               tmpSiPixelStatus = it->second;
+               tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);
+               tmpSiPixelStatus = (*it);
          }
          else{ // if it is not new IOV, append current data
-               tmpSiPixelStatus.updateDetectorStatus(it->second);
+               tmpSiPixelStatus.updateDetectorStatus((*it));
+               tmpSiPixelStatus.setLSRange(int(tmpLumi),(*it).getLSRange().second);
          }
 
          // if reaching the end of data, write the last IOV to the map whatsoevec
-         siPixelStatusMap_iterator currentIt = it;
-         siPixelStatusMap_iterator nextIt = (++currentIt);
+         siPixelStatusVtr_iterator currentIt = it;
+         siPixelStatusVtr_iterator nextIt = (++currentIt);
          if(tmpSiPixelStatus.perRocDigiOcc()<aveDigiOcc && nextIt!=lastStatus){
             isNewIOV = false; // if digi occ is not enough, next data will not belong to new IOV
          }
          else{ // if (accunumated) digi occ is enough, write the data to the map
            isNewIOV = true;
-           tmpSiPixelStatusMap_[tmpLumi]=tmpSiPixelStatus;
+           siPixelStatusMap_[tmpLumi]=tmpSiPixelStatus;
            // so next loop is the begining of a new IOV
          }
          counter++;
@@ -172,10 +194,10 @@ void SiPixelStatusManager::createBadComponents(){
    // check whether last IOV has enough statistics
    // (ONLY when there are more than oneIOV(otherwise there is NO previous IOV before the last IOV) )
    // if not, combine with previous IOV
-   if(tmpSiPixelStatusMap_.size()>1){
+   if(siPixelStatusMap_.size()>1){
 
       // start from the end iterator of the std::map
-      siPixelStatusMap_iterator iterEnd = tmpSiPixelStatusMap_.end();
+      siPixelStatusMap_iterator iterEnd = siPixelStatusMap_.end();
       // the last IOV
       siPixelStatusMap_iterator iterLastIOV = std::prev(iterEnd);
       // if the statistics of the last IOV is not enough
@@ -184,30 +206,25 @@ void SiPixelStatusManager::createBadComponents(){
          siPixelStatusMap_iterator iterBeforeLastIOV = std::prev(iterLastIOV);
          // combine the last IOV data to the IOV before the last IOV
          (iterBeforeLastIOV->second).updateDetectorStatus(iterLastIOV->second);
+         (iterBeforeLastIOV->second).setLSRange((iterBeforeLastIOV->second).getLSRange().first, (iterLastIOV->second).getLSRange().second);
          // erase the last IOV, so the IOV before the last IOV becomes the new last IOV
-         tmpSiPixelStatusMap_.erase(iterLastIOV);
+         siPixelStatusMap_.erase(iterLastIOV);
       }
  
    }
 
-   siPixelStatusMap_.clear();
-   siPixelStatusMap_ = tmpSiPixelStatusMap_;
-
   }
-  else if(outputBase_ == "runbased" || ( (int(siPixelStatusMap_.size()) <= nLumi_ && outputBase_ == "nLumibased")) ){
+  else if(outputBase_ == "runbased" || ( (int(siPixelStatusVtr_.size()) <= nLumi_ && outputBase_ == "nLumibased")) ){
 
-    siPixelStatusMap_iterator firstStatus    = siPixelStatusMap_.begin();
-    siPixelStatusMap_iterator lastStatus     = siPixelStatusMap_.end();
+    edm::LuminosityBlockNumber_t tmpLumi = edm::LuminosityBlockNumber_t(firstStatus->getLSRange().first);
+    SiPixelDetectorStatus tmpSiPixelStatus = (*firstStatus);
 
-    LuminosityBlockNumber_t tmpLumi = firstStatus->first;
-    SiPixelDetectorStatus tmpSiPixelStatus = firstStatus->second;
-
-    siPixelStatusMap_iterator nextStatus = ++siPixelStatusMap_.begin();
-    for (siPixelStatusMap_iterator it = nextStatus; it != lastStatus; it++) {
-          tmpSiPixelStatus.updateDetectorStatus(it->second);
+    siPixelStatusVtr_iterator nextStatus = ++siPixelStatusVtr_.begin();
+    for (siPixelStatusVtr_iterator it = nextStatus; it != lastStatus; it++) {
+          tmpSiPixelStatus.updateDetectorStatus((*it));
+          tmpSiPixelStatus.setLSRange(int(tmpLumi),(*it).getLSRange().second); 
     }
 
-    siPixelStatusMap_.clear();
     siPixelStatusMap_[tmpLumi] = tmpSiPixelStatus;
 
   }
@@ -221,42 +238,45 @@ void SiPixelStatusManager::createBadComponents(){
 }
 
 
-void SiPixelStatusManager::createStuckTBMs(){
+void SiPixelStatusManager::createFEDerror25(){
 
     // initialize the first IOV and SiPixelDetector status (in the first IOV)
-    siPixelStatusMap_iterator firstStatus = siPixelStatusMap_.begin();
-    LuminosityBlockNumber_t   firstLumi = firstStatus->first;
-    SiPixelDetectorStatus     firstStuckTBMs = firstStatus->second;
-    stuckTBMsMap_[firstLumi] = firstStuckTBMs.getStuckTBMsRocs();   
+    siPixelStatusVtr_iterator firstStatus = siPixelStatusVtr_.begin();
+    edm::LuminosityBlockNumber_t  firstLumi = edm::LuminosityBlockNumber_t(firstStatus->getLSRange().first);
+    SiPixelDetectorStatus  firstFEDerror25 = (*firstStatus);
+    FEDerror25Map_[firstLumi] = firstFEDerror25.getFEDerror25Rocs();   
 
-    siPixelStatusMap_iterator lastStatus     = siPixelStatusMap_.end();
+    siPixelStatusVtr_iterator lastStatus = siPixelStatusVtr_.end();
 
     ///////////
     bool sameAsLastIOV = true;
-    LuminosityBlockNumber_t previousLumi = firstLumi;
-    siPixelStatusMap_iterator secondStatus = ++siPixelStatusMap_.begin();
-    for (siPixelStatusMap_iterator it = secondStatus; it != lastStatus; it++) {
-       
-        LuminosityBlockNumber_t tmpLumi = it->first;
-        SiPixelDetectorStatus tmpStuckTBMs = it->second;
-        std::map<int,std::vector<int> >tmpBadRocLists = tmpStuckTBMs.getStuckTBMsRocs();
+    edm::LuminosityBlockNumber_t previousLumi = firstLumi;
 
-        std::map<int, SiPixelModuleStatus>::iterator itModEnd = tmpStuckTBMs.end();
-        for (std::map<int, SiPixelModuleStatus>::iterator itMod = tmpStuckTBMs.begin(); itMod != itModEnd; ++itMod) 
+    siPixelStatusVtr_iterator secondStatus = ++siPixelStatusVtr_.begin();
+    for (siPixelStatusVtr_iterator it = secondStatus; it != lastStatus; it++) {
+        // init for each lumi section (iterator)
+        edm::LuminosityBlockNumber_t tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);
+        SiPixelDetectorStatus tmpFEDerror25 = (*it);
+
+        std::map<int,std::vector<int> >tmpBadRocLists = tmpFEDerror25.getFEDerror25Rocs();
+
+        std::map<int, SiPixelModuleStatus>::iterator itModEnd = tmpFEDerror25.end();
+        for (std::map<int, SiPixelModuleStatus>::iterator itMod = tmpFEDerror25.begin(); itMod != itModEnd; ++itMod) 
         {
             int detid = itMod->first;
             // if the badroc list differs for any detid, update the payload
-            if(tmpBadRocLists[detid]!=(stuckTBMsMap_[previousLumi])[detid]){
+            if(tmpBadRocLists[detid]!=(FEDerror25Map_[previousLumi])[detid]){
                sameAsLastIOV = false;
-               return;
+               break; // jump out of the loop once a new payload is found
             }       
         }
 
         if(sameAsLastIOV==false){
             //only write new IOV when this Lumi is not equal to the previous one
-
-            stuckTBMsMap_[tmpLumi] = tmpBadRocLists; 
+            FEDerror25Map_[tmpLumi] = tmpBadRocLists; 
+            // and reset
             previousLumi = tmpLumi;
+            sameAsLastIOV = true;
 
         }
 

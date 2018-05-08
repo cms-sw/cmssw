@@ -341,18 +341,17 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
   double calol2Phi = 0;
   double uGTPhi    = 0;
 
-  l1t::EtSumBxCollection::const_iterator calol2It = calol2Col->begin();
-  l1t::EtSumBxCollection::const_iterator uGTIt = uGTCol->begin();
-
-  // if either calol2 or ugt collections are empty, or they have different
-  // size, mark the event as bad (this should never occur in normal running)
-  if (calol2Col->size() == 0 || uGTCol->size() == 0 ||
-      (calol2Col->size() != uGTCol->size())) {
+  // if the calol2 or ugt collections have different size, mark the event as
+  // bad (this should never occur in normal running)
+  if (calol2Col->size() != uGTCol->size()) {
     comparisonNum->Fill(EVENTBADSUMCOL);
     return false;
   }
 
-  while(true) {
+  l1t::EtSumBxCollection::const_iterator calol2It = calol2Col->begin();
+  l1t::EtSumBxCollection::const_iterator uGTIt = uGTCol->begin();
+
+  while (calol2It != calol2Col->end() && uGTIt != uGTCol->end()) {
 
     // ETT, ETTEM, HTT, TowCnt, MBHFP0, MBHFM0, MBHFP1 or MBHFM1
     if ((l1t::EtSum::EtSumType::kTotalEt == calol2It->getType()) ||    // ETT
@@ -399,9 +398,6 @@ bool L1TStage2uGTCaloLayer2Comp::compareSums(
 
     ++calol2It;
     ++uGTIt;
-
-    if (calol2It == calol2Col->end() || uGTIt == uGTCol->end())
-      break;
   }
 
   // return a boolean that states whether the sum data in the event is in
