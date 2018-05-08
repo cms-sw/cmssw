@@ -211,7 +211,7 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 jetTable.variables.pt.precision=10
 
 ### Era dependent customization
-run2_miniAOD_80XLegacy.toModify( slimmedJetsWithUserData, userFloats=cms.PSet(qgl=cms.InputTag('qgtagger80x:qgLikelihood')))
+run2_miniAOD_80XLegacy.toModify( slimmedJetsWithUserData.userFloats,qgl=cms.InputTag('qgtagger80x:qgLikelihood'))
 run2_miniAOD_80XLegacy.toModify( jetTable.variables.qgl, expr="userFloat('qgl')" )
 run2_miniAOD_80XLegacy.toModify( jetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
 
