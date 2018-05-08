@@ -7,6 +7,15 @@ def loadJetMETBTag(process):
 
     task = getPatAlgosToolsTask(process)
 
+    import RecoParticleFlow.PFProducer.pfLinker_cff
+    process.particleFlowPtrs = RecoParticleFlow.PFProducer.pfLinker_cff.particleFlowPtrs.clone()
+    task.add(process.particleFlowPtrs)
+
+    process.load("CommonTools.ParticleFlow.pfNoPileUpIso_cff")
+    task.add(process.pfNoPileUpIsoTask)
+    process.load("CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff")
+    task.add(process.pfSortByTypeTask)
+
     import RecoJets.Configuration.RecoPFJets_cff
     process.ak4PFJetsCHS = RecoJets.Configuration.RecoPFJets_cff.ak4PFJetsCHS.clone()
     task.add(process.ak4PFJetsCHS)
@@ -15,23 +24,23 @@ def loadJetMETBTag(process):
     task.add(process.ak4PFJets)
     process.ak8PFJetsCHS = RecoJets.Configuration.RecoPFJets_cff.ak8PFJetsCHS.clone()
     task.add(process.ak8PFJetsCHS)
-    process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
-    task.add(process.ak4JetTracksAssociatorAtVertexPF)
 
-    process.load("RecoBTag.ImpactParameter.impactParameter_cff")
-    task.add(process.impactParameterTask)
-    process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
-    task.add(process.secondaryVertexTask)
-    process.load("RecoBTag.SoftLepton.softLepton_cff")
-    task.add(process.softLeptonTask)
-    process.load("RecoBTag.Combined.combinedMVA_cff")
-    task.add(process.combinedMVATask)
-    process.load("RecoBTag.CTagging.cTagging_cff")
-    task.add(process.cTaggingTask)
-    process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
-    task.add(process.inclusiveVertexingTask)
-    task.add(process.inclusiveCandidateVertexingTask)
-    task.add(process.inclusiveCandidateVertexingCvsLTask)
+    process.fixedGridRhoAll = RecoJets.Configuration.RecoPFJets_cff.fixedGridRhoAll.clone()
+    process.fixedGridRhoFastjetAll = RecoJets.Configuration.RecoPFJets_cff.fixedGridRhoFastjetAll.clone()
+    process.fixedGridRhoFastjetCentral = RecoJets.Configuration.RecoPFJets_cff.fixedGridRhoFastjetCentral.clone()
+    process.fixedGridRhoFastjetCentralChargedPileUp = RecoJets.Configuration.RecoPFJets_cff.fixedGridRhoFastjetCentralChargedPileUp.clone()
+    process.fixedGridRhoFastjetCentralNeutral = RecoJets.Configuration.RecoPFJets_cff.fixedGridRhoFastjetCentralNeutral.clone()
+    task.add( process.fixedGridRhoAll,
+              process.fixedGridRhoFastjetAll,
+              process.fixedGridRhoFastjetCentral,
+              process.fixedGridRhoFastjetCentralChargedPileUp,
+              process.fixedGridRhoFastjetCentralNeutral )
+
+    process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
+    task.add(process.ak4JTATask)
+
+    process.load('RecoBTag.Configuration.RecoBTag_cff')
+    task.add(process.btaggingTask)
 
     process.load("RecoMET.METProducers.PFMET_cfi")
     task.add(process.pfMet)
@@ -45,10 +54,12 @@ def cleanPfCandidates(process, verbose=False):
     task.add(process.pfCandidatesBadHadRecalibrated)
 
     replacePFCandidates = MassSearchReplaceAnyInputTagVisitor("particleFlow", "pfCandidatesBadHadRecalibrated", verbose=verbose)
+    replacePFTmpPtrs = MassSearchReplaceAnyInputTagVisitor("particleFlowTmpPtrs", "particleFlowPtrs", verbose=verbose)
     for everywhere in [ process.producers, process.filters, process.analyzers, process.psets, process.vpsets ]:
         for name,obj in everywhere.iteritems():
             if obj != process.pfCandidatesBadHadRecalibrated:
                 replacePFCandidates.doIt(obj, name)
+                replacePFTmpPtrs.doIt(obj, name)
 
 
     process.load("CommonTools.ParticleFlow.pfEGammaToCandidateRemapper_cfi")
@@ -105,13 +116,6 @@ def addDiscardedPFCandidates(process, inputCollection, verbose=False):
     addKeepStatement(process, "keep patPackedCandidates_packedPFCandidates_*_*",
                              ["keep patPackedCandidates_packedPFCandidatesDiscarded_*_*"],
                               verbose=verbose)
-    # Now make the mixed map for rekeying
-    from PhysicsTools.PatAlgos.slimming.packedPFCandidateRefMixer_cfi import packedPFCandidateRefMixer
-    process.oldPFCandToPackedOrDiscarded = packedPFCandidateRefMixer.clone(
-        pf2pf = cms.InputTag(inputCollection.moduleLabel),
-        pf2packed = cms.VInputTag(cms.InputTag("packedPFCandidates"), cms.InputTag("packedPFCandidatesDiscarded"))
-    )
-    task.add(process.oldPFCandToPackedOrDiscarded)
 
 
 def customizeAll(process, verbose=False):
