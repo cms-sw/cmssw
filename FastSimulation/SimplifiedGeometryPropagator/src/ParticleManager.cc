@@ -212,21 +212,12 @@ unsigned fastsim::ParticleManager::addSimVertex(
 
 unsigned fastsim::ParticleManager::addSimTrack(const fastsim::Particle * particle)
 {
-    int simTrackIndex;
-    // Again: FastSim cheat tracking -> continue track of mother
-    if(particle->getMotherDeltaR() != -1){
-        simTrackIndex = particle->getMotherSimTrackIndex();
-    }
-    // or create new SimTrack
-    else
-    {
-        simTrackIndex = simTracks_->size();
-        simTracks_->emplace_back(particle->pdgId(),
-                    particle->momentum(),
-                    particle->simVertexIndex(),
-                    particle->genParticleIndex());
-        simTracks_->back().setTrackId(simTrackIndex);
-    }
+    int simTrackIndex = simTracks_->size();
+    simTracks_->emplace_back(particle->pdgId(),
+                particle->momentum(),
+                particle->simVertexIndex(),
+                particle->genParticleIndex());
+    simTracks_->back().setTrackId(simTrackIndex);
     return simTrackIndex;
 }
 
@@ -283,10 +274,17 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle()
             newParticle->setRemainingProperLifeTimeC(labFrameLifeTime / newParticle->gamma() * fastsim::Constants::speedOfLight);
         }
 
-        // TODO: The products of a b-decay should point to that vertex and not to the primary vertex!
-        // Seems like this information has to be taken from the genEvent. How to do this? Is this really neccessary?
-        // See FBaseSimEvent::fill(..)
-        newParticle->setSimVertexIndex(0);
+        // Find production vertex if it already exists. Otherwise create new vertex
+        // Possible to recreate the whole GenEvent using SimTracks/SimVertices (see FBaseSimEvent::fill(..))
+        bool foundVtx = false;
+        for(const auto& simVtx : *simVertices_){
+            if(std::abs(simVtx.position().x() - newParticle->position().x()) < 1E-3 && std::abs(simVtx.position().y() - newParticle->position().y()) < 1E-3 && std::abs(simVtx.position().z() - newParticle->position().z()) < 1E-3){
+                newParticle->setSimVertexIndex(simVtx.vertexId());
+                foundVtx = true;
+                break;
+            }
+        }        
+        if(!foundVtx) newParticle->setSimVertexIndex(addSimVertex(newParticle->position(), -1));
 
         // iterator/index has to be increased in case of return (is not done by the loop then)
         ++genParticleIterator_; ++genParticleIndex_;

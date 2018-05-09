@@ -396,7 +396,15 @@ FastSimProducer::endStream()
 FSimTrack
 FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleManager* particleManager)
 {
-    FSimTrack myFSimTrack(particle->pdgId(), particle->momentum(), particle->simVertexIndex(), particle->genParticleIndex(), particle->simTrackIndex(), particle->charge(), particle->position(), particle->momentum(), particleManager->getSimVertex(particle->simVertexIndex()));
+    FSimTrack myFSimTrack(particle->pdgId(),
+        particleManager->getSimTrack(particle->simTrackIndex()).momentum(),
+        particle->simVertexIndex(),
+        particle->genParticleIndex(),
+        particle->simTrackIndex(),
+        particle->charge(),
+        particle->position(),
+        particle->momentum(),
+        particleManager->getSimVertex(particle->simVertexIndex()));
 
     // move the particle through the caloLayers
     fastsim::LayerNavigator caloLayerNavigator(caloGeometry_);
@@ -449,6 +457,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
             // not necessary to continue propagation
             if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL)
             {
+                myFSimTrack.setGlobal();
                 caloLayer = nullptr;
                 break;
             }
@@ -522,6 +531,7 @@ FastSimProducer::createFSimTrack(fastsim::Particle* particle, fastsim::ParticleM
         // Particle reached end of detector
         if(caloLayer->getCaloType() == fastsim::SimplifiedGeometry::VFCAL)
         {
+            myFSimTrack.setGlobal();
             caloLayer = nullptr;
             break;
         }

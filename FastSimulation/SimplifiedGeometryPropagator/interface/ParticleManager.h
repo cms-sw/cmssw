@@ -87,6 +87,9 @@ namespace fastsim {
         //! Returns the position of a given SimVertex. Needed for interfacing the code with the old calorimetry.
         const SimVertex getSimVertex(unsigned i) { return simVertices_->at(i); }
 
+        //! Returns a given SimTrack. Needed for interfacing the code with the old calorimetry.
+        const SimTrack getSimTrack(unsigned i) { return simTracks_->at(i); }
+
         //! Necessary to add an end vertex to a particle.
         /*!
             Needed if particle is no longer propagated for some reason (e.g. remaining energy below threshold) and no
@@ -121,6 +124,13 @@ namespace fastsim {
             Tries to get some basic information about the status of the particle from the GenEvent and does some first rejection cuts based on them.
         */
         std::unique_ptr<Particle> nextGenParticle();
+
+        //! Set lifetime and charge of a particle
+        /*!
+            Set lifetime and charge of a particle according to its pdgId, typically used for secondaries produced in an interaction
+            \param particle A generic particle.
+        */
+        void setParticleData(std::unique_ptr<fastsim::Particle> & particle);
 
         // data members
         const HepMC::GenEvent * const genEvent_;  //!< The GenEvent 
