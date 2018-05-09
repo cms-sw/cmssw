@@ -147,7 +147,7 @@ updatedJets = updatedPatJets.clone(
 
 finalJets = cms.EDFilter("PATJetRefSelector",
     src = cms.InputTag("updatedJets"),
-    cut = cms.string("pt > 5")
+    cut = cms.string("pt > 15")
 )
 
 updatedJetsAK8 = updatedPatJets.clone(
@@ -177,7 +177,7 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(
-#       bRegOld = ExtVar(cms.InputTag("bjetMVA"),float, doc="pt corrected with b-jet regression",precision=14),
+        bRegOld = ExtVar(cms.InputTag("bjetMVA"),float, doc="pt corrected with b-jet regression",precision=14),
         bReg = ExtVar(cms.InputTag("bjetNN:corr"),float, doc="pt corrected with b-jet regression",precision=12),
         bRegRes = ExtVar(cms.InputTag("bjetNN:res"),float, doc="res on pt corrected with b-jet regression",precision=8),
     ),
@@ -292,7 +292,6 @@ bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
 
 
 
-
 ##### Soft Activity tables
 saJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("softActivityJets"),
@@ -359,6 +358,7 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 ### Era dependent customization
+run2_miniAOD_80XLegacy.toModify( bjetNN,outputFormulas = cms.vstring(["at(0)*0.31628304719924927+1.0454729795455933","0.5*(at(2)-at(1))*0.31628304719924927"]))
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, msoftdrop_chs = Var("userFloat('ak8PFJetsCHSSoftDropMass')",float, doc="Legacy uncorrected soft drop mass with CHS",precision=10))
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1\')"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2\')"),)
