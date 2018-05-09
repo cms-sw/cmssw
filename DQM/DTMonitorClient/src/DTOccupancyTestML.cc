@@ -55,7 +55,7 @@ DTOccupancyTestML::DTOccupancyTestML(const edm::ParameterSet& ps){
   nMinEvtsPC  = ps.getUntrackedParameter<int>("nEventsMinPC", 2200);
   nZeroEvtsPC  = ps.getUntrackedParameter<int>("nEventsZeroPC", 30);
 
-  bookingdone = false;
+  bookingdone = 0;
 
   // Event counter
   nevents = 0;
@@ -114,7 +114,7 @@ void DTOccupancyTestML::beginRun(const edm::Run& run, const EventSetup& context)
     }
 
   }
-  bookingdone = true; 
+  bookingdone = 1; 
 
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTestML")
@@ -134,8 +134,8 @@ void DTOccupancyTestML::beginRun(const edm::Run& run, const EventSetup& context)
   vector<const DTChamber*> chambers = muonGeom->chambers();
 
   // Load graph
-  tensorflow::setLogging("4");
-  edm::FileInPath modelFilePath("DQM/DTMonitorClient/data/occupancy_cnn_v1.pb");
+  tensorflow::setLogging("3");
+  edm::FileInPath modelFilePath("DQM/DTMonitorClient/models/occupancy_cnn_v1.pb");
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(modelFilePath.fullPath());
 
   // Create session
@@ -148,7 +148,7 @@ void DTOccupancyTestML::beginRun(const edm::Run& run, const EventSetup& context)
     MonitorElement * chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));	
 
     // Run the tests on the plot for the various granularities
-    if(chamberOccupancyHisto != nullptr) {
+    if(chamberOccupancyHisto != 0) {
       // Get the 2D histo
       TH2F *histo = chamberOccupancyHisto->getTH2F();
 
@@ -360,21 +360,18 @@ int DTOccupancyTestML::runOccupancyTest(TH2F *histo, const DTChamberId& chId,
                       { "output_cnn/Softmax" }, &outputs);
 
       totalLayers++;
-
-      bool isBad = (outputs[0].matrix<float>()(0, 0) <
-                    outputs[0].matrix<float>()(0, 1));
-
+      bool isBad = outputs[0].matrix<float>()(0, 1) > 0.95;
       if (isBad) badLayers++;
     }
   }
+
   // Calculate a fraction of good layers
   chamberPercentage = 1.0 - static_cast<float>(badLayers)/totalLayers;
 
-  if (chamberPercentage < 0.01) return 4;  // 12/12 or 8/8 fauilty layers
-  if (chamberPercentage < 0.34) return 3;  // 8/12 or 6/8 faulty layers
-  if (chamberPercentage < 0.67) return 2;  // 4/12 or 3/8 faulty layers
-  if (chamberPercentage < 0.92) return 1;  // 1/12 or 1/8 faulty layers
-  return 0;  // All good
+  if (badLayers > 8) return 3; // 3 SL
+  if (badLayers > 4) return 2; // 2 SL
+  if (badLayers > 0) return 1; // 1 SL
+  return 0;
 }
 
 std::vector<float> DTOccupancyTestML::interpolateLayers(std::vector<float> const& inputs, int size, int targetSize) {
