@@ -127,8 +127,30 @@ nanoSequence = cms.Sequence(
 nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
 
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 def nanoAOD_customizeCommon(process):
+    updateJetCollection(
+               process,
+               jetSource = cms.InputTag('slimmedJets'),
+               jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
+               btagDiscriminators = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc'], ## to add discriminators
+               btagPrefix = ''
+           )
+
+
+    process.load("Configuration.StandardSequences.MagneticField_cff")
+    process.looseJetId.src="selectedUpdatedPatJets"
+    process.tightJetId.src="selectedUpdatedPatJets"
+    process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
+    process.bJetVars.src="selectedUpdatedPatJets"
+    process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
+    patAlgosToolsTask = getPatAlgosToolsTask(process)
+    patAlgosToolsTask .add(process.updatedPatJets)
+    patAlgosToolsTask .add(process.patJetCorrFactors)
+    process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
+
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)

@@ -122,7 +122,7 @@ run2_miniAOD_80XLegacy.toModify( slimmedJetsAK8WithUserData.userInts,
 from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
 # Note: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
 #      (cf. https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#CMSSW_7_6_4_and_above )
-jetCorrFactors = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
+jetCorrFactorsNano = patJetCorrFactors.clone(src='slimmedJetsWithUserData',
     levels = cms.vstring('L1FastJet',
         'L2Relative',
         'L3Absolute',
@@ -142,12 +142,12 @@ from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
 updatedJets = updatedPatJets.clone(
 	addBTagInfo=False,
 	jetSource='slimmedJetsWithUserData',
-	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactors") ),
+	jetCorrFactorsSource=cms.VInputTag(cms.InputTag("jetCorrFactorsNano") ),
 )
 
 finalJets = cms.EDFilter("PATJetRefSelector",
     src = cms.InputTag("updatedJets"),
-    cut = cms.string("pt > 15")
+    cut = cms.string("pt > 5")
 )
 
 updatedJetsAK8 = updatedPatJets.clone(
@@ -507,7 +507,7 @@ run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.Input
 run2_nanoAOD_92X.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
-jetSequence = cms.Sequence(tightJetId+tightJetIdLepVeto+bJetVars+slimmedJetsWithUserData+jetCorrFactors+updatedJets+tightJetIdAK8+tightJetIdLepVetoAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+jetSequence = cms.Sequence(tightJetId+tightJetIdLepVeto+bJetVars+slimmedJetsWithUserData+jetCorrFactorsNano+updatedJets+tightJetIdAK8+tightJetIdLepVetoAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
 
 from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
 qgtagger80x=QGTagger.clone(srcJets="slimmedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
