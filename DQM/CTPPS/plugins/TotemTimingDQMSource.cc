@@ -722,7 +722,6 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
                 planePlots_.find(detId_plane) != planePlots_.end()  &&
                 channelPlots_.find(detId) != channelPlots_.end()      )
       {
-        // only when there is 1 hit per plane
         if ( stripTracks.isValid() )
         {
           for (const auto &ds : *stripTracks) {
