@@ -290,6 +290,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fCapidMinusBXmod4),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
+	for (int i = 0; i < 4; ++i) {
+		_cCapidMinusBXmod4_CrateSlot[i].initialize(_name, "CapID", 
+			new quantity::ElectronicsQuantity(quantity::fCrate),
+			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+	}
+
 	if (_ptype != fOffline) { // hidefed2crate
 		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
 		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
@@ -483,6 +490,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cBadTDCCount_depth.book(ib, _emap, _subsystem);
 
 	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
+	for (int i = 0; i < 4; ++i) {
+		char aux[10];
+		sprintf(aux, "%d", i);
+		_cCapidMinusBXmod4_CrateSlot[i].book(ib, _subsystem, aux);
+	}
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -680,6 +692,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
+			_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
 		}
 
 		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
@@ -854,6 +867,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
+			_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
 		}
 
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
@@ -1035,6 +1049,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
+			_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
 		}
 
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
@@ -1200,6 +1215,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				if (!good_capidmbx) {
 					_xBadCapid.get(eid)++;
 				}
+				_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
 			}
 
 			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
