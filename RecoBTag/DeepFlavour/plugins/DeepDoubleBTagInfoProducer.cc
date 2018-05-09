@@ -22,8 +22,8 @@
 #include "DataFormats/BTauReco/interface/DeepDoubleBFeatures.h"
 
 #include "RecoBTag/DeepFlavour/interface/JetConverter.h"
-#include "RecoBTag/DeepFlavour/interface/DoubleBTagConverter.h"
-#include "RecoBTag/DeepFlavour/interface/SVConverter.h"
+#include "RecoBTag/DeepFlavour/interface/BoostedDoubleSVTagInfoConverter.h"
+#include "RecoBTag/DeepFlavour/interface/SecondaryVertexConverter.h"
 #include "RecoBTag/DeepFlavour/interface/ChargedCandidateConverter.h"
 
 #include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
@@ -37,32 +37,32 @@
 
 
 class DeepDoubleBTagInfoProducer : public edm::stream::EDProducer<> {
-
-  public:
-	  explicit DeepDoubleBTagInfoProducer(const edm::ParameterSet&);
-	  ~DeepDoubleBTagInfoProducer() override;
-
-	  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-  private:
-    typedef std::vector<reco::DeepDoubleBTagInfo> DeepDoubleBTagInfoCollection;
-    typedef reco::VertexCompositePtrCandidateCollection SVCollection;
-    typedef reco::VertexCollection VertexCollection;
-    typedef edm::View<reco::BoostedDoubleSVTagInfo> BoostedDoubleSVTagInfoCollection;
-
-	  void beginStream(edm::StreamID) override {}
-	  void produce(edm::Event&, const edm::EventSetup&) override;
-	  void endStream() override {}
-
+  
+public:
+  explicit DeepDoubleBTagInfoProducer(const edm::ParameterSet&);
+  ~DeepDoubleBTagInfoProducer() override;
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  
+private:
+  typedef std::vector<reco::DeepDoubleBTagInfo> DeepDoubleBTagInfoCollection;
+  typedef reco::VertexCompositePtrCandidateCollection SVCollection;
+  typedef reco::VertexCollection VertexCollection;
+  typedef edm::View<reco::BoostedDoubleSVTagInfo> BoostedDoubleSVTagInfoCollection;
+  
+  void beginStream(edm::StreamID) override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override {}
+  
     
-    const double jet_radius_;
-    const double min_candidate_pt_;
-
-    edm::EDGetTokenT<edm::View<reco::Jet>>  jet_token_;
-    edm::EDGetTokenT<VertexCollection> vtx_token_;
-    edm::EDGetTokenT<SVCollection> sv_token_;
-    edm::EDGetTokenT<BoostedDoubleSVTagInfoCollection> shallow_tag_info_token_;
-    
+  const double jet_radius_;
+  const double min_candidate_pt_;
+  
+  edm::EDGetTokenT<edm::View<reco::Jet>>  jet_token_;
+  edm::EDGetTokenT<VertexCollection> vtx_token_;
+  edm::EDGetTokenT<SVCollection> sv_token_;
+  edm::EDGetTokenT<BoostedDoubleSVTagInfoCollection> shallow_tag_info_token_;
+  
 };
 
 DeepDoubleBTagInfoProducer::DeepDoubleBTagInfoProducer(const edm::ParameterSet& iConfig) :
@@ -74,7 +74,7 @@ DeepDoubleBTagInfoProducer::DeepDoubleBTagInfoProducer(const edm::ParameterSet& 
   shallow_tag_info_token_(consumes<BoostedDoubleSVTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos")))
 {
   produces<DeepDoubleBTagInfoCollection>();
-   
+  
 }
 
 
@@ -98,12 +98,12 @@ void DeepDoubleBTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
 
 void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+  
   auto output_tag_infos = std::make_unique<DeepDoubleBTagInfoCollection>();
-
+  
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jet_token_, jets);
-
+  
   edm::Handle<VertexCollection> vtxs;
   iEvent.getByToken(vtx_token_, vtxs);
   if (vtxs->empty()) {
@@ -113,33 +113,30 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   }
   // reference to primary vertex
   const auto & pv = vtxs->at(0);
-
+  
   edm::Handle<SVCollection> svs;
   iEvent.getByToken(sv_token_, svs);
-
+  
   edm::Handle<BoostedDoubleSVTagInfoCollection> shallow_tag_infos;
   iEvent.getByToken(shallow_tag_info_token_, shallow_tag_infos);
-
+  
   edm::ESHandle<TransientTrackBuilder> track_builder; 
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", track_builder);
-
+  
   for (std::size_t jet_n = 0; jet_n <  jets->size(); jet_n++) {
-
+    
     // create data containing structure
     btagbtvdeep::DeepDoubleBFeatures features;
-
+    
     // reco jet reference (use as much as possible)
     const auto & jet = jets->at(jet_n);
-    // dynamical casting to pointers, null if not possible
-    const auto * pf_jet = dynamic_cast<const reco::PFJet *>(&jet);
-    const auto * pat_jet = dynamic_cast<const pat::Jet *>(&jet);
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
     // TagInfoCollection not in an associative container so search for matchs
     const edm::View<reco::BoostedDoubleSVTagInfo> & taginfos = *shallow_tag_infos;
     edm::Ptr<reco::BoostedDoubleSVTagInfo> match;
     // Try first by 'same index'
     if ((jet_n < taginfos.size()) && (taginfos[jet_n].jet() == jet_ref)) {
-        match = taginfos.ptrAt(jet_n);
+      match = taginfos.ptrAt(jet_n);
     } else {
       // otherwise fall back to a simple search
       for (auto itTI = taginfos.begin(), edTI = taginfos.end(); itTI != edTI; ++itTI) {
@@ -150,17 +147,17 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     if (match.isNonnull()) {
       tag_info = *match; 
     } // will be default values otherwise
-
+    
     // fill basic jet features
-    btagbtvdeep::JetConverter::JetToFeatures(jet, features.jet_features);
-
+    btagbtvdeep::JetConverter::jetToFeatures(jet, features.jet_features);
+    
     // fill number of pv                                                                                                     
     features.npv = vtxs->size();
-
+    
     // fill features from BoostedDoubleSVTagInfo
     const auto & tag_info_vars = tag_info.taggingVariables();
-    btagbtvdeep::DoubleBTagToFeatures(tag_info_vars, features.tag_info_features);
-
+    btagbtvdeep::doubleBTagToFeatures(tag_info_vars, features.tag_info_features);
+    
     // copy which will be sorted
     auto svs_sorted = *svs;     
     // sort by dxy
@@ -174,21 +171,21 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         features.sv_features.emplace_back();
         // in C++17 could just get from emplace_back output
         auto & sv_features = features.sv_features.back();
-        btagbtvdeep::SVToFeatures(sv, pv, jet, sv_features);
+        btagbtvdeep::sVToFeatures(sv, pv, jet, sv_features);
       }
     }
-
+    
     // stuff required for dealing with pf candidates 
     math::XYZVector jet_dir = jet.momentum().Unit();
     GlobalVector jet_ref_track_dir(jet.px(),
                                    jet.py(),
                                    jet.pz());
-
+    
     std::vector<btagbtvdeep::SortingClass<size_t> > c_sorted;
-
+    
     // to cache the TrackInfo
     std::map<unsigned int, btagbtvdeep::TrackInfoBuilder> trackinfos;
-
+    
     // unsorted reference to sv
     const auto & svs_unsorted = *svs;     
     // fill collection, from DeepTNtuples plus some styling
@@ -196,33 +193,29 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     std::vector<const reco::Candidate*> daughters;
     std::vector<reco::PFCandidatePtr> reco_ptrs; // needed if reco candidates
     for (unsigned int i = 0; i < jet.numberOfDaughters(); i++){
-        auto const *cand = jet.daughter(i);
-	auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
-	auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
-	// need some edm::Ptr or edm::Ref if reco candidates                                                                                               
-	reco::PFCandidatePtr reco_ptr;
-	if (pf_jet) {
-	  reco_ptr = pf_jet->getPFConstituent(i);
-	  daughters.push_back(reco_cand);
-	  reco_ptrs.push_back(reco_ptr);  
-	} else if (pat_jet && reco_cand) {
-	  reco_ptr = pat_jet->getPFConstituent(i);
-	  daughters.push_back(reco_cand);
-	  reco_ptrs.push_back(reco_ptr);	    
-	} else {
-	  if (cand->numberOfDaughters() > 0){
-	    for (unsigned int k = 0; k < cand->numberOfDaughters(); k++){
-	      daughters.push_back(dynamic_cast<const pat::PackedCandidate*>(cand->daughter(k)));
-	    }
-	  }	
-	  else {
-	    daughters.push_back(packed_cand);
+      auto const *cand = jet.daughter(i);
+      auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
+      // need some edm::Ptr or edm::Ref if reco candidates                                                                                               
+      reco::PFCandidatePtr reco_ptr;
+      if (reco_cand) {
+	// dynamical casting to pointers, null if not possible
+	const auto * pf_jet = dynamic_cast<const reco::PFJet *>(&jet);
+	reco_ptr = pf_jet->getPFConstituent(i);
+	daughters.push_back(reco_cand);
+	reco_ptrs.push_back(reco_ptr); 
+      } else {
+	if (cand->numberOfDaughters() > 0){
+	  for (unsigned int k = 0; k < cand->numberOfDaughters(); k++){
+	    daughters.push_back(dynamic_cast<const pat::PackedCandidate*>(cand->daughter(k)));
 	  }
+	}	
+	else {
+	  auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
+	  daughters.push_back(packed_cand);
 	}
+      }
     }
-
-    //unsigned int i = 0;
-    //for (const auto * cand : daughters) {	
+    
     for (unsigned int i = 0; i < daughters.size(); i++) {
       auto const *cand = daughters.at(i);
       
@@ -251,7 +244,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // set right size to vectors
     features.c_pf_features.clear();
     features.c_pf_features.resize(c_sorted.size());
-
+    
     //for (const auto * cand : daughters) {	
     for (unsigned int i = 0; i < daughters.size(); i++) {
       auto const *cand = daughters.at(i);
@@ -260,19 +253,16 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 	// might change if we use also white-listing
 	if (cand->pt()<0.95) continue;
 	
-	auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
 	auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
 	
 	// need some edm::Ptr or edm::Ref if reco candidates
 	reco::PFCandidatePtr reco_ptr;
-	if (pf_jet) {
-	  reco_ptr = reco_ptrs.at(i);
-	} else if (pat_jet && reco_cand) {
+	if (reco_cand) {
 	  reco_ptr = reco_ptrs.at(i);
 	}
 	// get PUPPI weight from value map
 	float puppiw = 1.0; // fallback value
-
+	
 	float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand, jet_radius_);
 	
 	if (cand->charge() != 0) {
@@ -283,8 +273,9 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 	  // get_ref to vector element
 	  auto & c_pf_features = features.c_pf_features.at(entry);
 	  // fill feature structure 
+	  auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand); 
 	  if (packed_cand) {
-	    btagbtvdeep::PackedCandidateToFeatures(packed_cand, jet, trackinfo, 
+	    btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, trackinfo, 
 						   drminpfcandsv, jet_radius_, c_pf_features);
 	  } else if (reco_cand) {
 	    // get vertex association quality
@@ -299,19 +290,19 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 	      if(dz<dist) {pvi=ii;dist=dz; }
 	    } 
 	    auto PV = reco::VertexRef(vtxs, pvi);
-	    btagbtvdeep::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
+	    btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, trackinfo, 
 						 drminpfcandsv, jet_radius_, puppiw,
 						 pv_ass_quality, PV, c_pf_features);
 	  }
 	}
       }
     }
-
-  output_tag_infos->emplace_back(features, jet_ref);
+    
+    output_tag_infos->emplace_back(features, jet_ref);
   }
-
+  
   iEvent.put(std::move(output_tag_infos));
-
+  
 }
 
 //define this as a plug-in
