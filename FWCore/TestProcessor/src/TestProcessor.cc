@@ -432,7 +432,7 @@ TestProcessor::event() {
   if(waitTask->exceptionPtr() != nullptr) {
     std::rethrow_exception(* (waitTask->exceptionPtr()) );
   }
-
+  ++eventNumber_;
 }
   
 void
@@ -588,6 +588,11 @@ void
 TestProcessor::setLuminosityBlockNumber(edm::LuminosityBlockNumber_t iLumi) {
   endLuminosityBlock();
   lumiNumber_ = iLumi;
+}
+
+void
+TestProcessor::setEventNumber(edm::EventNumber_t iEv) {
+  eventNumber_ = iEv;
 }
 
 //
