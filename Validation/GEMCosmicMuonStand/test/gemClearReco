@@ -1,0 +1,3 @@
+#!/bin/sh
+rm -rfv /home/slowmoyang/gemcrs/src/Validation/GEMCosmicMuonStand/test/Reco*
+rm -rfv /store/user/slowmoyang/GEMCRS/Reco*

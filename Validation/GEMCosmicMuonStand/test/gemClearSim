@@ -1,0 +1,3 @@
+#!/bin/sh
+rm -rfv /home/slowmoyang/gemcrs/src/Validation/GEMCosmicMuonStand/test/Sim*
+rm -rfv /store/user/slowmoyang/GEMCRS/Sim*
