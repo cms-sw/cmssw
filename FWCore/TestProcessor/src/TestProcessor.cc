@@ -14,6 +14,7 @@
 
 // user include files
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
+#include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
 
 #include "FWCore/Framework/interface/ScheduleItems.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -111,9 +112,15 @@ TestProcessor::TestProcessor(Config const& iConfig):
 
   // intialize miscellaneous items
   std::shared_ptr<CommonParams> common(items.initMisc(*psetPtr));
-
+  
   // intialize the event setup provider
   esp_ = espController_->makeProvider(*psetPtr, items.actReg_.get());
+
+  if(not iConfig.esProduceEntries().empty()) {
+    esHelper_ = std::make_unique<EventSetupTestHelper>(iConfig.esProduceEntries());
+    esp_->add( std::dynamic_pointer_cast<eventsetup::DataProxyProvider>(esHelper_));
+    esp_->add( std::dynamic_pointer_cast<EventSetupRecordIntervalFinder>(esHelper_));
+  }
 
   auto nThreads = 1U;
   auto nStreams = 1U;
@@ -207,6 +214,10 @@ TestProcessor::testImpl() {
   
   bool result = schedule_->totalEventsPassed()> 0;
   schedule_->clearCounters();
+  if(esHelper_) {
+    //We want each test to have its own ES data products
+    esHelper_->resetAllProxies();
+  }
   return edm::test::Event(principalCache_.eventPrincipal(0),labelOfTestModule_,processConfiguration_->processName(), result);
 }
 

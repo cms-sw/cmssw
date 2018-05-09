@@ -12,6 +12,9 @@
 
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
+#include "FWCore/Integration/interface/ESTestData.h"
+#include "FWCore/Integration/interface/ESTestRecords.h"
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <memory>
@@ -32,6 +35,7 @@ class testTestProcessor: public CppUnit::TestFixture {
   CPPUNIT_TEST(filterTest);
   CPPUNIT_TEST(extraProcessTest);
   CPPUNIT_TEST(eventSetupTest);
+  CPPUNIT_TEST(eventSetupPutTest);
   CPPUNIT_TEST(taskTest);
 
 CPPUNIT_TEST_SUITE_END();
@@ -44,6 +48,7 @@ public:
   void filterTest();
   void extraProcessTest();
   void eventSetupTest();
+  void eventSetupPutTest();
   void taskTest();
   
 private:
@@ -166,6 +171,25 @@ void testTestProcessor::eventSetupTest() {
 
   tester.setRunNumber(2);
   (void) tester.test();
+}
+
+void testTestProcessor::eventSetupPutTest() {
+  char const* kTest = "from FWCore.TestProcessor.TestProcess import *\n"
+  "process = TestProcess()\n"
+  "process.add = cms.EDAnalyzer('ESTestAnalyzerA', runsToGetDataFor = cms.vint32(1,2,3), expectedValues=cms.untracked.vint32(1,2,2))\n"
+  "process.moduleToTest(process.add)\n";
+  edm::test::TestProcessor::Config config(kTest);
+  auto estoken = config.es_produces<ESTestRecordA,edmtest::ESTestDataA>();
+
+  edm::test::TestProcessor tester(config);
+  
+  (void) tester.test(std::make_pair(estoken, std::make_unique<edmtest::ESTestDataA>(1)));
+  
+  tester.setRunNumber(2);
+  (void) tester.test(std::make_pair(estoken, std::make_unique<edmtest::ESTestDataA>(2)));
+  
+  tester.setRunNumber(3);
+  CPPUNIT_ASSERT_THROW(tester.test(), cms::Exception);
 }
 
 void testTestProcessor::taskTest() {
