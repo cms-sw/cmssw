@@ -68,8 +68,8 @@ HGCalClusterProducer::HGCalClusterProducer(const edm::ParameterSet &ps) :
   std::vector<double> thicknessCorrection = ps.getParameter<std::vector<double> >("thicknessCorrection");
   std::vector<double> fcPerMip = ps.getParameter<std::vector<double> >("fcPerMip");
   double fcPerEle = ps.getParameter<double>("fcPerEle");
-  std::vector<double> nonAgedNoises = ps.getParameter<std::vector<double> >("nonAgedNoises");
-  double noiseMip = ps.getParameter<double>("noiseMip");
+  std::vector<double> nonAgedNoises = ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double> >("values");
+  double noiseMip = ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("value");
   bool dependSensor = ps.getParameter<bool>("dependSensor");
 
 
