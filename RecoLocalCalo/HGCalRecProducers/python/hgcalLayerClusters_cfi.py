@@ -6,7 +6,7 @@ from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import dEdX_weights, HGCalR
 
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import HGCalUncalibRecHit
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, nonAgedNoises, hgchebackDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, hgchebackDigitizer
 
 #energy corrector for corrected cluster producer
 hgcalLayerClusters =  cms.EDProducer(
@@ -27,6 +27,6 @@ hgcalLayerClusters =  cms.EDProducer(
     thicknessCorrection = cms.vdouble(HGCalRecHit.thicknessCorrection),
     fcPerMip = cms.vdouble(HGCalUncalibRecHit.HGCEEConfig.fCPerMIP),
     fcPerEle = cms.double(fC_per_ele),
-    nonAgedNoises = cms.vdouble(nonAgedNoises),
+    noises = cms.PSet(refToPSet_ = cms.string('HGCAL_noises')),
     noiseMip = hgchebackDigitizer.digiCfg.noise_MIP
     )
