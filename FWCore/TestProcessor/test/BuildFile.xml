@@ -5,4 +5,5 @@
   <use   name="FWCore/PythonParameterSet"/>
   <use   name="FWCore/Utilities"/>
   <use   name="FWCore/TestProcessor"/>
+  <use   name="FWCore/Integration"/>
 </bin>

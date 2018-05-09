@@ -30,6 +30,8 @@
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/interface/Schedule.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ServiceLegacy.h"
@@ -41,6 +43,10 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "FWCore/TestProcessor/interface/Event.h"
+#include "FWCore/TestProcessor/interface/TestDataProxy.h"
+#include "FWCore/TestProcessor/interface/ESPutTokenT.h"
+#include "FWCore/TestProcessor/interface/ESProduceEntry.h"
+#include "FWCore/TestProcessor/interface/EventSetupTestHelper.h"
 
 #include "FWCore/Utilities/interface/EDPutToken.h"
 
@@ -58,6 +64,7 @@ namespace edm {
 
 namespace test {
   class TestProcessorConfig;
+  class EventSetupTestHelper;
   
   class ProcessToken {
     friend TestProcessorConfig;
@@ -72,7 +79,7 @@ namespace test {
     
     int index_;
   };
-  
+    
 class TestProcessorConfig {
   public:
     TestProcessorConfig(std::string const& iPythonConfiguration):
@@ -102,7 +109,15 @@ class TestProcessorConfig {
                                    processName(iToken));
       return edm::EDPutTokenT<T>(produceEntries_.size()-1);
     }
-    
+  
+    template<typename REC, typename T>
+    edm::test::ESPutTokenT<T> es_produces(std::string iLabel = std::string()) {
+      auto rk = eventsetup::EventSetupRecordKey::makeKey<REC>();
+      eventsetup::DataKey dk( eventsetup::DataKey::makeTypeTag<T>(), iLabel.c_str());
+      esProduceEntries_.emplace_back(rk, dk, std::make_shared<TestDataProxy<T>>());
+      return edm::test::ESPutTokenT<T>(esProduceEntries_.size()-1);
+    }
+  
     struct ProduceEntry {
       ProduceEntry(edm::TypeID const& iType,
                    std::string moduleLabel,
@@ -119,10 +134,16 @@ class TestProcessorConfig {
     };
   
   std::vector<ProduceEntry> const& produceEntries() const { return produceEntries_;}
+  
+  std::vector<ESProduceEntry> const& esProduceEntries() const {
+    return esProduceEntries_;
+  }
+
   private:
     std::string config_;
     std::vector<std::string> extraProcesses_;
     std::vector<ProduceEntry> produceEntries_;
+    std::vector<ESProduceEntry> esProduceEntries_;
   
   std::string processName(ProcessToken iToken) {
     if(iToken.index() == ProcessToken::undefinedIndex()) {
@@ -165,12 +186,23 @@ class TestProcessor
     put(std::move(iPut));
     return testImpl(std::forward(iArgs)...);
   }
-  
+
+  template<typename T, typename... U>
+  edm::test::Event testImpl(std::pair<edm::test::ESPutTokenT<T>,std::unique_ptr<T>>&& iPut, U&&... iArgs) {
+    put(std::move(iPut));
+    return testImpl(std::forward(iArgs)...);
+  }
+
   template< typename T>
   void put(std::pair<edm::EDPutTokenT<T>,std::unique_ptr<T>>&& iPut) {
     put(iPut.first.index(), std::make_unique<edm::Wrapper<T>>(std::move(iPut.second)));
   }
-  
+
+  template<typename T>
+  void put(std::pair<edm::test::ESPutTokenT<T>,std::unique_ptr<T>>&& iPut) {
+    dynamic_cast<TestDataProxy<T>*>(esHelper_->getProxy(iPut.first.index()).get())->setData(std::move(iPut.second));
+  }
+
   void put(unsigned int, std::unique_ptr<WrapperBase>);
   
   edm::test::Event testImpl();
@@ -195,6 +227,7 @@ class TestProcessor
   ServiceToken serviceToken_;
   std::unique_ptr<eventsetup::EventSetupsController> espController_;
   std::shared_ptr<eventsetup::EventSetupProvider> esp_;
+  std::shared_ptr<EventSetupTestHelper> esHelper_;
   
   std::unique_ptr<ExceptionToActionTable const>          act_table_;
   std::shared_ptr<ProcessConfiguration const>       processConfiguration_;
