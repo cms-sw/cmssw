@@ -62,10 +62,12 @@ class GEMCosmicMuonStandSim : public DQMEDAnalyzer {
   MonitorElement *me_error_x_, *me_error_y_;
   MonitorElement *me_pull_local_x_, *me_pull_local_y_;
 
-  MonitorElement *me_cls_, *me_cls_vs_chamber_, *me_num_clusters_vs_chamber_, *meNumClusters_, *me_num_sim_hits_, *me_num_rec_hits_;
+  MonitorElement *me_cls_, *me_cls_vs_chamber_;
+  MonitorElement  *me_num_clusters_vs_chamber_, *me_num_clusters_;
+  MonitorElement *me_num_sim_hits_, *me_num_rec_hits_;
   MonitorElement *me_sim_hit_bare_local_phi_, *me_sim_hit_local_phi_, *me_rec_hit_local_phi_;
 
-  MonitorElement *me_mat_chamber_, *me_mis_chamber_;
+  MonitorElement *me_num_mat_, *me_mat_chamber_, *me_mis_chamber_;
 };
 
 DEFINE_FWK_MODULE (GEMCosmicMuonStandSim) ;
