@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQM")
+from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
+process = cms.Process("DQM", run2_HECollapse_2018)
 # for live online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
 # used in the old input source
