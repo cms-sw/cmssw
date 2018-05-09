@@ -145,6 +145,7 @@ def nanoAOD_customizeCommon(process):
     process.tightJetIdLepVeto.src="selectedUpdatedPatJets"
     process.bJetVars.src="selectedUpdatedPatJets"
     process.slimmedJetsWithUserData.src="selectedUpdatedPatJets"
+    process.qgtagger80x.srcJets="selectedUpdatedPatJets"
     patAlgosToolsTask = getPatAlgosToolsTask(process)
     patAlgosToolsTask .add(process.updatedPatJets)
     patAlgosToolsTask .add(process.patJetCorrFactors)
