@@ -310,7 +310,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       // fill feature structure
       if (packed_cand) {
         btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, trackinfo, 
-					       drminpfcandsv, jet_radius_, c_pf_features);
+					       drminpfcandsv, static_cast<float> (jet_radius_), c_pf_features);
       } else if (reco_cand) {
         // get vertex association quality
         int pv_ass_quality = 0; // fallback value
@@ -336,7 +336,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           if(PV_orig.isNonnull()) PV = reco::VertexRef(vtxs, PV_orig.key());
         }
         btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, trackinfo, 
-					     drminpfcandsv, jet_radius_, puppiw,
+					     drminpfcandsv,  static_cast<float> (jet_radius_), puppiw,
 					     pv_ass_quality, PV, c_pf_features);
       }
     } else {
@@ -346,10 +346,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       auto & n_pf_features = features.n_pf_features.at(entry);
       // fill feature structure
       if (packed_cand) {
-        btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, drminpfcandsv, jet_radius_,
+        btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, drminpfcandsv, static_cast<float> (jet_radius_),
                                                                           n_pf_features);
       } else if (reco_cand) {
-        btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, drminpfcandsv, jet_radius_, puppiw,
+        btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, drminpfcandsv, static_cast<float> (jet_radius_), puppiw,
                                                                         n_pf_features);
       }
     }

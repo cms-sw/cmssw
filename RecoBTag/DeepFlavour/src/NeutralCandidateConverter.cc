@@ -6,7 +6,7 @@ namespace btagbtvdeep {
   
   void packedCandidateToFeatures(const pat::PackedCandidate * n_pf,
 				 const pat::Jet & jet,
-				 const float drminpfcandsv, const double jetR,
+				 const float drminpfcandsv, const float jetR,
 				 NeutralCandidateFeatures & n_pf_features) {
     
     commonCandidateToFeatures(n_pf, jet, drminpfcandsv, jetR, n_pf_features);
@@ -18,7 +18,7 @@ namespace btagbtvdeep {
   
   void recoCandidateToFeatures(const reco::PFCandidate * n_pf,
 			       const reco::Jet & jet,
-			       const float drminpfcandsv, const double jetR, const float puppiw,
+			       const float drminpfcandsv, const float jetR, const float puppiw,
 			       NeutralCandidateFeatures & n_pf_features) {
     
     commonCandidateToFeatures(n_pf, jet, drminpfcandsv, jetR, n_pf_features);
