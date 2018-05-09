@@ -199,13 +199,15 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
     Int_t num_clusters = std::distance(range.first, range.second);
     meNumClusters_->Fill(num_clusters);
 
+    Int_t num_matched = 0;
     for(GEMRecHitCollection::const_iterator rec_hit = range.first; rec_hit != range.second; ++rec_hit)
     {
       Int_t rec_cls = rec_hit->clusterSize();
 
       Bool_t is_matched;
-      if ( rec_cls == 1 )
+      if ( rec_cls == 1 ) {
         is_matched = sim_fired_strip == rec_hit->firstClusterStrip();
+      }
       else {
         Int_t rec_first_fired_strip = rec_hit->firstClusterStrip();
         Int_t rec_last_fired_strip = rec_first_fired_strip + rec_cls - 1;
@@ -214,6 +216,8 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
 
       if( is_matched )
       {
+        num_matched++;
+
         LocalPoint rec_hit_lp = rec_hit->localPosition();
         GEMDetId rec_det_id = rec_hit->gemId();
         // GlobalPoint rec_hitGP = GEMGeometry_->idToDet(rec_det_id)->surface().toGlobal(rec_hit_lp);
@@ -251,6 +255,10 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
         me_sim_hit_bare_local_phi_->Fill(sim_hit_lp.phi());
         me_sim_hit_local_phi_->Fill(sim_hit_local_phi);
         me_rec_hit_local_phi_->Fill(rec_hit_local_phi);
+      }
+      else {
+        // TODO
+        continue;
       }
     } // RECHIT LOOP END
   } // SIMHIT LOOP END
