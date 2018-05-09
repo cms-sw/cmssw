@@ -176,6 +176,10 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cLowSignal_CrateSlot.initialize(_name, "LowSignal", 
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fCrateuTCA),
+			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cSumQ_SubdetPM.initialize(_name, "SumQ", 
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
@@ -236,6 +240,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	}
 	if (_ptype == fOnline) {
 		_cADCvsTS_SubdetPM.book(ib, _emap, _subsystem);
+		_cLowSignal_CrateSlot.book(ib, _subsystem);
 		_cSumQ_SubdetPM.book(ib, _emap, _subsystem);
 		_cTDCTime_SubdetPM.book(ib, _emap, _subsystem);
 		_cTDCTime_depth.book(ib, _emap, _subsystem);
@@ -453,6 +458,18 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 					}
 				}
 				_cSumQ_SubdetPM.fill(did, sumQ);
+
+				// Low signal in SOI
+				short soi = -1;
+				for (int i=0; i<digi.samples(); i++) {
+					if (digi[i].soi()) {
+						soi = i;
+						break;
+					}
+				}
+				if (digi[soi].adc() < 30) {
+					_cLowSignal_CrateSlot.fill(eid);
+				}	
 			}
 		}			
 	}
