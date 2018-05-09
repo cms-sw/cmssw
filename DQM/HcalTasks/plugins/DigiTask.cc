@@ -291,9 +291,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
 	for (int i = 0; i < 4; ++i) {
-		_cCapidMinusBXmod4_CrateSlot[i].initialize(_name, "CapID", 
-			new quantity::ElectronicsQuantity(quantity::fCrate),
+		_cCapidMinusBXmod4_CrateSlotuTCA[i].initialize(_name, "CapID", 
+			new quantity::ElectronicsQuantity(quantity::fCrateuTCA),
 			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cCapidMinusBXmod4_CrateSlotVME[i].initialize(_name, "CapID", 
+			new quantity::ElectronicsQuantity(quantity::fCrateVME),
+			new quantity::ElectronicsQuantity(quantity::fSlotVME),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
@@ -492,8 +496,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
 	for (int i = 0; i < 4; ++i) {
 		char aux[10];
-		sprintf(aux, "%d", i);
-		_cCapidMinusBXmod4_CrateSlot[i].book(ib, _subsystem, aux);
+		sprintf(aux, "%d_uTCA", i);
+		_cCapidMinusBXmod4_CrateSlotuTCA[i].book(ib, _subsystem, aux);
+
+		sprintf(aux, "%d_VME", i);
+		_cCapidMinusBXmod4_CrateSlotVME[i].book(ib, _subsystem, aux);
 	}
 
 	//	BOOK HISTOGRAMS that are only for Online
@@ -692,7 +699,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
-			_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
+			if (eid.isVMEid()) {
+				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+			} else {
+				_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+			}
 		}
 
 		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
@@ -867,7 +879,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
-			_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
+			if (eid.isVMEid()) {
+				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+			} else {
+				_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+			}
 		}
 
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
@@ -1049,7 +1066,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
-			_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
+			if (eid.isVMEid()) {
+				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+			} else {
+				_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+			}
 		}
 
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
@@ -1215,7 +1237,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				if (!good_capidmbx) {
 					_xBadCapid.get(eid)++;
 				}
-				_cCapidMinusBXmod4_CrateSlot[this_capidmbx].fill(eid);
+				if (eid.isVMEid()) {
+					_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+				} else {
+					_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+				}
 			}
 
 			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
