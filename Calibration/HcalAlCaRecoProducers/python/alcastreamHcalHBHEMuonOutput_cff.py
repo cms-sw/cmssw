@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 alcastreamHcalHBHEMuonOutput = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *', 
                                            'keep edmTriggerResults_*_*_*',
+                                           'keep HcalNoiseSummary_hcalnoise_*_*',
                                            'keep recoTracks_globalMuons_*_*',
                                            'keep recoTrackExtras_globalMuons_*_*',
                                            'keep recoTracks_standAloneMuons_*_*',
