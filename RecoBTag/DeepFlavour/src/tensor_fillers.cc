@@ -57,6 +57,8 @@ namespace btagbtvdeep {
     *(++ptr) = tag_info_features.tau1_flightDistance2dSig; 
     *(++ptr) = tag_info_features.tau2_flightDistance2dSig; 
     *(++ptr) = tag_info_features.tau1_vertexDeltaR; 
+    // Note: this variable is not used in the 27-input BDT
+    //    *(++ptr) = tag_info_features.tau2_vertexDeltaR;
     *(++ptr) = tag_info_features.tau1_vertexEnergyRatio; 
     *(++ptr) = tag_info_features.tau2_vertexEnergyRatio; 
     *(++ptr) = tag_info_features.tau1_vertexMass; 
@@ -73,7 +75,6 @@ namespace btagbtvdeep {
     *(++ptr) = tag_info_features.trackSip3dSig_2; 
     *(++ptr) = tag_info_features.trackSip3dSig_3; 
     *(++ptr) = tag_info_features.z_ratio;
-    //    *(++ptr) = tag_info_features.tau2_vertexDeltaR; 
   }
 
   void c_pf_tensor_filler(tensorflow::Tensor & tensor,
