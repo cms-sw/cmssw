@@ -27,4 +27,5 @@
 <use   name="TrackingTools/TrackRefitter"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="RecoTracker/TrackProducer"/>
 <flags   EDM_PLUGIN="1"/>
