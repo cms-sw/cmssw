@@ -135,7 +135,7 @@ void DTOccupancyTestML::beginRun(const edm::Run& run, const EventSetup& context)
 
   // Load graph
   tensorflow::setLogging("3");
-  edm::FileInPath modelFilePath("DQM/DTMonitorClient/models/occupancy_cnn_v1.pb");
+  edm::FileInPath modelFilePath("DQM/DTMonitorClient/data/occupancy_cnn_v1.pb");
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(modelFilePath.fullPath());
 
   // Create session
