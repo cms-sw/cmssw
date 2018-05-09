@@ -1,6 +1,13 @@
 #ifndef L1T_PACKER_STAGE2_REGIONALMUONGMTPACKER_H
 #define L1T_PACKER_STAGE2_REGIONALMUONGMTPACKER_H
 
+#include <vector>
+#include <map>
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "EventFilter/L1TRawToDigi/interface/Block.h"
+#include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
+
 namespace l1t {
    namespace stage2 {
       class RegionalMuonGMTPacker : public Packer {

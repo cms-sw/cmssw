@@ -1,6 +1,8 @@
 #ifndef EventFilter_L1TRawToDigi_stage2_IntermediateMuonUnpacker_h
 #define EventFilter_L1TRawToDigi_stage2_IntermediateMuonUnpacker_h
 
+#include <map>
+#include "DataFormats/L1Trigger/interface/Muon.h"
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
 
 namespace l1t {
