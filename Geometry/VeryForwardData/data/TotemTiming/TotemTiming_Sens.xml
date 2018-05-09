@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SpecParSection label="TotemTiming_Sens.xml">
+		<SpecPar name="ROUHitsTotemTiming">
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch0"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch1"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch2"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch3"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch4"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch5"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch6"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch7"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch8"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch9"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch10"/>
+			<PartSelector path="//TotemTiming_Parameters:UFSD_ch11"/>
+			<Parameter name="SensitiveDetector" value="CTPPSSensitiveDetector" eval="false"/>
+			<Parameter name="ReadOutName" value="TotemTimingRecHits" eval="false"/>
+		</SpecPar>
+	</SpecParSection>
+</DDDefinition>
