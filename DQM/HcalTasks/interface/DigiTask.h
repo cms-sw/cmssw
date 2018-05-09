@@ -182,7 +182,8 @@ class DigiTask : public hcaldqm::DQTask
 
 		// (Capid - BX) % 4		
 		hcaldqm::Container1D _cCapidMinusBXmod4_SubdetPM;
-		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlot[4]; // CrateSlot 2D histograms for each (capid-BX)%4
+		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotuTCA[4]; // CrateSlot 2D histograms for each (capid-BX)%4
+		hcaldqm::ContainerSingle2D _cCapidMinusBXmod4_CrateSlotVME[4]; // CrateSlot 2D histograms for each (capid-BX)%4
 
 		// For monitoring LED misfires: ADC vs BX
 		MonitorElement* _meLEDMon;
