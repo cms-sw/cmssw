@@ -125,13 +125,6 @@ namespace fastsim {
         */
         std::unique_ptr<Particle> nextGenParticle();
 
-        //! Set lifetime and charge of a particle
-        /*!
-            Set lifetime and charge of a particle according to its pdgId, typically used for secondaries produced in an interaction
-            \param particle A generic particle.
-        */
-        void setParticleData(std::unique_ptr<fastsim::Particle> & particle);
-
         // data members
         const HepMC::GenEvent * const genEvent_;  //!< The GenEvent 
         HepMC::GenEvent::particle_const_iterator genParticleIterator_;  //!< Iterator to keep track on which GenParticles where already considered.
