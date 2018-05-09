@@ -46,12 +46,10 @@ class GEMCosmicMuonStandSim : public DQMEDAnalyzer {
   edm::EDGetTokenT<edm::PSimHitContainer> sim_hit_token_;
   edm::EDGetTokenT<GEMRecHitCollection> rec_hit_token_;
 
-  const Int_t kMinCLS_ = 1, kMaxCLS_ = 10;
-  const Int_t kNumEtaSegments_ = 8, kNumPhiSegments_ = 3;
-  const Int_t kNumChambers_ = 15, kMinChamberId_ = 1, kMaxChamberId_ = 29;
-  const Int_t kMinRollId_ = 1, kMaxRollId_ = 8;
-  const Int_t kMinVFATId_ = 1, kMaxVFATId_ = 3;
-  const Int_t kNumStrips_ = 384, kMinStripId_ = 0, kMaxStripId_ = 384;
+  const Int_t kNumChamberId_ = 15, kMinChamberId_ = 1, kMaxChamberId_ = 29;
+  const Int_t kNumRollId_ = 8, kMinRollId_ = 1, kMaxRollId_ = 8;
+  const Int_t kNumVFATId_ = 3, kMinVFATId_ = 1, kMaxVFATId_ = 3;
+  const Int_t kNumStripId_ = 385, kMinStripId_ = 0, kMaxStripId_ = 384;
 
   MonitorElement *me_vfat_passed_, *me_vfat_total_;
   MonitorElement *me_vfat_passed_per_chamber_[15];

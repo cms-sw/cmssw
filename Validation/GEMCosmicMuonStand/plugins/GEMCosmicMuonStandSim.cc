@@ -85,53 +85,63 @@ void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker,
 
   LogDebug("GEMCosmicMuonStandSim") << "ibooker set current folder\n";
 
-  me_vfat_total_ = BookHist2D(ibooker, "The Number Of Total Events", 15, 0, 15, 24, 1, 24 + 1);
-  me_vfat_passed_ = BookHist2D(ibooker, "The Number Of Passed Events", 15, 0, 15, 24, 1, 24 + 1);
+  me_vfat_total_ = BookHist2D(
+    ibooker,
+    "The Number Of Total Events",
+    15, 0, 15,
+    3*8, 1, 3*8 + 1); // 24 = kNumRollId * kNumVFATId
 
+  me_vfat_passed_ = BookHist2D(
+    ibooker,
+    "The Number Of Passed Events",
+    15, 0, 15,
+    24, 1, 24 + 1);
 
   for(Int_t chamber_id = 1; chamber_id <= 29; chamber_id += 2) {
     Int_t index = GetChamberIndex(chamber_id);
 
     me_vfat_total_per_chamber_[index] = BookHist2D(ibooker,
       TString::Format("The Number Of Total Events (Chamber %d)", chamber_id),
-      kMaxVFATId_, kMinVFATId_, kMaxVFATId_ + 1,
-      kMaxRollId_, kMinRollId_, kMaxRollId_ + 1);
+      kNumVFATId_, kMinVFATId_, kMaxVFATId_ + 1,
+      kNumRollId_, kMinRollId_, kMaxRollId_ + 1);
 
     me_vfat_passed_per_chamber_[index] = BookHist2D(ibooker,
       TString::Format("The Number Of Passed Events (Chamber %d)", chamber_id),
-      kMaxVFATId_, kMinVFATId_, kMaxVFATId_ + 1,
-      kMaxRollId_, kMinRollId_, kMaxRollId_ + 1);
+      kNumVFATId_, kMinVFATId_, kMaxVFATId_ + 1,
+      kNumRollId_, kMinRollId_, kMaxRollId_ + 1);
 
     me_vfat_occupancy_per_chamber_[index] = BookHist2D(ibooker,
       TString::Format("Occupancy (Chamber %d)", chamber_id),
-      kMaxVFATId_, kMinVFATId_, kMaxVFATId_ + 1,
-      kMaxRollId_, kMinRollId_, kMaxRollId_ + 1);
+      kNumVFATId_, kMinVFATId_, kMaxVFATId_ + 1,
+      kNumRollId_, kMinRollId_, kMaxRollId_ + 1);
   }
 
   me_residual_local_x_ = BookHist1D(ibooker, "The Residuals of The Local X", 100, -1, 1);
   me_residual_local_y_ = BookHist1D(ibooker, "The Residuals of The Local Y", 100, -10, 10);
-  me_residual_local_phi_ = BookHist1D(ibooker, "The Residuals of The Local Phi", 100, 1.5, 1.5);
+  me_residual_local_phi_ = BookHist1D(ibooker, "The Residuals of The Local Phi", 100, -0.015, 0.015);
 
   me_error_x_ = BookHist1D(ibooker, "Local Postion Error X", 100, 0, 0.3);
   me_error_y_ = BookHist1D(ibooker, "Local Postion Error Y", 100, 0, 100);
 
-  me_pull_local_x_ = BookHist1D(ibooker, "The Pulls of The Local X", 100, -10, 10);
+  me_pull_local_x_ = BookHist1D(ibooker, "The Pulls of The Local X", 100, -30, 30);
   me_pull_local_y_ = BookHist1D(ibooker, "The Pulls of The Local Y", 100, -0.6, 0.6);
 
-  me_cls_ = BookHist1D(ibooker, "The Cluster Size of RecHit", 10, 0, 10);
-  me_cls_vs_chamber_ = BookHist2D(ibooker, "CLS vs Chamber", 15, 0, 15, 10, 0, 10);
-  me_num_clusters_vs_chamber_ = BookHist2D(ibooker, "Number of Cluster vs Chamber", 15, 0, 15, 10, 0, 10);
-  me_num_clusters_ = BookHist1D(ibooker, "The Number of Clusters", 8, 1, 9);
-  me_num_sim_hits_ = BookHist1D(ibooker, "The Number of SimHits", 25, 0, 26);
-  me_num_rec_hits_ = BookHist1D(ibooker, "The Number of RecHits", 25, 0, 26);
+  me_cls_ = BookHist1D(ibooker, "The Cluster Size of RecHit", 10, 1, 10+1);
+  me_cls_vs_chamber_ = BookHist2D(ibooker, "CLS vs Chamber", 15, 1, 15+1, 10, 1, 10+1);
+  me_num_clusters_ = BookHist1D(ibooker, "The Number of Clusters", 8, 1, 8+1);
+  me_num_clusters_vs_chamber_ = BookHist2D(ibooker, "Number of Cluster vs Chamber", 15, 1, 15+1, 10, 1, 10+1);
+
+  me_num_sim_hits_ = BookHist1D(ibooker, "The Number of SimHits", 25, 1, 25+1);
+  me_num_rec_hits_ = BookHist1D(ibooker, "The Number of RecHits", 25, 1, 25+1);
+
   me_sim_hit_bare_local_phi_ = BookHist1D(ibooker, "Bare Local Phi of SimHits", 100, -3*TMath::Pi(), 3*TMath::Pi());
   me_sim_hit_local_phi_ = BookHist1D(ibooker, "Local Phi of SimHits", 100, -3*TMath::Pi(), 3*TMath::Pi());
   me_rec_hit_local_phi_ = BookHist1D(ibooker, "Local Phi of RecHits", 100, -1 * TMath::Pi() / 18, TMath::Pi() / 18);
 
   // For debug
-  me_mat_chamber_ = BookHist1D(ibooker, "Matching Case - Chamber Id", 15, 0, 30);
-  me_mis_chamber_ = BookHist1D(ibooker, "Mismatching Case - Chamber Id", 15, 0, 30);
-  me_num_mat_ = BookHist1D(ibooker, "The Number of Matched Case", 20, 0, 20);
+  me_mat_chamber_ = BookHist1D(ibooker, "Matching Case - Chamber Id", kNumChamberId_, kMinChamberId_, kMaxChamberId_+1);
+  me_mis_chamber_ = BookHist1D(ibooker, "Mismatching Case - Chamber Id", 5, 1, 5+1);
+  me_num_mat_ = BookHist1D(ibooker, "The Number of Matched Case", 6, 0, 6);
 
   LogDebug("GEMCosmicMuonStandSim")<<"Booking End.\n";
 }
@@ -145,7 +155,7 @@ Int_t GEMCosmicMuonStandSim::GetVFATId(Float_t x, const GEMEtaPartition* roll) {
   Float_t x0 = std::min(x_min, x_max);
 
   // 3.0 means the number of phi-segmentations  in the eta partition.
-  Float_t width = std::fabs(x_max - x_min) / 3.0;
+  Float_t width = std::fabs(x_max - x_min) / kNumVFATId_;
 
   if (x < x0 + width)        return 1;
   else if (x < x0 + 2*width) return 2;
@@ -190,7 +200,7 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
 
     const GEMEtaPartition* kSimRoll = GEMGeometry_->etaPartition(sim_det_id);
     Int_t sim_vfat_id = GetVFATId(sim_hit_lp.x(), kSimRoll);
-    Int_t sim_chamber_idx = GetChamberIndex(sim_det_id.chamber());
+    Int_t sim_chamber_idx = GetChamberIndex(sim_det_id.chamber()); // 0 ~ 14
 
     Int_t y_overall_vfat = 3 * sim_det_id.roll() + sim_vfat_id - 3; // 1 ~ 24
     me_vfat_total_->Fill(sim_chamber_idx, y_overall_vfat);
