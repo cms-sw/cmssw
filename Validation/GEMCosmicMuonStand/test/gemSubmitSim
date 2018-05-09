@@ -9,7 +9,7 @@ if [ ${HOSTNAME} == "gate.sscc.uos.ac.kr" ]
 then
     TRANSFER_DEST="/store/user/slowmoyang/${PROJ_DIR}/${JOB_NAME}"
     mkdir -v ${TRANSFER_DEST}
-elif [ [ ${HOSTNAME} == "ui10.sdfarm.kr" ] -o [ ${HOSTNAME} == "ui20.sdfarm.kr" ] ]
+elif [ ${HOSTNAME} == "ui10.sdfarm.kr" ] || [ ${HOSTNAME} == "ui20.sdfarm.kr" ]
 then
     TRANSFER_DEST="root://cms-xrdr.sdfarm.kr:1094///xrd/store/user/slowmoyang/${PROJ_DIR}/${JOB_NAME}"
     mkdir -v "/xrootd/store/user/slowmoyang/${PROJ_DIR}/${JOB_NAME}"
