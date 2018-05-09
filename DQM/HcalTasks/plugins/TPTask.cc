@@ -43,7 +43,9 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	_vflags[fDataMsn]=flag::Flag("DataMsn");
 	_vflags[fEmulMsn]=flag::Flag("EmulMsn");
 	_vflags[fUnknownIds]=flag::Flag("UnknownIds");
-	_vflags[fSentRecL1Msm]=flag::Flag("uHTR-L1TMsm");
+	if (_ptype == fOnline) {
+		_vflags[fSentRecL1Msm]=flag::Flag("uHTR-L1TMsm");
+	}
 }
 
 /* virtual */ void TPTask::bookHistograms(DQMStore::IBooker& ib,
@@ -135,14 +137,16 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
-	// Mismatches: sent vs received
-	_cEtMsm_uHTR_L1T_depthlike.initialize(_name, "EtMsm_uHTR_L1T", 
-		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
-		new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cEtMsm_uHTR_L1T_LS.initialize(_name, "EtMsm_uHTR_L1T_LS", 
-		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0),
+	if (_ptype == fOnline) {
+		// Mismatches: sent vs received
+		_cEtMsm_uHTR_L1T_depthlike.initialize(_name, "EtMsm_uHTR_L1T", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+		_cEtMsm_uHTR_L1T_LS.initialize(_name, "EtMsm_uHTR_L1T_LS", 
+			new hcaldqm::quantity::LumiSection(_maxLS),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+	}
 
 	//	Missing Data w.r.t. Emulator
 	_cMsnData_depthlike.initialize(_name, "MsnData",
@@ -515,8 +519,10 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	_cMsnData_depthlike.book(ib, _subsystem);
 	_cMsnEmul_depthlike.book(ib, _subsystem);
 
-	_cEtMsm_uHTR_L1T_depthlike.book(ib, _subsystem);
-	_cEtMsm_uHTR_L1T_LS.book(ib, _subsystem);
+	if (_ptype == fOnline) {
+		_cEtMsm_uHTR_L1T_depthlike.book(ib, _subsystem);
+		_cEtMsm_uHTR_L1T_LS.book(ib, _subsystem);
+	}
 
 	if (_ptype != fOffline) { // hidefed2crate
 		_cEtMsm_ElectronicsVME.book(ib, _emap, _filter_uTCA, _subsystem);
@@ -1104,9 +1110,11 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			}
 			HcalElectronicsId const& eid(rawid);
 
-			_cEtMsm_uHTR_L1T_depthlike.fill(tid);
-			_cEtMsm_uHTR_L1T_LS.fill(_currentLS);
-			_xSentRecL1Msm.get(eid)++;
+			if (_ptype == fOnline) {
+				_cEtMsm_uHTR_L1T_depthlike.fill(tid);
+				_cEtMsm_uHTR_L1T_LS.fill(_currentLS);
+				_xSentRecL1Msm.get(eid)++;
+			}
 		}
 	}
 }
@@ -1176,10 +1184,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				_vflags[fEmulMsn]._state = flag::fGOOD;
 				*/
 			
-			if (_xSentRecL1Msm.get(eid) >= 1) {
-				_vflags[fSentRecL1Msm]._state = flag::fBAD;
-			} else {
-				_vflags[fSentRecL1Msm]._state = flag::fGOOD;
+			if (_ptype == fOnline) {
+				if (_xSentRecL1Msm.get(eid) >= 1) {
+					_vflags[fSentRecL1Msm]._state = flag::fBAD;
+				} else {
+					_vflags[fSentRecL1Msm]._state = flag::fGOOD;
+				}
 			}
 		}
 
