@@ -55,7 +55,7 @@ DTOccupancyTestML::DTOccupancyTestML(const edm::ParameterSet& ps){
   nMinEvtsPC  = ps.getUntrackedParameter<int>("nEventsMinPC", 2200);
   nZeroEvtsPC  = ps.getUntrackedParameter<int>("nEventsZeroPC", 30);
 
-  bookingdone = 0;
+  bookingdone = false;
 
   // Event counter
   nevents = 0;
@@ -114,7 +114,7 @@ void DTOccupancyTestML::beginRun(const edm::Run& run, const EventSetup& context)
     }
 
   }
-  bookingdone = 1; 
+  bookingdone = true; 
 
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTestML")
@@ -148,7 +148,7 @@ void DTOccupancyTestML::beginRun(const edm::Run& run, const EventSetup& context)
     MonitorElement * chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));	
 
     // Run the tests on the plot for the various granularities
-    if(chamberOccupancyHisto != 0) {
+    if(chamberOccupancyHisto != nullptr) {
       // Get the 2D histo
       TH2F *histo = chamberOccupancyHisto->getTH2F();
 
