@@ -5,6 +5,8 @@ namespace btagbtvdeep {
 
 class BoostedDoubleSVTagInfoFeatures {
 
+  // Note: these variables are intended to match the variables defined in DataFormats/BTauReco/interface/TaggingVariable.h
+
   public:
     float jetNTracks; // tracks associated to jet
     float jetNSecondaryVertices; // number of reconstructed possible secondary vertices in jet
