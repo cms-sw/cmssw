@@ -171,7 +171,8 @@ class TestProcessor
  
   void setRunNumber(edm::RunNumber_t);
   void setLuminosityBlockNumber(edm::LuminosityBlockNumber_t);
-  
+  void setEventNumber(edm::EventNumber_t);
+
   std::string const& labelOfTestModule() const {
     return labelOfTestModule_;
   }
