@@ -276,7 +276,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 	  auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand); 
 	  if (packed_cand) {
 	    btagbtvdeep::packedCandidateToFeatures(packed_cand, jet, trackinfo, 
-						   drminpfcandsv, jet_radius_, c_pf_features);
+						   drminpfcandsv, static_cast<float> (jet_radius_), c_pf_features);
 	  } else if (reco_cand) {
 	    // get vertex association quality
 	    int pv_ass_quality = 0; // fallback value
@@ -291,7 +291,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 	    } 
 	    auto PV = reco::VertexRef(vtxs, pvi);
 	    btagbtvdeep::recoCandidateToFeatures(reco_cand, jet, trackinfo, 
-						 drminpfcandsv, jet_radius_, puppiw,
+						 drminpfcandsv, static_cast<float> (jet_radius_), puppiw,
 						 pv_ass_quality, PV, c_pf_features);
 	  }
 	}

@@ -20,7 +20,7 @@ namespace btagbtvdeep {
   void packedCandidateToFeatures(const pat::PackedCandidate * c_pf,
 				 const pat::Jet & jet,
 				 const TrackInfoBuilder & track_info,
-				 const float drminpfcandsv, const double jetR,
+				 const float drminpfcandsv, const float jetR,
 				 ChargedCandidateFeatures & c_pf_features) {
     
     commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features);
@@ -47,7 +47,7 @@ namespace btagbtvdeep {
   void recoCandidateToFeatures(const reco::PFCandidate * c_pf,
 			       const reco::Jet & jet,
 			       const TrackInfoBuilder & track_info,
-			       const float drminpfcandsv, const double jetR, const float puppiw,
+			       const float drminpfcandsv, const float jetR, const float puppiw,
 			       const int pv_ass_quality,
 			       const reco::VertexRef & pv, 
 			       ChargedCandidateFeatures & c_pf_features) {
