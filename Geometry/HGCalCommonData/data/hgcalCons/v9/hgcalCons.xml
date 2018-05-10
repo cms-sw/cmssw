@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalCons.xml" eval="true">
+  <Vector name="CellThickness" type="numeric" nEntries="3">
+    [hgcal:CellThicknessFine], [hgcal:CellThicknessCoarse1],
+    [hgcal:CellThicknessCoarse2] </Vector>
+  <Vector name="Radius100to200" type="numeric" nEntries="5">
+    [hgcal:rad100200P0], [hgcal:rad100200P1], [hgcal:rad100200P2],
+    [hgcal:rad100200P3], [hgcal:rad100200P4] </Vector>
+  <Vector name="Radius200to300" type="numeric" nEntries="5">
+    [hgcal:rad200300P0], [hgcal:rad200300P1], [hgcal:rad200300P2],
+    [hgcal:rad200300P3], [hgcal:rad200300P4] </Vector>
+  <Vector name="RadiusCuts" type="numeric" nEntries="2">
+    [hgcal:NCornerCut], [hgcal:zMinForRadPar] </Vector>
+  <Vector name="RadiusMixBoundary" type="numeric" nEntries="16">
+    [hgcal:radMixL0], [hgcal:radMixL1], [hgcal:radMixL2], [hgcal:radMixL3],
+    [hgcal:radMixL4], [hgcal:radMixL5], [hgcal:radMixL6], [hgcal:radMixL7],
+    [hgcal:radMixL8], [hgcal:radMixL9], [hgcal:radMixL10],[hgcal:radMixL11],
+    [hgcal:radMixL12],[hgcal:radMixL13],[hgcal:radMixL14],[hgcal:radMixL15]
+  </Vector>
+  <Vector name="NPhiBinBH" type="numeric" nEntries="16">
+    360, 360, 360, 360, 240, 240, 240, 240, 240, 240,
+    240, 240, 240, 240, 240, 240 </Vector>
+  <Vector name="SlopeBottom" type="numeric" nEntries="2">
+    [etaMax:slope], [etaMax:slope]</Vector>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], 
+    [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], 
+    [hgcal:rMaxHGCal4]</Vector>
+  <Vector name="ZRanges" type="numeric" nEntries="4">
+    [hgcal:zMinEE], [hgcal:zMinHEsil], [hgcal:zMinHEmix], 
+    [hgcal:zMaxHEmix]</Vector>
+</ConstantsSection>
+
+<SpecParSection label="hgcalCons.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>    
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+  </SpecPar>
+  <SpecPar name="HGCalHEsil">
+    <PartSelector path="//HGCalHESiliconSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Full" eval="false"/>
+  </SpecPar>
+  <SpecPar name="HGCalHEsci">
+    <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Trapezoid" eval="false"/>
+    <Parameter name="etaMaxBH"            value="1.35"/>
+  </SpecPar>
+  <SpecPar name="HGCalWafer">
+    <PartSelector path="//HGCalEECell.*"/>
+    <PartSelector path="//HGCalHECell.*"/>
+    <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
+    <Parameter name="WaferMode" value="HGCalGeometryMode::ExtrudedPolygon" eval="false"/>
+    <Parameter name="WaferSize"           value="[hgcal:WaferSize]"/>
+    <Parameter name="WaferThickness"      value="[hgcal:WaferThickness]"/>
+    <Parameter name="SensorSeparation"    value="[hgcal:SensorSeparation]"/>
+    <Parameter name="MouseBite"           value="[hgcal:MouseBite]"/>
+    <Parameter name="NumberOfCellsFine"   value="[hgcal:NumberOfCellsFine]"/>
+    <Parameter name="NumberOfCellsCoarse" value="[hgcal:NumberOfCellsCoarse]"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

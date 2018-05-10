@@ -434,10 +434,10 @@ void ECalSD::initMap(const G4String& sd, const DDCompactView & cpv) {
 #ifdef EDM_ML_DEBUG
           edm::LogInfo("EcalSim") << "ECalSD::initMap (for " << sd 
                                   << "): Solid " << lvname << " Shape " 
-                                  << sol.shape() << " Parameter 0 = "
+                                  << DDSolidShapesName::name(sol.shape()) << " Parameter 0 = "
                                   << paras[0] << " Logical Volume " << lv;
 #endif
-          if (sol.shape() == ddtrap) {
+          if (sol.shape() == DDSolidShape::ddtrap) {
             double dz = 2*paras[0];
             xtalLMap.insert(std::pair<const G4LogicalVolume*,double>(lv,dz*type));
             lv = nameMap[lvname + "_refl"];

@@ -73,13 +73,17 @@ CastorDigiProducer::~CastorDigiProducer() {
   delete theHitCorrection;
 }
 
-void CastorDigiProducer::initializeEvent(edm::Event const&, edm::EventSetup const& eventSetup) {
+void CastorDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& eventSetup) {
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<CastorDbService> conditions;
   eventSetup.get<CastorDbRecord>().get(conditions);
   theAmplifier->setDbService(conditions.product());
   theCoderFactory->setDbService(conditions.product());
   theParameterMap->setDbService(conditions.product());
+
+  // Cache random number engine
+  edm::Service<edm::RandomNumberGenerator> rng;
+  randomEngine_ = &rng->getEngine(event.streamID());
 
   edm::LogInfo("CastorDigiProducer") << "checking the geometry...";
 
@@ -91,13 +95,13 @@ void CastorDigiProducer::initializeEvent(edm::Event const&, edm::EventSetup cons
   theCastorDigitizer->initializeHits();
 }
 
-void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
+void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const& hcalHits, int bunchCrossing) {
   //fillFakeHits();
 
   if(theHitCorrection != nullptr) {
     theHitCorrection->fillChargeSums(hcalHits);
   }
-  theCastorDigitizer->add(hcalHits, bunchCrossing, engine);
+  theCastorDigitizer->add(hcalHits, bunchCrossing, randomEngine_);
 }
 
 void CastorDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&) {
@@ -105,7 +109,7 @@ void CastorDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const&)
   edm::Handle<std::vector<PCaloHit> > castorHandle;
   e.getByLabel(theHitsProducerTag, castorHandle);
 
-  accumulateCaloHits(*castorHandle.product(), 0, randomEngine(e.streamID()));
+  accumulateCaloHits(*castorHandle.product(), 0);
 }
 
 void CastorDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const&, edm::StreamID const& streamID) {
@@ -113,7 +117,7 @@ void CastorDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSet
   edm::Handle<std::vector<PCaloHit> > castorHandle;
   e.getByLabel(theHitsProducerTag, castorHandle);
 
-  accumulateCaloHits(*castorHandle.product(), e.bunchCrossing(), randomEngine(streamID));
+  accumulateCaloHits(*castorHandle.product(), e.bunchCrossing());
 }
 
 void CastorDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup) {
@@ -122,12 +126,14 @@ void CastorDigiProducer::finalizeEvent(edm::Event& e, const edm::EventSetup& eve
   std::unique_ptr<CastorDigiCollection> castorResult(new CastorDigiCollection());
 
   // Step C: Invoke the algorithm, getting back outputs.
-  theCastorDigitizer->run(*castorResult, randomEngine(e.streamID()));
+  theCastorDigitizer->run(*castorResult, randomEngine_);
 
   edm::LogInfo("CastorDigiProducer") << "HCAL/Castor digis   : " << castorResult->size();
 
   // Step D: Put outputs into event
   e.put(std::move(castorResult));
+
+  randomEngine_ = nullptr; // to prevent access outside event
 }
 
 
@@ -162,18 +168,3 @@ void CastorDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   //std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
   theCastorDigitizer->setDetIds(castorCells);
 }
-
-CLHEP::HepRandomEngine* CastorDigiProducer::randomEngine(edm::StreamID const& streamID) {
-  unsigned int index = streamID.value();
-  if(index >= randomEngines_.size()) {
-    randomEngines_.resize(index + 1, nullptr);
-  }
-  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-  if(!ptr) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    ptr = &rng->getEngine(streamID);
-    randomEngines_[index] = ptr;
-  }
-  return ptr;
-}
-

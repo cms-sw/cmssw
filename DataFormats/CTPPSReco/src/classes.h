@@ -10,6 +10,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
+#include "DataFormats/CTPPSReco/interface/TotemTimingRecHit.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondLocalTrack.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
@@ -51,8 +52,17 @@ namespace DataFormats_CTPPSReco {
     std::vector<edm::DetSet<TotemRPLocalTrack::FittedRecHit> > v_ds_ft_frh;
     std::vector<TotemRPLocalTrack::FittedRecHit> v_ft_frh;
 
-    //--- diamonds objects
-
+    //--- timing objects
+    CTPPSTimingRecHit ctdm_rh;
+    edm::Ptr<CTPPSTimingRecHit> ptr_ctdm_rh;
+    edm::Wrapper<CTPPSTimingRecHit> wrp_ctdm_rh;
+    std::vector<CTPPSTimingRecHit> vec_ctdm_rh;
+    std::vector<edm::DetSet<CTPPSTimingRecHit> > vec_ds_ctdm_rh;
+    edm::DetSet<CTPPSTimingRecHit> ds_ctdm_rh;
+    edm::DetSetVector<CTPPSTimingRecHit> dsv_ctdm_rh;
+    edm::Wrapper<edm::DetSetVector<CTPPSTimingRecHit> > wrp_dsv_ctdm_rh;
+    edm::Wrapper<std::vector<CTPPSTimingRecHit> > wrp_vec_ctdm_rh;
+    
     CTPPSDiamondRecHit ctd_rh;
     edm::Ptr<CTPPSDiamondRecHit> ptr_ctd_rh;
     edm::Wrapper<CTPPSDiamondRecHit> wrp_ctd_rh;
@@ -62,6 +72,16 @@ namespace DataFormats_CTPPSReco {
     edm::DetSetVector<CTPPSDiamondRecHit> dsv_ctd_rh;
     edm::Wrapper<edm::DetSetVector<CTPPSDiamondRecHit> > wrp_dsv_ctd_rh;
     edm::Wrapper<std::vector<CTPPSDiamondRecHit> > wrp_vec_ctd_rh;
+    
+    TotemTimingRecHit ttd_rh;
+    edm::Ptr<TotemTimingRecHit> ptr_ttd_rh;
+    edm::Wrapper<TotemTimingRecHit> wrp_ttd_rh;
+    std::vector<TotemTimingRecHit> vec_ttd_rh;
+    std::vector<edm::DetSet<TotemTimingRecHit> > vec_ds_ttd_rh;
+    edm::DetSet<TotemTimingRecHit> ds_ttd_rh;
+    edm::DetSetVector<TotemTimingRecHit> dsv_ttd_rh;
+    edm::Wrapper<edm::DetSetVector<TotemTimingRecHit> > wrp_dsv_ttd_rh;
+    edm::Wrapper<std::vector<TotemTimingRecHit> > wrp_vec_ttd_rh;
 
     CTPPSDiamondLocalTrack ctd_lt;
     edm::Ptr<CTPPSDiamondLocalTrack> ptr_ctd_lt;

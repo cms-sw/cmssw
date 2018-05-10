@@ -65,19 +65,47 @@ public:
     }
     return result;
   }
+  static std::vector<double> normalize(std::vector<double> nt, unsigned nbin){
+    //skip first bin, always 0
+    double norm = 0.;
+    for (unsigned int j = 1; j <= nbin; ++j) {
+      norm += (nt[j]>0) ? nt[j] : 0.;
+    }
+
+    double normInv=1./norm;
+    for (unsigned int j = 1; j <= nbin; ++j) {
+      nt[j] *= normInv;
+    }
+
+    return nt;
+  }
+  static std::vector<double> normalizeShift(std::vector<double> nt, unsigned nbin, int shift){
+    //skip first bin, always 0
+    double norm = 0.;
+    for (unsigned int j = std::max(1,-1*shift); j<=nbin; j++) {
+      norm += std::max(0., nt[j-shift]);
+    }
+    double normInv=1./norm;
+    std::vector<double> nt2(nt.size(),0);
+    for ( int j = 1; j<=(int)nbin; j++) {
+      if ( j-shift>=0 ) {
+        nt2[j] = nt[j-shift]*normInv;
+      }
+    }
+    return nt2;
+  }
 
 private:
   void computeHPDShape(float, float, float, float, float ,
                        float, float, float, Shape&);
   void computeHFShape();
   void computeSiPMShapeHO();
-  void computeSiPMShapeHE203();
-  void computeSiPMShapeHE206();
+  const HcalPulseShape& computeSiPMShapeHE203();
+  const HcalPulseShape& computeSiPMShapeHE206();
   void computeSiPMShapeData2017();
   void computeSiPMShapeData2018();
   Shape hpdShape_, hfShape_, siPMShapeHO_;
-  Shape siPMShapeMC2017_, siPMShapeData2017_;
-  Shape siPMShapeMC2018_, siPMShapeData2018_;
+  Shape siPMShapeData2017_, siPMShapeData2018_;
   Shape hpdShape_v2, hpdShapeMC_v2;
   Shape hpdShape_v3, hpdShapeMC_v3;
   Shape hpdBV30Shape_v2, hpdBV30ShapeMC_v2;

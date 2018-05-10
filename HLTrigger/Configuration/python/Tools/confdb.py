@@ -682,9 +682,9 @@ if 'GlobalTag' in %%(dict)s:
       else:
         # drop all output EndPaths but the Scouting ones, and drop the RatesMonitoring and DQMHistograms
         paths.append( "-*Output" )
-        paths.append( "Scouting*Output" )
         paths.append( "-RatesMonitoring")
         paths.append( "-DQMHistograms")
+        if self.config.fragment: paths.append( "Scouting*Output" )
 
     elif self.config.output in ('dqm', 'minimal', 'full'):
       if self.config.paths:
@@ -693,8 +693,8 @@ if 'GlobalTag' in %%(dict)s:
       else:
         # drop all output EndPaths but the Scouting ones, and drop the RatesMonitoring
         paths.append( "-*Output" )
-        paths.append( "Scouting*Output" )
         paths.append( "-RatesMonitoring")
+        if self.config.fragment: paths.append( "Scouting*Output" )
 
     else:
       if self.config.paths:

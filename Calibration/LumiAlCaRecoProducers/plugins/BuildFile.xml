@@ -1,6 +1,8 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="DQMServices/Core"/>
+<use   name="DQMServices/Components"/>
 
 <use   name="CondCore/Utilities"/>
 <use   name="FWCore/ServiceRegistry"/>

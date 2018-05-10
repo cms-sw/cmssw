@@ -10,6 +10,7 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/SiStripObjects"/>
+<use   name="CondCore/SiStripPlugins"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="CalibTracker/SiStripCommon"/>

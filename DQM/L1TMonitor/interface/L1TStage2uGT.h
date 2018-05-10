@@ -15,18 +15,15 @@
 // System include files
 #include <memory>
 #include <vector>
-
+#include <utility>
 // User include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/typedefs.h"
 
 // L1 trigger include files
 //#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
@@ -64,20 +61,12 @@ private:
   
    std::string monitorDir_; // histogram folder for L1 uGT plots
 
-   
    bool verbose_; // verbosity switch
 
-   // To get the algo bits corresponding to algo names
+   // To get the number of algorithms
    std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
+   int numAlgs_; // number of algorithms
 
-   // For the timing histograms
-   int algoBitFirstBxInTrain_;
-   int algoBitLastBxInTrain_;
-   const std::string algoNameFirstBxInTrain_;
-   const std::string algoNameLastBxInTrain_;
-   
-   // Booking of histograms for the module
-   
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
    MonitorElement* algoBits_before_prescale_;
@@ -105,16 +94,6 @@ private:
  
    // Prescale factor index 
    MonitorElement* prescaleFactorSet_;
-
-   // Pre- Post- firing timing dedicated plots
-   MonitorElement* first_collision_run_;
-   MonitorElement* isolated_collision_run_;
-   MonitorElement* last_collision_run_;
-
-   MonitorElement* den_first_collision_run_; 
-   MonitorElement* den_last_collision_run_;
-   MonitorElement* den_isolated_collision_run_;
-
 };
 
 #endif

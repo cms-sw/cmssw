@@ -363,7 +363,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     int     copy   = copyNumberTop_[ii];
     double hthickl = 0.5*layerThickTop_[ii];
     thickTot      += layerThickTop_[ii];
-    name           = nameM+namesTop_[ii]+std::to_string(copy);    
+    name           = "HGCal"+namesTop_[ii]+std::to_string(copy);    
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" << ii
 				  << " R " << rmid << ":" << rout << " Thick " 
@@ -376,6 +376,11 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 				 0.0, CLHEP::twopi);
     DDLogicalPart glog2 = DDLogicalPart(solid.ddname(), matter1, solid);
 #ifdef EDM_ML_DEBUG
+    double eta1 = -log(tan(0.5*atan(rmid/zz)));
+    double eta2 = -log(tan(0.5*atan(rout/zz)));
+    edm::LogVerbatim("HGCalGeom") << name << " z|rin|rout " << zz << ":" 
+				  << rmid << ":" << rout << " eta " << eta1 
+				  << ":" << eta2;
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				  << " Tubs made of " << matName 
 				  << " of dimensions " << rmid << ", " << rout
@@ -431,7 +436,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     int     copy   = copyNumberBot_[ii];
     double hthickl = 0.5*layerThickBot_[ii];
     thickTot      += layerThickBot_[ii];
-    name           = nameM+namesBot_[ii]+std::to_string(copy);    
+    name           = "HGCal"+namesBot_[ii]+std::to_string(copy);    
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Layer " << ly << ":" << ii
 				  << " R " << rin << ":" << rmid << " Thick " 
@@ -444,6 +449,11 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 				 0.0, CLHEP::twopi);
     DDLogicalPart glog2 = DDLogicalPart(solid.ddname(), matter1, solid);
 #ifdef EDM_ML_DEBUG
+    double eta1 = -log(tan(0.5*atan(rin/zz)));
+    double eta2 = -log(tan(0.5*atan(rmid/zz)));
+    edm::LogVerbatim("HGCalGeom") << name << " z|rin|rout " << zz << ":" 
+				  << rin << ":" << rmid << " eta " << eta1 
+				  << ":" << eta2;
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << solid.name() 
 				  << " Tubs made of " << matName 
 				  << " of dimensions " << rin << ", " << rmid 

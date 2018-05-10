@@ -713,7 +713,8 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                cLCT.getKeyStrip(), pattern, cLCT.getBend(),
                                bx, 0, 0, 0, theTrigChamber);
   thisLCT.setType(type);
-  thisLCT.setALCT(aLCT);
+  // make sure to shift the ALCT BX from 8 to 3!
+  thisLCT.setALCT(getBXShiftedALCT(aLCT));
   thisLCT.setCLCT(cLCT);
   return thisLCT;
 }
@@ -939,4 +940,12 @@ void CSCMotherboard::dumpConfigParams() const {
        << tmb_l1a_window_size << "\n";
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
+}
+
+CSCALCTDigi
+CSCMotherboard::getBXShiftedALCT(const CSCALCTDigi& aLCT) const
+{
+  CSCALCTDigi aLCT_shifted = aLCT;
+  aLCT_shifted.setBX(aLCT_shifted.getBX() - (CSCConstants::LCT_CENTRAL_BX - tmb_l1a_window_size/2));
+  return aLCT_shifted;
 }

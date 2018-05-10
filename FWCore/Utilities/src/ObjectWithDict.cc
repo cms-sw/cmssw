@@ -58,7 +58,7 @@ namespace edm {
     }
     // Use a dirty trick, force the typeid() operator
     // to consult the virtual table stored at address_.
-    return TypeWithDict(typeid(*(DummyVT*)address_));
+    return TypeWithDict::byTypeInfo(typeid(*(DummyVT*)address_));
   }
 
   ObjectWithDict

@@ -73,7 +73,11 @@ public:
   void getTransform( Tr3D& tr, Pt3DVec* lptr ) const override;
   
   void setPosition ( const GlobalPoint& p ) { m_global = p;  setRefPoint(p); }
-  
+
+  static constexpr double oneBySix_   = 1.0/6.0;
+  static const unsigned int ncorner_  = 12;
+  static constexpr unsigned int ncornerBy2_ = ncorner_/2;
+
 private:
   
   void initCorners(CornersVec& ) override;

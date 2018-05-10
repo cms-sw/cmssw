@@ -1,0 +1,32 @@
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <PosPartSection label="TotemTiming_DetectorAssembly.xml">
+    <!-- LEFT ARM / ARM 0 -->
+    <PosPart copyNumber="020"> <!-- top pot -->
+      <rParent name="RP_Box_020:RP_box_primary_vacuum"/>
+      <rChild name="TotemTiming_Station:TotemTiming_Main_Box"/>
+      <Translation x="-([RP_Box:RP_Box_Right_Left_Wall_Thickness]+[TotemTiming_Dist_Beam_Cent:RP_020_Det_x_pos])" y="[TotemTiming_Dist_Beam_Cent:RP_020_Det_y_pos]-[RP_Box:RP_Box_primary_vacuum_x]/2" z="0*cm"/>
+      <rRotation name="rotations:180RYZ"/>
+    </PosPart>
+    <PosPart copyNumber="021"> <!-- bottom pot -->
+      <rParent name="RP_Box_021:RP_box_primary_vacuum"/>
+      <rChild name="TotemTiming_Station:TotemTiming_Main_Box"/>
+      <Translation x="[RP_Box:RP_Box_Right_Left_Wall_Thickness]+[TotemTiming_Dist_Beam_Cent:RP_021_Det_x_pos]" y="[TotemTiming_Dist_Beam_Cent:RP_021_Det_y_pos]-[RP_Box:RP_Box_primary_vacuum_x]/2" z="0*cm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <!-- RIGHT ARM / ARM 1 -->
+    <PosPart copyNumber="120"> <!-- top pot -->
+      <rParent name="RP_Box_120:RP_box_primary_vacuum"/>
+      <rChild name="TotemTiming_Station:TotemTiming_Main_Box"/>
+      <Translation x="[RP_Box:RP_Box_Right_Left_Wall_Thickness]+[TotemTiming_Dist_Beam_Cent:RP_120_Det_x_pos]" y="[TotemTiming_Dist_Beam_Cent:RP_120_Det_y_pos]-[RP_Box:RP_Box_primary_vacuum_x]/2" z="0*cm"/>
+    </PosPart>
+    <PosPart copyNumber="121"> <!-- bottom pot -->
+      <rParent name="RP_Box_121:RP_box_primary_vacuum"/>
+      <rChild name="TotemTiming_Station:TotemTiming_Main_Box"/>
+      <Translation x="-([RP_Box:RP_Box_Right_Left_Wall_Thickness]+[TotemTiming_Dist_Beam_Cent:RP_121_Det_x_pos])" y="[TotemTiming_Dist_Beam_Cent:RP_121_Det_y_pos]-[RP_Box:RP_Box_primary_vacuum_x]/2" z="0*cm"/>
+      <rRotation name="rotations:180RYZ"/>
+    </PosPart>
+  </PosPartSection>
+
+</DDDefinition>
+

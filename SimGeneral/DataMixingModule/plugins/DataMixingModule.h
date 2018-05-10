@@ -26,23 +26,17 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMDigiWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingEcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripMCDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelMCDigiWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingTrackingParticleWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingPileupCopy.h"
 
 #include <map>
 #include <vector>
 #include <string>
-
-class DigiAccumulatorMixMod;
 
 namespace edm {
 
@@ -129,7 +123,6 @@ namespace edm {
 
       DataMixingEMWorker *EMWorker_ ;
       DataMixingEMDigiWorker *EMDigiWorker_ ;
-      DataMixingEcalDigiWorkerProd *EcalDigiWorkerProd_ ;
       bool MergeEMDigis_;
 
       // Hcal 
@@ -154,9 +147,6 @@ namespace edm {
       edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
       edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
       edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
-      edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
-      edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
-      edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
 
       bool MergeHcalDigis_;
       bool MergeHcalDigisProd_;
@@ -171,25 +161,14 @@ namespace edm {
       // Si-Strips
 
       DataMixingSiStripWorker *SiStripWorker_ ;
-      DataMixingSiStripMCDigiWorker *SiStripMCDigiWorker_ ;
       DataMixingSiStripRawWorker *SiStripRawWorker_ ;
       bool useSiStripRawDigi_;
-      bool addMCDigiNoise_;
       std::string siStripRawDigiSource_;
 
       // Pixels
 
-      DataMixingSiPixelMCDigiWorker *SiPixelMCDigiWorker_ ;
       DataMixingSiPixelWorker *SiPixelWorker_ ;
 
-      // Tracks
-
-      DigiAccumulatorMixMod * GeneralTrackWorker_;
-
-
-      // Validation
-
-      DataMixingTrackingParticleWorker * TrackingParticleWorker_ ;
 
       virtual void getSubdetectorNames();  
 

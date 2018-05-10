@@ -39,8 +39,8 @@
 // and to improve a bit of the CPU performance.
 //
 
-#ifndef UrbanMscModel93_h
-#define UrbanMscModel93_h 1
+#ifndef SimG4Core_PhysicsLists_UrbanMscModel93_h
+#define SimG4Core_PhysicsLists_UrbanMscModel93_h 1
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -48,7 +48,7 @@
 #include "G4MscStepLimitType.hh"
 #include "G4Log.hh"
 #include "G4Exp.hh"
-#include "G4SystemOfUnits.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 class G4ParticleChangeForMSC;
 class G4SafetyHelper;

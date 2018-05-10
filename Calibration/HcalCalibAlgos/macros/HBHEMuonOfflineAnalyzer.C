@@ -62,6 +62,8 @@ public :
   std::vector<bool>         *PF_Muon;
   std::vector<bool>         *Global_Muon;
   std::vector<bool>         *Tracker_muon;
+  std::vector<bool>         *MuonIsTight;
+  std::vector<bool>         *MuonIsMedium;
   std::vector<double>       *pt_of_muon;
   std::vector<double>       *eta_of_muon;
   std::vector<double>       *phi_of_muon;
@@ -109,6 +111,8 @@ public :
   std::vector<unsigned int> *ecal_detID;
   std::vector<unsigned int> *hcal_detID;
   std::vector<unsigned int> *ehcal_detID;
+  std::vector<int>          *hcal_ieta;
+  std::vector<int>          *hcal_iphi;
   std::vector<double>       *hcal_edepth1;
   std::vector<double>       *hcal_activeL1;
   std::vector<double>       *hcal_edepthHot1;
@@ -193,6 +197,8 @@ public :
   TBranch                   *b_PF_Muon;                             //!
   TBranch                   *b_Global_Muon;                         //!
   TBranch                   *b_Tracker_muon;                        //!
+  TBranch                   *b_MuonIsTight;                         //!
+  TBranch                   *b_MuonIsMedium;                        //!
   TBranch                   *b_pt_of_muon;                          //!
   TBranch                   *b_eta_of_muon;                         //!
   TBranch                   *b_phi_of_muon;                         //!
@@ -240,6 +246,8 @@ public :
   TBranch                   *b_hcal_detID;                          //!
   TBranch                   *b_ecal_detID;                          //!
   TBranch                   *b_ehcal_detID;                         //!
+  TBranch                   *b_hcal_ieta;                           //!
+  TBranch                   *b_hcal_iphi;                           //!
   TBranch                   *b_hcal_edepth1;                        //!
   TBranch                   *b_hcal_activeL1;                       //!
   TBranch                   *b_hcal_edepthHot1;                     //!
@@ -616,6 +624,8 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree, int flag, int mode, int maxDHB,
   fChain->SetBranchAddress("PF_Muon", &PF_Muon, &b_PF_Muon);
   fChain->SetBranchAddress("Global_Muon", &Global_Muon, &b_Global_Muon);
   fChain->SetBranchAddress("Tracker_muon", &Tracker_muon, &b_Tracker_muon);
+  fChain->SetBranchAddress("MuonIsTight", &MuonIsTight, &b_MuonIsTight);
+  fChain->SetBranchAddress("MuonIsMedium", &MuonIsMedium, &b_MuonIsMedium);
   fChain->SetBranchAddress("pt_of_muon", &pt_of_muon, &b_pt_of_muon);
   fChain->SetBranchAddress("eta_of_muon", &eta_of_muon, &b_eta_of_muon);
   fChain->SetBranchAddress("phi_of_muon", &phi_of_muon, &b_phi_of_muon);
@@ -663,6 +673,8 @@ void HBHEMuonOfflineAnalyzer::Init(TTree *tree, int flag, int mode, int maxDHB,
   fChain->SetBranchAddress("ecal_detID", &ecal_detID, &b_ecal_detID);
   fChain->SetBranchAddress("hcal_detID", &hcal_detID, &b_hcal_detID);
   fChain->SetBranchAddress("ehcal_detID", &ehcal_detID, &b_ehcal_detID);
+  fChain->SetBranchAddress("hcal_ieta", &hcal_ieta, &b_hcal_ieta);
+  fChain->SetBranchAddress("hcal_iphi", &hcal_iphi, &b_hcal_iphi);
   fChain->SetBranchAddress("hcal_edepth1", &hcal_edepth1, &b_hcal_edepth1);
   fChain->SetBranchAddress("hcal_activeL1", &hcal_activeL1, &b_hcal_activeL1);
   fChain->SetBranchAddress("hcal_edepthHot1", &hcal_edepthHot1, &b_hcal_edepthHot1);

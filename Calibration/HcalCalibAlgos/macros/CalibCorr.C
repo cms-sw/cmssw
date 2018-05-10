@@ -67,6 +67,20 @@ double puFactor(int ieta, double pmom, double eHcal, double ediff) {
   return fac;
 }
 
+double puFactorRho(int type, int ieta, double rho, double eHcal) {
+  // type = 1: 2017 Data;  2: 2017 MC
+  double par[12] = {0.0205395,-43.0914,2.67115,0.239674,-0.0228009,0.000476963,
+		    0.129097,-105.831,9.58076,0.156392,-0.034671,0.000809736};
+  double energy(eHcal);
+  if (type >= 1 && type <= 2) {
+    int    eta = std::abs(ieta);
+    int    it  = 6*(type-1);
+    double ea  = (eta < 20) ? par[it] : ((((par[it+5]*eta+par[it+4])*eta+par[it+3])*eta+par[it+2])*eta+par[it+1]);
+    energy -= (rho*ea);
+  }
+  return energy;
+}
+
 class CalibCorr {
 public :
   CalibCorr(const char* infile, bool debug=false);
