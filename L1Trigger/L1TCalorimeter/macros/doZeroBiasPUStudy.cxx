@@ -78,11 +78,11 @@ void makeLUT(TFile* file, int puBins){
     }
   }  
 
-  ofstream p1;
+  ofstream one;
   ofstream p3;
   ofstream p5;
 
-  p1.open("p1.txt");
+  one.open("one.txt");
   p3.open("p3.txt");
   p5.open("p5.txt");
       
@@ -96,11 +96,13 @@ void makeLUT(TFile* file, int puBins){
     "# the header is first valid line starting with #<header> versionStr nrBitsAddress nrBitsData </header>\n" \
     "#<header> v1 11 9 </header>\n"; 
 
-  p1.write(intro.str().c_str(), intro.str().length() );
+  one.write(intro.str().c_str(), intro.str().length() );
   p3.write(intro.str().c_str(), intro.str().length() ); 
   p5.write(intro.str().c_str(), intro.str().length() );
   
   int addr = 0;
+
+  int lastFilled = 0;
 
   for(uint pu=0;pu<puBins;pu++){
     for(int eta=-1; eta<64; ++eta){	
@@ -108,44 +110,50 @@ void makeLUT(TFile* file, int puBins){
       if(eta==28) continue;
 
       if(eta==-1){
-	p1 << addr  << " 0             # nTT4 = " << pu*5 << "-" << pu*5+5 << " ieta = 0\n";
-	p3 << addr  << " 0             # nTT4 = " << pu*5 << "-" << pu*5+5 << " ieta = 0\n";
-	p5 << addr  << " 0             # nTT4 = " << pu*5 << "-" << pu*5+5 << " ieta = 0\n";
+	one << addr  << " 0             # nTT4 = " << pu*5 << "-" << pu*5+5 << " ieta = 0\n";
+	p3 << addr   << " 0             # nTT4 = " << pu*5 << "-" << pu*5+5 << " ieta = 0\n";
+	p5 << addr   << " 0             # nTT4 = " << pu*5 << "-" << pu*5+5 << " ieta = 0\n";
 	++addr;
 	continue;
       }
 
-      if((/*eta<12 ||*/  pu < 8) && eta<41){
-	p1 << addr  << " " << 0  << "             # ieta = " << eta+1 << "\n";
-       	p3 << addr  << " " << 0  << "             # ieta = " << eta+1 << "\n";
-	p5 << addr  << " " << 0  << "             # ieta = " << eta+1 << "\n";
+      if(pu < 14 && eta<41){
+	one << addr  << " " << 0  << "             # ieta = " << eta+1 << "\n";
+	p3 << addr   << " " << 0  << "             # ieta = " << eta+1 << "\n";
+	p5 << addr   << " " << 0  << "             # ieta = " << eta+1 << "\n";
 	++addr;  
-       	continue;
+	continue;
       }
 	
       if(eta>40){
-	p1 << addr  << " 0 #dummy\n";
-	p3 << addr  << " 0 #dummy\n";
-	p5 << addr  << " 0 #dummy\n";
+	one << addr  << " 0 #dummy\n";
+	p3 << addr   << " 0 #dummy\n";
+	p5 << addr   << " 0 #dummy\n";
 	++addr;  
 	continue;
       }
 	
       double pass = 0;
-      double dp1(999.),dp3(999.),dp5(999.);
-      double tp1(999.),tp3(999.),tp5(999.);      
+      double d1(999.),dp3(999.),dp5(999.);
+      double t1(999.),tp3(999.),tp5(999.);
 
       int nBins = hTowEtPU[pu][eta]->GetNbinsX();
-
+      
       for(uint t=0; t<nBins; t++){
+	int puHist = pu;
 	if(hTowEtPU[pu][eta]->Integral(1,nBins)==0){
-	  tp1=tp3=tp5=0;
-	  break;
+	  if(lastFilled == 0){
+	    t1=tp3=tp5=0;
+	    break;
+	  }else puHist = lastFilled;
+	}else{
+	    lastFilled = pu;
 	}
-	pass = hTowEtPU[pu][eta]->Integral(t+1,nBins)/hTowEtPU[pu][eta]->Integral(1,nBins);
-	if( abs(pass-0.001) < dp1  ){
-	  tp1  = t;
-	  dp1 = pass - 0.001;
+
+	pass = hTowEtPU[puHist][eta]->Integral(t+1,nBins)/hTowEtPU[puHist][eta]->Integral(1,nBins);
+	if( abs(pass-0.01) < d1  ){
+	  t1  = t;
+	  d1 = pass - 0.01;
 	}
 	if( abs(pass-0.003) < dp3  ){
 	  tp3  = t;
@@ -157,38 +165,39 @@ void makeLUT(TFile* file, int puBins){
 	}
       }
 
-      int sat = 32;
+      //int sat = 32;
 
       // double rai = 1.2;
       // double div = 40;
       // double off = 0.2;
 
-      // tp1   = round( tp1  *((pow(float(pu),rai)/div)+off) );
+      // t1   = round( t1  *((pow(float(pu),rai)/div)+off) );
       // tp3   = round( tp3  *((pow(float(pu),rai)/div)+off) );
       // tp5  = round( tp5 *((pow(float(pu),rai)/div)+off) );
 
       //if(eta==27) cout << pu << "   " << ((pow(float(pu),rai)/div)+off) << endl; 
 
       // if(eta<15){
-      // 	tp1 = round(tp1*(((double)eta)/14));
+      // 	t1 = round(t1*(((double)eta)/14));
       // 	tp3 = round(tp3*(((double)eta)/14));
       // 	tp5 = round(tp5*(((double)eta)/14));
       // }
       
-      if(tp1>sat)  tp1 =sat;
-      if(tp3>sat)  tp3 =sat;
-      if(tp5>sat)   tp5=sat;      
+      //if(t1>sat)  t1 =sat;
+      //if(tp3>sat)  tp3 =sat;
+      //if(tp5>sat)   tp5=sat;
 
-      p1   << addr  << " " << tp1  << "             # ieta = " << eta+1 << "\n";
-      p3   << addr  << " " << tp3  << "             # ieta = " << eta+1 << "\n";
-      p5   << addr  << " " << tp5  << "             # ieta = " << eta+1 << "\n";          
+
+      one  << addr  << " "  << t1   << "             # ieta = " << eta+1 << "\n";
+      p3   << addr  << " "  << tp3  << "             # ieta = " << eta+1 << "\n";
+      p5   << addr  << " "  << tp5  << "             # ieta = " << eta+1 << "\n";          
       	  
       ++addr;
 
     }   
   }
 
-  p1.close();
+  one.close();
   p3.close();
   p5.close();
 
@@ -226,7 +235,7 @@ void doZeroBiasPUStudy(bool doTow, bool doLUT, bool doFit){
   gStyle->SetOptFit(0001);
 
   //output filename
-  string outFilename = "zbPUStudy.root";
+  string outFilename = "zb2018_metA.root";
   vector<int> puBinBs   = {0,0,0,0,0,0,0,0,1,5,10,14,18,23,27,32,36,41,45,50,56,62,68,74,80,86,93,99,105,111,117,123,999};
 
   int puBins = puBinBs.size()-1;
