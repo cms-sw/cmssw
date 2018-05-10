@@ -21,18 +21,18 @@
 #include "DataFormats/BTauReco/interface/DeepDoubleBFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
 
-#include "RecoBTag/DeepFlavour/interface/BoostedDoubleSVTagInfoConverter.h"
-#include "RecoBTag/DeepFlavour/interface/ChargedCandidateConverter.h"
-#include "RecoBTag/DeepFlavour/interface/JetConverter.h"
-#include "RecoBTag/DeepFlavour/interface/SecondaryVertexConverter.h"
+#include "RecoBTag/TensorFlow/interface/BoostedDoubleSVTagInfoConverter.h"
+#include "RecoBTag/TensorFlow/interface/ChargedCandidateConverter.h"
+#include "RecoBTag/TensorFlow/interface/JetConverter.h"
+#include "RecoBTag/TensorFlow/interface/SecondaryVertexConverter.h"
 
-#include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
-#include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
+#include "RecoBTag/TensorFlow/interface/TrackInfoBuilder.h"
+#include "RecoBTag/TensorFlow/interface/sorting_modules.h"
 
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 
 class DeepDoubleBTagInfoProducer : public edm::stream::EDProducer<>
 {

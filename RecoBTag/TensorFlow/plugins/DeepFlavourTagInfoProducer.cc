@@ -19,19 +19,19 @@
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 
-#include "RecoBTag/DeepFlavour/interface/JetConverter.h"
-#include "RecoBTag/DeepFlavour/interface/ShallowTagInfoConverter.h"
-#include "RecoBTag/DeepFlavour/interface/SecondaryVertexConverter.h"
-#include "RecoBTag/DeepFlavour/interface/NeutralCandidateConverter.h"
-#include "RecoBTag/DeepFlavour/interface/ChargedCandidateConverter.h"
+#include "RecoBTag/TensorFlow/interface/JetConverter.h"
+#include "RecoBTag/TensorFlow/interface/ShallowTagInfoConverter.h"
+#include "RecoBTag/TensorFlow/interface/SecondaryVertexConverter.h"
+#include "RecoBTag/TensorFlow/interface/NeutralCandidateConverter.h"
+#include "RecoBTag/TensorFlow/interface/ChargedCandidateConverter.h"
 
-#include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
-#include "RecoBTag/DeepFlavour/interface/sorting_modules.h"
+#include "RecoBTag/TensorFlow/interface/TrackInfoBuilder.h"
+#include "RecoBTag/TensorFlow/interface/sorting_modules.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 
 
 

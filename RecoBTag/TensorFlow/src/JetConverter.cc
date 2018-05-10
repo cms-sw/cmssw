@@ -1,4 +1,4 @@
-#include "RecoBTag/DeepFlavour/interface/JetConverter.h"
+#include "RecoBTag/TensorFlow/interface/JetConverter.h"
 #include "DataFormats/BTauReco/interface/JetFeatures.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"

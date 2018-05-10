@@ -1,4 +1,4 @@
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 
 namespace btagbtvdeep {
   

@@ -1,5 +1,5 @@
-#ifndef RecoBTag_DeepFlavour_deep_helpers_h
-#define RecoBTag_DeepFlavour_deep_helpers_h
+#ifndef RecoBTag_TensorFlow_deep_helpers_h
+#define RecoBTag_TensorFlow_deep_helpers_h
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -68,4 +68,4 @@ namespace btagbtvdeep {
   float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> & svs, 
                       const reco::Candidate* cand, float mindr=0.4);
 }
-#endif //RecoBTag_DeepFlavour_deep_helpers_h
+#endif //RecoBTag_TensorFlow_deep_helpers_h

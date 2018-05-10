@@ -1,8 +1,8 @@
-#ifndef RecoBTag_DeepFlavour_ChargedCandidateConverter_h
-#define RecoBTag_DeepFlavour_ChargedCandidateConverter_h
+#ifndef RecoBTag_TensorFlow_ChargedCandidateConverter_h
+#define RecoBTag_TensorFlow_ChargedCandidateConverter_h
 
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
-#include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/TrackInfoBuilder.h"
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -55,4 +55,4 @@ namespace btagbtvdeep {
   
 }
 
-#endif //RecoBTag_DeepFlavour_ChargedCandidateConverter_h
+#endif //RecoBTag_TensorFlow_ChargedCandidateConverter_h

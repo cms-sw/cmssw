@@ -1,5 +1,5 @@
-#ifndef RecoBTag_DeepFlavour_tensor_fillers_h
-#define RecoBTag_DeepFlavour_tensor_fillers_h
+#ifndef RecoBTag_TensorFlow_tensor_fillers_h
+#define RecoBTag_TensorFlow_tensor_fillers_h
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"

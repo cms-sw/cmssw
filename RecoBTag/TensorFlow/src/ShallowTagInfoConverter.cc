@@ -1,10 +1,10 @@
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/ShallowTagInfoFeatures.h"
 
 #include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 
-#include "RecoBTag/DeepFlavour/interface/ShallowTagInfoConverter.h"
+#include "RecoBTag/TensorFlow/interface/ShallowTagInfoConverter.h"
 
 namespace btagbtvdeep {
   
