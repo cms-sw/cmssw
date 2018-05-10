@@ -137,30 +137,50 @@ process.rawTask.calibProcessing = cms.untracked.bool(True)
 process.hbhehpdTask = process.laserTask.clone()
 process.hbhehpdTask.name = cms.untracked.string("HBHEHPDTask")
 process.hbhehpdTask.laserType = cms.untracked.uint32(3)
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000, 1000.),
 
 process.hoTask = process.laserTask.clone()
 process.hoTask.name = cms.untracked.string("HOTask")
 process.hoTask.laserType = cms.untracked.uint32(4)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000, 1000.),
 
 process.hfTask = process.laserTask.clone()
 process.hfTask.name = cms.untracked.string("HFTask")
 process.hfTask.laserType = cms.untracked.uint32(5)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.),
 
 process.hepmegaTask = process.laserTask.clone()
 process.hepmegaTask.name = cms.untracked.string("HEPMegaTask")
 process.hepmegaTask.laserType = cms.untracked.uint32(7)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.),
 
 process.hemmegaTask = process.laserTask.clone()
 process.hemmegaTask.name = cms.untracked.string("HEMMegaTask")
 process.hemmegaTask.laserType = cms.untracked.uint32(8)
+process.hbhehpdTask.thresh_timingreflm_HB = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.),
 
 process.hbpmegaTask = process.laserTask.clone()
 process.hbpmegaTask.name = cms.untracked.string("HBPMegaTask")
 process.hbpmegaTask.laserType = cms.untracked.uint32(9)
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.),
 
 process.hbmmegaTask = process.laserTask.clone()
 process.hbmmegaTask.name = cms.untracked.string("HBMMegaTask")
 process.hbmmegaTask.laserType = cms.untracked.uint32(10)
+process.hbhehpdTask.thresh_timingreflm_HE = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HF = cms.untracked.vdouble(-1000., 1000.),
+process.hbhehpdTask.thresh_timingreflm_HO = cms.untracked.vdouble(-1000., 1000.),
 
 process.qie11Task_laser = process.qie11Task.clone()
 process.qie11Task_laser.name = cms.untracked.string("QIE11Task_laser")
