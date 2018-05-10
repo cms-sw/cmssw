@@ -1076,43 +1076,43 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		//	^^^ONLINE ONLY!
 	}
 
-	// Compare the sent ("uHTR") and received (L1T "layer1") TPs
-	// This algorithm is copied from DQM/L1TMonitor/src/L1TStage2CaloLayer1.cc 
-	// ...but it turns out to be extremely useful for detecting uHTR problems
-	_vTPDigis_SentRec.clear();
-	ComparisonHelper::zip(cdata->begin(), cdata->end(), 
-						cdataL1Rec->begin(), cdataL1Rec->end(), 
-						std::inserter(_vTPDigis_SentRec, _vTPDigis_SentRec.begin()), 
-						HcalTrigPrimDigiCollection::key_compare());
+	if (_ptype == fOnline) {
+		// Compare the sent ("uHTR") and received (L1T "layer1") TPs
+		// This algorithm is copied from DQM/L1TMonitor/src/L1TStage2CaloLayer1.cc 
+		// ...but it turns out to be extremely useful for detecting uHTR problems
+		_vTPDigis_SentRec.clear();
+		ComparisonHelper::zip(cdata->begin(), cdata->end(), 
+							cdataL1Rec->begin(), cdataL1Rec->end(), 
+							std::inserter(_vTPDigis_SentRec, _vTPDigis_SentRec.begin()), 
+							HcalTrigPrimDigiCollection::key_compare());
 
-	for ( const auto& tpPair : _vTPDigis_SentRec) {
-		// From here, literal copy pasta from L1T
-		const auto& sentTp = tpPair.first;
-		const auto& recdTp = tpPair.second;
-		const int ieta = sentTp.id().ieta();
-		if ( abs(ieta) > 28 && sentTp.id().version() != 1 ) continue;
-		//const int iphi = sentTp.id().iphi();
-		const bool towerMasked = recdTp.sample(0).raw() & (1<<13);
-		//const bool linkMasked  = recdTp.sample(0).raw() & (1<<14);
-		const bool linkError   = recdTp.sample(0).raw() & (1<<15);
+		for ( const auto& tpPair : _vTPDigis_SentRec) {
+			// From here, literal copy pasta from L1T
+			const auto& sentTp = tpPair.first;
+			const auto& recdTp = tpPair.second;
+			const int ieta = sentTp.id().ieta();
+			if ( abs(ieta) > 28 && sentTp.id().version() != 1 ) continue;
+			//const int iphi = sentTp.id().iphi();
+			const bool towerMasked = recdTp.sample(0).raw() & (1<<13);
+			//const bool linkMasked  = recdTp.sample(0).raw() & (1<<14);
+			const bool linkError   = recdTp.sample(0).raw() & (1<<15);
 
-		if ( towerMasked || linkError ) {
-			// Do not compare if known to be bad
-			continue;
-		}
-		const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
-		const bool Hfb1Agreement = sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain();
-		// Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
-		const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)));
-		if (!(HetAgreement && Hfb1Agreement && Hfb2Agreement)) {
-			HcalTrigTowerDetId tid = sentTp.id();
-			uint32_t rawid = _ehashmap.lookup(tid);
-			if (rawid==0) {
+			if ( towerMasked || linkError ) {
+				// Do not compare if known to be bad
 				continue;
 			}
-			HcalElectronicsId const& eid(rawid);
+			const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
+			const bool Hfb1Agreement = sentTp.SOI_fineGrain() == recdTp.SOI_fineGrain();
+			// Ignore minBias (FB2) bit if we receieve 0 ET, which means it is likely zero-suppressed on HCal readout side
+			const bool Hfb2Agreement = ( abs(ieta) < 29 ) ? true : (recdTp.SOI_compressedEt()==0 || (sentTp.SOI_fineGrain(1) == recdTp.SOI_fineGrain(1)));
+			if (!(HetAgreement && Hfb1Agreement && Hfb2Agreement)) {
+				HcalTrigTowerDetId tid = sentTp.id();
+				uint32_t rawid = _ehashmap.lookup(tid);
+				if (rawid==0) {
+					continue;
+				}
+				HcalElectronicsId const& eid(rawid);
 
-			if (_ptype == fOnline) {
 				_cEtMsm_uHTR_L1T_depthlike.fill(tid);
 				_cEtMsm_uHTR_L1T_LS.fill(_currentLS);
 				_xSentRecL1Msm.get(eid)++;
