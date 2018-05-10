@@ -111,7 +111,7 @@ class TestProcessorConfig {
     }
   
     template<typename REC, typename T>
-    edm::test::ESPutTokenT<T> es_produces(std::string iLabel = std::string()) {
+    edm::test::ESPutTokenT<T> esProduces(std::string iLabel = std::string()) {
       auto rk = eventsetup::EventSetupRecordKey::makeKey<REC>();
       eventsetup::DataKey dk( eventsetup::DataKey::makeTypeTag<T>(), iLabel.c_str());
       esProduceEntries_.emplace_back(rk, dk, std::make_shared<TestDataProxy<T>>());
