@@ -1,16 +1,10 @@
 #ifndef RecoBTag_DeepFlavour_TrackInfoBuilder_h
 #define RecoBTag_DeepFlavour_TrackInfoBuilder_h
 
-#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/BTauReco/interface/JetTagInfo.h"
-#include "DataFormats/BTauReco/interface/IPTagInfo.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "TVector3.h"
 
 namespace btagbtvdeep{
 
