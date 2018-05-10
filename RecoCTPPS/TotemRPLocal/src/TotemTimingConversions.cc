@@ -14,6 +14,7 @@
 const float TotemTimingConversions::SAMPIC_SAMPLING_PERIOD_NS = 1. / 7.8;
 const float TotemTimingConversions::SAMPIC_ADC_V = 1. / 256;
 const int TotemTimingConversions::SAMPIC_MAX_NUMBER_OF_SAMPLES = 64;
+const int TotemTimingConversions::SAMPIC_DEFAULT_OFFSET = 30;
 
 //----------------------------------------------------------------------------------------------------
 
@@ -48,12 +49,13 @@ const float TotemTimingConversions::getTimeOfFirstSample(const TotemTimingDigi& 
 {
   unsigned int offsetOfSamples = digi.getEventInfo().getOffsetOfSamples();
   if (offsetOfSamples == 0)
-    offsetOfSamples = 30; // FW 0 is not sending this, FW > 0 yes
+    offsetOfSamples = SAMPIC_DEFAULT_OFFSET; // FW 0 is not sending this, FW > 0 yes
   int cell0TimeClock;
   float cell0TimeInstant;       // Time of first cell
   float firstCellTimeInstant; // Time of triggered cell
 
-  unsigned int timestamp = digi.getCellInfo() <= 32 ? digi.getTimestampA()
+  unsigned int timestamp = digi.getCellInfo() <= SAMPIC_MAX_NUMBER_OF_SAMPLES/2 ?
+                                                      digi.getTimestampA()
                                                     : digi.getTimestampB();
 
   cell0TimeClock = timestamp +
