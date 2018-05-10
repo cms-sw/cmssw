@@ -27,6 +27,9 @@
 #include <cstring>
 #include <poll.h>
 #include <atomic>
+#include <algorithm>
+#include <vector>
+#include <string>
 
 // WORKAROUND: At CERN, execv is replaced with a non-async-signal safe
 // version.  This can break our stack trace printer.  Avoid this by
@@ -154,6 +157,10 @@ namespace {
 
   bool s_ignoreEverything = false;
 
+  bool find_if_string(const std::string& search, const std::vector<std::string>& substrs){
+    return (find_if(substrs.begin(), substrs.end(), [&search](const std::string& s) -> bool { return (search.find(s) != std::string::npos); }) != substrs.end());
+  }
+
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
 
   bool die = false;
@@ -228,32 +235,43 @@ namespace {
 
   // Intercept some messages and downgrade the severity
 
-      if ((el_message.find("no dictionary for class") != std::string::npos) ||
-          (el_message.find("already in TClassTable") != std::string::npos) ||
-          (el_message.find("matrix not positive definite") != std::string::npos) ||
-          (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
-          (el_message.find("Problems declaring payload") != std::string::npos) ||
-          (el_message.find("Announced number of args different from the real number of argument passed") != std::string::npos) || // Always printed if gDebug>0 - regardless of whether warning message is real.
-          (el_location.find("Fit") != std::string::npos) ||
-          (el_location.find("TDecompChol::Solve") != std::string::npos) ||
-          (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
-          (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) ||
-          (el_location.find("TGClient::GetFontByName") != std::string::npos) ||
-          (el_location.find("Inverter::Dinv") != std::string::npos) ||
-          (el_message.find("nbins is <=0 - set to nbins = 1") != std::string::npos) ||
-          (el_message.find("nbinsy is <=0 - set to nbinsy = 1") != std::string::npos) ||
-          (level < kError and
-           (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and
-           (el_message.find("possible entries are in use!") != std::string::npos))) {
+      std::vector<std::string> in_message = {
+        "no dictionary for class",
+        "already in TClassTable",
+        "matrix not positive definite",
+        "not a TStreamerInfo object",
+        "Problems declaring payload",
+        "Announced number of args different from the real number of argument passed", // Always printed if gDebug>0 - regardless of whether warning message is real.
+        "nbins is <=0 - set to nbins = 1",
+        "nbinsy is <=0 - set to nbinsy = 1"
+      };
+
+      std::vector<std::string> in_location = {
+        "Fit",
+        "TDecompChol::Solve",
+        "THistPainter::PaintInit",
+        "TUnixSystem::SetDisplay",
+        "TGClient::GetFontByName",
+        "Inverter::Dinv"
+      };
+
+      if (find_if_string(el_message,in_message) ||
+          find_if_string(el_location,in_location) ||
+          (level < kError and (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and (el_message.find("possible entries are in use!") != std::string::npos)))
+      {
         el_severity = SeverityLevel::kInfo;
       }
 
       // These are a special case because we do not want them to
       // be fatal, but we do want an error to print.
+      std::vector<std::string> in_message_print = {
+        "number of iterations was insufficient",
+        "bad integrand behavior",
+        "integral is divergent, or slowly convergent"
+      };
       bool alreadyPrinted = false;
-      if ((el_message.find("number of iterations was insufficient") != std::string::npos) ||
-          (el_message.find("bad integrand behavior") != std::string::npos) ||
-          (el_message.find("integral is divergent, or slowly convergent") != std::string::npos)) {
+      if (find_if_string(el_message,in_message_print))
+      {
         el_severity = SeverityLevel::kInfo;
         edm::LogError("Root_Error") << el_location << el_message;
         alreadyPrinted = true;
