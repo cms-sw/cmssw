@@ -773,7 +773,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 				double frmissing = double(_xNMsn1LS.get(eid))/
 					double(_xNChs.get(eid));
 				double frbadm = _xNBadMean1LS.get(eid)/_xNChs.get(eid);
-				double frbadr = _xNBadRMS1LS.get(eid)/_xNChs.get(eid);
+				//double frbadr = _xNBadRMS1LS.get(eid)/_xNChs.get(eid);
 
 				if (frmissing>=_thresh_missing_high)
 					_vflags[fMsn]._state = hcaldqm::flag::fBAD;
