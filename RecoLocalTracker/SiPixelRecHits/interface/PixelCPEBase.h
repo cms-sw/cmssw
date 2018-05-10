@@ -258,7 +258,7 @@ protected:
    //---------------------------------------------------------------------------
    //  Geometrical services to subclasses.
    //---------------------------------------------------------------------------
-private:
+protected:
    void computeAnglesFromDetPosition( DetParam const & theDetParam, ClusterParam & theClusterParam ) const;
    
    void computeAnglesFromTrajectory ( DetParam const & theDetParam, ClusterParam & theClusterParam,
