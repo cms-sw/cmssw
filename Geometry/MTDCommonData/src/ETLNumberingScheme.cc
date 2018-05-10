@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-//#define DEB_NUM
+//#define EDM_ML_DEBUG
 
 ETLNumberingScheme::ETLNumberingScheme() : 
   MTDNumberingScheme() {
@@ -18,7 +18,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   const uint32_t nLevels ( baseNumber.getLevels() ) ;
 
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "ETLNumberingScheme geometry levels = " << nLevels;
 #endif
   
@@ -42,7 +42,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   const uint32_t sideCopy ( baseNumber.getCopyNumber( 7 ) ) ;
   const uint32_t zside ( sideCopy == 1 ? 1 : 0 ) ;
 
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << baseNumber.getLevelName(0) << ", "
                           << baseNumber.getLevelName(1) << ", "
                           << baseNumber.getLevelName(2) << ", "
@@ -96,7 +96,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   ETLDetId thisETLdetid( zside, ringCopy, modCopy, modtyp );
   const int32_t intindex = thisETLdetid.rawId() ;
 
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "ETL Numbering scheme: " 
                           << " ring = " << ringCopy
                           << " zside = " << zside

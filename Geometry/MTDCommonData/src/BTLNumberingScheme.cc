@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstring>
 
-//#define DEB_NUM
+#define EDM_ML_DEBUG
 
 BTLNumberingScheme::BTLNumberingScheme() : 
   MTDNumberingScheme() {
@@ -19,7 +19,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   const uint32_t nLevels ( baseNumber.getLevels() ) ;
 
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "BTLNumberingScheme geometry levels = " << nLevels;
 #endif  
 
@@ -32,7 +32,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
      return 0;
   }
 
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << baseNumber.getLevelName(0) << ", "
                           << baseNumber.getLevelName(1) << ", "
                           << baseNumber.getLevelName(2) << ", "
@@ -115,7 +115,7 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   BTLDetId thisBTLdetid( zside, rodCopy, modCopy, modtyp, crystal );
   const int32_t intindex = thisBTLdetid.rawId() ;
 
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "BTL Numbering scheme: " 
                           << " rod = " << rodCopy
                           << " zside = " << zside
