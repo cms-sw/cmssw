@@ -86,16 +86,10 @@ void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker,
   LogDebug("GEMCosmicMuonStandSim") << "ibooker set current folder\n";
 
   me_vfat_total_ = BookHist2D(
-    ibooker,
-    "The Number Of Total Events",
-    15, 0, 15,
-    3*8, 1, 3*8 + 1); // 24 = kNumRollId * kNumVFATId
+    ibooker, "The Number Of Total Events", 15, 0, 15, 3*8, 1, 3*8 + 1); // 24 = kNumRollId * kNumVFATId
 
   me_vfat_passed_ = BookHist2D(
-    ibooker,
-    "The Number Of Passed Events",
-    15, 0, 15,
-    24, 1, 24 + 1);
+    ibooker, "The Number Of Passed Events", 15, 0, 15, 24, 1, 24 + 1);
 
   for(Int_t chamber_id = 1; chamber_id <= 29; chamber_id += 2) {
     Int_t index = GetChamberIndex(chamber_id);
@@ -134,14 +128,16 @@ void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker,
   me_num_sim_hits_ = BookHist1D(ibooker, "The Number of SimHits", 25, 1, 25+1);
   me_num_rec_hits_ = BookHist1D(ibooker, "The Number of RecHits", 25, 1, 25+1);
 
-  me_sim_hit_bare_local_phi_ = BookHist1D(ibooker, "Bare Local Phi of SimHits", 100, -3*TMath::Pi(), 3*TMath::Pi());
-  me_sim_hit_local_phi_ = BookHist1D(ibooker, "Local Phi of SimHits", 100, -3*TMath::Pi(), 3*TMath::Pi());
-  me_rec_hit_local_phi_ = BookHist1D(ibooker, "Local Phi of RecHits", 100, -1 * TMath::Pi() / 18, TMath::Pi() / 18);
+  me_sim_hit_local_phi_ = BookHist1D(ibooker, "Local Phi of SimHits", 25, -1 * TMath::Pi() / 18, TMath::Pi() / 18);
+  me_rec_hit_local_phi_ = BookHist1D(ibooker, "Local Phi of RecHits", 25, -1 * TMath::Pi() / 18, TMath::Pi() / 18);
 
   // For debug
   me_mat_chamber_ = BookHist1D(ibooker, "Matching Case - Chamber Id", kNumChamberId_, kMinChamberId_, kMaxChamberId_+1);
   me_mis_chamber_ = BookHist1D(ibooker, "Mismatching Case - Chamber Id", 5, 1, 5+1);
-  me_num_mat_ = BookHist1D(ibooker, "The Number of Matched Case", 6, 0, 6);
+
+  me_sim_strip_ = BookHist1D(ibooker, "Sim Fired Strip", 385, 0 , 384 + 1); // 0 ~ 384
+  me_rec_first_strip_ = BookHist1D(ibooker, "Rec First Fired Strip", 385, 0 , 384 + 1);
+  // me_strip_diff_ = BookHist1D(ibooker, "Difference between RecStrip and SimStrip", 101, -50.5, 50.5);
 
   LogDebug("GEMCosmicMuonStandSim")<<"Booking End.\n";
 }
@@ -158,8 +154,8 @@ Int_t GEMCosmicMuonStandSim::GetVFATId(Float_t x, const GEMEtaPartition* roll) {
   Float_t width = std::fabs(x_max - x_min) / kNumVFATId_;
 
   if (x < x0 + width)        return 1;
-  else if (x < x0 + 2*width) return 2;
-  else if (x < x0 + 3*width) return 3;
+  else if (x < x0 + 2 * width) return 2;
+  else if (x < x0 + 3 * width) return 3;
   else                       return -1;
 }
 
@@ -172,31 +168,32 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
   const GEMGeometry*  GEMGeometry_ = &*hGeom;
   if ( GEMGeometry_ == nullptr) return ;  
 
-  edm::Handle<GEMRecHitCollection> gemRecHits;
-  e.getByToken( rec_hit_token_, gemRecHits);
-  edm::Handle<edm::PSimHitContainer> gemSimHits;
-  e.getByToken( sim_hit_token_, gemSimHits);
+  edm::Handle<GEMRecHitCollection> gem_rec_hits;
+  e.getByToken(rec_hit_token_, gem_rec_hits);
+  edm::Handle<edm::PSimHitContainer> gem_sim_hits;
+  e.getByToken(sim_hit_token_, gem_sim_hits);
   
-  if (not gemRecHits.isValid()) {
+  if (not gem_rec_hits.isValid()) {
     edm::LogError("GEMCosmicMuonStandSim") << "Cannot get strips by Token RecHits Token.\n";
     return ;
   }
 
   // if( isMC) 
-  Int_t num_sim_hits = gemSimHits->size();
+  Int_t num_sim_hits = gem_sim_hits->size();
   if(num_sim_hits == 0) return ;
-  Int_t num_rec_hits = std::distance(gemRecHits->begin(), gemRecHits->end());
-  if(num_rec_hits == 0) return ;
+  Int_t num_rec_hits = std::distance(gem_rec_hits->begin(), gem_rec_hits->end());
+  // if(num_rec_hits == 0) return ;
 
   me_num_sim_hits_->Fill(num_sim_hits);
   me_num_rec_hits_->Fill(num_rec_hits);
 
-  for(edm::PSimHitContainer::const_iterator sim_hit = gemSimHits->begin(); sim_hit != gemSimHits->end(); ++sim_hit)
+  for(edm::PSimHitContainer::const_iterator sim_hit = gem_sim_hits->begin(); sim_hit != gem_sim_hits->end(); ++sim_hit)
   {
     Local3DPoint sim_hit_lp = sim_hit->localPosition();
     GEMDetId sim_det_id(sim_hit->detUnitId());
+
     // XXX +1 ?
-    Int_t sim_fired_strip = GEMGeometry_->etaPartition(sim_det_id)->strip(sim_hit->entryPoint()) + 1;
+    Int_t sim_fired_strip = GEMGeometry_->etaPartition(sim_det_id)->strip(sim_hit_lp) + 1;
 
     const GEMEtaPartition* kSimRoll = GEMGeometry_->etaPartition(sim_det_id);
     Int_t sim_vfat_id = GetVFATId(sim_hit_lp.x(), kSimRoll);
@@ -206,29 +203,38 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
     me_vfat_total_->Fill(sim_chamber_idx, y_overall_vfat);
     me_vfat_total_per_chamber_[sim_chamber_idx]->Fill(sim_vfat_id, sim_det_id.roll());
 
-    GEMRecHitCollection::range range = gemRecHits->get(sim_det_id);
+    GEMRecHitCollection::range range = gem_rec_hits->get(sim_det_id);
     Int_t num_clusters = std::distance(range.first, range.second);
     me_num_clusters_->Fill(num_clusters);
 
-    Int_t num_matched = 0;
+    // candidates of strip difference in the mismatching case
+    //Int_t mis_strip_diff = 999;
+
     for(GEMRecHitCollection::const_iterator rec_hit = range.first; rec_hit != range.second; ++rec_hit)
     {
       Int_t rec_cls = rec_hit->clusterSize();
 
-      Bool_t is_matched;
+      // Checkt whether a sim. fired strip is in a rec. cluster strips.
+      Bool_t is_matched_hit;
       if ( rec_cls == 1 ) {
-        is_matched = sim_fired_strip == rec_hit->firstClusterStrip();
+        is_matched_hit = sim_fired_strip == rec_hit->firstClusterStrip();
+
+        me_sim_strip_->Fill(sim_fired_strip);
+        me_rec_first_strip_->Fill(sim_fired_strip);
       }
       else {
         Int_t rec_first_fired_strip = rec_hit->firstClusterStrip();
         Int_t rec_last_fired_strip = rec_first_fired_strip + rec_cls - 1;
-        is_matched = (sim_fired_strip >= rec_first_fired_strip) and (sim_fired_strip <= rec_last_fired_strip);
+        is_matched_hit = (sim_fired_strip >= rec_first_fired_strip) and (sim_fired_strip <= rec_last_fired_strip);
+
+        me_sim_strip_->Fill(sim_fired_strip);
+        me_rec_first_strip_->Fill(rec_first_fired_strip);
       }
 
-      if( is_matched and num_matched == 0)
+      // If SimHit and RecHit are matched,
+      // then monitor elements fill value.
+      if( is_matched_hit )
       {
-        num_matched++;
-
         LocalPoint rec_hit_lp = rec_hit->localPosition();
         GEMDetId rec_det_id = rec_hit->gemId();
         // GlobalPoint rec_hitGP = GEMGeometry_->idToDet(rec_det_id)->surface().toGlobal(rec_hit_lp);
@@ -263,15 +269,25 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
         me_cls_->Fill(rec_cls);
         me_cls_vs_chamber_->Fill(sim_chamber_idx, rec_cls);
         me_num_clusters_vs_chamber_->Fill(sim_chamber_idx, num_clusters);
-        me_sim_hit_bare_local_phi_->Fill(sim_hit_lp.phi());
         me_sim_hit_local_phi_->Fill(sim_hit_local_phi);
         me_rec_hit_local_phi_->Fill(rec_hit_local_phi);
+        break;
       }
-      else {
-        // TODO
+      else
+      {
         continue;
+        // Int_t rec_first_fired_strip = rec_hit->firstClusterStrip();
+        // Int_t rec_last_fired_strip = rec_first_fired_strip + rec_cls - 1;
+        // Int_t first_diff = rec_first_fired_strip - sim_fired_strip;
+        // Int_t last_diff = rec_last_fired_strip - sim_fired_strip;
+        // Int_t strip_diff = std::abs(first_diff) < std::abs(last_diff) ? first_diff : last_diff;
+
+        // if( std::abs(strip_diff) < std::abs(mis_strip_diff) )
+        //   mis_strip_diff = strip_diff; 
       }
-    } // RECHIT LOOP END
-    me_num_mat_->Fill(num_matched);
-  } // SIMHIT LOOP END
-}
+    } // rechit loop end
+  } // simhit loop end
+
+  // TODO occupancy
+
+} // analyze end
