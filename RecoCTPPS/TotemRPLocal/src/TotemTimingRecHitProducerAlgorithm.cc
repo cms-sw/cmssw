@@ -103,7 +103,7 @@ TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(
   if (time.size() != data.size()) {
     return results;
   }
-  if (start_at > data.size()) {
+  if (start_at > time.size()) {
     return results;
   }
   unsigned int stop_at = std::min((unsigned int)time.size(), start_at + points);
@@ -178,7 +178,7 @@ float TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(
     // Smoothing
     for (int i = 0; i < (int)data.size(); ++i) {
       for (int j = -smoothingPoints_ / 2;
-           j <= +smoothingPoints_; ++j) {
+           j <= +smoothingPoints_ / 2; ++j) {
         if ((i + j) >= 0 && (i + j) < (int)data.size() && j != 0) {
           float x = SINC_COEFFICIENT * lowPassFrequency_ * j;
           dataProcessed.at(i) += data.at(i + j) * std::sin(x) / x;
