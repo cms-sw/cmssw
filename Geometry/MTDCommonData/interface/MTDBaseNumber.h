@@ -9,6 +9,9 @@
 #include <vector>
 #include <string>
 
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 class MTDBaseNumber {
  public:
 
@@ -28,6 +31,8 @@ class MTDBaseNumber {
   void reset();
 
  protected:
+  static constexpr int MAXLEVEL=20;
+
   std::vector<std::string> _sortedName;
   std::vector<int> _sortedCopyNumber;
   int _theLevels;
