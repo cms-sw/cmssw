@@ -179,7 +179,7 @@ void testTestProcessor::eventSetupPutTest() {
   "process.add = cms.EDAnalyzer('ESTestAnalyzerA', runsToGetDataFor = cms.vint32(1,2,3), expectedValues=cms.untracked.vint32(1,2,2))\n"
   "process.moduleToTest(process.add)\n";
   edm::test::TestProcessor::Config config(kTest);
-  auto estoken = config.es_produces<ESTestRecordA,edmtest::ESTestDataA>();
+  auto estoken = config.esProduces<ESTestRecordA,edmtest::ESTestDataA>();
 
   edm::test::TestProcessor tester(config);
   
