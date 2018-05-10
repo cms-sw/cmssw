@@ -358,6 +358,22 @@ TotemTimingDQMSource::~TotemTimingDQMSource()
 void
 TotemTimingDQMSource::dqmBeginRun( const edm::Run& iRun, const edm::EventSetup& )
 {
+  // Get detector shifts from the geometry (if present)
+  edm::ESHandle<CTPPSGeometry> geometry_;
+  iSetup.get<VeryForwardRealGeometryRecord>().get( geometry_ );
+  const CTPPSGeometry *geom = geometry_.product();
+  const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0 );
+  const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7 );
+  try
+  {
+    const DetGeomDesc* det_top = geom->getSensor( detid_top );
+    verticalShiftTop_ = det_top->translation().y() + det_top->params().at( 1 );
+    const DetGeomDesc* det_bot = geom->getSensor( detid_bot );
+    verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at( 1 );
+  } catch (const cms::Exception &) {
+    verticalShiftTop_ = 0;
+    verticalShiftBot_ = 0;
+  }
 }
 
 
@@ -512,20 +528,35 @@ TotemTimingDQMSource::analyze( const edm::Event& event, const edm::EventSetup& e
           for ( const auto& ds : *stripTracks ) {
             const CTPPSDetId stripId( ds.detId() );
             // mean position of U and V planes
-            TotemRPDetId plId_V(stripId); plId_V.setPlane(0);
-            TotemRPDetId plId_U(stripId); plId_U.setPlane(1);
+            TotemRPDetId plId_V(stripId);
+            plId_V.setPlane(0);
+            TotemRPDetId plId_U(stripId);
+            plId_U.setPlane(1);
 
-            double rp_x = ( geometry->getSensor(plId_V)->translation().x() +
-                            geometry->getSensor(plId_U)->translation().x() ) / 2.;
-            double rp_y = ( geometry->getSensor(plId_V)->translation().y() +
-                            geometry->getSensor(plId_U)->translation().y() ) / 2.;
+            double rp_x = 0;
+            double rp_y = 0;
+            try
+            {
+              rp_x = (geometry->getSensor(plId_V)->translation().x() +
+                      geometry->getSensor(plId_U)->translation().x())/2;
+              rp_y = (geometry->getSensor(plId_V)->translation().y() +
+                      geometry->getSensor(plId_U)->translation().y())/2;
+            }
+            catch(const cms::Exception &)
+            {
+              continue;
+            }
 
-            for ( const auto& striplt : ds ) {
-              if ( striplt.isValid() && stripId.arm() == detId_pot.arm() )
-              {
-                if ( striplt.getTx() > maximumStripAngleForTomography_ || striplt.getTy() > maximumStripAngleForTomography_) continue;
-                if ( striplt.getTx() < minimumStripAngleForTomography_ || striplt.getTy() < minimumStripAngleForTomography_) continue;
-                if ( stripId.rp() - detId_pot.rp() == ( TOTEM_STRIP_MAX_RP_ID - TOTEM_TIMING_MAX_RP_ID ) )
+            for (const auto &striplt : ds) {
+              if (striplt.isValid() && stripId.arm() == detId.arm()) {
+                if (striplt.getTx() > maximumStripAngleForTomography_ ||
+                    striplt.getTy() > maximumStripAngleForTomography_)
+                  continue;
+                if (striplt.getTx() < minimumStripAngleForTomography_ ||
+                    striplt.getTy() < minimumStripAngleForTomography_)
+                  continue;
+                if (stripId.rp() - detId.rp() ==
+                    (TOTEM_STRIP_MAX_RP_ID - TOTEM_TIMING_BOT_RP_ID))
                 {
                   double x = striplt.getX0() - rp_x;
                   double y = striplt.getY0() - rp_y;
@@ -633,25 +664,6 @@ TotemTimingDQMSource::endLuminosityBlock( const edm::LuminosityBlock&, const edm
 void
 TotemTimingDQMSource::endRun( const edm::Run&, const edm::EventSetup& )
 {}
-
-//----------------------------------------------------------------------------------------------------
-
-uint16_t TotemTimingDQMSource::timestampAConverter(const uint16_t& binary) const
-{
-  uint16_t gray;
-  gray = binary & 0x800;
-  for (unsigned short int i = 1; i < 12; ++i)
-    gray |= ( binary ^ ( binary >> 1 ) ) & (0x0001 << ( 11 - i ) );
-
-  gray = 0xFFF - gray;
-
-  uint16_t binaryOut = 0;
-  binaryOut = gray & 0x800;
-  for (unsigned short int i = 1; i < 12; ++i)
-    binaryOut |= ( gray ^ ( binaryOut >> 1 ) ) & (0x0001 << ( 11 - i ) );
-
-  return binaryOut;
-}
 
 //----------------------------------------------------------------------------------------------------
 
