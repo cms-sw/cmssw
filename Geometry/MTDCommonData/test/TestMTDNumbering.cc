@@ -30,7 +30,7 @@
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
 
-//#define DEB_NUM
+//#define EDM_ML_DEBUG
 
 class TestMTDNumbering : public edm::one::EDAnalyzer<> {
 public:
@@ -132,7 +132,7 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
       isBarrel = true;
       limit = num;
       write = true;
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
       edm::LogInfo("TestMTDNumbering") << "isBarrel = " << isBarrel;
 #endif
     }
@@ -140,7 +140,7 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
       isBarrel = false;
       limit = num;
       write = true;
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
       edm::LogInfo("TestMTDNumbering") << "isBarrel = " << isBarrel;
 #endif
     }
@@ -189,7 +189,7 @@ void TestMTDNumbering::theBaseNumber( const DDGeoHistory& gh ) {
     std::string name(gh[i].logicalPart().name());
     int copyN(gh[i].copyno());
     thisN_.addLevel( name, copyN );
-#ifdef DEB_NUM
+#ifdef EDM_ML_DEBUG
     edm::LogInfo("TestMTDNumbering") << name << " " << copyN;
 #endif
   }

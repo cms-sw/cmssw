@@ -26,7 +26,6 @@ class ETLDetId : public MTDDetId {
   // ---------- Constructors, enumerated types ----------
   
   /** Construct a null id */
-  // ETLDetId() : MTDDetId( DetId::MTD, MTDDetId::ETL ) {;}
  ETLDetId() : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) { id_ |= ( MTDType::ETL& kMTDsubdMask ) << kMTDsubdOffset ;}
   
   /** Construct from a raw value */
@@ -39,7 +38,6 @@ class ETLDetId : public MTDDetId {
  ETLDetId( uint32_t zside, 
            uint32_t ring, 
            uint32_t module, 
-           //           uint32_t modtyp ) : MTDDetId( DetId::MTD, MTDDetId::ETL ) {
            uint32_t modtyp ) : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) {
     id_ |= ( MTDType::ETL& kMTDsubdMask ) << kMTDsubdOffset |
       ( zside& kZsideMask ) << kZsideOffset |

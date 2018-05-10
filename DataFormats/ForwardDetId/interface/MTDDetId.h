@@ -35,14 +35,6 @@ class MTDDetId : public DetId {
   static const uint32_t kRodRingOffset             = 16;
   static const uint32_t kRodRingMask               = 0x3F;  
 
-  /* /\** Enumerated type for Forward sub-deteector systems. *\/ */
-  /* enum SubDetector { subUNKNOWN=0, BTL=1, ETL=2 }; */
-  
-  /* static const uint32_t kZsideOffset               = 21; */
-  /* static const uint32_t kZsideMask                 = 0x3; */
-  /* static const uint32_t kRodRingOffset             = 15; */
-  /* static const uint32_t kRodRingMask               = 0x3F; */
-  
  public:
   
   // ---------- Constructors, enumerated types ----------

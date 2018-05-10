@@ -12,9 +12,6 @@
     bit 15-10: module sequential number
     bit 9-8  : crystal type (1 - 3)
     bit 7-0  : crystal sequential number within a module ( 0 - 63 )
-//    bit 15-11 : module sequential number
-//    bit 10-9  : crystal type (1 - 3)
-//    bit 8-0   : crystal sequential number within a module ( 0 - 383 )
 */
 
 class BTLDetId : public MTDDetId {
@@ -28,21 +25,11 @@ class BTLDetId : public MTDDetId {
   static const uint32_t kBTLCrystalOffset          = 0;
   static const uint32_t kBTLCrystalMask            = 0x3F;
 
-  // In case of 9 modules, 3 for each type, 384 crystals per module
-  
-  /* static const uint32_t kBTLmoduleOffset           = 11; */
-  /* static const uint32_t kBTLmoduleMask             = 0xF; */
-  /* static const uint32_t kBTLmodTypeOffset          = 9; */
-  /* static const uint32_t kBTLmodTypeMask            = 0x3; */
-  /* static const uint32_t kBTLCrystalOffset          = 0; */
-  /* static const uint32_t kBTLCrystalMask            = 0x1FF; */
-  
  public:
   
   // ---------- Constructors, enumerated types ----------
   
   /** Construct a null id */
-  // BTLDetId() : MTDDetId( DetId::MTD, MTDDetId::BTL ) {;}
  BTLDetId() : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) { id_ |= ( MTDType::BTL& kMTDsubdMask ) << kMTDsubdOffset ;}
 
   /** Construct from a raw value */
@@ -56,7 +43,6 @@ class BTLDetId : public MTDDetId {
            uint32_t rod, 
            uint32_t module, 
            uint32_t modtyp, 
-           //           uint32_t crystal ) : MTDDetId( DetId::MTD, MTDDetId::BTL ) {
            uint32_t crystal ) : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) {
     id_ |= ( MTDType::BTL& kMTDsubdMask ) << kMTDsubdOffset |
       ( zside& kZsideMask ) << kZsideOffset |
