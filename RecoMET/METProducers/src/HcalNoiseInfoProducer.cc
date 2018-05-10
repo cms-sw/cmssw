@@ -392,9 +392,6 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   filljetinfo(iEvent, iSetup, summary);
 
-  // Why is this here?  Shouldn't it have been in the filldigis method? Any reason for totalCalibCharge to be defined outside filldigis(...) ?-- Jeff, 7/2/12
-  //if(fillDigis_)      summary.calibCharge_ = totalCalibCharge;
-
   // select those RBXs which are interesting
   // also look for the highest energy RBX
   HcalNoiseRBXArray::iterator maxit=rbxarray.begin();
@@ -718,10 +715,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       int ieta  = laserMonIEtaList_[ich];
 
       // loop over digis, find the digi that matches this channel
-      unsigned nDigi = hLasermon->size();
-      for( unsigned didx = 0; didx < nDigi; ++didx ) {
-        QIE10DataFrame df = (*hLasermon)[didx];
-
+      for(QIE10DataFrame df : (*hLasermon)) {
         HcalCalibDetId calibId( df.id() );
 
         int ch_cboxch = calibId.cboxChannel();
