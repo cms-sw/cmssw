@@ -41,7 +41,7 @@ namespace btagbtvdeep {
     
     
     n_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv,
-						 0,-0.4,0,-0.4);
+						 0,-1.*jetR,0,-1.*jetR);
     
   }
   
