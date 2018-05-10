@@ -503,7 +503,7 @@ HLTObjectsMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		plot.q1q2ME.first->Fill(q1q2);
 
 		if ( abs(id) != abs(id2) )
-		  edm::LogWarning ("HLTObjectsMonitor") << plot.pathNAME << " " << plot.moduleNAME << " objects have different ID !?!" << abs(id) << " and " << abs(id2);
+		  edm::LogInfo ("HLTObjectsMonitor") << plot.pathNAME << " " << plot.moduleNAME << " objects have different ID !?!" << abs(id) << " and " << abs(id2);
 
 		if( (id+id2 ) == 0 ) {   // check di-object system charge and flavor
 		  
