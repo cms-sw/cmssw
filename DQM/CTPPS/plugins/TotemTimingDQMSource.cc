@@ -435,16 +435,22 @@ TotemTimingDQMSource::~TotemTimingDQMSource() {}
 void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun,
                                        const edm::EventSetup &iSetup)
 {
-  // Get detector shifts from the geometry
+  // Get detector shifts from the geometry (if present)
   edm::ESHandle<CTPPSGeometry> geometry_;
   iSetup.get<VeryForwardRealGeometryRecord>().get( geometry_ );
   const CTPPSGeometry *geom = geometry_.product();
   const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0 );
-  const DetGeomDesc* det_top = geom->getSensor( detid_top );
-  verticalShiftTop_ = det_top->translation().y() + det_top->params().at( 1 );
   const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7 );
-  const DetGeomDesc* det_bot = geom->getSensor( detid_bot );
-  verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at( 1 );
+  try
+  {
+    const DetGeomDesc* det_top = geom->getSensor( detid_top );
+    verticalShiftTop_ = det_top->translation().y() + det_top->params().at( 1 );
+    const DetGeomDesc* det_bot = geom->getSensor( detid_bot );
+    verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at( 1 );
+  } catch (const cms::Exception &) {
+    verticalShiftTop_ = 0;
+    verticalShiftBot_ = 0;
+  }
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -735,12 +741,19 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
             TotemRPDetId plId_U(stripId);
             plId_U.setPlane(1);
 
-            double rp_x = (geometry->getSensor(plId_V)->translation().x() +
-                           geometry->getSensor(plId_U)->translation().x()) /
-                          2.;
-            double rp_y = (geometry->getSensor(plId_V)->translation().y() +
-                           geometry->getSensor(plId_U)->translation().y()) /
-                          2.;
+            double rp_x = 0;
+            double rp_y = 0;
+            try
+            {
+              rp_x = (geometry->getSensor(plId_V)->translation().x() +
+                      geometry->getSensor(plId_U)->translation().x())/2;
+              rp_y = (geometry->getSensor(plId_V)->translation().y() +
+                      geometry->getSensor(plId_U)->translation().y())/2;
+            }
+            catch(const cms::Exception &)
+            {
+              continue;
+            }
 
             for (const auto &striplt : ds) {
               if (striplt.isValid() && stripId.arm() == detId.arm()) {
