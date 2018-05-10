@@ -104,7 +104,7 @@ namespace edm {
     private:
       static char *const *getPstackArgv();
       void enableWarnings_() override;
-      void ignoreWarnings_() override;
+      void ignoreWarnings_(edm::RootHandlers::SeverityLevel level) override;
       void willBeUsingThreads() override;
 
       void cachePidInfo();
@@ -145,15 +145,7 @@ namespace edm {
 }
 
 namespace {
-  enum class SeverityLevel {
-    kInfo,
-    kWarning,
-    kError,
-    kSysError,
-    kFatal
-  };
-
-  thread_local bool s_ignoreWarnings = false;
+  thread_local edm::RootHandlers::SeverityLevel s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo;
 
   bool s_ignoreEverything = false;
 
@@ -167,20 +159,20 @@ namespace {
 
   // Translate ROOT severity level to MessageLogger severity level
 
-    SeverityLevel el_severity = SeverityLevel::kInfo;
+    edm::RootHandlers::SeverityLevel el_severity = edm::RootHandlers::SeverityLevel::kInfo;
 
     if (level >= kFatal) {
-      el_severity = SeverityLevel::kFatal;
+      el_severity = edm::RootHandlers::SeverityLevel::kFatal;
     } else if (level >= kSysError) {
-      el_severity = SeverityLevel::kSysError;
+      el_severity = edm::RootHandlers::SeverityLevel::kSysError;
     } else if (level >= kError) {
-      el_severity = SeverityLevel::kError;
+      el_severity = edm::RootHandlers::SeverityLevel::kError;
     } else if (level >= kWarning) {
-      el_severity = s_ignoreWarnings ? SeverityLevel::kInfo : SeverityLevel::kWarning;
+      el_severity = edm::RootHandlers::SeverityLevel::kWarning;
     }
 
-    if(s_ignoreEverything) {
-      el_severity = SeverityLevel::kInfo;
+    if (s_ignoreEverything || el_severity <= s_ignoreWarnings) {
+      el_severity = edm::RootHandlers::SeverityLevel::kInfo;
     }
 
   // Adapt C-strings to std::strings
@@ -224,12 +216,12 @@ namespace {
        && (el_message.find("fill branch") != std::string::npos)
        && (el_message.find("address") != std::string::npos)
        && (el_message.find("not set") != std::string::npos)) {
-        el_severity = SeverityLevel::kFatal;
+        el_severity = edm::RootHandlers::SeverityLevel::kFatal;
       }
 
       if ((el_message.find("Tree branches") != std::string::npos)
        && (el_message.find("different numbers of entries") != std::string::npos)) {
-        el_severity = SeverityLevel::kFatal;
+        el_severity = edm::RootHandlers::SeverityLevel::kFatal;
       }
 
 
@@ -259,7 +251,7 @@ namespace {
           find_if_string(el_location,in_location) ||
           (level < kError and (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and (el_message.find("possible entries are in use!") != std::string::npos)))
       {
-        el_severity = SeverityLevel::kInfo;
+        el_severity = edm::RootHandlers::SeverityLevel::kInfo;
       }
 
       // These are a special case because we do not want them to
@@ -272,12 +264,12 @@ namespace {
       bool alreadyPrinted = false;
       if (find_if_string(el_message,in_message_print))
       {
-        el_severity = SeverityLevel::kInfo;
+        el_severity = edm::RootHandlers::SeverityLevel::kInfo;
         edm::LogError("Root_Error") << el_location << el_message;
         alreadyPrinted = true;
       }
 
-    if (el_severity == SeverityLevel::kInfo) {
+    if (el_severity == edm::RootHandlers::SeverityLevel::kInfo) {
       // Don't throw if the message is just informational.
       die = false;
     } else {
@@ -303,15 +295,15 @@ namespace {
     // but we leave the other code in just in case we change
     // the criteria for throwing.
     if (!alreadyPrinted) {
-      if (el_severity == SeverityLevel::kFatal) {
+      if (el_severity == edm::RootHandlers::SeverityLevel::kFatal) {
         edm::LogError("Root_Fatal") << el_location << el_message;
-      } else if (el_severity == SeverityLevel::kSysError) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kSysError) {
         edm::LogError("Root_Severe") << el_location << el_message;
-      } else if (el_severity == SeverityLevel::kError) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kError) {
         edm::LogError("Root_Error") << el_location << el_message;
-      } else if (el_severity == SeverityLevel::kWarning) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kWarning) {
         edm::LogWarning("Root_Warning") << el_location << el_message ;
-      } else if (el_severity == SeverityLevel::kInfo) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kInfo) {
         edm::LogInfo("Root_Information") << el_location << el_message ;
       }
     }
@@ -936,12 +928,12 @@ namespace edm {
 
     void
     InitRootHandlers::enableWarnings_() {
-      s_ignoreWarnings =false;
+      s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo;
     }
 
     void
-    InitRootHandlers::ignoreWarnings_() {
-      s_ignoreWarnings = true;
+    InitRootHandlers::ignoreWarnings_(edm::RootHandlers::SeverityLevel level) {
+      s_ignoreWarnings = level;
     }
 
     void
