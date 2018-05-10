@@ -205,7 +205,8 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
                                 particle.position().z()-particle.momentum().z()/particle.momentum().P()*10.);
 
     // FastSim: cheat tracking -> assign hits to closest charged daughter if particle decays
-    int pdgId = particle.getMotherDeltaR() == -1 ? particle.pdgId() : particle.getMotherPdgId();
+    int pdgId = particle.pdgId();
+    int simTrackId = particle.getMotherSimTrackIndex() >=0 ? particle.getMotherSimTrackIndex() : particle.simTrackIndex();
 
     // loop over the compatible detectors
     for (const auto & detectorWithState : compatibleDetectors)
@@ -216,7 +217,7 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
         // if the detector has no components
         if(detector.isLeaf())
         {
-            std::pair<double, PSimHit*> hitPair = createHitOnDetector(particleState, pdgId, layer.getThickness(particle.position()), energyDeposit, particle.simTrackIndex(), detector, positionOutside);
+            std::pair<double, PSimHit*> hitPair = createHitOnDetector(particleState, pdgId, layer.getThickness(particle.position()), energyDeposit, simTrackId, detector, positionOutside);
             if(hitPair.second){
                 distAndHits.insert(distAndHits.end(), hitPair);
             }
@@ -226,7 +227,7 @@ void fastsim::TrackerSimHitProducer::interact(Particle & particle,const Simplifi
             // if the detector has components
             for(const auto component : detector.components())
             {
-                std::pair<double, PSimHit*> hitPair = createHitOnDetector(particleState, pdgId,layer.getThickness(particle.position()), energyDeposit, particle.simTrackIndex(), *component, positionOutside);            
+                std::pair<double, PSimHit*> hitPair = createHitOnDetector(particleState, pdgId,layer.getThickness(particle.position()), energyDeposit, simTrackId, *component, positionOutside);            
                 if(hitPair.second){
                     distAndHits.insert(distAndHits.end(), hitPair);
                 }
