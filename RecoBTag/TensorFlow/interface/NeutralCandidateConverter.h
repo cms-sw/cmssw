@@ -1,7 +1,7 @@
-#ifndef RecoBTag_DeepFlavour_NeutralCandidateConverter_h
-#define RecoBTag_DeepFlavour_NeutralCandidateConverter_h
+#ifndef RecoBTag_TensorFlow_NeutralCandidateConverter_h
+#define RecoBTag_TensorFlow_NeutralCandidateConverter_h
 
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/NeutralCandidateFeatures.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -49,4 +49,4 @@ namespace btagbtvdeep {
   
 }
 
-#endif //RecoBTag_DeepFlavour_NeutralCandidateConverter_h
+#endif //RecoBTag_TensorFlow_NeutralCandidateConverter_h

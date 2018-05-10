@@ -1,5 +1,5 @@
-#ifndef RecoBTag_DeepFlavour_TrackInfoBuilder_h
-#define RecoBTag_DeepFlavour_TrackInfoBuilder_h
+#ifndef RecoBTag_TensorFlow_TrackInfoBuilder_h
+#define RecoBTag_TensorFlow_TrackInfoBuilder_h
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
@@ -53,4 +53,4 @@ private:
 
 }
 
-#endif //RecoBTag_DeepFlavour_TrackInfoBuilder_h
+#endif //RecoBTag_TensorFlow_TrackInfoBuilder_h
