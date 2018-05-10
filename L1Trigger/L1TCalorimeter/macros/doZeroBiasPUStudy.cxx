@@ -614,7 +614,5 @@ void doZeroBiasPUStudy(bool doTow, bool doLUT, bool doFit){
     canvas->Close();
     outFile.Close();
     
-    makeLUT(file, puBins);
-    
   }
 }
