@@ -153,6 +153,32 @@ namespace {
     return (find_if(substrs.begin(), substrs.end(), [&search](const std::string& s) -> bool { return (search.find(s) != std::string::npos); }) != substrs.end());
   }
 
+  const std::vector<std::string> in_message{
+    "no dictionary for class",
+    "already in TClassTable",
+    "matrix not positive definite",
+    "not a TStreamerInfo object",
+    "Problems declaring payload",
+    "Announced number of args different from the real number of argument passed", // Always printed if gDebug>0 - regardless of whether warning message is real.
+    "nbins is <=0 - set to nbins = 1",
+    "nbinsy is <=0 - set to nbinsy = 1"
+  };
+
+  const std::vector<std::string> in_location{
+    "Fit",
+    "TDecompChol::Solve",
+    "THistPainter::PaintInit",
+    "TUnixSystem::SetDisplay",
+    "TGClient::GetFontByName",
+    "Inverter::Dinv"
+  };
+
+  const std::vector<std::string> in_message_print{
+    "number of iterations was insufficient",
+    "bad integrand behavior",
+    "integral is divergent, or slowly convergent"
+  };
+
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
 
   bool die = false;
@@ -227,26 +253,6 @@ namespace {
 
   // Intercept some messages and downgrade the severity
 
-      std::vector<std::string> in_message = {
-        "no dictionary for class",
-        "already in TClassTable",
-        "matrix not positive definite",
-        "not a TStreamerInfo object",
-        "Problems declaring payload",
-        "Announced number of args different from the real number of argument passed", // Always printed if gDebug>0 - regardless of whether warning message is real.
-        "nbins is <=0 - set to nbins = 1",
-        "nbinsy is <=0 - set to nbinsy = 1"
-      };
-
-      std::vector<std::string> in_location = {
-        "Fit",
-        "TDecompChol::Solve",
-        "THistPainter::PaintInit",
-        "TUnixSystem::SetDisplay",
-        "TGClient::GetFontByName",
-        "Inverter::Dinv"
-      };
-
       if (find_if_string(el_message,in_message) ||
           find_if_string(el_location,in_location) ||
           (level < kError and (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and (el_message.find("possible entries are in use!") != std::string::npos)))
@@ -256,11 +262,6 @@ namespace {
 
       // These are a special case because we do not want them to
       // be fatal, but we do want an error to print.
-      std::vector<std::string> in_message_print = {
-        "number of iterations was insufficient",
-        "bad integrand behavior",
-        "integral is divergent, or slowly convergent"
-      };
       bool alreadyPrinted = false;
       if (find_if_string(el_message,in_message_print))
       {
