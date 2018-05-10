@@ -68,6 +68,8 @@ namespace btagbtvdeep {
   }
 
   // instantiate template
-  template bool sv_vertex_comparator<reco::VertexCompositePtrCandidate, reco::Vertex>(const reco::VertexCompositePtrCandidate&, const reco::VertexCompositePtrCandidate&, const reco::Vertex&);
+  template bool sv_vertex_comparator<reco::VertexCompositePtrCandidate, reco::Vertex>(const reco::VertexCompositePtrCandidate&, 
+										      const reco::VertexCompositePtrCandidate&, 
+										      const reco::Vertex&);
 
 }
