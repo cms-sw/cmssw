@@ -88,7 +88,7 @@ def draw_vfat_eff_2d(passed, total, out_fmt):
     gStyle.SetPaintTextFormat(".3f")
     eff_hist.SetMarkerSize(2)
     eff_hist.SetMaximum(1.0)
-    eff_hist.SetMinimum(0.0)
+    eff_hist.SetMinimum(0.9)
 
     can.SaveAs(out_fmt.format(ext="png"))
     can.SaveAs(out_fmt.format(ext="pdf"))
@@ -141,7 +141,7 @@ def draw_overall_vfat_eff_2d(passed, total, out_fmt):
 
     eff_hist.SetMarkerSize(1)
     eff_hist.SetMaximum(1.0)
-    eff_hist.SetMinimum(0.0)
+    eff_hist.SetMinimum(0.9)
 
     eff_hist.Draw("colz TEXT")
     can.SaveAs(out_fmt.format(ext="png"))
