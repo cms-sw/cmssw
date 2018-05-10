@@ -34,6 +34,7 @@ private:
   static const float SAMPIC_SAMPLING_PERIOD_NS;
   static const float SAMPIC_ADC_V;
   static const int SAMPIC_MAX_NUMBER_OF_SAMPLES;
+  static const int SAMPIC_DEFAULT_OFFSET;
 
   bool calibrationFileOk_;
   std::string calibrationFile_;
