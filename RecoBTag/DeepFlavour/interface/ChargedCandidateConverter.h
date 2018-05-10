@@ -11,20 +11,6 @@
 
 namespace btagbtvdeep {
   
-  // conversion map from quality flags used in PV association and miniAOD one
-  //constexpr static int qualityMap[8]  = {1,0,1,1,4,4,5,6};
-  
-  /*enum qualityFlagsShiftsAndMasks {
-    assignmentQualityMask = 0x7, 
-    assignmentQualityShift = 0,
-    trackHighPurityMask  = 0x8, 
-    trackHighPurityShift=3,
-    lostInnerHitsMask = 0x30, 
-    lostInnerHitsShift=4,
-    muonFlagsMask = 0x0600, 
-    muonFlagsShift=9
-    };*/
-  
   template <typename CandidateType>
     void commonCandidateToFeatures(const CandidateType * c_pf,
 				   const reco::Jet & jet,
@@ -65,10 +51,6 @@ namespace btagbtvdeep {
 			       const int pv_ass_quality,
 			       const reco::VertexRef & pv, 
 			       ChargedCandidateFeatures & c_pf_features) ;
-  
-  
-  // static data member (avoid undefined ref)
-  //  constexpr int ChargedCandidateConverter::qualityMap[8]; 
   
   
 }
