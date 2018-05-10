@@ -1,0 +1,11 @@
+#!/bin/sh
+if [ ${HOSTNAME} == "gate.sscc.uos.ac.kr" ]
+then
+    rm -rfv /home/slowmoyang/gemcrs/src/Validation/GEMCosmicMuonStand/test/Reco*
+    rm -rfv /store/user/slowmoyang/GEMCRS/Reco*
+elif [ ${HOSTNAME} == "ui10.sdfarm.kr" ] || [ ${HOSTNAME} == "ui20.sdfarm.kr" ]
+then
+    rm -rfv /cms/ldap_home/slowmoyang/gemcrs/src/Validation/GEMCosmicMuonStand/test/Reco*
+    rm -rfv /cms/ldap_home/slowmoyang/gemcrs/src/Validation/GEMCosmicMuonStand/test/DQM*
+    rm -rfv /xrootd/store/user/slowmoyang/GEMCRS/Reco*
+fi
