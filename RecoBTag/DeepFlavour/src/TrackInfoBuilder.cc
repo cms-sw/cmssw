@@ -1,4 +1,13 @@
 #include "RecoBTag/DeepFlavour/interface/TrackInfoBuilder.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/BTauReco/interface/JetTagInfo.h"
+#include "DataFormats/BTauReco/interface/IPTagInfo.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "TVector3.h"
 
 namespace btagbtvdeep{
 
