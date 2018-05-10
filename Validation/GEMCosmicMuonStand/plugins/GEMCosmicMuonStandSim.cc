@@ -288,6 +288,20 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
     } // rechit loop end
   } // simhit loop end
 
+
   // TODO occupancy
+  for(GEMRecHitCollection::const_iterator rec_hit = gem_rec_hits->begin(); rec_hit != gem_rec_hits->end(); ++rec_hit)
+  {
+    LocalPoint rec_hit_lp = rec_hit->localPosition();
+    GEMDetId rec_det_id = rec_hit->gemId();
+
+    const GEMEtaPartition* kRecRoll = GEMGeometry_->etaPartition(rec_det_id);
+
+    Int_t rec_chamber_idx = GetChamberIndex(rec_det_id.chamber());
+    Int_t rec_vfat_id = GetVFATId(rec_hit_lp.x(), kRecRoll);
+
+    me_vfat_occupancy_per_chamber_[rec_chamber_idx]->Fill(rec_vfat_id, rec_det_id.roll());
+  }
+
 
 } // analyze end
