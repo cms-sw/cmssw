@@ -57,15 +57,10 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   const int modtyp ( ::atoi( (baseName.substr(8,1)).c_str() ) == 9 ?
                      ::atoi( (baseName.substr(7,1)).c_str() ) + 1 : ::atoi( (baseName.substr(7,1)).c_str() ) ) ;
   
-  // in case of 16x 24 modules
-  //  const int modtyp ( ::atoi( (baseName.substr(7,1)).c_str() ) /3 + 1) ;
-  
   // error checking
 
   if( 1 > crystal ||
     64 < crystal ) 
-    // in case of 16x 24 modules
-    //      384 < crystal ) 
   {
     edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                << "****************** Bad crystal number = " 
@@ -88,8 +83,6 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   
   if( 1 > modCopy ||
       54 < modCopy    )
-    // in case of 16x 24 modules
-    //      9 < modCopy    )
     {
       edm::LogWarning("MTDGeom") << "BTLNumberingScheme::getUnitID(): "
                                  << "****************** Bad module copy = " 

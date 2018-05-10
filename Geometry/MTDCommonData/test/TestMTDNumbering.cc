@@ -124,7 +124,6 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
   do {
     nav_type pos = epv.navPos();
     idMap[pos]=id;
-    //      dump << id 
     
     size_t num = epv.geoHistory().size();
 
@@ -153,12 +152,13 @@ void TestMTDNumbering::checkMTD ( const DDCompactView& cpv, std::string fname, i
       dump << "\n";
 
       bool isSens = false;
-      std::vector<const DDsvalues_type*>::const_iterator bit(epv.geoHistory()[num-1].logicalPart().specifics().begin()), eit(epv.geoHistory()[num-1].logicalPart().specifics().end());
-      for( ; bit != eit; ++bit ) { 
-        for ( size_t ii = 0; ii < epv.geoHistory()[num-1].logicalPart().specifics().size(); ii++ ) {
-          if ( ((*bit)[0])[ii].second.name() == "SensitiveDetector" ) { isSens = true; continue; }
+
+      if ( epv.geoHistory()[num-1].logicalPart().specifics().size() > 0 ) { 
+        for ( auto elem : *(epv.geoHistory()[num-1].logicalPart().specifics()[0]) ) {
+          if ( elem.second.name() == "SensitiveDetector" ) { isSens = true; break; }
         }
       }
+      
 
       // Check of numbering scheme for sensitive detectors
 
