@@ -622,9 +622,11 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	if (!e.getByToken(_tokData, cdata))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagData.label() + " " + _tagData.instance());
-	if (!e.getByToken(_tokDataL1Rec, cdataL1Rec))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
-			+ _tagDataL1Rec.label() + " " + _tagDataL1Rec.instance());
+	if (_ptype == fOnline) {
+		if (!e.getByToken(_tokDataL1Rec, cdataL1Rec))
+			_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
+				+ _tagDataL1Rec.label() + " " + _tagDataL1Rec.instance());
+	}
 	if (!e.getByToken(_tokEmul, cemul))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagEmul.label() + " " + _tagEmul.instance());
