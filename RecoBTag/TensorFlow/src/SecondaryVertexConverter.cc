@@ -1,11 +1,11 @@
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexFeatures.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "RecoBTag/DeepFlavour/interface/SecondaryVertexConverter.h"
+#include "RecoBTag/TensorFlow/interface/SecondaryVertexConverter.h"
 
 namespace btagbtvdeep {
   

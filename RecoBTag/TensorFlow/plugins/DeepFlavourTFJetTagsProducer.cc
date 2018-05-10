@@ -16,7 +16,7 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-#include "RecoBTag/DeepFlavour/interface/tensor_fillers.h"
+#include "RecoBTag/TensorFlow/interface/tensor_fillers.h"
 
 // Declaration of the data structure that is hold by the edm::GlobalCache.
 // In TensorFlow, the computational graph is stored in a stateless graph object which can be shared

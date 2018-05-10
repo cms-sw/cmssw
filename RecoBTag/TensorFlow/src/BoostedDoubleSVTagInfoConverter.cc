@@ -1,5 +1,5 @@
-#include "RecoBTag/DeepFlavour/interface/BoostedDoubleSVTagInfoConverter.h"
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/BoostedDoubleSVTagInfoConverter.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfoFeatures.h"
 
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"

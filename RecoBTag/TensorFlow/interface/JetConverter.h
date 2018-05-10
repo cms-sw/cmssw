@@ -1,5 +1,5 @@
-#ifndef RecoBTag_DeepFlavour_JetConverter_h
-#define RecoBTag_DeepFlavour_JetConverter_h
+#ifndef RecoBTag_TensorFlow_JetConverter_h
+#define RecoBTag_TensorFlow_JetConverter_h
 
 #include "DataFormats/BTauReco/interface/JetFeatures.h"
 
@@ -21,5 +21,5 @@ namespace btagbtvdeep {
   
 }
 
-#endif //RecoBTag_DeepFlavour_JetConverter_h
+#endif //RecoBTag_TensorFlow_JetConverter_h
 

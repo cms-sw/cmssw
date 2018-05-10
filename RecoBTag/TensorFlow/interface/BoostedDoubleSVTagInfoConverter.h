@@ -1,7 +1,7 @@
-#ifndef RecoBTag_DeepFlavour_BoostedDoubleSVTagInfoConverter_h
-#define RecoBTag_DeepFlavour_BoostedDoubleSVTagInfoConverter_h
+#ifndef RecoBTag_TensorFlow_BoostedDoubleSVTagInfoConverter_h
+#define RecoBTag_TensorFlow_BoostedDoubleSVTagInfoConverter_h
 
-#include "RecoBTag/DeepFlavour/interface/deep_helpers.h"
+#include "RecoBTag/TensorFlow/interface/deep_helpers.h"
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfoFeatures.h"
 
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"
@@ -14,6 +14,6 @@ namespace btagbtvdeep {
   
 }
 
-#endif //RecoBTag_DeepFlavour_BoostedDoubleSVTagInfoConverter_h
+#endif //RecoBTag_TensorFlow_BoostedDoubleSVTagInfoConverter_h
 
 
