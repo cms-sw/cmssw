@@ -51,6 +51,8 @@ totemGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_003.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_004.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_005.xml',
+    'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_020.xml',
+    'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_021.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_022.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_024.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_025.xml',
@@ -60,6 +62,8 @@ totemGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_103.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_104.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_105.xml',
+    'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_120.xml',
+    'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_121.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_122.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_124.xml',
     'Geometry/VeryForwardData/data/RP_Detectors_Assembly/RP_Detectors_Assembly_125.xml',
@@ -116,29 +120,6 @@ ctppsUFSDGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_UFSD_Parameters.xml'
 )
 
-# Totem Timing files
-totemTimingGeomXMLFiles = cms.vstring(
-    # UFSDetectors
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Dist_Beam_Cent.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_DetectorAssembly.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Parameters.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Station.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Sens.xml',
-    )
-
-# Totem Timing files
-totemTimingGeomXMLFiles = cms.vstring(
-    # UFSDetectors
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Dist_Beam_Cent.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_DetectorAssembly.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Parameters.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane0.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane1.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane2.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane3.xml',
-    )
-
 # pixel files
 ctppsPixelGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/ppstrackerMaterials.xml',
@@ -150,7 +131,7 @@ ctppsPixelGeomXMLFiles = cms.vstring(
 )
 
 XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + totemTimingGeomXMLFiles + ctppsPixelGeomXMLFiles,
+                                              geomXMLFiles = totemGeomXMLFiles + ctppsDiamondGeomXMLFiles + ctppsUFSDGeomXMLFiles + ctppsPixelGeomXMLFiles,
                                               rootNodeName = cms.string('cms:CMSE')
                                               )
 
