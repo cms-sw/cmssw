@@ -8,12 +8,22 @@ MTDBaseNumber::MTDBaseNumber(const MTDBaseNumber & aBaseNumber):
   _theLevels(aBaseNumber._theLevels) { }  
 
 void MTDBaseNumber::setSize(const int & size) {
-  _sortedName.resize(size);
-  _sortedCopyNumber.resize(size);
+  if ( size < MAXLEVEL ) {
+    _sortedName.resize(size);
+    _sortedCopyNumber.resize(size);
+  }
+  else {
+    _sortedName.resize(MAXLEVEL);
+    _sortedCopyNumber.resize(MAXLEVEL);
+    edm::LogWarning("MTDGeom") << "Required base number size exceeding maximum";
+  }
 }
 
 void MTDBaseNumber::addLevel(const std::string& name, const int & copyNumber)
 {
+  if ( _theLevels == MAXLEVEL-1 ) {
+    throw cms::Exception("WrongMTDGeom") << "MTDBaseNumber required to add more levels than maximum allowed";
+  }
   _sortedName[_theLevels] = name;
   _sortedCopyNumber[_theLevels] = copyNumber;
   _theLevels++;

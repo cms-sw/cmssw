@@ -3,7 +3,7 @@
 
 #include "Geometry/MTDCommonData/interface/MTDBaseNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class MTDNumberingScheme {
  public:
