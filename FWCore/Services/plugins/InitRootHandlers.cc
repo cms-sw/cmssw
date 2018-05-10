@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <array>
 
 // WORKAROUND: At CERN, execv is replaced with a non-async-signal safe
 // version.  This can break our stack trace printer.  Avoid this by
@@ -149,11 +150,12 @@ namespace {
 
   bool s_ignoreEverything = false;
 
-  bool find_if_string(const std::string& search, const std::vector<std::string>& substrs){
-    return (find_if(substrs.begin(), substrs.end(), [&search](const std::string& s) -> bool { return (search.find(s) != std::string::npos); }) != substrs.end());
+  template<std::size_t SIZE>
+  bool find_if_string(const std::string& search, const std::array<const char* const,SIZE>& substrs){
+    return (std::find_if(substrs.begin(), substrs.end(), [&search](const char* const s) -> bool { return (search.find(s) != std::string::npos); }) != substrs.end());
   }
 
-  const std::vector<std::string> in_message{
+  constexpr std::array<const char* const,8> in_message{{
     "no dictionary for class",
     "already in TClassTable",
     "matrix not positive definite",
@@ -162,22 +164,22 @@ namespace {
     "Announced number of args different from the real number of argument passed", // Always printed if gDebug>0 - regardless of whether warning message is real.
     "nbins is <=0 - set to nbins = 1",
     "nbinsy is <=0 - set to nbinsy = 1"
-  };
+  }};
 
-  const std::vector<std::string> in_location{
+  constexpr std::array<const char* const,6> in_location{{
     "Fit",
     "TDecompChol::Solve",
     "THistPainter::PaintInit",
     "TUnixSystem::SetDisplay",
     "TGClient::GetFontByName",
     "Inverter::Dinv"
-  };
+  }};
 
-  const std::vector<std::string> in_message_print{
+  constexpr std::array<const char* const,3> in_message_print{{
     "number of iterations was insufficient",
     "bad integrand behavior",
     "integral is divergent, or slowly convergent"
-  };
+  }};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
 
