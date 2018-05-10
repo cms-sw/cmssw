@@ -34,13 +34,20 @@ class GEMCosmicMuonStandSim : public DQMEDAnalyzer {
                              Int_t nchY, Double_t lowY, Double_t highY);
 
 
+
+  // Utility functions
+
   Int_t GetVFATId(Float_t x, const GEMEtaPartition* roll);
 
-  // Conver Id to Index
   Int_t GetChamberIndex(Int_t chamber_id) {return (chamber_id - 1) / 2; }
+
+  Int_t GetOverallVFATPlotY(Int_t roll_id, Int_t vfat_id) {return 3 * roll_id + vfat_id - 3;}
 
   // conversion_factor = 10 deg * ( TMath::Pi() / 180 deg ) / 384 = 0.00045451283
   Float_t GetLocalPhi(Float_t strip) {return 0.00045451283 * (strip - 192);}
+
+
+
 
  private:
   edm::EDGetTokenT<edm::PSimHitContainer> sim_hit_token_;
@@ -54,6 +61,8 @@ class GEMCosmicMuonStandSim : public DQMEDAnalyzer {
   MonitorElement *me_vfat_passed_, *me_vfat_total_;
   MonitorElement *me_vfat_passed_per_chamber_[15];
   MonitorElement *me_vfat_total_per_chamber_[15];
+
+  MonitorElement *me_vfat_occupancy_;
   MonitorElement *me_vfat_occupancy_per_chamber_[15];
 
   MonitorElement *me_residual_local_x_, *me_residual_local_y_, *me_residual_local_phi_;

@@ -51,7 +51,7 @@ class Directory(object):
 
 
 
-
+#
 def draw_vfat_eff_2d(passed, total, out_fmt):
     name = total.GetName().replace("total", "eff")
     title = total.GetTitle().replace("Total events", "Efficiency")
@@ -159,14 +159,82 @@ def draw_all_vfat_eff_2d(directory, out_dir):
     out_fmt = os.path.join(out_dir, "vfat_eff.{ext}")
     eff = draw_overall_vfat_eff_2d(passed, total, out_fmt)
 
-    passed_fmt = "the_number_of_passed_events_chamber_{}_"
-    total_fmt = "the_number_of_total_events_chamber_{}_"
+    passed_fmt = "the_number_of_passed_events_chamber_{}"
+    total_fmt = "the_number_of_total_events_chamber_{}"
     for chamber_id in range(MIN_CHAMBER_ID, MAX_CHAMBER_ID + 1, 2):
         passed = directory.Get(passed_fmt.format(chamber_id))
         total = directory.Get(total_fmt.format(chamber_id))
 
         out_fmt = os.path.join(out_dir, "vfat_eff_{}_chamber.{{ext}}".format(chamber_id))
         eff = draw_vfat_eff_2d(passed, total, out_fmt)
+
+
+def draw_vfat_occupancy_2d(occupancy, out_fmt):
+    occupancy.GetXaxis().SetTitle("VFAT Id")
+    for i in range(MIN_VFAT_ID, MAX_VFAT_ID + 1):
+        occupancy.GetXaxis().SetBinLabel(i, "VFAT {}".format(i))
+
+    occupancy.GetYaxis().SetTitle("iEta")
+    for i in range(MIN_ROLL_ID, MAX_ROLL_ID + 1):
+        occupancy.GetYaxis().SetBinLabel(i, "{}".format(i))
+
+    canvas_name = "can_" + occupancy.GetName()
+    can = TCanvas(canvas_name, canvas_name, 800, 600)
+    can.cd()
+
+    occupancy.Draw("colz TEXT")
+    gStyle.SetPaintTextFormat("g")
+    gStyle.SetOptStat(False)
+    occupancy.SetMarkerSize(2)
+
+    can.SaveAs(out_fmt.format(ext="png"))
+    can.SaveAs(out_fmt.format(ext="pdf"))
+
+
+def draw_overall_vfat_occupancy_2d(occupancy, out_fmt):
+    occupancy.GetXaxis().SetTitle("Chamber Id")
+    for chamber_id in range(MIN_CHAMBER_ID, MAX_CHAMBER_ID + 1, 2):
+        bin = int((chamber_id -1) / 2) + 1
+        occupancy.GetXaxis().SetBinLabel(bin, "{}".format(chamber_id))
+
+    occupancy.GetYaxis().SetTitle("Roll & VFAT Id")
+    for ieta in range(MIN_ROLL_ID, MAX_ROLL_ID + 1):
+        for vfat in range(MIN_VFAT_ID, MAX_VFAT_ID + 1):
+            bin = 3 * ieta + vfat - 3
+            if vfat == 1:
+                label = "Roll {}, VFAT {}".format(ieta, vfat)
+            else:
+                label = "VFAT {}".format(vfat)
+
+            occupancy.GetYaxis().SetBinLabel(bin, label)
+
+    canvas_name = "can_" + occupancy.GetName()
+    can = TCanvas(canvas_name, canvas_name, 1600, 1200)
+    can.cd()
+    can.SetLeftMargin(0.175)
+
+    gStyle.SetPaintTextFormat("g")
+    gStyle.SetOptStat(False)
+
+    occupancy.SetMarkerSize(1)
+
+    occupancy.Draw("colz TEXT")
+    can.SaveAs(out_fmt.format(ext="png"))
+    can.SaveAs(out_fmt.format(ext="pdf"))
+    return occupancy
+
+
+def draw_all_vfat_occupancy_2d(directory, out_dir):
+    occupancy = directory.Get("occupancy")
+
+    out_fmt = os.path.join(out_dir, "vfat_occupancy.{ext}")
+    draw_overall_vfat_occupancy_2d(occupancy, out_fmt)
+
+    hist_fmt = "occupancy_chamber_{}"
+    for chamber_id in range(MIN_CHAMBER_ID, MAX_CHAMBER_ID + 1, 2):
+        occupancy = directory.Get(hist_fmt.format(chamber_id))
+        out_fmt = os.path.join(out_dir, "vfat_occupancy_{}_chamber.{{ext}}".format(chamber_id))
+        draw_vfat_occupancy_2d(occupancy, out_fmt)
 
 
 def draw_all_residuals_and_pulls(directory, out_dir):
@@ -241,6 +309,7 @@ def main():
     sim_dir = root_file.Get("DQMData/Run 1/GEMCosmicMuonStandSim/Run summary")
 
     draw_all_vfat_eff_2d(sim_dir, out_dir.vfat_efficiency.path) 
+    draw_all_vfat_occupancy_2d(sim_dir, out_dir.vfat_occupancy.path) 
     draw_all_residuals_and_pulls(sim_dir, out_dir.residuals_and_pulls.path)
 
     draw_others(sim_dir, out_dir.others.path)

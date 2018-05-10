@@ -47,6 +47,7 @@ TString GEMCosmicMuonStandSim::ConvertTitleToName(TString const& title)
   //
   TString name = tmp_name;
   name.ReplaceAll("__", "_");
+  name = name.Strip(TString::EStripType::kBoth, '_');
   //
   return name;
 }
@@ -86,7 +87,19 @@ void GEMCosmicMuonStandSim::bookHistograms(DQMStore::IBooker & ibooker,
   LogDebug("GEMCosmicMuonStandSim") << "ibooker set current folder\n";
 
   me_vfat_total_ = BookHist2D(
-    ibooker, "The Number Of Total Events", 15, 0, 15, 3*8, 1, 3*8 + 1); // 24 = kNumRollId * kNumVFATId
+    ibooker, "The Number Of Total Events",
+    15, 0, 14 + 1,
+    3*8, 1, 3*8 + 1); // 24 = kNumRollId * kNumVFATId
+
+  me_vfat_passed_ = BookHist2D(
+    ibooker, "The Number Of Passed Events",
+    15, 0, 14 + 1,
+    3*8, 1, 3*8 + 1);
+
+  me_vfat_occupancy_ = BookHist2D(
+    ibooker, "Occupancy",
+    15, 0, 14 + 1,
+    3*8, 1, 3*8 + 1);
 
   me_vfat_passed_ = BookHist2D(
     ibooker, "The Number Of Passed Events", 15, 0, 15, 24, 1, 24 + 1);
@@ -199,8 +212,9 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
     Int_t sim_vfat_id = GetVFATId(sim_hit_lp.x(), kSimRoll);
     Int_t sim_chamber_idx = GetChamberIndex(sim_det_id.chamber()); // 0 ~ 14
 
-    Int_t y_overall_vfat = 3 * sim_det_id.roll() + sim_vfat_id - 3; // 1 ~ 24
-    me_vfat_total_->Fill(sim_chamber_idx, y_overall_vfat);
+    // Int_t y_overall_vfat = 3 * sim_det_id.roll() + sim_vfat_id - 3; // 1 ~ 24
+    Int_t y_overall_vfat_plot = GetOverallVFATPlotY(sim_det_id.roll(), sim_vfat_id);
+    me_vfat_total_->Fill(sim_chamber_idx, y_overall_vfat_plot);
     me_vfat_total_per_chamber_[sim_chamber_idx]->Fill(sim_vfat_id, sim_det_id.roll());
 
     GEMRecHitCollection::range range = gem_rec_hits->get(sim_det_id);
@@ -248,7 +262,7 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
         // Int_t recVFATId = GetVFATId(rec_hit_lp.x(), kRecRoll);
         // Int_t recChamberIdx = GetChamberIndex(rec_det_id.chamber());
 
-        me_vfat_passed_->Fill(sim_chamber_idx, y_overall_vfat);
+        me_vfat_passed_->Fill(sim_chamber_idx, y_overall_vfat_plot);
         me_vfat_passed_per_chamber_[sim_chamber_idx]->Fill(sim_vfat_id, sim_det_id.roll());
 
         Float_t residual_local_x = rec_hit_lp.x() - sim_hit_lp.x();
@@ -301,6 +315,10 @@ void GEMCosmicMuonStandSim::analyze(const edm::Event& e,
     Int_t rec_vfat_id = GetVFATId(rec_hit_lp.x(), kRecRoll);
 
     me_vfat_occupancy_per_chamber_[rec_chamber_idx]->Fill(rec_vfat_id, rec_det_id.roll());
+
+    Int_t y_overall_vfat_plot = GetOverallVFATPlotY(rec_det_id.roll(), rec_vfat_id);
+    me_vfat_occupancy_->Fill(rec_chamber_idx, y_overall_vfat_plot);
+
   }
 
 
