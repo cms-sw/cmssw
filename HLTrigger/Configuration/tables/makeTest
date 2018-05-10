@@ -1,0 +1,12 @@
+#! /bin/bash
+#
+# generate HLT tables from master table in ConfDB
+#
+
+MASTER="/dev/CMSSW_10_1_0/HLT"           # no version, take the latest one
+#MASTER="/users/sdonato/STORM/menuV1p1/HLT"
+TARGET="/users/sdonato/tmp"         # directory where to store the sub-tables
+TABLES="GRun"                 # which sub-tables to create
+
+source subtables.sh
+createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"
