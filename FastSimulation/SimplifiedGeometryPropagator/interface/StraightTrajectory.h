@@ -25,6 +25,12 @@ namespace fastsim
         */
         StraightTrajectory(const Particle & particle) : Trajectory(particle) {;}
 
+        //! Use Copy Constructor.
+        /*
+            \param trajectory StraightTrajectory does not have any special attribues so it can be copied right away
+        */
+        StraightTrajectory(const Trajectory & trajectory) : Trajectory(trajectory) {;}
+
         //! Check if an intersection of the trajectory with a barrel layer exists.
         /*!
             There is always an intersection between a straight line and a barrel layer unless the trajectory is parallel to z axis. In this case, the particle is not propagated anyways since it will not hit any detector material.

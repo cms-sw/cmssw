@@ -74,7 +74,7 @@ OutputMagneticFieldDDToDDL::OutputMagneticFieldDDToDDL( const edm::ParameterSet&
 {
   m_rotNumSeed = iConfig.getParameter<int>( "rotNumSeed" );
   m_fname = iConfig.getUntrackedParameter<std::string>( "fileName" );
-  if( m_fname == "" )
+  if( m_fname.empty() )
   {
     m_xos = &std::cout;
   }
@@ -262,7 +262,7 @@ void
 OutputMagneticFieldDDToDDL::addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore )
 {
   solStore.insert( sol );
-  if( sol.shape() == ddunion || sol.shape() == ddsubtraction || sol.shape() == ddintersection )
+  if( sol.shape() == DDSolidShape::ddunion || sol.shape() == DDSolidShape::ddsubtraction || sol.shape() == DDSolidShape::ddintersection )
   {
     const DDBooleanSolid& bs ( sol );
     if( solStore.find(bs.solidA()) == solStore.end())

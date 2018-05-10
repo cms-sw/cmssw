@@ -97,9 +97,10 @@ private:
   bool                          testNumber, neutralDensity, testNS_;
   double                        birk1, birk2, birk3, betaThr;
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
+  bool                          isEM;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
-  G4int                         mumPDG, mupPDG, depth_;
+  G4int                         depth_;
   std::vector<double>           gpar;
   std::vector<int>              hfLevels;
   std::vector<G4String>         hfNames, fibreNames, matNames;

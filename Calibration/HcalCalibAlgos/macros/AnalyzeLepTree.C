@@ -19,7 +19,9 @@
 //                   1 separate plot for each iphi
 //                   2 separate plot for each RBX
 //                   3 exclude the RBX specified by bits 6-10
-//              6-10:  RBX # to be excluded (maximum 5 bits needed for RBX) 
+//              6-10:  RBX # to be excluded (maximum 5 bits needed for RBX)
+//               11: 0 varying ranges of p depending on |ieta|
+//                   1 constant p ranges
 //      modeLHC (integer) specifies the detector condition
 //              0      Run1   detector (till 2016)
 //              1      Plan36 detector
@@ -78,7 +80,7 @@ public :
   virtual Int_t         GetEntry(Long64_t entry);
   virtual Long64_t      LoadTree(Long64_t entry);
   virtual void          Init(TTree *tree);
-  virtual void          Loop();
+  virtual void          Loop(Long64_t nmax=-1, bool debug=false);
   virtual Bool_t        Notify();
   virtual void          Show(Long64_t entry = -1);
   void                  writeHisto(std::string outfile);
@@ -135,7 +137,7 @@ private:
   TBranch              *b_t_actln;     //!
   TBranch              *b_t_depth;     //!
 
-  static const int              etamax_=26, npbin_=7, nvbin_=6;
+  static const int              etamax_=26, npbin_=9, nvbin_=6;
   static const bool             debug_=false;
   int                           mode_, modeLHC_, exRBX_, kphi_;
   std::vector<int>              npvbin_, iprange_;
@@ -270,7 +272,7 @@ Int_t AnalyzeLepTree::Cut(Long64_t ) {
   return 1;
 }
 
-void AnalyzeLepTree::Loop() {
+void AnalyzeLepTree::Loop(Long64_t nmax, bool debug) {
   //   In a ROOT session, you can do:
   //      Root > .L AnalyzeLepTree.C
   //      Root > AnalyzeLepTree t
@@ -297,10 +299,13 @@ void AnalyzeLepTree::Loop() {
   if (fChain == 0) return;
 
   Long64_t nentries = fChain->GetEntriesFast();
+  std::cout << "Number of entries: " << nentries << ":" << nmax << std::endl;
+  if (nmax > 0 && nmax < nentries) nentries = nmax;
 
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries; jentry++) {
     Long64_t ientry = LoadTree(jentry);
+    if (debug) std::cout << "Entry " << jentry << ":" << ientry << std::endl;
     if (ientry < 0) break;
     nb = fChain->GetEntry(jentry);   nbytes += nb;
     // if (Cut(ientry) < 0) continue;
@@ -348,7 +353,17 @@ void AnalyzeLepTree::Loop() {
 	      if (it6 != h_Chcorr_.end())  (it6->second)->Fill(charge/actl);
 	      if (debug_) {
 //		if ((eta>20 && (t_iphi > 35)) || (t_iphi > 71)) std::cout << zside << ":" << eta << ":" << phi << ":" << t_iphi << ":" << depth+1 << ":" << vbin << ":" << pbin << " ID " << std::hex << id << std::dec << " Flags " <<  (it1 != h_Energy_.end()) << ":" << (it2 != h_Ecorr_.end()) << ":" <<  (it3 != h_EnergyC_.end()) << ":" << (it4 != h_EcorrC_.end()) << ":" << (it5 != h_Charge_.end()) << ":" << (it6 != h_Chcorr_.end()) << " E " << ene << " C " << charge << " L " << actl << std::endl;
-		if ((it1 == h_Energy_.end()) || (it2 == h_Ecorr_.end()) || (it3 == h_EnergyC_.end()) || (it4 == h_EcorrC_.end()) || (it5 == h_Charge_.end()) || (it6 == h_Chcorr_.end())) std::cout << zside << ":" << eta << ":" << phi << ":" << t_iphi << ":" << depth+1 << ":" << vbin << ":" << pbin << " ID " << std::hex << id << std::dec << " Flags " <<  (it1 != h_Energy_.end()) << ":" << (it2 != h_Ecorr_.end()) << ":" << (it3 != h_Charge_.end()) << ":" << (it4 != h_Chcorr_.end()) << " E " << ene << " C " << charge << " L " << actl << std::endl;
+		if ((it1 == h_Energy_.end()) || (it2 == h_Ecorr_.end()) || 
+		    (it3 == h_EnergyC_.end()) || (it4 == h_EcorrC_.end()) || 
+		    (it5 == h_Charge_.end()) || (it6 == h_Chcorr_.end())) 
+		  std::cout << zside << ":" << eta << ":" << phi << ":" 
+			    << t_iphi << ":" << depth+1 << ":" << vbin << ":" 
+			    << pbin << " ID " << std::hex << id << std::dec 
+			    << " Flags " <<  (it1 != h_Energy_.end()) << ":" 
+			    << (it2 != h_Ecorr_.end()) << ":" 
+			    << (it3 != h_Charge_.end()) << ":" 
+			    << (it4 != h_Chcorr_.end()) << " E " << ene 
+			    << " C " << charge << " L " << actl << std::endl;
 	      }
 	    }
 	  }
@@ -389,17 +404,26 @@ void AnalyzeLepTree::bookHisto() {
   for (int i=0; i<nvbin_; ++i) npvbin_.push_back(npvbin[i]);
   int ipbrng[30]= {0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,2,3,3,3,4,4,4,4};
   for (int i=0; i<30; ++i) iprange_.push_back(ipbrng[i]);
-  double prange0[npbin_] = {0,30,45,55,75,100,500};
-  double prange1[npbin_] = {0,50,75,100,125,150,500};
-  double prange2[npbin_] = {0,60,75,100,125,150,500};
-  double prange3[npbin_] = {0,100,125,150,175,200,500};
-  double prange4[npbin_] = {0,125,150,175,200,250,500};
+  double prange0[npbin_] = {0,30,45,55,75,100,125,150,500};
+  double prange1[npbin_] = {0,50,75,100,125,150,200,300,500};
+  double prange2[npbin_] = {0,60,75,100,125,150,200,300,500};
+  double prange3[npbin_] = {0,100,125,150,175,200,300,400,500};
+  double prange4[npbin_] = {0,125,150,175,200,250,300,400,500};
+  double prangeX[npbin_] = {125,150,200,250,300,350,400,500};
   for (int i=0; i<npbin_; ++i) {
-    prange_[0].push_back(prange0[i]);
-    prange_[1].push_back(prange1[i]);
-    prange_[2].push_back(prange2[i]);
-    prange_[3].push_back(prange3[i]);
-    prange_[4].push_back(prange4[i]);
+    if ((mode_/2048)%2 == 0) {
+      prange_[0].push_back(prange0[i]);
+      prange_[1].push_back(prange1[i]);
+      prange_[2].push_back(prange2[i]);
+      prange_[3].push_back(prange3[i]);
+      prange_[4].push_back(prange4[i]);
+    } else {
+      prange_[0].push_back(prangeX[i]);
+      prange_[1].push_back(prangeX[i]);
+      prange_[2].push_back(prangeX[i]);
+      prange_[3].push_back(prangeX[i]);
+      prange_[4].push_back(prangeX[i]);
+    }
   }
   if (debug_) {
     std::cout << "Eta range " << -etamax_ << ":" << etamax_ << " # of vtx bins "
@@ -522,32 +546,32 @@ void AnalyzeLepTree::bookHisto() {
 		char name[100], title[200];
 		sprintf (name,"EdepE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Deposited energy for %s %s %s %s %s (GeV)", etas, phis, deps, ps, vtx);
-		getBins(0, eta, phi0, depth+1, nbin, xmax);
+		getBins(0, ieta, phi0, depth+1, nbin, xmax);
 		h_Energy_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"EcorE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Active length corrected energy for %s %s %s %s %s (GeV/cm)", etas, phis, deps, ps, vtx);
-		getBins(1, eta, phi0, depth+1, nbin, xmax);
+		getBins(1, ieta, phi0, depth+1, nbin, xmax);
 		h_Ecorr_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"EdepCE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Response Corrected deposited energy for %s %s %s %s %s (GeV)", etas, phis, deps, ps, vtx);
-		getBins(2, eta, phi0, depth+1, nbin, xmax);
+		getBins(2, ieta, phi0, depth+1, nbin, xmax);
 		h_EnergyC_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"EcorCE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Response and active length corrected energy for %s %s %s %s %s (GeV/cm)", etas, phis, deps, ps, vtx);
-		getBins(3, eta, phi0, depth+1, nbin, xmax);
+		getBins(3, ieta, phi0, depth+1, nbin, xmax);
 		h_EcorrC_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"ChrgE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Measured charge for %s %s %s %s %s (cm)", etas, phis, deps, ps, vtx);
-		getBins(4, eta, phi0, depth+1, nbin, xmax);
+		getBins(4, ieta, phi0, depth+1, nbin, xmax);
 		h_Charge_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 		sprintf (name,"ChcorE%dF%dD%dV%dP%d",ieta,phi,depth,vbin,pbin);
 		sprintf (title,"Active length corrected charge for %s %s %s %s %s (cm)", etas, phis, deps, ps, vtx);
-		getBins(5, eta, phi0, depth+1, nbin, xmax);
+		getBins(5, ieta, phi0, depth+1, nbin, xmax);
 		h_Chcorr_[id] = new TH1D(name,title,nbin,0.0,xmax);
 		++book1;
 	      }
@@ -888,17 +912,18 @@ void AnalyzeLepTree::unpackID(unsigned int id, int& zside, int& eta, int& phi,
   nvx   = (id >> 19) & 7;
 }
 
-void AnalyzeLepTree::getBins(int type, int eta, int phi, int depth, int& nbin,
+void AnalyzeLepTree::getBins(int type, int ieta, int phi, int depth, int& nbin,
 			     double& xmax) {
+  int    eta    = (ieta >= 0) ? ieta : -ieta;
   bool   barrel = (eta < 16) || ((eta == 16) && (depth <= 2));
-  bool   rbx17  = (phi >= 63) && (phi <= 66);
-  nbin = 4000;
+  bool   rbx17  = (phi >= 63) && (phi <= 66) && (ieta >= 16) && (!barrel);
+  nbin = 5000;
   xmax = 10.0;
   if (type >= 4) {
     if ((modeLHC_ == 0) || (((modeLHC_ == 1) || (modeLHC_ == 3)) && barrel) ||
 	((modeLHC_ == 3) && (!rbx17))) {
       // HPD Channels
-      xmax = 40.0;
+      xmax = 50.0;
     } else {
       // SiPM Channels
       xmax = 5000.0;

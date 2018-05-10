@@ -93,14 +93,14 @@ DataProxy::invalidateTransientCache() {
 // const member functions
 //
 namespace  {
-   void throwMakeException(const EventSetupRecord& iRecord,
+   void throwMakeException(const EventSetupRecordImpl& iRecord,
                            const DataKey& iKey)  {
       throw MakeDataException(iRecord.key(),iKey);
    }
 
    class ESSignalSentry {
    public:
-      ESSignalSentry(const EventSetupRecord& iRecord,
+      ESSignalSentry(const EventSetupRecordImpl& iRecord,
                      const DataKey& iKey,
                      ComponentDescription const* componentDescription,
                      ActivityRegistry* activityRegistry) :
@@ -123,7 +123,7 @@ namespace  {
          activityRegistry_->postEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
       }
    private:
-      EventSetupRecord const& eventSetupRecord_;
+      EventSetupRecordImpl const& eventSetupRecord_;
       DataKey const& dataKey_;
       ComponentDescription const* componentDescription_;
       bool calledPostLock_;
@@ -132,7 +132,7 @@ namespace  {
 }
 
 const void* 
-DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry* activityRegistry) const
+DataProxy::get(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry* activityRegistry) const
 {
    if(!cacheIsValid()) {
       ESSignalSentry signalSentry(iRecord, iKey, providerDescription(), activityRegistry);
@@ -156,7 +156,7 @@ DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTrans
    return cache_;
 }
 
-void DataProxy::doGet(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry* activityRegistry) const {
+void DataProxy::doGet(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry* activityRegistry) const {
    get(iRecord, iKey, iTransiently, activityRegistry);
 }
       

@@ -54,7 +54,7 @@ MagGeoBuilderFromDDD::bLayer::bLayer(handles::const_iterator begin,
     if (MagGeoBuilderFromDDD::debug) std::cout <<"      Sector is just one volume." << std::endl;
 
   } else if (size==12 || // In this case, each volume is a sector.
-	     (((*secBegin)->shape()!=ddtrap) && (*secBegin)->shape()!=ddbox)) {
+	     (((*secBegin)->shape()!=DDSolidShape::ddtrap) && (*secBegin)->shape()!=DDSolidShape::ddbox)) {
     secEnd = secBegin+size/12;
 
   }  else { // there are more than one volume per sector.

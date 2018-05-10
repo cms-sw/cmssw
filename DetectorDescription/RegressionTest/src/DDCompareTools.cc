@@ -225,26 +225,23 @@ DDCompareSolid::DDCompareSolid(const DDCompOptions& ddco) : ddco_(ddco) { }
 bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
   bool ret(true);
     switch ( lhs.shape() ) {
-    case dd_not_init:
-    case ddbox:
-    case ddtubs:
-    case ddcuttubs:
-    case ddtrap: 
-    case ddcons:
-    case ddpolycone_rz:
-    case ddpolyhedra_rz:
-    case ddpolycone_rrz:
-    case ddpolyhedra_rrz:
-    case ddextrudedpolygon:
-    case ddtorus:
-    case ddpseudotrap:
-    case ddtrunctubs:
-    case ddsphere:
-    case ddorb:
-    case ddellipticaltube:
-    case ddellipsoid:
-    case ddparallelepiped:
-    case ddshapeless: 
+    case DDSolidShape::dd_not_init:
+    case DDSolidShape::ddbox:
+    case DDSolidShape::ddtubs:
+    case DDSolidShape::ddcuttubs:
+    case DDSolidShape::ddtrap: 
+    case DDSolidShape::ddcons:
+    case DDSolidShape::ddpolycone_rz:
+    case DDSolidShape::ddpolyhedra_rz:
+    case DDSolidShape::ddpolycone_rrz:
+    case DDSolidShape::ddpolyhedra_rrz:
+    case DDSolidShape::ddextrudedpolygon:
+    case DDSolidShape::ddtorus:
+    case DDSolidShape::ddpseudotrap:
+    case DDSolidShape::ddtrunctubs:
+    case DDSolidShape::ddsphere:
+    case DDSolidShape::ddellipticaltube:
+    case DDSolidShape::ddshapeless: 
       {
 	if ( lhs.name().fullname() != rhs.name().fullname() ) {
 	  ret = false;
@@ -263,23 +260,12 @@ bool DDCompareSolid::operator()(const DDSolid& lhs, const DDSolid& rhs) const {
 	} 
 	break;
       }
-    case ddunion:
-    case ddsubtraction:
-    case ddintersection: 
+    case DDSolidShape::ddunion:
+    case DDSolidShape::ddsubtraction:
+    case DDSolidShape::ddintersection: 
       {
 	if ( ! DDCompareBoolSol(ddco_)(lhs, rhs) ) {
 	  ret = false;
-	}
-	break;
-      }
-    case ddreflected:
-      {
-	DDReflectionSolid rs1(lhs);
-	DDReflectionSolid rs2(rhs);
-	if ( ! DDCompareSolid(ddco_)( rs1.unreflected(), rs2.unreflected()) ) {
-	  ret = false;
-	  std::cout << "Unreflected volumes of DDReflections do not match. Reflections are " 
-		    << lhs.name().fullname() << " and " << rhs.name().fullname() << std::endl;
 	}
 	break;
       }

@@ -20,6 +20,9 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
     exclusiveFraction_(conf.getParameter<double>("exclusiveFraction")),
     maxDistanceFilter_(conf.getParameter<bool>("maxDistanceFilter")),
     maxDistance_(conf.getParameter<double>("maxDistance")),
+    maxDforTimingSquared_(conf.getParameter<double>("maxDforTimingSquared")),
+    timeOffset_(conf.getParameter<double>("timeOffset")),
+    minNHitsforTiming_(conf.getParameter<unsigned int>("minNHitsforTiming")),
     useMCFractionsForExclEnergy_(conf.getParameter<bool>("useMCFractionsForExclEnergy")),
     calibMinEta_(conf.getParameter<double>("calibMinEta")),
     calibMaxEta_(conf.getParameter<double>("calibMaxEta"))
@@ -47,6 +50,9 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
   const float exclusiveFraction_ = 0.7f;
   const bool maxDistanceFilter_ = false;
   const float maxDistance_ = 10.f;
+  const float maxDforTimingSquared_ = 4.0f;
+  const float timeOffset_;
+  const unsigned int minNHitsforTiming_ = 3;
   const bool useMCFractionsForExclEnergy_ = false;
   const float calibMinEta_ = 1.4;
   const float calibMaxEta_ = 3.0;

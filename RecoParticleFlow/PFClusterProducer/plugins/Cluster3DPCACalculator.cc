@@ -17,8 +17,9 @@
 class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
  public:
   Cluster3DPCACalculator(const edm::ParameterSet& conf) :
-    PFCPositionCalculatorBase(conf),    
-    pca_(new TPrincipal(3,"D")){ 
+    PFCPositionCalculatorBase(conf),
+    updateTiming_(conf.getParameter<bool>("updateTiming")),
+    pca_(new TPrincipal(3,"D")){
   }
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
   Cluster3DPCACalculator& operator=(const Cluster3DPCACalculator&) = delete;
@@ -27,9 +28,10 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
   void calculateAndSetPositions(reco::PFClusterCollection&) override;
 
  private:
+  const bool updateTiming_;
   std::unique_ptr<TPrincipal> pca_;
 
-  void showerParameters(const reco::PFCluster&, math::XYZPoint&, 
+  void showerParameters(const reco::PFCluster&, math::XYZPoint&,
 			math::XYZVector& );
 
   void calculateAndSetPositionActual(reco::PFCluster&);
@@ -54,18 +56,18 @@ calculateAndSetPositions(reco::PFClusterCollection& clusters) {
 }
 
 void Cluster3DPCACalculator::
-calculateAndSetPositionActual(reco::PFCluster& cluster) {  
+calculateAndSetPositionActual(reco::PFCluster& cluster) {
   if( !cluster.seed() ) {
     throw cms::Exception("ClusterWithNoSeed")
       << " Found a cluster with no seed: " << cluster;
-  }  				
-  double cl_energy = 0;  
+  }
+  double cl_energy = 0;
   double max_e = 0.0;
   double avg_time = 0.0;
   double time_norm = 0.0;
   PFLayer::Layer max_e_layer = PFLayer::NONE;
-  reco::PFRecHitRef refseed;  
-  double pcavars[3];  
+  reco::PFRecHitRef refseed;
+  double pcavars[3];
 
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
@@ -76,13 +78,13 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
       // all times are offset by one nanosecond in digitizer
       // remove that here so all times of flight
       // are with respect to (0,0,0)
-      avg_time += (rh_time - 1.0); 
+      avg_time += (rh_time - 1.0);
       time_norm += 1.0;
     }
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();
-    }  
+    }
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_fraction = rhf.fraction();
     rh_energy = refhit->energy()*rh_fraction;
@@ -90,19 +92,19 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
 //temporarily changed exception to warning
 //      throw cms::Exception("PFClusterAlgo")
       edm::LogWarning("PFClusterAlgo")
-      <<"rechit " << refhit->detId() << " has a NaN energy... " 
+      <<"rechit " << refhit->detId() << " has a NaN energy... "
       << "The input of the particle flow clustering seems to be corrupted.";
       continue;
-    }    
+    }
     pcavars[0] = refhit->position().x();
     pcavars[1] = refhit->position().y();
-    pcavars[2] = refhit->position().z();     
+    pcavars[2] = refhit->position().z();
     int nhit = int( rh_energy*100 ); // put rec_hit energy in units of 10 MeV
 
     for( int i = 0; i < nhit; ++i ) {
       pca_->AddRow(pcavars);
     }
-      
+
   }
   cluster.setEnergy(cl_energy);
   cluster.setLayer(max_e_layer);
@@ -111,7 +113,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   pca_->MakePrincipals();
   const TVectorD& means = *(pca_->GetMeanValues());
   const TMatrixD& eigens = *(pca_->GetEigenVectors());
-  
+
   math::XYZPoint  barycenter(means[0],means[1],means[2]);
   math::XYZVector axis(eigens(0,0),eigens(1,0),eigens(2,0));
 
@@ -124,8 +126,10 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   if( axis.z()*barycenter.z() < 0.0 ) {
     axis = math::XYZVector(-eigens(0,0),-eigens(1,0),-eigens(2,0));
   }
-  
-  cluster.setTime(avg_time);
+
+  if (updateTiming_) {
+    cluster.setTime(avg_time);
+  }
   cluster.setPosition(barycenter);
   cluster.calculatePositionREP();
 

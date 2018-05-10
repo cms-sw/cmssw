@@ -897,6 +897,40 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     }
   }
 
+  //tests for JER
+  {
+    reco::FormulaEvaluator f("[0]+[1]*exp(-x/[2])");
+
+    std::vector<double> v = {0.006467,0.02519,77.08};
+    std::vector<double> x = {100.};
+
+    auto func = [&v](double x) { return v[0]+v[1]*std::exp(-x/v[2]); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+  }
+
+  {
+    reco::FormulaEvaluator f("sqrt([0]*abs([0])/(x*x)+[1]*[1]*pow(x,[3])+[2]*[2])");
+
+    std::vector<double> v = {1.326,0.4209,0.02223,-0.6704};
+    std::vector<double> x = {100.};
+
+    auto func = [&v](double x) { return std::sqrt(v[0]*std::abs(v[0])/(x*x)+v[1]*v[1]*std::pow(x,v[3])+v[2]*v[2]); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+  }
+
+  {
+    reco::FormulaEvaluator f("sqrt([0]*[0]/(x*x)+[1]*[1]/x+[2]*[2])");
+
+    std::vector<double> v = {2.3,0.20,0.009};
+    std::vector<double> x = {100.};
+
+    auto func = [&v](double x) { return std::sqrt(v[0]*v[0]/(x*x)+v[1]*v[1]/x+v[2]*v[2]); };
+
+    CPPUNIT_ASSERT( compare( f.evaluate(x,v), func(x[0]) ) );
+  }
+
   {
     auto t = [] () {
       reco::FormulaEvaluator f("doesNotExist(2)");

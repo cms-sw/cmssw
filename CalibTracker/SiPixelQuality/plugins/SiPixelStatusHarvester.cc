@@ -229,7 +229,7 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
 
                for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
 
-                   unsigned long int rocOccupancy = modStatus.digiOccROC(iroc);
+                   unsigned int rocOccupancy = modStatus.digiOccROC(iroc);
 
                    // Bad ROC are from low DIGI Occ ROCs
                    if(rocOccupancy<1.e-4*DetAverage){

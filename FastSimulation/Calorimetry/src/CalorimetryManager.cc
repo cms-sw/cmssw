@@ -1226,28 +1226,28 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
     if(HcalDigitizer_){
       HcalDetId hdetid = HcalDetId(mapitr->first.unitID());
       if (hdetid.subdetId()== HcalBarrel){
-	energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
-	time = timeShiftHB_[hdetid.ietaAbs()-ietaShiftHB_];
+        energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
+        time = timeShiftHB_[hdetid.ietaAbs()-ietaShiftHB_];
       }
       else if (hdetid.subdetId()== HcalEndcap){
-	energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
-	time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
+        energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
+        time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
       }
       else if (hdetid.subdetId()== HcalForward){
         if(useShowerLibrary) {
- 	  if(useCorrectionSL) {
-             if(hdetid.depth()== 1) energy *= hfcorrEm[hdetid.ietaAbs()-ietaShiftHF_];
-             if(hdetid.depth()== 2) energy *= hfcorrHad[hdetid.ietaAbs()-ietaShiftHF_];
+          if(useCorrectionSL) {
+             if(hdetid.depth()== 1 or hdetid.depth()==3) energy *= hfcorrEm[hdetid.ietaAbs()-ietaShiftHF_];
+             if(hdetid.depth()== 2 or hdetid.depth()==4) energy *= hfcorrHad[hdetid.ietaAbs()-ietaShiftHF_];
           }
-	} else {
-	  if(hdetid.depth()== 1) energy *= samplingHF_[0];
-	  if(hdetid.depth()== 2) energy *= samplingHF_[1];
+        } else {
+          if(hdetid.depth()== 1 or hdetid.depth()==3) energy *= samplingHF_[0];
+          if(hdetid.depth()== 2 or hdetid.depth()==4) energy *= samplingHF_[1];
           time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
-	} 
+        } 
       }
       else if (hdetid.subdetId()== HcalOuter){
-	energy /= samplingHO_[hdetid.ietaAbs()-1];
-	time = timeShiftHO_[hdetid.ietaAbs()-ietaShiftHO_];
+        energy /= samplingHO_[hdetid.ietaAbs()-1];
+        time = timeShiftHO_[hdetid.ietaAbs()-ietaShiftHO_];
       }
     }	
     

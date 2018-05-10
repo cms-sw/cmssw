@@ -27,7 +27,7 @@ bool DDCheckLP( const DDLogicalPart & lp , std::ostream & os )
        os << "LogicalPart: " << lp << "| no solid defined, solid=" 
           << lp.solid() << std::endl;
      }
-     else if(lp.solid().shape()==dd_not_init) {
+     else if(lp.solid().shape()==DDSolidShape::dd_not_init) {
        os << "LogicalPart: " << lp << "| solid not init, solid=" 
           << lp.solid() << std::endl;
      }

@@ -9,6 +9,7 @@
 
 #include "SimG4CMS/Forward/interface/CastorShowerLibrary.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4Step.hh"
@@ -160,50 +161,7 @@ void CastorShowerLibrary::loadEventInfo(TBranchObject* branch) {
 
 //=============================================================================================
 
-void CastorShowerLibrary::initParticleTable(G4ParticleTable * theParticleTable) {
-////////////////////////////////////////////////////////
-//
-//  Set particle codes according to PDG encoding 
-//
-//  Based on HFShowerLibrary::initRun
-//
-////////////////////////////////////////////////////////
-
-  G4String particleName;
-
-  edm::LogInfo("CastorShower") << "CastorShowerLibrary::initParticleTable"
-                               << " ***  Accessing PDGEncoding  ***" ;
-
-  emPDG       = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
-  epPDG       = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
-  gammaPDG    = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
-  pi0PDG      = theParticleTable->FindParticle(particleName="pi0")->GetPDGEncoding();
-  etaPDG      = theParticleTable->FindParticle(particleName="eta")->GetPDGEncoding();
-  nuePDG      = theParticleTable->FindParticle(particleName="nu_e")->GetPDGEncoding();
-  numuPDG     = theParticleTable->FindParticle(particleName="nu_mu")->GetPDGEncoding();
-  nutauPDG    = theParticleTable->FindParticle(particleName="nu_tau")->GetPDGEncoding();
-  anuePDG     = theParticleTable->FindParticle(particleName="anti_nu_e")->GetPDGEncoding();
-  anumuPDG    = theParticleTable->FindParticle(particleName="anti_nu_mu")->GetPDGEncoding();
-  anutauPDG   = theParticleTable->FindParticle(particleName="anti_nu_tau")->GetPDGEncoding();
-  geantinoPDG = theParticleTable->FindParticle(particleName="geantino")->GetPDGEncoding();
-  mumPDG      = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
-  mupPDG      = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
-  
-//#ifdef DebugLog
-  LogDebug("CastorShower") << "CastorShowerLibrary: Particle codes for e- = " << emPDG
-		           << ", e+ = " << epPDG << ", gamma = " << gammaPDG 
-		           << ", pi0 = " << pi0PDG << ", eta = " << etaPDG
-		           << ", geantino = " << geantinoPDG << "\n        nu_e = "
-		           << nuePDG << ", nu_mu = " << numuPDG << ", nu_tau = "
-		           << nutauPDG << ", anti_nu_e = " << anuePDG
-		           << ", anti_nu_mu = " << anumuPDG << ", anti_nu_tau = "
-		           << anutauPDG << ", mu- = " << mumPDG << ", mu+ = "
-		           << mupPDG;
-//#endif
-
-    edm::LogInfo("CastorShower") << "  *****   Successfully called:  " 
-                                 << "CastorShowerLibrary::initParticleTable()   ***** " ;
-
+void CastorShowerLibrary::initParticleTable(G4ParticleTable *) {
 }
 
 
@@ -216,16 +174,15 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
 
   const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
-  int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
   CastorShowerEvent hit;
   hit.Clear();
   
   ok = false;
-  if (parCode == pi0PDG   || parCode == etaPDG    || parCode == nuePDG  ||
-      parCode == numuPDG  || parCode == nutauPDG  || parCode == anuePDG ||
-      parCode == anumuPDG || parCode == anutauPDG || parCode == geantinoPDG) 
+  bool isEM = G4TrackToParticleID::isGammaElectronPositron(track);
+  if (!isEM && !G4TrackToParticleID::isStableHadronIon(track)) { 
     return hit;
+  }
   ok = true;
 
   double pin  = preStepPoint->GetTotalEnergy();
@@ -239,7 +196,7 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
   // selects a record from the appropriate energy bin and fills its content to  
   // "showerEvent" instance of class CastorShowerEvent
   
-  if (parCode == emPDG || parCode == epPDG || parCode == gammaPDG ) {
+  if (isEM) {
     select(0, pin, etain, phiin);
     // if (pin<SLenergies[nBinsE-1]) {
     //   interpolate(0, pin);
