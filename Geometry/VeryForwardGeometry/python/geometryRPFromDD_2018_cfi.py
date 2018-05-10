@@ -122,7 +122,6 @@ totemTimingGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Parameters.xml',
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Plane.xml',
     'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Station.xml',
-    'Geometry/VeryForwardData/data/TotemTiming/TotemTiming_Sens.xml',
     )
 
 # pixel files
