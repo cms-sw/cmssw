@@ -15,10 +15,8 @@
 #include "G4HadronPhysicsFTFP_BERT.hh"
 #include "G4SystemOfUnits.hh"
  
-CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map, 
-			     const HepPDT::ParticleDataTable * table_,
-			     sim::ChordFinderSetter *chordFinderSetter_, 
-			     const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
+CustomPhysics::CustomPhysics(const edm::ParameterSet & p) 
+  : PhysicsList(p) {
 
   G4DataQuestionaire it(photon);
 
