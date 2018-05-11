@@ -15,6 +15,7 @@ namespace l1t {
       event_.put(std::move(EMTFHits_));
       event_.put(std::move(EMTFTracks_));
       event_.put(std::move(EMTFLCTs_));
+      event_.put(std::move(EMTFCPPFs_));
     }
   }
 }

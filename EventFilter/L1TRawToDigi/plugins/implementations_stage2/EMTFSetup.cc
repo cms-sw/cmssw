@@ -48,6 +48,7 @@ namespace l1t {
          prod.produces<EMTFHitCollection>();
          prod.produces<EMTFTrackCollection>();
          prod.produces<CSCCorrelatedLCTDigiCollection>();
+         prod.produces<CPPFDigiCollection>();
       }
 
       std::unique_ptr<UnpackerCollections>
