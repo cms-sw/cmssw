@@ -955,7 +955,7 @@ template <> void Converter<DDLBox>::operator()(xml_h element) const {
 
 /// DD4hep specific Converter for <Include/> tags: process only the constants
 template <> void Converter<include_load>::operator()(xml_h element) const   {
-  string fname = element.attr<string>(_U(ref)).c_str();
+  string fname = element.attr<string>(_U(ref));
   edm::FileInPath fp( fname );
   xml::Document doc;
   doc = xml::DocumentHandler().load( fp.fullPath());
