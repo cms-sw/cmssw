@@ -241,9 +241,104 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 </ioread>
 
 
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="leadPFChargedHadrCand_">
+<![CDATA[
+leadPFChargedHadrCand_.reset();
+]]>
+</ioread>
 
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="leadPFNeutralCand_">
+<![CDATA[
+leadPFNeutralCand_.reset();
+]]>
+</ioread>
 
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="leadPFCand_">
+<![CDATA[
+leadPFCand_.reset();
+]]>
+</ioread>
 
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientSignalPFCands_">
+<![CDATA[
+selectedTransientSignalPFCands_.reset();
+]]>
+</ioread>
+
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientSignalPFChargedHadrCands_">
+<![CDATA[
+selectedTransientSignalPFChargedHadrCands_.reset();
+]]>
+</ioread>
+
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientSignalPFNeutrHadrCands_">
+<![CDATA[
+selectedTransientSignalPFNeutrHadrCands_.reset();
+]]>
+</ioread>
+
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientSignalPFGammaCands_">
+<![CDATA[
+selectedTransientSignalPFGammaCands_.reset();
+]]>
+</ioread>
+
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientIsolationPFCands_">
+<![CDATA[
+selectedTransientIsolationPFCands_.reset();
+]]>
+</ioread>
+
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientIsolationPFChargedHadrCands_">
+<![CDATA[
+selectedTransientIsolationPFChargedHadrCands_.reset();
+]]>
+</ioread>
+
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientIsolationPFNeutrHadrCands_">
+<![CDATA[
+selectedTransientIsolationPFNeutrHadrCands_.reset();
+]]>
+</ioread>
+
+<ioread sourceClass = "reco::PFTau" version="[21-]"
+ targetClass="reco::PFTau"
+source = ""
+target="selectedTransientIsolationPFGammaCands_">
+<![CDATA[
+selectedTransientIsolationPFGammaCands_.reset();
+]]>
+</ioread>
 
 
 <ioread sourceClass = "reco::PFTau" version="[1-]" 
