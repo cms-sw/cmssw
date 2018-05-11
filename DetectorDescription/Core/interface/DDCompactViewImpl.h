@@ -33,8 +33,6 @@ public:
 
   math::GraphWalker<DDLogicalPart,DDPosData*> walker() const; 
   
-  double weight(const DDLogicalPart &) const;
-
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
 		 int copyno,

@@ -117,9 +117,6 @@ public:
   //! The absolute position of the world
   const DDPosData * worldPosition() const;
 
-  //! Prototype version of calculating the weight of a detector component
-  double weight(const DDLogicalPart & p) const;
-
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
 		 const std::string& copyno,

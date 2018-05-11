@@ -456,21 +456,13 @@ void tutorial()
       GroupFilter gf(vecF);
       DDFilteredView fv(compactview,gf);
     
-      //bool looop = true;
       int count =0;
-      /*
-	while(looop) {
-	looop = fv.next();
-	++count;
-	}
-      */
       std::cout << "The filtered-view contained " << count << " nodes." << std::endl;
       fv.reset();
       std::cout << "Now entering interactive navigation: f = (f)irstChild," << std::endl
 		<< "                                     n = (n)extSibling," << std::endl 
 		<< "                                     p = (p)arent," << std::endl
 		<< "                                     s = (s)tatus," << std::endl
-		<< "                                     w = (w)eigth[kg]," << std::endl
 		<< "                                     h = (h)istory debugging," << std::endl
 		<< "                                     e = (e)nd" << std::endl;
       std::string nav="";
@@ -485,7 +477,6 @@ void tutorial()
 	std::vector<const DDsvalues_type *> only = fv.logicalPart().specifics();
 	DDsvalues_type merged = fv.mergedSpecifics();
 	DDLogicalPart curlp = fv.logicalPart();
-	double curweight=0;
 	bool result = false;
 	switch (c) {
 	case 'f':
@@ -529,15 +520,7 @@ void tutorial()
 	  std::cout << "material=" << fv.logicalPart().material().ddname() << std::endl;
 	  std::cout << "solid=" << fv.logicalPart().solid().ddname() <<
 	    " volume[m3]=" << fv.logicalPart().solid().volume()/m3 << std::endl;	      
-	 
-	  //std::cout << "id from default numbering-scheme=" << nums.id(fv) << std::endl;
 	  break;
-	case 'w':
-	  curweight = wcpv.weight(curlp);
-	  std::cout << " The weight of " << curlp.ddname() << " is " 
-		    << curweight/kg << "kg" << std::endl;
-	  std::cout << " The average density is " << curweight/curlp.solid().volume()/g*cm3 << "g/cm3" << std::endl;
-	  break;     
 	case 'e':
 	  break;	 
 	default:
