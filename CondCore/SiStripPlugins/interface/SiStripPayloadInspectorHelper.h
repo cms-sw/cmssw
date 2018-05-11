@@ -22,6 +22,7 @@
 // ROOT includes
 #include "TH1.h"
 #include "TH2.h"
+#include "TObjArray.h"
 #include "TPaveText.h"
 #include "TStyle.h"
 
@@ -420,11 +421,48 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
+  double getMaximum(TObjArray* array)
+  /*--------------------------------------------------------------------*/
+  {
+    double theMaximum = (static_cast<TH1*>(array->At(0)))->GetMaximum();
+    for (int i = 0; i < array->GetSize(); i++) {
+      if ((static_cast<TH1*>(array->At(i)))->GetMaximum() > theMaximum) {
+        theMaximum = (static_cast<TH1*>(array->At(i)))->GetMaximum();
+      }
+    }
+    return theMaximum;
+  }
+
+  /*--------------------------------------------------------------------*/
   inline void makeNicePlotStyle(TH1* hist)
   /*--------------------------------------------------------------------*/
   {
     hist->SetStats(kFALSE);
     hist->SetLineWidth(2);
+    hist->GetXaxis()->CenterTitle(true);
+    hist->GetYaxis()->CenterTitle(true);
+    hist->GetXaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleFont(42);
+    hist->GetXaxis()->SetTitleSize(0.05);
+    hist->GetYaxis()->SetTitleSize(0.05);
+    hist->GetXaxis()->SetTitleOffset(0.9);
+    hist->GetYaxis()->SetTitleOffset(1.3);
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelSize(.05);
+    hist->GetXaxis()->SetLabelSize(.05);
+  }
+
+  /*--------------------------------------------------------------------*/
+  template <class T>
+  inline void makeNiceStyle(T* hist)
+  /*--------------------------------------------------------------------*/
+  {
+    // only for TH1s and inherited classes
+    if constexpr (std::is_base_of<T, TH1>::value) {
+      hist->SetStats(kFALSE);
+      hist->SetLineWidth(2);
+    }
     hist->GetXaxis()->CenterTitle(true);
     hist->GetYaxis()->CenterTitle(true);
     hist->GetXaxis()->SetTitleFont(42);
