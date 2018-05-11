@@ -7,6 +7,7 @@ L1TMuonEndCapTrackProducer::L1TMuonEndCapTrackProducer(const edm::ParameterSet& 
     config_(iConfig)
 {
   // Make output products
+  produces<l1t::CPPFDigiCollection>          ("");      // CPPF Digis emulated by EMTF using RPCDigis from Legacy RPC PAC
   produces<EMTFHitCollection>                ("");      // All CSC LCTs and RPC clusters received by EMTF
   produces<EMTFTrackCollection>              ("");      // All output EMTF tracks, in same format as unpacked data
   produces<l1t::RegionalMuonCandBxCollection>("EMTF");  // EMTF tracks output to uGMT
@@ -18,6 +19,7 @@ L1TMuonEndCapTrackProducer::~L1TMuonEndCapTrackProducer() {
 
 void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Create pointers to output products
+  auto out_cppfs  = std::make_unique<l1t::CPPFDigiCollection>();
   auto out_hits   = std::make_unique<EMTFHitCollection>();
   auto out_tracks = std::make_unique<EMTFTrackCollection>();
   auto out_cands  = std::make_unique<l1t::RegionalMuonCandBxCollection>();
@@ -25,10 +27,16 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSet
   // Main EMTF emulator process, produces tracks from hits in each sector in each event
   track_finder_->process(iEvent, iSetup, *out_hits, *out_tracks);
 
+  // Fill collection of emulated CPPFDigis
+  for (const auto& h : *out_hits) {
+    if (h.Is_RPC()) out_cppfs->push_back( h.CreateCPPFDigi() );
+  }
+
   // Convert into uGMT format
   uGMT_converter_->convert_all(iEvent, *out_tracks, *out_cands);
 
   // Fill the output products
+  iEvent.put(std::move(out_cppfs) , "");
   iEvent.put(std::move(out_hits)  , "");
   iEvent.put(std::move(out_tracks), "");
   iEvent.put(std::move(out_cands) , "EMTF");
