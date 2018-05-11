@@ -183,10 +183,18 @@ std::pair<float,float> ElectronEnergyCalibrator::calCombinedMom(reco::GsfElectro
 { 
   const float oldEcalEnergy = ele.ecalEnergy();
   const float oldEcalEnergyErr = ele.ecalEnergyError();
+
+  const auto oldP4 = ele.p4();
+  const float oldP4Err = ele.p4Error(reco::GsfElectron::P4_COMBINATION);
+  const float oldTrkMomErr = ele.trackMomentumError();
+ 
   setEcalEnergy(ele,scale,smear);
   const auto& combinedMomentum = epCombinationTool_->combine(ele);
+  
   ele.setCorrectedEcalEnergy(oldEcalEnergy);
   ele.setCorrectedEcalEnergyError(oldEcalEnergyErr);
+  ele.correctMomentum(oldP4,oldTrkMomErr,oldP4Err);
+  
   return combinedMomentum;
 }
 						      
