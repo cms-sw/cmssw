@@ -148,7 +148,7 @@ std::vector<reco::CandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInAnnu
     const reco::Track* PFChargedHadrCand_track = (*iPFCand)->bestTrack();
     if (PFChargedHadrCand_track != nullptr) {
       if (fabs((*PFChargedHadrCand_track).dz(myPV.position())-refpoint_Z)<=PFChargedHadrCand_tracktorefpoint_maxDZ) filteredPFChargedHadrCands.push_back(*iPFCand);
-    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+    } else throw cms::Exception("Missing information") << "No associated track information is saved in charged hadron candidate.\n";
   }
   std::vector<reco::CandidatePtr> theFilteredPFCandsInAnnulus=PFCandsInAnnulus(filteredPFChargedHadrCands,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;
