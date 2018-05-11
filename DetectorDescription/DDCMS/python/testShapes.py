@@ -29,4 +29,6 @@ process.test = cms.EDAnalyzer("DDCMSDetector",
                               confGeomXMLFiles = cms.string('DetectorDescription/DDCMS/data/cms-test-shapes.xml')
                               )
 
-process.p = cms.Path(process.test)
+process.testVectors = cms.EDAnalyzer("DDTestVectors")
+
+process.p = cms.Path(process.test+process.testVectors)
