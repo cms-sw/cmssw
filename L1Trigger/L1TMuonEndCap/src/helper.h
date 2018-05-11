@@ -1,6 +1,9 @@
 #include <bitset>
 #include <string>
 #include <sstream>
+#include <vector>
+#include <map>
+#include <memory>
 
 namespace {
 
