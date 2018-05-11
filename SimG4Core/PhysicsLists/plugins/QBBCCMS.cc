@@ -1,5 +1,4 @@
 #include "QBBCCMS.h"
-#include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4EmStandardPhysics.hh"
@@ -14,10 +13,8 @@
 #include "G4IonPhysics.hh"
 #include "G4NeutronTrackingCut.hh"
 
-QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map, 
-		 const HepPDT::ParticleDataTable * table_, 
-		 sim::ChordFinderSetter *chordFinderSetter_, 
-		 const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
+QBBCCMS::QBBCCMS(const edm::ParameterSet & p) 
+  : PhysicsList(p) {
 
   G4DataQuestionaire it(photon);
   
@@ -63,8 +60,5 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
       RegisterPhysics( new G4NeutronTrackingCut(ver));
     }
   }
-
-  // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 

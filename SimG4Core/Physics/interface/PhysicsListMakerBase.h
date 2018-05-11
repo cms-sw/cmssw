@@ -23,7 +23,6 @@
 #include <memory>
 
 // user include files
-#include "HepPDT/ParticleDataTable.hh"
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
 // forward declarations
@@ -31,28 +30,19 @@ class SimActivityRegistry;
 namespace edm{
   class ParameterSet;
 }
-namespace sim {
-   class ChordFinderSetter;
-}
 
 class PhysicsListMakerBase
 {
+ public:
+  PhysicsListMakerBase() {}
+  virtual ~PhysicsListMakerBase() {}
 
-   public:
-      PhysicsListMakerBase() {}
-      virtual ~PhysicsListMakerBase() {}
+  virtual std::unique_ptr<PhysicsList> make(const edm::ParameterSet&,
+					    SimActivityRegistry&) const = 0;
 
-      virtual std::unique_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap&,
-					        const HepPDT::ParticleDataTable * ,
-					        sim::ChordFinderSetter *,
-					        const edm::ParameterSet&,
-					        SimActivityRegistry&) const = 0;
-
-   private:
-      PhysicsListMakerBase(const PhysicsListMakerBase&) = delete;
-      const PhysicsListMakerBase& operator=(const PhysicsListMakerBase&) = delete; 
-
+ private:
+  PhysicsListMakerBase(const PhysicsListMakerBase&) = delete;
+  const PhysicsListMakerBase& operator=(const PhysicsListMakerBase&) = delete; 
 };
-
 
 #endif
