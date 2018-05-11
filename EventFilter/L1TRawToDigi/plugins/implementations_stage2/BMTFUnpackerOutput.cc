@@ -77,7 +77,7 @@ namespace l1t
 	  if (isKalman) {
 	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	    muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
-	    muCand.setHwDXY((raw_secnd >> 18) & 0x3);
+	    muCand.setHwDXY((raw_secnd >> 2) & 0x3);
 	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi() << " diplacedPt = " << muCand.hwPt2();
 	  }
 	  else {
