@@ -139,8 +139,8 @@ class Huber : public LossFunction
         double target(Event* e) override
         {
         // The gradient of the loss function.
-
-            if (std::abs(e->trueValue - e->predictedValue) <= quantile)
+	  double multiplier = ((e->trueValue - e->predictedValue) > 0) ? 1.0 : -1.0;
+	  if ((e->trueValue - e->predictedValue)*multiplier <= quantile)
                 return (e->trueValue - e->predictedValue);
             else
                 return quantile*(((e->trueValue - e->predictedValue) > 0)?1.0:-1.0);
@@ -159,7 +159,8 @@ class Huber : public LossFunction
                 Event* e = v[i];
                 double residual = e->trueValue - e->predictedValue;
                 double diff = residual - residual_median;
-                x += ((diff > 0)?1.0:-1.0)*std::min(quantile, std::abs(diff));
+		double multiplier = (diff > 0)?1.0:-1.0;
+                x += ((diff > 0)?1.0:-1.0)*std::min(quantile, diff*multiplier);
             }
 
            return (residual_median + x/v.size());
@@ -178,7 +179,8 @@ class Huber : public LossFunction
             for(unsigned int i=0; i<v.size(); i++)
             {
                 Event* e = v[i];
-                residuals[i] = std::abs(e->trueValue - e->predictedValue);
+		double multiplier = ((e->trueValue - e->predictedValue) > 0) ? 1.0 : -1.0;
+                residuals[i] = (e->trueValue - e->predictedValue)*multiplier;
             }
 
             std::sort(residuals.begin(), residuals.end());
