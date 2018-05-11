@@ -27,6 +27,10 @@
 #include <cstring>
 #include <poll.h>
 #include <atomic>
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <array>
 
 // WORKAROUND: At CERN, execv is replaced with a non-async-signal safe
 // version.  This can break our stack trace printer.  Avoid this by
@@ -101,7 +105,7 @@ namespace edm {
     private:
       static char *const *getPstackArgv();
       void enableWarnings_() override;
-      void ignoreWarnings_() override;
+      void ignoreWarnings_(edm::RootHandlers::SeverityLevel level) override;
       void willBeUsingThreads() override;
 
       void cachePidInfo();
@@ -142,17 +146,40 @@ namespace edm {
 }
 
 namespace {
-  enum class SeverityLevel {
-    kInfo,
-    kWarning,
-    kError,
-    kSysError,
-    kFatal
-  };
-
-  thread_local bool s_ignoreWarnings = false;
+  thread_local edm::RootHandlers::SeverityLevel s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo;
 
   bool s_ignoreEverything = false;
+
+  template<std::size_t SIZE>
+  bool find_if_string(const std::string& search, const std::array<const char* const,SIZE>& substrs){
+    return (std::find_if(substrs.begin(), substrs.end(), [&search](const char* const s) -> bool { return (search.find(s) != std::string::npos); }) != substrs.end());
+  }
+
+  constexpr std::array<const char* const,8> in_message{{
+    "no dictionary for class",
+    "already in TClassTable",
+    "matrix not positive definite",
+    "not a TStreamerInfo object",
+    "Problems declaring payload",
+    "Announced number of args different from the real number of argument passed", // Always printed if gDebug>0 - regardless of whether warning message is real.
+    "nbins is <=0 - set to nbins = 1",
+    "nbinsy is <=0 - set to nbinsy = 1"
+  }};
+
+  constexpr std::array<const char* const,6> in_location{{
+    "Fit",
+    "TDecompChol::Solve",
+    "THistPainter::PaintInit",
+    "TUnixSystem::SetDisplay",
+    "TGClient::GetFontByName",
+    "Inverter::Dinv"
+  }};
+
+  constexpr std::array<const char* const,3> in_message_print{{
+    "number of iterations was insufficient",
+    "bad integrand behavior",
+    "integral is divergent, or slowly convergent"
+  }};
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
 
@@ -160,20 +187,20 @@ namespace {
 
   // Translate ROOT severity level to MessageLogger severity level
 
-    SeverityLevel el_severity = SeverityLevel::kInfo;
+    edm::RootHandlers::SeverityLevel el_severity = edm::RootHandlers::SeverityLevel::kInfo;
 
     if (level >= kFatal) {
-      el_severity = SeverityLevel::kFatal;
+      el_severity = edm::RootHandlers::SeverityLevel::kFatal;
     } else if (level >= kSysError) {
-      el_severity = SeverityLevel::kSysError;
+      el_severity = edm::RootHandlers::SeverityLevel::kSysError;
     } else if (level >= kError) {
-      el_severity = SeverityLevel::kError;
+      el_severity = edm::RootHandlers::SeverityLevel::kError;
     } else if (level >= kWarning) {
-      el_severity = s_ignoreWarnings ? SeverityLevel::kInfo : SeverityLevel::kWarning;
+      el_severity = edm::RootHandlers::SeverityLevel::kWarning;
     }
 
-    if(s_ignoreEverything) {
-      el_severity = SeverityLevel::kInfo;
+    if (s_ignoreEverything || el_severity <= s_ignoreWarnings) {
+      el_severity = edm::RootHandlers::SeverityLevel::kInfo;
     }
 
   // Adapt C-strings to std::strings
@@ -217,49 +244,35 @@ namespace {
        && (el_message.find("fill branch") != std::string::npos)
        && (el_message.find("address") != std::string::npos)
        && (el_message.find("not set") != std::string::npos)) {
-        el_severity = SeverityLevel::kFatal;
+        el_severity = edm::RootHandlers::SeverityLevel::kFatal;
       }
 
       if ((el_message.find("Tree branches") != std::string::npos)
        && (el_message.find("different numbers of entries") != std::string::npos)) {
-        el_severity = SeverityLevel::kFatal;
+        el_severity = edm::RootHandlers::SeverityLevel::kFatal;
       }
 
 
   // Intercept some messages and downgrade the severity
 
-      if ((el_message.find("no dictionary for class") != std::string::npos) ||
-          (el_message.find("already in TClassTable") != std::string::npos) ||
-          (el_message.find("matrix not positive definite") != std::string::npos) ||
-          (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
-          (el_message.find("Problems declaring payload") != std::string::npos) ||
-          (el_message.find("Announced number of args different from the real number of argument passed") != std::string::npos) || // Always printed if gDebug>0 - regardless of whether warning message is real.
-          (el_location.find("Fit") != std::string::npos) ||
-          (el_location.find("TDecompChol::Solve") != std::string::npos) ||
-          (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
-          (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) ||
-          (el_location.find("TGClient::GetFontByName") != std::string::npos) ||
-          (el_location.find("Inverter::Dinv") != std::string::npos) ||
-          (el_message.find("nbins is <=0 - set to nbins = 1") != std::string::npos) ||
-          (el_message.find("nbinsy is <=0 - set to nbinsy = 1") != std::string::npos) ||
-          (level < kError and
-           (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and
-           (el_message.find("possible entries are in use!") != std::string::npos))) {
-        el_severity = SeverityLevel::kInfo;
+      if (find_if_string(el_message,in_message) ||
+          find_if_string(el_location,in_location) ||
+          (level < kError and (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and (el_message.find("possible entries are in use!") != std::string::npos)))
+      {
+        el_severity = edm::RootHandlers::SeverityLevel::kInfo;
       }
 
       // These are a special case because we do not want them to
       // be fatal, but we do want an error to print.
       bool alreadyPrinted = false;
-      if ((el_message.find("number of iterations was insufficient") != std::string::npos) ||
-          (el_message.find("bad integrand behavior") != std::string::npos) ||
-          (el_message.find("integral is divergent, or slowly convergent") != std::string::npos)) {
-        el_severity = SeverityLevel::kInfo;
+      if (find_if_string(el_message,in_message_print))
+      {
+        el_severity = edm::RootHandlers::SeverityLevel::kInfo;
         edm::LogError("Root_Error") << el_location << el_message;
         alreadyPrinted = true;
       }
 
-    if (el_severity == SeverityLevel::kInfo) {
+    if (el_severity == edm::RootHandlers::SeverityLevel::kInfo) {
       // Don't throw if the message is just informational.
       die = false;
     } else {
@@ -285,15 +298,15 @@ namespace {
     // but we leave the other code in just in case we change
     // the criteria for throwing.
     if (!alreadyPrinted) {
-      if (el_severity == SeverityLevel::kFatal) {
+      if (el_severity == edm::RootHandlers::SeverityLevel::kFatal) {
         edm::LogError("Root_Fatal") << el_location << el_message;
-      } else if (el_severity == SeverityLevel::kSysError) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kSysError) {
         edm::LogError("Root_Severe") << el_location << el_message;
-      } else if (el_severity == SeverityLevel::kError) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kError) {
         edm::LogError("Root_Error") << el_location << el_message;
-      } else if (el_severity == SeverityLevel::kWarning) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kWarning) {
         edm::LogWarning("Root_Warning") << el_location << el_message ;
-      } else if (el_severity == SeverityLevel::kInfo) {
+      } else if (el_severity == edm::RootHandlers::SeverityLevel::kInfo) {
         edm::LogInfo("Root_Information") << el_location << el_message ;
       }
     }
@@ -918,12 +931,12 @@ namespace edm {
 
     void
     InitRootHandlers::enableWarnings_() {
-      s_ignoreWarnings =false;
+      s_ignoreWarnings = edm::RootHandlers::SeverityLevel::kInfo;
     }
 
     void
-    InitRootHandlers::ignoreWarnings_() {
-      s_ignoreWarnings = true;
+    InitRootHandlers::ignoreWarnings_(edm::RootHandlers::SeverityLevel level) {
+      s_ignoreWarnings = level;
     }
 
     void
