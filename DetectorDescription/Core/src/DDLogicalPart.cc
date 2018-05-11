@@ -155,24 +155,6 @@ const DDSolid & DDLogicalPart::solid() const
   return rep().solid();
 }
 
-
-/* 
-   The weight must be calculated by using the method DDCompactView::weight().
-   For the weight calculation the full subtree of children is expanded. As a 
-   usefull side-effect the weight of all LogicalParts of the children is calculated
-   as well.
-   This method will return 0, if the weight has not yet been calculated 
-   using the DDCompactView, otherwise the weight of the component and all
-   its sub-components.
-   \todo In future DDLogicalPart::weight() will be sufficient for weight calculations
-   \todo make the method 'const'
-*/  
-double & DDLogicalPart::weight() 
-{
-  return rep().weight();
-}    
-
-
 /**
  The method will only return specific data attached to a DDLogicalPart. 
  If DDL-XML is used to define specific data, the path-attribute of <PartSelector> addressing only
