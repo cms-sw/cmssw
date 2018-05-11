@@ -55,8 +55,8 @@ namespace l1t {
 	_hit.set_is_RPC    ( true  );
 	_hit.set_subsystem ( 2 );
 	
+        _hit.SetRPCDetId ( _hit.CreateRPCDetId() );
         // // Not yet implemented - AWB 15.03.17
-        // _hit.SetRPCDetId ( _hit.CreateRPCDetId() );
         // _hit.SetRPCDigi  ( _hit.CreateRPCDigi() );
 
 	// Convert integer values to degrees

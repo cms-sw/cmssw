@@ -1,6 +1,7 @@
 #ifndef L1TMuonEndCap_Common_h
 #define L1TMuonEndCap_Common_h
 
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
