@@ -3,7 +3,6 @@
 
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQTrailer.h"
-#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include <cstdint>
 
 namespace Phase2Tracker {
@@ -12,6 +11,8 @@ namespace Phase2Tracker {
   // for use by unpacker
   class Phase2TrackerFEDChannel
   {
+    //forward declaration to avoid circular includes
+    class Phase2TrackerFEDBuffer;
     public:
       Phase2TrackerFEDChannel(const uint8_t*const data, const size_t offset,
                  const uint16_t length): data_(data), offset_(offset), length_(length) {}
