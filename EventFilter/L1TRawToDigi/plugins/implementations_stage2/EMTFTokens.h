@@ -6,6 +6,7 @@
 #include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
@@ -21,6 +22,7 @@ namespace l1t {
       inline const edm::EDGetTokenT<EMTFHitCollection>& getEMTFHitToken() const { return EMTFHitToken_; }
       inline const edm::EDGetTokenT<EMTFTrackCollection>& getEMTFTrackToken() const { return EMTFTrackToken_; }
       inline const edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection>& getEMTFLCTToken() const { return EMTFLCTToken_; }
+      inline const edm::EDGetTokenT<CPPFDigiCollection>& getEMTFCPPFToken() const { return EMTFCPPFToken_; }
       
     private:
       
@@ -29,6 +31,7 @@ namespace l1t {
       edm::EDGetTokenT<EMTFHitCollection> EMTFHitToken_;
       edm::EDGetTokenT<EMTFTrackCollection> EMTFTrackToken_;
       edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> EMTFLCTToken_;
+      edm::EDGetTokenT<CPPFDigiCollection> EMTFCPPFToken_;
       
     };
   }

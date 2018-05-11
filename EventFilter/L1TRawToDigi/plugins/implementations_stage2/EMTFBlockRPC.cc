@@ -123,7 +123,8 @@ namespace l1t {
         res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
         EMTFHit Hit_;
 
-	// Also unpack into RPC digis? - AWB 15.03.17
+        CPPFDigiCollection* res_CPPF;
+        res_CPPF = static_cast<EMTFCollections*>(coll)->getEMTFCPPFs();
 
 	////////////////////////////
 	// Unpack the RPC Data Record
@@ -195,6 +196,8 @@ namespace l1t {
 
 	(res->at(iOut)).push_RPC(RPC_);
 	res_hit->push_back(Hit_);
+
+	res_CPPF->push_back( Hit_.CreateCPPFDigi() );
 	
 	// Finished with unpacking one RPC Data Record
 	return true;

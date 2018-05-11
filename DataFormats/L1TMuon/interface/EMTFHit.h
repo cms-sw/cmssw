@@ -16,6 +16,7 @@
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
 #include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
+#include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTF/ME.h"
 
 namespace l1t {
@@ -44,12 +45,14 @@ namespace l1t {
     CSCDetId CreateCSCDetId() const;
     // void ImportRPCDetId (const RPCDetId& _detId);
     // void ImportGEMDetId (const GEMDetId& _detId);
-    // RPCDetId CreateRPCDetId() const;
+    RPCDetId CreateRPCDetId() const;
     // GEMDetId CreateGEMDetId() const;
     // void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
     CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi() const;
     // void ImportRPCDigi (const RPCDigi& _digi);
     // RPCDigi CreateRPCDigi() const;
+    // void ImportCPPFDigi (const CPPFDigi& _digi);
+    CPPFDigi CreateCPPFDigi() const;
     // void ImportGEMPadDigi (const GEMPadDigi& _digi);
     // GEMPadDigi CreateGEMPadDigi() const;
 
@@ -61,6 +64,7 @@ namespace l1t {
     //void SetGEMDetId   (const GEMDetId& id)                 { gem_DetId         = id;        }
     //void SetCSCLCTDigi (const CSCCorrelatedLCTDigi& digi)   { csc_LCTDigi       = digi;      }
     //void SetRPCDigi    (const RPCDigi& digi)                { rpc_Digi          = digi;      }
+    //void SetCPPFDigi   (const CPPFDigi& digi)               { cppf_Digi         = digi;      }
     //void SetGEMPadDigi (const GEMPadDigi& digi)             { gem_PadDigi       = digi;      }
     void SetCSCDetId   (const CSCDetId& id)                 { rawDetId = id.rawId(); }
     void SetRPCDetId   (const RPCDetId& id)                 { rawDetId = id.rawId(); }
@@ -72,6 +76,7 @@ namespace l1t {
     //GEMDetId GEM_DetId                          () const { return gem_DetId;    }
     //CSCCorrelatedLCTDigi CSC_LCTDigi            () const { return csc_LCTDigi;  }
     //RPCDigi RPC_Digi                            () const { return rpc_Digi;     }
+    //CPPFDigi CPPF_Digi                          () const { return cppf_Digi;    }
     //GEMPadDigi GEM_PadDigi                      () const { return gem_PadDigi;  }
     CSCDetId CSC_DetId                          () const { return CSCDetId(rawDetId); }
     RPCDetId RPC_DetId                          () const { return RPCDetId(rawDetId); }
@@ -202,6 +207,7 @@ namespace l1t {
     //GEMDetId gem_DetId;
     //CSCCorrelatedLCTDigi csc_LCTDigi;
     //RPCDigi rpc_Digi;
+    //CPPFDigi cppf_Digi;
     //GEMPadDigi gem_PadDigi;
 
     uint32_t rawDetId;  // raw CMSSW DetId
