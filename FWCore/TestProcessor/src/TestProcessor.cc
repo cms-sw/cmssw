@@ -145,7 +145,7 @@ TestProcessor::TestProcessor(Config const& iConfig):
   //setup the products we will be adding to the event
   for(auto const& produce: iConfig.produceEntries()) {
     auto processName = produce.processName_;
-    if(processName.size() == 0) {
+    if(processName.empty()) {
       processName =processConfiguration_->processName();
     }
     edm::TypeWithDict twd( produce.type_.typeInfo());
