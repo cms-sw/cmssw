@@ -1,6 +1,10 @@
 <lcgdict>
    <class name="FTLSample"/>
    <class name="std::vector<FTLSample>"/>
+   <class name="FTLDataFrame"/>
+   <class name="std::vector<FTLDataFrame>"/>
+   <class name="FTLDigiCollection"/>
+   <class name="edm::Wrapper<FTLDigiCollection>" />
 
    <class name="BTLDataFrame"/>
    <class name="std::vector<BTLDataFrame>"/>
@@ -10,5 +14,5 @@
    <class name="ETLDataFrame"/>
    <class name="std::vector<ETLDataFrame>"/>
    <class name="ETLDigiCollection"/>
-   <class name="edm::Wrapper<ETLDigiCollection>"/>   
+   <class name="edm::Wrapper<ETLDigiCollection>"/>
 </lcgdict>
