@@ -23,6 +23,7 @@
 
 // user include files
 #include "DataFormats/Common/interface/BasicHandle.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 
