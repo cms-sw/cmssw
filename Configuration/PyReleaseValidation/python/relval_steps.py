@@ -1737,7 +1737,6 @@ steps['RECODR2_2018reHLT_skimMuonEG']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:To
 steps['RECODR2_2018reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:JetHTJetPlusHOFilter,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimDisplacedJet']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXODisplacedJet,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimMET']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighMET+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
-#steps['RECODR2_2018reHLT_skimSinglePh']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:SinglePhotonJetPlusHOFilter+EXOMONOPOLE,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimCharmonium']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGJPsiSkim+BPHSkim,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM'},steps['RECODR2_2018reHLT']])
 
