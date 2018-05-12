@@ -1087,17 +1087,22 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type, const e
           }
 
           // Check if fed_key is found and, if so, book histos and set update freq
+
+          // Check if fed_key is found and, if so, book histos and set update freq                                                                                                                      
           if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
             tasks_[iconn->fedId()][iconn->fedCh()]->eventSetup( &setup );
-            tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms(); 
-            tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ ); 
+            if(task_ != sistrip::CALIBRATION_SCAN and task_ != sistrip::CALIBRATION_SCAN_DECO and
+	       task_ != sistrip::CALIBRATION and task_ != sistrip::CALIBRATION_DECO)
+              tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms();
+
+            else{
+              if(task_ == sistrip::CALIBRATION_SCAN or task_ == sistrip::CALIBRATION_SCAN_DECO)
+                static_cast<CalibrationScanTask*>(tasks_[iconn->fedId()][iconn->fedCh()])->setCurrentFolder(dir.str());
+              else if(task_ == sistrip::CALIBRATION or task_ == sistrip::CALIBRATION_DECO)
+                static_cast<CalibrationTask*>(tasks_[iconn->fedId()][iconn->fedCh()])->setCurrentFolder(dir.str());
+            }
+            tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ );
             booked++;
-            //std::stringstream ss;
-            //ss << "[SiStripCommissioningSource::" << __func__ << "]"
-            //<< " Booking histograms for '" << tasks_[iconn->fedId()][iconn->fedCh()]->myName()
-            //<< "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
-            //<< " in directory " << dir.str();
-            //LogTrace(mlDqmSource_) << ss.str();
           } else {
             std::stringstream ss;
             ss << "[SiStripCommissioningSource::" << __func__ << "]"

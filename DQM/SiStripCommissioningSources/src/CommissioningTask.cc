@@ -195,11 +195,16 @@ void CommissioningTask::bookHistograms() {
 //
 void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 					const edm::DetSet<SiStripRawDigi>& digis ) {
-  if ( !booked_ ) {
-    edm::LogWarning(mlDqmSource_)
-      << "[CommissioningTask::" << __func__ << "]"
-      << " Attempting to fill histos that haven't been booked yet!";
-    return;
+  if(summary.runType() != sistrip::CALIBRATION_SCAN and
+     summary.runType() != sistrip::CALIBRATION_SCAN_DECO and
+     summary.runType() != sistrip::CALIBRATION and
+     summary.runType() != sistrip::CALIBRATION_DECO){
+    if ( !booked_ ) {
+      edm::LogWarning(mlDqmSource_)
+	<< "[CommissioningTask::" << __func__ << "]"
+	<< " Attempting to fill histos that haven't been booked yet!";
+      return;
+    }
   }
   fillCntr_++;
   fill( summary, digis ); 
