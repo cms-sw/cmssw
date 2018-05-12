@@ -67,7 +67,7 @@ namespace edm {
   {
     friend class ProductRegistryHelper;
     friend class EDPutToken;
-    friend class test::TestProcessorConfig;
+    friend class edm::test::TestProcessorConfig;
 
   public:
     using value_type = EDPutToken::value_type;
