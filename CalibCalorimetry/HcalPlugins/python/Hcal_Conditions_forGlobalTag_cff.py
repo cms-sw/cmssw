@@ -114,7 +114,9 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
             intlumiOffset = cms.double(150),
             depVsTemp = cms.double(0.0631),
             intlumiToNeutrons = cms.double(3.67e8),
-            depVsNeutrons = cms.vdouble(5.69e-11,7.90e-11),
+            # slopes taken from https://twiki.cern.ch/twiki/pub/CMSPublic/HcalDPGResultsCMSDPS2017042/dark_current_vs_lumi.png
+            # heUpgrade intlumiToNeutrons factor (below) used to convert from /fb-1 to /neutrons 
+            depVsNeutrons = cms.vdouble(6.678e-10,9.966e-10),
         ),
     ),
     heUpgrade = cms.PSet(
@@ -137,7 +139,9 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
             intlumiOffset = cms.double(75),
             depVsTemp = cms.double(0.0631),
             intlumiToNeutrons = cms.double(2.92e7),
-            depVsNeutrons = cms.vdouble(5.69e-11,7.90e-11),
+            # slopes taken from https://twiki.cern.ch/twiki/pub/CMSPublic/HcalDPGResultsCMSDPS2017042/dark_current_vs_lumi.png
+            # above factor used to convert from /fb-1 to /neutrons 
+            depVsNeutrons = cms.vdouble(6.678e-10,9.966e-10),
         ),
     ),
     hfUpgrade = cms.PSet(
