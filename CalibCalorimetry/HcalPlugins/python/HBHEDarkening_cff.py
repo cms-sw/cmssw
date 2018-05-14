@@ -32,9 +32,9 @@ _years_HLLHC_ultimate = cms.VPSet(
 HEDarkeningEP = cms.ESSource("HBHEDarkeningEP",
     appendToDataLabel = cms.string("HE"),
     ieta_shift = cms.int32(16),
-    # parameters taken from https://indico.cern.ch/event/641946/contributions/2604357/attachments/1466160/2266650/PlanB_TDR.pdf, slide 4 (brown line)
-    drdA = cms.double(5.0),
-    drdB = cms.double(0.675),
+    # parameters taken from https://indico.cern.ch/event/721565/contributions/2966213/attachments/1632432/2603148/2018.04.12_Updated_DvsR_fits_and_predictions.pdf, slide 3
+    drdA = cms.double(2.7383),
+    drdB = cms.double(0.37471),
     dosemaps = cms.VPSet(
         cms.PSet(energy = cms.int32(8), file = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/dosemapHE_4TeV.txt")),
         cms.PSet(energy = cms.int32(14), file = cms.FileInPath("CalibCalorimetry/HcalPlugins/data/dosemapHE_7TeV.txt")),
