@@ -63,9 +63,10 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     }
   }
 #ifdef EDM_ML_DEBUG
-  std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
-	    << module << ":" << iz << ":" << wafer << ":" << celltyp << ":" 
-	    << icell << ":" << std::hex << index << std::dec  << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCNumberingScheme::i/p " << subdet << ":"
+			     << layer << ":" << module << ":" << iz << ":" 
+			     << wafer << ":" << celltyp << ":" << icell << ":"
+			     << std::hex << index << std::dec;
 #endif
   return index;
 }
