@@ -45,7 +45,7 @@ public:
       const std::vector<int>& zoneBoundaries, int zoneOverlap,
       bool includeNeighbor, bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
       const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-      int thetaWindow, int thetaWindowZone0, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX,
+      int thetaWindow, int thetaWindowZone0, bool useRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX,
       int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
       bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7, int modeQualVer
   );
@@ -100,7 +100,7 @@ private:
 
   // For track building
   int thetaWindow_, thetaWindowZone0_;
-  bool useSingleHits_;
+  bool useRPC_, useSingleHits_;
   bool bugSt2PhDiff_, bugME11Dupes_, bugAmbigThetaWin_, twoStationSameBX_;
 
   // For ghost cancellation

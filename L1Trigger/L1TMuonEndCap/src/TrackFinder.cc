@@ -95,7 +95,7 @@ TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
           zoneBoundaries, zoneOverlap,
           includeNeighbor, duplicateTheta, fixZonePhi, useNewZones, fixME11Edges,
           pattDefinitions, symPattDefinitions, useSymPatterns,
-          thetaWindow, thetaWindowZone0, useSingleHits, bugSt2PhDiff, bugME11Dupes, bugAmbigThetaWin, twoStationSameBX,
+          thetaWindow, thetaWindowZone0, useRPC_, useSingleHits, bugSt2PhDiff, bugME11Dupes, bugAmbigThetaWin, twoStationSameBX,
           maxRoadsPerZone, maxTracks, useSecondEarliest, bugSameSectorPt0,
           readPtLUTFile, fixMode15HighPt, bug9BitDPhi, bugMode7CLCT, bugNegPt, bugGMTPhi, promoteMode7, modeQualVer
       );

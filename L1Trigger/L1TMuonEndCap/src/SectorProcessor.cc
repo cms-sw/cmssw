@@ -20,7 +20,7 @@ void SectorProcessor::configure(
     const std::vector<int>& zoneBoundaries, int zoneOverlap,
     bool includeNeighbor, bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
     const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-    int thetaWindow, int thetaWindowZone0, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX,
+    int thetaWindow, int thetaWindowZone0, bool useRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX,
     int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
     bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7, int modeQualVer
 ) {
@@ -73,6 +73,7 @@ void SectorProcessor::configure(
 
   thetaWindow_        = thetaWindow;
   thetaWindowZone0_   = thetaWindowZone0;
+  useRPC_             = useRPC;
   useSingleHits_      = useSingleHits;
   bugSt2PhDiff_       = bugSt2PhDiff;
   bugME11Dupes_       = bugME11Dupes;
@@ -130,7 +131,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // -----------------------------------------------------------------------------------------
 
     // spTBParams16 : Sector processor track-building parameters
-    // Defaults : ThetaWindow(8), ThetaWindowZone0(8), UseSingleHits(F), BugSt2PhDiff(F),
+    // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
     //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
     // ----------------------------------------------------------------------------------
 
@@ -177,9 +178,11 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // -----------------------------------------------------------------------------------------
 
     // spTBParams16 : Sector processor track-building parameters
-    // Defaults : ThetaWindow(8), ThetaWindowZone0(8), UseSingleHits(F), BugSt2PhDiff(F),
+    // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
     //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
     // ----------------------------------------------------------------------------------
+    thetaWindow_      = 8;     // Maximum dTheta between primitives in the same track
+    thetaWindowZone0_ = 8;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
     bugAmbigThetaWin_ = true;  // Can allow dThetas outside window when there are 2 LCTs in the same chamber
     twoStationSameBX_ = false; // Requires the hits in two-station tracks to have the same BX
 
@@ -219,7 +222,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Global parameters
     // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
     // --------------------------------------------------------------------------------------------------------
-    // useRPC_   = false;     // Use clustered RPC hits from CPPF in track-building.  Should be configured here, but cannot be. - AWB 26.04.18
+    useRPC_   = false;        // Use clustered RPC hits from CPPF in track-building
     era_      = "Run2_2016";  // Era for CMSSW customization
     // maxBX_                 // Depends on FW version, see below
     bxWindow_ = 3;            // Number of BX whose primitives can be included in the same track
@@ -238,7 +241,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // useSymPatterns_  // Depends on FW version, see below
 
     // spTBParams16 : Sector processor track-building parameters
-    // Defaults : ThetaWindow(8), ThetaWindowZone0(8), UseSingleHits(F), BugSt2PhDiff(F),
+    // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
     //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
     // ----------------------------------------------------------------------------------
     thetaWindow_      = 4;     // Maximum dTheta between primitives in the same track
@@ -510,7 +513,9 @@ void SectorProcessor::process_single_bx(
   // each input link.
   // From src/PrimitiveSelection.cc
   prim_sel.process(CSCTag(), muon_primitives, selected_csc_map);
-  prim_sel.process(RPCTag(), muon_primitives, selected_rpc_map);
+  if (useRPC_) {
+    prim_sel.process(RPCTag(), muon_primitives, selected_rpc_map);
+  }
   prim_sel.process(GEMTag(), muon_primitives, selected_gem_map);
   prim_sel.merge(selected_csc_map, selected_rpc_map, selected_gem_map, selected_prim_map);
 
