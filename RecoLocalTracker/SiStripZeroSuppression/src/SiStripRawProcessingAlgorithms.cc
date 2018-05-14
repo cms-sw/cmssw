@@ -49,12 +49,14 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const
  * Zero-suppress "hybrid" raw data
  *
  * Subtracts common-mode noise, and inspects the digis then.
- * If flagged by the APV inspector, the zero-suppression is performed as usual.
- * Otherwise, the positive inputs are copied.
+ * If flagged by the APV inspector, the zero-suppression is performed as usual;
+ * otherwise the positive inputs are copied.
  *
  * @param id module DetId
  * @param firstAPV index of the first APV considered
- * @param procRawDigis input (processed raw) ADCs. Output: the ADCs after all subtractions, but before zero-suppression
+ * @param procRawDigis input (processed raw) ADCs. Note that this means that
+ * ADCs for all strips are expected, so zero-suppressed data should be filled with zeros for the suppressed strips.
+ * Output: the ADCs after all subtractions, but before zero-suppression.
  * @param output zero-suppressed digis
  * @return number of restored APVs
  */
@@ -92,21 +94,30 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(uint32_t id, uint16_
  * If flagged by the APV inspector, the zero-suppression is performed as usual.
  * Otherwise, the positive inputs are copied.
  *
- * @param hybridDigis input (processed raw) ADCs in ZS format
+ * @param hybridDigis input ADCs in ZS format (regular ZS or "hybrid", i.e. processed as x->(x+1024-ped)/2)
  * @param output zero-suppressed digis
  * @param RawDigis processed ADCs
  * @return number of restored APVs
  */
 uint16_t SiStripRawProcessingAlgorithms::SuppressHybridData(const edm::DetSet<SiStripDigi>& hybridDigis, edm::DetSet<SiStripDigi>& suppressedDigis, digivector_t& RawDigis)
 {
-  const uint32_t detId = hybridDigis.id;
-  ConvertHybridDigiToRawDigiVector(detId, hybridDigis, RawDigis);
-  return SuppressHybridData(detId, 0, RawDigis , suppressedDigis);
+  ConvertHybridDigiToRawDigiVector(hybridDigis, RawDigis);
+  return SuppressHybridData(hybridDigis.id, 0, RawDigis, suppressedDigis);
 }
 
-void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(uint32_t id, const edm::DetSet<SiStripDigi>& inDigis, digivector_t& RawDigis)
+/**
+ * Convert hybrid digis to a list of processed raw ADCs
+ *
+ * Non-zero-suppressed APVs are identified by the number of ADCs found (above 64),
+ * and the ADCs converted into normal processed format (x->x*2-1024).
+ * For zero-supppressed APVs the absent strips are set to zero ADC.
+ *
+ * @param inDigis input (non-ZS hybrid or ZS) data
+ * @param RawDigis processed raw (or zero-filled ZS) ADCs
+ */
+void SiStripRawProcessingAlgorithms::ConvertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& RawDigis)
 {
-  const auto stripModuleGeom = dynamic_cast<const StripGeomDetUnit*>(trGeo->idToDetUnit(id));
+  const auto stripModuleGeom = dynamic_cast<const StripGeomDetUnit*>(trGeo->idToDetUnit(inDigis.id));
   const std::size_t nStrips = stripModuleGeom->specificTopology().nstrips();
   const std::size_t nAPVs = nStrips/128;
 
@@ -209,10 +220,10 @@ uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::Det
 /**
  * Zero-suppress virgin raw data in "hybrid" mode
  *
- * Subtracts pedestals and common-mode noise, and inspects the digis then.
- * If flagged by the hybrid APV inspector, the zero-suppression is performed as usual
+ * Subtracts pedestals (in 11bit mode, x->(x+1024-ped)/2) and common-mode noise, and inspects the digis then.
+ * If not flagged by the hybrid APV inspector, the zero-suppression is performed as usual
  * (evaluation and subtraction of the baseline, truncation).
- * Otherwise, the pedestal-subtracted digis are saved in one 128-strip cluster.
+ * Otherwise, the pedestal-subtracted digis (as above) are saved in one 128-strip cluster.
  * Note: the APV restorer is used, it must be configured with APVInspectMode='HybridEmulation' if this method is called.
  *
  * @param id module DetId
@@ -261,7 +272,7 @@ uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(uint32_t id, u
 /**
  * Zero-suppress virgin raw data in "hybrid" mode
  *
- * Subtracts pedestals and common-mode noise, and inspects the digis then.
+ * Subtracts pedestals (in 11bit mode, x->(x+1024-ped)/2) and common-mode noise, and inspects the digis then.
  * If flagged by the hybrid APV inspector, the zero-suppression is performed as usual
  * (evaluation and subtraction of the baseline, truncation).
  * Otherwise, the pedestal-subtracted digis are saved in one 128-strip cluster.
