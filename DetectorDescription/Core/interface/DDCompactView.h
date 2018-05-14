@@ -144,9 +144,6 @@ public:
   // ---------------------------------------------------------------
   // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
     
-  // to modify the structure! DDCore internal!
-  graph_type & writeableGraph();
-
   void swap( DDCompactView& );
 
   void lockdown();
@@ -155,14 +152,11 @@ public:
   std::unique_ptr<DDCompactViewImpl> rep_;
   std::unique_ptr<DDPosData> worldpos_ ;
   
-    // 2010-01-27 memory patch
-    // for copying and protecting DD Store's after parsing is complete.
-    DDI::Store<DDName, DDI::Material*> matStore_;
-    DDI::Store<DDName, DDI::Solid*> solidStore_;
-    DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
-    DDI::Store<DDName, DDI::Specific*> specStore_;
-    DDI::Store<DDName, DDRotationMatrix*> rotStore_;    
-
+  DDI::Store<DDName, DDI::Material*> matStore_;
+  DDI::Store<DDName, DDI::Solid*> solidStore_;
+  DDI::Store<DDName, DDI::LogicalPart*> lpStore_;
+  DDI::Store<DDName, DDI::Specific*> specStore_;
+  DDI::Store<DDName, DDRotationMatrix*> rotStore_;
 };
 
 //! global type for a compact-view walker
