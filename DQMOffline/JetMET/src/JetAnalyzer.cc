@@ -152,6 +152,10 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
       pfjetidversion = PFJetIDSelectionFunctor::RUNIISTARTUP;
     }else if(JetIDVersion_== "WINTER16"){
       pfjetidversion = PFJetIDSelectionFunctor::WINTER16;
+    }else if(JetIDVersion_== "WINTER17"){
+      pfjetidversion = PFJetIDSelectionFunctor::WINTER17;
+    }else if(JetIDVersion_== "WINTER17PUPPI"){
+      pfjetidversion = PFJetIDSelectionFunctor::WINTER17PUPPI;
     }else{
       if (verbose_) std::cout<<"no valid PF JetID version given"<<std::endl;
     }
@@ -2684,7 +2688,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       
       mPhiVSEta = map_of_MEs[DirName+"/"+"PhiVSEta"]; if (mPhiVSEta && mPhiVSEta->getRootObject()) mPhiVSEta->Fill(correctedJet.eta(),correctedJet.phi());
       //if(!isJPTJet_){
-      mConstituents = map_of_MEs[DirName+"/"+"Constituents"]; if (mConstituents && mConstituents->getRootObject()) mConstituents->Fill (correctedJet.nConstituents());
+      float nConstituents=correctedJet.nConstituents();
+      if(isMiniAODJet_) {
+        if ((*patJets)[ijet].hasUserFloat("patPuppiJetSpecificProducer:puppiMultiplicity"))
+           nConstituents = (*patJets)[ijet].userFloat("patPuppiJetSpecificProducer:puppiMultiplicity");
+      }
+      mConstituents = map_of_MEs[DirName+"/"+"Constituents"]; if (mConstituents && mConstituents->getRootObject()) mConstituents->Fill (nConstituents);
       //}
       // Fill NPV profiles
       //--------------------------------------------------------------------
@@ -2692,28 +2701,28 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       mEta_profile = map_of_MEs[DirName+"/"+"Eta_profile"]; if (mEta_profile && mEta_profile->getRootObject())  mEta_profile         ->Fill(numPV, correctedJet.eta());
       mPhi_profile = map_of_MEs[DirName+"/"+"Phi_profile"]; if (mPhi_profile && mPhi_profile->getRootObject())  mPhi_profile         ->Fill(numPV, correctedJet.phi());
       //if(!isJPTJet_){
-      mConstituents_profile = map_of_MEs[DirName+"/"+"Constituents_profile"]; if (mConstituents_profile && mConstituents_profile->getRootObject())  mConstituents_profile->Fill(numPV, correctedJet.nConstituents());
+      mConstituents_profile = map_of_MEs[DirName+"/"+"Constituents_profile"]; if (mConstituents_profile && mConstituents_profile->getRootObject())  mConstituents_profile->Fill(numPV, nConstituents);
       //}
       if (fabs(correctedJet.eta()) <= 1.3) {
 	mPt_Barrel = map_of_MEs[DirName+"/"+"Pt_Barrel"]; if (mPt_Barrel && mPt_Barrel->getRootObject()) mPt_Barrel->Fill (correctedJet.pt());
 	mPhi_Barrel = map_of_MEs[DirName+"/"+"Phi_Barrel"]; if (mPhi_Barrel && mPhi_Barrel->getRootObject()) mPhi_Barrel->Fill (correctedJet.phi());
 	//if (mE_Barrel)    mE_Barrel->Fill (correctedJet.energy());
 	//if(!isJPTJet_){
-	mConstituents_Barrel = map_of_MEs[DirName+"/"+"Constituents_Barrel"]; if (mConstituents_Barrel && mConstituents_Barrel->getRootObject()) mConstituents_Barrel->Fill(correctedJet.nConstituents());
+	mConstituents_Barrel = map_of_MEs[DirName+"/"+"Constituents_Barrel"]; if (mConstituents_Barrel && mConstituents_Barrel->getRootObject()) mConstituents_Barrel->Fill(nConstituents);
 	//}
       }else if (fabs(correctedJet.eta()) <= 3) {
 	mPt_EndCap = map_of_MEs[DirName+"/"+"Pt_EndCap"]; if (mPt_EndCap && mPt_EndCap->getRootObject()) mPt_EndCap->Fill (correctedJet.pt());
 	mPhi_EndCap = map_of_MEs[DirName+"/"+"Phi_EndCap"]; if (mPhi_EndCap && mPhi_EndCap->getRootObject())  mPhi_EndCap->Fill (correctedJet.phi());
 	//if (mE_EndCap)    mE_EndCap->Fill (correctedJet.energy());
 	//if(!isJPTJet_){
-	mConstituents_EndCap = map_of_MEs[DirName+"/"+"Constituents_EndCap"]; if (mConstituents_EndCap && mConstituents_EndCap->getRootObject())  mConstituents_EndCap->Fill(correctedJet.nConstituents());
+	mConstituents_EndCap = map_of_MEs[DirName+"/"+"Constituents_EndCap"]; if (mConstituents_EndCap && mConstituents_EndCap->getRootObject())  mConstituents_EndCap->Fill(nConstituents);
 	//}
       }else{
 	mPt_Forward = map_of_MEs[DirName+"/"+"Pt_Forward"]; if (mPt_Forward && mPt_Forward->getRootObject()) mPt_Forward->Fill (correctedJet.pt());
 	mPhi_Forward = map_of_MEs[DirName+"/"+"Phi_Forward"]; if (mPhi_Forward && mPhi_Forward->getRootObject()) mPhi_Forward->Fill (correctedJet.phi());
 	//if (mE_Forward)    mE_Forward->Fill (correctedJet.energy());
 	//if(!isJPTJet_){
-	mConstituents_Forward = map_of_MEs[DirName+"/"+"Constituents_Forward"]; if (mConstituents_Forward && mConstituents_Forward->getRootObject())   mConstituents_Forward->Fill(correctedJet.nConstituents());
+	mConstituents_Forward = map_of_MEs[DirName+"/"+"Constituents_Forward"]; if (mConstituents_Forward && mConstituents_Forward->getRootObject())   mConstituents_Forward->Fill(nConstituents);
 	//}
       }
     }// pass ID for corrected jets --> inclusive selection
