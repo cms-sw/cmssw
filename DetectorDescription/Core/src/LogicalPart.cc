@@ -14,7 +14,6 @@ LogicalPart::LogicalPart( const DDMaterial & m,
  : material_(m),
    solid_(s),
    cat_(c),
-   weight_(0),
    specifics_(0),
    hasDDValue_( 1, false )
 { }
@@ -29,8 +28,6 @@ void LogicalPart::stream(std::ostream & os)
 {
   os << std::endl << " mat=" << material().ddname() << std::endl << " solid=" << solid();
 }
-
-double & LogicalPart::weight() { return weight_; }
 
 void LogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
