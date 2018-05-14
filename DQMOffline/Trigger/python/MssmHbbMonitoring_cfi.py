@@ -105,7 +105,7 @@ mssmHbbMonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMuonsEI ar
 mssmHbbMonitoring.vertices  = cms.InputTag("offlinePrimaryVertices")
 
 #Antonio
-mssmHbbMonitoring.btagalgo        = cms.InputTag("pfDeepCSVJetTags")
+mssmHbbMonitoring.btagalgo        = cms.InputTag("pfDeepCSVDiscriminatorsJetTags:BvsAll")
 mssmHbbMonitoring.workingpoint    = cms.double(0.45) # medium
 
 mssmHbbMonitoring.HTdefinition = cms.string('pt>30 & abs(eta)<2.5')
