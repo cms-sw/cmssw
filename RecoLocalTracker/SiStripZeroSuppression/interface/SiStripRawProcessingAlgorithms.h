@@ -35,7 +35,7 @@ public:
   uint16_t ConvertVirginRawToHybrid(uint32_t detId, uint16_t firstAPV, digivector_t& inDigis, edm::DetSet<SiStripDigi>& rawDigis);
   uint16_t ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis);
 
-  void ConvertHybridDigiToRawDigiVector(uint32_t detId, const edm::DetSet<SiStripDigi>& inDigis, digivector_t& rawDigis);
+  void ConvertHybridDigiToRawDigiVector(const edm::DetSet<SiStripDigi>& inDigis, digivector_t& rawDigis);
 
   inline const std::vector<bool>& GetAPVFlags() const { return restorer->GetAPVFlags(); }
   inline const SiStripAPVRestorer::baselinemap_t& GetBaselineMap() const { return restorer->GetBaselineMap(); }
