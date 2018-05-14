@@ -479,7 +479,7 @@ private:
     uint8_t beginOuter;
     uint8_t endOuter;
 
-  friend int test::TestHitPattern::test();
+  friend int ::test::TestHitPattern::test();
 
   template<int N>
   friend struct PatternSet;
