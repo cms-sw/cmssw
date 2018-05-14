@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+  <ConstantsSection label="TotemTiming_Dist_Beam_Cent.xml">
+    <!-- sector 45, 220m station -->
+    <Constant name="RP_020_Det_x_pos" value="0*mm"/>
+    <Constant name="RP_020_Det_y_pos" value="0*mm"/>
+    <Constant name="RP_021_Det_x_pos" value="0*mm"/>
+    <Constant name="RP_021_Det_y_pos" value="0*mm"/>
+    <!-- sector 56, 220m station -->
+    <Constant name="RP_120_Det_x_pos" value="0*mm"/>
+    <Constant name="RP_120_Det_y_pos" value="0*mm"/>
+    <Constant name="RP_121_Det_x_pos" value="0*mm"/>
+    <Constant name="RP_121_Det_y_pos" value="0*mm"/>
+  </ConstantsSection>
+</DDDefinition>

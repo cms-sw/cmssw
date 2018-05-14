@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <!--
+     |        _____________________________________________________________
+    / \       *| ______________________   _______________________________||*
+     |        *||                      |*|                               ||*
+   y |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *|| ch  7: 3.5 x 3.1 mm2 |*|    ch  8: 5.5 x 3.1 mm2       ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||______________________|*|_______________________________||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *|| ch  6: 3.5 x 3.1 mm2 |*|    ch  9: 5.5 x 3.1 mm2       ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||______________________|*|_______________________________||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *|| ch  5: 3.5 x 1.7 mm2 |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||______________________|*|                               ||*
+     |        *||                      |*|    ch  10: 5.5 x 3.1 mm2      ||*
+     |        *||                      |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *|| ch  4: 3.5 x 1.4 mm2 |*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *||______________________|*|_______________________________||*
+     |        *||                      |*|                               ||*
+     |        *|| ch  3: 3.5 x 0.9 mm2 |*|                               ||*
+     |        *||______________________|*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *|| ch  2: 3.5 x 0.9 mm2 |*|                               ||*
+     |        *||______________________|*|                               ||*
+     |        *||                      |*|    ch  11: 5.5 x 3.1 mm2      ||*
+     |        *|| ch  1: 3.5 x 0.7 mm2 |*|                               ||*
+     |        *||______________________|*|                               ||*
+     |        *||                      |*|                               ||*
+     |        *|| ch  0: 3.5 x 0.6 mm2 |*|                               ||*
+     |        *||______________________|*|_______________________________||*
+     |
+     |____________________________________________________________________________\ x
+
+  -->
+
+  <ConstantsSection label="TotemTiming_Parameters.xml" eval="true">
+
+    <!-- Sensor -->
+    <Constant name="UFSD_dx" value="9*mm"/>
+    <Constant name="UFSD_dy" value="12.4*mm"/>
+    <Constant name="UFSD_dz" value="0.35*mm"/>
+    <Constant name="UFSD_x" value="2*mm"/>
+    <Constant name="UFSD_y" value="0*mm"/>
+    <Constant name="UFSD_z" value="0*mm"/>
+
+
+    <!-- pad dimensions -->
+    <Constant name="ch0_dx" value="3.5*mm/2"/>
+    <Constant name="ch0_dy" value="0.6*mm/2"/>
+    <Constant name="ch1_dx" value="3.5*mm/2"/>
+    <Constant name="ch1_dy" value="0.7*mm/2"/>
+    <Constant name="ch2_dx" value="3.5*mm/2"/>
+    <Constant name="ch2_dy" value="0.9*mm/2"/>
+    <Constant name="ch3_dx" value="3.5*mm/2"/>
+    <Constant name="ch3_dy" value="0.9*mm/2"/>
+    <Constant name="ch4_dx" value="3.5*mm/2"/>
+    <Constant name="ch4_dy" value="1.4*mm/2"/>
+    <Constant name="ch5_dx" value="3.5*mm/2"/>
+    <Constant name="ch5_dy" value="1.7*mm/2"/>
+    <Constant name="ch6_dx" value="3.5*mm/2"/>
+    <Constant name="ch6_dy" value="3.1*mm/2"/>
+    <Constant name="ch7_dx" value="3.5*mm/2"/>
+    <Constant name="ch7_dy" value="3.1*mm/2"/>
+    <Constant name="ch8_dx" value="5.5*mm/2"/>
+    <Constant name="ch8_dy" value="3.1*mm/2"/>
+    <Constant name="ch9_dx" value="5.5*mm/2"/>
+    <Constant name="ch9_dy" value="3.1*mm/2"/>
+    <Constant name="ch10_dx" value="5.5*mm/2"/>
+    <Constant name="ch10_dy" value="3.1*mm/2"/>
+    <Constant name="ch11_dx" value="5.5*mm/2"/>
+    <Constant name="ch11_dy" value="3.1*mm/2"/>
+
+    <!-- pad positions -->
+    <Constant name="ch0_x" value="[UFSD_x] - [ch0_dx]"/>
+    <Constant name="ch1_x" value="[ch0_x]"/>
+    <Constant name="ch2_x" value="[ch0_x]"/>
+    <Constant name="ch3_x" value="[ch0_x]"/>
+    <Constant name="ch4_x" value="[ch0_x]"/>
+    <Constant name="ch5_x" value="[ch0_x]"/>
+    <Constant name="ch6_x" value="[ch0_x]"/>
+    <Constant name="ch7_x" value="[ch0_x]"/>
+    <Constant name="ch8_x" value="[ch11_x]"/>
+    <Constant name="ch9_x" value="[ch11_x]"/>
+    <Constant name="ch10_x" value="[ch11_x]"/>
+    <Constant name="ch11_x" value="[UFSD_x] + [ch11_dx]"/>
+
+    <Constant name="ch8_y" value="[ch9_y] + [ch9_dy] + [ch8_dy]"/>
+    <Constant name="ch9_y" value="[ch10_y] + [ch10_dy] + [ch9_dy]"/>
+    <Constant name="ch10_y" value="[ch11_y] + [ch11_dy] + [ch10_dy]"/>
+    <Constant name="ch11_y" value="[UFSD_y] + [ch11_dy]"/>
+
+    <Constant name="ch7_y" value="[ch6_y] + [ch6_dy] + [ch7_dy]"/>
+    <Constant name="ch6_y" value="[ch5_y] + [ch5_dy] + [ch6_dy]"/>
+    <Constant name="ch5_y" value="[ch4_y] + [ch4_dy] + [ch5_dy]"/>
+    <Constant name="ch4_y" value="[ch3_y] + [ch3_dy] + [ch4_dy]"/>
+    <Constant name="ch3_y" value="[ch2_y] + [ch2_dy] + [ch3_dy]"/>
+    <Constant name="ch2_y" value="[ch1_y] + [ch1_dy] + [ch2_dy]"/>
+    <Constant name="ch1_y" value="[ch0_y] + [ch0_dy] + [ch1_dy]"/>
+    <Constant name="ch0_y" value="[UFSD_y] + [ch0_dy]"/>
+
+    <!-- Metalized Layers -->
+    <Constant name="Aluminium_thick" value="1.5e-6*m"/>
+    <Constant name="Metalized_thick" value="[Aluminium_thick]"/>
+
+    <!-- Detector Shift & Gaps -->
+    <Constant name="Edge_dx" value="5.8*mm"/>
+    <Constant name="Shift_dy" value="1.0*mm"/>
+
+    <!-- Detector Planes -->
+    <Constant name="Plane_dx" value="[UFSD_dx]"/>
+    <Constant name="Plane_dy" value="[UFSD_dy]"/>
+    <Constant name="Plane_dz" value="2*[Metalized_thick]+[UFSD_dz]+[PCB_thick]"/>
+
+    <!-- UFSD Detector Box - same as for Diamond -->
+    <Constant name="PCB_dx" value="135*mm"/>
+    <Constant name="PCB_dy" value="100*mm"/> <!-- arbitrary (as for now) -->
+    <Constant name="PCB_thick" value="1.20*mm"/>
+    <Constant name="PCB_extend_dx" value="3*mm"/>
+    <Constant name="PCB_extend_dy1" value="15*mm"/>
+    <Constant name="PCB_extend_dy2" value="19*mm"/>
+    <Constant name="Plane_gap" value="12.0*mm"/>
+
+    <Constant name="Main_Box_dz" value="[Plane_dz]"/>
+
+  </ConstantsSection>
+
+  <SolidSection label="TotemTiming_Parameters.xml">
+    <Box name="UFSD_ch0" dx="[TotemTiming_Parameters:ch0_dx]" dy="[TotemTiming_Parameters:ch0_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch1" dx="[TotemTiming_Parameters:ch1_dx]" dy="[TotemTiming_Parameters:ch1_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch2" dx="[TotemTiming_Parameters:ch2_dx]" dy="[TotemTiming_Parameters:ch2_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch3" dx="[TotemTiming_Parameters:ch3_dx]" dy="[TotemTiming_Parameters:ch3_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch4" dx="[TotemTiming_Parameters:ch4_dx]" dy="[TotemTiming_Parameters:ch4_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch5" dx="[TotemTiming_Parameters:ch5_dx]" dy="[TotemTiming_Parameters:ch5_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch6" dx="[TotemTiming_Parameters:ch6_dx]" dy="[TotemTiming_Parameters:ch6_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch7" dx="[TotemTiming_Parameters:ch7_dx]" dy="[TotemTiming_Parameters:ch7_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch8" dx="[TotemTiming_Parameters:ch8_dx]" dy="[TotemTiming_Parameters:ch8_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch9" dx="[TotemTiming_Parameters:ch9_dx]" dy="[TotemTiming_Parameters:ch9_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch10" dx="[TotemTiming_Parameters:ch10_dx]" dy="[TotemTiming_Parameters:ch10_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+    <Box name="UFSD_ch11" dx="[TotemTiming_Parameters:ch11_dx]" dy="[TotemTiming_Parameters:ch11_dy]" dz="[TotemTiming_Parameters:UFSD_dz]"/>
+  </SolidSection>
+
+  <LogicalPartSection label="TotemTiming_Parameters.xml">
+    <LogicalPart name="UFSD_ch0" category="sensitive">
+      <rSolid name="UFSD_ch0"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch1" category="sensitive">
+      <rSolid name="UFSD_ch1"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch2" category="sensitive">
+      <rSolid name="UFSD_ch2"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch3" category="sensitive">
+      <rSolid name="UFSD_ch3"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch4" category="sensitive">
+      <rSolid name="UFSD_ch4"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch5" category="sensitive">
+      <rSolid name="UFSD_ch5"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch6" category="sensitive">
+      <rSolid name="UFSD_ch6"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch7" category="sensitive">
+      <rSolid name="UFSD_ch7"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch8" category="sensitive">
+      <rSolid name="UFSD_ch8"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch9" category="sensitive">
+      <rSolid name="UFSD_ch9"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch10" category="sensitive">
+      <rSolid name="UFSD_ch10"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+    <LogicalPart name="UFSD_ch11" category="sensitive">
+      <rSolid name="UFSD_ch11"/>
+      <rMaterial name="materials:Silicon"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+</DDDefinition>
