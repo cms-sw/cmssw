@@ -33,7 +33,7 @@
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 
-#include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
+#include "SiStripOfflineDQM.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
