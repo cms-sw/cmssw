@@ -1,0 +1,63 @@
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="TotemTiming_Station.xml" eval="true">
+    <Constant name="box_dz" value="([CTPPS_Diamond_Parameters:Metalized_thick]*2+[CTPPS_Diamond_Parameters:Diamond_dz]+[CTPPS_Diamond_Parameters:PCB_thick])*4+[CTPPS_Diamond_Parameters:Plane_gap]*3"/>
+  </ConstantsSection>
+
+  <SolidSection label="TotemTiming_Station.xml">
+    <!-- Detector Main Box and Planes -->
+    <Box name="Main_Box_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2-[CTPPS_Diamond_Parameters:PCB_extend_dx]+[CTPPS_Timing_Horizontal_Pot:cut_depth]" dy="[CTPPS_Diamond_Parameters:PCB_dy]/2" dz="[box_dz]/2"/>
+    <Trd1 name="Main_Box_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Diamond_Parameters:PCB_extend_dy1]/2" dy2="[CTPPS_Diamond_Parameters:PCB_extend_dy2]/2" dx1="[box_dz]/2" dx2="[box_dz]/2"/>
+    <UnionSolid name="TotemTiming_Main_Box">
+      <rSolid name="Main_Box_main"/>
+      <rSolid name="Main_Box_extra"/>
+      <rRotation name="rotations:90YX"/>
+      <Translation x="-[CTPPS_Diamond_Parameters:PCB_dx]/2-[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" y="0*mm" z="0*mm"/>
+    </UnionSolid>
+    <Box name="PCB_main" dx="[CTPPS_Diamond_Parameters:PCB_dx]/2" dy="[CTPPS_Diamond_Parameters:PCB_dy]/2" dz="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
+    <Trd1 name="PCB_extra" dz="[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" dy1="[CTPPS_Diamond_Parameters:PCB_extend_dy1]/2" dy2="[CTPPS_Diamond_Parameters:PCB_extend_dy2]/2" dx1="[CTPPS_Diamond_Parameters:PCB_thick]/2" dx2="[CTPPS_Diamond_Parameters:PCB_thick]/2"/>
+    <UnionSolid name="PCB">
+      <rSolid name="PCB_main"/>
+      <rSolid name="PCB_extra"/>
+      <rRotation name="rotations:90YX"/>
+      <Translation x="-[CTPPS_Diamond_Parameters:PCB_dx]/2-[CTPPS_Diamond_Parameters:PCB_extend_dx]/2" y="0*mm" z="0*mm"/>
+    </UnionSolid>
+  </SolidSection>
+
+  <LogicalPartSection label="TotemTiming_Station.xml">
+    <!-- ****** Detector Box and Downstream Plane ****** -->
+    <LogicalPart name="TotemTiming_Main_Box" category="envelope">
+      <rSolid name="TotemTiming_Main_Box"/>
+      <rMaterial name="materials:Vacuum"/>
+    </LogicalPart>
+    <LogicalPart name="PCB" category="support">
+      <rSolid name="PCB"/>
+      <rMaterial name="RP_Materials:PCB"/> <!--should be equivalent to actual RO4350B-->
+    </LogicalPart>
+  </LogicalPartSection>
+
+  <PosPartSection label="TotemTiming_Station.xml">
+    <PosPart copyNumber="0">
+      <rParent name="TotemTiming_Main_Box"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
+      <Translation x="0*cm" y="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="TotemTiming_Main_Box"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
+      <Translation x="0*cm" y="0*cm" z="-([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="TotemTiming_Main_Box"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
+      <Translation x="0*cm" y="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])/2"/>
+    </PosPart>
+    <PosPart copyNumber="3">
+      <rParent name="TotemTiming_Main_Box"/>
+      <rChild name="TotemTiming_Plane:TotemTiming_Plane"/>
+      <Translation x="0*cm" y="0*cm" z="([TotemTiming_Parameters:Plane_dz]+[TotemTiming_Parameters:Plane_gap])*3/2"/>
+    </PosPart>
+  </PosPartSection>
+
+</DDDefinition>
+
