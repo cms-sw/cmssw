@@ -45,11 +45,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_refDigiSize[HcalOuter]   = (int)vrefDigiSize[2];
 	_refDigiSize[HcalForward] = (int)vrefDigiSize[3];
 
-	// Initialize (capid - BX) % 4 to nonsense value
-	_capidmbx[HcalBarrel] = -1;
-	_capidmbx[HcalEndcap] = -1;
-	_capidmbx[HcalOuter] = -1;
-	_capidmbx[HcalForward] = -1;
+	// (capid - BX) % 4 to 1
+	_capidmbx[HcalBarrel] = 1;
+	_capidmbx[HcalEndcap] = 1;
+	_capidmbx[HcalOuter] = 1;
+	_capidmbx[HcalForward] = 1;
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib,
@@ -689,13 +689,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				this_capidmbx += 4;
 			}
 			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-			bool good_capidmbx = false;
-			if (_capidmbx[did.subdet()] == -1) {
-				_capidmbx[did.subdet()] = this_capidmbx;
-				good_capidmbx = true;
-			} else {
-				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-			}
+			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
@@ -869,13 +863,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				this_capidmbx += 4;
 			}
 			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-			bool good_capidmbx = false;
-			if (_capidmbx[did.subdet()] == -1) {
-				_capidmbx[did.subdet()] = this_capidmbx;
-				good_capidmbx = true;
-			} else {
-				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-			}
+			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
@@ -1056,13 +1044,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				this_capidmbx += 4;
 			}
 			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-			bool good_capidmbx = false;
-			if (_capidmbx[did.subdet()] == -1) {
-				_capidmbx[did.subdet()] = this_capidmbx;
-				good_capidmbx = true;
-			} else {
-				good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-			}
+			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 			if (!good_capidmbx) {
 				_xBadCapid.get(eid)++;
 			}
@@ -1227,13 +1209,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					this_capidmbx += 4;
 				}
 				_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
-				bool good_capidmbx = false;
-				if (_capidmbx[did.subdet()] == -1) {
-					_capidmbx[did.subdet()] = this_capidmbx;
-					good_capidmbx = true;
-				} else {
-					good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
-				}
+				bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
 				if (!good_capidmbx) {
 					_xBadCapid.get(eid)++;
 				}
