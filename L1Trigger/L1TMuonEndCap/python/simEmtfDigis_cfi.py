@@ -26,7 +26,6 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     GEMInput = cms.InputTag('simMuonGEMPadDigis'),
 
     # Run with CSC, RPC, GEM
-    # Not configured using configure_by_fw_version in SectorProcessor.cc, so what happens for 2016 re-emulation? - AWB 26.04.18
     CSCEnable = cms.bool(True),  # Use CSC LCTs from the MPCs in track-building
     RPCEnable = cms.bool(True),  # Use clustered RPC hits from CPPF in track-building
     GEMEnable = cms.bool(False), # Use hits from GEMs in track-building
