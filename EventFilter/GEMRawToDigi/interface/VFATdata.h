@@ -1,6 +1,8 @@
 #ifndef EventFilter_GEMRawToDigi_VFATdata_h
 #define EventFilter_GEMRawToDigi_VFATdata_h
 
+#include <stdint.h>
+
 namespace gem {
   class VFATdata 
   {
