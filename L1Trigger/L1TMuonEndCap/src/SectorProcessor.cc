@@ -115,7 +115,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
     // Settings for all of 2018 (following order in simEmtfDigis_cfi.py)
     // BXWindow(2) and BugAmbigThetaWin(F) deployed sometime before stable beams on March 20, not quite sure when - AWB 26.04.18
-    // TwoStationSameBX(T) and ThetaWindowZone0(X) to be deployed sometime before May 4, hopefully - AWB 26.04.18
+    // TwoStationSameBX(T), ThetaWindowZone0(4), and ModeQualVer(2) to be deployed sometime between May 17 and May 31 - AWB 14.05.18
 
     // Global parameters
     // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
