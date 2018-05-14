@@ -29,8 +29,16 @@ public:
 
   std::pair<int,int>  assignCell(float x, float y, int lay, int subSec,
 				 bool reco) const;
-  std::pair<int,int>  assignCellHexagon(float x, float y) const;
+  std::array<int,5>   assignCellHex(float x, float y, int lay, 
+				    bool reco) const;
+  std::array<int,3>   assignCellTrap(float x, float y, float z, int lay, 
+				     bool reco) const;
   double              cellSizeHex(int type) const;
+  void                etaPhiFromPosition(const double x, const double y,
+					 const double z, const int layer,
+					 int& ieta, int& iphi, int& type,
+					 double& wt) const;
+  int                 firstLayer() const {return hgpar_->firstLayer_;}
   HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
   bool                isValid(int lay, int mod, int cell, bool reco) const;
   bool                isValidCell(int layindex, int wafer, int cell) const;
@@ -38,8 +46,12 @@ public:
   unsigned int        layersInit(bool reco) const;
   std::pair<float,float> locateCell(int cell, int lay, int type, 
 				    bool reco) const;
+  std::pair<float,float> locateCell(int lay, int waferU, int waferV, 
+				    int cellU, int cellV, bool reco) const;
   std::pair<float,float> locateCellHex(int cell, int wafer, bool reco) const;
-  int                 levelTop() const {return hgpar_->levelT_;}
+  std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
+					bool reco) const;
+  int                 levelTop(int ind=0) const {return hgpar_->levelT_[ind];}
   int                 maxCells(bool reco) const;
   int                 maxCells(int lay, bool reco) const;
   int                 maxModules() const {return modHalf_;}
@@ -47,9 +59,12 @@ public:
   double              minSlope() const {return hgpar_->slopeMin_;}
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
+  double              mouseBite(bool reco) const;
   std::vector<int>    numberCells(int lay, bool reco) const;
   int                 numberCellsHexagon(int wafer) const;
   std::pair<int,int>  rowColumnWafer(const int wafer) const;
+  int                 scintType(const float dPhi) const 
+  { return ((dPhi < dPhiMin) ? 0 : 1); }
   int                 sectors() const {return hgpar_->nSectors_;}
   std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
   unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}
@@ -57,11 +72,18 @@ public:
   void                waferFromPosition(const double x, const double y,
 					int& wafer, int& icell, 
 					int& celltyp) const;
+  void                waferFromPosition(const double x, const double y,
+					const int layer, int& waferU,
+					int& waferV, int& cellU, int& cellV,
+					int& celltype, double& wt) const;
   bool                waferInLayer(int wafer, int lay, bool reco) const;
   int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
   int                 waferMax() const {return waferMax_[1];}
   int                 waferMin() const {return waferMax_[0];}
   std::pair<double,double> waferPosition(int wafer, bool reco=true) const;
+  std::pair<double,double> waferPosition(int waferU, int waferV, bool reco) const;
+  double              waferSepar(bool reco) const {return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD*hgpar_->sensorSeparation_);}
+  double              waferSize(bool reco) const {return (reco ? hgpar_->waferSize_ : HGCalParameters::k_ScaleToDDD*hgpar_->waferSize_);}
   int                 wafers() const;
   int                 wafers(int layer, int type) const;
   int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
@@ -85,12 +107,17 @@ private:
   int cellHex(double xx, double yy, const double& cellR, 
 	      const std::vector<double>& posX,
 	      const std::vector<double>& posY) const;  
+  void cellHex(double xloc, double yloc, int cellType, int& cellU, 
+	       int& cellV) const;
   bool waferInLayer(int wafer, int lay) const;
 
+  const double k_horizontalShift = 1.0;
+  const float  dPhiMin           = 0.02;
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  
   typedef std::array<int,3>                   HGCWaferParam;
   const HGCalParameters*          hgpar_;
   constexpr static double         tan30deg_ = 0.5773502693;
+  const double                    sqrt3_;
   double                          rmax_, hexside_;
   HGCalGeometryMode::GeometryMode mode_;
   int32_t                         tot_wafers_, modHalf_;
