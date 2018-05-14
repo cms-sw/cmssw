@@ -61,11 +61,6 @@ const DDCompactView::graph_type & DDCompactView::graph() const
   return rep_->graph(); 
 }
 
-DDCompactView::graph_type & DDCompactView::writeableGraph() 
-{
-  return const_cast<graph_type&>(rep_->graph());
-}
-
 const DDLogicalPart & DDCompactView::root() const
 {
   return rep_->root(); 
