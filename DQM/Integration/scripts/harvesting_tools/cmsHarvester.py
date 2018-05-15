@@ -3406,9 +3406,9 @@ class CMSHarvester(object):
         # NOTE: There should not be any duplicates in any list coming
         # from DBS, but maybe the user provided a list file with less
         # care.
+        # Store for later use.
         dataset_names = sorted(set(dataset_names))
 
-        # Store for later use.
 
         # End of build_dataset_list.
         return dataset_names

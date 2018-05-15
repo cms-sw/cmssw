@@ -730,9 +730,8 @@ class TrkVoltageStatus:
         """
         Function that returns the IOV timestamps (ordered) contained in a given interval.
         """
-        #Copy the timestamps in a list
+        #Copy and sort the timestamps in a list
         TimeStamps=sorted(HistoryDict.keys()[:])
-        #Sort them:
         IOVsInTimeInterval=[]
         #loop over them:
         for timestamp in TimeStamps:
@@ -748,9 +747,8 @@ class TrkVoltageStatus:
         """
         deltaTime=datetime.timedelta(seconds=deltaT)
         maxSequenceLength=datetime.timedelta(seconds=maxIOVLength)
-        #Copy the timestamps in a list:
+        #Copy and sort the timestamps in a list:
         TimeStamps=sorted(HistoryDict.keys()[:])
-        #Sort them:
         ReducedIOVs=TimeStamps[:]
         PreviousTimestamp=TimeStamps[0] 
         SequenceStart=TimeStamps[0]  #Initialization irrelevant see loop
