@@ -66,7 +66,7 @@ FTLUncalibratedRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // prepare output
   auto barrelRechits = std::make_unique<FTLUncalibratedRecHitCollection>();
   auto endcapRechits = std::make_unique<FTLUncalibratedRecHitCollection>();
-
+  
   edm::Handle< FTLDigiCollection > hBarrel;
   evt.getByToken( ftlbDigis_, hBarrel );  
   barrelRechits->reserve(hBarrel->size()/2);
@@ -86,5 +86,5 @@ FTLUncalibratedRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& e
   evt.put(std::move(endcapRechits), ftleInstance_);
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"                                            
+#include "FWCore/Framework/interface/MakerMacros.h"                                                                                                            
 DEFINE_FWK_MODULE( FTLUncalibratedRecHitProducer );
