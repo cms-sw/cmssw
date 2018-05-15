@@ -1,7 +1,7 @@
-#ifndef RecoLocalFastTime_FTLCommonAlgos_FTLUncalibratedRecHitRecAlgoBase_HH
-#define RecoLocalFastTime_FTLCommonAlgos_FTLUncalibratedRecHitRecAlgoBase_HH
+#ifndef RecoLocalFastTime_FTLCommonAlgos_MTDUncalibratedRecHitRecAlgoBase_HH
+#define RecoLocalFastTime_FTLCommonAlgos_MTDUncalibratedRecHitRecAlgoBase_HH
 
-/** \class FTLUncalibRecHitRecAlgoBase
+/** \class MTDUncalibRecHitRecAlgoBase
   *  Template used by Ecal to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
@@ -19,21 +19,23 @@ namespace edm {
   class EventSetup;
 }
 
-class FTLUncalibratedRecHitAlgoBase {
+class MTDUncalibratedRecHitAlgoBase {
  public:
   /// Constructor
-  FTLUncalibratedRecHitAlgoBase(const edm::ParameterSet& conf,
+  MTDUncalibratedRecHitAlgoBase(const edm::ParameterSet& conf,
                                 edm::ConsumesCollector& sumes) { }
 
   /// Destructor
-  virtual ~FTLUncalibratedRecHitAlgoBase() { }
+  virtual ~MTDUncalibratedRecHitAlgoBase() { }
 
   /// get event and eventsetup information
   virtual void getEvent(const edm::Event&) = 0;
   virtual void getEventSetup(const edm::EventSetup&) = 0;
 
   /// make the rec hit
-  virtual FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const = 0;
+  
+  virtual FTLUncalibratedRecHit makeRecHit(const BTLDataFrame& dataFrame ) const = 0;
+  virtual FTLUncalibratedRecHit makeRecHit(const ETLDataFrame& dataFrame ) const = 0;
 
   const std::string& name() const { return name_; }
 
@@ -43,7 +45,7 @@ class FTLUncalibratedRecHitAlgoBase {
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< FTLUncalibratedRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > FTLUncalibratedRecHitAlgoFactory;
+typedef edmplugin::PluginFactory< MTDUncalibratedRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > MTDUncalibratedRecHitAlgoFactory;
 
 
 #endif

@@ -7,7 +7,7 @@
 
 /**
    @class FTLDataFrameT
-   @short Readout digi for FTL
+   @short Readout digi for HGC
 */
 
 template <class D, class S>

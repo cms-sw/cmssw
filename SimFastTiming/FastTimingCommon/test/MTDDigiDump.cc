@@ -11,10 +11,10 @@
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 
 
-class FTLDigiDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class MTDDigiDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
-      explicit FTLDigiDump(const edm::ParameterSet&);
-      ~FTLDigiDump();
+      explicit MTDDigiDump(const edm::ParameterSet&);
+      ~MTDDigiDump();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -32,7 +32,7 @@ class FTLDigiDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 };
 
 
-FTLDigiDump::FTLDigiDump(const edm::ParameterSet& iConfig)
+MTDDigiDump::MTDDigiDump(const edm::ParameterSet& iConfig)
 
 {
 
@@ -42,7 +42,7 @@ FTLDigiDump::FTLDigiDump(const edm::ParameterSet& iConfig)
 }
 
 
-FTLDigiDump::~FTLDigiDump() {}
+MTDDigiDump::~MTDDigiDump() {}
 
 
 //
@@ -51,7 +51,7 @@ FTLDigiDump::~FTLDigiDump() {}
 
 // ------------ method called for each event ------------
 void
-FTLDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   using namespace std;
@@ -97,7 +97,9 @@ FTLDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  std::cout << std::endl;
 	  continue;
 	}
-	std::cout << "  amplitude = " << sample.data() << "  time = " <<  sample.toa() << std::endl;
+	std::cout << "  amplitude = " << sample.data() 
+		  << "  time1 = " <<  sample.toa() 
+		  << "  time2 = " <<  sample.toa2() << std::endl;
 
       } // isaple loop
 
@@ -149,19 +151,19 @@ FTLDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-FTLDigiDump::beginJob()
+MTDDigiDump::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-FTLDigiDump::endJob() 
+MTDDigiDump::endJob() 
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-FTLDigiDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+MTDDigiDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -170,4 +172,4 @@ FTLDigiDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(FTLDigiDump);
+DEFINE_FWK_MODULE(MTDDigiDump);

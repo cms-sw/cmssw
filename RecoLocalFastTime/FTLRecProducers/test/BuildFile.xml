@@ -2,6 +2,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/FTLRecHit"/>
-<library file="FTLRecoDump.cc" name="FTLRecoDump">
+<library file="MTDRecoDump.cc" name="MTDRecoDump">
   <flags EDM_PLUGIN="1"/>
 </library>
