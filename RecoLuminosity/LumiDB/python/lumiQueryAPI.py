@@ -2,7 +2,9 @@ import os
 import coral,datetime
 from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil,lumiCorrections
 import array
-from RecoLuminosity.LumiDB import argparse, nameDealer, selectionParser, hltTrgSeedMapper, \
+import argparse
+
+from RecoLuminosity.LumiDB import  nameDealer, selectionParser, hltTrgSeedMapper, \
      connectstrParser, cacheconfigParser, tablePrinter, csvReporter, csvSelectionParser
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
 from pprint import pprint, pformat
