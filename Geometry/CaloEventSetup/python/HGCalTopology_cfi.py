@@ -5,21 +5,18 @@ import FWCore.ParameterSet.Config as cms
 #
 HGCalEETopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
                                         Name = cms.untracked.string("HGCalEESensitive"),
-                                        Type = cms.untracked.int32(0),
-                                        HalfType = cms.untracked.bool(False)
+                                        Type = cms.untracked.int32(0)
                                         )
 
 
 HGCalHESilTopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
                                            Name = cms.untracked.string("HGCalHESiliconSensitive"),
-                                           Type = cms.untracked.int32(1),
-                                           HalfType = cms.untracked.bool(False)
+                                           Type = cms.untracked.int32(1)
                                            )
 
 
 HGCalHESciTopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
                                            Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
-                                           Type = cms.untracked.int32(2),
-                                           HalfType = cms.untracked.bool(True)
+                                           Type = cms.untracked.int32(2)
                                            )
 

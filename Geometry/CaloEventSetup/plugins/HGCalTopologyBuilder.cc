@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
@@ -32,7 +33,7 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 //
 // class decleration
@@ -51,8 +52,7 @@ public:
 private:
   // ----------member data ---------------------------
   std::string        name_;
-  bool               halfType_;
-  ForwardSubdetector subdet_;
+  int                det_;
 };
 
 
@@ -60,18 +60,19 @@ HGCalTopologyBuilder::HGCalTopologyBuilder(const edm::ParameterSet& iConfig) {
 
   name_     = iConfig.getUntrackedParameter<std::string>("Name");
   int type  = iConfig.getUntrackedParameter<int>("Type");
-  halfType_ = iConfig.getUntrackedParameter<bool>("HalfType");
   if (type == 0) {
-    subdet_ = HGCEE;
+    det_ = (int)HGCEE;
   } else if (type == 1) {
-    subdet_ = HGCHEF;
+    det_ = (int)HGCHEF;
   } else if (type == 2) {
-    subdet_ = HGCHEB;
+    det_ = (int)(DetId::HGCalEE);
+  } else if (type == 2) {
+    det_ = (int)(DetId::HGCalHSi);
   } else {
-    subdet_ = HGCHET;
+    det_ = (int)(DetId::HGCalHSc);
   }
-#ifdef DebugLog
-  std::cout <<"constructing HGCalTopology for " << name_ << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") <<"constructing HGCalTopology for " << name_;
 #endif
   setWhatProduced(this, name_);
 }
@@ -89,14 +90,14 @@ HGCalTopologyBuilder::ReturnType
 HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
 
   edm::ESHandle<HGCalDDDConstants>  pHGDC;
-  iRecord.get(name_, pHGDC) ;
+  iRecord.get(name_, pHGDC);
   const HGCalDDDConstants & hgdc = (*pHGDC);
 
-  ReturnType ct ( new HGCalTopology(hgdc, subdet_, halfType_) ) ;
-#ifdef DebugLog
-  std::cout << "Create HGCalTopology(hgdc,subdet,type)" << std::endl;
+  ReturnType ct ( new HGCalTopology(hgdc, det_) ) ;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Create HGCalTopology(hgdc,det)";
 #endif
-  return ct ;
+  return ct;
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(HGCalTopologyBuilder);

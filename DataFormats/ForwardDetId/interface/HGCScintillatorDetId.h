@@ -32,7 +32,7 @@ public:
   HGCScintillatorDetId& operator=(const DetId& id);
   
   /** Converter for a geometry cell id */
-  HGCScintillatorDetId geometryCell () const {return HGCScintillatorDetId (type(), layer(), ieta(), 0);}
+  HGCScintillatorDetId geometryCell () const {return HGCScintillatorDetId (0, layer(), ieta(), 0);}
 
   /// get the subdetector
   DetId::Detector subdet() const { return det(); }

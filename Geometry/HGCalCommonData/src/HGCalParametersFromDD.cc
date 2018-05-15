@@ -102,7 +102,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     }
     if ((php.mode_ == HGCalGeometryMode::Hexagon8) ||
 	(php.mode_ == HGCalGeometryMode::Hexagon8Full)) {
-      php.levelT_ = dbl_to_int(getDDDArray("LevelTop",sv));
+      php.levelT_     = dbl_to_int(getDDDArray("LevelTop",sv));
+      php.nCellsFine_ = php.nCellsCoarse_ = 0;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "Top levels " << php.levelT_[0] << ":" 
 				    << php.levelT_[1];
