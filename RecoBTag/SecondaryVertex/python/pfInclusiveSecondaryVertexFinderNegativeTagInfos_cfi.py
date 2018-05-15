@@ -4,6 +4,7 @@ from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi impor
 
 pfInclusiveSecondaryVertexFinderNegativeTagInfos = pfInclusiveSecondaryVertexFinderTagInfos.clone()
 pfInclusiveSecondaryVertexFinderNegativeTagInfos.extSVDeltaRToJet = cms.double(-0.3)
+pfInclusiveSecondaryVertexFinderNegativeTagInfos.extSVCollection  = cms.InputTag('inclusiveCandidateNegativeSecondaryVertices')
 pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distVal2dMin = -2.5
 pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distVal2dMax = -0.01
 pfInclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distSig2dMin = -99999.9
