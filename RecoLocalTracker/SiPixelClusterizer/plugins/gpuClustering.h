@@ -1,8 +1,9 @@
-#pragma once
+#ifndef RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
+#define RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
 
+#include <cassert>
 #include <cstdint>
 #include <cstdio>
-#include<cassert>
 
 namespace gpuClustering {
 
@@ -166,3 +167,4 @@ namespace gpuClustering {
   
 } //namespace gpuClustering
 
+#endif // RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h

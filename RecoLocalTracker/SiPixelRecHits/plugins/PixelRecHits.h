@@ -1,7 +1,8 @@
-#pragma once
+#ifndef RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
+#define RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
 
-#include<cstdint>
-#include<vector>
+#include <cstdint>
+#include <vector>
 
 namespace pixelCPEforGPU {
   struct ParamsOnGPU;
@@ -37,3 +38,5 @@ HitsOnCPU pixelRecHits_wrapper(
       uint32_t nModules, // active modules (with digis)
       HitsOnGPU & hh
 );
+
+#endif // RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h

@@ -1,9 +1,10 @@
-#pragma once
+#ifndef CondFormats_SiPixelObjects_SiPixelGainForHLTonGPU_h
+#define CondFormats_SiPixelObjects_SiPixelGainForHLTonGPU_h
 
-#include<cstdint>
-#include<tuple>
-#include<cassert>
-#include<cstdio>
+#include <cassert>
+#include <cstdint>
+#include <cstdio>
+#include <tuple>
 
 struct SiPixelGainForHLTonGPU_DecodingStructure{
   uint8_t gain;
@@ -67,3 +68,4 @@ class SiPixelGainForHLTonGPU {
   unsigned int noisyFlag_;
 };
 
+#endif // CondFormats_SiPixelObjects_SiPixelGainForHLTonGPU_h

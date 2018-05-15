@@ -1,12 +1,12 @@
-#pragma once
+#ifndef RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelRecHits_h
+#define RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelRecHits_h
 
-#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
-
+#include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <limits>
-#include <cassert>
 
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 namespace gpuPixelRecHits {
 
@@ -132,3 +132,4 @@ namespace gpuPixelRecHits {
 
 }
 
+#endif // RecoLocalTracker_SiPixelRecHits_plugins_gpuPixelRecHits_h

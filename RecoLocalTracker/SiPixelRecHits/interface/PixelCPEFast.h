@@ -1,19 +1,15 @@
-#pragma once
-
-#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
-
-
-// The template header files
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
-
-#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEFast_h
+#define RecoLocalTracker_SiPixelRecHits_PixelCPEFast_h
 
 #include <utility>
 #include <vector>
 
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 class MagneticField;
 class PixelCPEFast final : public PixelCPEBase
@@ -85,3 +81,5 @@ public :
    pixelCPEforGPU::ParamsOnGPU h_paramsOnGPU;
    pixelCPEforGPU::ParamsOnGPU * d_paramsOnGPU;  // copy of the above on the Device  
 };
+
+#endif // RecoLocalTracker_SiPixelRecHits_PixelCPEFast_h
