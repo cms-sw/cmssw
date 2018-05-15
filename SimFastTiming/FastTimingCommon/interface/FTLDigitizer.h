@@ -251,7 +251,7 @@ namespace ftl_digitizer {
 	for( unsigned type = 1; type <= 2; ++type ) {
 	  for( unsigned izeta = 0; izeta < 1<<10; ++izeta ) {
 	    for( unsigned iphi = 0; iphi < 1<<10; ++iphi ) {
-
+	      
 	      if( dddFTL_->isValidXY(type, izeta, iphi) ) {
 		validIds_.emplace( FastTimeDetId( type, 
 						  izeta, 
