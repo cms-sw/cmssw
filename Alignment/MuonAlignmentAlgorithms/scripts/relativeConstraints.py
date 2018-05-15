@@ -85,8 +85,7 @@ for line in constraints.readlines():
             empty = False
 
 if not empty:
-    keys = byRing.keys()
-    keys.sort()
+    keys = sorted(byRing.keys())
     print "for fitter in process.looper.algoConfig.fitters:"
     for ringName in keys:
         if len(byRing[ringName]) > 0:

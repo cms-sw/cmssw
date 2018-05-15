@@ -104,7 +104,7 @@ elif (Sequence=='only_validation_and_TP'):
 
 def replace(map, filein, fileout):
     replace_items = map.items()
-    while 1:
+    while True:
         line = filein.readline()
         if not line: break
         for old, new in replace_items:

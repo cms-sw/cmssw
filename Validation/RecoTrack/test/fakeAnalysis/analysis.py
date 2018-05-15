@@ -572,7 +572,7 @@ def StopReason(track):
 
 def PrintTrackInfo(track, fake = None, frac = 0, fake_info = None):
     ''' Prints info on the track. Called from PlotFakes method in graphics.py.  '''
-    if type(track) == Track:
+    if isinstance(track, Track):
 	if track.nMatchedTrackingParticles() == 0: # FAKE
 	    print str(track.index()) + ": FAKE \nSTOP REASON: " + StopReason(track)
 	    print "Has " + str(track.nValid()) + " valid hits"
@@ -601,7 +601,7 @@ def PrintTrackInfo(track, fake = None, frac = 0, fake_info = None):
 	    print "Fake shares " + str(dec) + " fraction of hits with track"
 	print "Shared hits from beginning: " + str(SharedHitsFromBeginning(track, fake, 10))
 
-    if type(track) is TrackingParticle:
+    if isinstance(track, TrackingParticle):
 	print "Parameters:"
 	print "px  : " + str(track.px()) + "  py  : " + str(track.py()) + "  pz  : " + str(track.pz())
 	print "pt  : " + str(track.pca_pt()) + "  eta : " + str(track.pca_eta()) + "  phi : " + str(track.pca_phi())

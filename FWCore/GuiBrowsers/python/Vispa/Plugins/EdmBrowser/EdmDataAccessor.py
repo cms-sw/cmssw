@@ -176,7 +176,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     value="ERROR: "+self.getType(object)+" object is not available"
                 else:    
                     value=object.get()
-                    if type(value)==type(None):
+                    if isinstance(value, type(None)):
                         value="ERROR: Could not get "+self.getType(object)
                     else:
                         ref=True

@@ -74,8 +74,7 @@ def parseInputFile(filename,singlerun=None):
     strresult=json.load(json_data)
     json_data.close()
     strruns=strresult.keys()
-    rs=[int(x) for x in strruns]
-    rs.sort()
+    rs=sorted([int(x) for x in strruns])
     print rs
     for runnum,perrundata in strresult.items():
         if singlerun:

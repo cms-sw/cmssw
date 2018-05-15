@@ -112,8 +112,7 @@ try:
 except NameError:
 
     def _sorted(iterable, reverse=False):
-        result = list(iterable)
-        result.sort()
+        result = sorted(iterable)
         if reverse:
             result.reverse()
         return result

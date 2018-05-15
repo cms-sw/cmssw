@@ -22,8 +22,7 @@ if __name__=='__main__':
     print 'all dataids ',lumidataid,trgdataid,hltdataid
     (runnum,lumiLSdata)=dataDML.lumiLSById(schema,lumidataid)
     
-    lumils=lumiLSdata.keys()
-    lumils.sort()
+    lumils=sorted(lumiLSdata.keys())
     for lsnum in lumils:
         print 'lumilsnum,cmslsnum,instlumi ',lsnum,lumiLSdata[lsnum][0],lumiLSdata[lsnum][1]*normval
         

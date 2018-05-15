@@ -15,7 +15,7 @@ class PublishToFileSystem(object):
     """Write a report to storage"""
     
     def __init__(self, parent):
-        if type(parent) == type(""):
+        if isinstance(parent, type("")):
             self.parent = parent
         else:
             self.parent = parent.__class__.__name__
@@ -144,8 +144,7 @@ class IntegrityCheck(object):
         sum_dup = 0
         for i in xrange(mmin, mmax+1):
             if i in files:
-                duplicates = files[i]
-                duplicates.sort()
+                duplicates = sorted(files[i])
 
                 fname = duplicates[-1][1]
                 if len(duplicates) > 1:

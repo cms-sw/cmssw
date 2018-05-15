@@ -1299,7 +1299,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         retVal = None
         if input is None:
             retVal = self._defaultParameters[default].value
-        elif type(input) == str:
+        elif isinstance(input, str):
             retVal = cms.InputTag(input)
         else:
             retVal = input

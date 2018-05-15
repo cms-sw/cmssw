@@ -702,9 +702,9 @@ class HTMLExport(FileExportPlugin):
             elif typename == 'VInputTag':
                 v_it = []
                 for vv in v:
-                   if type(vv) == cms.InputTag:
+                   if isinstance(vv, cms.InputTag):
                      v_it.append(vv)
-                   elif type(vv) == str:
+                   elif isinstance(vv, str):
                      v_it.append(cms.InputTag(vv))
                    else:
                       raise "Unsupported type in VInputTag", type(vv)

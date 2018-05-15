@@ -156,8 +156,7 @@ def pathsinfo(infile,outfile):
 			pathname = '_'.join(allnames.split('_')[1:-1])
 			if not pathname in names1:
 				names1[pathname] = mean
-	names = names1.keys()
-        names.sort()
+	names = sorted(names1.keys())
 
         texfile = open(outfile+'-paths.tex', 'w')
         texfile.writelines(texpreamble)
@@ -218,8 +217,7 @@ def moduleinfo(infile,outfile):
 			if not (('!' in modname) or ('-' in modname)): 
 	                        if not modname in names1:
         	                	names1[modname] = mean
-	names = names1.keys()
-	names.sort()
+	names = sorted(names1.keys())
 
         texfile1 = open(outfile+'-modules.tex', 'w')
         texfile1.writelines(texpreamble)

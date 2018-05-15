@@ -426,7 +426,7 @@ class Process(object):
             raise ValueError('this attribute cannot be deleted')
 
         # we have to remove it from all dictionaries/registries
-        dicts = [item for item in self.__dict__.values() if (type(item)==dict or type(item)==DictTypes.SortedKeysDict)]
+        dicts = [item for item in self.__dict__.values() if (isinstance(item, dict) or isinstance(item, DictTypes.SortedKeysDict))]
         for reg in dicts:
             if name in reg: del reg[name]
         # if it was a labelable object, the label needs to be removed
@@ -1189,8 +1189,7 @@ class FilteredStream(dict):
     def __new__(cls, *args, **kw):
         new = dict.__new__(cls)
         dict.__init__(new, *args, **kw)
-        keys = kw.keys()
-        keys.sort()
+        keys = sorted(kw.keys())
         if keys != ['content', 'dataTier', 'name', 'paths', 'responsible', 'selectEvents']:
            raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
 	if not isinstance(kw['name'],str):
@@ -1376,7 +1375,7 @@ class Modifier(object):
       temp(obj)
   @staticmethod
   def _toReplaceWithCheck(toObj,fromObj):
-    if type(fromObj) != type(toObj):
+    if not isinstance(fromObj, type(toObj)):
         raise TypeError("toReplaceWith requires both arguments to be the same class type")
   def toReplaceWith(self,toObj,fromObj):
     """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
@@ -2130,8 +2129,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             visitor1 = ModuleNodeVisitor(l)
             testTask1.visit(visitor1)
             l.sort()
-            expectedList = [edproducer,essource,esproducer,service,edfilter,edproducer,edproducer4]
-            expectedList.sort()
+            expectedList = sorted([edproducer,essource,esproducer,service,edfilter,edproducer,edproducer4])
             self.assertTrue(expectedList == l)
 
             process.myTask6 = Task()
