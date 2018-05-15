@@ -1,10 +1,11 @@
-#pragma once
+#ifndef RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h
+#define RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h
 
-#include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
-
+#include <cassert>
 #include <cstdint>
 #include <cstdio>
-#include <cassert>
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
 
 namespace gpuCalibPixel {
 
@@ -123,3 +124,5 @@ namespace gpuCalibPixel {
 
 
 }
+
+#endif // RecoLocalTracker_SiPixelClusterizer_plugins_gpuCalibPixel_h
