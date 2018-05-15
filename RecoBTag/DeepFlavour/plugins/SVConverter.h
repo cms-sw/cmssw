@@ -15,12 +15,13 @@ namespace btagbtvdeep {
 
       static void SVToFeatures( const reco::VertexCompositePtrCandidate & sv,
                                 const reco::Vertex & pv, const reco::Jet & jet,
-                                SecondaryVertexFeatures & sv_features) {
-    
+                                SecondaryVertexFeatures & sv_features,
+				const bool flip) {
+
+	math::XYZVector jet_dir = jet.momentum().Unit();
         sv_features.pt = sv.pt();
-        sv_features.deltaR = catch_infs_and_bound(
-                               std::fabs(reco::deltaR(sv,jet))-0.5,
-                               0,-2,0);
+        sv_features.deltaR = catch_infs_and_bound(std::fabs(Geom::deltaR(sv.position() - pv.position(), flip ? -jet_dir : jet_dir))-0.5,
+						  0,-2,0);
         sv_features.mass = sv.mass();
         sv_features.ntracks = sv.numberOfDaughters();
         sv_features.chi2 = sv.vertexChi2();
@@ -34,7 +35,11 @@ namespace btagbtvdeep {
         sv_features.d3d = d3d_meas.value();
         sv_features.d3dsig = catch_infs_and_bound(d3d_meas.value()/d3d_meas.error(),
                                                   0,-1,800);
-        sv_features.costhetasvpv = vertexDdotP(sv,pv);
+	float costhetasvpv = vertexDdotP(sv,pv);
+	if(flip){
+	  costhetasvpv = -1.0*costhetasvpv;
+	}
+        sv_features.costhetasvpv = costhetasvpv;
         sv_features.enratio = sv.energy()/jet.energy();
     
       } 
