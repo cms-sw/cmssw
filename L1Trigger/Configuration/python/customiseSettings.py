@@ -9,6 +9,10 @@ def L1TSettingsToCaloParams_2018_v1_1_ECALZS(process):
     process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_cfi")
     return process
 
+def L1TSettingsToCaloParams_2018_v1_1_ECALZS_noHFJEC(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_ECALZS_noHFJEC_cfi")
+    return process
+
 def L1TSettingsToCaloParams_2018_v1_1(process):
     process.load("L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_cfi")
     return process
