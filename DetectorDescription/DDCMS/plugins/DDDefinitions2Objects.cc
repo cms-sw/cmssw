@@ -960,7 +960,7 @@ template <> void Converter<include_load>::operator()(xml_h element) const   {
   xml::Document doc;
   doc = xml::DocumentHandler().load( fp.fullPath());
   printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ Processing the CMS detector description %s", fname );
+           "MyDDCMS","+++ Processing the CMS detector description %s", fname.c_str());
   _option<DDRegistry>()->includes.emplace_back( doc );
 }
 
@@ -988,7 +988,6 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
   }
   try {
     SensitiveDetector sd;
-    Segmentation      seg;
     string            type = "DDCMS_"+_ns.realName(name);
 
     // SensitiveDetector and Segmentation currently are undefined. Let's keep it like this
@@ -1003,6 +1002,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
       return;      
     }
 #if 0
+    Segmentation      seg;
     DetElement det(PluginService::Create<NamedObject*>(type, &description, _ns.context, &element, &sd));
     if (det.isValid())   {
       // setChildTitles(make_pair(name, det));
