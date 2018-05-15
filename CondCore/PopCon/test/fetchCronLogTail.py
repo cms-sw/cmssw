@@ -28,7 +28,7 @@ def readConnection(fileName):
   db=""
   account=""
   connection=""
-  while 1:
+  while True:
       line= f.readline()
       line=line.strip()
       if line =="":

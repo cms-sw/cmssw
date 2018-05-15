@@ -25,7 +25,7 @@ for folder in folderList:
 				eventsPassedList.append(int(line.split()[4]))
 	sumTotal = sum(eventsTotalList)
 	sumPassed = sum(eventsPassedList)
-	if (type(sumTotal) is int) & (sumTotal > 0):
+	if (isinstance(sumTotal, int)) & (sumTotal > 0):
 		print os.path.basename(folder)
 		print '    {0}, {1}, {2}'.format(sumTotal, sumPassed, sumPassed/float(sumTotal))
 	else:

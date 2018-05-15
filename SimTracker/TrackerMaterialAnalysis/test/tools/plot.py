@@ -25,8 +25,7 @@ def plot():
   positions = set()
   for element in elements:
     positions.add(element.position[direction])
-  positions = list(positions)
-  positions.sort()
+  positions = sorted(positions)
 
   data   = ROOT.TFile("TrackerRecMaterial.root")
   canvas = ROOT.TCanvas("material", "", 800, 600)

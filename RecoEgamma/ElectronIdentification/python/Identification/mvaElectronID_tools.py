@@ -25,8 +25,7 @@ class EleMVA_WP:
         self.cuts = cuts
 
     def getCutValues(self):
-        keylist = self.cuts.keys()
-        keylist.sort()
+        keylist = sorted(self.cuts.keys())
         return [self.cuts[key] for key in keylist]
 
 # This is for backwards compatibility with IDs <= 2016

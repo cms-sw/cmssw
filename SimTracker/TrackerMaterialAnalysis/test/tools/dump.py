@@ -23,8 +23,7 @@ def dump():
   positions = set()
   for element in elements:
     positions.add(element.position[dir])
-  positions = list(positions)
-  positions.sort()
+  positions = sorted(positions)
   for position in positions:
     print position
 

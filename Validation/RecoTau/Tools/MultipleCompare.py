@@ -63,7 +63,7 @@ def GetContent(dir):
 def MapDirStructure( directory, dirName, objectList ):
     dirContent = GetContent(directory)
     for entry in dirContent:
-        if type(entry) is TDirectory or type(entry) is TDirectoryFile:
+        if isinstance(entry, TDirectory) or isinstance(entry, TDirectoryFile):
             subdirName = os.path.join(dirName,entry.GetName())
             MapDirStructure(entry, subdirName,objectList)
         else:
@@ -174,12 +174,12 @@ def FindParents(histoPath):
 def Rebin(tfile, histoPath, rebinVal):
     parents = FindParents(histoPath)
     num = tfile.Get(parents[0])
-    if type(num) != TH1F:
+    if not isinstance(num, TH1F):
         print 'Looking for ' + num
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
     denSingle = tfile.Get(parents[1])
-    if type(denSingle) != TH1F:
+    if not isinstance(denSingle, TH1F):
         print 'Looking for '+denSingle
         print 'Plot now found! What the hell are you doing? Exiting...'
         sys.exit()
@@ -425,7 +425,7 @@ def main(argv=None):
       testH = testFile.Get(histoPath)
     else:
         testH = Rebin(testFile,histoPath,options.rebin)
-    if type(testH) != TH1F:
+    if not isinstance(testH, TH1F):
         print 'Looking for '+histoPath
         print 'Test plot now found! What the hell are you doing? Exiting...'
         sys.exit()
@@ -484,7 +484,7 @@ def main(argv=None):
         refH = refFile.Get(histoPath)
     else:
         refH = Rebin(refFile,histoPath,options.rebin)
-    if type(refH) != TH1F:
+    if not isinstance(refH, TH1F):
         continue
     refHs.append(refH)
     refH.SetLineColor(color)

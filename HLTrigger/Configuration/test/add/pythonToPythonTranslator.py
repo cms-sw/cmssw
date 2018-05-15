@@ -53,12 +53,12 @@ def trackedness(item):
 
 # the problem are non empty VPsets
 def fixup(item):
-  if type(item) == bool:
+  if isinstance(item, bool):
     if item: return 'true'
     else: return 'false'
-  elif type(item) == list:
+  elif isinstance(item, list):
       return [str(i) for i in item]
-  elif type(item) == str:
+  elif isinstance(item, str):
       return '"%s"' %item
   else:
       return str(item)

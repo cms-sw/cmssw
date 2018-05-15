@@ -48,7 +48,7 @@ def session_independent_object(object, schema=None):
     return new_object
 
 def session_independent(objects):
-    if type(objects) == list:
+    if isinstance(objects, list):
         return map(session_independent_object, objects)
     else:
         # assume objects is a single object (not a list)
@@ -151,9 +151,9 @@ class RegExp(object):
 
 def apply_filter(orm_query, orm_class, attribute, value):
     filter_attribute = getattr(orm_class, attribute)
-    if type(value) == list:
+    if isinstance(value, list):
         orm_query = orm_query.filter(filter_attribute.in_(value))
-    elif type(value) == data_sources.json_list:
+    elif isinstance(value, data_sources.json_list):
         orm_query = orm_query.filter(filter_attribute.in_(value.data()))
     elif type(value) in [Range, Radius]:
 
@@ -161,7 +161,7 @@ def apply_filter(orm_query, orm_class, attribute, value):
         plus = value.get_end()
         orm_query = orm_query.filter(and_(filter_attribute >= minus, filter_attribute <= plus))
 
-    elif type(value) == RegExp:
+    elif isinstance(value, RegExp):
 
         # Relies on being a SingletonThreadPool
 

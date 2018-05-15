@@ -1074,7 +1074,7 @@ def merge_strings(strings):
     - `strings`: list of strings
     """
 
-    if type(strings) == str:
+    if isinstance(strings, str):
         return strings
     elif len(strings) == 0:
         return ""

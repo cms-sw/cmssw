@@ -2692,8 +2692,7 @@ class Ticks:
     Normally only used internally.
     """
     if len(original_ticks) < 2: original_ticks = ticks(self.low, self.high)
-    original_ticks = original_ticks.keys()
-    original_ticks.sort()
+    original_ticks = sorted(original_ticks.keys())
 
     if self.low > original_ticks[0] + _epsilon or self.high < original_ticks[-1] - _epsilon:
       raise ValueError("original_ticks {%g...%g} extend beyond [%g, %g]" % (original_ticks[0], original_ticks[-1], self.low, self.high))
@@ -2746,8 +2745,7 @@ class Ticks:
       if self.low <= x <= self.high: output[x] = label
 
     for i in range(1, len(output)):
-      keys = output.keys()
-      keys.sort()
+      keys = sorted(output.keys())
       keys = keys[::i]
       values = map(lambda k: output[k], keys)
       if len(values) <= N:

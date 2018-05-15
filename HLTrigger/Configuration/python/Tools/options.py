@@ -132,13 +132,13 @@ class HLTProcessOptions(object):
 
   # convert HLT and L1 menus to a dedicated object representation on the fly
   def __setattr__(self, name, value):
-    if name is 'menu' and type(value) is not ConnectionHLTMenu:
+    if name is 'menu' and not isinstance(value, ConnectionHLTMenu):
       # format 'menu' as needed
       object.__setattr__(self, name, ConnectionHLTMenu(value))
-    elif name is 'l1' and type(value) is not ConnectionL1TMenu:
+    elif name is 'l1' and not isinstance(value, ConnectionL1TMenu):
       # format '--l1' as needed
       object.__setattr__(self, name, ConnectionL1TMenu(value))
-    elif name is 'l1Xml' and type(value) is not ConnectionL1TMenuXml:
+    elif name is 'l1Xml' and not isinstance(value, ConnectionL1TMenuXml):
       # format '--l1Xml' as needed
       object.__setattr__(self, name, ConnectionL1TMenuXml(value))
     elif name is 'open' and value:

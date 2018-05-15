@@ -23,7 +23,7 @@ def unhashEBDetId(i):
 def setWhat(w,ret) :
        for key in ret.keys():
               _val = ret[key]
-              if (type(_val)==type([])) :
+              if (isinstance(_val, type([]))) :
                      _vi = CondDB.VInt()
                      for i in _val :
                             _vi.append(i)

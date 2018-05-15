@@ -252,7 +252,7 @@ class EventPlotter(object):
 
     def TrackHelix(self, track, color = 1, style = 0):
 	'''Creates a THelix object which can be plotted with Draw() method.'''
-	if type(track) is TrackingParticle:
+	if isinstance(track, TrackingParticle):
 	    phi = track.pca_phi()
 	    dxy = track.pca_dxy()
 	    dz = track.pca_dz()

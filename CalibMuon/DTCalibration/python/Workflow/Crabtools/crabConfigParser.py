@@ -73,7 +73,7 @@ class CrabConfigParser(ConfigParser):
                     except:
                         pass
                 if not parsed:
-                    if type(configItem[1]) == list:
+                    if isinstance(configItem[1], list):
                         sectionLines.append('config.%s.%s = %s'%(section,configItem[0],str(configItem[1])))
                         parsed = True
                 if not parsed:

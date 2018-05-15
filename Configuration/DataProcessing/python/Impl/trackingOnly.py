@@ -31,14 +31,14 @@ class trackingOnly(pp):
     def expressProcessing(self, globalTag, **args):
 
         # TkAlMinBias run but hidden to Tier0, in order not to persist it
-        if not args.has_key('skims') :
+        if 'skims' not in args :
             args['skims']=['TkAlMinBias']
         else :
             if not 'TkAlMinBias' in args['skims'] :
                 args['skims'].append('TkAlMinBias')
 
         # reco sequence is limited to tracking => DQM accordingly
-        if not args.has_key('dqmSeq') or len(args['dqmSeq'])==0:
+        if 'dqmSeq' not in args or len(args['dqmSeq'])==0:
             args['dqmSeq'] = ['DQMOfflineTracking']
 
         process = pp.expressProcessing(self, globalTag, **args)
