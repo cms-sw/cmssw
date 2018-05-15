@@ -1022,7 +1022,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchReclusteredJets(const edm:
                                                                       std::vector<int>& matchedIndices,
                                                                       const std::string& jetType)
 {
-   std::string type = ( jetType!="" ? jetType + " " : jetType );
+   std::string type = ( !jetType.empty() ? jetType + " " : jetType );
 
    std::vector<bool> matchedLocks(reclusteredJets.size(),false);
 
