@@ -4,7 +4,7 @@
 #include <iostream>
 #include <cstring>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 BTLNumberingScheme::BTLNumberingScheme() : 
   MTDNumberingScheme() {
