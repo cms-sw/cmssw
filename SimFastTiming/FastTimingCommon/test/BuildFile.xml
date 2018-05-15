@@ -2,6 +2,6 @@
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/FTLDigi"/>
-<library file="FTLDigiDump.cc" name="FTLDigiDump">
+<library file="MTDDigiDump.cc" name="MTDDigiDump">
   <flags EDM_PLUGIN="1"/>
 </library>

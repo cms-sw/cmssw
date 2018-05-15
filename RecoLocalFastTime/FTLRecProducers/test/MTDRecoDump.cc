@@ -11,10 +11,10 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 #include "DataFormats/FTLRecHit/interface/FTLRecHitCollections.h"
 
-class FTLRecoDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class MTDRecoDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
-      explicit FTLRecoDump(const edm::ParameterSet&);
-      ~FTLRecoDump();
+      explicit MTDRecoDump(const edm::ParameterSet&);
+      ~MTDRecoDump();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -32,7 +32,7 @@ class FTLRecoDump : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 };
 
 
-FTLRecoDump::FTLRecoDump(const edm::ParameterSet& iConfig)
+MTDRecoDump::MTDRecoDump(const edm::ParameterSet& iConfig)
 
 {
 
@@ -42,7 +42,7 @@ FTLRecoDump::FTLRecoDump(const edm::ParameterSet& iConfig)
 }
 
 
-FTLRecoDump::~FTLRecoDump() {}
+MTDRecoDump::~MTDRecoDump() {}
 
 
 //
@@ -51,7 +51,7 @@ FTLRecoDump::~FTLRecoDump() {}
 
 // ------------ method called for each event ------------
 void
-FTLRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+MTDRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   using namespace std;
@@ -135,19 +135,19 @@ FTLRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-FTLRecoDump::beginJob()
+MTDRecoDump::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-FTLRecoDump::endJob() 
+MTDRecoDump::endJob() 
 {
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-FTLRecoDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+MTDRecoDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -156,4 +156,4 @@ FTLRecoDump::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(FTLRecoDump);
+DEFINE_FWK_MODULE(MTDRecoDump);

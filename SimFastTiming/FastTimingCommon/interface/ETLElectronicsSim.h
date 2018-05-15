@@ -8,9 +8,13 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
-#include "SimFastTiming/FastTimingCommon/interface/FTLDigitizerTypes.h"
+#include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
-namespace ftl = ftl_digitizer;
+namespace mtd = mtd_digitizer;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class ETLElectronicsSim {
  public:
@@ -20,22 +24,22 @@ class ETLElectronicsSim {
 
   void getEventSetup(const edm::EventSetup& evt) { }
 
-  void runBTL(const ftl::FTLSimHitDataAccumulator& input,
+  void runBTL(const mtd::MTDSimHitDataAccumulator& input,
 	      BTLDigiCollection& output) const {}
 
-  void runETL(const ftl::FTLSimHitDataAccumulator& input,
+  void runETL(const mtd::MTDSimHitDataAccumulator& input,
 	      ETLDigiCollection& output) const;
 
   void runTrivialShaperBTL(BTLDataFrame &dataFrame, 
-			   const ftl::FTLSimHitData& chargeColl,
-			   const ftl::FTLSimHitData& toa) const {}
+			   const mtd::MTDSimHitData& chargeColl,
+			   const mtd::MTDSimHitData& toa) const {}
 
   void runTrivialShaperETL(ETLDataFrame &dataFrame, 
-			   const ftl::FTLSimHitData& chargeColl,
-			   const ftl::FTLSimHitData& toa) const;
+			   const mtd::MTDSimHitData& chargeColl,
+			   const mtd::MTDSimHitData& toa) const;
 
   void updateOutputBTL(BTLDigiCollection &coll,
-		       const ETLDataFrame& rawDataFrame) const {}
+		       const BTLDataFrame& rawDataFrame) const {}
 
   void updateOutputETL(ETLDigiCollection &coll,
 		       const ETLDataFrame& rawDataFrame) const;

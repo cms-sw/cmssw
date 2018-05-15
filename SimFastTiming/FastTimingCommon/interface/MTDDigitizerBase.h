@@ -1,5 +1,5 @@
-#ifndef FastTimingSimProducers_FastTimingCommon_FTLDigitizerBase_h
-#define FastTimingSimProducers_FastTimingCommon_FTLDigitizerBase_h
+#ifndef FastTimingSimProducers_FastTimingCommon_MTDDigitizerBase_h
+#define FastTimingSimProducers_FastTimingCommon_MTDDigitizerBase_h
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,7 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
-#include "SimFastTiming/FastTimingCommon/interface/FTLDigitizerTypes.h"
+#include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
@@ -27,22 +27,29 @@ namespace edm {
 
 class PileUpEventPrincipal;
 
-class FTLDigitizerBase {
+class MTDDigitizerBase {
  public:
- FTLDigitizerBase(const edm::ParameterSet& config, 
+ MTDDigitizerBase(const edm::ParameterSet& config, 
 		  edm::ConsumesCollector& iC,
 		  edm::ProducerBase& parent) :
   inputSimHits_( config.getParameter<edm::InputTag>("inputSimHits") ),
   digiCollection_( config.getParameter<std::string>("digiCollectionTag") ),
-  mySubDet_(FastTime),
   verbosity_( config.getUntrackedParameter< uint32_t >("verbosity",0) ),   
   refSpeed_( 0.1*CLHEP::c_light ),   
   name_( config.getParameter<std::string>("digitizerName") ) {
     iC.consumes<std::vector<PSimHit> >(inputSimHits_);
-    parent.produces<FTLDigiCollection>(digiCollection_);  
+
+    isBTL_ = true;
+    if ( name_ == "BTLDigitizer" )
+      parent.produces<BTLDigiCollection>(digiCollection_);  
+    else {
+      parent.produces<ETLDigiCollection>(digiCollection_);  
+      isBTL_ = false;
+    }
+
   }
   
-  virtual ~FTLDigitizerBase() {}
+  virtual ~MTDDigitizerBase() {}
 
 
   /**
@@ -68,14 +75,16 @@ class FTLDigitizerBase {
     return name_;
   }
   
+  const bool isBTL() const {
+    return isBTL_;
+  }
+
+
  protected:
   //input/output names
   const edm::InputTag inputSimHits_;
   const std::string digiCollection_;
 
-  //subdetector id
-  const ForwardSubdetector mySubDet_;
-  
   //misc switches
   const uint32_t verbosity_;
 
@@ -84,10 +93,11 @@ class FTLDigitizerBase {
 
  private:
   std::string name_;
+  bool isBTL_;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< FTLDigitizerBase* (const edm::ParameterSet&, edm::ConsumesCollector&, edm::ProducerBase&) > FTLDigitizerFactory;
+typedef edmplugin::PluginFactory< MTDDigitizerBase* (const edm::ParameterSet&, edm::ConsumesCollector&, edm::ProducerBase&) > MTDDigitizerFactory;
 
 
 

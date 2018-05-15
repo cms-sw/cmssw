@@ -3,7 +3,6 @@
 
 namespace DataFormats_FTLDigi {
   struct dictionary {
-
     FTLSample anFTLsample;
     std::vector<FTLSample> vFTLsample;
 
@@ -11,6 +10,12 @@ namespace DataFormats_FTLDigi {
     std::vector<FTLDataFrame> vFTLDataFrames;
     edm::SortedCollection< FTLDataFrame > scFTLDataFrames;
     edm::Wrapper< edm::SortedCollection< FTLDataFrame > > prodFTlDataFrames;
+
+    BTLSample aBTLsample;
+    std::vector<BTLSample> vBTLsample;
+
+    ETLSample anETLsample;
+    std::vector<ETLSample> vETLsample;
 
     BTLDataFrame anBTLDataFrame;
     std::vector<BTLDataFrame> vBTLDataFrames;
@@ -24,4 +29,3 @@ namespace DataFormats_FTLDigi {
 
   };
 }
-

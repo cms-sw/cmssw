@@ -3,14 +3,16 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 
-BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset) : 
-  MIPPerMeV_( 1.0/pset.getParameter<double>("meVPerMIP") ) {
-}
 
-void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,float>  > &hitRefs, 
+BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset) : 
+  MIPPerMeV_( 1.0/pset.getParameter<double>("meVPerMIP") ),
+  bxTime_(pset.getParameter<double>("bxTime") ),
+  tofDelay_(pset.getParameter<double>("tofDelay") ) {}
+
+
+void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
 				   const edm::Handle<edm::PSimHitContainer> &hits,
-				   const float bxTime, const float tofDelay,
-				   ftl_digitizer::FTLSimHitDataAccumulator *simHitAccumulator){
+				   mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator){
 
   bool weightToAbyEnergy(false);
   float tdcOnset(0.f);
@@ -27,26 +29,22 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,flo
     // Safety check
     if ( detId.det()!=DetId::Forward || detId.mtdSubDetector()!=1 ) continue;
 
-    auto simHitIt = simHitAccumulator->emplace(id,ftl_digitizer::FTLCellInfo()).first;
+    auto simHitIt = simHitAccumulator->emplace(id,mtd_digitizer::MTDCellInfo()).first;
       
     if(id==0) continue; // to be ignored at RECO level
       
     const float toa    = std::get<2>(hitRefs[i]);
     const PSimHit &hit = hits->at( hitidx );     
-    const float charge = getChargeForHit(hit);
+    const float charge = 1000.f*hit.energyLoss()*MIPPerMeV_;
 
     //distance to the center of the detector
     const float dist2center( 0.1f*hit.entryPoint().mag() );
       
     //hit time: [time()]=ns  [centerDist]=cm [refSpeed]=cm/ns + delay by 1ns
     //accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
-    const float tof = toa-dist2center/refSpeed+tofDelay ;
-    const int itime = std::floor( tof/bxTime ) + 9;
+    const float tof = toa-dist2center/refSpeed+tofDelay_ ;
+    const int itime = std::floor( tof/bxTime_ ) + 9;
 
-    //no need to add bx crossing - tof comes already corrected from the mixing module
-    //itime += bxCrossing;
-    //itime += 9;
-	
     if(itime<0 || itime>14) continue;     
       
     //check if time index is ok and store energy
@@ -69,8 +67,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,flo
 		if(prev_id==id)
 		  {
 		    float prev_toa    = std::get<2>(hitRefs[i-1]);
-		    float prev_tof(prev_toa-dist2center/refSpeed+tofDelay);
-		    //float prev_charge = std::get<3>(hitRefs[i-1]);
+		    float prev_tof(prev_toa-dist2center/refSpeed+tofDelay_);
 		    float deltaQ2TDCOnset = tdcOnset-((simHitIt->second).hit_info[0][itime]-charge);
 		    float deltaQ          = charge;
 		    float deltaT          = (tof-prev_tof);

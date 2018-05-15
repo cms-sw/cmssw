@@ -2,7 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace ftl;
+using namespace mtd;
 
 ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset) :
   debug_( pset.getUntrackedParameter<bool>("debug",false) ),
@@ -15,12 +15,12 @@ ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset) :
 }
 
 
-void ETLElectronicsSim::runETL(const ftl::FTLSimHitDataAccumulator& input,
+void ETLElectronicsSim::runETL(const mtd::MTDSimHitDataAccumulator& input,
 			       ETLDigiCollection& output) const {
   
-  FTLSimHitData chargeColl,toa;
+  MTDSimHitData chargeColl,toa;
   
-  for(FTLSimHitDataAccumulator::const_iterator it=input.begin();
+  for(MTDSimHitDataAccumulator::const_iterator it=input.begin();
       it!=input.end();
       it++) {
     
@@ -48,8 +48,8 @@ void ETLElectronicsSim::runETL(const ftl::FTLSimHitDataAccumulator& input,
 
   
 void ETLElectronicsSim::runTrivialShaperETL(ETLDataFrame &dataFrame, 
-					    const ftl::FTLSimHitData& chargeColl,
-					    const ftl::FTLSimHitData& toa) const {
+					    const mtd::MTDSimHitData& chargeColl,
+					    const mtd::MTDSimHitData& toa) const {
     bool debug = debug_;
 #ifdef EDM_ML_DEBUG  
   for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
@@ -63,7 +63,7 @@ void ETLElectronicsSim::runTrivialShaperETL(ETLDataFrame &dataFrame,
       //brute force saturation, maybe could to better with an exponential like saturation      
       const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_MIP_) / adcLSB_MIP_ );
       const uint32_t tdc_time=std::floor( toa[it] / toaLSB_ns_ );
-      FTLSample newSample;
+      ETLSample newSample;
       newSample.set(chargeColl[it] > adcThreshold_MIP_,false,tdc_time,adc);
       dataFrame.setSample(it,newSample);
 
