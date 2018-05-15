@@ -1,5 +1,5 @@
-#ifndef SimG4CMSForward_FastTimerSD_h
-#define SimG4CMSForward_FastTimerSD_h
+#ifndef SimG4CMSForward_MtdSD_h
+#define SimG4CMSForward_MtdSD_h
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4Core/Notification/interface/Observer.h"
@@ -12,7 +12,7 @@
 
 #include "SimG4CMS/Forward/interface/BscG4Hit.h"
 #include "SimG4CMS/Forward/interface/BscG4HitCollection.h"
-#include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
+#include "Geometry/MTDCommonData/interface/MTDNumberingScheme.h"
   
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -28,10 +28,11 @@ class TrackingSlaveSD;
 class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
 class G4TrackToParticleID;
+class MTDBaseNumber;
 
 //-------------------------------------------------------------------
 
-class FastTimerSD : public SensitiveTkDetector,
+class MtdSD : public SensitiveTkDetector,
                     public Observer<const BeginOfJob *>,
                     public Observer<const BeginOfRun *>,
                     public Observer<const BeginOfEvent*>,
@@ -39,10 +40,10 @@ class FastTimerSD : public SensitiveTkDetector,
 
 public:
   
-  FastTimerSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &, 
+  MtdSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &, 
 	      edm::ParameterSet const &, const SimTrackManager* );
 
-  ~FastTimerSD() override;
+  ~MtdSD() override;
   
   bool     ProcessHits(G4Step *,G4TouchableHistory *) override;
   uint32_t setDetUnitId(const G4Step*) override;
@@ -73,11 +74,12 @@ private:
   void             ResetForNewPrimary();
   void             Summarize();
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
+  void             setNumberingScheme(MTDNumberingScheme*);
+  void             getBaseNumber(const G4Step*);
   
 private:
   
   TrackingSlaveSD             *slave;
-  const FastTimeDDDConstants  *ftcons;
   int                          type_;
 
   G4ThreeVector                entrancePoint, exitPoint;
@@ -117,6 +119,11 @@ private:
   float                        X,Y,Z;
   
   int                          eventno;
+
+  MTDNumberingScheme *         numberingScheme;
+  MTDBaseNumber                theBaseNumber;
+  bool                         isBTL;
+  bool                         isETL;
   
 protected:
   
