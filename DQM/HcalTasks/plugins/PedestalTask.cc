@@ -26,7 +26,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
-	_vflags.resize(nPedestalFlag);
+	_vflags.resize(2);
 	_vflags[fMsn]=hcaldqm::flag::Flag("Msn");
 	_vflags[fBadM]=hcaldqm::flag::Flag("BadM");
 	//_vflags[fBadR]=hcaldqm::flag::Flag("BadR");
