@@ -34,8 +34,13 @@ l1tTauEfficiency = l1tEfficiencyHarvesting.clone(
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots),
-            
+
         ),
+    )
+)
+
+l1tTauEmuEfficiency = l1tEfficiencyHarvesting.clone(
+    plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
             numeratorDir=cms.untracked.string(
                 "L1TEMU/L1TTau/efficiency_raw"),

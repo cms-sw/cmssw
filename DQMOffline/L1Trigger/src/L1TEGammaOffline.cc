@@ -93,7 +93,7 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   edm::Handle < reco::VertexCollection > vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
     return;
   }
 
@@ -114,7 +114,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   e.getByToken(theGsfElectronCollection_, gsfElectrons);
 
   if (!gsfElectrons.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
     return;
   }
   if (gsfElectrons->empty()) {
@@ -122,7 +122,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     return;
   }
   if (!l1EGamma.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
   if (!findTagAndProbePair(gsfElectrons)) {
@@ -382,11 +382,11 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
   e.getByToken(thePhotonCollection_, photons);
 
   if (!photons.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
     return;
   }
   if (!l1EGamma.isValid()) {
-    //  edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+     edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
 

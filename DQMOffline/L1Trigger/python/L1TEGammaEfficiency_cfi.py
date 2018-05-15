@@ -54,6 +54,11 @@ l1tEGammaEfficiency = l1tEfficiencyHarvesting.clone(
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots)
         ),
+    )
+)
+
+l1tEGammaEmuEfficiency = l1tEfficiencyHarvesting.clone(
+    plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
             numeratorDir=cms.untracked.string(
                 "L1TEMU/L1TEGamma/efficiency_raw"),
