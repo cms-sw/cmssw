@@ -83,6 +83,8 @@ static const char* const kGeomFileOpt          = "geom-file";
 static const char* const kGeomFileCommandOpt   = "geom-file,g";
 static const char* const kSimGeomFileOpt       = "sim-geom-file";
 static const char* const kSimGeomFileCommandOpt= "sim-geom-file";
+static const char* const kTGeoNameOpt          = "tgeo-name";
+static const char* const kTGeoNameCommandOpt   = "tgeo-name";
 static const char* const kNoConfigFileOpt      = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
 static const char* const kPlayOpt              = "play";
@@ -160,17 +162,18 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    namespace po = boost::program_options;
    po::options_description desc(descString);
    desc.add_options()
-      (kInputFilesCommandOpt, po::value< std::vector<std::string> >(),   "Input root files")
-      (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
-      (kNoConfigFileCommandOpt,                           "Empty configuration")
-      (kNoVersionCheck,                                   "No file version check")
-      (kGeomFileCommandOpt,   po::value<std::string>(),   "Reco geometry file. Default is cmsGeom10.root")
-      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Geometry file for browsing in table view. Default is CmsSimGeom-14.root. Can be simulation or reco geometry in TGeo format")
+     (kInputFilesCommandOpt, po::value< std::vector<std::string> >(),   "Input root files")
+     (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
+     (kNoConfigFileCommandOpt,                           "Empty configuration")
+     (kNoVersionCheck,                                   "No file version check")
+     (kGeomFileCommandOpt,    po::value<std::string>(),  "Reco geometry file. Default is cmsGeom10.root")
+     (kSimGeomFileCommandOpt, po::value<std::string>(),  "Geometry file for browsing in table view. Default is CmsSimGeom-14.root. Can be simulation or reco geometry in TGeo format")
+     (kTGeoNameCommandOpt, po::value<std::string>(),     "TGeoManager name. The default is \"cmsGeo;1\"")
      (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
-   (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
+     (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
      (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
-   (kExpertCommandOpt,                                   "Enable PF user plugins.")
-      (kHelpCommandOpt,                                   "Display help message");
+     (kExpertCommandOpt,                                   "Enable PF user plugins.")
+     (kHelpCommandOpt,                                   "Display help message");
 
  po::options_description livedesc("Live Event Display");
  livedesc.add_options()
@@ -198,7 +201,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
  po::options_description rnrdesc("Appearance");
  rnrdesc.add_options()
-      (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
+   (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
    (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets")
    (kAdvancedRenderCommandOpt,                         "Enable line anti-aliasing");
    po::positional_options_description p;
@@ -307,10 +310,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
 
    if (vm.count(kSimGeomFileOpt)) {
-      setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>());
+     if (vm.count(kTGeoNameOpt))
+       setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>(), vm[kTGeoNameOpt].as<std::string>());
+     else
+       setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>(), "cmsGeo;1");
    } else {
-      setSimGeometryFilename("cmsSimGeom-14.root");
+     setSimGeometryFilename("cmsSimGeom-14.root", "cmsGeo;1");
    }
+
    // Free-palette palette
    if (vm.count(kFreePaletteCommandOpt)) {
       FWColorPopup::EnableFreePalette();
