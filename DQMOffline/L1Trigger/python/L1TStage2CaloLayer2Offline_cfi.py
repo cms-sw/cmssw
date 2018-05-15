@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 jetEfficiencyThresholds = [36, 68, 128, 176]
 metEfficiencyThresholds = [40, 60, 80, 100, 120]
@@ -76,6 +77,10 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
 
     recoHTTMaxEta=cms.double(2.5),
     recoMHTMaxEta=cms.double(2.5),
+
+    histDefinitions=cms.PSet(
+        nVertex = histDefinitions.nVertex.clone(),
+    ),
 )
 
 l1tStage2CaloLayer2OfflineDQMEmu = l1tStage2CaloLayer2OfflineDQM.clone(

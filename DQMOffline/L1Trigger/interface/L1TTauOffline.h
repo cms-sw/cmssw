@@ -2,7 +2,7 @@
 #define DQMOFFLINE_L1TRIGGER_L1TTAUOFFLINE_H
 
 //DataFormats
-#include "DataFormats/L1Trigger/interface/BXVector.h"	
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
@@ -34,6 +34,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "DQMOffline/L1Trigger/interface/HistDefinition.h"
+
 //MagneticField
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -49,9 +51,9 @@ class TauL1TPair {
 
  public :
 
-  TauL1TPair(const reco::PFTau *tau, const l1t::Tau *regTau) : 				
+  TauL1TPair(const reco::PFTau *tau, const l1t::Tau *regTau) :
   m_tau(tau), m_regTau(regTau), m_eta(999.), m_phi_bar(999.), m_phi_end(999.) { };
-    
+
   TauL1TPair(const TauL1TPair& tauL1tPair);
 
   ~TauL1TPair() { };
@@ -61,15 +63,15 @@ class TauL1TPair {
   double phi() const { return m_tau->phi(); };
   double pt()  const { return m_tau->pt(); };
 
-  double l1tPt() const { return m_regTau ? m_regTau->pt() : -1.; };					
+  double l1tPt() const { return m_regTau ? m_regTau->pt() : -1.; };
   double l1tIso() const { return m_regTau ? m_regTau->hwIso() : -1.; };
-  double l1tPhi() const { return m_regTau ? m_regTau->phi() : -5.; };					
-  double l1tEta() const { return m_regTau ? m_regTau->eta() : -5.; };					
+  double l1tPhi() const { return m_regTau ? m_regTau->phi() : -5.; };
+  double l1tEta() const { return m_regTau ? m_regTau->eta() : -5.; };
 
 private :
 
   const reco::PFTau *m_tau;
-  const l1t::Tau *m_regTau;					
+  const l1t::Tau *m_regTau;
 
   double m_eta;
   double m_phi_bar;
@@ -83,6 +85,12 @@ public:
 
   L1TTauOffline(const edm::ParameterSet& ps);
   ~L1TTauOffline() override;
+
+  enum PlotConfig {
+    nVertex
+  };
+
+  static const std::map<std::string, unsigned int> PlotConfigNames;
 
 protected:
 
@@ -98,7 +106,7 @@ protected:
   bool matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEvent, const reco::Muon * muon);
 
   // Cut and Matching
-  void getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tCands);	
+  void getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tCands);
   void getTightMuons(edm::Handle<reco::MuonCollection> const& muons, edm::Handle<reco::PFMETCollection> const& mets, const reco::Vertex & vertex, edm::Handle<trigger::TriggerEvent> const& trigEvent);
   void getProbeTaus(const edm::Event& e, edm::Handle<reco::PFTauCollection> const& taus, edm::Handle<reco::MuonCollection> const& muons, const reco::Vertex & vertex);
 
@@ -136,18 +144,19 @@ private:
   std::string efficiencyFolder_;
   edm::EDGetTokenT<l1t::TauBxCollection> stage2CaloLayer2TauToken_;
   std::vector<int> tauEfficiencyThresholds_;
-  std::vector<double> tauEfficiencyBins_; 
+  std::vector<double> tauEfficiencyBins_;
+  dqmoffline::l1t::HistDefinitions histDefinitions_;
 
   std::vector<const reco::Muon*>  m_TightMuons;
   std::vector<const reco::PFTau*>  m_ProbeTaus;
   std::vector<TauL1TPair>  m_TauL1tPairs;
 
 
-  std::vector<reco::PFTauCollection>  m_RecoTaus;		
-  std::vector<l1t::TauBxCollection>  m_L1tTaus;		  
-  std::vector<reco::PFTau>  m_RecoRecoTaus;		
-  BXVector<l1t::Tau>  m_L1tL1tTaus;		  
-  
+  std::vector<reco::PFTauCollection>  m_RecoTaus;
+  std::vector<l1t::TauBxCollection>  m_L1tTaus;
+  std::vector<reco::PFTau>  m_RecoRecoTaus;
+  BXVector<l1t::Tau>  m_L1tL1tTaus;
+
   // config params
   std::vector<int> m_L1tPtCuts;
 
