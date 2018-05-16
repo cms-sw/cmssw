@@ -1,5 +1,5 @@
-#ifndef L1TMuonEndCap_PtLutVarCalc_h
-#define L1TMuonEndCap_PtLutVarCalc_h
+#ifndef L1TMuonEndCap_PtLUTVarCalc_h
+#define L1TMuonEndCap_PtLUTVarCalc_h
 
 int CalcTrackTheta( const int th1, const int th2, const int th3, const int th4,
                     const int ring1, const int mode, const bool BIT_COMP=false );
