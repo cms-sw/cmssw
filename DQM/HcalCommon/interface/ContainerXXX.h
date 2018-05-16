@@ -13,8 +13,6 @@
 
 namespace hcaldqm
 {
-	using namespace constants;
-
 	typedef boost::unordered_map<uint32_t, double> doubleCompactMap;
 	typedef boost::unordered_map<uint32_t, int> intCompactMap;
 	typedef boost::unordered_map<uint32_t, uint32_t> uintCompactMap;

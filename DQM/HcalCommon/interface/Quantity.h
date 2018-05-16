@@ -36,10 +36,10 @@ namespace hcaldqm
 		class Quantity
 		{
 			public:
-				Quantity() : _name("Quantity"), _isLog(false)
+				Quantity() : _name("Quantity"), _isLog(false), _showOverflow(false)
 				{}
 				Quantity(std::string const& name, bool isLog) : 
-					_name(name), _isLog(isLog)
+					_name(name), _isLog(isLog), _showOverflow(false)
 				{}
 				virtual ~Quantity() {}
 
@@ -67,7 +67,7 @@ namespace hcaldqm
 				virtual void setLog(TH1* o) 
 				{
 					if (_isLog)
-						o->SetBit(BIT(BIT_OFFSET+_axistype));
+						o->SetBit(BIT(constants::BIT_OFFSET+_axistype));
 				}
 
 				virtual int nbins() {return 1;}
@@ -82,10 +82,13 @@ namespace hcaldqm
 				virtual void setMin(double) {}
 				virtual void setNbins(int) {}
 
+				virtual void showOverflow(bool showOverflow) {_showOverflow = showOverflow;}
+
 			protected:
 				std::string		_name;
 				bool			_isLog;
 				AxisType		_axistype;
+				bool _showOverflow;
 		};
 	}
 }

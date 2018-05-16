@@ -25,6 +25,7 @@ digiTask = DQMEDAnalyzer(
 
 	#	ratio thresholds
 	thresh_unifh = cms.untracked.double(0.2),
+	thresh_led = cms.untracked.double(20),
 
 	qie10InConditions = cms.untracked.bool(False),
 
