@@ -2,6 +2,7 @@
 #define FastTimingSimProducers_FastTimingCommon_MTDDigitizer_h
 
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerBase.h"
+#include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTraits.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,11 +41,15 @@ namespace mtd_digitizer {
     }
   }
 
-  template<class SensorPhysics, class ElectronicsSim>
+  template<class Traits>
   class MTDDigitizer : public MTDDigitizerBase
   {
   public:
-    
+
+  typedef typename Traits::DeviceSim      DeviceSim ;
+  typedef typename Traits::ElectronicsSim ElectronicsSim;
+  typedef typename Traits::DigiCollection DigiCollection;
+
   MTDDigitizer(const edm::ParameterSet& config, 
 	       edm::ConsumesCollector& iC,
 	       edm::ProducerBase& parent) :
@@ -81,7 +86,7 @@ namespace mtd_digitizer {
     }
     
     // implementations
-    SensorPhysics deviceSim_;       // processes a given simhit into an entry in a MTDSimHitDataAccumulator
+    DeviceSim deviceSim_;           // processes a given simhit into an entry in a MTDSimHitDataAccumulator
     ElectronicsSim electronicsSim_; // processes a MTDSimHitDataAccumulator into a BTLDigiCollection/ETLDigiCollection
         
     //handle sim hits
@@ -90,28 +95,28 @@ namespace mtd_digitizer {
         
   };
 
-  template<class SensorPhysics, class ElectronicsSim>
-  void MTDDigitizer<SensorPhysics,ElectronicsSim>::accumulate(edm::Event const& e, 
-							      edm::EventSetup const& c, 
-							      CLHEP::HepRandomEngine* hre) {
+  template<class Traits>
+  void MTDDigitizer<Traits>::accumulate(edm::Event const& e, 
+					edm::EventSetup const& c, 
+					CLHEP::HepRandomEngine* hre) {
     edm::Handle<edm::PSimHitContainer> simHits;
     e.getByLabel(inputSimHits_, simHits);
     accumulate(simHits,0,hre);
   }
 
-  template<class SensorPhysics, class ElectronicsSim>
-  void MTDDigitizer<SensorPhysics,ElectronicsSim>::accumulate(PileUpEventPrincipal const& e, 
-							      edm::EventSetup const& c, 
-							      CLHEP::HepRandomEngine* hre){
+  template<class Traits>
+  void MTDDigitizer<Traits>::accumulate(PileUpEventPrincipal const& e, 
+					edm::EventSetup const& c, 
+					CLHEP::HepRandomEngine* hre){
     edm::Handle<edm::PSimHitContainer> simHits;
     e.getByLabel(inputSimHits_, simHits);
     accumulate(simHits,e.bunchCrossing(),hre);
   }
 
-  template<class SensorPhysics, class ElectronicsSim>
-  void MTDDigitizer<SensorPhysics,ElectronicsSim>::accumulate(edm::Handle<edm::PSimHitContainer> const &hits, 
-							      int bxCrossing, 
-							      CLHEP::HepRandomEngine* hre) {
+  template<class Traits>
+  void MTDDigitizer<Traits>::accumulate(edm::Handle<edm::PSimHitContainer> const &hits, 
+					int bxCrossing, 
+					CLHEP::HepRandomEngine* hre) {
     using namespace MTDHelpers;
     
     //create list of tuples (pos in container, RECO DetId, time) to be sorted first
@@ -140,43 +145,30 @@ namespace mtd_digitizer {
 
   }
   
-  template<class SensorPhysics, class ElectronicsSim>
-  void MTDDigitizer<SensorPhysics,ElectronicsSim>::initializeEvent(edm::Event const& e, edm::EventSetup const& c) {
+  template<class Traits>
+  void MTDDigitizer<Traits>::initializeEvent(edm::Event const& e, edm::EventSetup const& c) {
     deviceSim_.getEvent(e);
     electronicsSim_.getEvent(e);
   }
   
-  template<class SensorPhysics, class ElectronicsSim>
-  void MTDDigitizer<SensorPhysics,ElectronicsSim>::finalizeEvent(edm::Event& e, edm::EventSetup const& c, 
-								 CLHEP::HepRandomEngine* hre) {
-
-    if ( isBTL() ){
-      
-      auto digiCollection = std::make_unique<BTLDigiCollection>();
-      electronicsSim_.runBTL(simHitAccumulator_,*digiCollection);
-      e.put(std::move(digiCollection),digiCollection_);
+  template<class Traits>
+  void MTDDigitizer<Traits>::finalizeEvent(edm::Event& e, edm::EventSetup const& c, 
+					   CLHEP::HepRandomEngine* hre) {
     
-    }
-    else {
-      
-      auto digiCollection = std::make_unique<ETLDigiCollection>();
-      electronicsSim_.runETL(simHitAccumulator_,*digiCollection);
-      e.put(std::move(digiCollection),digiCollection_);
+    auto digiCollection = std::make_unique<DigiCollection>();
+    electronicsSim_.run(simHitAccumulator_,*digiCollection);
+    e.put(std::move(digiCollection),digiCollection_);
     
-    }
-
     //release memory for next event
     resetSimHitDataAccumulator();
   }
     
 
-  template<class SensorPhysics, class ElectronicsSim>
-  void MTDDigitizer<SensorPhysics,ElectronicsSim>::beginRun(const edm::EventSetup & es) {
+  template<class Traits>
+  void MTDDigitizer<Traits>::beginRun(const edm::EventSetup & es) {
     deviceSim_.getEventSetup(es);
     electronicsSim_.getEventSetup(es);
   }
 }
 
-
 #endif
-

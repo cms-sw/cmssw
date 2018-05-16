@@ -1,14 +1,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizer.h"
-#include "SimFastTiming/FastTimingCommon/interface/BTLDeviceSim.h"
-#include "SimFastTiming/FastTimingCommon/interface/BTLElectronicsSim.h"
-#include "SimFastTiming/FastTimingCommon/interface/ETLDeviceSim.h"
-#include "SimFastTiming/FastTimingCommon/interface/ETLElectronicsSim.h"
+#include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTraits.h"
 
-
-typedef mtd_digitizer::MTDDigitizer<BTLDeviceSim,BTLElectronicsSim> BTLDigitizer;
-typedef mtd_digitizer::MTDDigitizer<ETLDeviceSim,ETLElectronicsSim> ETLDigitizer;
+typedef mtd_digitizer::MTDDigitizer<BTLDigitizerTraits> BTLDigitizer;
+typedef mtd_digitizer::MTDDigitizer<ETLDigitizerTraits> ETLDigitizer;
 
 
 DEFINE_EDM_PLUGIN(MTDDigitizerFactory, BTLDigitizer, "BTLDigitizer");
