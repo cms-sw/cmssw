@@ -265,7 +265,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                     }
                     if (lheDebug) std::cout << "Found LHE header with tag" << iter->tag() << std::endl;
                     std::vector<std::string>  lines = iter->lines();
-                    bool missed_weightgroup=0; //Needed because in some of the samples ( produced with MG26X ) a small part of the header info is ordered incorrectly
+                    bool missed_weightgroup=false; //Needed because in some of the samples ( produced with MG26X ) a small part of the header info is ordered incorrectly
                     for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) {
                         boost::replace_all(lines[iLine],"&lt;", "<");
                         boost::replace_all(lines[iLine],"&gt;", ">");
@@ -387,10 +387,10 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
                                         if(!missed_weightgroup){
                                              break;
-                                        } else missed_weightgroup=0;
+                                        } else missed_weightgroup=false;
                                     } else if (std::regex_search(lines[iLine], weightgroupmg26x)) {
                                         if (lheDebug) std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end of the group." << std::endl;
-                                        missed_weightgroup=1;
+                                        missed_weightgroup=true;
                                         --iLine; // rewind by one, and go back to the outer loop
                                         break;
                                     }
@@ -421,10 +421,10 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
                                         if(!missed_weightgroup){
                                              break;
-                                        } else missed_weightgroup=0;
+                                        } else missed_weightgroup=false;
                                     } else if (std::regex_search(lines[iLine], weightgroupmg26x)) {
                                         if (lheDebug) std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end of the group." << std::endl;
-                                        missed_weightgroup=1;
+                                        missed_weightgroup=true;
                                         --iLine; // rewind by one, and go back to the outer loop
                                         break;
                                     }
@@ -438,10 +438,10 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
                                         if(!missed_weightgroup){
                                              break;
-                                        } else missed_weightgroup=0;
+                                        } else missed_weightgroup=false;
                                     } else if (std::regex_search(lines[iLine], weightgroupmg26x)) {
                                         if (lheDebug) std::cout << ">>> Looks like the beginning of a new weight group, I will assume I missed the end of the group." << std::endl;
-                                        missed_weightgroup=1;
+                                        missed_weightgroup=true;
                                         --iLine; // rewind by one, and go back to the outer loop
                                         break;
                                     }
