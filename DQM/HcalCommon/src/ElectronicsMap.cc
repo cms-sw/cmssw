@@ -168,12 +168,27 @@ namespace hcaldqm
 			}
 		}
 
-		//	2 funcs below are only for 1->1 mappings
+		//	3 funcs below are only for 1->1 mappings
 		uint32_t ElectronicsMap::lookup(DetId const &id)
 		{
 			uint32_t hash = id.rawId();
 			if (_etype==fHcalElectronicsMap)
 				return _emap->lookup(id).rawId();
+			else 
+			{
+				EMapType::iterator it = _ids.find(hash);
+				return it==_ids.end() ? 0 : it->second;
+			}
+			return 0;
+		}
+
+		uint32_t ElectronicsMap::lookup(HcalDetId const &id)
+		{
+			// Turn the HcalDetId into a HcalGenericDetId to avoid newForm
+			uint32_t hash = (id.oldFormat() ? id.otherForm() : id.rawId());
+			HcalGenericDetId gdid(hash);
+			if (_etype==fHcalElectronicsMap)
+				return _emap->lookup(gdid).rawId();
 			else 
 			{
 				EMapType::iterator it = _ids.find(hash);

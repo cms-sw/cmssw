@@ -17,31 +17,30 @@
 
 namespace hcaldqm
 {
-	using namespace quantity;
 	class ContainerSingle2D : public Container
 	{
 		public:
 			ContainerSingle2D();
 			ContainerSingle2D(std::string const& folder, 
-				Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN));
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN));
 			ContainerSingle2D(std::string const& folder, 
 				std::string const&,
-				Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN),
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
 				int debug=0);
 			ContainerSingle2D(ContainerSingle2D const&);
 			~ContainerSingle2D() override;
 
 			virtual void initialize(std::string const& folder, 
-				Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN),
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
 				int debug=0);
 
 			virtual void initialize(std::string const& folder, 
 				std::string const&,
-				Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN),
+				quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
 				int debug=0);
 			using Container::initialize;
 			//	booking
@@ -154,11 +153,13 @@ namespace hcaldqm
 
 			virtual void extendAxisRange(int);
 
+			void showOverflowZ(bool showOverflow);
+
 		protected:
 			MonitorElement					*_me;
-			Quantity						*_qx;
-			Quantity						*_qy;
-			Quantity						*_qz;
+			quantity::Quantity				*_qx;
+			quantity::Quantity				*_qy;
+			quantity::Quantity				*_qz;
 
 			virtual void customize();
 	};
