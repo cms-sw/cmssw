@@ -20,25 +20,15 @@ class BTLElectronicsSim {
 
   void getEventSetup(const edm::EventSetup& evt) { }
 
-  void runBTL(const mtd::MTDSimHitDataAccumulator& input,
-	      BTLDigiCollection& output) const;
+  void run(const mtd::MTDSimHitDataAccumulator& input,
+	   BTLDigiCollection& output) const;
 
-  void runETL(const mtd::MTDSimHitDataAccumulator& input,
-	      ETLDigiCollection& output) const {};
+  void runTrivialShaper(BTLDataFrame &dataFrame, 
+			const mtd::MTDSimHitData& chargeColl,
+			const mtd::MTDSimHitData& toa) const;
 
-  void runTrivialShaperBTL(BTLDataFrame &dataFrame, 
-			   const mtd::MTDSimHitData& chargeColl,
-			   const mtd::MTDSimHitData& toa) const;
-
-  void runTrivialShaperETL(ETLDataFrame &dataFrame, 
-			   const mtd::MTDSimHitData& chargeColl,
-			   const mtd::MTDSimHitData& toa) const {}
-
-  void updateOutputBTL(BTLDigiCollection &coll,
-		       const BTLDataFrame& rawDataFrame) const;
-
-  void updateOutputETL(ETLDigiCollection &coll,
-		       const ETLDataFrame& rawDataFrame) const {}
+  void updateOutput(BTLDigiCollection &coll,
+		    const BTLDataFrame& rawDataFrame) const;
 
  private:
 

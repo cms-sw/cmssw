@@ -39,14 +39,13 @@ class MTDDigitizerBase {
   name_( config.getParameter<std::string>("digitizerName") ) {
     iC.consumes<std::vector<PSimHit> >(inputSimHits_);
 
-    isBTL_ = true;
     if ( name_ == "BTLDigitizer" )
       parent.produces<BTLDigiCollection>(digiCollection_);  
-    else {
+    else if ( name_ == "ETLDigitizer" )
       parent.produces<ETLDigiCollection>(digiCollection_);  
-      isBTL_ = false;
-    }
-
+    else
+      throw cms::Exception("[MTDDigitizerBase::MTDDigitizerBase]")
+	<< name_ << " is an invalid MTD digitizer name";
   }
   
   virtual ~MTDDigitizerBase() {}
@@ -75,10 +74,6 @@ class MTDDigitizerBase {
     return name_;
   }
   
-  const bool isBTL() const {
-    return isBTL_;
-  }
-
 
  protected:
   //input/output names
@@ -93,7 +88,7 @@ class MTDDigitizerBase {
 
  private:
   std::string name_;
-  bool isBTL_;
+
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"

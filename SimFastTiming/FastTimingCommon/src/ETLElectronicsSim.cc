@@ -15,8 +15,8 @@ ETLElectronicsSim::ETLElectronicsSim(const edm::ParameterSet& pset) :
 }
 
 
-void ETLElectronicsSim::runETL(const mtd::MTDSimHitDataAccumulator& input,
-			       ETLDigiCollection& output) const {
+void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
+			    ETLDigiCollection& output) const {
   
   MTDSimHitData chargeColl,toa;
   
@@ -39,17 +39,17 @@ void ETLElectronicsSim::runETL(const mtd::MTDSimHitDataAccumulator& input,
     
     //run the shaper to create a new data frame
     ETLDataFrame rawDataFrame( it->first );    
-    runTrivialShaperETL(rawDataFrame,chargeColl,toa);
-    updateOutputETL(output,rawDataFrame);
+    runTrivialShaper(rawDataFrame,chargeColl,toa);
+    updateOutput(output,rawDataFrame);
     
   }
     
 }
 
   
-void ETLElectronicsSim::runTrivialShaperETL(ETLDataFrame &dataFrame, 
-					    const mtd::MTDSimHitData& chargeColl,
-					    const mtd::MTDSimHitData& toa) const {
+void ETLElectronicsSim::runTrivialShaper(ETLDataFrame &dataFrame, 
+					 const mtd::MTDSimHitData& chargeColl,
+					 const mtd::MTDSimHitData& toa) const {
     bool debug = debug_;
 #ifdef EDM_ML_DEBUG  
   for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
@@ -77,8 +77,8 @@ void ETLElectronicsSim::runTrivialShaperETL(ETLDataFrame &dataFrame,
   } 
 }
   
-void ETLElectronicsSim::updateOutputETL(ETLDigiCollection &coll,
-					const ETLDataFrame& rawDataFrame) const {
+void ETLElectronicsSim::updateOutput(ETLDigiCollection &coll,
+				     const ETLDataFrame& rawDataFrame) const {
   int itIdx(9);
   if(rawDataFrame.size()<=itIdx+2) return;
   

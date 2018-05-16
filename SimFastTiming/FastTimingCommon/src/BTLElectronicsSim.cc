@@ -15,8 +15,8 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
 }
 
 
-void BTLElectronicsSim::runBTL(const mtd::MTDSimHitDataAccumulator& input,
-			       BTLDigiCollection& output) const {
+void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
+			    BTLDigiCollection& output) const {
   
   MTDSimHitData chargeColl,toa;
   
@@ -39,17 +39,17 @@ void BTLElectronicsSim::runBTL(const mtd::MTDSimHitDataAccumulator& input,
     
     //run the shaper to create a new data frame
     BTLDataFrame rawDataFrame( it->first );    
-    runTrivialShaperBTL(rawDataFrame,chargeColl,toa);
-    updateOutputBTL(output,rawDataFrame);
+    runTrivialShaper(rawDataFrame,chargeColl,toa);
+    updateOutput(output,rawDataFrame);
     
   }
     
 }
 
   
-void BTLElectronicsSim::runTrivialShaperBTL(BTLDataFrame &dataFrame, 
-					    const mtd::MTDSimHitData& chargeColl,
-					    const mtd::MTDSimHitData& toa) const {
+void BTLElectronicsSim::runTrivialShaper(BTLDataFrame &dataFrame, 
+					 const mtd::MTDSimHitData& chargeColl,
+					 const mtd::MTDSimHitData& toa) const {
     bool debug = debug_;
 #ifdef EDM_ML_DEBUG  
   for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
@@ -77,8 +77,8 @@ void BTLElectronicsSim::runTrivialShaperBTL(BTLDataFrame &dataFrame,
   } 
 }
   
-void BTLElectronicsSim::updateOutputBTL(BTLDigiCollection &coll,
-					const BTLDataFrame& rawDataFrame) const {
+void BTLElectronicsSim::updateOutput(BTLDigiCollection &coll,
+				     const BTLDataFrame& rawDataFrame) const {
   int itIdx(9);
   if(rawDataFrame.size()<=itIdx+2) return;
   
