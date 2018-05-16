@@ -135,7 +135,6 @@ void MtdSD::GetStepInfo(G4Step* aStep) {
   hitPointLocalExit = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPointExit);
 
 
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MtdSim") << "MtdSD :particleType =  " 
 	    << theTrack->GetDefinition()->GetParticleName();
