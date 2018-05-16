@@ -1,4 +1,6 @@
 plugins/BuildFile.xml
 plugins/EDAnalyzer.cc
 python
-test
+test/test_catch2_EDAnalyzer.cc
+test/test_catch2_main.cc
+test/testBuildFile.xml
