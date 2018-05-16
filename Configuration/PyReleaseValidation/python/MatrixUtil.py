@@ -1,20 +1,20 @@
 class Matrix(dict):
-    def __setitem__(self,key,value):
+    def __setitem__(self, key, value):
         if key in self:
             print "ERROR in Matrix"
-            print "overwritting",key,"not allowed"
+            print "overwritting", key, "not allowed"
         else:
-            self.update({float(key):WF(float(key),value)})
+            self.update({float(key):WF(float(key), value)})
 
-    def addOverride(self,key,override):
+    def addOverride(self, key, override):
         self[key].addOverride(override)
             
 #the class to collect all possible steps
 class Steps(dict):
-    def __setitem__(self,key,value):
+    def __setitem__(self, key, value):
         if key in self:
             print "ERROR in Step"
-            print "overwritting",key,"not allowed"
+            print "overwritting", key, "not allowed"
             import sys
             sys.exit(-9)
         else:
@@ -22,29 +22,29 @@ class Steps(dict):
             # make the python file named <step>.py
             #if not '--python' in value:                self[key].update({'--python':'%s.py'%(key,)})
 
-    def overwrite(self,keypair):
+    def overwrite(self, keypair):
         value=self[keypair[1]]
         self.update({keypair[0]:value})
         
 class WF(list):
-    def __init__(self,n,l):
+    def __init__(self, n, l):
         self.extend(l)
         self.num=n
         #the actual steps of this WF
         self.steps=[]
         self.overrides={}
-    def addOverride(self,overrides):
+    def addOverride(self, overrides):
         self.overrides=overrides
         
-    def interpret(self,stepsDict):
+    def interpret(self, stepsDict):
         for s in self:
-            print 'steps',s,stepsDict[s]
+            print 'steps', s, stepsDict[s]
             steps.append(stepsDict[s])
     
 
 
 def expandLsInterval(lumis):
-    return range(lumis[0],(lumis[1]+1))
+    return range(lumis[0], (lumis[1]+1))
 
 from DPGAnalysis.Skims.golden_json_2015 import * 
 jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_50ns_JSON.txt")
@@ -134,14 +134,14 @@ class InputInfo(object):
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
         from os import getenv
-        if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
+        if getenv("CMSSW_USE_IBEOS", "false")=="true": return command + " | ibeos-lfn-sort"
         return command + " | sort -u"
 
     def lumiRanges(self):
         if len(self.run) != 0:
             return "echo '{\n"+",".join(('"%d":[[1,268435455]]\n'%(x,) for x in self.run))+"}'"
         if self.ls :
-            return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
+            return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x), self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
 
     def lumis(self):
@@ -193,12 +193,12 @@ class InputInfo(object):
 def merge(dictlist,TELL=False):
     import copy
     last=len(dictlist)-1
-    if TELL: print last,dictlist
+    if TELL: print last, dictlist
     if last==0:
         # ONLY ONE ITEM LEFT
         return copy.copy(dictlist[0])
     else:
-        reducedlist=dictlist[0:max(0,last-1)]
+        reducedlist=dictlist[0:max(0, last-1)]
         if TELL: print reducedlist
         # make a copy of the last item
         d=copy.copy(dictlist[last])
@@ -206,7 +206,7 @@ def merge(dictlist,TELL=False):
         d.update(dictlist[last-1])
         # and recursively do the rest
         reducedlist.append(d)
-        return merge(reducedlist,TELL)
+        return merge(reducedlist, TELL)
 
 def remove(d,key,TELL=False):
     import copy
@@ -220,24 +220,24 @@ def remove(d,key,TELL=False):
 #### Standard release validation samples ####
 
 stCond={'--conditions':'auto:run1_mc'}
-def Kby(N,s):
-    return {'--relval':'%s000,%s'%(N,s)}
-def Mby(N,s):
-    return {'--relval':'%s000000,%s'%(N,s)}
+def Kby(N, s):
+    return {'--relval':'%s000,%s'%(N, s)}
+def Mby(N, s):
+    return {'--relval':'%s000000,%s'%(N, s)}
 
-def changeRefRelease(steps,listOfPairs):
+def changeRefRelease(steps, listOfPairs):
     for s in steps:
         if ('INPUT' in steps[s]):
             oldD=steps[s]['INPUT'].dataSet
-            for (ref,newRef) in listOfPairs:
+            for (ref, newRef) in listOfPairs:
                 if  ref in oldD:
-                    steps[s]['INPUT'].dataSet=oldD.replace(ref,newRef)
+                    steps[s]['INPUT'].dataSet=oldD.replace(ref, newRef)
         if '--pileup_input' in steps[s]:
-            for (ref,newRef) in listOfPairs:
+            for (ref, newRef) in listOfPairs:
                 if ref in steps[s]['--pileup_input']:
-                    steps[s]['--pileup_input']=steps[s]['--pileup_input'].replace(ref,newRef)
+                    steps[s]['--pileup_input']=steps[s]['--pileup_input'].replace(ref, newRef)
         
-def addForAll(steps,d):
+def addForAll(steps, d):
     for s in steps:
         steps[s].update(d)
 
@@ -246,7 +246,7 @@ def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     import copy
     c=copy.copy(d)
     if suffix:
-        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
+        c['-s']=c['-s'].replace('genvalid', 'genvalid_'+suffix)
     if fi:
         c['--filein']='lhe:%d'%(fi,)
     if dataSet:

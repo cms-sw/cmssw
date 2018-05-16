@@ -7,7 +7,7 @@ options = Options()
 
 ## imports
 import sys
-from Mixins import PrintOptions,_ParameterTypeBase,_SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
+from Mixins import PrintOptions, _ParameterTypeBase, _SimpleParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable, _Labelable,  _Unlabelable,  _ValidatingListBase, _modifyParametersFromDict
 from Mixins import *
 from Types import *
 from Modules import *
@@ -37,8 +37,8 @@ def checkImportPermission(minLevel = 2, allowedPatterns = []):
     import inspect
     import os
 
-    ignorePatterns = ['FWCore/ParameterSet/Config.py','<string>']
-    CMSSWPath = [os.environ['CMSSW_BASE'],os.environ['CMSSW_RELEASE_BASE']]
+    ignorePatterns = ['FWCore/ParameterSet/Config.py', '<string>']
+    CMSSWPath = [os.environ['CMSSW_BASE'], os.environ['CMSSW_RELEASE_BASE']]
 
     # Filter the stack to things in CMSSWPath and not in ignorePatterns
     trueStack = []
@@ -81,13 +81,13 @@ def findProcess(module):
     class Temp(object):
         pass
     process = None
-    if isinstance(module,dict):
+    if isinstance(module, dict):
         if 'process' in module:
             p = module['process']
             module = Temp()
             module.process = p
-    if hasattr(module,'process'):
-        if isinstance(module.process,Process):
+    if hasattr(module, 'process'):
+        if isinstance(module.process, Process):
             process = module.process
         else:
             raise RuntimeError("The attribute named 'process' does not inherit from the Process class")
@@ -174,64 +174,64 @@ class Process(object):
     filters = property(filters_, doc="dictionary containing the filters for the process")
     def name_(self):
         return self.__name
-    def setName_(self,name):
+    def setName_(self, name):
         if not name.isalnum():
             raise RuntimeError("Error: The process name is an empty string or contains non-alphanumeric characters")
         self.__dict__['_Process__name'] = name
-    process = property(name_,setName_, doc="name of the process")
+    process = property(name_, setName_, doc="name of the process")
     def producers_(self):
         """returns a dict of the producers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__producers)
-    producers = property(producers_,doc="dictionary containing the producers for the process")
+    producers = property(producers_, doc="dictionary containing the producers for the process")
     def source_(self):
         """returns the source that has been added to the Process or None if none have been added"""
         return self.__source
-    def setSource_(self,src):
-        self._placeSource('source',src)
-    source = property(source_,setSource_,doc='the main source or None if not set')
+    def setSource_(self, src):
+        self._placeSource('source', src)
+    source = property(source_, setSource_, doc='the main source or None if not set')
     def looper_(self):
         """returns the looper that has been added to the Process or None if none have been added"""
         return self.__looper
-    def setLooper_(self,lpr):
-        self._placeLooper('looper',lpr)
-    looper = property(looper_,setLooper_,doc='the main looper or None if not set')
+    def setLooper_(self, lpr):
+        self._placeLooper('looper', lpr)
+    looper = property(looper_, setLooper_, doc='the main looper or None if not set')
     def subProcesses_(self):
         """returns a list of the subProcesses that have been added to the Process"""
         return self.__subProcesses
-    subProcesses = property(subProcesses_,doc='the SubProcesses that have been added to the Process')
+    subProcesses = property(subProcesses_, doc='the SubProcesses that have been added to the Process')
     def analyzers_(self):
         """returns a dict of the analyzers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
-    analyzers = property(analyzers_,doc="dictionary containing the analyzers for the process")
+    analyzers = property(analyzers_, doc="dictionary containing the analyzers for the process")
     def outputModules_(self):
         """returns a dict of the output modules that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__outputmodules)
-    outputModules = property(outputModules_,doc="dictionary containing the output_modules for the process")
+    outputModules = property(outputModules_, doc="dictionary containing the output_modules for the process")
     def paths_(self):
         """returns a dict of the paths that have been added to the Process"""
         return DictTypes.SortedAndFixedKeysDict(self.__paths)
-    paths = property(paths_,doc="dictionary containing the paths for the process")
+    paths = property(paths_, doc="dictionary containing the paths for the process")
     def endpaths_(self):
         """returns a dict of the endpaths that have been added to the Process"""
         return DictTypes.SortedAndFixedKeysDict(self.__endpaths)
-    endpaths = property(endpaths_,doc="dictionary containing the endpaths for the process")
+    endpaths = property(endpaths_, doc="dictionary containing the endpaths for the process")
     def sequences_(self):
         """returns a dict of the sequences that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__sequences)
-    sequences = property(sequences_,doc="dictionary containing the sequences for the process")
+    sequences = property(sequences_, doc="dictionary containing the sequences for the process")
     def tasks_(self):
         """returns a dict of the tasks that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__tasks)
-    tasks = property(tasks_,doc="dictionary containing the tasks for the process")
+    tasks = property(tasks_, doc="dictionary containing the tasks for the process")
     def schedule_(self):
         """returns the schedule that has been added to the Process or None if none have been added"""
         return self.__schedule
-    def setPartialSchedule_(self,sch,label):
+    def setPartialSchedule_(self, sch, label):
         if label == "schedule":
             self.setSchedule_(sch)
         else:
             self._place(label, sch, self.__partialschedules)
-    def setSchedule_(self,sch):
+    def setSchedule_(self, sch):
         # See if every path and endpath has been inserted into the process
         index = 0
         try:
@@ -241,37 +241,37 @@ class Process(object):
         except:
             raise RuntimeError("The path at index "+str(index)+" in the Schedule was not attached to the process.")
         self.__dict__['_Process__schedule'] = sch
-    schedule = property(schedule_,setSchedule_,doc='the schedule or None if not set')
+    schedule = property(schedule_, setSchedule_, doc='the schedule or None if not set')
     def services_(self):
         """returns a dict of the services that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__services)
-    services = property(services_,doc="dictionary containing the services for the process")
+    services = property(services_, doc="dictionary containing the services for the process")
     def es_producers_(self):
         """returns a dict of the esproducers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__esproducers)
-    es_producers = property(es_producers_,doc="dictionary containing the es_producers for the process")
+    es_producers = property(es_producers_, doc="dictionary containing the es_producers for the process")
     def es_sources_(self):
         """returns a the es_sources that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__essources)
-    es_sources = property(es_sources_,doc="dictionary containing the es_sources for the process")
+    es_sources = property(es_sources_, doc="dictionary containing the es_sources for the process")
     def es_prefers_(self):
         """returns a dict of the es_prefers that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__esprefers)
-    es_prefers = property(es_prefers_,doc="dictionary containing the es_prefers for the process")
+    es_prefers = property(es_prefers_, doc="dictionary containing the es_prefers for the process")
     def aliases_(self):
         """returns a dict of the aliases that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__aliases)
-    aliases = property(aliases_,doc="dictionary containing the aliases for the process")
+    aliases = property(aliases_, doc="dictionary containing the aliases for the process")
     def psets_(self):
         """returns a dict of the PSets that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__psets)
-    psets = property(psets_,doc="dictionary containing the PSets for the process")
+    psets = property(psets_, doc="dictionary containing the PSets for the process")
     def vpsets_(self):
         """returns a dict of the VPSets that have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__vpsets)
-    vpsets = property(vpsets_,doc="dictionary containing the PSets for the process")
+    vpsets = property(vpsets_, doc="dictionary containing the PSets for the process")
 
-    def isUsingModifier(self,mod):
+    def isUsingModifier(self, mod):
         """returns True if the Modifier is in used by this Process"""
         if mod.isChosen():
           for m in self.__modifiers:
@@ -306,19 +306,19 @@ class Process(object):
         object.setLabel(None)
         object.setLabel(newLabel)
 
-    def __setattr__(self,name,value):
+    def __setattr__(self, name, value):
         # check if the name is well-formed (only _ and alphanumerics are allowed)
-        if not name.replace('_','').isalnum():
+        if not name.replace('_', '').isalnum():
             raise ValueError('The label '+name+' contains forbiden characters')
 
         # private variable exempt from all this
         if name.startswith('_Process__'):
             self.__dict__[name]=value
             return
-        if not isinstance(value,_ConfigureComponent):
+        if not isinstance(value, _ConfigureComponent):
             raise TypeError("can only assign labels to an object that inherits from '_ConfigureComponent'\n"
                             +"an instance of "+str(type(value))+" will not work - requested label is "+name)
-        if not isinstance(value,_Labelable) and not isinstance(value,Source) and not isinstance(value,Looper) and not isinstance(value,Schedule):
+        if not isinstance(value, _Labelable) and not isinstance(value, Source) and not isinstance(value, Looper) and not isinstance(value, Schedule):
             if name == value.type_():
                 # Only Services get handled here
                 self.add_(value)
@@ -338,18 +338,18 @@ class Process(object):
             newValue =value
         if not self._okToPlace(name, value, self.__dict__):
             newFile='top level config'
-            if hasattr(value,'_filename'):
+            if hasattr(value, '_filename'):
                newFile = value._filename
             oldFile='top level config'
-            oldValue = getattr(self,name)
-            if hasattr(oldValue,'_filename'):
+            oldValue = getattr(self, name)
+            if hasattr(oldValue, '_filename'):
                oldFile = oldValue._filename
             msg = "Trying to override definition of process."+name
             msg += "\n new object defined in: "+newFile
             msg += "\n existing object defined in: "+oldFile
             raise ValueError(msg)
         # remove the old object of the name (if there is one)
-        if hasattr(self,name) and not (getattr(self,name)==newValue):
+        if hasattr(self, name) and not (getattr(self, name)==newValue):
             # Complain if items in sequences or tasks from load() statements have
             # degenerate names, but if the user overwrites a name in the
             # main config, replace it everywhere
@@ -361,16 +361,16 @@ class Process(object):
                    if not isinstance(newValue, Task):
                      #should check to see if used in task before complaining
                      newFile='top level config'
-                     if hasattr(value,'_filename'):
+                     if hasattr(value, '_filename'):
                        newFile = value._filename
                      oldFile='top level config'
-                     oldValue = getattr(self,name)
-                     if hasattr(oldValue,'_filename'):
+                     oldValue = getattr(self, name)
+                     if hasattr(oldValue, '_filename'):
                        oldFile = oldValue._filename
                      msg1 = "Trying to override definition of "+name+" while it is used by the task "
                      msg2 = "\n new object defined in: "+newFile
                      msg2 += "\n existing object defined in: "+oldFile
-                     s = self.__findFirstUsingModule(self.tasks,oldValue)
+                     s = self.__findFirstUsingModule(self.tasks, oldValue)
                      if s is not None:
                         raise ValueError(msg1+s.label_()+msg2)
 
@@ -380,32 +380,32 @@ class Process(object):
                 else:
                    #should check to see if used in sequence before complaining
                    newFile='top level config'
-                   if hasattr(value,'_filename'):
+                   if hasattr(value, '_filename'):
                       newFile = value._filename
                    oldFile='top level config'
-                   oldValue = getattr(self,name)
-                   if hasattr(oldValue,'_filename'):
+                   oldValue = getattr(self, name)
+                   if hasattr(oldValue, '_filename'):
                       oldFile = oldValue._filename
                    msg1 = "Trying to override definition of "+name+" while it is used by the "
                    msg2 = "\n new object defined in: "+newFile
                    msg2 += "\n existing object defined in: "+oldFile
-                   s = self.__findFirstUsingModule(self.sequences,oldValue)
+                   s = self.__findFirstUsingModule(self.sequences, oldValue)
                    if s is not None:
                       raise ValueError(msg1+"sequence "+s.label_()+msg2)
-                   s = self.__findFirstUsingModule(self.paths,oldValue)
+                   s = self.__findFirstUsingModule(self.paths, oldValue)
                    if s is not None:
                       raise ValueError(msg1+"path "+s.label_()+msg2)
-                   s = self.__findFirstUsingModule(self.endpaths,oldValue)
+                   s = self.__findFirstUsingModule(self.endpaths, oldValue)
                    if s is not None:
                       raise ValueError(msg1+"endpath "+s.label_()+msg2)
             self._delattrFromSetattr(name)
         self.__dict__[name]=newValue
-        if isinstance(newValue,_Labelable):
+        if isinstance(newValue, _Labelable):
             self.__setObjectLabel(newValue, name)
             self._cloneToObjectDict[id(value)] = newValue
             self._cloneToObjectDict[id(newValue)] = newValue
         #now put in proper bucket
-        newValue._place(name,self)
+        newValue._place(name, self)
     def __findFirstUsingModule(self, seqsOrTasks, mod):
        """Given a container of sequences or tasks, find the first sequence or task
        containing mod and return it. If none is found, return None"""
@@ -419,8 +419,8 @@ class Process(object):
              return seqOrTask
        return None
 
-    def _delHelper(self,name):
-        if not hasattr(self,name):
+    def _delHelper(self, name):
+        if not hasattr(self, name):
             raise KeyError('process does not know about '+name)
         elif name.startswith('_Process__'):
             raise ValueError('this attribute cannot be deleted')
@@ -430,15 +430,15 @@ class Process(object):
         for reg in dicts:
             if name in reg: del reg[name]
         # if it was a labelable object, the label needs to be removed
-        obj = getattr(self,name)
-        if isinstance(obj,_Labelable):
+        obj = getattr(self, name)
+        if isinstance(obj, _Labelable):
             obj.setLabel(None)
-        if isinstance(obj,Service):
+        if isinstance(obj, Service):
             obj._inProcess = False
 
-    def __delattr__(self,name):
+    def __delattr__(self, name):
         self._delHelper(name)
-        obj = getattr(self,name)
+        obj = getattr(self, name)
         if not obj is None:
             if not isinstance(obj, Sequence) and not isinstance(obj, Task):
                 # For modules, ES modules and services we can also remove
@@ -461,7 +461,7 @@ class Process(object):
         except:
             pass
 
-    def _delattrFromSetattr(self,name):
+    def _delattrFromSetattr(self, name):
         """Similar to __delattr__ but we need different behavior when called from __setattr__"""
         self._delHelper(name)
         # now remove it from the process itself
@@ -470,11 +470,11 @@ class Process(object):
         except:
             pass
 
-    def add_(self,value):
+    def add_(self, value):
         """Allows addition of components that do not have to have a label, e.g. Services"""
-        if not isinstance(value,_ConfigureComponent):
+        if not isinstance(value, _ConfigureComponent):
             raise TypeError
-        if not isinstance(value,_Unlabelable):
+        if not isinstance(value, _Unlabelable):
             raise TypeError
         #clone the item
         #clone the item
@@ -483,7 +483,7 @@ class Process(object):
             value.setIsFrozen()
         else:
             newValue =value
-        newValue._place('',self)
+        newValue._place('', self)
 
     def _okToPlace(self, name, mod, d):
         if not self.__InExtendCall:
@@ -512,49 +512,49 @@ class Process(object):
                 d[name] = mod._postProcessFixup(self._cloneToObjectDict)
             else:
                 d[name] = mod
-            if isinstance(mod,_Labelable):
+            if isinstance(mod, _Labelable):
                 self.__setObjectLabel(mod, name)
-    def _placeOutputModule(self,name,mod):
+    def _placeOutputModule(self, name, mod):
         self._place(name, mod, self.__outputmodules)
-    def _placeProducer(self,name,mod):
+    def _placeProducer(self, name, mod):
         self._place(name, mod, self.__producers)
-    def _placeFilter(self,name,mod):
+    def _placeFilter(self, name, mod):
         self._place(name, mod, self.__filters)
-    def _placeAnalyzer(self,name,mod):
+    def _placeAnalyzer(self, name, mod):
         self._place(name, mod, self.__analyzers)
-    def _placePath(self,name,mod):
+    def _placePath(self, name, mod):
         self._validateSequence(mod, name)
         try:
             self._place(name, mod, self.__paths)
         except ModuleCloneError as msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in path %s is unknown to the process %s." %(context, msg, name, self._Process__name))
-    def _placeEndPath(self,name,mod):
+    def _placeEndPath(self, name, mod):
         self._validateSequence(mod, name)
         try:
             self._place(name, mod, self.__endpaths)
         except ModuleCloneError as msg:
             context = format_outerframe(4)
             raise Exception("%sThe module %s in endpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
-    def _placeSequence(self,name,mod):
+    def _placeSequence(self, name, mod):
         self._validateSequence(mod, name)
         self._place(name, mod, self.__sequences)
-    def _placeESProducer(self,name,mod):
+    def _placeESProducer(self, name, mod):
         self._place(name, mod, self.__esproducers)
-    def _placeESPrefer(self,name,mod):
+    def _placeESPrefer(self, name, mod):
         self._place(name, mod, self.__esprefers)
-    def _placeESSource(self,name,mod):
+    def _placeESSource(self, name, mod):
         self._place(name, mod, self.__essources)
-    def _placeTask(self,name,task):
+    def _placeTask(self, name, task):
         self._validateTask(task, name)
         self._place(name, task, self.__tasks)
-    def _placeAlias(self,name,mod):
+    def _placeAlias(self, name, mod):
         self._place(name, mod, self.__aliases)
-    def _placePSet(self,name,mod):
+    def _placePSet(self, name, mod):
         self._place(name, mod, self.__psets)
-    def _placeVPSet(self,name,mod):
+    def _placeVPSet(self, name, mod):
         self._place(name, mod, self.__vpsets)
-    def _placeSource(self,name,mod):
+    def _placeSource(self, name, mod):
         """Allow the source to be referenced by 'source' or by type name"""
         if name != 'source':
             raise ValueError("The label '"+name+"' can not be used for a Source.  Only 'source' is allowed.")
@@ -562,23 +562,23 @@ class Process(object):
             del self.__dict__[self.__dict__['_Process__source'].type_()]
         self.__dict__['_Process__source'] = mod
         self.__dict__[mod.type_()] = mod
-    def _placeLooper(self,name,mod):
+    def _placeLooper(self, name, mod):
         if name != 'looper':
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
         self.__dict__[mod.type_()] = mod
-    def _placeSubProcess(self,name,mod):
+    def _placeSubProcess(self, name, mod):
         self.__dict__['_Process__subProcess'] = mod
         self.__dict__[mod.type_()] = mod
-    def addSubProcess(self,mod):
+    def addSubProcess(self, mod):
         self.__subProcesses.append(mod)
-    def _placeService(self,typeName,mod):
+    def _placeService(self, typeName, mod):
         self._place(typeName, mod, self.__services)
         if typeName in self.__dict__:
           self.__dict__[typeName]._inProcess = False
         self.__dict__[typeName]=mod
     def load(self, moduleName):
-        moduleName = moduleName.replace("/",".")
+        moduleName = moduleName.replace("/", ".")
         module = __import__(moduleName)
         self.extend(sys.modules[moduleName])
     def extend(self,other,items=()):
@@ -593,26 +593,26 @@ class Process(object):
             #'from XX import *' ignores these, and so should we.
             if name.startswith('_'):
                 continue
-            item = getattr(other,name)
+            item = getattr(other, name)
             if name == "source" or name == "looper":
                 # In these cases 'item' could be None if the specific object was not defined
                 if item is not None:
-                    self.__setattr__(name,item)
-            elif isinstance(item,_ModuleSequenceType):
+                    self.__setattr__(name, item)
+            elif isinstance(item, _ModuleSequenceType):
                 seqs[name]=item
-            elif isinstance(item,Task):
+            elif isinstance(item, Task):
                 tasksToAttach[name] = item
-            elif isinstance(item,_Labelable):
-                self.__setattr__(name,item)
+            elif isinstance(item, _Labelable):
+                self.__setattr__(name, item)
                 if not item.hasLabel_() :
                     item.setLabel(name)
-            elif isinstance(item,Schedule):
-                self.__setattr__(name,item)
-            elif isinstance(item,_Unlabelable):
+            elif isinstance(item, Schedule):
+                self.__setattr__(name, item)
+            elif isinstance(item, _Unlabelable):
                 self.add_(item)
-            elif isinstance(item,ProcessModifier):
+            elif isinstance(item, ProcessModifier):
                 mods.append(item)
-            elif isinstance(item,ProcessFragment):
+            elif isinstance(item, ProcessFragment):
                 self.extend(item)
 
         #now create a sequence that uses the newly made items
@@ -621,13 +621,13 @@ class Process(object):
             #newSeq = seq.copy()
             #
             if id(seq) not in self._cloneToObjectDict:
-                self.__setattr__(name,seq)
+                self.__setattr__(name, seq)
             else:
                 newSeq = self._cloneToObjectDict[id(seq)]
                 self.__dict__[name]=newSeq
                 self.__setObjectLabel(newSeq, name)
                 #now put in proper bucket
-                newSeq._place(name,self)
+                newSeq._place(name, self)
 
         for name in tasksToAttach.iterkeys():
             task = tasksToAttach[name]
@@ -639,19 +639,19 @@ class Process(object):
 
         self.__dict__['_Process__InExtendCall'] = False
 
-    def _dumpConfigNamedList(self,items,typeName,options):
+    def _dumpConfigNamedList(self, items, typeName, options):
         returnValue = ''
-        for name,item in items:
+        for name, item in items:
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
         return returnValue
-    def _dumpConfigUnnamedList(self,items,typeName,options):
+    def _dumpConfigUnnamedList(self, items, typeName, options):
         returnValue = ''
-        for name,item in items:
+        for name, item in items:
             returnValue +=options.indentation()+typeName+' = '+item.dumpConfig(options)
         return returnValue
-    def _dumpConfigOptionallyNamedList(self,items,typeName,options):
+    def _dumpConfigOptionallyNamedList(self, items, typeName, options):
         returnValue = ''
-        for name,item in items:
+        for name, item in items:
             if name == item.type_():
                 name = ''
             returnValue +=options.indentation()+typeName+' '+name+' = '+item.dumpConfig(options)
@@ -704,9 +704,9 @@ class Process(object):
             'es_source',
             options)
         config += self._dumpConfigESPrefers(options)
-        for name,item in self.psets.iteritems():
+        for name, item in self.psets.iteritems():
             config +=options.indentation()+item.configTypeName()+' '+name+' = '+item.configValue(options)
-        for name,item in self.vpsets.iteritems():
+        for name, item in self.vpsets.iteritems():
             config +=options.indentation()+'VPSet '+name+' = '+item.configValue(options)
         if self.schedule:
             pathNames = [p.label_() for p in self.schedule]
@@ -731,10 +731,10 @@ class Process(object):
     def _dumpPythonList(self, d, options):
         returnValue = ''
         if isinstance(d, DictTypes.SortedKeysDict):
-            for name,item in d.items():
+            for name, item in d.items():
                 returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         else:
-            for name,item in sorted(d.items()):
+            for name, item in sorted(d.items()):
                 returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         return returnValue
     def _validateSequence(self, sequence, label):
@@ -763,7 +763,7 @@ class Process(object):
         # For each item, see what other items it depends upon
         # For our purpose here, an item depends on the items it contains.
         dependencies = {}
-        for label,item in processDictionaryOfItems.iteritems():
+        for label, item in processDictionaryOfItems.iteritems():
             containedItems = []
             if isinstance(item, Task):
                 v = TaskVisitor(containedItems)
@@ -800,19 +800,19 @@ class Process(object):
         # keep looping until we get rid of all dependencies
         while dependencies:
             oldDeps = dict(dependencies)
-            for label,deps in oldDeps.iteritems():
+            for label, deps in oldDeps.iteritems():
                 if len(deps)==0:
                     returnValue[label]=processDictionaryOfItems[label]
                     #remove this as a dependency for all other tasks
                     del dependencies[label]
-                    for lb2,deps2 in dependencies.iteritems():
+                    for lb2, deps2 in dependencies.iteritems():
                         while deps2.count(label):
                             deps2.remove(label)
         return returnValue
     def _dumpPython(self, d, options):
         result = ''
         for name, value in sorted(d.iteritems()):
-           result += value.dumpPythonAs(name,options)+'\n'
+           result += value.dumpPythonAs(name, options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
         """return a string containing the equivalent process defined using python"""
@@ -826,7 +826,7 @@ class Process(object):
         result+=self._dumpPythonList(self.vpsets, options)
         result+=self._dumpPythonSubProcesses(self.subProcesses_(), options)
         result+=self._dumpPythonList(self.producers_(), options)
-        result+=self._dumpPythonList(self.filters_() , options)
+        result+=self._dumpPythonList(self.filters_(), options)
         result+=self._dumpPythonList(self.analyzers_(), options)
         result+=self._dumpPythonList(self.outputModules_(), options)
         result+=self._dumpPythonList(self.services_(), options)
@@ -842,31 +842,31 @@ class Process(object):
             result += 'process.schedule = ' + self.schedule.dumpPython(options)
         return result
     def _replaceInSequences(self, label, new):
-        old = getattr(self,label)
+        old = getattr(self, label)
         #TODO - replace by iterator concatenation
         for sequenceable in self.sequences.itervalues():
-            sequenceable.replace(old,new)
+            sequenceable.replace(old, new)
         for sequenceable in self.paths.itervalues():
-            sequenceable.replace(old,new)
+            sequenceable.replace(old, new)
         for sequenceable in self.endpaths.itervalues():
-            sequenceable.replace(old,new)
+            sequenceable.replace(old, new)
     def _replaceInTasks(self, label, new):
-        old = getattr(self,label)
+        old = getattr(self, label)
         for task in self.tasks.itervalues():
             task.replace(old, new)
     def _replaceInSchedule(self, label, new):
         if self.schedule_() == None:
             return
-        old = getattr(self,label)
+        old = getattr(self, label)
         for task in self.schedule_()._tasks:
             task.replace(old, new)
-    def globalReplace(self,label,new):
+    def globalReplace(self, label, new):
         """ Replace the item with label 'label' by object 'new' in the process and all sequences/paths/tasks"""
-        if not hasattr(self,label):
+        if not hasattr(self, label):
             raise LookupError("process has no item of label "+label)
-        setattr(self,label,new)
+        setattr(self, label, new)
     def _insertInto(self, parameterSet, itemDict):
-        for name,value in itemDict.iteritems():
+        for name, value in itemDict.iteritems():
             value.insertInto(parameterSet, name)
     def _insertOneInto(self, parameterSet, label, item, tracked):
         vitems = []
@@ -877,7 +877,7 @@ class Process(object):
         parameterSet.addVString(tracked, label, vitems)
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
-        for name,value in itemDict.iteritems():
+        for name, value in itemDict.iteritems():
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
           value.insertInto(parameterSet, name)
@@ -896,7 +896,7 @@ class Process(object):
         # alphabetical order is easier to compare with old language
         l.sort()
         parameterSet.addVString(tracked, label, l)
-        parameterSet.addVPSet(False,"subProcesses",subprocs)
+        parameterSet.addVPSet(False, "subProcesses", subprocs)
     def _insertPaths(self, processPSet, nodeVisitor):
         scheduledPaths = []
         triggerPaths = []
@@ -953,12 +953,12 @@ class Process(object):
 
     def resolve(self,keepUnresolvedSequencePlaceholders=False):
         for x in self.paths.itervalues():
-            x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
+            x.resolve(self.__dict__, keepUnresolvedSequencePlaceholders)
         for x in self.endpaths.itervalues():
-            x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
+            x.resolve(self.__dict__, keepUnresolvedSequencePlaceholders)
         if not self.schedule_() == None:
             for task in self.schedule_()._tasks:
-                task.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
+                task.resolve(self.__dict__, keepUnresolvedSequencePlaceholders)
 
     def prune(self,verbose=False,keepUnresolvedSequencePlaceholders=False):
         """ Remove clutter from the process that we think is unnecessary:
@@ -984,7 +984,7 @@ class Process(object):
             names.update(set(self.endpaths))
             unneededPaths = names - schedNames
             for n in unneededPaths:
-                delattr(self,n)
+                delattr(self, n)
         else:
             pths = list(self.paths.itervalues())
             pths.extend(self.endpaths.itervalues())
@@ -1006,7 +1006,7 @@ class Process(object):
         unneededSeqLabels = []
         for s in unneededSeqs:
             unneededSeqLabels.append(s.label_())
-            delattr(self,s.label_())
+            delattr(self, s.label_())
         if verbose:
             print "prune removed the following:"
             print "  modules:"+",".join(unneededModules)
@@ -1022,10 +1022,10 @@ class Process(object):
     def fillProcessDesc(self, processPSet):
         """Used by the framework to convert python to C++ objects"""
         class ServiceInjectorAdaptor(object):
-            def __init__(self,ppset,thelist):
+            def __init__(self, ppset, thelist):
                 self.__thelist = thelist
                 self.__processPSet = ppset
-            def addService(self,pset):
+            def addService(self, pset):
                 self.__thelist.append(pset)
             def newPSet(self):
                 return self.__processPSet.newPSet()
@@ -1033,21 +1033,21 @@ class Process(object):
         # to the ProcessDesc and PythonParameterSet C++ classes.
         # This method is needed for the PSet refToPSet_ functionality.
         class TopLevelPSetAcessorAdaptor(object):
-            def __init__(self,ppset,process):
+            def __init__(self, ppset, process):
                 self.__ppset = ppset
                 self.__process = process
-            def __getattr__(self,attr):
-                return getattr(self.__ppset,attr)
-            def getTopPSet_(self,label):
-                return getattr(self.__process,label)
+            def __getattr__(self, attr):
+                return getattr(self.__ppset, attr)
+            def getTopPSet_(self, label):
+                return getattr(self.__process, label)
             def newPSet(self):
-                return TopLevelPSetAcessorAdaptor(self.__ppset.newPSet(),self.__process)
-            def addPSet(self,tracked,name,ppset):
-                return self.__ppset.addPSet(tracked,name,self.__extractPSet(ppset))
-            def addVPSet(self,tracked,name,vpset):
-                return self.__ppset.addVPSet(tracked,name,[self.__extractPSet(x) for x in vpset])
-            def __extractPSet(self,pset):
-                if isinstance(pset,TopLevelPSetAcessorAdaptor):
+                return TopLevelPSetAcessorAdaptor(self.__ppset.newPSet(), self.__process)
+            def addPSet(self, tracked, name, ppset):
+                return self.__ppset.addPSet(tracked, name, self.__extractPSet(ppset))
+            def addVPSet(self, tracked, name, vpset):
+                return self.__ppset.addVPSet(tracked, name, [self.__extractPSet(x) for x in vpset])
+            def __extractPSet(self, pset):
+                if isinstance(pset, TopLevelPSetAcessorAdaptor):
                     return pset.__ppset
                 return pset
                 
@@ -1057,7 +1057,7 @@ class Process(object):
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
-        adaptor = TopLevelPSetAcessorAdaptor(processPSet,self)
+        adaptor = TopLevelPSetAcessorAdaptor(processPSet, self)
         self._insertInto(adaptor, self.psets_())
         self._insertInto(adaptor, self.vpsets_())
         self._insertOneInto(adaptor,  "@all_sources", self.source_(), True)
@@ -1091,8 +1091,8 @@ class Process(object):
         services = []
         for serviceName, serviceObject in self.services_().iteritems():
              if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
-                 serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
-        adaptor.addVPSet(False,"services",services)
+                 serviceObject.insertInto(ServiceInjectorAdaptor(adaptor, services))
+        adaptor.addVPSet(False, "services", services)
         return processPSet
 
     def validate(self):
@@ -1193,22 +1193,22 @@ class FilteredStream(dict):
         keys.sort()
         if keys != ['content', 'dataTier', 'name', 'paths', 'responsible', 'selectEvents']:
            raise ValueError("The needed parameters are: content, dataTier, name, paths, responsible, selectEvents")
-	if not isinstance(kw['name'],str):
+	if not isinstance(kw['name'], str):
            raise ValueError("name must be of type string")
-        if not isinstance(kw['content'], vstring) and not isinstance(kw['content'],str):
+        if not isinstance(kw['content'], vstring) and not isinstance(kw['content'], str):
            raise ValueError("content must be of type vstring or string")
         if not isinstance(kw['dataTier'], string):
            raise ValueError("dataTier must be of type string")
         if not isinstance(kw['selectEvents'], PSet):
            raise ValueError("selectEvents must be of type PSet")
-        if not isinstance(kw['paths'],(tuple, Path)):
+        if not isinstance(kw['paths'], (tuple, Path)):
            raise ValueError("'paths' must be a tuple of paths")
 	return new
     def __init__(self, *args, **kw):
         pass
     def __repr__(self):
         return "FilteredStream object: %s" %self["name"]
-    def __getattr__(self,attr):
+    def __getattr__(self, attr):
         return self[attr]
 
 class SubProcess(_Unlabelable):
@@ -1221,9 +1221,9 @@ class SubProcess(_Unlabelable):
       """
       if not isinstance(process, Process):
          raise ValueError("the 'process' argument must be of type cms.Process")
-      if not isinstance(SelectEvents,PSet):
+      if not isinstance(SelectEvents, PSet):
          raise ValueError("the 'SelectEvents' argument must be of type cms.untracked.PSet")
-      if not isinstance(outputCommands,vstring):
+      if not isinstance(outputCommands, vstring):
          raise ValueError("the 'outputCommands' argument must be of type cms.untracked.vstring")
       self.__process = process
       self.__SelectEvents = SelectEvents
@@ -1245,35 +1245,35 @@ class SubProcess(_Unlabelable):
       return self.__outputCommands
    def type_(self):
       return 'subProcess'
-   def nameInProcessDesc_(self,label):
+   def nameInProcessDesc_(self, label):
       return label
-   def _place(self,label,process):
-      process._placeSubProcess('subProcess',self)
-   def getSubProcessPSet(self,parameterSet):
+   def _place(self, label, process):
+      process._placeSubProcess('subProcess', self)
+   def getSubProcessPSet(self, parameterSet):
       topPSet = parameterSet.newPSet()
       self.__process.fillProcessDesc(topPSet)
       subProcessPSet = parameterSet.newPSet()
-      self.__SelectEvents.insertInto(subProcessPSet,"SelectEvents")
-      self.__outputCommands.insertInto(subProcessPSet,"outputCommands")
-      subProcessPSet.addPSet(False,"process",topPSet)
+      self.__SelectEvents.insertInto(subProcessPSet, "SelectEvents")
+      self.__outputCommands.insertInto(subProcessPSet, "outputCommands")
+      subProcessPSet.addPSet(False, "process", topPSet)
       return subProcessPSet
 
 class _ParameterModifier(object):
   """Helper class for Modifier that takes key/value pairs and uses them to reset parameters of the object"""
-  def __init__(self,args):
+  def __init__(self, args):
     self.__args = args
-  def __call__(self,obj):
+  def __call__(self, obj):
     params = {}
     for k in self.__args.iterkeys():
-        if hasattr(obj,k):
-            params[k] = getattr(obj,k)
+        if hasattr(obj, k):
+            params[k] = getattr(obj, k)
     _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
     for k in self.__args.iterkeys():
         if k in params:
-            setattr(obj,k,params[k])
+            setattr(obj, k, params[k])
         else:
             #the parameter must have been removed
-            delattr(obj,k)
+            delattr(obj, k)
   @staticmethod
   def _raiseUnknownKey(key):
     raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
@@ -1289,41 +1289,41 @@ class _BoolModifierBase(object):
     if not self.isChosen():
       return
     Modifier._toModify(obj,func,**kw)
-  def toReplaceWith(self,toObj,fromObj):
-    Modifier._toReplaceWithCheck(toObj,fromObj)
+  def toReplaceWith(self, toObj, fromObj):
+    Modifier._toReplaceWithCheck(toObj, fromObj)
     if not self.isChosen():
       return
-    Modifier._toReplaceWith(toObj,fromObj)
-  def makeProcessModifier(self,func):
+    Modifier._toReplaceWith(toObj, fromObj)
+  def makeProcessModifier(self, func):
     """This is used to create a ProcessModifer that can perform actions on the process as a whole.
         This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
         In order to work, the value returned from this function must be assigned to a uniquely named variable."""
-    return ProcessModifier(self,func)
+    return ProcessModifier(self, func)
   def __and__(self, other):
-    return _AndModifier(self,other)
+    return _AndModifier(self, other)
   def __invert__(self):
     return _InvertModifier(self)
   def __or__(self, other):
-    return _OrModifier(self,other)
+    return _OrModifier(self, other)
 
 class _AndModifier(_BoolModifierBase):
   """A modifier which only applies if multiple Modifiers are chosen"""
   def __init__(self, lhs, rhs):
-    super(_AndModifier,self).__init__(lhs, rhs)
+    super(_AndModifier, self).__init__(lhs, rhs)
   def isChosen(self):
     return self._lhs.isChosen() and self._rhs.isChosen()
 
 class _InvertModifier(_BoolModifierBase):
   """A modifier which only applies if a Modifier is not chosen"""
   def __init__(self, lhs):
-    super(_InvertModifier,self).__init__(lhs)
+    super(_InvertModifier, self).__init__(lhs)
   def isChosen(self):
     return not self._lhs.isChosen()
 
 class _OrModifier(_BoolModifierBase):
   """A modifier which only applies if at least one of multiple Modifiers is chosen"""
   def __init__(self, lhs, rhs):
-    super(_OrModifier,self).__init__(lhs, rhs)
+    super(_OrModifier, self).__init__(lhs, rhs)
   def isChosen(self):
     return self._lhs.isChosen() or self._rhs.isChosen()
 
@@ -1340,12 +1340,12 @@ class Modifier(object):
   def __init__(self):
     self.__processModifiers = []
     self.__chosen = False
-  def makeProcessModifier(self,func):
+  def makeProcessModifier(self, func):
     """This is used to create a ProcessModifer that can perform actions on the process as a whole.
        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
        In order to work, the value returned from this function must be assigned to a uniquely named variable.
     """
-    return ProcessModifier(self,func)
+    return ProcessModifier(self, func)
   @staticmethod
   def _toModifyCheck(obj,func,**kw):
     if func is not None and len(kw) != 0:
@@ -1375,30 +1375,30 @@ class Modifier(object):
       temp =_ParameterModifier(kw)
       temp(obj)
   @staticmethod
-  def _toReplaceWithCheck(toObj,fromObj):
+  def _toReplaceWithCheck(toObj, fromObj):
     if type(fromObj) != type(toObj):
         raise TypeError("toReplaceWith requires both arguments to be the same class type")
-  def toReplaceWith(self,toObj,fromObj):
+  def toReplaceWith(self, toObj, fromObj):
     """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
     """
-    Modifier._toReplaceWithCheck(toObj,fromObj)
+    Modifier._toReplaceWithCheck(toObj, fromObj)
     if not self.isChosen():
         return
-    Modifier._toReplaceWith(toObj,fromObj)
+    Modifier._toReplaceWith(toObj, fromObj)
   @staticmethod
-  def _toReplaceWith(toObj,fromObj):
-    if isinstance(fromObj,_ModuleSequenceType):
+  def _toReplaceWith(toObj, fromObj):
+    if isinstance(fromObj, _ModuleSequenceType):
         toObj._seq = fromObj._seq
         toObj._tasks = fromObj._tasks
-    elif isinstance(fromObj,Task):
+    elif isinstance(fromObj, Task):
         toObj._collection = fromObj._collection
-    elif isinstance(fromObj,_Parameterizable):
+    elif isinstance(fromObj, _Parameterizable):
         #clear old items just incase fromObj is not a complete superset of toObj
         for p in toObj.parameterNames_():
-            delattr(toObj,p)
+            delattr(toObj, p)
         for p in fromObj.parameterNames_():
-            setattr(toObj,p,getattr(fromObj,p))
-        if isinstance(fromObj,_TypedParameterizable):
+            setattr(toObj, p, getattr(fromObj, p))
+        if isinstance(fromObj, _TypedParameterizable):
             toObj._TypedParameterizable__type = fromObj._TypedParameterizable__type
             
     else:
@@ -1410,11 +1410,11 @@ class Modifier(object):
   def isChosen(self):
     return self.__chosen
   def __and__(self, other):
-    return _AndModifier(self,other)
+    return _AndModifier(self, other)
   def __invert__(self):
     return _InvertModifier(self)
   def __or__(self, other):
-    return _OrModifier(self,other)
+    return _OrModifier(self, other)
   def _isOrContains(self, other):
     return self == other
 
@@ -1425,7 +1425,7 @@ class ModifierChain(object):
     def __init__(self, *chainedModifiers):
         self.__chosen = False
         self.__chain = chainedModifiers
-    def _applyNewProcessModifiers(self,process):
+    def _applyNewProcessModifiers(self, process):
         """Should only be called by cms.Process instances
         applies list of accumulated changes to the process"""
         for m in self.__chain:
@@ -1447,11 +1447,11 @@ class ModifierChain(object):
       for m in self.__chain:
         if m not in toExclude:
           s = m
-          if isinstance(m,ModifierChain):
+          if isinstance(m, ModifierChain):
             s = m.__copyIfExclude(toExclude)
           newMods.append(s)
       return ModifierChain(*newMods)
-    def __copyIfExclude(self,toExclude):
+    def __copyIfExclude(self, toExclude):
       shouldCopy = False
       for m in toExclude:
         if self._isOrContains(m):
@@ -1478,7 +1478,7 @@ class ProcessModifier(object):
         self.__modifier = modifier
         self.__func = func
         self.__seenProcesses = set()
-    def apply(self,process):
+    def apply(self, process):
         if self.__modifier.isChosen():
             if process not in self.__seenProcesses:
                 self.__func(process)
@@ -1493,60 +1493,60 @@ if __name__=="__main__":
         """
         def __init__(self):
             self.values = dict()
-        def __insertValue(self,tracked,label,value):
-            self.values[label]=(tracked,value)
-        def addInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addUInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVUInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addUInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVUInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addDouble(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVDouble(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addBool(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addString(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVString(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addESInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVESInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addEventID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVEventID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addLuminosityBlockID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addLuminosityBlockID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addEventRange(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVEventRange(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addPSet(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVPSet(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addFileInPath(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
+        def __insertValue(self, tracked, label, value):
+            self.values[label]=(tracked, value)
+        def addInt32(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVInt32(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addUInt32(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVUInt32(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addInt64(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVInt64(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addUInt64(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVUInt64(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addDouble(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVDouble(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addBool(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addString(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVString(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addInputTag(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVInputTag(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addESInputTag(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVESInputTag(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addEventID(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVEventID(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addLuminosityBlockID(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addLuminosityBlockID(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addEventRange(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVEventRange(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addPSet(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addVPSet(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
+        def addFileInPath(self, tracked, label, value):
+            self.__insertValue(tracked, label, value)
         def newPSet(self):
             return TestMakePSet()
     
@@ -1556,7 +1556,7 @@ if __name__=="__main__":
             None
         def testParameterizable(self):
             p = _Parameterizable()
-            self.assertEqual(len(p.parameterNames_()),0)
+            self.assertEqual(len(p.parameterNames_()), 0)
             p.a = int32(1)
             self.assert_('a' in p.parameterNames_())
             self.assertEqual(p.a.value(), 1)
@@ -1570,29 +1570,29 @@ if __name__=="__main__":
             self.failIf(p.a.isTracked())
             p = _Parameterizable(foo=int32(10), bar = untracked(double(1.0)))
             self.assertEqual(p.foo.value(), 10)
-            self.assertEqual(p.bar.value(),1.0)
+            self.assertEqual(p.bar.value(), 1.0)
             self.failIf(p.bar.isTracked())
-            self.assertRaises(TypeError,setattr,(p,'c',1))
+            self.assertRaises(TypeError, setattr, (p, 'c', 1))
             p = _Parameterizable(a=PSet(foo=int32(10), bar = untracked(double(1.0))))
-            self.assertEqual(p.a.foo.value(),10)
-            self.assertEqual(p.a.bar.value(),1.0)
+            self.assertEqual(p.a.foo.value(), 10)
+            self.assertEqual(p.a.bar.value(), 1.0)
             p.b = untracked(PSet(fii = int32(1)))
-            self.assertEqual(p.b.fii.value(),1)
+            self.assertEqual(p.b.fii.value(), 1)
             self.failIf(p.b.isTracked())
             #test the fact that values can be shared
             v = int32(10)
             p=_Parameterizable(a=v)
             v.setValue(11)
-            self.assertEqual(p.a.value(),11)
+            self.assertEqual(p.a.value(), 11)
             p.a = 12
-            self.assertEqual(p.a.value(),12)
-            self.assertEqual(v.value(),12)
+            self.assertEqual(p.a.value(), 12)
+            self.assertEqual(v.value(), 12)
         def testTypedParameterizable(self):
             p = _TypedParameterizable("blah", b=int32(1))
             #see if copy works deeply
             other = p.copy()
             other.b = 2
-            self.assertNotEqual(p.b,other.b)
+            self.assertNotEqual(p.b, other.b)
 
         def testProcessInsertion(self):
             p = Process("test")
@@ -1604,9 +1604,9 @@ if __name__=="__main__":
             self.assertEqual(p.MessageLogger.type_(), "MessageLogger")
             p.Tracer = Service("Tracer")
             self.assert_('Tracer' in p.services_())
-            self.assertRaises(TypeError, setattr, *(p,'b',"this should fail"))
-            self.assertRaises(TypeError, setattr, *(p,'bad',Service("MessageLogger")))
-            self.assertRaises(ValueError, setattr, *(p,'bad',Source("PoolSource")))
+            self.assertRaises(TypeError, setattr, *(p, 'b', "this should fail"))
+            self.assertRaises(TypeError, setattr, *(p, 'bad', Service("MessageLogger")))
+            self.assertRaises(ValueError, setattr, *(p, 'bad', Source("PoolSource")))
             p.out = OutputModule("Outer")
             self.assertEqual(p.out.type_(), 'Outer')
             self.assert_( 'out' in p.outputModules_() )
@@ -1642,12 +1642,12 @@ if __name__=="__main__":
                 )
             p = Process("Test")
             p.extend(d)
-            self.assertEqual(p.a.type_(),"MyAnalyzer")
-            self.assertEqual(p.a.label_(),"a")
-            self.assertRaises(AttributeError,getattr,p,'b')
-            self.assertEqual(p.Full.type_(),"Full")
-            self.assertEqual(str(p.c),'a')
-            self.assertEqual(str(p.d),'a')
+            self.assertEqual(p.a.type_(), "MyAnalyzer")
+            self.assertEqual(p.a.label_(), "a")
+            self.assertRaises(AttributeError, getattr, p, 'b')
+            self.assertEqual(p.Full.type_(), "Full")
+            self.assertEqual(str(p.c), 'a')
+            self.assertEqual(str(p.d), 'a')
 
             z1 = FromArg(
                     a=a,
@@ -1679,7 +1679,7 @@ if __name__=="__main__":
             p2 = Process("Test")
             p2.extend(z2)
             #self.assertRaises(ValueError, p2.extend, z2)
-            self.assertEqual(p2.s4.label_(),"s4")
+            self.assertEqual(p2.s4.label_(), "s4")
             #p2.s4.setLabel("foo")
             self.assertRaises(ValueError, p2.s4.setLabel, "foo")
             p2.s4.setLabel("s4")
@@ -1696,7 +1696,7 @@ if __name__=="__main__":
             p.s = Sequence(p.a)
             p.r = Sequence(p.s)
             p.p2 = Path(p.s)
-            p.schedule = Schedule(p.p2,p.p)
+            p.schedule = Schedule(p.p2, p.p)
             d=p.dumpPython()
             self.assertEqual(d,
 """import FWCore.ParameterSet.Config as cms
@@ -1727,7 +1727,7 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             p.r = Sequence(p.a)
             p.s = Sequence(p.r)
             p.p2 = Path(p.r)
-            p.schedule = Schedule(p.p2,p.p)
+            p.schedule = Schedule(p.p2, p.p)
             p.b = EDAnalyzer("YourAnalyzer")
             d=p.dumpPython()
             self.assertEqual(d,
@@ -1762,7 +1762,7 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             s = Sequence(p.a)
             p.r = Sequence(s)
             p.p2 = Path(p.r)
-            p.schedule = Schedule(p.p2,p.p)
+            p.schedule = Schedule(p.p2, p.p)
             d=p.dumpPython()
             self.assertEqual(d,
             """import FWCore.ParameterSet.Config as cms
@@ -1803,7 +1803,7 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ])
             s = Sequence(p.a)
             p.r = Sequence(s)
             p.p2 = Path(p.r, p.task1, p.task2)
-            p.schedule = Schedule(p.p2,p.p,tasks=[p.task3,p.task4, p.task5])
+            p.schedule = Schedule(p.p2, p.p, tasks=[p.task3, p.task4, p.task5])
             d=p.dumpPython()
             self.assertEqual(d,
             """import FWCore.ParameterSet.Config as cms
@@ -1865,7 +1865,7 @@ process.schedule = cms.Schedule(*[ process.p2, process.p ], tasks=[process.task3
             p.g = EDProducer("gProducer")
             p.task1 = Task(p.d, p.e)
             task2 = Task(p.f, p.g)
-            p.schedule = Schedule(tasks=[p.task1,task2])
+            p.schedule = Schedule(tasks=[p.task1, task2])
             d=p.dumpPython()
             self.assertEqual(d,
             """import FWCore.ParameterSet.Config as cms
@@ -1947,7 +1947,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
         def testSecSource(self):
             p = Process('test')
             p.a = SecSource("MySecSource")
-            self.assertEqual(p.dumpPython().replace('\n',''),'import FWCore.ParameterSet.Config as cmsprocess = cms.Process("test")process.a = cms.SecSource("MySecSource")')
+            self.assertEqual(p.dumpPython().replace('\n', ''), 'import FWCore.ParameterSet.Config as cmsprocess = cms.Process("test")process.a = cms.SecSource("MySecSource")')
 
         def testGlobalReplace(self):
             p = Process('test')
@@ -1973,19 +1973,19 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             new2 = EDProducer("NewProducer")
             visitor1 = NodeVisitor()
             p.p.visit(visitor1)
-            self.assertTrue(visitor1.modules == set([old,old2,p.b,p.c]))
+            self.assertTrue(visitor1.modules == set([old, old2, p.b, p.c]))
             p.schedule = Schedule(tasks=[t6])
-            p.globalReplace("a",new)
-            p.globalReplace("d",new2)
+            p.globalReplace("a", new)
+            p.globalReplace("d", new2)
             visitor2 = NodeVisitor()
             p.p.visit(visitor2)
-            self.assertTrue(visitor2.modules == set([new,new2,p.b,p.c]))
+            self.assertTrue(visitor2.modules == set([new, new2, p.b, p.c]))
             visitor3 = NodeVisitor()
             p.e3.visit(visitor3)
-            self.assertTrue(visitor3.modules == set([new,new2,p.b,p.c]))
+            self.assertTrue(visitor3.modules == set([new, new2, p.b, p.c]))
             visitor4 = NodeVisitor()
             p.s4.visit(visitor4)
-            self.assertTrue(visitor4.modules == set([new,new2,p.b]))
+            self.assertTrue(visitor4.modules == set([new, new2, p.b]))
             visitor5 = NodeVisitor()
             p.t1.visit(visitor5)
             self.assertTrue(visitor5.modules == set([new2]))
@@ -2000,10 +2000,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.b = EDAnalyzer("YourAnalyzer")
             p.c = EDAnalyzer("OurAnalyzer")
             p.s = Sequence(p.a*p.b)
-            self.assertEqual(str(p.s),'a+b')
-            self.assertEqual(p.s.label_(),'s')
+            self.assertEqual(str(p.s), 'a+b')
+            self.assertEqual(p.s.label_(), 's')
             path = Path(p.c+p.s)
-            self.assertEqual(str(path),'c+a+b')
+            self.assertEqual(str(path), 'c+a+b')
             p._validateSequence(path, 'p1')
             notInProcess = EDAnalyzer('NotInProcess')
             p2 = Path(p.c+p.s*notInProcess)
@@ -2130,7 +2130,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             visitor1 = ModuleNodeVisitor(l)
             testTask1.visit(visitor1)
             l.sort()
-            expectedList = [edproducer,essource,esproducer,service,edfilter,edproducer,edproducer4]
+            expectedList = [edproducer, essource, esproducer, service, edfilter, edproducer, edproducer4]
             expectedList.sort()
             self.assertTrue(expectedList == l)
 
@@ -2167,9 +2167,9 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             sequence4 = Sequence()
             process.path1 = Path(process.mproducer+process.mproducer8+sequence1+sequence2+process.sequence3+sequence4)
             process.path1.associate(process.myTask1, process.myTask5, testTask2, testTask3)
-            process.path11 = Path(process.mproducer+process.mproducer8+sequence1+sequence2+process.sequence3+ sequence4,process.myTask1, process.myTask5, testTask2, testTask3, process.myTask100)
+            process.path11 = Path(process.mproducer+process.mproducer8+sequence1+sequence2+process.sequence3+ sequence4, process.myTask1, process.myTask5, testTask2, testTask3, process.myTask100)
             process.path2 = Path(process.mproducer)
-            process.path3 = Path(process.mproducer9+process.mproducer8,testTask2)
+            process.path3 = Path(process.mproducer9+process.mproducer8, testTask2)
 
             self.assertTrue(process.path1.dumpPython(PrintOptions()) == 'cms.Path(process.mproducer+process.mproducer8+cms.Sequence(process.mproducer8, cms.Task(), cms.Task(process.None, process.mproducer), process.myTask1, process.myTask5)+(process.mproducer8+process.mproducer9)+process.sequence3, cms.Task(), cms.Task(process.None, process.mproducer), process.myTask1, process.myTask5)\n')
 
@@ -2212,23 +2212,23 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             process.f = ESSource("MyESSource")
             process.g = ESProducer("g")
             process.path24 = Path(process.a+process.b+process.c+process.d)
-            process.path25 = process.path24.copyAndExclude([process.a,process.b,process.c])
+            process.path25 = process.path24.copyAndExclude([process.a, process.b, process.c])
             self.assertTrue(process.path25.dumpPython(None) == 'cms.Path(process.d)\n')
             #print process.path3
             #print process.dumpPython()
 
-            process.path200 = EndPath(Sequence(process.c,Task(process.e)))
-            process.path200.replace(process.c,process.b)
-            process.path200.replace(process.e,process.f)
+            process.path200 = EndPath(Sequence(process.c, Task(process.e)))
+            process.path200.replace(process.c, process.b)
+            process.path200.replace(process.e, process.f)
             self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.b, cms.Task(process.f))\n")
-            process.path200.replace(process.b,process.c)
-            process.path200.replace(process.f,process.e)
+            process.path200.replace(process.b, process.c)
+            process.path200.replace(process.f, process.e)
             self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.c, cms.Task(process.e))\n")
-            process.path200.replace(process.c,process.a)
-            process.path200.replace(process.e,process.g)
+            process.path200.replace(process.c, process.a)
+            process.path200.replace(process.e, process.g)
             self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.a, cms.Task(process.g))\n")
-            process.path200.replace(process.a,process.c)
-            process.path200.replace(process.g,process.e)
+            process.path200.replace(process.a, process.c)
+            process.path200.replace(process.g, process.e)
             self.assertEqual(process.path200.dumpPython(None), "cms.EndPath(process.c, cms.Task(process.e))\n")
 
 
@@ -2240,20 +2240,20 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             path = Path(p.a)
             path *= p.b
             path += p.c
-            self.assertEqual(str(path),'a+b+c')
+            self.assertEqual(str(path), 'a+b+c')
             path = Path(p.a*p.b+p.c)
-            self.assertEqual(str(path),'a+b+c')
+            self.assertEqual(str(path), 'a+b+c')
 #            path = Path(p.a)*p.b+p.c #This leads to problems with sequences
 #            self.assertEqual(str(path),'((a*b)+c)')
             path = Path(p.a+ p.b*p.c)
-            self.assertEqual(str(path),'a+b+c')
+            self.assertEqual(str(path), 'a+b+c')
             path = Path(p.a*(p.b+p.c))
-            self.assertEqual(str(path),'a+b+c')
+            self.assertEqual(str(path), 'a+b+c')
             path = Path(p.a*(p.b+~p.c))
             pathx = Path(p.a*(p.b+ignore(p.c)))
-            self.assertEqual(str(path),'a+b+~c')
+            self.assertEqual(str(path), 'a+b+~c')
             p.es = ESProducer("AnESProducer")
-            self.assertRaises(TypeError,Path,p.es)
+            self.assertRaises(TypeError, Path, p.es)
 
             t = Path()
             self.assertTrue(t.dumpPython(PrintOptions()) == 'cms.Path()\n')
@@ -2286,7 +2286,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             #self.assertEqual(str(path),str(path._postProcessFixup(lookuptable)))
             #lookuptable = p._cloneToObjectDict
             #self.assertEqual(str(path),str(path._postProcessFixup(lookuptable)))
-            self.assertEqual(str(path),str(p.path))
+            self.assertEqual(str(path), str(p.path))
 
         def testContains(self):
 
@@ -2334,7 +2334,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
 
             task3 = Task(m)
             path2 = Path(n)
-            sch = Schedule(path, path2, tasks=[task,task3])
+            sch = Schedule(path, path2, tasks=[task, task3])
             self.assertFalse(sch.contains(b))
             self.assertTrue(sch.contains(a))
             self.assertTrue(sch.contains(c))
@@ -2356,9 +2356,9 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.path2 = Path(p.b)
             p.path3 = Path(p.d)
 
-            s = Schedule(p.path1,p.path2)
-            self.assertEqual(s[0],p.path1)
-            self.assertEqual(s[1],p.path2)
+            s = Schedule(p.path1, p.path2)
+            self.assertEqual(s[0], p.path1)
+            self.assertEqual(s[1], p.path2)
             p.schedule = s
             self.assert_('b' in p.schedule.moduleNames())
             self.assert_(hasattr(p, 'b'))
@@ -2391,9 +2391,9 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.path3 = Path(p.d)
             p.task1 = Task(p.e)
             p.task2 = Task(p.f, p.Tracer)
-            s = Schedule(p.path1,p.path2,tasks=[p.task1,p.task2,p.task1])
-            self.assertEqual(s[0],p.path1)
-            self.assertEqual(s[1],p.path2)
+            s = Schedule(p.path1, p.path2, tasks=[p.task1, p.task2, p.task1])
+            self.assertEqual(s[0], p.path1)
+            self.assertEqual(s[1], p.path2)
             self.assertTrue(len(s._tasks) == 2)
             self.assertTrue(p.task1 in s._tasks)
             self.assertTrue(p.task2 in s._tasks)
@@ -2409,14 +2409,14 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             process2.e = EDProducer("eProducer")
             process2.path1 = Path(process2.a)
             process2.task1 = Task(process2.e)
-            process2.schedule = Schedule(process2.path1,tasks=process2.task1)
+            process2.schedule = Schedule(process2.path1, tasks=process2.task1)
             listOfTasks = list(process2.schedule._tasks)
             self.assertTrue(listOfTasks[0] == process2.task1)
 
             # test Schedule copy
             s2 = s.copy()
-            self.assertEqual(s2[0],p.path1)
-            self.assertEqual(s2[1],p.path2)
+            self.assertEqual(s2[0], p.path1)
+            self.assertEqual(s2[1], p.path2)
             self.assertTrue(len(s2._tasks) == 2)
             self.assertTrue(p.task1 in s2._tasks)
             self.assertTrue(p.task2 in s2._tasks)
@@ -2461,8 +2461,8 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assert_(p.schedule is None)
             pths = p.paths
             keys = pths.keys()
-            self.assertEqual(pths[keys[0]],p.path1)
-            self.assertEqual(pths[keys[1]],p.path2)
+            self.assertEqual(pths[keys[0]], p.path1)
+            self.assertEqual(pths[keys[1]], p.path2)
             p.prune()
             self.assert_(hasattr(p, 'a'))
             self.assert_(hasattr(p, 'b'))
@@ -2480,16 +2480,16 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             self.assert_(p.schedule is None)
             pths = p.paths
             keys = pths.keys()
-            self.assertEqual(pths[keys[1]],p.path1)
-            self.assertEqual(pths[keys[0]],p.path2)
+            self.assertEqual(pths[keys[1]], p.path1)
+            self.assertEqual(pths[keys[0]], p.path2)
 
 
         def testUsing(self):
             p = Process('test')
             p.block = PSet(a = int32(1))
             p.modu = EDAnalyzer('Analyzer', p.block, b = int32(2))
-            self.assertEqual(p.modu.a.value(),1)
-            self.assertEqual(p.modu.b.value(),2)
+            self.assertEqual(p.modu.a.value(), 1)
+            self.assertEqual(p.modu.b.value(), 2)
 
         def testOverride(self):
             p = Process('test')
@@ -2516,10 +2516,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
 
         def testExamples(self):
             p = Process("Test")
-            p.source = Source("PoolSource",fileNames = untracked(string("file:reco.root")))
+            p.source = Source("PoolSource", fileNames = untracked(string("file:reco.root")))
             p.foos = EDProducer("FooProducer")
             p.bars = EDProducer("BarProducer", foos=InputTag("foos"))
-            p.out = OutputModule("PoolOutputModule",fileName=untracked(string("file:foos.root")))
+            p.out = OutputModule("PoolOutputModule", fileName=untracked(string("file:foos.root")))
             p.bars.foos = 'Foosball'
             self.assertEqual(p.bars.foos, InputTag('Foosball'))
             p.p = Path(p.foos*p.bars)
@@ -2544,7 +2544,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
     }
 }
 """)
-            p.prefer("juicer",fooRcd=vstring("Foo"))
+            p.prefer("juicer", fooRcd=vstring("Foo"))
             self.assertEqual(p.dumpConfig(),
 """process Test = {
     es_module juicer = JuicerProducer { 
@@ -2631,13 +2631,13 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
 ), outputCommands = cms.untracked.vstring()))
 
 """
-            equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcesses_()[0])))
-            self.assertEqual(d,equalD)
+            equalD = equalD.replace("parentProcess", "parentProcess"+str(hash(process.subProcesses_()[0])))
+            self.assertEqual(d, equalD)
             p = TestMakePSet()
             process.fillProcessDesc(p)
-            self.assertEqual((True,['a']),p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
-            self.assertEqual((True,['p']),p.values["subProcesses"][1][0].values["process"][1].values['@paths'])
-            self.assertEqual({'@service_type':(True,'Foo')}, p.values["subProcesses"][1][0].values["process"][1].values["services"][1][0].values)
+            self.assertEqual((True, ['a']), p.values["subProcesses"][1][0].values["process"][1].values['@all_modules'])
+            self.assertEqual((True, ['p']), p.values["subProcesses"][1][0].values["process"][1].values['@paths'])
+            self.assertEqual({'@service_type':(True, 'Foo')}, p.values["subProcesses"][1][0].values["process"][1].values["services"][1][0].values)
         def testRefToPSet(self):
             proc = Process("test")
             proc.top = PSet(a = int32(1))
@@ -2648,12 +2648,12 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
                               PSet(refToPSet_ = string("ref2")))
             p = TestMakePSet()
             proc.fillProcessDesc(p)
-            self.assertEqual((True,1),p.values["ref"][1].values["a"])
-            self.assertEqual((True,1),p.values["ref3"][1].values["a"])
-            self.assertEqual((True,1),p.values["ref2"][1].values["a"])
-            self.assertEqual((True,1),p.values["ref2"][1].values["b"][1].values["a"])
-            self.assertEqual((True,1),p.values["ref4"][1][0].values["a"])
-            self.assertEqual((True,1),p.values["ref4"][1][1].values["a"])
+            self.assertEqual((True, 1), p.values["ref"][1].values["a"])
+            self.assertEqual((True, 1), p.values["ref3"][1].values["a"])
+            self.assertEqual((True, 1), p.values["ref2"][1].values["a"])
+            self.assertEqual((True, 1), p.values["ref2"][1].values["b"][1].values["a"])
+            self.assertEqual((True, 1), p.values["ref4"][1][0].values["a"])
+            self.assertEqual((True, 1), p.values["ref4"][1][1].values["a"])
         def testPrune(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")
@@ -2666,8 +2666,8 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assert_(p.schedule is None)
             pths = p.paths
             keys = pths.keys()
-            self.assertEqual(pths[keys[0]],p.path1)
-            self.assertEqual(pths[keys[1]],p.path2)
+            self.assertEqual(pths[keys[0]], p.path1)
+            self.assertEqual(pths[keys[1]], p.path2)
             p.pset1 = PSet(parA = string("pset1"))
             p.pset2 = untracked.PSet(parA = string("pset2"))
             p.vpset1 = VPSet()
@@ -2698,11 +2698,11 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.path2 = Path(p.b)
             p.path3 = Path(p.b+p.s2)
             p.path4 = Path(p.b+p.s3)
-            p.schedule = Schedule(p.path1,p.path2,p.path3)
+            p.schedule = Schedule(p.path1, p.path2, p.path3)
             pths = p.paths
             keys = pths.keys()
-            self.assertEqual(pths[keys[0]],p.path1)
-            self.assertEqual(pths[keys[1]],p.path2)
+            self.assertEqual(pths[keys[0]], p.path1)
+            self.assertEqual(pths[keys[1]], p.path2)
             p.prune()
             self.assert_(hasattr(p, 'a'))
             self.assert_(hasattr(p, 'b'))
@@ -2736,7 +2736,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assert_(hasattr(p, 'b'))
             self.assert_(hasattr(p, 's'))
             self.assert_(hasattr(p, 'pth'))
-            self.assertEqual(p.s.dumpPython(''),'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
+            self.assertEqual(p.s.dumpPython(''), 'cms.Sequence(cms.SequencePlaceholder("a")+process.b)\n')
         def testTaskPlaceholder(self):
             p = Process("test")
             p.a = EDProducer("ma")
@@ -2751,7 +2751,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.t6 = Task(TaskPlaceholder("h"))
             p.t7 = Task(p.a, TaskPlaceholder("i"), p.t6)
             p.t8 = Task(TaskPlaceholder("j"))
-            p.schedule = Schedule(p.path1, p.endpath1,tasks=[p.t7,p.t8])
+            p.schedule = Schedule(p.path1, p.endpath1, tasks=[p.t7, p.t8])
             p.c = EDProducer("mc")
             p.d = EDProducer("md")
             p.e = EDProducer("me")
@@ -2910,7 +2910,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             t2 = Task(p.g, p.h)
             t3 = Task(p.g, p.h)
             p.s = Sequence(p.d+p.e)
-            p.path1 = Path(p.a+p.f+p.s,t2)
+            p.path1 = Path(p.a+p.f+p.s, t2)
             p.endpath1 = EndPath(p.b+p.f)
             p.schedule = Schedule(tasks=[t3])
             self.assertTrue(hasattr(p, 'f'))
@@ -2929,90 +2929,90 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             self.assertTrue(p.schedule_().dumpPython(None) == 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
         def testModifier(self):
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
             def _mod_fred(obj):
               obj.fred = 2
-            m1.toModify(p.a,_mod_fred)
-            self.assertEqual(p.a.fred.value(),2)
+            m1.toModify(p.a, _mod_fred)
+            self.assertEqual(p.a.fred.value(), 2)
             p.b = EDAnalyzer("YourAnalyzer", wilma = int32(1))
             m1.toModify(p.b, wilma = 2)
-            self.assertEqual(p.b.wilma.value(),2)
+            self.assertEqual(p.b.wilma.value(), 2)
             self.assert_(p.isUsingModifier(m1))
             #check that Modifier not attached to a process doesn't run
             m1 = Modifier()
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
-            m1.toModify(p.a,_mod_fred)
+            m1.toModify(p.a, _mod_fred)
             p.b = EDAnalyzer("YourAnalyzer", wilma = int32(1))
             m1.toModify(p.b, wilma = 2)
-            self.assertEqual(p.a.fred.value(),1)
-            self.assertEqual(p.b.wilma.value(),1)
-            self.assertEqual(p.isUsingModifier(m1),False)
+            self.assertEqual(p.a.fred.value(), 1)
+            self.assertEqual(p.b.wilma.value(), 1)
+            self.assertEqual(p.isUsingModifier(m1), False)
             #make sure clones get the changes
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             m1.toModify(p.a, fred = int32(2))
             p.b = p.a.clone(wilma = int32(3))
-            self.assertEqual(p.a.fred.value(),2)
-            self.assertEqual(p.a.wilma.value(),1)
-            self.assertEqual(p.b.fred.value(),2)
-            self.assertEqual(p.b.wilma.value(),3)
+            self.assertEqual(p.a.fred.value(), 2)
+            self.assertEqual(p.a.wilma.value(), 1)
+            self.assertEqual(p.b.fred.value(), 2)
+            self.assertEqual(p.b.wilma.value(), 3)
             #test removal of parameter
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1), fintstones = PSet(fred = int32(1)))
             m1.toModify(p.a, fred = None, fintstones = dict(fred = None))
             self.assertEqual(hasattr(p.a, "fred"), False)
             self.assertEqual(hasattr(p.a.fintstones, "fred"), False)
-            self.assertEqual(p.a.wilma.value(),1)
+            self.assertEqual(p.a.wilma.value(), 1)
             #test adding a parameter
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toModify(p.a, wilma = int32(2))
             self.assertEqual(p.a.fred.value(), 1)
-            self.assertEqual(p.a.wilma.value(),2)
+            self.assertEqual(p.a.wilma.value(), 2)
             #test setting of value in PSet
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = PSet(fred = int32(1), wilma = int32(1)))
             m1.toModify(p.a, flintstones = dict(fred = int32(2)))
-            self.assertEqual(p.a.flintstones.fred.value(),2)
-            self.assertEqual(p.a.flintstones.wilma.value(),1)
+            self.assertEqual(p.a.flintstones.fred.value(), 2)
+            self.assertEqual(p.a.flintstones.wilma.value(), 1)
             #test proper exception from nonexisting parameter name
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = PSet(fred = PSet(wilma = int32(1))))
             self.assertRaises(KeyError, lambda: m1.toModify(p.a, flintstones = dict(imnothere = dict(wilma=2))))
             self.assertRaises(KeyError, lambda: m1.toModify(p.a, foo = 1))
             #test setting a value in a VPSet
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
             m1.toModify(p.a, flintstones = {1:dict(wilma = int32(2))})
-            self.assertEqual(p.a.flintstones[0].fred.value(),1)
-            self.assertEqual(p.a.flintstones[1].wilma.value(),2)
+            self.assertEqual(p.a.flintstones[0].fred.value(), 1)
+            self.assertEqual(p.a.flintstones[1].wilma.value(), 2)
             #test setting a value in a list of values
             m1 = Modifier()
-            p = Process("test",m1)
-            p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1, 2, 3))
             m1.toModify(p.a, fred = {1:7})
-            self.assertEqual(p.a.fred[0],1)
-            self.assertEqual(p.a.fred[1],7)
-            self.assertEqual(p.a.fred[2],3)
+            self.assertEqual(p.a.fred[0], 1)
+            self.assertEqual(p.a.fred[1], 7)
+            self.assertEqual(p.a.fred[2], 3)
             #test IndexError setting a value in a list to an item key not in the list
             m1 = Modifier()
-            p = Process("test",m1)
-            p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1, 2, 3))
             raised = False
             try: m1.toModify(p.a, fred = {5:7})
             except IndexError as e: raised = True
             self.assertEqual(raised, True)
             #test TypeError setting a value in a list using a key that is not an int
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
             raised = False
             try: m1.toModify(p.a, flintstones = dict(bogus = int32(37)))
@@ -3022,43 +3022,43 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             def _rem_a(proc):
                 del proc.a
             class ProcModifierMod(object):
-                def __init__(self,modifier,func):
+                def __init__(self, modifier, func):
                     self.proc_mod_ = modifier.makeProcessModifier(func)
             class DummyMod(object):
                 def __init__(self):
                     self.a = EDAnalyzer("Dummy")
             testMod = DummyMod()
             p.extend(testMod)
-            self.assert_(hasattr(p,"a"))
+            self.assert_(hasattr(p, "a"))
             m1 = Modifier()
-            p = Process("test",m1)
-            testProcMod = ProcModifierMod(m1,_rem_a)
+            p = Process("test", m1)
+            testProcMod = ProcModifierMod(m1, _rem_a)
             p.extend(testMod)
             p.extend(testProcMod)
-            self.assert_(not hasattr(p,"a"))
+            self.assert_(not hasattr(p, "a"))
             #test ModifierChain
             m1 = Modifier()
             mc = ModifierChain(m1)
-            p = Process("test",mc)
+            p = Process("test", mc)
             self.assert_(p.isUsingModifier(m1))
             self.assert_(p.isUsingModifier(mc))
             testMod = DummyMod()
             p.b = EDAnalyzer("Dummy2", fred = int32(1))
             m1.toModify(p.b, fred = int32(3))
             p.extend(testMod)
-            testProcMod = ProcModifierMod(m1,_rem_a)
+            testProcMod = ProcModifierMod(m1, _rem_a)
             p.extend(testProcMod)
-            self.assert_(not hasattr(p,"a"))
-            self.assertEqual(p.b.fred.value(),3)
+            self.assert_(not hasattr(p, "a"))
+            self.assertEqual(p.b.fred.value(), 3)
             #check cloneAndExclude
             m1 = Modifier()
             m2 = Modifier()
-            mc = ModifierChain(m1,m2)
+            mc = ModifierChain(m1, m2)
             mclone = mc.copyAndExclude([m2])
             self.assert_(not mclone._isOrContains(m2))
             self.assert_(mclone._isOrContains(m1))
             m3 = Modifier()
-            mc2 = ModifierChain(mc,m3)
+            mc2 = ModifierChain(mc, m3)
             mclone = mc2.copyAndExclude([m2])
             self.assert_(not mclone._isOrContains(m2))
             self.assert_(mclone._isOrContains(m1))
@@ -3066,21 +3066,21 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             #check combining
             m1 = Modifier()
             m2 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2).toModify(p.a, fred = int32(2))
             self.assertRaises(TypeError, lambda: (m1 & m2).toModify(p.a, 1, wilma=2))
             self.assertEqual(p.a.fred, 1)
             m1 = Modifier()
             m2 = Modifier()
-            p = Process("test",m1,m2)
+            p = Process("test", m1, m2)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2).toModify(p.a, fred = int32(2))
             self.assertEqual(p.a.fred, 2)
             m1 = Modifier()
             m2 = Modifier()
             m3 = Modifier()
-            p = Process("test",m1,m2,m3)
+            p = Process("test", m1, m2, m3)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2 & m3).toModify(p.a, fred = int32(2))
             self.assertEqual(p.a.fred, 2)
@@ -3140,7 +3140,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             self.assertEqual(p.a.fred, 5)
             #check toReplaceWith
             m1 = Modifier()
-            p = Process("test",m1)
+            p = Process("test", m1)
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
             self.assertRaises(TypeError, lambda: m1.toReplaceWith(p.a, EDProducer("YourProducer")))
@@ -3151,9 +3151,9 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.td = Task(p.d)
             p.s = Sequence(p.a, p.tc)
             m1.toReplaceWith(p.s, Sequence(p.a+p.b, p.td))
-            self.assertEqual(p.a.wilma.value(),3)
-            self.assertEqual(p.a.type_(),"YourAnalyzer")
-            self.assertEqual(hasattr(p,"fred"),False)
+            self.assertEqual(p.a.wilma.value(), 3)
+            self.assertEqual(p.a.type_(), "YourAnalyzer")
+            self.assertEqual(hasattr(p, "fred"), False)
             self.assertTrue(p.s.dumpPython("") == "cms.Sequence(process.a+process.b, process.td)\n")
             p.e =EDProducer("e")
             m1.toReplaceWith(p.td, Task(p.e))
@@ -3163,7 +3163,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process("test")
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
-            self.assertEqual(p.a.type_(),"MyAnalyzer")
+            self.assertEqual(p.a.type_(), "MyAnalyzer")
             #check toReplaceWith and and/not/or combinations
             m1 = Modifier()
             m2 = Modifier()

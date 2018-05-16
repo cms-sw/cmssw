@@ -22,9 +22,9 @@ hcalRawDataVME.HO = cms.untracked.InputTag("DMHcalDigis")
 hcalRawDataVME.ZDC = cms.untracked.InputTag("mixData")
 hcalRawDataVME.TRIG = cms.untracked.InputTag("DMHcalTriggerPrimitiveDigis")
 #
-cscpacker.wireDigiTag = cms.InputTag("mixData","MuonCSCWireDigisDM")
-cscpacker.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
-cscpacker.comparatorDigiTag = cms.InputTag("mixData","MuonCSCComparatorDigisDM")
+cscpacker.wireDigiTag = cms.InputTag("mixData", "MuonCSCWireDigisDM")
+cscpacker.stripDigiTag = cms.InputTag("mixData", "MuonCSCStripDigisDM")
+cscpacker.comparatorDigiTag = cms.InputTag("mixData", "MuonCSCComparatorDigisDM")
 dtpacker.digiColl = cms.InputTag('mixData')
 #dtpacker.digiColl = cms.InputTag('simMuonDTDigis')
 rpcpacker.InputLabel = cms.InputTag("mixData")
@@ -43,8 +43,8 @@ run2_HCAL_2017.toModify( hcalRawDataVME,
 run2_HCAL_2017.toModify( hcalRawDatauHTR,
     HBHEqie8 = cms.InputTag("DMHcalDigis"),
     HFqie8 = cms.InputTag("DMHcalDigis"),
-    QIE10 = cms.InputTag("DMHcalDigis","HFQIE10DigiCollection"),
-    QIE11 = cms.InputTag("DMHcalDigis","HBHEQIE11DigiCollection"),
+    QIE10 = cms.InputTag("DMHcalDigis", "HFQIE10DigiCollection"),
+    QIE11 = cms.InputTag("DMHcalDigis", "HBHEQIE11DigiCollection"),
     TP = cms.InputTag("DMHcalTriggerPrimitiveDigis"),
 )
 

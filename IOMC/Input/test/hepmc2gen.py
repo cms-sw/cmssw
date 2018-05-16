@@ -5,7 +5,7 @@
 ## Date of porting: Mon Jul  3 11:52:22 CEST 2017
 ## Example of hepmc -> gen file
 
-import os,sys
+import os, sys
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('analysis')
 options.parseArguments()
@@ -19,13 +19,13 @@ if True:
     import time
     def call_exe(cmd):
         print "-> Executing cmd: '"+cmd+"'"
-        st=call(cmd,shell=True)
-        print "-> End cmd: status=",st
+        st=call(cmd, shell=True)
+        print "-> End cmd: status=", st
         return
     cmd="rm /tmp/"+os.environ['USER']+"/hepmc10K.dat"
-    call(cmd,shell=True)
+    call(cmd, shell=True)
     cmd="mkfifo /tmp/"+os.environ['USER']+"/hepmc10K.dat"
-    call(cmd,shell=True)
+    call(cmd, shell=True)
     exe="cat /tmp/"+os.environ['USER']+"/hepmc.dat.tgz | gunzip -c > /tmp/"+os.environ['USER']+"/hepmc10K.dat &"
     t = threading.Thread(target=call_exe, args= ( [exe] )  )
     t.start()
@@ -59,13 +59,13 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
-process.genParticles.src= cms.InputTag("source","generator")
+process.genParticles.src= cms.InputTag("source", "generator")
 
 
 ######### Smearing Vertex example
 
-from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import GaussVtxSmearingParameters,VtxSmearedCommon
-VtxSmearedCommon.src=cms.InputTag("source","generator")
+from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import GaussVtxSmearingParameters, VtxSmearedCommon
+VtxSmearedCommon.src=cms.InputTag("source", "generator")
 process.generatorSmeared = cms.EDProducer("GaussEvtVtxGenerator",
     GaussVtxSmearingParameters,
     VtxSmearedCommon

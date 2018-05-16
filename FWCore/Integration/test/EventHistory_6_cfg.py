@@ -37,7 +37,7 @@ process.historytest = cms.EDAnalyzer("HistoryAnalyzer",
         EndPathPositions = cms.vint32(0),
         EndPaths =  cms.vstring('ep4'),
         InProcessHistory = cms.bool(False),
-        SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')        
+        SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')        
       )
     ),
     # check the deletion modules from the top level
@@ -96,14 +96,14 @@ process.dummyout = cms.OutputModule("PoolOutputModule",
 
 process.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
+      SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')
     ),
     fileName = cms.untracked.string('testEventHistory_6.root')
 )
 
 process.out2 = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
+      SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')
     ),
     fileName = cms.untracked.string('testEventHistory_62.root')
 )

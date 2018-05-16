@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.Run2_2016)
+process = cms.Process('RECO', eras.Run2_2016)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -119,7 +119,7 @@ process.RECOoutput_step = cms.EndPath(process.RECOoutput)
 process.SKIMStreamEXOMONOPOLEOutPath = cms.EndPath(process.SKIMStreamEXOMONOPOLE)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.EXOMONOPOLEPath,process.eventinterpretaion_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters,process.endjob_step,process.RECOoutput_step,process.SKIMStreamEXOMONOPOLEOutPath)
+process.schedule = cms.Schedule(process.raw2digi_step, process.L1Reco_step, process.reconstruction_step, process.EXOMONOPOLEPath, process.eventinterpretaion_step, process.Flag_HBHENoiseFilter, process.Flag_HBHENoiseIsoFilter, process.Flag_CSCTightHaloFilter, process.Flag_CSCTightHaloTrkMuUnvetoFilter, process.Flag_CSCTightHalo2015Filter, process.Flag_globalTightHalo2016Filter, process.Flag_globalSuperTightHalo2016Filter, process.Flag_HcalStripHaloFilter, process.Flag_hcalLaserEventFilter, process.Flag_EcalDeadCellTriggerPrimitiveFilter, process.Flag_EcalDeadCellBoundaryEnergyFilter, process.Flag_goodVertices, process.Flag_eeBadScFilter, process.Flag_ecalLaserCorrFilter, process.Flag_trkPOGFilters, process.Flag_chargedHadronTrackResolutionFilter, process.Flag_muonBadTrackFilter, process.Flag_BadChargedCandidateFilter, process.Flag_BadPFMuonFilter, process.Flag_BadChargedCandidateSummer16Filter, process.Flag_BadPFMuonSummer16Filter, process.Flag_trkPOG_manystripclus53X, process.Flag_trkPOG_toomanystripclus53X, process.Flag_trkPOG_logErrorTooManyClusters, process.Flag_METFilters, process.endjob_step, process.RECOoutput_step, process.SKIMStreamEXOMONOPOLEOutPath)
 
 #Setup FWK for multithreaded
 process.options.numberOfThreads=cms.untracked.uint32(4)

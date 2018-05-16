@@ -2,7 +2,7 @@ import sys
 import math
 
 from PyQt4.QtCore import Qt, QPoint, QPointF, QRect, QSize, SIGNAL, QCoreApplication, QMimeData, QRectF
-from PyQt4.QtGui import QWidget, QPainter, QPolygon, QColor, QPen, QPalette, QPainterPath, QFont, QFontMetrics, QApplication, QDrag, QPixmap,QSizePolicy,QMessageBox, QTransform, QBrush
+from PyQt4.QtGui import QWidget, QPainter, QPolygon, QColor, QPen, QPalette, QPainterPath, QFont, QFontMetrics, QApplication, QDrag, QPixmap, QSizePolicy, QMessageBox, QTransform, QBrush
 
 import logging
 
@@ -22,7 +22,7 @@ try:
     from pxl.algorithms import *
     import_autolayout_error=None
 except Exception as e:
-    import_autolayout_error=(str(e),exception_traceback())
+    import_autolayout_error=(str(e), exception_traceback())
 
 class LineDecayView(WidgetView):
     
@@ -80,7 +80,7 @@ class LineDecayView(WidgetView):
             result=QCoreApplication.instance().showMessageBox("You are about to display more than "+str(numObjects)+" (>"+str(self.WARNING_ABOVE)+") objects. This may take some time. Labels will not be displayed.",
                                                                        "Would you like to continue?",
                                                                        QMessageBox.Yes | QMessageBox.No,
-                                                                       QMessageBox.Yes, [("Yes (remember my decision)",QMessageBox.YesRole)])
+                                                                       QMessageBox.Yes, [("Yes (remember my decision)", QMessageBox.YesRole)])
             if result == QMessageBox.No:
                 self._updatingFlag -=1
                 return False
@@ -234,7 +234,7 @@ class LineDecayView(WidgetView):
         """
         parent=self
         while parent!=None:
-            if hasattr(parent,"controller"):
+            if hasattr(parent, "controller"):
                 return parent.controller()
             parent=parent.parent()
         return None
@@ -302,7 +302,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
     def noDecorationsMode(self):
         return self.parent().noDecorationsMode()
             
-    def applyFilter(self,objects):
+    def applyFilter(self, objects):
         """ Redirect filtering to parent.
         """
         return self.parent().applyFilter(objects)
@@ -474,7 +474,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
         if event.mimeData().hasFormat(LineDecayView.DECAY_OBJECT_MIME_TYPE):
                 event.acceptProposedAction()
         
-    def createObject(self,dropType,pos):
+    def createObject(self, dropType, pos):
         newObject = None
         if dropType == "Node":
             newObject = self.addDecayNode(pos)
@@ -486,8 +486,8 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             newObject.setFocus()
             # connect selected signal to parent
             parent=self
-            while hasattr(parent,"parent"):
-                if hasattr(parent,"onSelected"):
+            while hasattr(parent, "parent"):
+                if hasattr(parent, "onSelected"):
                     self.connect(newObject, SIGNAL("selected"), parent.onSelected)
                     break
                 parent=parent.parent()
@@ -503,7 +503,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
                 self.autosize()     # instead of full autolayout
             if self.tabController():
                 self.tabController().setModified()
-                if hasattr(self.tabController(),"updateTreeView"):
+                if hasattr(self.tabController(), "updateTreeView"):
                     self.tabController().updateTreeView()
         return newObject
         
@@ -867,7 +867,7 @@ class LineDecayContainer(WidgetContainer, ObjectHolder):
             
             if controller:
                 controller.setModified()
-                if hasattr(controller,"updateTreeView"):
+                if hasattr(controller, "updateTreeView"):
                     controller.updateTreeView()
                     #controller.autolayout()
     
@@ -1407,11 +1407,11 @@ class DecayLine(DecayObject):
                 painter.drawPath(path)
             elif self.parent().dataAccessor() and self._lineStyle == self.parent().dataAccessor().LINE_VERTEX:
                 painter.setBrush(QBrush(penColor, Qt.SolidPattern))
-                painter.drawEllipse(QPointF(l/2.,0.),l/2.,a)
+                painter.drawEllipse(QPointF(l/2., 0.), l/2., a)
 
         else:
             painter.setPen(QPen(penColor, self.lineWidth(), self.qtLineStyle()))
-            painter.drawLine(QPoint(0,0), QPoint(l, 0))
+            painter.drawLine(QPoint(0, 0), QPoint(l, 0))
             
         if not paintMode & DecayObject.PAINT_MODE_NO_DECORATIONS:
             self.drawText(painter, paintMode)
@@ -1647,10 +1647,10 @@ class ParticleWidget(VispaWidget):
         elif type == self.HIGGS:
             self.setColors(QColor(28, 63, 253), QColor(27, 118, 255), QColor(21, 169, 250))
             
-        if hasattr(parent,"particleDoubleClicked"):
-            self.connect(self,SIGNAL("mouseDoubleClicked"),parent.particleDoubleClicked)
-        if hasattr(parent,"particleRightClicked"):
-            self.connect(self,SIGNAL("mouseRightPressed"),parent.particleRightClicked)
+        if hasattr(parent, "particleDoubleClicked"):
+            self.connect(self, SIGNAL("mouseDoubleClicked"), parent.particleDoubleClicked)
+        if hasattr(parent, "particleRightClicked"):
+            self.connect(self, SIGNAL("mouseRightPressed"), parent.particleRightClicked)
         
     def setMimeDataType(self, type):
         self._mimeDataType = type

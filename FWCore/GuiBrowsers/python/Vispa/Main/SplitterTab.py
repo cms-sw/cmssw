@@ -55,7 +55,7 @@ class SplitterTab(QSplitter, AbstractTab):
         if index==None:
             index = self.verticalSplitter().count()
         self._toolBar = SplitterToolBar()
-        self.verticalSplitter().insertWidget(index,self._toolBar)
+        self.verticalSplitter().insertWidget(index, self._toolBar)
         self.verticalSplitter().setCollapsible(index, False)
         self._toolBar.setFixedHeight(20)
         self._toolBar.show()
@@ -83,7 +83,7 @@ class SplitterTab(QSplitter, AbstractTab):
         """
         return self._propertyView
     
-    def closeEvent(self,event):
+    def closeEvent(self, event):
         """ Call close if tab is not embedded in TabWidget
         """
         if not self._tabWidget and self.mainWindow().isTabWidget(self):
@@ -94,13 +94,13 @@ class SplitterTab(QSplitter, AbstractTab):
         else:
             event.accept()
 
-    def event(self,event):
+    def event(self, event):
         """ Call tabChanged if window is activated.
         """
         if not self._tabWidget:
             if event.type()==QEvent.WindowActivate:
                 QCoreApplication.instance().tabChanged()
-        return QSplitter.event(self,event)
+        return QSplitter.event(self, event)
 
 
 class SplitterToolBar(QToolBar):

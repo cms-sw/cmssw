@@ -26,7 +26,7 @@ def run():
         
         configBuilder.prepare()
         # fetch the results and write it to file
-        config = file(options.python_filename,"w")
+        config = file(options.python_filename, "w")
         config.write(configBuilder.pythonCfgCode)
         config.close()
 
@@ -36,7 +36,7 @@ def run():
             execfile(options.python_filename, result)
             process = result["process"]
             expanded = process.dumpPython()
-            expandedFile = file(options.python_filename,"w")
+            expandedFile = file(options.python_filename, "w")
             expandedFile.write(expanded)
             expandedFile.close()
             print "Expanded config file", options.python_filename, "created"
@@ -49,7 +49,7 @@ def run():
             commandString = options.prefix+" cmsRun "+options.suffix
             print "Starting "+commandString+' '+options.python_filename
             commands = commandString.lstrip().split()
-            os.execvpe(commands[0],commands+[options.python_filename],os.environ)
+            os.execvpe(commands[0], commands+[options.python_filename], os.environ)
             sys.exit()
 
 run()

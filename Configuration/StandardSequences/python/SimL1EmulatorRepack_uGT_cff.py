@@ -16,11 +16,11 @@ else:
         InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
 
     from L1Trigger.Configuration.SimL1Emulator_cff import *
-    simGtStage2Digis.MuonInputTag   = cms.InputTag("unpackGtStage2","Muon")
-    simGtStage2Digis.EGammaInputTag = cms.InputTag("unpackGtStage2","EGamma")
-    simGtStage2Digis.TauInputTag    = cms.InputTag("unpackGtStage2","Tau")
-    simGtStage2Digis.JetInputTag    = cms.InputTag("unpackGtStage2","Jet")
-    simGtStage2Digis.EtSumInputTag  = cms.InputTag("unpackGtStage2","EtSum")
+    simGtStage2Digis.MuonInputTag   = cms.InputTag("unpackGtStage2", "Muon")
+    simGtStage2Digis.EGammaInputTag = cms.InputTag("unpackGtStage2", "EGamma")
+    simGtStage2Digis.TauInputTag    = cms.InputTag("unpackGtStage2", "Tau")
+    simGtStage2Digis.JetInputTag    = cms.InputTag("unpackGtStage2", "Jet")
+    simGtStage2Digis.EtSumInputTag  = cms.InputTag("unpackGtStage2", "EtSum")
     simGtStage2Digis.ExtInputTag    = cms.InputTag("unpackGtStage2") # as in default
 
 
@@ -28,11 +28,11 @@ else:
     
     # pack simulated uGT
     from EventFilter.L1TRawToDigi.gtStage2Raw_cfi import gtStage2Raw as packGtStage2
-    packGtStage2.MuonInputTag   = cms.InputTag("unpackGtStage2","Muon")
-    packGtStage2.EGammaInputTag = cms.InputTag("unpackGtStage2","EGamma")
-    packGtStage2.TauInputTag    = cms.InputTag("unpackGtStage2","Tau")
-    packGtStage2.JetInputTag    = cms.InputTag("unpackGtStage2","Jet")
-    packGtStage2.EtSumInputTag  = cms.InputTag("unpackGtStage2","EtSum")
+    packGtStage2.MuonInputTag   = cms.InputTag("unpackGtStage2", "Muon")
+    packGtStage2.EGammaInputTag = cms.InputTag("unpackGtStage2", "EGamma")
+    packGtStage2.TauInputTag    = cms.InputTag("unpackGtStage2", "Tau")
+    packGtStage2.JetInputTag    = cms.InputTag("unpackGtStage2", "Jet")
+    packGtStage2.EtSumInputTag  = cms.InputTag("unpackGtStage2", "EtSum")
     packGtStage2.GtInputTag     = cms.InputTag("simGtStage2Digis") # as in default
     packGtStage2.ExtInputTag    = cms.InputTag("unpackGtStage2") # as in default
     

@@ -1055,7 +1055,7 @@ class VispaWidget(ZoomableWidget):
         t = self.getDistance('frameTop')
         r = self.getDistance('frameRight')
         b = self.getDistance('frameBottom')
-        myRect = QRectF(l, t, r - l , b - t)
+        myRect = QRectF(l, t, r - l, b - t)
         self._backgroundShapePath = QPainterPath()
         self._backgroundShapePath.addRect(myRect)
     
@@ -1384,7 +1384,7 @@ class VispaWidget(ZoomableWidget):
         
         self._previusDragPosition = self.pos()
         #pPos = self.mapToParent(event.pos())
-        self.move(max(0,pPos.x() - self._dragMouseXrel), max(0,pPos.y() - self._dragMouseYrel))
+        self.move(max(0, pPos.x() - self._dragMouseXrel), max(0, pPos.y() - self._dragMouseYrel))
         
         # Tell parent, a widget moved to trigger file modification.
         if isinstance(self.parent(), VispaWidgetOwner):

@@ -30,7 +30,7 @@ class ParticleDataList(object):
     def addParticle(self, ids, names, particleData):
         """ Add a paricle with (multiple) ids and names to the list.
         """
-        if not (isinstance(ids,list) and isinstance(names,list)):
+        if not (isinstance(ids, list) and isinstance(names, list)):
             raise TypeError("addParticle needs to lists as input: e.g. [1,-1],['d','dbar']")
         self._list += [(ids, names, particleData)]
     
@@ -102,7 +102,7 @@ defaultQuarkDataList = ParticleDataList([
 ])
 
 defaultLeptonDataList = ParticleDataList([
-([11, - 11], ["e","electron", "Electron", "e+", "e-"], ParticleData(1)),
+([11, - 11], ["e", "electron", "Electron", "e+", "e-"], ParticleData(1)),
 ([12, - 12], ["nu_e", "Electron_neutrino", "electron_neutrino", "nu_electron"], ParticleData(0)),
 ([13, - 13], ["mu", "Muon", "muon", "mu+", "mu-"], ParticleData(1)),
 ([14, - 14], ["nu_mu", "nu_muon", "Muon_neutrino", "muon_neutrino"], ParticleData(0)),
@@ -130,8 +130,8 @@ defaultHadronDataList = ParticleDataList([
 ([421], ["D+"], ParticleData(1)),
 ([511], ["B0"], ParticleData(0)),
 ([521], ["B+"], ParticleData(1)),
-([2212], ["p","Proton","proton"], ParticleData(1)),
-([2112], ["n","Neutron","neutron"], ParticleData(0)),
+([2212], ["p", "Proton", "proton"], ParticleData(1)),
+([2112], ["n", "Neutron", "neutron"], ParticleData(0)),
 ([2224], ["Delta++"], ParticleData(2)),
 ([2214], ["Delta+"], ParticleData(1)),
 ([2114], ["Delta0"], ParticleData(0)),

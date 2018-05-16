@@ -37,9 +37,9 @@ process.streamfilterwaiter = cms.EDFilter("AcquireIntStreamFilter",
                                           produceTag = cms.InputTag("busy3")
 )
 
-process.busy1 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
-process.busy2 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(2), iterations = cms.uint32(10*1000*1000))
-process.busy3 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(2), iterations = cms.uint32(10*1000*1000))
+process.busy1 = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
+process.busy2 = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(2), iterations = cms.uint32(10*1000*1000))
+process.busy3 = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(2), iterations = cms.uint32(10*1000*1000))
 
 process.tester = cms.EDAnalyzer("IntTestAnalyzer",
                                 moduleLabel = cms.untracked.string("waiter"),

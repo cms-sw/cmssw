@@ -9,9 +9,9 @@ def _swapOfflineBSwithOnline(process):
     return process
 
 def _addLumiProducer(process):
-    if not hasattr(process,'lumiProducer'):
+    if not hasattr(process, 'lumiProducer'):
         #unscheduled.. 
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer, LumiDBService
         process.lumiProducer=lumiProducer
     #if it's scheduled
     if hasattr(process, 'reconstruction_step'):
@@ -31,8 +31,8 @@ def _overridesFor50ns(process):
 ##############################################################################
 def _hcalCustoms25ns(process):
     import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos, "HFDigiTime", 8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos, "HBHEFlatNoise", 8)
     return process
 
 def customisePostEra_Run2_25ns(process):
@@ -45,8 +45,8 @@ def customisePostEra_Run2_2016(process):
 
 def customisePostEra_Run2_2017(process):
     import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
-    HcalRemoveAddSevLevel.RemoveFlag(process.hcalRecAlgos,"HFDigiTime")
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos, "HBHEFlatNoise", 8)
+    HcalRemoveAddSevLevel.RemoveFlag(process.hcalRecAlgos, "HFDigiTime")
     return process
 
 def customisePostEra_Run2_2017_express_trackingOnly(process):
@@ -160,22 +160,22 @@ def customisePromptHI(process):
 ##############################################################################
 # this is supposed to be added on top of other (Run1) data customs
 def customiseDataRun2Common(process):
-    from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry,customise_csc_LocalReco
+    from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry, customise_csc_LocalReco
     process = unganged_me1a_geometry(process)
     process = customise_csc_LocalReco(process)
 
-    if hasattr(process,'valCscTriggerPrimitiveDigis'):
+    if hasattr(process, 'valCscTriggerPrimitiveDigis'):
         #this is not doing anything at the moment
         process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.bool(False)
-    if hasattr(process,'valCsctfTrackDigis'):
+    if hasattr(process, 'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
-    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi,customise_DQM
-    if hasattr(process,'RawToDigi'):
+    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco, customise_RawToDigi, customise_DQM
+    if hasattr(process, 'RawToDigi'):
         process=customise_RawToDigi(process)
-    if hasattr(process,'reconstruction'):
+    if hasattr(process, 'reconstruction'):
         process=customise_Reco(process)
-    if hasattr(process,'dqmoffline_step'):
+    if hasattr(process, 'dqmoffline_step'):
         process=customise_DQM(process)
 
     return process
@@ -197,7 +197,7 @@ def customiseDataRun2Common_25ns(process):
     _hcalCustoms25ns(process)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
-    if hasattr(process,'dqmoffline_step'):
+    if hasattr(process, 'dqmoffline_step'):
         process=customise_DQM_25ns(process)
     return process
 

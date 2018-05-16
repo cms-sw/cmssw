@@ -33,7 +33,7 @@ class ConfigEditorPlugin(BrowserPlugin):
     def startUp(self):
         BrowserPlugin.startUp(self)
         self.addCenterView(NoneView)
-        self.addCenterView(ConnectionStructureView,True)
+        self.addCenterView(ConnectionStructureView, True)
         self.addCenterView(SequenceStructureView)
 
     def newTab(self):
@@ -59,7 +59,7 @@ class ConfigEditorPlugin(BrowserPlugin):
             controller=self.newTab().controller()
         else:
             try:
-                if isinstance(self.application().currentTabController(),ConfigEditorTabController):
+                if isinstance(self.application().currentTabController(), ConfigEditorTabController):
                     controller=self.application().currentTabController()
             except NoCurrentTabControllerException:
                 controller=None

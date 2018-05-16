@@ -7,7 +7,7 @@ import logging
 logging.root.setLevel(logging.DEBUG)
 
 from PyQt4.QtCore import SIGNAL
-from PyQt4.QtGui import QApplication,QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow
 
 import Path
 
@@ -32,14 +32,14 @@ class FindDialogTestCase(unittest.TestCase):
         self.app.connect(self._findDialog, SIGNAL("found"), self.found)
         self._found=False
         self._findDialog.findNext()
-        self.assertEqual(self._found,True)
+        self.assertEqual(self._found, True)
         self._findDialog.onScreen()
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
         
-    def found(self,object):
+    def found(self, object):
         logging.debug(self.__class__.__name__ +': found '+str(object))
         self._found=object=="particle1"
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__,"FindDialog|FindAlgorithm")
+    Profiling.analyze("unittest.main()", __file__, "FindDialog|FindAlgorithm")

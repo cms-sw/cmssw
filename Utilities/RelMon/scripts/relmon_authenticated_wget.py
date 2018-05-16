@@ -9,7 +9,7 @@
 #                                                                              
 ################################################################################
 
-from sys import argv,exit
+from sys import argv, exit
 from utils import wget
 
 if __name__=="__main__":

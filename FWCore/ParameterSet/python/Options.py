@@ -6,7 +6,7 @@ class Options(dict):
 
     def __getitem__(self, key):
         self.readKeys.add(key)
-        return self.get(key,None)
+        return self.get(key, None)
 
     def _unreadKeys(self):
         """return unused keys"""

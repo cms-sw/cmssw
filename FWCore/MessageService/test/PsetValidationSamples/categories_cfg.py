@@ -18,8 +18,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     fwkJobReports = cms.untracked.vstring( 'u1_f' ), 
         
 #enable one of the following -- the first should pass, the rest fail
-    categories = cms.untracked.vstring('preEventProcessing','FwkJob',
-                                       'cat_A','cat_B'),
+    categories = cms.untracked.vstring('preEventProcessing', 'FwkJob',
+                                       'cat_A', 'cat_B'),
 #   categories = cms.vstring('preEventProcessing','FwkJob','u1_x'),
 #   categories = cms.vstring('preEventProcessing','FwkJob','u1_y'),
 #   categories = cms.vstring('preEventProcessing','FwkJob','u1_f'),

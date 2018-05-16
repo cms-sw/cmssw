@@ -1,7 +1,7 @@
 import logging
 
-from PyQt4.QtCore import SIGNAL,Qt
-from PyQt4.QtGui import QFrame,QHeaderView,QToolButton,QStandardItemModel,QVBoxLayout,QSizePolicy
+from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtGui import QFrame, QHeaderView, QToolButton, QStandardItemModel, QVBoxLayout, QSizePolicy
 
 from Vispa.Main.SplitterTab import SplitterTab
 from Vispa.Gui.Header import FrameWithHeader
@@ -58,7 +58,7 @@ class BrowserTab(SplitterTab):
         self._centerArea.addWidget(self._scrollArea)
         self.setCenterView(NoneView())
             
-    def setCenterView(self,view):
+    def setCenterView(self, view):
         """ Set the center view.
         """
         logging.debug(self.__class__.__name__ +": setCenterView()")
@@ -108,8 +108,8 @@ class BrowserTab(SplitterTab):
     def centerViewHeader(self):
         return self._centerArea.header()
     
-    def setCenterViewHeader(self,text):
+    def setCenterViewHeader(self, text):
         self._centerArea.header().setText(text)
 
-    def setTreeViewHeader(self,text):
+    def setTreeViewHeader(self, text):
         self._treeviewArea.header().setText(text)

@@ -4,35 +4,35 @@ import logging
 import os.path
 import copy
 
-from PyQt4.QtCore import SIGNAL,QString,QCoreApplication
-from PyQt4.QtGui import QMessageBox,QFileDialog
+from PyQt4.QtCore import SIGNAL, QString, QCoreApplication
+from PyQt4.QtGui import QMessageBox, QFileDialog
 
 from Vispa.Main.Application import Application
 from Vispa.Main.Exceptions import exception_traceback
 from Vispa.Share.ThreadChain import ThreadChain
 from Vispa.Plugins.Browser.BrowserTabController import BrowserTabController
 from Vispa.Views.WidgetView import WidgetView
-from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import ConfigEditorBoxView,ConnectionStructureView,SequenceStructureView
+from Vispa.Plugins.ConfigEditor.ConfigEditorBoxView import ConfigEditorBoxView, ConnectionStructureView, SequenceStructureView
 from Vispa.Gui.TextDialog import TextDialog
 
 try:
     from FWCore.GuiBrowsers.DOTExport import DotExport
     import_dotexport_error=None
 except Exception as e:
-    import_dotexport_error=(str(e),exception_traceback())
+    import_dotexport_error=(str(e), exception_traceback())
 
 try:
     from Vispa.Plugins.EdmBrowser.EventContentDialog import EventContentDialog
     event_content_error=None
 except Exception as e:
-    event_content_error=(str(e),exception_traceback())
+    event_content_error=(str(e), exception_traceback())
 
 try:
-    from .ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
+    from .ToolDataAccessor import ToolDataAccessor, ConfigToolBase, standardConfigDir
     from .ToolDialog import ToolDialog
     import_tools_error=None
 except Exception as e:
-    import_tools_error=(str(e),exception_traceback())
+    import_tools_error=(str(e), exception_traceback())
 
 class ConfigEditorTabController(BrowserTabController):
     """
@@ -43,7 +43,7 @@ class ConfigEditorTabController(BrowserTabController):
 
         self._editorName = ""
         self._thread = None
-        self._originalSizes=[100,1,200]
+        self._originalSizes=[100, 1, 200]
         self._toolDialog=None
         self._updateCenterView=False
         self.setEditable(False)
@@ -83,7 +83,7 @@ class ConfigEditorTabController(BrowserTabController):
         self.disconnect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onCenterViewDoubleClicked)
         self.connect(self.tab().centerView(), SIGNAL("doubleClicked"), self.onCenterViewDoubleClicked)
 
-    def onCenterViewDoubleClicked(self,object):
+    def onCenterViewDoubleClicked(self, object):
         logging.debug(__name__ + ": onCenterViewDoubleClicked()")
         self.tab().treeView().select(object)
         self.onTreeViewSelected(object)
@@ -128,7 +128,7 @@ class ConfigEditorTabController(BrowserTabController):
         if (self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView) or self.currentCenterViewClassId() == self.plugin().viewClassId(SequenceStructureView)) and \
             self.tab().centerView().updateContent(True):
             if not self.dataAccessor().isContainer(select) and self.currentCenterViewClassId() == self.plugin().viewClassId(ConnectionStructureView):
-                    self.tab().centerView().select(select,500)
+                    self.tab().centerView().select(select, 500)
             else:
                 self.tab().centerView().restoreSelection()
             select = self.tab().centerView().selection()
@@ -169,7 +169,7 @@ class ConfigEditorTabController(BrowserTabController):
         """ Choose editor using FileDialog """
         logging.debug(__name__ + ": chooseEditor")
         if _editorName == "":
-            _editorName = str(QFileDialog.getSaveFileName(self.tab(), "Choose editor", self._editorName, "Editor (*)", None , QFileDialog.DontConfirmOverwrite or QFileDialog.DontResolveSymlinks))
+            _editorName = str(QFileDialog.getSaveFileName(self.tab(), "Choose editor", self._editorName, "Editor (*)", None, QFileDialog.DontConfirmOverwrite or QFileDialog.DontResolveSymlinks))
             if not os.path.exists(_editorName):
                 _editorName = os.path.basename(_editorName)
         if _editorName != None and _editorName != "":
@@ -216,7 +216,7 @@ class ConfigEditorTabController(BrowserTabController):
             logging.error(__name__ + ": Could not import EventContentDialog: "+event_content_error[1])
             self.plugin().application().errorMessage("Could not import EventContentDialog (see logfile for details):\n"+event_content_error[0])
             return
-        dialog=EventContentDialog(self.tab(),"This dialog let's you check if the input needed by your configuration file is in a dataformat or edm root file. You can compare either to a dataformat definition from a txt file (e.g. RECO_3_3_0) or any edm root file by selecting an input file.\n\nBranches that are used as input by your configuration but not present in the dataformat or file are marked in red.\nBranches that are newly created by your configuration are marked in green.")
+        dialog=EventContentDialog(self.tab(), "This dialog let's you check if the input needed by your configuration file is in a dataformat or edm root file. You can compare either to a dataformat definition from a txt file (e.g. RECO_3_3_0) or any edm root file by selecting an input file.\n\nBranches that are used as input by your configuration but not present in the dataformat or file are marked in red.\nBranches that are newly created by your configuration are marked in green.")
         dialog.setConfigDataAccessor(self.dataAccessor())
         dialog.exec_()
 
@@ -232,7 +232,7 @@ class ConfigEditorTabController(BrowserTabController):
         else:
             proposed_view = self.plugin().viewClassId(ConnectionStructureView)
         self.switchCenterView(proposed_view)
-        if ini.has_option("config", "box content script") and isinstance(self.centerView(),ConfigEditorBoxView):
+        if ini.has_option("config", "box content script") and isinstance(self.centerView(), ConfigEditorBoxView):
             self.centerView().setBoxContentScript(str(ini.get("config", "box content script")))
             self._boxContentDialog.setScript(str(ini.get("config", "box content script")))
 
@@ -248,7 +248,7 @@ class ConfigEditorTabController(BrowserTabController):
         ini.set("config", "editor", self._editorName)
         if self.currentCenterViewClassId():
             ini.set("config", "CurrentView", self.currentCenterViewClassId())
-        if isinstance(self.centerView(),ConfigEditorBoxView):
+        if isinstance(self.centerView(), ConfigEditorBoxView):
             ini.set("config", "box content script", self.centerView().boxContentScript())
         self.plugin().application().writeIni()
 
@@ -411,28 +411,28 @@ class ConfigEditorTabController(BrowserTabController):
         self.tab().editorTableView().setDataObjects(self.toolDataAccessor().topLevelObjects())
         if self.tab().editorTableView().updateContent():
             self.tab().editorTableView().restoreSelection()
-        self.updateContent(False,propertyView)
+        self.updateContent(False, propertyView)
         self.tab().propertyView().setEnabled(True)
 
-    def importConfig(self,filename):
+    def importConfig(self, filename):
         logging.debug(__name__ + ": importConfig")
         statusMessage = self.plugin().application().startWorking("Import python configuration in Editor")
         try:
-            good=self.open(filename,False)
+            good=self.open(filename, False)
         except:
             logging.error(__name__ + ": Could not open configuration file: "+exception_traceback())
             self.plugin().application().errorMessage("Could not open configuration file (see log file for details).")
-            self.plugin().application().stopWorking(statusMessage,"failed")
+            self.plugin().application().stopWorking(statusMessage, "failed")
             return False
         if not good:
             logging.error(__name__ + ": Could not open configuration file.")
             self.plugin().application().errorMessage("Could not open configuration file.")
-            self.plugin().application().stopWorking(statusMessage,"failed")
+            self.plugin().application().stopWorking(statusMessage, "failed")
             return False
         if not self.dataAccessor().process():
             logging.error(__name__ + ": Config does not contain a process and cannot be edited using ConfigEditor.")
             self.plugin().application().errorMessage("Config does not contain a process and cannot be edited using ConfigEditor.")
-            self.plugin().application().stopWorking(statusMessage,"failed")
+            self.plugin().application().stopWorking(statusMessage, "failed")
             return False
         if self._filename and not self.dataAccessor().isReplaceConfig():
             self.setFilename(None)
@@ -453,7 +453,7 @@ class ConfigEditorTabController(BrowserTabController):
     def importButtonClicked(self):
         logging.debug(__name__ + ": importButtonClicked")
         filename = QFileDialog.getOpenFileName(
-            self.tab(),'Select a configuration file',standardConfigDir,"Python configuration (*.py)")
+            self.tab(), 'Select a configuration file', standardConfigDir, "Python configuration (*.py)")
         if not filename.isEmpty():
             self.importConfig(str(filename))
 
@@ -471,10 +471,10 @@ class ConfigEditorTabController(BrowserTabController):
         self.tab().editorTableView().select(self.tab().editorTableView().dataObjects()[-2])
         self.codeSelected(self.tab().editorTableView().dataObjects()[-2])
             
-    def removeButtonClicked(self,object):
+    def removeButtonClicked(self, object):
         logging.debug(__name__ + ": removeButtonClicked")
         if not object or not self.dataAccessor().process() or\
-            self._toolDataAccessor.label(object) in ["Import","ApplyTool"]:
+            self._toolDataAccessor.label(object) in ["Import", "ApplyTool"]:
             return
         if not self.toolDataAccessor().removeTool(object):
             self.plugin().application().errorMessage("Could not apply tool. See log file for details.")
@@ -493,7 +493,7 @@ class ConfigEditorTabController(BrowserTabController):
         BrowserTabController.refresh(self)
 
     def updateContent(self, filtered=False, propertyView=True):
-        if import_tools_error==None and isinstance(object,ConfigToolBase):
+        if import_tools_error==None and isinstance(object, ConfigToolBase):
             propertyView=False
         else:
             self.tab().propertyView().setDataAccessor(self.dataAccessor())
@@ -503,13 +503,13 @@ class ConfigEditorTabController(BrowserTabController):
         self.selectDataAccessor(object)
         BrowserTabController.select(self, object)
     
-    def selectDataAccessor(self,object):
-        if import_tools_error==None and isinstance(object,ConfigToolBase):
+    def selectDataAccessor(self, object):
+        if import_tools_error==None and isinstance(object, ConfigToolBase):
             self.tab().propertyView().setDataAccessor(self.toolDataAccessor())
         else:
             self.tab().propertyView().setDataAccessor(self.dataAccessor())
     
-    def codeSelected(self,select):
+    def codeSelected(self, select):
         if self.tab().propertyView().dataObject() != select:
             statusMessage = self.plugin().application().startWorking("Updating property view")
             self.tab().propertyView().setDataAccessor(self.toolDataAccessor())
@@ -518,10 +518,10 @@ class ConfigEditorTabController(BrowserTabController):
             self.plugin().application().stopWorking(statusMessage)
         self.updateConfigHighlight()
 
-    def valueChanged(self,name):
-        if isinstance(self.tab().propertyView().dataObject(),ConfigToolBase):
+    def valueChanged(self, name):
+        if isinstance(self.tab().propertyView().dataObject(), ConfigToolBase):
             if self._toolDataAccessor.label(self.tab().propertyView().dataObject())=="Import":
-                filename=self.toolDataAccessor().propertyValue(self.tab().propertyView().dataObject(),"filename")
+                filename=self.toolDataAccessor().propertyValue(self.tab().propertyView().dataObject(), "filename")
                 return self.importConfig(filename)
             else:
                 self.toolDataAccessor().updateProcess()

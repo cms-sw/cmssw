@@ -10,19 +10,19 @@ class MassSearchReplaceAnyInputTagVisitor(object):
         self._verbose=verbose
         self._moduleLabelOnly=moduleLabelOnly
         self._skipLabelTest=skipLabelTest
-    def doIt(self,pset,base):
+    def doIt(self, pset, base):
         if isinstance(pset, cms._Parameterizable):
             for name in pset.parameterNames_():
                 # if I use pset.parameters_().items() I get copies of the parameter values
                 # so I can't modify the nested pset
-                value = getattr(pset,name)
+                value = getattr(pset, name)
                 type = value.pythonTypeName()
                 if type == 'cms.PSet':
-                    self.doIt(value,base+"."+name)
+                    self.doIt(value, base+"."+name)
                 elif type == 'cms.VPSet':
-                    for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
+                    for (i, ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base, name, i) )
                 elif type == 'cms.VInputTag':
-                    for (i,n) in enumerate(value):
+                    for (i, n) in enumerate(value):
                          # VInputTag can be declared as a list of strings, so ensure that n is formatted correctly
                          n = self.standardizeInputTagFmt(n)
                          if (n == self._paramSearch):
@@ -57,27 +57,27 @@ class MassSearchReplaceAnyInputTagVisitor(object):
           return cms.InputTag(inputTag)
        return inputTag
 
-    def enter(self,visitee):
+    def enter(self, visitee):
         label = ''
         if (not self._skipLabelTest):
-            if hasattr(visitee,"hasLabel_") and visitee.hasLabel_():
+            if hasattr(visitee, "hasLabel_") and visitee.hasLabel_():
 		label = visitee.label_()
             else: label = '<Module not in a Process>'
         else:
             label = '<Module label not tested>'
         self.doIt(visitee, label)
-    def leave(self,visitee):
+    def leave(self, visitee):
         pass
 
 def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=False,moduleLabelOnly=False,skipLabelTest=False) :
     """Replace InputTag oldInputTag with newInputTag, at any level of nesting within PSets, VPSets, VInputTags..."""
-    sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly,skipLabelTest=skipLabelTest))
+    sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag, newInputTag, verbose=verbose, moduleLabelOnly=moduleLabelOnly, skipLabelTest=skipLabelTest))
 
 def massReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker",verbose=False,moduleLabelOnly=False,skipLabelTest=False):
     for s in process.paths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
+        massSearchReplaceAnyInputTag(getattr(process, s), old, new, verbose, moduleLabelOnly, skipLabelTest)
     for s in process.endpaths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
+        massSearchReplaceAnyInputTag(getattr(process, s), old, new, verbose, moduleLabelOnly, skipLabelTest)
     if process.schedule_() is not None:
         for task in process.schedule_()._tasks:
             massSearchReplaceAnyInputTag(task, old, new, verbose, moduleLabelOnly, skipLabelTest)
@@ -85,15 +85,15 @@ def massReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker",ver
 
 class MassSearchParamVisitor(object):
     """Visitor that travels within a cms.Sequence, looks for a parameter and returns a list of modules that have it"""
-    def __init__(self,paramName,paramSearch):
+    def __init__(self, paramName, paramSearch):
         self._paramName   = paramName
         self._paramSearch = paramSearch
         self._modules = []
-    def enter(self,visitee):
-        if (hasattr(visitee,self._paramName)):
-            if getattr(visitee,self._paramName) == self._paramSearch:
+    def enter(self, visitee):
+        if (hasattr(visitee, self._paramName)):
+            if getattr(visitee, self._paramName) == self._paramSearch:
                 self._modules.append(visitee)
-    def leave(self,visitee):
+    def leave(self, visitee):
         pass
     def modules(self):
         return self._modules
@@ -105,22 +105,22 @@ class MassSearchReplaceParamVisitor(object):
         self._paramValue  = paramValue
         self._paramSearch = paramSearch
         self._verbose = verbose
-    def enter(self,visitee):
-        if (hasattr(visitee,self._paramName)):
-            if getattr(visitee,self._paramName) == self._paramSearch:
-                if self._verbose:print "Replaced %s.%s: %s => %s" % (visitee,self._paramName,getattr(visitee,self._paramName),self._paramValue)
-                setattr(visitee,self._paramName,self._paramValue)
-    def leave(self,visitee):
+    def enter(self, visitee):
+        if (hasattr(visitee, self._paramName)):
+            if getattr(visitee, self._paramName) == self._paramSearch:
+                if self._verbose:print "Replaced %s.%s: %s => %s" % (visitee, self._paramName, getattr(visitee, self._paramName), self._paramValue)
+                setattr(visitee, self._paramName, self._paramValue)
+    def leave(self, visitee):
         pass
 
 def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue,verbose=False):
-    sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue,verbose))
+    sequence.visit(MassSearchReplaceParamVisitor(paramName, paramOldValue, paramValue, verbose))
 
 def massReplaceParameter(process,name="label",old="rawDataCollector",new="rawDataRepacker",verbose=False):
     for s in process.paths_().keys():
-        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
+        massSearchReplaceParam(getattr(process, s), name, old, new, verbose)
     for s in process.endpaths_().keys():
-        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
+        massSearchReplaceParam(getattr(process, s), name, old, new, verbose)
     if process.schedule_() is not None:
         for task in process.schedule_()._tasks:
             massSearchReplaceParam(task, name, old, new, verbose)
@@ -206,9 +206,9 @@ process = cms.Process("test")
                                  nested = cms.PSet(src = cms.InputTag("c"))
                                 )
             p.s = cms.Sequence(p.a*p.b*p.c)
-            massSearchReplaceParam(p.s,"src",cms.InputTag("b"),"a")
-            self.assertEqual(cms.InputTag("a"),p.c.src)
-            self.assertNotEqual(cms.InputTag("a"),p.c.nested.src)
+            massSearchReplaceParam(p.s, "src", cms.InputTag("b"), "a")
+            self.assertEqual(cms.InputTag("a"), p.c.src)
+            self.assertNotEqual(cms.InputTag("a"), p.c.nested.src)
 
         def testMassReplaceParam(self):
             process1 = cms.Process("test")
@@ -244,7 +244,7 @@ process = cms.Process("test")
             p.t2 = cms.Task(p.i)
             p.schedule = cms.Schedule()
             p.schedule.associate(p.t1, p.t2)
-            massReplaceParameter(p, "src",cms.InputTag("a"), "b", False)
+            massReplaceParameter(p, "src", cms.InputTag("a"), "b", False)
             self.assertEqual(cms.InputTag("gen"), p.a.src)
             self.assertEqual(cms.InputTag("b"), p.b.src)
             self.assertEqual(cms.InputTag("a"), p.c.vec[0])

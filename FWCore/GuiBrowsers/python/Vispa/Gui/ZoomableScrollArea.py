@@ -22,8 +22,8 @@ class ZoomableScrollArea(Zoomable, QScrollArea):
 		"""
 		if event.modifiers() == Qt.ControlModifier:
 			oldZoom = self.zoom()
-			oldLeft = self.widget().mapFrom(self,QPoint(event.x(),0)).x()
-			oldTop = self.widget().mapFrom(self,QPoint(0,event.y())).y()
+			oldLeft = self.widget().mapFrom(self, QPoint(event.x(), 0)).x()
+			oldTop = self.widget().mapFrom(self, QPoint(0, event.y())).y()
 			
 			if event.delta() > 0:
 				self.incrementZoom()
@@ -36,7 +36,7 @@ class ZoomableScrollArea(Zoomable, QScrollArea):
 			newTop = oldTop * zoomFactor
 
 			self.autosizeScrollWidget()
-			self.ensureVisible(newLeft-event.x()+self.viewport().width()/2.0,newTop-event.y()+self.viewport().height()/2.0,self.viewport().width()/2.0,self.viewport().height()/2.0)
+			self.ensureVisible(newLeft-event.x()+self.viewport().width()/2.0, newTop-event.y()+self.viewport().height()/2.0, self.viewport().width()/2.0, self.viewport().height()/2.0)
 			self.emit(SIGNAL('wheelZoom()'))
 		else:
 			QScrollArea.wheelEvent(self, event)

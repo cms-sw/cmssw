@@ -18,7 +18,7 @@ from os.path import basename
 from optparse import OptionParser
 from re import search
 from sys import exit
-from urllib2  import Request,build_opener,urlopen
+from urllib2  import Request, build_opener, urlopen
 
 import os
 if "RELMON_SA" in os.environ:
@@ -30,7 +30,7 @@ else:
   from Utilities.RelMon.definitions import server
   from Utilities.RelMon.utils import wget
 
-def extract_list(page_html,the_server,display_url):
+def extract_list(page_html, the_server, display_url):
   contents=[]  
   for line in page_html.split("<tr><td>")[1:]:
     name=""
@@ -59,7 +59,7 @@ if __name__=="__main__":
 
   parser = OptionParser(usage="usage: %prog [options] dirtolist")
 
-  parser.add_option("-d","--dev",
+  parser.add_option("-d", "--dev",
                   action="store_true",
                   dest="development",
                   default=False,
@@ -71,31 +71,31 @@ if __name__=="__main__":
                   default=False,
                   help="Select the Offline GUI instance.")
                   
-  parser.add_option("-o","--online",
+  parser.add_option("-o", "--online",
                   action="store_true",
                   dest="online",
                   default=False,
                   help="Select the Online GUI instance.")
 
-  parser.add_option("-r","--relval",
+  parser.add_option("-r", "--relval",
                   action="store_true",
                   dest="relval",
                   default=True,
                   help="Select the RelVal GUI instance.")
 
-  parser.add_option("-u","--show_url",
+  parser.add_option("-u", "--show_url",
                   action="store_true",
                   dest="show_url",
                   default=False,
                   help="Show the full URL of the file.")
 
-  parser.add_option("-g","--get",
+  parser.add_option("-g", "--get",
                   action="store_true",
                   dest="get",
                   default=False,
                   help="Get the files.")
 
-  parser.add_option("-p","--path",
+  parser.add_option("-p", "--path",
                   action="store",
                   dest="path",
                   default="",
@@ -123,18 +123,18 @@ if __name__=="__main__":
     mode="dev"
   
     
-  directory="%s/dqm/%s/data/browse/%s" %(server,mode,dirtolist)
-  print "peeping ",directory  
-  contents=extract_list(get_page(directory),server,options.show_url)
+  directory="%s/dqm/%s/data/browse/%s" %(server, mode, dirtolist)
+  print "peeping ", directory  
+  contents=extract_list(get_page(directory), server, options.show_url)
   
   if len(contents)==0:
     print "No contents found!"
   
   for content in contents:
-    if not options.get and search(options.path,content):
+    if not options.get and search(options.path, content):
       print content
-    if options.get and options.show_url and len(options.path)>0 and search(options.path,content):
-      if not search('pre',options.path) and search('pre',content):
+    if options.get and options.show_url and len(options.path)>0 and search(options.path, content):
+      if not search('pre', options.path) and search('pre', content):
         continue
       bcontent=basename(content)
       print "Getting %s" %bcontent

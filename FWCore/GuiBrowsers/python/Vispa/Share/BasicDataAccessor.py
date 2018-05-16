@@ -55,7 +55,7 @@ class BasicDataAccessor(object):
     def propertyValue(self, object, name):
         """ Returns value of property with given name.
         """
-        property=self.property(object,name)
+        property=self.property(object, name)
         if property!=None:
             return property[2]
         else:

@@ -35,11 +35,11 @@ process.Timing =  cms.Service("Timing")
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring( 'cout' 
 					, 'timingFilteredML'
-					) ,
+					),
     categories   = cms.untracked.vstring( 'TimeEvent'
                                         , 'TimeModule'
 					, 'TimeReport' 
-					) ,
+					),
     cout = cms.untracked.PSet(
         threshold  = cms.untracked.string('WARNING'),
         # We are about to impose a limit of 0 (meaning do no react to these)

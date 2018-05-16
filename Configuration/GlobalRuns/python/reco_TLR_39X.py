@@ -159,7 +159,7 @@ def customiseAlcaOnlyPromptHI(process):
     )
 
     for path in process.paths:
-        getattr(process,path)._seq = process.hltCentralityVeto * getattr(process,path)._seq
+        getattr(process, path)._seq = process.hltCentralityVeto * getattr(process, path)._seq
     
     return process
 

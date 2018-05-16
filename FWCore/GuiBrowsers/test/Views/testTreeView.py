@@ -6,7 +6,7 @@ import sys
 import logging
 logging.root.setLevel(logging.DEBUG)
 
-from PyQt4.QtGui import QApplication,QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow
 
 import Path
 from Vispa.Main.Directories import *
@@ -29,8 +29,8 @@ class TreeViewTestCase(unittest.TestCase):
         self.treeView.setDataAccessor(accessor)
         self.treeView.setDataObjects(accessor.topLevelObjects())
         self.treeView.updateContent()
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__,"TreeView")
+    Profiling.analyze("unittest.main()", __file__, "TreeView")

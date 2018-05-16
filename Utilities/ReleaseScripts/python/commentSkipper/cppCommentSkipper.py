@@ -31,7 +31,7 @@ def filterFile(file): #ifstream& input)
                     j += 1
                 #comment //  why !commentStage? because, can be a variant of this example: /*....//.....*/
                 elif not commentStage and (lines[i][j+1] == '/'):
-                    lines[i] = string.replace(lines[i], lines[i][j:],'\n', 1)
+                    lines[i] = string.replace(lines[i], lines[i][j:], '\n', 1)
                     break
             #char "
             elif char == '"':
@@ -48,7 +48,7 @@ def filterFile(file): #ifstream& input)
                 if (commentStage and (lines[i][j+1] == '/')):
                     commentStage = False;
                     if commentStartLine != i:
-                        lines[i] = string.replace(lines[i], lines[i][:j+2],'', 1) # comment */ [..code]
+                        lines[i] = string.replace(lines[i], lines[i][:j+2], '', 1) # comment */ [..code]
                         j = -1 #because of j+=1 at the end
                     else:
                         lines[i] = string.replace(lines[i], lines[i][commentStartColumn:j+2], '', 1) # [code..] /*comment*/ [.. code]
@@ -59,6 +59,6 @@ def filterFile(file): #ifstream& input)
                 j = 0
                 break
         if commentStage:
-            if i == commentStartLine: lines[i] = lines[i].replace(lines[i][commentStartColumn:],'\n', 1)
+            if i == commentStartLine: lines[i] = lines[i].replace(lines[i][commentStartColumn:], '\n', 1)
             else: lines[i] = lines[i].replace(lines[i][:], '\n')
     return lines

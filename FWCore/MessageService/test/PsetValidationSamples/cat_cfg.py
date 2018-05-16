@@ -16,8 +16,8 @@ process.MessageLogger = cms.Service("MessageLogger",
                    'u1_infos',  'u1_debugs', 'u1_default', 'u1_x'), 
     statistics = cms.untracked.vstring( 'u1_warnings', 'u1_default', 'u1_y' ), 
     fwkJobReports = cms.untracked.vstring( 'u1_f' ), 
-    categories = cms.untracked.vstring('preEventProcessing','FwkJob',
-                                       'cat_A','cat_B', 'cat_J', 'cat_K'),
+    categories = cms.untracked.vstring('preEventProcessing', 'FwkJob',
+                                       'cat_A', 'cat_B', 'cat_J', 'cat_K'),
 
 # enabling any of these acter the first one should fail:
 

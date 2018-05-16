@@ -10,7 +10,7 @@ def interactive_inspect_mode():
     # http://stackoverflow.com/questions/640389/tell-whether-python-is-in-i-mode
     flagPtr = ctypes.cast(ctypes.pythonapi.Py_InteractiveFlag, 
                          ctypes.POINTER(ctypes.c_int))
-    return flagPtr.contents.value > 0 or bool(os.environ.get("PYTHONINSPECT",False))
+    return flagPtr.contents.value > 0 or bool(os.environ.get("PYTHONINSPECT", False))
 
 
 if __name__ == '__main__':

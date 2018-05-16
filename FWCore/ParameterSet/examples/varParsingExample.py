@@ -2,7 +2,7 @@
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing ('python')
-options.inputFiles = 'bob','peter'
+options.inputFiles = 'bob', 'peter'
 #options.setNoDefaultClear ('inputFiles')
 #options.setNoCommaSplit ('inputFiles')
 options.parseArguments()

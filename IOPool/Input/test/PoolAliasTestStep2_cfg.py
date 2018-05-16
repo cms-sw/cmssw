@@ -26,6 +26,6 @@ process.OtherThing2 = cms.EDProducer("OtherThingProducer",
                                     )
 
 process.Analysis2 = cms.EDAnalyzer("OtherThingAnalyzer",
-                                   other=cms.untracked.InputTag("OtherThing2","testUserTag"))
+                                   other=cms.untracked.InputTag("OtherThing2", "testUserTag"))
 
 process.p2 = cms.Path(process.OtherThing2+process.Analysis2)

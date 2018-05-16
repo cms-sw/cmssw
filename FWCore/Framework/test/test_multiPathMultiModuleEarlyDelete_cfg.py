@@ -21,14 +21,14 @@ process.reader2 = cms.EDAnalyzer("DeleteEarlyReader",
                                  mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
 
 process.tester1 = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
-                                expectedValues = cms.untracked.vuint32(3,7,11))
+                                expectedValues = cms.untracked.vuint32(3, 7, 11))
 process.tester2 = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
-                                expectedValues = cms.untracked.vuint32(6,12))
+                                expectedValues = cms.untracked.vuint32(6, 12))
 process.tester3 = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
-                                expectedValues = cms.untracked.vuint32(2,4,6,8,10,12))
+                                expectedValues = cms.untracked.vuint32(2, 4, 6, 8, 10, 12))
 
 process.p2PreTester = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
-                                     expectedValues = cms.untracked.vuint32(1,3,5,7,9,11))
+                                     expectedValues = cms.untracked.vuint32(1, 3, 5, 7, 9, 11))
 process.f2 = cms.EDFilter("TestFilterModule",
 onlyOne = cms.untracked.bool(True),
 acceptValue = cms.untracked.int32(2)

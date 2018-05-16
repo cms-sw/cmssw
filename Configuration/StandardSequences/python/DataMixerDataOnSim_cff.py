@@ -41,8 +41,8 @@ DMHcalDigis = simHcalDigis.clone()
 DMHcalTTPDigis = simHcalTTPDigis.clone()
 
 # Re-define inputs to point at DataMixer output
-DMHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('mixData'),cms.InputTag('mixData'))
-DMHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(cms.InputTag('mixData:HBHEQIE11DigiCollection'),cms.InputTag('mixData:HFQIE10DigiCollection'))
+DMHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('mixData'), cms.InputTag('mixData'))
+DMHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(cms.InputTag('mixData:HBHEQIE11DigiCollection'), cms.InputTag('mixData:HFQIE10DigiCollection'))
 DMHcalDigis.digiLabel = cms.string("mixData")
 DMHcalTTPDigis.HFDigiCollection = cms.InputTag("mixData")
 

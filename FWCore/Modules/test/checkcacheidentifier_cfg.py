@@ -17,7 +17,7 @@ process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
 process.DoodadESSource = cms.ESSource("DoodadESSource")
 
 process.checker = cms.EDAnalyzer("EventSetupCacheIdentifierChecker",
-                              GadgetRcd = cms.untracked.vuint32(2,2,2,2,2,2,2,2,2,3,3,3)
+                              GadgetRcd = cms.untracked.vuint32(2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3)
 )
 
 process.p = cms.Path(process.checker)

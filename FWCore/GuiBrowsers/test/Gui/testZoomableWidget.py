@@ -7,7 +7,7 @@ import logging
 logging.root.setLevel(logging.DEBUG)
 
 from PyQt4.QtCore import QCoreApplication
-from PyQt4.QtGui import QApplication,QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow
 
 import Path
 from Vispa.Main.Directories import *
@@ -24,7 +24,7 @@ class ZoomableWidgetTestCase(unittest.TestCase):
         self.app = QApplication(sys.argv)
         self.window = QMainWindow()
         self.window.setWindowTitle("test ZoomableWidget")
-        self.window.resize(300,300)
+        self.window.resize(300, 300)
         self.app.setActiveWindow(self.window)
         self.window.show()
         self.scrollArea = ZoomableScrollArea(self.window)
@@ -32,10 +32,10 @@ class ZoomableWidgetTestCase(unittest.TestCase):
         self.zoomableWidget = ZoomableWidget()
         self.scrollArea.setWidget(self.zoomableWidget)
         self.widget=VispaWidget(self.zoomableWidget)
-        self.widget.move(10,10)
+        self.widget.move(10, 10)
         self.widget.show()
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__,"ZoomableScrollArea|VispaWidget|ZoomableWidget")
+    Profiling.analyze("unittest.main()", __file__, "ZoomableScrollArea|VispaWidget|ZoomableWidget")

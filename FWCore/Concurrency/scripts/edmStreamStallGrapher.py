@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from itertools import groupby
-from operator import attrgetter,itemgetter
+from operator import attrgetter, itemgetter
 import sys
 from collections import defaultdict
 
@@ -67,12 +67,12 @@ kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
 
 #----------------------------------------------
-def processingStepsFromStallMonitorOutput(f,moduleNames):
+def processingStepsFromStallMonitorOutput(f, moduleNames):
     for rawl in f:
         l = rawl.strip()
         if not l or l[0] == '#':
             continue
-        (step,payload) = tuple(l.split(None,1))
+        (step, payload) = tuple(l.split(None, 1))
         payload=payload.split()
 
         # Ignore these
@@ -130,12 +130,12 @@ def processingStepsFromStallMonitorOutput(f,moduleNames):
                 name = kSourceDelayedRead
 
         if trans is not None:
-            yield (name,trans,stream,time, isEvent)
+            yield (name, trans, stream, time, isEvent)
     
     return
 
 class StallMonitorParser(object):
-    def __init__(self,f):
+    def __init__(self, f):
         numStreams = 0
         numStreamsFromSource = 0
         moduleNames = {}
@@ -152,7 +152,7 @@ class StallMonitorParser(object):
                 if s > numStreamsFromSource:
                   numStreamsFromSource = s
             if len(l) > 5 and l[0:2] == "#M":
-                (id,name)=tuple(l[2:].split())
+                (id, name)=tuple(l[2:].split())
                 moduleNames[id] = name
                 continue
         self._f = f
@@ -162,15 +162,15 @@ class StallMonitorParser(object):
         self._moduleNames = moduleNames
         self.maxNameSize =0
         for n in moduleNames.iteritems():
-            self.maxNameSize = max(self.maxNameSize,len(n))
-        self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
+            self.maxNameSize = max(self.maxNameSize, len(n))
+        self.maxNameSize = max(self.maxNameSize, len(kSourceDelayedRead))
 
     def processingSteps(self):
         """Create a generator which can step through the file and return each processing step.
         Using a generator reduces the memory overhead when parsing a large file.
             """
         self._f.seek(0)
-        return processingStepsFromStallMonitorOutput(self._f,self._moduleNames)
+        return processingStepsFromStallMonitorOutput(self._f, self._moduleNames)
 
 #----------------------------------------------
 # Utility to get time out of Tracer output text format
@@ -251,24 +251,24 @@ def parseTracerOutput(f):
                 startTime = time
             time = time - startTime
             streamIndex = l.find("stream = ")
-            stream = int(l[streamIndex+9:l.find(" ",streamIndex+10)])
+            stream = int(l[streamIndex+9:l.find(" ", streamIndex+10)])
             maxNameSize = max(maxNameSize, len(name))
 
             if trans == kFinishedSource and not stream in streamsThatSawFirstEvent:
                 # This is wrong but there is no way to estimate the time better
                 # because there is no previous event for the first event.
-                processingSteps.append((name,kStartedSource,stream,time,True))
+                processingSteps.append((name, kStartedSource, stream, time, True))
                 streamsThatSawFirstEvent.add(stream)
 
-            processingSteps.append((name,trans,stream,time, True))
+            processingSteps.append((name, trans, stream, time, True))
             numStreams = max(numStreams, stream+1)
 
     f.close()
-    return (processingSteps,numStreams,maxNameSize)
+    return (processingSteps, numStreams, maxNameSize)
 
 class TracerParser(object):
-    def __init__(self,f):
-        self._processingSteps,self.numStreams,self.maxNameSize = parseTracerOutput(f)
+    def __init__(self, f):
+        self._processingSteps, self.numStreams, self.maxNameSize = parseTracerOutput(f)
     def processingSteps(self):
         return self._processingSteps
 
@@ -316,7 +316,7 @@ def findStalledModules(processingSteps, numStreams):
     streamState = [0]*numStreams
     stalledModules = {}
     modulesActiveOnStream = [{} for x in xrange(numStreams)]
-    for n,trans,s,time,isEvent in processingSteps:
+    for n, trans, s, time, isEvent in processingSteps:
 
         waitTime = None
         modulesOnStream = modulesActiveOnStream[s]
@@ -339,7 +339,7 @@ def findStalledModules(processingSteps, numStreams):
             streamTime[s] = time
         if waitTime is not None:
             if waitTime > kStallThreshold:
-                t = stalledModules.setdefault(n,[])
+                t = stalledModules.setdefault(n, [])
                 t.append(waitTime)
     return stalledModules
 
@@ -348,7 +348,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
     streamTime = [0]*numStreams
     streamState = [0]*numStreams
     modulesActiveOnStreams = [{} for x in xrange(numStreams)]
-    for n,trans,s,time,isEvent in processingSteps:
+    for n, trans, s, time, isEvent in processingSteps:
         waitTime = None
         modulesActiveOnStream = modulesActiveOnStreams[s]
         if trans == kPrefetchEnd:
@@ -369,7 +369,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
             modulesActiveOnStream.clear()
         elif trans == kFinishedSource or trans == kFinishedSourceDelayedRead:
             streamTime[s] = time
-        states = "%-*s: " % (maxNameSize,n)
+        states = "%-*s: " % (maxNameSize, n)
         if trans == kStartedAcquire or trans == kStarted or trans == kStartedSourceDelayedRead or trans == kStartedSource:
             states +="+ "
         else:
@@ -391,13 +391,13 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
 def printStalledModulesInOrder(stalledModules):
     priorities = []
     maxNameSize = 0
-    for name,t in stalledModules.iteritems():
+    for name, t in stalledModules.iteritems():
         maxNameSize = max(maxNameSize, len(name))
         t.sort(reverse=True)
-        priorities.append((name,sum(t),t))
+        priorities.append((name, sum(t), t))
 
-    def sumSort(i,j):
-        return cmp(i[1],j[1])
+    def sumSort(i, j):
+        return cmp(i[1], j[1])
     priorities.sort(cmp=sumSort, reverse=True)
 
     nameColumn = "Stalled Module"
@@ -406,10 +406,10 @@ def printStalledModulesInOrder(stalledModules):
     stallColumn = "Tot Stall Time"
     stallColumnLength = len(stallColumn)
 
-    print "%-*s" % (maxNameSize, nameColumn), "%-*s"%(stallColumnLength,stallColumn), " Stall Times"
-    for n,s,t in priorities:
-        paddedName = "%-*s:" % (maxNameSize,n)
-        print paddedName, "%-*.2f"%(stallColumnLength,s/1000.), ", ".join([ "%.2f"%(x/1000.) for x in t])
+    print "%-*s" % (maxNameSize, nameColumn), "%-*s"%(stallColumnLength, stallColumn), " Stall Times"
+    for n, s, t in priorities:
+        paddedName = "%-*s:" % (maxNameSize, n)
+        print paddedName, "%-*.2f"%(stallColumnLength, s/1000.), ", ".join([ "%.2f"%(x/1000.) for x in t])
 
 #--------------------------------------------------------
 class Point:
@@ -418,7 +418,7 @@ class Point:
         self.y = y_
 
     def __str__(self):
-        return "(x: {}, y: {})".format(self.x,self.y)
+        return "(x: {}, y: {})".format(self.x, self.y)
 
     def __repr__(self):
         return self.__str__()
@@ -444,7 +444,7 @@ def adjacentDiff(*pairLists):
     points = []
     for pairList in pairLists:
         points += [Point(x[0], 1) for x in pairList if x[1] != 0]
-        points += [Point(sum(x),-1) for x in pairList if x[1] != 0]
+        points += [Point(sum(x), -1) for x in pairList if x[1] != 0]
     points.sort(key=attrgetter('x'))
     return points
 
@@ -484,17 +484,17 @@ def consolidateContiguousBlocks(numStreams, streamInfo):
 
     for s in xrange(numStreams):
         if oldStreamInfo[s]:
-            lastStartTime,lastTimeLength,lastColor = oldStreamInfo[s][0].unpack()
+            lastStartTime, lastTimeLength, lastColor = oldStreamInfo[s][0].unpack()
             for info in oldStreamInfo[s][1:]:
-                start,length,color = info.unpack()
+                start, length, color = info.unpack()
                 if color == lastColor and lastStartTime+lastTimeLength == start:
                     lastTimeLength += length
                 else:
-                    streamInfo[s].append(StreamInfoElement(lastStartTime,lastTimeLength,lastColor))
+                    streamInfo[s].append(StreamInfoElement(lastStartTime, lastTimeLength, lastColor))
                     lastStartTime = start
                     lastTimeLength = length
                     lastColor = color
-            streamInfo[s].append(StreamInfoElement(lastStartTime,lastTimeLength,lastColor))
+            streamInfo[s].append(StreamInfoElement(lastStartTime, lastTimeLength, lastColor))
 
     return streamInfo
 
@@ -509,16 +509,16 @@ def mergeContiguousBlocks(blocks):
     if not oldBlocks:
         return blocks
 
-    lastStartTime,lastTimeLength,lastHeight = oldBlocks[0]
-    for start,length,height in oldBlocks[1:]:
+    lastStartTime, lastTimeLength, lastHeight = oldBlocks[0]
+    for start, length, height in oldBlocks[1:]:
         if height == lastHeight and lastStartTime+lastTimeLength == start:
             lastTimeLength += length
         else:
-            blocks.append((lastStartTime,lastTimeLength,lastHeight))
+            blocks.append((lastStartTime, lastTimeLength, lastHeight))
             lastStartTime = start
             lastTimeLength = length
             lastHeight = height
-    blocks.append((lastStartTime,lastTimeLength,lastHeight))
+    blocks.append((lastStartTime, lastTimeLength, lastHeight))
 
     return blocks
 
@@ -528,7 +528,7 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
     points = reduceSortedPoints(points)
     streamHeight = 0
     preparedTimes = []
-    for t1,t2 in zip(points, points[1:]):
+    for t1, t2 in zip(points, points[1:]):
         streamHeight += t1.y
         # We make a cut here when plotting because the first row for
         # each stream was already plotted previously and we do not
@@ -538,15 +538,15 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
         # we counted the modules in the first row already.
         if streamHeight < streamHeightCut:
             continue
-        preparedTimes.append((t1.x,t2.x-t1.x, streamHeight))
+        preparedTimes.append((t1.x, t2.x-t1.x, streamHeight))
     preparedTimes.sort(key=itemgetter(2))
     preparedTimes = mergeContiguousBlocks(preparedTimes)
 
     for nthreads, ts in groupby(preparedTimes, itemgetter(2)):
-        theTS = [(t[0],t[1]) for t in ts]
+        theTS = [(t[0], t[1]) for t in ts]
         if doPlot:
-            theTimes = [(t[0]/1000.,t[1]/1000.) for t in theTS]
-            yspan = (stream-0.4+height,height*(nthreads-1))
+            theTimes = [(t[0]/1000., t[1]/1000.) for t in theTS]
+            yspan = (stream-0.4+height, height*(nthreads-1))
             ax.broken_barh(theTimes, yspan, facecolors=color, edgecolors=color, linewidth=0)
         if addToStackTimes:
             allStackTimes[color].extend(theTS*(nthreads-threadOffset))
@@ -573,7 +573,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     countExternalWork = [defaultdict(int) for x in xrange(numStreams)]
 
     timeOffset = None
-    for n,trans,s,time,isEvent in processingSteps:
+    for n, trans, s, time, isEvent in processingSteps:
         if timeOffset is None:
             timeOffset = time
         startTime = None
@@ -619,7 +619,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
                  acquireModules.add(n)
             else:
                  activeModules.add(n)
-            streamRunningTimes[s].append(Point(time,1))
+            streamRunningTimes[s].append(Point(time, 1))
             if moduleNames or externalWorkModules:
                 startTime = previousFinishTime[s]
             previousFinishTime[s] = time
@@ -652,11 +652,11 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
                 if displayExternalWork:
                     if (not checkOrder) or countExternalWork[s][n] > 0:
                         externalWorkModules.add(n)
-                        streamExternalWorkRunningTimes[s].append(Point(time,+1))
+                        streamExternalWorkRunningTimes[s].append(Point(time, +1))
                 if checkOrder and n not in acquireModules:
                     finishAcquireBeforeStart[s].add(n)
                     continue
-            streamRunningTimes[s].append(Point(time,-1))
+            streamRunningTimes[s].append(Point(time, -1))
             startTime = previousFinishTime[s]
             previousFinishTime[s] = time
             moduleNames = activeModules.copy()
@@ -695,23 +695,23 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     fig, ax = plt.subplots(nrows=nr, squeeze=True)
     axStack = None
     if shownStacks:
-        [xH,yH] = fig.get_size_inches()
-        fig.set_size_inches(xH,yH*4/3)
-        ax = plt.subplot2grid((4,1),(0,0), rowspan=3)
-        axStack = plt.subplot2grid((4,1),(3,0))
+        [xH, yH] = fig.get_size_inches()
+        fig.set_size_inches(xH, yH*4/3)
+        ax = plt.subplot2grid((4, 1), (0, 0), rowspan=3)
+        axStack = plt.subplot2grid((4, 1), (3, 0))
 
     ax.set_xlabel("Time (sec)")
     ax.set_ylabel("Stream ID")
-    ax.set_ylim(-0.5,numStreams-0.5)
+    ax.set_ylim(-0.5, numStreams-0.5)
     ax.yaxis.set_ticks(xrange(numStreams))
 
     height = 0.8/maxNumberOfConcurrentModulesOnAStream
     allStackTimes={'green': [],'limegreen':[], 'red': [], 'blue': [], 'orange': [], 'darkviolet': []}
-    for iStream,lowestRow in enumerate(streamLowestRow):
+    for iStream, lowestRow in enumerate(streamLowestRow):
         times=[(x.begin/1000., x.delta/1000.) for x in lowestRow] # Scale from msec to sec.
         colors=[x.color for x in lowestRow]
         # for each stream, plot the lowest row
-        ax.broken_barh(times,(iStream-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
+        ax.broken_barh(times, (iStream-0.4, height), facecolors=colors, edgecolors=colors, linewidth=0)
         # record them also for inclusion in the stack plot
         # the darkviolet ones get counted later so do not count them here
         for info in lowestRow:
@@ -721,7 +721,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     # Now superimpose the number of concurrently running modules on to the graph.
     if maxNumberOfConcurrentModulesOnAStream > 1:
 
-        for i,perStreamRunningTimes in enumerate(streamRunningTimes):
+        for i, perStreamRunningTimes in enumerate(streamRunningTimes):
 
             perStreamTimesWithExtendedWork = list(perStreamRunningTimes)
             perStreamTimesWithExtendedWork.extend(streamExternalWorkRunningTimes[i])
@@ -753,7 +753,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     if shownStacks:
         print "> ... Generating stack"
         stack = Stack()
-        for color in ['green','limegreen','blue','red','orange','darkviolet']:
+        for color in ['green', 'limegreen', 'blue', 'red', 'orange', 'darkviolet']:
             tmp = allStackTimes[color]
             tmp = reduceSortedPoints(adjacentDiff(tmp))
             stack.update(color, tmp)
@@ -764,14 +764,14 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
             # Now arrange list in a manner that it can be grouped by the height of the block
             height = 0
             xs = []
-            for p1,p2 in zip(stk[1], stk[1][1:]):
+            for p1, p2 in zip(stk[1], stk[1][1:]):
                 height += p1.y
                 xs.append((p1.x, p2.x-p1.x, height))
             xs.sort(key = itemgetter(2))
             xs = mergeContiguousBlocks(xs)
 
             for height, xpairs in groupby(xs, itemgetter(2)):
-                finalxs = [(e[0]/1000.,e[1]/1000.) for e in xpairs]
+                finalxs = [(e[0]/1000., e[1]/1000.) for e in xpairs]
                 # plot the stacked plot, one color and one height on each call to broken_barh
                 axStack.broken_barh(finalxs, (0, height), facecolors=color, edgecolors=color, linewidth=0)
 

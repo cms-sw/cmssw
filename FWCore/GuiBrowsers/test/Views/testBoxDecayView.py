@@ -6,7 +6,7 @@ import sys
 import logging
 logging.root.setLevel(logging.DEBUG)
 
-from PyQt4.QtGui import QApplication,QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow
 
 import Path
 from Vispa.Main.Directories import *
@@ -22,7 +22,7 @@ class BoxDecayViewTestCase(unittest.TestCase):
         self.app = QApplication(sys.argv)
         self.window = QMainWindow()
         self.window.setWindowTitle("test BoxDecayView")
-        self.window.resize(300,300)
+        self.window.resize(300, 300)
         self.app.setActiveWindow(self.window)
         self.window.show()
         self.scrollArea = ZoomableScrollArea(self.window)
@@ -38,8 +38,8 @@ class BoxDecayViewTestCase(unittest.TestCase):
             if hasattr(w, "setDragable"):
                 w.setDragable(True, True)
 
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__)
+    Profiling.analyze("unittest.main()", __file__)

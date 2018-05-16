@@ -1,7 +1,7 @@
 import logging
 
-from PyQt4.QtCore import QCoreApplication,Qt,SIGNAL
-from PyQt4.QtGui import QDialog,QLabel,QLineEdit,QCheckBox,QPushButton,QVBoxLayout,QHBoxLayout,QMessageBox,QToolButton,QWidget,QLayout
+from PyQt4.QtCore import QCoreApplication, Qt, SIGNAL
+from PyQt4.QtGui import QDialog, QLabel, QLineEdit, QCheckBox, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox, QToolButton, QWidget, QLayout
 
 from Vispa.Main.Application import Application
 from Vispa.Share.ThreadChain import ThreadChain
@@ -9,7 +9,7 @@ from Vispa.Share.ThreadChain import ThreadChain
 class FindDialog(QDialog):
     def __init__(self,parent=None):
         logging.debug(__name__ +': __init__')
-        QDialog.__init__(self,parent)
+        QDialog.__init__(self, parent)
         self.setWindowFlags(Qt.Window)
         self.setWindowTitle("Find...")
         
@@ -81,8 +81,8 @@ class FindDialog(QDialog):
         self.connect(self._helpButton, SIGNAL('clicked(bool)'), self.help)
         self.connect(self._closeButton, SIGNAL('clicked(bool)'), self.reject)
 
-        self._addStringProperty(False,False)
-        self._addScript(False,False)
+        self._addStringProperty(False, False)
+        self._addScript(False, False)
 
     def _removeProperty(self):
         for property in self._properties:
@@ -90,9 +90,9 @@ class FindDialog(QDialog):
                 self._remove(property)
                 return
 
-    def _remove(self,object):
+    def _remove(self, object):
         for o in object:
-            if isinstance(o,QWidget):
+            if isinstance(o, QWidget):
                 o.close()
         self.layout().removeItem(object[0])
         if object in self._properties:
@@ -131,9 +131,9 @@ class FindDialog(QDialog):
         self.connect(propertyAdd, SIGNAL('clicked(bool)'), self._addStringProperty)
         self.connect(propertyDelete, SIGNAL('clicked(bool)'), self._removeProperty)
 
-        self.layout().insertLayout(len(self._properties)+len(self._scripts)+1,layout2)
+        self.layout().insertLayout(len(self._properties)+len(self._scripts)+1, layout2)
         
-        self._properties+=[(layout2,findPropertyNameLineEdit,findPropertyValueLineEdit,findPropertyNameLabel,findPropertyValueLabel,propertyAdd,propertyDelete)]
+        self._properties+=[(layout2, findPropertyNameLineEdit, findPropertyValueLineEdit, findPropertyNameLabel, findPropertyValueLabel, propertyAdd, propertyDelete)]
         
     def _removeScript(self):
         for script in self._scripts:
@@ -166,9 +166,9 @@ class FindDialog(QDialog):
         self.connect(scriptAdd, SIGNAL('clicked(bool)'), self._addScript)
         self.connect(scriptDelete, SIGNAL('clicked(bool)'), self._removeScript)
 
-        self.layout().insertLayout(len(self._properties)+len(self._scripts)+1,layout2)
+        self.layout().insertLayout(len(self._properties)+len(self._scripts)+1, layout2)
         
-        self._scripts+=[(layout2,findScriptLineEdit,findScriptLabel,scriptAdd,scriptDelete)]
+        self._scripts+=[(layout2, findScriptLineEdit, findScriptLabel, scriptAdd, scriptDelete)]
         
     def onScreen(self, filter=False, find=True):
         logging.debug(__name__ +': onScreen')
@@ -200,7 +200,7 @@ class FindDialog(QDialog):
             self.close()
         QDialog.keyPressEvent(self, event)
 
-    def setFindAlgorithm(self,findAlgorithm):
+    def setFindAlgorithm(self, findAlgorithm):
         logging.debug(__name__ +': setFindAlgorithm')
         self._findAlgorithm=findAlgorithm
         
@@ -210,12 +210,12 @@ class FindDialog(QDialog):
     def label(self):
         return str(self._findLabelLineEdit.text().toAscii())
     
-    def setLabel(self,label):
+    def setLabel(self, label):
         logging.debug(__name__ +': setLabel '+label)
         self._findLabelLineEdit.setText(label)
     
     def properties(self):
-        return [(str(property[1].text().toAscii()),str(property[2].text().toAscii())) for property in self._properties]
+        return [(str(property[1].text().toAscii()), str(property[2].text().toAscii())) for property in self._properties]
     
     def scripts(self):
         return [str(script[1].text().toAscii()) for script in self._scripts]
@@ -252,7 +252,7 @@ class FindDialog(QDialog):
         logging.debug(__name__ +': findPrevious')
         object=self._findAlgorithm.previous()
         self._updateNumberLabel()
-        self.emit(SIGNAL("found"),object)
+        self.emit(SIGNAL("found"), object)
     
     def findNext(self):
         logging.debug(__name__ +': findNext')
@@ -276,7 +276,7 @@ class FindDialog(QDialog):
         else:
             object=next(self._findAlgorithm)
         self._updateNumberLabel()
-        self.emit(SIGNAL("found"),object)
+        self.emit(SIGNAL("found"), object)
 
     def filter(self):
         logging.debug(__name__ +': filter')
@@ -294,18 +294,18 @@ class FindDialog(QDialog):
         self._filterButton.setVisible(True)
         self._resetButton.setVisible(True)
         self._updateNumberLabel()
-        self.emit(SIGNAL("filtered"),self._findAlgorithm.results())
+        self.emit(SIGNAL("filtered"), self._findAlgorithm.results())
 
     def reset(self):
         self.setLabel("")
         for o in self._scripts+self._properties:
             self._remove(o)
-        self._addStringProperty(False,False)
-        self._addScript(False,False)
+        self._addStringProperty(False, False)
+        self._addScript(False, False)
         self._findAlgorithm.clear()
         self._updateNumberLabel()
         if self._filter:
-            self.emit(SIGNAL("filtered"),None)
+            self.emit(SIGNAL("filtered"), None)
         self.update()
 
     def help(self):

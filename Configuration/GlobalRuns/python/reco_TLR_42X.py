@@ -13,10 +13,10 @@ def memorySavingTracking(process):
                     ]
 
     for tp in trackProducers:
-        m=getattr(process,tp)
-        if hasattr(m,"clusterRemovalInfo"):
+        m=getattr(process, tp)
+        if hasattr(m, "clusterRemovalInfo"):
             #print "removing cluter rekeying from",tp
-            delattr(m,"clusterRemovalInfo")
+            delattr(m, "clusterRemovalInfo")
 
     measurementTrackers=['MeasurementTracker',
                          'newMeasurementTracker',
@@ -29,7 +29,7 @@ def memorySavingTracking(process):
     # list of measurement tracker, component names
     ## create the clusterRef to skip creators (MT+'ToSkip')
     for mt in measurementTrackers:
-        es=getattr(process,mt)
+        es=getattr(process, mt)
         ## modify MT to point to the full cluster list
         #if es.pixelClusterProducer.value() == 'siPixelClusters':
         #    continue
@@ -42,7 +42,7 @@ def memorySavingTracking(process):
             es.pixelClusterProducer = 'siPixelClusters'
             es.stripClusterProducer = 'siStripClusters'
             #print mt,es.skipClusters,es.pixelClusterProducer,es.stripClusterProducer
-            tcremoval = getattr(process,removalModule)
+            tcremoval = getattr(process, removalModule)
             #print removalModule,"turned to using new scheme"
             tcremoval.clusterLessSolution= cms.bool(True)
             tcremoval.stripClusters = 'siStripClusters'
@@ -52,7 +52,7 @@ def memorySavingTracking(process):
                 tcremoval.TrackQuality = cms.string('highPurity')
                 #remove the QualityFilter module from the path
                 toRemove[tcremoval.trajectories.value()]=True
-                qf=getattr(process,tcremoval.trajectories.value())
+                qf=getattr(process, tcremoval.trajectories.value())
                 tcremoval.trajectories = qf.recTracks
         #else:
             #print mt,'no cluster to skip',es.pixelClusterProducer,es.stripClusterProducer
@@ -67,48 +67,48 @@ def memorySavingTracking(process):
         ]
     
     for ckfm in patternRecoModules:
-        ckf=getattr(process,ckfm)
-        builder=getattr(process,ckf.TrajectoryBuilder.value())
+        ckf=getattr(process, ckfm)
+        builder=getattr(process, ckf.TrajectoryBuilder.value())
         mtn= builder.MeasurementTrackerName.value()
         if mtn!='':
             #make it look at the central MT
             builder.MeasurementTrackerName=''
-            mt=getattr(process,mtn)
+            mt=getattr(process, mtn)
             # transfer the cluster removal from the MT to the builder
             builder.clustersToSkip = mt.skipClusters
             #print "setting",ckf.TrajectoryBuilder.value(),"via",ckfm,"to look at central MT"
             #print "removing MT:",mtn
-            delattr(process,mtn)
+            delattr(process, mtn)
         #else:
             #print ckfm,"untouched"
             
     #all seeding layers should point to the same rechits collections
     for esp in process.es_producers_().keys():
-        es = getattr(process,esp)
+        es = getattr(process, esp)
         if es._TypedParameterizable__type != 'SeedingLayersESProducer':
             continue
         for pm in es.parameters_().keys():
-            p=getattr(es,pm)
+            p=getattr(es, pm)
             if p.pythonTypeName() == 'cms.PSet':
-                if hasattr(p,'HitProducer'):
+                if hasattr(p, 'HitProducer'):
                     #print "pixel",pm,p
                     #pixel case
                     if p.HitProducer != 'siPixelRecHits':
                         toRemove[p.HitProducer.value()]=True
-                        skip=getattr(process,p.HitProducer.value()).src
+                        skip=getattr(process, p.HitProducer.value()).src
                         p.HitProducer = 'siPixelRecHits'
                         #and set the skipping
                         p.skipClusters = cms.InputTag(skip.value())
                         #print esp,"modified for new skipping"
                         #print esp,pm,p
 
-                if hasattr(p,'matchedRecHits'):
+                if hasattr(p, 'matchedRecHits'):
                     #print "strip",pm,p
                     #strip case
                     ## rename the collection
                     if p.matchedRecHits.moduleLabel != 'siStripMatchedRecHits':
                         toRemove[p.matchedRecHits.moduleLabel]=True
-                        skip=getattr(process,p.matchedRecHits.moduleLabel).ClusterProducer
+                        skip=getattr(process, p.matchedRecHits.moduleLabel).ClusterProducer
                         p.matchedRecHits.setModuleLabel('siStripMatchedRecHits')
                         #and set the skipping
                         p.skipClusters = cms.InputTag(skip.value())
@@ -116,8 +116,8 @@ def memorySavingTracking(process):
 
 
     for edp in process.producers_():
-        p=getattr(process,edp)
-        if hasattr(p,'ClusterCheckPSet'):
+        p=getattr(process, edp)
+        if hasattr(p, 'ClusterCheckPSet'):
             #print "resetting cluster check for",edp
             p.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
             p.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
@@ -128,11 +128,11 @@ def memorySavingTracking(process):
     toRemove['fifthPixelRecHits']=True
     
     for tr in toRemove:
-        if hasattr(process,tr):
+        if hasattr(process, tr):
             #print "removing",tr
-            process.reconstruction_step.remove(getattr(process,tr))
+            process.reconstruction_step.remove(getattr(process, tr))
 
-    delattr(process.newCombinedSeeds,'clusterRemovalInfos')
+    delattr(process.newCombinedSeeds, 'clusterRemovalInfos')
         
     return (process)
 

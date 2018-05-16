@@ -7,44 +7,44 @@ import FWCore.ParameterSet.Modules as mod
 
 def checkOutputModuleConfig(module):
     """Check if a PoolOutputModule is properly configured"""
-    if hasattr(module,"dataset"):
-        dataset = getattr(module,"dataset")
+    if hasattr(module, "dataset"):
+        dataset = getattr(module, "dataset")
         try:
-            dataTier = getattr(dataset,"dataTier")
-            filterName = getattr(dataset,"filterName")
+            dataTier = getattr(dataset, "dataTier")
+            filterName = getattr(dataset, "filterName")
         except:
             print "Module", module, "has a malformed PSet dataset"
     else:
         print "Module", module, "has no PSet dataset defined"
 
 
-def getModulesFromSequence(sequence,list):
+def getModulesFromSequence(sequence, list):
     item = sequence._seq
-    if isinstance(item,mod._Module):
+    if isinstance(item, mod._Module):
         list.append(item)
-    elif isinstance(item,cms.Sequence):
-         getModulesFromSequence(item,list)
+    elif isinstance(item, cms.Sequence):
+         getModulesFromSequence(item, list)
     else:
-         _getModulesFromOp(item,list)
+         _getModulesFromOp(item, list)
                                                     
 
-def _getModulesFromOp(op,list):
+def _getModulesFromOp(op, list):
     for item in dir(op):
-        o = getattr(op,item)
-        if isinstance(o,mod._Module):
+        o = getattr(op, item)
+        if isinstance(o, mod._Module):
             list.append(o)
         elif isinstance(o, cms.Sequence):
-            _getModulesFromOp(o,list)
-        elif isinstance(o,sqt._Sequenceable):
-            _getModulesFromOp(o,list)
+            _getModulesFromOp(o, list)
+        elif isinstance(o, sqt._Sequenceable):
+            _getModulesFromOp(o, list)
                     
 
 def extractUsedOutputs(process):
     allEndPathModules = []
     for name in process._Process__endpaths:
-        endpath = getattr(process,name)
+        endpath = getattr(process, name)
         list = []
-        getModulesFromSequence(endpath,list)
+        getModulesFromSequence(endpath, list)
         allEndPathModules.extend(list)
     allUsedOutputModules = []
     for module in allEndPathModules:

@@ -102,7 +102,7 @@ class RunAlcaHarvesting:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "global-tag=", "lfn=", "dataset=","workflows=","alcapromptdataset="]
+    valid = ["scenario=", "global-tag=", "lfn=", "dataset=", "workflows=", "alcapromptdataset="]
     usage = \
     usage = """
     RunAlcaHarvesting.py <options>
