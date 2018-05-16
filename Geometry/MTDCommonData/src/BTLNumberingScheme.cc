@@ -8,11 +8,15 @@
 
 BTLNumberingScheme::BTLNumberingScheme() : 
   MTDNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "Creating BTLNumberingScheme";
+#endif  
 }
 
 BTLNumberingScheme::~BTLNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "Deleting BTLNumberingScheme";
+#endif  
 }
 
 uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {

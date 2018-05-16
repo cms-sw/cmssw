@@ -1,7 +1,5 @@
 #include "SimG4CMS/Forward/interface/MtdSD.h"
 
-#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
-
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -142,9 +140,7 @@ void MtdSD::GetStepInfo(G4Step* aStep) {
   edm::LogInfo("MtdSim") << "MtdSD :particleType =  " 
 	    << theTrack->GetDefinition()->GetParticleName();
 #endif
-  if (particleCode == emPDG ||
-      particleCode == epPDG ||
-      particleCode == gammaPDG ) {
+  if ( G4TrackToParticleID::isGammaElectronPositron(theTrack) ) {
     edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.;
   } else {
     edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
@@ -390,15 +386,7 @@ void MtdSD::update (const BeginOfEvent * i) {
    eventno = (*i)()->GetEventID();
 }
 
-void MtdSD::update(const BeginOfRun *) {
-
-  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
-  G4String particleName;
-  emPDG = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
-
-} 
+void MtdSD::update(const BeginOfRun *) {}
 
 void MtdSD::update (const ::EndOfEvent*) {}
 

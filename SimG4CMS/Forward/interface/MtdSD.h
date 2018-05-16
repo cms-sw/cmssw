@@ -128,9 +128,6 @@ private:
 protected:
   
   float                        edepositEM, edepositHAD;
-  G4int                        emPDG;
-  G4int                        epPDG;
-  G4int                        gammaPDG;
 };
 
 #endif

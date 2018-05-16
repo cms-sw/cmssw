@@ -7,11 +7,15 @@
 
 ETLNumberingScheme::ETLNumberingScheme() : 
   MTDNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "Creating ETLNumberingScheme";
+#endif  
 }
 
 ETLNumberingScheme::~ETLNumberingScheme() {
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("MTDGeom") << "Deleting ETLNumberingScheme";
+#endif  
 }
 
 uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
