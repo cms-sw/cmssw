@@ -254,13 +254,12 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& id) const {
     }
     if (m_det == DetId::HGCalHSc) {
       float dx = 0.5*m_cellVec2[cellIndex].param()[11];
-      float dy(dx);
       float dz = m_cellVec2[cellIndex].param()[0];
       static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
       static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
       static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
       for (unsigned int i = 0; i != ncorner; ++i) {
-	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dy,signz[i]*dz);
+	const HepGeom::Point3D<float> lcoord(xy.first+signx[i]*dx,xy.second+signy[i]*dx,signz[i]*dz);
 	co[i] = m_cellVec2[cellIndex].getPosition(lcoord);
       }
     } else {
@@ -289,7 +288,7 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
     else           local = HepGeom::Point3D<float>(-r.x(),r.y(),0);
     if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	(mode_ == HGCalGeometryMode::HexagonFull)) {
-      std::pair<int,int> kxy = 
+      const auto & kxy = 
 	topology().dddConstants().assignCell(local.x(),local.y(),id_.iLay,
 					     id_.iType,true);
       id_.iCell1  = kxy.second;
@@ -298,7 +297,7 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
       if (id_.iType != 1) id_.iType = -1;
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
       id_.iLay = topology().dddConstants().getLayer(r.z(),true);
-      std::array<int,3>  kxy = 
+      const auto & kxy = 
 	topology().dddConstants().assignCellTrap(r.x(),r.y(),r.z(),
 						 id_.iLay,true);
       id_.iSec1  = kxy[0];
@@ -306,7 +305,7 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
       id_.iType  = kxy[2];
     } else {
       id_.iLay = topology().dddConstants().getLayer(r.z(),true);
-      std::array<int,5> kxy = 
+      const auto & kxy = 
 	topology().dddConstants().assignCellHex(local.x(),local.y(),id_.iLay,
 						true);
       id_.iSec1  = kxy[0]; id_.iSec2  = kxy[1]; id_.iType = kxy[2];
@@ -424,48 +423,32 @@ void HGCalGeometry::addValidID(const DetId& id) {
   edm::LogError("HGCalGeom") << "HGCalGeometry::addValidID is not implemented";
 }
 
-
 unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
+
+  return ((m_det == DetId::HGCalHSc) ? getClosestCellIndex(r,m_cellVec2) : getClosestCellIndex(r,m_cellVec));
+}
+
+template<class T>
+unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r,
+						 const std::vector<T>& vec) const {
 
   float phip = r.phi();
   float zp   = r.z();
   float dzmin(9999), dphimin(9999), dphi10(0.175);
-  unsigned int cellIndex(0);
-  if (m_det == DetId::HGCalHSc) {
-    cellIndex =  m_cellVec2.size();
-    for (unsigned int k=0; k<m_cellVec2.size(); ++k) {
-      float dphi = phip-m_cellVec2[k].phiPos();
-      while (dphi >   M_PI) dphi -= 2*M_PI;
-      while (dphi <= -M_PI) dphi += 2*M_PI;
-      if (std::abs(dphi) < dphi10) {
-	float dz = std::abs(zp - m_cellVec2[k].getPosition().z());
-	if (dz < (dzmin+0.001)) {
-	  dzmin     = dz;
-	  if (std::abs(dphi) < (dphimin+0.01)) {
-	    cellIndex = k;
-	    dphimin   = std::abs(dphi);
-	  } else {
-	    if (cellIndex >= m_cellVec2.size()) cellIndex = k;
-	  }
-	}
-      }
-    }
-  } else {
-    cellIndex =  m_cellVec.size();
-    for (unsigned int k=0; k<m_cellVec.size(); ++k) {
-      float dphi = phip-m_cellVec[k].phiPos();
-      while (dphi >   M_PI) dphi -= 2*M_PI;
-      while (dphi <= -M_PI) dphi += 2*M_PI;
-      if (std::abs(dphi) < dphi10) {
-	float dz = std::abs(zp - m_cellVec[k].getPosition().z());
-	if (dz < (dzmin+0.001)) {
-	  dzmin     = dz;
-	  if (std::abs(dphi) < (dphimin+0.01)) {
-	    cellIndex = k;
-	    dphimin   = std::abs(dphi);
-	  } else {
-	    if (cellIndex >= m_cellVec.size()) cellIndex = k;
-	  }
+  unsigned int cellIndex =  vec.size();
+  for (unsigned int k=0; k<vec.size(); ++k) {
+    float dphi = phip-vec[k].phiPos();
+    while (dphi >   M_PI) dphi -= 2*M_PI;
+    while (dphi <= -M_PI) dphi += 2*M_PI;
+    if (std::abs(dphi) < dphi10) {
+      float dz = std::abs(zp - vec[k].getPosition().z());
+      if (dz < (dzmin+0.001)) {
+	dzmin     = dz;
+	if (std::abs(dphi) < (dphimin+0.01)) {
+	  cellIndex = k;
+	  dphimin   = std::abs(dphi);
+	} else {
+	  if (cellIndex >= vec.size()) cellIndex = k;
 	}
       }
     }
@@ -473,24 +456,15 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "getClosestCellIndex::Input " << zp << ":" 
 				<< phip << " Index " << cellIndex;
-  if (m_det == DetId::HGCalHSc) {
-    if (cellIndex < m_cellVec2.size()) 
-      edm::LogVerbatim("HGCalGeom") << " Cell z " 
-				    << m_cellVec2[cellIndex].getPosition().z() 
-				    << ":" << dzmin << " phi " 
-				    << m_cellVec2[cellIndex].phiPos() << ":"
-				    << dphimin;
-  } else {
-    if (cellIndex < m_cellVec.size()) 
-      edm::LogVerbatim("HGCalGeom") << " Cell z " 
-				    << m_cellVec[cellIndex].getPosition().z() 
-				    << ":" << dzmin << " phi " 
-				    << m_cellVec[cellIndex].phiPos() << ":"
-				    << dphimin;
-  }
+  if (cellIndex < vec.size()) 
+    edm::LogVerbatim("HGCalGeom") << " Cell z " 
+				  << m_vec[cellIndex].getPosition().z() 
+				  << ":" << dzmin << " phi " 
+				  << vec[cellIndex].phiPos() << ":" << dphimin;
 #endif
   return cellIndex;
 }
+
 
 // FIXME: Change sorting algorithm if needed
 namespace {

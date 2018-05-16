@@ -69,7 +69,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  int type = topology.dddConstants().waferTypeT(wafer);
 	  if (type != 1) type = 0;
 	  DetId detId = (DetId)(HGCalDetId(subdet,zside,layer,type,wafer,0));
-	  std::pair<double,double>  w = topology.dddConstants().waferPosition(wafer,true);
+	  const auto &  w = topology.dddConstants().waferPosition(wafer,true);
 	  double xx = (zside > 0) ? w.first : -w.first;
 	  CLHEP::Hep3Vector h3v(xx,w.second,mytr.h3v.z());
 	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);
@@ -102,7 +102,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	   md<=topology.dddConstants().getParameter()->lastModule_[indx];++md){
 	for (int iphi=1; iphi<=nphi; ++iphi) {
 	  DetId detId = (DetId)(HGCScintillatorDetId(type,layer,zside*ieta,iphi));
-	  std::pair<float,float>  w = topology.dddConstants().locateCellTrap(layer,ieta,iphi,true);
+	  const auto &  w = topology.dddConstants().locateCellTrap(layer,ieta,iphi,true);
 	  double xx = (zside > 0) ? w.first : -w.first;
 	  CLHEP::Hep3Vector h3v(xx,w.second,mytr.h3v.z());
 	  const HepGeom::Transform3D ht3d (mytr.hr, h3v);

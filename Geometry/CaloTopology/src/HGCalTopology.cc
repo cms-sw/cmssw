@@ -17,23 +17,21 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
   cellMax_  = hdcons_.maxCellUV();
   waferOff_ = hdcons_.waferUVMax();
   waferMax_ = 2*waferOff_ + 1;
+  kHGhalf_  = sectors_*layers_*cells_ ;
   if ((mode_ == HGCalGeometryMode::Hexagon) || 
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     det_        = DetId::Forward;
     subdet_     = (ForwardSubdetector)(det);
-    kHGhalf_    = sectors_*layers_*cells_ ;
     kHGeomHalf_ = sectors_*layers_;
     types_      = 2;
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     det_        = (DetId::Detector)(det);
     subdet_     = ForwardEmpty;
-    kHGhalf_    = sectors_*layers_*cells_ ;
     kHGeomHalf_ = hdcons_.numberCells(true);
     types_      = 2;
   } else {
     det_        = (DetId::Detector)(det);
     subdet_     = ForwardEmpty;
-    kHGhalf_    = sectors_*layers_*cells_ ;
     kHGeomHalf_ = sectors_*layers_;
     types_      = 3;
   }
@@ -49,9 +47,8 @@ HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons,
 }
 
 unsigned int HGCalTopology::allGeomModules() const {
-  int n = (mode_ == HGCalGeometryMode::Trapezoid) ?
-    (2*kHGeomHalf_) : (2*hdcons_.wafers());
-  return (unsigned int)(n);
+  return ((mode_ == HGCalGeometryMode::Trapezoid) ? (unsigned int)(2*kHGeomHalf_) : 
+	  (unsigned int)(2*hdcons_.wafers()));
 }
 
 uint32_t HGCalTopology::detId2denseId(const DetId& idin) const {
@@ -246,8 +243,7 @@ HGCalTopology::DecodedDetId HGCalTopology::geomDenseId2decId(const uint32_t& hi)
       id.iSec1  = (di%sectors_);
       di        = (di-id.iSec1)/sectors_;
       id.iLay   = (di%layers_)+1;
-      int type  = (di-id.iLay+1)/layers_;
-      id.iType  = (type == 0) ? -1 : 1;
+      id.iType  = ((di-id.iLay+1)/layers_ == 0) ? -1 : 1;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "I/P " << hi << " O/P " << id.zSide 
 				    << ":" << id.iType << ":" << id.iLay
@@ -325,8 +321,7 @@ DetId HGCalTopology::encode(const HGCalTopology::DecodedDetId& idx) const {
   DetId id;
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) {
-    int type = (idx.iType > 0) ? 1 : 0;
-    id = HGCalDetId((ForwardSubdetector)(idx.det),idx.zSide,idx.iLay,type,idx.iSec1,idx.iCell1).rawId();
+    id = HGCalDetId((ForwardSubdetector)(idx.det),idx.zSide,idx.iLay,((idx.iType > 0) ? 1 : 0),idx.iSec1,idx.iCell1).rawId();
   } else if (mode_ == HGCalGeometryMode::Trapezoid) {
     id = HGCScintillatorDetId(idx.iType,idx.iLay,idx.zSide*idx.iSec1,idx.iCell1).rawId();
   } else {

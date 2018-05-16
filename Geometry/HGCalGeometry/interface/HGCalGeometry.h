@@ -41,10 +41,10 @@ public:
   typedef HGCalGeometryRecord        AlignedRecord   ; // NOTE: not aligned yet
   typedef PHGCalRcd                  PGeometryRecord ;
 
-  enum { k_NumberOfParametersPerTrd = 12 } ; // FlatTrd
-  enum { k_NumberOfParametersPerHex = 3 }  ; // FlatHexagon
-  enum { k_NumberOfParametersPerShape = 9 }  ; // FlatHexagon
-  enum { k_NumberOfShapes = 50 } ; 
+  static constexpr unsigned int k_NumberOfParametersPerTrd = 12; // FlatTrd
+  static constexpr unsigned int k_NumberOfParametersPerHex = 3 ; // FlatHexagon
+  static constexpr unsigned int k_NumberOfParametersPerShape = 3; // FlatHexagon
+  static constexpr unsigned int k_NumberOfShapes = 50; 
 
   static std::string dbString() { return "PHGCalRcd" ; }
  
@@ -118,6 +118,8 @@ protected:
 
 private:
 
+  template<class T>
+  unsigned int getClosestCellIndex(const GlobalPoint&r, const std::vector<T>& vec) const;
   std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
 
   const HGCalTopology&            m_topology;
