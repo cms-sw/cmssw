@@ -69,32 +69,6 @@ def cleanPfCandidates(process, verbose=False):
     process.reducedEgamma.photonsPFValMap      = cms.InputTag("pfEGammaToCandidateRemapper","photons")
 
 
-    #add bugged conditions to GT for comparison
-    process.GlobalTag.toGet.append(cms.PSet(
-        record = cms.string("HcalRespCorrsRcd"),
-        label = cms.untracked.string("bugged"),
-        tag = cms.string("HcalRespCorrs_v6.3_offline")
-        )
-    )
-
-
-    #=== TMP FOR TESTING ONLY
-    #process.load("CondCore.DBCommon.CondDBSetup_cfi")
-    #process.es_pool = cms.ESSource("PoolDBESSource",
-    #                               process.CondDBSetup,
-    #                               timetype = cms.string('runnumber'),
-    #                               toGet = cms.VPSet(
-    #                                            cms.PSet(record = cms.string("HcalRespCorrsRcd"),
-    #                                            tag = cms.string("HcalRespCorrs_2016legacy_fixBadCalib")
-    #                                                     )
-    #                                            ),
-    #                               connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-    #                               authenticationMethod = cms.untracked.uint32(0)
-    #                               )
-    #process.es_prefer_es_pool = cms.ESPrefer( "PoolDBESSource", "es_pool" )
-    #=== END - TMP FOR TESTING ONLY
-
-
 def addDiscardedPFCandidates(process, inputCollection, verbose=False):
 
     task = getPatAlgosToolsTask(process)
@@ -127,14 +101,5 @@ def customizeAll(process, verbose=False):
 
     cleanPfCandidates(process, verbose)
     addDiscardedPFCandidates(process, cms.InputTag("pfCandidatesBadHadRecalibrated","discarded"), verbose=verbose)
-
-    #=== TMP FOR TESTING ONLY
-    #addKeepStatement(process, "keep patPackedCandidates_packedPFCandidates_*_*",
-    #                         ["keep patPackedCandidates_packedPFCandidatesDiscarded_*_*",
-    #                          "keep *_particleFlow__*",
-    #                          "keep *_pfCandidatesBadHadRecalibrated__*"],
-    #                          verbose=verbose)
-    #=== END - TMP FOR TESTING ONLY
-
 
     return process
