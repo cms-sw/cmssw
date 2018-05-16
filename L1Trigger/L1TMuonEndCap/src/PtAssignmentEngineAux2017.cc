@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cmath>
 
-// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLutVarCalc.cc
+// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLUTVarCalc.cc
 
 
 // Arrays that map the integer dPhi --> dPhi-units. 1/60th of a degree per unit; 255 units --> 4.25 degrees, 511 --> 8.52 degrees
@@ -126,7 +126,7 @@ int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const 
       }
     } // End conditional: if (bits == 7)
   } // End conditional: else if (max == 512)
-  
+
   if (not(dPhiBin_ >= 0 && dPhiBin_ < pow(2, bits)))
     { edm::LogError("L1T") << "dPhiBin_ = " << dPhiBin_ << ", bits = " << bits; return 0; }
   return (dPhiBin_);
@@ -344,7 +344,7 @@ int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
     default: break;
     }
   }
-  
+
   if (not(dTheta_ >= -4 && dTheta_ <= 3))
     { edm::LogError("L1T") << "dTheta_ = " << dTheta_; return 0; }
   return (dTheta_);
@@ -520,13 +520,13 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
 } // End function: int PtAssignmentEngineAux2017::get8bMode15()
 
 
-void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& st1_ring2, int endcap, int sPhiAB, 
-						int& clctA, int& rpcA, int& rpcB, int& rpcC, int& rpcD) const {
+void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& st1_ring2, int endcap, int sPhiAB,
+                                                int& clctA, int& rpcA, int& rpcB, int& rpcC, int& rpcD) const {
 
-  // std::cout << "Inside unpack8bMode15, mode15_8b = " << mode15_8b << ", theta = " << theta 
-  // 	    << ", st1_ring2 = " << st1_ring2  << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB << ", clctA = " << clctA 
-  // 	    << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
-  
+  // std::cout << "Inside unpack8bMode15, mode15_8b = " << mode15_8b << ", theta = " << theta
+  //             << ", st1_ring2 = " << st1_ring2  << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB << ", clctA = " << clctA
+  //             << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
+
   if (not(mode15_8b >= 0 && mode15_8b < pow(2, 8)))
     { edm::LogError("L1T") << "mode15_8b = " << mode15_8b; return; }
   if (not(abs(endcap) == 1 && abs(sPhiAB) == 1))

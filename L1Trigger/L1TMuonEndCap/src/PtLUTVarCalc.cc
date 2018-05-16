@@ -1,10 +1,10 @@
 #include <cassert>
 #include <cstdlib>
-#include "L1Trigger/L1TMuonEndCap/interface/PtLutVarCalc.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTVarCalc.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLutVarCalc.cc
+// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLUTVarCalc.cc
 
 PtAssignmentEngineAux2017 ENG;
 
