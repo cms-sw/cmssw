@@ -82,22 +82,20 @@ HFGflash::HFGflash(edm::ParameterSet const & p) {
 }
 
 HFGflash::~HFGflash() {
-  if (theHelix)      delete theHelix;
-  if (theGflashStep) delete theGflashStep;
-  if (theGflashNavigator) delete theGflashNavigator;
+  delete theHelix;
+  delete theGflashStep;
+  delete theGflashNavigator;
 }
 
-
-std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok,bool onlyLong) {
+std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step * aStep, bool onlyLong) {
   double tempZCalo = 26;  // Gflash::Z[jCalorimeter]
   double hfcriticalEnergy = 0.021;  // Gflash::criticalEnergy
 
   std::vector<HFGflash::Hit> hit;
   HFGflash::Hit oneHit;
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  G4Track *     track    = aStep->GetTrack();
-  G4String      partType = track->GetDefinition()->GetParticleName();
+  auto const preStepPoint  = aStep->GetPreStepPoint(); 
+  auto const track    = aStep->GetTrack();
 
   // This part of code is copied from the original GFlash Fortran code.
   // reference : hep-ex/0001020v1
@@ -109,15 +107,16 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   G4ThreeVector showerMomentum = preStepPoint->GetMomentum()/GeV;
   jCalorimeter = Gflash::kHF;
 
-  G4double logEinc = std::log((preStepPoint->GetTotalEnergy())/GeV);
+  const G4double invgev = 1.0/CLHEP::GeV; 
+  G4double energy = preStepPoint->GetTotalEnergy()*invgev; // energy left in GeV
+  G4double logEinc = std::log(energy);
 
-  G4double y = ((preStepPoint->GetTotalEnergy())/GeV) / hfcriticalEnergy; // y = E/Ec, criticalEnergy is in GeV
+  G4double y = energy / hfcriticalEnergy; // y = E/Ec, criticalEnergy is in GeV
   G4double logY = std::log(y);
 
 
-  G4double nSpots = 93.0 * std::log(tempZCalo) * ((preStepPoint->GetTotalEnergy())/GeV); // total number of spot due linearization
-  if(preStepPoint->GetTotalEnergy()/GeV < 1.6)  nSpots = 140.4 * std::log(tempZCalo) * std::pow(((preStepPoint->GetTotalEnergy())/GeV),0.876); 
-
+  G4double nSpots = 93.0 * std::log(tempZCalo) * energy; // total number of spot due linearization
+  if(energy < 1.6)  nSpots = 140.4 * std::log(tempZCalo) * std::pow(energy,0.876); 
 
   //   // implementing magnetic field effects
   double charge = track->GetStep()->GetPreStepPoint()->GetCharge();
@@ -165,10 +164,10 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   if (spotBeta < 0.00001)  return hit;
 
 #ifdef DebugLog  
-  LogDebug("HFShower") << "Incoming energy = " << ((preStepPoint->GetTotalEnergy())/GeV) << " Position (rho,z) = (" << showerStartingPosition.rho() << ", " << showerStartingPosition.z() << ")";
+  LogDebug("HFShower") << "Incoming energy = " << energy << " Position (rho,z) = (" << showerStartingPosition.rho() << ", " << showerStartingPosition.z() << ")";
 
   if(theFillHisto) {
-    em_incE->Fill(((preStepPoint->GetTotalEnergy())/GeV));
+    em_incE->Fill(energy);
     em_ssp_rho->Fill(showerStartingPosition.rho());
     em_ssp_z->Fill(std::abs(showerStartingPosition.z()));
   }
@@ -188,8 +187,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 
   //   // @@@ dwjang, intial tuning by comparing 20-150GeV TB data
   //   // the width of energy response is not yet tuned.
-  G4double e25Scale = 1.03551;
-  z1 *= 9.76972e-01 - 3.85026e-01 * std::tanh(1.82790e+00*std::log(((preStepPoint->GetTotalEnergy())/GeV)) - 3.66237e+00);
+  const G4double e25Scale = 1.03551;
+  z1 *= 9.76972e-01 - 3.85026e-01 * std::tanh(1.82790e+00*std::log(energy) - 3.66237e+00);
   p1 *= 0.96;
 
   G4double stepLengthLeft = 10000;
@@ -200,7 +199,6 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   G4double stepLengthLeftInX0 = 0.0; // step length left in X0 unit
 
   const G4double divisionStepInX0 = 0.1; //step size in X0 unit
-  G4double energy = ((preStepPoint->GetTotalEnergy())/GeV); // energy left in GeV
 
   Genfun::IncompleteGamma gammaDist;
 
@@ -217,7 +215,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   G4double deltaStep = 0.0;
 
   // Uniqueness of G4Step is important otherwise hits won't be created.
-  G4double timeGlobal = track->GetStep()->GetPreStepPoint()->GetGlobalTime();
+  G4double timeGlobal = preStepPoint->GetGlobalTime();
 
   // this needs to be deleted manually at the end of this loop.
   //  theGflashNavigator = new G4Navigator();
@@ -262,7 +260,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       
       energyInGamma = gammaDist(beta*zInX0); //beta
       G4double energyInDeltaZ  = energyInGamma - preEnergyInGamma;
-      deltaEnergy   = std::min(energy,((preStepPoint->GetTotalEnergy())/GeV)*energyInDeltaZ);
+      deltaEnergy   = std::min(energy,energy*energyInDeltaZ);
  
       preSigmaInGamma  = sigmaInGamma;
       gammaDist.a().setValue(spotAlpha);  //alpha spot
@@ -291,7 +289,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 
 
     //lateral shape and fluctuations for  homogenous calo.
-    G4double tScale = tmax *alpha/(alpha-1.0) * (std::exp(fluctuatedAlpha)-1.0)/std::exp(fluctuatedAlpha);
+    G4double tScale = tmax *alpha/(alpha-1.0) * (1.0 - std::exp(-fluctuatedAlpha));
     G4double tau = std::min(10.0,(zInX0 - 0.5*deltaZInX0)/tScale);
     G4double rCore = z1 + z2 * tau; 
     G4double rTail = k1 *( std::exp(k3*(tau-k2)) + std::exp(k4*(tau-k2))); // @@ check RT3 sign
@@ -302,14 +300,11 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
     // Deposition of spots according to lateral distr.
     // Apply absolute energy scale
     // Convert into MeV unit
-    G4double emSpotEnergy = deltaEnergy / nSpotsInStep * e25Scale * GeV;
-
+    G4double emSpotEnergy = deltaEnergy / (nSpotsInStep * e25Scale * GeV);
 
 #ifdef DebugLog  
     LogDebug("HFShower") << " nSpotsInStep = " << nSpotsInStep;
 #endif
-
-
 
     for (G4int ispot = 0 ;  ispot < nSpotsInStep ; ispot++) {
       spotCounter++;
@@ -336,13 +331,11 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       GflashTrajectoryPoint trajectoryPoint;
       theHelix->getGflashTrajectoryPoint(trajectoryPoint,pathLength+incrementPath);
 
-
       G4ThreeVector SpotPosition0 = trajectoryPoint.getPosition() + rShower*std::cos(azimuthalAngle)*trajectoryPoint.getOrthogonalUnitVector() + rShower*std::sin(azimuthalAngle)*trajectoryPoint.getCrossUnitVector();
 
       //!V.Ivanchenko - not clear if it is correct
       // Convert into mm unit
       SpotPosition0 *= cm;
-
 
       //---------------------------------------------------
       // fill a fake step to send it to hit maker
@@ -359,17 +352,17 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       LogDebug("HFShower") <<  "zInX0_spot,emSpotEnergy/GeV =" << zInX0_spot << " , " << emSpotEnergy/GeV <<  "emSpotEnergy/GeV =" << emSpotEnergy/GeV;
 #endif
 
-      if ((!zInX0_spot) || (zInX0_spot < 0)) continue;
-      if ((!emSpotEnergy/GeV) ||  (emSpotEnergy < 0)) continue;
-      if ((!rShower/Gflash::rMoliere[jCalorimeter]) || (rShower/Gflash::rMoliere[jCalorimeter] < 0)) continue;
+      if (zInX0_spot <= 0) continue;
+      if (emSpotEnergy <= 0) continue;
+      if (rShower/Gflash::rMoliere[jCalorimeter] <= 0) continue;
 
       oneHit.depth    = 1;
 
 #ifdef DebugLog
       if (theFillHisto) {
-	em_long->Fill(SpotPosition0.z()/cm,emSpotEnergy/GeV);
-	em_lateral->Fill(rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
-	em_2d->Fill(SpotPosition0.z()/cm,rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy/GeV);
+	em_long->Fill(SpotPosition0.z()/cm,emSpotEnergy*invgev);
+	em_lateral->Fill(rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy*invgev);
+	em_2d->Fill(SpotPosition0.z()/cm,rShower/Gflash::rMoliere[jCalorimeter],emSpotEnergy*invgev);
       }
 #endif
 
@@ -386,7 +379,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
       if(SpotPosition0.z() < 0) zshift = -18;
 
 
-      G4ThreeVector gfshift(0,0,zshift*(pow(100,0.1)/pow(preStepPoint->GetTotalEnergy()/GeV,0.1)));
+      G4ThreeVector gfshift(0,0,zshift*(pow(100,0.1)/pow(energy,0.1)));
 
       G4ThreeVector SpotPosition = gfshift + SpotPosition0;
 
@@ -395,7 +388,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 
       oneHit.position = SpotPosition;
       oneHit.time     = timeGlobal;
-      oneHit.edep     = emSpotEnergy/GeV;
+      oneHit.edep     = emSpotEnergy*invgev;
       hit.push_back(oneHit);
       nSpots_sd++;
       

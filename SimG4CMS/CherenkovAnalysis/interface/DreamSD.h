@@ -23,12 +23,13 @@ public:
   DreamSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   ~DreamSD() override {}
-  bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
+  //  bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
   uint32_t setDetUnitId(const G4Step*) override;
 
 protected:
 
-  G4bool getStepInfo(G4Step* aStep) override;
+  // G4bool getStepInfo(G4Step* aStep) override;
+  double getEnergyDeposit(const G4Step* ) override;
   void   initRun() override;
 
 private:    
