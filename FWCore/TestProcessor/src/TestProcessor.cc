@@ -226,15 +226,12 @@ void
 TestProcessor::setupProcessing() {
   if(not beginJobCalled_) {
     beginJob();
-    beginJobCalled_ = true;
   }
   if(not beginRunCalled_) {
     beginRun();
-    beginRunCalled_ = true;
   }
   if(not beginLumiCalled_) {
     beginLuminosityBlock();
-    beginLumiCalled_ = true;
   }
 }
 
@@ -279,12 +276,11 @@ TestProcessor::beginJob() {
   for(unsigned int i=0; i<preallocations_.numberOfStreams();++i) {
     schedule_->beginStream(i);
   }
-
+  beginJobCalled_ = true;
 }
 
 void
 TestProcessor::beginRun() {
-  
   ProcessHistoryID phid;
   auto aux = std::make_shared<RunAuxiliary>(runNumber_,Timestamp(),Timestamp());
   auto rp = std::make_shared<RunPrincipal>(aux, preg_, *processConfiguration_, historyAppender_.get(), 0);
@@ -336,11 +332,11 @@ TestProcessor::beginRun() {
       std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
     }
   }
+  beginRunCalled_ = true;
 }
 
 void
 TestProcessor::beginLuminosityBlock() {
-  
   LuminosityBlockAuxiliary aux(runNumber_,lumiNumber_,Timestamp(), Timestamp());
   lumiPrincipal_ = principalCache_.getAvailableLumiPrincipalPtr();
   assert(lumiPrincipal_);
@@ -392,7 +388,7 @@ TestProcessor::beginLuminosityBlock() {
       std::rethrow_exception(* (streamLoopWaitTask->exceptionPtr()) );
     }
   }
-
+  beginLumiCalled_ = true;
 }
 
 void
