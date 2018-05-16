@@ -310,8 +310,8 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU,
 				    int cellV) const {
   auto itr  = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer,modU,modV));
   if (itr == hgpar_->typesInLayers_.end()) return false;
-  int  type = hgpar_->waferTypeL_[itr->second];
-  int  N    = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
+  int  N = ((hgpar_->waferTypeL_[itr->second] == 0) ? hgpar_->nCellsFine_ :
+	    hgpar_->nCellsCoarse_);
   if ((cellU >= 0) && (cellU < 2*N) && (cellV >= 0) && (cellV < 2*N)) {
     return (((cellV-cellU) < N) && ((cellU-cellV) <= N));
   } else {
