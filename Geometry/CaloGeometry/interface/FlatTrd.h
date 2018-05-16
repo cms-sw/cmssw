@@ -74,7 +74,7 @@ public:
   void setPosition ( const GlobalPoint& p ) { m_global = p;  setRefPoint(p); }
 
   static const unsigned int ncorner_  = 8;
-  static constexpr unsigned int ncornerBy2_ = ncorner_/2;
+  static constexpr unsigned int ncornerBy2_ = 4;
 
 private:
 

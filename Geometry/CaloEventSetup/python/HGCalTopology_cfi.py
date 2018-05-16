@@ -4,19 +4,19 @@ import FWCore.ParameterSet.Config as cms
 # This cfi should be included to build the HGCal Topologies
 #
 HGCalEETopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
-                                        Name = cms.untracked.string("HGCalEESensitive"),
-                                        Type = cms.untracked.int32(0)
+                                        Name = cms.string("HGCalEESensitive"),
+                                        Type = cms.int32(3)
                                         )
 
 
 HGCalHESilTopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
-                                           Name = cms.untracked.string("HGCalHESiliconSensitive"),
-                                           Type = cms.untracked.int32(1)
+                                           Name = cms.string("HGCalHESiliconSensitive"),
+                                           Type = cms.int32(4)
                                            )
 
 
 HGCalHESciTopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
-                                           Name = cms.untracked.string("HGCalHEScintillatorSensitive"),
-                                           Type = cms.untracked.int32(2)
+                                           Name = cms.string("HGCalHEScintillatorSensitive"),
+                                           Type = cms.untracked.int32(5)
                                            )
 

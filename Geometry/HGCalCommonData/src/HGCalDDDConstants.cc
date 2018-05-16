@@ -258,25 +258,25 @@ bool HGCalDDDConstants::isHalfCell(int waferType, int cell) const {
 bool HGCalDDDConstants::isValidHex(int lay, int mod, int cell, 
 				   bool reco) const {
 
-  bool ok(false), okMod(false);
+  bool result(false), resultMod(false);
   int  cellmax(0);
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     int32_t copyNumber = hgpar_->waferCopy_[mod];
-    ok = ((lay > 0 && lay <= (int)(layers(reco))));
-    if (ok) {
+    result = ((lay > 0 && lay <= (int)(layers(reco))));
+    if (result) {
       const int32_t lay_idx = reco ? (lay-1)*3 + 1 : lay;
       const auto& the_modules = hgpar_->copiesInLayers_[lay_idx];
       auto moditr = the_modules.find(copyNumber);
-      ok = okMod = (moditr != the_modules.end());
+      result = resultMod = (moditr != the_modules.end());
 #ifdef EDM_ML_DEBUG
-      if (!ok) 
+      if (!result) 
 	edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants: Layer " << lay 
 				      << ":" << lay_idx << " Copy " 
 				      << copyNumber << ":" << mod
-				      << " Flag " << ok;
+				      << " Flag " << result;
 #endif
-      if (ok) {
+      if (result) {
 	if (moditr->second >= 0) {
 	  if (mod >= (int)(hgpar_->waferTypeT_.size()))
 	    edm::LogWarning("HGCalGeom") << "Module no. out of bound for " 
@@ -285,49 +285,49 @@ bool HGCalDDDConstants::isValidHex(int lay, int mod, int cell,
 					 << " ***** ERROR *****";
 	  cellmax = (hgpar_->waferTypeT_[mod]==1) ? 
 	    (int)(hgpar_->cellFineX_.size()) : (int)(hgpar_->cellCoarseX_.size());
-	  ok = (cell >=0 && cell <=  cellmax);
+	  result = (cell >=0 && cell <=  cellmax);
 	} else {
-	  ok = isValidCell(lay_idx, mod, cell);
+	  result = isValidCell(lay_idx, mod, cell);
 	}
       }
     }
   }
     
 #ifdef EDM_ML_DEBUG
-  if (!ok) 
+  if (!result) 
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants: Layer " << lay << ":"
 				  << (lay > 0 && (lay <= (int)(layers(reco))))
-				  << " Module " << mod << ":" << okMod 
+				  << " Module " << mod << ":" << resultMod 
 				  << " Cell " << cell << ":" << cellmax << ":"
 				  << (cell >=0 && cell <= cellmax)
 				  << ":" << maxCells(reco); 
 #endif
-  return ok;
+  return result;
 }
 
 bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, 
 				    int cellV) const {
   int  indx = HGCalWaferIndex::waferIndex(layer,modU,modV);
   auto itr  = hgpar_->typesInLayers_.find(indx);
-  bool ok(false);
-  if (itr == hgpar_->typesInLayers_.end()) return ok;
+  bool result(false);
+  if (itr == hgpar_->typesInLayers_.end()) return result;
   int  type = hgpar_->waferTypeL_[itr->second];
   int  N    = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   if ((cellU >= 0) && (cellU < 2*N) && (cellV >= 0) && (cellV < 2*N)) {
-    ok = (((cellV-cellU) < N) && ((cellU-cellV) <= N));
+    result = (((cellV-cellU) < N) && ((cellU-cellV) <= N));
   }
-  return ok;
+  return result;
 }
 
 bool HGCalDDDConstants::isValidTrap(int layer, int ieta, int iphi) const {
   std::pair<int,float> indx  = getIndex(layer,true);
-  bool ok(false);
-  if (indx.first < 0) return ok;
+  bool result(false);
+  if (indx.first < 0) return result;
   int nEta = hgpar_->lastModule_[indx.first]-hgpar_->firstModule_[indx.first];
-  ok = ((ieta >= hgpar_->iEtaMinBH_[indx.first]) &&
-	(ieta <= (hgpar_->iEtaMinBH_[indx.first]+nEta)) &&
-	(iphi > 0) && (iphi < hgpar_->nPhiBinBH_[indx.first]));
-  return ok;
+  result = ((ieta >= hgpar_->iEtaMinBH_[indx.first]) &&
+	    (ieta <= (hgpar_->iEtaMinBH_[indx.first]+nEta)) &&
+	    (iphi > 0) && (iphi < hgpar_->nPhiBinBH_[indx.first]));
+  return result;
 }
 
 unsigned int HGCalDDDConstants::layers(bool reco) const {
@@ -662,15 +662,15 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
 int HGCalDDDConstants::waferFromCopy(int copy) const {
   const int ncopies = hgpar_->waferCopy_.size();
   int  wafer(ncopies);
-  bool ok(false);
+  bool result(false);
   for (int k=0; k<ncopies; ++k) {
     if (copy == hgpar_->waferCopy_[k]) {
-      wafer = k;
-      ok = true;
+      wafer  = k;
+      result = true;
       break;
     }
   }
-  if (!ok) {
+  if (!result) {
     wafer = -1;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Cannot find " << copy << " in a list of "
@@ -919,19 +919,19 @@ bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
     y     += hgpar_->cellCoarseY_[cell];
   }
   double rr = sqrt(x*x+y*y);
-  bool   ok = ((rr >= hgpar_->rMinLayHex_[lay-1]) &&
-	       (rr <= hgpar_->rMaxLayHex_[lay-1]) &&
-	       (wafer < (int)(hgpar_->waferPosX_.size())));
+  bool   result = ((rr >= hgpar_->rMinLayHex_[lay-1]) &&
+		   (rr <= hgpar_->rMaxLayHex_[lay-1]) &&
+		   (wafer < (int)(hgpar_->waferPosX_.size())));
 #ifdef EDM_ML_DEBUG
-  if (!ok) 
+  if (!result) 
     edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << wafer << ":" 
 				  << cell << " Position " << x << ":" << y 
 				  << ":" << rr << " Compare Limits "
 				  << hgpar_->rMinLayHex_[lay-1] << ":" 
 				  << hgpar_->rMaxLayHex_[lay-1]
-				  << " Flag " << ok;
+				  << " Flag " << result;
 #endif
-  return ok;
+  return result;
 }
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay) const {
