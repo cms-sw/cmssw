@@ -2,10 +2,39 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CLHEP/Random/RandPoissonQ.h"
+#include "CLHEP/Random/RandGaussQ.h"
+
+
+///////////////////////////
+#include <iostream>
+///////////////////////////
+
+
+
+float sigma_pe(const float& Q, float& R) {
+  
+  float OneOverR = 1./R;
+  float sigma = OneOverR * sqrt( Q + 2.*Q*(Q+1.)*OneOverR + 
+				 Q*(Q+1.)*(6.*Q+11)*OneOverR*OneOverR +
+				 Q*(Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR*OneOverR*OneOverR );
+  return sigma;
+
+}
+
+
+
 using namespace mtd;
 
 BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
   debug_( pset.getUntrackedParameter<bool>("debug",false) ),
+  ScintillatorDecayTime_(pset.getParameter<double>("ScintillatorDecayTime")),
+  ChannelTimeOffset_(pset.getParameter<double>("ChannelTimeOffset")),
+  smearChannelTimeOffset_(pset.getParameter<double>("smearChannelTimeOffset")),
+  EnergyThreshold_(pset.getParameter<double>("EnergyThreshold")),
+  TimeThreshold1_(pset.getParameter<double>("TimeThreshold1")),
+  TimeThreshold2_(pset.getParameter<double>("TimeThreshold2")),
+  Npe_to_pC_( pset.getParameter<double>("Npe_to_pC") ),
   adcNbits_( pset.getParameter<uint32_t>("adcNbits") ),
   tdcNbits_( pset.getParameter<uint32_t>("tdcNbits") ),
   adcSaturation_MIP_( pset.getParameter<double>("adcSaturation_MIP") ),
@@ -16,30 +45,74 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
 
 
 void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
-			    BTLDigiCollection& output) const {
+			    BTLDigiCollection& output,
+			    CLHEP::HepRandomEngine *hre) const {
   
-  MTDSimHitData chargeColl,toa;
-  
+  MTDSimHitData chargeColl, toa1, toa2;
+
   for(MTDSimHitDataAccumulator::const_iterator it=input.begin();
       it!=input.end();
       it++) {
     
-    chargeColl.fill(0.f); 
-    toa.fill(0.f);
+    chargeColl.fill(0.f);
+    toa1.fill(0.f);
+    toa2.fill(0.f);
     for(size_t i=0; i<it->second.hit_info[0].size(); i++) {
-      //time of arrival
-      float finalToA = (it->second).hit_info[1][i];
-      while(finalToA < 0.f)  finalToA+=25.f;
-      while(finalToA > 25.f) finalToA-=25.f;
-      toa[i]=finalToA;
+
+      // --- Fluctuate the number of photo-electrons
+      float Npe = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[0][i]);
+      if ( Npe < EnergyThreshold_ ) continue;
+
+
+      // --- Get the time of arrival and add a channel time offset
+      float finalToA1 = (it->second).hit_info[1][i] + ChannelTimeOffset_;
+      float finalToA2 = (it->second).hit_info[1][i] + ChannelTimeOffset_;
       
-      // collected charge (in this case in MIPs)
-      chargeColl[i] = (it->second).hit_info[0][i];      
+      if (  smearChannelTimeOffset_ > 0. ){
+	float timeSmearing = CLHEP::RandGaussQ::shoot(hre, 0., smearChannelTimeOffset_);
+	finalToA1 += timeSmearing;
+	finalToA2 += timeSmearing;
+      }
+
+
+      // --- Add the time walk
+      std::array<float, 3> times = btlPulseShape_.timeAtThr(Npe, TimeThreshold1_, TimeThreshold2_);
+
+      // --- If the pulse amplitude is smaller than TimeThreshold2, the trigger does not fire
+      if (times[1] == 0.) continue;
+
+      finalToA1 += times[0];
+      finalToA2 += times[1];
+
+//TMP      std::cout << " Npe = " << Npe << " >>>>>>>>>>>>> time walk: " 
+//TMP		<< times[0] << " " 
+//TMP		<< times[1] << " " 
+//TMP		<< times[2] << std::endl;
+
+
+      // --- Add time smearing due to the photo-electron statistics
+      finalToA1 += CLHEP::RandGaussQ::shoot(hre, 0., ScintillatorDecayTime_*sigma_pe(TimeThreshold1_,Npe));
+      finalToA2 += CLHEP::RandGaussQ::shoot(hre, 0., ScintillatorDecayTime_*sigma_pe(TimeThreshold2_,Npe));
+
+
+      while(finalToA1 < 0.f)  finalToA1 += 25.f;
+      while(finalToA1 > 25.f) finalToA1 -= 25.f;
+      toa1[i]=finalToA1;
+
+      while(finalToA2 < 0.f)  finalToA2 += 25.f;
+      while(finalToA2 > 25.f) finalToA2 -= 25.f;
+      toa2[i]=finalToA2;
+
+      chargeColl[i] = Npe*Npe_to_pC_;
+      
+//TMP      std::cout << " " << i << ": DetID = " <<  it->first << std::endl;
+//TMP      std::cout << "    " << chargeColl[i] << " " << toa1[i] << " " << toa2[i] << std::endl;
+      
     }
-    
+
     //run the shaper to create a new data frame
     BTLDataFrame rawDataFrame( it->first );    
-    runTrivialShaper(rawDataFrame,chargeColl,toa);
+    runTrivialShaper(rawDataFrame,chargeColl,toa1,toa2);
     updateOutput(output,rawDataFrame);
     
   }
@@ -49,7 +122,8 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   
 void BTLElectronicsSim::runTrivialShaper(BTLDataFrame &dataFrame, 
 					 const mtd::MTDSimHitData& chargeColl,
-					 const mtd::MTDSimHitData& toa) const {
+					 const mtd::MTDSimHitData& toa1,
+					 const mtd::MTDSimHitData& toa2) const {
     bool debug = debug_;
 #ifdef EDM_ML_DEBUG  
   for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
@@ -58,17 +132,22 @@ void BTLElectronicsSim::runTrivialShaper(BTLDataFrame &dataFrame,
   if(debug) edm::LogVerbatim("BTLElectronicsSim") << "[runTrivialShaper]" << std::endl;
   
   //set new ADCs 
-  for(int it=0; it<(int)(chargeColl.size()); it++)
-    {      
-      //brute force saturation, maybe could to better with an exponential like saturation      
-      const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_MIP_) / adcLSB_MIP_ );
-      const uint32_t tdc_time=std::floor( toa[it] / toaLSB_ns_ );
-      BTLSample newSample;
-      newSample.set(chargeColl[it] > adcThreshold_MIP_,false,0,tdc_time,adc);
-      dataFrame.setSample(it,newSample);
+  for(int it=0; it<(int)(chargeColl.size()); it++) {
 
-      if(debug) edm::LogVerbatim("BTLElectronicsSim") << adc << " (" << chargeColl[it] << "/" << adcLSB_MIP_ << ") ";
-    }
+    if ( chargeColl[it] == 0. ) continue;
+
+    //brute force saturation, maybe could to better with an exponential like saturation      
+    const uint32_t adc=std::floor( std::min(chargeColl[it],adcSaturation_MIP_) / adcLSB_MIP_ );
+    const uint32_t tdc_time1=std::floor( toa1[it] / toaLSB_ns_ );
+    const uint32_t tdc_time2=std::floor( toa2[it] / toaLSB_ns_ );
+    BTLSample newSample;
+    newSample.set(chargeColl[it] > adcThreshold_MIP_,false,tdc_time2,tdc_time1,adc);
+    dataFrame.setSample(it,newSample);
+
+    if(debug) edm::LogVerbatim("BTLElectronicsSim") << adc << " (" 
+						    << chargeColl[it] << "/" 
+						    << adcLSB_MIP_ << ") ";
+  }
 
   if(debug) { 
     std::ostringstream msg;
@@ -94,3 +173,4 @@ void BTLElectronicsSim::updateOutput(BTLDigiCollection &coll,
     coll.push_back(dataFrame);    
   }
 }
+
