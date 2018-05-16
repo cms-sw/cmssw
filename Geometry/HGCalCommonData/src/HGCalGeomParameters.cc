@@ -665,7 +665,7 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   if (fv1.firstChild()) {
     DDsvalues_type sv(fv1.mergedSpecifics());
     int nmin(0);
-    std::vector<double> dummy = getDDDArray("WaferSize",sv,nmin);
+    const auto & dummy = getDDDArray("WaferSize",sv,nmin);
     waferSize_ = dummy[0];
   }
 #ifdef EDM_ML_DEBUG
@@ -722,7 +722,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv,
 				<< php.radius200to300_[3] << ":"
 				<< php.radius200to300_[4];
 #endif
-  std::vector<double> dummy = DDVectorGetter::get("RadiusCuts");
+  const auto & dummy = DDVectorGetter::get("RadiusCuts");
   php.nCornerCut_ = (int)(dummy[0]);
   php.zMinForRad_ = HGCalParameters::k_ScaleFromDDD*dummy[1];
 #ifdef EDM_ML_DEBUG
@@ -737,8 +737,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv,
     edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mix[" << k << "] R = "
 				  << php.radiusMixBoundary_[k];
 #endif
-  dummy = DDVectorGetter::get("SlopeBottom");
-  php.slopeMin_   = dummy[0];
+  const auto & dummy2 = DDVectorGetter::get("SlopeBottom");
+  php.slopeMin_   = dummy2[0];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 
 				<< php.slopeMin_;
@@ -793,7 +793,7 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv,
 				  << " NphiBin = " << php.nPhiBinBH_[k]
 				  << " dPhiEta = " << php.dPhiEtaBH_[k];
 #endif
-  std::vector<double> dummy = DDVectorGetter::get("SlopeBottom");
+  const auto& dummy = DDVectorGetter::get("SlopeBottom");
   php.slopeMin_   = dummy[0];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 

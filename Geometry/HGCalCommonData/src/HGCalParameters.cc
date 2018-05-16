@@ -122,7 +122,7 @@ HGCalParameters::hgtrform HGCalParameters::getTrForm(unsigned int k) const {
 
   HGCalParameters::hgtrform mytr;
   if (k < trformIndex_.size()) {
-    std::array<int,4> id = getID(k);
+    const auto & id = getID(k);
     mytr.zp    = id[0];
     mytr.lay   = id[1];
     mytr.sec   = id[2];

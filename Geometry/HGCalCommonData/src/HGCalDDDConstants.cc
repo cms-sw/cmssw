@@ -8,6 +8,9 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <functional>
+#include <numeric>
+
 //#define EDM_ML_DEBUG
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
@@ -97,10 +100,8 @@ HGCalDDDConstants::~HGCalDDDConstants() {}
 
 std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
 						 int subSec, bool reco) const {
-  std::pair<int,float> index = getIndex(lay, reco);
-  std::pair<int,int> cellAssignment(-1,-1);
-  int i = index.first;
-  if (i < 0) return cellAssignment;
+  const auto & index = getIndex(lay, reco);
+  if (index.first < 0) return std::make_pair(-1,-1);
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     float xx = (reco) ? x : HGCalParameters::k_ScaleFromDDD*x;
@@ -114,21 +115,23 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
 				   << ":" << (hgpar_->waferPosX_).size()
 				   << ":" << (hgpar_->waferPosY_).size() 
 				   << " ***** ERROR *****";
+      return std::make_pair(-1,-1);
     } else {
       // Now the cell
       xx -= hgpar_->waferPosX_[wafer];
       yy -= hgpar_->waferPosY_[wafer];
-      int cell(0);
       if (hgpar_->waferTypeT_[wafer] == 1) 
-	cell  = cellHex(xx, yy, 0.5*HGCalParameters::k_ScaleFromDDD*hgpar_->cellSize_[0], 
-			hgpar_->cellFineX_, hgpar_->cellFineY_);
+	return std::make_pair(wafer,cellHex(xx, yy, 
+					    0.5*HGCalParameters::k_ScaleFromDDD*hgpar_->cellSize_[0], 
+					    hgpar_->cellFineX_, hgpar_->cellFineY_));
       else
-	cell  = cellHex(xx, yy, 0.5*HGCalParameters::k_ScaleFromDDD*hgpar_->cellSize_[1], 
-			hgpar_->cellCoarseX_, hgpar_->cellCoarseY_);
-      cellAssignment = std::pair<int,int>(wafer,cell);
+	return std::make_pair(wafer,cellHex(xx, yy, 
+					    0.5*HGCalParameters::k_ScaleFromDDD*hgpar_->cellSize_[1], 
+					    hgpar_->cellCoarseX_, hgpar_->cellCoarseY_));
     }
+  } else {
+    return std::make_pair(-1,-1);
   }
-  return cellAssignment;
 }
 
 std::array<int,5> HGCalDDDConstants::assignCellHex(float x, float y, int lay,
@@ -149,7 +152,7 @@ std::array<int,3> HGCalDDDConstants::assignCellTrap(float x, float y,
 						    bool reco) const {
   
   int ieta(-1), iphi(-1), type(-1);
-  std::pair<int,float> indx  = getIndex(layer,reco);
+  const auto & indx  = getIndex(layer,reco);
   if (indx.first < 0) return std::array<int,3>{ {ieta,iphi,type} };
   double xx    = (z > 0) ? x : -x;
   double zz    = (reco ? hgpar_->zLayerHex_[indx.first] : 
@@ -229,25 +232,25 @@ std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
 
 int HGCalDDDConstants::getTypeTrap(int layer) const {
 
-  int type(-1);
   if (mode_ == HGCalGeometryMode::Trapezoid) {
     int indx = layerIndex(layer,true);
     int nphi = hgpar_->nPhiBinBH_[indx];
-    type     = (nphi == hgpar_->nCellsFine_) ? 0 : 1;
+    return ((nphi == hgpar_->nCellsFine_) ? 0 : 1);
+  } else {
+    return -1;
   }
-  return type;
 }
 
 int HGCalDDDConstants::getTypeHex(int layer, int waferU, int waferV) const {
 
-  int type(-1);
   if ((mode_ == HGCalGeometryMode::Hexagon8) ||
       (mode_ == HGCalGeometryMode::Hexagon8Full)) {
     int kndx = HGCalWaferIndex::waferIndex(layer,waferU,waferV);
     auto itr = hgpar_->typesInLayers_.find(kndx);
-    type     = (itr == hgpar_->typesInLayers_.end() ? 2 : itr->second);
+    return ((itr == hgpar_->typesInLayers_.end() ? 2 : itr->second));
+  } else {
+    return -1;
   }
-  return type;
 }
 
 bool HGCalDDDConstants::isHalfCell(int waferType, int cell) const {
@@ -309,25 +312,23 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU,
 				    int cellV) const {
   int  indx = HGCalWaferIndex::waferIndex(layer,modU,modV);
   auto itr  = hgpar_->typesInLayers_.find(indx);
-  bool result(false);
-  if (itr == hgpar_->typesInLayers_.end()) return result;
+  if (itr == hgpar_->typesInLayers_.end()) return false;
   int  type = hgpar_->waferTypeL_[itr->second];
   int  N    = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   if ((cellU >= 0) && (cellU < 2*N) && (cellV >= 0) && (cellV < 2*N)) {
-    result = (((cellV-cellU) < N) && ((cellU-cellV) <= N));
+    return (((cellV-cellU) < N) && ((cellU-cellV) <= N));
+  } else {
+    return false;
   }
-  return result;
 }
 
 bool HGCalDDDConstants::isValidTrap(int layer, int ieta, int iphi) const {
-  std::pair<int,float> indx  = getIndex(layer,true);
-  bool result(false);
-  if (indx.first < 0) return result;
+  const auto & indx  = getIndex(layer,true);
+  if (indx.first < 0) return false;
   int nEta = hgpar_->lastModule_[indx.first]-hgpar_->firstModule_[indx.first];
-  result = ((ieta >= hgpar_->iEtaMinBH_[indx.first]) &&
-	    (ieta <= (hgpar_->iEtaMinBH_[indx.first]+nEta)) &&
-	    (iphi > 0) && (iphi < hgpar_->nPhiBinBH_[indx.first]));
-  return result;
+  return ((ieta >= hgpar_->iEtaMinBH_[indx.first]) &&
+	  (ieta <= (hgpar_->iEtaMinBH_[indx.first]+nEta)) &&
+	  (iphi > 0) && (iphi < hgpar_->nPhiBinBH_[indx.first]));
 }
 
 unsigned int HGCalDDDConstants::layers(bool reco) const {
@@ -337,15 +338,13 @@ unsigned int HGCalDDDConstants::layers(bool reco) const {
 int HGCalDDDConstants::layerIndex(int lay, bool reco) const {
   int ll = lay - hgpar_->firstLayer_;
   if (ll<0 || ll>=(int)(hgpar_->layerIndex_.size())) return -1;
-  int indx(0);
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) { 
     if (reco && ll>=(int)(hgpar_->depthIndex_.size())) return -1;
-    indx = (reco ? hgpar_->depthLayerF_[ll] : hgpar_->layerIndex_[ll]);
+    return (reco ? hgpar_->depthLayerF_[ll] : hgpar_->layerIndex_[ll]);
   } else {
-    indx = hgpar_->layerIndex_[ll];
+    return (hgpar_->layerIndex_[ll]);
   }
-  return indx;
 }
 
 unsigned int HGCalDDDConstants::layersInit(bool reco) const {
@@ -356,9 +355,9 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay,
 						     int type, bool reco) const {
   // type refers to wafer # for hexagon cell
   float x(999999.), y(999999.);
-  std::pair<int,float> index = getIndex(lay, reco);
+  const auto & index = getIndex(lay, reco);
   int i = index.first;
-  if (i < 0) return std::pair<float,float>(x,y);
+  if (i < 0) return std::make_pair(x,y);
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     x              = hgpar_->waferPosX_[type];
@@ -375,7 +374,7 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay,
       y           *= HGCalParameters::k_ScaleToDDD;
     }
   }
-  return std::pair<float,float>(x,y);
+  return std::make_pair(x,y);
 }
 
 std::pair<float,float> HGCalDDDConstants::locateCell(int lay, int waferU,
@@ -384,7 +383,7 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int lay, int waferU,
 						     bool reco) const {
 
   float x(0), y(0);
-  std::pair<double,double> xy = waferPosition(waferU, waferV, reco);
+  const auto & xy = waferPosition(waferU, waferV, reco);
   int  indx = HGCalWaferIndex::waferIndex(lay,waferU,waferV);
   auto itr  = hgpar_->typesInLayers_.find(indx);
   int  type = (itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second];
@@ -408,7 +407,7 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int lay, int waferU,
   }
   x += xy.first;
   y += xy.second;
-  return std::pair<float,float>(x,y);
+  return std::make_pair(x,y);
 }
 
 std::pair<float,float> HGCalDDDConstants::locateCellHex(int cell, int wafer, 
@@ -425,14 +424,14 @@ std::pair<float,float> HGCalDDDConstants::locateCellHex(int cell, int wafer,
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
   }
-  return std::pair<float,float>(x,y);
+  return std::make_pair(x,y);
 }
 
 std::pair<float,float> HGCalDDDConstants::locateCellTrap(int lay, int ieta,
 							 int iphi, bool reco) const {
   
   float x(0), y(0);
-  std::pair<int,float> indx = getIndex(lay,reco);
+  const auto & indx = getIndex(lay,reco);
   if (indx.first >= 0) {
     ieta        = std::abs(ieta);
     double eta  = hgpar_->etaMinBH_ + (ieta-0.5)*indx.second;
@@ -446,7 +445,7 @@ std::pair<float,float> HGCalDDDConstants::locateCellTrap(int lay, int ieta,
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
   }
-  return std::pair<float,float>(x,y);
+  return std::make_pair(x,y);
 }
 
 int HGCalDDDConstants::maxCells(bool reco) const {
@@ -461,9 +460,8 @@ int HGCalDDDConstants::maxCells(bool reco) const {
 
 int HGCalDDDConstants::maxCells(int lay, bool reco) const {
 
-  std::pair<int,float> index = getIndex(lay, reco);
-  int i = index.first;
-  if (i < 0) return 0;
+  const auto & index = getIndex(lay, reco);
+  if (index.first < 0) return 0;
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) {
     unsigned int cells(0);
@@ -480,14 +478,11 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
     int cells(0);
     for (unsigned int k=0; k<hgpar_->waferCopy_.size(); ++k) {
       if (waferInLayer(k,index.first)) { 
-	int waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
-	int waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
-	int indx   = HGCalWaferIndex::waferIndex(lay,waferU,waferV);
-	auto itr   = hgpar_->typesInLayers_.find(indx);
+	auto itr   = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(lay,HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]),HGCalWaferIndex::waferV(hgpar_->waferCopy_[k])));
 	int  type  = ((itr == hgpar_->typesInLayers_.end()) ? 2 : 
 		      hgpar_->waferTypeL_[itr->second]);
 	int N      = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
-	if (3*N*N > cells) cells = 3*N*N;
+	cells      = std::max(cells,3*N*N);
       }
     }
     return cells;
@@ -501,7 +496,7 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
 int HGCalDDDConstants::maxRows(int lay, bool reco) const {
 
   int kymax(0);
-  std::pair<int,float> index = getIndex(lay, reco);
+  const auto & index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return kymax;
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
@@ -526,7 +521,7 @@ int HGCalDDDConstants::modules(int lay, bool reco) const {
 
 int HGCalDDDConstants::modulesInit(int lay, bool reco) const {
   int nmod(0);
-  std::pair<int,float> index = getIndex(lay, reco);
+  const auto & index = getIndex(lay, reco);
   if (index.first < 0) return nmod;
   if (mode_ != HGCalGeometryMode::Trapezoid) {
     for (unsigned int k=0; k<hgpar_->waferPosX_.size(); ++k) {
@@ -548,17 +543,15 @@ int HGCalDDDConstants::numberCells(bool reco) const {
   int cells(0);
   unsigned int nlayer = (reco) ? hgpar_->depth_.size() : hgpar_->layer_.size();
   for (unsigned k=0; k<nlayer; ++k) {
-    int lay = (reco) ? hgpar_->depth_[k] : hgpar_->layer_[k];
-    std::vector<int> ncells = numberCells(lay, reco);
-    for (auto const& ncell : ncells)
-      cells += ncell;
+    std::vector<int> ncells = numberCells(((reco) ? hgpar_->depth_[k] : hgpar_->layer_[k]), reco);
+    cells = std::accumulate(ncells.begin(),ncells.end(),cells);
   }
   return cells;
 }
 
 std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
 
-  std::pair<int,float> index = getIndex(lay, reco);
+  const auto & index = getIndex(lay, reco);
   int i = index.first;
   std::vector<int> ncell;
   if (i >= 0) {
@@ -578,9 +571,10 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
     } else {
       for (unsigned int k=0; k<hgpar_->waferCopy_.size(); ++k) {
 	if (waferInLayer(k,index.first)) { 
-	  int waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
-	  int waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
-	  int cell   = numberCellsHexagon(lay,waferU,waferV,true);
+	  int cell   = numberCellsHexagon(lay,
+					  HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]),
+					  HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]),
+					  true);
 	  ncell.emplace_back(cell);
 	}
       }
@@ -591,14 +585,14 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
 
 int HGCalDDDConstants::numberCellsHexagon(int wafer) const {
 
-  int ncell(0);
   if (wafer >= 0 && wafer < (int)(hgpar_->waferTypeT_.size())) {
     if (hgpar_->waferTypeT_[wafer]==1) 
-      ncell = (int)(hgpar_->cellFineX_.size());
+      return (int)(hgpar_->cellFineX_.size());
     else 
-      ncell = (int)(hgpar_->cellCoarseX_.size());
+      return (int)(hgpar_->cellCoarseX_.size());
+  } else {
+    return 0;
   }
-  return ncell;
 }
 
 int HGCalDDDConstants::numberCellsHexagon(int lay, int waferU, int waferV,
@@ -621,7 +615,7 @@ std::pair<int,int> HGCalDDDConstants::rowColumnWafer(int wafer) const {
     row      = (copy/100)%100;
     if ((copy/100000)%10 != 0) row = -row;
   }
-  return std::pair<int,int>(row,col);
+  return std::make_pair(row,col);
 }
 
 std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
@@ -629,21 +623,21 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
   
   if ((mode_ != HGCalGeometryMode::Hexagon) &&
       (mode_ != HGCalGeometryMode::HexagonFull)) {
-    return std::pair<int,int>(cell,lay);
+    return std::make_pair(cell,lay);
   } else {
-    std::pair<int,float> index = getIndex(lay, false);
+    const auto & index = getIndex(lay, false);
     int i = index.first;
     if (i < 0) {
       edm::LogWarning("HGCalGeom") << "Wrong Layer # " << lay 
 				   << " not in the list ***** ERROR *****";
-      return std::pair<int,int>(-1,-1);
+      return std::make_pair(-1,-1);
     }
     if (mod >= (int)(hgpar_->waferTypeL_).size()) {
       edm::LogWarning("HGCalGeom") << "Invalid Wafer # " << mod 
 				   << "should be < "
 				   << (hgpar_->waferTypeL_).size()
 				   << " ***** ERROR *****";
-      return std::pair<int,int>(-1,-1);
+      return std::make_pair(-1,-1);
     }
     int depth(-1);
     int kx   = cell;
@@ -655,7 +649,7 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
     } else {
       depth = hgpar_->layerGroupO_[i];
     }    
-    return std::pair<int,int>(kx,depth);
+    return std::make_pair(kx,depth);
   }
 }
 
@@ -759,7 +753,7 @@ void HGCalDDDConstants::waferFromPosition(const double x, const double y,
   
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay, bool reco) const {
 
-  std::pair<int,float> indx = getIndex(lay, reco);
+  const auto & indx = getIndex(lay, reco);
   if (indx.first < 0) return false;
   return waferInLayer(wafer,indx.first);
 }
@@ -776,8 +770,7 @@ std::pair<double,double> HGCalDDDConstants::waferPosition(int wafer,
     xx *= HGCalParameters::k_ScaleToDDD;
     yy *= HGCalParameters::k_ScaleToDDD;
   }
-  std::pair<double,double> xy(xx,yy);
-  return xy;
+  return std::make_pair(xx,yy);
 }
 
 std::pair<double,double> HGCalDDDConstants::waferPosition(int waferU,
@@ -795,16 +788,14 @@ std::pair<double,double> HGCalDDDConstants::waferPosition(int waferU,
     xx *= HGCalParameters::k_ScaleToDDD;
     yy *= HGCalParameters::k_ScaleToDDD;
   }
-  std::pair<double,double> xy(xx,yy);
-  return xy;
+  return std::make_pair(xx,yy);
 }
 
 double HGCalDDDConstants::waferZ(int lay, bool reco) const {
-  std::pair<int,float> index = getIndex(lay, reco);
-  int i = index.first;
-  if (i < 0) return 0;
-  else       return (reco ? hgpar_->zLayerHex_[i] : 
-		     HGCalParameters::k_ScaleToDDD*hgpar_->zLayerHex_[i]);
+  const auto & index = getIndex(lay, reco);
+  if (index.first < 0) return 0;
+  else                 return (reco ? hgpar_->zLayerHex_[index.first] : 
+			       HGCalParameters::k_ScaleToDDD*hgpar_->zLayerHex_[index.first]);
 }
 
 int HGCalDDDConstants::wafers() const {
@@ -831,7 +822,7 @@ int HGCalDDDConstants::wafers(int layer, int type) const {
       wafer = (itr->second)[ity];
     }
   } else {
-    std::pair<int,float> index = getIndex(layer, true);
+    const auto & index = getIndex(layer, true);
     wafer = 1+hgpar_->lastModule_[index.first]-hgpar_->firstModule_[index.first];
   }
   return wafer;
@@ -889,7 +880,7 @@ void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType,
 std::pair<int,float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
 
   int indx = layerIndex(lay,reco);
-  if (indx<0) return std::pair<int,float>(-1,0);
+  if (indx<0) return std::make_pair(-1,0);
   float cell(0);
   if ((mode_ == HGCalGeometryMode::Hexagon) ||
       (mode_ == HGCalGeometryMode::HexagonFull)) { 
@@ -902,7 +893,7 @@ std::pair<int,float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
       cell = hgpar_->dPhiEtaBH_[indx];
     }
   }
-  return std::pair<int,float>(indx,cell);
+  return std::make_pair(indx,cell);
 }
 
 bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
