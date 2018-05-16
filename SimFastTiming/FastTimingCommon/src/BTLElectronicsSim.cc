@@ -15,6 +15,7 @@
 float sigma_pe(const float& Q, float& R) {
   
   float OneOverR = 1./R;
+  // --- This is Eq. (17) from Nucl. Instr. Meth. A 564 (2006) 185
   float sigma = OneOverR * sqrt( Q + 2.*Q*(Q+1.)*OneOverR + 
 				 Q*(Q+1.)*(6.*Q+11)*OneOverR*OneOverR +
 				 Q*(Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR*OneOverR*OneOverR );
@@ -59,7 +60,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
     toa2.fill(0.f);
     for(size_t i=0; i<it->second.hit_info[0].size(); i++) {
 
-      // --- Fluctuate the number of photo-electrons
+      // --- Fluctuate the total number of photo-electrons
       float Npe = CLHEP::RandPoissonQ::shoot(hre, (it->second).hit_info[0][i]);
       if ( Npe < EnergyThreshold_ ) continue;
 
