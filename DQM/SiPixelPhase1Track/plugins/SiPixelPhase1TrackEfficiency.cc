@@ -32,7 +32,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
