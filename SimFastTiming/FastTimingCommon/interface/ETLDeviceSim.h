@@ -11,6 +11,10 @@
 
 #include <tuple>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class ETLDeviceSim {
 
  public:
@@ -23,7 +27,8 @@ class ETLDeviceSim {
 
   void getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
 		       const edm::Handle<edm::PSimHitContainer> &hits,
-		       mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator);
+		       mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator,
+		       CLHEP::HepRandomEngine *hre);
 
  private:
 

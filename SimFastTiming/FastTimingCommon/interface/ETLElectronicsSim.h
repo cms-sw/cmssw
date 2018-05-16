@@ -25,7 +25,8 @@ class ETLElectronicsSim {
   void getEventSetup(const edm::EventSetup& evt) { }
 
   void run(const mtd::MTDSimHitDataAccumulator& input,
-	   ETLDigiCollection& output) const;
+	   ETLDigiCollection& output,
+	   CLHEP::HepRandomEngine *hre) const;
 
   void runTrivialShaper(ETLDataFrame &dataFrame, 
 			const mtd::MTDSimHitData& chargeColl,

@@ -10,7 +10,13 @@
 #include "DataFormats/FTLDigi/interface/FTLDigiCollections.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDDigitizerTypes.h"
 
+#include "SimFastTiming/FastTimingCommon/interface/BTLPulseShape.h"
+
 namespace mtd = mtd_digitizer;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class BTLElectronicsSim {
  public:
@@ -20,12 +26,15 @@ class BTLElectronicsSim {
 
   void getEventSetup(const edm::EventSetup& evt) { }
 
+
   void run(const mtd::MTDSimHitDataAccumulator& input,
-	   BTLDigiCollection& output) const;
+	   BTLDigiCollection& output,
+	   CLHEP::HepRandomEngine *hre) const;
 
   void runTrivialShaper(BTLDataFrame &dataFrame, 
 			const mtd::MTDSimHitData& chargeColl,
-			const mtd::MTDSimHitData& toa) const;
+			const mtd::MTDSimHitData& toa1,
+			const mtd::MTDSimHitData& toa2) const;
 
   void updateOutput(BTLDigiCollection &coll,
 		    const BTLDataFrame& rawDataFrame) const;
@@ -36,6 +45,17 @@ class BTLElectronicsSim {
 
   const bool debug_;
 
+  //const bool  FluctuateNpe_;
+  const float ScintillatorDecayTime_;
+  const float ChannelTimeOffset_;
+  const float smearChannelTimeOffset_;
+
+  const float EnergyThreshold_;
+  const float TimeThreshold1_;
+  const float TimeThreshold2_;
+
+  const float Npe_to_pC_;
+
   // adc/tdc bitwidths
   const uint32_t adcNbits_, tdcNbits_; 
 
@@ -44,6 +64,8 @@ class BTLElectronicsSim {
   const float adcLSB_MIP_;
   const float adcThreshold_MIP_;
   const float toaLSB_ns_;
+
+  const BTLPulseShape btlPulseShape_; 
 
 };
 
