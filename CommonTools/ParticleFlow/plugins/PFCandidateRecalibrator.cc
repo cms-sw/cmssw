@@ -56,6 +56,8 @@ class PFCandidateRecalibrator : public edm::stream::EDProducer<> {
         PFCandidateRecalibrator(const edm::ParameterSet&);
         ~PFCandidateRecalibrator() override {};
 
+        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
     private:
         void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
         void endRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
@@ -234,15 +236,14 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 			if(badIt.depth == 1) //depth1
 			  {
 			    longE *= badIt.ratio;
-			    ecalEnergy = longE - shortE;
+			    ecalEnergy = ((longE - shortE) > 0.) ? (longE - shortE) : 0.;
 			    totEnergy = ecalEnergy + hcalEnergy;
 			  }
 			else //depth2
 			  {
 			    shortE *= badIt.ratio;
 			    hcalEnergy = 2*shortE;
-			    if(ecalEnergy > 0)
-			      ecalEnergy = longE - shortE;
+			    ecalEnergy = ((longE - shortE) > 0.) ? (longE - shortE) : 0.;
 			    totEnergy = ecalEnergy + hcalEnergy;
 			  }
 			//kill candidate if goes below thr
@@ -258,7 +259,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 		      }
 		  }
 		
-		if(toKill == true)
+		if(toKill)
 		  {
 		    discarded->push_back(pf);
 		    oldToNew[i] = (-discarded->size());
@@ -330,6 +331,17 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
     // done
     filler.fill();
     iEvent.put(std::move(pf2pf));
+}
+
+void
+PFCandidateRecalibrator::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("pfcandidates");
+  desc.add<double>("shortFibreThr", 1.4);
+  desc.add<double>("longFibreThr", 1.4);
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
