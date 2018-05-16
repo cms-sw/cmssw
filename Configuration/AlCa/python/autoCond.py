@@ -14,7 +14,7 @@ autoCond = {
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
     'run2_mc_50ns'      :   '101X_mcRun2_startup_v5',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '101X_mcRun2_asymptotic_v5',
+    'run2_mc'           :   '102X_mcRun2_asymptotic_v1',
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '93X_mcRun2_asymptotic_v4',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
@@ -42,7 +42,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '101X_mc2017_design_IdealBS_v7',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    : '101X_mc2017_realistic_v7',
+    'phase1_2017_realistic'    : '102X_mc2017_realistic_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
     'phase1_2017_cosmics'      : '101X_mc2017cosmics_realistic_deco_v7',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
