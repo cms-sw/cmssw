@@ -76,7 +76,7 @@ public:
 
   static constexpr double oneBySix_   = 1.0/6.0;
   static const unsigned int ncorner_  = 12;
-  static constexpr unsigned int ncornerBy2_ = ncorner_/2;
+  static constexpr unsigned int ncornerBy2_ = 6;
 
 private:
   

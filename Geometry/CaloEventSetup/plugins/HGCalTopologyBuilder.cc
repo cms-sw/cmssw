@@ -58,28 +58,17 @@ private:
 
 HGCalTopologyBuilder::HGCalTopologyBuilder(const edm::ParameterSet& iConfig) {
 
-  name_     = iConfig.getUntrackedParameter<std::string>("Name");
-  int type  = iConfig.getUntrackedParameter<int>("Type");
-  if (type == 0) {
-    det_ = (int)HGCEE;
-  } else if (type == 1) {
-    det_ = (int)HGCHEF;
-  } else if (type == 2) {
-    det_ = (int)(DetId::HGCalEE);
-  } else if (type == 2) {
-    det_ = (int)(DetId::HGCalHSi);
-  } else {
-    det_ = (int)(DetId::HGCalHSc);
-  }
+  name_     = iConfig.getParameter<std::string>("Name");
+  det_      = iConfig.getParameter<int>("Type");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") <<"constructing HGCalTopology for " << name_;
+  edm::LogVerbatim("HGCalGeom") << "constructing HGCalTopology for " << name_
+				<< " and det " << det_;
 #endif
   setWhatProduced(this, name_);
 }
 
 
 HGCalTopologyBuilder::~HGCalTopologyBuilder() { }
-
 
 //
 // member functions
