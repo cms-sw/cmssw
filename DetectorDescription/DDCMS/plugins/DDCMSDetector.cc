@@ -25,8 +25,9 @@ private:
 };
 
 DDCMSDetector::DDCMSDetector( const edm::ParameterSet& iConfig )
-  : m_confGeomXMLFiles(iConfig.getParameter<std::string>( "confGeomXMLFiles" ))
 {
+  m_confGeomXMLFiles = edm::FileInPath( iConfig.getParameter<std::string>( "confGeomXMLFiles" )).fullPath();
+  
   m_relFiles = iConfig.getParameter<std::vector<std::string> >( "geomXMLFiles" );
   for( const auto& it : m_relFiles ) {
     edm::FileInPath fp( it );
