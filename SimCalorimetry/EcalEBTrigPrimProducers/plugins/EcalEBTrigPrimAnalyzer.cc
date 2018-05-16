@@ -125,7 +125,7 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet&  iConfig
   //
   hCluTPperEvt_ = new TH1F("CluTPperEvt","N_{TP} per Event; N_{TP};  ", 10, 0., 10.);
   h_nXtals_ = new TH1F("nXtals","Number of xTals in the cluster; N_{xtals}; ",   20, -0.5, 19.5);
-  h_etCluTP_ = new TH1F("etCluTP","E_{T}(tp);E_{T}(tp) (GeV);Count",100,0,150); 
+  h_etCluTP_ = new TH1F("etCluTP","E_{T}(tp);E_{T}(tp) (GeV);Count",100,0,50); 
   //
   /*
   h_nClu_[0] = new TH1F("nClu0","Number of Clusters with E_{T}>0 GeV; N_{Clu};N_{ev}", 20, 0., 20.);
@@ -136,7 +136,7 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet&  iConfig
   */
 
   
-  h_nClu_[0] = new TH1F("nClu0","Number of Clusters with E_{T}>0 GeV; N_{Clu};N_{ev}",   100, 0., 300.);
+  h_nClu_[0] = new TH1F("nClu0","Number of Clusters with E_{T}>0 GeV; N_{Clu};N_{ev}",   100, 0., 1000.);
   h_nClu_[1] = new TH1F("nClu05","Number of Cluster with E_{T}>0.5 GeV; N_{Clu};N_{ev}", 100, 0., 300.);
   h_nClu_[2] = new TH1F("nClu1","Number of Clusters with E_{T}>1 GeV; N_{Clu};N_{ev}",   100, 0., 300.);
   h_nClu_[3] = new TH1F("nClu2","Number of Clusters with E_{T}>2 GeV; N_{Clu};N_{ev}",   100, 0., 300.);
@@ -161,7 +161,6 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet&  iConfig
   h_dEta_cluTP_gen_ = new TH1F("dEta_cluTP_gen","Entries; #D#eta(cluTP-gen);  ", 50,-0.05,0.05);
   h_dPhi_cluTP_gen_ = new TH1F("dPhi_cluTP_gen","Entries; #D#phi(cluTP-gen);  ", 50,-0.1,0.1);
   h_cluTPEtoverGenEt_ = new TH1F("CluTPEt_over_GenEt","Et(CluTP/gen); E_{T}(tp)/E_{T}(gen); Counts",200,-0.5,1.5);
-  h_cluTPEt_genMatch_ = new TH1F("CluTPEt_genMatch","Et(CluTP); E_{T}(tp); Counts",100,0.,150);
 
   //matching cluTP with cluRH
   h_deltaR_cluTPcluRH_= new TH1F("deltaR_cluTPcluRH","#DR(cluTP-cluRH); #DR(cluTP-cluRH);N_{ev}", 200, 0., 0.01);
@@ -176,7 +175,7 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet&  iConfig
   h_deltaR_cluRHGen_= new TH1F("deltaR_cluRHGen","#DR(cluRH-gen); #DR(cluRH-gen);N_{ev}", 100, 0., 0.15);
   h_dEta_cluRH_gen_ = new TH1F("dEta_cluRH_gen","Entries; #D#eta(cluRH-gen);  ", 50,-0.05,0.05);
   h_dPhi_cluRH_gen_ = new TH1F("dPhi_cluRH_gen","Entries; #D#phi(cluRH-gen);  ", 50,-0.1,0.1);
-  h_cluRHEt_ = new TH1F("CluRHEt","Et(CluRH); E_{T}(cluRH); Counts",100,0.,150.);
+  h_cluRHEt_ = new TH1F("CluRHEt","Et(CluRH); E_{T}(cluRH); Counts",100,0.,50.);
   h_cluRHEtoverGenEt_ = new TH1F("CluRHEt_over_GenEt","Et(CluRH/gen); E_{T}(rh)/E_{T}(gen); Counts",200,-0.5,1.5);
 
   
@@ -567,7 +566,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
       if (etClInGeV_>2) nClu_Etgt_2++;
       if (etClInGeV_>3) nClu_Etgt_3++;
 
-      if (etClInGeV_<= etCluTPThreshold_ ) continue;
+      if (etClInGeV_< etCluTPThreshold_ ) continue;
       h_nXtals_->Fill(float(nXtals_));
       h_etCluTP_->Fill ( etClInGeV_);
 
@@ -673,7 +672,6 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
 	  //	if ( std::abs(matchDPhi)>CLHEP::pi) { matchDPhi = matchDPhi<0? (CLHEP::twopi) + matchDPhi : matchDPhi - CLHEP::twopi;}
 	  // float gpEta = etaTransformation( matchEle_p4->eta(), gpIterMatch->vz() );
      	
-	  h_cluTPEt_genMatch_->Fill (cluTP_p4->pt());
 	  h_cluTPEtoverGenEt_->Fill ( cluTP_p4->pt()/ matchEle_p4->pt()); 
 	  h_dEta_cluTP_gen_ -> Fill(  cluTP_p4->eta()  - matchEle_p4->eta());
 	  h_dPhi_cluTP_gen_ -> Fill(matchDPhi);
@@ -781,7 +779,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
 	float gpPhi=gpIter->phi();
 	gpPhi= normalizedPhi(gpPhi);
 	double dPhi = myMCPhi - gpPhi;
-	// std::cout << " myMCPhi " << myMCPhi << " gpPhi " << gpPhi << std::endl;
+	std::cout << " myMCPhi " << myMCPhi << " gpPhi " << gpPhi << std::endl;
 	double dEta = fabs(imcEle->fourMomentum().pseudoRapidity() - gpIter->eta());
 	double dPt = fabs(imcEle->fourMomentum().et() - gpIter->pt() );
 	
@@ -1009,7 +1007,6 @@ EcalEBTrigPrimAnalyzer::endJob(){
   if (isGenParticleValid_) {
     h_deltaR_cluTPGen_  -> Write();
     h_cluTPEtoverGenEt_->Write();
-    h_cluTPEt_genMatch_->Write();
     h_dEta_cluTP_gen_->Write();
     h_dPhi_cluTP_gen_->Write();
     //

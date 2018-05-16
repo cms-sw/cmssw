@@ -104,7 +104,6 @@ private:
   // matching cluTP with gen electrons
   TH1F* h_deltaR_cluTPGen_;
   TH1F* h_cluTPEtoverGenEt_;
-  TH1F* h_cluTPEt_genMatch_;
   TH1F* h_dEta_cluTP_gen_;
   TH1F* h_dPhi_cluTP_gen_;
 

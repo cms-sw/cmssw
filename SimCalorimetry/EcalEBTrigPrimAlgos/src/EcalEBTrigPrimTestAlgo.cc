@@ -160,6 +160,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	  tp.setSize( nrSamples_);
 
 
+	  
 	  if(debug_){
 	    std::cout<<std::endl;
 	    std::cout <<"iXstal= "<<iXstal<< " id " <<  dataFrames[iXstal].id()  << " EBDataFrame is: "<<std::endl; 

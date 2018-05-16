@@ -46,7 +46,8 @@ class EcalEBCluTrigPrimProducer : public edm::stream::EDProducer<>
   int binOfMaximum_;
   int dEta_;
   int dPhi_;
-  int  tpAlgo_; 
+  double hitNoiseCut_;
+  double etCutOnSeed_;
   int  nEvent_;
   
   

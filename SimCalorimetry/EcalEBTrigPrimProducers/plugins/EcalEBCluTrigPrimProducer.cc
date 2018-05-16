@@ -70,10 +70,13 @@ EcalEBCluTrigPrimProducer::EcalEBCluTrigPrimProducer(const edm::ParameterSet&  i
   nSamples_(iConfig.getParameter<int>("nOfSamples")),
   binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
   dEta_(iConfig.getParameter<int>("etaSize")),
-  dPhi_(iConfig.getParameter<int>("phiSize"))
-
+  dPhi_(iConfig.getParameter<int>("phiSize")),
+  hitNoiseCut_(iConfig.getParameter<double>("hitNoiseCut")),
+  etCutOnSeed_(iConfig.getParameter<double>("etCutOnSeed"))
   
-{  
+{ 
+
+  std::cout << " Cut on channel " <<  hitNoiseCut_ << " cut on seed " <<  etCutOnSeed_ << std::endl; 
   tokenEBdigi_=consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("barrelEcalDigis"));
   //register your products
   produces <EcalEBClusterTrigPrimDigiCollection >();
@@ -198,7 +201,7 @@ EcalEBCluTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup
  
   const EBDigiCollection *ebdigi=NULL;
   ebdigi=barrelDigiHandle.product();
-  algo_->run(iSetup,ebdigi,*pOut,*pOutTcp, dEta_, dPhi_);
+  algo_->run(iSetup,ebdigi,*pOut,*pOutTcp, dEta_, dPhi_,hitNoiseCut_,etCutOnSeed_);
   
 
   if (debug_ ) std::cout << "produce" << " For Barrel  "<<pOut->size()<<" TP  Digis were produced" << std::endl;

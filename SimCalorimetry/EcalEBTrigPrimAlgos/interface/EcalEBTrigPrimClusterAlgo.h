@@ -52,10 +52,14 @@ class EcalEBTrigPrimClusterAlgo : public  EcalEBTrigPrimBaseAlgo
 
   virtual ~EcalEBTrigPrimClusterAlgo();
 
-  void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBClusterTrigPrimDigiCollection & result, EcalEBClusterTrigPrimDigiCollection & resultTcp, int dEta, int dPhi);
+  void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBClusterTrigPrimDigiCollection & result, 
+	   EcalEBClusterTrigPrimDigiCollection & resultTcp, 
+	   int dEta, int dPhi,
+           double hitNoiseCut,
+	   double etCutOnSeed);
 
 
-  std::vector<uint16_t> makeCluster  ( std::vector<std::vector<SimpleCaloHit> >& hitCollection, EcalEBClusterTrigPrimDigiCollection & result, int dEta, int dPhi );
+  std::vector<uint16_t> makeCluster  ( std::vector<std::vector<SimpleCaloHit> >& hitCollection, EcalEBClusterTrigPrimDigiCollection & result, int dEta, int dPhi, double hitNoiseCut,double etCutOnSeed );
 
  private:
   

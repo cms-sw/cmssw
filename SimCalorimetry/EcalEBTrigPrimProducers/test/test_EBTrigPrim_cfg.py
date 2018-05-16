@@ -10,7 +10,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
    reportEvery = cms.untracked.int32(1)
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.source = cms.Source("PoolSource",
                             fileNames= cms.untracked.vstring(
@@ -336,7 +336,9 @@ process.simEcalEBClusterTriggerPrimitiveDigis = cms.EDProducer("EcalEBCluTrigPri
     nOfSamples = cms.int32(1),
     binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
     etaSize = cms.int32(2), # to build the 3x3 or 3x5 or whatever. the int is always size-1. So fra a 3x3, one needs to input 2,2 
-    phiSize = cms.int32(2)
+    phiSize = cms.int32(2),
+    hitNoiseCut = cms.double(0.175),
+    etCutOnSeed = cms.double(0.4375) # 2.5x0.175 see Sasha slides
 )
 
 
@@ -348,7 +350,7 @@ process.pNancy = cms.Path(process.simEcalEBClusterTriggerPrimitiveDigis )
 
 process.Out = cms.OutputModule( "PoolOutputModule",
 #    fileName = cms.untracked.string( "EBTP_PhaseII_RelVal2017.root" ),
-    fileName = cms.untracked.string( "EBTP_PhaseII_SingleNeu_Clu3x3_PU200_unsupDigis.root" ),
+    fileName = cms.untracked.string( "EBTP_PhaseII_SingleNeu_Clu3x3_PU200_unsupDigis_updatedNoiseCuts_10K.root" ),
     fastCloning = cms.untracked.bool( False ),
     outputCommands = cms.untracked.vstring("keep *_EcalEBTrigPrimProducer_*_*",
                                            "keep *_TriggerResults_*_*",

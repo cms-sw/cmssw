@@ -58,7 +58,7 @@ class EcalEBTrigPrimBaseAlgo
 
   
   virtual void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp){;}
-  virtual void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBClusterTrigPrimDigiCollection & result, EcalEBClusterTrigPrimDigiCollection & resultTcp, int deta, int dphi){;}
+  virtual void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBClusterTrigPrimDigiCollection & result, EcalEBClusterTrigPrimDigiCollection & resultTcp, int deta, int dphi, double hitNoiseCut, double etCutOnSeed){;}
   
   void setPointers(const EcalTPGLinearizationConst *ecaltpLin,
 		   const EcalTPGPedestals *ecaltpPed,

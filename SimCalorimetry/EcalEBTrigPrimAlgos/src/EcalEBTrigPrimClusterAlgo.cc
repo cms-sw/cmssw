@@ -122,9 +122,11 @@ EcalEBTrigPrimClusterAlgo::~EcalEBTrigPrimClusterAlgo()
 
 
 void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup, 
-				 EBDigiCollection const * digi,
-				 EcalEBClusterTrigPrimDigiCollection & result,
-				    EcalEBClusterTrigPrimDigiCollection & resultTcp, int dEta, int dPhi)
+				    EBDigiCollection const * digi,
+				    EcalEBClusterTrigPrimDigiCollection & result,
+				    EcalEBClusterTrigPrimDigiCollection & resultTcp, 
+				    int dEta, int dPhi, 
+				    double hitNoiseCut, double etCutOnSeed)
 {
 
   //typedef typename Coll::Digi Digi;
@@ -273,7 +275,7 @@ void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup,
   }   // loop over the towers 
 
   
-  std::vector<uint16_t> cluCollection = makeCluster ( hitCollection, result, dEta, dPhi  );
+  std::vector<uint16_t> cluCollection = makeCluster ( hitCollection, result, dEta, dPhi, hitNoiseCut, etCutOnSeed  );
   if (debug_) std::cout << "  TrigPrimClusterAlgo hitCollection size " << hitCollection.size() << " cluster size " << cluCollection.size() <<  std::endl; 
 
   /*
@@ -305,13 +307,19 @@ void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup,
 
 
 
-std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std::vector<SimpleCaloHit> >&  hitCollection, EcalEBClusterTrigPrimDigiCollection & result, int dEta, int dPhi ) {
+std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std::vector<SimpleCaloHit> >&  hitCollection, 
+								EcalEBClusterTrigPrimDigiCollection & result, 
+								int dEta, int dPhi,
+                                                                double hitNoiseCut,
+								double etCutOnSeed) {
 
   EcalEBClusterTriggerPrimitiveDigi tp;
 
    if (debug_) std::cout << "  makeCluster  input collection size " << hitCollection.size() << std::endl;
    std::vector<std::vector<uint16_t> > clusters;
    std::vector<std::vector<float> >::const_iterator iClu;
+
+   //std::cout << " Cut on channel " <<  hitNoiseCut << " cut on seed " <<  etCutOnSeed << std::endl;
 
   //debug
   //for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
@@ -348,10 +356,11 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
       for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
 	SimpleCaloHit  hit = hitCollection[iChan][iSample];  
 
+	//EBDetId myId = hit.id();
 	float energy = hit.etInGeV()/sin(hit.position().theta());
 
-	//if ( energy < 0.2 ) continue;
-	if ( energy < 0.080 ) continue;
+	
+	if ( energy < hitNoiseCut ) continue;
 	
 	if ( !hit.stale && hit.etInGeV() > centerhit.etInGeV() ) {
 	  centerhit = hit;  
@@ -362,7 +371,7 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
 	
       } //looping over the pseudo-hits
 
-      if ( centerhit.etInGeV() <= 0.350 ) break;
+      if ( centerhit.etInGeV() <= etCutOnSeed ) break;
       centerhit.stale=true;
       if (debug_) {
 	std::cout << "-------------------------------------" << std::endl;
@@ -380,7 +389,7 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
 	SimpleCaloHit &hit(hitCollection[iChan][iSample]);  
 	float energy = hit.etInGeV()/sin(hit.position().theta());
 	//if ( energy < 0.2 ) continue;
-	if ( energy < 0.08 ) continue;
+	if ( energy < hitNoiseCut ) continue;
 
 	if ( !hit.stale &&  (abs(hit.dieta(centerhit)) < dEta && abs(hit.diphi(centerhit)) <  dPhi ) ) {
 	  

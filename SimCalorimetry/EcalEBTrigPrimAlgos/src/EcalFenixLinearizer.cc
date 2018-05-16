@@ -85,17 +85,18 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
   uncorrectedSample_=RawSam.adc(); //uncorrectedSample_ is coded in the 12 LSB
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
 
-  if ( gainID_>1) {
-    //std::cout << "  EcalFenixLinearizer::setInput gain " << gainID_ << std::endl;
-      return -999;
-  }
-  //if (gainID_==0)    gainID_=3;
+  //std::cout << "  EcalFenixLinearizer::setInput gain " << gainID_ << std::endl;
+
+
 
   if(gainID_ == 0)
   {
+    //    std::cout << "  if ( gainID_ ==0 )  " << gainID_ << std::endl;
+    //std::cout << " linConsts_->mult_x12 " << linConsts_->mult_x12 << " linConsts_->mult_x6 " << linConsts_->mult_x6 << " linConsts_->mult_x1 " << linConsts_->mult_x1 << std::endl;
     base_ = 0;
     shift_ = 0;
     mult_ = 0xFF;
+   
     if((linConsts_->mult_x12 == 0) && (linConsts_->mult_x6 == 0) && (linConsts_->mult_x1 == 0))
     {
 
@@ -104,9 +105,12 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     }
   }
   else if (gainID_==1) {
+    //std::cout << "  if ( gainID_ =1 )  " << gainID_ << std::endl;
+
+
     base_ = peds_ -> mean_x12; 
     shift_ = linConsts_ -> shift_x12;
-    
+   
     // take into account the badX
     // badXStatus_ == 0 if the crystal works
     // badXStatus_ !=0 some problem with the crystal
@@ -116,8 +120,12 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     else{ 
       mult_ = linConsts_ -> mult_x12;
     }
+    //std::cout << " uncorrectedSample " << uncorrectedSample_ << " linConsts_->mult_x12 " << linConsts_->mult_x12 << " base " << peds_ -> mean_x12 << " shift " <<  linConsts_ -> shift_x12 << " mult " << mult_ << std::endl;    
   }
   else if (gainID_==2) {
+    //std::cout << "  if ( gainID_ = 2 )  " << gainID_ << std::endl;
+    //std::cout << " linConsts_->mult_x12 " << linConsts_->mult_x12 << " linConsts_->mult_x6 " << linConsts_->mult_x6 << " linConsts_->mult_x1 " << linConsts_->mult_x1 << std::endl;
+
     base_ = peds_ -> mean_x6;
     shift_ = linConsts_ -> shift_x6;
     
@@ -131,6 +139,8 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     }  
   }
   else if (gainID_==3){
+    //  std::cout << "  if ( gainID_ =3  )  " << gainID_ << std::endl;
+
     base_ = peds_-> mean_x1; 
     shift_ = linConsts_ -> shift_x1;
     
@@ -144,10 +154,12 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
     } 
   }
   
+  //std::cout << " uncorrectedSample " << uncorrectedSample_ << " linConsts_->mult_x1 " << linConsts_->mult_x1 << " base " << peds_ -> mean_x1 << " shift " <<  linConsts_ -> shift_x1 << " mult " << mult_ << std::endl;    
   //std::cout << "  EcalFenixLinearizer::setInput   uncorrectedSample_ " << RawSam.adc() << " gainID " << gainID_ << " baseline " << base_ << std::endl;
   
   if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos
 
   return 1;
 }
+
 
