@@ -811,7 +811,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					if (did.depth() == 10) {
 						_ledSignalPresent = false;
 						for (int i=0; i<digi.samples(); i++) {
-							_meLEDMon->Fill(bx, digi[i].adc());
+							if (_ptype == fOnline) {
+								_meLEDMon->Fill(bx, digi[i].adc());
+							}
 							if (digi[i].adc() > _thresh_led) {
 								_ledSignalPresent = true;
 							}
