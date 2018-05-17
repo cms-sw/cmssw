@@ -134,7 +134,7 @@ class RunVisualizationProcessing:
 
 if __name__ == '__main__':
     valid = ["scenario=", "reco", "fevt", "no-output",
-             "global-tag=", "lfn=",'preFilter=']
+             "global-tag=", "lfn=", 'preFilter=']
     usage = \
 """
 RunVisualizationProcessing.py <options>

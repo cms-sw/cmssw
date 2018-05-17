@@ -52,7 +52,7 @@ class LumiList(object):
         self.duplicates = {}
         if filename:
             self.filename = filename
-            jsonFile = open(self.filename,'r')
+            jsonFile = open(self.filename, 'r')
             self.compactList = json.load(jsonFile)
         elif url:
             self.url = url
@@ -304,7 +304,7 @@ class LumiList(object):
         """
         Write out a JSON file representation of the object
         """
-        jsonFile = open(fileName,'w')
+        jsonFile = open(fileName, 'w')
         jsonFile.write("%s\n" % self)
         jsonFile.close()
 

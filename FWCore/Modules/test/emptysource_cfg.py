@@ -29,7 +29,7 @@ for i in xrange(process.maxEvents.input.value()):
       numberOfEventsInRun=1
       run += 1
       event = 1
-   ids.append(cms.EventID(run,event))
+   ids.append(cms.EventID(run, event))
 process.check = cms.EDAnalyzer("EventIDChecker", eventSequence = cms.untracked(ids))
 process.print1 = cms.OutputModule("AsciiOutputModule")
 

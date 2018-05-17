@@ -55,70 +55,70 @@ cat_classes={FAIL:"fail",
 # Aggregation of names for the global directory
 # These are used to build the condensed summary at the beggining of the page
 original=[\
-('Level 1 Trigger',['L1T', 'L1TEMU']),
+('Level 1 Trigger', ['L1T', 'L1TEMU']),
 
-('Pixel Detector',['Pixel', 'OfflinePV', 'Vertexing']),
-('Silicon Strips',['SiStrip']),
-('Tracking System',['Tracking', 'TrackerDigisV', 'TrackerHitsV', 'TrackerRecHitsV']),
+('Pixel Detector', ['Pixel', 'OfflinePV', 'Vertexing']),
+('Silicon Strips', ['SiStrip']),
+('Tracking System', ['Tracking', 'TrackerDigisV', 'TrackerHitsV', 'TrackerRecHitsV']),
 
-('Ecal Calorimeter',['EcalBarrel', 'EcalEndcap', 'EcalPreshower', 'EcalClusterV', 'EcalDigisV', 'EcalHitsV', 'EcalRecHitsV']),
-('Electrons and Photons',['Egamma','EgammaV']),
+('Ecal Calorimeter', ['EcalBarrel', 'EcalEndcap', 'EcalPreshower', 'EcalClusterV', 'EcalDigisV', 'EcalHitsV', 'EcalRecHitsV']),
+('Electrons and Photons', ['Egamma', 'EgammaV']),
 
-('Hcal Calorimeter',['Hcal', 'HcalHitsV', 'HcalRecHitsV', 'CaloTowersV']),
+('Hcal Calorimeter', ['Hcal', 'HcalHitsV', 'HcalRecHitsV', 'CaloTowersV']),
 ('Castor Calorimeter', ['Castor']),
-('Jet and Met',['JetMET']),
+('Jet and Met', ['JetMET']),
 
-('Drift Tubes',['DT']),
+('Drift Tubes', ['DT']),
 ('Cathode Strip Chambers', ['CSC']),
-('Resistive Plate Chambers',['RPC', 'RPCDigisV']),
-('Muon Objects',['Muons', 'MuonCSCDigisV', 'MuonDTDigisV' ,'MuonDTHitsV']),
+('Resistive Plate Chambers', ['RPC', 'RPCDigisV']),
+('Muon Objects', ['Muons', 'MuonCSCDigisV', 'MuonDTDigisV', 'MuonDTHitsV']),
 
-('B Tagging' , ['Btag']),
+('B Tagging', ['Btag']),
 
-('Miscellanea: Simulation',['Generator','GlobalDigisV','GlobalHitsV','GlobalRecHitsV','MixingV','NoiseRatesV']),
-('Miscellanea',['Info','MessageLogger','ParticleFlow','Physics'])]
+('Miscellanea: Simulation', ['Generator', 'GlobalDigisV', 'GlobalHitsV', 'GlobalRecHitsV', 'MixingV', 'NoiseRatesV']),
+('Miscellanea', ['Info', 'MessageLogger', 'ParticleFlow', 'Physics'])]
 
 # designed for the Reconstruction
 reco_aggr=[\
 # Detectors
-('Tracking System',['TrackerDigisV', 'TrackerHitsV', 'TrackerRecHitsV']+['Pixel']+['SiStrip']),
-('Ecal Calorimeter',['EcalBarrel', 'EcalEndcap', 'EcalPreshower', 'EcalClusterV', 'EcalDigisV', 'EcalHitsV', 'EcalRecHitsV']),
-('Hcal Calorimeter',['Hcal', 'HcalHitsV', 'HcalRecHitsV', 'CaloTowersV']),
-('Drift Tubes',['DT']),
+('Tracking System', ['TrackerDigisV', 'TrackerHitsV', 'TrackerRecHitsV']+['Pixel']+['SiStrip']),
+('Ecal Calorimeter', ['EcalBarrel', 'EcalEndcap', 'EcalPreshower', 'EcalClusterV', 'EcalDigisV', 'EcalHitsV', 'EcalRecHitsV']),
+('Hcal Calorimeter', ['Hcal', 'HcalHitsV', 'HcalRecHitsV', 'CaloTowersV']),
+('Drift Tubes', ['DT']),
 ('Cathode Strip Chambers', ['CSC']),
-('Resistive Plate Chambers',['RPC', 'RPCDigisV']),
+('Resistive Plate Chambers', ['RPC', 'RPCDigisV']),
 
 # Actions
-('Tracking',['Tracking']),
+('Tracking', ['Tracking']),
 
 # Objects
-('Electrons',['Egamma/Electrons','EgammaV/ElectronMcFakeValidator','EgammaV/ElectronMcSignalValidator']),
-('Photons',['Egamma/PhotonAnalyzer','Egamma/PiZeroAnalyzer','EgammaV/PhotonValidator','EgammaV/ConversionValidator']),
+('Electrons', ['Egamma/Electrons', 'EgammaV/ElectronMcFakeValidator', 'EgammaV/ElectronMcSignalValidator']),
+('Photons', ['Egamma/PhotonAnalyzer', 'Egamma/PiZeroAnalyzer', 'EgammaV/PhotonValidator', 'EgammaV/ConversionValidator']),
 
-('Muon Objects',['Muons', 'MuonCSCDigisV', 'MuonDTDigisV' ,'MuonDTHitsV']),
-('Jet',['JetMET/Jet','JetMET/RecoJetsV','ParticleFlow/PFJetValidation']),
-('MET',['JetMET/MET','JetMET/METv','ParticleFlow/PFMETValidation']),
-('B Tagging' , ['Btag']),
-('Tau' , ['RecoTauV']),
+('Muon Objects', ['Muons', 'MuonCSCDigisV', 'MuonDTDigisV', 'MuonDTHitsV']),
+('Jet', ['JetMET/Jet', 'JetMET/RecoJetsV', 'ParticleFlow/PFJetValidation']),
+('MET', ['JetMET/MET', 'JetMET/METv', 'ParticleFlow/PFMETValidation']),
+('B Tagging', ['Btag']),
+('Tau', ['RecoTauV']),
 
 # Other
 ('Castor Calorimeter', ['Castor']),
-('Level 1 Trigger',['L1T', 'L1TEMU']),
-('Miscellanea: Sim.',['Generator','GlobalDigisV','GlobalHitsV','GlobalRecHitsV','MixingV','NoiseRatesV']),
-('Miscellanea',['Info','MessageLogger','ParticleFlow','Physics'])]
+('Level 1 Trigger', ['L1T', 'L1TEMU']),
+('Miscellanea: Sim.', ['Generator', 'GlobalDigisV', 'GlobalHitsV', 'GlobalRecHitsV', 'MixingV', 'NoiseRatesV']),
+('Miscellanea', ['Info', 'MessageLogger', 'ParticleFlow', 'Physics'])]
 
 # Designed for the HLT
 hlt_aggr=[\
-('EGamma',['EgOffline','HLTEgammaValidation']),
-('Muon',['Muon'',HLTMonMuon']),
-('Tau',['TauRelVal','TauOffline','TauOnline']),
-('JetMet',['JetMET','HLTJETMET']),
-('Top',['Top']),
-('Higgs',['Higgs']),
-('HeavyFlavor',['HeavyFlavor']),
-('SusyExo',['SusyExo']),
-('Alca',['AlCaEcalPi0','EcalPhiSym','HcalIsoTrack']),
-('Generic',['FourVector_Val','FourVector'])
+('EGamma', ['EgOffline', 'HLTEgammaValidation']),
+('Muon', ['Muon'',HLTMonMuon']),
+('Tau', ['TauRelVal', 'TauOffline', 'TauOnline']),
+('JetMet', ['JetMET', 'HLTJETMET']),
+('Top', ['Top']),
+('Higgs', ['Higgs']),
+('HeavyFlavor', ['HeavyFlavor']),
+('SusyExo', ['SusyExo']),
+('Alca', ['AlCaEcalPi0', 'EcalPhiSym', 'HcalIsoTrack']),
+('Generic', ['FourVector_Val', 'FourVector'])
 ]
 
 aggr_pairs_dict={"reco":reco_aggr,"HLT":hlt_aggr}
@@ -127,25 +127,25 @@ aggr_pairs_dict={"reco":reco_aggr,"HLT":hlt_aggr}
 # This is used to build the table for the twiki, can be different from AGGR_PAIRS in general!
 reco_aggr_twiki=[\
 # Detectors
-('Tk',['TrackerDigisV', 'TrackerHitsV', 'TrackerRecHitsV']+['Pixel']+['SiStrip']),
-('Ecal',['EcalBarrel', 'EcalEndcap', 'EcalPreshower', 'EcalClusterV', 'EcalDigisV', 'EcalHitsV', 'EcalRecHitsV']),
-('Hcal',['Hcal', 'HcalHitsV', 'HcalRecHitsV', 'CaloTowersV']),
-('DT',['DT']),
+('Tk', ['TrackerDigisV', 'TrackerHitsV', 'TrackerRecHitsV']+['Pixel']+['SiStrip']),
+('Ecal', ['EcalBarrel', 'EcalEndcap', 'EcalPreshower', 'EcalClusterV', 'EcalDigisV', 'EcalHitsV', 'EcalRecHitsV']),
+('Hcal', ['Hcal', 'HcalHitsV', 'HcalRecHitsV', 'CaloTowersV']),
+('DT', ['DT']),
 ('CSC', ['CSC']),
-('RPC',['RPC', 'RPCDigisV']),
+('RPC', ['RPC', 'RPCDigisV']),
 
 # Actions
-('Tracking',['Tracking']),
+('Tracking', ['Tracking']),
 
 # Objects
-('Electrons',['Egamma/Electrons','EgammaV/ElectronMcFakeValidator','EgammaV/ElectronMcSignalValidator']),
-('Photons',['Egamma/PhotonAnalyzer','Egamma/PiZeroAnalyzer','EgammaV/PhotonValidator','EgammaV/ConversionValidator']),
+('Electrons', ['Egamma/Electrons', 'EgammaV/ElectronMcFakeValidator', 'EgammaV/ElectronMcSignalValidator']),
+('Photons', ['Egamma/PhotonAnalyzer', 'Egamma/PiZeroAnalyzer', 'EgammaV/PhotonValidator', 'EgammaV/ConversionValidator']),
 
-('Muons',['Muons', 'MuonCSCDigisV', 'MuonDTDigisV' ,'MuonDTHitsV']),
-('Jet',['JetMET/Jet','JetMET/RecoJetsV','ParticleFlow/PFJetValidation']),
-('MET',['JetMET/MET','JetMET/METv','ParticleFlow/PFMETValidation']),
-('BTag' , ['Btag']),
-('Tau' , ['RecoTauV'])]
+('Muons', ['Muons', 'MuonCSCDigisV', 'MuonDTDigisV', 'MuonDTHitsV']),
+('Jet', ['JetMET/Jet', 'JetMET/RecoJetsV', 'ParticleFlow/PFJetValidation']),
+('MET', ['JetMET/MET', 'JetMET/METv', 'ParticleFlow/PFMETValidation']),
+('BTag', ['Btag']),
+('Tau', ['RecoTauV'])]
 
 # Designed for the HLT
 hlt_aggr_twiki=hlt_aggr
@@ -172,25 +172,25 @@ mc_pattern_blist_pairs=(\
             "RPCDigisV@1,Castor@1,RecoTau@1,ParticleFlow@1,L1T@1"),
         ("WM+|ZMM+|JpsiMM+|SingleMu+",
             "Btag@1,JetMET@1,Castor@1,Egamma@1,Ecal@1,Hcal@1,CaloTowersV@1,RecoTau@1,ParticleFlow@1,L1T@1"),
-        ("H130GGgluonfusion+","^[ABCDFHIJKLMNOPQRSTUVWXYZ]@1,Ecal@1"),
-        ("RelValMinBias+","AlCaReco@1"),
-        ("!(SingleGamma+|SingleElectron+)","Ecal@1"),
-        ("!(Mu+|mu+|TTbar+|ZMM+|WM+|MM+)","RPC@1"),
-        ("!(SingleMuPt100+|ZMM+)","DT@1"),
-        ("!(QCD+|MinBias+|TTbar+)","Hcal@1,CaloTowersV@1,Castor@1"),
-        ("!(QCD_Pt_80_120+|TTbar+)","Btag@1"),
+        ("H130GGgluonfusion+", "^[ABCDFHIJKLMNOPQRSTUVWXYZ]@1,Ecal@1"),
+        ("RelValMinBias+", "AlCaReco@1"),
+        ("!(SingleGamma+|SingleElectron+)", "Ecal@1"),
+        ("!(Mu+|mu+|TTbar+|ZMM+|WM+|MM+)", "RPC@1"),
+        ("!(SingleMuPt100+|ZMM+)", "DT@1"),
+        ("!(QCD+|MinBias+|TTbar+)", "Hcal@1,CaloTowersV@1,Castor@1"),
+        ("!(QCD_Pt_80_120+|TTbar+)", "Btag@1"),
         ("!(QCD_Pt_80_120+|MuPt1000+|ZEE+|SingleElectronPt10+|Gamma+|Wjet+|LM1_sfts+)",
             "Track@1,Pixel@1,OfflinePV@1,Vertexing@1,SiStrip@1"),
-        ("!(QCD_Pt_80_120+|TTbar+|Wjet+|ChargedTaus+)","RecoTau@1"))
+        ("!(QCD_Pt_80_120+|TTbar+|Wjet+|ChargedTaus+)", "RecoTau@1"))
         
 mc_pattern_blist_pairs=()
 
 data_pattern_blist_pairs=(\
-          ("!(mb20+|run20+)","Ecal@1,Track@1,Pixel@1,OfflinePV@1,Vertexing@1,SiStrip@1"),
-          ("!(cos20+|mu20+|wzMu20+)","CSC@1,RPC@1,DT@1"),
-          ("!(mb20+|jet20+|run20+)","JetMET@1,Hcal@1,Castor@1,ParticleFlow@1"),
-          ("!(wzMu20+|mu20+|run20+)","Muon@1"),
-          ("!(wzEG20+|electron20+|photon20+|run20+)","Egamma@1"),
-          ("!(mu20+|wzMu20+|jet20+)","Btag@1"))
+          ("!(mb20+|run20+)", "Ecal@1,Track@1,Pixel@1,OfflinePV@1,Vertexing@1,SiStrip@1"),
+          ("!(cos20+|mu20+|wzMu20+)", "CSC@1,RPC@1,DT@1"),
+          ("!(mb20+|jet20+|run20+)", "JetMET@1,Hcal@1,Castor@1,ParticleFlow@1"),
+          ("!(wzMu20+|mu20+|run20+)", "Muon@1"),
+          ("!(wzEG20+|electron20+|photon20+|run20+)", "Egamma@1"),
+          ("!(mu20+|wzMu20+|jet20+)", "Btag@1"))
 data_pattern_blist_pairs=()
 

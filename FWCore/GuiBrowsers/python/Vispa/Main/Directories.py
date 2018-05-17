@@ -19,9 +19,9 @@ def setHomeDirectory(dir):
     global homeDirectory, preferencesDirectory, iniFileName, logDirectory
     homeDirectory = dir
     logging.debug(__name__ +': homeDirectory - '+homeDirectory)
-    preferencesDirectory = os.path.abspath(os.path.join(homeDirectory,".vispa"))
+    preferencesDirectory = os.path.abspath(os.path.join(homeDirectory, ".vispa"))
     logging.debug(__name__ +': preferencesDirectory - '+preferencesDirectory)
-    iniFileName = os.path.abspath(os.path.join(preferencesDirectory,"vispa.ini"))
+    iniFileName = os.path.abspath(os.path.join(preferencesDirectory, "vispa.ini"))
     logging.debug(__name__ +': iniFileName - '+iniFileName)
     logDirectory = os.path.abspath(preferencesDirectory)
     logging.debug(__name__ +': logDirectory - '+logDirectory)

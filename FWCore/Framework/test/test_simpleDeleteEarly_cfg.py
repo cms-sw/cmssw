@@ -17,6 +17,6 @@ process.reader = cms.EDAnalyzer("DeleteEarlyReader",
                                 mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
 
 process.tester = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
-                                expectedValues = cms.untracked.vuint32(2,4,6))
+                                expectedValues = cms.untracked.vuint32(2, 4, 6))
 
 process.p = cms.Path(process.maker+process.reader+process.tester)

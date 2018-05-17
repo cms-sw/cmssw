@@ -1,4 +1,4 @@
-from PyQt4.QtCore import QThread,SIGNAL
+from PyQt4.QtCore import QThread, SIGNAL
 
 import logging
 

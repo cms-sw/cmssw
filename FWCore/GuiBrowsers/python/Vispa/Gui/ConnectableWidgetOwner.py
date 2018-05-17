@@ -1,5 +1,5 @@
 from PyQt4.QtCore import QCoreApplication, QEvent, Qt
-from PyQt4.QtGui import QMouseEvent,QWidget, QCursor
+from PyQt4.QtGui import QMouseEvent, QWidget, QCursor
 
 import logging
 
@@ -64,9 +64,9 @@ class ConnectableWidgetOwner(VispaWidgetOwner):
 
         workspacePos = connection.mapToParent(event.pos())
         for child in reversed(self.children()):
-            if not child==connection and isinstance(child,QWidget) and child.geometry().contains(workspacePos):
+            if not child==connection and isinstance(child, QWidget) and child.geometry().contains(workspacePos):
                 # do not forward event to connections which do not cross the mouse click point, this is important to prevent infinite loop error
-                if isinstance(child,PortConnection) and not child.belongsToRoute(workspacePos):
+                if isinstance(child, PortConnection) and not child.belongsToRoute(workspacePos):
                     continue
 #                if event.type() == QEvent.MouseButtonDblClick or \
 #                    event.type() == QEvent.MouseButtonPress or \

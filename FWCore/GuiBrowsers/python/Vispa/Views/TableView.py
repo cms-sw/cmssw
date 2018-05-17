@@ -6,11 +6,11 @@ from PyQt4.QtCore import *
 from Vispa.Main.Application import Application
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 from Vispa.Views.AbstractView import AbstractView
-from Vispa.Views.PropertyView import PropertyView,Property
+from Vispa.Views.PropertyView import PropertyView, Property
 from Vispa.Share.ThreadChain import ThreadChain
 
 class TableWidgetItem(QTableWidgetItem):
-    def __lt__(self,other):
+    def __lt__(self, other):
         return str(self.text()).lower()<str(other.text()).lower()
 
 class TableView(AbstractView, QTableWidget):
@@ -26,7 +26,7 @@ class TableView(AbstractView, QTableWidget):
         QTableWidget.__init__(self, parent)
 
         self._operationId = 0
-        self._selection = (None,None)
+        self._selection = (None, None)
         self._updatingFlag = 0
         self._columns=[]
         self._sortingFlag=False
@@ -43,10 +43,10 @@ class TableView(AbstractView, QTableWidget):
 
         self.connect(self, SIGNAL("itemSelectionChanged()"), self.itemSelectionChanged)
 
-    def setSorting(self,sort):
+    def setSorting(self, sort):
         self._sortingFlag=sort
         
-    def setColumns(self,columns):
+    def setColumns(self, columns):
         """ Set a list of columns that shall be shown.
         """
         self._filteredColumns=columns
@@ -115,7 +115,7 @@ class TableView(AbstractView, QTableWidget):
                     ranking[property[1]]+=10000
                 else:
                     ranking[property[1]]+=1
-            self._columns.sort(lambda x,y: cmp(-ranking[x],-ranking[y]))
+            self._columns.sort(lambda x, y: cmp(-ranking[x], -ranking[y]))
         self.setColumnCount(len(self._columns))
         self.setHorizontalHeaderLabels(self._columns)
         i=0
@@ -129,7 +129,7 @@ class TableView(AbstractView, QTableWidget):
             # Abort drawing if operationId out of date
             if operationId != self._operationId:
                 break
-            self._createItem(object,properties[i])
+            self._createItem(object, properties[i])
             i+=1
         if self._autosizeColumns:
             for i in range(len(self._columns)):
@@ -148,7 +148,7 @@ class TableView(AbstractView, QTableWidget):
         for property in properties:
             if property!=None and property[1] in self._columns:
                 i=self._columns.index(property[1])
-                if property[0] in ["MultilineString","Double"]: 
+                if property[0] in ["MultilineString", "Double"]: 
                     propertyWidget=PropertyView.propertyWidgetFromProperty(property)
                     if propertyWidget.properyHeight()>height:
                         height=propertyWidget.properyHeight()
@@ -158,24 +158,24 @@ class TableView(AbstractView, QTableWidget):
                 item=TableWidgetItem(text)
                 item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
                 item.object=object
-                self.setItem(row,i,item)
+                self.setItem(row, i, item)
                 if i==self._firstColumn:
                     firstColumnDone=True
         if not firstColumnDone:
             item=QTableWidgetItem("")
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
             item.object=object
-            self.setItem(row,self._firstColumn,item)
-        self.verticalHeader().resizeSection(row,height)
+            self.setItem(row, self._firstColumn, item)
+        self.verticalHeader().resizeSection(row, height)
 
     def itemSelectionChanged(self):
         """ Emits signal selected that the TabController can connect to.
         """
         logging.debug(__name__ + ": itemSelectionChanged")
         if not self._updatingFlag:
-            self._selection = (self.currentRow(),self.item(self.currentRow(),self._firstColumn).text())
-            if self.item(self.currentRow(),self._firstColumn)!=None:
-                self.emit(SIGNAL("selected"), self.item(self.currentRow(),self._firstColumn).object)
+            self._selection = (self.currentRow(), self.item(self.currentRow(), self._firstColumn).text())
+            if self.item(self.currentRow(), self._firstColumn)!=None:
+                self.emit(SIGNAL("selected"), self.item(self.currentRow(), self._firstColumn).object)
             else:
                 self.emit(SIGNAL("selected"), None)
         
@@ -186,12 +186,12 @@ class TableView(AbstractView, QTableWidget):
         logging.debug(__name__ + ": select")
         items = []
         for i in range(self.rowCount()):
-            if self.item(i,self._firstColumn).object == object:
-                items += [(i,self.item(i,self._firstColumn))]
+            if self.item(i, self._firstColumn).object == object:
+                items += [(i, self.item(i, self._firstColumn))]
         if len(items) > 0:
             index = items[0][0]
             item = items[0][1]
-            self._selection = (index,item.text())
+            self._selection = (index, item.text())
             self._updatingFlag +=1
             self.setCurrentItem(item)
             self._updatingFlag -=1
@@ -201,7 +201,7 @@ class TableView(AbstractView, QTableWidget):
         First search for object by name. If it is not found use position.
         """
         for i in range(self.rowCount()):
-            if self.item(i,self._firstColumn).text() == self._selection[1]:
+            if self.item(i, self._firstColumn).text() == self._selection[1]:
                 return i
         if self._selection[0]<self.rowCount():
             return self._selection[0]
@@ -217,7 +217,7 @@ class TableView(AbstractView, QTableWidget):
         select=self._selectedRow()
         if select != None:
             self._updatingFlag +=1
-            self.setCurrentCell(select,0)
+            self.setCurrentCell(select, 0)
             self._updatingFlag -=1
     
     def selection(self):
@@ -228,14 +228,14 @@ class TableView(AbstractView, QTableWidget):
         #logging.debug(__name__ + ": selection")
         select=self._selectedRow()
         if select != None:
-            return self.item(select,self._firstColumn).object
+            return self.item(select, self._firstColumn).object
         else:
             return None
 
     def isBusy(self):
         return self._updatingFlag>0
 
-    def mousePressEvent(self,event):
-        QTableWidget.mousePressEvent(self,event)
+    def mousePressEvent(self, event):
+        QTableWidget.mousePressEvent(self, event)
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())

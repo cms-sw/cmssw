@@ -15,24 +15,24 @@ from FWCore.GuiBrowsers.FileExportPlugin import FileExportPlugin
 class JsonExport(FileExportPlugin):
   option_types={}
   plugin_name='JSON Export'
-  file_types=('html','json')
+  file_types=('html', 'json')
   def __init__(self):
     FileExportPlugin.__init__(self)
 
-  def produce(self,data):
+  def produce(self, data):
     
     #pset = lambda pdict: [[k,repr(v).split('(',1)[0],(repr(v).split('(',1)[1][:-1])] for k,v in pdict.items()]
     def pset(pdict):
       result = []
-      for k,v in pdict.items():
+      for k, v in pdict.items():
         if v.pythonTypeName()=='cms.PSet' or v.pythonTypeName()=='cms.untracked.PSet':
-          result.append([k,v.pythonTypeName(),'pset',pset(v.parameters_())])
+          result.append([k, v.pythonTypeName(), 'pset', pset(v.parameters_())])
         elif v.pythonTypeName()=='cms.VPSet' or v.pythonTypeName()=='cms.untracked.VPSet':
-          result.append([k,v.pythonTypeName(),'vpset',[pset(a.parameters_()) for a in v]])
+          result.append([k, v.pythonTypeName(), 'vpset', [pset(a.parameters_()) for a in v]])
         elif v.pythonTypeName().lower().startswith('cms.v') or v.pythonTypeName().lower().startswith('cms.untracked.v'):
-          result.append([k,v.pythonTypeName(),'list',[repr(a) for a in v]])
+          result.append([k, v.pythonTypeName(), 'list', [repr(a) for a in v]])
         else:
-          result.append([k,v.pythonTypeName(),'single',repr(v.pythonValue())])
+          result.append([k, v.pythonTypeName(), 'single', repr(v.pythonValue())])
       return result
           
     #allObjects = [d for d in data._allObjects if (data.type(d) in ("EDProducer","EDFilter","EDAnalyzer","OutputModule"))]
@@ -50,7 +50,7 @@ class JsonExport(FileExportPlugin):
       if links:
         result['uses']=[data.uses(mod)]
         result['usedby']=[data.usedBy(mod)]
-      result['id']='%s_%s'%(prefix,data.label(mod))
+      result['id']='%s_%s'%(prefix, data.label(mod))
       return result
       
     all={}
@@ -76,35 +76,35 @@ class JsonExport(FileExportPlugin):
     essources=[]
     if 'essources' in all:
       for e in all['essources']:
-        essources.append(moduledict(e,'essource'))
+        essources.append(moduledict(e, 'essource'))
     esproducers=[]
     if 'esproducers' in all:
       for e in all['esproducers']:
-        essources.append(moduledict(e,'esproducer'))
+        essources.append(moduledict(e, 'esproducer'))
     esprefers=[]
     if 'esprefers' in all:
       for e in all['esprefers']:
-        essources.append(moduledict(e,'esprefers'))
+        essources.append(moduledict(e, 'esprefers'))
     services=[]
     if 'services' in all:
       for s in all['services']:
         services.append({'class':data.classname(s),'pset':pset(s.parameters_())})    
       
       
-    def jsonPathRecursive(p,prefix):
+    def jsonPathRecursive(p, prefix):
       #print "At:",self.label(p),self.type(p)
       children = data.children(p)
       if children:
-        children = [jsonPathRecursive(c,prefix) for c in children]
+        children = [jsonPathRecursive(c, prefix) for c in children]
         return {'type':'Sequence','label':'Sequence %s'%(data.label(p)),'id':'seq_%s' % data.label(p),'children':children}
       else:
-        return moduledict(p,prefix,True)
+        return moduledict(p, prefix, True)
         
           
     paths=[]
     if 'paths' in all:
       for p in all['paths']:
-        path=jsonPathRecursive(p,data.label(p))
+        path=jsonPathRecursive(p, data.label(p))
         if path:
           if not type(path)==type([]):
             if path['type']=='Sequence':
@@ -117,7 +117,7 @@ class JsonExport(FileExportPlugin):
     endpaths=[]
     if 'endpaths' in all:
       for p in all['endpaths']:
-        path=jsonPathRecursive(p,data.label(p))
+        path=jsonPathRecursive(p, data.label(p))
         if path:
           if not type(path)==type([]):
             if path['type']=='Sequence':
@@ -133,14 +133,14 @@ class JsonExport(FileExportPlugin):
       
     return repr(json)
     
-  def export(self,data,filename,filetype):
+  def export(self, data, filename, filetype):
     if not data.process():
       raise "JSONExport requires a cms.Process object"
       
     json = self.produce(data)
     
     if filetype=='json':
-      jsonfile = open(filename,'w')
+      jsonfile = open(filename, 'w')
       jsonfile.write(json)
       jsonfile.close()
     if filetype=='html':

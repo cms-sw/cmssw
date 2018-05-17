@@ -4,7 +4,7 @@ class FileExportPlugin(object):
   file_types=()
   def __init__(self):
     self.options={}
-    for k,v in self.option_types.items():
+    for k, v in self.option_types.items():
       self.options[k]=v[2]
     
   def pluginName(self):
@@ -16,18 +16,18 @@ class FileExportPlugin(object):
   def listOptions(self):
     return self.option_types
     
-  def setOption(self,option,value):
-    check = self.checkOption(option,value)
+  def setOption(self, option, value):
+    check = self.checkOption(option, value)
     if check==True:
       self.options[option]=value
     else:
       raise check
     
-  def getOption(self,option):
-    return self.options.get(option,None)
+  def getOption(self, option):
+    return self.options.get(option, None)
     
-  def checkOption(self,option,value):
+  def checkOption(self, option, value):
     return True
   
-  def export(self,data,filename,filetype):
+  def export(self, data, filename, filetype):
     raise NotImplemented

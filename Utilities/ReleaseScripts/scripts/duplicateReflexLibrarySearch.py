@@ -15,15 +15,15 @@ from XML2Python import xml2obj
 typedefsDict = \
              {
     # What we want <=  What we have
-    'unsigned int' : ['unsignedint', 'UInt32_t', 'uint32_t'],
+    'unsigned int': ['unsignedint', 'UInt32_t', 'uint32_t'],
     'unsigned long': ['unsignedlong'],
-    'int'          : ['Int32_t'],
-    'float'        : ['Float_t'],
-    'double'       : ['Double_t'],
-    'char'         : ['Char_t'],
-    '< '           : ['<', '&lt;'],
-    ' >'           : ['>', '&gt;'],
-    ', '           : [','],
+    'int': ['Int32_t'],
+    'float': ['Float_t'],
+    'double': ['Double_t'],
+    'char': ['Char_t'],
+    '< ': ['<', '&lt;'],
+    ' >': ['>', '&gt;'],
+    ', ': [','],
     }
 
 
@@ -38,41 +38,41 @@ equivDict = \
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
-         {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
-         {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties','reco::HTTTopJetProperties']},
+         {'PatCandidates'         : ['pat::PATObject', 'pat::Lepton']},
+         {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties', 'reco::SecondaryVertexTagInfo', 'reco::IPTagInfo', 'reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties', 'reco::HTTTopJetProperties']},
          {'CastorReco'            : ['reco::CastorJet']},
-         {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
+         {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour', 'reco::MatchedPartons']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
          {'Egamma'                : ['reco::ElectronID']},
          {'TopObjects'            : ['reco::CATopJetProperties']},
-         {'TauReco'               : ['reco::L2TauIsolationInfo','reco::RecoTauPiZero','reco::BaseTau']},
-	 {'ValidationFormats'     : ['PGlobalDigi::.+','PGlobalRecHit::.+']},
+         {'TauReco'               : ['reco::L2TauIsolationInfo', 'reco::RecoTauPiZero', 'reco::BaseTau']},
+	 {'ValidationFormats'     : ['PGlobalDigi::.+', 'PGlobalRecHit::.+']},
          {'TrajectorySeed'        : ['TrajectorySeed']},
          {'TrackCandidate'        : ['TrackCandidate']},
-	 {'PatternTools'          : ['MomentumConstraint','VertexConstraint','Trajectory']},
-	 {'TrackerRecHit2D'       : ['SiStrip(Matched|)RecHit[12]D','SiTrackerGSRecHit[12]D','SiPixelRecHit']},
+	 {'PatternTools'          : ['MomentumConstraint', 'VertexConstraint', 'Trajectory']},
+	 {'TrackerRecHit2D'       : ['SiStrip(Matched|)RecHit[12]D', 'SiTrackerGSRecHit[12]D', 'SiPixelRecHit']},
 	 {'MuonReco'              : ['reco::Muon(Ref|)(Vector|)']},
 	 {'MuonSeed'              : ['L3MuonTrajectorySeed']},
 	 {'HepMCCandidate'        : ['reco::GenParticle.*']},
 	 {'L1Trigger'             : ['l1extra::L1.+Particle']},
 	 {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
-	 {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
+	 {'EgammaCandidates'      : ['reco::GsfElectron.*', 'reco::Photon.*']},
 	 {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
-	 {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit']},
+	 {'HcalRecHit'            : ['HFRecHit', 'HORecHit', 'ZDCRecHit', 'HBHERecHit']},
          {'PFRootEvent'           : ['EventColin::']},
 	 {'CaloTowers'            : ['CaloTower.*']},
          {'GsfTrackReco'          : ['GsfTrack.*']},
-         {'METReco'               : ['reco::(Calo|PF|Gen|)MET','reco::PFClusterMET']},
+         {'METReco'               : ['reco::(Calo|PF|Gen|)MET', 'reco::PFClusterMET']},
          {'ParticleFlowReco'      : ['reco::RecoPFClusterRefCandidateRef.*']},
-         {'ParticleFlowCandidate' : ['reco::PFCandidateRef','reco::PFCandidateFwdRef','reco::PFCandidate']},
+         {'ParticleFlowCandidate' : ['reco::PFCandidateRef', 'reco::PFCandidateFwdRef', 'reco::PFCandidate']},
          {'PhysicsToolsObjects'   : ['PhysicsTools::Calibration']},
          {'RecoCandidate'         : ['reco::Candidate']},
-         {'TrackReco'             : ['reco::Track','reco::TrackRef']},
+         {'TrackReco'             : ['reco::Track', 'reco::TrackRef']},
          {'VertexReco'            : ['reco::Vertex']},
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
-         {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
+         {'PatCandidates'         : ['reco::RecoCandidate', 'pat::[A-Za-z]+Ref(Vector|)']},
          {'TauReco'               : ['reco::PFJetRef']},
-         {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
+         {'JetReco'               : ['reco::.*Jet', 'reco::.*Jet(Collection|Ref)']},
          {'HGCDigi'               : ['HGCSample']},
      ]
 
@@ -91,11 +91,11 @@ def searchClassDefXml ():
     srcClassNameRE = re.compile (r'(\w+)/src/classes_def.*[.]xml')
     ignoreSrcRE    = re.compile (r'.*/FWCore/Skeletons/scripts/mkTemplates/.+')
     braketRE       = re.compile (r'<.+>')
-    print "Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'),'src')
+    print "Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'), 'src')
     xmlFiles = []
-    for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
+    for srcDir in [os.environ.get('CMSSW_BASE'), os.environ.get('CMSSW_RELEASE_BASE')]:
       if not len(srcDir): continue
-      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
+      for xml in commands.getoutput ('cd '+os.path.join(srcDir, 'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
         if xml and (not xml in xmlFiles):
           xmlFiles.append(xml)
     if options.showXMLs:
@@ -108,7 +108,7 @@ def searchClassDefXml ():
     for item in equivDict:
         for pack in item:
             for equiv in item[pack]:
-                explicitREs.append( (re.compile(r'\b' + equiv + r'\b'),pack))
+                explicitREs.append( (re.compile(r'\b' + equiv + r'\b'), pack))
     if options.lostDefs:
         for filename in xmlFiles:
             if (not filename) or (ignoreSrcRE.match(filename)): continue
@@ -147,9 +147,9 @@ def searchClassDefXml ():
 	if options.verbose:
             print "filename", filename
         try:
-            filepath = os.path.join(os.environ.get('CMSSW_BASE'),'src',filename)
+            filepath = os.path.join(os.environ.get('CMSSW_BASE'), 'src', filename)
             if not os.path.exists(filepath):
-              filepath = os.path.join(os.environ.get('CMSSW_RELEASE_BASE'),'src',filename)
+              filepath = os.path.join(os.environ.get('CMSSW_RELEASE_BASE'), 'src', filename)
             xmlObj = xml2obj (filename = filepath,
                               filtering = True,
                               nameChangeDict = ncdict)
@@ -251,13 +251,13 @@ def searchDuplicatePlugins ():
     for libdir in os.environ.get(libenv).split(':'):
       if libdir.endswith(biglib): continue
       if os.path.exists(libdir+'/.edmplugincache'): edmpluginFile = edmpluginFile + ' ' + libdir+'/.edmplugincache'
-    if edmpluginFile == '': edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
+    if edmpluginFile == '': edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'), 'lib', os.environ.get('SCRAM_ARCH'), '.edmplugincache')
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
     output = commands.getoutput (cmd).split('\n')
     for line in output:
       if line in ignoreEdmDP: continue
-      line = line.replace("*","\*")
-      cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
+      line = line.replace("*", "\*")
+      cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile, line)
       out1 = commands.getoutput (cmd).split('\n')
       print line
       for plugin in out1:

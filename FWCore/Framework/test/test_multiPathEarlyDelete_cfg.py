@@ -17,10 +17,10 @@ process.reader = cms.EDAnalyzer("DeleteEarlyReader",
                                 mightGet = cms.untracked.vstring("edmtestDeleteEarly_maker__TEST"))
 
 process.tester = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
-                                expectedValues = cms.untracked.vuint32(2,4,6,8,10,12))
+                                expectedValues = cms.untracked.vuint32(2, 4, 6, 8, 10, 12))
 
 process.p2PreTester = cms.EDAnalyzer("DeleteEarlyCheckDeleteAnalyzer",
-                                     expectedValues = cms.untracked.vuint32(1,4,5,8,9,12))
+                                     expectedValues = cms.untracked.vuint32(1, 4, 5, 8, 9, 12))
 process.f2 = cms.EDFilter("TestFilterModule",
 onlyOne = cms.untracked.bool(True),
 acceptValue = cms.untracked.int32(2)

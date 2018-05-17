@@ -140,7 +140,7 @@ class RunPromptReco:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "aod", "miniaod","dqm", "dqmio", "no-output",
+    valid = ["scenario=", "reco", "aod", "miniaod", "dqm", "dqmio", "no-output",
              "global-tag=", "lfn=", "alcarecos=", "PhysicsSkims=", "dqmSeq=", "isRepacked", "isNotRepacked" ]
     usage = \
 """

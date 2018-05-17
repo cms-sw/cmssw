@@ -64,8 +64,8 @@ _phase2_timing_layer_localreco = _run3_localreco.copy()
 _phase2_timing_layer_localreco += fastTimingLocalReco
 _phase2_timing_layer_localreco_HcalNZS = _run3_localreco_HcalNZS.copy()
 _phase2_timing_layer_localreco_HcalNZS += fastTimingLocalReco
-phase2_timing_layer.toReplaceWith(localreco,_phase2_timing_layer_localreco)
-phase2_timing_layer.toReplaceWith(localreco_HcalNZS,_phase2_timing_layer_localreco_HcalNZS)
+phase2_timing_layer.toReplaceWith(localreco, _phase2_timing_layer_localreco)
+phase2_timing_layer.toReplaceWith(localreco_HcalNZS, _phase2_timing_layer_localreco_HcalNZS)
 
 _ctpps_2016_localreco = localreco.copy()
 _ctpps_2016_localreco += recoCTPPS
@@ -81,7 +81,7 @@ ctpps_2016.toReplaceWith(localreco_HcalNZS, _ctpps_2016_localreco_HcalNZS)
 ###########################################
 _fastSim_localreco = localreco.copyAndExclude([
     castorreco,
-    totemRPLocalReconstruction,totemTimingLocalReconstruction,ctppsDiamondLocalReconstruction,ctppsLocalTrackLiteProducer,ctppsPixelLocalReconstruction,
+    totemRPLocalReconstruction, totemTimingLocalReconstruction, ctppsDiamondLocalReconstruction, ctppsLocalTrackLiteProducer, ctppsPixelLocalReconstruction,
     trackerlocalreco
 ])
 fastSim.toReplaceWith(localreco, _fastSim_localreco)
@@ -107,8 +107,8 @@ trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU)
 ##########################################
 # offlineBeamSpot is reconstructed before mixing in fastSim
 ##########################################
-_fastSim_globalreco_tracking = globalreco_tracking.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
-fastSim.toReplaceWith(globalreco_tracking,_fastSim_globalreco_tracking)
+_fastSim_globalreco_tracking = globalreco_tracking.copyAndExclude([offlineBeamSpot, MeasurementTrackerEventPreSplitting, siPixelClusterShapeCachePreSplitting])
+fastSim.toReplaceWith(globalreco_tracking, _fastSim_globalreco_tracking)
 
 globalreco = cms.Sequence(globalreco_tracking*
                           particleFlowCluster*
@@ -124,10 +124,10 @@ globalreco = cms.Sequence(globalreco_tracking*
 _run3_globalreco = globalreco.copyAndExclude([CastorFullReco])
 run3_common.toReplaceWith(globalreco, _run3_globalreco)
 
-_fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
+_fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco, muoncosmicreco])
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
-_fastSim_globalreco.insert(0,newCombinedSeeds+trackExtrapolator+caloTowerForTrk+firstStepPrimaryVerticesUnsorted+ak4CaloJetsForTrk+initialStepTrackRefsForJets+firstStepPrimaryVertices)
-fastSim.toReplaceWith(globalreco,_fastSim_globalreco)
+_fastSim_globalreco.insert(0, newCombinedSeeds+trackExtrapolator+caloTowerForTrk+firstStepPrimaryVerticesUnsorted+ak4CaloJetsForTrk+initialStepTrackRefsForJets+firstStepPrimaryVertices)
+fastSim.toReplaceWith(globalreco, _fastSim_globalreco)
 
 
 globalreco_plusPL= cms.Sequence(globalreco*ctfTracksPixelLess)
@@ -159,8 +159,8 @@ _highlevelreco_HI += hiClusterCompatibility
 pp_on_XeXe_2017.toReplaceWith(highlevelreco, _highlevelreco_HI)
 
 # not commisoned and not relevant in FastSim (?):
-_fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq,muoncosmichighlevelreco])
-fastSim.toReplaceWith(highlevelreco,_fastSim_highlevelreco)
+_fastSim_highlevelreco = highlevelreco.copyAndExclude([cosmicDCTracksSeq, muoncosmichighlevelreco])
+fastSim.toReplaceWith(highlevelreco, _fastSim_highlevelreco)
 
 
 from FWCore.Modules.logErrorHarvester_cfi import *
@@ -170,7 +170,7 @@ reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErro
 
 #logErrorHarvester should only wait for items produced in the reconstruction sequence
 _modulesInReconstruction = list()
-reconstruction.visit(cms.ModuleNamesFromGlobalsVisitor(globals(),_modulesInReconstruction))
+reconstruction.visit(cms.ModuleNamesFromGlobalsVisitor(globals(), _modulesInReconstruction))
 logErrorHarvester.includeModules = cms.untracked.vstring(set(_modulesInReconstruction))
 
 reconstruction_trackingOnly = cms.Sequence(localreco*globalreco_tracking)

@@ -1,7 +1,7 @@
 import logging
 
-from PyQt4.QtCore import QCoreApplication,SIGNAL,Qt
-from PyQt4.QtGui import QPalette,QMessageBox
+from PyQt4.QtCore import QCoreApplication, SIGNAL, Qt
+from PyQt4.QtGui import QPalette, QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Gui.ConnectableWidget import ConnectableWidget
@@ -86,7 +86,7 @@ class BoxDecayView(WidgetView):
             result=QCoreApplication.instance().showMessageBox("You are about to display more than "+str(numObjects)+" (>"+str(self.WARNING_ABOVE)+") objects. This may take some time. ",
                                                                        "Would you like to continue?",
                                                                        QMessageBox.Yes | QMessageBox.No,
-                                                                       QMessageBox.Yes, [("Yes (remember my decision)",QMessageBox.YesRole)])
+                                                                       QMessageBox.Yes, [("Yes (remember my decision)", QMessageBox.YesRole)])
             if result == QMessageBox.No:
                 return False
             if result == 0:
@@ -259,7 +259,7 @@ class BoxDecayView(WidgetView):
             if isinstance(widget, WidgetContainer):
                 if not self.createBoxesRecursive(operationId, self.applyFilter(self.dataAccessor().children(widget.object)), widget, positionName):
                     return None
-            if isinstance(widget, (WidgetContainer,ConnectableWidget)):
+            if isinstance(widget, (WidgetContainer, ConnectableWidget)):
                 widget.noRearangeContent(False)
 
         for widget in widgetParent.children():
@@ -267,7 +267,7 @@ class BoxDecayView(WidgetView):
             if operationId != self._operationId:
                 return None
             # draw box
-            if isinstance(widget, (WidgetContainer,ConnectableWidget)):
+            if isinstance(widget, (WidgetContainer, ConnectableWidget)):
                 widget.show()
         self.autosizeScrollArea()
         
@@ -316,37 +316,37 @@ class BoxDecayView(WidgetView):
 
     def expandAll(self):
         for widget in self.widgets():
-            if isinstance(widget,WidgetContainer) and widget.collapsed():
+            if isinstance(widget, WidgetContainer) and widget.collapsed():
                 widget.toggleCollapse()
 
     def collapseAll(self):
         for widget in self.widgets():
-            if isinstance(widget,WidgetContainer) and not widget.collapsed():
+            if isinstance(widget, WidgetContainer) and not widget.collapsed():
                 widget.toggleCollapse()
 
-    def expandToDepth(self,depth):
+    def expandToDepth(self, depth):
         for widget in self.widgets():
-            if isinstance(widget,WidgetContainer):
+            if isinstance(widget, WidgetContainer):
                 mother=widget
                 d=0
-                while isinstance(mother.parent(),WidgetContainer):
+                while isinstance(mother.parent(), WidgetContainer):
                     mother=mother.parent()
                     d+=1
                 if not widget.collapsed() and d>=depth or\
                     widget.collapsed() and d<depth:
                     widget.toggleCollapse()
         
-    def expandObject(self,object):
+    def expandObject(self, object):
         widget=self.widgetByObject(object)
-        if isinstance(widget,WidgetContainer) and widget.collapsed():
+        if isinstance(widget, WidgetContainer) and widget.collapsed():
             widget.toggleCollapse()
         
-    def collapseObject(self,object):
+    def collapseObject(self, object):
         widget=self.widgetByObject(object)
-        if isinstance(widget,WidgetContainer) and not widget.collapsed():
+        if isinstance(widget, WidgetContainer) and not widget.collapsed():
             widget.toggleCollapse()
 
-    def toggleCollapsed(self,object):
+    def toggleCollapsed(self, object):
         self.emit(SIGNAL("toggleCollapsed"), object)
         
 class BoxDecayContainer(WidgetContainer):
@@ -383,7 +383,7 @@ class BoxDecayContainer(WidgetContainer):
         leftMargin = VispaWidget.LEFT_MARGIN
         topMargin = VispaWidget.TOP_MARGIN
         for widget in self.children():
-            if isinstance(widget, VispaWidget) and hasattr(widget,"object"):
+            if isinstance(widget, VispaWidget) and hasattr(widget, "object"):
                 x = min_x
                 y = min_y
                 if self.arrangeUsingRelations():
@@ -409,6 +409,6 @@ class BoxDecayContainer(WidgetContainer):
         WidgetContainer.toggleCollapse(self)
         self.toggleCollapsed(self.object)
         
-    def toggleCollapsed(self,object):
+    def toggleCollapsed(self, object):
         self.parent().toggleCollapsed(object)
         

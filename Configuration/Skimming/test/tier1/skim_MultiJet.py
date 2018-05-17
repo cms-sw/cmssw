@@ -59,4 +59,4 @@ process.GlobalTag.globaltag = 'FT_R_42_V10A::All'
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.SKIMStreamLogErrorOutPath)
+process.schedule = cms.Schedule(process.pathlogerror, process.SKIMStreamLogErrorOutPath)

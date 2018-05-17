@@ -47,7 +47,7 @@ class AboutDialog(QDialog):
         self.layout().addWidget(websiteLink)
         buttonBox=QDialogButtonBox()
         buttonBox.addButton(QDialogButtonBox.Close)
-        self.connect(buttonBox,SIGNAL("rejected()"),self,SLOT("reject()"))
+        self.connect(buttonBox, SIGNAL("rejected()"), self, SLOT("reject()"))
         self.layout().addWidget(buttonBox)
 
     def onScreen(self):

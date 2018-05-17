@@ -9,7 +9,7 @@ process.tester = cms.EDAnalyzer("SiteLocalConfigServiceTester",
                             sourceCacheHint=cms.untracked.string("application-only"),
                             sourceReadHint=cms.untracked.string("read-ahead-buffered"),
                             sourceTTreeCacheSize=cms.untracked.uint32(10000),
-                            sourceNativeProtocols=cms.untracked.vstring("dcache","file"),
+                            sourceNativeProtocols=cms.untracked.vstring("dcache", "file"),
                             sourceValuesSet=cms.untracked.bool(True)
 )
 

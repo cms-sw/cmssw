@@ -14,7 +14,7 @@ def getFilePathsFromWalk(osWalkResult, file, exceptPaths = []):
     for root, dirs, files in osWalkResult:
         for name in files:
             excepted = False
-            fullPath = join(root,name)
+            fullPath = join(root, name)
             for path in pathsToRegEx(exceptPaths):
                 if re.match(path, fullPath):
                     excepted = True

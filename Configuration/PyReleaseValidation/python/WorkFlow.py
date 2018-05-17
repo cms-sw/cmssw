@@ -12,9 +12,9 @@ class WorkFlow(object):
         self.cmds = []
 
         if commands:
-            for (i,c) in enumerate(commands):
+            for (i, c) in enumerate(commands):
                 nToRun=10 + (i!=0)*90
-                self.check(c,nToRun)
+                self.check(c, nToRun)
         
 
         # run on real data requested:
@@ -25,7 +25,7 @@ class WorkFlow(object):
     def check(self, cmd=None, nEvtDefault=10):
         if not cmd : return None
 
-        if (isinstance(cmd,str)) and ( ' -n ' not in cmd):
+        if (isinstance(cmd, str)) and ( ' -n ' not in cmd):
             cmd+=' -n '+str(nEvtDefault)+' '
 
         self.cmds.append(cmd)
@@ -39,7 +39,7 @@ class WorkFlowConnector(object):
         self.fileName=''
     
 class WorkFlowBlock(object):
-    def __init__(self, name,cmdDict):
+    def __init__(self, name, cmdDict):
         self.nameId = name
         self.command = ''#made from the cmdDict
 

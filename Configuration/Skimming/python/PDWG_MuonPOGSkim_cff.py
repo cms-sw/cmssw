@@ -22,12 +22,12 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 
 MuonPOGSkimHLTFilter = copy.deepcopy(hltHighLevel)
 MuonPOGSkimHLTFilter.throw = cms.bool(False)
-MuonPOGSkimHLTFilter.HLTPaths = ["HLT_Mu*","HLT_IsoMu*"]
+MuonPOGSkimHLTFilter.HLTPaths = ["HLT_Mu*", "HLT_IsoMu*"]
 
 
 MuonPOGJPsiSkimHLTFilter = copy.deepcopy(hltHighLevel)
 MuonPOGJPsiSkimHLTFilter.throw = cms.bool(False)
-MuonPOGJPsiSkimHLTFilter.HLTPaths = ["HLT_Mu*_Track*_Jpsi*","HLT_Mu*_L2Mu*_Jpsi*"]
+MuonPOGJPsiSkimHLTFilter.HLTPaths = ["HLT_Mu*_Track*_Jpsi*", "HLT_Mu*_L2Mu*_Jpsi*"]
 
 
 TAGMUON_CUT = '(pt > 25) &&  (abs(eta)<2.4) && (isPFMuon>0) && (isGlobalMuon = 1) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) &&  (((pfIsolationR04.sumChargedHadronPt + max(0., pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - 0.5 * pfIsolationR04.sumPUPt) ) / pt)<0.2)'

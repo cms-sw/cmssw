@@ -75,8 +75,8 @@ ParticleID1 = cms.untracked.vint32(13),
 ParticleID2 = cms.untracked.vint32(13)
 )
 mugenfilter = cms.EDFilter("MCSingleParticleFilter",
-Status = cms.untracked.vint32(1,1),
-MinPt = cms.untracked.vdouble(10.0,10.0),
-ParticleID = cms.untracked.vint32(13,-13),
+Status = cms.untracked.vint32(1, 1),
+MinPt = cms.untracked.vdouble(10.0, 10.0),
+ParticleID = cms.untracked.vint32(13, -13),
 )
 ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter*~mugenfilter)

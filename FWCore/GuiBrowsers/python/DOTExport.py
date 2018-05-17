@@ -16,7 +16,7 @@ from Vispa.Plugins.ConfigEditor.ConfigDataAccessor import ConfigDataAccessor
 from FWCore.GuiBrowsers.FileExportPlugin import FileExportPlugin
 
 class DotProducer(object):
-  def __init__(self,data,options,shapes):
+  def __init__(self, data, options, shapes):
     self.data = data
     self.options = options
     self.shapes = shapes
@@ -50,30 +50,30 @@ class DotProducer(object):
             all_toplevel['paths']+=[tlo]
           else:
             all_toplevel['paths']=[tlo]
-        if self.data.type(tlo) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule'):
-          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo),'plaintext'),'inpath':True} 
+        if self.data.type(tlo) in ('EDAnalyzer', 'EDFilter', 'EDProducer', 'OutputModule'):
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo), 'plaintext'),'inpath':True} 
         if self.options['services'] and self.data.type(tlo)=='Service':
-          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo),'plaintext'),'inpath':False}
-        if self.options['es'] and self.data.type(tlo) in ('ESSource','ESProducer'):
-          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo),'plaintext'),'inpath':False}
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo), 'plaintext'),'inpath':False}
+        if self.options['es'] and self.data.type(tlo) in ('ESSource', 'ESProducer'):
+          self.nodes[self.data.label(tlo)]={'obj':tlo,'n_label':self.nodeLabel(tlo),'n_shape':self.shapes.get(self.data.type(tlo), 'plaintext'),'inpath':False}
     return all_toplevel      
 
-  def seqRecurseChildren(self,obj):
+  def seqRecurseChildren(self, obj):
     children = self.data.children(obj)
     if children:
       seqlabel = self.data.label(obj)
       if self.options['file']:
-        seqlabel += '\\n%s:%s' % (self.data.pypackage(obj),self.data.lineNumber(obj))
-      result='subgraph clusterSeq%s {\nlabel="Sequence %s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(obj),seqlabel,self.options['color_sequence'],self.options['color_sequence'],self.options['font_name'],self.options['font_size'])
+        seqlabel += '\\n%s:%s' % (self.data.pypackage(obj), self.data.lineNumber(obj))
+      result='subgraph clusterSeq%s {\nlabel="Sequence %s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(obj), seqlabel, self.options['color_sequence'], self.options['color_sequence'], self.options['font_name'], self.options['font_size'])
       for c in children:
         result += self.seqRecurseChildren(c)
       result+='}\n'
       return result
     else:
-      self.nodes[self.data.label(obj)]={'obj':obj,'n_label':self.nodeLabel(obj),'n_shape':self.shapes.get(self.data.type(obj),'plaintext'),'inpath':True}
+      self.nodes[self.data.label(obj)]={'obj':obj,'n_label':self.nodeLabel(obj),'n_shape':self.shapes.get(self.data.type(obj), 'plaintext'),'inpath':True}
       return '%s\n'%self.data.label(obj)   
       
-  def recurseChildren(self,obj):
+  def recurseChildren(self, obj):
     result=[]
     children=self.data.children(obj)
     if children:
@@ -84,31 +84,31 @@ class DotProducer(object):
     return result
     
   #write out an appropriate node label
-  def nodeLabel(self,obj):
+  def nodeLabel(self, obj):
     result = self.data.label(obj)
     if self.options['class']:
       result += '\\n%s'%self.data.classname(obj)
     if self.options['file']:
-      result += '\\n%s:%s'%(self.data.pypackage(obj),self.data.lineNumber(obj))
+      result += '\\n%s:%s'%(self.data.pypackage(obj), self.data.lineNumber(obj))
     return result
     
     #generate an appropriate URL by replacing placeholders in baseurl
-  def nodeURL(self,obj):
+  def nodeURL(self, obj):
     classname = self.data.classname(obj)
     pypath = self.data.pypath(obj)
     pyline = self.data.lineNumber(obj)
-    url = self.options['urlbase'].replace('$classname',classname).replace('$pypath',pypath).replace('$pyline',pyline)
+    url = self.options['urlbase'].replace('$classname', classname).replace('$pypath', pypath).replace('$pyline', pyline)
     return url
     
   def makePath(self,path,endpath=False):
     children = self.recurseChildren(path)
     pathlabel = self.data.label(path)
     if self.options['file']:
-      pathlabel += '\\n%s:%s'%(self.data.pypackage(path),self.data.lineNumber(path))
+      pathlabel += '\\n%s:%s'%(self.data.pypackage(path), self.data.lineNumber(path))
     if endpath:
-      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(path),pathlabel,self.options['color_endpath'],self.options['color_endpath'],self.options['font_name'],self.options['font_size'])
+      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(path), pathlabel, self.options['color_endpath'], self.options['color_endpath'], self.options['font_name'], self.options['font_size'])
     else:
-      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(path),pathlabel,self.options['color_path'],self.options['color_path'],self.options['font_name'],self.options['font_size'])
+      pathresult = 'subgraph cluster%s {\nlabel="%s"\ncolor="%s"\nfontcolor="%s"\nfontname="%s"\nfontsize=%s\n' % (self.data.label(path), pathlabel, self.options['color_path'], self.options['color_path'], self.options['font_name'], self.options['font_size'])
     if self.options['seqconnect']:
       if endpath:
         self.endstarts.append('endstart_%s'%self.data.label(path))
@@ -122,7 +122,7 @@ class DotProducer(object):
     for c in children:
       #this is also done in seqRecurseChildren, so will be duplicated
       #unncessary, but relatively cheap and saves more cff/cfg conditionals
-      self.nodes[self.data.label(c)]={'obj':c,'n_label':self.nodeLabel(c),'n_shape':self.shapes.get(self.data.type(c),'plaintext'),'inpath':True}
+      self.nodes[self.data.label(c)]={'obj':c,'n_label':self.nodeLabel(c),'n_shape':self.shapes.get(self.data.type(c), 'plaintext'),'inpath':True}
       labels.append(self.data.label(c))
     if self.options['seqconnect']:
       pathresult += '->'.join(labels)+'\n'
@@ -136,9 +136,9 @@ class DotProducer(object):
     pathresult += '}\n'
     if len(labels)>0 and self.options['seqconnect']:
       if endpath:
-        pathresult += 'endstart_%s->%s\n' % (self.data.label(path),labels[0])
+        pathresult += 'endstart_%s->%s\n' % (self.data.label(path), labels[0])
       else:
-        pathresult += 'start_%s->%s\n%s->end_%s\n' % (self.data.label(path),labels[0],labels[-1],self.data.label(path))
+        pathresult += 'start_%s->%s\n%s->end_%s\n' % (self.data.label(path), labels[0], labels[-1], self.data.label(path))
     
     return pathresult
 
@@ -150,7 +150,7 @@ class DotProducer(object):
     if self.options['endpath']:
       if 'endpaths' in self.toplevel:
         for path in self.toplevel['endpaths']:
-          result += self.makePath(path,True)
+          result += self.makePath(path, True)
     if 'sequences' in self.toplevel:
       for seq in self.toplevel['sequences']:
         result += self.seqRecurseChildren(seq)
@@ -160,7 +160,7 @@ class DotProducer(object):
     result=''
     for p in self.pathends:
       for p2 in self.endstarts:
-        result+="%s->%s\n" % (p,p2)
+        result+="%s->%s\n" % (p, p2)
     return result
   
   def connectTags(self):
@@ -170,11 +170,11 @@ class DotProducer(object):
     allobjects = [self.nodes[n]['obj'] for n in self.nodes if self.nodes[n]['inpath']]
     self.data.readConnections(allobjects)
     connections = self.data.connections()
-    for objects,names in connections.items():
+    for objects, names in connections.items():
       if self.options['taglabel']:
-        result += '%s->%s[label="%s",color="%s",fontcolor="%s",fontsize=%s,fontname="%s"]\n' % (objects[0],objects[1],names[1],self.options['color_inputtag'],self.options['color_inputtag'],self.options['font_size'],self.options['font_name'])
+        result += '%s->%s[label="%s",color="%s",fontcolor="%s",fontsize=%s,fontname="%s"]\n' % (objects[0], objects[1], names[1], self.options['color_inputtag'], self.options['color_inputtag'], self.options['font_size'], self.options['font_name'])
       else:
-        result += '%s->%s[color="%s"]\n' % (objects[0],objects[1],self.options['color_inputtag'])
+        result += '%s->%s[color="%s"]\n' % (objects[0], objects[1], self.options['color_inputtag'])
     return result
   
   
@@ -211,14 +211,14 @@ class DotProducer(object):
           self.servicenodes.append(self.data.label(s))
           self.nodes[self.data.label(s)]={'obj':s,'n_label':self.nodeLabel(e), 'n_shape':self.shapes['Service'],'inpath':False}
     #find the maximum path and endpath lengths for servicenode layout
-    maxpath=max([len(recurseChildren(path) for path in self.toplevel.get('paths',(0,)))])
-    maxendpath=max([len(recurseChildren(path) for path in self.toplevel.get('endpaths',(0,)))])
+    maxpath=max([len(recurseChildren(path) for path in self.toplevel.get('paths', (0,)))])
+    maxendpath=max([len(recurseChildren(path) for path in self.toplevel.get('endpaths', (0,)))])
     
     #add invisible links between service nodes where necessary to ensure they only fill to the same height as the longest path+endpath
     #this constraint should only apply for link view
-    for i,s in enumerate(servicenodes[:-1]):
+    for i, s in enumerate(servicenodes[:-1]):
       if not i%(maxpath+maxendpath)==(maxpath+maxendpath)-1:
-        result+='%s->%s[style=invis]\n' % (s,servicenodes[i+1])
+        result+='%s->%s[style=invis]\n' % (s, servicenodes[i+1])
     return result
     
   def produceNodes(self):
@@ -228,14 +228,14 @@ class DotProducer(object):
       self.nodes[n]['n_fontsize']=self.options['font_size']
       if self.options['url']:
         self.nodes[n]['n_URL']=self.nodeURL(self.nodes[n]['obj'])
-      result += "%s[%s]\n" % (n,','.join(['%s="%s"' % (k[2:],v) for k,v in self.nodes[n].items() if k[0:2]=='n_']))
+      result += "%s[%s]\n" % (n, ','.join(['%s="%s"' % (k[2:], v) for k, v in self.nodes[n].items() if k[0:2]=='n_']))
     return result
     
   def produceLegend(self):
     """
     Return a legend subgraph using current shape and colour preferences.
     """
-    return 'subgraph clusterLegend {\nlabel="legend"\ncolor=red\nSource->Producer->Filter->Analyzer\nService->ESSource[style=invis]\nESSource->ESProducer[style=invis]\nProducer->Filter[color="%s",label="InputTag",fontcolor="%s"]\nProducer[shape=%s]\nFilter[shape=%s]\nAnalyzer[shape=%s]\nESSource[shape=%s]\nESProducer[shape=%s]\nSource[shape=%s]\nService[shape=%s]\nsubgraph clusterLegendSequence {\nlabel="Sequence"\ncolor="%s"\nfontcolor="%s"\nProducer\nFilter\n}\n}\n' % (self.options['color_inputtag'],self.options['color_inputtag'],self.shapes['EDProducer'],self.shapes['EDFilter'],self.shapes['EDAnalyzer'],self.shapes['ESSource'],self.shapes['ESProducer'],self.shapes['Source'],self.shapes['Service'],self.options['color_sequence'],self.options['color_sequence'])
+    return 'subgraph clusterLegend {\nlabel="legend"\ncolor=red\nSource->Producer->Filter->Analyzer\nService->ESSource[style=invis]\nESSource->ESProducer[style=invis]\nProducer->Filter[color="%s",label="InputTag",fontcolor="%s"]\nProducer[shape=%s]\nFilter[shape=%s]\nAnalyzer[shape=%s]\nESSource[shape=%s]\nESProducer[shape=%s]\nSource[shape=%s]\nService[shape=%s]\nsubgraph clusterLegendSequence {\nlabel="Sequence"\ncolor="%s"\nfontcolor="%s"\nProducer\nFilter\n}\n}\n' % (self.options['color_inputtag'], self.options['color_inputtag'], self.shapes['EDProducer'], self.shapes['EDFilter'], self.shapes['EDAnalyzer'], self.shapes['ESSource'], self.shapes['ESProducer'], self.shapes['Source'], self.shapes['Service'], self.options['color_sequence'], self.options['color_sequence'])
     
   def __call__(self):
     blocks=[]
@@ -252,9 +252,9 @@ class DotProducer(object):
       blocks += [self.produceServices()]
     blocks += [self.produceNodes()]
     if self.data.process():
-      return 'digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data.process().name_(),self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
+      return 'digraph configbrowse {\nsubgraph clusterProcess {\nlabel="%s\\n%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data.process().name_(), self.data._filename, self.options['font_size'], self.options['font_name'], '\n'.join(blocks))
     else:
-      return 'digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data._filename,self.options['font_size'],self.options['font_name'],'\n'.join(blocks))
+      return 'digraph configbrowse {\nsubgraph clusterCFF {\nlabel="%s"\nfontsize=%s\nfontname="%s"\n%s\n}\n}\n' % (self.data._filename, self.options['font_size'], self.options['font_name'], '\n'.join(blocks))
   
   
 
@@ -263,35 +263,35 @@ class DotExport(FileExportPlugin):
   Export a CMSSW config file to DOT (http://www.graphviz.org) markup, either as raw markup or by invoking the dot program, as an image.
   """
   option_types={
-    'legend':('Show Legend','boolean',True),
-    'source':('Show Source','boolean',True),
-    'es':('Show Event Setup','boolean',False),
-    'tagconnect':('Connect InputTags','boolean',True),
-    'seqconnect':('Connect Module Sequence','boolean',False),
-    'services':('Show Services','boolean',False),
-    'endpath':('Show EndPaths','boolean',True),
-    'seq':('Group Sequences','boolean',True),
-    'class':('Show Class','boolean',True),
-    'file':('Show File','boolean',True),
-    'schedule':('Show Schedule','boolean',False),
-    'taglabel':('Show Tag Labels','boolean',True),
-    'color_path':('Path Color','color','#ff00ff'),
-    'color_endpath':('EndPath Color','color','#ff0000'),
-    'color_sequence':('Sequence Color','color','#00ff00'),
-    'color_inputtag':('InputTag Color','color','#0000ff'),
-    'color_schedule':('Schedule Color','color','#00ffff'),
-    'url':('Include URLs','boolean',False), #this is only purposeful for png+map mode
-    'urlprocess':('Postprocess URL (for client-side imagemaps)','boolean',False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
-    'urlbase':('URL to generate','string',"{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
-    'node_graphs':('Produce individual graphs focussing on each node','boolean',False),
-    'node_graphs_restrict':('Select which nodes to make node graphs for','string',''),
-    'node_depth':('Search depth for individual node graphs','int',1),
-    'font_name':('Font name','string','Times-Roman'),
-    'font_size':('Font size','int',8),
-    'png_max_size':('Maximum edge for png image','int',16768)
+    'legend':('Show Legend', 'boolean', True),
+    'source':('Show Source', 'boolean', True),
+    'es':('Show Event Setup', 'boolean', False),
+    'tagconnect':('Connect InputTags', 'boolean', True),
+    'seqconnect':('Connect Module Sequence', 'boolean', False),
+    'services':('Show Services', 'boolean', False),
+    'endpath':('Show EndPaths', 'boolean', True),
+    'seq':('Group Sequences', 'boolean', True),
+    'class':('Show Class', 'boolean', True),
+    'file':('Show File', 'boolean', True),
+    'schedule':('Show Schedule', 'boolean', False),
+    'taglabel':('Show Tag Labels', 'boolean', True),
+    'color_path':('Path Color', 'color', '#ff00ff'),
+    'color_endpath':('EndPath Color', 'color', '#ff0000'),
+    'color_sequence':('Sequence Color', 'color', '#00ff00'),
+    'color_inputtag':('InputTag Color', 'color', '#0000ff'),
+    'color_schedule':('Schedule Color', 'color', '#00ffff'),
+    'url':('Include URLs', 'boolean', False), #this is only purposeful for png+map mode
+    'urlprocess':('Postprocess URL (for client-side imagemaps)', 'boolean', False), #see processMap documentation; determines whether to treat 'urlbase' as a dictionary for building a more complex imagemap or a simple URL
+    'urlbase':('URL to generate', 'string', "{'split_x':1,'split_y':2,'scale_x':1.,'scale_y':1.,'cells':[{'top':0,'left':0,'width':1,'height':1,'html_href':'http://cmslxr.fnal.gov/lxr/ident/?i=$classname','html_alt':'LXR','html_class':'LXR'},{'top':1,'left':0,'width':1,'height':1,'html_href':'http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/$pypath?view=markup#$pyline','html_alt':'CVS','html_class':'CVS'}]}"), #CVS markup view doesn't allow line number links, only annotate view (which doesn't then highlight the code...)
+    'node_graphs':('Produce individual graphs focussing on each node', 'boolean', False),
+    'node_graphs_restrict':('Select which nodes to make node graphs for', 'string', ''),
+    'node_depth':('Search depth for individual node graphs', 'int', 1),
+    'font_name':('Font name', 'string', 'Times-Roman'),
+    'font_size':('Font size', 'int', 8),
+    'png_max_size':('Maximum edge for png image', 'int', 16768)
   }
   plugin_name='DOT Export'
-  file_types=('bmp','dot','eps','gif','jpg','pdf','png','ps','svg','tif','png+map','stdout')
+  file_types=('bmp', 'dot', 'eps', 'gif', 'jpg', 'pdf', 'png', 'ps', 'svg', 'tif', 'png+map', 'stdout')
   def __init__(self):
     FileExportPlugin.__init__(self)
     
@@ -306,7 +306,7 @@ class DotExport(FileExportPlugin):
     self.shapes['Source']='ellipse'
     self.shapes['Service']='diamond'
     
-  def dotIndenter(self,dot):
+  def dotIndenter(self, dot):
     """
     Simple indenter for dot output, mainly to prettify it for human reading.
     """
@@ -325,16 +325,16 @@ class DotExport(FileExportPlugin):
         newdot += spaces(depth)+line+'\n'
     return newdot
   
-  def selectNode(self,dotdata,node,depth_s):
+  def selectNode(self, dotdata, node, depth_s):
     depth = int(depth_s)
     backtrace=False
     if depth<0:
       depth = abs(depth)
       backtrace=True
-    re_link = re.compile(r'^\s*?(\w*?)->(\w*?)(?:\[.*?\])?$',re.MULTILINE)
-    re_nodedef = re.compile(r'^\s*?(\w*?)(?:\[.*?\])?$',re.MULTILINE)
-    re_title = re.compile(r'^label=\"(.*?)\"$',re.MULTILINE)
-    re_nodeprops = re.compile(r'^\s*?('+node+r')\[(.*?)\]$',re.MULTILINE)
+    re_link = re.compile(r'^\s*?(\w*?)->(\w*?)(?:\[.*?\])?$', re.MULTILINE)
+    re_nodedef = re.compile(r'^\s*?(\w*?)(?:\[.*?\])?$', re.MULTILINE)
+    re_title = re.compile(r'^label=\"(.*?)\"$', re.MULTILINE)
+    re_nodeprops = re.compile(r'^\s*?('+node+r')\[(.*?)\]$', re.MULTILINE)
     
     nodes = re_nodedef.findall(dotdata)
     if not node in nodes:
@@ -352,45 +352,45 @@ class DotExport(FileExportPlugin):
       else:
         links[link[1]] = [link[0]]
       
-    def node_recursor(links,depthleft,start):
+    def node_recursor(links, depthleft, start):
       if start in links:
         if depthleft==0:
           return links[start]+[start]
         else:
           result = [start]
           for l in links[start]:
-            result.extend(node_recursor(links,depthleft-1,l))
+            result.extend(node_recursor(links, depthleft-1, l))
           return result
       else:
         return [start]
     
     
-    include_nodes = set(node_recursor(links,depth-1,node))
+    include_nodes = set(node_recursor(links, depth-1, node))
     include_nodes.add(node)
     
     class link_replacer:
-      def __init__(self,include_nodes):
+      def __init__(self, include_nodes):
         self.include_nodes=include_nodes
-      def __call__(self,match):
+      def __call__(self, match):
         if match.group(1) in self.include_nodes and match.group(2) in self.include_nodes:
           return match.group(0)
         return ''
     class node_replacer:
-      def __init__(self,include_nodes):
+      def __init__(self, include_nodes):
         self.include_nodes=include_nodes
-      def __call__(self,match):
+      def __call__(self, match):
         if match.group(1) in self.include_nodes:
           return match.group(0)
         return ''
     
-    dotdata = re_link.sub(link_replacer(include_nodes),dotdata)
-    dotdata = re_nodedef.sub(node_replacer(include_nodes),dotdata)
-    dotdata = re_title.sub(r'label="\g<1>\\nDepth '+str(depth_s)+r' from node ' +node+r'"',dotdata,1)
-    dotdata = re_nodeprops.sub('\\g<1>[\\g<2>,color="red"]',dotdata,1)
+    dotdata = re_link.sub(link_replacer(include_nodes), dotdata)
+    dotdata = re_nodedef.sub(node_replacer(include_nodes), dotdata)
+    dotdata = re_title.sub(r'label="\g<1>\\nDepth '+str(depth_s)+r' from node ' +node+r'"', dotdata, 1)
+    dotdata = re_nodeprops.sub('\\g<1>[\\g<2>,color="red"]', dotdata, 1)
     
     return dotdata
    
-  def processMap(self,mapdata):
+  def processMap(self, mapdata):
     """
     Re-process the client-side image-map produces when png+map is selected.
     DOT will only ever put a single URL in the imagemap corresponding to a node, with the 'url' parameter (after html encoding) as the url, and the 'title' parameter as the title. This isn't useful behaviour for our purposes. We want probably several link areas, or a javascript link to make a menu appear, or other more complex behaviour.
@@ -427,119 +427,119 @@ class DotExport(FileExportPlugin):
     new_areas=[]
     area_default = {'split_x':1,'scale_x':1.,'split_y':1,'scale_y':1.,'cells':[]}
     cell_default = {'top':0,'left':0,'width':1,'height':1,'html_href':'#'}
-    re_area = re.compile('<area.*?/>',re.DOTALL)
+    re_area = re.compile('<area.*?/>', re.DOTALL)
     #sometimes DOT comes up with negative coordinates, so we need to deal with them here (so all the other links will work at least)
-    re_content = re.compile('href="(.*?)" title=".*?" alt="" coords="(-?[0-9]{1,6}),(-?[0-9]{1,6}),(-?[0-9]{1,6}),(-?[0-9]{1,6})"',re.DOTALL)
+    re_content = re.compile('href="(.*?)" title=".*?" alt="" coords="(-?[0-9]{1,6}),(-?[0-9]{1,6}),(-?[0-9]{1,6}),(-?[0-9]{1,6})"', re.DOTALL)
     re_htmlunquote = re.compile('&#([0-9]{1,3});')
-    mapdata = re_htmlunquote.sub(lambda x: chr(int(x.group(1))),mapdata)
+    mapdata = re_htmlunquote.sub(lambda x: chr(int(x.group(1))), mapdata)
     areas = re_area.findall(mapdata)
     for area in areas:
       #print area
       data = re_content.search(area)
       baseurl = data.group(1)
-      x1,y1,x2,y2 = map(int,(data.group(2),data.group(3),data.group(4),data.group(5)))
-      rad_x,rad_y = int((x2-x1)*0.5),int((y2-y1)*0.5)
-      centre_x,centre_y = x1+rad_x,y1+rad_y
+      x1, y1, x2, y2 = map(int, (data.group(2), data.group(3), data.group(4), data.group(5)))
+      rad_x, rad_y = int((x2-x1)*0.5), int((y2-y1)*0.5)
+      centre_x, centre_y = x1+rad_x, y1+rad_y
       basedict = eval(baseurl)
       for ad in area_default:
         if not ad in basedict:
           basedict[ad]=area_default[ad]
       rad_x = int(rad_x*basedict['scale_x'])
       rad_y = int(rad_y*basedict['scale_y'])
-      top_x,top_y = centre_x-rad_x,centre_y-rad_y
-      split_x,split_y = int((2*rad_x)/basedict['split_x']),int((2*rad_y)/basedict['split_y'])
+      top_x, top_y = centre_x-rad_x, centre_y-rad_y
+      split_x, split_y = int((2*rad_x)/basedict['split_x']), int((2*rad_y)/basedict['split_y'])
       
       for cell in basedict['cells']:
         for cd in cell_default:
           if not cd in cell:
             cell[cd]=cell_default[cd]
-        x1,y1 = top_x+split_x*cell['left'],top_y+split_y*cell['top']
-        x2,y2 = x1+split_x*cell['width'],y1+split_y*cell['height']
-        area_html = '<area shape="rect" coords="%s,%s,%s,%s" %s />' % (x1,y1,x2,y2,' '.join(['%s="%s"'%(key.split('_',1)[1],value) for key, value in cell.items() if key.startswith('html_')]))
+        x1, y1 = top_x+split_x*cell['left'], top_y+split_y*cell['top']
+        x2, y2 = x1+split_x*cell['width'], y1+split_y*cell['height']
+        area_html = '<area shape="rect" coords="%s,%s,%s,%s" %s />' % (x1, y1, x2, y2, ' '.join(['%s="%s"'%(key.split('_', 1)[1], value) for key, value in cell.items() if key.startswith('html_')]))
         new_areas.append(area_html)
     return '<map id="configbrowse" name="configbrowse">\n%s\n</map>'%('\n'.join(new_areas))  
     
     
-  def export(self,data,filename,filetype):
+  def export(self, data, filename, filetype):
     #if not data.process():
     #  raise "DOTExport requires a cms.Process object"  
     
     #dot = self.produceDOT(data)
-    dot_producer = DotProducer(data,self.options,self.shapes)
+    dot_producer = DotProducer(data, self.options, self.shapes)
     dot = dot_producer()
     
     if len(dot_producer.nodes)>0:
     
       if self.options['node_graphs']:
-        nodes = [n for n in dot_producer.nodes if data.type(dot_producer.nodes[n]['obj']) in ('EDAnalyzer','EDFilter','EDProducer','OutputModule')]
+        nodes = [n for n in dot_producer.nodes if data.type(dot_producer.nodes[n]['obj']) in ('EDAnalyzer', 'EDFilter', 'EDProducer', 'OutputModule')]
         for n in nodes:
           if self.options['node_graphs_restrict'] in n:
             try:
-              node_dot = self.selectNode(dot,n,self.options['node_depth'])
-              self.write_output(node_dot,filename.replace('.','_%s.'%n),filetype)
+              node_dot = self.selectNode(dot, n, self.options['node_depth'])
+              self.write_output(node_dot, filename.replace('.', '_%s.'%n), filetype)
             except:
               pass
       else:
         dot = self.dotIndenter(dot)
-        self.write_output(dot,filename,filetype)
+        self.write_output(dot, filename, filetype)
     else:
       print "WARNING: Empty image. Not saved."
     
   
-  def get_png_size(self,filename):
+  def get_png_size(self, filename):
     png_header = '\x89PNG\x0d\x0a\x1a\x0a'
     ihdr = 'IHDR'
-    filedata = open(filename,'r').read(24)
-    png_data = struct.unpack('>8s4s4sII',filedata)
+    filedata = open(filename, 'r').read(24)
+    png_data = struct.unpack('>8s4s4sII', filedata)
     if not (png_data[0]==png_header and png_data[2]==ihdr):
       raise 'PNG header or IHDR not found'
-    return png_data[3],png_data[4]
+    return png_data[3], png_data[4]
     
-  def write_output(self,dot,filename,filetype):
+  def write_output(self, dot, filename, filetype):
     #don't use try-except-finally here, we want any errors passed on so the enclosing program can decide how to handle them
     if filetype=='dot':
-      dotfile = open(filename,'w')
+      dotfile = open(filename, 'w')
       dotfile.write(dot)
       dotfile.close()
     elif filetype=='stdout':
       print result
     elif filetype=='pdf':
-      dot_p = subprocess.Popen(['dot','-Tps2'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+      dot_p = subprocess.Popen(['dot', '-Tps2'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
       ps2 = dot_p.communicate(dot)[0]
       if not dot_p.returncode==0:
         raise "dot returned non-zero exit code: %s"%dot_p.returncode
-      pdf_p = subprocess.Popen(['ps2pdf','-',filename],stdin=subprocess.PIPE)
+      pdf_p = subprocess.Popen(['ps2pdf', '-', filename], stdin=subprocess.PIPE)
       pdf_p.communicate(ps2)
       if not pdf_p.returncode==0:
         raise "ps2pdf returned non-zero exit code: %s"%pdf_p.returncode
     elif filetype=='png+map':
       if '.' in filename:
         filename = filename.split('.')[0]
-      dot_p = subprocess.Popen(['dot','-Tpng','-o','%s.png'%filename,'-Tcmapx_np'],stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+      dot_p = subprocess.Popen(['dot', '-Tpng', '-o', '%s.png'%filename, '-Tcmapx_np'], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
       mapdata = dot_p.communicate(dot)[0]
       if not dot_p.returncode==0:
         raise "dot returned non-zero exit code: %s"%dot_p.returncode
       if self.options['urlprocess']:
         mapdata = self.processMap(mapdata)
-      mapfile = open('%s.map'%filename,'w')
+      mapfile = open('%s.map'%filename, 'w')
       mapfile.write(mapdata)
       mapfile.close()
       filesize = self.get_png_size('%s.png'%filename)
       if max(filesize) > self.options['png_max_size']:
-        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size'])
+        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize, self.options['png_max_size'])
         os.remove('%s.png'%filename)
         os.remove('%s.map'%filename)
     elif filetype=='png':
-      dot_p = subprocess.Popen(['dot','-T%s'%(filetype),'-o',filename],stdin=subprocess.PIPE)
+      dot_p = subprocess.Popen(['dot', '-T%s'%(filetype), '-o', filename], stdin=subprocess.PIPE)
       dot_p.communicate(dot)
       if not dot_p.returncode==0:
         raise "dot returned non-zero exit code: %s"%dot_p.returncode
       filesize = self.get_png_size(filename)
       if max(filesize) > self.options['png_max_size']:
-        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize,self.options['png_max_size'])
+        print "png image is too large (%s pixels/%s max pixels), deleting" % (filesize, self.options['png_max_size'])
         os.remove(filename)
     else:
-      dot_p = subprocess.Popen(['dot','-T%s'%(filetype),'-o',filename],stdin=subprocess.PIPE)
+      dot_p = subprocess.Popen(['dot', '-T%s'%(filetype), '-o', filename], stdin=subprocess.PIPE)
       dot_p.communicate(dot)
       if not dot_p.returncode==0:
         raise "dot returned non-zero exit code: %s"%dot_p.returncode

@@ -1,6 +1,6 @@
 import logging
 
-from PyQt4.QtCore import SIGNAL,Qt
+from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QWidget
 
 from Vispa.Share.ObjectHolder import ObjectHolder
@@ -57,7 +57,7 @@ class NoneView(AbstractView, QWidget):
         QWidget.__init__(self)
         AbstractView.__init__(self)
 
-    def mousePressEvent(self,event):
-        QWidget.mousePressEvent(self,event)
+    def mousePressEvent(self, event):
+        QWidget.mousePressEvent(self, event)
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())

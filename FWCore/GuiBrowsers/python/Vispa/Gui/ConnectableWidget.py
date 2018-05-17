@@ -4,7 +4,7 @@ from PyQt4.QtCore import QCoreApplication, QRect, QSize, QPoint, Qt
 from PyQt4.QtGui import QMouseEvent, QPen, QColor
 
 from Vispa.Gui.VispaWidget import VispaWidget
-from Vispa.Gui.PortWidget import PortWidget,SinkPort,SourcePort
+from Vispa.Gui.PortWidget import PortWidget, SinkPort, SourcePort
 from Vispa.Gui.VispaWidgetOwner import VispaWidgetOwner
 from Vispa.Gui.MenuWidget import MenuWidget
 

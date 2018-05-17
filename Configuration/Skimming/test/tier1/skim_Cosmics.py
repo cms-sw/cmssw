@@ -81,4 +81,4 @@ process.SKIMStreamCosmicSPOutPath = cms.EndPath(process.SKIMStreamCosmicSP)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.cosmicMuonsBarrelOnlyPath,process.cosmicMuonsPath,process.cosmicMuons1LegPath,process.globalCosmicMuonsBarrelOnlyPath,process.cosmictrackfinderP5Path,process.globalCosmicMuonsPath,process.rsWithMaterialTracksP5Path,process.globalCosmicMuons1LegPath,process.rsWithMaterialTracksP5Path,process.SKIMStreamCosmicSPOutPath,process.SKIMStreamLogErrorOutPath)
+process.schedule = cms.Schedule(process.pathlogerror, process.cosmicMuonsBarrelOnlyPath, process.cosmicMuonsPath, process.cosmicMuons1LegPath, process.globalCosmicMuonsBarrelOnlyPath, process.cosmictrackfinderP5Path, process.globalCosmicMuonsPath, process.rsWithMaterialTracksP5Path, process.globalCosmicMuons1LegPath, process.rsWithMaterialTracksP5Path, process.SKIMStreamCosmicSPOutPath, process.SKIMStreamLogErrorOutPath)

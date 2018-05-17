@@ -17,12 +17,12 @@ class RandomNumberServiceHelper(object):
     Modified: Eric Vaandering
     """
 
-    def __init__(self,randService):
+    def __init__(self, randService):
         self._randService = randService
         self._lockedSeeds = []
 
 
-    def __containsSeed(self,psetInstance):
+    def __containsSeed(self, psetInstance):
         """
         _keeper_
 
@@ -31,7 +31,7 @@ class RandomNumberServiceHelper(object):
         """
         if psetInstance is None:
             return False
-        if not isinstance(psetInstance,CfgTypes.PSet):
+        if not isinstance(psetInstance, CfgTypes.PSet):
             return False
         seedList = getattr(psetInstance, "initialSeedSet", None)
         if seedList != None:
@@ -261,7 +261,7 @@ if __name__ == '__main__':
         )
 
     randSvc.t2.initialSeedSet = CfgTypes.untracked(
-        CfgTypes.vuint32(12345,234567,345677)
+        CfgTypes.vuint32(12345, 234567, 345677)
         )
 
 
@@ -296,8 +296,8 @@ if __name__ == '__main__':
     randHelper.setNamedSeed("t3", 9998, 9998)
     print randSvc
 
-    print "t1 seed(s)",randHelper.getNamedSeed("t1")
-    print "t2 seed(s)",randHelper.getNamedSeed("t2")
+    print "t1 seed(s)", randHelper.getNamedSeed("t1")
+    print "t2 seed(s)", randHelper.getNamedSeed("t2")
 
 
     #  //

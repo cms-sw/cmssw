@@ -11,10 +11,10 @@ import optparse
 import webbrowser
 import subprocess
 
-from PyQt4.QtCore import SIGNAL,qVersion,QString,QVariant, Qt
-from PyQt4.QtGui import QApplication,QMenu,QPixmap,QAction,QFileDialog,QIcon,QMessageBox
+from PyQt4.QtCore import SIGNAL, qVersion, QString, QVariant, Qt
+from PyQt4.QtGui import QApplication, QMenu, QPixmap, QAction, QFileDialog, QIcon, QMessageBox
 
-from Vispa.Main.Directories import logDirectory,pluginDirectory,baseDirectory,homeDirectory,iniFileName,applicationName,docDirectory,websiteUrl
+from Vispa.Main.Directories import logDirectory, pluginDirectory, baseDirectory, homeDirectory, iniFileName, applicationName, docDirectory, websiteUrl
 from Vispa.Main.MainWindow import MainWindow
 from Vispa.Main.AbstractTab import AbstractTab
 from Vispa.Main.Filetype import Filetype
@@ -132,7 +132,7 @@ class Application(QApplication):
         """
         class QuiteOptionParser(optparse.OptionParser):
             def __init__(self):
-                optparse.OptionParser.__init__(self,add_help_option=False)
+                optparse.OptionParser.__init__(self, add_help_option=False)
             def error(self,message=""):
                 pass
         self._commandLineParser = QuiteOptionParser()
@@ -310,7 +310,7 @@ class Application(QApplication):
         """ Return the TabController that belongs to the tab selected in the MainWindow.
         """
         #logging.debug('Application: currentTabController()')
-        if isinstance(self.activeWindow(),AbstractTab):
+        if isinstance(self.activeWindow(), AbstractTab):
             return self.activeWindow().controller()
         else:
             currentWidget = self._window.tabWidget().currentWidget()
@@ -511,7 +511,7 @@ class Application(QApplication):
             self._window.helpMenu().addAction(self._helpMenuItems['openLogFile'])
         
         # Offline Documentation
-        if os.path.exists(os.path.join(docDirectory,"index.html")):
+        if os.path.exists(os.path.join(docDirectory, "index.html")):
             self._window.helpMenu().addAction(self.createAction('Offline Documentation', self._openDocumentation, "CTRL+F1"))
         
         # Vispa Website
@@ -627,7 +627,7 @@ class Application(QApplication):
     def _openDocumentation(self):
         """ Opens Vispa Offline Documentation
         """
-        webbrowser.open(os.path.join(docDirectory,"index.html"), 2, True)
+        webbrowser.open(os.path.join(docDirectory, "index.html"), 2, True)
         
     def _openWebsite(self):
         """ Open new browser tab and opens Vispa Project Website.
@@ -650,7 +650,7 @@ class Application(QApplication):
             # show all actions and activate their shortcuts
             if show:
                 for action in menuObject.actions():
-                    if hasattr(action,"_wasVisible") and action._wasVisible!=None:
+                    if hasattr(action, "_wasVisible") and action._wasVisible!=None:
                         action.setVisible(action._wasVisible)
                         action._wasVisible=None
                     else:
@@ -669,7 +669,7 @@ class Application(QApplication):
             # hide all actions and deactivate their shortcuts
             menuObject.menuAction().setVisible(False)
             for action in menuObject.actions():
-                if not hasattr(action,"_wasVisible") or action._wasVisible==None:
+                if not hasattr(action, "_wasVisible") or action._wasVisible==None:
                     action._wasVisible=action.isVisible()
                 action.setVisible(False)    # setVisible() here hides plugin menu forever on Mac OS X (10.5.7), Qt 4.5.
     
@@ -779,7 +779,7 @@ class Application(QApplication):
         """ Returns directory name of first entry of recent files list.
         """
         # if current working dir is vispa directory use recentfile or home
-        if os.path.abspath(os.getcwd()) in [os.path.abspath(baseDirectory),os.path.abspath(os.path.join(baseDirectory,"bin"))] or platform.system() == "Darwin":
+        if os.path.abspath(os.getcwd()) in [os.path.abspath(baseDirectory), os.path.abspath(os.path.join(baseDirectory, "bin"))] or platform.system() == "Darwin":
             if len(self._recentFiles) > 0:
                 return os.path.dirname(self._recentFiles[0])
             elif platform.system() == "Darwin":
@@ -791,7 +791,7 @@ class Application(QApplication):
         else:
             return os.getcwd()
     
-    def recentFilesFromPlugin(self,plugin):
+    def recentFilesFromPlugin(self, plugin):
         files=[]
         filetypes = plugin.filetypes()
         extension=None
@@ -1241,8 +1241,8 @@ class Application(QApplication):
         msgBox.setInformativeText(informativeText)
         msgBox.setStandardButtons(standardButtons)
         if extraButtons!=None:
-            for button,role in extraButtons:
-                msgBox.addButton(button,role)
+            for button, role in extraButtons:
+                msgBox.addButton(button, role)
         msgBox.setDefaultButton(defaultButton)
         return msgBox.exec_()
         

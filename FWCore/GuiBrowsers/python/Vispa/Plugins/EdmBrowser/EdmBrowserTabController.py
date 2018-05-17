@@ -1,8 +1,8 @@
 import logging
 import os.path
 
-from PyQt4.QtCore import SIGNAL,QPoint
-from PyQt4.QtGui import QInputDialog,QMenu
+from PyQt4.QtCore import SIGNAL, QPoint
+from PyQt4.QtGui import QInputDialog, QMenu
 
 from Vispa.Plugins.EventBrowser.EventBrowserTabController import EventBrowserTabController
 from Vispa.Plugins.EdmBrowser.EventContentDialog import EventContentDialog
@@ -27,22 +27,22 @@ class EdmBrowserTabController(EventBrowserTabController):
         self.disconnect(self.tab().centerView(), SIGNAL("toggleCollapsed"), self.toggleCollapsed)
         self.connect(self.tab().centerView(), SIGNAL("toggleCollapsed"), self.toggleCollapsed)
 
-    def toggleCollapsed(self,object):
+    def toggleCollapsed(self, object):
         logging.debug(__name__ + ": toggleCollapsed()")
         if not self.tab().centerView().isUpdated(object):
             self.dataAccessor().read(object)
             self.updateCenterView()
 
-    def onTreeViewSelected(self,select):
-        EventBrowserTabController.onTreeViewSelected(self,self.dataAccessor().read(select,self._treeDepth))
+    def onTreeViewSelected(self, select):
+        EventBrowserTabController.onTreeViewSelected(self, self.dataAccessor().read(select, self._treeDepth))
 
-    def onSelected(self,select):
-        EventBrowserTabController.onSelected(self,self.dataAccessor().read(select))
+    def onSelected(self, select):
+        EventBrowserTabController.onSelected(self, self.dataAccessor().read(select))
 
     def updateCenterView(self,propertyView=True):
         if self.tab().treeView().selection():
-            self.dataAccessor().read(self.tab().treeView().selection(),self._treeDepth)
-        EventBrowserTabController.updateCenterView(self,propertyView)
+            self.dataAccessor().read(self.tab().treeView().selection(), self._treeDepth)
+        EventBrowserTabController.updateCenterView(self, propertyView)
 
     def expandToDepthDialog(self):
         """ Show dialog and expand center view to depth.
@@ -68,8 +68,8 @@ class EdmBrowserTabController(EventBrowserTabController):
         for action in self.plugin().viewMenu().actions():
             if action.data().toString()!="":
                 popup.addAction(action)
-        if not isinstance(point,QPoint):
-            point=self.tab().centerViewMenuButton().mapToGlobal(QPoint(self.tab().centerViewMenuButton().width(),0))
+        if not isinstance(point, QPoint):
+            point=self.tab().centerViewMenuButton().mapToGlobal(QPoint(self.tab().centerViewMenuButton().width(), 0))
         popup.exec_(point)
 
     def toggleFilterBranches(self):
@@ -106,8 +106,8 @@ class EdmBrowserTabController(EventBrowserTabController):
     def eventContent(self):
         """ Open event content dialog """
         logging.debug(__name__ + ": eventContent")
-        dialog=EventContentDialog(self.tab(),"This dialog let's you compare the contents of your edm root file with another dataformat / edm root file. You can compare either to a dataformat definition from a txt file (e.g. RECO_3_3_0) or any edm root file by selecting an input file.")
+        dialog=EventContentDialog(self.tab(), "This dialog let's you compare the contents of your edm root file with another dataformat / edm root file. You can compare either to a dataformat definition from a txt file (e.g. RECO_3_3_0) or any edm root file by selecting an input file.")
         branches=[branch[0].split("_") for branch in self.dataAccessor().filteredBranches()]
         name = os.path.splitext(os.path.basename(self._filename))[0]
-        dialog.setEventContent(name,branches)
+        dialog.setEventContent(name, branches)
         dialog.exec_()

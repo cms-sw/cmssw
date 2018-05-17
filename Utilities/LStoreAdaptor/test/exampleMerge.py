@@ -51,7 +51,7 @@ inputFiles = ["lstore://cms-lstore.vampre/test/file2.root", "lstore://cms-lstore
 for entry in inputFiles:
 	process.source.fileNames.append(str(entry))
 if dropDQM:
-	process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
+	process.source.inputCommands = CfgTypes.untracked.vstring('keep *', 'drop *_EDMtoMEConverter_*_*')
 
 #  //
 # // output module

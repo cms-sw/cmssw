@@ -332,7 +332,7 @@ class PointToPointConnection(ZoomableWidget):
             # ORTHOGONAL
             centerP = (sP + eP) * 0.5
             firstP = self.nextPointByDistance(self._route, self.CONNECTOR_LENGTH * self.zoomFactor(), sourceDirection)
-            lastP = self.getPointByDistance(eP, self.CONNECTOR_LENGTH * self.zoomFactor() , targetDirection)
+            lastP = self.getPointByDistance(eP, self.CONNECTOR_LENGTH * self.zoomFactor(), targetDirection)
             self._route.append(firstP)
             if rowKind:
                 #if lastP.x() - firstP.x() > self.CONNECTOR_LENGTH * self.zoomFactor() * 0.5:

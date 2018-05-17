@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def customise(process):
 
-  if hasattr(process,'g4SimHits'):
+  if hasattr(process, 'g4SimHits'):
     # time window 10 millisecond
     process.common_maximum_time.DeadRegions = cms.vstring('InterimRegion')
     # Eta cut

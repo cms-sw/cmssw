@@ -73,10 +73,10 @@ else:
     simOmtfDigis.srcRPC              = cms.InputTag('unpackRPC')
     simOmtfDigis.srcDTPh             = cms.InputTag("simDtTriggerPrimitiveDigis")
     simOmtfDigis.srcDTTh             = cms.InputTag("simDtTriggerPrimitiveDigis")
-    simOmtfDigis.srcCSC              = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
+    simOmtfDigis.srcCSC              = cms.InputTag('simCscTriggerPrimitiveDigis', 'MPCSORTED')
 
     # EMTF
-    simEmtfDigis.CSCInput            = cms.InputTag('simCscTriggerPrimitiveDigis','MPCSORTED')
+    simEmtfDigis.CSCInput            = cms.InputTag('simCscTriggerPrimitiveDigis', 'MPCSORTED')
     simEmtfDigis.RPCInput            = cms.InputTag('unpackRPC')
 
     # CALO Layer1

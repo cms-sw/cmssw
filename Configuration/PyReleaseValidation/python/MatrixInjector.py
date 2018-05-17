@@ -24,7 +24,7 @@ def performInjectionOptionTest(opt):
 
 def upload_to_couch_oneArg(arguments):
     from modules.wma import upload_to_couch
-    (filePath,labelInCouch,user,group,where) = arguments
+    (filePath, labelInCouch, user, group, where) = arguments
     cacheId=upload_to_couch(filePath,
                             labelInCouch,
                             user,
@@ -43,9 +43,9 @@ class MatrixInjector(object):
         self.wmagent=None
         for k in options.split(','):
             if k.startswith('dqm:'):
-                self.dqmgui=k.split(':',1)[-1]
+                self.dqmgui=k.split(':', 1)[-1]
             elif k.startswith('wma:'):
-                self.wmagent=k.split(':',1)[-1]
+                self.wmagent=k.split(':', 1)[-1]
 
         self.testMode=((mode!='submit') and (mode!='force'))
         self.version =1
@@ -76,7 +76,7 @@ class MatrixInjector(object):
         self.couchCache={} # so that we do not upload like crazy, and recyle cfgs
         self.user = os.getenv('USER')
         self.group = 'ppd'
-        self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-','')+'_v'+str(self.version)
+        self.label = 'RelValSet_'+os.getenv('CMSSW_VERSION').replace('-', '')+'_v'+str(self.version)
         self.speciallabel=''
         if opt.label:
             self.speciallabel= '_'+opt.label
@@ -243,11 +243,11 @@ class MatrixInjector(object):
             wmsplit={}
 
         acqEra=False
-        for (n,dir) in directories.items():
+        for (n, dir) in directories.items():
             chainDict=copy.deepcopy(self.defaultChain)
-            print "inspecting",dir
+            print "inspecting", dir
             nextHasDSInput=None
-            for (x,s) in mReader.workFlowSteps.items():
+            for (x, s) in mReader.workFlowSteps.items():
                 #x has the format (num, prefix)
                 #s has the format (num, name, commands, stepList)
                 if x[0]==n:
@@ -268,7 +268,7 @@ class MatrixInjector(object):
                     nanoedmGT=''
                     for step in s[3]:
                         
-                        if 'INPUT' in step or (not isinstance(s[2][index],str)):
+                        if 'INPUT' in step or (not isinstance(s[2][index], str)):
                             nextHasDSInput=s[2][index]
 
                         else:
@@ -277,9 +277,9 @@ class MatrixInjector(object):
                                 #first step and not input -> gen part
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultScratch))
                                 try:
-                                    chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir,step)).read())
+                                    chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir, step)).read())
                                 except:
-                                    print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
+                                    print "Failed to find", '%s/%s.io'%(dir, step), ".The workflows were probably not run on cfg not created"
                                     return -15
 
                                 chainDict['nowmTasklist'][-1]['PrimaryDataset']='RelVal'+s[1].split('+')[0]
@@ -288,7 +288,7 @@ class MatrixInjector(object):
                                     return -12
                                 else:
                                     arg=s[2][index].split()
-                                    ns=map(int,arg[arg.index('--relval')+1].split(','))
+                                    ns=map(int, arg[arg.index('--relval')+1].split(','))
                                     chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
                                     chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
                                 if 'FASTSIM' in s[2][index] or '--fast' in s[2][index]:
@@ -299,9 +299,9 @@ class MatrixInjector(object):
                             elif nextHasDSInput:
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultInput))
                                 try:
-                                    chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir,step)).read())
+                                    chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir, step)).read())
                                 except:
-                                    print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
+                                    print "Failed to find", '%s/%s.io'%(dir, step), ".The workflows were probably not run on cfg not created"
                                     return -15
                                 chainDict['nowmTasklist'][-1]['InputDataset']=nextHasDSInput.dataSet
                                 if ('DQMHLTonRAWAOD' in step) :
@@ -329,9 +329,9 @@ class MatrixInjector(object):
                                 #not first step and no inputDS
                                 chainDict['nowmTasklist'].append(copy.deepcopy(self.defaultTask))
                                 try:
-                                    chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir,step)).read())
+                                    chainDict['nowmTasklist'][-1]['nowmIO']=json.loads(open('%s/%s.io'%(dir, step)).read())
                                 except:
-                                    print "Failed to find",'%s/%s.io'%(dir,step),".The workflows were probably not run on cfg not created"
+                                    print "Failed to find", '%s/%s.io'%(dir, step), ".The workflows were probably not run on cfg not created"
                                     return -15
                                 if splitForThisWf:
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=splitForThisWf
@@ -346,7 +346,7 @@ class MatrixInjector(object):
                             chainDict['nowmTasklist'][-1]['TaskName']=step
                             if setPrimaryDs:
                                 chainDict['nowmTasklist'][-1]['PrimaryDataset']=setPrimaryDs
-                            chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir,step)
+                            chainDict['nowmTasklist'][-1]['ConfigCacheID']='%s/%s.py'%(dir, step)
                             chainDict['nowmTasklist'][-1]['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] # copy to the proper parameter name
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
                             if 'NANOEDM' in step :
@@ -370,15 +370,15 @@ class MatrixInjector(object):
                             if acqEra:
                                 #chainDict['AcquisitionEra'][step]=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                                 chainDict['AcquisitionEra'][step]=chainDict['CMSSWVersion']
-                                chainDict['ProcessingString'][step]=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','').replace('-','_')+thisLabel
+                                chainDict['ProcessingString'][step]=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All', '').replace('-', '_')+thisLabel
                                 if 'NANOMERGE' in step :
-                                    chainDict['ProcessingString'][step]=processStrPrefix+nanoedmGT.replace('::All','').replace('-','_')+thisLabel
+                                    chainDict['ProcessingString'][step]=processStrPrefix+nanoedmGT.replace('::All', '').replace('-', '_')+thisLabel
                             else:
                                 #chainDict['nowmTasklist'][-1]['AcquisitionEra']=(chainDict['CMSSWVersion']+'-PU_'+chainDict['nowmTasklist'][-1]['GlobalTag']).replace('::All','')+thisLabel
                                 chainDict['nowmTasklist'][-1]['AcquisitionEra']=chainDict['CMSSWVersion']
-                                chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All','').replace('-','_')+thisLabel
+                                chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+chainDict['nowmTasklist'][-1]['GlobalTag'].replace('::All', '').replace('-', '_')+thisLabel
                                 if 'NANOMERGE' in step :
-                                    chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+nanoedmGT.replace('::All','').replace('-','_')+thisLabel
+                                    chainDict['nowmTasklist'][-1]['ProcessingString']=processStrPrefix+nanoedmGT.replace('::All', '').replace('-', '_')+thisLabel
 
                             if (self.batchName):
                                 chainDict['nowmTasklist'][-1]['Campaign'] = chainDict['nowmTasklist'][-1]['AcquisitionEra']+self.batchName
@@ -419,10 +419,10 @@ class MatrixInjector(object):
                 #print "t_second taskname", t_second['TaskName']
                 if 'primary' in t_second['nowmIO']:
                     #print t_second['nowmIO']['primary']
-                    primary=t_second['nowmIO']['primary'][0].replace('file:','')
-                    for i_input in reversed(range(0,i_second)):
+                    primary=t_second['nowmIO']['primary'][0].replace('file:', '')
+                    for i_input in reversed(range(0, i_second)):
                         t_input=chainDict['nowmTasklist'][i_input]
-                        for (om,o) in t_input['nowmIO'].items():
+                        for (om, o) in t_input['nowmIO'].items():
                             if primary in o:
                                 #print "found",primary,"procuced by",om,"of",t_input['TaskName']
                                 t_second['InputTask'] = t_input['TaskName']
@@ -466,7 +466,7 @@ class MatrixInjector(object):
                 for i in self.keep:
                     if type(i)==int and i < len(chainDict['nowmTasklist']):
                         chainDict['nowmTasklist'][i]['KeepOutput']=True
-            for (i,t) in enumerate(chainDict['nowmTasklist']):
+            for (i, t) in enumerate(chainDict['nowmTasklist']):
                 if t['TaskName'].startswith('HARVEST'):
                     continue
                 if not self.keep:
@@ -490,35 +490,35 @@ class MatrixInjector(object):
             
         return 0
 
-    def uploadConf(self,filePath,label,where):
+    def uploadConf(self, filePath, label, where):
         labelInCouch=self.label+'_'+label
         cacheName=filePath.split('/')[-1]
         if self.testMode:
             self.count+=1
-            print '\tFake upload of',filePath,'to couch with label',labelInCouch
+            print '\tFake upload of', filePath, 'to couch with label', labelInCouch
             return self.count
         else:
             try:
-                from modules.wma import upload_to_couch,DATABASE_NAME
+                from modules.wma import upload_to_couch, DATABASE_NAME
             except:
                 print '\n\tUnable to find wmcontrol modules. Please include it in your python path\n'
                 print '\n\t QUIT\n'
                 sys.exit(-16)
 
             if cacheName in self.couchCache:
-                print "Not re-uploading",filePath,"to",where,"for",label
+                print "Not re-uploading", filePath, "to", where, "for", label
                 cacheId=self.couchCache[cacheName]
             else:
-                print "Loading",filePath,"to",where,"for",label
+                print "Loading", filePath, "to", where, "for", label
                 ## totally fork the upload to couch to prevent cross loading of process configurations
                 pool = multiprocessing.Pool(1)
-                cacheIds = pool.map( upload_to_couch_oneArg, [(filePath,labelInCouch,self.user,self.group,where)] )
+                cacheIds = pool.map( upload_to_couch_oneArg, [(filePath, labelInCouch, self.user, self.group, where)] )
                 cacheId = cacheIds[0]
                 self.couchCache[cacheName]=cacheId
             return cacheId
     
     def upload(self):
-        for (n,d) in self.chainDicts.items():
+        for (n, d) in self.chainDicts.items():
             for it in d:
                 if it.startswith("Task") and it!='TaskChain':
                     #upload
@@ -526,20 +526,20 @@ class MatrixInjector(object):
                                             str(n)+d[it]['TaskName'],
                                             d['ConfigCacheUrl']
                                             )
-                    print d[it]['ConfigCacheID']," uploaded to couchDB for",str(n),"with ID",couchID
+                    print d[it]['ConfigCacheID'], " uploaded to couchDB for", str(n), "with ID", couchID
                     d[it]['ConfigCacheID']=couchID
                 if it =='DQMConfigCacheID':
                     couchID=self.uploadConf(d['DQMConfigCacheID'],
                                             str(n)+'harvesting',
                                             d['ConfigCacheUrl']
                                             )
-                    print d['DQMConfigCacheID'],"uploaded to couchDB for",str(n),"with ID",couchID
+                    print d['DQMConfigCacheID'], "uploaded to couchDB for", str(n), "with ID", couchID
                     d['DQMConfigCacheID']=couchID
                         
             
     def submit(self):
         try:
-            from modules.wma import makeRequest,approveRequest
+            from modules.wma import makeRequest, approveRequest
             from wmcontrol import random_sleep
             print '\n\tFound wmcontrol\n'
         except:
@@ -549,17 +549,17 @@ class MatrixInjector(object):
                 sys.exit(-17)
 
         import pprint
-        for (n,d) in self.chainDicts.items():
+        for (n, d) in self.chainDicts.items():
             if self.testMode:
-                print "Only viewing request",n
+                print "Only viewing request", n
                 print pprint.pprint(d)
             else:
                 #submit to wmagent each dict
-                print "For eyes before submitting",n
+                print "For eyes before submitting", n
                 print pprint.pprint(d)
-                print "Submitting",n,"..........."
-                workFlow=makeRequest(self.wmagent,d,encodeDict=True)
-                print "...........",n,"submitted"
+                print "Submitting", n, "..........."
+                workFlow=makeRequest(self.wmagent, d, encodeDict=True)
+                print "...........", n, "submitted"
                 random_sleep()
             
 

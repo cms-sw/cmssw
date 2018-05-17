@@ -11,23 +11,23 @@ def printPath(pth, indent="", indentDelta=" ", type="path"):
     item = pth._seq
     print indent+type+": "+pth.label_()
     indent += indentDelta
-    if isinstance(item,mod._Module):
+    if isinstance(item, mod._Module):
         print indent+"module: "+item.label_()+" <"+item.type_()+">"
-    elif isinstance(item,cms.Sequence):
-        printPath(item,indent,indentDelta,"seq")
+    elif isinstance(item, cms.Sequence):
+        printPath(item, indent, indentDelta, "seq")
     else:
-        _printOp(item,indent,indentDelta)
+        _printOp(item, indent, indentDelta)
 
-def _printOp(op,indent, indentDelta):
+def _printOp(op, indent, indentDelta):
     indent += indentDelta
     for i in dir(op):
-        o = getattr(op,i)
-        if isinstance(o,mod._Module):
+        o = getattr(op, i)
+        if isinstance(o, mod._Module):
             print indent+"module: "+o.label_()+" <"+o.type_()+">"            
         elif isinstance(o, cms.Sequence):
-            printPath(o,indent,indentDelta, "seq")
-        elif isinstance(o,sqt._Sequenceable):
-            _printOp(o,indent,indentDelta)
+            printPath(o, indent, indentDelta, "seq")
+        elif isinstance(o, sqt._Sequenceable):
+            _printOp(o, indent, indentDelta)
 
 if __name__ == "__main__":
     import unittest

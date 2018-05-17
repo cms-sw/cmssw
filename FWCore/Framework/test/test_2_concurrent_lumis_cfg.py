@@ -17,6 +17,6 @@ process.prod = cms.EDProducer("BusyWaitIntProducer",
 process.p = cms.Path(process.prod)
 
 process.add_(cms.Service("ConcurrentModuleTimer",
-                         modulesToExclude = cms.untracked.vstring("TriggerResults","p"),
+                         modulesToExclude = cms.untracked.vstring("TriggerResults", "p"),
                          excludeSource = cms.untracked.bool(True)))
 

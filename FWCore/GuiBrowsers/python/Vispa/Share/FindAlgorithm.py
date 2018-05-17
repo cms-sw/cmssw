@@ -1,7 +1,7 @@
 import logging
 
 from Vispa.Share.ObjectHolder import ObjectHolder
-from Vispa.Share.BasicDataAccessor import BasicDataAccessor,BasicDataAccessorInterface
+from Vispa.Share.BasicDataAccessor import BasicDataAccessor, BasicDataAccessorInterface
 from Vispa.Main.Exceptions import exception_traceback
 
 class FindAlgorithm(ObjectHolder):
@@ -31,14 +31,14 @@ class FindAlgorithm(ObjectHolder):
         self.clear()
         if self.dataAccessor():
             for object in self.dataObjects():
-                self._results+=self._findIn(object,dialog)
+                self._results+=self._findIn(object, dialog)
         self._index=0
         if len(self._results)>0:
             return self._results[0]
         else:
             return []
         
-    def _findIn(self, object,dialog):
+    def _findIn(self, object, dialog):
         # find Label
         foundLabel=True
         findLabel=dialog.label()
@@ -57,10 +57,10 @@ class FindAlgorithm(ObjectHolder):
         foundProperties=True
         findProperties=dialog.properties()
         if len(findProperties)>0 and (findProperties[0][0]!="" or findProperties[0][1]!=""): 
-            properties=[(p[1],p[2]) for p in self.dataAccessor().properties(object)]
+            properties=[(p[1], p[2]) for p in self.dataAccessor().properties(object)]
             if not dialog.caseSensitive():
-                properties=[(str(property[0]).lower(),str(property[1]).lower()) for property in properties]
-                findProperties=[(str(property[0]).lower(),str(property[1]).lower()) for property in findProperties]
+                properties=[(str(property[0]).lower(), str(property[1]).lower()) for property in properties]
+                findProperties=[(str(property[0]).lower(), str(property[1]).lower()) for property in findProperties]
             if dialog.exactMatch():
                 for findProperty in findProperties:
                     foundProperties=(foundProperties and\
@@ -76,7 +76,7 @@ class FindAlgorithm(ObjectHolder):
         findScripts=dialog.scripts()
         foundScripts=True
         if len(findScripts)>0 and findScripts[0]!="":
-            dataAccessorObject=BasicDataAccessorInterface(object,self.dataAccessor())
+            dataAccessorObject=BasicDataAccessorInterface(object, self.dataAccessor())
             for findScript in findScripts:
                 try:
                     foundScripts=(foundScripts and\
@@ -93,7 +93,7 @@ class FindAlgorithm(ObjectHolder):
         else:
             results=[]
         for daughter in self.applyFilter(self.dataAccessor().children(object)):
-            for object in self._findIn(daughter,dialog):
+            for object in self._findIn(daughter, dialog):
                 if not object in results:
                     results+=[object]
         return results

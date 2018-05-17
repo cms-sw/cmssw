@@ -4,8 +4,8 @@ from Configuration.StandardSequences.SimL1Emulator_cff import *
 
 # Modifications for DataMixer input:
 simDtTriggerPrimitiveDigis.digiTag = 'mixData'
-simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag("mixData","MuonCSCComparatorDigisDM")
-simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("mixData","MuonCSCWireDigisDM")
+simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag("mixData", "MuonCSCComparatorDigisDM")
+simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag("mixData", "MuonCSCWireDigisDM")
 #
 #
 simRpcTechTrigDigis.RPCDigiLabel = 'mixData'
