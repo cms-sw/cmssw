@@ -60,6 +60,8 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
                 )
                                                                       )
 )
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(detachedTripletStepTrackingRegions, RegionPSet = dict(ptMin = 0.05))
 
 
 # seeding
@@ -112,6 +114,7 @@ trackingPhase1.toReplaceWith(detachedTripletStepHitTriplets, _caHitTripletEDProd
     CAPhiCut = 0,
     CAHardPtCut = 0.2,
 ))
+highBetaStar_2018.toModify(detachedTripletStepHitTriplets,CAThetaCut = 0.002,CAPhiCut = 0.1,CAHardPtCut = 0)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
@@ -239,6 +242,7 @@ trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1
      mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
      qualityCuts = [-0.2,0.3,0.8],
 ))
+highBetaStar_2018.toModify(detachedTripletStep,qualityCuts = [-0.5,0.0,0.5])
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
