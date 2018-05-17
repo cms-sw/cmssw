@@ -37,6 +37,8 @@ class testTestProcessor: public CppUnit::TestFixture {
   CPPUNIT_TEST(eventSetupTest);
   CPPUNIT_TEST(eventSetupPutTest);
   CPPUNIT_TEST(taskTest);
+  CPPUNIT_TEST(emptyRunTest);
+  CPPUNIT_TEST(emptyLumiTest);
 
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -50,7 +52,8 @@ public:
   void eventSetupTest();
   void eventSetupPutTest();
   void taskTest();
-  
+  void emptyRunTest();
+  void emptyLumiTest();
 private:
 
 };
@@ -210,5 +213,38 @@ void testTestProcessor::taskTest() {
   }
 
 }
+
+void testTestProcessor::emptyRunTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDAnalyzer('RunLumiEventChecker',
+        eventSequence = cms.untracked.VEventID(cms.EventID(1,0,0), cms.EventID(1,0,0))
+                                )
+process.moduleToTest(process.toTest)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+  
+  edm::test::TestProcessor tester(config);
+  
+  tester.testRunWithNoLuminosityBlocks();
+  
+}
+void testTestProcessor::emptyLumiTest() {
+  auto const kTest = R"_(from FWCore.TestProcessor.TestProcess import *
+process = TestProcess()
+process.toTest = cms.EDAnalyzer('RunLumiEventChecker',
+                                  eventSequence = cms.untracked.VEventID(cms.EventID(1,0,0), cms.EventID(1,1,0),
+                                                                         cms.EventID(1,1,0), cms.EventID(1,0,0))
+                                  )
+process.moduleToTest(process.toTest)
+)_";
+  edm::test::TestProcessor::Config config(kTest);
+  
+  edm::test::TestProcessor tester(config);
+  
+  tester.testLuminosityBlockWithNoEvents();
+  
+}
+
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 
