@@ -96,8 +96,9 @@ private:
   TTree                     *myTree_, *myTree1_;
   TH1D                      *h_[4];
   TH2D                      *hbhe_, *hb_, *he_, *hf_;
-  TH1D                      *h_AmplitudeHBtest, *h_AmplitudeHEtest;
-  TH1D                      *h_AmplitudeHFtest;
+  TH1D                      *h_AmplitudeHBtest_, *h_AmplitudeHEtest_;
+  TH1D                      *h_AmplitudeHFtest_;
+  TH1D                      *h_AmplitudeHB_, *h_AmplitudeHE_, *h_AmplitudeHF_;
   TProfile                  *hbherun_, *hbrun_, *herun_, *hfrun_;
   std::vector<TH1D*>         histo_;
   std::map<HcalDetId,TH1D*>  histHC_;
@@ -120,8 +121,10 @@ private:
   edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> tok_hltL1GtMap_;
   edm::EDGetTokenT<GenEventInfoProduct>            tok_ew_; 
   edm::EDGetTokenT<HBHEDigiCollection>             tok_hbhedigi_;
+  edm::EDGetTokenT<QIE11DigiCollection>            tok_qie11digi_;
   edm::EDGetTokenT<HODigiCollection>               tok_hodigi_;
   edm::EDGetTokenT<HFDigiCollection>               tok_hfdigi_;
+  edm::EDGetTokenT<QIE10DigiCollection>            tok_qie10digi_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>   tok_gtRec_;
 };
 
@@ -158,8 +161,10 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
   tok_hltL1GtMap_   = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
   tok_ew_           = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   tok_hbhedigi_     = consumes<HBHEDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
+  tok_qie11digi_    = consumes<QIE11DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
   tok_hodigi_       = consumes<HODigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
   tok_hfdigi_       = consumes<HFDigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag")); 
+  tok_qie10digi_    = consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("hcalDigiCollectionTag"));
   tok_gtRec_        = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"));
 
   // Read correction factors
@@ -280,9 +285,12 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
      histo_.push_back(hh);
    };
 
-   h_AmplitudeHBtest = fs_->make<TH1D>("h_AmplitudeHBtest", "", 320, 0., 100.);
-   h_AmplitudeHEtest = fs_->make<TH1D>("h_AmplitudeHEtest", "", 320, 0., 100.);
-   h_AmplitudeHFtest = fs_->make<TH1D>("h_AmplitudeHFtest", "", 320, 0., 100.);
+   h_AmplitudeHBtest_ = fs_->make<TH1D>("h_AmplitudeHBtest","", 5000, 0., 5000.);
+   h_AmplitudeHEtest_ = fs_->make<TH1D>("h_AmplitudeHEtest","",300000,0.,300000.);
+   h_AmplitudeHFtest_ = fs_->make<TH1D>("h_AmplitudeHFtest","",100000,0.,100000.);
+   h_AmplitudeHB_ = fs_->make<TH1D>("h_AmplitudeHB", "",  5000, 0., 100000.);
+   h_AmplitudeHE_ = fs_->make<TH1D>("h_AmplitudeHE", "",  3000, 0., 300000.);
+   h_AmplitudeHF_ = fs_->make<TH1D>("h_AmplitudeHF", "", 10000, 0., 1000000.);
 
    if (!fillHist_) {
      myTree_       = fs_->make<TTree>("RecJet","RecJet Tree");
@@ -425,10 +433,10 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   rnnum_ = (double)iEvent.run(); 
 
+  double amplitudefullHB(0), amplitudefullHE(0), amplitudefullHF(0);
   edm::Handle<HBHEDigiCollection> hbhedigi;
   iEvent.getByToken(tok_hbhedigi_,hbhedigi);
-  bool gotHBHEDigis = hbhedigi.isValid();
-  if (gotHBHEDigis) {
+  if (hbhedigi.isValid()) {
     for (auto const& digi : *(hbhedigi.product())) {
       int nTS = digi.size();
       double amplitudefullTSs = 0.;
@@ -436,15 +444,37 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (nTS <= 10) {
 	  for (int i=0; i<nTS; i++)
 	    amplitudefullTSs += digi.sample(i).adc();
-	  h_AmplitudeHBtest->Fill(amplitudefullTSs);
+	  h_AmplitudeHBtest_->Fill(amplitudefullTSs);
+	  amplitudefullHB += amplitudefullTSs;
 	}
       }
       if (digi.id().subdet()==HcalEndcap) {
 	if (nTS<=10) {
 	  for (int i=0; i<nTS; i++)
 	    amplitudefullTSs += digi.sample(i).adc();
-	  h_AmplitudeHEtest->Fill(amplitudefullTSs);
+	  h_AmplitudeHEtest_->Fill(amplitudefullTSs);
+	  amplitudefullHE += amplitudefullTSs;
 	}
+      }
+    }
+  }
+
+  edm::Handle<QIE11DigiCollection> qie11digi;
+  iEvent.getByToken(tok_qie11digi_,qie11digi);
+  if (qie11digi.isValid()) {
+    for (QIE11DataFrame const& digi : *(qie11digi.product())) {
+      double amplitudefullTSs = 0.;
+      if (HcalDetId(digi.id()).subdet()==HcalBarrel) {
+	for (int i=0; i<digi.samples(); i++)
+	  amplitudefullTSs += digi[i].adc();
+	h_AmplitudeHBtest_->Fill(amplitudefullTSs);
+	amplitudefullHB += amplitudefullTSs;
+      }
+      if (HcalDetId(digi.id()).subdet()==HcalEndcap) {
+	for (int i=0; i<digi.samples(); i++)
+	  amplitudefullTSs += digi[i].adc();
+	h_AmplitudeHEtest_->Fill(amplitudefullTSs);
+	amplitudefullHE += amplitudefullTSs;
       }
     }
   }
@@ -459,11 +489,30 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if (nTS <= 10) {
 	  for (int i=0; i<nTS; i++)
 	    amplitudefullTSs += digi.sample(i).adc();
-	  h_AmplitudeHFtest->Fill(amplitudefullTSs);
+	  h_AmplitudeHFtest_->Fill(amplitudefullTSs);
+	  amplitudefullHF += amplitudefullTSs;
 	}
       }
     }
   }
+
+  edm::Handle<QIE10DigiCollection> qie10digi;
+  iEvent.getByToken(tok_qie10digi_,qie10digi);
+  if (qie10digi.isValid()) {
+    for (QIE10DataFrame const& digi : *(qie10digi.product())) {
+      double amplitudefullTSs = 0.;
+      if (HcalDetId(digi.id()).subdet()==HcalForward) {
+	for (int i=0; i<digi.samples(); i++)
+	  amplitudefullTSs += digi[i].adc();
+	h_AmplitudeHFtest_->Fill(amplitudefullTSs);
+	amplitudefullHF += amplitudefullTSs;
+      }
+    }
+  }
+
+  h_AmplitudeHB_->Fill(amplitudefullHB);
+  h_AmplitudeHE_->Fill(amplitudefullHE);
+  h_AmplitudeHF_->Fill(amplitudefullHF);
 
   edm::Handle<HBHERecHitCollection> hbheMB;
   iEvent.getByToken(tok_hbherecoMB_, hbheMB);
