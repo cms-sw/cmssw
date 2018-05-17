@@ -21,7 +21,7 @@ public:
   HGCalTB16SD01(const std::string& , const DDCompactView &, 
 		const SensitiveDetectorCatalog &, edm::ParameterSet const &, 
 		const SimTrackManager*);
-  ~HGCalTB16SD01() = default;
+  ~HGCalTB16SD01() override = default;
   uint32_t setDetUnitId(const G4Step* step) override;
   static uint32_t  packIndex(int det, int lay, int x, int y);
   static void      unpackIndex(const uint32_t & idx, int& det, int& lay,

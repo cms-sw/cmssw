@@ -40,7 +40,7 @@ public:
 
   HCalSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
          edm::ParameterSet const &, const SimTrackManager*);
-  ~HCalSD() = default;
+  ~HCalSD() override = default;
   uint32_t              setDetUnitId(const G4Step* step) override;
   void                  setNumberingScheme(HcalNumberingScheme* );
 

@@ -16,7 +16,7 @@ public:
   ZdcSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,const SimTrackManager*);
  
-  ~ZdcSD() = default;
+  ~ZdcSD() override = default;
 
   uint32_t setDetUnitId(const G4Step* step) override;
  

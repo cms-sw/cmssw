@@ -59,7 +59,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string & name, const DDCompactView &
                              << " successfully"; 
   }
 
-  newForm = (branchEvInfo == "");
+  newForm = (branchEvInfo.empty());
   TTree* event(nullptr);
   if (newForm) event = (TTree *) hf ->Get("HFSimHits");
   else         event = (TTree *) hf ->Get("Events");

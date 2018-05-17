@@ -67,23 +67,25 @@ HGCSD::HGCSD(const std::string& name, const DDCompactView & cpv,
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCSim")<< "**************************************************"
-			<< "\n"
-			<< "*                                                *"
-			<< "\n"
-			<< "* Constructing a HGCSD  with name " << name << "\n"
-			<< "*                                                *"
-			<< "\n"
-			<< "**************************************************";
+  edm::LogVerbatim("HGCSim")<< "**************************************************"
+			    << "\n"
+			    << "*                                                *"
+			    << "\n"
+			    << "* Constructing a HGCSD  with name " << name << "\n"
+			    << "*                                                *"
+			    << "\n"
+			    << "**************************************************";
 #endif
-  edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit
-			 << " for " << nameX << " subdet " << myFwdSubdet_;
-  edm::LogInfo("HGCSim") << "Flag for storing individual Geant4 Hits "
-			 << storeAllG4Hits_;
-  edm::LogInfo("HGCSim") << "Reject MosueBite Flag: " << rejectMB_ 
-			 << " Size of wafer " << waferSize << " Mouse Bite "
-			 << mouseBite << ":" << mouseBiteCut_ << " along "
-			 << angles_.size() << " axes";
+  edm::LogVerbatim("HGCSim") << "HGCSD:: Threshold for storing hits: " 
+			     << eminHit << " for " << nameX << " subdet "
+			     << myFwdSubdet_;
+  edm::LogVerbatim("HGCSim") << "Flag for storing individual Geant4 Hits "
+			     << storeAllG4Hits_;
+  edm::LogVerbatim("HGCSim") << "Reject MosueBite Flag: " << rejectMB_ 
+			     << " Size of wafer " << waferSize 
+			     << " Mouse Bite " << mouseBite << ":"
+			     << mouseBiteCut_ << " along " << angles_.size() 
+			     << " axes";
 }
 
 HGCSD::~HGCSD() { 
@@ -96,7 +98,19 @@ double HGCSD::getEnergyDeposit(const G4Step* aStep) {
   double r = aStep->GetPreStepPoint()->GetPosition().perp();
   double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 
-  // check fiductial volume
+#ifdef EDM_ML_DEBUG
+  G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4LogicalVolume* lv =
+    aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+  edm::LogVerbatim("HGCSim") << "HGCSD: Hit from standard path from "
+			     << lv->GetName() << " for Track " 
+			     << aStep->GetTrack()->GetTrackID() << " ("
+			     << aStep->GetTrack()->GetDefinition()->GetParticleName() 
+			     << ") R = " << r << " Z = "
+			     << z << " slope = " << r/z << ":" << slopeMin_;
+#endif
+
+  // Apply fiductial volume
   if (r >= z*slopeMin_) {
     double wt1    = getResponseWt(aStep->GetTrack());
     destep = wt1*aStep->GetTotalEnergyDeposit();
@@ -104,7 +118,7 @@ double HGCSD::getEnergyDeposit(const G4Step* aStep) {
     if (wt2 > 0) { destep *= wt2; }
   }
   return destep;
-}
+} 
 
 uint32_t HGCSD::setDetUnitId(const G4Step * aStep) { 
 
@@ -128,10 +142,10 @@ uint32_t HGCSD::setDetUnitId(const G4Step * aStep) {
     module = -1;
     cell   = -1;
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
-			   << " name " << touch->GetVolume(0)->GetName() 
-			   << " layer:module:cell " << layer << ":" 
-			   << module << ":" << cell << std::endl;
+    edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
+			       << " name " << touch->GetVolume(0)->GetName() 
+			       << " layer:module:cell " << layer << ":" 
+			       << module << ":" << cell;
 #endif
   } else {
     layer  = touch->GetReplicaNumber(2);
@@ -139,18 +153,20 @@ uint32_t HGCSD::setDetUnitId(const G4Step * aStep) {
     cell   = touch->GetReplicaNumber(0);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() <<" name "
-			 << touch->GetVolume(0)->GetName() 
-			 << ":" << touch->GetReplicaNumber(0) << "   "
-			 << touch->GetVolume(1)->GetName() 
-			 << ":" << touch->GetReplicaNumber(1) << "   "
-			 << touch->GetVolume(2)->GetName() 
-			 << ":" << touch->GetReplicaNumber(2) << "   "
-			 << " layer:module:cell " << layer << ":" << module 
-			 << ":" << cell <<" Material " << mat->GetName()<<":"
-			 << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
+  edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
+			     << " name " << touch->GetVolume(0)->GetName() 
+			     << ":" << touch->GetReplicaNumber(0) << "   "
+			     << touch->GetVolume(1)->GetName() 
+			     << ":" << touch->GetReplicaNumber(1) << "   "
+			     << touch->GetVolume(2)->GetName() 
+			     << ":" << touch->GetReplicaNumber(2) << "   "
+			     << " layer:module:cell " << layer << ":"
+			     << module << ":" << cell <<" Material "
+			     << mat->GetName() << ":"
+			     << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
 #endif
   // The following statement should be examined later before elimination
+  // VI: this is likely a check if media is vacuum - not needed
   if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
   
   uint32_t id = setDetUnitId (subdet, layer, module, cell, iz, localpos);
@@ -158,9 +174,9 @@ uint32_t HGCSD::setDetUnitId(const G4Step * aStep) {
     int det, z, lay, wafer, type, ic;
     HGCalTestNumbering::unpackHexagonIndex(id, det, z, lay, wafer, type, ic);
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("HGCSim") << "ID " << std::hex << id << std::dec << " Decode "
-			   << det << ":" << z << ":" << lay << ":" << wafer 
-			   << ":" << type << ":" << ic << std::endl;
+    edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec 
+			       << " Decode " << det << ":" << z << ":" << lay
+			       << ":" << wafer << ":" << type << ":" << ic;
 #endif
     if (mouseBite_->exclude(hitPoint, z, wafer)) id = 0;
   }
@@ -185,9 +201,9 @@ void HGCSD::update(const BeginOfJob * job) {
     throw cms::Exception("Unknown", "HGCSD") << "Cannot find HGCalDDDConstants for " << nameX << "\n";
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCSim") << "HGCSD::Initialized with mode " << m_mode 
-			 << " Slope cut " << slopeMin_ << " top Level "
-			 << levelT_ << std::endl;
+  edm::LogVerbatim("HGCSim") << "HGCSD::Initialized with mode " << m_mode 
+			     << " Slope cut " << slopeMin_ << " top Level "
+			     << levelT_;
 #endif
 }
 
