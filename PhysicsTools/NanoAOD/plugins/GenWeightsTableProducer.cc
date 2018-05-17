@@ -270,10 +270,8 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                     for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) { //First start looping through the lines to see which weightgroup pattern is matched
                         boost::replace_all(lines[iLine],"&lt;", "<");
                         boost::replace_all(lines[iLine],"&gt;", ">");
-                        if (std::regex_search(lines[iLine],groups, weightgroup) || std::regex_search(lines[iLine], groups, weightgroupmg26x)) {
-                            if(std::regex_search(lines[iLine],groups,weightgroupmg26x)){
-                                 ismg26x=true;
-                            }
+                        if(std::regex_search(lines[iLine],groups,weightgroupmg26x)){
+                            ismg26x=true;
                         }
                     }
                     for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) {
