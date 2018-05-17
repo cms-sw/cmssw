@@ -53,7 +53,7 @@ set /Herwig/Partons/PPExtractor:SecondPDF /Herwig/Partons/LHAPDF
 # create the reader and set cuts
 create ThePEG::LesHouchesFileReader LesHouchesReader
 # the file can be compressed (gziped,bziped)
-set LesHouchesReader:FileName cmsgrid_final.lhe.gz
+set LesHouchesReader:FileName cmsgrid_final.lhe
 set LesHouchesReader:AllowedToReOpen No
 set LesHouchesReader:InitPDFs 0
 set LesHouchesReader:Cuts /Herwig/Cuts/NoCuts
