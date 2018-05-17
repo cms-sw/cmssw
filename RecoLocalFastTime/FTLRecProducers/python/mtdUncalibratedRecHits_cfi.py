@@ -13,7 +13,7 @@ _endcapAlgo.adcNbits = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcNbi
 _endcapAlgo.adcSaturation = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.adcSaturation_MIP
 _endcapAlgo.toaLSB_ns = mtdDigitizer.endcapDigitizer.ElectronicsSimulation.toaLSB_ns
 
-ftlUncalibratedRecHits = cms.EDProducer(
+mtdUncalibratedRecHits = cms.EDProducer(
     "MTDUncalibratedRecHitProducer",
     barrel = _barrelAlgo,
     endcap = _endcapAlgo,

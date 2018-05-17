@@ -377,7 +377,7 @@ timingDict = {
         ],
         "reco" :[
         ],
-        "era" : "phase2_timing, phase2_timing_layer",
+        "era" : "phase2_timing, phase2_timing_layer_new",
     },
     "I4" : {
         1 : [
@@ -395,7 +395,7 @@ timingDict = {
         ],
         "reco" :[
         ],
-        "era" : "phase2_timing, phase2_timing_layer",
+        "era" : "phase2_timing, phase2_timing_layer_new",
     }
 }
 
