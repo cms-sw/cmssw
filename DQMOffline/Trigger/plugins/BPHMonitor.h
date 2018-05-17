@@ -161,7 +161,6 @@ private:
 
   GenericTriggerEventFlag* num_genTriggerEventFlag_;
   GenericTriggerEventFlag* den_genTriggerEventFlag_;
-  PrescaleWeightProvider * prescaleWeightProvider_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_ref;
   StringCutObjectSelector<reco::Muon,true>        muoSelection_tag;
@@ -198,7 +197,6 @@ private:
   StringCutObjectSelector<reco::Track,true>        trSelection_;
   StringCutObjectSelector<reco::Track,true>        trSelection_ref;
   StringCutObjectSelector<reco::Candidate::LorentzVector,true>        DMSelection_ref;
-
 };
 
 #endif // METMONITOR_H
