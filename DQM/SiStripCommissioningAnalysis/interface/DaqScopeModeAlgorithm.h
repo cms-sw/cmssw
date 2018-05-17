@@ -29,9 +29,9 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   
   DaqScopeModeAlgorithm() {;}
   
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
-  void analyse();
+  void analyse() override;
   
  private:
   

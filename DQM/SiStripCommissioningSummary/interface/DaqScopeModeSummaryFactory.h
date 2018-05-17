@@ -7,9 +7,9 @@ class DaqScopeModeSummaryFactory : public SummaryPlotFactory<CommissioningAnalys
   
  protected:
   
-  void extract( Iterator );
+  void extract( Iterator ) override;
   
-  void format();
+  void format() override;
   
 };
 
