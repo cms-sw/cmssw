@@ -89,43 +89,28 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
 }
 
 HGCalSD::~HGCalSD() { 
-  if (numberingScheme_) delete numberingScheme_;
-  if (mouseBite_)       delete mouseBite_;
+  delete numberingScheme_;
+  delete mouseBite_;
 }
 
-bool HGCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
+double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
 
-  NaNTrap( aStep ) ;
-  
-  if (aStep == nullptr) {
-    return true;
-  } else {
-    double r = aStep->GetPreStepPoint()->GetPosition().perp();
-    double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
+  double r = aStep->GetPreStepPoint()->GetPosition().perp();
+  double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 #ifdef EDM_ML_DEBUG
-    G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
-    bool notaMuon = !(parCode == mupPDG_ || parCode == mumPDG_ );
-    G4LogicalVolume* lv =
-      aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
-    edm::LogVerbatim("HGCSim") << "HGCalSD: Hit from standard path from "
-			       << lv->GetName() << " for Track " 
-			       << aStep->GetTrack()->GetTrackID() << " ("
-			       << aStep->GetTrack()->GetDefinition()->GetParticleName() 
-			       << ":" << notaMuon << ") R = " << r << " Z = "
-			       << z << " slope = " << r/z << ":" << slopeMin_;
+  G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4LogicalVolume* lv =
+    aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
+  edm::LogVerbatim("HGCSim") << "HGCalSD: Hit from standard path from "
+			     << lv->GetName() << " for Track " 
+			     << aStep->GetTrack()->GetTrackID() << " ("
+			     << aStep->GetTrack()->GetDefinition()->GetParticleName() 
+			     << ") R = " << r << " Z = "
+			     << z << " slope = " << r/z << ":" << slopeMin_;
 #endif
-    // Apply fiducial cuts
-    if (r/z >= slopeMin_) {
-      if (getStepInfo(aStep)) {
-	if ((storeAllG4Hits_ || (hitExists() == false)) && 
-	    (edepositEM+edepositHAD>0.)) currentHit = createNewHit();
-      }
-    }
-    return true;
-  }
-} 
+  // Apply fiducial cuts
+  if (r/z < slopeMin_) { return 0.0; }
 
-double HGCalSD::getEnergyDeposit(G4Step* aStep) {
   double wt1    = getResponseWt(aStep->GetTrack());
   double wt2    = aStep->GetTrack()->GetWeight();
   double wt3    = ((useBirk_ && isScint_) ? 
@@ -237,14 +222,6 @@ void HGCalSD::update(const BeginOfJob * job) {
 }
 
 void HGCalSD::initRun() {
-  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
-  G4String          particleName;
-  mumPDG_ = theParticleTable->FindParticle(particleName="mu-")->GetPDGEncoding();
-  mupPDG_ = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalSD: Particle code for mu- = " << mumPDG_
-			     << " for mu+ = " << mupPDG_;
-#endif
 }
 
 bool HGCalSD::filterHit(CaloG4Hit* aHit, double time) {
@@ -258,23 +235,3 @@ uint32_t HGCalSD::setDetUnitId (int layer, int module, int cell, int iz,
   return id;
 }
 
-int HGCalSD::setTrackID (const G4Step* aStep) {
-  const G4Track* theTrack    = aStep->GetTrack();
-
-  double etrack = preStepPoint->GetKineticEnergy();
-  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
-  int      primaryID = trkInfo->getIDonCaloSurface();
-  if (primaryID == 0) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCalSD: Problem with primaryID **** set "
-			       << "by force to TkID **** "
-			       << theTrack->GetTrackID();
-#endif
-    primaryID = theTrack->GetTrackID();
-  }
-
-  if (primaryID != previousID.trackID())
-    resetForNewPrimary(preStepPoint->GetPosition(), etrack);
-
-  return primaryID;
-}
