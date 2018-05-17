@@ -15,6 +15,20 @@ DA_vectParameters = cms.PSet(
         )
 )
 
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(DA_vectParameters,
+     TkDAClusParameters = dict(
+        Tmin = 4.0,
+        Tpurge = 1.0,
+        Tstop = 1.0,
+        vertexSize = 0.01,
+        d0CutOff = 4.,
+        dzCutOff = 5.,
+        zmerge = 2.e-2,
+        uniquetrkweight = 0.9
+     )
+)
+
 DA2D_vectParameters = cms.PSet(
     algorithm   = cms.string("DA2D_vect"),
     TkDAClusParameters = cms.PSet(
