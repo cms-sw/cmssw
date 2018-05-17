@@ -38,7 +38,7 @@ public:
     G4ThreeVector     position;
   };
 
-  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
+  void                initRun(const HcalDDDSimConstants*);
   std::vector<Hit>    getHits(const G4Step * aStep, double weight);
   std::vector<Hit>    getHits(const G4Step * aStep, bool forLibrary);
   std::vector<Hit>    getHits(const G4Step * aStep, bool forLibraryProducer, double zoffset);
