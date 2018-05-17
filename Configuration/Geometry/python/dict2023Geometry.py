@@ -236,7 +236,7 @@ caloDict = {
             '                                "EcalBarrel",',
             '                                "TOWER",',
             '                                "HGCalEESensitive",',
-            '                                "HGCalHESiliconSensitive"',
+            '                                "HGCalHESiliconSensitive" ',
             '    )',
             ')',
             'from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *',
