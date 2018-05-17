@@ -1,10 +1,10 @@
 import logging
 
-from PyQt4.QtCore import Qt,QCoreApplication,SIGNAL
+from PyQt4.QtCore import Qt, QCoreApplication, SIGNAL
 
 from Vispa.Main.Application import Application
 from Vispa.Views.BoxDecayView import BoxDecayView
-from Vispa.Gui.PortConnection import PortConnection,PointToPointConnection
+from Vispa.Gui.PortConnection import PortConnection, PointToPointConnection
 from Vispa.Gui.ConnectableWidget import ConnectableWidget
 from Vispa.Gui.WidgetContainer import WidgetContainer
 
@@ -42,7 +42,7 @@ class ConfigEditorBoxView(BoxDecayView):
         return widget
     
     def createConnections(self, operationId, widgetParent):
-        for connection,values in self._connections.items():
+        for connection, values in self._connections.items():
             # Process application event loop in order to accept user input during time consuming drawing operation
             self._updateCounter+=1
             if self._updateCounter>=self.UPDATE_EVERY:
@@ -55,7 +55,7 @@ class ConfigEditorBoxView(BoxDecayView):
             w1 = self.widgetByObject(connection[0])
             w2 = self.widgetByObject(connection[1])
             if w1 and w2:
-                if hasattr(w1,"colorIndex"):
+                if hasattr(w1, "colorIndex"):
                     col = w1.colorIndex
                 else:
                     self._colorIndex += 1
@@ -74,11 +74,11 @@ class ConfigEditorBoxView(BoxDecayView):
         if objects!=None:
             self._highlightedObjects=objects
         for widget in self._highlightedWidgets:
-            if isinstance(widget,ConnectableWidget):
+            if isinstance(widget, ConnectableWidget):
                 widget.setColors(ConnectableWidget.PEN_COLOR,
                                  ConnectableWidget.FILL_COLOR1,
                                  ConnectableWidget.FILL_COLOR2)
-            elif isinstance(widget,WidgetContainer):
+            elif isinstance(widget, WidgetContainer):
                 widget.setColors(WidgetContainer.PEN_COLOR,
                                  WidgetContainer.FILL_COLOR1,
                                  WidgetContainer.FILL_COLOR2)
@@ -88,11 +88,11 @@ class ConfigEditorBoxView(BoxDecayView):
             widget = self.widgetByObject(object)
             if widget==None:
                 continue
-            if isinstance(widget,ConnectableWidget):
+            if isinstance(widget, ConnectableWidget):
                 widget.setColors(ConnectableWidget.PEN_COLOR.darker(),
                                  ConnectableWidget.FILL_COLOR1,
                                  ConnectableWidget.FILL_COLOR2)
-            elif isinstance(widget,WidgetContainer):
+            elif isinstance(widget, WidgetContainer):
                 widget.setColors(WidgetContainer.PEN_COLOR.darker(),
                                  WidgetContainer.FILL_COLOR1,
                                  WidgetContainer.FILL_COLOR2)
@@ -101,7 +101,7 @@ class ConfigEditorBoxView(BoxDecayView):
 
     def updateContent(self,overrideCheck=False):
         self._highlightedWidgets=[]
-        ok=BoxDecayView.updateContent(self,overrideCheck)
+        ok=BoxDecayView.updateContent(self, overrideCheck)
         self.highlight()
         return ok
 

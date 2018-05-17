@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         self._tabWidget.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self._tabWidget.setUsesScrollButtons(True)
         self.setCentralWidget(self._tabWidget)
-        if hasattr(self._tabWidget,"setTabsClosable"):
+        if hasattr(self._tabWidget, "setTabsClosable"):
             self._tabWidget.setTabsClosable(True)
         
         if "vispa" in title.lower():
@@ -87,7 +87,7 @@ class MainWindow(QMainWindow):
         widget.setWindowFlags(Qt.Dialog)
         widget.show()
         if width and height:
-            widget.resize(width,height)
+            widget.resize(width, height)
         else:
             widget.resize(self._tabWidget.size())
         widget.controller().updateLabel()

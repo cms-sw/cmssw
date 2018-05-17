@@ -1,7 +1,7 @@
 import logging
 
-from PyQt4.QtCore import SIGNAL,QPoint
-from PyQt4.QtGui import QWidget,QMenu
+from PyQt4.QtCore import SIGNAL, QPoint
+from PyQt4.QtGui import QWidget, QMenu
 
 from Vispa.Main.TabController import TabController
 from Vispa.Gui.FindDialog import FindDialog
@@ -143,7 +143,7 @@ class BrowserTabController(TabController):
         
         Needed for zoom tool bar. See TabController setZoom().
         """
-        if hasattr(self.tab(),"scrollArea"):
+        if hasattr(self.tab(), "scrollArea"):
             self.tab().scrollArea().setZoom(zoom)
     
     def zoom(self):
@@ -151,7 +151,7 @@ class BrowserTabController(TabController):
         
         Needed for zoom tool bar. See TabController zoom().
         """
-        if hasattr(self.tab(),"scrollArea"):
+        if hasattr(self.tab(), "scrollArea"):
             return self.tab().scrollArea().zoom()
         else:
             return 100.0
@@ -338,19 +338,19 @@ class BrowserTabController(TabController):
     def updateViewMenu(self):
         """ Enable/disable menu entries, when center view changes.
         """
-        self.plugin().boxContentAction().setVisible(hasattr(self.tab().centerView(),"setBoxContentScript"))
-        self.plugin().saveImageAction().setVisible(hasattr(self.tab().centerView(),"exportImage"))
-        self.plugin().zoomAction().setVisible(hasattr(self.tab().centerView(),"setZoom"))
-        self.plugin().expandAllAction().setVisible(hasattr(self.tab().treeView(),"expandAll"))
-        self.plugin().expandToDepthAction().setVisible(hasattr(self.tab().treeView(),"expandToDepth"))
-        self.plugin().collapseAllAction().setVisible(hasattr(self.tab().treeView(),"collapseAll"))
+        self.plugin().boxContentAction().setVisible(hasattr(self.tab().centerView(), "setBoxContentScript"))
+        self.plugin().saveImageAction().setVisible(hasattr(self.tab().centerView(), "exportImage"))
+        self.plugin().zoomAction().setVisible(hasattr(self.tab().centerView(), "setZoom"))
+        self.plugin().expandAllAction().setVisible(hasattr(self.tab().treeView(), "expandAll"))
+        self.plugin().expandToDepthAction().setVisible(hasattr(self.tab().treeView(), "expandToDepth"))
+        self.plugin().collapseAllAction().setVisible(hasattr(self.tab().treeView(), "collapseAll"))
         for action in self.plugin().viewMenu().actions():
             if action.data().toString()!="":
                 action.setEnabled(not action.data().toString() in self.plugin().disabledCenterViewIds())
                 currentAction=action.data().toString()==self.currentCenterViewClassId()
                 action.setChecked(currentAction)
                 if currentAction:
-                    self.tab().setCenterViewHeader(action.text().replace("&",""))
+                    self.tab().setCenterViewHeader(action.text().replace("&", ""))
         if self.tab().mainWindow():
             if isinstance(self.tab().centerView(), Zoomable):
                 self.tab().mainWindow().application().showZoomToolBar()
@@ -366,8 +366,8 @@ class BrowserTabController(TabController):
         for action in self.plugin().viewMenu().actions():
             if action.data().toString()!="":
                 popup.addAction(action)
-        if not isinstance(point,QPoint):
-            point=self.tab().centerViewMenuButton().mapToGlobal(QPoint(self.tab().centerViewMenuButton().width(),0))
+        if not isinstance(point, QPoint):
+            point=self.tab().centerViewMenuButton().mapToGlobal(QPoint(self.tab().centerViewMenuButton().width(), 0))
         popup.exec_(point)
 
     def treeViewMenuButtonClicked(self, point=None):
@@ -377,6 +377,6 @@ class BrowserTabController(TabController):
         popup.addAction(self.plugin()._collapseAllAction)
         popup.addAction(self.plugin()._filterAction)
         popup.addSeparator()
-        if not isinstance(point,QPoint):
-            point=self.tab().treeViewMenuButton().mapToGlobal(QPoint(self.tab().treeViewMenuButton().width(),0))
+        if not isinstance(point, QPoint):
+            point=self.tab().treeViewMenuButton().mapToGlobal(QPoint(self.tab().treeViewMenuButton().width(), 0))
         popup.exec_(point)

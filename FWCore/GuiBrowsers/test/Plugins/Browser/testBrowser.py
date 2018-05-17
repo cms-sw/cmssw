@@ -30,8 +30,8 @@ class BrowserTestCase(unittest.TestCase):
         self.app.mainWindow().addTab(self.tab)
         self.controller.updateContent()
         self.controller.updateViewMenu()
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.run()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__)
+    Profiling.analyze("unittest.main()", __file__)

@@ -10,11 +10,11 @@
 
 
 def getInfoFromFilename(filename):
-  prefix,sample,cmssw_release,tier = filename[:-5].split("__")[:5]
+  prefix, sample, cmssw_release, tier = filename[:-5].split("__")[:5]
   run=int(prefix.split("_")[-1][1:])
-  return run,sample,cmssw_release,tier
+  return run, sample, cmssw_release, tier
 
-from sys import argv,exit
+from sys import argv, exit
 import os
 
 # Default Configuration Parameters ---------------------------------------------
@@ -48,19 +48,19 @@ parser = OptionParser(usage="usage: %prog file1 file2 [options]")
                   #default=run,
                   #help="The run to be checked \n(default is %s)" %run)
 
-parser.add_option("-d","--dir_name",
+parser.add_option("-d", "--dir_name",
                   action="store",
                   dest="dir_name",
                   default=dir_name,
                   help="The 'directory' to be checked in the DQM \n(default is %s)" %dir_name)
 
-parser.add_option("-o","--outdir_name",
+parser.add_option("-o", "--outdir_name",
                   action="store",
                   dest="outdir_name",
                   default=outdir_name,
                   help="The directory where the output will be stored \n(default is %s)" %outdir_name)
 
-parser.add_option("-p","--do_pngs",
+parser.add_option("-p", "--do_pngs",
                   action="store_true",
                   dest="do_pngs",
                   default=False,
@@ -72,7 +72,7 @@ parser.add_option("--no_successes",
                   default=False,
                   help="Do not draw successes. Default is False.")
 
-parser.add_option("-P","--pickle",
+parser.add_option("-P", "--pickle",
                   action="store",
                   dest="pklfile",
                   default="",
@@ -90,25 +90,25 @@ parser.add_option("--metas",
                   default="",
                   help="The Metas describing the two files (separated by @@@)")
 
-parser.add_option("-t","--test_threshold",
+parser.add_option("-t", "--test_threshold",
                   action="store",
                   dest="test_threshold",
                   default=test_threshold,
                   help="Threshold for the statistical test \n(default is %s)" %test_threshold)
 
-parser.add_option("-s","--stat_test",
+parser.add_option("-s", "--stat_test",
                   action="store",
                   dest="stat_test",
                   default=stat_test,
                   help="Statistical test (KS or Chi2) \n(default is %s)" %stat_test)  
 
-parser.add_option("-C","--compare",
+parser.add_option("-C", "--compare",
                   action="store_true",
                   dest="compare",
                   default=compare,
                   help="Make the comparison \n(default is %s)" %compare)
 
-parser.add_option("-R","--Report",
+parser.add_option("-R", "--Report",
                   action="store_true",
                   dest="report",
                   default=report,
@@ -121,7 +121,7 @@ parser.add_option("--specify_run",
                   help="Append the run number to the output dir for data")
 
 
-parser.add_option("-B","--black_list",
+parser.add_option("-B", "--black_list",
                   action="store",
                   dest="black_list",
                   default=black_list_str,
@@ -152,7 +152,7 @@ def blackListedHistos():
         black_list_file="../data/blacklist.txt"
     else:
         black_list_file="%s/src/Utilities/RelMon/data/blacklist.txt"%(os.environ["CMSSW_BASE"])
-    bListFile = open(black_list_file,'r')
+    bListFile = open(black_list_file, 'r')
     black_listed_histograms = bListFile.read()
     bListFile.close()
 
@@ -161,7 +161,7 @@ def blackListedHistos():
     newarray = []
     for elem in histogramArray:
         tmp = elem.split("/")  #screw windows as it is being run on lxbuild machines with Linux
-        tmp.insert(1,"Run summary")  #insert "Run summary" dir in path as in ROOT files they exists but user haven't defined them
+        tmp.insert(1, "Run summary")  #insert "Run summary" dir in path as in ROOT files they exists but user haven't defined them
         newarray.append(("/").join(tmp))
     return newarray
     ##------##
@@ -178,20 +178,20 @@ if options.compare:
   
   if "RELMON_SA" in os.environ:
     import definitions  
-    from dqm_interfaces import DirID,DirWalkerFile,string2blacklist
+    from dqm_interfaces import DirID, DirWalkerFile, string2blacklist
     from dirstructure import Directory
   else:
     import Utilities.RelMon.definitions as definitions  
-    from Utilities.RelMon.dqm_interfaces import DirID,DirWalkerFile,string2blacklist
+    from Utilities.RelMon.dqm_interfaces import DirID, DirWalkerFile, string2blacklist
     from Utilities.RelMon.dirstructure import Directory
 
   import cPickle
-  from os import mkdir,chdir,getcwd
+  from os import mkdir, chdir, getcwd
   from os.path import exists
 
   #-------------------------------------------------------------------------------
   # Guess Releases and sample from filename
-  rootfilename1,rootfilename2 = args
+  rootfilename1, rootfilename2 = args
 
   run1=-1
   sample1=''
@@ -203,12 +203,12 @@ if options.compare:
   tier2=''
 
   if options.metas=='':
-    run1,sample1,cmssw_release1,tier1= getInfoFromFilename(rootfilename1)
-    run2,sample2,cmssw_release2,tier2= getInfoFromFilename(rootfilename2)
+    run1, sample1, cmssw_release1, tier1= getInfoFromFilename(rootfilename1)
+    run2, sample2, cmssw_release2, tier2= getInfoFromFilename(rootfilename2)
   else:
     print "Reading meta from commandline"
     sample1=sample2=options.sample
-    cmssw_release1,cmssw_release2=options.metas.split('@@@')
+    cmssw_release1, cmssw_release2=options.metas.split('@@@')
     options.standalone = True
     
   # check if the sample is the same
@@ -227,7 +227,7 @@ if options.compare:
   if len(fulldirname)==0:
     fulldirname=options.dir_name
   if len(fulldirname)==0:
-    fulldirname="%s_%s_%s" %(sample1,cmssw_release1,cmssw_release2)
+    fulldirname="%s_%s_%s" %(sample1, cmssw_release1, cmssw_release2)
 
 
   black_list=string2blacklist(options.black_list)
@@ -240,7 +240,7 @@ if options.compare:
 #-------------------------------------------------------------------------------
 
   print "Analysing Histograms located in directory %s at: " %options.dir_name
-  for filename in rootfilename1,rootfilename2:
+  for filename in rootfilename1, rootfilename2:
     print " o %s" %filename
 
 
@@ -253,7 +253,7 @@ if options.compare:
   directory=Directory(options.dir_name)
   dirwalker=DirWalkerFile(fulldirname,
                           options.dir_name,
-                          rootfilename1,rootfilename2,
+                          rootfilename1, rootfilename2,
                           run,
                           black_list,
                           options.stat_test,
@@ -301,8 +301,8 @@ if options.compare:
 
   # Dump the directory structure on disk in a pickle
   original_pickle_name="%s.pkl" %fulldirname
-  print "Pickleing the directory as %s in dir %s" %(original_pickle_name,getcwd())
-  output = open(original_pickle_name,"w")
+  print "Pickleing the directory as %s in dir %s" %(original_pickle_name, getcwd())
+  output = open(original_pickle_name, "w")
   cPickle.dump(directory, output, -1)# use highest protocol available for the pickle
   output.close()
 
@@ -317,7 +317,7 @@ if options.report:
     from Utilities.RelMon.dirstructure import Directory
 
   from os.path import exists
-  from os import chdir,mkdir
+  from os import chdir, mkdir
   import os
   import cPickle    
   
@@ -326,7 +326,7 @@ if options.report:
     pickle_name=original_pickle_name  
 
   print "Reading directory from %s" %(pickle_name)
-  ifile=open(pickle_name,"rb")
+  ifile=open(pickle_name, "rb")
   directory=cPickle.load(ifile)
   ifile.close()
 

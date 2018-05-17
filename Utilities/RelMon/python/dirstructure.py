@@ -10,8 +10,8 @@
 
 from array import array
 from copy import deepcopy
-from os import chdir,getcwd,listdir,makedirs,rmdir
-from os.path import exists,join
+from os import chdir, getcwd, listdir, makedirs, rmdir
+from os.path import exists, join
 
 import sys
 argv=sys.argv
@@ -31,9 +31,9 @@ gROOT.SetBatch(kTRUE)
 
 #-------------------------------------------------------------------------------
 _log_level=5
-def logger(msg_level,message):
+def logger(msg_level, message):
   if msg_level>=_log_level:
-    print "[%s] %s" %(asctime(),message)
+    print "[%s] %s" %(asctime(), message)
 
 #-------------------------------------------------------------------------------
 
@@ -72,10 +72,10 @@ class Directory(Weighted):
     self.n_comp_nulls=0 
     self.weight=0
     self.stats_calculated=False
-    Weighted.__init__(self,name)
+    Weighted.__init__(self, name)
     self.draw_success=draw_success
     self.do_pngs=do_pngs
-    self.rank_histo=TH1I("rh%s"%name,"",50,-0.01,1.001)
+    self.rank_histo=TH1I("rh%s"%name, "", 50, -0.01, 1.001)
     self.rank_histo.SetDirectory(0)
     self.different_histograms = {}
     self.different_histograms['file1']= {}
@@ -112,7 +112,7 @@ class Directory(Weighted):
       print "    [*] Missing in %s: %s" %(self.filename1, self.different_histograms['file1'])
       print "    [*] Missing in %s: %s" %(self.filename2, self.different_histograms['file2'])
     # clean from empty dirs    
-    self.subdirs = filter(lambda subdir: not subdir.is_empty(),self.subdirs)    
+    self.subdirs = filter(lambda subdir: not subdir.is_empty(), self.subdirs)    
     
     for comp in self.comparisons:
       if comp.status == SKIPED: #in case its in black list & skiped 
@@ -133,8 +133,8 @@ class Directory(Weighted):
               self.n_comp_nulls+=1
 
     for subdir in self.subdirs:
-      subdir.mother_dir=join(self.mother_dir,self.name)
-      subdir.full_path = join(self.mother_dir,self.name).replace("/Run summary","")
+      subdir.mother_dir=join(self.mother_dir, self.name)
+      subdir.full_path = join(self.mother_dir, self.name).replace("/Run summary", "")
       subdir.calcStats(make_pie)
       subdir.meta=self.meta 
       self.weight+=subdir.weight
@@ -148,7 +148,7 @@ class Directory(Weighted):
       self.rank_histo.Add(subdir.rank_histo)
 
     self.stats_calculated=True
-    self.full_path = join(self.mother_dir,self.name).replace("/Run summary","")
+    self.full_path = join(self.mother_dir, self.name).replace("/Run summary", "")
     #if make_pie:
       #self.__create_pie_image()
 
@@ -171,9 +171,9 @@ class Directory(Weighted):
     url+= "cht=p3" # Select the 3d chart
     #url+= "&chl=Success|Null|Fail" # give labels
     url+= "&chco=00FF00|FFFF00|FF0000|7A7A7A" # give colours to labels
-    url+= "&chs=%sx%s" %(w,h)
+    url+= "&chs=%sx%s" %(w, h)
     #url+= "&chtt=%s" %self.name
-    url+= "&chd=t:%.2f,%.2f,%.2f,%.2f"%(self.get_success_rate(),self.get_null_rate(),self.get_fail_rate(),self.get_skiped_rate())
+    url+= "&chd=t:%.2f,%.2f,%.2f,%.2f"%(self.get_success_rate(), self.get_null_rate(), self.get_fail_rate(), self.get_skiped_rate())
     
     return url
 
@@ -182,21 +182,21 @@ class Directory(Weighted):
       self.calcStats(make_pie=False)
     # print small failure report
     if verbose:
-      fail_comps=filter(lambda comp:comp.status==FAIL,self.comparisons)
-      fail_comps=sorted(fail_comps,key=lambda comp:comp.name )    
+      fail_comps=filter(lambda comp:comp.status==FAIL, self.comparisons)
+      fail_comps=sorted(fail_comps, key=lambda comp:comp.name )    
       if len(fail_comps)>0:
-        print indent+"* %s/%s:" %(self.mother_dir,self.name)
+        print indent+"* %s/%s:" %(self.mother_dir, self.name)
         for comp in fail_comps:
-          print indent+" - %s: %s Test Failed (pval = %s) " %(comp.name,comp.test_name,comp.rank)
+          print indent+" - %s: %s Test Failed (pval = %s) " %(comp.name, comp.test_name, comp.rank)
       for subdir in self.subdirs:
-        subdir.print_report(indent+"  ",verbose)
+        subdir.print_report(indent+"  ", verbose)
     
     if len(indent)==0:
-      print "\n%s - summary of %s tests:" %(self.name,self.weight)
-      print " o Failiures: %.2f%% (%s/%s)" %(self.get_fail_rate(),self.n_fails,self.weight)
-      print " o Nulls: %.2f%% (%s/%s) " %(self.get_null_rate(),self.n_nulls,self.weight)
-      print " o Successes: %.2f%% (%s/%s) " %(self.get_success_rate(),self.n_successes,self.weight)
-      print " o Skipped: %.2f%% (%s/%s) " %(self.get_skiped_rate(),self.n_skiped,self.weight)
+      print "\n%s - summary of %s tests:" %(self.name, self.weight)
+      print " o Failiures: %.2f%% (%s/%s)" %(self.get_fail_rate(), self.n_fails, self.weight)
+      print " o Nulls: %.2f%% (%s/%s) " %(self.get_null_rate(), self.n_nulls, self.weight)
+      print " o Successes: %.2f%% (%s/%s) " %(self.get_success_rate(), self.n_successes, self.weight)
+      print " o Skipped: %.2f%% (%s/%s) " %(self.get_skiped_rate(), self.n_skiped, self.weight)
       print " o Missing objects: %s" %(self.n_missing_objs)
 
   def get_skiped_rate(self):
@@ -218,7 +218,7 @@ class Directory(Weighted):
     #print "Mother is %s" %self.mother_dir
     if len(self.mother_dir)==0:
       return self.name
-    return join(self.mother_dir,self.name)
+    return join(self.mother_dir, self.name)
     
   def __create_on_disk(self):
     if not exists(self.mother_dir) and len(self.mother_dir)!=0:
@@ -228,32 +228,32 @@ class Directory(Weighted):
       makedirs(full_path)
 
   def get_summary_chart_name(self):
-    return join(self.__get_full_path(),"summary_chart.png") 
+    return join(self.__get_full_path(), "summary_chart.png") 
 
   def __create_pie_image(self):
     self.__create_on_disk()
     vals=[]
     colors=[]
-    for n,col in zip((self.n_fails,self.n_nulls,self.n_successes,self.n_skiped),(kRed,kYellow,kGreen,kBlue)):
+    for n, col in zip((self.n_fails, self.n_nulls, self.n_successes, self.n_skiped), (kRed, kYellow, kGreen, kBlue)):
       if n!=0:
         vals.append(n)
         colors.append(col)
-    valsa=array('f',vals)
-    colorsa=array('i',colors)
-    can = TCanvas("cpie","TPie test",100,100);
+    valsa=array('f', vals)
+    colorsa=array('i', colors)
+    can = TCanvas("cpie", "TPie test", 100, 100);
     try:
-      pie = TPie("ThePie",self.name,len(vals),valsa,colorsa);
+      pie = TPie("ThePie", self.name, len(vals), valsa, colorsa);
       label_n=0
       if self.n_fails!=0:
-        pie.SetEntryLabel(label_n, "Fail: %.1f(%i)" %(self.get_fail_rate(),self.n_fails) );
+        pie.SetEntryLabel(label_n, "Fail: %.1f(%i)" %(self.get_fail_rate(), self.n_fails) );
         label_n+=1
       if self.n_nulls!=0:
-        pie.SetEntryLabel(label_n, "Null: %.1f(%i)" %(self.get_null_rate(),self.n_nulls) );      
+        pie.SetEntryLabel(label_n, "Null: %.1f(%i)" %(self.get_null_rate(), self.n_nulls) );      
         label_n+=1
       if self.n_successes!=0:
-        pie.SetEntryLabel(label_n, "Success: %.1f(%i)" %(self.get_success_rate(),self.n_successes) );
+        pie.SetEntryLabel(label_n, "Success: %.1f(%i)" %(self.get_success_rate(), self.n_successes) );
       if self.n_skiped!=0:
-        pie.SetEntryLabel(label_n, "Skipped: %.1f(%i)" %(self.get_skiped_rate(),self.n_skiped));
+        pie.SetEntryLabel(label_n, "Skipped: %.1f(%i)" %(self.get_skiped_rate(), self.n_skiped));
       pie.SetY(.52);
       pie.SetAngularOffset(0.);    
       pie.SetLabelsOffset(-.3);
@@ -262,11 +262,11 @@ class Directory(Weighted):
       can.Print(self.get_summary_chart_name());    
     except:
       print "self.name = %s" %self.name
-      print "len(vals) = %s (vals=%s)" %(len(vals),vals)
+      print "len(vals) = %s (vals=%s)" %(len(vals), vals)
       print "valsa = %s" %valsa
       print "colorsa = %s" %colorsa
 
-  def prune(self,expandable_dir):
+  def prune(self, expandable_dir):
     """Eliminate from the tree the directory the expandable ones.
     """
     #print "pruning %s" %self.name
@@ -275,7 +275,7 @@ class Directory(Weighted):
     for subdir in self.subdirs:      
       # Eliminate any trace of the expandable path in the mother directories
       # for depths higher than 1
-      subdir.mother_dir=subdir.mother_dir.replace("/"+expandable_dir,"")
+      subdir.mother_dir=subdir.mother_dir.replace("/"+expandable_dir, "")
       if subdir.name==expandable_dir:        
         exp_index=counter
       counter+=1
@@ -285,15 +285,15 @@ class Directory(Weighted):
       exp_dir=self.subdirs[exp_index]
       for subsubdir in exp_dir.subdirs:
         #print "*******",subsubdir.mother_dir,
-        subsubdir.mother_dir=subsubdir.mother_dir.replace("/"+expandable_dir,"")
+        subsubdir.mother_dir=subsubdir.mother_dir.replace("/"+expandable_dir, "")
         while "//" in subsubdir.mother_dir:
           print subsubdir.mother_dir
-          subsubdir.mother_dir=subsubdir.mother_dir.replace("//","/") 
+          subsubdir.mother_dir=subsubdir.mother_dir.replace("//", "/") 
         #print "*******",subsubdir.mother_dir
         self.subdirs.append(subsubdir)
           
         for comp in exp_dir.comparisons:
-          comp.mother_dir=comp.mother_dir.replace("/"+expandable_dir,"")        
+          comp.mother_dir=comp.mother_dir.replace("/"+expandable_dir, "")        
           while "//" in comp.mother_dir:
               comp.mother_dir
               comp.mother_dir=comp.mother_dir.replace("/")
@@ -313,7 +313,7 @@ class Directory(Weighted):
   def __repr__(self):
     if self.is_empty():
       return "%s seems to be empty. Please check!" %self.name
-    content="%s , Rates: Success %.2f%%(%s) - Fail %.2f%%(%s) - Null %.2f%%(%s)\n" %(self.name,self.get_success_rate(),self.n_successes,self.get_fail_rate(),self.n_fails,self.get_null_rate(),self.n_nulls)   
+    content="%s , Rates: Success %.2f%%(%s) - Fail %.2f%%(%s) - Null %.2f%%(%s)\n" %(self.name, self.get_success_rate(), self.n_successes, self.get_fail_rate(), self.n_fails, self.get_null_rate(), self.n_nulls)   
     for subdir in self.subdirs:
       content+=" %s\n" % subdir
     for comp in self.comparisons:
@@ -322,7 +322,7 @@ class Directory(Weighted):
     
 #-------------------------------------------------------------------------------
 from multiprocessing import Process
-def print_multi_threaded(canvas,img_name):
+def print_multi_threaded(canvas, img_name):
     canvas.Print(img_name)
 
 tcanvas_print_processes=[]
@@ -337,9 +337,9 @@ class Comparison(Weighted):
     self.mother_dir=mother_dir
     self.img_name=""
     #self.draw_success=draw_success
-    Weighted.__init__(self,name)
+    Weighted.__init__(self, name)
 
-    stat_test.set_operands(h1,h2)
+    stat_test.set_operands(h1, h2)
     if skip:
         self.status = SKIPED
         self.test_name=stat_test.name
@@ -354,7 +354,7 @@ class Comparison(Weighted):
         self.do_pngs=do_pngs
         self.draw_success=draw_success or not do_pngs
         if ((self.status==FAIL or self.status==NULL or self.status == SKIPED or self.draw_success) and self.do_pngs):
-            self.__make_image(h1,h2)      
+            self.__make_image(h1, h2)      
         #self.__make_image(h1,h2)
 
   def __make_img_dir(self):    
@@ -364,25 +364,25 @@ class Comparison(Weighted):
   def __get_img_name(self):
     #self.__make_img_dir()    
     #print "MOTHER: ",self.mother_dir
-    self.img_name="%s/%s.png"%(self.mother_dir,self.name)
-    self.img_name=self.img_name.replace("Run summary","")
-    self.img_name=self.img_name.replace("/","_")
+    self.img_name="%s/%s.png"%(self.mother_dir, self.name)
+    self.img_name=self.img_name.replace("Run summary", "")
+    self.img_name=self.img_name.replace("/", "_")
     self.img_name=self.img_name.strip("_")
     #print "IMAGE NAME: %s " %self.img_name
     return self.img_name
 
-  def tcanvas_slow(self,canvas):
+  def tcanvas_slow(self, canvas):
     #print "About to print %s" %self.img_name
     #print_multi_threaded(canvas,self.img_name)
     #print "-->Printed"
 
-    p = Process(target=print_multi_threaded, args=(canvas,self.img_name))
+    p = Process(target=print_multi_threaded, args=(canvas, self.img_name))
     p.start()
     tcanvas_print_processes.append(p)
     n_proc=len(tcanvas_print_processes)
     if n_proc>3:
       p_to_remove=[]
-      for iprocess in xrange(0,n_proc):
+      for iprocess in xrange(0, n_proc):
         p=tcanvas_print_processes[iprocess]
         p.join()
         p_to_remove.append(iprocess)
@@ -392,13 +392,13 @@ class Comparison(Weighted):
         tcanvas_print_processes.pop(iprocess-adjustment)
         adjustment+=1
 
-  def __make_image(self,obj1,obj2):
+  def __make_image(self, obj1, obj2):
     self.img_name=self.__get_img_name()
     if self.rank==-1:
       return 0
    
-    canvas=TCanvas(self.name,self.name,Comparison.canvas_xsize,Comparison.canvas_ysize)
-    objs=(obj1,obj2)
+    canvas=TCanvas(self.name, self.name, Comparison.canvas_xsize, Comparison.canvas_ysize)
+    objs=(obj1, obj2)
 
     # Add some specifics for the graphs
     obj1.SetTitle(self.name)
@@ -452,8 +452,8 @@ class Comparison(Weighted):
     elif self.status==SKIPED:
       color=kBlue #check if kBlue exists ;)
     
-    lat_text="#scale[.7]{#color[%s]{%s: %2.2f}}" %(color,self.test_name,self.rank)
-    lat=TLatex(.1,.91,lat_text)
+    lat_text="#scale[.7]{#color[%s]{%s: %2.2f}}" %(color, self.test_name, self.rank)
+    lat=TLatex(.1, .91, lat_text)
     lat.SetNDC()
     lat.Draw()
   
@@ -469,14 +469,14 @@ class Comparison(Weighted):
     else:
       n2="%s"%n2
 
-    lat_text1="#scale[.7]{#color[%s]{Entries: %s}}" %(obj1.GetLineColor(),n1)
-    lat1=TLatex(.3,.91,lat_text1)
+    lat_text1="#scale[.7]{#color[%s]{Entries: %s}}" %(obj1.GetLineColor(), n1)
+    lat1=TLatex(.3, .91, lat_text1)
     lat1.SetNDC()
     lat1.Draw()
         
     
-    lat_text2="#scale[.7]{#color[%s]{Entries: %s}}" %(obj2.GetLineColor(),n2)
-    lat2=TLatex(.6,.91,lat_text2)
+    lat_text2="#scale[.7]{#color[%s]{Entries: %s}}" %(obj2.GetLineColor(), n2)
+    lat2=TLatex(.6, .91, lat_text2)
     lat2.SetNDC()
     lat2.Draw()
     
@@ -484,6 +484,6 @@ class Comparison(Weighted):
     self.tcanvas_slow(canvas)
 
   def __repr__(self):
-    return "%s , (%s=%s). IMG=%s. status=%s" %(self.name,self.test_name,self.rank,self.img_name,self.status)
+    return "%s , (%s=%s). IMG=%s. status=%s" %(self.name, self.test_name, self.rank, self.img_name, self.status)
 
 #-------------------------------------------------------------------------------  

@@ -3,7 +3,7 @@ import sys
 
 from Configuration.PyReleaseValidation.MatrixReader import MatrixReader
 from Configuration.PyReleaseValidation.MatrixRunner import MatrixRunner
-from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector,performInjectionOptionTest
+from Configuration.PyReleaseValidation.MatrixInjector import MatrixInjector, performInjectionOptionTest
         
 # ================================================================================
 
@@ -33,7 +33,7 @@ def runSelected(opt):
         if ret!=0:
             print 'Cannot go on with wmagent injection with failing workflows'
         else:
-            wfInjector = MatrixInjector(opt,mode=opt.wmcontrol,options=opt.wmoptions)
+            wfInjector = MatrixInjector(opt, mode=opt.wmcontrol, options=opt.wmoptions)
             ret= wfInjector.prepare(mrd,
                                     mRunnerHi.runDirs)
             if ret==0:
@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     #this can get out of here
     predefinedSet={
-        'limited' : [5.1, #FastSim ttbar
+        'limited': [5.1, #FastSim ttbar
                      7.3, #CosmicsSPLoose_UP17
                      8, #BH/Cosmic MC
                      25, #MC ttbar
@@ -79,8 +79,8 @@ if __name__ == '__main__':
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
         'jetmc': [5.1, 13, 15, 25, 38, 39], #MC
-        'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
-        'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
+        'metmc': [5.1, 15, 25, 37, 38, 39], #MC
+        'muonmc': [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
         }
         
 
@@ -89,13 +89,13 @@ if __name__ == '__main__':
 
     parser = optparse.OptionParser(usage)
 
-    parser.add_option('-b','--batchName',
+    parser.add_option('-b', '--batchName',
                       help='relval batch: suffix to be appended to Campaign name',
                       dest='batchName',
                       default=''
                      )
 
-    parser.add_option('-m','--memoryOffset',
+    parser.add_option('-m', '--memoryOffset',
                       help='memory of the wf for single core',
                       dest='memoryOffset',
                       default=3000
@@ -105,50 +105,50 @@ if __name__ == '__main__':
                       dest='memPerCore',
                       default=1500
                      )
-    parser.add_option('-j','--nproc',
+    parser.add_option('-j', '--nproc',
                       help='number of processes. 0 Will use 4 processes, not execute anything but create the wfs',
                       dest='nProcs',
                       default=4
                      )
-    parser.add_option('-t','--nThreads',
+    parser.add_option('-t', '--nThreads',
                       help='number of threads per process to use in cmsRun.',
                       dest='nThreads',
                       default=1
                      )
 
-    parser.add_option('-n','--showMatrix',
+    parser.add_option('-n', '--showMatrix',
                       help='Only show the worflows. Use --ext to show more',
                       dest='show',
                       default=False,
                       action='store_true'
                       )
-    parser.add_option('-e','--extended',
+    parser.add_option('-e', '--extended',
                       help='Show details of workflows, used with --show',
                       dest='extended',
                       default=False,
                       action='store_true'
                       )
-    parser.add_option('-s','--selected',
+    parser.add_option('-s', '--selected',
                       help='Run a pre-defined selected matrix of wf. Deprecated, please use -l limited',
                       dest='restricted',
                       default=False,
                       action='store_true'
                       )
-    parser.add_option('-l','--list',
+    parser.add_option('-l', '--list',
                      help='Coma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
                      dest='testList',
                      default=None
                      )
-    parser.add_option('-r','--raw',
+    parser.add_option('-r', '--raw',
                       help='Temporary dump the .txt needed for prodAgent interface. To be discontinued soon. Argument must be the name of the set (standard, pileup,...)',
                       dest='raw'
                       )
-    parser.add_option('-i','--useInput',
+    parser.add_option('-i', '--useInput',
                       help='Use recyling where available. Either all, or a coma separated list of wf number.',
                       dest='useInput',
                       default=None
                       )
-    parser.add_option('-w','--what',
+    parser.add_option('-w', '--what',
                       help='Specify the set to be used. Argument must be the name of the set (standard, pileup,...)',
                       dest='what',
                       default='all'
@@ -176,13 +176,13 @@ if __name__ == '__main__':
                       )
     parser.add_option('--wmcontrol',
                       help='Create the workflows for injection to WMAgent. In the WORKING. -wmcontrol init will create the the workflows, -wmcontrol test will dryRun a test, -wmcontrol submit will submit to wmagent',
-                      choices=['init','test','submit','force'],
+                      choices=['init', 'test', 'submit', 'force'],
                       dest='wmcontrol',
                       default=None,
                       )
     parser.add_option('--revertDqmio',
                       help='When submitting workflows to wmcontrol, force DQM outout to use pool and not DQMIO',
-                      choices=['yes','no'],
+                      choices=['yes', 'no'],
                       dest='revertDqmio',
                       default='no',
                       )
@@ -258,7 +258,7 @@ if __name__ == '__main__':
                       default=False,
                       action='store_true')
 
-    opt,args = parser.parse_args()
+    opt, args = parser.parse_args()
     if opt.IBEos:
       import os
       from commands import getstatusoutput as run_cmd
@@ -272,9 +272,9 @@ if __name__ == '__main__':
           sys.exit(err)
 
       for cmssw_env in [ "CMSSW_BASE", "CMSSW_RELEASE_BASE" ]:
-        cmssw_base = os.getenv(cmssw_env,None)
+        cmssw_base = os.getenv(cmssw_env, None)
         if not cmssw_base: continue
-        cmssw_base = os.path.join(cmssw_base,"src/Utilities/General/ibeos")
+        cmssw_base = os.path.join(cmssw_base, "src/Utilities/General/ibeos")
         if os.path.exists(cmssw_base):
           os.environ["PATH"]=cmssw_base+":"+os.getenv("PATH")
           os.environ["CMS_PATH"]="/cvmfs/cms-ib.cern.ch"
@@ -292,9 +292,9 @@ if __name__ == '__main__':
         else:
             return s
     if opt.apply:
-        opt.apply=map(stepOrIndex,opt.apply.split(','))
+        opt.apply=map(stepOrIndex, opt.apply.split(','))
     if opt.keep:
-        opt.keep=map(stepOrIndex,opt.keep.split(','))
+        opt.keep=map(stepOrIndex, opt.keep.split(','))
         
                 
                 
@@ -312,7 +312,7 @@ if __name__ == '__main__':
                 try:
                     testList.append(float(entry))
                 except:
-                    print entry,'is not a possible selected entry'
+                    print entry, 'is not a possible selected entry'
             
         opt.testList = list(set(testList))
 

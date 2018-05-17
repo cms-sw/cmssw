@@ -6,7 +6,7 @@ import sys
 import logging
 logging.root.setLevel(logging.DEBUG)
 
-from PyQt4.QtGui import QApplication,QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow
 
 import Path
 from Vispa.Main.Directories import *
@@ -28,8 +28,8 @@ class PropertyViewTestCase(unittest.TestCase):
         self.propertyView.setDataAccessor(TestDataAccessor())
         self.propertyView.setDataObject("particle1")
         self.propertyView.updateContent()
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__,"PropertyView")
+    Profiling.analyze("unittest.main()", __file__, "PropertyView")

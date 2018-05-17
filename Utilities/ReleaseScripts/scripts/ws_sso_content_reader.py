@@ -7,7 +7,7 @@ def getFile(path):
   npath = os.path.expanduser(path)
   while os.path.islink(npath):
     path = os.readlink(npath)
-    if path[0] != "/": path = os.path.join(os.path.dirname(npath),path)
+    if path[0] != "/": path = os.path.join(os.path.dirname(npath), path)
     npath = path
   return npath
 
@@ -40,7 +40,7 @@ def getResponseURL(opener, url, post_data=None, debug=False):
 
 def getParentURL(url):
   items = url.split("/")
-  return '%s//%s/%s/' % (items[0],items[2],items[3])
+  return '%s//%s/%s/' % (items[0], items[2], items[3])
 
 def getSSOCookie(opener, target_url, cookie, debug=False):
   opener.addheaders = [('User-agent', 'curl-sso-certificate/0.0.2')] #in sync with cern-get-sso-cookie tool

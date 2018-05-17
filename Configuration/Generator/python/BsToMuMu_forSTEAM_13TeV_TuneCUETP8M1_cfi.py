@@ -19,7 +19,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                             convertPythiaCodes = cms.untracked.bool(False),
                             #here we will use the user.dec store in the release
                             user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bs_mumu.dec'),
-                            list_forced_decays = cms.vstring('MyB_s0','Myanti-B_s0'),
+                            list_forced_decays = cms.vstring('MyB_s0', 'Myanti-B_s0'),
                             operates_on_particles = cms.vint32()
                          ),
                          parameterSets = cms.vstring('EvtGen1')
@@ -49,7 +49,7 @@ MuMuFilter = cms.EDFilter("MCParticlePairFilter",
                           MaxEta = cms.untracked.vdouble(2.5, 2.5),
                           MinEta = cms.untracked.vdouble(-2.5, -2.5),
                           ParticleCharge = cms.untracked.int32(-1),
-                          ParticleID1 = cms.untracked.vint32(13,-13),
+                          ParticleID1 = cms.untracked.vint32(13, -13),
                           )
 
 # -- Require Muon from Bs

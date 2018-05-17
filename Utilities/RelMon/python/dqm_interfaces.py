@@ -9,14 +9,14 @@
 ################################################################################
 
 from copy import deepcopy
-from os import chdir,getcwd,makedirs
-from os.path import abspath,exists,join, basename
-from re import sub,search
+from os import chdir, getcwd, makedirs
+from os.path import abspath, exists, join, basename
+from re import sub, search
 from re import compile as recompile
-from sys import exit,stderr,version_info
-from threading import Thread,activeCount
+from sys import exit, stderr, version_info
+from threading import Thread, activeCount
 from time import sleep
-from urllib2  import Request,build_opener,urlopen
+from urllib2  import Request, build_opener, urlopen
 
 import sys
 argv=sys.argv
@@ -27,8 +27,8 @@ sys.argv=argv
 gROOT.SetBatch(True)
 
 from authentication import X509CertOpen
-from dirstructure import Comparison,Directory,tcanvas_print_processes
-from utils import Chi2,KS,BinToBin,Statistical_Tests,literal2root
+from dirstructure import Comparison, Directory, tcanvas_print_processes
+from utils import Chi2, KS, BinToBin, Statistical_Tests, literal2root
 
 #-------------------------------------------------------------------------------  
 
@@ -39,12 +39,12 @@ class Error(Exception):
 class DQM_DB_Communication(Error):
     """Exception occurs in case of problems of communication with the server.
     """
-    def __init__(self,msg):
+    def __init__(self, msg):
         self.msg = msg
 
 class InvalidNumberOfArguments(Error):
 
-    def __init__(self,msg):
+    def __init__(self, msg):
         self.msg = msg
    
 #-----------------------------------------------------------------------------    
@@ -71,8 +71,8 @@ class DQMcommunicator(object):
       self.opener=build_opener(X509CertOpen())
   #-----------------------------------------------------------------------------
   
-  def open_url(self,url):
-    url=url.replace(' ','%20')
+  def open_url(self, url):
+    url=url.replace(' ', '%20')
     datareq = Request(url)
     datareq.add_header('User-agent', self.ident)    
     url_obj=0
@@ -100,7 +100,7 @@ class DQMcommunicator(object):
   #-----------------------------------------------------------------------------
 
   def ls_url(self, url):
-    url=url.replace(" ","%20")
+    url=url.replace(" ", "%20")
     url=self.server+url
     #print "listing "+url
     form_folder={}
@@ -141,7 +141,7 @@ class DQMcommunicator(object):
  
   def ls(self, url='', fetch_root=False):
     if len(url)==0:
-      url=join(self.DQMpwd,url)
+      url=join(self.DQMpwd, url)
     
     form_folder={}   
     
@@ -174,7 +174,7 @@ class DQMcommunicator(object):
       else:
         full_url=self.DQMpwd+"/"+folder
         
-    full_url=full_url.replace(' ','%20')
+    full_url=full_url.replace(' ', '%20')
     #print "cd: "+full_url
     
     self.oldDQMpwd=self.DQMpwd
@@ -198,7 +198,7 @@ class DQMcommunicator(object):
     samples_list=self.get_samples(dataset_string)    
     datasets_list=[]
     for sample in samples_list:
-      temp_datasets_list =  map(lambda item:item["dataset"] ,sample['items'])
+      temp_datasets_list =  map(lambda item:item["dataset"], sample['items'])
       for temp_dataset in temp_datasets_list:
         if not temp_dataset in datasets_list:
           datasets_list.append(temp_dataset)
@@ -206,12 +206,12 @@ class DQMcommunicator(object):
     
   #-----------------------------------------------------------------------------
     
-  def get_RelVal_CMSSW_versions(self,query):
+  def get_RelVal_CMSSW_versions(self, query):
     """Get the available cmssw versions for the relvals.
     """
     relvals_list=self.get_datasets_list(query)
     # The samples are of the form /RelValTHISISMYFAVOURITECHANNEL/CMSSW_VERSION/GEN-SIM-WHATEVER-RECO
-    cmssw_versions_with_duplicates=map (lambda x: x.split("/")[2],relvals_list)
+    cmssw_versions_with_duplicates=map (lambda x: x.split("/")[2], relvals_list)
     return list(set(cmssw_versions_with_duplicates))
     
   #-----------------------------------------------------------------------------    
@@ -228,7 +228,7 @@ class DQMcommunicator(object):
   
   #-----------------------------------------------------------------------------  
   
-  def get_dataset_runs(self,dataset_string):
+  def get_dataset_runs(self, dataset_string):
     dataset_runs={}
     for dataset in self.get_datasets_list(dataset_string):
       dataset_runs[dataset]=self.get_runs_list(dataset)
@@ -236,7 +236,7 @@ class DQMcommunicator(object):
 
   #-----------------------------------------------------------------------------  
   
-  def get_common_runs(self,dataset_string1,dataset_string2):
+  def get_common_runs(self, dataset_string1, dataset_string2):
     set1=set(self.get_runs_list(dataset_string1))
     set2=set(self.get_runs_list(dataset_string2))
     set1.intersection_update(set2)
@@ -249,11 +249,11 @@ class DQMcommunicator(object):
       url=self.DQMpwd
     else:
       url="/"+url    
-    url = url.replace(" ","%20")
+    url = url.replace(" ", "%20")
     objects=[]
-    for name,description in self.ls(url,True).items():     
+    for name, description in self.ls(url, True).items():     
       if "dir" not in description["type"]  and "ROOT" in description["kind"]:
-        objects.append(literal2root(description["obj_as_string"],description["type"]))
+        objects.append(literal2root(description["obj_as_string"], description["type"]))
     return objects
 
   #-----------------------------------------------------------------------------  
@@ -263,11 +263,11 @@ class DQMcommunicator(object):
       url=self.DQMpwd
     else:
       url=self.server+"/"+url    
-    url = url.replace(" ","%20")
+    url = url.replace(" ", "%20")
     objects={}
-    for name,description in self.ls(url,True).items():     
+    for name, description in self.ls(url, True).items():     
       if "dir" not in description["type"] and "ROOT" in description["kind"]:
-        objects[name]=literal2root(description["obj_as_string"],description["type"])
+        objects[name]=literal2root(description["obj_as_string"], description["type"])
     return objects
 
  #-------------------------------------------------------------------------------
@@ -278,16 +278,16 @@ class DQMcommunicator(object):
       url=self.DQMpwd
     else:
       url="/"+url    
-    url = url.replace(" ","%20")      
+    url = url.replace(" ", "%20")      
     if not null_url: 
       self.cd(url)
     objects=[]
-    for name,description in self.ls("",True).items():     
+    for name, description in self.ls("", True).items():     
       if "dir" in description["type"]:
         objects+=self.get_root_objects_list_recursive(name)
         self.cd("..")
       elif  "ROOT" in description["kind"]:
-        objects.append(literal2root(description["obj_as_string"],description["type"]))
+        objects.append(literal2root(description["obj_as_string"], description["type"]))
     if not null_url: 
       self.cd("..")
     return objects
@@ -305,16 +305,16 @@ class DQMcommunicator(object):
       url=self.DQMpwd
     else:
       url="/"+url    
-    url = url.replace(" ","%20")
+    url = url.replace(" ", "%20")
     if not null_url:
       self.cd(url)
     objects_names=[]
-    for name,description in self.ls("",False).items():     
+    for name, description in self.ls("", False).items():     
       if "dir" in description["type"]:        
-        objects_names+=self.get_root_objects_names_list_recursive(name,present_url)
+        objects_names+=self.get_root_objects_names_list_recursive(name, present_url)
         self.cd("..")
       elif  "ROOT" in description["kind"]:
-        objects_names.append("%s_%s"%(present_url,name))
+        objects_names.append("%s_%s"%(present_url, name))
     if not null_url: 
       self.cd("..")
     return objects_names
@@ -332,16 +332,16 @@ class DQMcommunicator(object):
       url=self.DQMpwd
     else:
       url="/"+url    
-    url = url.replace(" ","%20")
+    url = url.replace(" ", "%20")
     #if not null_url:
     self.cd(url)
     objects={}
-    for name,description in self.ls("",True).items():     
+    for name, description in self.ls("", True).items():     
       if "dir" in description["type"]:
-        objects.update(self.get_root_objects_recursive(name,present_url))
+        objects.update(self.get_root_objects_recursive(name, present_url))
         self.cd("..")
       elif  "ROOT" in description["kind"]:
-        objects["%s_%s"%(present_url,name)]=literal2root(description["obj_as_string"],description["type"])
+        objects["%s_%s"%(present_url, name)]=literal2root(description["obj_as_string"], description["type"])
     #if not null_url:
     self.cd("..")
     return objects
@@ -357,32 +357,32 @@ class DirID(object):
     self.compname=recompile(name)
     self.mother=mother
     self.depth=depth
-  def __eq__(self,dirid):
+  def __eq__(self, dirid):
     depth2=dirid.depth
     compname2=dirid.compname
     name2=dirid.name
     is_equal = False
     #if self.name in name2 or name2 in self.name:
-    if search(self.compname,name2)!=None or search(compname2,self.name)!=None:
+    if search(self.compname, name2)!=None or search(compname2, self.name)!=None:
       is_equal = self.depth*depth2 <0 or self.depth==depth2
     if len(self.mother)*len(dirid.mother)>0:
       is_equal = is_equal and self.mother==dirid.mother
     return is_equal
     
   def __repr__(self):
-    return "Directory %s at level %s" %(self.name,self.depth)
+    return "Directory %s at level %s" %(self.name, self.depth)
     
 #-------------------------------------------------------------------------------
 class DirFetcher(Thread):
   """ Fetch the content of the single "directory" in the dqm.
   """
-  def __init__ (self,comm,directory):
+  def __init__ (self, comm, directory):
       Thread.__init__(self)
       self.comm = comm
       self.directory = directory
       self.contents=None    
   def run(self):
-    self.contents = self.comm.ls(self.directory,True)
+    self.contents = self.comm.ls(self.directory, True)
 
 #-------------------------------------------------------------------------------
 
@@ -394,7 +394,7 @@ class DirWalkerDB(Thread):
     Thread.__init__(self)
     self.comm1 = deepcopy(comm1)
     self.comm2 = deepcopy(comm2)
-    self.base1,self.base2 = base1,base2
+    self.base1, self.base2 = base1, base2
     self.directory = directory
     self.depth=depth
     self.do_pngs=do_pngs
@@ -406,7 +406,7 @@ class DirWalkerDB(Thread):
   
   def run(self):
     
-    this_dir=DirID(self.directory.name,self.depth)
+    this_dir=DirID(self.directory.name, self.depth)
     if this_dir in self.black_list: 
       print "Skipping %s since blacklisted!" %this_dir
       return 0 
@@ -419,7 +419,7 @@ class DirWalkerDB(Thread):
     directory1=self.base1+"/"+self.directory.mother_dir+"/"+self.directory.name
     directory2=self.base2+"/"+self.directory.mother_dir+"/"+self.directory.name
     
-    fetchers =(DirFetcher(self.comm1,directory1),DirFetcher(self.comm2,directory2))
+    fetchers =(DirFetcher(self.comm1, directory1), DirFetcher(self.comm2, directory2))
     for fetcher in fetchers:
       fetcher.start()
     for fetcher in fetchers:  
@@ -439,9 +439,9 @@ class DirWalkerDB(Thread):
       content = contents1[name]
       if "dir" in content["type"]:
         #if this_dir not in DirWalker.white_list:continue              
-        subdir=Directory(name,join(self.directory.mother_dir,self.directory.name))        
-        dirwalker=DirWalkerDB(self.comm1,self.comm2,self.base1,self.base2,subdir,self.depth,
-                              self.do_pngs,self.stat_test,self.test_threshold,self.black_list)
+        subdir=Directory(name, join(self.directory.mother_dir, self.directory.name))        
+        dirwalker=DirWalkerDB(self.comm1, self.comm2, self.base1, self.base2, subdir, self.depth,
+                              self.do_pngs, self.stat_test, self.test_threshold, self.black_list)
         dirwalker.start()
         walkers.append(dirwalker)
         n_threads=activeCount()
@@ -451,9 +451,9 @@ class DirWalkerDB(Thread):
       elif content["kind"]=="ROOT":
 #	print directory1,name
         comparison=Comparison(name,
-                              join(self.directory.mother_dir,self.directory.name),
-                              literal2root(content["obj_as_string"],content["type"]),
-                              literal2root(contents2[name]["obj_as_string"],content["type"]),
+                              join(self.directory.mother_dir, self.directory.name),
+                              literal2root(content["obj_as_string"], content["type"]),
+                              literal2root(contents2[name]["obj_as_string"], content["type"]),
                               deepcopy(the_test),
                               do_pngs=self.do_pngs)
         self_directory_comparisons.append(comparison)
@@ -473,7 +473,7 @@ class DQMRootFile(object):
   interface as similar as possible to a real direcory structure and to the 
   directory structure provided by the db interface.
   """
-  def __init__(self,rootfilename):
+  def __init__(self, rootfilename):
     dqmdatadir="DQMData"
     self.rootfile=TFile(rootfilename)  
     self.rootfilepwd=self.rootfile.GetDirectory(dqmdatadir)
@@ -483,7 +483,7 @@ class DQMRootFile(object):
       self.rootfilepwd=self.rootfile
       self.rootfileprevpwd=self.rootfile
   
-  def __is_null(self,directory,name):
+  def __is_null(self, directory, name):
     is_null = not directory
     if is_null:
         print >> stderr, "Directory %s does not exist!" %name
@@ -496,14 +496,14 @@ class DQMRootFile(object):
       directory=self.rootfilepwd      
     
     directory=self.rootfilepwd.GetDirectory(directory_name)    
-    if self.__is_null(directory,directory_name):
+    if self.__is_null(directory, directory_name):
       return contents
     
     for key in directory.GetListOfKeys():
       contents[key.GetName()]=key.GetClassName()
     return contents
   
-  def cd(self,directory_name):
+  def cd(self, directory_name):
     """Change the current TDirectoryFile. The familiar "-" and ".." directories 
     can be accessed as well.
     """
@@ -524,15 +524,15 @@ class DQMRootFile(object):
       self.rootfilepwd=mom
     else:
       new_directory=self.rootfilepwd.GetDirectory(directory_name)
-      if not self.__is_null(new_directory,directory_name):
+      if not self.__is_null(new_directory, directory_name):
           self.rootfileprevpwd=self.rootfilepwd
           self.rootfilepwd=new_directory
     
-  def getObj(self,objname):
+  def getObj(self, objname):
     """Get a TObject from the rootfile.
     """
     obj=self.rootfilepwd.Get(objname)
-    if not self.__is_null(obj,objname):
+    if not self.__is_null(obj, objname):
       return obj
 
 #-------------------------------------------------------------------------------
@@ -558,7 +558,7 @@ class DirWalkerFile(object):
   def __del__(self):
     chdir(self.workdir)
      
-  def cd(self,directory_name, on_disk=False, regexp=False,):
+  def cd(self, directory_name, on_disk=False, regexp=False,):
     if regexp == True:
         if len(directory_name)!=0:
             if on_disk:
@@ -594,7 +594,7 @@ class DirWalkerFile(object):
     contents={}
     self.different_histograms['file1']= {}
     self.different_histograms['file2']= {}
-    keys = filter(lambda key: key in contents1,contents2.keys()) #set of all possible contents from both files
+    keys = filter(lambda key: key in contents1, contents2.keys()) #set of all possible contents from both files
     #print " ## keys: %s" %(keys)
     for key in keys:  #iterate on all unique keys
       if contents1[key]!=contents2[key]:
@@ -621,17 +621,17 @@ class DirWalkerFile(object):
       contents[key]=contents1[key]
     return contents
   
-  def getObjs(self,name):
+  def getObjs(self, name):
     h1=self.dqmrootfile1.getObj(name)
     h2=self.dqmrootfile2.getObj(name)
-    return h1,h2
+    return h1, h2
   
   def __fill_single_dir(self,dir_name,directory,mother_name="",depth=0):
     #print "MOTHER NAME  = +%s+" %mother_name
    #print "About to study %s (in dir %s)" %(dir_name,getcwd())
         
     # see if in black_list
-    this_dir=DirID(dir_name,depth)
+    this_dir=DirID(dir_name, depth)
     #print "  ## this_dir: %s"%(this_dir)
     if this_dir in self.black_list: 
       #print "Directory %s skipped because black-listed" %dir_name
@@ -652,12 +652,12 @@ class DirWalkerFile(object):
     #print contents
     cont_counter=1
     comparisons=[]
-    for name,obj_type in contents.items():
+    for name, obj_type in contents.items():
       if obj_type=="TDirectoryFile":        
         #We have a dir, launch recursion!
         #Some feedback on the progress
         if depth==1:
-          print "Studying directory %s, %s/%s" %(name,cont_counter,n_top_contents)
+          print "Studying directory %s, %s/%s" %(name, cont_counter, n_top_contents)
           cont_counter+=1          
  
         #print "Studying directory",name
@@ -665,7 +665,7 @@ class DirWalkerFile(object):
         subdir=Directory(name)
         subdir.draw_success=directory.draw_success
         subdir.do_pngs=directory.do_pngs
-        self.__fill_single_dir(name,subdir,join(mother_name,dir_name),depth)
+        self.__fill_single_dir(name, subdir, join(mother_name, dir_name), depth)
         if not subdir.is_empty():
           if depth==1:
             print " ->Appending %s..." %name,
@@ -676,21 +676,21 @@ class DirWalkerFile(object):
         # We have probably an histo. Let's make the plot and the png.        
         if obj_type[:2]!="TH" and obj_type[:3]!="TPr" :
           continue
-        h1,h2=self.getObjs(name)
+        h1, h2=self.getObjs(name)
         #print "COMPARISON : +%s+%s+" %(mother_name,dir_name)
-        path = join(mother_name,dir_name,name)
+        path = join(mother_name, dir_name, name)
         if path in self.black_list_histos:
           print "  Skipping %s" %(path)
           directory.comparisons.append(Comparison(name,
-                              join(mother_name,dir_name),
-                              h1,h2,
+                              join(mother_name, dir_name),
+                              h1, h2,
                               deepcopy(self.stat_test),
                               draw_success=directory.draw_success,
                               do_pngs=directory.do_pngs, skip=True))
         else:
           directory.comparisons.append(Comparison(name,
-                                join(mother_name,dir_name),
-                                h1,h2,
+                                join(mother_name, dir_name),
+                                h1, h2,
                                 deepcopy(self.stat_test),
                                 draw_success=directory.draw_success,
                                 do_pngs=directory.do_pngs, skip=False))
@@ -727,7 +727,7 @@ class DirWalkerFile(object):
       print "\nRundir not there: Is this a generic rootfile?\n"
     
     # Let's rock!
-    self.__fill_single_dir(self.directory.name,self.directory)
+    self.__fill_single_dir(self.directory.name, self.directory)
     print "Finished"
     n_left_threads=len(tcanvas_print_processes)
     if n_left_threads>0:
@@ -749,17 +749,17 @@ class DirWalkerFile_thread_wrapper(Thread):
 def string2blacklist(black_list_str):
   black_list=[]
   # replace the + with " ":
-  black_list_str=black_list_str.replace("__"," ")
+  black_list_str=black_list_str.replace("__", " ")
   if len(black_list_str)>0:
     for ele in black_list_str.split(","):
-      dirname,level=ele.split("@")
+      dirname, level=ele.split("@")
       level=int(level)
       dirid=None
       if "/" not in dirname:
-        dirid=DirID(dirname,level)
+        dirid=DirID(dirname, level)
       else:
-        mother,daughter=dirname.split("/")
-        dirid=DirID(daughter,level,mother)
+        mother, daughter=dirname.split("/")
+        dirid=DirID(daughter, level, mother)
       if not dirid in black_list:
         black_list.append(dirid)
         

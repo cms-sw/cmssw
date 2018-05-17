@@ -7,14 +7,14 @@ ACTIVATE_INSPECTION=True
 
 def auto_inspect():
     if not ACTIVATE_INSPECTION:
-        return [("unknown","unknown","unknown")]
+        return [("unknown", "unknown", "unknown")]
     stack = inspect.stack()
     while len(stack)>=1 and len(stack[0])>=2 and ('FWCore/ParameterSet' in stack[0][1] or 'FWCore/GuiBrowsers' in stack[0][1]):
         stack = stack[1:]
     if len(stack)>=1 and len(stack[0])>=3:
        return stack
     else:
-       return [("unknown","unknown","unknown")]
+       return [("unknown", "unknown", "unknown")]
 
 #### patches needed for deepcopy of process ####
 
@@ -107,13 +107,13 @@ cms.Process.resetHistory=new_resetHistory
 
 def new_dumpHistory(self,withImports=True):
     dumpHistory=[]
-    for item,objects in self.history():
-        if isinstance(item,(str,unicode)):
+    for item, objects in self.history():
+        if isinstance(item, (str, unicode)):
             dumpHistory.append(item +"\n")
         else: # isTool
 	    print item
             dump=item.dumpPython()
-            if isinstance(dump,tuple):
+            if isinstance(dump, tuple):
                 if withImports and dump[0] not in dumpHistory:
                     dumpHistory.append(dump[0])
                 dumpHistory.append(dump[1] +"\n")
@@ -123,17 +123,17 @@ def new_dumpHistory(self,withImports=True):
     return ''.join(dumpHistory)
 cms.Process.dumpHistory=new_dumpHistory
 
-def new_addAction(self,tool):
+def new_addAction(self, tool):
     if self.__dict__['_Process__enableRecording'] == 0:
         modifiedObjects=self.modifiedObjects()
-        for m,o in self.dumpModificationsWithObjects():
+        for m, o in self.dumpModificationsWithObjects():
             modifiedObjects+=o
-        self.__dict__['_Process__history'].append((tool,modifiedObjects))
+        self.__dict__['_Process__history'].append((tool, modifiedObjects))
         self.resetModified()
         self.resetModifiedObjects()
 cms.Process.addAction=new_addAction
 
-def new_deleteAction(self,i):
+def new_deleteAction(self, i):
     del self.__dict__['_Process__history'][i]
 cms.Process.deleteAction=new_deleteAction
 
@@ -192,10 +192,10 @@ def new_recurseResetModified_(self, o):
     if isinstance(o, cms._Parameterizable):
         o.resetModified()
         for key in o.parameterNames_():
-            value = getattr(o,key)
+            value = getattr(o, key)
             self.recurseResetModified_(value)
     if isinstance(o, cms._ValidatingListBase):
-        for index,item in enumerate(o):
+        for index, item in enumerate(o):
             self.recurseResetModified_(item)
 cms.Process.recurseResetModified_=new_recurseResetModified_
 
@@ -224,7 +224,7 @@ def new_recurseDumpModifications_(self, name, o):
                 paramvalue = getattr(o, paramname)
             else:
                 paramvalue = None
-            if isinstance(paramvalue,cms._ParameterTypeBase):
+            if isinstance(paramvalue, cms._ParameterTypeBase):
                 dump = paramvalue.dumpPython()
             else:
                 dump = paramvalue
@@ -239,7 +239,7 @@ def new_recurseDumpModifications_(self, name, o):
             
         # Loop over any child elements
         for key in o.parameterNames_():
-            value = getattr(o,key)
+            value = getattr(o, key)
             modifications += self.recurseDumpModifications_("%s.%s" % (name, key), value)
     
     if isinstance(o, cms._ValidatingListBase):
@@ -357,7 +357,7 @@ def new_dumpModificationsWithObjects(self, removeDuplicates=False):
             last_modification=m['name']
             # add changes
             text = 'process.%s = %s' % (m['name'], m['dump'])
-            modifications += [(text,[o])]
+            modifications += [(text, [o])]
     return modifications
 cms.Process.dumpModificationsWithObjects=new_dumpModificationsWithObjects
 
@@ -401,7 +401,7 @@ cms._Parameterizable.old__init__ = cms._Parameterizable.__init__
 cms._Parameterizable.__init__ = new_Parameterizable_init
 
 def new_Parameterizable_addParameter(self, name, value):
-  self.old__addParameter(name,value)
+  self.old__addParameter(name, value)
   stack = auto_inspect()
   self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':None,'new':deepcopy(value),'action':'add'})
 cms._Parameterizable.old__addParameter = cms._Parameterizable._Parameterizable__addParameter
@@ -412,7 +412,7 @@ def new_Parameterizable_setattr(self, name, value):
     stack = auto_inspect()
     self._modifications.append({'file':stack[0][1],'line':stack[0][2],'name':name,'old':deepcopy(self.__dict__[name]),'new':deepcopy(value),'action':'replace'})
     self._isModified = True
-  self.old__setattr__(name,value)
+  self.old__setattr__(name, value)
 cms._Parameterizable.old__setattr__ = cms._Parameterizable.__setattr__
 cms._Parameterizable.__setattr__ = new_Parameterizable_setattr
 
@@ -483,10 +483,10 @@ def new_Sequence_name(self):
 cms.Sequence._name_ = new_Sequence_name
 
 def new__Module_name(self):
-  if hasattr(self,'_Labelable__label'):
-    return getattr(self,'_Labelable__label')
-  elif hasattr(self,'_TypedParameterizable__type'):
-    return 'unnamed(%s)'%getattr(self,'_TypedParameterizable__type')
+  if hasattr(self, '_Labelable__label'):
+    return getattr(self, '_Labelable__label')
+  elif hasattr(self, '_TypedParameterizable__type'):
+    return 'unnamed(%s)'%getattr(self, '_TypedParameterizable__type')
   return type(self).__name__
 cms._Module._name_ = new__Module_name
 
@@ -532,7 +532,7 @@ def new__ModuleSequenceType_remove(self, original):
 cms._ModuleSequenceType.old_remove = cms._ModuleSequenceType.remove
 cms._ModuleSequenceType.remove = new__ModuleSequenceType_remove
 
-def new__ModuleSequenceType__imul__(self,other):
+def new__ModuleSequenceType__imul__(self, other):
     stack = auto_inspect()
     self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name_(),'old':None})
     self._isModified=True
@@ -540,7 +540,7 @@ def new__ModuleSequenceType__imul__(self,other):
 cms._ModuleSequenceType.old__imul__ = cms._ModuleSequenceType.__imul__
 cms._ModuleSequenceType.__imul__ = new__ModuleSequenceType__imul__
 
-def new__ModuleSequenceType__iadd__(self,other):
+def new__ModuleSequenceType__iadd__(self, other):
     stack = auto_inspect()
     self._isModified=True
     self._modifications.append({'file':stack[0][1],'line':stack[0][2],'action':'append','new':other._name_(),'old':None})
@@ -569,30 +569,30 @@ if __name__=='__main__':
                         five = cms.InputTag('alpha')
                     ),
                     cms.PSet(
-                        six = cms.vint32(1,2,3)
+                        six = cms.vint32(1, 2, 3)
                     )
                 ),
-                seven = cms.vstring('alpha','bravo','charlie'),
+                seven = cms.vstring('alpha', 'bravo', 'charlie'),
                 eight = cms.vuint32(range(10)),
                 nine = cms.int32(0)
             )
             ex.zero = cms.string('hello')
-            self.assertEqual(ex._modifications[-1]['name'],'zero')
+            self.assertEqual(ex._modifications[-1]['name'], 'zero')
             ex.one = cms.double(1)
             ex.one = cms.double(2)
             ex.one = cms.double(3)
-            self.assertEqual(ex._modifications[-1]['name'],'one')
-            self.assertEqual(ex._modifications[-2]['name'],'one')
-            self.assertEqual(ex._modifications[-3]['name'],'one')
+            self.assertEqual(ex._modifications[-1]['name'], 'one')
+            self.assertEqual(ex._modifications[-2]['name'], 'one')
+            self.assertEqual(ex._modifications[-3]['name'], 'one')
             ex.two = False
-            self.assertEqual(ex._modifications[-1]['name'],'two')
+            self.assertEqual(ex._modifications[-1]['name'], 'two')
             ex.ps.three.setValue(100) # MISSED
             #self.assertEqual(ex.ps._modifications.pop()['name'],'three')
             ex.ps.four = 'def'
-            self.assertEqual(ex.ps._modifications[-1]['name'],'four')
+            self.assertEqual(ex.ps._modifications[-1]['name'], 'four')
             ex.vps[0].five = cms.string('beta')
-            self.assertEqual(ex.vps[0]._modifications[-1]['name'],'five')
-            ex.vps[1].__dict__['six'] = cms.vint32(1,4,9) # MISSED
+            self.assertEqual(ex.vps[0]._modifications[-1]['name'], 'five')
+            ex.vps[1].__dict__['six'] = cms.vint32(1, 4, 9) # MISSED
             #self.assertEqual(ex.vps[1]._modifications[-1]['name'],'six')
             ex.seven[0] = 'delta' # MISSED
             #self.assertEqual(ex._modifications[-1]['name'],'seven')
@@ -601,7 +601,7 @@ if __name__=='__main__':
             del ex.nine
             #self.assertEqual(ex._modifications[-1]['name'],'nine')
             ex.newvpset = cms.VPSet()
-            self.assertEqual(ex._modifications[-1]['name'],'newvpset')
+            self.assertEqual(ex._modifications[-1]['name'], 'newvpset')
             
             process = cms.Process('unittest')
             process.ex = ex
@@ -623,27 +623,27 @@ if __name__=='__main__':
         def testSeq(self):
             process = cms.Process('unittest')
             for i in range(10):
-              setattr(process,'f%s'%i,cms.EDFilter('f%s'%i))
+              setattr(process, 'f%s'%i, cms.EDFilter('f%s'%i))
             process.seq1 = cms.Sequence(process.f1*process.f2*process.f3)
-            self.assertEqual(process.seq1._modifications,[])
+            self.assertEqual(process.seq1._modifications, [])
             process.seq2 = cms.Sequence(process.f4+process.f5+process.f6)
-            self.assertEqual(process.seq2._modifications,[])
+            self.assertEqual(process.seq2._modifications, [])
             
-            process.seq1.replace(process.f1,process.f0*process.f1)
-            self.assertEqual(process.seq1._modifications[-1]['action'],'replace')
+            process.seq1.replace(process.f1, process.f0*process.f1)
+            self.assertEqual(process.seq1._modifications[-1]['action'], 'replace')
             
             process.seq2.remove(process.f5)
-            self.assertEqual(process.seq2._modifications[-1]['action'],'remove')
+            self.assertEqual(process.seq2._modifications[-1]['action'], 'remove')
             
             process.path = cms.Path(process.seq1*process.f7)
-            self.assertEqual(process.path._modifications,[])
+            self.assertEqual(process.path._modifications, [])
             
             process.path *= process.seq2
-            self.assertEqual(process.path._modifications[-1]['action'],'append')
+            self.assertEqual(process.path._modifications[-1]['action'], 'append')
             process.path.remove(process.f6)
-            self.assertEqual(process.path._modifications[-1]['action'],'remove')
-            process.path.replace(process.f2,~process.f2)
-            self.assertEqual(process.path._modifications[-1]['action'],'replace')
+            self.assertEqual(process.path._modifications[-1]['action'], 'remove')
+            process.path.replace(process.f2, ~process.f2)
+            self.assertEqual(process.path._modifications[-1]['action'], 'replace')
             
             mods = process.dumpModifications()
             self.assert_('process.seq1' in mods)
@@ -652,63 +652,63 @@ if __name__=='__main__':
             
         def testdumpHistory(self):
             process = cms.Process('unittest')
-            process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
+            process.source=Source("PoolSource", fileNames = cms.untracked.string("file:file.root"))
             
-            changeSource(process,"file:filename.root")
-            self.assertEqual(changeSource._parameters['source'].value,"file:filename.root")
+            changeSource(process, "file:filename.root")
+            self.assertEqual(changeSource._parameters['source'].value, "file:filename.root")
             
-            changeSource(process,"file:filename2.root")
-            self.assertEqual(changeSource._parameters['source'].value,"file:filename2.root")
+            changeSource(process, "file:filename2.root")
+            self.assertEqual(changeSource._parameters['source'].value, "file:filename2.root")
             
-            changeSource(process,"file:filename3.root")
-            self.assertEqual(changeSource._parameters['source'].value,"file:filename3.root")
+            changeSource(process, "file:filename3.root")
+            self.assertEqual(changeSource._parameters['source'].value, "file:filename3.root")
     
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n")
+            self.assertEqual(process.dumpHistory(), "\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n")
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\nprocess.source.fileNames = cms.untracked.vstring('file:replacedfile.root')\n")
+            self.assertEqual(process.dumpHistory(), "\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\nprocess.source.fileNames = cms.untracked.vstring('file:replacedfile.root')\n")
             
             process.disableRecording()
-            changeSource.setParameter('source',"file:filename4.root")
+            changeSource.setParameter('source', "file:filename4.root")
             action=changeSource.__copy__()
             process.addAction(action)
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\nprocess.source.fileNames = cms.untracked.vstring('file:replacedfile.root')\n")
+            self.assertEqual(process.dumpHistory(), "\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\nprocess.source.fileNames = cms.untracked.vstring('file:replacedfile.root')\n")
             
             process.enableRecording()
-            changeSource.setParameter('source',"file:filename5.root")
+            changeSource.setParameter('source', "file:filename5.root")
             action=changeSource.__copy__()
             process.addAction(action)
             process.deleteAction(3)
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n\nchangeSource(process , 'file:filename5.root')\n\n")
+            self.assertEqual(process.dumpHistory(), "\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename.root')\n\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n\nchangeSource(process , 'file:filename5.root')\n\n")
 
             process.deleteAction(0)
-            self.assertEqual(process.dumpHistory(),"\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n\nchangeSource(process , 'file:filename5.root')\n\n")
+            self.assertEqual(process.dumpHistory(), "\nfrom FWCore.GuiBrowsers.editorTools import *\n\nchangeSource(process , 'file:filename2.root')\n\n\nchangeSource(process , 'file:filename3.root')\n\n\nchangeSource(process , 'file:filename5.root')\n\n")
             
         def testModifiedObjectsHistory(self):
             process = cms.Process('unittest')
-            process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
+            process.source=Source("PoolSource", fileNames = cms.untracked.string("file:file.root"))
             
-            changeSource(process,"file:filename.root")
-            self.assertEqual(len(process.history()[0][1]),1)
+            changeSource(process, "file:filename.root")
+            self.assertEqual(len(process.history()[0][1]), 1)
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile.root") 
-            self.assertEqual(len(process.history()[0][1]),1)
-            self.assertEqual(len(process.history()[1][1]),1)
+            self.assertEqual(len(process.history()[0][1]), 1)
+            self.assertEqual(len(process.history()[1][1]), 1)
 
             process.source.fileNames=["test2"]
-            self.assertEqual(len(process.history()[0][1]),1)
-            self.assertEqual(len(process.history()[1][1]),1)
+            self.assertEqual(len(process.history()[0][1]), 1)
+            self.assertEqual(len(process.history()[1][1]), 1)
 
-            changeSource(process,"file:filename2.root")
-            self.assertEqual(len(process.history()[0][1]),1)
-            self.assertEqual(len(process.history()[1][1]),1)
-            self.assertEqual(len(process.history()[2][1]),1)
+            changeSource(process, "file:filename2.root")
+            self.assertEqual(len(process.history()[0][1]), 1)
+            self.assertEqual(len(process.history()[1][1]), 1)
+            self.assertEqual(len(process.history()[2][1]), 1)
             
             process.source.fileNames=cms.untracked.vstring("file:replacedfile2.root") 
-            self.assertEqual(len(process.history()[0][1]),1)
-            self.assertEqual(len(process.history()[1][1]),1)
-            self.assertEqual(len(process.history()[2][1]),1)
-            self.assertEqual(len(process.history()[3][1]),1)
+            self.assertEqual(len(process.history()[0][1]), 1)
+            self.assertEqual(len(process.history()[1][1]), 1)
+            self.assertEqual(len(process.history()[2][1]), 1)
+            self.assertEqual(len(process.history()[3][1]), 1)
             
     unittest.main()
         

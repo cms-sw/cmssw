@@ -41,7 +41,7 @@ pdigi.remove(simHcalTTPDigis)
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 # for PreMixing, to first approximation, allow noise in Muon system
 premix_stage2.toReplaceWith(simMuonCSCDigis, _simMuonCSCDigis_orig)
-premix_stage2.toReplaceWith(simMuonDTDigis , _simMuonDTDigis_orig )
+premix_stage2.toReplaceWith(simMuonDTDigis, _simMuonDTDigis_orig )
 premix_stage2.toReplaceWith(simMuonRPCDigis, _simMuonRPCDigis_orig)
 
 # premixing stage2 runs addPileupInfo after DataMixer (configured in DataMixerPreMix_cff)

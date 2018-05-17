@@ -1,7 +1,7 @@
 import logging
 
 from PyQt4.QtGui import QToolButton
-from PyQt4.QtCore import Qt,SIGNAL
+from PyQt4.QtCore import Qt, SIGNAL
 
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 from Vispa.Views.TableView import TableView
@@ -14,8 +14,8 @@ class CodeTableView(TableView):
 
     def __init__(self, parent=None):
         logging.debug(__name__ + ": __init__")
-        TableView.__init__(self,parent)
-        self.setColumns(["Buttons","code"])
+        TableView.__init__(self, parent)
+        self.setColumns(["Buttons", "code"])
         self.horizontalHeader().hide()
         self.setSorting(False)
         self._firstColumn=1
@@ -40,25 +40,25 @@ class CodeTableView(TableView):
         self.setCellWidget(self.rowCount()-1, 0, button)
 
     def importButtonClicked(self,checked=False):
-        self.emit(SIGNAL("importButtonClicked"),self.sender().object)
+        self.emit(SIGNAL("importButtonClicked"), self.sender().object)
     
     def applyButtonClicked(self,checked=False):
-        self.emit(SIGNAL("applyButtonClicked"),self.sender().object)
+        self.emit(SIGNAL("applyButtonClicked"), self.sender().object)
         
     def removeButtonClicked(self,checked=False):
-        self.emit(SIGNAL("removeButtonClicked"),self.sender().object)
+        self.emit(SIGNAL("removeButtonClicked"), self.sender().object)
         
     def updateContent(self):
         result=TableView.updateContent(self)
-        self.horizontalHeader().resizeSection(0,self.cellWidget(0,0).sizeHint().width())
+        self.horizontalHeader().resizeSection(0, self.cellWidget(0, 0).sizeHint().width())
         return result
     
-    def keyPressEvent(self,event):
-        TableView.keyPressEvent(self,event)
-        if event.key() in [Qt.Key_Backspace,Qt.Key_Delete]:    
-            self.emit(SIGNAL("removeButtonClicked"),self.selection())
+    def keyPressEvent(self, event):
+        TableView.keyPressEvent(self, event)
+        if event.key() in [Qt.Key_Backspace, Qt.Key_Delete]:    
+            self.emit(SIGNAL("removeButtonClicked"), self.selection())
 
-    def itemClicked(self,item):
+    def itemClicked(self, item):
         logging.debug(__name__ + ": itemClicked")
         if not self._updatingFlag:
-            self.setCurrentCell(self.currentRow(),0)
+            self.setCurrentCell(self.currentRow(), 0)

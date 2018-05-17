@@ -53,7 +53,7 @@ def mergeProcess(*inputFiles, **options):
     else:
         process.source = Source("PoolSource")
         if dropDQM:
-            process.source.inputCommands = CfgTypes.untracked.vstring('keep *','drop *_EDMtoMEConverter_*_*')
+            process.source.inputCommands = CfgTypes.untracked.vstring('keep *', 'drop *_EDMtoMEConverter_*_*')
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
     for entry in inputFiles:
         process.source.fileNames.append(str(entry))
@@ -65,7 +65,7 @@ def mergeProcess(*inputFiles, **options):
         outMod = OutputModule("DQMRootOutputModule")
     elif mergeNANO:
         import Configuration.EventContent.EventContent_cff
-        outMod = OutputModule("NanoAODOutputModule",Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
+        outMod = OutputModule("NanoAODOutputModule", Configuration.EventContent.EventContent_cff.NANOAODEventContent.clone())
     else:
         outMod = OutputModule("PoolOutputModule")
 

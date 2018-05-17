@@ -59,15 +59,15 @@ def runRules(ruleNumberList, directory):
         exceptRulePaths = []
         for path in rule['exceptPaths']:
             try:
-                file, line = path.split(":",1)
+                file, line = path.split(":", 1)
                 xline = line
                 xdata = None
                 try:
-                    xline, xdata = line.split(":",1)
+                    xline, xdata = line.split(":", 1)
                     if not xline: xline = '.*'
                 except ValueError:
                     pass
-                exceptRuleLines.append((pathToRegEx(file), xline,xdata))
+                exceptRuleLines.append((pathToRegEx(file), xline, xdata))
             except ValueError:
                 exceptRulePaths.append(pathToRegEx(path))
         for fileType in filesToMatch:
@@ -86,15 +86,15 @@ def runRules(ruleNumberList, directory):
                 for skipper in rule['skip']:
                     filesLinesList = skipper(filesLinesList)
             else:
-                for i,xFile in enumerate(filesLinesList):
-                    filesLinesList[i]=((xFile,open(xFile).readlines()))
+                for i, xFile in enumerate(filesLinesList):
+                    filesLinesList[i]=((xFile, open(xFile).readlines()))
 # ------------------------------------------------------------------------------
             for Nr, fileLine in enumerate(exceptRuleLines):
                 regEx, line, lineEx = fileLine
                 for index, file in enumerate(fileList):
                     xFile = file.replace(join(checkPath, ""), "")
                     if re.match(regEx, xFile):
-                        filesLinesList[index] = (filesLinesList[index][0], omitLine(filesLinesList[index][1], line,lineEx))
+                        filesLinesList[index] = (filesLinesList[index][0], omitLine(filesLinesList[index][1], line, lineEx))
             files.extend(filesLinesList)
 # ------------------------------------------------------------------------------
         listRule = finds(files, rule['filter'], rule['exceptFilter'])
@@ -103,18 +103,18 @@ def runRules(ruleNumberList, directory):
 
 def omitLine(lines, line, regEx=None):
     fileLines = lines
-    if re.match('^\d+$',line):
+    if re.match('^\d+$', line):
         xline = int(line)-1
         try:
-            if (not regEx) or (re.search(regEx,fileLines[xline].strip())):
+            if (not regEx) or (re.search(regEx, fileLines[xline].strip())):
                 fileLines[xline] = ''
         except IndexError:
             pass
     else:
-        for i,lineData in enumerate(fileLines):
-            if re.match(line,str(i)):
+        for i, lineData in enumerate(fileLines):
+            if re.match(line, str(i)):
                 lineData = lineData.strip()
-                if (not regEx) or (re.search(regEx,lineData)):
+                if (not regEx) or (re.search(regEx, lineData)):
                     fileLines[i] = ''
     return fileLines
 

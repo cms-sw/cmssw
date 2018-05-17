@@ -3,7 +3,7 @@ import os
 import pickle
 
 def _yellow(string):
-    return '%s%s%s' %('\033[1;33m',string,'\033[1;0m')  
+    return '%s%s%s' %('\033[1;33m', string, '\033[1;0m')  
 
 def include(includes_set):
     """
@@ -18,7 +18,7 @@ def include(includes_set):
     #packagedir=os.environ["CMSSW_BASE"]+"/src/Configuration/PyReleaseValidation/data/"
     packagedir='./'
     #Trasform the includes_set in a list
-    if not isinstance(includes_set,list):
+    if not isinstance(includes_set, list):
         includes_set=[includes_set]
     
     object_list=[]    
@@ -45,12 +45,12 @@ def include(includes_set):
        
         if not pkl_file_exists or cff_age>pkl_age:
           obj=cms.include(cf_file_name)
-          file=open(pkl_file_name,"w")
-          pickle.dump(obj,file)   
+          file=open(pkl_file_name, "w")
+          pickle.dump(obj, file)   
           file.close()
           print _yellow(func_id)+" Pickle object for "+cf_file_fullpath+" dumped as "+pkl_file_name+"..."
         # load the pkl files.                       
-        file=open(pkl_file_name,"r")
+        file=open(pkl_file_name, "r")
         object_list.append(pickle.load(file))
         file.close()
         print _yellow(func_id)+" Pickle object for "+cf_file_fullpath+" loaded ..."

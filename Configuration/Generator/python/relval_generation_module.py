@@ -36,11 +36,11 @@ def generate(step, evt_type, energy, evtnumber):
     # Build the switch cases:
     
     # Particle Gun
-    if evt_type in ("MU+","MU-","E","DIE","GAMMA","TAU","PI0","PI+","PI-"):
+    if evt_type in ("MU+", "MU-", "E", "DIE", "GAMMA", "TAU", "PI0", "PI+", "PI-"):
        generator = _generate_PGUN\
          (step, evt_type, energy, evtnumber)
      
-    elif evt_type in ("HZZMUMUMUMU", "HZZEEEE", "HZZTTTT", "HZZLLLL","HGG"):
+    elif evt_type in ("HZZMUMUMUMU", "HZZEEEE", "HZZTTTT", "HZZLLLL", "HGG"):
        generator = _generate_Higgs\
          (step, evt_type, energy, evtnumber)
      
@@ -48,22 +48,22 @@ def generate(step, evt_type, energy, evtnumber):
        generator = _generate_udscb_jets\
          (step, evt_type, energy, evtnumber)        
     
-    elif evt_type in ("QCD","TTBAR","ZPJJ","MINBIAS","RS1GG","HpT"):
+    elif evt_type in ("QCD", "TTBAR", "ZPJJ", "MINBIAS", "RS1GG", "HpT"):
         generator = eval("_generate_"+evt_type+"(step, evt_type, energy, evtnumber)") 
     
-    elif evt_type in ("ZEE","ZTT","ZMUMU"):
+    elif evt_type in ("ZEE", "ZTT", "ZMUMU"):
         generator = _generate_Zll\
          (step, evt_type, energy, evtnumber)
 
-    elif evt_type in ("ZPEE","ZPTT","ZPMUMU"):
+    elif evt_type in ("ZPEE", "ZPTT", "ZPMUMU"):
         generator = _generate_ZPll\
          (step, evt_type, energy, evtnumber)         
              
-    elif evt_type in ("WE","WM","WT"):
+    elif evt_type in ("WE", "WM", "WT"):
         generator = _generate_Wl(step, evt_type, energy, evtnumber)
          
     else:
-      raise "Event type","Type not yet implemented."
+      raise "Event type", "Type not yet implemented."
              
     common.log( func_id+" Returning Generator")
     
@@ -115,14 +115,14 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
     upper_energy=''
     lower_energy=''
     if energy.find('_')!=-1:
-        upper_energy,lower_energy=energy_split(energy)
+        upper_energy, lower_energy=energy_split(energy)
     else:    
         epsilon= 0.001
         lower_energy = str ( int(energy) - epsilon) # We want a calculation and
         upper_energy = str ( int(energy) + epsilon) # the result as a string   
     
     # Build the process source
-    if evt_type in ("TAU","E"):
+    if evt_type in ("TAU", "E"):
         # Add the corresponding opposite sign particle. Only for taus and es.
         part_id.append(-1*part_id[0])
     
@@ -334,7 +334,7 @@ def _generate_Higgs(step, evt_type, energy, evtnumber):
                       filterEfficiency = cms.untracked.double(1),  
                       pythiaVerbosity =cms.untracked.bool(False),
                       PythiaParameters = cms.PSet\
-                       (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
+                       (parameterSets = cms.vstring('PythiaUESettings', 'processParameters'),
                         PythiaUESettings = user_pythia_ue_settings(),
                         processParameters=params
                        )     
@@ -386,7 +386,7 @@ def _generate_udscb_jets\
                       pythiaVerbosity =cms.untracked.bool(True),
                       PythiaParameters = cms.PSet\
                                (parameterSets = cms.vstring\
-                                                   ("pythiaUESettings","pythiaJets"),
+                                                   ("pythiaUESettings", "pythiaJets"),
                                 pythiaUESettings = user_pythia_ue_settings(),
                                 pythiaJets = pythia_jet_settings
                                )
@@ -500,7 +500,7 @@ def _generate_Zll(step, evt_type, energy, evtnumber):
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),    
                       PythiaParameters = cms.PSet\
-                               (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
+                               (parameterSets = cms.vstring('PythiaUESettings', 'processParameters'),
                                 PythiaUESettings=user_pythia_ue_settings(),
                                 processParameters=pythia_param_sets )
                      )
@@ -537,7 +537,7 @@ def _generate_Wl(step, evt_type, energy, evtnumber):
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),
                       PythiaParameters = cms.PSet\
-                               (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
+                               (parameterSets = cms.vstring('PythiaUESettings', 'processParameters'),
                                 PythiaUESettings=user_pythia_ue_settings(),
                                 processParameters=cms.vstring('MSEL=0    !User defined processes',
                                                               'MSUB(2)     = 1',#    !W production 
@@ -608,7 +608,7 @@ def _generate_ZPll(step, evt_type, energy, evtnumber):
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),    
                       PythiaParameters = cms.PSet\
-                               (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
+                               (parameterSets = cms.vstring('PythiaUESettings', 'processParameters'),
                                 PythiaUESettings=user_pythia_ue_settings(),
                                 processParameters=\
                                     cms.vstring('MSEL       = 0    ', 
@@ -663,7 +663,7 @@ def _generate_RS1GG(step, evt_type, energy, evtnumber):
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),    
                       PythiaParameters = cms.PSet\
-                               (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
+                               (parameterSets = cms.vstring('PythiaUESettings', 'processParameters'),
                                 PythiaUESettings=user_pythia_ue_settings(),
                                 processParameters=\
                                     cms.vstring('MSEL=0   ', 
@@ -800,12 +800,12 @@ def energy_split(energy):
     for separator in separator_list:
         if energy.count(separator)==1:
             common.log( func_id+" Found separator in energy string...") 
-            low,high = energy.split(separator)
+            low, high = energy.split(separator)
             if float(high) > float(low):
                 common.log(func_id+" Returning Energy...")
-                return (low,high)
+                return (low, high)
     
-    raise "Energy Format: ","Unrecognised energy format."
+    raise "Energy Format: ", "Unrecognised energy format."
 
 #-----------------------------------
 

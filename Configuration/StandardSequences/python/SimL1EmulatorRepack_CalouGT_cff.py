@@ -78,7 +78,7 @@ else:
 
     # -----------------------------------------------------------
     # change when availalbe simTwinMux and reliable DTTPs, CSCTPs
-    cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis','simTwinMuxDigis']
+    cutlist=['simDtTriggerPrimitiveDigis', 'simCscTriggerPrimitiveDigis', 'simTwinMuxDigis']
     for b in cutlist:
         SimL1EmulatorCore.remove(b)
     # -----------------------------------------------------------
@@ -101,7 +101,7 @@ else:
     simCaloStage2Layer1Digis.hcalToken = cms.InputTag('unpackHcal')
 
     # uGT inputs for Muons are from unpacked
-    simGtStage2Digis.MuonInputTag   = cms.InputTag("unpackGtStage2","Muon")
+    simGtStage2Digis.MuonInputTag   = cms.InputTag("unpackGtStage2", "Muon")
 
     # Finally, pack the newly re-emulated L1T parts back into RAW
     # Calo packer

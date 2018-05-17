@@ -467,4 +467,4 @@ process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 process.SKIMStreamZElectronOutPath = cms.EndPath(process.SKIMStreamZElectron)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.HZZmmPath,process.HZZeePath,process.HZZemPath,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.ZElectronPathPhoton,process.ZElectronPathTrack,process.ZElectronPathGsf,process.SKIMStreamHWWOutPath,process.SKIMStreamHZZOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamZElectronOutPath)
+process.schedule = cms.Schedule(process.pathlogerror, process.HZZmmPath, process.HZZeePath, process.HZZemPath, process.HWWmmPath, process.HWWeePath, process.HWWemPath, process.ZElectronPathPhoton, process.ZElectronPathTrack, process.ZElectronPathGsf, process.SKIMStreamHWWOutPath, process.SKIMStreamHZZOutPath, process.SKIMStreamLogErrorOutPath, process.SKIMStreamZElectronOutPath)

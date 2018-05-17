@@ -6,7 +6,7 @@ import sys
 import logging
 logging.root.setLevel(logging.DEBUG)
 
-from PyQt4.QtGui import QApplication,QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow
 
 import Path
 from Vispa.Main.Directories import *
@@ -157,8 +157,8 @@ class ConnectableWidgetTestCase(unittest.TestCase):
             widget.scheduleRearangeContent()
             widget.show()
         
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__)
+    Profiling.analyze("unittest.main()", __file__)

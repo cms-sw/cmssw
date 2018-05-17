@@ -537,4 +537,4 @@ process.SKIMStreamWMuOutPath = cms.EndPath(process.SKIMStreamWMu)
 process.SKIMStreamZMuOutPath = cms.EndPath(process.SKIMStreamZMu)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.ZMuSkimPath,process.pathlogerror,process.HWWmmPath,process.HWWeePath,process.HWWemPath,process.HZZmmPath,process.HZZeePath,process.HZZemPath,process.EXOHSCPPath,process.pfPath,process.tcPath,process.WtcMetSkimPath,process.WpfMetSkimPath,process.SKIMStreamEXOHSCPOutPath,process.SKIMStreamHWWOutPath,process.SKIMStreamHZZOutPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamWMuOutPath,process.SKIMStreamZMuOutPath)
+process.schedule = cms.Schedule(process.ZMuSkimPath, process.pathlogerror, process.HWWmmPath, process.HWWeePath, process.HWWemPath, process.HZZmmPath, process.HZZeePath, process.HZZemPath, process.EXOHSCPPath, process.pfPath, process.tcPath, process.WtcMetSkimPath, process.WpfMetSkimPath, process.SKIMStreamEXOHSCPOutPath, process.SKIMStreamHWWOutPath, process.SKIMStreamHZZOutPath, process.SKIMStreamHighMETOutPath, process.SKIMStreamLogErrorOutPath, process.SKIMStreamWMuOutPath, process.SKIMStreamZMuOutPath)

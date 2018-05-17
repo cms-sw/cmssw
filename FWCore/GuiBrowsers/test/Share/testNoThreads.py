@@ -23,4 +23,4 @@ class MainWindowTestCase(unittest.TestCase):
         self.app.run()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__)
+    Profiling.analyze("unittest.main()", __file__)

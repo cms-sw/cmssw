@@ -19,7 +19,7 @@ process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 ### Comment out for the timing being assuming running on secondary dataset with trigger bit selected already
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 process.hltHIHighPt = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone()
-process.hltHIHighPt.HLTPaths = ['HLT_HIDoublePhoton15_*','HLT_HIJet80_*','HLT_HISinglePhoton40_*'] # for allphysics
+process.hltHIHighPt.HLTPaths = ['HLT_HIDoublePhoton15_*', 'HLT_HIJet80_*', 'HLT_HISinglePhoton40_*'] # for allphysics
 process.hltHIHighPt.andOr = cms.bool(True)
 process.hltHIHighPt.throw = cms.bool(False)
 

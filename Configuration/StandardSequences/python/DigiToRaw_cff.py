@@ -45,7 +45,7 @@ phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData
 
 # GEM settings
 _gem_DigiToRaw = DigiToRaw.copy()
-_gem_DigiToRaw.insert(-2,gemPacker)
+_gem_DigiToRaw.insert(-2, gemPacker)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(DigiToRaw, _gem_DigiToRaw)
@@ -57,4 +57,4 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([rpcpacker]))
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData,SiStripDigiToRaw,castorRawData]))
+fastSim.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData, SiStripDigiToRaw, castorRawData]))

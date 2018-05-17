@@ -19,7 +19,7 @@ class DataNode (object):
 
     def __getitem__ (self, key):
         if isinstance (key, basestring):
-            return self._attrs.get(key,None)
+            return self._attrs.get(key, None)
         else:
             return [self][key]
 
@@ -56,7 +56,7 @@ class DataNode (object):
         items = sorted (self._attrs.items())
         if self._data:
             items.append(('data', self._data))
-        return u'{%s}' % ', '.join([u'%s:%s' % (k,repr(v)) for k,v in items])
+        return u'{%s}' % ', '.join([u'%s:%s' % (k, repr(v)) for k, v in items])
 
     def attributes (self):
         return self._attrs

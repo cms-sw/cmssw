@@ -75,7 +75,7 @@ def validateProcess(process):
             msg = "Process contains output module without dataset PSET: %s \n" % outputModName
             msg += " You need to add this PSET to this module to set dataTier and filterName\n"
             raise RuntimeError(msg)
-        ds=getattr(outputMod,'dataset')
+        ds=getattr(outputMod, 'dataset')
         if not hasattr(ds, "dataTier"):
             msg = "Process contains output module without dataTier parameter: %s \n" % outputModName
             msg += " You need to add an untracked parameter to the dataset PSET of this module to set dataTier\n"
@@ -86,10 +86,10 @@ def validateProcess(process):
 
         if schedule==None:
             for path in paths:
-                if outputModName in getattr(process,path).moduleNames():
+                if outputModName in getattr(process, path).moduleNames():
                     omRun=True
             for path in endpaths:
-                if outputModName in getattr(process,path).moduleNames():
+                if outputModName in getattr(process, path).moduleNames():
                     omRun=True
         else:
             for path in schedule:
@@ -120,7 +120,7 @@ def harvestingMode(process, datasetName, args,rANDl=True):
     if 'referenceFile' in args and args.get('referenceFile', ''):
         process.DQMStore.referenceFileName = cms.untracked.string(args['referenceFile'])
 
-def dictIO(options,args):
+def dictIO(options, args):
     if 'outputs' in args:
         options.outputDefinition = args['outputs'].__str__()
     else:
@@ -128,7 +128,7 @@ def dictIO(options,args):
         options.eventcontent = ','.join(writeTiers)
         options.datatier = ','.join(writeTiers)
 
-def dqmSeq(args,default):
+def dqmSeq(args, default):
     if 'dqmSeq' in args and len(args['dqmSeq'])!=0:
         return ':'+('+'.join(args['dqmSeq']))
     else:

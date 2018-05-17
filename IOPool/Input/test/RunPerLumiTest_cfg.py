@@ -18,7 +18,7 @@ process.OtherThing = cms.EDProducer("OtherThingProducer")
 process.Analysis = cms.EDAnalyzer("OtherThingAnalyzer")
 
 process.source = cms.Source("PoolSource",
-    setRunNumberForEachLumi = cms.untracked.vuint32(111,222,333,444,555),
+    setRunNumberForEachLumi = cms.untracked.vuint32(111, 222, 333, 444, 555),
     fileNames = cms.untracked.vstring('file:RunPerLumiTest.root')
 )
 

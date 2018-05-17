@@ -1,6 +1,6 @@
 import logging
 
-from PyQt4.QtCore import SIGNAL,Qt,QCoreApplication
+from PyQt4.QtCore import SIGNAL, Qt, QCoreApplication
 from PyQt4.QtGui import QWidget
 
 from Vispa.Views.AbstractView import AbstractView
@@ -9,10 +9,10 @@ from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 
 try:
     import ROOT
-    import pxl.core,pxl.astro,pxl.hep
+    import pxl.core, pxl.astro, pxl.hep
     import_root_error=None
 except Exception as e:
-    import_root_error=(str(e),exception_traceback())
+    import_root_error=(str(e), exception_traceback())
 
 from array import array
 
@@ -96,13 +96,13 @@ class RootCanvasView(AbstractView, QWidget):
         for key, item in object.getSoftRelations().getContainer().items():
           
           uhecr = pxl.astro.toUHECR(self.basiccontainer.getById(item))
-          if isinstance(uhecr,pxl.astro.UHECR):
+          if isinstance(uhecr, pxl.astro.UHECR):
             self.p.append(ROOT.TMarker(uhecr.getLongitude(), uhecr.getLatitude(), 7))
             self.p[ - 1].SetMarkerSize(10)
             self.p[ - 1].SetMarkerColor(ROOT.kGreen + 1)
           else:
             uhecr = pxl.astro.toAstroObject(self.basiccontainer.getById(item))
-            if isinstance(uhecr,pxl.astro.AstroObject):
+            if isinstance(uhecr, pxl.astro.AstroObject):
               self.p.append(ROOT.TMarker(uhecr.getLongitude(), uhecr.getLatitude(), 7))
               self.p[ - 1].SetMarkerSize(8)
               self.p[ - 1].SetMarkerColor(ROOT.kOrange + 1)
@@ -196,8 +196,8 @@ class RootCanvasView(AbstractView, QWidget):
         """
         self._operationId += 1
 
-    def mousePressEvent(self,event):
-        QWidget.mousePressEvent(self,event)
+    def mousePressEvent(self, event):
+        QWidget.mousePressEvent(self, event)
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())
 

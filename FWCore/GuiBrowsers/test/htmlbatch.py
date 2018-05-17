@@ -5,15 +5,15 @@ import sys
 from optparse import OptionParser
 
 try:
-    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),".."))
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
-        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__),"../python"))
+        distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(__file__), "../python"))
     if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
         distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_BASE/python/FWCore/GuiBrowsers"))
     if not os.path.exists(distBaseDirectory) or not "Vispa" in os.listdir(distBaseDirectory):
         distBaseDirectory=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
 except Exception:
-    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]),".."))
+    distBaseDirectory=os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 
 sys.path.append(distBaseDirectory)
 
@@ -27,10 +27,10 @@ def verbose(msg):
 
 parser = OptionParser(usage="Usage: %prog [options] file0_cfg.py file1_cfg.py...")
 
-parser.add_option('-s','--stop',dest='stop',help='Stop on errors',default=False,action='store_true')
-parser.add_option('-v','--verbose',dest='verbose',help='Verbose mode',default=False,action='store_true')
+parser.add_option('-s', '--stop', dest='stop', help='Stop on errors', default=False, action='store_true')
+parser.add_option('-v', '--verbose', dest='verbose', help='Verbose mode', default=False, action='store_true')
 
-(options,args)=parser.parse_args()
+(options, args)=parser.parse_args()
 
 html_export = HTMLExport()
 
@@ -47,13 +47,13 @@ for file in args:
   if filename.endswith('.py'):
     filename=filename[:-3]
   output = filename+'.html'
-  verbose('Processing file: %s -> %s' % (file,output))
+  verbose('Processing file: %s -> %s' % (file, output))
   try:
     verbose('\tLoading data')
     data = ConfigDataAccessor()
     data.open(file)
     verbose('\tExporting')
-    html_export.export(data,output,'html')
+    html_export.export(data, output, 'html')
     verbose('\tDone')
   except:
     verbose('\tERROR')

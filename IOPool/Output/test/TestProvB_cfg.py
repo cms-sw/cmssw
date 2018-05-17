@@ -5,6 +5,6 @@ process.other = cms.EDProducer("OtherThingProducer", thingTag=cms.InputTag("thin
 process.p = cms.Path(process.other)
 process.out = cms.OutputModule("PoolOutputModule",
                                fileName=cms.untracked.string("b.root"),
-                               outputCommands=cms.untracked.vstring("drop *","keep *_*_*_B"))
+                               outputCommands=cms.untracked.vstring("drop *", "keep *_*_*_B"))
 process.test = cms.OutputModule("ProvenanceCheckerOutputModule")
 process.o = cms.EndPath(process.test+process.out)

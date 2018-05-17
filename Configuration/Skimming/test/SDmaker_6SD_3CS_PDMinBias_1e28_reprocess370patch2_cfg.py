@@ -57,7 +57,7 @@ process.JetMETTau_1e28.HLTPaths = (
 "HLT_BTagIP_Jet50U",
 "HLT_StoppedHSCP_8E29"
 )
-process.JetMETTau_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+process.JetMETTau_1e28.HLTPathsPrescales  = cms.vuint32(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 process.JetMETTau_1e28.HLTOverallPrescale = cms.uint32(1)
 process.JetMETTau_1e28.throw = False
 process.JetMETTau_1e28.andOr = True
@@ -81,7 +81,7 @@ process.JetMETTauMonitor_1e28.HLTPaths = (
 "HLT_L1SingleForJet_NoBPTX",
 "HLT_L1SingleTauJet_NoBPTX"
 )
-process.JetMETTauMonitor_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1)
+process.JetMETTauMonitor_1e28.HLTPathsPrescales  = cms.vuint32(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 process.JetMETTauMonitor_1e28.HLTOverallPrescale = cms.uint32(1)
 process.JetMETTauMonitor_1e28.throw = False
 process.JetMETTauMonitor_1e28.andOr = True
@@ -94,7 +94,7 @@ process.MuMonitor_1e28.HLTPaths = (
 "HLT_L1MuOpen",
 "HLT_L1Mu"
 )
-process.MuMonitor_1e28.HLTPathsPrescales  = cms.vuint32(1,1)
+process.MuMonitor_1e28.HLTPathsPrescales  = cms.vuint32(1, 1)
 process.MuMonitor_1e28.HLTOverallPrescale = cms.uint32(1)
 process.MuMonitor_1e28.throw = False
 process.MuMonitor_1e28.andOr = True
@@ -133,7 +133,7 @@ process.Mu_1e28.HLTPaths = (
 "HLT_Mu3_L2Mu0",
 "HLT_Mu5_L2Mu0"
 )
-process.Mu_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+process.Mu_1e28.HLTPathsPrescales  = cms.vuint32(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 process.Mu_1e28.HLTOverallPrescale = cms.uint32(1)
 process.Mu_1e28.throw = False
 process.Mu_1e28.andOr = True
@@ -153,7 +153,7 @@ process.EGMonitor_1e28.HLTPaths = (
 "HLT_L1SingleEG2_NoBPTX",
 "HLT_L1SingleEG5_NoBPTX"
 )
-process.EGMonitor_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1)
+process.EGMonitor_1e28.HLTPathsPrescales  = cms.vuint32(1, 1, 1, 1, 1, 1, 1, 1)
 process.EGMonitor_1e28.HLTOverallPrescale = cms.uint32(1)
 process.EGMonitor_1e28.throw = False
 process.EGMonitor_1e28.andOr = True
@@ -187,7 +187,7 @@ process.EG_1e28.HLTPaths = (
 "HLT_Ele10_LW_L1R",
 "HLT_Photon15_TrackIso_L1R"
 )
-process.EG_1e28.HLTPathsPrescales  = cms.vuint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
+process.EG_1e28.HLTPathsPrescales  = cms.vuint32(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 process.EG_1e28.HLTOverallPrescale = cms.uint32(1)
 process.EG_1e28.throw = False
 process.EG_1e28.andOr = True
@@ -199,8 +199,8 @@ process.filterSdEG_1e28 = cms.Path(process.EG_1e28)
 
 ### JetMET AOD CS
 process.DiJetAve_1e29 = HLTrigger.HLTfilters.hltHighLevelDev_cfi.hltHighLevelDev.clone(andOr = True)
-process.DiJetAve_1e29.HLTPaths = ("HLT_DiJetAve15U_8E29","HLT_DiJetAve30U_8E29")
-process.DiJetAve_1e29.HLTPathsPrescales  = cms.vuint32(1,1)
+process.DiJetAve_1e29.HLTPaths = ("HLT_DiJetAve15U_8E29", "HLT_DiJetAve30U_8E29")
+process.DiJetAve_1e29.HLTPathsPrescales  = cms.vuint32(1, 1)
 process.DiJetAve_1e29.HLTOverallPrescale = cms.uint32(1)
 process.DiJetAve_1e29.andOr = True
 

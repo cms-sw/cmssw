@@ -34,7 +34,7 @@ class pp(Reco):
 
     """
 
-    def _setRepackedFlag(self,args):
+    def _setRepackedFlag(self, args):
         if not 'repacked' in args:
             args['repacked']= True
             

@@ -4,7 +4,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 from Vispa.Gui.VispaWidget import VispaWidget
-from Vispa.Gui.PortConnection import PortConnection,PointToPointConnection
+from Vispa.Gui.PortConnection import PortConnection, PointToPointConnection
 
 class PortWidget(VispaWidget):
     """ This widget is used to dispay sink and source port of ConnectableWidget.
@@ -57,7 +57,7 @@ class PortWidget(VispaWidget):
     def setDragable(self,dragable, recursive=False):
         """ Set whether user can grab the port and connect it to others.
         """
-        VispaWidget.setDragable(self,False, recursive)
+        VispaWidget.setDragable(self, False, recursive)
         self._dragablePort=dragable
         self.setAcceptDrops(dragable)
     
@@ -194,7 +194,7 @@ class PortWidget(VispaWidget):
             #widget = self.moduleParent().childAt(moduleParentPosition)
             widget = None
             for child in reversed(self.moduleParent().children()):
-                if isinstance(child,QWidget) and child.isVisible() and child.geometry().contains(moduleParentPosition) and not isinstance(child, PortConnection):
+                if isinstance(child, QWidget) and child.isVisible() and child.geometry().contains(moduleParentPosition) and not isinstance(child, PortConnection):
                     widget = child
                     break
         

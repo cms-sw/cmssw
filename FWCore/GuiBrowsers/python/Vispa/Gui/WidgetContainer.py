@@ -126,7 +126,7 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
                 yOffset = - childrenRectY + yMargin
                 
             if xOffset != 0 or yOffset != 0:
-                self.move(self.x() - xOffset , self.y() - yOffset)
+                self.move(self.x() - xOffset, self.y() - yOffset)
                 for child in self.children():
                     #if isinstance(child,QWidget): # needed for PyQt4.5
                     if hasattr(child, "move"):
@@ -210,7 +210,7 @@ class WidgetContainer(ConnectableWidget, ConnectableWidgetOwner):
             self._childrenVisible = True
             
         for child in self.children():
-            if isinstance(child,QWidget): # needed for PyQt4.5
+            if isinstance(child, QWidget): # needed for PyQt4.5
                 if not self._childrenVisible and not child.isVisible():
                     # remember already hidden children while hiding
                     self._hiddenChildren.append(child)

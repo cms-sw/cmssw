@@ -35,7 +35,7 @@ for event in events:
 
 for i in xrange(events.size()):
     if not events.to(i):
-        print "failed to go to index ",i
+        print "failed to go to index ", i
         exit(1)
 
 print "Python test succeeded!"

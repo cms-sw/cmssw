@@ -16,7 +16,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                             convertPythiaCodes = cms.untracked.bool(False),
                             #user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/Bu_Kstarmumu_Kspi.dec'),
                             #content was dump in the embed string below. This should test this feature.
-                            list_forced_decays = cms.vstring('MyB+','MyB-'),
+                            list_forced_decays = cms.vstring('MyB+', 'MyB-'),
                             operates_on_particles = cms.vint32(),
                             user_decay_embedded= cms.vstring(
 """
@@ -97,8 +97,8 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
                              MinP = cms.untracked.vdouble(2.8, 2.8),
                              MaxEta = cms.untracked.vdouble(2.3, 2.3),
                              MinEta = cms.untracked.vdouble(-2.3, -2.3),
-                             ParticleID1 = cms.untracked.vint32(13,-13),
-                             ParticleID2 = cms.untracked.vint32(13,-13)
+                             ParticleID1 = cms.untracked.vint32(13, -13),
+                             ParticleID2 = cms.untracked.vint32(13, -13)
                              )
 
 

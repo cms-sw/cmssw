@@ -5,7 +5,7 @@ import re
 
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
 from Vispa.Share.RelativeDataAccessor import RelativeDataAccessor
-from Vispa.Main.Exceptions import PluginIgnoredException,exception_traceback
+from Vispa.Main.Exceptions import PluginIgnoredException, exception_traceback
 
 import FWCore.ParameterSet.SequenceTypes as sqt
 import FWCore.ParameterSet.Config as cms
@@ -84,7 +84,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if isinstance(pth, list):
             for i in pth:
                 self._readRecursive(next_mother, i)
-        if hasattr(sqt,"_SequenceCollection"):
+        if hasattr(sqt, "_SequenceCollection"):
             # since CMSSW_3_11_X
             if isinstance(pth, (sqt._ModuleSequenceType)):
               if isinstance(pth._seq, (sqt._SequenceCollection)):
@@ -110,10 +110,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if toNeighbors:
             compareObjectList=[]
             for obj in objects:
-                compareObjectList+=[(obj,o) for o in self._allObjects]
-                compareObjectList+=[(o,obj) for o in self._allObjects]
+                compareObjectList+=[(obj, o) for o in self._allObjects]
+                compareObjectList+=[(o, obj) for o in self._allObjects]
         else:
-            compareObjectList=[(o1,o2) for o1 in objects for o2 in objects]
+            compareObjectList=[(o1, o2) for o1 in objects for o2 in objects]
         for connection in compareObjectList:
             if self._cancelOperationsFlag:
                 break
@@ -198,7 +198,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             self.setProcess(self.process())
             self._readHeaderInfo()
             self._history=self.process().dumpHistory()
-            if not self._isReplaceConfig and hasattr(self.process(),"resetHistory"):
+            if not self._isReplaceConfig and hasattr(self.process(), "resetHistory"):
                 self.process().resetHistory()
         else:
             self._initLists()
@@ -211,7 +211,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                         self._readRecursive(None, o)
         return True
 
-    def _scheduleRecursive(self,object):
+    def _scheduleRecursive(self, object):
         if object in self._scheduledObjects:
 	    return
         if self.isContainer(object):
@@ -222,7 +222,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
 	    for used in self.motherRelations(object):
 	        self._scheduleRecursive(used)
 
-    def setProcess(self,process):
+    def setProcess(self, process):
         self._file.process=process
         self._initLists()
         parameters = {"name": self.process().process}
@@ -257,14 +257,14 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             self.readConnections(self.allChildren(folders["modules"]))
 	    self._scheduleRecursive(folders["paths"])
 	    self._scheduledObjects.reverse()
-	    names = [l for t,l,p,pr in self.applyCommands(self.outputEventContent(),self.outputCommands())]
+	    names = [l for t, l, p, pr in self.applyCommands(self.outputEventContent(), self.outputCommands())]
 	    for obj in self.allChildren(folders["modules"]):
 	       if str(obj) in names:
 	           self._scheduledObjects+=[obj]
             scheduled_folder = ConfigFolder("scheduled", folders["paths"])
             self._allObjects += [scheduled_folder]
             folders["paths"]._configChildren.remove(scheduled_folder)
-            folders["paths"]._configChildren.insert(0,scheduled_folder)
+            folders["paths"]._configChildren.insert(0, scheduled_folder)
 	    scheduled_folder._configChildren=self._scheduledObjects
 	    print "done"
         else:
@@ -288,12 +288,12 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 foundHeaderPart1 = True
             splitline = line.split("'")
             if foundHeaderPart1 and len(splitline) == 5 and splitline[0] == "sys.path.append(os.path.abspath(os.path.expandvars(os.path.join(" and splitline[4] == "))))\n":
-                search_paths+=[os.path.abspath(os.path.expandvars(os.path.join(splitline[1],splitline[3])))]
+                search_paths+=[os.path.abspath(os.path.expandvars(os.path.join(splitline[1], splitline[3])))]
             splitline = line.split()
             if foundHeaderPart1 and len(splitline) == 4 and splitline[0] == "from" and splitline[2] == "import":
                 for search_path in search_paths:
-                    if os.path.exists(os.path.join(search_path,splitline[1]+".py")):
-                        self._filename = os.path.join(search_path,splitline[1]+".py")
+                    if os.path.exists(os.path.join(search_path, splitline[1]+".py")):
+                        self._filename = os.path.join(search_path, splitline[1]+".py")
                         break
                 self._isReplaceConfig = True
                 foundHeaderPart2 = True
@@ -318,7 +318,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
     def label(self, object):
         """ Get label of an object """
         text = ""
-        if hasattr(object, "label_") and (not hasattr(object,"hasLabel_") or object.hasLabel_()):
+        if hasattr(object, "label_") and (not hasattr(object, "hasLabel_") or object.hasLabel_()):
             text = str(object.label_())
             if text:
                 return text
@@ -414,21 +414,21 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         text = os.path.splitext(os.path.basename(self.fullFilename(object)))[0]
         return text
         
-    def pypackage(self,object):
-      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/)*\w*)\.py$',self.fullFilename(object))
+    def pypackage(self, object):
+      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/)*\w*)\.py$', self.fullFilename(object))
       if match_compiled:
-        return match_compiled.group(1).replace('/','.')
+        return match_compiled.group(1).replace('/', '.')
       
-      match_norm = re.match(r'(?:^|.*?/)(\w*)/(\w*)/(?:test|python)/((?:\w*/)*)(\w*)\.py$',self.fullFilename(object))
+      match_norm = re.match(r'(?:^|.*?/)(\w*)/(\w*)/(?:test|python)/((?:\w*/)*)(\w*)\.py$', self.fullFilename(object))
       if match_norm:
-        return '%s.%s.%s%s' % (match_norm.group(1),match_norm.group(2),match_norm.group(3).replace('/','.'),match_norm.group(4))
+        return '%s.%s.%s%s' % (match_norm.group(1), match_norm.group(2), match_norm.group(3).replace('/', '.'), match_norm.group(4))
       return ''
 
-    def pypath(self,object):
-      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/){2})((?:\w*/)*)(\w*\.py)$',self.fullFilename(object))
+    def pypath(self, object):
+      match_compiled = re.match(r'(?:^|.*?/)CMSSW[0-9_]*/python/((?:\w*/){2})((?:\w*/)*)(\w*\.py)$', self.fullFilename(object))
       if match_compiled:
-        return '%spython/%s%s' % (match_compiled.group(1),match_compiled.group(2),match_compiled.group(3))
-      match_norm = re.match(r'(?:^|.*?/)(\w*/\w*/(?:test|python)/(?:\w*/)*\w*\.py)$',self.fullFilename(object))
+        return '%spython/%s%s' % (match_compiled.group(1), match_compiled.group(2), match_compiled.group(3))
+      match_norm = re.match(r'(?:^|.*?/)(\w*/\w*/(?:test|python)/(?:\w*/)*\w*\.py)$', self.fullFilename(object))
       if match_norm:
         return match_norm.group(1)
       return ''
@@ -447,7 +447,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if hasattr(object, "parameters_"):
             this_parameters = object.parameters_().items()
         elif hasattr(object, "_seq"):
-            if hasattr(object._seq,"dumpSequencePython"):
+            if hasattr(object._seq, "dumpSequencePython"):
                 this_parameters = [('sequence', object._seq.dumpSequencePython())]
             else:
                 this_parameters = [('sequence', 'WARNING: object was removed from a sequence.')]
@@ -542,7 +542,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         properties = []
         if name != "" and not isinstance(object, typ.PSet):
             try:
-                partyp=str(type(object)).split("'")[1].replace("FWCore.ParameterSet.Types","cms")
+                partyp=str(type(object)).split("'")[1].replace("FWCore.ParameterSet.Types", "cms")
                 if isinstance(object, cms.InputTag):
                     inputtagValue=object.pythonValue()
                     for i in range(3-len(inputtagValue.split(","))):
@@ -637,7 +637,7 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         else: 
             process=self.process()
             try:
-                if isinstance(value,str) and\
+                if isinstance(value, str) and\
                     not value[0]=="[" and\
                     not value[0:4]=="cms.":
                     exec("object." + name + "='''" + value + "'''")
@@ -666,16 +666,16 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
                 else:
                     process = "*"
                 if not module in allLabels:
-                    if not ("*",module,product,process) in content:
-                        content += [("*",module,product,process)]
+                    if not ("*", module, product, process) in content:
+                        content += [("*", module, product, process)]
                     if "*_"+module+"_"+product+"_"+process in content_objects.keys():
                         content_objects["*_"+module+"_"+product+"_"+process]+=","+self.label(object)
                     else:
                         content_objects["*_"+module+"_"+product+"_"+process]=self.label(object)
-        return (content,content_objects)
+        return (content, content_objects)
 
     def outputEventContent(self):
-        content = [("*",self.label(object),"*",self.process().process) for object in self._allObjects\
+        content = [("*", self.label(object), "*", self.process().process) for object in self._allObjects\
                  if self.type(object) in ["EDProducer", "EDFilter", "EDAnalyzer"]]
         return content
     

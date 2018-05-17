@@ -5,7 +5,7 @@ from Vispa.Main.Application import Application
 from Vispa.Plugins.EventBrowser.EventBrowserPlugin import EventBrowserPlugin
 from Vispa.Views.TableView import TableView
 from Vispa.Share.ThreadChain import ThreadChain
-from Vispa.Main.Exceptions import NoCurrentTabControllerException,PluginIgnoredException,exception_traceback
+from Vispa.Main.Exceptions import NoCurrentTabControllerException, PluginIgnoredException, exception_traceback
 
 try:
     from Vispa.Plugins.EdmBrowser.EdmDataAccessor import EdmDataAccessor

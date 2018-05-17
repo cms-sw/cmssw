@@ -58,7 +58,7 @@ class MatrixRunner(object):
     	    
     	    print '\nPreparing to run %s %s' % (wf.numId, item)
             sys.stdout.flush()
-            current = WorkFlowRunner(wf,noRun,dryRun,cafVeto, opt.dasOptions, opt.jobReports, opt.nThreads, opt.maxSteps)
+            current = WorkFlowRunner(wf, noRun, dryRun, cafVeto, opt.dasOptions, opt.jobReports, opt.nThreads, opt.maxSteps)
     	    self.threadList.append(current)
     	    current.start()
             if not dryRun:
@@ -72,30 +72,30 @@ class MatrixRunner(object):
         #wrap up !
         totpassed=[]
         totfailed=[]
-        def count(collect,result):
+        def count(collect, result):
             #pad with zeros
-            for i in range(len(collect),len(result)):
+            for i in range(len(collect), len(result)):
                 collect.append(0)
-            for i,c in enumerate(result):
+            for i, c in enumerate(result):
                 collect[i]+=c
                 
         for pingle in self.threadList:
             pingle.join()
             try:
-                count(totpassed,pingle.npass)
-                count(totfailed,pingle.nfail)
+                count(totpassed, pingle.npass)
+                count(totfailed, pingle.nfail)
                 report+=pingle.report
                 self.runDirs[pingle.wf.numId]=pingle.wfDir
             except Exception as e:
                 msg = "ERROR retrieving info from thread: " + str(e)
                 report += msg
                 
-        report+=' '.join(map(str,totpassed))+' tests passed, '+' '.join(map(str,totfailed))+' failed\n'
+        report+=' '.join(map(str, totpassed))+' tests passed, '+' '.join(map(str, totfailed))+' failed\n'
         print report
         sys.stdout.flush()
 
         runall_report_name='runall-report-step123-.log'
-        runall_report=open(runall_report_name,'w')
+        runall_report=open(runall_report_name, 'w')
         runall_report.write(report)
         runall_report.close()
         os.chdir(startDir)

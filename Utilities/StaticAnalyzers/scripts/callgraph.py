@@ -17,15 +17,15 @@ for line in f :
 	fields = line.split("'")
 	if fields[2] == ' calls function ' :
 		if not skipfunc.search(line) : 
-			G.add_edge(fields[1],fields[3],kind=fields[2])
+			G.add_edge(fields[1], fields[3], kind=fields[2])
 			if epfunc.search(fields[3])  : epfuncs.add(fields[3])
 	if fields[2] == ' overrides function ' :
 		if baseclass.search(fields[3]) :
 			if topfunc.search(fields[3]) : toplevelfuncs.add(fields[1])
-			G.add_edge(fields[1],fields[3],kind=' overrides function ')
+			G.add_edge(fields[1], fields[3], kind=' overrides function ')
 		else :
 			if not skipfunc.search(line) : 
-				G.add_edge(fields[3],fields[1],kind=' calls override function ')
+				G.add_edge(fields[3], fields[1], kind=' calls override function ')
 				if epfunc.search(fields[1]) : epfuncs.add(fields[1])
 f.close()
 
@@ -34,10 +34,10 @@ print
 
 for epfunc in epfuncs:
 	for tfunc in toplevelfuncs:
-		if nx.has_path(G,tfunc,epfunc) : 
-			path = nx.shortest_path(G,tfunc,epfunc)
+		if nx.has_path(G, tfunc, epfunc) : 
+			path = nx.shortest_path(G, tfunc, epfunc)
 			print "Call stack \'",
 			for p in path :			
-				print re.sub(farg,"()",p)+"; ",
+				print re.sub(farg, "()", p)+"; ",
 			print " \'. "
 

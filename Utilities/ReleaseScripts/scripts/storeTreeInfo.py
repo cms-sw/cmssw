@@ -9,7 +9,7 @@ class TreeAnalyzer(object):
         self.dirSizes  = {}
         self.fileSizes = {}
         self.outFileName = outFileName
-        print "going to write to:",self.outFileName
+        print "going to write to:", self.outFileName
         
     def analyzePath(self, dirIn) :
 
@@ -42,7 +42,7 @@ class TreeAnalyzer(object):
 
         try:
             import pickle
-            pklFileName = self.outFileName.replace('.json','.pkl')
+            pklFileName = self.outFileName.replace('.json', '.pkl')
             pickle.dump([os.path.abspath(dirIn), self.dirSizes, self.fileSizes], open(pklFileName, 'w') )
             print 'treeInfo info  written to ', pklFileName
         except Exception as e:
@@ -53,7 +53,7 @@ class TreeAnalyzer(object):
         # for p,s in self.dirSizes.items():
         #     print p, s
 
-        topDirs  = sorted(self.dirSizes.items() , key=itemgetter(1), reverse=True)
+        topDirs  = sorted(self.dirSizes.items(), key=itemgetter(1), reverse=True)
         topFiles = sorted(self.fileSizes.items(), key=itemgetter(1), reverse=True)
 
         emptyFiles = []
@@ -61,7 +61,7 @@ class TreeAnalyzer(object):
             p, s = pair
             if s == 0:
                 emptyFiles.append(p)
-        print "found ",len(emptyFiles),"empty files. "
+        print "found ", len(emptyFiles), "empty files. "
 
         print "found ", len(self.dirSizes.keys()), 'directories, top 10 are:'
         for i in range(10):
