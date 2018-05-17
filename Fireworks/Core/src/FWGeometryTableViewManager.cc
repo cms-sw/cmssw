@@ -30,9 +30,10 @@ TGeoManager* FWGeometryTableViewManager::s_geoManager = nullptr;
 
 TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTableViewManager::getGeoMangeur(); }
 
-FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName):
-   FWViewManagerBase(),
-   m_fileName(fileName)
+FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName, std::string geoName)
+   : FWViewManagerBase(),
+     m_fileName(fileName),
+     m_TGeoName(geoName)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWGeometryTableViewManager::buildView, this, _1, _2);                
@@ -115,7 +116,7 @@ FWGeometryTableViewManager::setGeoManagerFromFile()
       
       file->ls();
       
-      s_geoManager = (TGeoManager*) file->Get("cmsGeo;1");      
+      s_geoManager = (TGeoManager*) file->Get( m_TGeoName.c_str());
       if ( ! s_geoManager)
          throw std::runtime_error("Can't find TGeoManager object in selected file.");
 

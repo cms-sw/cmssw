@@ -43,225 +43,219 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref="materials.xml"/>
-    <Include ref="trackermaterial.xml"/>
-    <Include ref="tibtidcommonmaterial.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackermaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibtidcommonmaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/vacuum.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/cmsextent.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/cms.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdMaterials.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarmaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarladder.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarladderfull.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarladderhalf.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarlayer.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarlayer0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarlayer1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbarlayer2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixbar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetalb.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetalf.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal0b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal0f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal3.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal3b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal3f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal6b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal6f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal8b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecpetal8f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule0s.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule1r.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule1s.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule3.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule4.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule4r.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule4s.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule5.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule6.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecmodule0r.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring0b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring0f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring1b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring1f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring2b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring2f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring3.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring3b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring3f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring4.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring4b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring4f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring5.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring5b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring5f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring6.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring6b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecring6f.xml"/>
 
-    <Include ref="vacuum.xml"/>
-    <Include ref="cmsextent.xml"/>
-    <Include ref="cms.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecwheel.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecwheel6.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecwheela.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecwheelb.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecwheelc.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecwheeld.xml"/>
 
-    <Include ref="pixfwdMaterials.xml"/>
-    <Include ref="pixbarmaterial.xml"/>
-    <Include ref="pixbarladder.xml"/>
-    <Include ref="pixbarladderfull.xml"/>
-    <Include ref="pixbarladderhalf.xml"/>
-    <Include ref="pixbarlayer.xml"/>
-    <Include ref="pixbarlayer0.xml"/>
-    <Include ref="pixbarlayer1.xml"/>
-    <Include ref="pixbarlayer2.xml"/>
-    <Include ref="pixbar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecbackplate.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tec.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tecservices.xml"/>
 
-    <Include ref="tecmaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibmaterial.xml"/>
 
-    <Include ref="tecpetpar.xml"/>
-    <Include ref="tecpetalb.xml"/>
-    <Include ref="tecpetalf.xml"/>
-    <Include ref="tecpetal0.xml"/>
-    <Include ref="tecpetal0b.xml"/>
-    <Include ref="tecpetal0f.xml"/>
-    <Include ref="tecpetal3.xml"/>
-    <Include ref="tecpetal3b.xml"/>
-    <Include ref="tecpetal3f.xml"/>
-    <Include ref="tecpetal6b.xml"/>
-    <Include ref="tecpetal6f.xml"/>
-    <Include ref="tecpetal8b.xml"/>
-    <Include ref="tecpetal8f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibmodpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibmodule0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibmodule0a.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibmodule0b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibmodule2.xml"/>
 
-    <Include ref="tecmodpar.xml"/>
-    <Include ref="tecmodule0.xml"/>
-    <Include ref="tecmodule0s.xml"/>
-    <Include ref="tecmodule1.xml"/>
-    <Include ref="tecmodule1r.xml"/>
-    <Include ref="tecmodule1s.xml"/>
-    <Include ref="tecmodule2.xml"/>
-    <Include ref="tecmodule3.xml"/>
-    <Include ref="tecmodule4.xml"/>
-    <Include ref="tecmodule4r.xml"/>
-    <Include ref="tecmodule4s.xml"/>
-    <Include ref="tecmodule5.xml"/>
-    <Include ref="tecmodule6.xml"/>
-    <Include ref="tecmodule0r.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tiblayerpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tiblayer0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tiblayer1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tiblayer2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tiblayer3.xml"/>
 
-    <Include ref="tecring0.xml"/>
-    <Include ref="tecring0b.xml"/>
-    <Include ref="tecring0f.xml"/>
-    <Include ref="tecring1.xml"/>
-    <Include ref="tecring1b.xml"/>
-    <Include ref="tecring1f.xml"/>
-    <Include ref="tecring2.xml"/>
-    <Include ref="tecring2b.xml"/>
-    <Include ref="tecring2f.xml"/>
-    <Include ref="tecring3.xml"/>
-    <Include ref="tecring3b.xml"/>
-    <Include ref="tecring3f.xml"/>
-    <Include ref="tecring4.xml"/>
-    <Include ref="tecring4b.xml"/>
-    <Include ref="tecring4f.xml"/>
-    <Include ref="tecring5.xml"/>
-    <Include ref="tecring5b.xml"/>
-    <Include ref="tecring5f.xml"/>
-    <Include ref="tecring6.xml"/>
-    <Include ref="tecring6b.xml"/>
-    <Include ref="tecring6f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstringpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring0ll.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring0lr.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring0ul.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring0ur.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring1ll.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring1lr.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring1ul.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring1ur.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring2ll.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring2lr.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring2ul.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring2ur.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring3.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring3ll.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring3lr.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring3ul.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibstring3ur.xml"/>
 
-    <Include ref="tecwheel.xml"/>
-    <Include ref="tecwheel6.xml"/>
-    <Include ref="tecwheela.xml"/>
-    <Include ref="tecwheelb.xml"/>
-    <Include ref="tecwheelc.xml"/>
-    <Include ref="tecwheeld.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tib.xml"/>
 
-    <Include ref="tecbackplate.xml"/>
-    <Include ref="tec.xml"/>
-    <Include ref="tecservices.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidringpar.xml"/>
 
-    <Include ref="tibmaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidb.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidf.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodule0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodule0l.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodule0r.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodule1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodule1l.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodule1r.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidmodule2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidring0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidring0b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidring0f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidring1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidring1b.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidring1f.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tidring2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tid.xml"/>
 
-    <Include ref="tibmodpar.xml"/>
-    <Include ref="tibmodule0.xml"/>
-    <Include ref="tibmodule0a.xml"/>
-    <Include ref="tibmodule0b.xml"/>
-    <Include ref="tibmodule2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibtidservices.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibtidservicesb.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tibtidservicesf.xml"/>
 
-    <Include ref="tiblayerpar.xml"/>
-    <Include ref="tiblayer0.xml"/>
-    <Include ref="tiblayer1.xml"/>
-    <Include ref="tiblayer2.xml"/>
-    <Include ref="tiblayer3.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobmaterial.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobmodpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrodpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobmodule0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobmodule2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobmodule4.xml"/>
 
-    <Include ref="tibstringpar.xml"/>
-    <Include ref="tibstring0.xml"/>
-    <Include ref="tibstring0ll.xml"/>
-    <Include ref="tibstring0lr.xml"/>
-    <Include ref="tibstring0ul.xml"/>
-    <Include ref="tibstring0ur.xml"/>
-    <Include ref="tibstring1.xml"/>
-    <Include ref="tibstring1ll.xml"/>
-    <Include ref="tibstring1lr.xml"/>
-    <Include ref="tibstring1ul.xml"/>
-    <Include ref="tibstring1ur.xml"/>
-    <Include ref="tibstring2.xml"/>
-    <Include ref="tibstring2ll.xml"/>
-    <Include ref="tibstring2lr.xml"/>
-    <Include ref="tibstring2ul.xml"/>
-    <Include ref="tibstring2ur.xml"/>
-    <Include ref="tibstring3.xml"/>
-    <Include ref="tibstring3ll.xml"/>
-    <Include ref="tibstring3lr.xml"/>
-    <Include ref="tibstring3ul.xml"/>
-    <Include ref="tibstring3ur.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod0.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod0c.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod0h.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod0l.xml"/>
 
-    <Include ref="tib.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod1.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod1h.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod1l.xml"/>
 
-    <Include ref="tidmaterial.xml"/>
-    <Include ref="tidmodpar.xml"/>
-    <Include ref="tidringpar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod2c.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod2h.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod2l.xml"/>
 
-    <Include ref="tidb.xml"/>
-    <Include ref="tidf.xml"/>
-    <Include ref="tidmodule0.xml"/>
-    <Include ref="tidmodule0l.xml"/>
-    <Include ref="tidmodule0r.xml"/>
-    <Include ref="tidmodule1.xml"/>
-    <Include ref="tidmodule1l.xml"/>
-    <Include ref="tidmodule1r.xml"/>
-    <Include ref="tidmodule2.xml"/>
-    <Include ref="tidring0.xml"/>
-    <Include ref="tidring0b.xml"/>
-    <Include ref="tidring0f.xml"/>
-    <Include ref="tidring1.xml"/>
-    <Include ref="tidring1b.xml"/>
-    <Include ref="tidring1f.xml"/>
-    <Include ref="tidring2.xml"/>
-    <Include ref="tid.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod3.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod3h.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod3l.xml"/>
 
-    <Include ref="tibtidservices.xml"/>
-    <Include ref="tibtidservicesb.xml"/>
-    <Include ref="tibtidservicesf.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod4.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod4c.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod4h.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod4l.xml"/>
 
-    <Include ref="tobmaterial.xml"/>
-    <Include ref="tobmodpar.xml"/>
-    <Include ref="tobrodpar.xml"/>
-    <Include ref="tobmodule0.xml"/>
-    <Include ref="tobmodule2.xml"/>
-    <Include ref="tobmodule4.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod5.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod5h.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tobrod5l.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tob.xml"/>
 
-    <Include ref="tobrod0.xml"/>
-    <Include ref="tobrod0c.xml"/>
-    <Include ref="tobrod0h.xml"/>
-    <Include ref="tobrod0l.xml"/>
-
-    <Include ref="tobrod1.xml"/>
-    <Include ref="tobrod1h.xml"/>
-    <Include ref="tobrod1l.xml"/>
-
-    <Include ref="tobrod2.xml"/>
-    <Include ref="tobrod2c.xml"/>
-    <Include ref="tobrod2h.xml"/>
-    <Include ref="tobrod2l.xml"/>
-
-    <Include ref="tobrod3.xml"/>
-    <Include ref="tobrod3h.xml"/>
-    <Include ref="tobrod3l.xml"/>
-
-    <Include ref="tobrod4.xml"/>
-    <Include ref="tobrod4c.xml"/>
-    <Include ref="tobrod4h.xml"/>
-    <Include ref="tobrod4l.xml"/>
-
-    <Include ref="tobrod5.xml"/>
-    <Include ref="tobrod5h.xml"/>
-    <Include ref="tobrod5l.xml"/>
-    <Include ref="tob.xml"/>
-
-    <Include ref="pixfwdCommon.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdCommon.xml"/>
 
 <!--
 
     PixbarFWD IS THE HORROR.
     CANNOT GET IT GOING. Ignore it.
 
-    <Include ref="pixfwdBlade.xml"/>
-    <Include ref="pixfwdPanel.xml"/>
-    <Include ref="pixfwdPanelBase.xml"/>
-    <Include ref="pixfwdDisk.xml"/>
-    <Include ref="pixfwdCylinder.xml"/>
-    <Include ref="pixfwdNipple.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdBlade.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPanel.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPanelBase.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdDisk.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdCylinder.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdNipple.xml"/>
 
-    <Include ref="pixfwdPlaq.xml"/>
-    <Include ref="pixfwdPlaq1x2.xml"/>
-    <Include ref="pixfwdPlaq1x5.xml"/>
-    <Include ref="pixfwdPlaq2x3.xml"/>
-    <Include ref="pixfwdPlaq2x4.xml"/>
-    <Include ref="pixfwdPlaq2x5.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPlaq.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPlaq1x2.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPlaq1x5.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPlaq2x3.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPlaq2x4.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdPlaq2x5.xml"/>
 
-    <Include ref="pixfwd.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwd.xml"/>
 
     TEC sucks in Geant4. Ignored.
 
-    <Include ref="trackertec.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackertec.xml"/>
 -->
-    <Include ref="trackerbulkhead.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackerbulkhead.xml"/>
 
-    <Include ref="trackertib.xml"/>
-    <Include ref="trackertid.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackertib.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackertid.xml"/>
 
-    <Include ref="trackerother.xml"/>
-    <Include ref="trackerpixbar.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackerother.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackerpixbar.xml"/>
 
-    <Include ref="tracker.xml"/>
-    <Include ref="trackertob.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/tracker.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackertob.xml"/>
 
   </IncludeSection>
 
