@@ -274,12 +274,9 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                             if(std::regex_search(lines[iLine],groups,weightgroupmg26x)){
                                  ismg26x=true;
                             }
-                            break;
                         }
                     }
                     for (unsigned int iLine = 0, nLines = lines.size(); iLine < nLines; ++iLine) {
-                        boost::replace_all(lines[iLine],"&lt;", "<");
-                        boost::replace_all(lines[iLine],"&gt;", ">");
                         if (lheDebug) std::cout << lines[iLine];
                         if (std::regex_search(lines[iLine], groups, ismg26x ? weightgroupmg26x : weightgroup) ) {
                             std::string groupname = groups.str(2);
@@ -288,8 +285,6 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                             if (groupname.find("scale_variation") == 0 || groupname == "Central scale variation") {
                                 if (lheDebug) std::cout << ">>> Looks like scale variation for theory uncertainties" << std::endl;
                                 for ( ++iLine; iLine < nLines; ++iLine) {
-                                    boost::replace_all(lines[iLine],"&lt;", "<");
-                                    boost::replace_all(lines[iLine],"&gt;", ">");
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, ismg26x ? scalewmg26x : scalew)) {
                                         if (lheDebug) std::cout << "    >>> Scale weight " << groups[1].str() << " for " << groups[3].str() << " , " << groups[4].str() << " , " << groups[5].str() << std::endl;
@@ -309,8 +304,6 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                             } else if (groupname == "PDF_variation" || groupname.find("PDF_variation ") == 0) {
                                 if (lheDebug) std::cout << ">>> Looks like a new-style block of PDF weights for one or more pdfs" << std::endl;
                                 for ( ++iLine; iLine < nLines; ++iLine) {
-                                    boost::replace_all(lines[iLine],"&lt;", "<");
-                                    boost::replace_all(lines[iLine],"&gt;", ">");
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, pdfw)) {
                                         unsigned int lhaID = std::stoi(groups.str(2));
@@ -334,8 +327,6 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                 if (lheDebug) std::cout << ">>> Looks like a new-style block of PDF weights for multiple pdfs" << std::endl;
                                 unsigned int lastid = 0;
                                 for ( ++iLine; iLine < nLines; ++iLine) {
-                                    boost::replace_all(lines[iLine],"&lt;", "<");
-                                    boost::replace_all(lines[iLine],"&gt;", ">");
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, pdfw)) {
                                         unsigned int id = std::stoi(groups.str(1));
@@ -364,8 +355,6 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                 unsigned int firstLhaID = lhaNameToID_.find(groupname)->second;
                                 bool first = true;
                                 for ( ++iLine; iLine < nLines; ++iLine) {
-                                    boost::replace_all(lines[iLine],"&lt;", "<");
-                                    boost::replace_all(lines[iLine],"&gt;", ">");
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, ismg26x ? pdfwmg26x : pdfwOld)) {
                                         unsigned int member = 0;
@@ -399,8 +388,6 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                 }
                             } else {
                                 for ( ++iLine; iLine < nLines; ++iLine) {
-                                    boost::replace_all(lines[iLine],"&lt;", "<");
-                                    boost::replace_all(lines[iLine],"&gt;", ">");
                                     if (lheDebug) std::cout << "    " << lines[iLine];
                                     if (std::regex_search(lines[iLine], groups, endweightgroup)) {
                                         if (lheDebug) std::cout << ">>> Looks like the end of a weight group" << std::endl;
