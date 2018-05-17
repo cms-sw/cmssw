@@ -25,8 +25,11 @@ public:
                  const SensitiveDetectorCatalog &,
 		 edm::ParameterSet const &, const SimTrackManager*);
   ~HcalTB06BeamSD() override;
-  double getEnergyDeposit(G4Step* ) override;
   uint32_t setDetUnitId(const G4Step* step) override;
+
+protected:
+
+  double getEnergyDeposit(const G4Step*) override;
 
 private:    
 
