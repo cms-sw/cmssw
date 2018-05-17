@@ -44,7 +44,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   kmaxIon      = m_CaloSD.getParameter<double>("IonThreshold")*MeV;
   kmaxProton   = m_CaloSD.getParameter<double>("ProtonThreshold")*MeV;
   kmaxNeutron  = m_CaloSD.getParameter<double>("NeutronThreshold")*MeV;
-  checkHits    = m_CaloSD.getUntrackedParameter<int>("CheckHits", 25);
+  nCheckedHits = m_CaloSD.getUntrackedParameter<int>("CheckHits", 25);
   useMap       = m_CaloSD.getUntrackedParameter<bool>("UseMap", true);
   int verbn    = m_CaloSD.getUntrackedParameter<int>("Verbosity", 0);
   corrTOFBeam  = m_CaloSD.getParameter<bool>("CorrectTOFBeam");
@@ -81,7 +81,7 @@ CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
   edm::LogInfo("CaloSim") << "CaloSD: Minimum energy of track for saving it " 
                           << energyCut/GeV  << " GeV" << "\n"
                           << "        Use of HitID Map " << useMap << "\n"
-                          << "        Check last " << checkHits 
+                          << "        Check last " << nCheckedHits 
                           << " before saving the hit\n" 
                           << "        Correct TOF globally by " << correctT
                           << " ns (Flag =" << corrTOFBeam << ")\n"
@@ -306,16 +306,15 @@ bool CaloSD::hitExists(const G4Step* aStep) {
 
 bool CaloSD::checkHit() {  
   //look in the HitContainer whether a hit with the same ID already exists:
-  bool       found = false;
+  bool found = false;
   if (useMap) {
     std::map<CaloHitID,CaloG4Hit*>::const_iterator it = hitMap.find(currentID);
     if (it != hitMap.end()) {
       currentHit = it->second;
       found      = true;
     }
-  } else {
-    if (checkHits <= 0) return false;
-    int  minhit= (theHC->entries()>checkHits ? theHC->entries()-checkHits : 0);
+  } else if (nCheckedHits > 0) {
+    int  minhit= (theHC->entries()>nCheckedHits ? theHC->entries()-nCheckedHits : 0);
     int  maxhit= theHC->entries()-1;
     
     for (int j=maxhit; j>minhit; --j) {
@@ -327,12 +326,8 @@ bool CaloSD::checkHit() {
     }          
   }
   
-  if (found) {
-    updateHit(currentHit);
-    return true;
-  } else {
-    return false;
-  }
+  if (found) { updateHit(currentHit); }
+  return found;
 }
 
 int CaloSD::getNumberOfHits() { return theHC->entries(); }

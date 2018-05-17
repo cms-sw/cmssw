@@ -98,6 +98,7 @@ protected:
   int              getNumberOfHits();
 
   inline void setParameterized(bool val) { isParameterized = val; }
+  inline void setUseMap(bool val)        { useMap = val; }
 
   inline void processHit(const G4Step* step) {
     // check if it is in the same unit and timeslice as the previous one
@@ -107,6 +108,8 @@ protected:
       currentHit = createNewHit(step);
     }
   }
+
+  inline void setNumberCheckedHits(int val) { nCheckedHits = val; }
 
 private:
 
@@ -149,15 +152,15 @@ private:
 
   bool                            ignoreTrackID;
   bool                            isParameterized; 
-  bool                            useMap;
+  bool                            useMap;       // use map for comparison of ID
   bool                            corrTOFBeam;
 
   int                             hcID;
   int                             primAncestor;
   int                             cleanIndex;
   int                             totalHits;
-  int                             primIDSaved; // ID of the last saved primary
-  int                             checkHits;
+  int                             primIDSaved;  // ID of the last saved primary
+  int                             nCheckedHits; // number of last hits to compare ID
 
   float                           timeSlice;
   double                          eminHitD;

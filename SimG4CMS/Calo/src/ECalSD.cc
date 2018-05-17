@@ -206,14 +206,13 @@ double ECalSD::getEnergyDeposit(const G4Step * aStep) {
   edep *= weight*wt1;
   // Russian Roulette
   double wt2 = theTrack->GetWeight();
-  //#ifdef EDM_ML_DEBUG
-  if(theTrack->GetTrackID() == 82946)
+  if(wt2 > 0.0) { edep *= wt2; }
+#ifdef EDM_ML_DEBUG
   edm::LogInfo("EcalSim") << lv->GetName()
                           << " Light Collection Efficiency " << weight << ":"
                           << wt1 << " wt2= " << wt2
                           << " Weighted Energy Deposit " << edep/MeV << " MeV";
-  //#endif
-  if(wt2 > 0.0) { edep *= wt2; }
+#endif
   return edep; 
 }
 

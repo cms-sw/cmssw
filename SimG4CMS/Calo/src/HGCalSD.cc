@@ -53,6 +53,11 @@ HGCalSD::HGCalSD(const std::string& name, const DDCompactView & cpv,
   waferRot_        = m_HGC.getParameter<bool>("RotatedWafer");
   angles_          = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
 
+  if(storeAllG4Hits_) {
+    setUseMap(false);
+    setNumberCheckedHits(0);
+  }
+
   //this is defined in the hgcsens.xml
   G4String myName = name;
   mydet_ = DetId::Forward;
@@ -108,8 +113,8 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
 			     << ") R = " << r << " Z = "
 			     << z << " slope = " << r/z << ":" << slopeMin_;
 #endif
-  // Apply fiducial cuts
-  if (r/z < slopeMin_) { return 0.0; }
+  // Apply fiducial cut
+  if (r < z*slopeMin_) { return 0.0; }
 
   double wt1    = getResponseWt(aStep->GetTrack());
   double wt2    = aStep->GetTrack()->GetWeight();
@@ -118,10 +123,10 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   double destep = weight_*wt1*wt3*(aStep->GetTotalEnergyDeposit());
   if (wt2 > 0) destep *= wt2;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Weights " << weight_ << ":" << wt1 << ":"
-			     << wt2 << ":" << wt3 << " Total weight "
-			     << weight_*wt1*wt2*wt3 << " deStep "
-			     << aStep->GetTotalEnergyDeposit() << ":" <<destep;
+  edm::LogWarning("HGCalSim")  << "HGCalSD: weights= " << weight_ << ":" << wt1 << ":"
+			       << wt2 << ":" << wt3 << " Total weight "
+			       << weight_*wt1*wt2*wt3 << " deStep: "
+			       << aStep->GetTotalEnergyDeposit() << ":" <<destep;
 #endif
   return destep;
 }
@@ -197,16 +202,16 @@ void HGCalSD::update(const BeginOfJob * job) {
   es->get<IdealGeometryRecord>().get(nameX_,hdc);
   if (hdc.isValid()) {
     const HGCalDDDConstants* hgcons = hdc.product();
-    m_mode           = hgcons->geomMode();
+    geom_mode_       = hgcons->geomMode();
     slopeMin_        = hgcons->minSlope();
     levelT1_         = hgcons->levelTop(0);
     levelT2_         = hgcons->levelTop(1);
-    isScint_         = (m_mode == HGCalGeometryMode::Trapezoid);
+    isScint_         = (geom_mode_ == HGCalGeometryMode::Trapezoid);
     double waferSize = hgcons->waferSize(false);
     double mouseBite = hgcons->mouseBite(false);
     mouseBiteCut_    = waferSize*tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << m_mode 
+    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ 
 			       << " Slope cut " << slopeMin_ << " top Level "
 			       << levelT1_ << ":" << levelT2_ << " isScint "
 			       << isScint_ << " wafer " << waferSize << ":"
