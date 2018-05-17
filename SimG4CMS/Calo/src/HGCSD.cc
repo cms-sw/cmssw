@@ -118,11 +118,11 @@ double HGCSD::getEnergyDeposit(const G4Step* aStep) {
   if (r < z*slopeMin_) { return 0.0; }
  
   double wt1    = getResponseWt(aStep->GetTrack());
-  double destep = wt1*aStep->GetTotalEnergyDeposit();
   double wt2    = aStep->GetTrack()->GetWeight();
-  if (wt2 > 0) { destep *= wt2; }
+  double destep = wt1*aStep->GetTotalEnergyDeposit();
+  if (wt2 > 0) destep *= wt2;
   return destep;
-} 
+}
 
 uint32_t HGCSD::setDetUnitId(const G4Step * aStep) { 
 

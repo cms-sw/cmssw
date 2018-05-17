@@ -41,6 +41,7 @@ private:
 
   uint32_t                setDetUnitId(ForwardSubdetector&, int, int, 
 				       int, int, G4ThreeVector &);
+  bool                    isItinFidVolume (const G4ThreeVector&) {return true;}
 
   std::string                     nameX_;
 
