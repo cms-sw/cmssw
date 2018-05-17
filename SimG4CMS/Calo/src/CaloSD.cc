@@ -564,15 +564,10 @@ void CaloSD::initRun() {}
 
 int CaloSD::getTrackID(const G4Track* aTrack) {
 
-  int primaryID = 0;
   forceSave = false;
   TrackInformation* trkInfo=(TrackInformation *)(aTrack->GetUserInformation());
-  if (trkInfo) {
-    int id = trkInfo->getIDonCaloSurface();
-    if(id > 0) { primaryID = id; } 
-  } else {
-    primaryID = aTrack->GetTrackID();
-  }
+  int primaryID = (trkInfo) ? trkInfo->getIDonCaloSurface() : 0;
+  if(primaryID == 0) { primaryID = aTrack->GetTrackID(); }
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD::getTrackID for " << GetName() 
                           << " trackID= " << aTrack->GetTrackID()
@@ -585,10 +580,8 @@ int CaloSD::setTrackID(const G4Step* aStep) {
 
   auto const theTrack = aStep->GetTrack();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
-  int primaryID = trkInfo->getIDonCaloSurface();
-  if (primaryID == 0) {
-    primaryID = theTrack->GetTrackID();
-  }
+  int primaryID = (trkInfo) ? trkInfo->getIDonCaloSurface() : 0;
+  if (primaryID == 0) { primaryID = theTrack->GetTrackID(); }
 
   if (primaryID != previousID.trackID()) {
     resetForNewPrimary(aStep);
