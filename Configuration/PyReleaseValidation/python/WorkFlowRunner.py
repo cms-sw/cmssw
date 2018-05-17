@@ -1,6 +1,6 @@
 from threading import Thread
 from Configuration.PyReleaseValidation import WorkFlow
-import os,time
+import os, time
 import shutil
 from subprocess import Popen 
 from os.path import exists, basename, join
@@ -31,10 +31,10 @@ class WorkFlowRunner(Thread):
         msg = "\n# in: " +os.getcwd()
         if self.dryRun: msg += " dryRun for '"
         else:      msg += " going to execute "
-        msg += cmd.replace(';','\n')
+        msg += cmd.replace(';', '\n')
         print msg
 
-        cmdLog = open(self.wfDir+'/cmdLog','a')
+        cmdLog = open(self.wfDir+'/cmdLog', 'a')
         cmdLog.write(msg+'\n')
         cmdLog.close()
         
@@ -43,7 +43,7 @@ class WorkFlowRunner(Thread):
             p = Popen(cmd, shell=True)
             ret = os.waitpid(p.pid, 0)[1]
             if ret != 0:
-                print "ERROR executing ",cmd,'ret=', ret
+                print "ERROR executing ", cmd, 'ret=', ret
 
         return ret
     
@@ -75,13 +75,13 @@ class WorkFlowRunner(Thread):
         self.stat = []
         self.retStep = []
 
-        def closeCmd(i,ID):
+        def closeCmd(i, ID):
             return ' > %s 2>&1; ' % ('step%d_'%(i,)+ID+'.log ',)
 
         inFile=None
         lumiRangeFile=None
         aborted=False
-        for (istepmone,com) in enumerate(self.wf.cmds):
+        for (istepmone, com) in enumerate(self.wf.cmds):
             # isInputOk is used to keep track of the das result. In case this
             # is False we use a different error message to indicate the failed
             # das query.
@@ -94,9 +94,9 @@ class WorkFlowRunner(Thread):
                 self.retStep.append(0)
                 self.stat.append('NOTRUN')
                 continue
-            if not isinstance(com,str):
+            if not isinstance(com, str):
                 if self.cafVeto and (com.location == 'CAF' and not onCAF):
-                    print "You need to be no CAF to run",self.wf.numId
+                    print "You need to be no CAF to run", self.wf.numId
                     self.npass.append(0)
                     self.nfail.append(0)
                     self.retStep.append(0)
@@ -106,14 +106,14 @@ class WorkFlowRunner(Thread):
                 #create lumiRange file first so if das fails we get its error code
                 cmd2 = com.lumiRanges()
                 if cmd2:
-                    cmd2 =cmd+cmd2+closeCmd(istep,'lumiRanges')
+                    cmd2 =cmd+cmd2+closeCmd(istep, 'lumiRanges')
                     lumiRangeFile='step%d_lumiRanges.log'%(istep,)
                     retStep = self.doCmd(cmd2)
                 if (com.dataSetParent):
-                    cmd3=cmd+com.das(self.dasOptions,com.dataSetParent)+closeCmd(istep,'dasparentquery')
+                    cmd3=cmd+com.das(self.dasOptions, com.dataSetParent)+closeCmd(istep, 'dasparentquery')
                     retStep = self.doCmd(cmd3)
-                cmd+=com.das(self.dasOptions,com.dataSet)
-                cmd+=closeCmd(istep,'dasquery')
+                cmd+=com.das(self.dasOptions, com.dataSet)
+                cmd+=closeCmd(istep, 'dasquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the das command of cmsDriver for next step
                 # If the das output is not there or it's empty, consider it an
@@ -147,7 +147,7 @@ class WorkFlowRunner(Thread):
                     lumiRangeFile=None
                 # 134 is an existing workflow where harvesting has to operate on AlcaReco and NOT on DQM; hard-coded..    
                 if 'HARVESTING' in cmd and not 134==self.wf.numId and not '--filein' in cmd:
-                    cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1,istep)
+                    cmd+=' --filein file:step%d_inDQM.root --fileout file:step%d.root '%(istep-1, istep)
                 else:
                     # Disable input for premix stage1 to allow combined stage1+stage2 workflow
                     # Bit of a hack but works
@@ -159,10 +159,10 @@ class WorkFlowRunner(Thread):
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 if (self.nThreads > 1) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
                   cmd += ' --nThreads %s' % self.nThreads
-                cmd+=closeCmd(istep,self.wf.nameId)            
+                cmd+=closeCmd(istep, self.wf.nameId)            
                 retStep = 0
                 if istep>self.maxSteps:
-                   wf_stats = open("%s/wf_steps.txt" % self.wfDir,"a")
+                   wf_stats = open("%s/wf_steps.txt" % self.wfDir, "a")
                    wf_stats.write('step%s:%s\n' % (istep, cmd))
                    wf_stats.close()
                 else: retStep = self.doCmd(cmd)
@@ -192,15 +192,15 @@ class WorkFlowRunner(Thread):
 
         os.chdir(startDir)
         endtime='date %s' %time.asctime()
-        tottime='%s-%s'%(endtime,startime)
+        tottime='%s-%s'%(endtime, startime)
         
 
         #### wrap up ####
 
         logStat=''
-        for i,s in enumerate(self.stat):
-            logStat+='Step%d-%s '%(i,s)
-        self.report='%s_%s %s - time %s; exit: '%(self.wf.numId,self.wf.nameId,logStat,tottime)+' '.join(map(str,self.retStep))+'\n'
+        for i, s in enumerate(self.stat):
+            logStat+='Step%d-%s '%(i, s)
+        self.report='%s_%s %s - time %s; exit: '%(self.wf.numId, self.wf.nameId, logStat, tottime)+' '.join(map(str, self.retStep))+'\n'
 
         return 
 

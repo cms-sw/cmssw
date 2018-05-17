@@ -6,7 +6,7 @@ from Mixins import _Labelable
 class ScheduleTaskValidator(object):
     def __init__(self):
         pass
-    def enter(self,visitee):
+    def enter(self, visitee):
         if visitee.isLeaf():
             if isinstance(visitee, _Labelable):
                 if not visitee.hasLabel_():
@@ -14,17 +14,17 @@ class ScheduleTaskValidator(object):
             elif isinstance(visitee, Service):
                 if not visitee._inProcess:
                     raise ValueError("A task associated with the Schedule contains a service of type '"+visitee.type_()+"'\nwhich is not attached to the process.")
-    def leave(self,visitee):
+    def leave(self, visitee):
         pass
 
 # Use this on Paths
 class PathValidator(object):
     def __init__(self):
         self.__label = ''
-    def setLabel(self,label):
+    def setLabel(self, label):
         self.__label = "'"+label+"' "
-    def enter(self,visitee):
-        if isinstance(visitee,OutputModule):
+    def enter(self, visitee):
+        if isinstance(visitee, OutputModule):
             raise ValueError("Path "+self.__label+"cannot contain an OutputModule, '"+visitee.type_()+"', with label '"+visitee.label_()+"'")
         if visitee.isLeaf():
             if isinstance(visitee, _Labelable):
@@ -33,7 +33,7 @@ class PathValidator(object):
             elif isinstance(visitee, Service):
                 if not visitee._inProcess:
                     raise ValueError("Path "+self.__label+"contains a service of type '"+visitee.type_()+"' which is not attached to the process.\n")
-    def leave(self,visitee):
+    def leave(self, visitee):
         pass
 
 # Use this on EndPaths
@@ -43,9 +43,9 @@ class EndPathValidator(object):
         self.filtersOnEndpaths = []
         self.__label = ''
         self._levelInTasks = 0
-    def setLabel(self,label):
+    def setLabel(self, label):
         self.__label = "'"+label+"' "
-    def enter(self,visitee):
+    def enter(self, visitee):
         if visitee.isLeaf():
             if isinstance(visitee, _Labelable):
                 if not visitee.hasLabel_():
@@ -57,11 +57,11 @@ class EndPathValidator(object):
             self._levelInTasks += 1
         if self._levelInTasks > 0:
             return
-        if isinstance(visitee,EDFilter):
+        if isinstance(visitee, EDFilter):
             if (visitee.type_() in self._presetFilters):
                 if (visitee.type_() not in self.filtersOnEndpaths):
                     self.filtersOnEndpaths.append(visitee.type_())
-    def leave(self,visitee):
+    def leave(self, visitee):
         if self._levelInTasks > 0:
             if isinstance(visitee, Task):
                 self._levelInTasks -= 1
@@ -74,7 +74,7 @@ class NodeVisitor(object):
         self.esProducers = set()
         self.esSources = set()
         self.services = set()
-    def enter(self,visitee):
+    def enter(self, visitee):
         if visitee.isLeaf():
             if isinstance(visitee, _Module):
                 self.modules.add(visitee)
@@ -84,7 +84,7 @@ class NodeVisitor(object):
                 self.esSources.add(visitee)
             elif isinstance(visitee, Service):
                 self.services.add(visitee)
-    def leave(self,visitee):
+    def leave(self, visitee):
         pass
 
 class CompositeVisitor(object):
@@ -107,13 +107,13 @@ class ModuleNamesFromGlobalsVisitor(object):
     """Fill a list with the names of Event module types in a sequence. The names are determined
     by using globals() to lookup the variable names assigned to the modules. This
     allows the determination of the labels before the modules have been attached to a Process."""
-    def __init__(self,globals_,l):
-        self._moduleToName = { v[1]:v[0] for v in globals_.iteritems() if isinstance(v[1],_Module) }
+    def __init__(self, globals_, l):
+        self._moduleToName = { v[1]:v[0] for v in globals_.iteritems() if isinstance(v[1], _Module) }
         self._names =l
-    def enter(self,node):
-        if isinstance(node,_Module):
+    def enter(self, node):
+        if isinstance(node, _Module):
             self._names.append(self._moduleToName[node])
-    def leave(self,node):
+    def leave(self, node):
         return
 
 if __name__=="__main__":

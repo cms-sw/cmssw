@@ -11,7 +11,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.WhatsItAnalyzer = cms.EDAnalyzer("WhatsItAnalyzer",
-    expectedValues = cms.untracked.vint32(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
+    expectedValues = cms.untracked.vint32(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 
 process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer",
     doodadLabel = cms.string('Two')

@@ -37,7 +37,7 @@ process.endpath1 = cms.EndPath(process.b + process.a1, process.t5)
 process.t6 = cms.Task(cms.TaskPlaceholder("h"))
 process.t7 = cms.Task(process.a, cms.TaskPlaceholder("i"), process.t6)
 process.t8 = cms.Task(cms.TaskPlaceholder("j"))
-process.schedule = cms.Schedule(process.path1, process.endpath1,tasks=[process.t7,process.t8])
+process.schedule = cms.Schedule(process.path1, process.endpath1, tasks=[process.t7, process.t8])
 
 process.c = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
 process.d = cms.EDProducer("IntProducer", ivalue = cms.int32(1))

@@ -30,9 +30,9 @@ class EventContentDataAccessor(BasicDataAccessor):
             objects += list(content)
         return objects
 
-    def addContents(self,content,content2):
+    def addContents(self, content, content2):
         for object in content2:
-            if not self.inContent(object,content):
+            if not self.inContent(object, content):
                 content+=[object]
 
     def properties(self, object):
@@ -51,10 +51,10 @@ class EventContentDataAccessor(BasicDataAccessor):
         self._eventContents += [(name, inputContent[0], True, inputContent[1])]
         output_content=[]
         if len(self._eventContents)>1:
-            self.addContents(output_content,self._eventContents[-2][1])
-        output_content=self.applyCommands(output_content,accessor.inputCommands())
-        self.addContents(output_content,accessor.outputEventContent())
-        output_content=self.applyCommands(output_content,accessor.outputCommands())
+            self.addContents(output_content, self._eventContents[-2][1])
+        output_content=self.applyCommands(output_content, accessor.inputCommands())
+        self.addContents(output_content, accessor.outputEventContent())
+        output_content=self.applyCommands(output_content, accessor.outputCommands())
         name = "Output: " + configName
         self._eventContents += [(name, output_content, False, {})]
 
@@ -63,16 +63,16 @@ class EventContentDataAccessor(BasicDataAccessor):
         accessor.open(filename)
         branches=[branch[0].split("_") for branch in accessor.filteredBranches()]
         name = os.path.splitext(os.path.basename(filename))[0]
-        self.addBranches(name,branches)
+        self.addBranches(name, branches)
     
-    def addBranches(self,name,branches):
+    def addBranches(self, name, branches):
         content = []
         for branch in branches:
             type = branch[0]
             label = branch[1]
             product = branch[2]
             process = branch[3]
-            content += [(type,label,product,process)]
+            content += [(type, label, product, process)]
         self._eventContents += [(name, content, False, {})]
 
     def compareEntry(self, entry1, entry2):
@@ -82,7 +82,7 @@ class EventContentDataAccessor(BasicDataAccessor):
         return result
 
     def inContent(self, entry, content):
-        return True in [self.compareEntry(entry,c) for c in content]
+        return True in [self.compareEntry(entry, c) for c in content]
 
     def applyCommands(self, content, outputCommands):
         keep = {}

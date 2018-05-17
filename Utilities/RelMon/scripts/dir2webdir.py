@@ -33,7 +33,7 @@ DirectoryIndex RelMonSummary.htmlgz
 
 from os.path import exists
 from os import system
-from sys import argv,exit
+from sys import argv, exit
 
 argc=len(argv)
 
@@ -52,11 +52,11 @@ if not exists(directory):
 print "Moving pkls away..."
 pkl_dir="%s_pkls" %directory
 system("mkdir %s" %pkl_dir)
-system("mv %s/*pkl %s" %(directory,pkl_dir))
+system("mv %s/*pkl %s" %(directory, pkl_dir))
 print "All pkls moved in directory %s" %pkl_dir
 
 print "Backupping directory %s" %directory
-system("cp -r %s %s_back"%(directory,directory)) # i know, it should be better..
+system("cp -r %s %s_back"%(directory, directory)) # i know, it should be better..
 print "Backupped!"
 
 print "Gzipping content of %s" %directory
@@ -64,7 +64,7 @@ system("time gzip -r -S gz %s"%directory) # i know, it should be better..
 print "Content of %s zipped!" %directory
 
 print "Adding .htaccess file..."
-htaccess=open("%s/.htaccess"%directory,"w")
+htaccess=open("%s/.htaccess"%directory, "w")
 htaccess.write(htaccess_content)
 htaccess.close()
 print "Apache .htaccess file successfully added!"

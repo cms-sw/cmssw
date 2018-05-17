@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,dqmIOSource,harvestingMode,dictIO,gtNameAndConnect,addMonitoring
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER, dqmIOSource, harvestingMode, dictIO, gtNameAndConnect, addMonitoring
 import FWCore.ParameterSet.Config as cms
 
 class AlCa(Scenario):
@@ -25,7 +25,7 @@ class AlCa(Scenario):
 
     """
 
-    def skimsIfNotGiven(self,args,sl):
+    def skimsIfNotGiven(self, args, sl):
         if not 'skims' in args:
             args['skims']=sl
 
@@ -37,7 +37,7 @@ class AlCa(Scenario):
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
         options.step = step
-        dictIO(options,args)
+        dictIO(options, args)
         options.conditions = gtNameAndConnect(globalTag, args)
 
         process = cms.Process('RECO', self.eras)
@@ -129,7 +129,7 @@ class AlCa(Scenario):
         #if args.has_key('referenceFile') and args.get('referenceFile', ''):
         #    process.DQMStore.referenceFileName = \
         #                        cms.untracked.string(args['referenceFile'])
-        harvestingMode(process,datasetName,args)
+        harvestingMode(process, datasetName, args)
 
         return process
 
@@ -150,7 +150,7 @@ class AlCa(Scenario):
 
         if len(skims) == 0: return None
         options = defaultOptions
-        options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__
+        options.scenario = self.cbSc if hasattr(self, 'cbSc') else self.__class__.__name__
         options.step = "ALCAHARVEST:"+('+'.join(skims))
         options.name = "ALCAHARVEST"
         options.conditions = gtNameAndConnect(globalTag, args)

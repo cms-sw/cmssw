@@ -1,6 +1,6 @@
 import logging
 
-from PyQt4.QtCore import SIGNAL,Qt
+from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4.QtGui import QWidget
 
 from Vispa.Views.AbstractView import AbstractView
@@ -68,7 +68,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
             self._updatingFlag +=1
             widget.select()
             if self.parent() and isinstance(self.parent().parent(), ZoomableScrollArea):
-                self.parent().parent().ensureWidgetVisible(widget,offset,offset)
+                self.parent().parent().ensureWidgetVisible(widget, offset, offset)
             self._updatingFlag -=1
         else:
             self._selection = None
@@ -84,7 +84,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
             self._updatingFlag +=1
             widget.select()
             if self.parent() and isinstance(self.parent().parent(), ZoomableScrollArea):
-                self.parent().parent().ensureWidgetVisible(widget,offset,offset)
+                self.parent().parent().ensureWidgetVisible(widget, offset, offset)
             self._updatingFlag -=1
 
     def selection(self):
@@ -102,7 +102,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
         logging.debug(__name__ + ": clear")
         self._widgetDict = {}
         for w in self.children():
-            if isinstance(w,QWidget):
+            if isinstance(w, QWidget):
                 w.setParent(None)
                 w.deleteLater()
             
@@ -125,10 +125,10 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
         AbstractView.setDataObjects(self, objects)
         self.clear()
 
-    def mousePressEvent(self,event):
+    def mousePressEvent(self, event):
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())
-        ZoomableScrollableWidgetOwner.mousePressEvent(self,event)
+        ZoomableScrollableWidgetOwner.mousePressEvent(self, event)
 
     def isBusy(self):
         return self._updatingFlag>0

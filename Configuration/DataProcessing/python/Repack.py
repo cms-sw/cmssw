@@ -32,7 +32,7 @@ def repackProcess(**args):
         )
 
     process.options = cms.untracked.PSet(
-        Rethrow = cms.untracked.vstring("ProductNotFound","TooManyProducts","TooFewProducts"),
+        Rethrow = cms.untracked.vstring("ProductNotFound", "TooManyProducts", "TooFewProducts"),
         wantSummary = cms.untracked.bool(False)
         )
 

@@ -57,56 +57,56 @@ for line in f :
 	if mbcl.search(line) :
 		fields = line.split("'")
 		if fields[2] == ' member data class ':
-			H.add_edge(fields[1],fields[3],kind=fields[2])
+			H.add_edge(fields[1], fields[3], kind=fields[2])
 		if fields[2] == ' templated member data class ':
-			H.add_edge(fields[1],fields[3],kind=fields[2])
+			H.add_edge(fields[1], fields[3], kind=fields[2])
 		if fields[2] == ' base class ':
-			H.add_edge(fields[1],fields[3],kind=fields[2])
+			H.add_edge(fields[1], fields[3], kind=fields[2])
 f.close()
 
 
 import fileinput 
-for line in fileinput.input(files =('function-statics-db.txt','function-calls-db.txt')):
+for line in fileinput.input(files =('function-statics-db.txt', 'function-calls-db.txt')):
 	if not bfunc.search(line) : continue
 	fields = line.split("'")
 	if skip.search(fields[1]) or skip.search(fields[3]) : continue
 	if fields[2] == ' calls function ' :
-		G.add_edge(fields[1],fields[3],kind=' calls function ')
+		G.add_edge(fields[1], fields[3], kind=' calls function ')
 		if getfunc.search(fields[3]) :
 			dataclassfuncs.add(fields[3])
 			m = getfunc.match(fields[3])
 			n = handle.match(m.group(1))
 			if n : o = n.group(3)
 			else : o = m.group(1)
-			p = re.sub("class ","",o)
-			dataclass = re.sub("struct ","",p)
+			p = re.sub("class ", "", o)
+			dataclass = re.sub("struct ", "", p)
 			dataclasses.add(dataclass)
 	if fields[2] == ' overrides function ' :
 		if baseclass.search(fields[3]) :
-			G.add_edge(fields[1],fields[3],kind=' overrides function ')
+			G.add_edge(fields[1], fields[3], kind=' overrides function ')
 			if topfunc.search(fields[3]) : toplevelfuncs.add(fields[1])
-		else : G.add_edge(fields[3],fields[1], kind=' calls override function ')
+		else : G.add_edge(fields[3], fields[1], kind=' calls override function ')
 	if fields[2] == ' static variable ' :
-		G.add_edge(fields[1],fields[3],kind=' static variable ')
+		G.add_edge(fields[1], fields[3], kind=' static variable ')
 		statics.add(fields[3])
 fileinput.close()
 
-for n,nbrdict in G.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
+for n, nbrdict in G.adjacency_iter():
+	for nbr, eattr in nbrdict.items():
 		if n in badfuncs or nbr in badfuncs :
 			if 'kind' in eattr and eattr['kind'] == ' overrides function '  :
 				print "'"+n+"'"+eattr['kind']+"'"+nbr+"'"
 				virtfuncs.add(nbr)
 print
 
-for n,nbrdict in H.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
+for n, nbrdict in H.adjacency_iter():
+	for nbr, eattr in nbrdict.items():
 		if n in badclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
 			virtclasses.add(nbr)
 
 
-for n,nbrdict in H.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
+for n, nbrdict in H.adjacency_iter():
+	for nbr, eattr in nbrdict.items():
 		if nbr in dclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
 			dclasses.add(n)
 
@@ -150,7 +150,7 @@ print
 for badclass in sorted(badclasses):
 	for dataclass in sorted(dataclasses):
 		if H.has_node(badclass) and H.has_node(dataclass):
-			if nx.has_path(H,dataclass, badclass) :
+			if nx.has_path(H, dataclass, badclass) :
 				print "Event setup data class '"+dataclass+"' contains or inherits from flagged class '"+badclass+"'."
 				flaggedclasses.add(dataclass)
 			
@@ -159,20 +159,20 @@ print
 
 for dataclassfunc in sorted(dataclassfuncs):
 	for tfunc in sorted(toplevelfuncs):
-		if nx.has_path(G,tfunc,dataclassfunc):
+		if nx.has_path(G, tfunc, dataclassfunc):
 			m = getfunc.match(dataclassfunc)
 			n = handle.match(m.group(1))
 			if n : o = n.group(3)
 			else : o = m.group(1)
-			p = re.sub("class ","",o)
-			q = re.sub("struct ","",p)
-			dataclass = re.sub("\<.*\> ","",q)
+			p = re.sub("class ", "", o)
+			q = re.sub("struct ", "", p)
+			dataclass = re.sub("\<.*\> ", "", q)
 			for flaggedclass in sorted(flaggedclasses):
 				exact= r"^" + re.escape(flaggedclass) + r"$"
-				exactmatch=re.match(exact,dataclass)
+				exactmatch=re.match(exact, dataclass)
 				if exactmatch:
 					print "Flagged event setup data class '"+dataclass+"' is accessed in call stack '",
-					path = nx.shortest_path(G,tfunc,dataclassfunc)
+					path = nx.shortest_path(G, tfunc, dataclassfunc)
 					for p in path:
 						print p+"; ",
 					print "' ",
@@ -181,7 +181,7 @@ for dataclassfunc in sorted(dataclassfuncs):
 							print "'"+tfunc+"'"+G[tfunc][key]['kind']+"'"+key+"'",
 					print ""
 					print "In call stack '",
-					path = nx.shortest_path(G,tfunc,dataclassfunc)
+					path = nx.shortest_path(G, tfunc, dataclassfunc)
 					for p in path:
 						print p+"; ",
 					print "' flagged event setup data class '"+dataclass+"' is accessed. ",

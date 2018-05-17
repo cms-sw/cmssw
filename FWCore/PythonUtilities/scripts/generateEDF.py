@@ -45,7 +45,7 @@ class LumiInfo (object):
             raise RuntimeError("Pieces not right format")
         if size > 4:
             try:
-                for xing, lum in zip (pieces[4::2],pieces[5::2]):
+                for xing, lum in zip (pieces[4::2], pieces[5::2]):
                     xing = int   (xing)
                     lum  = float (lum)
                     self.instLums.append( (xing, lum) )
@@ -237,7 +237,7 @@ def loadEvents (filename, cont, options):
     events = open (filename, 'r')
     runIndex, lumiIndex, eventIndex, weightIndex = 0, 1, 2, 3
     if options.relOrder:
-        lumiIndex, eventIndex = 2,1
+        lumiIndex, eventIndex = 2, 1
     minPieces = 3
     totalWeight = 0.
     if options.weights:
@@ -524,15 +524,15 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
     observed = 'Observed'
     if options.weights:
         observed += ' (weighted)'
-    legend.AddEntry(graph, observed,"PL")
+    legend.AddEntry(graph, observed, "PL")
     if options.resetExpected:
-        legend.AddEntry(expectedGraph,  "Expected from partial yield","L")
+        legend.AddEntry(expectedGraph,  "Expected from partial yield", "L")
     else:
-        legend.AddEntry(expectedGraph,  "Expected from total yield","L")
+        legend.AddEntry(expectedGraph,  "Expected from total yield", "L")
     if options.pred:
-        legend.AddEntry(green, options.predLabel,"L")
-    legend.AddEntry("","D_{stat}=%.3f, N=%d" % (maxDistance, size),"")
-    legend.AddEntry("","P_{KS}=%.3f" % prob,"")
+        legend.AddEntry(green, options.predLabel, "L")
+    legend.AddEntry("", "D_{stat}=%.3f, N=%d" % (maxDistance, size), "")
+    legend.AddEntry("", "P_{KS}=%.3f" % prob, "")
     legend.Draw()
 
     # save file
@@ -597,7 +597,7 @@ if __name__ == '__main__':
     modeGroup.add_option ('--print', dest='printValues', action='store_true',
                           help = 'Print X and Y values of EDF plot')
     modeGroup.add_option ('--runsWithLumis', dest='runsWithLumis',
-                          type='string',action='append', default=[],
+                          type='string', action='append', default=[],
                           help='Print out run and lumi sections corresponding to integrated luminosities provided and then exits')
     modeGroup.add_option ('--edfMode', dest='edfMode', type='string',
                           default='time',

@@ -14,11 +14,11 @@ process.options = cms.untracked.PSet(
 process.waiter = cms.EDProducer("WaitingThreadIntProducer",
                                 streamsToAccumulate = cms.untracked.uint32(3),
 #                                streamsToAccumulate = cms.untracked.uint32(4),
-                                tags = cms.VInputTag("busy1","busy2")
+                                tags = cms.VInputTag("busy1", "busy2")
                                 )
 
-process.busy1 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
-process.busy2 = cms.EDProducer("BusyWaitIntProducer",ivalue = cms.int32(2), iterations = cms.uint32(10*1000*1000))
+process.busy1 = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(1), iterations = cms.uint32(10*1000*1000))
+process.busy2 = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(2), iterations = cms.uint32(10*1000*1000))
 
 process.tester = cms.EDAnalyzer("IntTestAnalyzer",
                                 moduleLabel = cms.untracked.string("waiter"),

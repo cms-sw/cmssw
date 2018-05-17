@@ -35,8 +35,8 @@ DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_Photon*"]
                                           
 hltDiPhotonCaloIdIsoObjectProducer = cms.EDProducer("CandidateTriggerObjectProducer",
                                              triggerName = cms.string("HLT_Photon.*_CaloId.*_Iso.*_Photon.*_CaloId.*_Iso.*_.*"),
-                                             triggerResults = cms.InputTag("TriggerResults","","HLT"),
-                                             triggerEvent   = cms.InputTag("hltTriggerSummaryAOD","","HLT")
+                                             triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+                                             triggerEvent   = cms.InputTag("hltTriggerSummaryAOD", "", "HLT")
                                              )
 
 TrailingPtCaloIdIsoPhotons = cms.EDFilter("CandViewRefSelector",

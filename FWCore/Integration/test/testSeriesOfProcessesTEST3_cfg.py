@@ -19,7 +19,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.hk = cms.EDAnalyzer("TestHistoryKeeping",
-                            expected_processes = cms.vstring('HLT','PROD','TEST'),
+                            expected_processes = cms.vstring('HLT', 'PROD', 'TEST'),
                             number_of_expected_HLT_processes_for_each_run = cms.int32(1)
                             )
 

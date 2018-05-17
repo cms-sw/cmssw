@@ -21,7 +21,7 @@ process.four = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(4), iter
 # producer
 process.ten = cms.EDProducer("BusyWaitIntProducer", ivalue = cms.int32(10), iterations=cms.uint32(2*1000))
 
-process.adder = cms.EDProducer("AddIntsProducer", labels = cms.vstring('two','ten'))
+process.adder = cms.EDProducer("AddIntsProducer", labels = cms.vstring('two', 'ten'))
 
 process.task = cms.Task(process.two, process.four, process.ten, process.adder)
 

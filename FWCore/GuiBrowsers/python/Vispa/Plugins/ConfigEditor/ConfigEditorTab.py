@@ -1,7 +1,7 @@
 import logging
 
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QWidget, QListWidget, QVBoxLayout, QPushButton,QToolButton, QSplitter
+from PyQt4.QtGui import QWidget, QListWidget, QVBoxLayout, QPushButton, QToolButton, QSplitter
 
 from Vispa.Main.SplitterTab import SplitterToolBar
 from Vispa.Plugins.Browser.BrowserTab import BrowserTab
@@ -18,7 +18,7 @@ class ConfigEditorTab(BrowserTab):
     def __init__(self, parent=None):
         """ constructor """
         logging.debug(self.__class__.__name__ +": __init__()")
-        BrowserTab.__init__(self, parent,True)
+        BrowserTab.__init__(self, parent, True)
         self._editorSplitter = None
     
     def createEditor(self):
@@ -47,7 +47,7 @@ class ConfigEditorTab(BrowserTab):
         self.toolBar().addWidgetToSection(self._originalButton, self._centerViewToolBarId)
         self.toolBar().addWidgetToSection(self._maximizeButton, self._centerViewToolBarId)
     
-        self.verticalSplitter().insertWidget(0,self._editorSplitter)
+        self.verticalSplitter().insertWidget(0, self._editorSplitter)
         self.updateToolBarSizes()
             
         controller = self.controller()

@@ -67,7 +67,7 @@ highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
 detIdProduceSeq = cms.Sequence(muonEcalDetIdsEXOHSCP+highPtTrackEcalDetIds)
 
 reducedHSCPEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
-     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+     recHitsLabel = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
      interestingDetIdCollections = cms.VInputTag(
 	         #high p_t tracker track ids
 	         cms.InputTag("highPtTrackEcalDetIds"),
@@ -77,7 +77,7 @@ reducedHSCPEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
      reducedHitsCollection = cms.string('')
 )
 reducedHSCPEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
-     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+     recHitsLabel = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
      interestingDetIdCollections = cms.VInputTag(
 	         #high p_t tracker track ids
 	         cms.InputTag("highPtTrackEcalDetIds"),
@@ -92,7 +92,7 @@ ecalSeq = cms.Sequence(detIdProduceSeq+reducedHSCPEcalRecHitsEB+reducedHSCPEcalR
 
 
 reducedHSCPhbhereco = cms.EDProducer("ReduceHcalRecHitCollectionProducer",
-									 recHitsLabel = cms.InputTag("hbhereco",""),
+									 recHitsLabel = cms.InputTag("hbhereco", ""),
 									 TrackAssociatorParameters=TrackAssociatorParameterBlock.TrackAssociatorParameters,
 									 inputCollection = cms.InputTag("generalTracksSkim"),
 									 TrackPt=cms.double(TRACK_PT),
@@ -116,8 +116,8 @@ TrackAssociatorParametersForHSCPIsol = TrackAssociatorParameterBlock.TrackAssoci
 TrackAssociatorParametersForHSCPIsol.useHO = cms.bool(False)
 TrackAssociatorParametersForHSCPIsol.CSCSegmentCollectionLabel     = cms.InputTag("cscSegments")
 TrackAssociatorParametersForHSCPIsol.DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments")
-TrackAssociatorParametersForHSCPIsol.EERecHitCollectionLabel       = cms.InputTag("ecalRecHit","EcalRecHitsEE")
-TrackAssociatorParametersForHSCPIsol.EBRecHitCollectionLabel       = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+TrackAssociatorParametersForHSCPIsol.EERecHitCollectionLabel       = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
+TrackAssociatorParametersForHSCPIsol.EBRecHitCollectionLabel       = cms.InputTag("ecalRecHit", "EcalRecHitsEB")
 TrackAssociatorParametersForHSCPIsol.HBHERecHitCollectionLabel     = cms.InputTag("hbhereco")
 
 

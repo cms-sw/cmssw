@@ -18,7 +18,7 @@ f = open(sys.argv[1])
 
 
 def fixName(name):
-    return name.replace("_","IoI")
+    return name.replace("_", "IoI")
 
 class PathParser(object):
     def __init__(self):
@@ -27,7 +27,7 @@ class PathParser(object):
         self._presentPath = []
         self._presentPathName = None
         self.__preamble = 'modules on '
-    def parse(self,line):
+    def parse(self, line):
         if line[:len(self.__preamble)] == self.__preamble:
             if self._presentPathName:
                 self._pathToModules[self._presentPathName] = self._presentPath
@@ -50,7 +50,7 @@ class ConsumesParser(object):
         self._presentConsumes = []
         self._presentModuleName = None
         self.__preramble = '    '
-    def parse(self,line):
+    def parse(self, line):
         if line[:len(self.__preramble)] != self.__preramble:
             if self._presentModuleName:
                 self._consumesForModule[self._presentModuleName] = self._presentConsumes
@@ -132,15 +132,15 @@ modulesWithConsumes = set()
 #needed to get rid of PathStatus modules at end of paths
 pathNamesAsModules = set( (fixName(n) for n in pathParser._pathToModules.iterkeys()) )
 
-for m,c in consumesParser._consumesForModule.iteritems():
+for m, c in consumesParser._consumesForModule.iteritems():
     if m in pathNamesAsModules:
         continue
     if m in consumesParser._isAnalyzer:
-        print "process.%s = cms.EDAnalyzer('MultipleIntsAnalyzer', getFromModules = cms.untracked.VInputTag(*[%s]))"%(m,",".join(["cms.InputTag('%s')"%i for i in (n for n in c if n != 'TriggerResults')]))
+        print "process.%s = cms.EDAnalyzer('MultipleIntsAnalyzer', getFromModules = cms.untracked.VInputTag(*[%s]))"%(m, ",".join(["cms.InputTag('%s')"%i for i in (n for n in c if n != 'TriggerResults')]))
     elif not c:
         print "process.%s = cms.EDProducer('IntProducer', ivalue = cms.int32(1))"%m
     else:
-        print "process.%s = cms.EDProducer('AddIntsProducer', labels = cms.vstring(*[%s]))"%(m,",".join(["'%s'"%i for i in (n for n in c if n != 'TriggerResults')]))
+        print "process.%s = cms.EDProducer('AddIntsProducer', labels = cms.vstring(*[%s]))"%(m, ",".join(["'%s'"%i for i in (n for n in c if n != 'TriggerResults')]))
     allModules.add(m)
     for o  in c:
         allModules.add(o)
@@ -155,12 +155,12 @@ for m in allModules.difference(modulesWithConsumes):
 
 
 print 't = cms.Task(*[%s])'%(",".join(["process.%s"%i for i in allModules if i not in consumesParser._isAnalyzer]))
-for p,m in pathParser._pathToModules.iteritems():
+for p, m in pathParser._pathToModules.iteritems():
     if p in pathParser._isEndPath:
-        print "process.%s = cms.EndPath(%s)"%(p,"+".join(["process.%s"%i for i in m]))
+        print "process.%s = cms.EndPath(%s)"%(p, "+".join(["process.%s"%i for i in m]))
     else:
         if m:
-            print "process.%s = cms.Path(%s,t)"%(p,"+".join(["process.%s"%i for i in m]))
+            print "process.%s = cms.Path(%s,t)"%(p, "+".join(["process.%s"%i for i in m]))
         else:
             print "process.%s = cms.Path()"%(p)
     

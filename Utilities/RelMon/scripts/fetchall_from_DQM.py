@@ -16,25 +16,25 @@ from optparse import OptionParser
 parser = OptionParser(usage="usage: %prog cmssw_release [options]")
 
 
-parser.add_option("-d","--data ",
+parser.add_option("-d", "--data ",
                   action="store",
                   dest="data",
                   default=False,
                   help="Fetch data relvals")
 
-parser.add_option("-m","--mc ",
+parser.add_option("-m", "--mc ",
                   action="store",
                   dest="mc",
                   default=False,
                   help="Fetch Monte Carlo relvals")
 
-parser.add_option("--p1","--path1 ",
+parser.add_option("--p1", "--path1 ",
                   action="store",
                   dest="path1",
                   default="",
                   help="Additional path to match in relvals")
 
-parser.add_option("--p2","--path2 ",
+parser.add_option("--p2", "--path2 ",
                   action="store",
                   dest="path2",
                   default="",
@@ -60,10 +60,10 @@ releasedir=cmssw_release[:10]+"x"
 #fetch!
 thepath=cmssw_release
 if len(options.path1)>0:
-  thepath="%s.*%s"%(options.path1,thepath)
+  thepath="%s.*%s"%(options.path1, thepath)
 if len(options.path2)>0:
-  thepath="%s.*%s"%(thepath,options.path2)  
-command='relmon_rootfiles_spy.py ROOT/%s/%s/ -u -g -p %s'%(relvaldir,releasedir,thepath)
+  thepath="%s.*%s"%(thepath, options.path2)  
+command='relmon_rootfiles_spy.py ROOT/%s/%s/ -u -g -p %s'%(relvaldir, releasedir, thepath)
 print command
 sub.call(command.split(" "))
 

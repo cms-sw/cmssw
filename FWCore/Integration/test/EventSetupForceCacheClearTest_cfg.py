@@ -13,7 +13,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.WhatsItAnalyzer = cms.EDAnalyzer("WhatsItAnalyzer",
-    expectedValues = cms.untracked.vint32(0,0,0,1,1))
+    expectedValues = cms.untracked.vint32(0, 0, 0, 1, 1))
 
 process.WhatsItESProducer = cms.ESProducer("WhatsItESProducer")
 

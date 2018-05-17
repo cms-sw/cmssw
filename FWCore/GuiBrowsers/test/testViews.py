@@ -8,7 +8,7 @@ logging.root.setLevel(logging.DEBUG)
 
 if __name__ == "__main__":
     tests = []
-    dirs = [os.path.abspath(os.path.join(os.path.dirname(__file__),"Views"))]
+    dirs = [os.path.abspath(os.path.join(os.path.dirname(__file__), "Views"))]
     print "scanning directories:"
     for dir in dirs:
         print os.path.basename(dir)

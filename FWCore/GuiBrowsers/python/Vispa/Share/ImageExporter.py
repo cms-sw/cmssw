@@ -44,7 +44,7 @@ class ImageExporter(QtCore.QObject):
         painter = QtGui.QPainter()
         painter.begin(printer)
         
-        self.exportPdfHelper(widget, painter, QtCore.QPoint(0,0))
+        self.exportPdfHelper(widget, painter, QtCore.QPoint(0, 0))
         painter.end()
         
     def exportImageDialog(self, widget):
@@ -54,7 +54,7 @@ class ImageExporter(QtCore.QObject):
             defaultname = QtCore.QCoreApplication.instance().getLastOpenLocation()
             
         filter = QtCore.QString(self._selectedFileFilter)
-        filename = str(QtGui.QFileDialog.getSaveFileName(self.parent(),"Save image...",defaultname, self._fileFiltersString, filter))
+        filename = str(QtGui.QFileDialog.getSaveFileName(self.parent(), "Save image...", defaultname, self._fileFiltersString, filter))
         ext = str(filter).split(" ")[0].lower() # extract ext from selected filter
         self.exportImage(widget, filename)
     
@@ -78,4 +78,4 @@ class ImageExporter(QtCore.QObject):
         
         # grabWidget() does not work on Mac OS X with color gradients
         # grabWidget() grabs pixels directly from screen --> can lead to problems if window is partly covered
-            picture.save(name+"."+ext,ext)
+            picture.save(name+"."+ext, ext)

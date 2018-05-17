@@ -9,19 +9,19 @@ workflows = Matrix()
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
-def makeStepNameSim(key,frag,step,suffix):
+def makeStepNameSim(key, frag, step, suffix):
     return frag+'_'+key+'_'+step+suffix
 
-def makeStepName(key,frag,step,suffix):
+def makeStepName(key, frag, step, suffix):
    return step+suffix+'_'+key
 
-neutronKeys = ['2023D17','2023D19','2023D21','2023D22','2023D23']
-neutronFrags = ['ZMM_14','MinBias_14TeV']
+neutronKeys = ['2023D17', '2023D19', '2023D21', '2023D22', '2023D23']
+neutronFrags = ['ZMM_14', 'MinBias_14TeV']
 
 #just define all of them
 
 for year in upgradeKeys:
-    for i,key in enumerate(upgradeKeys[year]):
+    for i, key in enumerate(upgradeKeys[year]):
         numWF=numWFAll[year][i]
         for frag in upgradeFragments:
             stepList={}
@@ -53,11 +53,11 @@ for year in upgradeKeys:
                         if not s in upgradeSteps[stepType]['PU']:
                             continue
                         s = s + 'PU' # later processing requires to have PU here
-                        stepList[stepType].append(stepMaker(key,frag[:-4],s,upgradeSteps[stepType]['suffix']))
-                    elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
-                        stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps[stepType]['suffix']))
+                        stepList[stepType].append(stepMaker(key, frag[:-4], s, upgradeSteps[stepType]['suffix']))
+                    elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU', '') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
+                        stepList[stepType].append(stepMaker(key, frag[:-4], step, upgradeSteps[stepType]['suffix']))
                     else:
-                        stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps['baseline']['suffix']))
+                        stepList[stepType].append(stepMaker(key, frag[:-4], step, upgradeSteps['baseline']['suffix']))
 
             workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList['baseline']]
 
@@ -72,7 +72,7 @@ for year in upgradeKeys:
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 # skip ALCA
-                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly']
+                trackingVariations = ['trackingOnly', 'trackingRun2', 'trackingOnlyRun2', 'trackingLowPU', 'pixelTrackingOnly']
                 for tv in trackingVariations:
                     stepList[tv] = filter(lambda s : "ALCA" not in s, stepList[tv])
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]

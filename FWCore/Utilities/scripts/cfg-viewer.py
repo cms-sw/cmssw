@@ -6,15 +6,15 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.SequenceTypes as seq
 
 class unscheduled:
-  def __init__(self,cfgFile,html,quiet,helperDir,fullDir):
+  def __init__(self, cfgFile, html, quiet, helperDir, fullDir):
     self._html = html
     #self._serverName = os.path.join(os.path.split(html)[0],"EditingServer.py")
     self._quiet = quiet
     self._theDir= fullDir
     self._helperDir = helperDir
-    self._mother,self._daughter ={},{}
+    self._mother, self._daughter ={}, {}
     self._reg = re.compile("['>]")
-    self._data,self._types,self._genericTypes={},{},{}
+    self._data, self._types, self._genericTypes={}, {}, {}
     self._dictP ="DictParent"
     self._modSeqP = "ModuleSeqParent"
     self._prodConsP=  "ProdConsumParent"
@@ -23,7 +23,7 @@ class unscheduled:
     "ModuleSeqParent":{"creator":"modSeqCreate","simple": False},
     "ProdConsumParent":{"creator":"prodConCreate","simple": False}
     }
-    for name,x in self._parents.iteritems():
+    for name, x in self._parents.iteritems():
       x["pfile"] = self._filenames(name)
       x["cfile"] = self._filenames(x["creator"])
     self._type = "%stypes.js"%(fullDir)
@@ -39,14 +39,14 @@ class unscheduled:
       self._getData(topObjs)
       ty = "genericTypes"
       with open(self._type, 'w') as f:
-        f.write("var %s=%s"%(ty,genericTypes))
+        f.write("var %s=%s"%(ty, genericTypes))
       self._createObjects()
       self._writeDictParent(ty)
       self._writeModSeqParent()
       self._writeProdConsum()
       fN = fileName.split("./")[-1].split(".")[0]
-      JS = ["%s%s"%(self._helperDir,x)for x in self._allJSFiles]
-      html(self._html,JS,self._data, self._theDir, self._helperDir,
+      JS = ["%s%s"%(self._helperDir, x)for x in self._allJSFiles]
+      html(self._html, JS, self._data, self._theDir, self._helperDir,
       self._config.process().name_(), fN)
       
       return True
@@ -55,7 +55,7 @@ class unscheduled:
            " No computation done.---"%(fileName)
       return False
 
-  def _getData(self,objs):
+  def _getData(self, objs):
     # i will loop around objs and keep adding things which are configFolders
     calc =[]
     for each in objs:
@@ -72,34 +72,34 @@ class unscheduled:
         if(not self._quiet):print "computing %s.."%(name)
         if(isinstance(kids[0], seq._ModuleSequenceType)):
           # e.g.it's a path, sequence or endpath
-          self._doSequenceTypes(kids,name)
+          self._doSequenceTypes(kids, name)
         else:
           # e.g. it's a pset etc.
-          self._doNonSequenceType(kids,name)
+          self._doNonSequenceType(kids, name)
         calc.append(name)
     # now i will print out producers/consumers.
     if(self._quiet):print "calculated: %s."%(", ".join(calc))
     self._producersConsumers()
 
   # Get the data for items which are SequenceTypes
-  def _doSequenceTypes(self,paths,namep):
-    theDataFile,fullDataFile = self._calcFilenames(namep)
-    topLevel,fullTopLevel = self._calcFilenames("top-"+namep)
-    json = [topLevel,theDataFile]
+  def _doSequenceTypes(self, paths, namep):
+    theDataFile, fullDataFile = self._calcFilenames(namep)
+    topLevel, fullTopLevel = self._calcFilenames("top-"+namep)
+    json = [topLevel, theDataFile]
     cap = namep.capitalize()
     bl={}
     types = False
-    with open(fullDataFile,'w') as data:
+    with open(fullDataFile, 'w') as data:
       data.write("{")
       v = visitor(data, self._config)  
       for item in paths:
         if(not types):
           spec = self._checkType(item)
-          self._saveData(spec,self._parents[self._modSeqP]["creator"],json) 
+          self._saveData(spec, self._parents[self._modSeqP]["creator"], json) 
           types = True
         name = self._config.label(item)
         # Dont think we need to check for this here. 
-        self._mothersDaughters(name,item)
+        self._mothersDaughters(name, item)
         key = self._config.label(item)
         item.visit(v)
         bl[key]= getParamSeqDict(v._finalExit(),
@@ -109,14 +109,14 @@ class unscheduled:
         other.write(JSONFormat(bl))
 
   # Check type of item and return the specofic type
-  def _checkType(self,item):
+  def _checkType(self, item):
     gen, spec = re.sub(self._reg, "", 
                              str(item.__class__)).split(".")[-2:]
-    doTypes(spec,gen)
+    doTypes(spec, gen)
     return spec
 
   # find the mothers and daughters, storing them
-  def _mothersDaughters(self,name, item):
+  def _mothersDaughters(self, name, item):
     mo =self._config.motherRelations(item)
     dau = self._config.daughterRelations(item)
     if(mo):
@@ -125,7 +125,7 @@ class unscheduled:
       self._daughter[name] = [self._config.label(i) for i in dau]
 
   # Find data for objs which are not SequenceTypes
-  def _doNonSequenceType(self,objs, globalType):
+  def _doNonSequenceType(self, objs, globalType):
     everything={}
     always= types = False
     theDataFile, fullDataFile = self._calcFilenames(globalType)
@@ -140,49 +140,49 @@ class unscheduled:
       if(always or not types):
         spec = self._checkType(item)
         if(not types):
-          self._saveData(spec,self._parents[self._dictP]["creator"],
+          self._saveData(spec, self._parents[self._dictP]["creator"],
                          [theDataFile]) 
           types = True
       name = self._config.label(item)
       self._mothersDaughters(name, item)
-      if(isinstance(item,cms._Parameterizable)):
+      if(isinstance(item, cms._Parameterizable)):
         out = getParameters(item.parameters_())
-      elif(isinstance(item,cms._ValidatingListBase)):
+      elif(isinstance(item, cms._ValidatingListBase)):
         out = listBase(item)
-      if(isinstance(item,cms._TypedParameterizable)):
+      if(isinstance(item, cms._TypedParameterizable)):
         oType = item.type_()
       else:
         oType =""
       everything[name] = getParamSeqDict(out,
                            self._config.fullFilename(item),
                            self._config.type(item), oType)
-    with open(fullDataFile,'w') as dataFile:
+    with open(fullDataFile, 'w') as dataFile:
       dataFile.write(JSONFormat(everything))
 
   # Return json data file names
-  def _calcFilenames(self,name):
-    return self._filenames(name,"data-%s.json")
+  def _calcFilenames(self, name):
+    return self._filenames(name, "data-%s.json")
 
   # Return filenames
   def _filenames(self,name,option=""):
     if(option): basicName = option%(name)
     else: basicName = "%s.js"%(name)
-    return (basicName, "%s%s"%(self._theDir,basicName))
+    return (basicName, "%s%s"%(self._theDir, basicName))
 
   # write out mothers and daughters (producers/consumers).
   def _producersConsumers(self):
     if(not self._mother and not self._daughter):
       return  
-    for name,theDict in {"producer":self._mother, 
+    for name, theDict in {"producer":self._mother, 
                          "consumer":self._daughter}.iteritems():
-      thedataFile , fulldataFile = self._calcFilenames(name)
+      thedataFile, fulldataFile = self._calcFilenames(name)
       self._saveData(name.capitalize(),
                       self._parents[self._prodConsP]["creator"],
-                      [thedataFile,self._calcFilenames("modules")[0]]) 
-      with open(fulldataFile,'w') as moth:
+                      [thedataFile, self._calcFilenames("modules")[0]]) 
+      with open(fulldataFile, 'w') as moth:
         moth.write(JSONFormat(theDict))
-  def _saveData(self,name,base,jsonfiles):
-    jsonfiles = " ".join(["%s%s"%(self._helperDir,x)for x in jsonfiles])
+  def _saveData(self, name, base, jsonfiles):
+    jsonfiles = " ".join(["%s%s"%(self._helperDir, x)for x in jsonfiles])
     temp={}
     temp["data-base"] = base
     temp["data-files"] = jsonfiles
@@ -200,29 +200,29 @@ class unscheduled:
     }
     """
     name = "data"
-    for pname,x in self._parents.iteritems():
-      simple = base%(pname,name)
-      filename,fullfilename= x["cfile"]
+    for pname, x in self._parents.iteritems():
+      simple = base%(pname, name)
+      filename, fullfilename= x["cfile"]
       self._allJSFiles.append(filename)
       if(x["simple"]):
         paramName="modules"
         with open(fullfilename, 'w') as setUp:
-          setUp.write(format%(x["creator"],paramName,self._load(
-                                             name,paramName,simple)))
+          setUp.write(format%(x["creator"], paramName, self._load(
+                                             name, paramName, simple)))
         continue
       secName = "topL"
-      paramName=["modules","topLevel"]
-      complexOne = base%(pname,"%s,%s"%(name, secName))
+      paramName=["modules", "topLevel"]
+      complexOne = base%(pname, "%s,%s"%(name, secName))
       with open(fullfilename, 'w') as setUp:
-        setUp.write(format%(x["creator"],", ".join(paramName),
-                      self._load(name,paramName[0],
-                      self._load(secName, paramName[1],complexOne))))
+        setUp.write(format%(x["creator"], ", ".join(paramName),
+                      self._load(name, paramName[0],
+                      self._load(secName, paramName[1], complexOne))))
 
   # return the .js code for loading json files in a string
-  def _load(self,name,param,inner):
+  def _load(self, name, param, inner):
     return"""
       loadJSON(%s).done(function(%s){\n%s\n});
-    """%(param,name,inner)
+    """%(param, name, inner)
 
   # The parent class for non SequenceTypes
   def _writeDictParent(self, typeName):
@@ -410,7 +410,7 @@ function getGenericType(type){
   """
     self._complexBase(self._prodConsP, f)
 
-  def _complexBase(self,parentName, extra):
+  def _complexBase(self, parentName, extra):
     name = parentName
     data = self._parents[name]  
     fileName, fullfilename= data["pfile"]
@@ -439,19 +439,19 @@ def getParameters(parameters):
   all =[]
   if(not parameters):
     return []
-  for (name,valType) in parameters.iteritems():
+  for (name, valType) in parameters.iteritems():
     theT= (valType.configTypeName() if(
-           hasattr(valType,"configTypeName")) else "").split(" ",1)[-1]
+           hasattr(valType, "configTypeName")) else "").split(" ", 1)[-1]
     temp = re.sub("<|>|'", "", str(type(valType)))
     generic, spec = temp.split(".")[-2:]
-    doTypes(spec,generic)
+    doTypes(spec, generic)
     theList=[name]
-    if(isinstance(valType,cms._Parameterizable)):
+    if(isinstance(valType, cms._Parameterizable)):
       theList.append(getParameters(valType.parameters_()))
-    elif(isinstance(valType,cms._ValidatingListBase)):
+    elif(isinstance(valType, cms._ValidatingListBase)):
       theList.append(listBase(valType))
     else:
-      if(isinstance(valType,cms._SimpleParameterTypeBase)):
+      if(isinstance(valType, cms._SimpleParameterTypeBase)):
         value = valType.configValue()
       else:
         try:
@@ -474,10 +474,10 @@ def listBase(VList):
   # Find out and if needed move these ifs to the loop.
   if(not VList):return ""
   first = VList[0]
-  if(isinstance(first,cms._Parameterizable)or 
-     isinstance(first,cms._ValidatingListBase)):
+  if(isinstance(first, cms._Parameterizable)or 
+     isinstance(first, cms._ValidatingListBase)):
     anotherVList=False
-    if(isinstance(first,cms._ValidatingListBase)):
+    if(isinstance(first, cms._ValidatingListBase)):
       anotherVList=True
     outerList=[]
     for member in VList:
@@ -492,13 +492,13 @@ def listBase(VList):
         innerList.append(listBase(member))
       temp = re.sub("<|>|'", "", str(type(member)))
       generic, spec = temp.split(".")[-2:]
-      doTypes(spec,generic)
+      doTypes(spec, generic)
       innerList.append(spec)
       outerList.append(innerList)
     return outerList
-  elif(isinstance(first,cms._SimpleParameterTypeBase)):
+  elif(isinstance(first, cms._SimpleParameterTypeBase)):
     return ",".join(i.configValue() for i in VList)
-  elif(isinstance(first,cms._ParameterTypeBase)):
+  elif(isinstance(first, cms._ParameterTypeBase)):
     return ",".join(i.pythonValue() for i in VList)
   else:
     #Most things should at least be _ParameterTypeBase, adding this jic
@@ -543,13 +543,13 @@ class visitor:
     return temp
 
   # Only keep in if we manage to move doModules into this class
-  def _getType(self,val):
+  def _getType(self, val):
     return re.sub(self._reg, "", str(type(val))).split(".")[-2:]
 
   """
     Do Module Objects e.g. producers etc
   """
-  def _doModules(self,modObj, dataFile, seq, seqs, currentName, innerSeq):
+  def _doModules(self, modObj, dataFile, seq, seqs, currentName, innerSeq):
     #name = modObj.label_()
     name = self.config.label(modObj)
     # If this is not an inner sequence then we add so it can go to paths
@@ -562,8 +562,8 @@ class visitor:
     if(name not in self._modulesToPaths.keys()):
       self._modulesToPaths[name] =[self._pathLength]
       filename = modObj._filename.split("/")[-1]
-      generic,specific = self._getType(modObj)
-      doTypes(specific,generic)
+      generic, specific = self._getType(modObj)
+      doTypes(specific, generic)
       d = getParamSeqDict(getParameters(modObj.parameters_()),
                           filename, specific, modObj.type_())
       theS='"%s":%s'
@@ -574,11 +574,11 @@ class visitor:
       self._modulesToPaths[name].append(self._pathLength)
 
   def enter(self, value):
-    if(isinstance(value,cms._Module)):
+    if(isinstance(value, cms._Module)):
       self._doModules(value, self._df, self._seq,
                 self._seqs, self._currentName, self._innerSeq)
-    elif(isinstance(value,cms._Sequenceable)):
-      generic,specific = self._getType(value)
+    elif(isinstance(value, cms._Sequenceable)):
+      generic, specific = self._getType(value)
       doTypes(specific, generic)
       if(isinstance(value, cms._ModuleSequenceType)):
         if(len(self._currentName) >0):
@@ -603,13 +603,13 @@ class visitor:
           self._underPath.append(value.__str__())
           if(name not in self._done):
             d = getParamSeqDict([], "", specific, "")
-            self._df.write(',"%s":%s'%(name,JSONFormat(d))) 
+            self._df.write(',"%s":%s'%(name, JSONFormat(d))) 
             self._done.append(name) 
 
   def leave(self, value):
-    if(isinstance(value,cms._Module)):
+    if(isinstance(value, cms._Module)):
       return
-    elif(isinstance(value,cms._Sequenceable)):
+    elif(isinstance(value, cms._Sequenceable)):
       # now need to determine difference between 
       #ones which have lists and ones which dont
       if(isinstance(value, cms._ModuleSequenceType)):
@@ -622,22 +622,22 @@ class visitor:
           else:
             self._currentName=""
         if(name not in self._done):
-          generic,specific = self._getType(value)
+          generic, specific = self._getType(value)
           d = getParamSeqDict(self._seqs.pop(name), "", specific, "")
-          self._df.write(',"%s":%s'%(name,JSONFormat(d)))
+          self._df.write(',"%s":%s'%(name, JSONFormat(d)))
           self._done.append(name)  
         self._seq -=1
         if(self._seq==0): self._innerSeq = False;
 
 class html:
-  def __init__(self,name,js,items,theDir, helperDir, pN,pFN):
+  def __init__(self, name, js, items, theDir, helperDir, pN, pFN):
     jqName = "%scfgJS.js"%(theDir)
     jqLocal = "%scfgJS.js"%(helperDir)
     css = "%sstyle.css"%(theDir)
     cssL = "%sstyle.css"%(helperDir)
-    js.insert(0,jqLocal)
-    self._jqueryFile(jqName, pN,pFN)
-    self._printHtml(name,self._scripts(js),self._css(css, cssL),
+    js.insert(0, jqLocal)
+    self._jqueryFile(jqName, pN, pFN)
+    self._printHtml(name, self._scripts(js), self._css(css, cssL),
                     self._items(items), self._searchitems(items))
 
   def _scripts(self, js):
@@ -649,16 +649,16 @@ class html:
     l= """
 <option value=%(n)s data-base="%(d)s" data-files="%(f)s"> %(n)s</option>"""
     s= [l%({"n":x,"f":y["data-files"],"d":y["data-base"]})
-        for x,y in items.iteritems()]
+        for x, y in items.iteritems()]
     return " ".join(s)
 
-  def _searchitems(self,items):
+  def _searchitems(self, items):
     b = """<option value="%(name)s" data-base="%(d)s">%(name)s</option> """
     return "\n ".join([b%({"name": x, "d":y["data-base"]})
-           for x,y in items.iteritems()])
+           for x, y in items.iteritems()])
 
-  def _printHtml(self,name,scrip,css,items, search):
-    with open(name,'w') as htmlFile:
+  def _printHtml(self, name, scrip, css, items, search):
+    with open(name, 'w') as htmlFile:
       htmlFile.write("""<!DOCTYPE html>\n<html>\n  <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
     <title>cfg-browser</title>\n    <script type="text/javascript" 
@@ -741,7 +741,7 @@ class html:
     return """<link href="%s" rel="stylesheet" \
            type="text/css"/>"""%(cssLocal)
 
-  def _jqueryFile(self,name, pN,pFN):
+  def _jqueryFile(self, name, pN, pFN):
     with open(name, 'w')as jq:
       jq.write("""
 \n$(document).ready(function(){ \n//Object used to get all details
@@ -1255,7 +1255,7 @@ Function to load the JSON files.\n*/\nfunction loadJSON(theName){
      beforeSend: function(xhr){\n    if (xhr.overrideMimeType)\n    {
       xhr.overrideMimeType("application/json");\n    }\n  },
     contentType: "application/json",\n    async: false,\n    dataType: "json"
-  });\n} \n"""%(pN,pFN))
+  });\n} \n"""%(pN, pFN))
 genericTypes={}
 
 def doTypes(spec, generic):
@@ -1386,16 +1386,16 @@ def computeConfigs(args):
     if(os.path.isdir(x)):
       # get all .py files.
       allItems = os.listdir(x)
-      py = [os.path.join(x,y) for y in allItems if y.endswith(".py")]
+      py = [os.path.join(x, y) for y in allItems if y.endswith(".py")]
       pyList.extend(computeConfigs(py))
       if(recurse):
        # print "recurse"
         # if we want to recurse, we look for everything
         dirs = []
         for y in os.listdir(x):
-          path = os.path.join(x,y)
+          path = os.path.join(x, y)
           if(os.path.isdir(path)):
-            pyList.extend(computeConfigs([os.path.join(path,z)
+            pyList.extend(computeConfigs([os.path.join(path, z)
                                           for z in os.listdir(path)]))
     elif(x.endswith(".py")):
       pyList.append(x)
@@ -1403,7 +1403,7 @@ def computeConfigs(args):
  
 recurse=False
 
-def main(args,helperDir,htmlFile,quiet, noServer):
+def main(args, helperDir, htmlFile, quiet, noServer):
   dirName = "%s-cfghtml"
   # new dir format
   #  cfgViewer.html
@@ -1438,7 +1438,7 @@ def main(args,helperDir,htmlFile,quiet, noServer):
       os.makedirs(helperdir)
     print "Calculating", x
     try:
-      u = unscheduled(x, lowerHTML, quiet, helper,helperdir)
+      u = unscheduled(x, lowerHTML, quiet, helper, helperdir)
     except Exception as e:
       print "File %s is a config file but something went wrong"%(x)
       print "%s"%(e)
@@ -1449,7 +1449,7 @@ def main(args,helperDir,htmlFile,quiet, noServer):
       shutil.rmtree(baseDir)
       continue
     found +=1
-    lis += tmpte%{"n":os.path.join(dirN,htmlFile),"s":name}
+    lis += tmpte%{"n":os.path.join(dirN, htmlFile),"s":name}
   with open("index.html", 'w')as f:
     f.write("""
 <!DOCTYPE html>
@@ -1491,7 +1491,7 @@ if __name__ == "__main__":
                   action="store_true", dest="_server", default=False,
                   help="Disable starting a python server to view "\
                   "the html after finishing with config files.")
-  parser.add_option("-r", "--recurse", dest="_recurse",action="store_true",
+  parser.add_option("-r", "--recurse", dest="_recurse", action="store_true",
                      default=False,
                      help="Search directories recursively for .py files.")
   # store in another dir down
@@ -1501,11 +1501,11 @@ if __name__ == "__main__":
   #cfg = args
   try:
     distBaseDirectory=os.path.abspath(
-                      os.path.join(os.path.dirname(__file__),".."))
+                      os.path.join(os.path.dirname(__file__), ".."))
     if (not os.path.exists(distBaseDirectory) or 
        not "Vispa" in os.listdir(distBaseDirectory)):
       distBaseDirectory=os.path.abspath(
-                        os.path.join(os.path.dirname(__file__),"../python"))
+                        os.path.join(os.path.dirname(__file__), "../python"))
     if (not os.path.exists(distBaseDirectory) or 
        not "Vispa" in os.listdir(distBaseDirectory)):
       distBaseDirectory=os.path.abspath(os.path.expandvars(
@@ -1516,10 +1516,10 @@ if __name__ == "__main__":
                           "$CMSSW_RELEASE_BASE/python/FWCore/GuiBrowsers"))
   except Exception:
     distBaseDirectory=os.path.abspath(
-                       os.path.join(os.path.dirname(sys.argv[0]),".."))
-  sys.path.insert(0,distBaseDirectory)
+                       os.path.join(os.path.dirname(sys.argv[0]), ".."))
+  sys.path.insert(0, distBaseDirectory)
   from Vispa.Main.Directories import *
-  distBinaryBaseDirectory=os.path.join(baseDirectory,"dist")
+  distBinaryBaseDirectory=os.path.join(baseDirectory, "dist")
   sys.path.append(distBinaryBaseDirectory)
   from FWCore.GuiBrowsers.Vispa.Plugins.ConfigEditor import ConfigDataAccessor
   print "starting.."
@@ -1540,5 +1540,5 @@ if __name__ == "__main__":
     recursively through the directories in the current directory.
     """
   else:
-    main(args,"cfgViewerJS","main.html",opts._quiet, opts._server)
+    main(args, "cfgViewerJS", "main.html", opts._quiet, opts._server)
   

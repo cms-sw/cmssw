@@ -42,21 +42,21 @@ class ConfigToolBase(object) :
         self._description=self.__doc__
         self._comment = ''
         self.parAccepted=True
-        saveOrigin(self,1)
+        saveOrigin(self, 1)
         self._path = path.realpath(self._filename)        
         self._path = self._path.split("/src/")
-        self._path = self._path[1].replace("/python","")
+        self._path = self._path[1].replace("/python", "")
         #self._path = "".join(self._path)
-        self._path = self._path.replace("/",".")
-        self._path = self._path.replace(".py","")
+        self._path = self._path.replace("/", ".")
+        self._path = self._path.replace(".py", "")
 
 
-    def __call__(self,process):
+    def __call__(self, process):
         """ Call the instance 
         """
         raise NotImplementedError
     
-    def apply(self,process):
+    def apply(self, process):
         
         if hasattr(process, "addAction"):
             process.disableRecording()
@@ -87,7 +87,7 @@ class ConfigToolBase(object) :
         return c
     def reset(self):
         self._parameters=copy.deepcopy(self._defaultParameters)
-    def getvalue(self,name):
+    def getvalue(self, name):
         """ Return the value of parameter 'name'
         """
         return self._parameters[name].value
@@ -123,7 +123,7 @@ class ConfigToolBase(object) :
         ### check about input value type 
         self.typeError(name)
         ### check about input value (it works if allowedValues for the specific parameter is set)
-        if self._defaultParameters[name].allowedValues is not None: self.isAllowed(name,value )
+        if self._defaultParameters[name].allowedValues is not None: self.isAllowed(name, value )
     def setParameters(self, parameters):
         self._parameters=copy.deepcopy(parameters)
     #def dumpPython(self):
@@ -148,7 +148,7 @@ class ConfigToolBase(object) :
                 string = str(self.getvalue(key))
             dumpPython+= string
         dumpPython+=")"+'\n'
-        return (dumpPythonImport,dumpPython)
+        return (dumpPythonImport, dumpPython)
     
     def setComment(self, comment):
         """ Write a comment in the configuration file
@@ -158,36 +158,36 @@ class ConfigToolBase(object) :
         """ Return the comment set for this tool
         """
         return self._comment
-    def errorMessage(self,value,type):
+    def errorMessage(self, value, type):
         return "The type for parameter "+'"'+str(value)+'"'+" is not "+'"'+str(type)+'"'
     ### method isAllowed is called by setParameter to check input values for a specific parameter
-    def isAllowed(self,name,value):
+    def isAllowed(self, name, value):
         self.parAccepted=True
         if value==[]:
             self.parAccepted=False
-        elif (isinstance(value,dict)) and (isinstance(self._parameters[name].allowedValues,list)):
+        elif (isinstance(value, dict)) and (isinstance(self._parameters[name].allowedValues, list)):
             for key in value.keys():
                 if (key not in self._parameters[name].allowedValues):
                     raise ValueError("The input key value "+'"'+str(key)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues)[1:-1])
-        elif (isinstance(value,list)) and (isinstance(self._parameters[name].allowedValues,list )):
+        elif (isinstance(value, list)) and (isinstance(self._parameters[name].allowedValues, list )):
             for val in value:
                 if (val not in self._parameters[name].allowedValues) :
                     raise ValueError("The input value "+'"'+str(val)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues)[1:-1])
-        elif (not isinstance(value,list))and (isinstance(self._parameters[name].allowedValues,list)) :
+        elif (not isinstance(value, list))and (isinstance(self._parameters[name].allowedValues, list)) :
             if (value not in self._parameters[name].allowedValues and value == None) and (not self._parameters[name].acceptNoneValue) :
                 self.parAccepted=False
-        elif not isinstance(self._parameters[name].allowedValues,list):
+        elif not isinstance(self._parameters[name].allowedValues, list):
             if (value!=self._parameters[name].allowedValues and value == None) and (not self._parameters[name].acceptNoneValue) :
                 self.parAccepted=False  
         if self.parAccepted==False:
             raise ValueError("The input value "+'"'+str(value)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues)[1:-1])
     ### check about input value type        
-    def typeError(self,name):
+    def typeError(self, name):
         if self._parameters[name].acceptNoneValue is False:
-            if not isinstance(self._parameters[name].value,self._parameters[name].type):
-                raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
+            if not isinstance(self._parameters[name].value, self._parameters[name].type):
+                raise TypeError(self.errorMessage(self._parameters[name].value, self._parameters[name].type))
         else:
-            if not (isinstance(self._parameters[name].value,self._parameters[name].type) or self._parameters[name].value is  None):
-                raise TypeError(self.errorMessage(self._parameters[name].value,self._parameters[name].type))
-    def getAllowedValues(self,name):
+            if not (isinstance(self._parameters[name].value, self._parameters[name].type) or self._parameters[name].value is  None):
+                raise TypeError(self.errorMessage(self._parameters[name].value, self._parameters[name].type))
+    def getAllowedValues(self, name):
         return self._defaultParameters[name].allowedValues

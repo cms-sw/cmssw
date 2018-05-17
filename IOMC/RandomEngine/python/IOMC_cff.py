@@ -150,7 +150,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         engineName = FullSimEngine
     )
     # to save the status of the last event (useful for crashes)
-    ,saveFileName = cms.untracked.string('')
+    , saveFileName = cms.untracked.string('')
     # to restore the status of the last event, 
     # comment the line above and decomment the following one
     #   ,restoreFileName = cms.untracked.string('RandomEngineState.log')  

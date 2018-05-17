@@ -7,14 +7,14 @@ from Vispa.Share.RelativeDataAccessor import RelativeDataAccessor
 from Vispa.Share.ParticleDataAccessor import ParticleDataAccessor
 from Vispa.Plugins.EventBrowser.EventFileAccessor import EventFileAccessor
 
-class TestDataAccessor(BasicDataAccessor,RelativeDataAccessor,ParticleDataAccessor,EventFileAccessor):
+class TestDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAccessor, EventFileAccessor):
     def __init__(self):
         self._eventNumber=1
     def children(self, parent):
         if parent=="container"+str(self._eventNumber):
-            return ["particle1","subcontainer"]
+            return ["particle1", "subcontainer"]
         elif parent=="subcontainer":
-            return ["particle2","particle3","particle4","particle5","particle6","particle7"]
+            return ["particle2", "particle3", "particle4", "particle5", "particle6", "particle7"]
         else:
             return []
         
@@ -35,7 +35,7 @@ class TestDataAccessor(BasicDataAccessor,RelativeDataAccessor,ParticleDataAccess
         if object=="particle3":
             return ["particle4"]
         if object=="particle4":
-            return ["particle5","particle6"]
+            return ["particle5", "particle6"]
         else:
             return []
 
@@ -55,7 +55,7 @@ class TestDataAccessor(BasicDataAccessor,RelativeDataAccessor,ParticleDataAccess
     def topLevelObjects(self):
         """ return top level objects from file, e.g. the event.
         """
-        return ["container"+str(self._eventNumber),"anotherTopLevelObject"]
+        return ["container"+str(self._eventNumber), "anotherTopLevelObject"]
 
     def first(self):
         """ Go to first event and read it.
@@ -91,7 +91,7 @@ class TestDataAccessor(BasicDataAccessor,RelativeDataAccessor,ParticleDataAccess
             return True
         return False
 
-    def goto(self,index):
+    def goto(self, index):
         """ Go to event number index and read it.
         """
         if index<1 or index>3:
@@ -109,22 +109,22 @@ class TestDataAccessor(BasicDataAccessor,RelativeDataAccessor,ParticleDataAccess
         """
         return 3
 
-    def id(self,object):
+    def id(self, object):
         return object
     
-    def isQuark(self,object):
+    def isQuark(self, object):
         return False
     
-    def isLepton(self,object):
+    def isLepton(self, object):
         return False
     
-    def isGluon(self,object):
+    def isGluon(self, object):
         return False
     
-    def isBoson(self,object):
+    def isBoson(self, object):
         return False
     
-    def particleId(self,object):
+    def particleId(self, object):
         return 13
 
     def addProperty(self, object, name, value, type):

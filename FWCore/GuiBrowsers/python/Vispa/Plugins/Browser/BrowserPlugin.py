@@ -29,7 +29,7 @@ class BrowserPlugin(VispaPlugin):
     def disabledCenterViewIds(self):
         return self._disabledCenterViewIds
 
-    def setDisabledCenterViewIds(self,ids):
+    def setDisabledCenterViewIds(self, ids):
         self._disabledCenterViewIds=ids
 
     def availableCenterViews(self):
@@ -39,11 +39,11 @@ class BrowserPlugin(VispaPlugin):
         """ Fill specific menu.
         """
         self._viewMenu = self.application().createPluginMenu('&View')
-        self._expandAllAction = self.application().createAction('&Expand all', self._expandAll,"Ctrl+E")
+        self._expandAllAction = self.application().createAction('&Expand all', self._expandAll, "Ctrl+E")
         self._viewMenu.addAction(self._expandAllAction)
         self._expandToDepthAction = self.application().createAction('Expand to &depth...', self._expandToDepth, "Ctrl+Shift+E")
         self._viewMenu.addAction(self._expandToDepthAction)
-        self._collapseAllAction = self.application().createAction('&Collapse all', self._collapseAll,"Ctrl+L")
+        self._collapseAllAction = self.application().createAction('&Collapse all', self._collapseAll, "Ctrl+L")
         self._viewMenu.addAction(self._collapseAllAction)
         self._viewMenu.addSeparator()
         self._filterAction = self.application().createAction('&Apply filter...', self.filterDialog, "Ctrl+P")

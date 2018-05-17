@@ -16,7 +16,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
             decay_table = cms.string('GeneratorInterface/EvtGenInterface/data/DECAY_2010.DEC'),
             particle_property_file = cms.FileInPath('GeneratorInterface/EvtGenInterface/data/evt.pdl'),
             user_decay_file = cms.vstring('GeneratorInterface/ExternalDecays/data/LambdaB_Lambdamumu_ppi.dec'),
-            list_forced_decays = cms.vstring('MyLambda_b0','Myanti-Lambda_b0','MyLambda0','Myanti-Lambda0'),
+            list_forced_decays = cms.vstring('MyLambda_b0', 'Myanti-Lambda_b0', 'MyLambda0', 'Myanti-Lambda0'),
             operates_on_particles = cms.vint32()
             ),
         parameterSets = cms.vstring('EvtGen130')
@@ -58,8 +58,8 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
                              MinP = cms.untracked.vdouble(2.8, 2.8),
                              MaxEta = cms.untracked.vdouble(2.3, 2.3),
                              MinEta = cms.untracked.vdouble(-2.3, -2.3),
-                             ParticleID1 = cms.untracked.vint32(13,-13),
-                             ParticleID2 = cms.untracked.vint32(13,-13)
+                             ParticleID1 = cms.untracked.vint32(13, -13),
+                             ParticleID2 = cms.untracked.vint32(13, -13)
                              )
 
 

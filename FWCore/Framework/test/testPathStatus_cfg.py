@@ -19,8 +19,8 @@ process.a1 = cms.EDAnalyzer("TestGetPathStatus",
     endPathStatusTag = cms.InputTag("endpath2"),
     # The index into these two vectors is the EventID.
     # The EventID starts at 1 so the first element is ignored.
-    expectedStates = cms.vint32(0,2,2,2,2,2,1,2),
-    expectedIndexes = cms.vuint32(0,1,2,1,2,1,2,1)
+    expectedStates = cms.vint32(0, 2, 2, 2, 2, 2, 1, 2),
+    expectedIndexes = cms.vuint32(0, 1, 2, 1, 2, 1, 2, 1)
 )
 
 # Same test with an empty path and empty endpath
@@ -28,8 +28,8 @@ process.a1 = cms.EDAnalyzer("TestGetPathStatus",
 process.a2 = cms.EDAnalyzer("TestGetPathStatus",
     pathStatusTag = cms.InputTag("path2"),
     endPathStatusTag = cms.InputTag("endpath3"),
-    expectedStates = cms.vint32(0,1,1,1,1,1,1,1),
-    expectedIndexes = cms.vuint32(0,0,0,0,0,0,0,0)
+    expectedStates = cms.vint32(0, 1, 1, 1, 1, 1, 1, 1),
+    expectedIndexes = cms.vuint32(0, 0, 0, 0, 0, 0, 0, 0)
 )
 
 process.f1 = cms.EDFilter("ModuloEventIDFilter",

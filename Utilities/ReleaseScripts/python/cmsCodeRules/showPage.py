@@ -56,8 +56,8 @@ class BuildViewer(object):
         self.formatter.writeAnchor(ref='top')
         self.formatter.writeH2("CMSSW code rules violation for "+ib)
             
-        self.formatter.startTable([20,20,20,20,50], 
-['Rule','Packages', 'Files','Sum of violations','Description'], id =
+        self.formatter.startTable([20, 20, 20, 20, 50], 
+['Rule', 'Packages', 'Files', 'Sum of violations', 'Description'], id =
 'descriptionTable', tableAttr='border="0" cellspacing="5" cellpadding="5"')
 
         for ruleName in rulesNames:
@@ -69,11 +69,11 @@ class BuildViewer(object):
                     totalFiles += len(packageResult)
                     for file, lines in packageResult:
                         totalViolations += len(lines)
-                self.formatter.writeRow([ruleName,str(len(ruleRes)), 
+                self.formatter.writeRow([ruleName, str(len(ruleRes)), 
 str(totalFiles), str(totalViolations), 
 self.configuration[ruleName]['description']])
             except KeyError:
-                self.formatter.writeRow([ruleName,'-', '-', '-',
+                self.formatter.writeRow([ruleName, '-', '-', '-',
 self.configuration[ruleName]['description']])
         self.formatter.endTable()
 
@@ -136,7 +136,7 @@ def numberConverter(number):
     return number
 
 def createLogFiles(rulesResult, logsDir, ib):
-    logDir = join(logsDir,"logs")
+    logDir = join(logsDir, "logs")
     if os.path.exists(logDir):
         rmtree(logDir)
     for ruleName in rulesNames:
@@ -197,7 +197,7 @@ def run(pickleDir, logsDir, htmlDir):
     </script>
     """%(aoSorting)
 
-    fmtr = SimpleHTMLFormatter(title="CMSSW integration builds", style=style, outFile = open(join(htmlDir,"cmsCRPage.html"), "w"))
+    fmtr = SimpleHTMLFormatter(title="CMSSW integration builds", style=style, outFile = open(join(htmlDir, "cmsCRPage.html"), "w"))
 
     bv = BuildViewer(fmtr, pickleDir, logsDir, htmlDir)
     bv.showResults()

@@ -5,18 +5,18 @@ def documentSkims():
 
     listOfOptions=[]
     for skim in Skims.__dict__:
-        skimstream = getattr(Skims,skim)
-        if (not isinstance(skimstream,cms.FilteredStream)):
+        skimstream = getattr(Skims, skim)
+        if (not isinstance(skimstream, cms.FilteredStream)):
             continue
         
-        shortname = skim.replace('SKIMStream','')
+        shortname = skim.replace('SKIMStream', '')
         print shortname
         if shortname!=skimstream['name']:
             print '#### ERROR ####'
-            print 'skim name and stream name should be the same for consistency',shortname,'!=',skimstream['name']
+            print 'skim name and stream name should be the same for consistency', shortname, '!=', skimstream['name']
             
-        for token in ['name','responsible','dataTier']:
-            print token,":",skimstream[token]
+        for token in ['name', 'responsible', 'dataTier']:
+            print token, ":", skimstream[token]
             
         listOfOptions.append(skimstream['name'])
 

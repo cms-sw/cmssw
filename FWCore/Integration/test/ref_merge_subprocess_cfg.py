@@ -13,7 +13,7 @@ testProcess.a = cms.EDProducer("IntProducer",
                            ivalue = cms.int32(1))
 
 testProcess.tester = cms.EDAnalyzer("OtherThingAnalyzer",
-                                other = cms.untracked.InputTag("d","testUserTag"))
+                                other = cms.untracked.InputTag("d", "testUserTag"))
 
 testProcess.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('refInSubProcess.root')
@@ -30,7 +30,7 @@ testProcessA.a = cms.EDProducer("IntProducer",
                            ivalue = cms.int32(1))
 
 testProcessA.tester = cms.EDAnalyzer("OtherThingAnalyzer",
-                                other = cms.untracked.InputTag("d","testUserTag"))
+                                other = cms.untracked.InputTag("d", "testUserTag"))
 
 testProcessA.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('refInSubProcessA.root')

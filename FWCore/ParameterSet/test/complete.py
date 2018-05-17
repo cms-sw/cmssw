@@ -61,8 +61,8 @@ process.b = cms.EDProducer("BProducer",
                   b = cms.bool(False) ), cms.PSet() ),
    e = cms.VPSet(),
    f = cms.VPSet(cms.PSet(inner = cms.VPSet()), cms.PSet() ),
-   tag = cms.InputTag("y","z"),
-   tags = cms.VInputTag(cms.InputTag("a","b"), cms.InputTag("c"), cms.InputTag("d","e"))
+   tag = cms.InputTag("y", "z"),
+   tags = cms.VInputTag(cms.InputTag("a", "b"), cms.InputTag("c"), cms.InputTag("d", "e"))
   )
 
 

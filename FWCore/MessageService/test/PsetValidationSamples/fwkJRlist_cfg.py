@@ -24,7 +24,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #    fwkJobReports = cms.untracked.vstring('cout','limit'),
 #    fwkJobReports = cms.untracked.vstring('u1_y'),
 #    fwkJobReports = cms.untracked.vstring('u1_x'),
-    fwkJobReports = cms.untracked.vstring('u1_y','u1_x'),
+    fwkJobReports = cms.untracked.vstring('u1_y', 'u1_x'),
 
    
     u1_infos = cms.untracked.PSet(

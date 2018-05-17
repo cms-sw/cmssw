@@ -17,7 +17,7 @@ class RelativeDataAccessor(object):
         for child in self.daughterRelations(object):
             if list==None or not child in list:
                 daughterRelations+=[child]
-            for grandchild in self.allDaughterRelations(child,daughterRelations):
+            for grandchild in self.allDaughterRelations(child, daughterRelations):
                 daughterRelations+=[grandchild]
         return daughterRelations
 
@@ -30,7 +30,7 @@ class RelativeDataAccessor(object):
                 motherRelations+=[grandmother]
         return motherRelations
 
-    def hasRelations(self,object):
+    def hasRelations(self, object):
         """ Return if object has relations.
         """
         return True

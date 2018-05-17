@@ -91,7 +91,7 @@ class RunAlcaSkimming:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "skims=", "lfn=","global-tag="]
+    valid = ["scenario=", "skims=", "lfn=", "global-tag="]
 
     usage = \
 """

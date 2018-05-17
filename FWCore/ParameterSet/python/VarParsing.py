@@ -575,7 +575,7 @@ class VarParsing (object):
                     if index == 0:
                         retval = retval + form % (varName, "['" + item)
                     else:
-                        retval = retval + formItem % ('',"'" + item)
+                        retval = retval + formItem % ('', "'" + item)
                     if index == varLength - 1:
                         retval = retval + "' ]\n"
                     else:

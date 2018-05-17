@@ -27,7 +27,7 @@ import sys, os, inspect, copy, struct, dis, imp
 import modulefinder
 
 def packageNameFromFilename(name):
-    return ".".join(name.replace("python/","").replace(".py","").split("/")[-3:])
+    return ".".join(name.replace("python/", "").replace(".py", "").split("/")[-3:])
 
 
 class Color:
@@ -56,15 +56,15 @@ class Package(object):
         if top:
             self.module = None
         else:    
-            self.module = __import__(name,[],[],"*")
-    def dump(self,level):
+            self.module = __import__(name, [], [], "*")
+    def dump(self, level):
         indent = "  " * level
         print indent, "+", Color.info, self.name, Color.none
         # sort dependencies alphabetically
         self.dependencies.sort(key = lambda x: x.name)
         for package in self.dependencies:
             package.dump(level+1)
-    def search(self,pattern,result):
+    def search(self, pattern, result):
         """ recursive search for pattern in source files"""
         # first start searching in the package itself / do this only once
         if self.module:
@@ -83,7 +83,7 @@ class Package(object):
         # then go on with dependencies
         _stack.append(self.name)
         for package in self.dependencies:
-            package.search(pattern,result)
+            package.search(pattern, result)
         _stack.pop() 
         self.searched = True    
 
@@ -101,24 +101,24 @@ class mymf(modulefinder.ModuleFinder):
         old_last_caller = self._last_caller
         try:
             self._last_caller = caller
-            return modulefinder.ModuleFinder.import_hook(self,name,caller,fromlist, level=level)  
+            return modulefinder.ModuleFinder.import_hook(self, name, caller, fromlist, level=level)  
         finally:
             self._last_caller = old_last_caller
 
-    def import_module(self,partnam,fqname,parent):
+    def import_module(self, partnam, fqname, parent):
                               
-        if partnam in ("os","unittest"):
+        if partnam in ("os", "unittest"):
             r = None
         else:
-            r = modulefinder.ModuleFinder.import_module(self,partnam,fqname,parent)
+            r = modulefinder.ModuleFinder.import_module(self, partnam, fqname, parent)
             # since the modulefinder is not able to look into the global area when coming from the local area, we force a second try   
             if parent and not r and self._localarea != '' and self._globalarea != '':
-                 parent.__file__ = parent.__file__.replace(self._localarea,self._globalarea)
-                 parent.__path__[0] = parent.__path__[0].replace(self._localarea,self._globalarea)
-            r = modulefinder.ModuleFinder.import_module(self,partnam,fqname,parent)
+                 parent.__file__ = parent.__file__.replace(self._localarea, self._globalarea)
+                 parent.__path__[0] = parent.__path__[0].replace(self._localarea, self._globalarea)
+            r = modulefinder.ModuleFinder.import_module(self, partnam, fqname, parent)
                                                          
         if r is not None:
-            self._depgraph.setdefault(self._last_caller.__name__,{})[r.__name__] = 1
+            self._depgraph.setdefault(self._last_caller.__name__, {})[r.__name__] = 1
         return r
     def load_module(self, fqname, fp, pathname, aux_info):
         (suffix, mode, type) = aux_info
@@ -160,7 +160,7 @@ class mymf(modulefinder.ModuleFinder):
             indexOfLoadConst = names.index("load") # This might throw a ValueError
             # These are the opcodes required to access the "load" attribute. This might
             # not even be a function, but I check for that later.
-            loadMethodOpcodes = LOAD_ATTR+struct.pack('<H',indexOfLoadConst)
+            loadMethodOpcodes = LOAD_ATTR+struct.pack('<H', indexOfLoadConst)
         except ValueError :
             # doesn't look like "load" is used anywhere in this file
             loadMethodOpcodes=None
@@ -179,7 +179,7 @@ class mymf(modulefinder.ModuleFinder):
                         # I know this is calling a method called "load" with one argument. I need
                         # to find out what the argument is. Note that I still don't know if this is
                         # on a cms.Process object.
-                        indexInTable=unpack('<H',code[4:6])[0]
+                        indexInTable=unpack('<H', code[4:6])[0]
                         if code[3]==LOAD_CONST :
                             # The argument is a constant, so retrieve that from the table
                             loadMethodArgument=consts[indexInTable]
@@ -187,7 +187,7 @@ class mymf(modulefinder.ModuleFinder):
                             # know if it was a cms.Process object. All I can do is check to see if the argument is
                             # a string, and if so if it refers to a python file in the user or global areas.
                             try :
-                                loadMethodArgument = loadMethodArgument.replace("/",".")
+                                loadMethodArgument = loadMethodArgument.replace("/", ".")
                                 # I can only use imp.find_module on submodules (i.e. each bit between a "."), so try
                                 # that on each submodule in turn using the previously found filename. Note that I have
                                 # to try this twice, because if the first pass traverses into a package in the local
@@ -250,9 +250,9 @@ def removeRecursiveLoops( node, verbose=False, currentStack=None ) :
         duplicateIndex=currentStack.index( node ) # If there isn't a recursive loop this will raise a ValueError
         if verbose :
             print "Removing recursive loop in:"
-            for index in xrange(duplicateIndex,len(currentStack)) :
-                print "   ",currentStack[index].name,"-->"
-            print "   ",node.name
+            for index in xrange(duplicateIndex, len(currentStack)) :
+                print "   ", currentStack[index].name, "-->"
+            print "   ", node.name
         currentStack[-1].dependencies.remove(node)
     except ValueError:
         # No recursive loop found, so continue traversing the tree
@@ -260,7 +260,7 @@ def removeRecursiveLoops( node, verbose=False, currentStack=None ) :
         for subnode in node.dependencies :
             removeRecursiveLoops( subnode, verbose, currentStack[:] )
 
-def transformIntoGraph(depgraph,toplevel):
+def transformIntoGraph(depgraph, toplevel):
     packageDict = {}
     # create the top level config
     packageDict[toplevel] = Package(toplevel, top = True) 
@@ -282,7 +282,7 @@ def transformIntoGraph(depgraph,toplevel):
     return packageDict[toplevel]
 
 
-def getDependenciesFromPythonFile(filename,toplevelname,path):
+def getDependenciesFromPythonFile(filename, toplevelname, path):
     modulefinder = mymf(path)
     modulefinder.run_script(filename)
     globalDependencyDict = modulefinder._depgraph
@@ -290,11 +290,11 @@ def getDependenciesFromPythonFile(filename,toplevelname,path):
     return globalDependencyDict
 
 
-def getImportTree(filename,path):
+def getImportTree(filename, path):
     toplevelname = packageNameFromFilename(filename)
     # get dependencies from given file
-    globalDependencyDict = getDependenciesFromPythonFile(filename,toplevelname,path)
+    globalDependencyDict = getDependenciesFromPythonFile(filename, toplevelname, path)
         
     # transform this flat structure in a dependency tree
-    dependencyGraph = transformIntoGraph(globalDependencyDict,toplevelname)
+    dependencyGraph = transformIntoGraph(globalDependencyDict, toplevelname)
     return dependencyGraph                                               

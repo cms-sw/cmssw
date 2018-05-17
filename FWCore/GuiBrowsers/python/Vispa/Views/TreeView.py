@@ -1,7 +1,7 @@
 import logging
 
-from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication
-from PyQt4.QtGui import QTreeWidget,QTreeWidgetItem,QInputDialog
+from PyQt4.QtCore import Qt, SIGNAL, QCoreApplication
+from PyQt4.QtGui import QTreeWidget, QTreeWidgetItem, QInputDialog
 
 from Vispa.Main.Application import Application
 from Vispa.Share.BasicDataAccessor import BasicDataAccessor
@@ -162,8 +162,8 @@ class TreeView(AbstractView, QTreeWidget):
     def isBusy(self):
         return self._updatingFlag>0
 
-    def mousePressEvent(self,event):
-        QTreeWidget.mousePressEvent(self,event)
+    def mousePressEvent(self, event):
+        QTreeWidget.mousePressEvent(self, event)
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())
 
@@ -191,7 +191,7 @@ class TreeView(AbstractView, QTreeWidget):
             self._treeDepth=0
         QTreeWidget.collapseAll(self)
         
-    def itemExpanded(self,item):
+    def itemExpanded(self, item):
         i=0
         while item:
             if item.isExpanded():

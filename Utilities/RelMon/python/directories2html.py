@@ -9,23 +9,23 @@
 #                                                                              
 ################################################################################
 
-from os import chdir,getcwd,listdir,makedirs
-from os.path import basename,join,exists
+from os import chdir, getcwd, listdir, makedirs
+from os.path import basename, join, exists
 import cgi
 
 import sys
 theargv=sys.argv
 sys.argv=[]
-from ROOT import TCanvas,gStyle,TH1F,TGaxis,gPad,kRed
+from ROOT import TCanvas, gStyle, TH1F, TGaxis, gPad, kRed
 sys.argv=theargv
 
 import os
 if "RELMON_SA" in os.environ:
-  from dirstructure import Comparison,Directory
+  from dirstructure import Comparison, Directory
   from definitions import *
   from utils import unpickler
 else:
-  from Utilities.RelMon.dirstructure import Comparison,Directory
+  from Utilities.RelMon.dirstructure import Comparison, Directory
   from Utilities.RelMon.definitions import *
   from Utilities.RelMon.utils import unpickler
   
@@ -33,41 +33,41 @@ else:
 #-------------------------------------------------------------------------------
 
 def encode_obj_url(url):
-  for old,new in url_encode_dict.items():
-    url=url.replace(old,new)
+  for old, new in url_encode_dict.items():
+    url=url.replace(old, new)
   return url
 
 def plot_size(h=250,w=200):
-  return "w=%s;h=%s" %(h,w)
+  return "w=%s;h=%s" %(h, w)
 
-def build_obj_addr(run,sample,version,plot_path,tier):
+def build_obj_addr(run, sample, version, plot_path, tier):
   slash="/"
-  obj_url="archive/%s/%s/%s/%s/" %(run,sample,version,tier)
+  obj_url="archive/%s/%s/%s/%s/" %(run, sample, version, tier)
   obj_url+=plot_path
   while obj_url.endswith(slash):
     obj_url=obj_url[:-1]  
   while slash*2 in obj_url:
-    obj_url=obj_url.replace(slash*2,slash)
+    obj_url=obj_url.replace(slash*2, slash)
   return obj_url
   
-def build_obj(run,sample,version,plot_path,tier):
-  obj_url="obj=%s;" %build_obj_addr(run,sample,version,plot_path,tier)
+def build_obj(run, sample, version, plot_path, tier):
+  obj_url="obj=%s;" %build_obj_addr(run, sample, version, plot_path, tier)
   return encode_obj_url(obj_url)
 
 def fairy_url(run1,run2,sample1,sample2,version1,version2,plot_path,tier1,tier2,draw_opts="",h=250,w=200):
-  fairy_url = "%s/%s/plotfairy/overlay?" %(server,base_url)
-  fairy_url+= build_obj(run1,sample1,version1,plot_path,tier1)
-  fairy_url+= build_obj(run2,sample2,version2,plot_path,tier2)
+  fairy_url = "%s/%s/plotfairy/overlay?" %(server, base_url)
+  fairy_url+= build_obj(run1, sample1, version1, plot_path, tier1)
+  fairy_url+= build_obj(run2, sample2, version2, plot_path, tier2)
   if len(draw_opts)>0:
     fairy_url+="drawopts=%s;" %draw_opts
-  fairy_url+= plot_size(h,w)
+  fairy_url+= plot_size(h, w)
   fairy_url += ";ref=ratiooverlay"
   return fairy_url
 
 def fairy_url_single(run,sample,version,plot_path,tier,draw_opts="",h=250,w=200):
-  fairy_url = "%s/%s/plotfairy/" %(server,base_url)
-  fairy_url+=build_obj_addr(run,sample,version,plot_path,tier)
-  fairy_url+= "?%s"%plot_size(h,w)  
+  fairy_url = "%s/%s/plotfairy/" %(server, base_url)
+  fairy_url+=build_obj_addr(run, sample, version, plot_path, tier)
+  fairy_url+= "?%s"%plot_size(h, w)  
   if len(draw_opts)>0:
     fairy_url+="drawopts=%s;" %draw_opts  
   return fairy_url
@@ -144,7 +144,7 @@ def get_title_section(directory, hashing_flag, standalone, depth=2):
           dir_name = directory.mother_dir
           mother_file_name="%s.html" %(hash_name(dir_name, hashing_flag))
       else:
-          mother_file_name="%s.html" %directory.mother_dir.replace("/","_")
+          mother_file_name="%s.html" %directory.mother_dir.replace("/", "_")
           mother_file_name=mother_file_name.strip("_")
       
   link_to_mother='<a href="%s">..</a>' %mother_file_name
@@ -168,13 +168,13 @@ def get_dir_stats(directory):
   html='<p><span class="caps alt">%s comparisons:</span></p>'%directory.weight
   html+='<ul>'
   if directory.n_successes>0:
-    html+='<li><span class="caps">Success: %.1f%% (%s)</span></li>'%(directory.get_success_rate(),directory.n_successes)
+    html+='<li><span class="caps">Success: %.1f%% (%s)</span></li>'%(directory.get_success_rate(), directory.n_successes)
   if directory.n_nulls>0:
-    html+='<li><span class="caps">Null: %.1f%% (%s)</span></li>'%(directory.get_null_rate(),directory.n_nulls)
+    html+='<li><span class="caps">Null: %.1f%% (%s)</span></li>'%(directory.get_null_rate(), directory.n_nulls)
   if directory.n_fails>0:
-    html+='<li><span class="caps">Fail: %.1f%% (%s)</span></li>'%(directory.get_fail_rate(),directory.n_fails)
+    html+='<li><span class="caps">Fail: %.1f%% (%s)</span></li>'%(directory.get_fail_rate(), directory.n_fails)
   if directory.n_skiped>0:
-    html+='<li><span class="caps">Skipped: %.1f%% (%s)</span></li>'%(directory.get_skiped_rate(),directory.n_skiped)
+    html+='<li><span class="caps">Skipped: %.1f%% (%s)</span></li>'%(directory.get_skiped_rate(), directory.n_skiped)
   if directory.n_missing_objs>0:
     html+='<li><span class="caps">Unpaired: %s</span></li>'%(directory.n_missing_objs)
   html+='</ul>'
@@ -195,9 +195,9 @@ def get_subdirs_section(directory, hashing_flag):
   for subdir in sorted_subdirs:
     name=subdir.name
     if hashing_flag:
-        link = "%s.html" %(hash_name(join(directory.full_path,name), hashing_flag)) #do hash with directory name + subdirname as single name hashing might get problems with same subdirs name in different parent dirs.
+        link = "%s.html" %(hash_name(join(directory.full_path, name), hashing_flag)) #do hash with directory name + subdirname as single name hashing might get problems with same subdirs name in different parent dirs.
     else:
-        link="%s_%s_%s.html" %(directory.mother_dir.replace("/","_"),directory.name.replace("/","_"),name)
+        link="%s_%s_%s.html" %(directory.mother_dir.replace("/", "_"), directory.name.replace("/", "_"), name)
         link=link.strip("_")
     html+='<div class="span-4 prepend-2 colborder">'
     html+='<h3>%s</h3>'%name
@@ -208,7 +208,7 @@ def get_subdirs_section(directory, hashing_flag):
     html+='</div>'
     
     html+='<div class="span-6 last">'
-    html+='<a href="%s"><img src="%s" class="top right"></a>'%(link,subdir.get_summary_chart_ajax(150,100))
+    html+='<a href="%s"><img src="%s" class="top right"></a>'%(link, subdir.get_summary_chart_ajax(150, 100))
     html+='</div>'
     
     html+='<hr>'
@@ -255,29 +255,29 @@ def get_summary_section(directory,matrix_page=True):
   html= '<div class="span-6">'+\
         '<h3>Summary</h3>'
   html+=get_dir_stats(directory)
-  html+='<a href="%s/%s">To the DQM GUI...</a>' %(server,base_url)
+  html+='<a href="%s/%s">To the DQM GUI...</a>' %(server, base_url)
   html+='</div>'
         
   html+='<div class="span-7 colborder">'+\
-        '<img src="%s" class="top right">'%directory.get_summary_chart_ajax(200,200)+\
+        '<img src="%s" class="top right">'%directory.get_summary_chart_ajax(200, 200)+\
         '</div>'+\
         '<div class="span-9 last">'
   if matrix_page:
     html+='<h3>Sample:</h3>'+\
           '<p class="caps">%s</p>'%meta.sample1+\
           '<h3>Run1 and Run2:</h3>'+\
-          '<p class="caps">%s - %s</p>'%(meta.run1,meta.run2)
+          '<p class="caps">%s - %s</p>'%(meta.run1, meta.run2)
   html+='<h3>Releases:</h3>'+\
-        '<ul><li><p>%s</p></li><li><p>%s</p></li></ul>'%(meta.release1,meta.release2)+\
+        '<ul><li><p>%s</p></li><li><p>%s</p></li></ul>'%(meta.release1, meta.release2)+\
         '<h3>Statistical Test (Pvalue threshold):</h3>'+\
-        '<ul><li><p class="caps">%s (%s)</p></li></ul>'%(test_name,test_threshold)+\
+        '<ul><li><p class="caps">%s (%s)</p></li></ul>'%(test_name, test_threshold)+\
         '</div>'+\
         '<hr>'
   return html
 
 #-------------------------------------------------------------------------------
 
-def get_comparisons(category,directory):
+def get_comparisons(category, directory):
   """Prepare the comparisons between histograms and organise them in the page.
   Moreover create separate pages with the overlay and the single plots.
   """
@@ -285,7 +285,7 @@ def get_comparisons(category,directory):
   tot_counter=1
   
   # get the right ones
-  comparisons= filter (lambda comp: comp.status == cat_states[category] , directory.comparisons) 
+  comparisons= filter (lambda comp: comp.status == cat_states[category], directory.comparisons) 
   n_comparisons=len(comparisons)    
 
   is_reverse=True
@@ -294,7 +294,7 @@ def get_comparisons(category,directory):
   comparisons=sorted(comparisons, key=lambda comp:comp.rank, reverse=is_reverse)
 
   
-  dir_abs_path="%s/%s/" %(directory.mother_dir,directory.name)
+  dir_abs_path="%s/%s/" %(directory.mother_dir, directory.name)
   html_comparisons=""
   for comparison in comparisons:
     plot_name=comparison.img_name
@@ -303,14 +303,14 @@ def get_comparisons(category,directory):
     class_type="colborder"    
     if counter==3 or tot_counter==n_comparisons:
       class_type=" colborder last"
-    comp_abs_path="%s/%s" %(dir_abs_path,comparison.name)
+    comp_abs_path="%s/%s" %(dir_abs_path, comparison.name)
 
 
     if directory.do_pngs:
       png_link=comparison.img_name
-      html_comparisons+='<div class="span-6 %s"><p>%s</p>' %(class_type,comparison.name)+\
-                      '<p class="alt">%s: %.2E</p>' %(comparison.test_name,comparison.rank)+\
-                      '<a href="%s"><img src="%s" width="250" height="200" class="top center %s"></a></div>'%(png_link,png_link,cat_classes[category])
+      html_comparisons+='<div class="span-6 %s"><p>%s</p>' %(class_type, comparison.name)+\
+                      '<p class="alt">%s: %.2E</p>' %(comparison.test_name, comparison.rank)+\
+                      '<a href="%s"><img src="%s" width="250" height="200" class="top center %s"></a></div>'%(png_link, png_link, cat_classes[category])
     else:
       big_fairy=fairy_url(directory.meta.run1,
                         directory.meta.run2,
@@ -321,7 +321,7 @@ def get_comparisons(category,directory):
                         comp_abs_path,
                         directory.meta.tier1,
                         directory.meta.tier2,
-                        "",600,600)
+                        "", 600, 600)
       small_fairy=fairy_url(directory.meta.run1,
                         directory.meta.run2,
                         directory.meta.sample1,
@@ -337,19 +337,19 @@ def get_comparisons(category,directory):
                                    directory.meta.release1,
                                    comp_abs_path,
                                    directory.meta.tier1,
-                                   "",500,500)
+                                   "", 500, 500)
       single_fairy2=fairy_url_single(directory.meta.run2,
                                    directory.meta.sample2,
                                    directory.meta.release2,
                                    comp_abs_path,
                                    directory.meta.tier2,
-                                   "",500,500)
+                                   "", 500, 500)
 
-      html_comparisons+='<div class="span-6 %s"><p>%s</p>' %(class_type,comparison.name)+\
-                      '<p class="alt">%s: %.2E</p>' %(comparison.test_name,comparison.rank)+\
-                      '<div><a class="black_link" href="%s">%s</a></div>'%(single_fairy1,directory.meta.release1)+\
-                      '<div><a href="%s">%s</a></div>'%(single_fairy2,directory.meta.release2)+\
-                      '<a href="%s"><img src="%s" class="top center %s"></a></div>'%(big_fairy,small_fairy,cat_classes[category])
+      html_comparisons+='<div class="span-6 %s"><p>%s</p>' %(class_type, comparison.name)+\
+                      '<p class="alt">%s: %.2E</p>' %(comparison.test_name, comparison.rank)+\
+                      '<div><a class="black_link" href="%s">%s</a></div>'%(single_fairy1, directory.meta.release1)+\
+                      '<div><a href="%s">%s</a></div>'%(single_fairy2, directory.meta.release2)+\
+                      '<a href="%s"><img src="%s" class="top center %s"></a></div>'%(big_fairy, small_fairy, cat_classes[category])
 
     if counter==3:                    
       html_comparisons+="<hr>"
@@ -370,15 +370,15 @@ def get_rank_section(directory):
 # do Rank histo png
     imgname="RankSummary.png"
     gStyle.SetPadTickY(0)
-    c=TCanvas("ranks","ranks",500,400)
+    c=TCanvas("ranks", "ranks", 500, 400)
     #gStyle.SetOptStat(0)
     c.cd()
 
     h=directory.rank_histo
-    rank_histof=TH1F(h.GetName(),"",h.GetNbinsX(),h.GetXaxis().GetXmin(),h.GetXaxis().GetXmax())
+    rank_histof=TH1F(h.GetName(), "", h.GetNbinsX(), h.GetXaxis().GetXmin(), h.GetXaxis().GetXmax())
     rank_histof.SetLineWidth(2)
-    for i in xrange(0,h.GetNbinsX()+1):
-      rank_histof.SetBinContent(i,h.GetBinContent(i))
+    for i in xrange(0, h.GetNbinsX()+1):
+      rank_histof.SetBinContent(i, h.GetBinContent(i))
     h.SetTitle("Ranks Summary;Rank;Frequency")
     h.Draw("Hist")
     c.Update()
@@ -393,7 +393,7 @@ def get_rank_section(directory):
     rank_histof.Draw("same")
 
     #draw an axis on the right side
-    axis = TGaxis(gPad.GetUxmax(),gPad.GetUymin(),gPad.GetUxmax(), gPad.GetUymax(),0,rightmax,510,"+L")
+    axis = TGaxis(gPad.GetUxmax(), gPad.GetUymin(), gPad.GetUxmax(), gPad.GetUymax(), 0, rightmax, 510, "+L")
     axis.SetTitle("Cumulative")
     axis.SetTitleColor(kRed)
     axis.SetLineColor(kRed)
@@ -419,11 +419,11 @@ def get_missing_objs_section(directory):
     """
     page_html = "Unpaired in %s</br>"%(directory.filename1)
     for elem in directory.different_histograms['file1']:
-        page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file1'][elem])
+        page_html += "name: %s type:%s </br>"%(elem, directory.different_histograms['file1'][elem])
     page_html +="</br>"
     page_html += "Unpaired in %s</br>"%(directory.filename2)
     for elem in directory.different_histograms['file2']:
-        page_html += "name: %s type:%s </br>"%(elem,directory.different_histograms['file2'][elem])
+        page_html += "name: %s type:%s </br>"%(elem, directory.different_histograms['file2'][elem])
     return page_html
 #-------------------------------------------------------------------------------
 
@@ -440,20 +440,20 @@ def directory2html(directory, hashing, standalone, depth=0):
     #chdir(directory.name)
   
   for subdir in directory.subdirs:
-    directory2html(subdir,hashing,standalone, depth)
+    directory2html(subdir, hashing, standalone, depth)
   
   page_html=get_page_header(directory, standalone)+\
-            get_title_section(directory,hashing, standalone, depth)+\
+            get_title_section(directory, hashing, standalone, depth)+\
             get_summary_section(directory)+\
             get_subdirs_section(directory, hashing)
 
-  for do_cat,cat in ((directory.n_comp_fails >0,FAIL ),
-                     (directory.n_comp_nulls >0,NULL ),
+  for do_cat, cat in ((directory.n_comp_fails >0, FAIL ),
+                     (directory.n_comp_nulls >0, NULL ),
                      
-                     (directory.n_comp_successes >0 and directory.draw_success,SUCCESS ),
-                     (directory.n_comp_skiped >0,SKIPED)):
+                     (directory.n_comp_successes >0 and directory.draw_success, SUCCESS ),
+                     (directory.n_comp_skiped >0, SKIPED)):
     if do_cat:
-      page_html+=get_comparisons(cat,directory)
+      page_html+=get_comparisons(cat, directory)
     
   if (len(directory.different_histograms['file1']) >0) or (len(directory.different_histograms['file2']) >0):
     page_html += get_missing_objs_section(directory)
@@ -478,10 +478,10 @@ def directory2html(directory, hashing, standalone, depth=0):
       else:
           ofilename = "RelMonSummary.html"
   else:
-      ofilename="%s_%s.html" %(directory.mother_dir.replace("/","_"),page_name)
+      ofilename="%s_%s.html" %(directory.mother_dir.replace("/", "_"), page_name)
       ofilename=ofilename.strip("_")
   #print "Writing on %s" %ofilename
-  ofile=open(ofilename,"w")
+  ofile=open(ofilename, "w")
   ofile.write(page_html)
   ofile.close()
 
@@ -501,7 +501,7 @@ def build_gauge(total_success_rate,minrate=.80,small=False,escaped=False):
   gauge_link ="https://chart.googleapis.com/chart?chs=%s&cht=gom"%size_s
   gauge_link+="&chd=t:%2.1f"%(total_success_rate_scaled_repr*100.)
   if not small:
-    gauge_link+="&chxt=x,y&chxl=0:|%2.1f%%|1:|%i%%|%i%%|100%%"%(total_success_rate*100,minrate*100.,(1+minrate)*50)
+    gauge_link+="&chxt=x,y&chxl=0:|%2.1f%%|1:|%i%%|%i%%|100%%"%(total_success_rate*100, minrate*100., (1+minrate)*50)
     gauge_link+="&chma=10,10,10,0"
   img_tag= '<img src="%s">'%gauge_link
   if escaped:
@@ -516,11 +516,11 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
 
   list_of_names=[]
   if the_aggr_pairs==[]:
-    for samplename,sampledir in dir_dict.items():
+    for samplename, sampledir in dir_dict.items():
       for subsysdirname in sorted(sampledir.get_subdirs_dict().keys()):
         if not subsysdirname in list_of_names:
           list_of_names.append(subsysdirname)
-          the_aggr_pairs.append((subsysdirname,[subsysdirname]))  
+          the_aggr_pairs.append((subsysdirname, [subsysdirname]))  
           
   #print the_aggr_pairs
   for cat_name, subdir_list in the_aggr_pairs:
@@ -532,7 +532,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
     # Loop on samples
     for dirname, sampledir in dir_dict.items():
       # Loop on directories
-      for subdirname,subdir in sampledir.get_subdirs_dict().items():        
+      for subdirname, subdir in sampledir.get_subdirs_dict().items():        
         if subdirname in subdir_list:          
           nsucc=subdir.n_successes
           total_successes+=nsucc
@@ -548,9 +548,9 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
           else:
             present_subdirs[subdirname]={"nsucc":nsucc,"weight":weight}
         # Make it usable also for subdirectories
-        for subsubdirname,subsubdir in subdir.get_subdirs_dict().items():          
-          for pathname in filter(lambda name:"/" in name,subdir_list):           
-            selected_subdirname,selected_subsubdirname = pathname.split("/")
+        for subsubdirname, subsubdir in subdir.get_subdirs_dict().items():          
+          for pathname in filter(lambda name:"/" in name, subdir_list):           
+            selected_subdirname, selected_subsubdirname = pathname.split("/")
             if selected_subdirname == subdirname and selected_subsubdirname==subsubdirname:
               #print "Studying directory ",subsubdirname," in directory ",subdirname
               nsucc=subsubdir.n_successes
@@ -572,15 +572,15 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
       continue
     
     average_success_rate=total_directory_successes/(total_ndirs)
-    aggr_pairs_info.append((cat_name,present_subdirs,total_weight,average_success_rate))
+    aggr_pairs_info.append((cat_name, present_subdirs, total_weight, average_success_rate))
     
   return aggr_pairs_info
 
 #-------------------------------------------------------------------------------
 
-def make_categories_summary(dir_dict,aggregation_rules):
+def make_categories_summary(dir_dict, aggregation_rules):
     
-  aggr_pairs_info= get_aggr_pairs_info(dir_dict,aggregation_rules)
+  aggr_pairs_info= get_aggr_pairs_info(dir_dict, aggregation_rules)
   
   #print aggr_pairs_info
   
@@ -589,7 +589,7 @@ def make_categories_summary(dir_dict,aggregation_rules):
   html= '<div class="span-20 colborder">'
   html+='<h2 class="alt"><a name="categories">Categories:</a></h2>'
 
-  for cat_name,present_subdirs,total_weight,average_success_rate in aggr_pairs_info:
+  for cat_name, present_subdirs, total_weight, average_success_rate in aggr_pairs_info:
     #print cat_name,present_subdirs,total_weight,average_success_rate
     html+='<div class="span-3 prepend-0 colborder">'
     html+='<h3>%s</h3>'%cat_name
@@ -605,7 +605,7 @@ def make_categories_summary(dir_dict,aggregation_rules):
       this_dir_dict=present_subdirs[subdirname]
       nsucc=this_dir_dict["nsucc"]
       weight=this_dir_dict["weight"]
-      html+='<li><span class="caps">%s: %2.1f%% - %2.1f%%</span></li>'%(subdirname,100*float(nsucc)/weight,100*float(weight)/total_weight)
+      html+='<li><span class="caps">%s: %2.1f%% - %2.1f%%</span></li>'%(subdirname, 100*float(nsucc)/weight, 100*float(weight)/total_weight)
     html+='</ul>'    
     html+='</div>'
     
@@ -618,22 +618,22 @@ def make_categories_summary(dir_dict,aggregation_rules):
     
  #-------------------------------------------------------------------------------
 
-def make_twiki_table(dir_dict,aggregation_rules):
+def make_twiki_table(dir_dict, aggregation_rules):
   
   # decide the release
   meta= dir_dict.items()[0][1].meta
-  releases=sorted([meta.release1,meta.release2])
+  releases=sorted([meta.release1, meta.release2])
   latest_release=releases[1].split("-")[0]
   
   
-  aggr_pairs_info= get_aggr_pairs_info(dir_dict,aggregation_rules)
+  aggr_pairs_info= get_aggr_pairs_info(dir_dict, aggregation_rules)
   
   # Now Let's build the HTML
   
   html= '<div class="span-20 colborder">'
   html+='<h2 class="alt"><a name="twiki_table">Twiki snipppet for release managers</a></h2>'
   html+='<div>| Release | Comparison |'
-  for cat_name,present_subdirs,total_weight,average_success_rate in aggr_pairs_info:
+  for cat_name, present_subdirs, total_weight, average_success_rate in aggr_pairs_info:
     html+=cat_name
     html+=" | "
   html+='</div>'
@@ -642,9 +642,9 @@ def make_twiki_table(dir_dict,aggregation_rules):
 
   # Now add all the line with small gauges
 
-  for cat_name,present_subdirs,total_weight,average_success_rate in aggr_pairs_info:
+  for cat_name, present_subdirs, total_weight, average_success_rate in aggr_pairs_info:
     #print cat_name,present_subdirs,total_weight,average_success_rate
-    html+=build_gauge(average_success_rate,small=True,escaped=True)
+    html+=build_gauge(average_success_rate, small=True, escaped=True)
     html+=" | "    
   
   html+='</div> <a href="#top">Top...</a>'
@@ -654,14 +654,14 @@ def make_twiki_table(dir_dict,aggregation_rules):
 #-------------------------------------------------------------------------------
 
 def get_pie_tooltip(directory):
-  tooltip="%s\nS:%2.1f%% N:%2.1f%% F:%2.1f%% Sk:%2.1f%%" %(directory.name,directory.get_success_rate(),directory.get_null_rate(),directory.get_fail_rate(),directory.get_skiped_rate())
+  tooltip="%s\nS:%2.1f%% N:%2.1f%% F:%2.1f%% Sk:%2.1f%%" %(directory.name, directory.get_success_rate(), directory.get_null_rate(), directory.get_fail_rate(), directory.get_skiped_rate())
   return tooltip
 
 #-------------------------------------------------------------------------------
 
 def make_barchart_summary(dir_dict,name="the_chart",title="DQM directory",the_aggr_pairs=[]):  
   
-  aggr_pairs_info= get_aggr_pairs_info(dir_dict,the_aggr_pairs)       
+  aggr_pairs_info= get_aggr_pairs_info(dir_dict, the_aggr_pairs)       
 
   script="""
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -675,10 +675,10 @@ def make_barchart_summary(dir_dict,name="the_chart",title="DQM directory",the_ag
         """
   script+="data.addRows(%i);\n"%len(aggr_pairs_info)
   counter=0
-  for subsystname,present_directories,weight,success_rate in aggr_pairs_info:
+  for subsystname, present_directories, weight, success_rate in aggr_pairs_info:
     #print subsystname,present_directories
-    script+="data.setValue(%i, 0, '%s');\n"%(counter,subsystname)
-    script+="data.setValue(%i, 1, %2.2f);\n"%(counter,success_rate)
+    script+="data.setValue(%i, 0, '%s');\n"%(counter, subsystname)
+    script+="data.setValue(%i, 1, %2.2f);\n"%(counter, success_rate)
     counter+=1
   script+="""
         var chart = new google.visualization.BarChart(document.getElementById('%s'));
@@ -687,13 +687,13 @@ def make_barchart_summary(dir_dict,name="the_chart",title="DQM directory",the_ag
                          });
       }
     </script>
-    """%(name,40*counter,title)
+    """%(name, 40*counter, title)
   return script
 
 
 #-------------------------------------------------------------------------------
 
-def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_flag, standalone_flag):
+def make_summary_table(indir, aggregation_rules, aggregation_rules_twiki, hashing_flag, standalone_flag):
   """Create a table, with as rows the directories and as columns the samples.
   Each box in the table will contain a pie chart linking to the directory.
   """  
@@ -710,7 +710,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   
   
   # Get the list of pickles
-  sample_pkls=filter(lambda name: name.endswith(".pkl"),listdir("./"))
+  sample_pkls=filter(lambda name: name.endswith(".pkl"), listdir("./"))
   
   # Load directories, build a list of all first level subdirs  
   dir_unpicklers=[]
@@ -728,26 +728,26 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   dir_dict={}
   
   # create a fake global directory
-  global_dir=Directory("global","")  
+  global_dir=Directory("global", "")  
   for dir_unpickler in dir_unpicklers:
     dir_unpickler.join()
     directory=dir_unpickler.directory
     #directory.prune("Run summary")    
     #directory.calcStats()
     global_dir.meta=directory.meta
-    dir_dict[dir_unpickler.filename.replace(".pkl","")]=directory
+    dir_dict[dir_unpickler.filename.replace(".pkl", "")]=directory
     global_dir.subdirs.append(directory)
   
   global_dir.calcStats()
   
-  directories_barchart=make_barchart_summary(dir_dict,'dir_chart',"DQM Directory")
-  categories_barchart=make_barchart_summary(dir_dict,'cat_chart','Category',aggregation_rules)
+  directories_barchart=make_barchart_summary(dir_dict, 'dir_chart', "DQM Directory")
+  categories_barchart=make_barchart_summary(dir_dict, 'cat_chart', 'Category', aggregation_rules)
   
   page_html = get_page_header(standalone=standalone_flag, additional_header=directories_barchart+categories_barchart)
   rel1=""
   rel2=""
   try:
-    rel1,rel2=title.split("VS")
+    rel1, rel2=title.split("VS")
   except:
     rel1=global_dir.meta.release1.split("-")[0]
     rel2=global_dir.meta.release2.split("-")[0] 
@@ -774,7 +774,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   page_html+='<div class="span-24"><p></p></div>\n'*3
   
   # Get The summary section
-  page_html+= get_summary_section(global_dir,False)  
+  page_html+= get_summary_section(global_dir, False)  
 
   # Make the anchor sections
   page_html+= '<div class="span-24">'
@@ -795,7 +795,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   page_html+='<div id="cat_chart"></div> <a href="#top">Top...</a><hr>'
 
   # Make the gauges per categories
-  page_html+=make_categories_summary(dir_dict,aggregation_rules)
+  page_html+=make_categories_summary(dir_dict, aggregation_rules)
 
   # Make the Directories chart
   page_html+='<div class="span-24"><h2 class="alt"><a name="detailed_barchart">Detailed Barchart</a></h2></div>'
@@ -843,16 +843,16 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   page_html+='<td  style="background-color:white;"><div class="span-1">'
   
   page_html+='<b>Summary</b></div></td>'
-  page_html+='<td style="background-color:white;" class = "colborder" ><div class="span-1"><img src="%s" alt="%s"></div></td>'%(global_dir.get_summary_chart_ajax(55,55),get_pie_tooltip(global_dir))
+  page_html+='<td style="background-color:white;" class = "colborder" ><div class="span-1"><img src="%s" alt="%s"></div></td>'%(global_dir.get_summary_chart_ajax(55, 55), get_pie_tooltip(global_dir))
   for sample in sorted_samples:
     col=dir_dict[sample]
     # check if the directory was a top one or not
     summary_page_name="RelMonSummary.html"
     if col.name!="":
       summary_page_name=hash_name(col.name, hashing_flag)+".html"
-    img_link=col.get_summary_chart_ajax(55,55)
+    img_link=col.get_summary_chart_ajax(55, 55)
     page_html+='<td  style="background-color:white;"><div class="span-1">'
-    page_html+='<a href="%s/%s"><img src="%s" title="%s"></a></div></td>' %(sample,summary_page_name,img_link,get_pie_tooltip(col))
+    page_html+='<a href="%s/%s"><img src="%s" title="%s"></a></div></td>' %(sample, summary_page_name, img_link, get_pie_tooltip(col))
   page_html+="</tr>"
 
   # Now the content
@@ -861,7 +861,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
     page_html+='          <tr>\n'
     page_html+='          <td style="background-color:white;">%s</td>\n' %subdir_name  
 
-    row_summary=Directory("row_summary","")
+    row_summary=Directory("row_summary", "")
     sample_counter=0
     n_samples=len(sorted_samples)    
 
@@ -874,9 +874,9 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
     # one first row for the summary!
     row_summary.calcStats()
-    img_link=row_summary.get_summary_chart_ajax(55,55)
+    img_link=row_summary.get_summary_chart_ajax(55, 55)
     page_html+='<td  style="background-color:white;"><div class="span-1">'
-    page_html+='<img src="%s" title="%s"></div></td>' %(img_link,get_pie_tooltip(row_summary))
+    page_html+='<img src="%s" title="%s"></div></td>' %(img_link, get_pie_tooltip(row_summary))
 
     for sample in sorted_samples:
       sample_counter+=1      
@@ -890,26 +890,26 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
         #print "   ## summary_page: %s"%(directory.name+"_"+subdir_name)
         #print "   ## summary_page hash: %s" %(hash_name(directory.name+"/"+subdir_name,hashing_flag))
         if hashing_flag:
-          summary_page=join(sample,"%s.html"%(hash_name(directory.name+"/"+subdir_name,hashing_flag)))
+          summary_page=join(sample, "%s.html"%(hash_name(directory.name+"/"+subdir_name, hashing_flag)))
         else:
-          summary_page=join(sample,"%s.html"%(hash_name(directory.name+"_"+subdir_name,hashing_flag)))
+          summary_page=join(sample, "%s.html"%(hash_name(directory.name+"_"+subdir_name, hashing_flag)))
       else:
         #print "   ## summary_page: %s"%(directory.name+subdir_name)
         #print "   ## summary_page hash: %s" %(hash_name(directory.name+subdir_name,hashing_flag))
-        summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
+        summary_page=join(sample, "%s.html"%(hash_name(directory.name+subdir_name, hashing_flag)))
       dir_is_there=subdir_name in subdirs_dict
 
       img_link="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1"
       img_tooltip="N/A"
       if dir_is_there:
         #row_summary.subdirs.append(subdirs_dict[subdir_name])
-        img_link=subdirs_dict[subdir_name].get_summary_chart_ajax(50,50)
+        img_link=subdirs_dict[subdir_name].get_summary_chart_ajax(50, 50)
         img_tooltip=get_pie_tooltip(subdirs_dict[subdir_name])
 
       page_html+='<td  style="background-color:white;"><div class="span-1">'
       if dir_is_there:
         page_html+='<a href="%s">'%(summary_page)
-      page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link,img_tooltip)
+      page_html+='<img src="%s" title="%s" height=50 width=50>' %(img_link, img_tooltip)
       if dir_is_there:
         page_html+='</a>'
       page_html+='</div></td>' 
@@ -922,7 +922,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
 
   page_html+=get_rank_section(global_dir)
 
-  page_html+=make_twiki_table(dir_dict,aggregation_rules_twiki)
+  page_html+=make_twiki_table(dir_dict, aggregation_rules_twiki)
 
   page_html+=get_page_footer()
   return page_html  

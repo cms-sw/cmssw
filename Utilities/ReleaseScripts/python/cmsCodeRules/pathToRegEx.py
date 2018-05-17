@@ -15,5 +15,5 @@ def pathToRegEx(path):
     path = path.replace("\\", "\\\\")
     path = "\A%s$" %path
     path = path.replace(".", "\.")
-    path = path.replace("*",".*")
+    path = path.replace("*", ".*")
     return path

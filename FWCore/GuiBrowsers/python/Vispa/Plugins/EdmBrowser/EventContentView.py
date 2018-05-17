@@ -53,12 +53,12 @@ class EventContentView(QTableWidget, AbstractView):
         self._eventContentsList = self.dataAccessor().eventContentsList()
         self.clear()
         self.setSortingEnabled(False)
-        names = ["Type","Label","Product","Process"]
+        names = ["Type", "Label", "Product", "Process"]
         allContent = []
         for name, content, relative, comment in self._eventContentsList:
             names += [name]
             for entry in content:
-                if not self.dataAccessor().inContent(entry,allContent):
+                if not self.dataAccessor().inContent(entry, allContent):
                     allContent += [entry]
         allContent.sort(lambda x, y: cmp(self.dataAccessor().label(x).lower(), self.dataAccessor().label(y).lower()))
         self.setColumnCount(len(names))
@@ -70,7 +70,7 @@ class EventContentView(QTableWidget, AbstractView):
             items = []
             column_before=None
             for name, content, relative, comment in self._eventContentsList:
-                this_column=self.dataAccessor().inContent(entry,content)
+                this_column=self.dataAccessor().inContent(entry, content)
                 if this_column:
                     text="Yes"
                 else:
@@ -103,7 +103,7 @@ class EventContentView(QTableWidget, AbstractView):
                 if not input:
                     column_before=this_column
                 items += [(text, color)]
-            self._addRow(entry,items)
+            self._addRow(entry, items)
         self.sortItems(1)
         self.setSortingEnabled(True)
         return True

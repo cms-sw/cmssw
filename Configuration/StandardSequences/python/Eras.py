@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from  FWCore.ParameterSet.Config import ModifierChain,Modifier
+from  FWCore.ParameterSet.Config import ModifierChain, Modifier
 
 class Eras (object):
     """
@@ -36,49 +36,49 @@ class Eras (object):
                            'stage1L1Trigger', 'fastSim',
                            'peripheralPbPb', 'pA_2016',
                            'run2_HE_2017', 'stage2L1Trigger', 'stage2L1Trigger_2017',
-                           'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017', 'run2_HB_2018','run2_HE_2018', 
+                           'run2_HF_2017', 'run2_HCAL_2017', 'run2_HEPlan1_2017', 'run2_HB_2018', 'run2_HE_2018', 
                            'run3_HB', 'run3_common',
                            'phase1Pixel', 'run3_GEM', 'run2_GEM_2017',
                            'run2_CSC_2018',
                            'phase2_common', 'phase2_tracker',
                            'phase2_hgcal', 'phase2_muon', 'phase2_timing',
-                           'phase2_timing_layer','phase2_hcal',
+                           'phase2_timing_layer', 'phase2_hcal',
                            'trackingLowPU', 'trackingPhase1', 'ctpps_2016', 'trackingPhase2PU140',
-                           'tracker_apv_vfp30_2016', 'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
+                           'tracker_apv_vfp30_2016', 'run2_miniAOD_80XLegacy', 'run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2',
                            'hcalHardcodeConditions', 'hcalSkipPacker']
         internalUseModChains = ['run2_2017_noTrackingModifier']
 
 
         for e in allEras:
-            eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff',globals(),locals(),[e],0),e)
-            self.addEra(e,eObj)
+            eObj=getattr(__import__('Configuration.Eras.Era_'+e+'_cff', globals(), locals(), [e], 0), e)
+            self.addEra(e, eObj)
 
         for e in internalUseMods:
-            eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff',globals(),locals(),[e],0),e)
-            self.addEra(e,eObj)
+            eObj=getattr(__import__('Configuration.Eras.Modifier_'+e+'_cff', globals(), locals(), [e], 0), e)
+            self.addEra(e, eObj)
 
         for e in internalUseModChains:
-            eObj=getattr(__import__('Configuration.Eras.ModifierChain_'+e+'_cff',globals(),locals(),[e],0),e)
-            self.addEra(e,eObj)
+            eObj=getattr(__import__('Configuration.Eras.ModifierChain_'+e+'_cff', globals(), locals(), [e], 0), e)
+            self.addEra(e, eObj)
 
 
-    def addEra(self,name,obj):
-        setattr(self,name,obj)
+    def addEra(self, name, obj):
+        setattr(self, name, obj)
 
-    def inspectModifier(self,m,details):
-        print '      ',m.__dict__ ['_Modifier__processModifiers']
+    def inspectModifier(self, m, details):
+        print '      ', m.__dict__ ['_Modifier__processModifiers']
 
-    def inspectEra(self,e,details):
-        print '\nEra:',e
-        print '   isChosen:',getattr(self,e).isChosen()
+    def inspectEra(self, e, details):
+        print '\nEra:', e
+        print '   isChosen:', getattr(self, e).isChosen()
         if details: print '   Modifiers:'
         nmod=0
-        for value in getattr(self,e).__dict__['_ModifierChain__chain']:
+        for value in getattr(self, e).__dict__['_ModifierChain__chain']:
             if type(value)==Modifier:
                 nmod=nmod+1
-                if details: self.inspectModifier(value,details)
-        print '   ',nmod,'modifiers defined'
+                if details: self.inspectModifier(value, details)
+        print '   ', nmod, 'modifiers defined'
 
     def inspect(self,name=None,onlyChosen=False,details=True):
         if name==None:
@@ -94,10 +94,10 @@ class Eras (object):
 
         for e in allEras:
             if name is not None and name==e:
-                self.inspectEra(e,details)
+                self.inspectEra(e, details)
             if name is None:
-                if not onlyChosen or getattr(self,e).isChosen():
-                    self.inspectEra(e,details)
+                if not onlyChosen or getattr(self, e).isChosen():
+                    self.inspectEra(e, details)
 
 eras=Eras()
 
