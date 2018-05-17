@@ -37,7 +37,7 @@ def loadJetMETBTag(process):
               process.fixedGridRhoFastjetCentralNeutral )
 
     process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
-    task.add(process.ak4JTATask)
+    task.add(process.ak4JetTracksAssociatorAtVertexPF)
 
     process.load('RecoBTag.Configuration.RecoBTag_cff')
     task.add(process.btaggingTask)
