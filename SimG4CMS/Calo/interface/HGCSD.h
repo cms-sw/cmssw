@@ -42,12 +42,12 @@ private:
   uint32_t                setDetUnitId(ForwardSubdetector&, int, int, 
 				       int, int, G4ThreeVector &);
 
-  std::string                     nameX;
+  std::string                     nameX_;
 
-  HGCalGeometryMode::GeometryMode m_mode;
-  HGCNumberingScheme*             numberingScheme;
+  HGCalGeometryMode::GeometryMode geom_mode_;
+  HGCNumberingScheme*             numberingScheme_;
   HGCMouseBite*                   mouseBite_;
-  double                          eminHit;
+  double                          eminHit_;
   ForwardSubdetector              myFwdSubdet_;
   double                          slopeMin_;
   int                             levelT_;

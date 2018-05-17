@@ -43,8 +43,7 @@ private:
   HGCMouseBite*                   mouseBite_;
   DetId::Detector                 mydet_;
   std::string                     nameX_;
-  G4int                           mumPDG_, mupPDG_; 
-  HGCalGeometryMode::GeometryMode m_mode;
+  HGCalGeometryMode::GeometryMode geom_mode_;
   double                          eminHit_, slopeMin_, mouseBiteCut_;
   int                             levelT1_, levelT2_;
   bool                            storeAllG4Hits_, rejectMB_, waferRot_;
