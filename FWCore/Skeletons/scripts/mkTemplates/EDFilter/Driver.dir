@@ -1,5 +1,7 @@
 plugins/BuildFile.xml
 plugins/EDFilter.cc
 python
-test
-doc
+test/test_catch2_EDFilter.cc
+test/test_catch2_main.cc
+test/testBuildFile.xml
+

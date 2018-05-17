@@ -1,6 +1,6 @@
 plugins/BuildFile.xml
 plugins/EDAnalyzer.cc
-python/CfiFile_cfi.py
-python/ConfFile_cfg.py
-test
-doc
+python
+test/test_catch2_EDAnalyzer.cc
+test/test_catch2_main.cc
+test/testBuildFile.xml
