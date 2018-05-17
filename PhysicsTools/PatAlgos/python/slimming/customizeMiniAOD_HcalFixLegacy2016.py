@@ -50,21 +50,21 @@ def cleanPfCandidates(process, verbose=False):
     task = getPatAlgosToolsTask(process)
 
     #add producer at the beginning of the schedule
-    process.load("CommonTools.ParticleFlow.pfCandidatesBadHadRecalibrated_cfi")
-    task.add(process.pfCandidatesBadHadRecalibrated)
+    process.load("CommonTools.ParticleFlow.pfCandidateRecalibrator_cfi")
+    task.add(process.pfCandidateRecalibrator)
 
-    replacePFCandidates = MassSearchReplaceAnyInputTagVisitor("particleFlow", "pfCandidatesBadHadRecalibrated", verbose=verbose)
+    replacePFCandidates = MassSearchReplaceAnyInputTagVisitor("particleFlow", "pfCandidateRecalibrator", verbose=verbose)
     replacePFTmpPtrs = MassSearchReplaceAnyInputTagVisitor("particleFlowTmpPtrs", "particleFlowPtrs", verbose=verbose)
     for everywhere in [ process.producers, process.filters, process.analyzers, process.psets, process.vpsets ]:
         for name,obj in everywhere.iteritems():
-            if obj != process.pfCandidatesBadHadRecalibrated:
+            if obj != process.pfCandidateRecalibrator:
                 replacePFCandidates.doIt(obj, name)
                 replacePFTmpPtrs.doIt(obj, name)
 
 
     process.load("CommonTools.ParticleFlow.pfEGammaToCandidateRemapper_cfi")
     task.add(process.pfEGammaToCandidateRemapper)
-    process.pfEGammaToCandidateRemapper.pf2pf = cms.InputTag("pfCandidatesBadHadRecalibrated")
+    process.pfEGammaToCandidateRemapper.pf2pf = cms.InputTag("pfCandidateRecalibrator")
     process.reducedEgamma.gsfElectronsPFValMap = cms.InputTag("pfEGammaToCandidateRemapper","electrons")
     process.reducedEgamma.photonsPFValMap      = cms.InputTag("pfEGammaToCandidateRemapper","photons")
 
@@ -100,6 +100,6 @@ def customizeAll(process, verbose=False):
     loadJetMETBTag(process)
 
     cleanPfCandidates(process, verbose)
-    addDiscardedPFCandidates(process, cms.InputTag("pfCandidatesBadHadRecalibrated","discarded"), verbose=verbose)
+    addDiscardedPFCandidates(process, cms.InputTag("pfCandidateRecalibrator","discarded"), verbose=verbose)
 
     return process
