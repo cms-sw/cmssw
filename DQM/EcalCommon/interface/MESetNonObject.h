@@ -29,6 +29,8 @@ namespace ecaldqm
 
     double getBinContent(int, int = 0) const override;
 
+    double getFloatValue() const;
+
     double getBinError(int, int = 0) const override;
 
     double getBinEntries(int, int = 0) const override;
