@@ -430,7 +430,7 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB,
 					   edm::Run const&, 
 					   edm::EventSetup const&) {
 
-  iB.setCurrentFolder("HGCalSimHitsV/"+nameDetector_);
+  iB.setCurrentFolder("HGCAL/HGCalSimHitsV/"+nameDetector_);
     
   std::ostringstream histoname;
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
