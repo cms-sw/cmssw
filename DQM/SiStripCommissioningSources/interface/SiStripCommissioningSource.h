@@ -73,7 +73,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   /** */
   void fillHistos( const SiStripEventSummary* const,
 		   const edm::DetSetVector<SiStripRawDigi>&,
-		   const edm::DetSetVector<SiStripRawDigi>& = edm::DetSetVector<SiStripRawDigi>());
+		   const edm::DetSetVector<SiStripRawDigi>* = nullptr);
   
   /** */
   void remove();

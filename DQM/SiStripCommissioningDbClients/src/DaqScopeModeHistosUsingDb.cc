@@ -361,7 +361,6 @@ void DaqScopeModeHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& 
       fed_key.feChan(),
       fed_key.fedApv()
     );
-    
 
     // Add comments
     typedef std::vector<std::string> Strings;
@@ -400,7 +399,7 @@ void DaqScopeModeHistosUsingDb::create( SiStripConfigDb::AnalysisDescriptionsV& 
         fed_key.feUnit(),
         fed_key.feChan(),
         fed_key.fedApv() );
-    
+
     istr = errors.begin();
     jstr = errors.end();
     for ( ; istr != jstr; ++istr ) { timing_tmp->addComments( *istr ); }
