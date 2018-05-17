@@ -26,7 +26,7 @@ public:
   virtual ~HFShowerFibreBundle();
   double                getHits(const G4Step * aStep, bool type);
   double                getRadius();
-  void                  initRun(G4ParticleTable *, HcalDDDSimConstants*);
+  void                  initRun(const HcalDDDSimConstants*);
 
 private:    
 
