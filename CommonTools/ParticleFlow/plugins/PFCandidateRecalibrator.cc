@@ -119,8 +119,10 @@ void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSet
 	  {
 	    float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
 	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
+	    if (buggedRespCorr == 0.)
+	      continue;
+
 	    float ratio = currentRespCorr/buggedRespCorr;
-	    
 	    if( std::abs(ratio - 1.f) > 0.001 )
 	      {
 		GlobalPoint pos = hgeom->getPosition(id);
@@ -134,8 +136,10 @@ void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSet
 	  {
 	    float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
 	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
+	    if (buggedRespCorr == 0.)
+	      continue;
+
 	    float ratio = currentRespCorr/buggedRespCorr;
-	    
 	    if( std::abs(ratio - 1.f) > 0.001 )
 	      {
 		HcalDetId dummyId(id);
@@ -338,9 +342,11 @@ PFCandidateRecalibrator::fillDescriptions(edm::ConfigurationDescriptions& descri
 {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("pfcandidates");
+  desc.add<edm::InputTag>("pfcandidates", edm::InputTag("particleFlow"));
   desc.add<double>("shortFibreThr", 1.4);
   desc.add<double>("longFibreThr", 1.4);
+
+  descriptions.add("pfCandidateRecalibrator", desc);
 
 }
 
