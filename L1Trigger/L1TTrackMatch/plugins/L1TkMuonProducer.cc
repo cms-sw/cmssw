@@ -19,6 +19,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
 // system include files
 #include <memory>
@@ -152,8 +153,11 @@ L1TkMuonProducer::runOnMTFCollection(const edm::Handle<RegionalMuonCandBxCollect
     imu++;
 
     float l1mu_eta = l1mu->hwEta()*0.010875;
-    float l1mu_phi = l1mu->hwPhi()*2*M_PI/576.;
-
+    // get local phi for this MTF candidate
+    float l1mu_phi_local = l1mu->hwPhi()*2*M_PI/576.;
+    // now get the corresponding global phi
+    float l1mu_phi = MicroGMTConfiguration::calcGlobalPhi( l1mu_phi_local, l1mu->trackFinderType(), l1mu->processor() );
+	  
     float l1mu_feta = fabs( l1mu_eta );
     if (l1mu_feta < ETAMIN_) continue;
     if (l1mu_feta > ETAMAX_) continue;
