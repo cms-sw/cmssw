@@ -134,7 +134,7 @@ The `edm::test::Event` also has the method `modulePassed()` which is only useful
 
 ### Example using Catch2
 
-[Catch2](https://github.com/catchorg/Catch2/blob/master/docs/Readme.md#top) is a simple to use C++ unit testing framemwork. It can be used in conjuction with `TestProcessor` to drive a series of tests.
+[Catch2](https://github.com/catchorg/Catch2/blob/master/docs/Readme.md#top) is a simple to use C++ unit testing framemwork. It can be used in conjuction with `TestProcessor` to drive a series of tests. In addition to the code, be sure to add `<use name="catch2"/>` to the `BuildFile.xml`.
 
     #include "FWCore/TestProcessor/interface/TestProcessor.h"
     ...
@@ -188,7 +188,17 @@ The `edm::test::Event` also has the method `modulePassed()` which is only useful
       };
     }
 
-##Tips
+## Autogenerating Tests
+
+Tests for new modules are automatically created when using `mkedprod`, `mkedfltr` or `mkedanlzr`. The same commands can be used to generate tests for existing modules just by running those commands from within the `test` directory of the package containing the module. For this case, you will need to manually add the following to `test/BuildFile.xml`:
+
+    <bin file="test_catch2_*.cc" name="test<SubSystem name><Package Name>TP">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+    </bin>
+
+
+## Tips
 
 ### Testing different module configuration parameters
 
