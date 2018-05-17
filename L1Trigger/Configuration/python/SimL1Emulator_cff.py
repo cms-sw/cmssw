@@ -110,6 +110,9 @@ from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 #)
 phase2_SimL1Emulator += l1ParticleFlow
 
+from L1Trigger.L1TTrackMatch.L1TkFastJetProducer_cfi import *
+phase2_SimL1Emulator += L1TkFastJets
+
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
 phase2_trigger.toReplaceWith( SimL1Emulator , phase2_SimL1Emulator)
 
