@@ -9,11 +9,12 @@
 #include "DD4hep/detail/ObjectsInterna.h"
 
 #include "XML/Utilities.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
+#include "DetectorDescription/DDCMS/interface/DDRegistry.h"
 
-#include "TSystem.h"
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
 
@@ -22,6 +23,7 @@
 #include <iomanip>
 #include <set>
 #include <map>
+#include <utility>
 
 using namespace std;
 using namespace dd4hep;
@@ -953,17 +955,13 @@ template <> void Converter<DDLBox>::operator()(xml_h element) const {
 
 /// DD4hep specific Converter for <Include/> tags: process only the constants
 template <> void Converter<include_load>::operator()(xml_h element) const   {
-  TString fname = element.attr<string>(_U(ref)).c_str();
-  const char* path = gSystem->Getenv("DDCMS_XML_PATH");
+  string fname = element.attr<string>(_U(ref));
+  edm::FileInPath fp( fname );
   xml::Document doc;
-  if ( path && gSystem->FindFile(path,fname) )
-    doc = xml::DocumentHandler().load(fname.Data());
-  else
-    doc = xml::DocumentHandler().load(element, element.attr_value(_U(ref)));
-  fname = xml::DocumentHandler::system_path(doc.root());
+  doc = xml::DocumentHandler().load( fp.fullPath());
   printout(_param<cms::DDParsingContext>()->debug_includes ? ALWAYS : DEBUG,
-           "MyDDCMS","+++ Processing the CMS detector description %s",fname.Data());
-  _option<DDRegistry>()->includes.emplace_back(doc);
+           "MyDDCMS","+++ Processing the CMS detector description %s", fname.c_str());
+  _option<DDRegistry>()->includes.emplace_back( doc );
 }
 
 /// DD4hep specific Converter for <Include/> tags: process only the constants
@@ -990,7 +988,6 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
   }
   try {
     SensitiveDetector sd;
-    Segmentation      seg;
     string            type = "DDCMS_"+_ns.realName(name);
 
     // SensitiveDetector and Segmentation currently are undefined. Let's keep it like this
@@ -1005,6 +1002,7 @@ template <> void Converter<DDLAlgorithm>::operator()(xml_h element) const  {
       return;      
     }
 #if 0
+    Segmentation      seg;
     DetElement det(PluginService::Create<NamedObject*>(type, &description, _ns.context, &element, &sd));
     if (det.isValid())   {
       // setChildTitles(make_pair(name, det));
@@ -1083,6 +1081,8 @@ splitString( const string& str, const string& delims = "," )
 /// Converter for <Vector/> tags
 /// FIXME: Check if (parent() == "Algorithm" || parent() == "SpecPar")
 template <> void Converter<DDLVector>::operator()( xml_h element ) const {
+  DDVectorRegistry registry;
+
   cms::DDNamespace _ns( _param<cms::DDParsingContext>());
   xml_dim_t e( element );
   string name = e.nameStr();
@@ -1096,6 +1096,7 @@ template <> void Converter<DDLVector>::operator()( xml_h element ) const {
 	    nEntries.c_str(), val.c_str());
 
   vector<double> results = splitNumeric( val );
+  registry->insert( { name, results } );
 
   for( auto it : results )
     cout << it << " ";
