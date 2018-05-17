@@ -57,7 +57,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
     << " Constructing object...";
   setInputFiles( inputFiles_,
 		 pset.getUntrackedParameter<std::string>( "FilePath" ),
-		 pset.getParameter<std::string>("PartitionName"),
+		 pset.existsAs<std::string>("PartitionName") ? pset.getParameter<std::string>("PartitionName") : "",
 		 pset.getUntrackedParameter<uint32_t>("RunNumber"), 
 		 collateHistos_ );
 }

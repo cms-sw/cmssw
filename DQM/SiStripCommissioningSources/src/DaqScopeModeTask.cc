@@ -163,100 +163,46 @@ void DaqScopeModeTask::fill( const SiStripEventSummary& summary,
     }
   }
   else{
-    // fill the pedestal histograms as done in the pedestal task
-    // Check number of digis                                                                                                                                                                       
+    // fill the pedestal histograms as done in the pedestal task                                                                                                                                     
+    // Check number of digis                                                                                                                                                                          
     uint16_t nbins = peds_[0].vNumOfEntries_.size();
     if ( digis.data.size() < nbins ) { nbins = digis.data.size(); }
 
     uint16_t napvs = nbins / 128;
     std::vector<uint32_t> cm; cm.resize(napvs,0);
 
-    // Calc common mode for both APVs                                                                                                                                                               
+    // Calc common mode for both APVs                                                                                                                                                                 
     std::vector<uint16_t> adc;
     for ( uint16_t iapv = 0; iapv < napvs; iapv++ ) {
       adc.clear(); adc.reserve(128);
 
       for ( uint16_t ibin = 0; ibin < 128; ibin++ ) {
-	if ( (iapv*128)+ibin < nbins ) { 
-	  if(digis.data[(iapv*128)+ibin].adc() < 1024) // check good values
-	    adc.push_back( digis.data[(iapv*128)+ibin].adc() );  
-	  else{
-	    if((iapv*128)+ibin == 0 or (iapv*128)+ibin == 128){ // saturated channels --> fix them by hand to the neighbours
-	      for(int istrip = 1; istrip < 128; istrip++){
-		if(digis.data[(iapv*128)+istrip].adc() < 1024){
-		  adc.push_back( digis.data[(iapv*128)+istrip].adc() );
-		  break;
-		}
-	      }		
-	    }
-	    else if((iapv*128)+ibin == 127 or (iapv*128)+ibin == 255){ // find the first strip with non crazy measurement
-	      for(int istrip = 1; istrip < 128; istrip--){
-		if(digis.data[(iapv*128)-istrip].adc() < 1024){
-		  adc.push_back( digis.data[(iapv*128)-istrip].adc() );
-		  break;
-		}
-	      }		
-	    }
-	    else{
-	      for(int istrip = ibin; istrip < 128; istrip++){
-		if(digis.data[(iapv*128)-istrip].adc() < 1024 and digis.data[(iapv*128)+istrip].adc() < 1024){
-		  adc.push_back((digis.data[(iapv*128)-istrip].adc()+digis.data[(iapv*128)+istrip].adc())/2);
-		  break;
-		}
-	      }	    	    
-	    }
-	  }	
-	}
+        if ( (iapv*128)+ibin < nbins ) {
+	  adc.push_back( digis.data[(iapv*128)+ibin].adc() );
+        }
       }
-    
+
       sort( adc.begin(), adc.end() );
       uint16_t index = adc.size()%2 ? adc.size()/2 : adc.size()/2-1;
       if ( !adc.empty() ) { cm[iapv] = static_cast<uint32_t>( adc[index] ); }
     }
-    
     for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
       float digiVal = digis.data[ibin].adc();
-      if(digiVal > 1024){
-	if(ibin == 0 or ibin == 128){
-	  for(int istrip = 1; istrip < 128; istrip++){	    
-	    if(digis.data[ibin+istrip].adc() < 1024){
-	      digiVal = digis.data[ibin+istrip].adc();
-	      break;
-	    }
-	  }		
-	}
-	else if(ibin == 127 or ibin == 255){ // find the first strip with non crazy measurement
-	  for(int istrip = 1; istrip < 128; istrip--){
-	    if(digis.data[ibin-istrip].adc() < 1024){
-	      digiVal = digis.data[ibin-istrip].adc();
-	      break;
-	    }
-	  }
-	}			
-	else{
-	  for(int istrip = ibin; istrip < nbins; istrip++){
-	    if(digis.data[ibin-istrip].adc() < 1024 and digis.data[ibin+istrip].adc() < 1024){
-	      digiVal = (digis.data[ibin-istrip].adc()+digis.data[ibin+istrip].adc())/2;
-	      break;
-	    }
-	  }
-	}
-      }
-      updateHistoSet( peds_[0], ibin, digiVal ); // peds and raw noise                                                                                                                  
+      updateHistoSet( peds_[0], ibin, digiVal ); // peds and raw noise                                                                                                                                
       float diff = digiVal - static_cast<float>( cm[ibin/128] );
-      updateHistoSet( peds_[1], ibin, diff ); // residuals and real noise                            
-
+      updateHistoSet( peds_[1], ibin, diff ); // residuals and real noise                                                                                                                             
     }
-    
+
     if ( cm.size() < cm_.size() ) {
       edm::LogWarning(mlDqmSource_)
-	<< "[PedestalsTask::" << __func__ << "]"
-	<< " Fewer CM values than expected: " << cm.size();
+        << "[PedestalsTask::" << __func__ << "]"
+        << " Fewer CM values than expected: " << cm.size();
     }
 
     updateHistoSet( cm_[0], cm[0] );
     updateHistoSet( cm_[1], cm[1] );
-  }  
+  }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -286,9 +232,8 @@ void DaqScopeModeTask::fill( const SiStripEventSummary& summary,
     }
   }
   else{
-  
-    // fill the pedestal histograms as done in the pedestal task
-    // Check number of digis                                                                                                                                                                       
+    // fill the pedestal histograms as done in the pedestal task                                                                                                                                      
+    // Check number of digis                                                                                                                                                                         
     uint16_t nbins = peds_[0].vNumOfEntries_.size();
     if ( digis.data.size() < nbins ) { nbins = digis.data.size(); }
 
@@ -299,93 +244,38 @@ void DaqScopeModeTask::fill( const SiStripEventSummary& summary,
     std::vector<uint16_t> adc;
     for ( uint16_t iapv = 0; iapv < napvs; iapv++ ) {
       adc.clear(); adc.reserve(128);
-
       for ( uint16_t ibin = 0; ibin < 128; ibin++ ) {
-	if ( (iapv*128)+ibin < nbins ) { 
-	  if(digis.data[(iapv*128)+ibin].adc() < 1024) // check good values
-	    adc.push_back( digis.data[(iapv*128)+ibin].adc() );  
-	  else{
-	    if((iapv*128)+ibin == 0 or (iapv*128)+ibin == 128){ // saturated channels --> fix them by hand to the neighbours
-	      for(int istrip = 1; istrip < 128; istrip++){
-		if(digis.data[(iapv*128)+istrip].adc() < 1024){
-		  adc.push_back( digis.data[(iapv*128)+istrip].adc() );
-		  break;
-		}
-	      }		
-	    }
-	    else if((iapv*128)+ibin == 127 or (iapv*128)+ibin == 255){ // find the first strip with non crazy measurement
-	      for(int istrip = 1; istrip < 128; istrip--){
-		if(digis.data[(iapv*128)-istrip].adc() < 1024){
-		  adc.push_back( digis.data[(iapv*128)-istrip].adc() );
-		  break;
-		}
-	      }		
-	    }
-	    else{
-	      for(int istrip = ibin; istrip < 128; istrip++){
-		if(digis.data[(iapv*128)-istrip].adc() < 1024 and digis.data[(iapv*128)+istrip].adc() < 1024){
-		  adc.push_back((digis.data[(iapv*128)-istrip].adc()+digis.data[(iapv*128)+istrip].adc())/2);
-		  break;
-		}
-	      }	    	    
-	    }
-	  }	
-	}
+        if ( (iapv*128)+ibin < nbins ) {
+	  adc.push_back( digis.data[(iapv*128)+ibin].adc() );
+        }
       }
-    
       sort( adc.begin(), adc.end() );
       uint16_t index = adc.size()%2 ? adc.size()/2 : adc.size()/2-1;
       if ( !adc.empty() ) { cm[iapv] = static_cast<uint32_t>( adc[index] ); }
     }
-    
-    /// Calculate pedestal
+
+    /// Calculate pedestal                                                                                                                                                                            
     for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) {
       float digiVal = digis.data[ibin].adc();
-      if(digiVal > 1024){
-	if(ibin == 0 or ibin == 128){
-	  for(int istrip = 1; istrip < 128; istrip++){	    
-	    if(digis.data[ibin+istrip].adc() < 1024){
-	      digiVal = digis.data[ibin+istrip].adc();
-	      break;
-	    }
-	  }		
-	}
-	else if(ibin == 127 or ibin == 255){ // find the first strip with non crazy measurement
-	  for(int istrip = 1; istrip < 128; istrip--){
-	    if(digis.data[ibin-istrip].adc() < 1024){
-	      digiVal = digis.data[ibin-istrip].adc();
-	      break;
-	    }
-	  }
-	}			
-	else{
-	  for(int istrip = ibin; istrip < nbins; istrip++){
-	    if(digis.data[ibin-istrip].adc() < 1024 and digis.data[ibin+istrip].adc() < 1024){
-	      digiVal = (digis.data[ibin-istrip].adc()+digis.data[ibin+istrip].adc())/2;
-	      break;
-	    }
-	  }
-	}
-      }
-      updateHistoSet( peds_[0], ibin, digiVal ); // peds and raw noise                                                                                                                  
+      updateHistoSet( peds_[0], ibin, digiVal ); // peds and raw noise                                                                                                                                
       float diff = digiVal - static_cast<float>( cm[ibin/128] );
-      updateHistoSet( peds_[1], ibin, diff ); // residuals and real noise                            
+      updateHistoSet( peds_[1], ibin, diff ); // residuals and real noise                                                                                                                             
     }
-    
+
     if ( cm.size() < cm_.size() ) {
       edm::LogWarning(mlDqmSource_)
-	<< "[PedestalsTask::" << __func__ << "]"
-	<< " Fewer CM values than expected: " << cm.size();
+        << "[PedestalsTask::" << __func__ << "]"
+        << " Fewer CM values than expected: " << cm.size();
     }
 
     updateHistoSet( cm_[0], cm[0] );
     updateHistoSet( cm_[1], cm[1] );
-    
+
     uint16_t bins = digisAlt.data.size() < nBinsSpy_ ? digisAlt.data.size() : nBinsSpy_;
     for ( uint16_t ibin = 0; ibin < bins; ibin++ ) {
-      updateHistoSet( scopeFrame_, ibin, digisAlt.data[ibin].adc() ); 
-    }    
-  }      
+      updateHistoSet( scopeFrame_, ibin, digisAlt.data[ibin].adc() );
+    }
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -412,10 +302,8 @@ void DaqScopeModeTask::update() {
       float error = 0; // sqrt(entries) / entries;                                                                                                                                                
       UpdateTProfile::setBinContent( histo, ii+1, entries, noise, error );      
     }
-
     updateHistoSet( cm_[0] );
     updateHistoSet( cm_[1] );
-
     updateHistoSet( scopeFrame_ );
 
   }
