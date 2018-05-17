@@ -62,11 +62,6 @@ MTDRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<FTLRecHitCollection> h_ETL_reco;
   iEvent.getByToken( tok_ETL_reco, h_ETL_reco );
 
- 
-  //std::cout << "========================================" << std::endl;
-  //std::cout << " run = " << iEvent.id().run() << "  event = " << iEvent.id().event() << std::endl; 
-
-
   // --- BTL RECOs:
 
   if ( h_BTL_reco->size() > 0 ) {
@@ -83,11 +78,6 @@ MTDRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< "  subdet = "  << mtdDetId.mtdSubDetector()
 		<< "  rawID = " << mtdDetId.rawId() 
 		<< std::endl;
-
-      //std::cout << "   det ID:  det = " << recHit.id().det() 
-      //		<< "  subdet = "  << recHit.id().subdetId() 
-      //		<< "  rawID = " << recHit.id().rawId() 
-      //		<< std::endl;
 
       std::cout << "       energy = " << recHit.energy() 
 		<< "  time = " << recHit.time() 
@@ -115,11 +105,6 @@ MTDRecoDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< "  subdet = "  << mtdDetId.mtdSubDetector()
 		<< "  rawID = " << mtdDetId.rawId() 
 		<< std::endl;
-
-      //std::cout << "   det ID:  det = " << recHit.id().det() 
-      //		<< "  subdet = "  << recHit.id().subdetId() 
-      //		<< "  rawID = " << recHit.id().rawId() 
-      //		<< std::endl;
 
       std::cout << "       energy = " << recHit.energy() 
 		<< "  time = " << recHit.time() 
