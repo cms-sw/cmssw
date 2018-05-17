@@ -176,14 +176,12 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
 }
 
 int HGCalDDDConstants::getLayer(double z, bool reco) const {
-  int    lay = (int)(hgpar_->zLayerHex_.size());
-  double zz  = std::abs(z);
-  for (unsigned int k=1; k<hgpar_->zLayerHex_.size(); ++k) {
-    if (zz < 0.5*(hgpar_->zLayerHex_[k-1]+hgpar_->zLayerHex_[k])) {
-      lay = k;
-      break;
-    }
-  }
+
+  unsigned int k  = 0;
+  double       zz = std::abs(z);
+  const auto& zLayerHex = hgpar_->zLayerHex_;
+  std::find_if(zLayerHex.begin()+1,zLayerHex.end(),[&k,&zz,&zLayerHex](double zLayer){ ++k; return zz < 0.5*(zLayerHex[k-1]+zLayerHex[k]);});
+  int lay = k;
   if (((mode_ == HGCalGeometryMode::Hexagon) ||
        (mode_ == HGCalGeometryMode::HexagonFull)) & reco) {
     int indx = layerIndex(lay,false);
