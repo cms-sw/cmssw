@@ -289,7 +289,7 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker& iB,
 					   edm::Run const&, 
 					   edm::EventSetup const&) {
 
-  iB.setCurrentFolder("HGCalRecHitsV/"+nameDetector_);
+  iB.setCurrentFolder("HGCAL/HGCalRecHitsV/"+nameDetector_);
   std::ostringstream histoname;
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
     histoname.str(""); histoname << "HitOccupancy_Plus_layer_" << ilayer;

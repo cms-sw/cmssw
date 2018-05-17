@@ -124,7 +124,7 @@ void HGCGeometryValidation::bookHistograms(DQMStore::IBooker& iB,
                                            edm::Run const&, 
                                            edm::EventSetup const&) {
 
-  iB.setCurrentFolder("HGCalSimHitsV/Geometry");
+  iB.setCurrentFolder("HGCAL/HGCalSimHitsV/Geometry");
 
   //initiating histograms
   heeTotEdepStep = iB.book1D("heeTotEdepStep","",100,0,100);

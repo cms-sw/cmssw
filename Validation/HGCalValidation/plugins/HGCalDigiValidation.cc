@@ -345,7 +345,7 @@ void HGCalDigiValidation::dqmBeginRun(const edm::Run&,
   
   if (verbosity_>0) 
     edm::LogVerbatim("HGCalValidation") << "current DQM directory:  "
-					<< "HGCalDigiV/" << nameDetector_ 
+					<< "HGCAL/HGCalDigisV/" << nameDetector_ 
 					<< "  layer = "<< layers_;
 }  
 
@@ -353,7 +353,7 @@ void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB,
 					 edm::Run const&, 
 					 edm::EventSetup const&) {
   
-  iB.setCurrentFolder("HGCalDigiV/"+nameDetector_);
+  iB.setCurrentFolder("HGCAL/HGCalDigisV/"+nameDetector_);
 
   std::ostringstream histoname;
   for (int ilayer = 0; ilayer < layers_; ilayer++ ) {
