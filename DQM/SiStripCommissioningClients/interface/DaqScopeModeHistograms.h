@@ -10,11 +10,11 @@ class DaqScopeModeHistograms : public virtual CommissioningHistograms {
  public:
   
   DaqScopeModeHistograms( const edm::ParameterSet& pset, DQMStore* );
-  virtual ~DaqScopeModeHistograms();
+  ~DaqScopeModeHistograms() override;
   
-  void histoAnalysis( bool debug );
+  void histoAnalysis( bool debug ) override;
 
-  void printAnalyses(); // override
+  void printAnalyses() override; // override
 
 };
 

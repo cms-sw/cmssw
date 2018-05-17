@@ -12,19 +12,19 @@ class DaqScopeModeTask : public CommissioningTask {
  public:
   
   DaqScopeModeTask( DQMStore*, const FedChannelConnection&, const edm::ParameterSet & );
-  virtual ~DaqScopeModeTask();
+  ~DaqScopeModeTask() override;
   
  private:
 
-  virtual void book();
-  virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& );
+  void book() override;
+  void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& ) override;
 
-  virtual void fill( const SiStripEventSummary&,
+  void fill( const SiStripEventSummary&,
 		     const edm::DetSet<SiStripRawDigi>&,
-		     const edm::DetSet<SiStripRawDigi>&);
+		     const edm::DetSet<SiStripRawDigi>&) override;
 
-  virtual void update();
+  void update() override;
 
   // scope mode frame for each channel
   HistoSet scopeFrame_;

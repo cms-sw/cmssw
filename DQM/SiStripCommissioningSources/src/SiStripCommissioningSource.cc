@@ -104,7 +104,7 @@ SiStripCommissioningSource::~SiStripCommissioningSource() {
 DQMStore* const SiStripCommissioningSource::dqm( std::string method ) const {
   if ( !dqm_ ) { 
     std::stringstream ss;
-    if ( method != "" ) { ss << "[SiStripCommissioningSource::" << method << "]" << std::endl; }
+    if ( !method.empty() ) { ss << "[SiStripCommissioningSource::" << method << "]" << std::endl; }
     else { ss << "[SiStripCommissioningSource]" << std::endl; }
     ss << " NULL pointer to DQMStore";
     edm::LogWarning(mlDqmSource_) << ss.str();
