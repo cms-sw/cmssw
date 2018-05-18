@@ -17,7 +17,7 @@
 <use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/PatCandidates"/>
 
-<library   file="*.cc" name="ValidationRecoMET">
+<library   file="*.cc" name="ValidationRecoMETPlugin">
   <flags   EDM_PLUGIN="1"/>
 </library>
 
