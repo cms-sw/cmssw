@@ -80,8 +80,7 @@ bool DDCheckConnect(const DDCompactView & cpv, std::ostream & os)
   
   // Pass 1:
   std::map<DDLogicalPart,bool> visited;
-  //  walker_type wkr = DDCompactView().walker();
-  walker_type wkr = cpv.walker();
+  auto wkr = math::GraphWalker<DDLogicalPart, DDPosData*>( cpv.graph(), cpv.root());
   visited[wkr.current().first]=true;
   while(wkr.next()) {
     //    std::cout << "DDCheck" << "   " << wkr.current().first << std::endl;

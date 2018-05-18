@@ -14,7 +14,6 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DataFormats/Math/interface/Graph.h"
-#include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDCompactViewImpl;
 class DDDivision;
@@ -85,17 +84,7 @@ class DDCompactView
 {
  
 public:
-  //! container-type of children of a given node in the compact-view
-  typedef std::vector<DDLogicalPart> logchild_type;
-  
-  //! container-type of pairs of children nodes and their relative position data of a given node in the compact-view
-  typedef std::vector< std::pair<DDLogicalPart,DDPosData*> > poschildren_type;
-  
-  //! pair ...
-  typedef std::pair<DDLogicalPart,DDPosData*> pos_type;
-  
-  typedef math::GraphWalker<DDLogicalPart,DDPosData*> walker_type;
-  
+
   //! type of representation of the compact-view (acyclic directed multigraph)
   /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
   typedef math::Graph<DDLogicalPart,DDPosData*> graph_type;
@@ -138,9 +127,6 @@ public:
   //! \b don't \b use : interface not stable ....
   void setRoot(const DDLogicalPart & root);
 
-  //! \b dont't \b use ! Proper implementation missing ...
-  walker_type walker() const;
-
   // ---------------------------------------------------------------
   // +++ DDCore INTERNAL USE ONLY ++++++++++++++++++++++++++++++++++
     
@@ -159,6 +145,4 @@ public:
   DDI::Store<DDName, DDRotationMatrix*> rotStore_;
 };
 
-//! global type for a compact-view walker
-typedef DDCompactView::walker_type walker_type;
 #endif

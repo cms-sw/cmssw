@@ -1,7 +1,6 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DataFormats/Math/interface/GraphWalker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DDCompactViewImpl::DDCompactViewImpl( const DDLogicalPart & rootnodedata )
@@ -27,12 +26,6 @@ DDCompactViewImpl::~DDCompactViewImpl()
     }
   }
   edm::LogInfo("DDCompactViewImpl") << std::endl << "DDD transient representation has been destructed." << std::endl << std::endl;   
-}
-
-math::GraphWalker<DDLogicalPart, DDPosData*>
-DDCompactViewImpl::walker() const
-{
-  return math::GraphWalker<DDLogicalPart, DDPosData*>( graph_, root_);
 }
 
 void
