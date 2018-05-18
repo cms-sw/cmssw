@@ -32,7 +32,8 @@ LinTrackCache::RefCountedLinearizedTrackState LinTrackCache::linTrack
   return lTrData;
 }
 
-bool LinTrackCache::Comparer::operator() ( const GlobalPoint & left,                                               const GlobalPoint & right ) const
+bool LinTrackCache::Comparer::operator() ( const GlobalPoint & left,
+                                           const GlobalPoint & right ) const
 {
   // if theyre closer than 1 micron, they're
   // indistinguishable, i.e. the same
