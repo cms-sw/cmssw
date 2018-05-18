@@ -13,20 +13,23 @@
 
 
 HGCalTowerMap2DImpl::HGCalTowerMap2DImpl(const edm::ParameterSet& conf) : useLayerWeights_(conf.getParameter<bool>("useLayerWeights")),
-                                                                          layerWeights_(conf.getParameter< std::vector<double> >("layerWeights")) { }
+                                                                          layerWeights_(conf.getParameter< std::vector<double> >("layerWeights")),
+                                                                          towerGeometryHelper_(conf.getParameter<edm::ParameterSet>("L1TTriggerTowerConfig")) {
+
+}
+
 
 std::map<int, l1t::HGCalTowerMap> HGCalTowerMap2DImpl::newTowerMaps() {
   std::map<int, l1t::HGCalTowerMap> towerMaps;
   for(unsigned layer = 1; layer<=triggerTools_.lastLayerBH(); layer++) {
     // FIXME: this is hardcoded...quite ugly
     if (layer <= triggerTools_.lastLayerEE() && layer%2 == 0) continue;
-    towerMaps[layer] = l1t::HGCalTowerMap(triggerTools_.getTriggerGeometry()->getTriggerTowers(), layer);
+    towerMaps[layer] = l1t::HGCalTowerMap(towerGeometryHelper_.getTowerCoordinates(), layer);
   }
 
   return towerMaps;
 
 }
-
 
 
 
@@ -44,7 +47,7 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
     double etEm = layer<=triggerTools_.lastLayerEE() ? calibPt : 0;
     double etHad = layer>triggerTools_.lastLayerEE() ? calibPt : 0;
 
-    towerMapsTmp[layer].addEt(triggerTools_.getTriggerGeometry()->getTriggerTowerFromTriggerCell(tc->detId()), etEm, etHad);
+    towerMapsTmp[layer].addEt(towerGeometryHelper_.getTriggerTowerFromTriggerCell(tc->detId()), etEm, etHad);
 
   }
 
