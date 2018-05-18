@@ -107,7 +107,8 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                           << " ID= " << aStep->GetTrack()->GetTrackID() 
                           << " prID= " << aStep->GetTrack()->GetParentID() 
                           << " Eprestep= " << aStep->GetPreStepPoint()->GetKineticEnergy()
-                          << " step= " << aStep->GetStepLength() << " Edep= " << aStep->GetTotalEnergyDeposit(); 
+                          << " step= " << aStep->GetStepLength() 
+			  << " Edep= " << aStep->GetTotalEnergyDeposit(); 
 #endif
   // apply shower library or parameterisation
   if(isParameterized) { 
@@ -134,13 +135,25 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     
   double   time  = theTrack->GetGlobalTime()/nanosecond;
   int      primaryID = getTrackID(theTrack);
-  currentID.setID(unitID, time, primaryID, depth);
+  if(unitID > 0) { currentID.setID(unitID, time, primaryID, depth); }
 
   if(aStep->GetTotalEnergyDeposit() == 0.0) { 
     //---VI: This code is for backward compatibility and should be removed 
     hitExists(aStep);
     //--- 
     return false; 
+  }
+  if(0 == unitID) {
+    G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
+    edm::LogWarning("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
+			       << " currUnit=   " << currentID.unitID()
+			       << " Detector: " << GetName()
+			       << " trackID= " << theTrack->GetTrackID() 
+			       << " " << theTrack->GetDefinition()->GetParticleName()
+			       << "\n Edep= " << aStep->GetTotalEnergyDeposit()
+			       << " PV: "     << touch->GetVolume(0)->GetName()
+			       << " PVid= " << touch->GetReplicaNumber(0)
+			       << " MVid= " << touch->GetReplicaNumber(1);
   }
 
   double energy = getEnergyDeposit(aStep);
@@ -617,9 +630,9 @@ double CaloSD::getResponseWt(const G4Track* aTrack) {
 }
 
 void CaloSD::storeHit(CaloG4Hit* hit) {
-  if (previousID.trackID()<0) return;
-  if (hit == nullptr) {
-    edm::LogWarning("CaloSim") << "CaloSD: hit to be stored is nullptr !!";
+  if (hit == nullptr || previousID.trackID()<0) {
+    edm::LogWarning("CaloSim") << "CaloSD: hit to be stored is nullptr !!"
+			       << " previousID.trackID()= " << previousID.trackID();
     return;
   }
   
