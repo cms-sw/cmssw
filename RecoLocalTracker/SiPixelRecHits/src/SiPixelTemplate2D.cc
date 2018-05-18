@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate2D.cc  Version 2.35
+//  SiPixelTemplate2D.cc  Version 2.61a
 //
 //  Full 2-D templates for cluster splitting, simulated cluster reweighting, and improved cluster probability
 //
@@ -16,13 +16,15 @@
 // v2.25 - Resize template store to accommodate FPix Templates
 // v2.30 - Fix bug found by P. Shuetze that compromises sqlite file loading
 // v2.35 - Add directory path selection to the ascii pushfile method
-// V2.36 - Move templateStore to the heap, fix variable name in pushfile()
+// v2.50 - Change template storage to dynamically allocated 2D arrays of SiPixelTemplateEntry2D structs
+// v2.51 - Ensure that the derivative arrays are correctly zeroed between calls
+// v2.52 - Improve cosmetics for increased style points from judges
+// v2.60 - Fix FPix multiframe lookup problem [takes +-cotalpha and +-cotbeta]
+// v2.61a - Code 2.60 fix correctly
+//
 //
 
-//#include <stdlib.h>
-//#include <stdio.h>
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-//#include <cmath.h>
 #else
 #include <math.h>
 #endif
@@ -62,9 +64,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
    // Add template stored in external file numbered filenum to theTemplateStore
    
    // Local variables
-   int i, j, k, l, iy, jx;
    const char *tempfile;
-   //	char title[80]; remove this
    char c;
    const int code_version={21};
    
@@ -100,11 +100,10 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
       
       // Read-in a header string first and print it
       
-      for (i=0; (c=in_file.get()) != '\n'; ++i) {
+      for (int i=0; (c=in_file.get()) != '\n'; ++i) {
          if(i < 79) {theCurrentTemp.head.title[i] = c;}
+         if(i > 78) {theCurrentTemp.head.title[79] ='\0';}
       }
-      if(i > 78) {i=78;}
-      theCurrentTemp.head.title[i+1] ='\0';
       LOGINFO("SiPixelTemplate2D") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
       
       // next, the header information
@@ -122,6 +121,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
          if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 0B, no template load"
             << ENDL; return false;}
       } else {
+// This is for older [legacy] payloads 
          theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
          theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth/2.f;
          theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth/2.f;
@@ -145,19 +145,16 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
       
       if(theCurrentTemp.head.NTy != 0) {LOGERROR("SiPixelTemplate2D") << "Trying to load 1-d template info into the 2-d template object, check your DB/global tag!" << ENDL; return false;}
       
-      
-#ifdef SI_PIXEL_TEMPLATE_USE_BOOST
-      
       // next, layout the 2-d structure needed to store template
       
-      theCurrentTemp.entry.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
-      
-#endif
-      
+      theCurrentTemp.entry = new SiPixelTemplateEntry2D*[theCurrentTemp.head.NTyx];
+      theCurrentTemp.entry[0] = new SiPixelTemplateEntry2D[theCurrentTemp.head.NTyx*theCurrentTemp.head.NTxx];
+      for(int i = 1; i < theCurrentTemp.head.NTyx; ++i) theCurrentTemp.entry[i] = theCurrentTemp.entry[i-1] + theCurrentTemp.head.NTxx;      
+
       // Read in the file info
       
-      for (iy=0; iy < theCurrentTemp.head.NTyx; ++iy) {
-         for(jx=0; jx < theCurrentTemp.head.NTxx; ++jx) {
+      for (int iy=0; iy < theCurrentTemp.head.NTyx; ++iy) {
+         for(int jx=0; jx < theCurrentTemp.head.NTxx; ++jx) {
             
             in_file >> theCurrentTemp.entry[iy][jx].runnum >> theCurrentTemp.entry[iy][jx].costrk[0]
             >> theCurrentTemp.entry[iy][jx].costrk[1] >> theCurrentTemp.entry[iy][jx].costrk[2];
@@ -175,7 +172,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
             
             if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
             
-            for (k=0; k<2; ++k) {
+            for (int k=0; k<2; ++k) {
                
                in_file >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1]
                >> theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >> theCurrentTemp.entry[iy][jx].xypar[k][4];
@@ -184,7 +181,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
                
             }
             
-            for (k=0; k<2; ++k) {
+            for (int k=0; k<2; ++k) {
                
                in_file >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1]
                >> theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >> theCurrentTemp.entry[iy][jx].lanpar[k][4];
@@ -193,13 +190,20 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
                
             }
             
-            for (l=0; l<7; ++l) {
-               for (k=0; k<7; ++k) {
-                  for (j=0; j<T2XSIZE; ++j) {
-                     
-                     for (i=0; i<T2YSIZE; ++i) {in_file >> theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j];}
-                     
+      
+//  Read the 2D template entries as floats [they are formatted that way] and cast to short ints
+
+            float dummy[T2YSIZE];
+            for (int l=0; l<7; ++l) {
+               for (int k=0; k<7; ++k) {
+                  for (int j=0; j<T2XSIZE; ++j) {
+                     for (int i=0; i<T2YSIZE; ++i) {
+                        in_file >> dummy[i];                       
+                     }                     
                      if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+                     for (int i=0; i<T2YSIZE; ++i) {
+                        theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];                        
+                     }                    
                   }
                }
             }
@@ -258,25 +262,22 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
 {
    // Add template stored in external dbobject to theTemplateStore
    
-   // Local variables
-   int i, j, k, l, iy, jx;       // &&& Do we need them?  Move to the lowest scope...
-   //	const char *tempfile;
    const int code_version={21};
    
    // We must create a new object because dbobject must be a const and our stream must not be
    SiPixel2DTemplateDBObject db = dbobject;
    
    // Create a local template storage entry
-   /// SiPixelTemplateStore2D theCurrentTemp;   // can't do this (crashes): too large (14 MB) for stack!
-   auto tmpPtr = std::make_unique<SiPixelTemplateStore2D>(); // must be allocated on the heap instead
-   auto & theCurrentTemp = *tmpPtr;
-
+   SiPixelTemplateStore2D theCurrentTemp;
+   
    // Fill the template storage for each template calibration stored in the db
    for(int m=0; m<db.numOfTempl(); ++m)
    {
+      
       // Read-in a header string first and print it
+      
       SiPixel2DTemplateDBObject::char2float temp;
-      for (i=0; i<20; ++i) {
+      for (int i=0; i<20; ++i) {
          temp.f = db.sVector()[db.index()];
          theCurrentTemp.head.title[4*i] = temp.c[0];
          theCurrentTemp.head.title[4*i+1] = temp.c[1];
@@ -306,14 +307,13 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
          if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 0B, no template load"
             << ENDL; return false;}
       } else {
+// This is for older [legacy] payloads and the numbers are indeed magic [they are part of the payload for v>17]
          theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
          theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth/2.f;
          theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth/2.f;
          theCurrentTemp.head.fbin[0] = 1.50f;
          theCurrentTemp.head.fbin[1] = 1.00f;
          theCurrentTemp.head.fbin[2] = 0.85f;
-         //std::cout<<" set fbin  "<< theCurrentTemp.head.fbin[0]<<" "<<theCurrentTemp.head.fbin[1]<<" "
-         //	     <<theCurrentTemp.head.fbin[2]<<std::endl;
       }
       
       LOGINFO("SiPixelTemplate2D")
@@ -342,16 +342,17 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
       
       if(theCurrentTemp.head.NTy != 0) {LOGERROR("SiPixelTemplate2D") << "Trying to load 1-d template info into the 2-d template object, check your DB/global tag!" << ENDL; return false;}
       
-#ifdef SI_PIXEL_TEMPLATE_USE_BOOST
+      
       // next, layout the 2-d structure needed to store template
       
-      theCurrentTemp.entry.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
-#endif
+      theCurrentTemp.entry = new SiPixelTemplateEntry2D*[theCurrentTemp.head.NTyx];
+      theCurrentTemp.entry[0] = new SiPixelTemplateEntry2D[theCurrentTemp.head.NTyx*theCurrentTemp.head.NTxx];
+      for(int i = 1; i < theCurrentTemp.head.NTyx; ++i) theCurrentTemp.entry[i] = theCurrentTemp.entry[i-1] + theCurrentTemp.head.NTxx;
       
       // Read in the file info
       
-      for (iy=0; iy < theCurrentTemp.head.NTyx; ++iy) {
-         for(jx=0; jx < theCurrentTemp.head.NTxx; ++jx) {
+      for (int iy=0; iy < theCurrentTemp.head.NTyx; ++iy) {
+         for(int jx=0; jx < theCurrentTemp.head.NTxx; ++jx) {
             
             db >> theCurrentTemp.entry[iy][jx].runnum >> theCurrentTemp.entry[iy][jx].costrk[0]
             >> theCurrentTemp.entry[iy][jx].costrk[1] >> theCurrentTemp.entry[iy][jx].costrk[2];
@@ -369,7 +370,7 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
             
             if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
             
-            for (k=0; k<2; ++k) {
+            for (int k=0; k<2; ++k) {
                
                db >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1]
                >> theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >> theCurrentTemp.entry[iy][jx].xypar[k][4];
@@ -378,7 +379,7 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
                
             }
             
-            for (k=0; k<2; ++k) {
+            for (int k=0; k<2; ++k) {
                
                db >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1]
                >> theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >> theCurrentTemp.entry[iy][jx].lanpar[k][4];
@@ -387,13 +388,19 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
                
             }
             
-            for (l=0; l<7; ++l) {
-               for (k=0; k<7; ++k) {
-                  for (j=0; j<T2XSIZE; ++j) {
-                     
-                     for (i=0; i<T2YSIZE; ++i) {db >> theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j];}
-                     
+//  Read the 2D template entries as floats [they are formatted that way] and cast to short ints
+
+            float dummy[T2YSIZE];
+            for (int l=0; l<7; ++l) {
+               for (int k=0; k<7; ++k) {
+                  for (int j=0; j<T2XSIZE; ++j) {
+                     for (int i=0; i<T2YSIZE; ++i) {
+                        db >> dummy[i];                       
+                     }                     
                      if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+                     for (int i=0; i<T2YSIZE; ++i) {
+                        theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];                        
+                     }                    
                   }
                }
             }
@@ -453,10 +460,8 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    // Interpolate for a new set of track angles
    
    // Local variables
-   int i, j, imidx;
-   //   int pixx, pixy, k0, k1, l0, l1, deltax, deltay, iflipy, jflipx, imin, imax, jmin, jmax;
-   //   int m, n;
-   float acota, acotb, dcota, dcotb;
+
+   float acotb, dcota, dcotb;
    
    // Check to see if interpolation is valid
    
@@ -469,7 +474,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
          // Find the index corresponding to id
          
          index_id_ = -1;
-         for(i=0; i<(int)thePixelTemp_.size(); ++i) {
+         for(int i=0; i<(int)thePixelTemp_.size(); ++i) {
             
             if(id == thePixelTemp_[i].head.ID) {
                
@@ -490,7 +495,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
                
                // Copy Qbinning info to private variables
                
-               for(j=0; j<3; ++j) {fbin_[j] = thePixelTemp_[index_id_].head.fbin[j];}
+               for(int j=0; j<3; ++j) {fbin_[j] = thePixelTemp_[index_id_].head.fbin[j];}
                
                // Copy the Lorentz widths to private variables
                
@@ -514,7 +519,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 #else
                assert(Nyx_ > 1 && Nxx_ > 1);
 #endif
-               imidx = Nxx_/2;
+               int imidx = Nxx_/2;
                
                cotalpha0_ =  thePixelTemp_[index_id_].entry[0][0].cotalpha;
                cotalpha1_ =  thePixelTemp_[index_id_].entry[0][Nxx_-1].cotalpha;
@@ -541,28 +546,54 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    
    // Check angle limits and et up interpolation parameters
    
-   acota = std::abs(cotalpha);
+   float cota = cotalpha;
+   flip_x_ = false;
+   flip_y_ = false;
+   switch(Dtype_) {
+      case 0:
+         if(cotbeta < 0.f) {flip_y_ = true;}
+         break;
+      case 1:
+         if(locBz > 0.f) {flip_y_ = true;}
+         break;
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+         if(locBx*locBz < 0.f) {
+            cota = fabs(cotalpha);
+            flip_x_ = true;
+         }
+         if(locBx < 0.f) {flip_y_ = true;}
+         break;
+      default:
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+#else
+         std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
+#endif
+      }
    
-   if(acota < cotalpha0_) {
+   if(cota < cotalpha0_) {
       success_ = false;
       jx0_ = 0;
       jx1_ = 1;
       adcota_ = 0.f;
-   } else if(acota > cotalpha1_) {
+   } else if(cota > cotalpha1_) {
       success_ = false;
       jx0_ = Nxx_ - 1;
       jx1_ = jx0_ - 1;
       adcota_ = 0.f;
    } else {
-      jx0_ = (int)((acota-cotalpha0_)/deltacota_+0.5f);
-      dcota = (acota - (cotalpha0_ + jx0_*deltacota_))/deltacota_;
+      jx0_ = (int)((cota-cotalpha0_)/deltacota_+0.5f);
+      dcota = (cota - (cotalpha0_ + jx0_*deltacota_))/deltacota_;
       adcota_ = fabs(dcota);
       if(dcota > 0.f) {jx1_ = jx0_ + 1;if(jx1_ > Nxx_-1) jx1_ = jx0_-1;} else {jx1_ = jx0_ - 1; if(jx1_ < 0) jx1_ = jx0_+1;}
    }
    
    // Interpolate the absolute value of cot(beta)
    
-   acotb = std::abs(cotbeta);
+   acotb = fabs(cotbeta);
    
    if(acotb < cotbeta0_) {
       success_ = false;
@@ -579,38 +610,6 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
       dcotb = (acotb - (cotbeta0_ + iy0_*deltacotb_))/deltacotb_;
       adcotb_ = fabs(dcotb);
       if(dcotb > 0.f) {iy1_ = iy0_ + 1; if(iy1_ > Nyx_-1) iy1_ = iy0_-1;} else {iy1_ = iy0_ - 1; if(iy1_ < 0) iy1_ = iy0_+1;}
-   }
-   
-   // This works only for IP-related tracks
-   
-   flip_x_ = false;
-   flip_y_ = false;
-   switch(Dtype_) {
-      case 0:
-         if(cotbeta < 0.f) {flip_y_ = true;}
-         break;
-      case 1:
-         if(locBz > 0.f) {
-            flip_y_ = true;
-         }
-         break;
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-         if(locBx*locBz < 0.f) {
-            flip_x_ = true;
-         }
-         if(locBx < 0.f) {
-            flip_y_ = true;
-         }
-         break;
-      default:
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-         throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
-#else
-         std::cout << "SiPixelTemplate:2D:illegal subdetector ID = " << thePixelTemp_[index_id_].head.Dtype << std::endl;
-#endif
    }
    
    //  Calculate signed quantities
@@ -694,7 +693,7 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
    +adcota_*(entry01_->kappavav - entry00_->kappavav)
    +adcotb_*(entry10_->kappavav - entry00_->kappavav);
    
-   for(i=0; i<4 ; ++i) {
+   for(int i=0; i<4 ; ++i) {
       scalex_[i] = entry00_->scalex[i]
       +adcota_*(entry01_->scalex[i] - entry00_->scalex[i])
       +adcotb_*(entry10_->scalex[i] - entry00_->scalex[i]);
@@ -714,20 +713,20 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
       if(flip_y_) offsety_[i] = -offsety_[i];
    }
    
-   for(i=0; i<2 ; ++i) {
-      for(j=0; j<5 ; ++j) {
+   for(int i=0; i<2 ; ++i) {
+      for(int j=0; j<5 ; ++j) {
          // Charge loss switches sides when cot(beta) changes sign
          if(flip_y_) {
-            xypary0x0_[1-i][j] = entry00_->xypar[i][j];
-            xypary1x0_[1-i][j] = entry10_->xypar[i][j];
-            xypary0x1_[1-i][j] = entry01_->xypar[i][j];
+            xypary0x0_[1-i][j] = (float)entry00_->xypar[i][j];
+            xypary1x0_[1-i][j] = (float)entry10_->xypar[i][j];
+            xypary0x1_[1-i][j] = (float)entry01_->xypar[i][j];
             lanpar_[1-i][j] = entry00_->lanpar[i][j]
             +adcota_*(entry01_->lanpar[i][j] - entry00_->lanpar[i][j])
             +adcotb_*(entry10_->lanpar[i][j] - entry00_->lanpar[i][j]);
          } else {
-            xypary0x0_[i][j] = entry00_->xypar[i][j];
-            xypary1x0_[i][j] = entry10_->xypar[i][j];
-            xypary0x1_[i][j] = entry01_->xypar[i][j];
+            xypary0x0_[i][j] = (float)entry00_->xypar[i][j];
+            xypary1x0_[i][j] = (float)entry10_->xypar[i][j];
+            xypary0x1_[i][j] = (float)entry01_->xypar[i][j];
             lanpar_[i][j] = entry00_->lanpar[i][j]
             +adcota_*(entry01_->lanpar[i][j] - entry00_->lanpar[i][j])
             +adcotb_*(entry10_->lanpar[i][j] - entry00_->lanpar[i][j]);
@@ -841,14 +840,14 @@ void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry, int iDtype, floa
       for(int j=0; j<5 ; ++j) {
          // Charge loss switches sides when cot(beta) changes sign
          if(flip_y_) {
-            xypary0x0_[1-i][j] = entry00_->xypar[i][j];
-            xypary1x0_[1-i][j] = entry00_->xypar[i][j];
-            xypary0x1_[1-i][j] = entry00_->xypar[i][j];
+            xypary0x0_[1-i][j] = (float)entry00_->xypar[i][j];
+            xypary1x0_[1-i][j] = (float)entry00_->xypar[i][j];
+            xypary0x1_[1-i][j] = (float)entry00_->xypar[i][j];
             lanpar_[1-i][j] = entry00_->lanpar[i][j];
          } else {
-            xypary0x0_[i][j] = entry00_->xypar[i][j];
-            xypary1x0_[i][j] = entry00_->xypar[i][j];
-            xypary0x1_[i][j] = entry00_->xypar[i][j];
+            xypary0x0_[i][j] = (float)entry00_->xypar[i][j];
+            xypary1x0_[i][j] = (float)entry00_->xypar[i][j];
+            xypary0x1_[i][j] = (float)entry00_->xypar[i][j];
             lanpar_[i][j] = entry00_->lanpar[i][j];
          }
       }
@@ -870,10 +869,9 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    // Interpolate for a new set of track angles
    
    // Local variables
-   int i, j, k;
    int pixx, pixy, k0, k1, l0, l1, deltax, deltay, iflipy, jflipx, imin, imax, jmin, jmax;
    int m, n;
-   float dx, dy, ddx, ddy, adx, ady, tmpxy;
+   float dx, dy, ddx, ddy, adx, ady;
 //   const float deltaxy[2] = {8.33f, 12.5f};
    const float deltaxy[2] = {16.67f, 25.0f};
    
@@ -933,41 +931,36 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    
    //  First zero the local 2-d template
    
-   for(j=0; j<BXM2; ++j) {for(i=0; i<BYM2; ++i) {xytemp_[j][i] = 0.f;}}
+   for(int j=0; j<BXM2; ++j) {for(int i=0; i<BYM2; ++i) {xytemp_[j][i] = 0.f;}}
    
    // Loop over the non-zero part of the template index space and interpolate
    
-   for(j=jmin_; j<=jmax_; ++j) {
+   for(int j=jmin_; j<=jmax_; ++j) {
       // Flip indices as needed
       if(flip_x_) {jflipx=T2XSIZE-1-j; m = deltax+jflipx;} else {m = deltax+j;}
-      for(i=imin_; i<=imax_; ++i) {
+      for(int i=imin_; i<=imax_; ++i) {
          if(flip_y_) {iflipy=T2YSIZE-1-i; n = deltay+iflipy;} else {n = deltay+i;}
          if(m>=0 && m<=BXM3 && n>=0 && n<=BYM3) {
-            tmpxy = entry00_->xytemp[k0][l0][i][j]
-            + adx*(entry00_->xytemp[k0][l1][i][j] - entry00_->xytemp[k0][l0][i][j])
-            + ady*(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-            + adcota_*(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-            + adcotb_*(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
-            if(tmpxy > 0.f) {
-               xytemp_[m][n] = tmpxy;
-            } else {
-               xytemp_[m][n] = 0.f;
-            }
+            xytemp_[m][n] = (float)entry00_->xytemp[k0][l0][i][j]
+            + adx*(float)(entry00_->xytemp[k0][l1][i][j] - entry00_->xytemp[k0][l0][i][j])
+            + ady*(float)(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+            + adcota_*(float)(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+            + adcotb_*(float)(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
          }
       }
    }
    
    //combine rows and columns to simulate double pixels
    
-   for(n=1; n<BYM3; ++n) {
+   for(int n=1; n<BYM3; ++n) {
       if(ydouble[n-1]) {
          //  Combine the y-columns
-         for(m=1; m<BXM3; ++m) {
+         for(int m=1; m<BXM3; ++m) {
             xytemp_[m][n] += xytemp_[m][n+1];
          }
          //  Now shift the remaining pixels over by one column
-         for(i=n+1; i<BYM3; ++i) {
-            for(m=1; m<BXM3; ++m) {
+         for(int i=n+1; i<BYM3; ++i) {
+            for(int m=1; m<BXM3; ++m) {
                xytemp_[m][i] = xytemp_[m][i+1];
             }
          }
@@ -976,14 +969,14 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    
    //combine rows and columns to simulate double pixels
    
-   for(m=1; m<BXM3; ++m) {
+   for(int m=1; m<BXM3; ++m) {
       if(xdouble[m-1]) {
          //  Combine the x-rows
-         for(n=1; n<BYM3; ++n) {
+         for(int n=1; n<BYM3; ++n) {
             xytemp_[m][n] += xytemp_[m+1][n];
          }
          //  Now shift the remaining pixels over by one row
-         for(j=m+1; j<BXM3; ++j) {
+         for(int j=m+1; j<BXM3; ++j) {
             for(n=1; n<BYM3; ++n) {
                xytemp_[j][n] = xytemp_[j+1][n];
             }
@@ -995,9 +988,9 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    
    float qtemptot = 0.f;
    
-   for(n=1; n<BYM3; ++n) {
-      for(m=1; m<BXM3; ++m) {
-         if(xytemp_[m][n] > 0.f) {template2d[m][n] += xytemp_[m][n]; qtemptot += xytemp_[m][n];}
+   for(int n=1; n<BYM3; ++n) {
+      for(int m=1; m<BXM3; ++m) {
+         if(xytemp_[m][n] != 0.f) {template2d[m][n] += xytemp_[m][n]; qtemptot += xytemp_[m][n];}
       }
    }
    
@@ -1006,6 +999,16 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    if(derivatives) {
       
       float dxytempdx[2][BXM2][BYM2], dxytempdy[2][BXM2][BYM2];
+      
+      for(int k = 0; k<2; ++k) {
+         for(int i = 0; i<BXM2; ++i) {
+            for(int j = 0; j<BYM2; ++j) {
+               dxytempdx[k][i][j] = 0.f;
+               dxytempdy[k][i][j] = 0.f;
+               dpdx2d[k][i][j] = 0.f;
+            }
+         }
+     }
       
       // First do shifted +x template
       
@@ -1031,39 +1034,34 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       deltax = pixx - T2HX;
       
-      //  First zero the local 2-d template
-      
-      for(k=0; k<2; ++k) {for(j=0; j<BXM2; ++j) {for(i=0; i<BYM2; ++i) {dxytempdx[k][j][i] = 0.f;}}}
-      
       // Loop over the non-zero part of the template index space and interpolate
       
-      for(j=jmin_; j<=jmax_; ++j) {
+      for(int j=jmin_; j<=jmax_; ++j) {
          // Flip indices as needed
          if(flip_x_) {jflipx=T2XSIZE-1-j; m = deltax+jflipx;} else {m = deltax+j;}
-         for(i=imin_; i<=imax_; ++i) {
+         for(int i=imin_; i<=imax_; ++i) {
             if(flip_y_) {iflipy=T2YSIZE-1-i; n = deltay+iflipy;} else {n = deltay+i;}
             if(m>=0 && m<=BXM3 && n>=0 && n<=BYM3) {
-               tmpxy = entry00_->xytemp[k0][l0][i][j]
-               + adx*(entry00_->xytemp[k0][l1][i][j] -   entry00_->xytemp[k0][l0][i][j])
-               + ady*(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcota_*(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcotb_*(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
-               if(tmpxy > 0.f) {dxytempdx[1][m][n] = tmpxy;} else {dxytempdx[1][m][n] = 0.f;}
+               dxytempdx[1][m][n] = (float)entry00_->xytemp[k0][l0][i][j]
+               + adx*(float)(entry00_->xytemp[k0][l1][i][j] -   entry00_->xytemp[k0][l0][i][j])
+               + ady*(float)(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcota_*(float)(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcotb_*(float)(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
             }
          }
       }
       
       //combine rows and columns to simulate double pixels
       
-      for(n=1; n<BYM3; ++n) {
+      for(int n=1; n<BYM3; ++n) {
          if(ydouble[n-1]) {
             //  Combine the y-columns
-            for(m=1; m<BXM3; ++m) {
+            for(int m=1; m<BXM3; ++m) {
                dxytempdx[1][m][n] += dxytempdx[1][m][n+1];
             }
             //  Now shift the remaining pixels over by one column
-            for(i=n+1; i<BYM3; ++i) {
-               for(m=1; m<BXM3; ++m) {
+            for(int i=n+1; i<BYM3; ++i) {
+               for(int m=1; m<BXM3; ++m) {
                   dxytempdx[1][m][i] = dxytempdx[1][m][i+1];
                }
             }
@@ -1072,15 +1070,15 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       //combine rows and columns to simulate double pixels
       
-      for(m=1; m<BXM3; ++m) {
+      for(int m=1; m<BXM3; ++m) {
          if(xdouble[m-1]) {
             //  Combine the x-rows
-            for(n=1; n<BYM3; ++n) {
+            for(int n=1; n<BYM3; ++n) {
                dxytempdx[1][m][n] += dxytempdx[1][m+1][n];
             }
             //  Now shift the remaining pixels over by one row
-            for(j=m+1; j<BXM3; ++j) {
-               for(n=1; n<BYM3; ++n) {
+            for(int j=m+1; j<BXM3; ++j) {
+               for(int n=1; n<BYM3; ++n) {
                   dxytempdx[1][j][n] = dxytempdx[1][j+1][n];
                }
             }
@@ -1113,33 +1111,32 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       // Loop over the non-zero part of the template index space and interpolate
       
-      for(j=jmin_; j<=jmax_; ++j) {
+      for(int j=jmin_; j<=jmax_; ++j) {
          // Flip indices as needed
          if(flip_x_) {jflipx=T2XSIZE-1-j; m = deltax+jflipx;} else {m = deltax+j;}
-         for(i=imin_; i<=imax_; ++i) {
+         for(int i=imin_; i<=imax_; ++i) {
             if(flip_y_) {iflipy=T2YSIZE-1-i; n = deltay+iflipy;} else {n = deltay+i;}
             if(m>=0 && m<=BXM3 && n>=0 && n<=BYM3) {
-               tmpxy = entry00_->xytemp[k0][l0][i][j]
-               + adx*(entry00_->xytemp[k0][l1][i][j] -   entry00_->xytemp[k0][l0][i][j])
-               + ady*(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcota_*(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcotb_*(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
-               if(tmpxy > 0.f) {dxytempdx[0][m][n] = tmpxy;} else {dxytempdx[0][m][n] = 0.f;}
+               dxytempdx[0][m][n]  = (float)entry00_->xytemp[k0][l0][i][j]
+               + adx*(float)(entry00_->xytemp[k0][l1][i][j] -   entry00_->xytemp[k0][l0][i][j])
+               + ady*(float)(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcota_*(float)(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcotb_*(float)(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
             }
          }
       }
       
       //combine rows and columns to simulate double pixels
       
-      for(n=1; n<BYM3; ++n) {
+      for(int n=1; n<BYM3; ++n) {
          if(ydouble[n-1]) {
             //  Combine the y-columns
-            for(m=1; m<BXM3; ++m) {
+            for(int m=1; m<BXM3; ++m) {
                dxytempdx[0][m][n] += dxytempdx[0][m][n+1];
             }
             //  Now shift the remaining pixels over by one column
-            for(i=n+1; i<BYM3; ++i) {
-               for(m=1; m<BXM3; ++m) {
+            for(int i=n+1; i<BYM3; ++i) {
+               for(int m=1; m<BXM3; ++m) {
                   dxytempdx[0][m][i] = dxytempdx[0][m][i+1];
                }
             }
@@ -1148,15 +1145,15 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       //combine rows and columns to simulate double pixels
       
-      for(m=1; m<BXM3; ++m) {
+      for(int m=1; m<BXM3; ++m) {
          if(xdouble[m-1]) {
             //  Combine the x-rows
-            for(n=1; n<BYM3; ++n) {
+            for(int n=1; n<BYM3; ++n) {
                dxytempdx[0][m][n] += dxytempdx[0][m+1][n];
             }
             //  Now shift the remaining pixels over by one row
-            for(j=m+1; j<BXM3; ++j) {
-               for(n=1; n<BYM3; ++n) {
+            for(int j=m+1; j<BXM3; ++j) {
+               for(int n=1; n<BYM3; ++n) {
                   dxytempdx[0][j][n] = dxytempdx[0][j+1][n];
                }
             }
@@ -1166,8 +1163,8 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       //  Finally, normalize the derivatives and copy the results to the output array
       
-      for(n=1; n<BYM3; ++n) {
-         for(m=1; m<BXM3; ++m) {
+      for(int n=1; n<BYM3; ++n) {
+         for(int m=1; m<BXM3; ++m) {
             dpdx2d[0][m][n] = (dxytempdx[1][m][n] - dxytempdx[0][m][n])/(2.*deltaxy[0]);
          }
       }
@@ -1206,39 +1203,34 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       deltax = pixx - T2HX;
       deltay = pixy - T2HY;
       
-      //  First zero the local 2-d template
-      
-      for(k=0; k<2; ++k) {for(j=0; j<BXM2; ++j) {for(i=0; i<BYM2; ++i) {dxytempdy[k][j][i] = 0.f;}}}
-      
       // Loop over the non-zero part of the template index space and interpolate
       
-      for(j=jmin_; j<=jmax_; ++j) {
+      for(int j=jmin_; j<=jmax_; ++j) {
          // Flip indices as needed
          if(flip_x_) {jflipx=T2XSIZE-1-j; m = deltax+jflipx;} else {m = deltax+j;}
-         for(i=imin_; i<=imax_; ++i) {
+         for(int i=imin_; i<=imax_; ++i) {
             if(flip_y_) {iflipy=T2YSIZE-1-i; n = deltay+iflipy;} else {n = deltay+i;}
             if(m>=0 && m<=BXM3 && n>=0 && n<=BYM3) {
-               tmpxy = entry00_->xytemp[k0][l0][i][j]
-               + adx*(entry00_->xytemp[k0][l1][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + ady*(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcota_*(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcotb_*(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
-               if(tmpxy > 0.f) {dxytempdy[1][m][n] = tmpxy;} else {dxytempdy[1][m][n] = 0.f;}
+               dxytempdy[1][m][n] = (float)entry00_->xytemp[k0][l0][i][j]
+               + adx*(float)(entry00_->xytemp[k0][l1][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + ady*(float)(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcota_*(float)(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcotb_*(float)(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
             }
          }
       }
       
       //combine rows and columns to simulate double pixels
       
-      for(n=1; n<BYM3; ++n) {
+      for(int n=1; n<BYM3; ++n) {
          if(ydouble[n-1]) {
             //  Combine the y-columns
-            for(m=1; m<BXM3; ++m) {
+            for(int m=1; m<BXM3; ++m) {
                dxytempdy[1][m][n] += dxytempdy[1][m][n+1];
             }
             //  Now shift the remaining pixels over by one column
-            for(i=n+1; i<BYM3; ++i) {
-               for(m=1; m<BXM3; ++m) {
+            for(int i=n+1; i<BYM3; ++i) {
+               for(int m=1; m<BXM3; ++m) {
                   dxytempdy[1][m][i] = dxytempdy[1][m][i+1];
                }
             }
@@ -1247,15 +1239,15 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       //combine rows and columns to simulate double pixels
       
-      for(m=1; m<BXM3; ++m) {
+      for(int m=1; m<BXM3; ++m) {
          if(xdouble[m-1]) {
             //  Combine the x-rows
-            for(n=1; n<BYM3; ++n) {
+            for(int n=1; n<BYM3; ++n) {
                dxytempdy[1][m][n] += dxytempdy[1][m+1][n];
             }
             //  Now shift the remaining pixels over by one row
-            for(j=m+1; j<BXM3; ++j) {
-               for(n=1; n<BYM3; ++n) {
+            for(int j=m+1; j<BXM3; ++j) {
+               for(int n=1; n<BYM3; ++n) {
                   dxytempdy[1][j][n] = dxytempdy[1][j+1][n];
                }
             }
@@ -1288,33 +1280,32 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       // Loop over the non-zero part of the template index space and interpolate
       
-      for(j=jmin_; j<=jmax_; ++j) {
+      for(int j=jmin_; j<=jmax_; ++j) {
          // Flip indices as needed
          if(flip_x_) {jflipx=T2XSIZE-1-j; m = deltax+jflipx;} else {m = deltax+j;}
-         for(i=imin_; i<=imax_; ++i) {
+         for(int i=imin_; i<=imax_; ++i) {
             if(flip_y_) {iflipy=T2YSIZE-1-i; n = deltay+iflipy;} else {n = deltay+i;}
             if(m>=0 && m<=BXM3 && n>=0 && n<=BYM3) {
-               tmpxy = entry00_->xytemp[k0][l0][i][j]
-               + adx*(entry00_->xytemp[k0][l1][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + ady*(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcota_*(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
-               + adcotb_*(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
-               if(tmpxy > 0.f) {dxytempdy[0][m][n] = tmpxy;} else {dxytempdy[0][m][n] = 0.f;}
+               dxytempdy[0][m][n] = (float)entry00_->xytemp[k0][l0][i][j]
+               + adx*(float)(entry00_->xytemp[k0][l1][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + ady*(float)(entry00_->xytemp[k1][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcota_*(float)(entry01_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j])
+               + adcotb_*(float)(entry10_->xytemp[k0][l0][i][j] - entry00_->xytemp[k0][l0][i][j]);
             }
          }
       }
       
       //combine rows and columns to simulate double pixels
       
-      for(n=1; n<BYM3; ++n) {
+      for(int n=1; n<BYM3; ++n) {
          if(ydouble[n-1]) {
             //  Combine the y-columns
-            for(m=1; m<BXM3; ++m) {
+            for(int m=1; m<BXM3; ++m) {
                dxytempdy[0][m][n] += dxytempdy[0][m][n+1];
             }
             //  Now shift the remaining pixels over by one column
-            for(i=n+1; i<BYM3; ++i) {
-               for(m=1; m<BXM3; ++m) {
+            for(int i=n+1; i<BYM3; ++i) {
+               for(int m=1; m<BXM3; ++m) {
                   dxytempdy[0][m][i] = dxytempdy[0][m][i+1];
                }
             }
@@ -1323,15 +1314,15 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       //combine rows and columns to simulate double pixels
       
-      for(m=1; m<BXM3; ++m) {
+      for(int m=1; m<BXM3; ++m) {
          if(xdouble[m-1]) {
             //  Combine the x-rows
-            for(n=1; n<BYM3; ++n) {
+            for(int n=1; n<BYM3; ++n) {
                dxytempdy[0][m][n] += dxytempdy[0][m+1][n];
             }
             //  Now shift the remaining pixels over by one row
-            for(j=m+1; j<BXM3; ++j) {
-               for(n=1; n<BYM3; ++n) {
+            for(int j=m+1; j<BXM3; ++j) {
+               for(int n=1; n<BYM3; ++n) {
                   dxytempdy[0][j][n] = dxytempdy[0][j+1][n];
                }
             }
@@ -1340,8 +1331,8 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       
       //  Finally, normalize the derivatives and copy the results to the output array
       
-      for(n=1; n<BYM3; ++n) {
-         for(m=1; m<BXM3; ++m) {
+      for(int n=1; n<BYM3; ++n) {
+         for(int m=1; m<BXM3; ++m) {
             dpdx2d[1][m][n] = (dxytempdy[1][m][n] - dxytempdy[0][m][n])/(2.*deltaxy[1]);
          }
       }
@@ -1469,8 +1460,7 @@ void SiPixelTemplate2D::xysigma2(float qpixel, int index, float& xysig2)
             +adcotb_*(xypary1x0_[1][0]+xypary1x0_[1][1]*sigi+xypary1x0_[1][2]*sigi2+xypary1x0_[1][3]*sigi3+xypary1x0_[1][4]*sigi4 - err00);
          }
 			xysig2 =qscale*err2;
-			if(xysig2 <= 0.f) {LOGERROR("SiPixelTemplate2D") << "neg y-error-squared, id = " << id_current_ << ", index = " << index_id_ <<
-            ", cot(alpha) = " << cota_current_ << ", cot(beta) = " << cotb_current_ <<  ", sigi = " << sigi << ENDL;}
+			if(xysig2 <= 0.f) {xysig2 = s50_*s50_;}
    
    return;
    
@@ -1484,11 +1474,9 @@ void SiPixelTemplate2D::landau_par(float lanpar[2][5])
 
 {
    // Interpolate using quantities already stored in the private variables
-   
-   // Local variables
-   int i,j;
-   for(i=0; i<2; ++i) {
-      for(j=0; j<5; ++j) {
+
+   for(int i=0; i<2; ++i) {
+      for(int j=0; j<5; ++j) {
          lanpar[i][j] = lanpar_[i][j];
       }
    }

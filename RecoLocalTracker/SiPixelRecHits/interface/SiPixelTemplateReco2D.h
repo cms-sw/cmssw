@@ -1,11 +1,12 @@
 //
-//  SiPixelTemplateReco2D.cc (Version 2.20)
+//  SiPixelTemplateReco2D.cc (Version 2.50)
 //  Updated to work with the 2D template generation code
 //  2.10 - Add y-lorentz drift to estimate starting point [for FPix]
 //  2.10 - Remove >1 pixel requirement
 //  2.20 - Fix major bug, change chi2 scan to 9x5 [YxX]
-
-
+//  2.30 - Allow one pixel clusters, improve cosmetics for increased style points from judges
+//  2.50 - Add variable cluster shifting to make the position parameter space more symmetric,
+//         also fix potential problems with variable size input clusters and double pixel flags
 //
 //
 //  Created by Morris Swartz on 7/13/17.

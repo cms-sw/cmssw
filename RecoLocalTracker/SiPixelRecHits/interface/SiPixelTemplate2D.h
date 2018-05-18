@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate2D.h (v2.35)
+//  SiPixelTemplate2D.h (v2.61a)
 //
 //  Full 2-D templates for cluster splitting, simulated cluster reweighting, and improved cluster probability
 //
@@ -14,7 +14,11 @@
 // v2.25 - Resize template store to accommodate FPix Templates
 // v2.30 - Fix bug found by P. Shuetze that compromises sqlite file loading
 // v2.35 - Add directory path selection to the ascii pushfile method
-// V2.36 - Move templateStore to the heap, fix variable name in pushfile()
+// v2.50 - Change template storage to dynamically allocated 2D arrays of SiPixelTemplateEntry2D structs
+// v2.51 - Ensure that the derivative arrays are correctly zeroed between calls
+// v2.52 - Improve cosmetics for increased style points from judges
+// v2.60 - Fix FPix multiframe lookup problem [takes +-cotalpha and +-cotbeta]
+// v2.61a - Code 2.60 fix correctly
 //
 
 // Build the template storage structure from several pieces
@@ -48,7 +52,7 @@ struct SiPixelTemplateEntry2D { //!< Basic template entry corresponding to a sin
    int jxmax;               //!< the maximum nonzero pixel xindex in template (saves time during interpolation)
    float xypar[2][5];       //!< pixel uncertainty parameterization
    float lanpar[2][5];      //!< pixel landau distribution parameters
-   float xytemp[7][7][T2YSIZE][T2XSIZE];  //!< templates for y-reconstruction (binned over 1 central pixel)
+   short int xytemp[7][7][T2YSIZE][T2XSIZE];  //!< templates for y-reconstruction (binned over 1 central pixel)
    float chi2ppix;          //!< average chi^2 per pixel
    float chi2scale;         //!< scale factor for the chi2 distribution
    float chi2avgone;        //!< average y chi^2 for 1 pixel clusters
@@ -101,14 +105,16 @@ struct SiPixelTemplateHeader2D {           //!< template header structure
 
 struct SiPixelTemplateStore2D { //!< template storage structure
    SiPixelTemplateHeader2D head;
-#ifndef SI_PIXEL_TEMPLATE_USE_BOOST
-   SiPixelTemplateEntry2D entry[73][7];  //!< use 2d entry to store [47][5] barrel entries or [5][9] fpix
-#else
-   boost::multi_array<SiPixelTemplateEntry2D,2> entry;  //!< use 2d entry to store [47][5] barrel entries or [5][9] fpix entries
-#endif
+   SiPixelTemplateEntry2D** entry = nullptr;  //!< use 2d entry to store BPix and FPix entries [dynamically allocated]
+   void destroy() {  // deletes arrays created by pushfile method of SiPixelTemplate
+      if (entry!=nullptr) {
+         delete[] entry[0];
+         delete[] entry;
+      }
+
+   }
+
 } ;
-
-
 
 
 
@@ -175,41 +181,11 @@ public:
    float qscale() {return qscale_;}    //!< charge scaling factor
    float s50() {return s50_;}          //!< 1/2 of the pixel threshold signal in adc units
    float sxymax() {return sxymax_;}    //!< max pixel signal for pixel error calculation
-   float scalex(int i) {
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::scalex called with illegal index = " << i << std::endl;}
-#else
-      assert(i>=0 && i<4);
-#endif
-      return scalex_[i];} //!< x-error scale factor in 4 charge bins
-   float scaley(int i) {
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::scaley called with illegal index = " << i << std::endl;}
-#else
-      assert(i>=0 && i<4);
-#endif
-      return scaley_[i];} //!<x-error scale factor in 4 charge bins
-   float offsetx(int i) {
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::scaley called with illegal index = " << i << std::endl;}
-#else
-      assert(i>=0 && i<4);
-#endif
-      return offsetx_[i];} //!< x-offset in 4 charge bins
-   float offsety(int i) {
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      if(i < 0 || i > 3) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::scaley called with illegal index = " << i << std::endl;}
-#else
-      assert(i>=0 && i<4);
-#endif
-      return offsety_[i];} //!< x-offset in 4 charge bins
-   float fbin(int i) {
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      if(i < 0 || i > 2) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::fbin called with illegal index = " << i << std::endl;}
-#else
-      assert(i>=0 && i<3);
-#endif
-      return fbin_[i];} //!< Return lower bound of Qbin definition
+   float scalex(int i) {if(checkIllegalIndex("scalex",3,i)) {return scalex_[i];} else {return 0.f;}}   //!< x-error scale factor in 4 charge bins
+   float scaley(int i) {if(checkIllegalIndex("scaley",3,i)) {return scaley_[i];} else {return 0.f;}} //!< y-error scale factor in 4 charge bins
+   float offsetx(int i) {if(checkIllegalIndex("offsetx",3,i)) {return offsetx_[i];} else {return 0.f;}} //!< x-offset in 4 charge bins
+   float offsety(int i) {if(checkIllegalIndex("offsety",3,i)) {return offsety_[i];} else {return 0.f;}} //!< y-offset in 4 charge bins
+   float fbin(int i) {if(checkIllegalIndex("fbin",2,i)) {return fbin_[i];} else {return 0.f;}} //!< Return lower bound of Qbin definition
    float sizex() {return clslenx_;}                             //!< return x size of template cluster
    float sizey() {return clsleny_;}                             //!< return y size of template cluster
    float chi2ppix() {return chi2ppix_;}                         //!< average chi^2 per struck pixel
@@ -233,6 +209,18 @@ public:
    int storesize() {return (int)thePixelTemp_.size();}               //!< return the size of the template store (the number of stored IDs
    
 private:
+
+   bool checkIllegalIndex(const std::string whichMethod, int indMax, int i) 
+      {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+         if(i < 0 || i > indMax) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate2D::"<< whichMethod <<" called with illegal index = " << i << std::endl;}
+#else
+         assert(i>=0 && i<indMax+1);
+
+#endif
+         return true;
+   }
+
    
    // Keep current template interpolaion parameters
    
@@ -301,9 +289,9 @@ private:
    float ysize_;             //!< Pixel y-size
    float zsize_;             //!< Pixel z-size (thickness)
    float fbin_[3];           //!< The QBin definitions in Q_clus/Q_avg
-   const SiPixelTemplateEntry2D* entry00_; // Pointer to presently interpolated point
-   const SiPixelTemplateEntry2D* entry10_; // Pointer to presently interpolated point [iy+1]
-   const SiPixelTemplateEntry2D* entry01_; // Pointer to presently interpolated point [ix+1]
+   const SiPixelTemplateEntry2D* entry00_; // Pointer to presently interpolated point [iy,ix]
+   const SiPixelTemplateEntry2D* entry10_; // Pointer to presently interpolated point [iy+1,ix]
+   const SiPixelTemplateEntry2D* entry01_; // Pointer to presently interpolated point [iy,ix+1]
    
    // The actual template store is a std::vector container
    
