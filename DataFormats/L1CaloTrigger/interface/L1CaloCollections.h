@@ -6,6 +6,7 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 typedef std::vector<L1CaloEmCand> L1CaloEmCollection;
 typedef std::vector<L1CaloRegion> L1CaloRegionCollection;
