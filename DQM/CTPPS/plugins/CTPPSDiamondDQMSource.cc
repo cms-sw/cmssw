@@ -477,7 +477,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   if ( !valid ) {
     if ( verbosity_ ) {
       edm::LogProblem("CTPPSDiamondDQMSource")
-        << "ERROR in TotemDQMModuleRP::analyze > some of the required inputs are not valid. Skipping this event.\n"
+        << "ERROR in CTPPSDiamondDQMSource::analyze > some of the required inputs are not valid. Skipping this event.\n"
         << "    diamondVFATStatus.isValid = " << diamondVFATStatus.isValid() << "\n"
         << "    diamondDigis.isValid = " << diamondDigis.isValid() << "\n"
         << "    fedInfo.isValid = " << fedInfo.isValid();
