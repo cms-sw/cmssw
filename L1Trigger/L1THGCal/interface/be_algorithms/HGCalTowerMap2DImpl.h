@@ -8,6 +8,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTowerGeometryHelper.h"
 
 
 class HGCalTowerMap2DImpl{
@@ -26,14 +27,14 @@ class HGCalTowerMap2DImpl{
         triggerTools_.eventSetup(es);
   }
 
-
  private:
 
   bool useLayerWeights_;
   std::vector<double> layerWeights_;
   HGCalTriggerTools triggerTools_;
-
   std::map<int, l1t::HGCalTowerMap> newTowerMaps();
+
+  HGCalTriggerTowerGeometryHelper towerGeometryHelper_;
 
 };
 
