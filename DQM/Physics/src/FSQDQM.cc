@@ -87,34 +87,18 @@ struct SortByPt
   
 };
 
-float FSQDQM::deltaPhi(float phi1, float phi2){
-  float result = phi1 - phi2;
-  while (result > M_PI) result -= 2*M_PI;
-  while (result <= -M_PI) result += 2*M_PI;
-  return result;
-}
-
-
 FSQDQM::FSQDQM(const edm::ParameterSet& iConfig)
 {
   edm::LogInfo("FSQDQM") << " Creating FSQDQM "
 				 << "\n";
-  cout<<"got the paramterrs"<<endl;
-  
-  HLTriggerResults_           = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
-  labelBS_                    = iConfig.getParameter<std::string>("LabelBeamSpot");
   pvs_                        =consumes<edm::View<reco::Vertex> >(
 								 iConfig.getParameter<edm::InputTag>("pvs"));
   labelPFJet_                 = iConfig.getParameter<std::string>("LabelPFJet");
   labelCastorJet_             = iConfig.getParameter<std::string>("LabelCastorJet");
-  theTriggerResultsCollection = iConfig.getParameter<InputTag>("triggerResultsCollection");
   labelTrack_                 = iConfig.getParameter<std::string>("LabelTrack");
-  tok_trigRes_                = consumes<edm::TriggerResults>(HLTriggerResults_);
-  tok_bs_                     = consumes<reco::BeamSpot>(labelBS_);
   tok_pfjet_                  = consumes<reco::PFJetCollection>(labelPFJet_);
   tok_track_                  = consumes<reco::TrackCollection>(labelTrack_);
   tok_castorjet_              = consumes<reco::BasicJetCollection>(labelCastorJet_);
-  isValidHltConfig_ = false;
 
 }
 
@@ -185,82 +169,44 @@ FSQDQM::~FSQDQM()
     eventNumber_ = iEvent.id().event();
     lumiNumber_  = iEvent.id().luminosityBlock();
     bxNumber_ = iEvent.bunchCrossing();
-    /*
-    edm::Handle<edm::TriggerResults> _Triggers;
-    iEvent.getByToken(tok_trigRes_, _Triggers); 
-    int Ntriggers = all_triggers.size();
-
-    if (_Triggers.isValid()) {
-      //     cout<<"trigger is valid"<<Ntriggers<<endl;
-      const edm::TriggerNames &triggerNames_ = iEvent.triggerNames(*_Triggers);
-      std::vector<int> index;
-      for (int i=0; i< Ntriggers; i++) {
-	index.push_back(triggerNames_.triggerIndex(all_triggers[i]));
-
-	int triggerSize = int( _Triggers->size());
-	if (index[i] < triggerSize) {
-	  hltresults.push_back(_Triggers->accept(index[i]));
-	}
-      }
-    }//valid trigger
-
-
-    for(unsigned int k=0;k<hltresults.size();k++){
-      cout<<hltresults.size()<<endl;
-    }
-
-    if( ! isValidHltConfig_ ) return;
-    Handle<TriggerResults> HLTresults;
-    iEvent.getByLabel(theTriggerResultsCollection, HLTresults); 
-    if ( !HLTresults.isValid() ) return;
-    bool passed_HLT = true;
-
-    */
 
     edm::Handle<edm::View<reco::Vertex> > privtxs;
-    if(!iEvent.getByToken(pvs_, privtxs)) return;
+    //    if(!iEvent.getByToken(pvs_, privtxs)) return;
     iEvent.getByToken(pvs_, privtxs);
-    const reco::Vertex& pvtx=privtxs->front();
-
-    // VertexCollection::const_iterator pvtx;
-	   NPV->Fill(privtxs->size());
-	   double bestvz=-999.9, bestvx=-999.9, bestvy=-999.9;
-	   double bestvzError=-999.9, bestvxError=-999.9, bestvyError=-999.9;
-	   if(privtxs->begin() !=privtxs->end() && !(pvtx.isFake()) && pvtx.position().Rho() <= 2. && fabs(pvtx.position().z()) <= 24){
-	     bestvz = pvtx.z(); 
-	     bestvx = pvtx.x(); 
-	     bestvy = pvtx.y();
-	     bestvzError = pvtx.zError(); 
-	     bestvxError = pvtx.xError(); 
-	     bestvyError = pvtx.yError();
-	     PV_chi2->Fill(pvtx.normalizedChi2());
-	     PV_d0->Fill(sqrt(pvtx.x() * pvtx.x() + pvtx.y() * pvtx.y()));
-	     PV_numTrks->Fill(pvtx.tracksSize());
-	     double vertex_sumTrks = 0.0;
-	   for(reco::Vertex::trackRef_iterator iTrack= pvtx.tracks_begin(); iTrack != pvtx.tracks_end(); iTrack++)
-	     {
-	       vertex_sumTrks += (*iTrack)->pt();
-	     }
-	   PV_sumTrks->Fill(vertex_sumTrks);
-	   }
-	 
-	 edm::Handle<reco::BeamSpot> beamSpotH;
-	 if(!iEvent.getByToken(tok_bs_, beamSpotH)) return;
-	 iEvent.getByToken(tok_bs_, beamSpotH);
-	 std::vector<Jet> recoPFJets;
+    double bestvz=-999.9, bestvx=-999.9, bestvy=-999.9;
+    double bestvzError=-999.9, bestvxError=-999.9, bestvyError=-999.9;
+    if(privtxs.isValid()){
+      const reco::Vertex& pvtx=privtxs->front();
+      NPV->Fill(privtxs->size());
+      if(privtxs->begin() !=privtxs->end() && !(pvtx.isFake()) && pvtx.position().Rho() <= 2. && fabs(pvtx.position().z()) <= 24){
+	bestvz = pvtx.z(); 
+	bestvx = pvtx.x(); 
+	bestvy = pvtx.y();
+	bestvzError = pvtx.zError(); 
+	bestvxError = pvtx.xError(); 
+	bestvyError = pvtx.yError();
+	PV_chi2->Fill(pvtx.normalizedChi2());
+	PV_d0->Fill(sqrt(pvtx.x() * pvtx.x() + pvtx.y() * pvtx.y()));
+	PV_numTrks->Fill(pvtx.tracksSize());
+	double vertex_sumTrks = 0.0;
+	for(reco::Vertex::trackRef_iterator iTrack= pvtx.tracks_begin(); iTrack != pvtx.tracks_end(); iTrack++)
+	  {
+	    vertex_sumTrks += (*iTrack)->pt();
+	  }
+	PV_sumTrks->Fill(vertex_sumTrks);
+      }
+    }
+    
+    std::vector<Jet> recoPFJets;
 	 recoPFJets.clear();
-
 	 int  nPFCHSJet=0;
 	 edm::Handle<PFJetCollection> pfjetchscoll;
-	 if(!iEvent.getByToken(tok_pfjet_, pfjetchscoll)) return;
+	 //	 if(!iEvent.getByToken(tok_pfjet_, pfjetchscoll)) return;
 	 iEvent.getByToken(tok_pfjet_, pfjetchscoll);
+	 if(pfjetchscoll.isValid()){
 	 const reco::PFJetCollection *pfchsjets = pfjetchscoll.product();
 	 reco::PFJetCollection::const_iterator pfjetchsclus = pfchsjets->begin();
 	 for(pfjetchsclus = pfchsjets->begin(); pfjetchsclus!= pfchsjets->end() ; ++pfjetchsclus){
-	   //	 for (unsigned ijet=0; ijet<pfJets->size();ijet++) {
-	   // recoPFJets.push_back((*pfJets)[ijet]);
-	   // }
-	   //for (unsigned ijet=0; ijet<recoPFJets.size(); ijet++) {
 	   PFJetpt->Fill( pfjetchsclus->pt());
 	   PFJeteta->Fill( pfjetchsclus->eta());
 	   PFJetphi->Fill( pfjetchsclus->phi());
@@ -268,15 +214,14 @@ FSQDQM::~FSQDQM()
 	   nPFCHSJet++;
 	 }
 	 PFJetMulti->Fill( nPFCHSJet);
-
-	 
+	 }
+ 
 	 std::vector<Jet> recoCastorJets;
          recoCastorJets.clear();
-
-
 	 edm::Handle<BasicJetCollection> castorJets;
-	 if(!iEvent.getByToken(tok_castorjet_, castorJets)) return;
+	 //	 if(!iEvent.getByToken(tok_castorjet_, castorJets)) return;
 	 iEvent.getByToken(tok_castorjet_, castorJets);
+	 if(castorJets.isValid()){
 	 for (unsigned ijet=0; ijet<castorJets->size();ijet++) {
 	   recoCastorJets.push_back((*castorJets)[ijet]);
 	 }
@@ -286,10 +231,11 @@ FSQDQM::~FSQDQM()
 
 	   CastorJetMulti->Fill(recoCastorJets.size());
 	 }
-	 
+	 }
 	 edm::Handle<reco::TrackCollection> itracks;
-	 if(!iEvent.getByToken(tok_track_, itracks)) return;
+	 //	 if(!iEvent.getByToken(tok_track_, itracks)) return;
 	 iEvent.getByToken(tok_track_, itracks);
+	 if(itracks.isValid()){
 	 reco::TrackBase::TrackQuality hiPurity = reco::TrackBase::qualityByName("highPurity");
 	 std::vector<TLorentzVector> T_trackRec_P4;
 
@@ -324,11 +270,22 @@ FSQDQM::~FSQDQM()
 	       }
 	     }
 	 }
-	 std::sort(T_trackRec_P4.begin(), T_trackRec_P4.end(), SortByPt());
+
+	 float highest_pt_track=-999;
+	 int index=-99;
+	 for(unsigned int k=0;k<T_trackRec_P4.size();k++){
+	   if(T_trackRec_P4.at(k).Pt() > highest_pt_track){
+		 highest_pt_track=T_trackRec_P4.at(k).Pt();
+		 index = k;
+	       }
+
+	 }
+	 if(abs(index) < T_trackRec_P4.size()){
+	 //	 std::sort(T_trackRec_P4.begin(), T_trackRec_P4.end(), SortByPt());
 	 for(unsigned int itrk=0;itrk<T_trackRec_P4.size();itrk++){
-	     ++ntracks;
+	   ++ntracks;
 	     ptsum= ptsum + T_trackRec_P4.at(itrk).Pt();
-	     dphi = deltaPhi(T_trackRec_P4.at(itrk).Phi(),T_trackRec_P4.at(0).Phi());
+	     dphi = deltaPhi(T_trackRec_P4.at(itrk).Phi(),T_trackRec_P4.at(index).Phi());
 	     if(fabs(dphi) < 1.05){
 	       ++ntracks_towards;
 	       ptsum_towards = ptsum_towards + T_trackRec_P4.at(itrk).Pt();}
@@ -352,47 +309,18 @@ FSQDQM::~FSQDQM()
 	 h_ntracks_away->Fill(ntracks_away);
 
 	   if(!T_trackRec_P4.empty()){
-	 h_leadingtrkpt_ntrk_towards->Fill(T_trackRec_P4.at(0).Pt(),ntracks_towards/8.37);
-	 h_leadingtrkpt_ntrk_transverse->Fill(T_trackRec_P4.at(0).Pt(),ntracks_transverse/8.37);
-	 h_leadingtrkpt_ntrk_away->Fill(T_trackRec_P4.at(0).Pt(),ntracks_away/8.37);
-	 h_leadingtrkpt_ptsum_towards->Fill(T_trackRec_P4.at(0).Pt(),ptsum_towards/8.37);
-	 h_leadingtrkpt_ptsum_transverse->Fill(T_trackRec_P4.at(0).Pt(),ptsum_transverse/8.37);
-	 h_leadingtrkpt_ptsum_away->Fill(T_trackRec_P4.at(0).Pt(),ptsum_away/8.37);
+	 h_leadingtrkpt_ntrk_towards->Fill(T_trackRec_P4.at(index).Pt(),ntracks_towards/8.37);
+	 h_leadingtrkpt_ntrk_transverse->Fill(T_trackRec_P4.at(index).Pt(),ntracks_transverse/8.37);
+	 h_leadingtrkpt_ntrk_away->Fill(T_trackRec_P4.at(index).Pt(),ntracks_away/8.37);
+	 h_leadingtrkpt_ptsum_towards->Fill(T_trackRec_P4.at(index).Pt(),ptsum_towards/8.37);
+	 h_leadingtrkpt_ptsum_transverse->Fill(T_trackRec_P4.at(index).Pt(),ptsum_transverse/8.37);
+	 h_leadingtrkpt_ptsum_away->Fill(T_trackRec_P4.at(index).Pt(),ptsum_away/8.37);
+	   }
 	 }
-
-}//analyze
-
-/*void FSQDQM::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+	 }
+ }//analyze
 
 
-  all_triggers.clear();
-  bool changed;
-  if (hltConfig_.init(iRun, iSetup,"HLT" , changed)) {
-    // if init returns TRUE, initialisation has succeeded!
-    unsigned int ntriggers = hltConfig_.size();
-    for (unsigned int t=0;t<ntriggers;++t) {
-      std::string hltname(hltConfig_.triggerName(t));
-      for (unsigned int ik=0; ik<6; ++ik) {
-	if (hltname.find(triggers_[ik])!=std::string::npos ){
-	  all_triggers.push_back(hltname);
-	  break;
-	}
-      }
-    }//loop over ntriggers
-    
-  }
-}//beginRun
-
-void FSQDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  cout<<"Entering FSQDQM::endRun: "<<endl;
-
-  // edm::LogVerbatim ("FSQDQM") <<"[FSQDQM]: End of Run, saving  DQM output
-  // ";
-  // int iRun = run.run();
-
-  cout<<"...leaving FSQDQM::endRun. "<<endl;
-}
-*/
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
 //define this as a plug-in

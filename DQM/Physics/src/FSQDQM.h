@@ -88,25 +88,14 @@ class FSQDQM : public DQMEDAnalyzer{
                edm::EventSetup const& eSetup) override;
  private:
   void bookHistograms(DQMStore::IBooker & bei, edm::Run const &, edm::EventSetup const &) override;
-  float deltaPhi(float phi1, float phi2);
   void bookHistos(DQMStore* bei);
 
 
-  HLTConfigProvider hltConfigProvider_;
-   bool isValidHltConfig_;
 
-  edm::InputTag theTriggerResultsCollection;
-  edm::EDGetTokenT<edm::TriggerResults> hltToken_;
-  edm::InputTag HLTriggerResults_;
-  std::vector<std::string> triggers_;
   edm::InputTag vertex_;
   std::string labelBS_, labelTrack_,labelPFJet_,labelCastorJet_;
-
-  edm::EDGetTokenT<edm::TriggerResults>                 tok_trigRes_;
-  edm::EDGetTokenT<reco::BeamSpot>                        tok_bs_;
   edm::EDGetTokenT<edm::View<reco::Vertex> >                pvs_;
   edm::EDGetTokenT<reco::TrackCollection>                tok_track_;
-  std::vector<std::string> all_triggers;
   edm::EDGetTokenT<reco::PFJetCollection> tok_pfjet_;
   edm::EDGetTokenT<reco::BasicJetCollection> tok_castorjet_;
 
