@@ -1,5 +1,6 @@
 #ifndef EventFilter_GEMRawToDigi_VFATdata_h
 #define EventFilter_GEMRawToDigi_VFATdata_h
+#include "stdint.h"
 
 #include <stdint.h>
 
