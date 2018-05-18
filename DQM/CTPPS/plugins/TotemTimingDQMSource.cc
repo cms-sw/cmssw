@@ -529,7 +529,7 @@ void TotemTimingDQMSource::analyze(const edm::Event &event,
     if (verbosity_)
     {
       edm::LogProblem("TotemTimingDQMSource")
-          << "ERROR in TotemDQMModuleRP::analyze > some of the required inputs "
+          << "ERROR in TotemTimingDQMSource::analyze > some of the required inputs "
              "are not valid. Skipping this event.\n"
           << "    timingDigis.isValid = " << timingDigis.isValid() << "\n"
           << "    fedInfo.isValid = " << fedInfo.isValid();
