@@ -12,9 +12,6 @@
 #include <functional>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
@@ -29,18 +26,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
-
-
-
-#include <TTree.h>
-#include <TMath.h>
-\
-
-//----------------------------------------------------------------------
-
-//const unsigned int EcalEBTrigPrimClusterAlgo::nrSamples_=5;
-//const unsigned int EcalEBTrigPrimClusterAlgo::maxNrTowers_=2448;
-//const unsigned int EcalEBTrigPrimClusterAlgo::maxNrSamplesOut_=10;
 
 
 EcalEBTrigPrimClusterAlgo::EcalEBTrigPrimClusterAlgo(const edm::EventSetup & setup,int nSam, int binofmax,bool tcpFormat, bool barrelOnly,bool debug, bool famos)
@@ -66,48 +51,6 @@ EcalEBTrigPrimClusterAlgo::EcalEBTrigPrimClusterAlgo(const edm::EventSetup & set
 
 
 }
-
-/*
-//----------------------------------------------------------------------
-void EcalEBTrigPrimClusterAlgo::init(const edm::EventSetup & setup) {
-  if (!barrelOnly_) {
-    //edm::ESHandle<CaloGeometry> theGeometry;
-    //    edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
-    setup.get<CaloGeometryRecord>().get( theGeometry );
-    setup.get<IdealGeometryRecord>().get(eTTmap_);
-  }
-
-  // initialise data structures
-  initStructures(towerMapEB_);
-  hitTowers_.resize(maxNrTowers_);
-
-
-  linearizer_.resize(nbMaxXtals_);
-  for (int i=0;i<nbMaxXtals_;i++) linearizer_[i] = new  EcalFenixLinearizer(famos_);
-
-  //
-  std::vector <int> v;
-  v.resize(maxNrSamples_);
-  lin_out_.resize(nbMaxXtals_);  
-  for (int i=0;i<5;i++) lin_out_[i]=v;
-  //
-  amplitude_filter_ = new EcalFenixAmplitudeFilter();
-  filt_out_.resize(maxNrSamples_);
-  peak_out_.resize(maxNrSamples_);
-  // these two are dummy
-  fgvb_out_.resize(maxNrSamples_);
-  fgvb_out_temp_.resize(maxNrSamples_);  
-  //
-  peak_finder_ = new  EcalFenixPeakFinder();
-  fenixFormatterEB_ = new EcalFenixStripFormatEB();
-  format_out_.resize(maxNrSamples_);
-  //
-  fenixTcpFormat_ = new EcalFenixTcpFormat(tcpFormat_, debug_, famos_, binOfMaximum_);
-  tcpformat_out_.resize(maxNrSamples_);   
-
-}
-//----------------------------------------------------------------------
-*/
 
 
 
@@ -141,7 +84,6 @@ void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup,
   const CaloSubdetectorGeometry *theBarrelGeometry;
   theBarrelGeometry = &(*theBarrelGeometry_handle);
   
-  //  EcalEBClusterTriggerPrimitiveDigi tp;
 
   firstSample_ = binOfMaximum_-1 -nrSamples_/2;
   lastSample_ = binOfMaximum_-1 +nrSamples_/2;
@@ -180,9 +122,6 @@ void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup,
 	// loop over the xstals in a strip
 	for (int iXstal=0;iXstal<nxstals;iXstal++) {
 	  const EBDetId & myid = dataFrames[iXstal].id();
-	  //	  tp=  EcalEBClusterTriggerPrimitiveDigi(  myid );   
-	  // tp.setSize( nrSamples_);
-
 
 	  if(debug_){
 	    std::cout<<std::endl;
@@ -278,30 +217,6 @@ void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup,
   std::vector<uint16_t> cluCollection = makeCluster ( hitCollection, result, dEta, dPhi, hitNoiseCut, etCutOnSeed  );
   if (debug_) std::cout << "  TrigPrimClusterAlgo hitCollection size " << hitCollection.size() << " cluster size " << cluCollection.size() <<  std::endl; 
 
-  /*
-  for (unsigned int iclu=0; iclu < cluCollection.size(); iclu++) {
-    int nSam=0;
-    bool isASpike=0; 
-    int timing=0;
-    
-    for (int iSample=firstSample_;iSample<=lastSample_;++iSample) {
-     
-      if ( iSample!=5 ) {
-        etInADC = 0;
-      } else {
-	etInADC = cluCollection[iclu];
-      }
-      tp.setSample(nSam,  EcalEBClusterTriggerPrimitiveSample(etInADC,isASpike,timing)  ); 
-     nSam++;
-    }
-
-    if (!tcpFormat_)
-      result.push_back(tp);
-    else 
-      resultTcp.push_back(tp);
-
-  } // loope over the clusters
-  */
 
 }
 
@@ -319,151 +234,110 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
    std::vector<std::vector<uint16_t> > clusters;
    std::vector<std::vector<float> >::const_iterator iClu;
 
-   //std::cout << " Cut on channel " <<  hitNoiseCut << " cut on seed " <<  etCutOnSeed << std::endl;
-
-  //debug
-  //for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
-  // for (int iSample=0;iSample<5;++iSample) {		
-  //   std::vector<SimpleCaloHit> singleChanCollection=hitCollection[iChan];
-  //   SimpleCaloHit singleSamp = hitCollection[iChan][iSample];
-  //   std::cout << singleSamp.etInADC() << " ";
-  // }
-  // std::cout << " " << std::endl;
-  // }
-
-  //std::cout << "****************  " << std::endl;
-
-  //  for (int iSample=0;iSample<5;++iSample) {		
-  // for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
-  //   SimpleCaloHit singleSamp = hitCollection[iChan][iSample];  
-  //   std::cout << singleSamp.etInADC() << " ";
-  // }
-  // std::cout << " " << std::endl;
-  //}
-
-  //  std::cout << " +++++++++++++++  " << std::endl;
-
 
    std::vector<uint16_t> etVec;
-  //  for (int iSample=0;iSample<5;++iSample) {	
-  int iSample=2;
-  //  std::cout << " makeClusters iSample " << iSample << std::endl;
+   
+   int iSample=2;
+   
 
-    while (true) {
-
-      SimpleCaloHit centerhit(0);      
-      
-      for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
-	SimpleCaloHit  hit = hitCollection[iChan][iSample];  
-
-	//EBDetId myId = hit.id();
-	float energy = hit.etInGeV()/sin(hit.position().theta());
-
-	
-	if ( energy < hitNoiseCut ) continue;
-	
-	if ( !hit.stale && hit.etInGeV() > centerhit.etInGeV() ) {
-	  centerhit = hit;  
-
-	}      
-	if (debug_) std::cout << "  makeCluster energy " << energy << " " << hit.energy() << " et " << hit.etInGeV() << " stale " << hit.stale << std::endl;
-
-	
-      } //looping over the pseudo-hits
-
-      if ( centerhit.etInGeV() <= etCutOnSeed ) break;
-      centerhit.stale=true;
-      if (debug_) {
-	std::cout << "-------------------------------------" << std::endl;
-	std::cout << "New cluster: center crystal pt = " << centerhit.etInGeV() << std::endl;
-      }
-
-
-
-      GlobalVector weightedPosition;
-      float totalEnergy = 0.;
-      std::vector<float> crystalEt;
-      std::vector<EBDetId> crystalId;
-    
-      for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
-	SimpleCaloHit &hit(hitCollection[iChan][iSample]);  
-	float energy = hit.etInGeV()/sin(hit.position().theta());
-	//if ( energy < 0.2 ) continue;
-	if ( energy < hitNoiseCut ) continue;
-
-	if ( !hit.stale &&  (abs(hit.dieta(centerhit)) < dEta && abs(hit.diphi(centerhit)) <  dPhi ) ) {
-	  
-	  weightedPosition += hit.position()*hit.energy();
-	  if (debug_) std::cout << " evolving  weightedPosition " << weightedPosition.eta() << " " << weightedPosition.phi() << std::endl;
-	  totalEnergy += hit.energy();
-	  hit.stale = true;
-	  crystalEt.push_back(hit.etInGeV());
-	  crystalId.push_back(hit.id());
-
-
-          if ( debug_) {
-	    if ( hit == centerhit )
-	      std::cout << "      "; 
-	    std::cout <<
-	      "\tCrystal (" << hit.dieta(centerhit) << "," << hit.diphi(centerhit) <<
-	      ") Et in ADC =" << hit.etInADC() <<
-	      ", Et in GeV =" << hit.etInGeV() <<
-	      ", eta=" << hit.position().eta() <<
-	      ", phi=" << hit.position().phi() << std::endl;
-	  }
-
- 
-	  
-	}
+   while (true) {
+     
+     SimpleCaloHit centerhit(0);      
+     
+     for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
+       SimpleCaloHit  hit = hitCollection[iChan][iSample];  
        
-      }
-      float totalEt = totalEnergy*sin(weightedPosition.theta());
-      uint16_t etInADC =  totalEt/0.125;
-      float etaClu= weightedPosition.eta() ;
-      float phiClu= weightedPosition.phi();
-      if (debug_) std::cout << " Cluster totalenergy " << totalEnergy << " total Et " << totalEt << " total Et in ADC " << etInADC << " weighted eta " << etaClu << " weighted phi " <<  phiClu << std::endl;
-
-      tp=EcalEBClusterTriggerPrimitiveDigi(centerhit.id(), crystalId, etaClu,  phiClu );   
-      tp.setSize( nrSamples_);
-
-      
-      etVec.push_back(etInADC);
-      clusters.push_back(etVec);
-
-      bool isASpike=0; 
-      int timing=0;
-      tp.setSample(2,  EcalEBClusterTriggerPrimitiveSample(etInADC,isASpike,timing)  ); 
-      result.push_back(tp);
-
-
-    } // while true 
-    
-      
-   // looping over the samples of the future TP
-  
-  
-    if (debug_) {
-      std::cout << " etVec size " << etVec.size() <<  " Clusters size " << clusters.size() << std::endl;  
-      for (unsigned int iet=0; iet < etVec.size(); iet++) std::cout << " Et vec " << etVec[iet] << " ";
-      std::cout << " " << std::endl;
-    }
-
-
-    return etVec;
-
+       
+       float energy = hit.etInGeV()/sin(hit.position().theta());
+       
+       
+       if ( energy < hitNoiseCut ) continue;
+       
+       if ( !hit.stale && hit.etInGeV() > centerhit.etInGeV() ) {
+	 centerhit = hit;  
+	 
+       }      
+       if (debug_) std::cout << "  makeCluster energy " << energy << " " << hit.energy() << " et " << hit.etInGeV() << " stale " << hit.stale << std::endl;
+       
+       
+     } //looping over the pseudo-hits
+     
+     if ( centerhit.etInGeV() <= etCutOnSeed ) break;
+     centerhit.stale=true;
+     if (debug_) {
+       std::cout << "-------------------------------------" << std::endl;
+       std::cout << "New cluster: center crystal pt = " << centerhit.etInGeV() << std::endl;
+     }
+     
+     
+     
+     GlobalVector weightedPosition;
+     float totalEnergy = 0.;
+     std::vector<float> crystalEt;
+     std::vector<EBDetId> crystalId;
+     
+     for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
+       SimpleCaloHit &hit(hitCollection[iChan][iSample]);  
+       float energy = hit.energy();
+       
+       if ( energy < hitNoiseCut ) continue;
+       
+       if ( !hit.stale &&  (abs(hit.dieta(centerhit)) < dEta && abs(hit.diphi(centerhit)) <  dPhi ) ) {
+	 
+	 weightedPosition += hit.position()*hit.energy();
+	 if (debug_) std::cout << " evolving  weightedPosition " << weightedPosition.eta() << " " << weightedPosition.phi() << std::endl;
+	 totalEnergy += hit.energy();
+	 hit.stale = true;
+	 crystalEt.push_back(hit.etInGeV());
+	 crystalId.push_back(hit.id());
+	 
+	 
+	 if ( debug_) {
+	   if ( hit == centerhit )
+	     std::cout << "      "; 
+	   std::cout <<
+	     "\tCrystal (" << hit.dieta(centerhit) << "," << hit.diphi(centerhit) <<
+	     ") Et in ADC =" << hit.etInADC() <<
+	     ", Et in GeV =" << hit.etInGeV() <<
+	     ", eta=" << hit.position().eta() <<
+	     ", phi=" << hit.position().phi() << std::endl;
+	 }
+       }
+     }
+     float totalEt = totalEnergy*sin(weightedPosition.theta());
+     uint16_t etInADC =  totalEt/0.125;
+     float etaClu= weightedPosition.eta() ;
+     float phiClu= weightedPosition.phi();
+     if (debug_) std::cout << " Cluster totalenergy " << totalEnergy << " total Et " << totalEt << " total Et in ADC " << etInADC << " weighted eta " << etaClu << " weighted phi " <<  phiClu << std::endl;
+     
+     tp=EcalEBClusterTriggerPrimitiveDigi(centerhit.id(), crystalId, etaClu,  phiClu );   
+     tp.setSize( nrSamples_);
+     
+     
+     etVec.push_back(etInADC);
+     clusters.push_back(etVec);
+     
+     bool isASpike=0; 
+     int timing=0;
+     tp.setSample(2,  EcalEBClusterTriggerPrimitiveSample(etInADC,isASpike,timing)  ); 
+     result.push_back(tp);
+     
+     
+   } // while true 
+   
+   
+   
+   if (debug_) {
+     std::cout << " etVec size " << etVec.size() <<  " Clusters size " << clusters.size() << std::endl;  
+     for (unsigned int iet=0; iet < etVec.size(); iet++) std::cout << " Et vec " << etVec[iet] << " ";
+     std::cout << " " << std::endl;
+   }
+   
+   
+   return etVec;
+   
 }
 
   
 
 
-/*
-//----------------------------------------------------------------------
-
-int  EcalEBTrigPrimClusterAlgo::findStripNr(const EBDetId &id){
-  int stripnr;
-  int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
-  if (id.ieta()<0) stripnr = n+1;
-  else stripnr =nbMaxStrips_ - n; 
-  return stripnr;
-}
-*/

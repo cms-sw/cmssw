@@ -80,32 +80,27 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
 	else
 	  lut_out = (lut_)[myEt] ;
 	
-	int ttFlag = (lut_out & 0x700) >> 8 ;
+	
 	myEt = lut_out & 0xff ;
-	//	out[i]=EcalEBTriggerPrimitiveSample( myEt,fgvb[0],sfgvb[0],ttFlag); 
 	out[i]=EcalEBTriggerPrimitiveSample( myEt ); 
       }
       else out[i]=EcalEBTriggerPrimitiveSample( );
     }
   }
   else {
-    //std::cout << " FenixTcpFormatter et.size() " << Et.size() << std::endl;
+    
     for (unsigned int i=0; i<Et.size();++i) {
-      int myFgvb=fgvb[i];
+
       int mysFgvb=sfgvb[i];
-      //myEt=Et[i]>>eTTotShift;
-      //if (myEt>0x3ff) myEt=0x3ff ;
-      //if (isInInnerRings) myEt = myEt /2 ;  
 
       // bug fix 091009:
       myEt=Et[i]; 
-      //std::cout << " Et " << myEt << std::endl;
       if (myEt>0xfff) 
 	myEt=0xfff ;
       if (isInInnerRings) 
 	myEt = myEt /2 ;  
       myEt >>= eTTotShift ;
-      //std::cout << " after myEt>>= eTTotShift " << myEt << std::endl;      
+      
       if (myEt>0x3ff) myEt=0x3ff ;
 
       // Spike killing
@@ -121,14 +116,13 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
       else
 	lut_out = (lut_)[myEt] ;
       
-      int ttFlag = (lut_out & 0x700) >> 8 ;
+      
       if (tcpFormat_)  {
 	out2[i]=EcalEBTriggerPrimitiveSample( myEt & 0x3ff);
-	//std::cout << " FenixTcpFormatter final et " << (myEt & 0x3ff) << std::endl;
+
       }
 
       myEt = lut_out & 0xff ;
-      //std::cout << " FenixTcpFormatter final lut_out " << lut_out << " 0xff " << 0xff << " et " << myEt << std::endl;
       out[i]=EcalEBTriggerPrimitiveSample( myEt ); 
     }
   }

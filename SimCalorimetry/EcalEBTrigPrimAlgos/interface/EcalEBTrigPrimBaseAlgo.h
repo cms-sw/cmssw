@@ -6,7 +6,6 @@
  * While the new digitization is not yet implemented, we use the old Digis to make TP per crystal
  *
  ************************************************************/
-#include <sys/time.h>
 #include <iostream>
 #include <vector>
 
@@ -14,7 +13,6 @@
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
-//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 
@@ -26,16 +24,12 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixLinearizer.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixPeakFinder.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixStripFormatEB.h> 
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormatCluster.h>
-
-
-
-
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixLinearizer.h"
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h"
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixPeakFinder.h"
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixStripFormatEB.h" 
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormat.h"
+#include "SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormatCluster.h"
 #include <map>
 #include <utility>
 
@@ -84,7 +78,7 @@ class EcalEBTrigPrimBaseAlgo
   }
 
 
-  // private:
+  
  protected:
 
   void init(const edm::EventSetup&);
@@ -107,7 +101,6 @@ class EcalEBTrigPrimBaseAlgo
   }
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
-  //  const CaloSubdetectorGeometry *theEndcapGeometry;
   edm::ESHandle<CaloGeometry> theGeometry_;
 
 
@@ -147,10 +140,6 @@ class EcalEBTrigPrimBaseAlgo
   EcalFenixAmplitudeFilter *amplitude_filter_; 
   EcalFenixPeakFinder *peak_finder_; 
   EcalFenixStripFormatEB *fenixFormatterEB_;
-  // EcalFenixTcpFormat *fenixTcpFormat_;
-  
-
-  
   //
   const EcalTPGPedestals * ecaltpPed_;
   const EcalTPGLinearizationConst *ecaltpLin_;
@@ -174,13 +163,9 @@ class EcalEBTrigPrimBaseAlgo
   // these two are dummy
   std::vector<int> fgvb_out_;
   std::vector<int> fgvb_out_temp_;
-
   //
   EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_;}
   EcalFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_;}
-  //
-  // EcalFenixTcpFormat *getFormatter() const {return fenixTcpFormat_;}
-  
   std::vector<int> tcpformat_out_;
 
 

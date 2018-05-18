@@ -12,9 +12,6 @@
 #include <functional>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
@@ -29,13 +26,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
-
-
-
-#include <TTree.h>
-#include <TMath.h>
-
-
 //----------------------------------------------------------------------
 
 const unsigned int EcalEBTrigPrimBaseAlgo::nrSamples_=5;
@@ -48,8 +38,6 @@ const unsigned int EcalEBTrigPrimBaseAlgo::maxNrSamplesOut_=10;
 //----------------------------------------------------------------------
 void EcalEBTrigPrimBaseAlgo::init(const edm::EventSetup & setup) {
   if (!barrelOnly_) {
-    //edm::ESHandle<CaloGeometry> theGeometry;
-    //    edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
     setup.get<CaloGeometryRecord>().get( theGeometry_ );
     setup.get<IdealGeometryRecord>().get(eTTmap_);
   }
@@ -66,7 +54,7 @@ void EcalEBTrigPrimBaseAlgo::init(const edm::EventSetup & setup) {
   std::vector <int> v;
   v.resize(maxNrSamples_);
   lin_out_.resize(nbMaxXtals_);  
-  for (int i=0;i<5;i++) lin_out_[i]=v;
+  for (int i=0;i<nbMaxXtals_;i++) lin_out_[i]=v;
   //
   amplitude_filter_ = new EcalFenixAmplitudeFilter();
   filt_out_.resize(maxNrSamples_);
@@ -78,10 +66,7 @@ void EcalEBTrigPrimBaseAlgo::init(const edm::EventSetup & setup) {
   peak_finder_ = new  EcalFenixPeakFinder();
   fenixFormatterEB_ = new EcalFenixStripFormatEB();
   format_out_.resize(maxNrSamples_);
-  //
-  // fenixTcpFormat_ = new EcalFenixTcpFormat(tcpFormat_, debug_, famos_, binOfMaximum_);
-  //tcpformat_out_.resize(maxNrSamples_);   
-
+ 
 }
 //----------------------------------------------------------------------
 

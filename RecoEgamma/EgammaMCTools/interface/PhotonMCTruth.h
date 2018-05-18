@@ -2,8 +2,8 @@
 #define PhotonMCTruth_h
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Vector/LorentzVector.h>
 #include <vector>

@@ -2,7 +2,7 @@
 #define ECAL_FENIX_STRIP_FORMAT_EB_H
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 class EcalTPGSlidingWindow;
 

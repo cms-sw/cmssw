@@ -181,8 +181,6 @@ EcalEBTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
  
   if (debug_) std::cout << "EcalTPG" <<" =================> Treating event  "<< nEvent_<<", Number of EB digis "<<barrelDigiHandle.product()->size() << std::endl;
-  std::cout << "EcalTPG" <<" =================> Treating event  "<< nEvent_<<", Number of EB digis "<<barrelDigiHandle.product()->size() << std::endl;
-
  
   auto pOut = std::make_unique<EcalEBTrigPrimDigiCollection>();
   auto pOutTcp = std::make_unique<EcalEBTrigPrimDigiCollection>();

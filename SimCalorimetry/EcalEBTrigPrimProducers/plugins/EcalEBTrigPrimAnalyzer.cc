@@ -44,7 +44,7 @@
 
 
 #include "EcalEBTrigPrimAnalyzer.h"
-#include <TMath.h>
+
 
 using namespace edm;
 class CaloSubdetectorGeometry;
@@ -60,7 +60,6 @@ EcalEBTrigPrimAnalyzer::EcalEBTrigPrimAnalyzer(const edm::ParameterSet&  iConfig
   analyzeElectrons_= iConfig.getParameter<bool>("AnalyzeElectrons");
   etCluTPThreshold_ = iConfig.getParameter<double>("etCluTPThreshold");
   debug_= iConfig.getParameter<bool>("Debug");
-  //std::string  outputFilename= iConfig.getParameter<std::string>("OutputFile");
   rechits_labelEB_=consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputRecHitsEB"));
   primToken_=consumes<EcalEBTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTP"));
   primCluToken_=consumes<EcalEBClusterTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("inputClusterTP"));
@@ -767,7 +766,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
 	if ( abs(gpIter->pdgId()) != 22 ) continue;
 	float ch= 0.;
 
-        const reco::Candidate* mother=gpIter->mother();
+        
 
 	if (debug_) std::cout << "gpIter charge in the loop " << ch <<  " and Pt " << gpIter->pt() << std::endl;
 
