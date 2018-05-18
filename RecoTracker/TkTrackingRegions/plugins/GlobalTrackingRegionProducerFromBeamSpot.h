@@ -1,6 +1,8 @@
 #ifndef RecoTracker_TkTrackingRegions_GlobalTrackingRegionProducerFromBeamSpot_H
 #define RecoTracker_TkTrackingRegions_GlobalTrackingRegionProducerFromBeamSpot_H
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
