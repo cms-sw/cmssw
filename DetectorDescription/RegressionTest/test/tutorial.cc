@@ -542,7 +542,7 @@ void tutorial()
     Start = clock();
     //while (NEXT(fv,fv_count)) ;
     int cc=0;
-    walker_type  g = walker_type(DDCompactView().graph(),DDCompactView().root());
+    auto g = math::GraphWalker<DDLogicalPart, DDPosData*>( DDCompactView().graph(), DDCompactView().root());
     while(g.next()) ++cc;
     End = clock();
     std::cout << "Time : " << ((double) (End-Start)) / double(CLOCKS_PER_SEC) << " sec" << std::endl;

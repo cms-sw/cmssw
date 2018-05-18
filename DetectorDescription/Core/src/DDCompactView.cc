@@ -71,11 +71,6 @@ const DDPosData* DDCompactView::worldPosition() const
   return worldpos_.get();
 }
 
-DDCompactView::walker_type DDCompactView::walker() const
-{
-  return rep_->walker();
-}
-
 void DDCompactView::position (const DDLogicalPart & self, 
 			      const DDLogicalPart & parent,
 			      const std::string& copyno,
