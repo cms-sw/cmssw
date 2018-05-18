@@ -206,9 +206,11 @@ void ElasticPlotDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS");
 
-  // initialize diagonal plots
+  // initialize (anti-)diagonal plots
+  diagonalPlots[0] = DiagonalPlots(ibooker, 0);  // 45 bot - 56 bot
   diagonalPlots[1] = DiagonalPlots(ibooker, 1);  // 45 bot - 56 top
-  diagonalPlots[2] = DiagonalPlots(ibooker, 2);  // 45 top - 45 bot
+  diagonalPlots[2] = DiagonalPlots(ibooker, 2);  // 45 top - 56 bot
+  diagonalPlots[3] = DiagonalPlots(ibooker, 3);  // 45 top - 56 top
 
   // loop over arms
   for (unsigned int arm = 0; arm < 2; arm++)
