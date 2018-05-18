@@ -8,6 +8,7 @@ OutALCARECOHcalCalHO_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalHO')
     ),
     outputCommands = cms.untracked.vstring(
+        'keep HcalNoiseSummary_hcalnoise_*_*',
         'keep *_hoCalibProducer_*_*')
 )
 
