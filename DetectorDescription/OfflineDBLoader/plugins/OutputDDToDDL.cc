@@ -29,7 +29,7 @@
 namespace {
   /// is sv1 < sv2 
   struct ddsvaluesCmp {
-    bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 );
+    bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 ) const;
   };
 }
 
@@ -56,7 +56,7 @@ private:
 };
 
 bool
-ddsvaluesCmp::operator() ( const DDsvalues_type& sv1, const DDsvalues_type& sv2 )
+ddsvaluesCmp::operator() ( const DDsvalues_type& sv1, const DDsvalues_type& sv2 ) const
 {
   if( sv1.size() < sv2.size()) return true;
   if( sv2.size() < sv1.size()) return false;
