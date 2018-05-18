@@ -253,7 +253,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     if (verbosity)
     {
       LogProblem("ElasticPlotDQMSource") <<
-        "ERROR in TotemDQMModuleRP::analyze > some of the required inputs are not valid. Skipping this event.\n"
+        "ERROR in ElasticPlotDQMSource::analyze > some of the required inputs are not valid. Skipping this event.\n"
         << "    hits.isValid = " << hits.isValid() << "\n"
         << "    patterns.isValid = " << patterns.isValid() << "\n"
         << "    tracks.isValid = " << tracks.isValid();
