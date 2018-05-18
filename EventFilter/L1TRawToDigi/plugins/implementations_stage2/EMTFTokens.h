@@ -1,4 +1,3 @@
-
 #ifndef EventFilter_L1TRawToDigi_EMTFTokens_h
 #define EventFilter_L1TRawToDigi_EMTFTokens_h
 
@@ -7,7 +6,7 @@
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
 
 namespace l1t {
