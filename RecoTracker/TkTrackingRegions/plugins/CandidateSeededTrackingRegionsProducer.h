@@ -17,8 +17,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-
-
 /** class CandidateSeededTrackingRegionsProducer
  *
  * eta-phi TrackingRegions producer in directions defined by Candidate-based objects of interest

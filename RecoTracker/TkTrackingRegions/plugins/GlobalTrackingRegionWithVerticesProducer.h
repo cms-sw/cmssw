@@ -15,8 +15,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-
-
 class GlobalTrackingRegionWithVerticesProducer : public TrackingRegionProducer
 {
 public:

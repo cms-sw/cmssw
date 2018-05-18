@@ -56,7 +56,6 @@
  *
  *   \authors Vadim Khotilovich + Thomas Strebler
  */
-
 class  CandidatePointSeededTrackingRegionsProducer : public TrackingRegionProducer
 {
 public:
