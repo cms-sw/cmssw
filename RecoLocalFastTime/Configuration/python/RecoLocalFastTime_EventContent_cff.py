@@ -20,5 +20,4 @@ RecoLocalFastTimeAOD = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_phase2_timing_layer_new_cff import phase2_timing_layer_new
-phase2_timing_layer_new.toModify( RecoLocalFastTimeFEVT.outputCommands, func=lambda outputCommands: outputCommands.append('drop *_ftlUncalibratedRecHits_*_*') )
-phase2_timing_layer_new.toModify( RecoLocalFastTimeFEVT.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_mtdUncalibratedRecHits_*_*') )
+phase2_timing_layer_new.toModify( RecoLocalFastTimeFEVT.outputCommands, func=lambda outputCommands: outputCommands.extend(['drop *_ftlUncalibratedRecHits_*_*','keep *_mtdUncalibratedRecHits_*_*']) )
