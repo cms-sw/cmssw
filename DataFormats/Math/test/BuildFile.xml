@@ -69,3 +69,13 @@
 <bin name="testDataFormatsMathPacking" file="testMiniFloat.cpp,testlogintpack.cpp,testRunner.cpp">
   <use   name="cppunit"/>
 </bin>
+
+<use name="cuda"/>
+<use name="cuda-api-wrappers"/>
+<use   name="vdt_headers"/>
+
+<bin file="cudaAtan2Test.cu" name="DFM_Atan2">
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+  <flags CXXFLAGS="-O3 -fwrapv"/>
+</bin>
+
