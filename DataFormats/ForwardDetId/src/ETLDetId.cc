@@ -6,7 +6,7 @@ std::ostream& operator<< ( std::ostream& os, const ETLDetId& id ) {
   os << " ETL " << std::endl
      << " Side        : " << id.mtdSide() << std::endl
      << " Ring        : " << id.mtdRR() << std::endl
-     << " Module      : " << id.etlModule() << std::endl
-     << " Module type : " << id.etlModType() << std::endl;
+     << " Module      : " << id.module() << std::endl
+     << " Module type : " << id.modType() << std::endl;
   return os;
 }
