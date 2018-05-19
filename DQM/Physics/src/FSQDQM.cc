@@ -272,7 +272,7 @@ FSQDQM::~FSQDQM()
 	 }
 
 	 float highest_pt_track=-999;
-	 int index=-99;
+	 int index=-999;
 	 for(unsigned int k=0;k<T_trackRec_P4.size();k++){
 	   if(T_trackRec_P4.at(k).Pt() > highest_pt_track){
 		 highest_pt_track=T_trackRec_P4.at(k).Pt();
@@ -280,8 +280,10 @@ FSQDQM::~FSQDQM()
 	       }
 
 	 }
-	 if(abs(index) < T_trackRec_P4.size()){
-	 //	 std::sort(T_trackRec_P4.begin(), T_trackRec_P4.end(), SortByPt());
+	 unsigned int finalid=abs(index);
+	 //	 if(T_trackRec_P4.at(index).Pt()!=0.){
+	 if(finalid < T_trackRec_P4.size()){
+	   //	 std::sort(T_trackRec_P4.begin(), T_trackRec_P4.end(), SortByPt());
 	 for(unsigned int itrk=0;itrk<T_trackRec_P4.size();itrk++){
 	   ++ntracks;
 	     ptsum= ptsum + T_trackRec_P4.at(itrk).Pt();
