@@ -215,22 +215,12 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
         // fill collection, from DeepTNtuples plus some styling
         // std::vector<const pat::PackedCandidate*> daughters;
         std::vector<const reco::Candidate*> daughters;
-        std::vector<reco::PFCandidatePtr> reco_ptrs; // needed if reco candidates
         for (unsigned int i = 0; i < jet.numberOfDaughters(); i++)
         {
             auto const* cand = jet.daughter(i);
+            auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(cand);
             auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
-            // need some edm::Ptr or edm::Ref if reco candidates
-            reco::PFCandidatePtr reco_ptr;
-            if (reco_cand)
-            {
-                // dynamical casting to pointers, null if not possible
-                const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&jet);
-                reco_ptr = pf_jet->getPFConstituent(i);
-                daughters.push_back(reco_cand);
-                reco_ptrs.push_back(reco_ptr);
-            }
-            else
+            if (packed_cand)
             {
                 if (cand->numberOfDaughters() > 0)
                 {
@@ -245,6 +235,12 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
                     auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(cand);
                     daughters.push_back(packed_cand);
                 }
+            }
+            else if (reco_cand)
+            {
+                // need some edm::Ptr or edm::Ref if reco candidates
+                // dynamical casting to pointers, null if not possible
+                daughters.push_back(reco_cand);
             }
         }
 
@@ -295,12 +291,6 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
 
                 auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
 
-                // need some edm::Ptr or edm::Ref if reco candidates
-                reco::PFCandidatePtr reco_ptr;
-                if (reco_cand)
-                {
-                    reco_ptr = reco_ptrs.at(i);
-                }
                 // get PUPPI weight from value map
                 float puppiw = 1.0; // fallback value
 
