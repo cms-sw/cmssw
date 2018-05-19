@@ -2,9 +2,9 @@
 #define DataFormats_Math_PtEtaPhiMass_h
 
 #include<cmath>
-constexpr float __attribute__((always_inline)) __attribute__ ((pure))
+inline float __attribute__((always_inline)) __attribute__ ((pure))
 etaFromXYZ(float x, float y, float z) { float t(z/std::sqrt(x*x+y*y)); return ::asinhf(t);} 
-constexpr float __attribute__((always_inline)) __attribute__ ((pure))
+inline float __attribute__((always_inline)) __attribute__ ((pure))
 etaFromRZ(float r, float z) { float t(z/r); return ::asinhf(t);} 
 
 
