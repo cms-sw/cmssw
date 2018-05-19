@@ -83,9 +83,9 @@ void ETLElectronicsSim::updateOutput(ETLDigiCollection &coll,
   if(rawDataFrame.size()<=itIdx+2) return;
   
   ETLDataFrame dataFrame( rawDataFrame.id() );
-  dataFrame.resize(5);
+  dataFrame.resize(dfSIZE);
   bool putInEvent(false);
-  for(int it=0;it<5; ++it) {    
+  for(int it=0;it<dfSIZE; ++it) {    
     dataFrame.setSample(it, rawDataFrame[itIdx-2+it]);
     if(it==2) putInEvent = rawDataFrame[itIdx-2+it].threshold(); 
   }

@@ -34,6 +34,8 @@ class ETLElectronicsSim {
   void updateOutput(ETLDigiCollection &coll,
 		    const ETLDataFrame& rawDataFrame) const;
 
+  static constexpr int dfSIZE = 5;
+
  private:
 
   const bool debug_;
