@@ -16,7 +16,7 @@ private:
   float pt_, eta_, phi_, mass_;
 public:
   // default constructor (unitialized)
-  constexpr PtEtaPhiMass() {}
+  PtEtaPhiMass() {}
 
   //positional constructor (still compatible with Root, c++03)
   constexpr PtEtaPhiMass(float ipt, float ieta, float iphi, float imass):
