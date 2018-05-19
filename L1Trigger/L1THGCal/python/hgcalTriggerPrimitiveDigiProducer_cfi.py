@@ -69,13 +69,18 @@ C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           calibSF_cluster=cms.double(0.)
                           )
 
+
+from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_cone
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
                           type_multicluster = cms.string('dRC3d'),
                           # Parameters not used by this clustering
                           dist_dbscan_multicluster=cms.double(0.),
-                          minN_dbscan_multicluster=cms.uint32(0)
+                          minN_dbscan_multicluster=cms.uint32(0),
+                          EGIdentification=egamma_identification_drnn_cone.clone()
 )
+
+
 
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
