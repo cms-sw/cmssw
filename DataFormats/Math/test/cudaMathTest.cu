@@ -33,9 +33,8 @@ std::mt19937 eng;
 std::mt19937 eng2;
 std::uniform_real_distribution<float> rgen(0.,1.);
 
-
-#include<DataFormats/Math/interface/approx_exp.h>
 #include<DataFormats/Math/interface/approx_log.h>
+#include<DataFormats/Math/interface/approx_exp.h>
 #include<DataFormats/Math/interface/approx_atan2.h>
 
 constexpr float myExp(float x) {
