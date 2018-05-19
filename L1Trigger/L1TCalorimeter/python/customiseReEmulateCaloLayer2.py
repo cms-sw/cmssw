@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+static_config = 'L1Trigger.L1TCalorimeter.caloParams_2018_v1_2_cfi'
+
 def hwEmulCompHistos(process):
     
     process.TFileService = cms.Service("TFileService",
@@ -80,7 +82,7 @@ def valHistosStatic(process):
     process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
     process.simCaloStage2Digis.useStaticConfig = True
-    process.load('L1Trigger.L1TCalorimeter.caloParams_2018_v1_1_cfi')
+    process.load(static_config)
 
     process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
     process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
@@ -112,7 +114,6 @@ def valHistosDBL1Ntuple(process):
     process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
     process.simCaloStage2Digis.useStaticConfig = False
-    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi')
 
     process.load('L1Trigger.Configuration.SimL1Emulator_cff')
 
@@ -137,7 +138,7 @@ def valHistosStaticL1Ntuple(process):
     process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
     process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
     process.simCaloStage2Digis.useStaticConfig = True
-    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi')
+    process.load(static_config)
 
     process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
     process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
