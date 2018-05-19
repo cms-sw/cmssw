@@ -44,7 +44,7 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     fNPV    = 1.;
     fRecoParticles = iRecoObjects;
     for (unsigned int i = 0; i < fRecoParticles.size(); i++){
-        fastjet::PseudoJet curPseudoJet;
+        PseudoJet curPseudoJet;
         auto fRecoParticle = fRecoParticles[i];
         // float nom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt)*(cosh(fRecoParticle.eta))*(cosh(fRecoParticle.eta))) + (fRecoParticle.pt)*sinh(fRecoParticle.eta);//hacked
         // float denom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt));//hacked
@@ -121,7 +121,7 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     return var;
 }
 //In fact takes the median not the average
-void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &iConstits,std::vector<fastjet::PseudoJet> const &iParticles,std::vector<fastjet::PseudoJet> const &iChargedParticles) {
+void PuppiContainer::getRMSAvg(int iOpt,std::vector<PseudoJet> const &iConstits,std::vector<PseudoJet> const &iParticles,std::vector<PseudoJet> const &iChargedParticles) {
     for(unsigned int i0 = 0; i0 < iConstits.size(); i0++ ) {
         double pVal = -1;
         //Calculate the Puppi Algo to use
@@ -161,7 +161,7 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &i
     for(int i0 = 0; i0 < fNAlgos; i0++) fPuppiAlgo[i0].computeMedRMS(iOpt,fPVFrac);
 }
 //In fact takes the median not the average
-void PuppiContainer::getRawAlphas(int iOpt,std::vector<fastjet::PseudoJet> const &iConstits,std::vector<fastjet::PseudoJet> const &iParticles,std::vector<fastjet::PseudoJet> const &iChargedParticles) {
+void PuppiContainer::getRawAlphas(int iOpt,std::vector<PseudoJet> const &iConstits,std::vector<PseudoJet> const &iParticles,std::vector<PseudoJet> const &iChargedParticles) {
     for(int j0 = 0; j0 < fNAlgos; j0++){
         for(unsigned int i0 = 0; i0 < iConstits.size(); i0++ ) {
             double pVal = -1;

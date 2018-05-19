@@ -184,7 +184,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   fPuppiContainer->setNPV( npv );
 
   std::vector<double> lWeights;
-  std::vector<fastjet::PseudoJet> lCandidates;
+  std::vector<PuppiContainer::PseudoJet> lCandidates;
   if (!fUseExistingWeights){
     //Compute the weights and get the particles
     lWeights = fPuppiContainer->puppiWeights();
@@ -205,7 +205,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         else{ curpupweight = lPack->puppiWeight();  }
       }
       lWeights.push_back(curpupweight);
-      fastjet::PseudoJet curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
+      PuppiContainer::PseudoJet curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
       curjet.set_user_index(lPackCtr);
       lCandidates.push_back(curjet);
       lPackCtr++;
@@ -252,7 +252,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     int val = i0 - i0begin;
 
     // Find the Puppi particle matched to the input collection using the "user_index" of the object. 
-    auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
+    auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( PuppiContainer::PseudoJet const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
     } else {
