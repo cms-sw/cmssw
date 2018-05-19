@@ -79,3 +79,8 @@
   <flags CXXFLAGS="-O3 -fwrapv"/>
 </bin>
 
+<bin file="cudaMathTest.cu" name="DFM_Math">
+  <flags CUDA_FLAGS="--expt-relaxed-constexpr"/>
+  <flags CXXFLAGS="-O3 -fwrapv"/>
+</bin>
+
