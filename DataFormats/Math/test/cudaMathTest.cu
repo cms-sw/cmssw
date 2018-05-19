@@ -158,8 +158,13 @@ void go()
               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
               << " ms" << std::endl;
 
-
+        delta -= (std::chrono::high_resolution_clock::now()-start);
 	cuda::memory::copy(h_C.get(), d_C.get(), size);
+        delta += (std::chrono::high_resolution_clock::now()-start);
+        std::cout <<"cuda copy back took "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
+              << " ms" << std::endl;
+
 
         // on host now...
         delta -= (std::chrono::high_resolution_clock::now()-start);
@@ -204,6 +209,7 @@ void go()
 	  std::cout << "Test PASSED\n";
 	  std::cout << "SUCCESS"<< std::endl;
         }
+  cudaDeviceSynchronize();
 }
 
 int main() {
