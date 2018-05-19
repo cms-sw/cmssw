@@ -52,7 +52,11 @@ namespace approx_math {
     int32_t i32; /* Signed int */                
     float f;
   };
+}
+#endif
 
+
+namespace approx_math {
 #ifdef __SSE4_1__
   constexpr float fpfloor(float x) {
     return std::floor(x);
@@ -65,9 +69,8 @@ namespace approx_math {
     return ret;
   }
 #endif
-
 }
-#endif
+
 
 
 template<int DEGREE>
