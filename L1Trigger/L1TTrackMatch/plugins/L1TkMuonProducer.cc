@@ -153,10 +153,8 @@ L1TkMuonProducer::runOnMTFCollection(const edm::Handle<RegionalMuonCandBxCollect
     imu++;
 
     float l1mu_eta = l1mu->hwEta()*0.010875;
-    // get local phi for this MTF candidate
-    float l1mu_phi_local = l1mu->hwPhi()*2*M_PI/576.;
-    // now get the corresponding global phi
-    float l1mu_phi = MicroGMTConfiguration::calcGlobalPhi( l1mu_phi_local, l1mu->trackFinderType(), l1mu->processor() );
+    // get the global phi
+    float l1mu_phi = MicroGMTConfiguration::calcGlobalPhi( l1mu->hwPhi(), l1mu->trackFinderType(), l1mu->processor() )*2*M_PI/576.;
 	  
     float l1mu_feta = fabs( l1mu_eta );
     if (l1mu_feta < ETAMIN_) continue;
