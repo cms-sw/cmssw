@@ -363,7 +363,7 @@ fullyhadronic_DoubleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), x
 fullyhadronic_DoubleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200)
 fullyhadronic_DoubleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers 
-fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2_v*')
+fullyhadronic_DoubleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v*')
 fullyhadronic_DoubleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_DoubleBTag_jet = hltTOPmonitoring.clone()
@@ -401,7 +401,7 @@ fullyhadronic_DoubleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), 
 fullyhadronic_DoubleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200)
 fullyhadronic_DoubleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
-fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagCSV_2p2_v*')
+fullyhadronic_DoubleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v*')
 fullyhadronic_DoubleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_v*')
 
 fullyhadronic_DoubleBTag_ref = hltTOPmonitoring.clone()
@@ -439,7 +439,7 @@ fullyhadronic_SingleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), x
 fullyhadronic_SingleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200)
 fullyhadronic_SingleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
-fullyhadronic_SingleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5_v*')
+fullyhadronic_SingleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixPFJet40_PFBTagDeepCSV_1p5_v*')
 fullyhadronic_SingleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_SingleBTag_jet = hltTOPmonitoring.clone()
@@ -477,7 +477,7 @@ fullyhadronic_SingleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), 
 fullyhadronic_SingleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200)
 fullyhadronic_SingleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
-fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixPFJet40_PFBTagCSV_1p5_v*')
+fullyhadronic_SingleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixPFJet40_PFBTagDeepCSV_1p5_v*')
 fullyhadronic_SingleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT430_SixPFJet40_v*')
 
 fullyhadronic_SingleBTag_ref = hltTOPmonitoring.clone()
@@ -516,7 +516,7 @@ fullyhadronic_TripleBTag_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), x
 fullyhadronic_TripleBTag_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_TripleBTag_all.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
-fullyhadronic_TripleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_v*')
+fullyhadronic_TripleBTag_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v*')
 fullyhadronic_TripleBTag_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_TripleBTag_jet = hltTOPmonitoring.clone()
@@ -535,7 +535,7 @@ fullyhadronic_TripleBTag_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), x
 fullyhadronic_TripleBTag_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_TripleBTag_jet.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
-fullyhadronic_TripleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v*')
+fullyhadronic_TripleBTag_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v*')
 fullyhadronic_TripleBTag_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT350_v*')
 
 fullyhadronic_TripleBTag_bjet = hltTOPmonitoring.clone()
@@ -554,8 +554,8 @@ fullyhadronic_TripleBTag_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint32(50), 
 fullyhadronic_TripleBTag_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,200,400)
 fullyhadronic_TripleBTag_bjet.histoPSet.HTBinning    = cms.vdouble(0,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers 
-fullyhadronic_TripleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_v*')
-fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v*')
+fullyhadronic_TripleBTag_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v*')
+fullyhadronic_TripleBTag_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v*')
 
 #DeepCSV
 
