@@ -49,10 +49,10 @@ class ETLDetId : public MTDDetId {
 // ---------- Common methods ----------
 
 /** Returns ETL module number. */
-inline int etlModule() const { return (id_>>kETLmoduleOffset)&kETLmoduleMask; }
+inline int module() const { return (id_>>kETLmoduleOffset)&kETLmoduleMask; }
 
 /** Returns ETL crystal type number. */
-inline int etlModType() const { return (id_>>kETLmodTypeOffset)&kETLmodTypeMask; }
+inline int modType() const { return (id_>>kETLmodTypeOffset)&kETLmodTypeMask; }
 
 };
 

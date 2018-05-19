@@ -63,10 +63,6 @@ MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken( tok_ETL_digi, h_ETL_digi );
 
  
-  //std::cout << "========================================" << std::endl;
-  //std::cout << " run = " << iEvent.id().run() << "  event = " << iEvent.id().event() << std::endl; 
-
-
   // --- BTL DIGIs:
 
   if ( h_BTL_digi->size() > 0 ) {
@@ -81,9 +77,9 @@ MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< "  subdet = "  << dataFrame.id().mtdSubDetector() 
 		<< "  side = "    << dataFrame.id().mtdSide() 
 		<< "  rod = "     << dataFrame.id().mtdRR() 
-		<< "  mod = "     << dataFrame.id().btlModule() 
-		<< "  type = "    << dataFrame.id().btlmodType() 
-		<< "  crystal = " << dataFrame.id().btlCrystal() 
+		<< "  mod = "     << dataFrame.id().module() 
+		<< "  type = "    << dataFrame.id().modType() 
+		<< "  crystal = " << dataFrame.id().crystal() 
 		<< std::endl;
 
 
@@ -123,8 +119,8 @@ MTDDigiDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		<< "  subdet = " << dataFrame.id().mtdSubDetector()
 		<< "  side = "   << dataFrame.id().mtdSide() 
 		<< "  ring = "   << dataFrame.id().mtdRR() 
-		<< "  mod = "    << dataFrame.id().etlModule() 
-		<< "  type = "   << dataFrame.id().etlModType() 
+		<< "  mod = "    << dataFrame.id().module() 
+		<< "  type = "   << dataFrame.id().modType() 
 		<< std::endl;
 
       

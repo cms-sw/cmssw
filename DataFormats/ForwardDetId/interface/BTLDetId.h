@@ -55,13 +55,13 @@ class BTLDetId : public MTDDetId {
 // ---------- Common methods ----------
 
 /** Returns BTL module number. */
-inline int btlModule() const { return (id_>>kBTLmoduleOffset)&kBTLmoduleMask; }
+inline int module() const { return (id_>>kBTLmoduleOffset)&kBTLmoduleMask; }
 
 /** Returns BTL crystal type number. */
-inline int btlmodType() const { return (id_>>kBTLmodTypeOffset)&kBTLmodTypeMask; }
+inline int modType() const { return (id_>>kBTLmodTypeOffset)&kBTLmodTypeMask; }
 
 /** Returns BTL crystal number. */
- inline int btlCrystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
+ inline int crystal() const { return ((id_>>kBTLCrystalOffset)&kBTLCrystalMask) + 1; }
 
 };
 
