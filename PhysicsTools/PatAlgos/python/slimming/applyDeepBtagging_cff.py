@@ -6,13 +6,13 @@ def applyDeepBtagging( process, postfix="" ) :
 
     task = getPatAlgosToolsTask(process)
 
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
 
     # update slimmed jets to include DeepFlavour (keep same name)
-    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
     # make clone for DeepFlavour-less slimmed jets, so output name is preserved
-    process.slimmedJetsNoDeepFlavour = process.slimmedJets.clone()
-    task.add(process.slimmedJetsNoDeepFlavour)
+    addToProcessAndTask('slimmedJetsNoDeepFlavour', process.slimmedJets.clone(), process, task)
     updateJetCollection(
        process,
        jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
@@ -38,16 +38,15 @@ def applyDeepBtagging( process, postfix="" ) :
 
     # slimmedJets with DeepFlavour (remove DeepFlavour-less)
     delattr(process, 'slimmedJets')
-    process.slimmedJets = process.selectedUpdatedPatJetsSlimmedDeepFlavour.clone()
+    addToProcessAndTask('slimmedJets', getattr(process,'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix).clone(), process, task)
     # delete module not used anymore (slimmedJets substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
 
-    task.add(process.slimmedJets)
+
 
     # update slimmed jets to include DeepFlavour (keep same name)
     # make clone for DeepDoubleB-less slimmed AK8 jets, so output name is preserved
-    process.slimmedJetsAK8NoDeepDoubleB = process.slimmedJetsAK8.clone()
-    task.add(process.slimmedJetsAK8NoDeepDoubleB)
+    addToProcessAndTask('slimmedJetsAK8NoDeepDoubleB', process.slimmedJetsAK8.clone(), process, task)
     updateJetCollection(
        process,
        jetSource = cms.InputTag('slimmedJetsAK8NoDeepDoubleB'),
@@ -70,9 +69,8 @@ def applyDeepBtagging( process, postfix="" ) :
 
     # slimmedJetsAK8 with DeepDoubleB (remove DeepDoubleB-less)
     delattr(process, 'slimmedJetsAK8')
-    process.slimmedJetsAK8 = process.selectedUpdatedPatJetsSlimmedAK8DeepDoubleB.clone()
+    addToProcessAndTask('slimmedJetsAK8', getattr(process,'selectedUpdatedPatJetsSlimmedAK8DeepDoubleB'+postfix).clone(), process, task)
     # delete module not used anymore (slimmedJetsAK8 substitutes)
     delattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepDoubleB'+postfix)
-
-    task.add(process.slimmedJetsAK8)
+    
 
