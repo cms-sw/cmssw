@@ -30,6 +30,8 @@ class BTLElectronicsSim {
   void updateOutput(BTLDigiCollection &coll,
 		    const BTLDataFrame& rawDataFrame) const;
 
+  static constexpr int dfSIZE = 5;
+
  private:
 
   const bool debug_;
