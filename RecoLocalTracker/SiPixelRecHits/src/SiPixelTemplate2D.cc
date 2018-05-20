@@ -64,42 +64,43 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
    // Add template stored in external file numbered filenum to theTemplateStore
    
    // Local variables
-   const char *tempfile;
    char c;
    const int code_version={21};
    
-   
-   
    //  Create a filename for this run
+   std::string tempfile = std::to_string(filenum);
    
-   std::ostringstream tout;
    
    //  Create different path in CMSSW than standalone
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-   tout << dir << "template_summary2D_zp"
-   << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-   std::string tempf = tout.str();
-   edm::FileInPath file( tempf.c_str() );
-   tempfile = (file.fullPath()).c_str();
+   // If integer filenum has less than 4 digits, prepend 0's until we have four numerical characters, e.g. "0292"
+   int nzeros = 4-tempfile.length();
+   if (nzeros > 0)
+     tempfile = std::string(nzeros, '0') + tempfile;
+   /// Alt implementation: for (unsigned cnt=4-tempfile.length(); cnt > 0; cnt-- ){ tempfile = "0" + tempfile; }
+
+   tempfile = dir + "template_summary2D_zp" + tempfile + ".out";
+   edm::FileInPath file( tempfile );         // Find the file in CMSSW
+   tempfile = file.fullPath();               // Put it back with the whole path.
+
 #else
+   // This is the same as above, but more elegant.
+   std::ostringstream tout;
    tout << "template_summary2D_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-   std::string tempf = tout.str();
-   tempfile = tempf.c_str();
+   tempfile = tout.str();
+
 #endif
    
-   //  open the template file
-   
-   std::ifstream in_file(tempfile, std::ios::in);
-   
-   if(in_file.is_open()) {
-      
+   //  Open the template file
+   //
+   std::ifstream in_file(tempfile);
+   if(in_file.is_open() && in_file.good()) {
+
       // Create a local template storage entry
-      
       SiPixelTemplateStore2D theCurrentTemp;
       
       // Read-in a header string first and print it
-      
       for (int i=0; (c=in_file.get()) != '\n'; ++i) {
          if(i < 79) {theCurrentTemp.head.title[i] = c;}
          if(i > 78) {theCurrentTemp.head.title[79] ='\0';}
@@ -161,8 +162,8 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
             
             if(in_file.fail()) {
 	      LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
-	      delete theCurrentTemp.entry[0];
-	      delete theCurrentTemp.entry;
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;
 	      return false;
 	    }
             
@@ -175,15 +176,24 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
             in_file >> theCurrentTemp.entry[iy][jx].qavg >> theCurrentTemp.entry[iy][jx].pixmax >> theCurrentTemp.entry[iy][jx].sxymax >> theCurrentTemp.entry[iy][jx].iymin
             >> theCurrentTemp.entry[iy][jx].iymax >> theCurrentTemp.entry[iy][jx].jxmin >> theCurrentTemp.entry[iy][jx].jxmax;
             
-            if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(in_file.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry; 
+	      return false;
+	    }
             
             for (int k=0; k<2; ++k) {
                
                in_file >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1]
                >> theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >> theCurrentTemp.entry[iy][jx].xypar[k][4];
                
-               if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
-               
+               if(in_file.fail()) {
+		 LOGERROR("SiPixelTemplate2D") << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+		 delete [] theCurrentTemp.entry[0];
+		 delete [] theCurrentTemp.entry;
+		 return false;
+	       }               
             }
             
             for (int k=0; k<2; ++k) {
@@ -191,7 +201,12 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
                in_file >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1]
                >> theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >> theCurrentTemp.entry[iy][jx].lanpar[k][4];
                
-               if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+               if(in_file.fail()) {
+		 LOGERROR("SiPixelTemplate2D") << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+		 delete [] theCurrentTemp.entry[0];
+		 delete [] theCurrentTemp.entry;
+		 return false;
+	       }
                
             }
             
@@ -205,7 +220,12 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
                      for (int i=0; i<T2YSIZE; ++i) {
                         in_file >> dummy[i];                       
                      }                     
-                     if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+                     if(in_file.fail()) {
+		       LOGERROR("SiPixelTemplate2D") << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+		       delete [] theCurrentTemp.entry[0];
+		       delete [] theCurrentTemp.entry;
+		       return false;
+		     }
                      for (int i=0; i<T2YSIZE; ++i) {
                         theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];                        
                      }                    
@@ -218,18 +238,33 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
             >> theCurrentTemp.entry[iy][jx].offsetx[2] >> theCurrentTemp.entry[iy][jx].offsetx[3]>> theCurrentTemp.entry[iy][jx].offsety[0] >> theCurrentTemp.entry[iy][jx].offsety[1]
             >> theCurrentTemp.entry[iy][jx].offsety[2] >> theCurrentTemp.entry[iy][jx].offsety[3];
             
-            if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 6, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(in_file.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 6, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;
+	      return false;
+	    }
             
             in_file >> theCurrentTemp.entry[iy][jx].clsleny >> theCurrentTemp.entry[iy][jx].clslenx >> theCurrentTemp.entry[iy][jx].mpvvav >> theCurrentTemp.entry[iy][jx].sigmavav
             >> theCurrentTemp.entry[iy][jx].kappavav >> theCurrentTemp.entry[iy][jx].scalexavg >> theCurrentTemp.entry[iy][jx].scaleyavg >> theCurrentTemp.entry[iy][jx].delyavg >> theCurrentTemp.entry[iy][jx].delysig >> theCurrentTemp.entry[iy][jx].spare[0];
             
-            if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 7, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(in_file.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 7, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;	      
+	      return false;
+	    }
             
             in_file >> theCurrentTemp.entry[iy][jx].scalex[0] >> theCurrentTemp.entry[iy][jx].scalex[1] >> theCurrentTemp.entry[iy][jx].scalex[2] >> theCurrentTemp.entry[iy][jx].scalex[3]
             >> theCurrentTemp.entry[iy][jx].scaley[0] >> theCurrentTemp.entry[iy][jx].scaley[1] >> theCurrentTemp.entry[iy][jx].scaley[2] >> theCurrentTemp.entry[iy][jx].scaley[3]
             >> theCurrentTemp.entry[iy][jx].spare[1]  >> theCurrentTemp.entry[iy][jx].spare[2];
             
-            if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 8, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(in_file.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 8, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;	      
+	      return false;
+	    }
             
          }
          
@@ -362,7 +397,12 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
             db >> theCurrentTemp.entry[iy][jx].runnum >> theCurrentTemp.entry[iy][jx].costrk[0]
             >> theCurrentTemp.entry[iy][jx].costrk[1] >> theCurrentTemp.entry[iy][jx].costrk[2];
             
-            if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(db.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;	      
+	      return false;
+	    }
             
             // Calculate cot(alpha) and cot(beta) for this entry
             
@@ -373,14 +413,24 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
             db >> theCurrentTemp.entry[iy][jx].qavg >> theCurrentTemp.entry[iy][jx].pixmax >> theCurrentTemp.entry[iy][jx].sxymax >> theCurrentTemp.entry[iy][jx].iymin
             >> theCurrentTemp.entry[iy][jx].iymax >> theCurrentTemp.entry[iy][jx].jxmin >> theCurrentTemp.entry[iy][jx].jxmax;
             
-            if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(db.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 2, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;	      
+	      return false;
+	    }
             
             for (int k=0; k<2; ++k) {
                
                db >> theCurrentTemp.entry[iy][jx].xypar[k][0] >> theCurrentTemp.entry[iy][jx].xypar[k][1]
                >> theCurrentTemp.entry[iy][jx].xypar[k][2] >> theCurrentTemp.entry[iy][jx].xypar[k][3] >> theCurrentTemp.entry[iy][jx].xypar[k][4];
                
-               if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+               if(db.fail()) {
+		 LOGERROR("SiPixelTemplate2D") << "Error reading file 3, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+		 delete [] theCurrentTemp.entry[0];
+		 delete [] theCurrentTemp.entry;	      
+		 return false;
+	       }
                
             }
             
@@ -389,7 +439,12 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
                db >> theCurrentTemp.entry[iy][jx].lanpar[k][0] >> theCurrentTemp.entry[iy][jx].lanpar[k][1]
                >> theCurrentTemp.entry[iy][jx].lanpar[k][2] >> theCurrentTemp.entry[iy][jx].lanpar[k][3] >> theCurrentTemp.entry[iy][jx].lanpar[k][4];
                
-               if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+               if(db.fail()) {
+		 LOGERROR("SiPixelTemplate2D") << "Error reading file 4, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+		 delete [] theCurrentTemp.entry[0];
+		 delete [] theCurrentTemp.entry;	      
+		 return false;
+	       }
                
             }
             
@@ -402,7 +457,12 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
                      for (int i=0; i<T2YSIZE; ++i) {
                         db >> dummy[i];                       
                      }                     
-                     if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+                     if(db.fail()) {
+		       LOGERROR("SiPixelTemplate2D") << "Error reading file 5, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+		       delete [] theCurrentTemp.entry[0];
+		       delete [] theCurrentTemp.entry;	      
+		       return false;
+		     }
                      for (int i=0; i<T2YSIZE; ++i) {
                         theCurrentTemp.entry[iy][jx].xytemp[k][l][i][j] = (short int)dummy[i];                        
                      }                    
@@ -414,19 +474,33 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
             >> theCurrentTemp.entry[iy][jx].offsetx[2] >> theCurrentTemp.entry[iy][jx].offsetx[3]>> theCurrentTemp.entry[iy][jx].offsety[0] >> theCurrentTemp.entry[iy][jx].offsety[1]
             >> theCurrentTemp.entry[iy][jx].offsety[2] >> theCurrentTemp.entry[iy][jx].offsety[3];
             
-            if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 6, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(db.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 6, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;	      
+	      return false;
+	    }
             
             db >> theCurrentTemp.entry[iy][jx].clsleny >> theCurrentTemp.entry[iy][jx].clslenx >> theCurrentTemp.entry[iy][jx].mpvvav >> theCurrentTemp.entry[iy][jx].sigmavav
             >> theCurrentTemp.entry[iy][jx].kappavav >> theCurrentTemp.entry[iy][jx].scalexavg >> theCurrentTemp.entry[iy][jx].scaleyavg >> theCurrentTemp.entry[iy][jx].delyavg >> theCurrentTemp.entry[iy][jx].delysig >> theCurrentTemp.entry[iy][jx].spare[0];
             
-            if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 7, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(db.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 7, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;	      
+	      return false;
+	    }
             
             db >> theCurrentTemp.entry[iy][jx].scalex[0] >> theCurrentTemp.entry[iy][jx].scalex[1] >> theCurrentTemp.entry[iy][jx].scalex[2] >> theCurrentTemp.entry[iy][jx].scalex[3]
             >> theCurrentTemp.entry[iy][jx].scaley[0] >> theCurrentTemp.entry[iy][jx].scaley[1] >> theCurrentTemp.entry[iy][jx].scaley[2] >> theCurrentTemp.entry[iy][jx].scaley[3]
             >> theCurrentTemp.entry[iy][jx].spare[1]  >> theCurrentTemp.entry[iy][jx].spare[2];
             
-            if(db.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 8, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
-            
+            if(db.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 8, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; 
+	      delete [] theCurrentTemp.entry[0];
+	      delete [] theCurrentTemp.entry;	      
+	      return false;
+	    }
             
          }
       }
