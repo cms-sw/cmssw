@@ -65,12 +65,15 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
   // fedId as a function of detId
   std::unordered_map<uint32_t, unsigned int> fFedIds;
   // map the index ROC to rocId
-  std::map<int, std::map<int,int> >fRocIds;
+  std::map<int, std::map<int,int> > fRocIds;
 
   // Producer inputs / controls
   edm::InputTag                                           fPixelClusterLabel_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>>  fSiPixelClusterToken_;
   std::vector<edm::EDGetTokenT<PixelFEDChannelCollection> > theBadPixelFEDChannelsTokens_;
+
+  // Channels always have FEDerror25 for the full lumi section
+  std::map<int, std::vector<PixelFEDChannel> > FEDerror25_;
 
   // Producer production (output collection)
   SiPixelDetectorStatus                                    fDet;
