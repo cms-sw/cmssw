@@ -117,11 +117,16 @@ void go() {
 
 
 int main() {
-
+try{
   go<3>();
   go<5>();
   go<7>();
   go<9>();
+} catch(cuda::runtime_error ex) {
+   std::cout << "cuda error " << ex.what() << std::endl;
+} catch(...) {
+   std::cout <<	"a non cuda error" << std::endl;
+}
 
 
   return 0;
