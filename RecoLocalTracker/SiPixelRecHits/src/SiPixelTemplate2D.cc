@@ -159,7 +159,12 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
             in_file >> theCurrentTemp.entry[iy][jx].runnum >> theCurrentTemp.entry[iy][jx].costrk[0]
             >> theCurrentTemp.entry[iy][jx].costrk[1] >> theCurrentTemp.entry[iy][jx].costrk[2];
             
-            if(in_file.fail()) {LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL; return false;}
+            if(in_file.fail()) {
+	      LOGERROR("SiPixelTemplate2D") << "Error reading file 1, no template load, run # " << theCurrentTemp.entry[iy][jx].runnum << ENDL;
+	      delete theCurrentTemp.entry[0];
+	      delete theCurrentTemp.entry;
+	      return false;
+	    }
             
             // Calculate cot(alpha) and cot(beta) for this entry
             
