@@ -2818,7 +2818,7 @@ void SiPixelTemplate::temperrors(int id, float cotalpha, float cotbeta, int qBin
    // Interpolate the absolute value of cot(beta)
    
    acotb = fabs((double)cotbeta);
-   cotb = cotbeta;
+   // cotb = cotbeta;   // &&& check with Morris, we reassign it below.
    
    // for some cosmics, the ususal gymnastics are incorrect
    
@@ -3005,7 +3005,7 @@ void SiPixelTemplate::qbin_dist(int id, float cotalpha, float cotbeta, float qbi
    // Interpolate the absolute value of cot(beta)
    
    acotb = fabs((double)cotbeta);
-   cotb = cotbeta;
+   // cotb = cotbeta;   // &&& check with Morris, we reassign it below.
    
    
    // for some cosmics, the ususal gymnastics are incorrect
