@@ -52,6 +52,7 @@ namespace edm {
     trainNow_(false),
     switchOverEntry_(-1),
     rawTriggerSwitchOverEntry_(-1),
+    performedSwitchOver_{false},
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
     treeAutoFlush_(0),
@@ -219,7 +220,7 @@ namespace edm {
           rawTreeCache_->FillBuffer();
         }
       }
-      if(performedSwitchOver_) {
+      if(performedSwitchOver_ and triggerTreeCache_) {
         //We are using the triggerTreeCache_ not the rawTriggerTreeCache_.
         //The triggerTreeCache was originally told to start from an entry further in the file.
         triggerTreeCache_->SetEntryRange(theEntryNumber, tree_->GetEntries());
