@@ -363,7 +363,6 @@ steps['RunZeroBias2017F']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2017F-v1/RAW'
 steps['RunMuOnia2017F']={'INPUT':InputInfo(dataSet='/MuOnia/Run2017F-v1/RAW',label='muOnia2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunCharmonium2017F']={'INPUT':InputInfo(dataSet='/Charmonium/Run2017F-v1/RAW',label='charm2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunNoBPTX2017F']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017F-v1/RAW',label='noBptx2017F',events=100000,location='STD', ls=Run2017F)}
-steps['RunExpressPhy2017F']={'INPUT':InputInfo(dataSet='/ExpressPhysics/Run2017F-Express-v1/FEVT',label='expressPhy2017F',events=100000,location='STD', ls=Run2017F)}
 
 steps['RunJetHT2017F_reminiaod']={'INPUT':InputInfo(dataSet='/JetHT/Run2017F-17Nov2017-v1/AOD',label='rmaod_jetHT2017F',events=100000,location='STD', ls=Run2017F)}
 
@@ -1544,16 +1543,6 @@ steps['TIER0RAWSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:SiPixelC
                           '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
-                          }
-
-steps['TIER0EXPSIPIXELCAL']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:SiPixelCalZeroBias,ENDJOB',
-                          '--process':'ALCARECO',
-                          '--scenario': 'pp',
-                          '--era':'Run2_2017',
-                          '--conditions':'auto:run2_data_promptlike',
-                          '--data': '',
-                          '--datatier':'ALCARECO',
-                          '--eventcontent':'ALCARECO',
                           }
 
 steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP',
