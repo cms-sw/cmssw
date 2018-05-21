@@ -73,7 +73,7 @@ detachedQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAThetaCut = 0.0011,
     CAPhiCut = 0,
 )
-highBetaStar_2018.toModify(detachedQuadStepHitQuadruplets,CAThetaCut = 0.0022,CAPhiCut = 0.1,CAHardPtCut = 0.)
+highBetaStar_2018.toModify(detachedQuadStepHitQuadruplets,CAThetaCut = 0.0022,CAPhiCut = 0.1)
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
 detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
