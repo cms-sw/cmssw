@@ -204,6 +204,12 @@ TestProcessor::~TestProcessor() noexcept(false) {
   
 void
 TestProcessor::put(unsigned int index, std::unique_ptr<WrapperBase> iWrapper) {
+  if (index >= dataProducts_.size()) {
+    throw cms::Exception("LogicError")
+      << "Products must be declared to the TestProcessor::Config object\n"
+         "with a call to the function \'produces\' BEFORE passing the\n"
+         "TestProcessor::Config object to the TestProcessor constructor";
+  }
   dataProducts_[index].second = std::move(iWrapper);
 }
 
