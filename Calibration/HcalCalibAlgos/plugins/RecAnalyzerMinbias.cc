@@ -87,7 +87,8 @@ private:
 
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
-  bool                       theRecalib_, ignoreL1_, runNZS_, Noise_, fillHist_, init_;
+  bool                       theRecalib_, ignoreL1_, runNZS_, Noise_;
+  bool                       fillHist_, extraHist_, init_;
   double                     eLowHB_, eHighHB_, eLowHE_, eHighHE_;
   double                     eLowHF_, eHighHF_, eMin_;
   int                        runMin_, runMax_;
@@ -151,6 +152,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
   ignoreL1_             = iConfig.getUntrackedParameter<bool>("ignoreL1",false);
   std::string      cfile= iConfig.getUntrackedParameter<std::string>("corrFile");
   fillHist_             = iConfig.getUntrackedParameter<bool>("fillHisto",false);
+  extraHist_            = iConfig.getUntrackedParameter<bool>("extraHisto",false);
   std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("hcalIeta");
   std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("hcalIphi");
   std::vector<int> depth= iConfig.getUntrackedParameter<std::vector<int>>("hcalDepth");
@@ -241,6 +243,7 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<bool>("ignoreL1",  false);
   desc.addUntracked<std::string>("corrFile", "CorFactor.txt");
   desc.addUntracked<bool>("fillHisto", false);
+  desc.addUntracked<bool>("extraHisto", false);
   desc.addUntracked<std::vector<int> >("hcalIeta", iarray);
   desc.addUntracked<std::vector<int> >("hcalIphi", iarray);
   desc.addUntracked<std::vector<int> >("hcalDepth", iarray);
@@ -285,12 +288,14 @@ void RecAnalyzerMinbias::fillDescriptions(edm::ConfigurationDescriptions& descri
      histo_.push_back(hh);
    };
 
-   h_AmplitudeHBtest_ = fs_->make<TH1D>("h_AmplitudeHBtest","", 5000, 0., 5000.);
-   h_AmplitudeHEtest_ = fs_->make<TH1D>("h_AmplitudeHEtest","",300000,0.,300000.);
-   h_AmplitudeHFtest_ = fs_->make<TH1D>("h_AmplitudeHFtest","",100000,0.,100000.);
-   h_AmplitudeHB_ = fs_->make<TH1D>("h_AmplitudeHB", "",  5000, 0., 100000.);
-   h_AmplitudeHE_ = fs_->make<TH1D>("h_AmplitudeHE", "",  3000, 0., 300000.);
-   h_AmplitudeHF_ = fs_->make<TH1D>("h_AmplitudeHF", "", 10000, 0., 1000000.);
+   if (extraHist_) {
+     h_AmplitudeHBtest_ = fs_->make<TH1D>("h_AmplitudeHBtest","",5000,0.,5000.);
+     h_AmplitudeHEtest_ = fs_->make<TH1D>("h_AmplitudeHEtest","",3000,0.,3000.);
+     h_AmplitudeHFtest_ = fs_->make<TH1D>("h_AmplitudeHFtest","",10000,0.,10000.);
+     h_AmplitudeHB_ = fs_->make<TH1D>("h_AmplitudeHB", "", 100000,0.,100000.);
+     h_AmplitudeHE_ = fs_->make<TH1D>("h_AmplitudeHE", "", 300000,0.,300000.);
+     h_AmplitudeHF_ = fs_->make<TH1D>("h_AmplitudeHF", "", 100000,0.,1000000.);
+   }
 
    if (!fillHist_) {
      myTree_       = fs_->make<TTree>("RecJet","RecJet Tree");
@@ -433,86 +438,88 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   rnnum_ = (double)iEvent.run(); 
 
-  double amplitudefullHB(0), amplitudefullHE(0), amplitudefullHF(0);
-  edm::Handle<HBHEDigiCollection> hbhedigi;
-  iEvent.getByToken(tok_hbhedigi_,hbhedigi);
-  if (hbhedigi.isValid()) {
-    for (auto const& digi : *(hbhedigi.product())) {
-      int nTS = digi.size();
-      double amplitudefullTSs = 0.;
-      if (digi.id().subdet()==HcalBarrel) {
-	if (nTS <= 10) {
-	  for (int i=0; i<nTS; i++)
-	    amplitudefullTSs += digi.sample(i).adc();
+  if (extraHist_)  {
+    double amplitudefullHB(0), amplitudefullHE(0), amplitudefullHF(0);
+    edm::Handle<HBHEDigiCollection> hbhedigi;
+    iEvent.getByToken(tok_hbhedigi_,hbhedigi);
+    if (hbhedigi.isValid()) {
+      for (auto const& digi : *(hbhedigi.product())) {
+	int nTS = digi.size();
+	double amplitudefullTSs = 0.;
+	if (digi.id().subdet()==HcalBarrel) {
+	  if (nTS <= 10) {
+	    for (int i=0; i<nTS; i++)
+	      amplitudefullTSs += digi.sample(i).adc();
+	    h_AmplitudeHBtest_->Fill(amplitudefullTSs);
+	    amplitudefullHB += amplitudefullTSs;
+	  }
+	}
+	if (digi.id().subdet()==HcalEndcap) {
+	  if (nTS<=10) {
+	    for (int i=0; i<nTS; i++)
+	      amplitudefullTSs += digi.sample(i).adc();
+	    h_AmplitudeHEtest_->Fill(amplitudefullTSs);
+	    amplitudefullHE += amplitudefullTSs;
+	  }
+	}
+      }
+    }
+
+    edm::Handle<QIE11DigiCollection> qie11digi;
+    iEvent.getByToken(tok_qie11digi_,qie11digi);
+    if (qie11digi.isValid()) {
+      for (QIE11DataFrame const& digi : *(qie11digi.product())) {
+	double amplitudefullTSs = 0.;
+	if (HcalDetId(digi.id()).subdet()==HcalBarrel) {
+	  for (int i=0; i<digi.samples(); i++)
+	    amplitudefullTSs += digi[i].adc();
 	  h_AmplitudeHBtest_->Fill(amplitudefullTSs);
 	  amplitudefullHB += amplitudefullTSs;
 	}
-      }
-      if (digi.id().subdet()==HcalEndcap) {
-	if (nTS<=10) {
-	  for (int i=0; i<nTS; i++)
-	    amplitudefullTSs += digi.sample(i).adc();
+	if (HcalDetId(digi.id()).subdet()==HcalEndcap) {
+	  for (int i=0; i<digi.samples(); i++)
+	    amplitudefullTSs += digi[i].adc();
 	  h_AmplitudeHEtest_->Fill(amplitudefullTSs);
 	  amplitudefullHE += amplitudefullTSs;
 	}
       }
     }
-  }
 
-  edm::Handle<QIE11DigiCollection> qie11digi;
-  iEvent.getByToken(tok_qie11digi_,qie11digi);
-  if (qie11digi.isValid()) {
-    for (QIE11DataFrame const& digi : *(qie11digi.product())) {
-      double amplitudefullTSs = 0.;
-      if (HcalDetId(digi.id()).subdet()==HcalBarrel) {
-	for (int i=0; i<digi.samples(); i++)
-	  amplitudefullTSs += digi[i].adc();
-	h_AmplitudeHBtest_->Fill(amplitudefullTSs);
-	amplitudefullHB += amplitudefullTSs;
-      }
-      if (HcalDetId(digi.id()).subdet()==HcalEndcap) {
-	for (int i=0; i<digi.samples(); i++)
-	  amplitudefullTSs += digi[i].adc();
-	h_AmplitudeHEtest_->Fill(amplitudefullTSs);
-	amplitudefullHE += amplitudefullTSs;
+    edm::Handle<HFDigiCollection> hfdigi;
+    iEvent.getByToken(tok_hfdigi_,hfdigi);
+    if (hfdigi.isValid()) {
+      for (auto const& digi : *(hfdigi.product())) {
+	int nTS = digi.size();
+	double amplitudefullTSs = 0.;
+	if (digi.id().subdet()==HcalForward) {
+	  if (nTS <= 10) {
+	    for (int i=0; i<nTS; i++)
+	      amplitudefullTSs += digi.sample(i).adc();
+	    h_AmplitudeHFtest_->Fill(amplitudefullTSs);
+	    amplitudefullHF += amplitudefullTSs;
+	  }
+	}
       }
     }
-  }
 
-  edm::Handle<HFDigiCollection> hfdigi;
-  iEvent.getByToken(tok_hfdigi_,hfdigi);
-  if (hfdigi.isValid()) {
-    for (auto const& digi : *(hfdigi.product())) {
-      int nTS = digi.size();
-      double amplitudefullTSs = 0.;
-      if (digi.id().subdet()==HcalForward) {
-	if (nTS <= 10) {
-	  for (int i=0; i<nTS; i++)
-	    amplitudefullTSs += digi.sample(i).adc();
+    edm::Handle<QIE10DigiCollection> qie10digi;
+    iEvent.getByToken(tok_qie10digi_,qie10digi);
+    if (qie10digi.isValid()) {
+      for (QIE10DataFrame const& digi : *(qie10digi.product())) {
+	double amplitudefullTSs = 0.;
+	if (HcalDetId(digi.id()).subdet()==HcalForward) {
+	  for (int i=0; i<digi.samples(); i++)
+	    amplitudefullTSs += digi[i].adc();
 	  h_AmplitudeHFtest_->Fill(amplitudefullTSs);
 	  amplitudefullHF += amplitudefullTSs;
 	}
       }
     }
-  }
 
-  edm::Handle<QIE10DigiCollection> qie10digi;
-  iEvent.getByToken(tok_qie10digi_,qie10digi);
-  if (qie10digi.isValid()) {
-    for (QIE10DataFrame const& digi : *(qie10digi.product())) {
-      double amplitudefullTSs = 0.;
-      if (HcalDetId(digi.id()).subdet()==HcalForward) {
-	for (int i=0; i<digi.samples(); i++)
-	  amplitudefullTSs += digi[i].adc();
-	h_AmplitudeHFtest_->Fill(amplitudefullTSs);
-	amplitudefullHF += amplitudefullTSs;
-      }
-    }
+    h_AmplitudeHB_->Fill(amplitudefullHB);
+    h_AmplitudeHE_->Fill(amplitudefullHE);
+    h_AmplitudeHF_->Fill(amplitudefullHF);
   }
-
-  h_AmplitudeHB_->Fill(amplitudefullHB);
-  h_AmplitudeHE_->Fill(amplitudefullHE);
-  h_AmplitudeHF_->Fill(amplitudefullHF);
 
   edm::Handle<HBHERecHitCollection> hbheMB;
   iEvent.getByToken(tok_hbherecoMB_, hbheMB);
