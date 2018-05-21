@@ -69,19 +69,17 @@ class RecAnalyzerMinbias : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::
 
 public:
   explicit RecAnalyzerMinbias(const edm::ParameterSet&);
-  ~RecAnalyzerMinbias();
+  ~RecAnalyzerMinbias() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
-  virtual void beginJob() override;
-  virtual void endJob() override;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override {}
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
-    
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void beginJob() override;
+  void endJob() override;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
+   
 private:
   void analyzeHcal(const HBHERecHitCollection&, const HFRecHitCollection&, int, bool, double);
 
@@ -177,7 +175,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
 				   << "' for the correction file";
   } else {
     unsigned int ndets(0), nrec(0);
-    while(1) {
+    while (true) {
       unsigned int id;
       double       cfac;
       infile >> id >> cfac;
@@ -552,7 +550,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   bool select(false);
-  if (trigbit_.size() > 0) {
+  if (!trigbit_.empty()) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
@@ -572,7 +570,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     }
   }
 
-  if ((trigbit_.size() == 0) || select) myTree1_->Fill();
+  if (!trigbit_.empty() || select) myTree1_->Fill();
 
   //event weight for FLAT sample and PU information
   double eventWeight = 1.0;
@@ -585,7 +583,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 				  << ":" << select << ":" << ignoreL1_ 
 				  << " Wt " << eventWeight;
 #endif
-  if (ignoreL1_ || ((trigbit_.size() > 0) && select)) {
+  if (ignoreL1_ || (!trigbit_.empty() && select)) {
     analyzeHcal(HithbheMB, HithfMB, 1, true, eventWeight);
   } else if ((!ignoreL1_) && (trigbit_.size() == 0)) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
