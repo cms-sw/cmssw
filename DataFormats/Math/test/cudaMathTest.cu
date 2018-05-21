@@ -213,12 +213,18 @@ void go()
 
 int main() {
 
+try {
   go<USEEXP>();
   go<USESIN>();
   go<USELOG>();
 
   go<USELOG,true>();
 
+} catch(cuda::runtime_error ex) {
+   std::cout << "cuda error " << ex.what() << std::endl;
+} catch(...) {
+   std::cout << "a non cuda error" << std::endl;
+}
 
   return 0;
 }
