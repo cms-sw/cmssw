@@ -221,128 +221,129 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 {
   s << "Level1TriggerScalers    Version:" << c.version() <<
     "   SourceID: " << c.sourceID() << std::endl;
-  char line[128];
+  constexpr size_t kLineBufferSize = 164;
+  char line[kLineBufferSize];
   char zeitHeaven[128];
   struct tm * horaHeaven;
 
-  sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
+  snprintf(line, kLineBufferSize, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
   struct timespec secondsToHeaven = c.collectionTime();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTime:        %s.%9.9d" , 
+  snprintf(line, kLineBufferSize, " CollectionTime:        %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
-  sprintf(line,
+  snprintf(line, kLineBufferSize,
 	  " LumiSegmentNr:        %10u   LumiSegmentOrbits:     %10u",
 	  c.lumiSegmentNr(), c.lumiSegmentOrbits());
   s << line << std::endl;
 
-  sprintf(line,
+  snprintf(line, kLineBufferSize,
 	  " LumiSegmentNrLumiSeg: %10u   OrbitNr:               %10u ",
 	  c.lumiSegmentNrLumiSeg(),  c.orbitNr());
   s << line << std::endl;
 
-  sprintf(line,
+  snprintf(line, kLineBufferSize,
 	  " GtResets:             %10u   BunchCrossingErrors:   %10u",
 	  c.gtResets(), c.bunchCrossingErrors());
   s << line << std::endl;
 
-  sprintf(line,
+  snprintf(line, kLineBufferSize,
 	  " PrescaleIndexAlgo:    %10d   PrescaleIndexTech:     %10d",
 	  c.prescaleIndexAlgo(), c.prescaleIndexTech());
   s << line << std::endl;
 
-  sprintf(line, " GtTriggers:                      %20llu %22.3f Hz", 
+  snprintf(line, kLineBufferSize, " GtTriggers:                      %20llu %22.3f Hz", 
 	  c.gtTriggers(), c.gtTriggersRate());
   s << line << std::endl;
 
-  sprintf(line, " GtEvents:                        %20llu %22.3f Hz", 
+  snprintf(line, kLineBufferSize, " GtEvents:                        %20llu %22.3f Hz", 
 	  c.gtEvents(), c.gtEventsRate());
   s << line << std::endl;
 
   secondsToHeaven = c.collectionTimeLumiSeg();
   horaHeaven = gmtime(&secondsToHeaven.tv_sec);
   strftime(zeitHeaven, sizeof(zeitHeaven), "%Y.%m.%d %H:%M:%S", horaHeaven);
-  sprintf(line, " CollectionTimeLumiSeg: %s.%9.9d" , 
+  snprintf(line, kLineBufferSize, " CollectionTimeLumiSeg: %s.%9.9d" , 
 	  zeitHeaven, (int)secondsToHeaven.tv_nsec);
   s << line << std::endl;
 
 
-  sprintf(line, " TriggersPhysicsGeneratedFDL:     %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " TriggersPhysicsGeneratedFDL:     %20llu %22.3f Hz",
 	  c.triggersPhysicsGeneratedFDL(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsGeneratedFDL()));
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLost:             %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " TriggersPhysicsLost:             %20llu %22.3f Hz",
 	  c.triggersPhysicsLost(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsLost()));
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLostBeamActive:   %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " TriggersPhysicsLostBeamActive:   %20llu %22.3f Hz",
 	  c.triggersPhysicsLostBeamActive(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsLostBeamActive()));
   s << line << std::endl;
 
-  sprintf(line, " TriggersPhysicsLostBeamInactive: %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " TriggersPhysicsLostBeamInactive: %20llu %22.3f Hz",
 	  c.triggersPhysicsLostBeamInactive(),
 	  Level1TriggerScalers::rateLS(c.triggersPhysicsLostBeamInactive()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsPhysics:                     %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " L1AsPhysics:                     %20llu %22.3f Hz",
 	  c.l1AsPhysics(),
 	  Level1TriggerScalers::rateLS(c.l1AsPhysics()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsRandom:                      %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " L1AsRandom:                      %20llu %22.3f Hz",
 	  c.l1AsRandom(),
 	  Level1TriggerScalers::rateLS(c.l1AsRandom()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsTest:                        %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " L1AsTest:                        %20llu %22.3f Hz",
 	  c.l1AsTest(),
 	  Level1TriggerScalers::rateLS(c.l1AsTest()));
   s << line << std::endl;
 
-  sprintf(line, " L1AsCalibration:                 %20llu %22.3f Hz",
+  snprintf(line, kLineBufferSize, " L1AsCalibration:                 %20llu %22.3f Hz",
 	  c.l1AsCalibration(),
 	  Level1TriggerScalers::rateLS(c.l1AsCalibration()));
   s << line << std::endl;
 
-  sprintf(line, " Deadtime:                             %20llu %17.3f%%",
+  snprintf(line, kLineBufferSize, " Deadtime:                             %20llu %17.3f%%",
 	  c.deadtime(),
 	  Level1TriggerScalers::percentLS(c.deadtime()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActive:                   %20llu %17.3f%%",
+  snprintf(line, kLineBufferSize, " DeadtimeBeamActive:                   %20llu %17.3f%%",
 	  c.deadtimeBeamActive(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActive()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveTriggerRules:       %20llu %17.3f%%",
+  snprintf(line, kLineBufferSize, " DeadtimeBeamActiveTriggerRules:       %20llu %17.3f%%",
 	  c.deadtimeBeamActiveTriggerRules(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveTriggerRules()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveCalibration:        %20llu %17.3f%%",
+  snprintf(line, kLineBufferSize, " DeadtimeBeamActiveCalibration:        %20llu %17.3f%%",
 	  c.deadtimeBeamActiveCalibration(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveCalibration()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActivePrivateOrbit:       %20llu %17.3f%%",
+  snprintf(line, kLineBufferSize, " DeadtimeBeamActivePrivateOrbit:       %20llu %17.3f%%",
 	  c.deadtimeBeamActivePrivateOrbit(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActivePrivateOrbit()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActivePartitionController:%20llu %17.3f%%",
+  snprintf(line, kLineBufferSize, " DeadtimeBeamActivePartitionController:%20llu %17.3f%%",
 	  c.deadtimeBeamActivePartitionController(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActivePartitionController()));
   s << line << std::endl;
 
-  sprintf(line, " DeadtimeBeamActiveTimeSlot:           %20llu %17.3f%%",
+  snprintf(line, kLineBufferSize, " DeadtimeBeamActiveTimeSlot:           %20llu %17.3f%%",
 	  c.deadtimeBeamActiveTimeSlot(),
 	  Level1TriggerScalers::percentLSActive(c.deadtimeBeamActiveTimeSlot()));
   s << line << std::endl;
@@ -352,7 +353,7 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   int length = gtAlgoCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {
-    sprintf(line," %3.3d: %10u    %3.3d: %10u    %3.3d: %10u    %3.3d: %10u",
+    snprintf(line, kLineBufferSize," %3.3d: %10u    %3.3d: %10u    %3.3d: %10u    %3.3d: %10u",
 	    i,              gtAlgoCounts[i], 
 	    (i+length),     gtAlgoCounts[i+length], 
 	    (i+(length*2)), gtAlgoCounts[i+(length*2)], 
@@ -365,7 +366,7 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
   length = gtTechCounts.size() / 4;
   for ( int i=0; i<length; i++)
   {
-    sprintf(line," %3.3d: %10u    %3.3d: %10u    %3.3d: %10u    %3.3d: %10u",
+    snprintf(line, kLineBufferSize," %3.3d: %10u    %3.3d: %10u    %3.3d: %10u    %3.3d: %10u",
 	    i,              gtTechCounts[i], 
 	    (i+length),     gtTechCounts[i+length], 
 	    (i+(length*2)), gtTechCounts[i+(length*2)], 
@@ -375,27 +376,27 @@ std::ostream& operator<<(std::ostream& s,Level1TriggerScalers const &c)
 
   if ( c.version() >= 5 )
   {
-    sprintf(line," LastOrbitCounter0:  %10u  0x%8.8X", c.lastOrbitCounter0(),
+    snprintf(line, kLineBufferSize," LastOrbitCounter0:  %10u  0x%8.8X", c.lastOrbitCounter0(),
 	    c.lastOrbitCounter0()); 
     s << line << std::endl;
     
-    sprintf(line," LastTestEnable:     %10u  0x%8.8X", c.lastTestEnable(),
+    snprintf(line, kLineBufferSize," LastTestEnable:     %10u  0x%8.8X", c.lastTestEnable(),
 	    c.lastTestEnable()); 
     s << line << std::endl;
     
-    sprintf(line," LastResync:         %10u  0x%8.8X", c.lastResync(),
+    snprintf(line, kLineBufferSize," LastResync:         %10u  0x%8.8X", c.lastResync(),
 	    c.lastResync()); 
     s << line << std::endl;
     
-    sprintf(line," LastStart:          %10u  0x%8.8X", c.lastStart(),
+    snprintf(line, kLineBufferSize," LastStart:          %10u  0x%8.8X", c.lastStart(),
 	    c.lastStart()); 
     s << line << std::endl;
     
-    sprintf(line," LastEventCounter0:  %10u  0x%8.8X", c.lastEventCounter0(),
+    snprintf(line, kLineBufferSize," LastEventCounter0:  %10u  0x%8.8X", c.lastEventCounter0(),
 	    c.lastEventCounter0()); 
     s << line << std::endl;
     
-    sprintf(line," LastHardReset:      %10u  0x%8.8X", c.lastHardReset(),
+    snprintf(line, kLineBufferSize," LastHardReset:      %10u  0x%8.8X", c.lastHardReset(),
 	    c.lastHardReset()); 
     s << line << std::endl;
   }
