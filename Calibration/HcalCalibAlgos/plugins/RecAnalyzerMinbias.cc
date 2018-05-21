@@ -585,7 +585,7 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 #endif
   if (ignoreL1_ || (!trigbit_.empty() && select)) {
     analyzeHcal(HithbheMB, HithfMB, 1, true, eventWeight);
-  } else if ((!ignoreL1_) && (trigbit_.size() == 0)) {
+  } else if ((!ignoreL1_) && (trigbit_.empty())) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
