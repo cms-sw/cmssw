@@ -102,7 +102,7 @@ void go()
 
         auto current_device = cuda::device::current::get(); 
 
-	int numElements = 50000;
+	int numElements = 200000;
 	size_t size = numElements * sizeof(float);
 	std::cout << "[Vector of " << numElements << " elements]\n";
 
@@ -167,14 +167,14 @@ void go()
 
         // on host now...
         delta -= (std::chrono::high_resolution_clock::now()-start);
-        vectorOpH<USE,ADDY>(h_A.get(),h_B.get(),h_C2.get(),size);        
+        vectorOpH<USE,ADDY>(h_A.get(),h_B.get(),h_C2.get(),numElements);        
         delta += (std::chrono::high_resolution_clock::now()-start);
         std::cout <<"host computation took "
               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
               << " ms" << std::endl;
 
         delta -= (std::chrono::high_resolution_clock::now()-start);
-        vectorOpH<USE,ADDY>(h_A.get(),h_B.get(),h_C2.get(),size);
+        vectorOpH<USE,ADDY>(h_A.get(),h_B.get(),h_C2.get(),numElements);
         delta += (std::chrono::high_resolution_clock::now()-start);
         std::cout <<"host computation took "
               << std::chrono::duration_cast<std::chrono::milliseconds>(delta).count()
