@@ -393,8 +393,8 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
-  double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
-  double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
+  double resolutionEta = l1Eta - recoEta;
+  double resolutionPhi = l1Phi - recoPhi;
 
   using namespace dqmoffline::l1t;
   // eta
