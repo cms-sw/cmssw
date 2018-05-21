@@ -362,7 +362,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   int bunchCrossing = 0;
   for (auto jet = l1Jets->begin(bunchCrossing); jet != l1Jets->end(bunchCrossing); ++jet) {
     double currentDeltaR = deltaR(jet->eta(), jet->phi(), leadingRecoJet.eta(), leadingRecoJet.phi());
-    if (currentDeltaR > minDeltaR) {
+    if (currentDeltaR >= minDeltaR) {
       continue;
     } else {
       minDeltaR = currentDeltaR;
