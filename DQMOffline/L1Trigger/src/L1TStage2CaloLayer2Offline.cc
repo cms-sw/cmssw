@@ -346,11 +346,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
 
-  if (l1Jets->size() == 0) {
-    LogDebug("L1TStage2CaloLayer2Offline") << "no L1 jets found" << std::endl;
-    return;
-  }
-
   auto leadingRecoJet = caloJets->front();
 
   // find corresponding L1 jet
@@ -375,7 +370,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 
   if (!foundMatch) {
     LogDebug("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
-    return;
   }
 
   if(!doesNotOverlapWithHLTObjects(closestL1Jet)){
@@ -386,9 +380,9 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   double recoEta = leadingRecoJet.eta();
   double recoPhi = leadingRecoJet.phi();
 
-  double l1Et = closestL1Jet.et();
-  double l1Eta = closestL1Jet.eta();
-  double l1Phi = closestL1Jet.phi();
+  double l1Et = foundMatch ? closestL1Jet.et() : 0;
+  double l1Eta = foundMatch ? closestL1Jet.eta() : 9999;
+  double l1Phi = foundMatch ? closestL1Jet.phi() : 9999;
 
   // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
@@ -397,6 +391,13 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   double resolutionPhi = l1Phi - recoPhi;
 
   using namespace dqmoffline::l1t;
+  // fill efficiencies regardless of matched jet found
+  fillJetEfficiencies(recoEt, l1Et, recoEta);
+  // don't fill anything else if no matched L1 jet is found
+  if (!foundMatch){
+    return;
+  }
+
   // eta
   fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionJetEta_, resolutionEta);
@@ -417,17 +418,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HB_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
-
-    // efficiencies
-    for (auto threshold : jetEfficiencyThresholds_) {
-      fillWithinLimits(h_efficiencyJetEt_HB_total_[threshold], recoEt);
-      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
-      if (l1Et > threshold) {
-        fillWithinLimits(h_efficiencyJetEt_HB_pass_[threshold], recoEt);
-        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
-      }
-    }
-
   } else if (std::abs(recoEta) <= 3.0) { // end-cap
     // et
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HE_, recoEt, l1Et);
@@ -441,16 +431,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HE_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
-
-    // efficiencies
-    for (auto threshold : jetEfficiencyThresholds_) {
-      fillWithinLimits(h_efficiencyJetEt_HE_total_[threshold], recoEt);
-      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
-      if (l1Et > threshold) {
-        fillWithinLimits(h_efficiencyJetEt_HE_pass_[threshold], recoEt);
-        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
-      }
-    }
   } else { // forward jets
     // et
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HF_, recoEt, l1Et);
@@ -460,13 +440,39 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HF_, recoPhi, l1Phi);
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HF_, resolutionPhi);
-    // efficiencies
+  }
+}
+
+
+void L1TStage2CaloLayer2Offline::fillJetEfficiencies(const double &recoEt,
+                                                     const double &l1Et,
+                                                     const double &recoEta) {
+  using namespace dqmoffline::l1t;
+  if (std::abs(recoEta) <= 1.479) { // barrel
+    for (auto threshold : jetEfficiencyThresholds_) {
+      fillWithinLimits(h_efficiencyJetEt_HB_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
+      if (l1Et > threshold) {
+        fillWithinLimits(h_efficiencyJetEt_HB_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
+      }
+    }
+  } else if (std::abs(recoEta) <= 3.0) { // end-cap
+    for (auto threshold : jetEfficiencyThresholds_) {
+      fillWithinLimits(h_efficiencyJetEt_HE_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
+      if (l1Et > threshold) {
+        fillWithinLimits(h_efficiencyJetEt_HE_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
+      }
+    }
+  } else {
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HF_total_[threshold], recoEt);
       if (l1Et > threshold) {
         fillWithinLimits(h_efficiencyJetEt_HF_pass_[threshold], recoEt);
       }
-    }
+    } // forward jets
   }
 }
 
