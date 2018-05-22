@@ -87,10 +87,10 @@ protected:
 namespace HcalSiPMCharacteristicsAddons {
   class LessByType {
    public: 
-    bool operator () (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) {return a->type_ < b->type_;}
-    bool operator () (const HcalSiPMCharacteristics::PrecisionItem& a, const HcalSiPMCharacteristics::PrecisionItem& b) {return a.type_ < b.type_;}
-    bool equal (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) {return a->type_ == b->type_;}
-    bool good (const HcalSiPMCharacteristics::PrecisionItem& a) {return a.type_;}
+    bool operator () (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) const {return a->type_ < b->type_;}
+    bool operator () (const HcalSiPMCharacteristics::PrecisionItem& a, const HcalSiPMCharacteristics::PrecisionItem& b) const {return a.type_ < b.type_;}
+    bool equal (const HcalSiPMCharacteristics::PrecisionItem* a, const HcalSiPMCharacteristics::PrecisionItem* b) const {return a->type_ == b->type_;}
+    bool good (const HcalSiPMCharacteristics::PrecisionItem& a) const {return a.type_;}
   };
   class Helper {
    public:
