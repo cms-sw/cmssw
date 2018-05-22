@@ -20,7 +20,11 @@
 #include <memory>
 #include <initializer_list>
 
+#ifndef STANDALONE
+#include "CommonTools/Utils/interface/FormulaEvaluator.h"
+#else
 #include <TFormula.h>
+#endif
 
 enum class Variation {
     NOMINAL = 0,
@@ -186,10 +190,15 @@ namespace JME {
                         return m_formula_str;
                     }
 
+#ifndef STANDALONE
+                    const reco::FormulaEvaluator* getFormula() const {
+                        return m_formula.get();
+                    }
+#else
                     TFormula const * getFormula() const {
                         return m_formula.get();
                     }
-
+#endif
                     void init();
 
                 private:
@@ -197,8 +206,11 @@ namespace JME {
                     std::vector<std::string> m_variables_name;
                     std::string m_formula_str;
 
+#ifndef STANDALONE
+                    std::shared_ptr<reco::FormulaEvaluator> m_formula COND_TRANSIENT;
+#else
                     std::shared_ptr<TFormula> m_formula COND_TRANSIENT;
-
+#endif
                     std::vector<Binning> m_bins COND_TRANSIENT;
                     std::vector<Binning> m_variables COND_TRANSIENT;
 
