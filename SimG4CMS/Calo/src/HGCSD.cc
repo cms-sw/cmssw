@@ -170,7 +170,7 @@ uint32_t HGCSD::setDetUnitId(const G4Step * aStep) {
 			     << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
 #endif
   // The following statement should be examined later before elimination
-  // VI: this is likely a check if media is vacuum - not needed
+  // VI: this is likely a check if media is vacuum - not needed 
   if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
   
   uint32_t id = setDetUnitId (subdet, layer, module, cell, iz, localpos);
