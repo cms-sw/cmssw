@@ -72,3 +72,16 @@ phase2_tracker.toModify(PixelCPEGenericESProducer,
   Upgrade = cms.bool(True)
 )
 
+
+from Configuration.Eras.Modifier_phase2_tracker_postTDR_cff import phase2_tracker_postTDR
+phase2_tracker_postTDR.toModify(PixelCPEGenericESProducer, 
+  useLAWidthFromDB = False,
+  UseErrorsFromTemplates = False,
+  LoadTemplatesFromDB = False,
+  TruncatePixelCharge = False,
+  IrradiationBiasCorrection = False,
+  DoCosmics = False,
+  Upgrade = cms.bool(True),
+  lAOffset = cms.double(0.0459)
+)
+
