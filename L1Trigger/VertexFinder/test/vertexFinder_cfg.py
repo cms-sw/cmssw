@@ -22,6 +22,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 options = VarParsing.VarParsing ('analysis')
 options.register('analysis',False,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool,"Run vertex finding analysis code")
 options.register('histFile','Hist.root',VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,"Name of output histogram file")
+options.register('l1Tracks','TMTrackProducer:TML1TracksKF4ParamsComb', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'L1 track collection to use')
 
 options.parseArguments()
 
@@ -30,9 +31,16 @@ options.parseArguments()
 inputFiles = []
 for filePath in options.inputFiles:
     if filePath.endswith(".root"):
-        inputFiles += filePath
+        inputFiles.append(filePath)
     else:
         inputFiles += FileUtils.loadListFromFile(filePath)
+
+if options.l1Tracks.count(':') != 1:
+    raise RuntimeError("Value for 'l1Tracks' command-line argument (= '{}') should contain one colon".format(options.l1Tracks))
+
+l1TracksTag = cms.InputTag(options.l1Tracks.split(':')[0], options.l1Tracks.split(':')[1])
+print "  INPUT TRACK COLLECTION = {0}  {1}".format(*options.l1Tracks.split(':')) 
+    
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
@@ -63,9 +71,12 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 #--- Load config fragment that configures vertex producer
 process.load('L1Trigger.VertexFinder.VertexProducer_cff')
+process.VertexProducer.l1TracksInputTag = l1TracksTag
 
 #--- Load config fragment that configures vertex analyzer
 process.load('L1Trigger.VertexFinder.VertexAnalyzer_cff')
+process.L1TVertexAnalyzer.l1TracksInputTag = l1TracksTag
+
 
 if (options.analysis):
     process.p = cms.Path(process.VertexProducer + process.L1TVertexAnalyzer)
