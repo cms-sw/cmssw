@@ -155,7 +155,7 @@ void RecAnalyzerHF::beginJob() {
 
   for (const auto & id : hcalID_) {
     HcalDetId hid = HcalDetId(id);
-    TH1D *h1(0), *h2(0);
+    TH1D *h1(nullptr), *h2(nullptr);
     for (int i=0; i<2; ++i) {
       sprintf (name, "HF%d%d_%d_%d", i, hid.ieta(), hid.iphi(), hid.depth());
       sprintf (title, "The metric F%d for HF i#eta %d i#phi %d depth %d", 
@@ -259,7 +259,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   }
 
   bool select(false);
-  if (trigbit_.size() > 0) {
+  if (!trigbit_.empty()) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
@@ -281,9 +281,9 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 
   //event weight for FLAT sample and PU information
 
-  if (ignoreL1_ || ((trigbit_.size() > 0) && select)) {
+  if (ignoreL1_ || (!trigbit_.empty() && select)) {
     analyzeHcal(Hithf, 1, true);
-  } else if ((!ignoreL1_) && (trigbit_.size() == 0)) {
+  } else if ((!ignoreL1_) && (trigbit_.empty())) {
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
