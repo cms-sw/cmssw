@@ -226,7 +226,7 @@ FSQDQM::~FSQDQM()
 	   recoCastorJets.push_back((*castorJets)[ijet]);
 	 }
 	 for (unsigned ijet=0; ijet<recoCastorJets.size(); ijet++) {
-	   cout<<recoCastorJets[ijet].pt()<<endl;
+	   //	   cout<<recoCastorJets[ijet].pt()<<endl;
 	   CastorJetphi->Fill( recoCastorJets[ijet].phi());
 
 	   CastorJetMulti->Fill(recoCastorJets.size());
