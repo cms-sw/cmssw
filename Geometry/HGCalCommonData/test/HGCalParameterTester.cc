@@ -20,9 +20,10 @@ public:
   void endJob() override {}
 private:
   template<typename T> void myPrint(std::string const& s, 
-				    std::vector<T> const& obj, int n);
+				    std::vector<T> const& obj, int n) const;
   void myPrint(std::string const& s, HGCalParameters::wafer_map const& obj,
-	       int n);
+	       int n) const;
+  void printTrform(edm::ESHandle<HGCalParameters> const&) const;
   const std::string name_;
   const int         mode_;
 };
@@ -103,7 +104,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("waferTypeT",        phgp->waferTypeT_,        20);
     myPrint("layerGroupM",       phgp->layerGroupM_,       18);  
     myPrint("layerGroupO",       phgp->layerGroupO_,       18);
-    myPrint("trformIndex",       phgp->trformIndex_,       10);
+    printTrform(phgp);
     myPrint("levelTop",          phgp->levelT_,            10);
 
   } else if (mode_ == 1) {
@@ -126,6 +127,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     std::cout << "nCornerCut " << phgp->nCornerCut_ << "  zMinForRad "
 	      << phgp->zMinForRad_ << "\n";
   
+    myPrint("CellSize",          phgp->cellSize_,          10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);  
     myPrint("slopeTop",          phgp->slopeTop_,          10);  
     myPrint("zFront",            phgp->zFront_,            10);
@@ -173,7 +175,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("depthLayerF",       phgp->depthLayerF_,       18);
     myPrint("waferCopy",         phgp->waferCopy_,         8);    
     myPrint("waferTypeL",        phgp->waferTypeL_,        20);
-    myPrint("trformIndex",       phgp->trformIndex_,       10);
+    printTrform(phgp);
     myPrint("levelTop",          phgp->levelT_,            10);
 
   } else {
@@ -185,7 +187,11 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
     std::cout << "mode_: "      << phgp->mode_       << "\n";
     std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
+    std::cout << "nSectors_: "  << phgp->nSectors_   << "\n";
+    std::cout << "nCells_: " << phgp->nCellsFine_  << ":" 
+	      << phgp->nCellsCoarse_ << "\n";
   
+    myPrint("CellSize",          phgp->cellSize_,          10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);  
     myPrint("nPhiBinBH",         phgp->nPhiBinBH_,         18);  
     myPrint("dPhiEtaBH",         phgp->dPhiEtaBH_,         10);  
@@ -228,7 +234,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("depth",             phgp->depth_,             18);
     myPrint("depthIndex",        phgp->depthIndex_,        18);
     myPrint("depthLayerF",       phgp->depthLayerF_,       18);
-    myPrint("trformIndex",       phgp->trformIndex_,       10);
+    printTrform(phgp);
     myPrint("levelTop",          phgp->levelT_,            10);
   }
 
@@ -239,7 +245,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
 
 template<typename T> 
 void HGCalParameterTester::myPrint(std::string const& s, 
-				   std::vector<T> const& obj, int n) {
+				   std::vector<T> const& obj, int n) const {
   int k(0);
   std::cout << s << " with " << obj.size() << " elements\n";
   for (auto const& it : obj) {
@@ -251,12 +257,24 @@ void HGCalParameterTester::myPrint(std::string const& s,
 
 void HGCalParameterTester::myPrint(std::string const& s, 
 				   HGCalParameters::wafer_map const& obj,
-				   int n) {
+				   int n) const {
   int k(0);
   std::cout << s << " with " << obj.size() << " elements\n";
   for (auto const& it : obj) {
     std::cout << it.first << ":" << it.second << ", "; ++k; 
     if (k == n) { std::cout << "\n"; k = 0;}
+  }
+  if (k > 0) std::cout << "\n";
+}
+
+void HGCalParameterTester::printTrform(edm::ESHandle<HGCalParameters> const& phgp) const {
+  int k(0);
+  std::cout << "TrformIndex with " << phgp->trformIndex_.size() << " elements\n";
+  for (unsigned int i=0; i<phgp->trformIndex_.size(); ++i) {
+      std::array<int,4> id = phgp->getID(i);
+    std::cout << id[0] << ":" << id[1] << ":" << id[2] << ":" << id[3] << ", ";
+    ++k; 
+    if (k == 10) { std::cout << "\n"; k = 0;}
   }
   if (k > 0) std::cout << "\n";
 }

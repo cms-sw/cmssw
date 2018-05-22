@@ -6,7 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023D17XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.CaloEventSetup.HGCalTopology_cfi")
+process.load("Geometry.CaloEventSetup.HGCalV6Topology_cfi")
 process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -39,17 +39,14 @@ process.maxEvents = cms.untracked.PSet(
 
 process.prodEE = cms.EDAnalyzer("HGCalGeometryTester",
                                 Detector   = cms.string("HGCalEESensitive"),
-                                SquareCell = cms.bool(False),
                                 )
 
 process.prodHEF = process.prodEE.clone(
     Detector   = "HGCalHESiliconSensitive",
-    SquareCell = False
 )
 
 process.prodHEB = process.prodEE.clone(
     Detector   = "HGCalHEScintillatorSensitive",
-    SquareCell = True
 )
 
 process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
