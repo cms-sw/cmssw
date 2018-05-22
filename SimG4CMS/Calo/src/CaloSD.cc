@@ -311,6 +311,7 @@ bool CaloSD::hitExists(const G4Step* aStep) {
   }
   
   // Reset entry point for new primary
+  posGlobal = aStep->GetPreStepPoint()->GetPosition();
   if (currentID.trackID() != previousID.trackID()) { 
     resetForNewPrimary(aStep);
   }
@@ -359,7 +360,10 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
                           << " ID= " << theTrack->GetTrackID()
                           << " " <<theTrack->GetDefinition()->GetParticleName()
                           << " E(GeV)= "  << theTrack->GetKineticEnergy()/GeV
-                          << " parentID= " << theTrack->GetParentID();
+                          << " parentID= " << theTrack->GetParentID()
+			  << " entranceGlobal: " << entrancePoint
+			  << " entranceLocal: " << entranceLocal
+			  << " posGlobal: " << posGlobal;
 #endif  
   
   CaloG4Hit* aHit;
@@ -511,6 +515,7 @@ void CaloSD::update(const ::EndOfEvent * ) {
 
   int count(0);
   int wrong(0);
+#ifdef DebugLog
   double eEM(0.0); 
   double eHAD(0.0); 
   double eEM2(0.0); 
@@ -519,10 +524,12 @@ void CaloSD::update(const ::EndOfEvent * ) {
   double zloc(0.0); 
   double zglob(0.0); 
   double ee(0.0); 
+#endif
  
   for (int i=0; i<theHC->entries(); ++i) {
     if(!saveHit((*theHC)[i])) { ++wrong; }
     ++count;
+#ifdef DebugLog
     double x = (*theHC)[i]->getEM();
     eEM += x;
     eEM2 += x*x;
@@ -533,8 +540,10 @@ void CaloSD::update(const ::EndOfEvent * ) {
     ee += (*theHC)[i]->getIncidentEnergy();
     zglob += std::abs((*theHC)[i]->getEntry().z());
     zloc  += std::abs((*theHC)[i]->getEntryLocal().z());
+#endif
   }
   
+#ifdef DebugLog
   double norm = (count>0) ? 1.0/count : 0.0;  
   eEM   *= norm;
   eEM2  *= norm;
@@ -546,15 +555,19 @@ void CaloSD::update(const ::EndOfEvent * ) {
   ee    *= norm;
   zglob *= norm;
   zloc  *= norm;
+#endif
  
   edm::LogInfo("CaloSim") << "CaloSD: " << GetName() << " store " << count
                           << " hits; " << wrong 
                           << " track IDs not given properly and "
                           << totalHits-count << " hits not passing cuts"
+#ifdef DebugLog
 			  << "\n EmeanEM= " << eEM << " ErmsEM= " << eEM2 
 			  << "\n EmeanHAD= " << eHAD << " ErmsHAD= " << eHAD2
 			  << " TimeMean= " << tt << " E0mean= " << ee 
-			  << " Zglob= " << zglob << " Zloc= " << zloc;
+			  << " Zglob= " << zglob << " Zloc= " << zloc
+#endif
+			  << " ";
 
   tkMap.erase (tkMap.begin(), tkMap.end());
 }
@@ -568,7 +581,7 @@ void CaloSD::clearHits() {
   primIDSaved = -99;
 #ifdef DebugLog
   edm::LogInfo("CaloSim") << "CaloSD: Clears hit vector for " << GetName() 
-                          << " and initialise slave: " << slave;
+                          << " and initialise slave: " << slave; 
 #endif
   slave.get()->Initialize();
 }
@@ -756,9 +769,11 @@ void CaloSD::cleanHitCollection() {
   }
 
 #ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD: collection after merging, size= " << theHC->entries()
+  edm::LogInfo("CaloSim") << "CaloSD: collection after merging, size= " 
+			  << theHC->entries()
                           << " Size of reusehit= " << reusehit.size()
-                          << "\n      starting hit selection from index = " << cleanIndex;
+                          << "\n      starting hit selection from index = " 
+			  << cleanIndex;
 #endif
   
   int addhit = 0;
