@@ -31,7 +31,9 @@ namespace ecaldqm {
     float chi2ThresholdEE_;
     float energyThresholdEB_;
     float energyThresholdEE_;
+    float energyThresholdEEFwd_;
     float timingVsBXThreshold_;
+    float timeErrorThreshold_;
 
     MESet* meTimeMapByLS;
   };
