@@ -181,7 +181,7 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
                 )
                                                                       )
 )
-highBetaStar_2018.toReplacewith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsCommon.clone())
+highBetaStar_2018.toReplaceWith(mixedTripletStepTrackingRegionsB, _mixedTripletStepTrackingRegionsCommon.clone())
 
 # seeding
 mixedTripletStepHitDoubletsB = mixedTripletStepHitDoubletsA.clone(
