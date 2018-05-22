@@ -2,6 +2,14 @@
 
 namespace l1tVertexFinder {
 
+RecoVertexWithTP::RecoVertexWithTP(const float z0) :
+  z0_(z0),
+  pT_(0.0),
+  met_(-999.)
+{
+}
+
+
 RecoVertexWithTP::RecoVertexWithTP(RecoVertex& vertex, std::map<const edm::Ptr<TTTrack<Ref_Phase2TrackerDigi_>>, const L1TrackTruthMatched*> trackAssociationMap)
 {
   z0_ = -999.;

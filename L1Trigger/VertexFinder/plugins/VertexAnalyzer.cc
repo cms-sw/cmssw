@@ -495,10 +495,9 @@ void VertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   cout << "Input Tracks to L1 Correlator " << numInputTracks << endl;
 
-  l1t::Vertex pvVertexFromEDM = l1tVertexFinder::getPrimaryVertex(*l1VerticesHandle);
   l1t::Vertex tdrPVVertexFromEDM = l1tVertexFinder::getPrimaryVertex(*l1VertexTDRHandle);
 
-  const size_t primaryVertexIndex = &l1tVertexFinder::getPrimaryVertex(*l1VerticesHandle) - &l1VerticesHandle->at(0);
+  const size_t primaryVertexIndex = (l1VerticesHandle->empty() ? 0 : &l1tVertexFinder::getPrimaryVertex(*l1VerticesHandle) - &l1VerticesHandle->at(0));
 
   std::vector<RecoVertexWithTP*> recoVertices;
   recoVertices.reserve(numVertices);
@@ -543,7 +542,7 @@ void VertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   TDRVertexBase.setZ(tdrPVVertexFromEDM.z0());
 
   RecoVertexWithTP* TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
-  RecoVertexWithTP* RecoPrimaryVertex = recoVertices.at(primaryVertexIndex);
+  RecoVertexWithTP* RecoPrimaryVertex = (l1VerticesHandle->empty() ? new RecoVertexWithTP(-9999.) : recoVertices.at(primaryVertexIndex));
 
   TDRVertex->computeParameters(settings_.vx_weightedmean());
 
