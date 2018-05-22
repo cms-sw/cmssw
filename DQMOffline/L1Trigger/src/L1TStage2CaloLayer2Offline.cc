@@ -251,13 +251,13 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   double outOfBounds = 9999;
 
   double resolutionMET = recoMET > 0 ? (l1MET - recoMET) / recoMET : outOfBounds;
-  double resolutionMETPhi = std::abs(recoMETPhi) > 0 ? (l1METPhi - recoMETPhi) / recoMETPhi : outOfBounds;
+  double resolutionMETPhi = reco::deltaPhi(l1METPhi, recoMETPhi);
 
   double resolutionETMHF = recoETMHF > 0 ? (l1ETMHF - recoETMHF) / recoETMHF : outOfBounds;
-  double resolutionETMHFPhi = std::abs(recoETMHFPhi) > 0 ? (l1ETMHFPhi - recoETMHFPhi) / recoETMHFPhi : outOfBounds;
+  double resolutionETMHFPhi = reco::deltaPhi(l1ETMHFPhi, recoETMHFPhi);
 
   double resolutionMHT = recoMHT > 0 ? (l1MHT - recoMHT) / recoMHT : outOfBounds;
-  double resolutionMHTPhi = std::abs(recoMHTPhi) > 0 ? (l1MHTPhi - recoMHTPhi) / recoMHTPhi : outOfBounds;
+  double resolutionMHTPhi = reco::deltaPhi(l1MHTPhi, recoMHTPhi);
 
   double resolutionETT = recoETT > 0 ? (l1ETT - recoETT) / recoETT : outOfBounds;
   double resolutionHTT = recoHTT > 0 ? (l1HTT - recoHTT) / recoHTT : outOfBounds;
@@ -380,19 +380,21 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   double recoEta = leadingRecoJet.eta();
   double recoPhi = leadingRecoJet.phi();
 
-  double l1Et = foundMatch ? closestL1Jet.et() : 0;
-  double l1Eta = foundMatch ? closestL1Jet.eta() : 9999;
-  double l1Phi = foundMatch ? closestL1Jet.phi() : 9999;
-
-  // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
+  double l1Et = foundMatch ? closestL1Jet.et() : 0;
+  double l1Eta = foundMatch ? closestL1Jet.eta() : outOfBounds;
+  double l1Phi = foundMatch ? closestL1Jet.phi() : outOfBounds;
+
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
   double resolutionEta = l1Eta - recoEta;
-  double resolutionPhi = l1Phi - recoPhi;
+  double resolutionPhi = l1Phi < outOfBounds ? reco::deltaPhi(l1Phi, recoPhi) : outOfBounds;
 
   using namespace dqmoffline::l1t;
   // fill efficiencies regardless of matched jet found
   fillJetEfficiencies(recoEt, l1Et, recoEta);
+  // control plots
+  fillWithinLimits(h_controlPlots_[ControlPlots::L1JetET], l1Et);
+  fillWithinLimits(h_controlPlots_[ControlPlots::OfflineJetET], recoEt);
   // don't fill anything else if no matched L1 jet is found
   if (!foundMatch){
     return;
@@ -401,9 +403,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   // eta
   fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionJetEta_, resolutionEta);
-  // control plots
-  fillWithinLimits(h_controlPlots_[ControlPlots::L1JetET], l1Et);
-  fillWithinLimits(h_controlPlots_[ControlPlots::OfflineJetET], recoEt);
 
   if (std::abs(recoEta) <= 1.479) { // barrel
     // et
