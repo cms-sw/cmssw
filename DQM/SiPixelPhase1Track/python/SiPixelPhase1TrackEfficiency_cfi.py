@@ -133,7 +133,9 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SiPixelPhase1TrackEfficiencyAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackEfficiency',
         clusters = cms.InputTag("siPixelClusters"),
         tracks = cms.InputTag("generalTracks"),
+        trajectoryInput = cms.InputTag("refittedForPixelDQM"), 
         primaryvertices = cms.InputTag("offlinePrimaryVertices"),
+        tracker = cms.InputTag("MeasurementTrackerEvent"),
         histograms = SiPixelPhase1TrackEfficiencyConf,
         geometry = SiPixelPhase1Geometry,
         triggerflags = trigger.SiPixelPhase1Triggers

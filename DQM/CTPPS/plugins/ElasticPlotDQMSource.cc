@@ -206,9 +206,11 @@ void ElasticPlotDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS");
 
-  // initialize diagonal plots
+  // initialize (anti-)diagonal plots
+  diagonalPlots[0] = DiagonalPlots(ibooker, 0);  // 45 bot - 56 bot
   diagonalPlots[1] = DiagonalPlots(ibooker, 1);  // 45 bot - 56 top
-  diagonalPlots[2] = DiagonalPlots(ibooker, 2);  // 45 top - 45 bot
+  diagonalPlots[2] = DiagonalPlots(ibooker, 2);  // 45 top - 56 bot
+  diagonalPlots[3] = DiagonalPlots(ibooker, 3);  // 45 top - 56 top
 
   // loop over arms
   for (unsigned int arm = 0; arm < 2; arm++)
@@ -251,7 +253,7 @@ void ElasticPlotDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
     if (verbosity)
     {
       LogProblem("ElasticPlotDQMSource") <<
-        "ERROR in TotemDQMModuleRP::analyze > some of the required inputs are not valid. Skipping this event.\n"
+        "ERROR in ElasticPlotDQMSource::analyze > some of the required inputs are not valid. Skipping this event.\n"
         << "    hits.isValid = " << hits.isValid() << "\n"
         << "    patterns.isValid = " << patterns.isValid() << "\n"
         << "    tracks.isValid = " << tracks.isValid();

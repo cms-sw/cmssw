@@ -52,6 +52,7 @@ namespace edm {
     trainNow_(false),
     switchOverEntry_(-1),
     rawTriggerSwitchOverEntry_(-1),
+    performedSwitchOver_{false},
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
     treeAutoFlush_(0),
@@ -219,6 +220,19 @@ namespace edm {
           rawTreeCache_->FillBuffer();
         }
       }
+      if(performedSwitchOver_ and triggerTreeCache_) {
+        //We are using the triggerTreeCache_ not the rawTriggerTreeCache_.
+        //The triggerTreeCache was originally told to start from an entry further in the file.
+        triggerTreeCache_->SetEntryRange(theEntryNumber, tree_->GetEntries());
+      } else if(rawTriggerTreeCache_) {
+        //move the switch point to the end of the cluster holding theEntryNumber
+        rawTriggerSwitchOverEntry_ = -1;
+        TTree::TClusterIterator clusterIter = tree_->GetClusterIterator(theEntryNumber);
+        while ((rawTriggerSwitchOverEntry_ < theEntryNumber) || (rawTriggerSwitchOverEntry_ <= 0)) {
+          rawTriggerSwitchOverEntry_ = clusterIter();
+        }
+        rawTriggerTreeCache_->SetEntryRange(theEntryNumber, rawTriggerSwitchOverEntry_);
+      }
     }
     if ((theEntryNumber < static_cast<EntryNumber>(entryNumber_-treeAutoFlush_)) &&
         (treeCache_) && (!treeCache_->IsLearning()) && (entries_ > 0) && (switchOverEntry_ >= 0)) {
@@ -301,7 +315,7 @@ namespace edm {
       filePtr_->SetCacheRead(nullptr);
 
       return rawTriggerTreeCache_.get();
-    } else if (entryNumber_ < rawTriggerSwitchOverEntry_) {
+    } else if (!performedSwitchOver_ and entryNumber_ < rawTriggerSwitchOverEntry_) {
       // The raw trigger has fired and it contents are valid.
       return rawTriggerTreeCache_.get();
     } else if (rawTriggerSwitchOverEntry_ > 0) {
