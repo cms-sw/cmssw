@@ -205,13 +205,13 @@ This simulates a problem happening early in the job which causes processing not 
   template< typename T, typename... U>
   edm::test::Event testImpl(std::pair<edm::EDPutTokenT<T>,std::unique_ptr<T>>&& iPut, U&&... iArgs) {
     put(std::move(iPut));
-    return testImpl(std::forward(iArgs)...);
+    return testImpl(std::forward<U>(iArgs)...);
   }
 
   template<typename T, typename... U>
   edm::test::Event testImpl(std::pair<edm::test::ESPutTokenT<T>,std::unique_ptr<T>>&& iPut, U&&... iArgs) {
     put(std::move(iPut));
-    return testImpl(std::forward(iArgs)...);
+    return testImpl(std::forward<U>(iArgs)...);
   }
 
   template< typename T>
