@@ -4,6 +4,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
 
 namespace l1t {
