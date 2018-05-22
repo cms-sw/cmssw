@@ -9,7 +9,7 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                         doQuench = cms.bool(True),
                         bFixed = cms.double(0.0), ## fixed impact param (fm); valid only if cflag_=0
                         PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
-                                                    parameterSets = cms.vstring('pythiaUESettings','ppJets','kinematics'),
+                                                    parameterSets = cms.vstring('pythiaUESettings', 'ppJets', 'kinematics'),
                                                     kinematics = cms.vstring ("CKIN(3)=80",  #min pthat
                                                                               "CKIN(4)=120" #max pthat
                                                                               )

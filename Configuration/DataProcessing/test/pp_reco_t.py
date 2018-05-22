@@ -45,7 +45,7 @@ class ppScenarioTest(unittest.TestCase):
         """test promptReco method"""
         scenario = getScenario("pp")
         try:
-            process = scenario.promptReco("FT_R_42_V10A::All",writeTiers = ['RECO', 'AOD', 'ALCARECO', 'DQM'])
+            process = scenario.promptReco("FT_R_42_V10A::All", writeTiers = ['RECO', 'AOD', 'ALCARECO', 'DQM'])
             writePSetFile("testPromptReco.py", process)
         except Exception as ex:
             msg = "Failed to create Prompt Reco configuration\n"

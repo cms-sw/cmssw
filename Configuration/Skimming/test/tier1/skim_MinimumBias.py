@@ -113,4 +113,4 @@ process.SKIMStreamMuonTrackOutPath = cms.EndPath(process.SKIMStreamMuonTrack)
 process.SKIMStreamValSkimOutPath = cms.EndPath(process.SKIMStreamValSkim)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.muonTracksSkimPath,process.pathlogerror,process.HSCPSDPath,process.pathpfgskim3noncross,process.relvaltrackSkimPath,process.relvalmuonSkimPath,process.SKIMStreamBeamBkgOutPath,process.SKIMStreamHSCPSDOutPath,process.SKIMStreamLogErrorOutPath,process.SKIMStreamMuonTrackOutPath,process.SKIMStreamValSkimOutPath)
+process.schedule = cms.Schedule(process.muonTracksSkimPath, process.pathlogerror, process.HSCPSDPath, process.pathpfgskim3noncross, process.relvaltrackSkimPath, process.relvalmuonSkimPath, process.SKIMStreamBeamBkgOutPath, process.SKIMStreamHSCPSDOutPath, process.SKIMStreamLogErrorOutPath, process.SKIMStreamMuonTrackOutPath, process.SKIMStreamValSkimOutPath)

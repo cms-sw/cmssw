@@ -37,14 +37,14 @@ def OptionsFromCommandLine():
 
 def OptionsFromItems(items):
     import sys
-    from Configuration.Applications.Options import parser,threeValued
+    from Configuration.Applications.Options import parser, threeValued
     #three valued options
-    for (index,item) in enumerate(items):
-        for (opt,value) in threeValued:
+    for (index, item) in enumerate(items):
+        for (opt, value) in threeValued:
             if (str(item) in opt) and (index==len(items)-1 or items[index+1].startswith('-')):
-                items.insert(index+1,value)
+                items.insert(index+1, value)
                 
-    (options,args) = parser.parse_args(items)
+    (options, args) = parser.parse_args(items)
 
     if not options.conditions or options.conditions=="help":
         from Configuration.AlCa import autoCond
@@ -121,7 +121,7 @@ def OptionsFromItems(items):
     if options.step in stepsAliases:
         options.step=stepsAliases[options.step]
 
-    options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
+    options.step = options.step.replace("SIM_CHAIN", "GEN,SIM,DIGI,L1,DIGI2RAW")
 
     # add on the end of job sequence...
     addEndJob = True
@@ -143,15 +143,15 @@ def OptionsFromItems(items):
             options.filetype="LHE"
         elif options.filein.startswith("mcdb:"):
             print "This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein"
-            options.filein=options.filein.replace('mcdb:','lhe:')
+            options.filein=options.filein.replace('mcdb:', 'lhe:')
             options.filetype="LHE"
         else:
             options.filetype="EDM"
 
     filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": "", "DQM":"root"}[options.filetype]
 
-    if options.filein=="" and not (first_step in ("ALL","GEN","LHE","SIM_CHAIN")):
-        options.dirin="file:"+options.dirin.replace('file:','')
+    if options.filein=="" and not (first_step in ("ALL", "GEN", "LHE", "SIM_CHAIN")):
+        options.dirin="file:"+options.dirin.replace('file:', '')
         options.filein=trimmedEvtType+"_"+prec_step[first_step]+"."+filesuffix
 
 
@@ -159,7 +159,7 @@ def OptionsFromItems(items):
     #   (EventType_STEP1_STEP2_..._PU)
     standardFileName = ""
     standardFileName = trimmedEvtType+"_"+"_".join(options.trimmedStep)
-    standardFileName = standardFileName.replace(",","_").replace(".","_")
+    standardFileName = standardFileName.replace(",", "_").replace(".", "_")
     if options.pileup != "NoPileUp":
         standardFileName += "_PU"
 

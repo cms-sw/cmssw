@@ -9,7 +9,7 @@ class UserCodeTool(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'code','', 'User code modifying the process: e.g. process.maxevents=1')
+        self.addParameter(self._defaultParameters, 'code', '', 'User code modifying the process: e.g. process.maxevents=1')
         self._parameters=copy.deepcopy(self._defaultParameters)  
         self._comment = ""
     def dumpPython(self):
@@ -17,12 +17,12 @@ class UserCodeTool(ConfigToolBase):
         if self._comment!="":
             dumpPython = "#"+self._comment+"\n"
         dumpPython+=self._parameters['code'].value
-        return ("",dumpPython)
-    def __call__(self,process,code):
-        self.setParameter('code',code)
+        return ("", dumpPython)
+    def __call__(self, process, code):
+        self.setParameter('code', code)
         self.apply(process)
         return self
-    def toolCode(self,process):
+    def toolCode(self, process):
         code=self._parameters['code'].value
         exec(code)
 
@@ -38,7 +38,7 @@ class ChangeSource(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'source','No default value. Set your own', ' Source filenames')
+        self.addParameter(self._defaultParameters, 'source', 'No default value. Set your own', ' Source filenames')
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
         
@@ -48,7 +48,7 @@ class ChangeSource(ConfigToolBase):
     def __call__(self,process,source=None) :
         if source is None:
            source=self._defaultParameters['source'].value 
-        self.setParameter('source',source)
+        self.setParameter('source', source)
         self.apply(process) 
         
     def toolCode(self, process):
@@ -66,9 +66,9 @@ if __name__=='__main__':
             pass
         def testdumpPython(self):
             process = cms.Process('unittest')
-            process.source=Source("PoolSource",fileNames = cms.untracked.string("file:file.root"))
+            process.source=Source("PoolSource", fileNames = cms.untracked.string("file:file.root"))
             
-            changeSource(process,"file:filename.root")
+            changeSource(process, "file:filename.root")
             self.assertEqual(changeSource.dumpPython(),  ('\nfrom FWCore.GuiBrowsers.editorTools import *\n', "\nchangeSource(process , 'file:filename.root')\n"))
             
     unittest.main()

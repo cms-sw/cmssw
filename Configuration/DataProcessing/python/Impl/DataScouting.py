@@ -11,9 +11,9 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq,gtNameAndConnect
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER, addMonitoring, dictIO, dqmIOSource, harvestingMode, dqmSeq, gtNameAndConnect
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
+from Configuration.DataProcessing.RecoTLR import customisePrompt, customiseExpress
 
 class DataScouting(Scenario):
     def __init__(self):
@@ -39,7 +39,7 @@ class DataScouting(Scenario):
         options.scenario = 'pp'
         options.__dict__.update(defaultOptions.__dict__)
         options.step = 'DQM:DQM/DataScouting/dataScouting_cff.dataScoutingDQMSequence,ENDJOB'
-        dictIO(options,args)        
+        dictIO(options, args)        
         options.conditions = gtNameAndConnect(globalTag, args)
                 
         process = cms.Process('DataScouting', self.eras)
@@ -62,7 +62,7 @@ class DataScouting(Scenario):
         """
         options = defaultOptions
         options.scenario = 'pp'
-        options.step = "HARVESTING"+dqmSeq(args,':DQMOffline')
+        options.step = "HARVESTING"+dqmSeq(args, ':DQMOffline')
         options.name = "EDMtoMEConvert"
         options.conditions = gtNameAndConnect(globalTag, args)
  
@@ -71,5 +71,5 @@ class DataScouting(Scenario):
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
-        harvestingMode(process,datasetName,args,rANDl=False)
+        harvestingMode(process, datasetName, args, rANDl=False)
         return process

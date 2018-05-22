@@ -6,7 +6,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 process.tester = cms.EDAnalyzer("OtherThingAnalyzer",
-                                other = cms.untracked.InputTag("d","testUserTag"))
+                                other = cms.untracked.InputTag("d", "testUserTag"))
 
 process.e = cms.EndPath(process.tester)
 

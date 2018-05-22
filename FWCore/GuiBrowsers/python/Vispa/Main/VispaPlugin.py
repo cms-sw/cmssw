@@ -24,7 +24,7 @@ class VispaPlugin(QObject):
         
         Description will be shown in open and save dialogs.
         """
-        self._filetypes.append(Filetype(ext,description))
+        self._filetypes.append(Filetype(ext, description))
     
     def filetypes(self):
         """ Returns local list of Filetype objects.
@@ -49,7 +49,7 @@ class VispaPlugin(QObject):
         
     def addNewFileAction(self, label, slot=None):
         """Creates a new file action with label and optionally with a callable slot set and appends it to local new file actions list. """
-        self._createNewFileActions.append(self._application.createAction(label, slot,image='filenew'))
+        self._createNewFileActions.append(self._application.createAction(label, slot, image='filenew'))
         
     def getNewFileActions(self):
         """ Returns local list of new file actions.

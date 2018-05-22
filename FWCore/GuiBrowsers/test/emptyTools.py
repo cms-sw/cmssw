@@ -12,8 +12,8 @@ class ToolName(ConfigToolBase):
         ### import base class constructor
         ConfigToolBase.__init__(self)
         ### Add each tool parameter with addParameter method
-        self.addParameter(self._defaultParameters,'parName',parDefaultValue, parDescription, Type=parType, allowedValues=supportedValues, acceptNoneValue=isNoneallowed)
-        self.addParameter(self._defaultParameters,'parName2',parDefaultValue, parDescription, Type=parType, allowedValues=supportedValues, acceptNoneValue=isNoneallowed)
+        self.addParameter(self._defaultParameters, 'parName', parDefaultValue, parDescription, Type=parType, allowedValues=supportedValues, acceptNoneValue=isNoneallowed)
+        self.addParameter(self._defaultParameters, 'parName2', parDefaultValue, parDescription, Type=parType, allowedValues=supportedValues, acceptNoneValue=isNoneallowed)
         ### create parameter set starting from default one
         self._parameters=copy.deepcopy(self._defaultParameters)
         ### tool comment, set it by using setComment
@@ -32,8 +32,8 @@ class ToolName(ConfigToolBase):
             parName2=self._defaultParameters['parName2'].value
         ### set parameter values to ones input by the user
         ### the setParameter method provides checks about type and about values ( supported values and parameter type are specified in addParameter (Type, alloweValues) )
-        self.setParameter('parName',parName)
-        self.setParameter('parName2',parName)
+        self.setParameter('parName', parName)
+        self.setParameter('parName2', parName)
         ### apply tool by calling method "apply" defined in the base class. It will call the toolCode method
         self.apply(process) 
         

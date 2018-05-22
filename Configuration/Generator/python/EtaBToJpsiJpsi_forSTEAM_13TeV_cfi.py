@@ -40,7 +40,7 @@ NumberDaughters = cms.untracked.int32(2),
 MotherID = cms.untracked.int32(10551),
 ParticleID = cms.untracked.int32(443),
 DaughterIDs = cms.untracked.vint32(13, -13),
-MinP = cms.untracked.vdouble(2.5,2.5),
+MinP = cms.untracked.vdouble(2.5, 2.5),
 MinEta = cms.untracked.vdouble(-2.6, -2.6),
 MaxEta = cms.untracked.vdouble( 2.6, 2.6)
 )

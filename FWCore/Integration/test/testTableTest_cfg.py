@@ -6,8 +6,8 @@ process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(2))
 
-anInts = [1,2,3]
-aFloats = [4.,5., 6.]
+anInts = [1, 2, 3]
+aFloats = [4., 5., 6.]
 aStrings =["einie", "meanie", "meinie"]
 
 process.tableTest = cms.EDProducer("edmtest::TableTestProducer",

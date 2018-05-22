@@ -11,4 +11,4 @@ process.thing = cms.EDProducer("ThingProducer")
 process.getThing = cms.EDAnalyzer("edmtest::ThingAnalyzer")
 
 process.thingTask = cms.Task(process.thing)
-process.e = cms.EndPath(process.getThing,process.thingTask)
+process.e = cms.EndPath(process.getThing, process.thingTask)

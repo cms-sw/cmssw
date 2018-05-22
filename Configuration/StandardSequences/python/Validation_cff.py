@@ -34,14 +34,14 @@ from Validation.RecoEgamma.egammaValidationMiniAOD_cff import *
 prevalidationNoHLT = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * metPreValidSeq * jetPreValidSeq )
 prevalidation = cms.Sequence( cms.SequencePlaceholder("mix") * globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
-prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
+prevalidationLiteTracking.replace(globalPrevalidation, globalPrevalidationLiteTracking)
 prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * photonMiniAODValidationSequence * egammaValidationMiniAOD)
 
 _prevalidation_fastsim = prevalidation.copy()
 for _entry in [hltassociation]:
     _prevalidation_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(prevalidation,_prevalidation_fastsim)
+fastSim.toReplaceWith(prevalidation, _prevalidation_fastsim)
 
 validationNoHLT = cms.Sequence(
                                genvalid_all
@@ -54,13 +54,13 @@ validation = cms.Sequence(validationNoHLT
                          *hltvalidation)
 
 _validation_fastsim = validation.copy()
-for _entry in [globaldigisanalyze,globalhitsanalyze,globalrechitsanalyze,hltvalidation]:
+for _entry in [globaldigisanalyze, globalhitsanalyze, globalrechitsanalyze, hltvalidation]:
     _validation_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(validation,_validation_fastsim)
+fastSim.toReplaceWith(validation, _validation_fastsim)
 
 validationLiteTracking = cms.Sequence( validation )
-validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
+validationLiteTracking.replace(globalValidation, globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)
 
 validationMiniAOD = cms.Sequence(type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * JetValidationMiniAOD * METValidationMiniAOD)
@@ -86,7 +86,7 @@ _validation_preprod_fastsim = validation_preprod.copy()
 for _entry in [hltvalidation_preprod]:
     _validation_preprod_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(validation_preprod,_validation_preprod_fastsim)
+fastSim.toReplaceWith(validation_preprod, _validation_preprod_fastsim)
 
 validation_prodNoHLT = cms.Sequence(
              genvalid_all
@@ -101,5 +101,5 @@ _validation_prod_fastsim = validation_prodNoHLT.copy()
 for _entry in [hltvalidation_prod]:
     _validation_prod_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(validation_prod,_validation_prod_fastsim)
+fastSim.toReplaceWith(validation_prod, _validation_prod_fastsim)
 

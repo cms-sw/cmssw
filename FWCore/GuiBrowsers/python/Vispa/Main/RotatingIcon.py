@@ -1,9 +1,9 @@
-from PyQt4.QtCore import QTimeLine,SIGNAL,Qt
-from PyQt4.QtGui import QLabel,QPixmap,QMatrix,QPainter
+from PyQt4.QtCore import QTimeLine, SIGNAL, Qt
+from PyQt4.QtGui import QLabel, QPixmap, QMatrix, QPainter
 
 class RotatingIcon(QLabel):
     def __init__(self,resource,parent=None,steps=20,width=15,height=15):
-        QLabel.__init__(self,parent)
+        QLabel.__init__(self, parent)
         self._resource=resource
         self._steps=steps
         self._width=width

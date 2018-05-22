@@ -9,7 +9,7 @@ exception = 'throw\(((::)|\w|\s|,|<|>)*\)'
 decl_param = '\s((\(%s\))|(%s))\s*\((\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|(::))*\)'%(declarator, declarator)
 operator = '(%s|)operator\s*(\(\)|\[\]|\s+(new|delete)(\s*\[\]|)|\-\>[*]{0,1}|[+\-*/%%^&|~!=<>,]{1,2}(=|))'%(declarator)
 dm_init = '(:[^{]*)'
-functStart_re = re.compile('(\s|~|^)((\(%s\))|(%s)|(%s))\s*\((%s|\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|::)*\)(%s)?(%s)?\s*(%s)?\s*{'%(declarator, declarator, operator, decl_param, cv_decl, exception,dm_init), re.MULTILINE)
+functStart_re = re.compile('(\s|~|^)((\(%s\))|(%s)|(%s))\s*\((%s|\w|\s|\*|&|\.|=|\'|\"|-|<|>|,|::)*\)(%s)?(%s)?\s*(%s)?\s*{'%(declarator, declarator, operator, decl_param, cv_decl, exception, dm_init), re.MULTILINE)
 
 def filterFiles(fileList):
     files = []

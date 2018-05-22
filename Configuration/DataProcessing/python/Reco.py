@@ -10,9 +10,9 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,stepSKIMPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq,gtNameAndConnect
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER, stepSKIMPRODUCER, addMonitoring, dictIO, dqmIOSource, harvestingMode, dqmSeq, gtNameAndConnect
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
+from Configuration.DataProcessing.RecoTLR import customisePrompt, customiseExpress
 
 class Reco(Scenario):
     def __init__(self):
@@ -52,7 +52,7 @@ class Reco(Scenario):
         PhysicsSkimStep = ''
         if ("PhysicsSkims" in args) :
             PhysicsSkimStep = stepSKIMPRODUCER(args['PhysicsSkims'])
-        dqmStep = dqmSeq(args,'')
+        dqmStep = dqmSeq(args, '')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -81,7 +81,7 @@ class Reco(Scenario):
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
 
-        dictIO(options,args)
+        dictIO(options, args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
         process = cms.Process('RECO', cms.ModifierChain(self.eras, self.promptModifiers) )
@@ -112,7 +112,7 @@ class Reco(Scenario):
             skims.remove(wfl)
         
         step = stepALCAPRODUCER(skims)
-        dqmStep= dqmSeq(args,'')
+        dqmStep= dqmSeq(args, '')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -123,7 +123,7 @@ class Reco(Scenario):
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+',DQM'+dqmStep+',ENDJOB'
 
-        dictIO(options,args)
+        dictIO(options, args)
         options.conditions = gtNameAndConnect(globalTag, args)
 
         
@@ -167,7 +167,7 @@ class Reco(Scenario):
         options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
 
 
-        dictIO(options,args)
+        dictIO(options, args)
         options.conditions = gtNameAndConnect(globalTag, args)
         options.timeoutOutput = True
         # FIXME: maybe can go...maybe not
@@ -265,7 +265,7 @@ class Reco(Scenario):
         """
         options = defaultOptions
         options.scenario = self.cbSc
-        options.step = "HARVESTING"+dqmSeq(args,':dqmHarvesting')
+        options.step = "HARVESTING"+dqmSeq(args, ':dqmHarvesting')
         options.name = "EDMtoMEConvert"
         options.conditions = gtNameAndConnect(globalTag, args)
  
@@ -278,7 +278,7 @@ class Reco(Scenario):
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
-        harvestingMode(process,datasetName,args,rANDl=False)
+        harvestingMode(process, datasetName, args, rANDl=False)
         return process
 
 
@@ -299,7 +299,7 @@ class Reco(Scenario):
 
         if len(skims) == 0: return None
         options = defaultOptions
-        options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__ 
+        options.scenario = self.cbSc if hasattr(self, 'cbSc') else self.__class__.__name__ 
         options.step = "ALCAHARVEST:"+('+'.join(skims))
         options.name = "ALCAHARVEST"
         options.conditions = gtNameAndConnect(globalTag, args)
@@ -331,7 +331,7 @@ class Reco(Scenario):
         
         """
         options = defaultOptions
-        options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__
+        options.scenario = self.cbSc if hasattr(self, 'cbSc') else self.__class__.__name__
         options.step = "SKIM:"+('+'.join(skims))
         options.name = "SKIM"
         options.conditions = gtNameAndConnect(globalTag, args)

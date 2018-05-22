@@ -21,9 +21,9 @@ standardToolsDir=os.path.abspath(os.path.join(os.path.dirname(tools.__file__)))
 
 cmsswDir="$CMSSW_BASE"
 cmsswReleaseDir="$CMSSW_RELEASE_BASE"
-standardConfigDir=os.path.abspath(os.path.expandvars(os.path.join(cmsswDir,"src/PhysicsTools/PatAlgos/test")))
+standardConfigDir=os.path.abspath(os.path.expandvars(os.path.join(cmsswDir, "src/PhysicsTools/PatAlgos/test")))
 if not os.path.exists(standardConfigDir):
-    standardConfigDir=os.path.abspath(os.path.expandvars(os.path.join(cmsswReleaseDir,"src/PhysicsTools/PatAlgos/test")))
+    standardConfigDir=os.path.abspath(os.path.expandvars(os.path.join(cmsswReleaseDir, "src/PhysicsTools/PatAlgos/test")))
 
 class ImportTool(ConfigToolBase):
     """ Import configuration tool """
@@ -31,7 +31,7 @@ class ImportTool(ConfigToolBase):
     _defaultParameters={}
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'filename','/', 'The name of the configuration file')
+        self.addParameter(self._defaultParameters, 'filename', '/', 'The name of the configuration file')
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._importCommands=[]
     def dumpPython(self):
@@ -58,18 +58,18 @@ class ImportTool(ConfigToolBase):
             dump += "### ------------------------- ###\n"
         for command in self._importCommands:
             dump += command + "\n"
-        return ("",dump)
-    def apply(self,process):
+        return ("", dump)
+    def apply(self, process):
         pass
-    def setImportCommands(self,commands):
+    def setImportCommands(self, commands):
         self._importCommands=commands
    
 class ApplyTool(ConfigToolBase):
     """Apply a tool"""
     _label="Apply tool"
     def dumpPython(self):
-        return ("","")
-    def apply(self,process):
+        return ("", "")
+    def apply(self, process):
         pass
 
 class ToolDataAccessor(BasicDataAccessor):
@@ -94,7 +94,7 @@ class ToolDataAccessor(BasicDataAccessor):
     def label(self, object):
         """ Return a string that is used as caption of an object.
         """
-        if isinstance(object,type):
+        if isinstance(object, type):
             directory=os.path.splitext(os.path.basename(inspect.getfile(object)))[0]
         else:
             directory=os.path.splitext(os.path.basename(inspect.getfile(type(object))))[0]
@@ -103,25 +103,25 @@ class ToolDataAccessor(BasicDataAccessor):
         else:
             return directory+"."+object._label
 
-    def _property(self,name,value,description,typ,allowedValues):
+    def _property(self, name, value, description, typ, allowedValues):
         if typ in [bool] and type(value)!=typ:
             value=False
         if typ in [int, long, float] and type(value)!=typ:
             value=0
-        if not allowedValues is None and typ in [int,long,float,str]:
-            return ("DropDown", name, value,description, False, False, allowedValues)
+        if not allowedValues is None and typ in [int, long, float, str]:
+            return ("DropDown", name, value, description, False, False, allowedValues)
         elif typ in [bool]:
-            return ("Boolean", name, value,description)
+            return ("Boolean", name, value, description)
         elif typ in [int, long]:
-            return ("Integer", name, value,description)
+            return ("Integer", name, value, description)
         elif typ in [float]:
-            return ("Double", name, value,description)
+            return ("Double", name, value, description)
         elif name=="filename":
-            return ("File", name, str(value),description)
+            return ("File", name, str(value), description)
         elif name=="code":
-            return ("MultilineString", name, str(value).strip("\n"),description)
+            return ("MultilineString", name, str(value).strip("\n"), description)
         else:
-            return ("String", name, str(value),description)
+            return ("String", name, str(value), description)
 
     def properties(self, object):
         """ Return the list of the properties of an object.
@@ -131,20 +131,20 @@ class ToolDataAccessor(BasicDataAccessor):
         Possible types are: 'Category','String','MultilineString','File','FileVector','Boolean','Integer','Double'.
         """
         properties=[]
-        if not isinstance(object,(ImportTool,UserCodeTool,ApplyTool)):
-            properties+=[("String","Tool",self.label(object),None,True)]
-        if not isinstance(object,(ImportTool,UserCodeTool)):
-            properties+=[("String","Description",object.description(),None,True)]
-        if not isinstance(object,(UserCodeTool,ApplyTool)):
+        if not isinstance(object, (ImportTool, UserCodeTool, ApplyTool)):
+            properties+=[("String", "Tool", self.label(object), None, True)]
+        if not isinstance(object, (ImportTool, UserCodeTool)):
+            properties+=[("String", "Description", object.description(), None, True)]
+        if not isinstance(object, (UserCodeTool, ApplyTool)):
             code=object.dumpPython()
-            if isinstance(code,tuple):
+            if isinstance(code, tuple):
                 code=code[1]
-            properties+=[("MultilineString","code",code.strip("\n"),None,True)]
-        if not isinstance(object,(ImportTool,UserCodeTool,ApplyTool)):
-            properties+=[("String","comment",object._comment,None,False)]
+            properties+=[("MultilineString", "code", code.strip("\n"), None, True)]
+        if not isinstance(object, (ImportTool, UserCodeTool, ApplyTool)):
+            properties+=[("String", "comment", object._comment, None, False)]
         if len(object.getParameters().items())>0:
             properties += [("Category", "Parameters", "")]
-            properties+=[self._property(value.name,value.value,value.description,value.type,object.getAllowedValues(value.name)) for key,value in object.getParameters().items()]
+            properties+=[self._property(value.name, value.value, value.description, value.type, object.getAllowedValues(value.name)) for key, value in object.getParameters().items()]
         return properties
     
     def setProperty(self, object, name, value, categoryName):
@@ -164,7 +164,7 @@ class ToolDataAccessor(BasicDataAccessor):
                 logging.warning(__name__ + ": setProperty: Error in python code: "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
                 return error
-        elif isinstance(value,str):
+        elif isinstance(value, str):
             # for e.g. cms.InputTag
             try:
                 exec("value="+value)
@@ -172,7 +172,7 @@ class ToolDataAccessor(BasicDataAccessor):
                 pass
         if name!="comment":
             try:
-                object.setParameter(name,value)
+                object.setParameter(name, value)
             except Exception as e:
                 error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
@@ -190,9 +190,9 @@ class ToolDataAccessor(BasicDataAccessor):
             del self._parameterErrors[str(id(object))+"."+name]
         return True
 
-    def setConfigDataAccessor(self,accessor):
+    def setConfigDataAccessor(self, accessor):
         self._configDataAccessor=accessor
-        self._importTool.setParameter("filename",accessor.configFile())
+        self._importTool.setParameter("filename", accessor.configFile())
         if accessor.process():
             self._processCopy=copy.deepcopy(accessor.process())
             self._processCopy.resetHistory()
@@ -201,11 +201,11 @@ class ToolDataAccessor(BasicDataAccessor):
     def configDataAccessor(self):
         return self._configDataAccessor
 
-    def removeTool(self,tool):
+    def removeTool(self, tool):
         self._toolList.remove(tool)
         return self.updateProcess()
     
-    def addTool(self,tool):
+    def addTool(self, tool):
         tool.apply(self.configDataAccessor().process())
         self.configDataAccessor().setProcess(self.configDataAccessor().process())
         return True
@@ -239,12 +239,12 @@ class ToolDataAccessor(BasicDataAccessor):
         self._toolList=[]
         self._toolModules={}
         importCommands=[]
-        for tool,objects in history:
-            if isinstance(tool,str):
+        for tool, objects in history:
+            if isinstance(tool, str):
                 userTool=UserCodeTool()
-                userTool.setParameter("code",tool)
+                userTool.setParameter("code", tool)
                 self._toolList+=[userTool]
-            elif isinstance(tool,ConfigToolBase):
+            elif isinstance(tool, ConfigToolBase):
                 self._toolList+=[tool]
                 command=tool.dumpPython()[0]
                 if command!="" and not command in importCommands:
@@ -261,5 +261,5 @@ class ToolDataAccessor(BasicDataAccessor):
     def toolModules(self):
         return self._toolModules
 
-    def parameterErrors(self,object):
+    def parameterErrors(self, object):
         return [self._parameterErrors[key] for key in self._parameterErrors.keys() if str(id(object))==key.split(".")[0]] 

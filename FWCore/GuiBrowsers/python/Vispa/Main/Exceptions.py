@@ -17,5 +17,5 @@ class PluginNotLoadedException(ImportError):
     pass
 
 def exception_traceback():
-    ty,va,tb=sys.exc_info()
-    return "".join(traceback.format_exception(ty,va,tb))
+    ty, va, tb=sys.exc_info()
+    return "".join(traceback.format_exception(ty, va, tb))

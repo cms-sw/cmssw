@@ -35,7 +35,7 @@ process.outputCsHWW = cms.OutputModule("PoolOutputModule",
                                         dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('AOD'),
         filterName = cms.untracked.string('CS_HWW')),
-                                        SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('diMuonFilter','diElectronFilter','MuEleFilter')),                                        
+                                        SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('diMuonFilter', 'diElectronFilter', 'MuEleFilter')),                                        
                                         outputCommands = process.FEVTEventContent.outputCommands,
                                         fileName = cms.untracked.string('CS_HWW_2011.root')
                                         )

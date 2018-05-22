@@ -8,7 +8,7 @@ process.source = cms.Source("PoolSource",
 
 process.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-    SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
+    SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')
     ),
     fileName = cms.untracked.string('testEventHistory_5.root')
 )

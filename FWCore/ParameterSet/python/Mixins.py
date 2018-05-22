@@ -41,7 +41,7 @@ class _ParameterTypeBase(object):
         return self.dumpPython()
     def isTracked(self):
         return self.__isTracked
-    def setIsTracked(self,trackness):
+    def setIsTracked(self, trackness):
         self.__isTracked = trackness
     def isFrozen(self):
         return self._isFrozen 
@@ -50,14 +50,14 @@ class _ParameterTypeBase(object):
 
 class _SimpleParameterTypeBase(_ParameterTypeBase):
     """base class for parameter classes which only hold a single value"""
-    def __init__(self,value):
-        super(_SimpleParameterTypeBase,self).__init__()
+    def __init__(self, value):
+        super(_SimpleParameterTypeBase, self).__init__()
         self._value = value
         if not self._isValid(value):
             raise ValueError(str(value)+" is not a valid "+str(type(self)))
     def value(self):
         return self._value
-    def setValue(self,value):
+    def setValue(self, value):
         if not self._isValid(value):
             raise ValueError(str(value)+" is not a valid "+str(type(self)))
         if value!=self._value:
@@ -67,28 +67,28 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         return str(self._value)
     def pythonValue(self, options=PrintOptions()):
         return self.configValue(options)
-    def __eq__(self,other):
-        if isinstance(other,_SimpleParameterTypeBase):
+    def __eq__(self, other):
+        if isinstance(other, _SimpleParameterTypeBase):
             return self._value == other._value
         return self._value == other
-    def __ne__(self,other):
-        if isinstance(other,_SimpleParameterTypeBase):
+    def __ne__(self, other):
+        if isinstance(other, _SimpleParameterTypeBase):
             return self._value != other._value
         return self._value != other
-    def __lt__(self,other):
-        if isinstance(other,_SimpleParameterTypeBase):
+    def __lt__(self, other):
+        if isinstance(other, _SimpleParameterTypeBase):
             return self._value < other._value
         return self._value < other
-    def __le__(self,other):
-        if isinstance(other,_SimpleParameterTypeBase):
+    def __le__(self, other):
+        if isinstance(other, _SimpleParameterTypeBase):
             return self._value <= other._value
         return self._value <= other
-    def __gt__(self,other):
-        if isinstance(other,_SimpleParameterTypeBase):
+    def __gt__(self, other):
+        if isinstance(other, _SimpleParameterTypeBase):
             return self._value > other._value
         return self._value > other
-    def __ge__(self,other):
-        if isinstance(other,_SimpleParameterTypeBase):
+    def __ge__(self, other):
+        if isinstance(other, _SimpleParameterTypeBase):
             return self._value >= other._value
         return self._value >= other
 
@@ -98,14 +98,14 @@ class UsingBlock(_SimpleParameterTypeBase):
        then have a post process step which strips these out
     """
     def __init__(self,value, s='', loc=0, file=''):
-        super(UsingBlock,self).__init__(value)
+        super(UsingBlock, self).__init__(value)
         self.s = s
         self.loc = loc
         self.file = file
         self.isResolved = False
     @staticmethod
     def _isValid(value):
-        return isinstance(value,str)
+        return isinstance(value, str)
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return string(value)
@@ -193,7 +193,7 @@ class _Parameterizable(object):
         return result
 
     def __addParameter(self, name, value):
-        if not isinstance(value,_ParameterTypeBase):
+        if not isinstance(value, _ParameterTypeBase):
             self.__raiseBadSetAttr(name)
         if name in self.__dict__:
             message = "Duplicate insert of member " + name
@@ -204,14 +204,14 @@ class _Parameterizable(object):
         self.__parameterNames.append(name)
         self._isModified = True
 
-    def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
+    def __setParameters(self, parameters):
+        for name, value in parameters.iteritems():
             self.__addParameter(name, value)
 
-    def __setattr__(self,name,value):
+    def __setattr__(self, name, value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable
-        if self.isFrozen() and not (name in ["_Labelable__label","_isFrozen"] or name.startswith('_')): 
+        if self.isFrozen() and not (name in ["_Labelable__label", "_isFrozen"] or name.startswith('_')): 
             message = "Object already added to a process. It is read only now\n"
             message +=  "    %s = %s" %(name, value)
             message += "\nThe original parameters are:\n"
@@ -219,13 +219,13 @@ class _Parameterizable(object):
             raise ValueError(message)
         # underscored names bypass checking for _ParameterTypeBase
         if name[0]=='_':
-            super(_Parameterizable,self).__setattr__(name,value)
+            super(_Parameterizable, self).__setattr__(name, value)
         elif not name in self.__dict__:
             self.__addParameter(name, value)
             self._isModified = True
         else:
             # handle the case where users just replace with a value, a = 12, rather than a = cms.int32(12)
-            if isinstance(value,_ParameterTypeBase):
+            if isinstance(value, _ParameterTypeBase):
                 self.__dict__[name] = value
             else:
                 self.__dict__[name].setValue(value)
@@ -237,10 +237,10 @@ class _Parameterizable(object):
         self._isFrozen = True
         for name in self.parameterNames_():
             self.__dict__[name].setIsFrozen() 
-    def __delattr__(self,name):
+    def __delattr__(self, name):
         if self.isFrozen():
             raise ValueError("Object already added to a process. It is read only now")
-        super(_Parameterizable,self).__delattr__(name)
+        super(_Parameterizable, self).__delattr__(name)
         self.__parameterNames.remove(name)
     @staticmethod
     def __raiseBadSetAttr(name):
@@ -259,7 +259,7 @@ class _Parameterizable(object):
             for name in sortedNames:
                 param = self.__dict__[name]
                 # we don't want minuses in names
-                name2 = name.replace('-','_')
+                name2 = name.replace('-', '_')
                 options.indent()
                 #_UsingNodes don't get assigned variables
                 if name.startswith("using_"):
@@ -274,7 +274,7 @@ class _Parameterizable(object):
             longOthers += options.indentation()+"[\n"
             entriesInList = 0
             options.indent()
-            for n,v in others:
+            for n, v in others:
                 entriesInList +=1
                 if entriesInList > 200:
                     #need to start a new list
@@ -300,7 +300,7 @@ class _Parameterizable(object):
         for name in sortedNames:
             param = self.__dict__[name]
             # we don't want minuses in names
-            name2 = name.replace('-','_')
+            name2 = name.replace('-', '_')
             options.indent()
             #_UsingNodes don't get assigned variables
             if name.startswith("using_"):
@@ -316,7 +316,7 @@ class _Parameterizable(object):
         return self.dumpPython()
     def insertContentsInto(self, parameterSet):
         for name in self.parameterNames_():
-            param = getattr(self,name)
+            param = getattr(self, name)
             param.insertInto(parameterSet, name)
 
 
@@ -330,10 +330,10 @@ class _TypedParameterizable(_Parameterizable):
         #else:
         #    del args['type_']
         arg = tuple([x for x in arg if x != None])
-        super(_TypedParameterizable,self).__init__(*arg,**kargs)
+        super(_TypedParameterizable, self).__init__(*arg,**kargs)
         saveOrigin(self, 1) 
-    def _place(self,name,proc):
-        self._placeImpl(name,proc)
+    def _place(self, name, proc):
+        self._placeImpl(name, proc)
     def type_(self):
         """returns the type of the object, e.g. 'FooProducer'"""
         return self.__type
@@ -374,7 +374,7 @@ class _TypedParameterizable(_Parameterizable):
         return returnValue
 
     @staticmethod
-    def __findDefaultsFor(label,type):
+    def __findDefaultsFor(label, type):
         #This routine is no longer used, but I might revive it in the future
         import sys
         import glob
@@ -393,14 +393,14 @@ class _TypedParameterizable(_Parameterizable):
             mod = __import__(name)
             components = name.split('.')
             for comp in components[1:]:
-                mod = getattr(mod,comp)
-            if hasattr(mod,label):
-                default = getattr(mod,label)
-                if isinstance(default,_TypedParameterizable):
+                mod = getattr(mod, comp)
+            if hasattr(mod, label):
+                default = getattr(mod, label)
+                if isinstance(default, _TypedParameterizable):
                     if(default.type_() == type):
                         params = dict()
                         for name in default.parameterNames_():
-                            params[name] = getattr(default,name)
+                            params[name] = getattr(default, name)
                         return params
         return None
     
@@ -420,7 +420,7 @@ class _TypedParameterizable(_Parameterizable):
         if nparam == 0:
             result += ")\n"
         else:
-            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
+            result += ",\n"+_Parameterizable.dumpPython(self, options)+options.indentation() + ")\n"
         return result
 
     def dumpPythonAttributes(self, myname, options):
@@ -453,7 +453,7 @@ class _Labelable(object):
         return self.__label
     def hasLabel_(self):
         return hasattr(self, "_Labelable__label") and self.__label is not None
-    def setLabel(self,label):
+    def setLabel(self, label):
         if self.hasLabel_() :
             if self.label_() != label and label is not None :
                 msg100 = "Attempting to change the label of a Labelable object, possibly an attribute of the Process\n"
@@ -483,9 +483,9 @@ class _Labelable(object):
         return str(self.__label)
     def dumpSequencePython(self, options=PrintOptions()):
         return 'process.'+str(self.__label)
-    def _findDependencies(self,knownDeps,presentDeps):
+    def _findDependencies(self, knownDeps, presentDeps):
         #print 'in labelled'
-        myDeps=knownDeps.get(self.label_(),None)
+        myDeps=knownDeps.get(self.label_(), None)
         if myDeps!=None:
             if presentDeps != myDeps:
                 raise RuntimeError("the module "+self.label_()+" has two dependencies \n"
@@ -505,21 +505,21 @@ class _Unlabelable(object):
 class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
     def __init__(self,*arg,**args):        
-        super(_ValidatingListBase,self).__init__(arg)
+        super(_ValidatingListBase, self).__init__(arg)
         if 0 != len(args):
             raise SyntaxError("named arguments ("+','.join([x for x in args])+") passsed to "+str(type(self)))
         if not self._isValid(iter(self)):
             raise TypeError("wrong types ("+','.join([str(type(value)) for value in iter(self)])+
                             ") added to "+str(type(self)))
-    def __setitem__(self,key,value):
-        if isinstance(key,slice):
+    def __setitem__(self, key, value):
+        if isinstance(key, slice):
             if not self._isValid(value):
                 raise TypeError("wrong type being inserted into this container "+self._labelIfAny())
         else:
             if not self._itemIsValid(value):
                 raise TypeError("can not insert the type "+str(type(value))+" in container "+self._labelIfAny())
-        super(_ValidatingListBase,self).__setitem__(key,value)
-    def _isValid(self,seq):
+        super(_ValidatingListBase, self).__setitem__(key, value)
+    def _isValid(self, seq):
         # see if strings get reinterpreted as lists
         if isinstance(seq, str):
             return False
@@ -527,43 +527,43 @@ class _ValidatingListBase(list):
             if not self._itemIsValid(item):
                 return False
         return True
-    def append(self,x):
+    def append(self, x):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being appended to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).append(x)
-    def extend(self,x):
+        super(_ValidatingListBase, self).append(x)
+    def extend(self, x):
         if not self._isValid(x):
             raise TypeError("wrong type being extended to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).extend(x)
-    def __add__(self,rhs):
+        super(_ValidatingListBase, self).extend(x)
+    def __add__(self, rhs):
         if not self._isValid(rhs):
             raise TypeError("wrong type being added to container "+self._labelIfAny())
         import copy
         value = copy.copy(self)
         value.extend(rhs)
         return value
-    def insert(self,i,x):
+    def insert(self, i, x):
         if not self._itemIsValid(x):
             raise TypeError("wrong type being inserted to container "+self._labelIfAny())
-        super(_ValidatingListBase,self).insert(i,x)
+        super(_ValidatingListBase, self).insert(i, x)
     def _labelIfAny(self):
         result = type(self).__name__
         if hasattr(self, '__label'):
             result += ' ' + self.__label
         return result
 
-class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
+class _ValidatingParameterListBase(_ValidatingListBase, _ParameterTypeBase):
     def __init__(self,*arg,**args):        
         _ParameterTypeBase.__init__(self)
-        if len (arg) == 1 and not isinstance(arg[0],str):
+        if len (arg) == 1 and not isinstance(arg[0], str):
             try:
                 arg = iter(arg[0])
             except TypeError:
                 pass
-        super(_ValidatingParameterListBase,self).__init__(*arg,**args)
+        super(_ValidatingParameterListBase, self).__init__(*arg,**args)
     def value(self):
         return list(self)
-    def setValue(self,v):
+    def setValue(self, v):
         self[:] = []
         self.extend(v)
         self._isModified=True
@@ -580,9 +580,9 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
             options.unindent()
         config += options.indentation()+'}\n'
         return config
-    def configValueForItem(self,item, options):
+    def configValueForItem(self, item, options):
         return str(item)
-    def pythonValueForItem(self,item, options):
+    def pythonValueForItem(self, item, options):
         return self.configValueForItem(item, options)
     def __repr__(self):
         return self.dumpPython()
@@ -604,7 +604,7 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
                 result += ', '
                 if i % nPerLine == 0:
                     result += '\n'+options.indentation()
-            result += self.pythonValueForItem(v,options)
+            result += self.pythonValueForItem(v, options)
         if n>nPerLine:
             options.unindent()
             result += '\n'+options.indentation()
@@ -613,7 +613,7 @@ class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
         result += ')'
         return result            
     @staticmethod
-    def _itemsFromStrings(strings,converter):
+    def _itemsFromStrings(strings, converter):
         return (converter(x).value() for x in strings)
 
 def saveOrigin(obj, level):
@@ -628,24 +628,24 @@ def saveOrigin(obj, level):
 def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
     if len(newParams):
         #need to treat items both in params and myparams specially
-        for key,value in newParams.iteritems():
+        for key, value in newParams.iteritems():
             if key in params:
                 if value is None:
                     del params[key]
                 elif isinstance(value, dict):
-                    if isinstance(params[key],_Parameterizable):
+                    if isinstance(params[key], _Parameterizable):
                         pset = params[key]
                         p =pset.parameters_()
                         oldkeys = set(p.keys())
                         _modifyParametersFromDict(p,
-                                                  value,errorRaiser,
-                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
-                        for k,v in p.iteritems():
-                            setattr(pset,k,v)
+                                                  value, errorRaiser,
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth, key))
+                        for k, v in p.iteritems():
+                            setattr(pset, k, v)
                             oldkeys.discard(k)
                         for k in oldkeys:
-                            delattr(pset,k)
-                    elif isinstance(params[key],_ValidatingParameterListBase):
+                            delattr(pset, k)
+                    elif isinstance(params[key], _ValidatingParameterListBase):
                         if any(type(k) != int for k in value.keys()):
                             raise TypeError("Attempted to change a list using a dict whose keys are not integers")
                         plist = params[key]
@@ -653,18 +653,18 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                             raise IndexError("Attempted to set an index which is not in the list")
                         p = dict(enumerate(plist))
                         _modifyParametersFromDict(p,
-                                                  value,errorRaiser,
-                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
-                        for k,v in p.iteritems():
+                                                  value, errorRaiser,
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth, key))
+                        for k, v in p.iteritems():
                             plist[k] = v
                     else:
                         raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
-                elif isinstance(value,_ParameterTypeBase) or (type(key) == int):
+                elif isinstance(value, _ParameterTypeBase) or (type(key) == int):
                     params[key] = value
                 else:
                     params[key].setValue(value)
             else:
-                if isinstance(value,_ParameterTypeBase):
+                if isinstance(value, _ParameterTypeBase):
                     params[key]=value
                 else:
                     errorRaiser(key)
@@ -674,49 +674,49 @@ if __name__ == "__main__":
 
     import unittest
     class TestList(_ValidatingParameterListBase):
-        def _itemIsValid(self,item):
+        def _itemIsValid(self, item):
             return True
     class testMixins(unittest.TestCase):
         def testListConstruction(self):
             t = TestList(1)
-            self.assertEqual(t,[1])
+            self.assertEqual(t, [1])
             t = TestList((1,))
-            self.assertEqual(t,[1])
+            self.assertEqual(t, [1])
             t = TestList("one")
-            self.assertEqual(t,["one"])
+            self.assertEqual(t, ["one"])
             t = TestList( [1,])
-            self.assertEqual(t,[1])
+            self.assertEqual(t, [1])
             t = TestList( (x for x in [1]) )
-            self.assertEqual(t,[1])
+            self.assertEqual(t, [1])
 
-            t = TestList(1,2)
-            self.assertEqual(t,[1,2])
-            t = TestList((1,2))
-            self.assertEqual(t,[1,2])
-            t = TestList("one","two")
-            self.assertEqual(t,["one","two"])
-            t = TestList(("one","two"))
-            self.assertEqual(t,["one","two"])
-            t = TestList( [1,2])
-            self.assertEqual(t,[1,2])
-            t = TestList( (x for x in [1,2]) )
-            self.assertEqual(t,[1,2])
-            t = TestList( iter((1,2)) )
-            self.assertEqual(t,[1,2])
+            t = TestList(1, 2)
+            self.assertEqual(t, [1, 2])
+            t = TestList((1, 2))
+            self.assertEqual(t, [1, 2])
+            t = TestList("one", "two")
+            self.assertEqual(t, ["one", "two"])
+            t = TestList(("one", "two"))
+            self.assertEqual(t, ["one", "two"])
+            t = TestList( [1, 2])
+            self.assertEqual(t, [1, 2])
+            t = TestList( (x for x in [1, 2]) )
+            self.assertEqual(t, [1, 2])
+            t = TestList( iter((1, 2)) )
+            self.assertEqual(t, [1, 2])
             
             
         def testLargeList(self):
             #lists larger than 255 entries can not be initialized
             #using the constructor
-            args = [i for i in xrange(0,300)]
+            args = [i for i in xrange(0, 300)]
             
             t = TestList(*args)
             pdump= t.dumpPython()
             class cms(object):
                 def __init__(self):
                     self.TestList = TestList
-            pythonized = eval( pdump, globals(),{'cms':cms()} )
-            self.assertEqual(t,pythonized)
+            pythonized = eval( pdump, globals(), {'cms':cms()} )
+            self.assertEqual(t, pythonized)
         def testUsingBlock(self):
             a = UsingBlock("a")
             self.assert_(isinstance(a, _ParameterTypeBase))
@@ -724,19 +724,19 @@ if __name__ == "__main__":
             class __Test(_TypedParameterizable):
                 pass
             class __TestType(_SimpleParameterTypeBase):
-                def _isValid(self,value):
+                def _isValid(self, value):
                     return True
-            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
+            a = __Test("MyType", t=__TestType(1), u=__TestType(2))
             b = a.copy()
-            self.assertEqual(b.t.value(),1)
-            self.assertEqual(b.u.value(),2)
+            self.assertEqual(b.t.value(), 1)
+            self.assertEqual(b.u.value(), 2)
         def testClone(self):
             class __Test(_TypedParameterizable):
                 pass
             class __TestType(_SimpleParameterTypeBase):
-                def _isValid(self,value):
+                def _isValid(self, value):
                     return True
-            class __PSet(_ParameterTypeBase,_Parameterizable):
+            class __PSet(_ParameterTypeBase, _Parameterizable):
                 def __init__(self,*arg,**args):
                     #need to call the inits separately
                     _ParameterTypeBase.__init__(self)
@@ -755,42 +755,42 @@ if __name__ == "__main__":
                                  c = dict(gamma = 8),
                                  d = __TestType(9)))
             c = a.clone(x = dict(a=None, c=None))
-            self.assertEqual(a.t.value(),1)
-            self.assertEqual(a.u.value(),2)
-            self.assertEqual(b.t.value(),3)
-            self.assertEqual(b.u.value(),2)
-            self.assertEqual(b.v.value(),4)
-            self.assertEqual(b.x.a.value(),7)
-            self.assertEqual(b.x.b.value(),6)
-            self.assertEqual(b.x.c.gamma.value(),8)
-            self.assertEqual(b.x.d.value(),9)
-            self.assertEqual(hasattr(b,"w"), False)
-            self.assertEqual(hasattr(c.x,"a"), False)
-            self.assertEqual(hasattr(c.x,"c"), False)
+            self.assertEqual(a.t.value(), 1)
+            self.assertEqual(a.u.value(), 2)
+            self.assertEqual(b.t.value(), 3)
+            self.assertEqual(b.u.value(), 2)
+            self.assertEqual(b.v.value(), 4)
+            self.assertEqual(b.x.a.value(), 7)
+            self.assertEqual(b.x.b.value(), 6)
+            self.assertEqual(b.x.c.gamma.value(), 8)
+            self.assertEqual(b.x.d.value(), 9)
+            self.assertEqual(hasattr(b, "w"), False)
+            self.assertEqual(hasattr(c.x, "a"), False)
+            self.assertEqual(hasattr(c.x, "c"), False)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):
-                def _isValid(self,value):
+                def _isValid(self, value):
                     return True
             a = __TestType(1)
-            self.assertEqual(a.isModified(),False)
+            self.assertEqual(a.isModified(), False)
             a.setValue(1)
-            self.assertEqual(a.isModified(),False)
+            self.assertEqual(a.isModified(), False)
             a.setValue(2)
-            self.assertEqual(a.isModified(),True)
+            self.assertEqual(a.isModified(), True)
             a.resetModified()
-            self.assertEqual(a.isModified(),False)
+            self.assertEqual(a.isModified(), False)
         def testLargeParameterizable(self):
             class tLPTest(_TypedParameterizable):
                 pass
             class tLPTestType(_SimpleParameterTypeBase):
-                def _isValid(self,value):
+                def _isValid(self, value):
                     return True
             class __DummyModule(object):
                 def __init__(self):
                     self.tLPTest = tLPTest
                     self.tLPTestType = tLPTestType
-            p = tLPTest("MyType",** dict( [ ("a"+str(x), tLPTestType(x)) for x in xrange(0,300) ] ) )
+            p = tLPTest("MyType",** dict( [ ("a"+str(x), tLPTestType(x)) for x in xrange(0, 300) ] ) )
             #check they are the same
-            self.assertEqual(p.dumpPython(), eval(p.dumpPython(),{"cms": __DummyModule()}).dumpPython())
+            self.assertEqual(p.dumpPython(), eval(p.dumpPython(), {"cms": __DummyModule()}).dumpPython())
     unittest.main()

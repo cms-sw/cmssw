@@ -35,15 +35,15 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 
 
 mugenfilter = cms.EDFilter("MCSmartSingleParticleFilter",
-                           MinPt = cms.untracked.vdouble(15.,15.),
-                           MinEta = cms.untracked.vdouble(-2.5,-2.5),
-                           MaxEta = cms.untracked.vdouble(2.5,2.5),
-                           ParticleID = cms.untracked.vint32(13,-13),
-                           Status = cms.untracked.vint32(1,1),
+                           MinPt = cms.untracked.vdouble(15., 15.),
+                           MinEta = cms.untracked.vdouble(-2.5, -2.5),
+                           MaxEta = cms.untracked.vdouble(2.5, 2.5),
+                           ParticleID = cms.untracked.vint32(13, -13),
+                           Status = cms.untracked.vint32(1, 1),
                            # Decay cuts are in mm
-                           MaxDecayRadius = cms.untracked.vdouble(2000.,2000.),
-                           MinDecayZ = cms.untracked.vdouble(-4000.,-4000.),
-                           MaxDecayZ = cms.untracked.vdouble(4000.,4000.)
+                           MaxDecayRadius = cms.untracked.vdouble(2000., 2000.),
+                           MinDecayZ = cms.untracked.vdouble(-4000., -4000.),
+                           MaxDecayZ = cms.untracked.vdouble(4000., 4000.)
 )
 
 

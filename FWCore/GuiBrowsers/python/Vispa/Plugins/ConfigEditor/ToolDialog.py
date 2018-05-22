@@ -5,19 +5,19 @@ import os.path
 import imp
 import inspect
 
-from PyQt4.QtCore import QCoreApplication,Qt,SIGNAL
-from PyQt4.QtGui import QDialog,QListWidget,QVBoxLayout,QHBoxLayout,QToolButton,QPushButton,QSplitter,QFileDialog,QMessageBox
+from PyQt4.QtCore import QCoreApplication, Qt, SIGNAL
+from PyQt4.QtGui import QDialog, QListWidget, QVBoxLayout, QHBoxLayout, QToolButton, QPushButton, QSplitter, QFileDialog, QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Views.PropertyView import PropertyView
 from Vispa.Main.Exceptions import exception_traceback
-from .ToolDataAccessor import standardToolsDir,ConfigToolBase
+from .ToolDataAccessor import standardToolsDir, ConfigToolBase
 
 class ToolDialog(QDialog):
     def __init__(self,parent=None):
         logging.debug(__name__ +': __init__')
-        QDialog.__init__(self,parent)
-        self.resize(600,500)
+        QDialog.__init__(self, parent)
+        self.resize(600, 500)
         self._selectedTool=None
         self._processCopy=None
         self._configDataAccessor=None
@@ -57,14 +57,14 @@ class ToolDialog(QDialog):
     def updateToolList(self):
         self._toolList.clear()
         # import all tools and register them in toolsDict
-        toolsFiles = [os.path.join(self._toolsDir,f) for f in os.listdir(self._toolsDir) if f.endswith(".py") and not f.startswith("_")]
+        toolsFiles = [os.path.join(self._toolsDir, f) for f in os.listdir(self._toolsDir) if f.endswith(".py") and not f.startswith("_")]
         self._toolsDict={}
         for toolsFile in toolsFiles:
             pythonModule = os.path.splitext(os.path.basename(toolsFile))[0]
             module=imp.load_source(pythonModule, toolsFile)
             for name in dir(module):
-                tool=getattr(module,name)
-                if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not self._toolDataAccessor.label(tool) in self._toolsDict.keys() and not tool==ConfigToolBase:
+                tool=getattr(module, name)
+                if inspect.isclass(tool) and issubclass(tool, ConfigToolBase) and not self._toolDataAccessor.label(tool) in self._toolsDict.keys() and not tool==ConfigToolBase:
                     self._toolsDict[self._toolDataAccessor.label(tool)]=tool
         # Show test tool
         #from FWCore.GuiBrowsers.editorTools import ChangeSource
@@ -90,7 +90,7 @@ class ToolDialog(QDialog):
         self._properties.setDataObject(self._selectedTool)
         self._properties.updateContent()
 
-    def setDataAccessor(self,accessor):
+    def setDataAccessor(self, accessor):
         self._properties.setDataAccessor(accessor)
         self._toolDataAccessor=accessor
         # save process copy to undo changes during the tool dialog
@@ -131,7 +131,7 @@ class ToolDialog(QDialog):
 
     def changedir(self):
         filename = QFileDialog.getExistingDirectory(
-            self,'Select a directory',self._toolsDir,QFileDialog.ShowDirsOnly)
+            self, 'Select a directory', self._toolsDir, QFileDialog.ShowDirsOnly)
         if not filename.isEmpty():
             self._toolsDir=str(filename)
             self.updateToolList()

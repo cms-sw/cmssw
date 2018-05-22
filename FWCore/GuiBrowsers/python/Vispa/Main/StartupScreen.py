@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 import logging
 
-from PyQt4.QtCore import SIGNAL,QRect,QSize,QPoint
-from PyQt4.QtGui import QToolButton,QIcon,QPixmap,QGridLayout,QLabel,QListWidget,QWidget
+from PyQt4.QtCore import SIGNAL, QRect, QSize, QPoint
+from PyQt4.QtGui import QToolButton, QIcon, QPixmap, QGridLayout, QLabel, QListWidget, QWidget
 from PyQt4.QtSvg import QSvgRenderer, QSvgWidget
 
 from Vispa.Gui.VispaWidget import VispaWidget
@@ -85,7 +85,7 @@ class StartupScreen(VispaWidget):
         self.connect(analysisDesignerButton, SIGNAL("clicked(bool)"), self.parent().openAnalysisFileSlot)
         bodyWidget.layout().addWidget(analysisDesignerButton, 0, 1)
         self._analysisDesignerRecentFilesList=QListWidget()
-        self._analysisDesignerRecentFilesList.setFixedSize(label.sizeHint().width()+analysisDesignerButton.sizeHint().width(),150)
+        self._analysisDesignerRecentFilesList.setFixedSize(label.sizeHint().width()+analysisDesignerButton.sizeHint().width(), 150)
         self.connect(self._analysisDesignerRecentFilesList, SIGNAL("doubleClicked(QModelIndex)"), self.parent().openAnalysisFileSlot)
         bodyWidget.layout().addWidget(self._analysisDesignerRecentFilesList, 1, 0, 1, 2)
         
@@ -109,7 +109,7 @@ class StartupScreen(VispaWidget):
         self.connect(analysisDesignerButton, SIGNAL("clicked(bool)"), self.parent().openPxlFileSlot)
         bodyWidget.layout().addWidget(analysisDesignerButton, 0, 1)
         self._pxlEditorRecentFilesList=QListWidget()
-        self._pxlEditorRecentFilesList.setFixedSize(label.sizeHint().width()+analysisDesignerButton.sizeHint().width(),150)
+        self._pxlEditorRecentFilesList.setFixedSize(label.sizeHint().width()+analysisDesignerButton.sizeHint().width(), 150)
         self.connect(self._pxlEditorRecentFilesList, SIGNAL("doubleClicked(QModelIndex)"), self.parent().openPxlFileSlot)
         bodyWidget.layout().addWidget(self._pxlEditorRecentFilesList, 1, 0, 1, 2)
         

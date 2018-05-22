@@ -74,4 +74,4 @@ process.SKIMStreamHighMETOutPath = cms.EndPath(process.SKIMStreamHighMET)
 process.SKIMStreamLogErrorOutPath = cms.EndPath(process.SKIMStreamLogError)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.pathlogerror,process.pfPath,process.tcPath,process.SKIMStreamHighMETOutPath,process.SKIMStreamLogErrorOutPath)
+process.schedule = cms.Schedule(process.pathlogerror, process.pfPath, process.tcPath, process.SKIMStreamHighMETOutPath, process.SKIMStreamLogErrorOutPath)

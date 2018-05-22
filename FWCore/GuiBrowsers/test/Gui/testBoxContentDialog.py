@@ -7,7 +7,7 @@ import logging
 logging.root.setLevel(logging.DEBUG)
 
 from PyQt4.QtCore import SIGNAL
-from PyQt4.QtGui import QApplication,QMainWindow
+from PyQt4.QtGui import QApplication, QMainWindow
 
 import Path
 from Vispa.Main.Directories import *
@@ -23,14 +23,14 @@ class BoxContentDialogTestCase(unittest.TestCase):
         self.window = QMainWindow()
         self.app.setActiveWindow(self.window)
         self._boxContentDialog=BoxContentDialog(self.window)
-        self._boxContentDialog.addButton("&label","str(object.label)")
+        self._boxContentDialog.addButton("&label", "str(object.label)")
         self.app.connect(self._boxContentDialog, SIGNAL("scriptChanged"), self.scriptChanged)
         self._boxContentDialog.onScreen()
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
         
-    def scriptChanged(self,script):
+    def scriptChanged(self, script):
         logging.debug(self.__class__.__name__ +': script changed '+str(script))
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__,"BoxContentDialog")
+    Profiling.analyze("unittest.main()", __file__, "BoxContentDialog")

@@ -7,30 +7,30 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.Configuration.customiseEarlyDeleteForSeeding import customiseEarlyDeleteForSeeding
 from CommonTools.ParticleFlow.Isolation.customiseEarlyDeleteForCandIsoDeposits import customiseEarlyDeleteForCandIsoDeposits
 
-def _hasInputTagModuleLabel(process, pset, moduleLabels,result):
+def _hasInputTagModuleLabel(process, pset, moduleLabels, result):
     for name in pset.parameterNames_():
-        value = getattr(pset,name)
+        value = getattr(pset, name)
         if isinstance(value, cms.PSet):
-            _hasInputTagModuleLabel(process, value, moduleLabels,result)
+            _hasInputTagModuleLabel(process, value, moduleLabels, result)
         elif isinstance(value, cms.VPSet):
             for ps in value:
-                _hasInputTagModuleLabel(process, ps, moduleLabels,result)
+                _hasInputTagModuleLabel(process, ps, moduleLabels, result)
         elif isinstance(value, cms.VInputTag):
             for t in value:
                 t2 = t
                 if not isinstance(t, cms.InputTag):
                     t2 = cms.InputTag(t2)
-                for i,moduleLabel in enumerate(moduleLabels):
+                for i, moduleLabel in enumerate(moduleLabels):
                     if result[i]: continue #no need
                     if t2.getModuleLabel() == moduleLabel:
                         result[i]=True
         elif isinstance(value, cms.InputTag):
-            for i,moduleLabel in enumerate(moduleLabels):
+            for i, moduleLabel in enumerate(moduleLabels):
                 if result[i]: continue #no need
                 if value.getModuleLabel() == moduleLabel:
                     result[i]=True
         elif isinstance(value, cms.string) and name == "refToPSet_":
-            _hasInputTagModuleLabel(process, getattr(process, value.value()), moduleLabels,result)
+            _hasInputTagModuleLabel(process, getattr(process, value.value()), moduleLabels, result)
 
 
 def customiseEarlyDelete(process):
@@ -55,7 +55,7 @@ def customiseEarlyDelete(process):
     # LogErrorHarvester should not wait for deleted items
     for prod in process.producers_().itervalues():
         if prod.type_() == "LogErrorHarvester":
-            if not hasattr(prod,'excludeModules'):
+            if not hasattr(prod, 'excludeModules'):
                 prod.excludeModules = cms.untracked.vstring()
             t = prod.excludeModules.value()
             t.extend([b.split('_')[1] for b in branchSet])
@@ -74,7 +74,7 @@ def customiseEarlyDelete(process):
             for producer in producers:
                 result.append(False)
 
-            _hasInputTagModuleLabel(process, module, producers,result)
+            _hasInputTagModuleLabel(process, module, producers, result)
             for i in range(len(result)):
                 if result[i]:
                     if hasattr(module, "mightGet"):
@@ -93,7 +93,7 @@ if __name__=="__main__":
             None
         def testHasInputTagModuleLabel(self):
             p = cms.Process("A")
-            p.pset = cms.PSet(a=cms.InputTag("a"),a2=cms.untracked.InputTag("a2"))
+            p.pset = cms.PSet(a=cms.InputTag("a"), a2=cms.untracked.InputTag("a2"))
             p.prod = cms.EDProducer("Producer",
                 foo = cms.InputTag("foo"),
                 foo2 = cms.InputTag("foo2", "instance"),
@@ -122,9 +122,9 @@ if __name__=="__main__":
                 ),
             )
 
-            result=[False,False,False,False,False,False,False,False,False,False,False,False,False,False]
-            _hasInputTagModuleLabel(p, p.prod, ["foo","foo2","foo3","bar","fred","wilma","a","foo4","bar2","bar3","fred2","wilma2","a2","joe"],result)
-            for i in range (0,13):
+            result=[False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+            _hasInputTagModuleLabel(p, p.prod, ["foo", "foo2", "foo3", "bar", "fred", "wilma", "a", "foo4", "bar2", "bar3", "fred2", "wilma2", "a2", "joe"], result)
+            for i in range (0, 13):
                 self.assert_(result[i])
             self.assert_(not result[13])
 

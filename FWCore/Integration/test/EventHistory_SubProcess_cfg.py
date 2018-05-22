@@ -137,7 +137,7 @@ process4.addSubProcess(cms.SubProcess(process5))
 
 process5.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-    SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
+    SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')
     ),
     fileName = cms.untracked.string('testEventHistory_5.root')
 )
@@ -148,7 +148,7 @@ process6 = cms.Process("SIXTH")
 
 process5.addSubProcess(cms.SubProcess(process6,
     SelectEvents = cms.untracked.PSet(
-       SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
+       SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')
     )
 ))
 
@@ -183,7 +183,7 @@ process6.historytest = cms.EDAnalyzer("HistoryAnalyzer",
         EndPathPositions = cms.vint32(),
         EndPaths =  cms.vstring(),
         InProcessHistory = cms.bool(False),
-        SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')        
+        SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')        
       )
     ),
     # check the deletion modules from the top level
@@ -242,14 +242,14 @@ process6.dummyout = cms.OutputModule("PoolOutputModule",
 
 process6.out = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
+      SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')
     ),
     fileName = cms.untracked.string('testEventHistory_6.root')
 )
 
 process6.out2 = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
-      SelectEvents = cms.vstring('f55:SECOND','f75:SECOND')
+      SelectEvents = cms.vstring('f55:SECOND', 'f75:SECOND')
     ),
     fileName = cms.untracked.string('testEventHistory_62.root')
 )

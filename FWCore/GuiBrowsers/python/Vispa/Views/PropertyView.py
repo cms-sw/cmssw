@@ -2,8 +2,8 @@ import logging
 import sys
 import os.path
 
-from PyQt4.QtCore import Qt,SIGNAL,QCoreApplication,QSize
-from PyQt4.QtGui import QTableWidget,QTableWidgetItem,QCheckBox,QWidget,QSpinBox,QHBoxLayout,QVBoxLayout,QLineEdit,QSizePolicy,QTextEdit,QTextOption,QFrame,QToolButton,QPalette,QComboBox, QFileDialog,QTextCursor,QInputDialog,QPushButton,QGridLayout,QIcon,QHeaderView,QMessageBox
+from PyQt4.QtCore import Qt, SIGNAL, QCoreApplication, QSize
+from PyQt4.QtGui import QTableWidget, QTableWidgetItem, QCheckBox, QWidget, QSpinBox, QHBoxLayout, QVBoxLayout, QLineEdit, QSizePolicy, QTextEdit, QTextOption, QFrame, QToolButton, QPalette, QComboBox, QFileDialog, QTextCursor, QInputDialog, QPushButton, QGridLayout, QIcon, QHeaderView, QMessageBox
 
 from Vispa.Main.Application import Application
 from Vispa.Main.AbstractTab import AbstractTab
@@ -13,7 +13,7 @@ from Vispa.Share.ThreadChain import ThreadChain
 from Vispa.Gui.TextDialog import TextDialog
 
 class ClosableProperty(QWidget):
-    def __init__(self,property):
+    def __init__(self, property):
         QWidget.__init__(self)
         self.setContentsMargins(0, 0, 0, 0)
         self.setLayout(QHBoxLayout())
@@ -29,14 +29,14 @@ class ClosableProperty(QWidget):
         return self._property
     def closeButton(self):
         return self._closeButton
-    def enterEvent(self,event):
+    def enterEvent(self, event):
         self._closeButton.show()
-    def leaveEvent(self,event):
+    def leaveEvent(self, event):
         self._closeButton.hide()
 
 class ComboBoxReturn(QComboBox):
-    def keyPressEvent(self,event):
-        QComboBox.keyPressEvent(self,event)
+    def keyPressEvent(self, event):
+        QComboBox.keyPressEvent(self, event)
         if event.key()==Qt.Key_Return:
             self.emit(SIGNAL("returnPressed()"))
 
@@ -91,18 +91,18 @@ class PropertyView(QTableWidget, AbstractView):
         """
         widgets=[]
         for i in range(self.rowCount()):
-            widget=self.cellWidget(i,1)
-            if isinstance(widget,Property):
-                widgets+=[(widget,i)]
-            elif hasattr(widget,"closableProperty"):
-                widgets+=[(widget.closableProperty(),i)]
+            widget=self.cellWidget(i, 1)
+            if isinstance(widget, Property):
+                widgets+=[(widget, i)]
+            elif hasattr(widget, "closableProperty"):
+                widgets+=[(widget.closableProperty(), i)]
         return widgets
         
-    def updatePropertyHeight(self,property):
+    def updatePropertyHeight(self, property):
         """ Update the height of the column that holds a certain property.
         """
         #logging.debug(self.__class__.__name__ + ": updatePropertyHeight()")
-        for widget,i in self.propertyWidgets():
+        for widget, i in self.propertyWidgets():
             if widget==property:
                 self.verticalHeader().resizeSection(i, property.properyHeight())
                 return
@@ -151,14 +151,14 @@ class PropertyView(QTableWidget, AbstractView):
         """
         #logging.debug('PropertyView: setReadOnly()')
         self._readOnly = readOnly
-        for property,i in self.propertyWidgets():
+        for property, i in self.propertyWidgets():
             if property:
                 property.setReadOnly(self._readOnly)
     
     def readOnly(self):
         return self._readOnly
 
-    def setShowAddDeleteButton(self,show):
+    def setShowAddDeleteButton(self, show):
         self._showAddDeleteButtonFlag=show
     
     def showAddDeleteButton(self):
@@ -177,7 +177,7 @@ class PropertyView(QTableWidget, AbstractView):
         if self.updateIni:
             self.writeIni()
 
-    def sectionResized(self,index,old,new):
+    def sectionResized(self, index, old, new):
         space = self.width() - 4
         if self.verticalScrollBar().isVisible():
             space -= self.verticalScrollBar().width()
@@ -209,7 +209,7 @@ class PropertyView(QTableWidget, AbstractView):
         widget.layout().setSpacing(0)
         widget.layout().setContentsMargins(0, 0, 0, 0)
         typelist=ComboBoxReturn()
-        types=["String","Boolean","Integer","Double","File","FileVector"]
+        types=["String", "Boolean", "Integer", "Double", "File", "FileVector"]
         for type in types:
             typelist.addItem(type)
         widget.layout().addWidget(typelist)
@@ -250,10 +250,10 @@ class PropertyView(QTableWidget, AbstractView):
                 propertyWidget=PropertyView.propertyWidgetFromProperty(property, self._currentCategoryName)
                 if propertyWidget:
                     self.append(propertyWidget)
-                if isinstance(propertyWidget,(FileProperty,FileVectorProperty)):
+                if isinstance(propertyWidget, (FileProperty, FileVectorProperty)):
                     propertyWidget.useRelativePaths(self._relativePath)
-                if isinstance(propertyWidget,QCheckBox):
-                    propertyWidget.setChecked(property[2],False)      # strange, QCheckBox forgets its state on append in Qt 4.4.4
+                if isinstance(propertyWidget, QCheckBox):
+                    propertyWidget.setChecked(property[2], False)      # strange, QCheckBox forgets its state on append in Qt 4.4.4
         if not self._readOnly and self._showAddDeleteButtonFlag:
             self.appendAddRow()
         self.resizeEvent(None)
@@ -306,12 +306,12 @@ class PropertyView(QTableWidget, AbstractView):
             newvalue = property.value()
             oldValue = self.dataAccessor().propertyValue(self.dataObject(), property.name())
             if newvalue != oldValue:
-                if isinstance(newvalue,ValueError):
+                if isinstance(newvalue, ValueError):
                     result=str(newvalue)
                 else:
                     result=self.dataAccessor().setProperty(self.dataObject(), property.name(), newvalue, property.categoryName())
                 if result==True:
-                    self.emit(SIGNAL('valueChanged'),property.name(), newvalue, oldValue, property.categoryName())
+                    self.emit(SIGNAL('valueChanged'), property.name(), newvalue, oldValue, property.categoryName())
                 else:
                     print "valueChanged() result = ", result, type(result)
                     property.setToolTip(result)
@@ -328,10 +328,10 @@ class PropertyView(QTableWidget, AbstractView):
         name=property.name()
         if self.dataAccessor():
             if self.dataAccessor().removeProperty(self.dataObject(), property.name()):
-                for p,i in self.propertyWidgets():
+                for p, i in self.propertyWidgets():
                     if p==property:
                         self.removeRow(i)
-                self.emit(SIGNAL('propertyDeleted'),name)
+                self.emit(SIGNAL('propertyDeleted'), name)
         
     def addProperty(self, bool=False):
         """ This function adds a property.
@@ -340,9 +340,9 @@ class PropertyView(QTableWidget, AbstractView):
         """
         type=str(self.sender()._typelist.currentText())
         name=str(self.sender()._lineedit.text().toAscii())
-        if type in ["String","File"]:
+        if type in ["String", "File"]:
             value=""
-        elif type in ["Integer","Double"]:
+        elif type in ["Integer", "Double"]:
             value=0
         elif type in ["FileVector"]:
             value=()
@@ -353,14 +353,14 @@ class PropertyView(QTableWidget, AbstractView):
             return
         if self.dataAccessor():
             if self.dataAccessor().addProperty(self.dataObject(), name, value, type):
-                property=self.propertyWidgetFromProperty((type,name,value,None,False,True), self._currentCategoryName)
+                property=self.propertyWidgetFromProperty((type, name, value, None, False, True), self._currentCategoryName)
                 if property:
                     self.append(property)
-                if isinstance(property,(FileProperty,FileVectorProperty)):
+                if isinstance(property, (FileProperty, FileVectorProperty)):
                     property.useRelativePaths(self._relativePath)
                 self.sender()._lineedit.setText("")
                 property.setFocus()
-                self.emit(SIGNAL('propertyAdded'),property.name())
+                self.emit(SIGNAL('propertyAdded'), property.name())
         
     def itemDoubleClickedSlot(self, item):
         """ Slot for itemClicked() signal.
@@ -371,7 +371,7 @@ class PropertyView(QTableWidget, AbstractView):
         if item.property():
             item.property().labelDoubleClicked()
 
-    def useRelativePaths(self,path):
+    def useRelativePaths(self, path):
         self._relativePath=path
 
 class LabelItem(QTableWidgetItem):
@@ -427,7 +427,7 @@ class Property(object):
     def categoryName(self):
         return self._categoryName
     
-    def setDeletable(self,deletable):
+    def setDeletable(self, deletable):
         self._deletable=deletable
     
     def deletable(self):
@@ -492,7 +492,7 @@ class Property(object):
         """
         pass
     
-    def setHighlighted(self,highlight):
+    def setHighlighted(self, highlight):
         """ Highlight the property, e.g. change color.
         """
         pass
@@ -566,8 +566,8 @@ class DropDownProperty(Property, QComboBox):
         return self._values[self.currentIndex()]
 
 class TextEdit(QTextEdit):
-    def focusOutEvent(self,event):
-        QTextEdit.focusOutEvent(self,event)
+    def focusOutEvent(self, event):
+        QTextEdit.focusOutEvent(self, event)
         self.emit(SIGNAL("editingFinished()"))
         
 class TextEditWithButtonProperty(Property, QWidget):
@@ -625,11 +625,11 @@ class TextEditWithButtonProperty(Property, QWidget):
         #if not self._multiline:
         #    self._textEdit.setCursorPosition(self._textEdit.displayText().length())
     
-    def setToolTip(self,text):
+    def setToolTip(self, text):
         self._lineEdit.setToolTip(text)
         self._textEdit.setToolTip(text)
 
-    def setMultiline(self,multi):
+    def setMultiline(self, multi):
         """ Switch between single and multi line mode.
         """
         self.setValue(self.strValue())
@@ -772,27 +772,27 @@ class TextEditWithButtonProperty(Property, QWidget):
         """ Update tooltip and height when text is changed.
         """
         if self._multiline:
-            self.emit(SIGNAL('updatePropertyHeight'),self)
+            self.emit(SIGNAL('updatePropertyHeight'), self)
         self.setToolTip(self.strValue())
         # set property only if button is not being pressed
         if not self.button() or not self.button().isDown():
             Property.valueChanged(self)
         
-    def setHighlighted(self,highlight):
+    def setHighlighted(self, highlight):
         """ Highlight the property by changing the background color of the textfield.
         """
         p=QPalette()
         if highlight:
-            p.setColor(QPalette.Active, QPalette.ColorRole(9),Qt.red)
+            p.setColor(QPalette.Active, QPalette.ColorRole(9), Qt.red)
         else:
-            p.setColor(QPalette.Active, QPalette.ColorRole(9),Qt.white)
+            p.setColor(QPalette.Active, QPalette.ColorRole(9), Qt.white)
         self._lineEdit.setPalette(p)
         self._textEdit.viewport().setPalette(p)
     
-    def keyPressEvent(self,event):
+    def keyPressEvent(self, event):
         """ Switch back to the original value on ESC.
         """
-        QWidget.keyPressEvent(self,event)
+        QWidget.keyPressEvent(self, event)
         if event.key()==Qt.Key_Escape:
             self.setValue(self._originalValue)
 
@@ -812,17 +812,17 @@ class StringProperty(TextEditWithButtonProperty):
         """ Constructor """
         TextEditWithButtonProperty.__init__(self, name, value, categoryName, (multiline or str(value).count("\n")>0))
 
-    def setMultiline(self,multiline):
-        TextEditWithButtonProperty.setMultiline(self,multiline)
+    def setMultiline(self, multiline):
+        TextEditWithButtonProperty.setMultiline(self, multiline)
         icon = QIcon(":/resources/editor.svg")
         dummyicon = QIcon()
         self._button.setIcon(icon)
-        self._button.setIconSize(QSize(15,15))
+        self._button.setIconSize(QSize(15, 15))
 
     def buttonClicked(self):
         """ Switch to multiline mode if button is clicked.
         """ 
-        dialog=TextDialog(self,"Edit property...",self.strValue())
+        dialog=TextDialog(self, "Edit property...", self.strValue())
         if dialog.exec_():
             if not self._multiline:
                 self.setMultiline(True)
@@ -831,7 +831,7 @@ class StringProperty(TextEditWithButtonProperty):
             self.valueChanged()
 
         
-class IntegerProperty(Property,QWidget):
+class IntegerProperty(Property, QWidget):
     """ Property which hold editable integer numbers.
     
     A Spinbox is provided when the property is editable.
@@ -882,7 +882,7 @@ class IntegerProperty(Property,QWidget):
         """
         return self._spinbox.value()
     
-    def setValue(self,value):
+    def setValue(self, value):
         self.disconnect(self._spinbox, SIGNAL('valueChanged(int)'), self.valueChanged)
         self._spinbox.setValue(value % self.maxint)
         self.connect(self._spinbox, SIGNAL('valueChanged(int)'), self.valueChanged)
@@ -942,7 +942,7 @@ class FileProperty(TextEditWithButtonProperty):
         """ Shows the file selection dialog. """
         if self.value()!="":
             if self._relativePath:
-                dir=os.path.join(self._relativePath,self.value())
+                dir=os.path.join(self._relativePath, self.value())
             else:
                 dir=self.value()
         else:
@@ -968,7 +968,7 @@ class FileProperty(TextEditWithButtonProperty):
         if isinstance(self.propertyView().parent(), AbstractTab):
             self.propertyView().parent().mainWindow().application().doubleClickOnFile(self.value())
 
-    def useRelativePaths(self,path):
+    def useRelativePaths(self, path):
         self._relativePath=path
 
 
@@ -1016,5 +1016,5 @@ class FileVectorProperty(TextEditWithButtonProperty):
     def isBusy(self):
         return self._updatingFlag>0
 
-    def useRelativePaths(self,path):
+    def useRelativePaths(self, path):
         self._relativePath=path

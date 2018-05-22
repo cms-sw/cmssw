@@ -53,7 +53,7 @@ parser.add_option("--filetype",
                   help="The type of the infile (EDM, LHE or MCDB).",
                   default=defaultOptions.filetype,
                   dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB','DQM','DQMDAQ']
+                  choices=['EDM', 'DAT', 'LHE', 'MDCB', 'DQM', 'DQMDAQ']
                   )
 
 parser.add_option("-n", "--number",
@@ -343,7 +343,7 @@ expertSettings.add_option("--restoreRNDSeeds",
                           help="restore the random number engine state",
                           default=False,
                           )
-threeValued.append( ('--restoreRNDSeeds',True) )
+threeValued.append( ('--restoreRNDSeeds', True) )
 
 
 expertSettings.add_option("--era",

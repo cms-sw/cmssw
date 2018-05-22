@@ -781,9 +781,9 @@ def SwapKeepAndDrop(l):
     r=[]
     for item in l:
         if 'keep ' in item:
-            r.append(item.replace('keep ','drop '))
+            r.append(item.replace('keep ', 'drop '))
         elif 'drop ' in item:
-            r.append(item.replace('drop ','keep '))
+            r.append(item.replace('drop ', 'keep '))
     return r
 
 RESIMEventContent = cms.PSet(
@@ -830,7 +830,7 @@ MINIGENEventContent= cms.PSet(
     compressionLevel=cms.untracked.int32(4)
 )
 
-from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC,MicroEventContentGEN
+from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent, MicroEventContentMC, MicroEventContentGEN
 
 MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
 MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
@@ -890,14 +890,14 @@ RAWAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
 
 # in fastsim, normal digis are edaliases of simdigis
 # drop the simdigis to avoid complaints from the outputmodule related to duplicated branches
-for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventContent,AODSIMEventContent,RAWAODSIMEventContent]:
+for _entry in [FEVTDEBUGHLTEventContent, FEVTDEBUGEventContent, RECOSIMEventContent, AODSIMEventContent, RAWAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropSimDigis)
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
+for _entry in [FEVTDEBUGEventContent, FEVTDEBUGHLTEventContent, FEVTEventContent]:
     phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
         'keep *_TTClustersFromPhase2TrackerDigis_*_*',
@@ -907,7 +907,7 @@ for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
+for _entry in [FEVTDEBUGEventContent, FEVTDEBUGHLTEventContent, FEVTEventContent]:
     run2_GEM_2017.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
     run3_GEM.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
     phase2_muon.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
@@ -918,8 +918,8 @@ from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_la
 def _addOutputCommands(mod, newCommands):
     phase2_timing_layer.toModify(mod, outputCommands = mod.outputCommands + newCommands.outputCommands)
 
-_addOutputCommands(FEVTDEBUGEventContent,RecoLocalFastTimeFEVT)
-_addOutputCommands(FEVTDEBUGHLTEventContent,RecoLocalFastTimeFEVT)
-_addOutputCommands(FEVTEventContent,RecoLocalFastTimeFEVT)
-_addOutputCommands(RECOSIMEventContent,RecoLocalFastTimeRECO)
-_addOutputCommands(AODSIMEventContent,RecoLocalFastTimeAOD)
+_addOutputCommands(FEVTDEBUGEventContent, RecoLocalFastTimeFEVT)
+_addOutputCommands(FEVTDEBUGHLTEventContent, RecoLocalFastTimeFEVT)
+_addOutputCommands(FEVTEventContent, RecoLocalFastTimeFEVT)
+_addOutputCommands(RECOSIMEventContent, RecoLocalFastTimeRECO)
+_addOutputCommands(AODSIMEventContent, RecoLocalFastTimeAOD)

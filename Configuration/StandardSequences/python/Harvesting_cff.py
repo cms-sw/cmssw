@@ -32,7 +32,7 @@ _validationHarvesting_fastsim = validationHarvesting.copy()
 for _entry in [hltpostvalidation]:
     _validationHarvesting_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(validationHarvesting,_validationHarvesting_fastsim)
+fastSim.toReplaceWith(validationHarvesting, _validationHarvesting_fastsim)
 
 validationpreprodHarvestingNoHLT = cms.Path(postValidation_preprod*postValidation_gen)
 validationpreprodHarvesting = cms.Path(postValidation_preprod*hltpostvalidation_preprod*postValidation_gen)
@@ -43,7 +43,7 @@ _validationpreprodHarvesting_fastsim = validationpreprodHarvesting.copy()
 for _entry in [hltpostvalidation_preprod]:
     _validationpreprodHarvesting_fastsim.remove(_entry)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(validationpreprodHarvesting,_validationpreprodHarvesting_fastsim)
+fastSim.toReplaceWith(validationpreprodHarvesting, _validationpreprodHarvesting_fastsim)
 
 
 # empty (non-hlt) postvalidation sequence here yet

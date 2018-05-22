@@ -3,7 +3,7 @@ import logging
 import math
 
 from PyQt4.QtCore import QObject
-from PyQt4.QtGui import QMessageBox,QInputDialog
+from PyQt4.QtGui import QMessageBox, QInputDialog
 
 from Vispa.Main.Filetype import Filetype
 from Vispa.Share.UndoEvent import UndoEvent

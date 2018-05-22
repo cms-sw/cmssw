@@ -1,4 +1,4 @@
-from PyQt4.QtCore import Qt,SIGNAL
+from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import QHeaderView, QStandardItemModel, QToolButton, QFrame, QVBoxLayout, QSizePolicy
 
 
@@ -48,7 +48,7 @@ class Header(QHeaderView):
         elif self.orientation() == Qt.Vertical:
             self.model().setVerticalHeaderLabels([text])
     
-    def mousePressEvent(self,event):
-        QHeaderView.mousePressEvent(self,event)
+    def mousePressEvent(self, event):
+        QHeaderView.mousePressEvent(self, event)
         if event.button()==Qt.RightButton:
             self.emit(SIGNAL("mouseRightPressed"), event.globalPos())

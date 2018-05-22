@@ -11,7 +11,7 @@ process.out = cms.OutputModule("PoolOutputModule",
                                )
 
 process.tester = cms.EDAnalyzer("OtherThingAnalyzer",
-                                other = cms.untracked.InputTag("d","testUserTag"))
+                                other = cms.untracked.InputTag("d", "testUserTag"))
 
 process.o = cms.EndPath(process.out+process.tester)
 

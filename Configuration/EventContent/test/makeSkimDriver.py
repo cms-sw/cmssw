@@ -8,7 +8,7 @@ import optparse
 import os
 
 def _green(string):
-    return '%s%s%s' %('\033[1;32m',string,'\033[1;0m') 
+    return '%s%s%s' %('\033[1;32m', string, '\033[1;0m') 
 
 # To parse commandline args
 
@@ -39,7 +39,7 @@ parser.add_option("--outputcommands",
                    default="",
                    dest="outputCommands")
 
-options,args=parser.parse_args() 
+options, args=parser.parse_args() 
 
 if '' in (options.infilename,
           options.outfilename,
@@ -52,7 +52,7 @@ metaconfig_content='nevts=%s\n' %options.nevts+\
                    'infile="%s"\n' %options.infilename+\
                    'outfile="%s"\n' %options.outfilename
 
-metaconfig_file=open('metaconfig.py','w')
+metaconfig_file=open('metaconfig.py', 'w')
 metaconfig_file.write(metaconfig_content) 
 metaconfig_file.close()
 

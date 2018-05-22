@@ -19,6 +19,6 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 		'IMSS(22) = 33            ! Read-in SLHA decay table '),
         SLHAParameters = cms.vstring('SLHAFILE = Configuration/Generator/data/CSA07SUSYBSM_LM9p_sftsdkpyt_slha.out'),
         parameterSets = cms.vstring('pythiaUESettings', 
-            'processParameters','SLHAParameters')
+            'processParameters', 'SLHAParameters')
     )
 )

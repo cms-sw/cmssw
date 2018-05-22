@@ -55,9 +55,9 @@ process.ecalDigisValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
 process.ecalDigisValidation.EEdigiCollection = 'simEcalUnsuppressedDigis'
 process.ecalDigisValidation.ESdigiCollection = 'simEcalUnsuppressedDigis'
 process.ecalBarrelDigisValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
-process.ecalRecHitsValidation.EBrechitCollection = cms.InputTag("ecalTBSimRecHit","EcalRecHitsEB")
-process.ecalRecHitsValidation.EBuncalibrechitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit","EcalUncalibRecHitsEB")
+process.ecalRecHitsValidation.EBrechitCollection = cms.InputTag("ecalTBSimRecHit", "EcalRecHitsEB")
+process.ecalRecHitsValidation.EBuncalibrechitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit", "EcalUncalibRecHitsEB")
 process.ecalBarrelRecHitsValidation.EBdigiCollection = 'simEcalUnsuppressedDigis'
-process.ecalBarrelRecHitsValidation.EBuncalibrechitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit","EcalUncalibRecHitsEB")
+process.ecalBarrelRecHitsValidation.EBuncalibrechitCollection = cms.InputTag("ecalTBSimWeightUncalibRecHit", "EcalUncalibRecHitsEB")
 
 

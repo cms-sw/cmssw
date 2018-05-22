@@ -6,7 +6,7 @@ import sys
 import logging
 logging.root.setLevel(logging.DEBUG)
 
-from PyQt4.QtGui import QApplication,QMainWindow,QTextEdit
+from PyQt4.QtGui import QApplication, QMainWindow, QTextEdit
 
 import Path
 
@@ -26,8 +26,8 @@ class ToolBoxContainerTestCase(unittest.TestCase):
         container.addWidget(QTextEdit("ganz viel text\n mit zeilenumbruechen\n."))
         container.addWidget(QTextEdit("anderer inhalt."))
         container.show()
-        if not hasattr(unittest,"NO_GUI_TEST"):
+        if not hasattr(unittest, "NO_GUI_TEST"):
             self.app.exec_()
 
 if __name__ == "__main__":
-    Profiling.analyze("unittest.main()",__file__,"ToolBoxContainer")
+    Profiling.analyze("unittest.main()", __file__, "ToolBoxContainer")

@@ -2,7 +2,7 @@ import logging
 import os.path
 import sys
 
-from PyQt4.QtCore import QCoreApplication,SIGNAL
+from PyQt4.QtCore import QCoreApplication, SIGNAL
 from PyQt4.QtGui import QInputDialog
 
 from Vispa.Main.Application import Application
@@ -20,7 +20,7 @@ class EventBrowserTabController(BrowserTabController):
         self.setEditable(False)
         self._thread=None
         self._navigateTo=None
-        self.connect(self,SIGNAL("navigate"),self.navigate)
+        self.connect(self, SIGNAL("navigate"), self.navigate)
         
     def close(self):
         """ Close data file.
@@ -67,7 +67,7 @@ class EventBrowserTabController(BrowserTabController):
         return BrowserTabController.isBusy(self) or\
                (self._thread and self._thread.isRunning())
 
-    def navigate(self,to):
+    def navigate(self, to):
         # remember if navigation is ongoing
         navigating=self._navigateTo
         # set where to navigate
@@ -77,7 +77,7 @@ class EventBrowserTabController(BrowserTabController):
             return
         # if window is busy navigate later
         if self.isBusy():
-            self.emit(SIGNAL("navigate"),to)
+            self.emit(SIGNAL("navigate"), to)
             return
         update=False
         while self._navigateTo!=None:
