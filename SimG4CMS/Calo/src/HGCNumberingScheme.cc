@@ -53,7 +53,7 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer,
     index   = HGCalTestNumbering::packHexagonIndex((int)subdet,iz,layer,wafer, 
 						   celltyp,icell);    
     //check if it fits
-    if (!hgcons_.isValid(layer,wafer,icell,false)) {
+    if (!hgcons_.isValidHex(layer,wafer,icell,false)) {
       index = 0;
       edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
                               << " Subdet= " << subdet << " Zside= " << iz

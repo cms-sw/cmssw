@@ -35,12 +35,13 @@ public:
   
   HGCalParameters(const std::string& nam);
   ~HGCalParameters( void );
-  void     fillModule(const hgtrap& mytr, bool reco);
-  hgtrap   getModule(unsigned int k, bool reco) const;
-  void     fillTrForm(const hgtrform& mytr);
-  hgtrform getTrForm(unsigned int k) const;
-  void     addTrForm(const CLHEP::Hep3Vector& h3v);
-  void     scaleTrForm(double);
+  void              fillModule(const hgtrap& mytr, bool reco);
+  hgtrap            getModule(unsigned int k, bool reco) const;
+  void              fillTrForm(const hgtrform& mytr);
+  hgtrform          getTrForm(unsigned int k) const;
+  void              addTrForm(const CLHEP::Hep3Vector& h3v);
+  void              scaleTrForm(double);
+  std::array<int,4> getID(unsigned int k) const;
 
   std::string                     name_;
   int                             nCells_;

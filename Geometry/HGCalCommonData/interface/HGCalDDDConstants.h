@@ -40,8 +40,21 @@ public:
 					 double& wt) const;
   int                 firstLayer() const {return hgpar_->firstLayer_;}
   HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
-  bool                isValid(int lay, int mod, int cell, bool reco) const;
-  bool                isValidCell(int layindex, int wafer, int cell) const;
+  int                 getLayer(double z, bool reco) const;
+  HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;
+  std::vector<HGCalParameters::hgtrap> getModules() const; 
+  const HGCalParameters* getParameter() const {return hgpar_;}
+  HGCalParameters::hgtrform getTrForm(unsigned int k) const {return hgpar_->getTrForm(k);}
+  unsigned int        getTrFormN() const {return hgpar_->trformIndex_.size();}
+  std::vector<HGCalParameters::hgtrform> getTrForms() const ;
+  int                 getTypeTrap(int layer) const;
+  int                 getTypeHex(int layer, int waferU, int waferV) const;
+  bool                isHalfCell(int waferType, int cell) const;
+  bool                isValidHex(int lay, int mod, int cell, bool reco) const;
+  bool                isValidHex8(int lay, int modU, int modV, int cellU,
+				  int cellV) const;
+  bool                isValidTrap(int lay, int ieta, int iphi) const;
+  int                 layerIndex(int lay, bool reco) const;
   unsigned int        layers(bool reco) const;
   unsigned int        layersInit(bool reco) const;
   std::pair<float,float> locateCell(int cell, int lay, int type, 
@@ -52,6 +65,7 @@ public:
   std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
 					bool reco) const;
   int                 levelTop(int ind=0) const {return hgpar_->levelT_[ind];}
+  int                 maxCellUV() const {return 2*hgpar_->nCellsFine_;}
   int                 maxCells(bool reco) const;
   int                 maxCells(int lay, bool reco) const;
   int                 maxModules() const {return modHalf_;}
@@ -60,8 +74,11 @@ public:
   int                 modules(int lay, bool reco) const;
   int                 modulesInit(int lay, bool reco) const;
   double              mouseBite(bool reco) const;
+  int                 numberCells(bool reco) const;
   std::vector<int>    numberCells(int lay, bool reco) const;
   int                 numberCellsHexagon(int wafer) const;
+  int                 numberCellsHexagon(int lay, int waferU, int waferV,
+					 bool flag) const;
   std::pair<int,int>  rowColumnWafer(const int wafer) const;
   int                 scintType(const float dPhi) const 
   { return ((dPhi < dPhiMin) ? 0 : 1); }
@@ -80,7 +97,7 @@ public:
   int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
   int                 waferMax() const {return waferMax_[1];}
   int                 waferMin() const {return waferMax_[0];}
-  std::pair<double,double> waferPosition(int wafer, bool reco=true) const;
+  std::pair<double,double> waferPosition(int wafer, bool reco) const;
   std::pair<double,double> waferPosition(int waferU, int waferV, bool reco) const;
   double              waferSepar(bool reco) const {return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD*hgpar_->sensorSeparation_);}
   double              waferSize(bool reco) const {return (reco ? hgpar_->waferSize_ : HGCalParameters::k_ScaleToDDD*hgpar_->waferSize_);}
@@ -91,24 +108,17 @@ public:
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
   // wafer longitudinal thickness classification (1 = 100um, 2 = 200um, 3=300um)
   int                 waferTypeL(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;}
-  bool                isHalfCell(int waferType, int cell) const;
+  int                 waferUVMax() const {return hgpar_->waferUVMax_;}
   double              waferZ(int layer, bool reco) const;
 
-  HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;
-  std::vector<HGCalParameters::hgtrap> getModules() const; 
-
-  unsigned int getTrFormN() const {return hgpar_->trformIndex_.size();}
-  HGCalParameters::hgtrform getTrForm(unsigned int k) const {return hgpar_->getTrForm(k);}
-  std::vector<HGCalParameters::hgtrform> getTrForms() const ;
-  
-  std::pair<int,float> getIndex(int lay, bool reco) const;
-
 private:
-  int cellHex(double xx, double yy, const double& cellR, 
-	      const std::vector<double>& posX,
-	      const std::vector<double>& posY) const;  
+  int  cellHex(double xx, double yy, const double& cellR, 
+	       const std::vector<double>& posX,
+	       const std::vector<double>& posY) const;  
   void cellHex(double xloc, double yloc, int cellType, int& cellU, 
 	       int& cellV) const;
+  std::pair<int,float>   getIndex(int lay, bool reco) const;
+  bool isValidCell(int layindex, int wafer, int cell) const;
   bool waferInLayer(int wafer, int lay) const;
 
   const double k_horizontalShift = 1.0;
