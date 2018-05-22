@@ -22,17 +22,11 @@ PixelROCTrimBits::PixelROCTrimBits()
 void PixelROCTrimBits::setROCTrimBits(PixelROCName rocid , std::string bits)
 {
 
-try{
   rocid_=rocid;
   char cpt[2080] ;
   bits.copy( cpt , 2080);
   for(unsigned int i = 0 ; i < bits.size(); i++)
-        bits_[i] = (unsigned char)cpt[i];
-}catch(std::bad_cast){
-
-std::cout << "Error casting variable." << std::endl;
-
-}	
+    bits_[i] = static_cast<unsigned char>(cpt[i]);
   
 }
 //End of part modified
