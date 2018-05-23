@@ -217,7 +217,6 @@ double ECalSD::getEnergyDeposit(const G4Step * aStep) {
 }
 
 int ECalSD::getTrackID(const G4Track* aTrack) {
-
   int  primaryID(0);
   if (storeTrack && depth > 0) {
     forceSave = true;

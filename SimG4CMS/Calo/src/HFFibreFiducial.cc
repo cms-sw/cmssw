@@ -67,20 +67,24 @@ int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect)
   static const int nWidM=36;
   if (nwid > nWidM || nwid <= 0)
   {
+#ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: "
                              << nwid << " == wrong widget number";
+#endif
     return 0;
   }
   static const double yMin= 13.1*CLHEP::cm; // start of the active area (Conv to mm?)
   static const double yMax=129.6*CLHEP::cm; // finish of the active area (Conv to mm?)
   if( yl < yMin || yl >= yMax )
   {
+#ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: Point "
                              << "with y = " << yl << " outside acceptance [" 
                              << yMin << ":" << yMax << "],  X = " << xv
                              << ", Y = " << yv << ", x = " << xl << ", nW = " 
                              << nwid << ", phi = " << phi/CLHEP::deg 
                              << ", phir = " << phir/CLHEP::deg;
+#endif
     return 0;                     // ===> out of the acceptance
   }
   bool left=true;                 // flag of the left part of the widget
@@ -93,9 +97,11 @@ int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect)
   static const double tg10=.17632698070847; // phi-angular acceptance of the widget
   if (r > tg10)
   {
+#ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: (x = "
                              << xl << ", y = " << yl << ", tg = " << r 
                              << ") out of the widget acceptance tg(10) " << tg10;
+#endif
     return 0;
   }
 
@@ -1519,8 +1525,10 @@ int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect)
   int ny=static_cast<int>((yl-yMin)/cellSize);   // Layer number (starting from 0)
   if (ny < 0 || ny >= nLay) // Sould never happen as was checked beforehand
   {
+#ifdef DebugLog
     edm::LogInfo("HFShower") << "-Warning-HFFibreFiducial::PMTNumber: "
                              << "check limits y = " << yl << ", nL=" << nLay;
+#endif
     return 0;
   }
   int nx=static_cast<int>(fx);           // Cell number (starting from 0)
@@ -1538,8 +1546,10 @@ int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect)
 #endif
   if (nx >= nSL[ny])
   {
+#ifdef DebugLog
     edm::LogInfo("HFShower") << "HFFibreFiducial::nx/ny (" << nx 
                              << "," << ny <<") " << " above limit " << nSL[ny];
+#endif
     return 0;                           // ===> out of the acceptance
   }
   int code=0;                           // a prototype

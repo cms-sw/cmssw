@@ -175,9 +175,10 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                             << " pID=" << theTrack->GetParentID()
                             << " E=" << theTrack->GetKineticEnergy()
                             << " S=" << aStep->GetStepLength()
-                            << " " << theTrack->GetDefinition()->GetParticleName()
-                            << " currentID= " << currentID 
-                            << " previousID= " << previousID;
+                            << "\n " << theTrack->GetDefinition()->GetParticleName()
+                            << " primaryID= " << primaryID
+                            << " currentID= (" << currentID 
+                            << ") previousID= (" << previousID << ")";
 #endif
     if(!hitExists(aStep)) {
       currentHit = createNewHit(aStep);
@@ -361,6 +362,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
                           << " " <<theTrack->GetDefinition()->GetParticleName()
                           << " E(GeV)= "  << theTrack->GetKineticEnergy()/GeV
                           << " parentID= " << theTrack->GetParentID()
+			  << "\n Ein= " << incidentEnergy
 			  << " entranceGlobal: " << entrancePoint
 			  << " entranceLocal: " << entranceLocal
 			  << " posGlobal: " << posGlobal;
@@ -515,7 +517,6 @@ void CaloSD::update(const ::EndOfEvent * ) {
 
   int count(0);
   int wrong(0);
-#ifdef DebugLog
   double eEM(0.0); 
   double eHAD(0.0); 
   double eEM2(0.0); 
@@ -524,12 +525,10 @@ void CaloSD::update(const ::EndOfEvent * ) {
   double zloc(0.0); 
   double zglob(0.0); 
   double ee(0.0); 
-#endif
  
   for (int i=0; i<theHC->entries(); ++i) {
     if(!saveHit((*theHC)[i])) { ++wrong; }
     ++count;
-#ifdef DebugLog
     double x = (*theHC)[i]->getEM();
     eEM += x;
     eEM2 += x*x;
@@ -540,10 +539,8 @@ void CaloSD::update(const ::EndOfEvent * ) {
     ee += (*theHC)[i]->getIncidentEnergy();
     zglob += std::abs((*theHC)[i]->getEntry().z());
     zloc  += std::abs((*theHC)[i]->getEntryLocal().z());
-#endif
   }
   
-#ifdef DebugLog
   double norm = (count>0) ? 1.0/count : 0.0;  
   eEM   *= norm;
   eEM2  *= norm;
@@ -555,18 +552,15 @@ void CaloSD::update(const ::EndOfEvent * ) {
   ee    *= norm;
   zglob *= norm;
   zloc  *= norm;
-#endif
  
   edm::LogInfo("CaloSim") << "CaloSD: " << GetName() << " store " << count
                           << " hits; " << wrong 
                           << " track IDs not given properly and "
                           << totalHits-count << " hits not passing cuts"
-#ifdef DebugLog
 			  << "\n EmeanEM= " << eEM << " ErmsEM= " << eEM2 
 			  << "\n EmeanHAD= " << eHAD << " ErmsHAD= " << eHAD2
 			  << " TimeMean= " << tt << " E0mean= " << ee 
 			  << " Zglob= " << zglob << " Zloc= " << zloc
-#endif
 			  << " ";
 
   tkMap.erase (tkMap.begin(), tkMap.end());
@@ -590,15 +584,23 @@ void CaloSD::initRun() {}
 
 int CaloSD::getTrackID(const G4Track* aTrack) {
 
+  int primaryID = 0;
   forceSave = false;
   TrackInformation* trkInfo=(TrackInformation *)(aTrack->GetUserInformation());
-  int primaryID = (trkInfo) ? trkInfo->getIDonCaloSurface() : 0;
-  if(primaryID == 0) { primaryID = aTrack->GetTrackID(); }
+  if (trkInfo) {
+    primaryID = trkInfo->getIDonCaloSurface(); 
 #ifdef DebugLog
-  edm::LogInfo("CaloSim") << "CaloSD::getTrackID for " << GetName() 
-                          << " trackID= " << aTrack->GetTrackID()
-                          << " primaryID= " << primaryID;
+    edm::LogInfo("CaloSim") << "CaloSD: hit update from track Id on Calo Surface " 
+			    << trkInfo->getIDonCaloSurface();
+#endif   
+  } else {
+    primaryID = aTrack->GetTrackID();
+#ifdef DebugLog
+    edm::LogWarning("CaloSim") << "CaloSD: Problem with primaryID **** set by "
+                               << "force to TkID **** " << primaryID << " in "
+                               << preStepPoint->GetTouchable()->GetVolume(0)->GetName();
 #endif
+  }
   return primaryID;
 }
 
@@ -606,7 +608,7 @@ int CaloSD::setTrackID(const G4Step* aStep) {
 
   auto const theTrack = aStep->GetTrack();
   TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
-  int primaryID = (trkInfo) ? trkInfo->getIDonCaloSurface() : 0;
+  int primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) { primaryID = theTrack->GetTrackID(); }
 
   if (primaryID != previousID.trackID()) {
