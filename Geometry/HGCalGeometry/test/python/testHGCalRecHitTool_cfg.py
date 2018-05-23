@@ -5,21 +5,10 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Configuration.Geometry.GeometryExtended2023D17Reco_cff")
 process.load("Configuration.Geometry.GeometryExtended2023D17_cff")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HGCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HGCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HGCalGeom')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -45,6 +34,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodTest = cms.EDAnalyzer("HGCalTestRecHitTool")
+process.prodTest = cms.EDAnalyzer("HGCalTestRecHitTool",
+                                  Mode = cms.int32(0),
+                                  )
 
 process.p1 = cms.Path(process.generator*process.prodTest)

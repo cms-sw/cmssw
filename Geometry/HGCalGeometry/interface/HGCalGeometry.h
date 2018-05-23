@@ -44,7 +44,7 @@ public:
   static constexpr unsigned int k_NumberOfParametersPerTrd = 12; // FlatTrd
   static constexpr unsigned int k_NumberOfParametersPerHex = 3 ; // FlatHexagon
   static constexpr unsigned int k_NumberOfParametersPerShape = 3; // FlatHexagon
-  static constexpr unsigned int k_NumberOfShapes = 50; 
+  static constexpr unsigned int k_NumberOfShapes = 1000; 
 
   static std::string dbString() { return "PHGCalRcd" ; }
  

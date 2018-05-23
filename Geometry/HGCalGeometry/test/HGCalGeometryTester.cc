@@ -67,11 +67,16 @@ void HGCalGeometryTester::analyze(const edm::Event& ,
       doTest(geom, subdet);
     } else {
       DetId::Detector det;
-      if      (name == "HGCalHESiliconSensitive")      det = DetId::HGCalEE;
-      else if (name == "HGCalHEScintillatorSensitive") det = DetId::HGCalHSi;
-      else                                             det = DetId::HGCalHSc;
+      if      (name == "HGCalHESiliconSensitive")      det = DetId::HGCalHSi;
+      else if (name == "HGCalHEScintillatorSensitive") det = DetId::HGCalHSc;
+      else                                             det = DetId::HGCalEE;
       std::cout << "Perform test for " << name << " Detector " << det
 		<< std::endl;
+      if (name == "HGCalHEScintillatorSensitive") {
+	doTestScint(geom, det);
+      } else {
+	doTestWafer(geom,det);
+      }
     }
   }
 }
@@ -80,8 +85,8 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom,
 				 ForwardSubdetector subdet) {
   
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << ids.size() << " valid ids for " << geom->cellElement() 
-	    << std::endl;
+  std::cout << "doTest: " << ids.size() << " valid ids for " 
+	    << geom->cellElement() << std::endl;
 
   int layers[] = {1, 5, 10};
   int zsides[] = {1, -1};
@@ -130,8 +135,8 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom,
 				      DetId::Detector det) {
   
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << ids.size() << " valid ids for " << geom->cellElement() 
-	    << std::endl;
+  std::cout << "doTestWafer:: " << ids.size() << " valid ids for " 
+	    << geom->cellElement() << std::endl;
   int layers[] = {1, 5, 10};
   int zsides[] = {1, -1};
   int cells[]  = {1, 4, 7};
@@ -141,9 +146,12 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom,
       for (int waferU : wafers) {
 	for (int waferV : wafers) {
 	  int type = geom->topology().dddConstants().getTypeHex(layer,waferU,waferV);
+	  std::cout << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type << std::endl;
 	  for (int cellU : cells) {
 	    for (int cellV : cells) {
+	      std::cout << "det " << det << " cell " << cellU << ":" << cellV << std::endl;
 	      DetId id1 = (DetId)(HGCSiliconDetId(det,zside,type,layer,waferU,waferV,cellU,cellV));
+	      std::cout << HGCSiliconDetId(id1) << std::endl;
 	      if (geom->topology().valid(id1)) {
 		auto        icell1  = geom->getGeometry(id1);
 		GlobalPoint global1 = geom->getPosition(id1);
@@ -181,8 +189,8 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom,
 				      DetId::Detector det) {
   
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << ids.size() << " valid ids for " << geom->cellElement() 
-	    << std::endl;
+  std::cout << "doTestScint: " << ids.size() << " valid ids for " 
+	    << geom->cellElement() << std::endl;
   int layers[] = {9, 15, 22};
   int zsides[] = {1, -1};
   int iphis[]  = {1, 51, 101, 151, 201};

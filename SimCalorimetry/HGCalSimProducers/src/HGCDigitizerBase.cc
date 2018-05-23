@@ -16,15 +16,19 @@ namespace {
   void addCellMetadata(HGCCellInfo& info,
 		       const HGCalGeometry* geom,
 		       const DetId& detid ) {
-    const auto& topo     = geom->topology();
-    const auto& dddConst = topo.dddConstants();
-    uint32_t id(detid.rawId());
-    int waferTypeL = 0;
+    const auto& dddConst = geom->topology().dddConstants();
+    int  waferTypeL(-1);
     bool isHalf = false;
-    HGCalDetId hid(id);
-    int wafer = HGCalDetId(id).wafer();
-    waferTypeL = dddConst.waferTypeL(wafer);
-    isHalf = dddConst.isHalfCell(wafer,hid.cell());
+    if ((dddConst.geomMode() == HGCalGeometryMode::Hexagon8) ||
+        (dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+      waferTypeL = 1 + HGCSiliconDetId(detid).type();
+    } else if (dddConst.geomMode() == HGCalGeometryMode::Trapezoid) {
+      waferTypeL = 1;
+    } else {
+      int wafer  = HGCalDetId(detid).wafer();
+      waferTypeL = dddConst.waferTypeL(wafer);
+      isHalf     = dddConst.isHalfCell(wafer,HGCalDetId(detid).cell());
+    }
     //base time samples for each DetId, initialized to 0
     info.size = (isHalf ? 0.5 : 1.0);
     info.thickness = waferTypeL;
