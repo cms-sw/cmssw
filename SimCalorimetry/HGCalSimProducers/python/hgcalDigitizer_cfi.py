@@ -32,6 +32,7 @@ hgceeDigitizer = cms.PSet(
     bxTime            = cms.double(25),
     eVPerEleHolePair = cms.double(eV_per_eh_pair),
     tofDelay          = cms.double(5),
+    geometryType      = cms.uint32(0),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -96,6 +97,7 @@ hgchefrontDigitizer = cms.PSet(
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
     tofDelay          = cms.double(5),
+    geometryType      = cms.uint32(0),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -159,6 +161,7 @@ hgchebackDigitizer = cms.PSet(
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
     tofDelay          = cms.double(1),
+    geometryType      = cms.uint32(0),
     digitizationType  = cms.uint32(1),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -208,3 +211,13 @@ def HGCal_setEndOfLifeNoise(digitizer,process):
         values = cms.vdouble([x for x in endOfLifeNoises])
         )
 
+def HGCal_setPostTDRGeometry(digitizer,process):
+    process.hgceeDigitizer = cms.PSet(
+        geometryType      = cms.uint32(1),
+        )
+    process.hgchefrontDigitizer = cms.PSet(
+        geometryType      = cms.uint32(1),
+        )
+    process.hgchebackDigitizer = cms.PSet(
+        geometryType      = cms.uint32(1),
+        )

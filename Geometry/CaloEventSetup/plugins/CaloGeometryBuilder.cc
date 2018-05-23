@@ -120,7 +120,7 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
 	edm::ESHandle<HGCalGeometry> pHG;
 	iRecord.getRecord<IdealGeometryRecord>().get(*ite,pHG);
 	const auto& topo = pHG->topology();
-	pCalo->setSubdetGeometry(DetId::Forward,topo.subDetector(),pHG.product());
+	pCalo->setSubdetGeometry(topo.detector(),topo.subDetector(),pHG.product());
       }
       else 
       {

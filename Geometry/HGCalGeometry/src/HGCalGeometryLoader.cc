@@ -34,7 +34,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" 
 				<< numberExpected << " for sub-detector " 
 				<< topology.subDetector() << " Shapes " 
-				<< HGCalGeometry::k_NumberOfShapes << ":" 
+//				<< HGCalGeometry::k_NumberOfShapes << ":" 
 				<< parametersPerShape_ << " mode " << mode;
 #endif
   geom->allocateCorners( numberOfCells ) ;
@@ -58,7 +58,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 #ifdef EDM_ML_DEBUG
     unsigned int kount(0);
     edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader:: Z:Layer " << zside
-				  << ":" << layer;
+				  << ":" << layer << " z " << mytr.h3v.z();
 #endif
     if ((mode == HGCalGeometryMode::Hexagon) || 
 	(mode == HGCalGeometryMode::HexagonFull)) {
@@ -131,6 +131,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  ++kount;
 #endif
 	}
+	++ieta;
       }
     } else {
       DetId::Detector det  = topology.detector();
@@ -153,7 +154,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 					<< " transf " << ht3d.getTranslation()
 					<< " and " << ht3d.getRotation();
 #endif
-	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(wafer,false,true);
+	  HGCalParameters::hgtrap vol = topology.dddConstants().getModule(type,false,true);
 	  params[0] = vol.dz;
 	  params[1] = topology.dddConstants().cellSizeHex(type);
 	  params[2] = twoBysqrt3_*params[1];
@@ -178,7 +179,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
     edm::LogError("HGCalGeom") << "Inconsistent # of cells: expected " 
 			       << numberExpected << ":" << numberOfCells
 			       << " , inited " << counter;
-    assert( counter == numberOfCells ) ;
+    assert( counter == numberExpected ) ;
   }
 
   return geom;

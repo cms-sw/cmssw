@@ -91,8 +91,14 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
     
     int thickness = 1;
     if( ddd_ != nullptr ) {
-      HGCalDetId hid(dataFrame.id());
-      thickness = ddd_->waferTypeL(hid.wafer());
+      if ((ddd_->geomMode() == HGCalGeometryMode::Hexagon8) ||
+	  (ddd_->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
+	thickness = 1 + HGCSiliconDetId(dataFrame.id()).type();
+      } else if (ddd_->geomMode() == HGCalGeometryMode::Trapezoid) {
+	thickness = 1;
+      } else {
+	thickness = ddd_->waferTypeL(HGCalDetId(dataFrame.id()).wafer());
+      }
     }    
     amplitude_ = amplitude_/fCPerMIP_[thickness-1];
 
