@@ -2480,6 +2480,7 @@ for stepType in upgradeSteps.keys():
         upgradeStepDict[stepName]={}
         stepNamePmx = step+'PUPRMX'+upgradeSteps[stepType]['suffix']
         upgradeStepDict[stepNamePmx]={}
+        upgradeStepDict[stepNamePmx+'Combined']={}
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -2679,7 +2680,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
             if "GenSim" in step:
                 stepName = step + upgradeSteps['baseline']['suffix']
                 stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
-                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1',
+                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid',
                             '--datatier'    : 'PREMIX',
                             '--eventcontent': 'PREMIX',
                             '--procModifiers': 'premix_stage1',
@@ -2703,9 +2704,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                     if "Digi" in step:
                         tmpsteps = []
                         for s in d["-s"].split(","):
-                            if "L1TrackTrigger" in s: # TODO: ignore TrackTrigger for now
-                                continue
-
                             if s == "DIGI" or "DIGI:" in s:
                                 tmpsteps.extend([s, "DATAMIX"])
                             else:
@@ -2720,6 +2718,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                         else:
                             d["--procModifiers"] = "premix_stage2"
                     upgradeStepDict[stepNamePUpmx][k] = d
+                    # For combined stage1+stage2
+                    if "Digi" in step:
+                        upgradeStepDict[stepNamePUpmx+"Combined"][k] = merge([digiPremixLocalPileup, d])
 
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
