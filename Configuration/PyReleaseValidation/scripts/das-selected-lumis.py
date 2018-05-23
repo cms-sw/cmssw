@@ -29,13 +29,13 @@ def check_lumi_ranges(given_lumi_list , sub_range):
 
 def process_lumi(data):
   for lumi_info in data:
-    if type(lumi_info['lumi']) is list:
+    if isinstance(lumi_info['lumi'], list):
       lumi_nums = lumi_info['lumi'][0]['number']
       lumi_file = lumi_info['file'][0]['name']
     else:
       lumi_nums = lumi_info['lumi']['number']
       lumi_file = lumi_info['file']['name']
-    if not type(lumi_nums[0]) is list: lumi_rang = [ [n,n] for n in lumi_nums ]
+    if not isinstance(lumi_nums[0], list): lumi_rang = [ [n,n] for n in lumi_nums ]
     else: lumi_rang = lumi_nums
     for sub_list in lumi_rang:
       if check_lumi_ranges(input_range,tuple(sub_list)):

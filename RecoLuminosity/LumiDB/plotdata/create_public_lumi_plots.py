@@ -1014,8 +1014,7 @@ if __name__ == "__main__":
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
-        lumi_data = lumi_data_by_day_per_year[year]
-        lumi_data.sort()
+        lumi_data = sorted(lumi_data_by_day_per_year[year])
 
         # NOTE: Tweak the time range a bit to force the bins to be
         # drawn from midday to midday.
@@ -1299,8 +1298,7 @@ if __name__ == "__main__":
             cms_energy_str = "%.2f TeV/nucleon" % \
                              (1.e-3 * GetEnergyPerNucleonScaleFactor(accel_mode) * cms_energy)
 
-        lumi_data = lumi_data_by_week_per_year[year]
-        lumi_data.sort()
+        lumi_data = sorted(lumi_data_by_week_per_year[year])
 
         # NOTE: Tweak the time range a bit to force the bins to be
         # split at the middle of the weeks.
@@ -1583,8 +1581,7 @@ if __name__ == "__main__":
                     str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                     for (year_index, year) in enumerate(years):
 
-                        lumi_data = lumi_data_by_day_per_year[year]
-                        lumi_data.sort()
+                        lumi_data = sorted(lumi_data_by_day_per_year[year])
                         times_tmp = [AtMidnight(i) for i in lumi_data.times()]
                         # For the plots showing all years overlaid, shift
                         # all but the first year forward.
@@ -1754,8 +1751,7 @@ if __name__ == "__main__":
                 str_begin_ultimate = time_begin_ultimate.strftime(DATE_FMT_STR_OUT)
                 for (year_index, year) in enumerate(years):
 
-                    lumi_data = lumi_data_by_day_per_year[year]
-                    lumi_data.sort()
+                    lumi_data = sorted(lumi_data_by_day_per_year[year])
                     times_tmp = [AtMidnight(i) for i in lumi_data.times()]
                     times = [matplotlib.dates.date2num(i) for i in times_tmp]
                     # DEBUG DEBUG DEBUG

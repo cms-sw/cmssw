@@ -59,7 +59,7 @@ def replace_with(fromObj, toObj):
     so all references ot it remain valid.
     """
 
-    if type(toObj) != type(fromObj):
+    if not isinstance(toObj, type(fromObj)):
         raise TypeError('replaceWith requires both arguments to be the same type')
 
     if isinstance(toObj, cms._ModuleSequenceType):

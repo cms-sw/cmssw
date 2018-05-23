@@ -84,8 +84,7 @@ def main():
     runsToBeAnalyzed = getRunsToBeUploaded(args.connect,args.dropbox,lumiauthpath,minrun=args.minrun) 
     
     runCounter=0
-    rs=runsToBeAnalyzed.keys()
-    rs.sort()
+    rs=sorted(runsToBeAnalyzed.keys())
     for run in rs:
         runCounter+=1
         if runCounter==1: print 'List of processed runs: '

@@ -75,7 +75,7 @@ class Chain( object ):
             rfile = TFile(fnam)
             for key in rfile.GetListOfKeys():
                 obj = rfile.Get(key.GetName())
-                if type(obj) is TTree:
+                if isinstance(obj, TTree):
                     names.append( key.GetName() )
         thename = set(names)
         if len(thename)==1:

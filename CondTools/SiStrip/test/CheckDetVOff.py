@@ -23,8 +23,7 @@ def compare(vType):
     builderDetIds = builderOutput.split('\n')
     readerDetIds = readerOutput.split('\n')
 
-    builderDetIds = list(builderDetIds)
-    builderDetIds.sort()
+    builderDetIds = sorted(builderDetIds)
 
     #builderLine = popen
 

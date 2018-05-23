@@ -39,7 +39,7 @@ def addVIDSelectionToPATProducer(patProducer,idProducer,idName,addUserData=True)
     setattr(patProducerIDs,idName,cms.InputTag('%s:%s'%(idProducer,idName)))    
     if( addUserData ):
         if( len(userDatas.userClasses.src) == 1 and 
-            type(userDatas.userClasses.src[0]) is str and 
+            isinstance(userDatas.userClasses.src[0], str) and 
             userDatas.userClasses.src[0] == ''            ):
             userDatas.userClasses.src = cms.VInputTag(cms.InputTag('%s:%s'%(idProducer,idName)))        
         else:

@@ -231,8 +231,7 @@ def searchClassDefXml ():
             if len (fileSet) < 2:
                 continue
             print name
-            fileList = list (fileSet)
-            fileList.sort()
+            fileList = sorted (fileSet)
             for filename in fileList:
                 print "  ", filename
             print

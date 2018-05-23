@@ -1968,7 +1968,7 @@ def copytree4(src,dest,keepTop=True):
         print "WARNING: Could not determine the new location for source %s into destination %s" % (src,dest)
         
 def syscp(srcs,dest):
-    if type(srcs) == type(""):
+    if isinstance(srcs, type("")):
         if os.path.exists(srcs):
             if os.path.isdir(srcs):
                 copytree4(srcs,dest)

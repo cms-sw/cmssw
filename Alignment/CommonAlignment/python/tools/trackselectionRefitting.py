@@ -488,9 +488,9 @@ def _customSetattr(obj, attr, val):
     - `val`: value of the attribute.
     """
 
-    if type(attr) is tuple and len(attr) > 1:
+    if isinstance(attr, tuple) and len(attr) > 1:
         _customSetattr(getattr(obj, attr[0]), attr[1:], val)
     else:
-        if type(attr) is tuple: attr = attr[0]
+        if isinstance(attr, tuple): attr = attr[0]
         setattr(obj, attr, val)
 

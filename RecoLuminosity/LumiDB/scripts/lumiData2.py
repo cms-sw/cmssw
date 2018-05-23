@@ -62,8 +62,7 @@ def main():
 	    if not runlist:
 	        print '[]'
 		sys.exit(0)
-	    singlelist=listRemoveDuplicate(runlist)
-	    singlelist.sort()
+	    singlelist=sorted(listRemoveDuplicate(runlist))
 	    print singlelist
     del session
     del svc

@@ -459,7 +459,7 @@ def getParameters(parameters):
         except:
           value = valType
       theList.append(value) 
-      if(theT != "double" and theT !="int" and type(valType)!= str):
+      if(theT != "double" and theT !="int" and not isinstance(valType, str)):
         if(not valType.isTracked()):
           theList.append("untracked")
     theList.append(theT)
