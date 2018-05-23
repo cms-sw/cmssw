@@ -176,7 +176,7 @@ L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_useAtVtxCoord(ps.getUntrackedParameter<bool>("useL1AtVtxCoord")),
     m_maxGmtMuonDR(0.3),
     m_minTagProbeDR(0.5),
-    m_maxHltMuonDR(0.3)
+    m_maxHltMuonDR(0.1)
 {
     if (m_verbose) cout << "[L1TMuonDQMOffline:] ____________ Storage initialization ____________ " << endl;
 
