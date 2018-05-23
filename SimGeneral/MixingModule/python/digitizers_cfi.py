@@ -76,15 +76,19 @@ phase2_timing_layer.toModify( theDigitizers,
 premix_stage2.toModify(theDigitizers,
     ecal = None,
     hcal = None,
-    # TODO: what to do with hgcal?
 )
-
+(premix_stage2 & phase2_hgcal).toModify(theDigitizers,
+    hgceeDigitizer = dict(premixStage1 = True),
+    hgchebackDigitizer = dict(premixStage1 = True),
+    hgchefrontDigitizer = dict(premixStage1 = True),
+)
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 phase2_hgcal.toModify( theDigitizersValid,
-                       calotruth = cms.PSet( caloParticles ) )
+                       calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
+(premix_stage2 & phase2_hgcal).toModify(theDigitizersValid, calotruth = dict(premixStage1 = True))
 
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
@@ -96,11 +100,8 @@ def _customizePremixStage1(mod):
     # To avoid this if-else structure we'd need an "_InverseModifier"
     # to customize pixel/strip for everything else than fastSim.
     if hasattr(mod, "pixel"):
-        if hasattr(mod.pixel, "PixelDigitizerAlgorithm"):
-            mod.pixel.PixelDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.PSPDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.PSSDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.SSDigitizerAlgorithm.makeDigiSimLinks = True
+        if hasattr(mod.pixel, "AlgorithmCommon"):
+            mod.pixel.AlgorithmCommon.makeDigiSimLinks = True
         else:
             mod.pixel.makeDigiSimLinks = True
     if hasattr(mod, "strip"):

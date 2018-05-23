@@ -177,10 +177,12 @@ upgradeSteps['Premix'] = {
         'PremixHLBeamSpotFull14',
     ],
     'suffix': '_Premix',
-    'offset': 0.98,
+    'offset': 0.97,
 }
 # Premix stage2 is derived from baseline+PU in relval_upgrade.py
-premixS2_offset = 0.99
+premixS2_offset = 0.98
+# Premix combined stage1+stage2 is derived for Premix+PU and baseline+PU in relval_upgrade.py
+premixS1S2_offset = 0.99
 
 upgradeProperties = {}
 

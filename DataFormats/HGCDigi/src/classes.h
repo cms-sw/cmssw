@@ -1,5 +1,6 @@
 #include <vector>
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
 
 namespace DataFormats_HGCDigi {
   struct dictionary {
@@ -33,6 +34,14 @@ namespace DataFormats_HGCDigi {
     edm::Wrapper< edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > > prodHGCHEDataFrames;
     HGCHEDigiCollection dcHGCHE;
     edm::Wrapper<HGCHEDigiCollection> wdcHGCHE;
+
+    // Sim cell accumulator (for premixing)
+    PHGCSimAccumulator saHGC;
+    PHGCSimAccumulator::Data saHGCdata;
+    PHGCSimAccumulator::DetIdSize saHGCdis;
+    std::vector<PHGCSimAccumulator::Data> vsaHGCdata;
+    std::vector<PHGCSimAccumulator::DetIdSize> vsaHGCdis;
+    edm::Wrapper<PHGCSimAccumulator> wsaHGC;
   };
 }
 

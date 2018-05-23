@@ -53,7 +53,9 @@ for year in upgradeKeys:
                         if not s in upgradeSteps[stepType]['PU']:
                             continue
                         s = s + 'PU' # later processing requires to have PU here
-                        stepList[stepType].append(stepMaker(key,frag[:-4],s,upgradeSteps[stepType]['suffix']))
+                        # Hardcode nu gun fragment below in order to use it for combined stage1+stage2
+                        # Anyway all other fragments are irrelevant for premixing stage1
+                        stepList[stepType].append(stepMaker(key,"SingleNuE10_cf",s,upgradeSteps[stepType]['suffix']))
                     elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps[stepType]['suffix']))
                     else:
@@ -99,5 +101,12 @@ for year in upgradeKeys:
                         s = s.replace("PU", "PUPRMX", 1)
                     slist.append(s)
                 workflows[numWF+premixS2_offset] = [upgradeDatasetFromFragment[frag], slist]
+
+                # Combined stage1+stage2
+                workflows[numWF+premixS1S2_offset] = [upgradeDatasetFromFragment[frag], # Signal fragment
+                                                      [slist[0]] +                      # Start with signal generation
+                                                      stepList['Premix'] +              # Premixing stage1
+                                                      [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)
+                                                      slist[2:]]                        # Remaining standard steps
 
             numWF+=1
