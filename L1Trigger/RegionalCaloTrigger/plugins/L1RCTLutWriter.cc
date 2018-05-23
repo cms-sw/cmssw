@@ -255,7 +255,7 @@ L1RCTLutWriter::writeRcLutFile(unsigned short card)
 
   // don't mess yet with name
   char filename[256];
-  char command[64];
+  char command[264];
   if (card != 6)
     {
       int card2 = card + 1;
@@ -367,7 +367,7 @@ L1RCTLutWriter::writeEicLutFile(unsigned short card)
 {
   // try timestamp
   char filename[256];
-  char command[64];
+  char command[264];
   if (card != 6)
     {
       int card2 = card + 1;
@@ -413,7 +413,7 @@ void
 L1RCTLutWriter::writeJscLutFile()
 {
   char filename[256];
-  char command[64];
+  char command[264];
   sprintf(filename, "JSC-%s.dat", keyName_.c_str() );
 
   // open file; if it already existed, delete existing content
