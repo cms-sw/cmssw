@@ -147,7 +147,7 @@ FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet & ps) :
     m_effTypes({kEffPt, kEffPhi, kEffEta, kEffVtx}),
-    m_resTypes({kResPt, kRes1OverPt, kResQOverPt, kResPhi, kResEta}),
+    m_resTypes({kResPt, kResQOverPt, kResPhi, kResEta}),
     m_etaRegions({kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf}),
     m_qualLevelsRes({kQualAll}),
     m_effStrings({ {kEffPt, "pt"}, {kEffPhi, "phi"}, {kEffEta, "eta"}, {kEffVtx, "vtx"} }),
@@ -384,6 +384,7 @@ void L1TMuonDQMOffline::bookControlHistos(DQMStore::IBooker& ibooker) {
     m_ControlHistos[kCtrlProbeEta] = ibooker.book1D("ProbeMuonEta", "ProbeMuonEta; #eta", 50, -2.5, 2.5);
 
     m_ControlHistos[kCtrlTagProbeDr] = ibooker.book1D("TagMuonProbeMuonDeltaR", "TagMuonProbeMuonDeltaR; #DeltaR", 50, 0.,5.0);
+    m_ControlHistos[kCtrlTagHltDr] = ibooker.book1D("TagMuonHltDeltaR", "TagMuonHltDeltaR;#DeltaR", 55, 0., 0.11);
 }
 
 //_____________________________________________________________________
@@ -538,7 +539,8 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
             deltar = sqrt(dEta*dEta + dPhi*dPhi);
 
             if ( (*tagCandIt) == (*probeCandIt) || deltar<m_minTagProbeDR ) continue; // CB has a little bias for closed-by muons     
-            tagHasTrig = matchHlt(trigEvent,(*tagCandIt)) && (pt > m_TagPtCut);
+            auto matchHltDeltaR = matchHlt(trigEvent,(*tagCandIt));
+            tagHasTrig = (matchHltDeltaR < m_maxHltMuonDR) && (pt > m_TagPtCut);
             isProbe |= tagHasTrig;
             if (tagHasTrig) {
                 if (std::distance(m_TightMuons.begin(), m_TightMuons.end()) > 2 ) {
@@ -555,6 +557,7 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults> & trigResults,
                     m_ControlHistos[kCtrlTagPhi]->Fill(phi);
                     m_ControlHistos[kCtrlTagPt]->Fill(pt);
                     m_ControlHistos[kCtrlTagProbeDr]->Fill(deltar);
+                    m_ControlHistos[kCtrlTagHltDr]->Fill(matchHltDeltaR);
                 }
             }
         }
@@ -599,7 +602,7 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmt
 }
 
 //_____________________________________________________________________
-bool L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const reco::Muon * mu) {
+double L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, const reco::Muon * mu) {
 
     double matchDeltaR = 9999;
 
@@ -624,7 +627,7 @@ bool L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>  & triggerEvent, cons
             }
         }
     }
-    return (matchDeltaR < m_maxHltMuonDR);
+    return matchDeltaR;
 }
 
 std::vector<float> L1TMuonDQMOffline::getHistBinsEff(EffType eff) {
@@ -648,7 +651,7 @@ std::vector<float> L1TMuonDQMOffline::getHistBinsEff(EffType eff) {
 }
 
 std::tuple<int, double, double> L1TMuonDQMOffline::getHistBinsRes(ResType res){
-    if (res == kResPt)      return {50, -2.5, 2.5};
+    if (res == kResPt)      return {50, -2., 2.};
     if (res == kRes1OverPt) return {50, -2., 2.};
     if (res == kResQOverPt) return {50, -2., 2.};
     if (res == kResPhi)     return {96, -0.2, 0.2};
