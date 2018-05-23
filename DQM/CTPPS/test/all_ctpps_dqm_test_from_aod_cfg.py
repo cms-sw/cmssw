@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECODQM')
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('ctppsDQMfromAOD', eras.ctpps_2016)
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",

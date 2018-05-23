@@ -8,6 +8,7 @@ caloParticles = cms.PSet(
 #	alwaysAddAncestors = cms.bool(True),
         MinEnergy = cms.double(0.5),
         MaxPseudoRapidity = cms.double(5.0),
+        premixStage1 = cms.bool(False),
 	maximumPreviousBunchCrossing = cms.uint32(0),
 	maximumSubsequentBunchCrossing = cms.uint32(0),
 	simHitCollections = cms.PSet(
@@ -32,3 +33,6 @@ caloParticles = cms.PSet(
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
+
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(caloParticles, premixStage1 = True)

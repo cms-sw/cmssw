@@ -55,7 +55,7 @@ void TestTrackTools::test_theta()
     double theta = 0. + 0.1 * static_cast<double>(i);  // theta=[0,180,step=0.1]
     int endcap = (theta >= 90.) ? -1 : 1;
     double eps = 0.28515625;
-    CPPUNIT_ASSERT_DOUBLES_EQUAL((endcap == -1 ? (180. - theta) : theta), calc_theta_deg_from_int(calc_theta_int(theta, endcap, 7)), eps);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL((endcap == -1 ? (180. - theta) : theta), calc_theta_deg_from_int(calc_theta_int(theta, endcap)), eps);
   }
 }
 
@@ -71,13 +71,13 @@ void TestTrackTools::test_phi()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_GMT_deg(calc_phi_GMT_int(phi-360.)), eps);
 
     eps = 1./60;
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi, sector, 13)), sector), eps);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi+360., sector, 13)), sector), eps);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi-360., sector, 13)), sector), eps);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi, sector)), sector), eps);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi+360., sector)), sector), eps);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi-360., sector)), sector), eps);
     if ((sector == 6 && neigh_sector == 1) || (sector != 6 && neigh_sector == sector+1)) {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi, neigh_sector, 13)), neigh_sector), eps);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi+360., neigh_sector, 13)), neigh_sector), eps);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi-360., neigh_sector, 13)), neigh_sector), eps);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi, neigh_sector)), neigh_sector), eps);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi+360., neigh_sector)), neigh_sector), eps);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(phi, calc_phi_glob_deg(calc_phi_loc_deg(calc_phi_loc_int(phi-360., neigh_sector)), neigh_sector), eps);
     }
   }
 }

@@ -48,6 +48,7 @@ class AbstractPkg(object):
         self.author = user_info(self.config.get('author', None))
         self.date   = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
         self.not_in_dir = self.config.get('not_in_dir', [])
+        self.working_dir = self.config.get('working_dir')
 
     def tmpl_etags(self):
         "Scan template files and return example tags"
@@ -113,6 +114,8 @@ class AbstractPkg(object):
         "Create new file from given template name and set of arguments"
         code = ""
         read_code = False
+        if os.path.exists(fname):
+            return
         with open(fname, 'w') as stream:
             for line in open(tmpl_name, 'r').readlines():
                 line = self.parse_etags(line)
@@ -225,6 +228,9 @@ class AbstractPkg(object):
                 fname, ext = os.path.splitext(src)
                 if  tmpl_files != ext:
                     continue
+                #also reject if this is the wrong directory
+                if self.working_dir and src.split('/')[-2] != self.working_dir:
+                    continue
                 src = src.split('/')[-1]
             if  self.debug:
                 print "Read", src
@@ -238,7 +244,9 @@ class AbstractPkg(object):
             else:
                 ftype = 'dir'
             name2gen  = src # new file we'll create
-            if  tname.split('.')[0] == self.tmpl: # need to substitute
+            if items[-1] == 'testBuildFile.xml':
+              name2gen = '/'.join(src.split('/')[:-1])+'/BuildFile.xml'
+            if  -1 !=tname.split('.')[0].find(self.tmpl): # need to substitute
                 name2gen  = name2gen.replace(self.tmpl, self.pname)
             name2gen  = os.path.join(os.getcwd(), name2gen)
             if  self.debug:

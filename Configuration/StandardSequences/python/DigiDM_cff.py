@@ -33,6 +33,7 @@ simMuonRPCDigis.Noise = False
 # remove unnecessary modules from 'pdigi' sequence - run after DataMixing
 # standard mixing module now makes unsuppressed digis for calorimeter
 pdigi.remove(simEcalTriggerPrimitiveDigis)
+pdigi.remove(simEcalEBTriggerPrimitiveDigis) # phase2
 pdigi.remove(simEcalDigis)  # does zero suppression
 pdigi.remove(simEcalPreshowerDigis)  # does zero suppression
 pdigi.remove(simHcalDigis)

@@ -17,7 +17,8 @@ from FWCore.Skeletons.utils import code_generator
 def config(tmpl, pkg_help, tmpl_dir):
     "Parse input arguments to mk-script"
     kwds  = {'author': '', 'tmpl': tmpl,
-             'args': {}, 'debug': False, 'tmpl_dir': tmpl_dir}
+             'args': {}, 'debug': False,
+             'tmpl_dir': tmpl_dir, 'working_dir': ''}
     etags = []
     if  len(sys.argv) >= 2: # user give us arguments
         if  sys.argv[1] in ['-h', '--help', '-help']:
@@ -129,7 +130,12 @@ def generate(kwds):
         config.update({'subsystem': dirs[1]})
         config.update({'pkgname': kwds.get('pname')})
         if  whereami in ['src', 'plugins']:
+            config.update({'working_dir': whereami})
             config.update({'tmpl_files': '.cc'})
+            config.update({'pkgname': dirs[2]})
+        elif whereami == 'test':
+            config.update({'working_dir': whereami})
+            config.update({'tmpl_files':'.cc'})
             config.update({'pkgname': dirs[2]})
         elif whereami == 'subsystem':
             config.update({'tmpl_files': 'all'})

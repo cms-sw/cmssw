@@ -11,7 +11,7 @@ public:
   explicit SectorProcessorLUT();
   ~SectorProcessorLUT();
 
-  void read(unsigned pc_lut_version);
+  void read(int pc_lut_version);
 
   uint32_t get_ph_init(int fw_endcap, int fw_sector, int pc_lut_id) const;
 
@@ -33,8 +33,16 @@ public:
 
   uint32_t get_ph_init_hard(int fw_station, int fw_cscid) const;
 
+  uint32_t get_cppf_lut_id(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const;
+
+  uint32_t get_cppf_ph_lut(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll, int halfstrip, bool is_neighbor) const;
+
+  uint32_t get_cppf_th_lut(int rpc_region, int rpc_sector, int rpc_station, int rpc_ring, int rpc_subsector, int rpc_roll) const;
+
 private:
   void read_file(const std::string& filename, std::vector<uint32_t>& vec);
+
+  void read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2, bool local);
 
   std::vector<uint32_t> ph_init_neighbor_;
   std::vector<uint32_t> ph_disp_neighbor_;
@@ -48,7 +56,10 @@ private:
   std::vector<uint32_t> ph_zone_offset_;
   std::vector<uint32_t> ph_init_hard_;
 
-  unsigned version_;  // init: 0xFFFFFFFF
+  std::vector<uint32_t> cppf_ph_lut_;
+  std::vector<uint32_t> cppf_th_lut_;
+
+  int version_;  // init: 0xFFFFFFFF
 };
 
 #endif

@@ -168,7 +168,7 @@ class DiJetAnalyzer : public edm::EDAnalyzer {
   int getEtaPhi(const HcalDetId id);
 
   struct JetCorretPairComp {
-    inline bool operator() ( const JetCorretPair& a, const JetCorretPair& b) {
+    inline bool operator() ( const JetCorretPair& a, const JetCorretPair& b) const{
       return (a.jet()->pt()*a.scale()) > (b.jet()->pt()*b.scale());
     }
   };

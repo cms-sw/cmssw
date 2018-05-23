@@ -945,7 +945,7 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
       double x1,x2;
       fitFcn->GetRange(x1,x2);
 
-      histoY->Fit(fitFcn,"QR0","",x1,x2);
+      histoY->Fit(fitFcn,"QR0 SERIAL","",x1,x2);
 
 //      histoY->Fit(fitFcn->GetName(),"RME");
       double *par = fitFcn->GetParameters();

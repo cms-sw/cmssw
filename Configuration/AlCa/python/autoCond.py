@@ -10,25 +10,25 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pa'        :   '101X_mcRun1_pA_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '101X_mcRun2_design_v5',
+    'run2_design'       :   '102X_mcRun2_design_v1',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '101X_mcRun2_startup_v5',
+    'run2_mc_50ns'      :   '102X_mcRun2_startup_v1',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '101X_mcRun2_asymptotic_v5',
+    'run2_mc'           :   '102X_mcRun2_asymptotic_v2',
     # GlobalTag for MC production (L1 Trigger Stage1) with starup-like alignment and calibrations for Run2, L1 trigger in Stage1 mode
     'run2_mc_l1stage1'  :   '93X_mcRun2_asymptotic_v4',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '101X_mcRun2cosmics_startup_deco_v5',
+    'run2_mc_cosmics'   :   '102X_mcRun2cosmics_startup_deco_v1',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '101X_mcRun2_HeavyIon_v6',
+    'run2_mc_hi'        :   '102X_mcRun2_HeavyIon_v1',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '101X_mcRun2_pA_v5',
+    'run2_mc_pa'        :   '102X_mcRun2_pA_v1',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '102X_dataRun2_v1',
+    'run1_data'         :   '102X_dataRun2_v3',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '102X_dataRun2_v1',
+    'run2_data'         :   '102X_dataRun2_v3',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '102X_dataRun2_relval_v2',
+    'run2_data_relval'  :   '102X_dataRun2_relval_v4',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
     'run2_data_promptlike' : '102X_dataRun2_PromptLike_v1',
     # GlobalTag for Run1 HLT: it points to the online GT
@@ -40,13 +40,13 @@ autoCond = {
     # GlobalTag for Run2 HLT for HI: it points to the online GT
     'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
-    'phase1_2017_design'       :  '101X_mc2017_design_IdealBS_v7',
+    'phase1_2017_design'       :  '102X_mc2017_design_IdealBS_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    : '101X_mc2017_realistic_v7',
+    'phase1_2017_realistic'    : '102X_mc2017_realistic_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
-    'phase1_2017_cosmics'      : '101X_mc2017cosmics_realistic_deco_v7',
+    'phase1_2017_cosmics'      : '102X_mc2017cosmics_realistic_deco_v1',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
-    'phase1_2017_cosmics_peak' : '101X_mc2017cosmics_realistic_peak_v7',
+    'phase1_2017_cosmics_peak' : '102X_mc2017cosmics_realistic_peak_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
     'phase1_2018_design'       : '102X_upgrade2018_design_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector

@@ -75,9 +75,11 @@ ntuple_clusters = cms.PSet(
     FilterClustersInMulticlusters = cms.bool(True)
 )
 
+from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_drnn_cone
 ntuple_multicluster = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
-    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
+    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
+    EGIdentification = egamma_identification_drnn_cone.clone()
 )
 
 ntuple_panels = cms.PSet(

@@ -44,6 +44,9 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
                 )
                                                                       )
 )
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(detachedQuadStepTrackingRegions,RegionPSet = dict(ptMin = 0.05))
+
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -70,6 +73,8 @@ detachedQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAThetaCut = 0.0011,
     CAPhiCut = 0,
 )
+highBetaStar_2018.toModify(detachedQuadStepHitQuadruplets,CAThetaCut = 0.0022,CAPhiCut = 0.1)
+
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
 detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
     seedingHitSets = "detachedQuadStepHitQuadruplets",
@@ -180,7 +185,7 @@ detachedQuadStep = TrackMVAClassifierDetached.clone(
     mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
     qualityCuts = [-0.5,0.0,0.5],
 )
-
+highBetaStar_2018.toModify(detachedQuadStep,qualityCuts = [-0.7,0.0,0.5])
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

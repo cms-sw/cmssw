@@ -9,6 +9,7 @@
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTriggerClusterIdentificationBase.h"
 
 
 class HGCalMulticlusteringImpl{
@@ -43,6 +44,9 @@ private:
                        unsigned int searchInd,
                        const std::vector<edm::Ptr<l1t::HGCalCluster>> & clustersPtr, 
                        std::vector<unsigned int>& neigbors);
+    void finalizeClusters(std::vector<l1t::HGCalMulticluster>&,
+            l1t::HGCalMulticlusterBxCollection&,
+            const HGCalTriggerGeometryBase&);
     
     double dr_;
     double ptC3dThreshold_;
@@ -52,6 +56,7 @@ private:
 
     HGCalShowerShape shape_;
     HGCalTriggerTools triggerTools_;
+    std::unique_ptr<HGCalTriggerClusterIdentificationBase> id_;
 
 };
 

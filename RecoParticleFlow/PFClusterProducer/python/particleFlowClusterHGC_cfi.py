@@ -33,6 +33,8 @@ _simClusterMapper_HGCal = cms.PSet(
     calibMaxEta = maxEtaCorrection,
     simClusterSrc = cms.InputTag("mix:MergedCaloTruth")
 )
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(_simClusterMapper_HGCal, simClusterSrc = "mixData:MergedCaloTruth")
 
 
 #position calculations

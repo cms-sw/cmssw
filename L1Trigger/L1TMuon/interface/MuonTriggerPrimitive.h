@@ -73,7 +73,7 @@ namespace L1TMuon {
     struct CSCData {
       CSCData() : trknmb(0), valid(0), quality(0), keywire(0), strip(0),
                   pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
-                  cscID(0) {}
+                  cscID(0), alct_quality(0), clct_quality(0) {}
       uint16_t trknmb;
       uint16_t valid;
       uint16_t quality;
@@ -86,6 +86,10 @@ namespace L1TMuon {
       uint16_t bx0;
       uint16_t syncErr;
       uint16_t cscID;
+
+      // Extra info for ALCT (wires) and CLCT (strips)
+      uint16_t alct_quality;
+      uint16_t clct_quality;
     };
 
     struct DTData {

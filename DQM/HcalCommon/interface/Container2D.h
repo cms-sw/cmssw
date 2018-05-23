@@ -22,23 +22,23 @@ namespace hcaldqm
 		public:
 			Container2D();
 			Container2D(std::string const& folder,
-				hashfunctions::HashType, Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN));
+				hashfunctions::HashType, quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN));
 			~Container2D() override;
 
 			//	Initialize Container
 			//	@folder
 			//	@nametitle, 
 			virtual void initialize(std::string const& folder, 
-					hashfunctions::HashType, Quantity*, Quantity*,
-					Quantity *qz = new ValueQuantity(quantity::fN),
+					hashfunctions::HashType, quantity::Quantity*, quantity::Quantity*,
+					quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
 					int debug=0);
 			
 			//	@qname - quantity name replacer
 			virtual void initialize(std::string const& folder, 
 				std::string const& qname,
-				hashfunctions::HashType, Quantity*, Quantity*,
-				Quantity *qz = new ValueQuantity(quantity::fN),
+				hashfunctions::HashType, quantity::Quantity*, quantity::Quantity*,
+				quantity::Quantity *qz = new quantity::ValueQuantity(quantity::fN),
 				int debug=0);
  			using Container::initialize;
  			using Container1D::initialize;
@@ -173,8 +173,10 @@ namespace hcaldqm
 				HcalElectronicsMap const*, filter::HashFilter const&,
 				std::string subsystem="Hcal", std::string aux="") override;
 
+			void showOverflowZ(bool showOverflow);
+
 		protected:
-			Quantity	*_qz;
+			quantity::Quantity	*_qz;
 
 			void customize(MonitorElement*) override;
 	};

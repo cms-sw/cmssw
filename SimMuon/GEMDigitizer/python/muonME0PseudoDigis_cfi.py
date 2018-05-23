@@ -28,6 +28,9 @@ me0PseudoDigiCommonParameters = cms.PSet(
     mixLabel = cms.string('mix')
 )
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(me0PseudoDigiCommonParameters, mixLabel = "mixData")
+
 # Module to create simulated ME0 Pre Reco digis.
 simMuonME0PseudoDigis = cms.EDProducer("ME0DigiPreRecoProducer",
     me0PseudoDigiCommonParameters

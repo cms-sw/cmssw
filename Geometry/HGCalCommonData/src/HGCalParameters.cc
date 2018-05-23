@@ -68,7 +68,7 @@ HGCalParameters::hgtrap HGCalParameters::getModule(unsigned int k,
 
 void HGCalParameters::fillTrForm(const HGCalParameters::hgtrform& mytr) {
 
-  int       zp    = (mytr.zp == 1) ? 1 : 0;
+  int       zp   = (mytr.zp == 1) ? 1 : 0;
   uint32_t indx  = ((zp & kMaskZside) << kShiftZside);
   indx          |= ((mytr.lay & kMaskLayer) << kShiftLayer);
   indx          |= ((mytr.sec & kMaskSector) << kShiftSector);
@@ -122,11 +122,11 @@ HGCalParameters::hgtrform HGCalParameters::getTrForm(unsigned int k) const {
 
   HGCalParameters::hgtrform mytr;
   if (k < trformIndex_.size()) {
-    int zp = ((trformIndex_[k] >> kShiftZside) & kMaskZside);
-    mytr.zp    = (zp == 1) ? 1 : -1;
-    mytr.lay   = ((trformIndex_[k] >> kShiftLayer) & kMaskLayer);
-    mytr.sec   = ((trformIndex_[k] >> kShiftSector) & kMaskSector);
-    mytr.subsec= ((trformIndex_[k] >> kShiftSubSec) & kMaskSubSec);
+    const auto & id = getID(k);
+    mytr.zp    = id[0];
+    mytr.lay   = id[1];
+    mytr.sec   = id[2];
+    mytr.subsec= id[3];
     mytr.h3v   = CLHEP::Hep3Vector(trformTranX_[k],trformTranY_[k],trformTranZ_[k]);
     const CLHEP::HepRep3x3 rotation(trformRotXX_[k],trformRotXY_[k],trformRotXZ_[k],
 				    trformRotYX_[k],trformRotYY_[k],trformRotYZ_[k],
@@ -168,6 +168,16 @@ void HGCalParameters::scaleTrForm(double scale) {
     trformTranY_[k-1] *= scale;
     trformTranZ_[k-1] *= scale;
   }
+}
+
+std::array<int,4> HGCalParameters::getID(unsigned int k) const {
+
+  int zp     = ((trformIndex_[k] >> kShiftZside) & kMaskZside);
+  if (zp != 1) zp = -1;
+  int lay    = ((trformIndex_[k] >> kShiftLayer) & kMaskLayer);
+  int sec    = ((trformIndex_[k] >> kShiftSector) & kMaskSector);
+  int subsec = ((trformIndex_[k] >> kShiftSubSec) & kMaskSubSec);
+  return std::array<int,4>{ {zp,lay,sec,subsec} };
 }
 
 #include "FWCore/Utilities/interface/typelookup.h"

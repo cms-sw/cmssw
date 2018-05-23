@@ -26,12 +26,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cutSumQ_HO = ps.getUntrackedParameter<double>("cutSumQ_HO", 20);
 	_cutSumQ_HF = ps.getUntrackedParameter<double>("cutSumQ_HF", 20);
 	_thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
+	_thresh_led = ps.getUntrackedParameter<double>("thresh_led", 20);
 
 	_vflags.resize(nDigiFlag);
 	_vflags[fUni]=hcaldqm::flag::Flag("UniSlotHF");
 	_vflags[fDigiSize]=hcaldqm::flag::Flag("DigiSize");
 	_vflags[fNChsHF]=hcaldqm::flag::Flag("NChsHF");
 	_vflags[fUnknownIds]=hcaldqm::flag::Flag("UnknownIds");
+	_vflags[fLED]=hcaldqm::flag::Flag("LEDMisfire");
+	_vflags[fCapId]=hcaldqm::flag::Flag("BadCapId");
 
 	_qie10InConditions = ps.getUntrackedParameter<bool>("qie10InConditions", true);
 
@@ -41,6 +44,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_refDigiSize[HcalEndcap]  = (int)vrefDigiSize[1];
 	_refDigiSize[HcalOuter]   = (int)vrefDigiSize[2];
 	_refDigiSize[HcalForward] = (int)vrefDigiSize[3];
+
+	// (capid - BX) % 4 to 1
+	_capidmbx[HcalBarrel] = 1;
+	_capidmbx[HcalEndcap] = 1;
+	_capidmbx[HcalOuter] = 1;
+	_capidmbx[HcalForward] = 1;
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib,
@@ -95,15 +104,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cfC_SubdetPM_QIE1011.initialize(_name, "fC", hcaldqm::hashfunctions::fSubdetPM,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSumQ_SubdetPM_QIE1011.initialize(_name, "SumQ", hcaldqm::hashfunctions::fSubdetPM,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSumQvsLS_SubdetPM_QIE1011.initialize(_name, "SumQvsLS",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),0);
 
 	_cTimingCut_SubdetPM.initialize(_name, "TimingCut",
 		hcaldqm::hashfunctions::fSubdetPM,
@@ -160,7 +169,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cLETDCTimevsADC_SubdetPM.initialize(_name, "LETDCTimevsADC",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250_coarse),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 	_cLETDCvsADC_SubdetPM.initialize(_name, "LETDCvsADC",
 		hcaldqm::hashfunctions::fSubdetPM,
@@ -176,6 +185,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+	_cLETDCTime_depth.initialize(_name, "LETDCTime",
+		hcaldqm::hashfunctions::fdepth,
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
 	_cBadTDCValues_SubdetPM.initialize(_name, "BadTDCValues", 
 		hcaldqm::hashfunctions::fSubdetPM,
@@ -271,6 +285,22 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 	}
+	_cCapidMinusBXmod4_SubdetPM.initialize(_name, 
+		"CapID", hcaldqm::hashfunctions::fSubdetPM,
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fCapidMinusBXmod4),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
+
+	for (int i = 0; i < 4; ++i) {
+		_cCapidMinusBXmod4_CrateSlotuTCA[i].initialize(_name, "CapID", 
+			new quantity::ElectronicsQuantity(quantity::fCrateuTCA),
+			new quantity::ElectronicsQuantity(quantity::fSlotuTCA),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cCapidMinusBXmod4_CrateSlotVME[i].initialize(_name, "CapID", 
+			new quantity::ElectronicsQuantity(quantity::fCrateVME),
+			new quantity::ElectronicsQuantity(quantity::fSlotVME),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+	}
+
 	if (_ptype != fOffline) { // hidefed2crate
 		std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
 		std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
@@ -402,6 +432,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_xDigiSize.initialize(hcaldqm::hashfunctions::fFED);
 			_xNChs.initialize(hcaldqm::hashfunctions::fFED);
 			_xNChsNominal.initialize(hcaldqm::hashfunctions::fFED);
+			_xBadCapid.initialize(hcaldqm::hashfunctions::fFED);
 		}
 	}
 
@@ -455,11 +486,22 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cLETDCvsADC_SubdetPM.book(ib, _emap, _subsystem);
 	_cLETDCvsTS_SubdetPM.book(ib, _emap, _subsystem);
 	_cLETDCTime_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCTime_depth.book(ib, _emap, _subsystem);
 
 	_cBadTDCValues_SubdetPM.book(ib, _emap, _subsystem);
 	_cBadTDCvsBX_SubdetPM.book(ib, _emap, _subsystem);
 	_cBadTDCvsLS_SubdetPM.book(ib, _emap, _subsystem);
 	_cBadTDCCount_depth.book(ib, _emap, _subsystem);
+
+	_cCapidMinusBXmod4_SubdetPM.book(ib, _emap, _subsystem);
+	for (int i = 0; i < 4; ++i) {
+		char aux[10];
+		sprintf(aux, "%d_uTCA", i);
+		_cCapidMinusBXmod4_CrateSlotuTCA[i].book(ib, _subsystem, aux);
+
+		sprintf(aux, "%d_VME", i);
+		_cCapidMinusBXmod4_CrateSlotVME[i].book(ib, _subsystem, aux);
+	}
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -494,6 +536,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_xNChsNominal.book(_emap);
 		_xUni.book(_emap);
 		_xDigiSize.book(_emap);
+		_xBadCapid.book(_emap);
+
+		// Manually book LED monitoring histogram, to get custom axis
+		ib.setCurrentFolder(_subsystem+"/"+_name+"/LED");
+		_meLEDMon = ib.book2D("LED_ADCvsBX", "Pin diode ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
+		_meLEDMon->setAxisTitle("BX", 1);
+		_meLEDMon->setAxisTitle("ADC", 2);
 
 		// just PER HF FED RECORD THE #CHANNELS
 		// ONLY WAY TO DO THAT AUTOMATICALLY AND W/O HARDCODING 1728
@@ -539,6 +588,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		1, 0, 1);
 	_unknownIdsPresent = false;
 	meUnknownIds1LS->setLumiFlag();
+
+	_ledSignalPresent = false;
+	ib.setCurrentFolder(_subsystem+"/"+_name+"/LED");
+	_meLEDEventCount = ib.book1D("LEDEventCount", "LEDEventCount", 1, 0, 2);
+	_meLEDEventCount->setLumiFlag();
 }
 
 /* virtual */ void DigiTask::_resetMonitors(hcaldqm::UpdateFreq uf)
@@ -606,17 +660,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			continue;
 		}
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) 
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
+		if (rawid == 0) {
+			meUnknownIds1LS->Fill(1); 
+			_unknownIdsPresent=true;
+			continue;
+		} else {
+			if (did.subdet()==HcalBarrel) {
+				rawidHBValid = did.rawId();
+			} else if (did.subdet()==HcalEndcap) {
+				rawidHEValid = did.rawId();
+			}
+		}
 		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalBarrel)
-			rawidHBValid = did.rawId();
-		else if (did.subdet()==HcalEndcap) 
-			rawidHEValid = did.rawId();
-
-		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, *it);
-		double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -627,6 +682,28 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				cs.isBitSet(HcalChannelStatus::HcalCellDead))
 				continue;
 		}
+
+		if (_ptype == fOnline) {
+			short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+			if (this_capidmbx < 0) {
+				this_capidmbx += 4;
+			}
+			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+			if (!good_capidmbx) {
+				_xBadCapid.get(eid)++;
+			}
+			if (eid.isVMEid()) {
+				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+			} else {
+				_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+			}
+		}
+
+		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, *it);
+		double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
@@ -668,7 +745,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cADC_SubdetPM.fill(did, it->sample(i).adc());
 			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
+				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).adc());
 				if (sumQ>_cutSumQ_HBHE) {
 					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
 				}
@@ -726,24 +803,43 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = digi.detid();
+		if (did.subdet() != HcalEndcap) {
+			// LED monitoring from calibration channels
+			if (did.subdet() == HcalOther) {
+				HcalOtherDetId hodid(digi.detid());
+				if (hodid.subdet() == HcalCalibration) {
+					if (did.depth() == 10) {
+						_ledSignalPresent = false;
+						for (int i=0; i<digi.samples(); i++) {
+							if (_ptype == fOnline) {
+								_meLEDMon->Fill(bx, digi[i].adc());
+							}
+							if (digi[i].adc() > _thresh_led) {
+								_ledSignalPresent = true;
+							}
+						}
+						if (_ledSignalPresent) {
+							_meLEDEventCount->Fill(1);
+						}
+					}
+				}
+			}
+
+			continue;
+		}
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) {
+		if (rawid == 0) {
 			meUnknownIds1LS->Fill(1);
 			_unknownIdsPresent=true;
 			continue;
+		} else {
+			if (did.subdet()==HcalBarrel) { // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection will have HB for Run 3.
+				rawidHBValid = did.rawId();
+			} else if (did.subdet()==HcalEndcap) {
+				rawidHEValid = did.rawId();
+			}
 		}
 		HcalElectronicsId const& eid(rawid);
-		if (did.subdet() != HcalEndcap) {
-			continue;
-		}
-		if (did.subdet()==HcalBarrel) { // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection will have HB for Run 3.
-			rawidHBValid = did.rawId();
-		} else if (did.subdet()==HcalEndcap) {
-			rawidHEValid = did.rawId();
-		}
-
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
-		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -754,6 +850,35 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				cs.isBitSet(HcalChannelStatus::HcalCellDead))
 				continue;
 		}
+
+		// (capid - BX) % 4
+		if (_ptype == fOnline) {
+			short soi = -1;
+			for (int i=0; i<digi.samples(); i++) {
+				if (digi[i].soi()) {
+					soi = i;
+					break;
+				}
+			}
+			short this_capidmbx = (digi[soi].capid() - bx) % 4;
+			if (this_capidmbx < 0) {
+				this_capidmbx += 4;
+			}
+			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+			if (!good_capidmbx) {
+				_xBadCapid.get(eid)++;
+			}
+			if (eid.isVMEid()) {
+				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+			} else {
+				_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+			}
+		}
+
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
+		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 
 		_cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
@@ -798,6 +923,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (digi[i].tdc() <50) {
 				double time = i*25. + (digi[i].tdc() / 2.);
 				_cLETDCTime_SubdetPM.fill(did, time);
+				_cLETDCTime_depth.fill(did, time);
 				_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
 			}
 			// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we saw some in 2017 data.
@@ -808,7 +934,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_cBadTDCCount_depth.fill(did);
 			}
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM_QIE1011.fill(did, i, q);
+				_cADCvsTS_SubdetPM_QIE1011.fill(did, i, digi[i].adc());
 				if (sumQ>_cutSumQ_HE) {
 					_cShapeCut_FED.fill(eid, i, q);
 				}
@@ -891,16 +1017,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	{		
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = it->id();
+		if (did.subdet() != HcalOuter) {
+			continue;
+		}
 		uint32_t rawid = _ehashmap.lookup(did);
-		if (rawid==0) 
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
-		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalOuter)
+		if (rawid == 0) {
+			meUnknownIds1LS->Fill(1);
+			_unknownIdsPresent = true;
+			continue;
+		} else {
 			rawidValid = did.rawId();
-
-		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
-		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+		}
+		HcalElectronicsId const& eid(rawid);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -911,6 +1039,28 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				cs.isBitSet(HcalChannelStatus::HcalCellDead))
 				continue;
 		}
+
+		if (_ptype == fOnline) {
+			short this_capidmbx = (it->sample(it->presamples()).capid() - bx) % 4;
+			if (this_capidmbx < 0) {
+				this_capidmbx += 4;
+			}
+			_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+			bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+			if (!good_capidmbx) {
+				_xBadCapid.get(eid)++;
+			}
+			if (eid.isVMEid()) {
+				_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+			} else {
+				_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+			}
+		}
+
+		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
+		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
 
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
@@ -949,7 +1099,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			_cADC_SubdetPM.fill(did, it->sample(i).adc());
 			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
+				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).adc());
 				if (sumQ>_cutSumQ_HO)
 					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
 			}
@@ -1023,26 +1173,19 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 			//	Explicit check on the DetIds present in the Collection
 			HcalDetId const& did = digi.detid();
-
-			// Require subdet == HF. In 2017, calibration channels are included in QIE10DigiCollection :( 
 			if (did.subdet() != HcalForward) {
 				continue;
 			}
 
 			uint32_t rawid = _ehashmap.lookup(did);
-			if (rawid==0) {
+			if (rawid == 0) {
 				meUnknownIds1LS->Fill(1); 
 				_unknownIdsPresent=true;
 				continue;
+			} else {
+				rawidValid = did.rawId();
 			}
 			HcalElectronicsId const& eid(rawid);
-			if (did.subdet()==HcalForward)
-				rawidValid = did.rawId();
-
-			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
-			double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
-			//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
-
 
 			//	filter out channels that are masked out
 			if (_xQuality.exists(did)) 
@@ -1053,6 +1196,37 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					cs.isBitSet(HcalChannelStatus::HcalCellDead))
 					continue;
 			}
+
+			// (capid - BX) % 4
+			if (_ptype == fOnline) {
+				short soi = -1;
+				for (int i=0; i<digi.samples(); i++) {
+					if (digi[i].soi()) {
+						soi = i;
+						break;
+					}
+				}
+				short this_capidmbx = (digi[soi].capid() - bx) % 4;
+				if (this_capidmbx < 0) {
+					this_capidmbx += 4;
+				}
+				_cCapidMinusBXmod4_SubdetPM.fill(did, this_capidmbx);
+				bool good_capidmbx = (_capidmbx[did.subdet()] == this_capidmbx);
+				if (!good_capidmbx) {
+					_xBadCapid.get(eid)++;
+				}
+				if (eid.isVMEid()) {
+					_cCapidMinusBXmod4_CrateSlotVME[this_capidmbx].fill(eid);
+
+				} else {
+					_cCapidMinusBXmod4_CrateSlotuTCA[this_capidmbx].fill(eid);
+				}
+			}
+
+			CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+			double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
+			//double sumQ = hcaldqm::utilities::sumQ_v10<QIE10DataFrame>(digi, 2.5, 0, digi.samples()-1);
+
 			//if (!_filter_QIE1011.filter(did)) {
 			_cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
 			//}
@@ -1098,6 +1272,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				if (digi[i].le_tdc() <50) {
 					double time = i*25. + (digi[i].le_tdc() / 2.);
 					_cLETDCTime_SubdetPM.fill(did, time);
+					_cLETDCTime_depth.fill(did, time);
 					_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
 				}
 
@@ -1109,7 +1284,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					_cBadTDCCount_depth.fill(did);
 				}
 				if (_ptype != fOffline) { // hidefed2crate
-					_cADCvsTS_SubdetPM_QIE1011.fill(did, (int)i, q);
+					_cADCvsTS_SubdetPM_QIE1011.fill(did, (int)i, digi[i].adc());
 					if (sumQ>_cutSumQ_HF)
 						_cShapeCut_FED.fill(eid, (int)i, q);
 				}
@@ -1246,6 +1421,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					_vflags[fDigiSize]._state = hcaldqm::flag::fBAD;
 				else
 					_vflags[fDigiSize]._state = hcaldqm::flag::fGOOD;
+
+				if (_xBadCapid.get(eid) > 0) {
+					_vflags[fCapId]._state = hcaldqm::flag::fBAD;
+				} else {
+					_vflags[fCapId]._state = hcaldqm::flag::fGOOD;
+				}
+
 				if (hcaldqm::utilities::isFEDHF(eid))
 				{
 					double fr = double(_xNChs.get(eid))/double(
@@ -1271,6 +1453,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			else
 				_vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
 
+			if (_ledSignalPresent)
+				_vflags[fLED]._state = hcaldqm::flag::fBAD;
+			else
+				_vflags[fLED]._state = hcaldqm::flag::fGOOD;
+
 			int iflag=0;
 			for (std::vector<hcaldqm::flag::Flag>::iterator ft=_vflags.begin();
 				ft!=_vflags.end(); ++ft)
@@ -1287,8 +1474,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 	}
 
-	_xDigiSize.reset(); _xUniHF.reset(); _xUni.reset();
+	_xDigiSize.reset(); _xUniHF.reset(); _xUni.reset(); 
 	_xNChs.reset();
+	_xBadCapid.reset();
 
 	//	in the end always do the DQTask::endLumi
 	DQTask::endLuminosityBlock(lb, es);
