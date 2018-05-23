@@ -78,6 +78,7 @@ trackerDict = {
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixfwd.xml', 
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixbar.xml', 
             'Geometry/TrackerCommonData/data/trackermaterial.xml',
+            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/otst.xml',
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/tracker.xml',
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixel.xml',
             'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
@@ -359,6 +360,42 @@ timingDict = {
             'from Geometry.HGCalGeometry.FastTimeGeometryESProducer_cfi import *',
         ],
         "era" : "phase2_timing, phase2_timing_layer",
+    },
+    "I3" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalTile/mtd.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalTile/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalTile/mtdProdCuts.xml'
+            ],
+        "sim" : [
+        ],
+        "reco" :[
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_new",
+    },
+    "I4" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBar/mtd.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBar/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBar/mtdProdCuts.xml'
+            ],
+        "sim" : [
+        ],
+        "reco" :[
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_new",
     }
 }
 
@@ -370,6 +407,8 @@ detectorVersionDict = {
     ("O2","T6","C3","M2","F2","I1") : "D21",
     ("O2","T7","C3","M2","F2","I1") : "D22",
     ("O2","T8","C3","M2","F2","I1") : "D23",
+    ("O2","T6","C3","M2","F2","I3") : "D24",
+    ("O2","T6","C3","M2","F2","I4") : "D25",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18","D20" ])

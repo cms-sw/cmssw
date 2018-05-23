@@ -15089,10 +15089,6 @@ note: see OT614_200_IT404_2017_12_12.cfg for full config files
 <rSolid name="tracker:serviceR1100Z2678"/>
 <rMaterial name="tracker:servicecompositeR1100Z1882"/>
 </LogicalPart>
-<LogicalPart name="supportR1190Z1450" category="unspecified">
-<rSolid name="tracker:supportR1190Z1450"/>
-<rMaterial name="tracker:supportcompositeR1190Z1450"/>
-</LogicalPart>
 <LogicalPart name="supportR1155Z2000" category="unspecified">
 <rSolid name="tracker:supportR1155Z2000"/>
 <rMaterial name="tracker:supportcompositeR1155Z2000"/>
@@ -17292,7 +17288,6 @@ note: see OT614_200_IT404_2017_12_12.cfg for full config files
 <Tubs name="serviceR915Z2678" rMin="915.685*mm" rMax="1022.49*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR1022Z2678" rMin="1022.59*mm" rMax="1100.85*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR1100Z2678" rMin="1100.95*mm" rMax="1126.46*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="supportR1190Z1450" rMin="1190*mm" rMax="1192*mm" dz="1450*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR1155Z2000" rMin="1155*mm" rMax="1157*mm" dz="700*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR314Z2251" rMin="314*mm" rMax="316*mm" dz="423*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="supportR714Z291" rMin="714.91*mm" rMax="839.85*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -28143,17 +28138,6 @@ note: see OT614_200_IT404_2017_12_12.cfg for full config files
 <rParent name="pixfwd:Phase2OTForward"/>
 <rChild name="tracker:serviceR1100Z2678"/>
 <Translation x="0*mm" y="0*mm" z="2387.82*mm"/>
-</PosPart>
-<PosPart copyNumber="1">
-<rParent name="pixbar:Phase2OTBarrel"/>
-<rChild name="tracker:supportR1190Z1450"/>
-<Translation x="0*mm" y="0*mm" z="1450*mm"/>
-</PosPart>
-<PosPart copyNumber="2">
-<rParent name="pixbar:Phase2OTBarrel"/>
-<rChild name="tracker:supportR1190Z1450"/>
-<rRotation name="tracker:Y180"/>
-<Translation x="0*mm" y="0*mm" z="-1450*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixfwd:Phase2OTForward"/>
