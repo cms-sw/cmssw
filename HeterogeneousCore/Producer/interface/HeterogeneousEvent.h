@@ -54,6 +54,12 @@ namespace edm {
       }
     }
 
+    // Delegate standard getByToken to edm::Event
+    template <typename Token, typename Type>
+    void getByToken(const Token& token, edm::Handle<Type>& handle) const {
+      constEvent_->getByToken(token, handle);
+    }
+
     template <typename PROD>
     auto put(std::unique_ptr<PROD> product) {
       return event_->put(std::move(product));

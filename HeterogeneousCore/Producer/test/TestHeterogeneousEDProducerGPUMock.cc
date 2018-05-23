@@ -36,6 +36,7 @@ private:
 
   std::string label_;
   edm::EDGetTokenT<HeterogeneousProduct> srcToken_;
+  edm::EDGetTokenT<int> srcIntToken_;
 
   // hack for GPU mock
   tbb::concurrent_vector<std::future<void> > pendingFutures;
@@ -57,6 +58,10 @@ TestHeterogeneousEDProducerGPUMock::TestHeterogeneousEDProducerGPUMock(edm::Para
   if(!srcTag.label().empty()) {
     srcToken_ = consumesHeterogeneous(srcTag);
   }
+  auto srcIntTag = iConfig.getParameter<edm::InputTag>("srcInt");
+  if(!srcIntTag.label().empty()) {
+    srcIntToken_ = consumes<int>(srcIntTag);
+  }
 
   produces<HeterogeneousProduct>();
   produces<int>();
@@ -65,6 +70,7 @@ TestHeterogeneousEDProducerGPUMock::TestHeterogeneousEDProducerGPUMock(edm::Para
 void TestHeterogeneousEDProducerGPUMock::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag());
+  desc.add<edm::InputTag>("srcInt", edm::InputTag());
   HeterogeneousEDProducer::fillPSetDescription(desc);
   descriptions.add("testHeterogeneousEDProducerGPUMock", desc);
 }
@@ -77,6 +83,11 @@ void TestHeterogeneousEDProducerGPUMock::acquireGPUMock(const edm::Heterogeneous
     edm::Handle<unsigned int> hin;
     iEvent.getByToken<OutputType>(srcToken_, hin);
     input = *hin;
+  }
+  if(!srcIntToken_.isUninitialized()) {
+    edm::Handle<int> hin;
+    iEvent.getByToken(srcIntToken_, hin);
+    input += *hin;
   }
 
   /// GPU work
@@ -111,6 +122,11 @@ void TestHeterogeneousEDProducerGPUMock::produceCPU(edm::HeterogeneousEvent& iEv
     iEvent.getByToken<OutputType>(srcToken_, hin);
     input = *hin;
   }
+  if(!srcIntToken_.isUninitialized()) {
+    edm::Handle<int> hin;
+    iEvent.getByToken(srcIntToken_, hin);
+    input += *hin;
+  }
 
   std::random_device r;
   std::mt19937 gen(r());
@@ -138,6 +154,7 @@ void TestHeterogeneousEDProducerGPUMock::produceGPUMock(edm::HeterogeneousEvent&
                            edm::LogPrint("TestHeterogeneousEDProducerGPUMock") << "  " << label_ << " Task (GPU) for event " << eventId << " in stream " << streamId << " copying to CPU";
                            dst = src;
                          });
+  iEvent.put(std::make_unique<int>(2));
 
   edm::LogPrint("TestHeterogeneousEDProducerGPUMock") << label_ << " TestHeterogeneousEDProducerGPUMock::produceGPUMock end event " << iEvent.id().event() << " stream " << iEvent.streamID() << " result " << gpuOutput_;
 }
