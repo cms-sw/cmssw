@@ -11,12 +11,12 @@ More details can be found from the sub-package specific README files (when they 
 
 ## Sub-packages
 
-* [`CUDACore`](CUDACore) CUDA-specific core components
+* [`CUDACore`](../CUDACore) CUDA-specific core components
   - *TODO:* Do we actually need this separate from `CUDAServices`? Which one to keep?
-* [`CUDAServices`](CUDAServices) Various edm::Services related to CUDA
-* [`CUDAUtilities`](CUDAUtilities) Various utilities for CUDA kernel code
-* [`Producer`](Producer) Core of the mini-framework for code organization: a base EDProducer class with algorithm scheduling to devices
-* [`Product`](Product) Core of the mini-framework for data products
+* [`CUDAServices`](../CUDAServices) Various edm::Services related to CUDA
+* [`CUDAUtilities`](../CUDAUtilities) Various utilities for CUDA kernel code
+* [`Producer`](#heterogeneousedproducer) Core of the mini-framework for code organization: a base EDProducer class with algorithm scheduling to devices
+* [`Product`](../Product) Core of the mini-framework for data products
 
 ## Design goals
 
@@ -90,11 +90,14 @@ particular order).
   - Well-performing allocators are typically highly non-trivial to construct
 * Conditions data on GPU
   - Currently each module takes care of formatting, transferring, and updating the conditions data to GPU
+  - This is probably good-enough for the current prototyping phase, but what about longer term?
+    * How to deal with multiple devices, multiple edm::Streams, and multiple lumi sections in flight?
+    * Do we need to make EventSetup aware of the devices? How much do the details depend on device type?
 * Add possibility to initiate the GPU->CPU transfer before the CPU product is needed
   - This would enable overlapping the GPU->CPU transfer while CPU is busy
     with other work, so the CPU product requestor would not have to wait
-* Add configurability
-  - E.g. for preferred device order, force specific algorithms to specific device
+* Improve configurability
+  - E.g. for preferred device order?
 * Add fault tolerance
   - E.g. in a case of a GPU running out of memory continue with CPU
   - Should be configurable
@@ -114,3 +117,7 @@ particular order).
 * Explore the implementation of these features into the core CMSSW framework
   - E.g. HeterogeneousProduct would likely go to edm::Wrapper
 * Explore how to make core framework/TBB scheduling aware of heterogenous devices
+
+# HeterogeneousEDProducer
+
+To be written.

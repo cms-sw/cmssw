@@ -43,7 +43,6 @@ private:
 
   void beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<>& cudaStream) override;
 
-  void acquireCPU(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) override;
   void acquireGPUCuda(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, cuda::stream_t<>& cudaStream) override;
 
   void produceCPU(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) override;
@@ -55,12 +54,10 @@ private:
   // GPU stuff
   std::unique_ptr<TestHeterogeneousEDProducerGPUTask> gpuAlgo_;
   TestHeterogeneousEDProducerGPUTask::ResultType gpuOutput_;
-
-    // output
-  unsigned int output_;
 };
 
 TestHeterogeneousEDProducerGPU::TestHeterogeneousEDProducerGPU(edm::ParameterSet const& iConfig):
+  HeterogeneousEDProducer(iConfig),
   label_(iConfig.getParameter<std::string>("@module_label"))
 {
   auto srcTag = iConfig.getParameter<edm::InputTag>("src");
@@ -74,7 +71,8 @@ TestHeterogeneousEDProducerGPU::TestHeterogeneousEDProducerGPU(edm::ParameterSet
 void TestHeterogeneousEDProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag());
-  descriptions.add("testHeterogeneousEDProducerGPU2", desc);
+  HeterogeneousEDProducer::fillPSetDescription(desc);
+  descriptions.add("testHeterogeneousEDProducerGPU", desc);
 }
 
 void TestHeterogeneousEDProducerGPU::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<>& cudaStream) {
@@ -85,28 +83,6 @@ void TestHeterogeneousEDProducerGPU::beginStreamGPUCuda(edm::StreamID streamId, 
   gpuAlgo_ = std::make_unique<TestHeterogeneousEDProducerGPUTask>();
 
   edm::LogPrint("TestHeterogeneousEDProducerGPU") << " " << label_ << " TestHeterogeneousEDProducerGPU::beginStreamGPUCuda end stream " << streamId << " device " << cs->getCurrentDevice();
-}
-
-void TestHeterogeneousEDProducerGPU::acquireCPU(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) {
-  edm::LogPrint("TestHeterogeneousEDProducerGPU") << " " << label_ << " TestHeterogeneousEDProducerGPU::acquireCPU begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
-
-  unsigned int input = 0;
-  if(!srcToken_.isUninitialized()) {
-    edm::Handle<unsigned int> hin;
-    iEvent.getByToken<OutputType>(srcToken_, hin);
-    input = *hin;
-  }
-
-  std::random_device r;
-  std::mt19937 gen(r());
-  auto dist = std::uniform_real_distribution<>(1.0, 3.0); 
-  auto dur = dist(gen);
-  edm::LogPrint("TestHeterogeneousEDProducerGPU") << "  Task (CPU) for event " << iEvent.id().event() << " in stream " << iEvent.streamID() << " will take " << dur << " seconds";
-  std::this_thread::sleep_for(std::chrono::seconds(1)*dur);
-
-  output_ = input + iEvent.streamID()*100 + iEvent.id().event();
-
-  edm::LogPrint("TestHeterogeneousEDProducerGPU") << " " << label_ << " TestHeterogeneousEDProducerGPU::acquireCPU end event " << iEvent.id().event() << " stream " << iEvent.streamID();
 }
 
 void TestHeterogeneousEDProducerGPU::acquireGPUCuda(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, cuda::stream_t<>& cudaStream) {
@@ -131,9 +107,25 @@ void TestHeterogeneousEDProducerGPU::acquireGPUCuda(const edm::HeterogeneousEven
 void TestHeterogeneousEDProducerGPU::produceCPU(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) {
   edm::LogPrint("TestHeterogeneousEDProducerGPU") << label_ << " TestHeterogeneousEDProducerGPU::produceCPU begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
 
-  iEvent.put<OutputType>(std::make_unique<unsigned int>(output_));
+  unsigned int input = 0;
+  if(!srcToken_.isUninitialized()) {
+    edm::Handle<unsigned int> hin;
+    iEvent.getByToken<OutputType>(srcToken_, hin);
+    input = *hin;
+  }
 
-  edm::LogPrint("TestHeterogeneousEDProducerGPU") << label_ << " TestHeterogeneousEDProducerGPU::produceCPU end event " << iEvent.id().event() << " stream " << iEvent.streamID() << " result " << output_;
+  std::random_device r;
+  std::mt19937 gen(r());
+  auto dist = std::uniform_real_distribution<>(1.0, 3.0); 
+  auto dur = dist(gen);
+  edm::LogPrint("TestHeterogeneousEDProducerGPU") << "  Task (CPU) for event " << iEvent.id().event() << " in stream " << iEvent.streamID() << " will take " << dur << " seconds";
+  std::this_thread::sleep_for(std::chrono::seconds(1)*dur);
+
+  const unsigned int output = input + iEvent.streamID()*100 + iEvent.id().event();
+
+  iEvent.put<OutputType>(std::make_unique<unsigned int>(output));
+
+  edm::LogPrint("TestHeterogeneousEDProducerGPU") << label_ << " TestHeterogeneousEDProducerGPU::produceCPU end event " << iEvent.id().event() << " stream " << iEvent.streamID() << " result " << output;
 }
 
 void TestHeterogeneousEDProducerGPU::produceGPUCuda(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, cuda::stream_t<>& cudaStream) {
@@ -154,6 +146,9 @@ void TestHeterogeneousEDProducerGPU::produceGPUCuda(edm::HeterogeneousEvent& iEv
                            edm::LogPrint("TestHeterogeneousEDProducerGPU") << "  " << label_ << " Copying from GPU to CPU for event " << eventId << " in stream " << streamId;
                            dst = TestHeterogeneousEDProducerGPUTask::getResult(src, cudaStream);
                          });
+
+  // If, for any reason, you want to disable the automatic GPU->CPU transfer, pass heterogeneous::DisableTransfer{} insteads of the function, i.e.
+  //iEvent.put<OutputType>(std::make_unique<TestHeterogeneousEDProducerGPUTask::ResultTypeRaw>(gpuOutput_.first.get(), gpuOutput_.second.get()), heterogeneous::DisableTransfer{});
 
   edm::LogPrint("TestHeterogeneousEDProducerGPU") << label_ << " TestHeterogeneousEDProducerGPU::produceGPUCuda end event " << iEvent.id().event() << " stream " << iEvent.streamID() << " device " << cs->getCurrentDevice();
 }

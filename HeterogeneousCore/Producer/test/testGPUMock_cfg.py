@@ -28,3 +28,6 @@ process.eca = cms.EDAnalyzer("EventContentAnalyzer",
 )
 process.p = cms.Path(process.prod1+process.prod2)#+process.eca)
 #process.p.associate(process.t)
+
+# Example of forcing module to run a specific device for one module via configuration
+#process.prod1.heterogeneousEnabled_ = cms.untracked.PSet(force = cms.untracked.string("GPUMock"))

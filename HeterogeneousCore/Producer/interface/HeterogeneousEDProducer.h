@@ -4,6 +4,8 @@
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -15,26 +17,29 @@
 namespace heterogeneous {
   class CPU {
   public:
+    explicit CPU(const edm::ParameterSet& iConfig) {}
     virtual ~CPU() noexcept(false);
+
+    static void fillPSetDescription(edm::ParameterSetDescription desc) {}
 
     void call_beginStreamCPU(edm::StreamID id) {
       beginStreamCPU(id);
     }
     bool call_acquireCPU(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder);
-    void call_produceCPU(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) {
-      produceCPU(iEvent, iSetup);
-    }
+    void call_produceCPU(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup);
 
   private:
     virtual void beginStreamCPU(edm::StreamID id) {};
-    virtual void acquireCPU(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) = 0;
     virtual void produceCPU(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) = 0;
   };
   DEFINE_DEVICE_WRAPPER(CPU, HeterogeneousDevice::kCPU);
 
   class GPUMock {
   public:
+    explicit GPUMock(const edm::ParameterSet& iConfig);
     virtual ~GPUMock() noexcept(false);
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
     void call_beginStreamGPUMock(edm::StreamID id) {
       beginStreamGPUMock(id);
@@ -48,6 +53,9 @@ namespace heterogeneous {
     virtual void beginStreamGPUMock(edm::StreamID id) {};
     virtual void acquireGPUMock(const edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, std::function<void()> callback) = 0;
     virtual void produceGPUMock(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup) = 0;
+
+    const bool enabled_;
+    const bool forced_;
   };
   DEFINE_DEVICE_WRAPPER(GPUMock, HeterogeneousDevice::kGPUMock);
 }
@@ -132,6 +140,15 @@ namespace heterogeneous {
   template <typename ...Devices>
   class HeterogeneousDevices: public Devices... {
   public:
+    explicit HeterogeneousDevices(const edm::ParameterSet& iConfig): Devices(iConfig)... {}
+
+    static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+      // The usual trick to expand the parameter pack for function call
+      using expander = int[];
+      (void)expander {0, ((void)Devices::fillPSetDescription(desc), 1)... };
+      desc.addUntracked<std::string>("force", "");
+    }
+
     void call_beginStream(edm::StreamID id) {
       CallBeginStream<HeterogeneousDevices, Devices...>::call(*this, id);
     }
@@ -152,13 +169,21 @@ namespace heterogeneous {
 template <typename Devices, typename ...Capabilities>
 class HeterogeneousEDProducer: public Devices, public edm::stream::EDProducer<edm::ExternalWork, Capabilities...> {
 public:
-  HeterogeneousEDProducer() {}
+  explicit HeterogeneousEDProducer(const edm::ParameterSet& iConfig):
+    Devices(iConfig.getUntrackedParameter<edm::ParameterSet>("heterogeneousEnabled_"))
+  {}
   ~HeterogeneousEDProducer() = default;
 
 protected:
   edm::EDGetTokenT<HeterogeneousProduct> consumesHeterogeneous(const edm::InputTag& tag) {
     tokens_.push_back(this->template consumes<HeterogeneousProduct>(tag));
     return tokens_.back();
+  }
+
+  static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+    edm::ParameterSetDescription nested;
+    Devices::fillPSetDescription(nested);
+    desc.addUntracked<edm::ParameterSetDescription>("heterogeneousEnabled_", nested);
   }
 
 private:

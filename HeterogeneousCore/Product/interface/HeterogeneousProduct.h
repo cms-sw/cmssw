@@ -55,6 +55,9 @@ namespace heterogeneous {
   DEFINE_DEVICE_PRODUCT(GPUCuda);
 #undef DEFINE_DEVICE_PRODUCT
 
+  // Tag class to allow disabling automatic device->CPU transfers
+  struct DisableTransfer {};
+
   /**
    * Below are various helpers
    *
@@ -259,6 +262,18 @@ public:
     assert(location.deviceType() == Device);
     std::get<index>(products_) = std::move(data);
     std::get<index>(transfersToCPU_) = std::move(transferToCPU);
+    location_[index].set(location.deviceId());
+  }
+
+  /**
+   * Generic constructor for device data, but without the transfer function(!).
+   */
+  template <HeterogeneousDevice Device, typename D>
+  HeterogeneousProductImpl(heterogeneous::HeterogeneousDeviceTag<Device>, D&& data, HeterogeneousDeviceId location, heterogeneous::DisableTransfer) {
+    // TODO: try to avoid code duplication between the other device data
+    constexpr const auto index = static_cast<unsigned int>(Device);
+    assert(location.deviceType() == Device);
+    std::get<index>(products_) = std::move(data);
     location_[index].set(location.deviceId());
   }
 

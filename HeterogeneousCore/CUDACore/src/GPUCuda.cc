@@ -9,11 +9,21 @@
 #include <exception>
 
 namespace heterogeneous {
+  GPUCuda::GPUCuda(const edm::ParameterSet& iConfig):
+    enabled_(iConfig.getUntrackedParameter<bool>("GPUCuda")),
+    forced_(iConfig.getUntrackedParameter<std::string>("force") == "GPUCuda")
+  {}
+
   GPUCuda::~GPUCuda() noexcept(false) {}
+
+  void GPUCuda::fillPSetDescription(edm::ParameterSetDescription& desc) {
+    desc.addUntracked<bool>("GPUCuda", true);
+  }
 
   void GPUCuda::call_beginStreamGPUCuda(edm::StreamID id) {
     edm::Service<CUDAService> cudaService;
-    if(!cudaService->enabled()) {
+    enabled_ = (enabled_ && cudaService->enabled());
+    if(!enabled_) {
       return;
     }
 
@@ -41,10 +51,12 @@ namespace heterogeneous {
   }
 
   bool GPUCuda::call_acquireGPUCuda(DeviceBitSet inputLocation, edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-    edm::Service<CUDAService> cudaService;
-    if(!cudaService->enabled()) {
+    if(!enabled_) {
       return false;
     }
+
+    // TODO: currently 'forced_ == true' is already assumed. When the
+    // scheduling logic evolves, add explicit treatment of forced_.
 
     cuda::device::current::scoped_override_t<> setDeviceForThisScope(deviceId_);
 

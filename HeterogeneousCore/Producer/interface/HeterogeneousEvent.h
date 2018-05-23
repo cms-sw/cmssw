@@ -48,7 +48,7 @@ namespace edm {
         CASE(HeterogeneousDevice::kGPUMock);
         CASE(HeterogeneousDevice::kGPUCuda);
         default:
-          throw cms::Exception("LogicError") << "edm::HeterogeneousEvent::getByToken(): no case statement for device " << static_cast<unsigned int>(location().deviceType());
+          throw cms::Exception("LogicError") << "edm::HeterogeneousEvent::getByToken(): no case statement for device " << static_cast<unsigned int>(location().deviceType()) << ". If you are calling getByToken() from produceX() where X != CPU, please move the call to acquireX().";
         }
 #undef CASE
       }
