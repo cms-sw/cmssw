@@ -129,7 +129,8 @@ nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nano
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
-def nanoAOD_customizeCommon(process):
+def nanoAOD_addDeepBTagFor80X(process):
+    print "Updating process to run DeepCSV btag on legacy 80X datasets"
     updateJetCollection(
                process,
                jetSource = cms.InputTag('slimmedJets'),
@@ -137,8 +138,6 @@ def nanoAOD_customizeCommon(process):
                btagDiscriminators = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc'], ## to add discriminators
                btagPrefix = ''
            )
-
-
     process.load("Configuration.StandardSequences.MagneticField_cff")
     process.looseJetId.src="selectedUpdatedPatJets"
     process.tightJetId.src="selectedUpdatedPatJets"
@@ -150,6 +149,11 @@ def nanoAOD_customizeCommon(process):
     patAlgosToolsTask .add(process.updatedPatJets)
     patAlgosToolsTask .add(process.patJetCorrFactors)
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
+    return process
+
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+def nanoAOD_customizeCommon(process):
+    run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
     return process
 
 
