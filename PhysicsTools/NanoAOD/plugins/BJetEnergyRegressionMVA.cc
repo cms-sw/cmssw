@@ -49,7 +49,7 @@ class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
 
     void fillAdditionalVariables(const pat::Jet&j)  override {
 
-    this->setValue("nPVs",(pvs_->size()-19.1268252508)*0.138597756712);
+    this->setValue("nPVs",pvs_->size());
     this->setValue("rho",*(rho_.product()));
 
     
