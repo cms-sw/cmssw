@@ -24,59 +24,59 @@ def optionparse():
     def _isValidPerfCmdsDef(alist):
         out = True
         for item in alist:
-            isdict = type(item) == type({})
+            isdict = isinstance(item, type({}))
             out = out and isdict
             if isdict:
                 for key in item:
                     out = out and key in validPerfSuitKeys
                     if   key == "cpus":
-                        out = out and type(item[key]) == type("") #has to be a string not a list!
+                        out = out and isinstance(item[key], type("")) #has to be a string not a list!
                     elif key == "cores":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "castordir":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "perfsuitedir":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "TimeSizeEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "TimeSizeCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "CallgrindEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "CallgrindCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "IgProfEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "IgProfCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "MemcheckEvents":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "MemcheckCandles":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "cmsScimark":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "cmsScimarkLarge":
-                        out = out and type(item[key]) == type(123)
+                        out = out and isinstance(item[key], type(123))
                     elif key == "cmsdriverOptions":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "stepOptions":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "quicktest":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "profilers":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "prevrel":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
                     elif key == "isAllCandles":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "candles":
-                        out = out and type(item[key]) == type("")#has to be a string not a list!
+                        out = out and isinstance(item[key], type(""))#has to be a string not a list!
                     elif key == "bypasshlt":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "runonspare":
-                        out = out and type(item[key]) == type(False)
+                        out = out and isinstance(item[key], type(False))
                     elif key == "logfile":
-                        out = out and type(item[key]) == type("")
+                        out = out and isinstance(item[key], type(""))
         return out
 
     parser = opt.OptionParser(usage=("""%s [Options]""" % PROG_NAME))
@@ -163,7 +163,7 @@ def optionparse():
                     sys.exit()
                 except :
                     raise
-                if not type(cmsperf_cmds[-1]) == type([]):
+                if not isinstance(cmsperf_cmds[-1], type([])):
                     parser.error("ERROR: %s must contain a list (variable named listperfsuitekeywords) of dictionaries that represents a list of cmsPerfSuite keyword arguments must be passed to this program 2" % cmdfile)
                     sys.exit()
                 if not _isValidPerfCmdsDef(cmsperf_cmds[-1]):

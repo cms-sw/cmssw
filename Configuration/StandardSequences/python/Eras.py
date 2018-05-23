@@ -76,7 +76,7 @@ class Eras (object):
         if details: print '   Modifiers:'
         nmod=0
         for value in getattr(self,e).__dict__['_ModifierChain__chain']:
-            if type(value)==Modifier:
+            if isinstance(value, Modifier):
                 nmod=nmod+1
                 if details: self.inspectModifier(value,details)
         print '   ',nmod,'modifiers defined'
@@ -91,7 +91,7 @@ class Eras (object):
 
         allEras=[]
         for key, value in self.__dict__.items():
-            if type(value)==ModifierChain: allEras.append(key)
+            if isinstance(value, ModifierChain): allEras.append(key)
 
         for e in allEras:
             if name is not None and name==e:

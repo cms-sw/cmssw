@@ -1447,8 +1447,7 @@ class CMSHarvester(object):
 	    for run in runs:
                 castor_dirs.append(self.datasets_information[dataset_name] \
                                    ["castor_path"][run])
-        castor_dirs_unique = list(set(castor_dirs))
-        castor_dirs_unique.sort()
+        castor_dirs_unique = sorted(set(castor_dirs))
         # This can take some time. E.g. CRAFT08 has > 300 runs, each
         # of which will get a new directory. So we show some (rough)
         # info in between.
@@ -1565,8 +1564,7 @@ class CMSHarvester(object):
         # permissions are set correctly and b) the final destination
         # exists.
         path = ""
-        check_sizes = castor_paths_dont_touch.keys()
-        check_sizes.sort()
+        check_sizes = sorted(castor_paths_dont_touch.keys())
         len_castor_path_pieces = len(castor_path_pieces)
         for piece_index in xrange (len_castor_path_pieces):
             skip_this_path_piece = False
@@ -2616,8 +2614,7 @@ class CMSHarvester(object):
 
         runs = handler.results.values()[0]
         # Turn strings into integers.
-        runs = [int(i) for i in runs]
-        runs.sort()
+        runs = sorted([int(i) for i in runs])
 
         # End of dbs_resolve_runs.
         return runs
@@ -3409,10 +3406,9 @@ class CMSHarvester(object):
         # NOTE: There should not be any duplicates in any list coming
         # from DBS, but maybe the user provided a list file with less
         # care.
-        dataset_names = list(set(dataset_names))
-
         # Store for later use.
-        dataset_names.sort()
+        dataset_names = sorted(set(dataset_names))
+
 
         # End of build_dataset_list.
         return dataset_names
@@ -4343,8 +4339,7 @@ class CMSHarvester(object):
         multicrab_config_lines.append("cfg = crab.cfg")
         multicrab_config_lines.append("")
 
-        dataset_names = self.datasets_to_use.keys()
-        dataset_names.sort()
+        dataset_names = sorted(self.datasets_to_use.keys())
 
         for dataset_name in dataset_names:
             runs = self.datasets_to_use[dataset_name]
@@ -5342,8 +5337,7 @@ class CMSHarvester(object):
         # to be easier to follow, sacrificing a bit of efficiency.
         self.datasets_information = {}
         self.logger.info("Collecting information for all datasets to process")
-        dataset_names = self.datasets_to_use.keys()
-        dataset_names.sort()
+        dataset_names = sorted(self.datasets_to_use.keys())
         for dataset_name in dataset_names:
 
             # Tell the user which dataset: nice with many datasets.

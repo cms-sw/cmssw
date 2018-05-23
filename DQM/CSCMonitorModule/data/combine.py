@@ -17,8 +17,7 @@ for h in f:
   else:
     missing[key]=name
 
-a=histos.keys()
-a.sort()
+a=sorted(histos.keys())
 for h in a:
   print h,
   if histos[h] != 0:

@@ -45,7 +45,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             for option in requirements_dict[self.options.command]:
                 if not (hasattr(self.options, option)
                     and ( (getattr(self.options,option))
-                          or type(getattr(self.options,option)) == bool )):
+                          or isinstance(getattr(self.options,option), bool) )):
                     missing_options.append(option)
         if len(missing_options) > 0:
             err = "The following CLI options are missing"
