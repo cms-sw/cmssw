@@ -20,7 +20,7 @@
 
 namespace omtf {
 
-bool lessLinkBoardElectronicIndex::operator() (const LinkBoardElectronicIndex & o1, const LinkBoardElectronicIndex & o2) {
+bool lessLinkBoardElectronicIndex::operator() (const LinkBoardElectronicIndex & o1, const LinkBoardElectronicIndex & o2) const {
   if (o1.dccId < o2.dccId) return true;
   else if (o1.dccId == o2.dccId && o1.dccInputChannelNum < o2.dccInputChannelNum) return true;
   else if (o1.dccId == o2.dccId && o1.dccInputChannelNum == o2.dccInputChannelNum && o1.tbLinkInputNum < o2.tbLinkInputNum) return true;

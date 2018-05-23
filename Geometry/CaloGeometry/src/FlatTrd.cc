@@ -154,15 +154,15 @@ void  FlatTrd::createCorners( const std::vector<CCGFloat>&  pv ,
 			      std::vector<GlobalPoint>&     co   ) {
 
   assert( 11 <= pv.size() ) ;
-  assert( 8 == co.size() ) ;
+  assert( ncorner_ == co.size() ) ;
 
-  Pt3DVec        ko ( 8, Pt3D(0,0,0) ) ;
+  Pt3DVec        ko ( ncorner_, Pt3D(0,0,0) ) ;
 
   Pt3D    tmp ;
-  Pt3DVec to ( 8, Pt3D(0,0,0) ) ;
+  Pt3DVec to ( ncorner_, Pt3D(0,0,0) ) ;
   localCorners( to, &pv.front(), tmp ) ;
 
-  for( unsigned int i ( 0 ) ; i != 8 ; ++i ) {
+  for( unsigned int i ( 0 ) ; i != ncorner_ ; ++i ) {
     ko[i] = tr * to[i] ; // apply transformation
     const Pt3D & p ( ko[i] ) ;
     co[ i ] = GlobalPoint( p.x(), p.y(), p.z() ) ;
@@ -176,7 +176,7 @@ void FlatTrd::localCorners( Pt3DVec&        lc  ,
 			    const CCGFloat* pv  ,
 			    Pt3D&           ref   ) {
    assert( nullptr != pv ) ;
-   assert( 8 == lc.size() ) ;
+   assert( ncorner_ == lc.size() ) ;
 
    const CCGFloat dz ( pv[0] ) ;
    const CCGFloat h  ( pv[3] ) ;
@@ -211,7 +211,7 @@ void FlatTrd::getTransform( Tr3D& tr, Pt3DVec* lptr ) const {
 
   Pt3D  lFront ;
   assert( nullptr != param() ) ;
-  std::vector<Pt3D > lc( 8, Pt3D(0,0,0) ) ;
+  std::vector<Pt3D > lc( ncorner_, Pt3D(0,0,0) ) ;
   localCorners( lc, param(), lFront ) ;
 
   // figure out if reflction volume or not
@@ -257,7 +257,7 @@ void FlatTrd::initCorners(CaloCellGeometry::CornersVec& co) {
     Tr3D tr ;
     getTransform( tr, &lc ) ;
 
-    for (unsigned int i ( 0 ) ; i != 8 ; ++i ) {
+    for (unsigned int i ( 0 ) ; i != ncorner_ ; ++i ) {
       const Pt3D corn ( tr*lc[i] ) ;
       corners[i] = GlobalPoint( corn.x(), corn.y(), corn.z() ) ;
     }
@@ -269,7 +269,7 @@ GlobalVector FlatTrd::makeAxis() {
 }
 
 GlobalPoint FlatTrd::backCtr() const {
-  float dz = (getCorners()[4].z() > getCorners()[0].z()) ? 
+  float dz = (getCorners()[ncornerBy2_].z() > getCorners()[0].z()) ? 
     param()[0] : -param()[0];
   Pt3D local_b(m_local.x(),m_local.y(),m_local.z()+dz);
   Pt3D global_b = m_tr*local_b;

@@ -665,7 +665,7 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   if (fv1.firstChild()) {
     DDsvalues_type sv(fv1.mergedSpecifics());
     int nmin(0);
-    std::vector<double> dummy = getDDDArray("WaferSize",sv,nmin);
+    const auto & dummy = getDDDArray("WaferSize",sv,nmin);
     waferSize_ = dummy[0];
   }
 #ifdef EDM_ML_DEBUG
@@ -688,6 +688,137 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
     edm::LogVerbatim("HGCalGeom") << " [" << k << "] " << php.cellSize_[k];
 #endif
 
+}
+
+void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv,
+					       HGCalParameters& php) {
+
+  DDsvalues_type sv(fv.mergedSpecifics());
+  php.cellThickness_ = DDVectorGetter::get("CellThickness");
+  std::for_each(php.cellThickness_.begin(), php.cellThickness_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: cell Thickness "
+				<< php.cellThickness_[0] << ":" 
+				<< php.cellThickness_[1] << ":" 
+				<< php.cellThickness_[2];
+#endif
+  php.radius100to200_ = DDVectorGetter::get("Radius100to200");
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Polynomial "
+				<< "parameters for 120 to 200 micron "
+				<< "transition "  << php.radius100to200_[0] 
+				<< ":" << php.radius100to200_[1] << ":"
+				<< php.radius100to200_[2] << ":" 
+				<< php.radius100to200_[3] << ":"
+				<< php.radius100to200_[4];
+#endif
+  php.radius200to300_ = DDVectorGetter::get("Radius200to300");
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Polynomial "
+				<< "parameters for 200 to 300 micron "
+				<< "transition " << php.radius200to300_[0]
+				<< ":" << php.radius200to300_[1] << ":"
+				<< php.radius200to300_[2] << ":" 
+				<< php.radius200to300_[3] << ":"
+				<< php.radius200to300_[4];
+#endif
+  const auto & dummy = DDVectorGetter::get("RadiusCuts");
+  php.nCornerCut_ = (int)(dummy[0]);
+  php.zMinForRad_ = HGCalParameters::k_ScaleFromDDD*dummy[1];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Parameters for the"
+				<< " transition " << php.nCornerCut_ << ":" 
+				<< php.zMinForRad_ << std::endl;
+#endif
+  php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
+  std::for_each(php.radiusMixBoundary_.begin(), php.radiusMixBoundary_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+#ifdef EDM_ML_DEBUG
+  for (unsigned int k = 0; k < php.radiusMixBoundary_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mix[" << k << "] R = "
+				  << php.radiusMixBoundary_[k];
+#endif
+  const auto & dummy2 = DDVectorGetter::get("SlopeBottom");
+  php.slopeMin_   = dummy2[0];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 
+				<< php.slopeMin_;
+#endif
+  php.slopeTop_  = DDVectorGetter::get("SlopeTop");
+  php.zFront_    = DDVectorGetter::get("ZFront");
+  std::for_each(php.zFront_.begin(), php.zFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+  php.rMaxFront_ = DDVectorGetter::get("RMaxFront");
+  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+#ifdef EDM_ML_DEBUG
+  for (unsigned int k = 0; k < php.zFront_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
+				  << "] Z = " << php.zFront_[k] << " Slope = "
+				  << php.slopeTop_[k] << " rMax = "
+				  << php.rMaxFront_[k];
+#endif
+  php.zRanges_   = DDVectorGetter::get("ZRanges");
+  std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " 
+				<< php.zRanges_[0] << ":" << php.zRanges_[1]
+				<< ":" << php.zRanges_[2] << ":"
+				<< php.zRanges_[3];
+#endif
+}
+
+void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv,
+						HGCalParameters& php) {
+
+  DDsvalues_type sv(fv.mergedSpecifics());
+  php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
+  std::for_each(php.radiusMixBoundary_.begin(), php.radiusMixBoundary_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+  php.nPhiBinBH_ = dbl_to_int(DDVectorGetter::get("NPhiBinBH"));
+  php.dPhiEtaBH_.clear();
+  php.nCellsFine_   = php.nPhiBinBH_[0];
+  php.nCellsCoarse_ = php.nPhiBinBH_[0];
+  for (auto const & nbin : php.nPhiBinBH_) { 
+    php.dPhiEtaBH_.emplace_back(2.0*M_PI/nbin);
+    if (nbin > php.nCellsFine_)   php.nCellsFine_   = nbin;
+    if (nbin < php.nCellsCoarse_) php.nCellsCoarse_ = nbin;
+  }
+  php.cellSize_.emplace_back(2.0*M_PI/php.nCellsFine_);
+  php.cellSize_.emplace_back(2.0*M_PI/php.nCellsCoarse_);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters:nCells "
+				<< php.nCellsFine_ << ":" << php.nCellsCoarse_
+				<< " cellSize: " << php.cellSize_[0] << ":"
+				<< php.cellSize_[1];
+  for (unsigned int k = 0; k < php.radiusMixBoundary_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Mix[" << k 
+				  << "] R = " << php.radiusMixBoundary_[k] 
+				  << " NphiBin = " << php.nPhiBinBH_[k]
+				  << " dPhiEta = " << php.dPhiEtaBH_[k];
+#endif
+  const auto& dummy = DDVectorGetter::get("SlopeBottom");
+  php.slopeMin_   = dummy[0];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 
+				<< php.slopeMin_;
+#endif
+  php.slopeTop_  = DDVectorGetter::get("SlopeTop");
+  php.zFront_    = DDVectorGetter::get("ZFront");
+  std::for_each(php.zFront_.begin(), php.zFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+  php.rMaxFront_ = DDVectorGetter::get("RMaxFront");
+  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+#ifdef EDM_ML_DEBUG
+  for (unsigned int k = 0; k < php.zFront_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
+				  << "] Z = " << php.zFront_[k] << " Slope = "
+				  << php.slopeTop_[k] << " rMax = " 
+				  << php.rMaxFront_[k];
+#endif
+  php.zRanges_   = DDVectorGetter::get("ZRanges");
+  std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " 
+				<< php.zRanges_[0] << ":" << php.zRanges_[1]
+				<< ":" << php.zRanges_[2] << ":"
+				<< php.zRanges_[3];
+#endif
 }
 
 void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
@@ -782,6 +913,7 @@ void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
   }
   php.copiesInLayers_ = copiesInLayers;
   php.nSectors_       = (int)(php.waferCopy_.size());
+  php.waferUVMax_     = 0;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalWaferHexagon: # of columns "
 				<< incm << " # of rows " << inrm << " and "
@@ -967,131 +1099,6 @@ void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv,
 #endif
 }
 
-void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv,
-					       HGCalParameters& php) {
-
-  DDsvalues_type sv(fv.mergedSpecifics());
-  php.cellThickness_ = DDVectorGetter::get("CellThickness");
-  std::for_each(php.cellThickness_.begin(), php.cellThickness_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: cell Thickness "
-				<< php.cellThickness_[0] << ":" 
-				<< php.cellThickness_[1] << ":" 
-				<< php.cellThickness_[2];
-#endif
-  php.radius100to200_ = DDVectorGetter::get("Radius100to200");
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Polynomial "
-				<< "parameters for 120 to 200 micron "
-				<< "transition "  << php.radius100to200_[0] 
-				<< ":" << php.radius100to200_[1] << ":"
-				<< php.radius100to200_[2] << ":" 
-				<< php.radius100to200_[3] << ":"
-				<< php.radius100to200_[4];
-#endif
-  php.radius200to300_ = DDVectorGetter::get("Radius200to300");
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Polynomial "
-				<< "parameters for 200 to 300 micron "
-				<< "transition " << php.radius200to300_[0]
-				<< ":" << php.radius200to300_[1] << ":"
-				<< php.radius200to300_[2] << ":" 
-				<< php.radius200to300_[3] << ":"
-				<< php.radius200to300_[4];
-#endif
-  std::vector<double> dummy = DDVectorGetter::get("RadiusCuts");
-  php.nCornerCut_ = (int)(dummy[0]);
-  php.zMinForRad_ = HGCalParameters::k_ScaleFromDDD*dummy[1];
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Parameters for the"
-				<< " transition " << php.nCornerCut_ << ":" 
-				<< php.zMinForRad_ << std::endl;
-#endif
-  php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
-  std::for_each(php.radiusMixBoundary_.begin(), php.radiusMixBoundary_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-#ifdef EDM_ML_DEBUG
-  for (unsigned int k = 0; k < php.radiusMixBoundary_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Mix[" << k << "] R = "
-				  << php.radiusMixBoundary_[k];
-#endif
-  dummy = DDVectorGetter::get("SlopeBottom");
-  php.slopeMin_   = dummy[0];
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 
-				<< php.slopeMin_;
-#endif
-  php.slopeTop_  = DDVectorGetter::get("SlopeTop");
-  php.zFront_    = DDVectorGetter::get("ZFront");
-  std::for_each(php.zFront_.begin(), php.zFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-  php.rMaxFront_ = DDVectorGetter::get("RMaxFront");
-  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-#ifdef EDM_ML_DEBUG
-  for (unsigned int k = 0; k < php.zFront_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
-				  << "] Z = " << php.zFront_[k] << " Slope = "
-				  << php.slopeTop_[k] << " rMax = "
-				  << php.rMaxFront_[k];
-#endif
-  php.zRanges_   = DDVectorGetter::get("ZRanges");
-  std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " 
-				<< php.zRanges_[0] << ":" << php.zRanges_[1]
-				<< ":" << php.zRanges_[2] << ":"
-				<< php.zRanges_[3];
-#endif
-}
-
-void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv,
-						HGCalParameters& php) {
-
-  DDsvalues_type sv(fv.mergedSpecifics());
-  php.radiusMixBoundary_ = DDVectorGetter::get("RadiusMixBoundary");
-  std::for_each(php.radiusMixBoundary_.begin(), php.radiusMixBoundary_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-  php.nPhiBinBH_ = dbl_to_int(DDVectorGetter::get("NPhiBinBH"));
-  php.dPhiEtaBH_.clear();
-  php.nCellsFine_   = php.nPhiBinBH_[0];
-  php.nCellsCoarse_ = php.nPhiBinBH_[0];
-  for (auto const & nbin : php.nPhiBinBH_) { 
-    php.dPhiEtaBH_.emplace_back(2.0*M_PI/nbin);
-    if (nbin > php.nCellsFine_)   php.nCellsFine_   = nbin;
-    if (nbin < php.nCellsCoarse_) php.nCellsCoarse_ = nbin;
-  }
-#ifdef EDM_ML_DEBUG
-  for (unsigned int k = 0; k < php.radiusMixBoundary_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: Mix[" << k 
-				  << "] R = " << php.radiusMixBoundary_[k] 
-				  << " NphiBin = " << php.nPhiBinBH_[k]
-				  << " dPhiEta = " << php.dPhiEtaBH_[k];
-#endif
-  std::vector<double> dummy = DDVectorGetter::get("SlopeBottom");
-  php.slopeMin_   = dummy[0];
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: SlopeBottom " 
-				<< php.slopeMin_;
-#endif
-  php.slopeTop_  = DDVectorGetter::get("SlopeTop");
-  php.zFront_    = DDVectorGetter::get("ZFront");
-  std::for_each(php.zFront_.begin(), php.zFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-  php.rMaxFront_ = DDVectorGetter::get("RMaxFront");
-  std::for_each(php.rMaxFront_.begin(), php.rMaxFront_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-#ifdef EDM_ML_DEBUG
-  for (unsigned int k = 0; k < php.zFront_.size(); ++k)
-    edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Boundary[" << k 
-				  << "] Z = " << php.zFront_[k] << " Slope = "
-				  << php.slopeTop_[k] << " rMax = " 
-				  << php.rMaxFront_[k];
-#endif
-  php.zRanges_   = DDVectorGetter::get("ZRanges");
-  std::for_each(php.zRanges_.begin(), php.zRanges_.end(), [](double &n){ n*=HGCalParameters::k_ScaleFromDDD; });
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " 
-				<< php.zRanges_[0] << ":" << php.zRanges_[1]
-				<< ":" << php.zRanges_[2] << ":"
-				<< php.zRanges_[3];
-#endif
-}
-
 void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
   // Find eta ranges in each layer
   std::vector<double> etaMin, etaMax;
@@ -1144,10 +1151,11 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
       mytr.cellSize *= HGCalParameters::k_ScaleFromDDD;
       php.fillModule(mytr, false);
       if (ieta == ietaMin)   php.firstModule_.emplace_back(im);
-      if (ieta == ietaMax-1) php.lastModule_.emplace_back(im);
       ++im;
+      if (ieta == ietaMax-1) php.lastModule_.emplace_back(im);
     }
   }
+  php.nSectors_       = php.waferUVMax_;
 #ifdef EDM_ML_DEBUG
   for (unsigned int k=0; k< php.firstModule_.size(); ++k)
     edm::LogVerbatim("HGCalGeom")  << "Layer " << k+php.firstLayer_

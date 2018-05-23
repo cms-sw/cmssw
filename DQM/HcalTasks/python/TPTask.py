@@ -18,6 +18,8 @@ tpTask = DQMEDAnalyzer(
 
 	#	tags
 	tagData = cms.untracked.InputTag("hcalDigis"),
+	tagDataL1Rec = cms.untracked.InputTag("caloLayer1Digis"),
+
 	tagEmul = cms.untracked.InputTag("emulTPDigis"),
 	tagEmulNoTDCCut = cms.untracked.InputTag("emulTPDigisNoTDCCut"),
 

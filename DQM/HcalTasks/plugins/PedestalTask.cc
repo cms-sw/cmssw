@@ -26,10 +26,10 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
-	_vflags.resize(nPedestalFlag);
+	_vflags.resize(2);
 	_vflags[fMsn]=hcaldqm::flag::Flag("Msn");
 	_vflags[fBadM]=hcaldqm::flag::Flag("BadM");
-	_vflags[fBadR]=hcaldqm::flag::Flag("BadR");
+	//_vflags[fBadR]=hcaldqm::flag::Flag("BadR");
 
 	_thresh_mean = ps.getUntrackedParameter<double>("thresh_mean",
 		0.25);
@@ -773,7 +773,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 				double frmissing = double(_xNMsn1LS.get(eid))/
 					double(_xNChs.get(eid));
 				double frbadm = _xNBadMean1LS.get(eid)/_xNChs.get(eid);
-				double frbadr = _xNBadRMS1LS.get(eid)/_xNChs.get(eid);
+				//double frbadr = _xNBadRMS1LS.get(eid)/_xNChs.get(eid);
 
 				if (frmissing>=_thresh_missing_high)
 					_vflags[fMsn]._state = hcaldqm::flag::fBAD;
@@ -785,10 +785,11 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 					_vflags[fBadM]._state = hcaldqm::flag::fBAD;
 				else
 					_vflags[fBadM]._state = hcaldqm::flag::fGOOD;
-				if (frbadr>=_thresh_badr)
-					_vflags[fBadR]._state = hcaldqm::flag::fBAD;
-				else
-					_vflags[fBadR]._state = hcaldqm::flag::fGOOD;
+				// BadR removed May 9, 2018 - the pedestal RMS isn't stable enough to monitor right now.
+				//if (frbadr>=_thresh_badr)
+				//	_vflags[fBadR]._state = hcaldqm::flag::fBAD;
+				//else
+				//	_vflags[fBadR]._state = hcaldqm::flag::fGOOD;
 			}
 
 			int iflag=0;

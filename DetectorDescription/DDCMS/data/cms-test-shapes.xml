@@ -40,12 +40,12 @@
 
   <IncludeSection>
     <!-- Include ref="Geometry/CMSCommonData/materials.xml"/ -->
-    <Include ref="trackerParameters.xml"/>
-    <Include ref="testMaterials.xml"/>
-    <Include ref="testLogicalParts.xml"/>
-    <Include ref="testRotations.xml"/>
-    <Include ref="testSolids.xml"/>
-    <Include ref="materials.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/trackerParameters.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testMaterials.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testLogicalParts.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testRotations.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testSolids.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
   </IncludeSection>
 
 </DDDefinition>

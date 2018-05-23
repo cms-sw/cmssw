@@ -34,6 +34,9 @@ hgceeDigitizer = cms.PSet(
     tofDelay          = cms.double(5),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
+    premixStage1      = cms.bool(False),
+    premixStage1MinCharge = cms.double(0),
+    premixStage1MaxCharge = cms.double(1e6),
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
@@ -95,6 +98,9 @@ hgchefrontDigitizer = cms.PSet(
     tofDelay          = cms.double(5),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
+    premixStage1      = cms.bool(False),
+    premixStage1MinCharge = cms.double(0),
+    premixStage1MaxCharge = cms.double(1e6),
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
@@ -155,6 +161,9 @@ hgchebackDigitizer = cms.PSet(
     tofDelay          = cms.double(1),
     digitizationType  = cms.uint32(1),
     makeDigiSimLinks  = cms.bool(False),
+    premixStage1      = cms.bool(False),
+    premixStage1MinCharge = cms.double(0),
+    premixStage1MaxCharge = cms.double(1e6),
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
@@ -178,6 +187,9 @@ hgchebackDigitizer = cms.PSet(
             )
         )
     )
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+for _m in [hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer]:
+    premix_stage1.toModify(_m, premixStage1 = True)
 
 #function to set noise to aged HGCal
 endOfLifeCCEs = [0.5, 0.5, 0.7]

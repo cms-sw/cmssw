@@ -8,6 +8,7 @@
 #include "Event.h"
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 // ========================================================
 // ================ Define the Interface ==================

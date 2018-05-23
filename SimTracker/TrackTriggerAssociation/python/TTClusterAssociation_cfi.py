@@ -8,3 +8,8 @@ TTClusterAssociatorFromPixelDigis = cms.EDProducer("TTClusterAssociator_Phase2Tr
     trackingParts= cms.InputTag( "mix","MergedTrackTruth" )
 )
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(TTClusterAssociatorFromPixelDigis,
+    digiSimLinks = "mixData:Tracker",
+    trackingParts = "mixData:MergedTrackTruth",
+)
