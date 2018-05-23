@@ -59,9 +59,7 @@ public:
       FWLiteEnabler::enable();
       sWasRun_ = true;
     }
-    tmpdir = "tmp/";
-    tmpdir += getenv("SCRAM_ARCH");
-    tmpdir += "/";
+    tmpdir = "./";
   }
   void tearDown(){ }
 
