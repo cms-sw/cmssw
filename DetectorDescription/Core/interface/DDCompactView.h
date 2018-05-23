@@ -81,14 +81,10 @@ MEC:
     these will be accessed via the DDCompactView.
 */
 class DDCompactView
-{
- 
+{ 
 public:
-
-  //! type of representation of the compact-view (acyclic directed multigraph)
-  /** Nodes are instances of DDLogicalPart, edges are pointers to instances of DDPosData */
-  typedef math::Graph<DDLogicalPart,DDPosData*> graph_type;
-    
+  using Graph = math::Graph<DDLogicalPart, DDPosData* >;
+  
   //! Creates a compact-view 
   explicit DDCompactView();
   
@@ -98,7 +94,7 @@ public:
   ~DDCompactView();
   
   //! Provides read-only access to the data structure of the compact-view.
-  const graph_type & graph() const;
+  const Graph & graph() const;
 
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
