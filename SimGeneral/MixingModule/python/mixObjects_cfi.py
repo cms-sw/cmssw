@@ -47,6 +47,7 @@ mixSimHits = cms.PSet(
     #    'TotemHitsRP',
     #    'TotemHitsT1',
     #    'TotemHitsT2Gem')
+    pcrossingFrames = cms.untracked.vstring()
 )
 
 # fastsim customs
@@ -98,6 +99,7 @@ fastSim.toModify(mixCaloHits,
                'EcalHitsES',
                'HcalHits']
 )
+
 
 mixSimTracks = cms.PSet(
     makeCrossingFrame = cms.untracked.bool(False),
@@ -235,6 +237,12 @@ phase2_muon.toModify( theMixObjects,
         input = theMixObjects.mixSH.input + [ cms.InputTag("g4SimHits","MuonME0Hits") ],
         subdets = theMixObjects.mixSH.subdets + [ 'MuonME0Hits' ],
         crossingFrames = theMixObjects.mixSH.crossingFrames + [ 'MuonME0Hits' ]
+    )
+)
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+(premix_stage1 & phase2_muon).toModify(theMixObjects,
+    mixSH = dict(
+        pcrossingFrames = theMixObjects.mixSH.pcrossingFrames + [ 'MuonME0Hits' ]
     )
 )
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal

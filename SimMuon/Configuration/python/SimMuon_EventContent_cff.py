@@ -93,7 +93,6 @@ run3_GEM.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCom
 run3_GEM.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 run3_GEM.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonGEMDigis_*_*'] )
 
-
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + ['keep *_simMuonME0PseudoDigis_*_*',
                                                                                             'keep *_simMuonME0PseudoReDigis_*_*',
@@ -102,3 +101,11 @@ phase2_muon.toModify( SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.output
                                                                                             'keep *_simMuonME0PadDigiClusters_*_*'] )
 phase2_muon.toModify( SimMuonRAW, outputCommands = SimMuonRAW.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
 phase2_muon.toModify( SimMuonRECO, outputCommands = SimMuonRECO.outputCommands + ['keep StripDigiSimLinkedmDetSetVector_simMuonME0Digis_*_*'] )
+
+# For phase2 premixing switch the sim digi collections to the ones including pileup
+(premix_stage2 & phase2_muon).toModify(SimMuonFEVTDEBUG, outputCommands = SimMuonFEVTDEBUG.outputCommands + [
+    'drop *_simMuonGEMDigis_*_*',
+    'keep GEMDetIdGEMDigiMuonDigiCollection_mixData_*_*',
+    'drop *_simMuonME0Digis_*_*',
+    'keep ME0DetIdME0DigiMuonDigiCollection_mixData_*_*',
+])

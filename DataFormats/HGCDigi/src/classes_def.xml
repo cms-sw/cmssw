@@ -27,4 +27,11 @@
    <class name="edm::SortedCollection<HGCDataFrame<HGCHEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCHEDetId,HGCSample> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCHEDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCHEDetId,HGCSample> > > >" />
    <class name="edm::Wrapper<HGCHEDigiCollection>"/>
+
+   <class name="PHGCSimAccumulator"/>
+   <class name="PHGCSimAccumulator::Data"/>
+   <class name="PHGCSimAccumulator::DetIdSize"/>
+   <class name="std::vector<PHGCSimAccumulator::Data>"/>
+   <class name="std::vector<PHGCSimAccumulator::DetIdSize>"/>
+   <class name="edm::Wrapper<PHGCSimAccumulator>"/>
 </lcgdict>

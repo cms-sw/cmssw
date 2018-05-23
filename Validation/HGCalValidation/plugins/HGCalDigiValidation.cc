@@ -124,7 +124,7 @@ void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("ifHCAL",false);
   desc.addUntracked<int>("Verbosity",0);
   desc.addUntracked<int>("SampleIndx",0);
-  descriptions.add("hgcalDigiValidationEE",desc);
+  descriptions.add("hgcalDigiValidationEEDefault",desc);
 }
 
 void HGCalDigiValidation::analyze(const edm::Event& iEvent, 
@@ -165,7 +165,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	ntot++; nused++;
 	HGCalDetId detId     = it.id();
 	int        layer     = detId.layer();
-	HGCSample  hgcSample = it.sample(SampleIndx_);
+	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
 	double     charge    = adc*gain;
@@ -191,7 +191,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	ntot++; nused++;
 	HGCalDetId detId     = it.id();
 	int        layer     = detId.layer();
-	HGCSample  hgcSample = it.sample(SampleIndx_);
+	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
 	double     charge    = adc*gain;
@@ -216,7 +216,7 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 	ntot++; nused++;
 	HcalDetId  detId     = it.id();
 	int        layer     = detId.depth();
-	HGCSample  hgcSample = it.sample(SampleIndx_);
+	const HGCSample&  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
 	double     charge    = adc*gain;

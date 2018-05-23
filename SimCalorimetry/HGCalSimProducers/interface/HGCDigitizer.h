@@ -12,6 +12,7 @@
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEfrontDigitizer.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/HGCDigi/interface/PHGCSimAccumulator.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
@@ -55,6 +56,8 @@ public:
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
   template<typename GEOM>
   void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const GEOM *geom, CLHEP::HepRandomEngine* hre);
+  // for premixing
+  void accumulate(const PHGCSimAccumulator& simAccumulator);
 
   /**
      @short actions at the start/end of event
@@ -82,6 +85,14 @@ private :
 
   //digitization type (it's up to the specializations to decide it's meaning)
   int digitizationType_;
+
+  // if true, we're running mixing in premixing stage1 and have to produce the output differently
+  bool premixStage1_;
+
+  // Minimum charge threshold for premixing stage1
+  double premixStage1MinCharge_;
+  // Maximum charge for packing in premixing stage1
+  double premixStage1MaxCharge_;
 
   //handle sim hits
   int maxSimHitsAccTime_;

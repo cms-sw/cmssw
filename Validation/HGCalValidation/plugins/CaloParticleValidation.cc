@@ -264,7 +264,7 @@ CaloParticleValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit","HGCEERecHits"));
   desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
   desc.add<edm::InputTag>("recHitsBH", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
-  descriptions.add("caloparticlevalidation", desc);
+  descriptions.add("caloparticlevalidationDefault", desc);
 }
 
 //define this as a plug-in
