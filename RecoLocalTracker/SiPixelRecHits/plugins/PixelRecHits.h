@@ -8,7 +8,9 @@ namespace pixelCPEforGPU {
   struct ParamsOnGPU;
 }
 
-struct context;
+namespace pixelgpudetails {
+  struct context;
+}
 
 struct HitsOnGPU{
    uint32_t * hitsModuleStart_d;
@@ -32,7 +34,7 @@ struct HitsOnCPU {
 HitsOnGPU allocHitsOnGPU();
 
 HitsOnCPU pixelRecHits_wrapper(
-      context const & c,
+      pixelgpudetails::context const & c,
       pixelCPEforGPU::ParamsOnGPU const * cpeParams,
       uint32_t ndigis,
       uint32_t nModules, // active modules (with digis)

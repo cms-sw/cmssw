@@ -136,7 +136,7 @@ using namespace std;
     // Step B*: create CPE
     edm::ESHandle<PixelClusterParameterEstimator> hCPE;
     std::string cpeName_ = conf_.getParameter<std::string>("CPE");
-    es.get<TkPixelCPERecord>().get(cpeName_,hCPE);
+    es.get<TkPixelCPERecord>().get(cpeName_, hCPE);
     cpe_ = dynamic_cast< const PixelCPEBase* >(&(*hCPE));
     
     ///  do it on GPU....
@@ -152,14 +152,14 @@ using namespace std;
     }
     assert(fcpe->d_paramsOnGPU);
 
-    auto hoc = pixelRecHits_wrapper(* (context const *)(gprod[0]),fcpe->d_paramsOnGPU,gprod[1],gprod[2], hitsOnGPU_);
+    auto hoc = pixelRecHits_wrapper(* (pixelgpudetails::context const *)(gprod[0]), fcpe->d_paramsOnGPU, gprod[1], gprod[2], hitsOnGPU_);
 
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
 
     // std::cout << "Number of Clusers on CPU " << (*input).data().size() << std::endl;
 
-    run( input, *output, geom,hoc );
+    run( input, *output, geom, hoc );
     // std::cout << "Number of Hits on CPU " << (*output).data().size() << std::endl;
 
     output->shrink_to_fit();
@@ -192,7 +192,7 @@ using namespace std;
       auto gind = genericDet->index();
       const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
       assert(pixDet); 
-      SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output,detid);
+      SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output, detid);
       auto fc = hoc.hitsModuleStart[gind];
       auto lc = hoc.hitsModuleStart[gind+1];
       auto nhits = lc-fc;
@@ -201,10 +201,10 @@ using namespace std;
       uint32_t ngh=0;
       for (uint32_t i=0; i<nhits;++i) {
         if( hoc.charge[fc+i]<2000 || (gind>=96 && hoc.charge[fc+i]<4000) ) continue;
-        ind[ngh]=i;std::push_heap(ind,ind+ngh+1,[&](auto a, auto b) { return mrp[a]<mrp[b];});
+        ind[ngh]=i;std::push_heap(ind, ind+ngh+1,[&](auto a, auto b) { return mrp[a]<mrp[b];});
         ++ngh;
       }
-      std::sort_heap(ind,ind+ngh,[&](auto a, auto b) { return mrp[a]<mrp[b];});
+      std::sort_heap(ind, ind+ngh,[&](auto a, auto b) { return mrp[a]<mrp[b];});
       uint32_t ic=0;
       assert(ngh==DSViter->size());
       for (auto const & clust : *DSViter) {
@@ -233,8 +233,8 @@ using namespace std;
                         << gind <<'/'<<fc<<'/'<<ic<<'/'<<ij << ' ' << clust.charge()<<"!="<<hoc.charge[ij] 
                         << ' ' << clust.minPixelRow()<<'/'<< mrp[ij] <<'/'<< mrp[fc+ind[ic]] << std::endl;
 
-        LocalPoint lp(hoc.xl[ij],hoc.yl[ij]);
-        LocalError le(hoc.xe[ij]*hoc.xe[ij],0,hoc.ye[ij]*hoc.ye[ij]);
+        LocalPoint lp(hoc.xl[ij], hoc.yl[ij]);
+        LocalError le(hoc.xe[ij]*hoc.xe[ij], 0, hoc.ye[ij]*hoc.ye[ij]);
         SiPixelRecHitQuality::QualWordType rqw=0;
 
 
@@ -242,7 +242,7 @@ using namespace std;
 	numberOfClusters++;
 
         /*   cpu version....  (for reference)
-	std::tuple<LocalPoint, LocalError,SiPixelRecHitQuality::QualWordType> tuple = cpe_->getParameters( clust, *genericDet );
+	std::tuple<LocalPoint, LocalError, SiPixelRecHitQuality::QualWordType> tuple = cpe_->getParameters( clust, *genericDet );
 	LocalPoint lp( std::get<0>(tuple) );
 	LocalError le( std::get<1>(tuple) );
         SiPixelRecHitQuality::QualWordType rqw( std::get<2>(tuple) );

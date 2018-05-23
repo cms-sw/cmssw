@@ -6,32 +6,30 @@
  *  for pixel subdetector
  */
 
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
-#include "RawToDigiGPU.h"
+#include "SiPixelRawToDigiGPUKernel.h"
 
+class PixelUnpackingRegions;
 class SiPixelFedCablingTree;
 class SiPixelFedCabling;
 class SiPixelQuality;
 class TH1D;
-class PixelUnpackingRegions;
-
 class SiPixelGainForHLTonGPU;
 struct SiPixelGainForHLTonGPU_DecodingStructure;
-class SiPixelRawToDigiGPU : public edm::stream::EDProducer<> {
+
+class SiPixelRawToDigiGPU : public edm::stream::EDProducer<>
+{
 public:
 
   /// ctor
@@ -77,12 +75,12 @@ private:
   // to store the output
   uint32_t *pdigi_h, *rawIdArr_h;                   // host copy of output
   uint16_t * adc_h; int32_t * clus_h; // host copy of calib&clus output
-  error_obj *data_h = nullptr;
-  GPU::SimpleVector<error_obj> *error_h = nullptr;
-  GPU::SimpleVector<error_obj> *error_h_tmp = nullptr;
+  pixelgpudetails::error_obj *data_h = nullptr;
+  GPU::SimpleVector<pixelgpudetails::error_obj> *error_h = nullptr;
+  GPU::SimpleVector<pixelgpudetails::error_obj> *error_h_tmp = nullptr;
 
   // configuration and memory buffers alocated on the GPU
-  context context_;
+  pixelgpudetails::context context_;
   SiPixelFedCablingMapGPU * cablingMapGPUHost_;
   SiPixelFedCablingMapGPU * cablingMapGPUDevice_;
 

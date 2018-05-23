@@ -1,9 +1,8 @@
-#ifndef SiPixelFedCablingMapGPU_h
-#define SiPixelFedCablingMapGPU_h
+#ifndef EventFilter_SiPixelRawToDigi_plugins_SiPixelFedCablingMapGPU_h
+#define EventFilter_SiPixelRawToDigi_plugins_SiPixelFedCablingMapGPU_h
 
+// C++ includes
 #include <set>
-
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class SiPixelFedCablingMap;
 class SiPixelQuality;
@@ -34,39 +33,22 @@ struct SiPixelFedCablingMapGPU {
   unsigned char * badRocs;
 };
 
-inline
-void allocateCablingMap(SiPixelFedCablingMapGPU* & cablingMapHost, SiPixelFedCablingMapGPU* & cablingMapDevice) {
-  cudaCheck(cudaMallocHost((void**) & cablingMapHost, sizeof(SiPixelFedCablingMapGPU)));
-  cudaCheck(cudaMalloc((void**) & cablingMapDevice, sizeof(SiPixelFedCablingMapGPU)));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->fed,      MAX_SIZE_BYTE_INT));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->link,     MAX_SIZE_BYTE_INT));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->roc,      MAX_SIZE_BYTE_INT));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->RawId,    MAX_SIZE_BYTE_INT));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->rocInDet, MAX_SIZE_BYTE_INT));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->moduleId, MAX_SIZE_BYTE_INT));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->badRocs,  MAX_SIZE_BYTE_BOOL));
-  cudaCheck(cudaMalloc((void**) & cablingMapHost->modToUnp, MAX_SIZE_BYTE_BOOL));
-  cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault));
-}
+void allocateCablingMap(SiPixelFedCablingMapGPU* & cablingMapHost,
+                        SiPixelFedCablingMapGPU* & cablingMapDevice);
 
-inline
-void deallocateCablingMap(SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCablingMapGPU* cablingMapDevice) {
-  cudaCheck(cudaFree(cablingMapHost->fed));
-  cudaCheck(cudaFree(cablingMapHost->link));
-  cudaCheck(cudaFree(cablingMapHost->roc));
-  cudaCheck(cudaFree(cablingMapHost->RawId));
-  cudaCheck(cudaFree(cablingMapHost->rocInDet));
-  cudaCheck(cudaFree(cablingMapHost->moduleId));
-  cudaCheck(cudaFree(cablingMapHost->modToUnp));
-  cudaCheck(cudaFree(cablingMapHost->badRocs));
-  cudaCheck(cudaFree(cablingMapDevice));
-  cudaCheck(cudaFreeHost(cablingMapHost));
-}
+void deallocateCablingMap(SiPixelFedCablingMapGPU* cablingMapHost,
+                          SiPixelFedCablingMapGPU* cablingMapDevice);
 
-void processCablingMap(SiPixelFedCablingMap const& cablingMap, TrackerGeometry const& trackerGeom,
-                       SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCablingMapGPU* cablingMapDevice, const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules);
+void processCablingMap(SiPixelFedCablingMap const& cablingMap,
+                       TrackerGeometry const& trackerGeom,
+                       SiPixelFedCablingMapGPU* cablingMapHost,
+                       SiPixelFedCablingMapGPU* cablingMapDevice,
+                       SiPixelQuality const* badPixelInfo,
+                       std::set<unsigned int> const& modules);
 
-void processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeometry const& trackerGeom, SiPixelGainForHLTonGPU * & gainsOnGPU, SiPixelGainForHLTonGPU_DecodingStructure * & gainDataOnGPU);
+void processGainCalibration(SiPixelGainCalibrationForHLT const& gains,
+                            TrackerGeometry const& trackerGeom,
+                            SiPixelGainForHLTonGPU * & gainsOnGPU,
+                            SiPixelGainForHLTonGPU_DecodingStructure * & gainDataOnGPU);
 
-#endif // SiPixelFedCablingMapGPU_h
-
+#endif // EventFilter_SiPixelRawToDigi_plugins_SiPixelFedCablingMapGPU_h

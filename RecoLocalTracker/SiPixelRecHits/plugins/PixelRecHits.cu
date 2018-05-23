@@ -10,7 +10,7 @@
 #include <thrust/system/cuda/execution_policy.h>
 
 // CMSSW headers
-#include "EventFilter/SiPixelRawToDigi/plugins/RawToDigiGPU.h"
+#include "EventFilter/SiPixelRawToDigi/plugins/SiPixelRawToDigiGPUKernel.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 #include "PixelRecHits.h"
@@ -35,7 +35,7 @@ HitsOnGPU allocHitsOnGPU() {
 
 HitsOnCPU
 pixelRecHits_wrapper(
-      context const & c,
+      pixelgpudetails::context const & c,
       pixelCPEforGPU::ParamsOnGPU const * cpeParams,
       uint32_t ndigis,
       uint32_t nModules, // active modules (with digis)

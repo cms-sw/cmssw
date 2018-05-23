@@ -1,17 +1,21 @@
 // This code is an entry point for GPU based pixel track reconstruction for HLT
 // Modified by Sushil and Shashi for this purpose July-2017
 
+// C++ includes
 #include <string>
 #include <chrono>
 #include <iostream>
 #include <fstream>
 
+// CUDA kincludes
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+// ROOT includes
 #include <TH1D.h>
 #include <TFile.h>
 
+// CMSSW includes
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
@@ -21,34 +25,28 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
-
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
-
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelUnpackingRegions.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "EventInfoGPU.h"
-#include "RawToDigiGPU.h"
-#include "SiPixelFedCablingMapGPU.h"
-#include "SiPixelRawToDigiGPU.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
+// local includes
+#include "SiPixelFedCablingMapGPU.h"
+#include "SiPixelRawToDigiGPU.h"
+#include "SiPixelRawToDigiGPUKernel.h"
 
 namespace {
 struct AccretionCluster {
@@ -159,7 +157,7 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
   // device copy of GPU friendly cablng map
   allocateCablingMap(cablingMapGPUHost_, cablingMapGPUDevice_);
 
-  int WSIZE = MAX_FED * MAX_WORD * sizeof(unsigned int);
+  int WSIZE = MAX_FED * pixelgpudetails::MAX_WORD * sizeof(unsigned int);
   cudaMallocHost(&word,       sizeof(unsigned int)*WSIZE);
   cudaMallocHost(&fedId_h,    sizeof(unsigned char)*WSIZE);
 
@@ -170,21 +168,21 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
   cudaMallocHost(&adc_h, sizeof(uint16_t)*WSIZE);
   cudaMallocHost(&clus_h, sizeof(int32_t)*WSIZE);
 
-  uint32_t vsize = sizeof(GPU::SimpleVector<error_obj>);
-  uint32_t esize = sizeof(error_obj);
+  uint32_t vsize = sizeof(GPU::SimpleVector<pixelgpudetails::error_obj>);
+  uint32_t esize = sizeof(pixelgpudetails::error_obj);
   cudaCheck(cudaMallocHost(&error_h, vsize));
   cudaCheck(cudaMallocHost(&error_h_tmp, vsize));
-  cudaCheck(cudaMallocHost(&data_h, MAX_FED*MAX_WORD*esize));
+  cudaCheck(cudaMallocHost(&data_h, MAX_FED*pixelgpudetails::MAX_WORD*esize));
 
   // allocate memory for RawToDigi on GPU
-  context_ = initDeviceMemory();
+  context_ = pixelgpudetails::initDeviceMemory();
 
-  new (error_h) GPU::SimpleVector<error_obj>(MAX_FED*MAX_WORD, data_h);
-  new (error_h_tmp) GPU::SimpleVector<error_obj>(MAX_FED*MAX_WORD, context_.data_d);
+  new (error_h) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED*pixelgpudetails::MAX_WORD, data_h);
+  new (error_h_tmp) GPU::SimpleVector<pixelgpudetails::error_obj>(MAX_FED*pixelgpudetails::MAX_WORD, context_.data_d);
   assert(error_h->size() == 0);
-  assert(error_h->capacity() == static_cast<int>(MAX_FED*MAX_WORD));
+  assert(error_h->capacity() == static_cast<int>(MAX_FED*pixelgpudetails::MAX_WORD));
   assert(error_h_tmp->size() == 0);
-  assert(error_h_tmp->capacity() == static_cast<int>(MAX_FED*MAX_WORD));
+  assert(error_h_tmp->capacity() == static_cast<int>(MAX_FED*pixelgpudetails::MAX_WORD));
 }
 
 // -----------------------------------------------------------------------------
@@ -479,7 +477,7 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
 
   auto size = error_h->size();
   for (auto i = 0; i < size; i++) {
-    error_obj err = (*error_h)[i];
+    pixelgpudetails::error_obj err = (*error_h)[i];
     if (err.errorType != 0) {
         SiPixelRawDataError error(err.word, err.errorType, err.fedId + 1200);
         errors[err.rawId].push_back(error);

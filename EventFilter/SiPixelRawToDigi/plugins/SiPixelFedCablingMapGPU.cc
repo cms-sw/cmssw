@@ -1,3 +1,4 @@
+// C++ includes
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
@@ -5,21 +6,51 @@
 #include <set>
 #include <vector>
 
+// CUDA includes
 #include <cuda_runtime.h>
 
-#include "SiPixelFedCablingMapGPU.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// CMSSW includes
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationForHLT.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
-
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+// local includes
+#include "SiPixelFedCablingMapGPU.h"
+
+void allocateCablingMap(SiPixelFedCablingMapGPU* & cablingMapHost, SiPixelFedCablingMapGPU* & cablingMapDevice) {
+  cudaCheck(cudaMallocHost((void**) & cablingMapHost, sizeof(SiPixelFedCablingMapGPU)));
+  cudaCheck(cudaMalloc((void**) & cablingMapDevice, sizeof(SiPixelFedCablingMapGPU)));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->fed,      MAX_SIZE_BYTE_INT));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->link,     MAX_SIZE_BYTE_INT));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->roc,      MAX_SIZE_BYTE_INT));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->RawId,    MAX_SIZE_BYTE_INT));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->rocInDet, MAX_SIZE_BYTE_INT));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->moduleId, MAX_SIZE_BYTE_INT));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->badRocs,  MAX_SIZE_BYTE_BOOL));
+  cudaCheck(cudaMalloc((void**) & cablingMapHost->modToUnp, MAX_SIZE_BYTE_BOOL));
+  cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault));
+}
+
+void deallocateCablingMap(SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCablingMapGPU* cablingMapDevice) {
+  cudaCheck(cudaFree(cablingMapHost->fed));
+  cudaCheck(cudaFree(cablingMapHost->link));
+  cudaCheck(cudaFree(cablingMapHost->roc));
+  cudaCheck(cudaFree(cablingMapHost->RawId));
+  cudaCheck(cudaFree(cablingMapHost->rocInDet));
+  cudaCheck(cudaFree(cablingMapHost->moduleId));
+  cudaCheck(cudaFree(cablingMapHost->modToUnp));
+  cudaCheck(cudaFree(cablingMapHost->badRocs));
+  cudaCheck(cudaFree(cablingMapDevice));
+  cudaCheck(cudaFreeHost(cablingMapHost));
+}
+
 
 void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry const& trackerGeom,
                        SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCablingMapGPU* cablingMapDevice, 

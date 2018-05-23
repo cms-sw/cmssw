@@ -1,8 +1,8 @@
 <use name="EventFilter/SiPixelRawToDigi"/>
-<library file="SiPixelDigiToRaw.cc SiPixelRawToDigi.cc SealModule.cc" name="EventFilterSiPixelRawToDigiPlugins">
+<library file="SiPixelDigiToRaw.cc SiPixelRawToDigi.cc" name="EventFilterSiPixelRawToDigiPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
-<library file="SiPixelRawToDigiGPU.cc SiPixelFedCablingMapGPU.cc RawToDigiGPU.cu" name="EventFilterSiPixelRawToDigiGPUPlugins">
+<library file="SiPixelRawToDigiGPU.cc SiPixelFedCablingMapGPU.cc SiPixelRawToDigiGPUKernel.cu" name="EventFilterSiPixelRawToDigiGPUPlugins">
   <use name="cuda"/>
   <use name="CalibTracker/SiPixelESProducers"/>
   <flags EDM_PLUGIN="1"/>
