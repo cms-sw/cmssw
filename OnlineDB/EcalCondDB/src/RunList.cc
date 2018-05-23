@@ -159,7 +159,6 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
     int i=0;
     while ((i<nruns) && (rset->next()))  {
       int iovID = rset->getInt(1);
-      // int tagID = rset->getInt(2);
       int runNum = rset->getInt(3);
       Date startDate = rset->getDate(4);
       Date endDate = rset->getDate(5);
@@ -229,24 +228,23 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
     while (i<n_runs) {
       rset->next();
       int iovID = rset->getInt(1);
-      // int tagID = rset->getInt(2);
-       int runNum = rset->getInt(3);
-       Date startDate = rset->getDate(4);
-       Date endDate = rset->getDate(5);
-       Date dbDate = rset->getDate(6);
-	 
-       runStart = dh.dateToTm( startDate );
-       runEnd = dh.dateToTm( endDate );
-       dbtime = dh.dateToTm( dbDate );
-       
-       RunIOV r ;
-       r.setRunNumber(runNum);
-       r.setRunStart(runStart);
-       r.setRunEnd(runEnd);
-       r.setDBInsertionTime(dbtime);
-       r.setRunTag(m_runTag);
-       r.setID(iovID);
-       m_vec_runiov.push_back(r);
+      int runNum = rset->getInt(3);
+      Date startDate = rset->getDate(4);
+      Date endDate = rset->getDate(5);
+      Date dbDate = rset->getDate(6);
+      
+      runStart = dh.dateToTm( startDate );
+      runEnd = dh.dateToTm( endDate );
+      dbtime = dh.dateToTm( dbDate );
+      
+      RunIOV r ;
+      r.setRunNumber(runNum);
+      r.setRunStart(runStart);
+      r.setRunEnd(runEnd);
+      r.setDBInsertionTime(dbtime);
+      r.setRunTag(m_runTag);
+      r.setID(iovID);
+      m_vec_runiov.push_back(r);
       
       i++;
     }
@@ -311,31 +309,30 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
     while (i<nruns) {
       rset->next();
       int iovID = rset->getInt(1);
-      //       int tagID = rset->getInt(2);
-       int runNum = rset->getInt(3);
-       Date startDate = rset->getDate(4);
-       Date endDate = rset->getDate(5);
-       Date dbDate = rset->getDate(6);
-	 
-       runStart = dh.dateToTm( startDate );
-       runEnd = dh.dateToTm( endDate );
-       dbtime = dh.dateToTm( dbDate );
-       
-       RunTag atag;
-       atag.setLocationDef(locDef);
-       atag.setGeneralTag(getOraString(rset,7));
-       RunTypeDef rundef;
-       rundef.setRunType(getOraString(rset,8));
-       atag.setRunTypeDef(rundef);
-
-       RunIOV r ;
-       r.setRunNumber(runNum);
-       r.setRunStart(runStart);
-       r.setRunEnd(runEnd);
-       r.setDBInsertionTime(dbtime);
-       r.setRunTag(atag);
-       r.setID(iovID);
-       m_vec_runiov.push_back(r);
+      int runNum = rset->getInt(3);
+      Date startDate = rset->getDate(4);
+      Date endDate = rset->getDate(5);
+      Date dbDate = rset->getDate(6);
+      
+      runStart = dh.dateToTm( startDate );
+      runEnd = dh.dateToTm( endDate );
+      dbtime = dh.dateToTm( dbDate );
+      
+      RunTag atag;
+      atag.setLocationDef(locDef);
+      atag.setGeneralTag(getOraString(rset,7));
+      RunTypeDef rundef;
+      rundef.setRunType(getOraString(rset,8));
+      atag.setRunTypeDef(rundef);
+      
+      RunIOV r ;
+      r.setRunNumber(runNum);
+      r.setRunStart(runStart);
+      r.setRunEnd(runEnd);
+      r.setDBInsertionTime(dbtime);
+      r.setRunTag(atag);
+      r.setID(iovID);
+      m_vec_runiov.push_back(r);
       
       i++;
     }
@@ -402,36 +399,36 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
     while (i<nruns) {
       rset->next();
       int iovID = rset->getInt(1);
-      //       int tagID = rset->getInt(2);
-       int runNum = rset->getInt(3);
-       Date startDate = rset->getDate(4);
-       Date endDate = rset->getDate(5);
-       Date dbDate = rset->getDate(6);
-	 
-       runStart = dh.dateToTm( startDate );
-       runEnd = dh.dateToTm( endDate );
-       dbtime = dh.dateToTm( dbDate );
-       
-       RunTag atag;
-       atag.setLocationDef(locDef);
-       atag.setGeneralTag(getOraString(rset,7));
-       RunTypeDef rundef;
-       rundef.setRunType(getOraString(rset,8));
-       atag.setRunTypeDef(rundef);
-
-       RunIOV r ;
-       r.setRunNumber(runNum);
-       r.setRunStart(runStart);
-       r.setRunEnd(runEnd);
-       r.setDBInsertionTime(dbtime);
-       r.setRunTag(atag);
-       r.setID(iovID);
-       m_vec_runiov.push_back(r);
+      int tagID = rset->getInt(2);
+      int runNum = rset->getInt(3);
+      Date startDate = rset->getDate(4);
+      Date endDate = rset->getDate(5);
+      Date dbDate = rset->getDate(6);
+      
+      runStart = dh.dateToTm( startDate );
+      runEnd = dh.dateToTm( endDate );
+      dbtime = dh.dateToTm( dbDate );
+      
+      RunTag atag;
+      atag.setLocationDef(locDef);
+      atag.setGeneralTag(getOraString(rset,7));
+      RunTypeDef rundef;
+      rundef.setRunType(getOraString(rset,8));
+      atag.setRunTypeDef(rundef);
+      
+      RunIOV r ;
+      r.setRunNumber(runNum);
+      r.setRunStart(runStart);
+      r.setRunEnd(runEnd);
+      r.setDBInsertionTime(dbtime);
+      r.setRunTag(atag);
+      r.setID(iovID);
+      m_vec_runiov.push_back(r);
       
       i++;
     }
-   
-
+    
+    
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
