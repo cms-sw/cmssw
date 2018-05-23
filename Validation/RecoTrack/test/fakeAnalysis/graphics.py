@@ -268,7 +268,7 @@ class EventPlotter(object):
 	NOTE: The helixes are better drawn with the vertical z-axis.
 	Even then the helixes are not drawn exactly correct.
 	'''
-	if type(track) is TrackingParticle:
+	if isinstance(track, TrackingParticle):
 	    phi = track.pca_phi()
 	    dxy = track.pca_dxy()
 	    dz = track.pca_dz()
@@ -616,9 +616,9 @@ class EventPlotter(object):
 	else:
 	    if xmin != None and xmax != None and nbin != None:
 		hist = ROOT.TH1F(name, name, nbin, xmin, xmax)
-	    elif "fraction" in name or type(data[0]) is float:
+	    elif "fraction" in name or isinstance(data[0], float):
 		hist = ROOT.TH1F(name, name, 41,0,1.025)#100,0,5)#max(data)+0.0001)#11,0,1.1)#21,0,1.05)#41*(max(data)+1)/max(data))#, max(data)+1,-0.5,max(data)+0.5) #### EXPERIMENT!!!111	
-	    elif type(data[0]) is int: hist = ROOT.TH1F(name, name, max(data)-min(data)+1, min(data)-0.5,max(data)+0.5)
+	    elif isinstance(data[0], int): hist = ROOT.TH1F(name, name, max(data)-min(data)+1, min(data)-0.5,max(data)+0.5)
 	    else: hist = ROOT.TH1F(name, name, 3,0,3)
 	    #c1.SetLogy()
 	    #hist.SetBinsLength(1)

@@ -464,7 +464,7 @@ class MatrixInjector(object):
             itask=0
             if self.keep:
                 for i in self.keep:
-                    if type(i)==int and i < len(chainDict['nowmTasklist']):
+                    if isinstance(i, int) and i < len(chainDict['nowmTasklist']):
                         chainDict['nowmTasklist'][i]['KeepOutput']=True
             for (i,t) in enumerate(chainDict['nowmTasklist']):
                 if t['TaskName'].startswith('HARVEST'):

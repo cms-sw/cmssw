@@ -72,8 +72,7 @@ def timeof(run,lumisection):
             lstime[lumimax]=time_end
             
         # order lumisections and make a list
-        lslist=lstime.keys()
-        lslist.sort()
+        lslist=sorted(lstime.keys())
         lstimesorted=[]
         for ls in lslist:
             lstimesorted.append((ls,lstime[ls]))
@@ -269,8 +268,7 @@ if __name__ == '__main__':
         rfbucket=(int(bx)-1)*10+1
         filename=WORKDIR+"/"+FILL+"_lumireg_"+str(rfbucket)+"_CMS.txt"
         file=open(filename,'w')
-        sortedtimes=lines.keys()
-        sortedtimes.sort()
+        sortedtimes=sorted(lines.keys())
         for meastime in sortedtimes:
             file.write(lines[meastime])
         file.close()

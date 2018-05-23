@@ -987,7 +987,7 @@ class FileVectorProperty(TextEditWithButtonProperty):
         
     def buttonClicked(self, checked=False):
         """ Shows the file selection dialog. """
-        if type(self._originalValue)==type(()) and len(self._originalValue)>0:
+        if isinstance(self._originalValue, type(())) and len(self._originalValue)>0:
             dir=os.path.dirname(self._originalValue[0])
         elif self._relativePath:
             dir=self._relativePath

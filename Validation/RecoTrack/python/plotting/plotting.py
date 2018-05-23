@@ -400,8 +400,7 @@ def _getYmaxWithError(th1):
     return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in xrange(1, th1.GetNbinsX()+1)])
 
 def _getYminIgnoreOutlier(th1):
-    yvals = filter(lambda n: n>0, [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)])
-    yvals.sort()
+    yvals = sorted(filter(lambda n: n>0, [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)]))
     if len(yvals) == 0:
         return th1.GetMinimum()
     if len(yvals) == 1:

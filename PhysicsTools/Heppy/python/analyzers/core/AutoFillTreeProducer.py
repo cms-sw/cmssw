@@ -39,7 +39,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 #        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
         self.mchandles['GenInfo'] = AutoHandle( ('generator','',''), 'GenEventInfoProduct' )
         for k,v in self.collections.iteritems():
-            if type(v) == tuple and isinstance(v[0], AutoHandle):
+            if isinstance(v, tuple) and isinstance(v[0], AutoHandle):
                 self.handles[k] = v[0]
 
     def declareCoreVariables(self, tr, isMC):
@@ -99,7 +99,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         for o in self.globalObjects.itervalues(): 
             o.makeBranches(tree, isMC)
         for c in self.collections.itervalues():
-            if type(c) == tuple: c = c[-1]
+            if isinstance(c, tuple): c = c[-1]
             if self.scalar:
                 c.makeBranchesScalar(tree, isMC)
             else:
@@ -164,7 +164,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             o.fillBranches(self.tree, getattr(event, on), isMC)
 
         for cn, c in self.collections.iteritems():
-            if type(c) == tuple and isinstance(c[0], AutoHandle):
+            if isinstance(c, tuple) and isinstance(c[0], AutoHandle):
                 if not isMC and c[-1].mcOnly: continue
                 objects = self.handles[cn].product()
                 setattr(event, cn, [objects[i] for i in xrange(objects.size())])

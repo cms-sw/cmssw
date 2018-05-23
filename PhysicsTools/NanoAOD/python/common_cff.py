@@ -36,7 +36,7 @@ def ExtVar(tag, valtype, compression=None, doc=None, mcOnly=False,precision=-1):
        see OVar in common_cff for all the other arguments
     """
     return OVar(valtype, compression=compression,precision=precision, doc=(doc if doc else tag.encode()), mcOnly=mcOnly).clone(
-                src = tag if type(tag) == cms.InputTag else cms.InputTag(tag),
+                src = tag if isinstance(tag, cms.InputTag) else cms.InputTag(tag),
           )
            
 

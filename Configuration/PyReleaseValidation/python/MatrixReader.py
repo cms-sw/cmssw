@@ -192,7 +192,7 @@ class MatrixReader(object):
             addCom=None
             if len(wfInfo)>=3:
                 addCom=wfInfo[2]
-                if not type(addCom)==list:   addCom=[addCom]
+                if not isinstance(addCom, list):   addCom=[addCom]
                 #print 'added dict',addCom
                 if len(wfInfo)>=4:
                     addTo=wfInfo[3]
@@ -322,8 +322,7 @@ class MatrixReader(object):
             outFile = open(dataFileName,'w')
 
             print "found ", len(self.workFlowSteps.keys()), ' workflows for ', dataFileName
-            ids = self.workFlowSteps.keys()
-            ids.sort()
+            ids = sorted(self.workFlowSteps.keys())
             indexAndSteps=[]
 
             writtenWF=0

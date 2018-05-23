@@ -6,6 +6,7 @@ import importlib
 import sqlalchemy
 import subprocess
 import CondCore.Utilities.conddblib as conddb
+from functools import reduce
 
 
 def create_single_iov_db(inputs, run_number, output_db):

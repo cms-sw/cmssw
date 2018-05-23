@@ -696,7 +696,7 @@ def rootplot(*args, **kwargs):
         for key, value in reduced_kwargs.items():
             if key in global_opts:
                 del reduced_kwargs[key]
-            elif type(value) is str:
+            elif isinstance(value, str):
                 reduced_kwargs[key] = "'%s'" % value
         if 'numbering' in kwargs:
             reduced_kwargs['numbering'] = i + 1
@@ -936,7 +936,7 @@ def plot_hists_root(hists, options):
         name = "%s_%i" % (options.plotpath, i)
         if isTGraph:
             roothist = hist.TGraph(name=name)
-        elif type(hist) is Hist:
+        elif isinstance(hist, Hist):
             roothist = hist.TH1F(name=name.replace('/', '__'))
         else:
             roothist = hist.TH2F(name=name)
@@ -948,7 +948,7 @@ def plot_hists_root(hists, options):
         roothist.SetMarkerStyle(options.marker_styles[i])
         roothist.SetMarkerSize(options.marker_sizes[i])
         roothists.append(roothist)
-        if (type(hist) is Hist and not isTGraph and 
+        if (isinstance(hist, Hist) and not isTGraph and 
             'stack' in options.draw_commands[i]):
             objects['stack'].Add(roothist)
     if 'stack' in objects and objects['stack'].GetHists():
@@ -956,7 +956,7 @@ def plot_hists_root(hists, options):
     for roothist in roothists:
         histmax = max(histmax, roothist.GetMaximum())
     dimension = 1
-    if type(hist) == Hist2D:
+    if isinstance(hist, Hist2D):
         dimension = 2
     if options.gridx or options.grid:
         for pad in objects['pads']:
@@ -1041,7 +1041,7 @@ def plot_hists_mpl(hists, options):
     for i, hist in enumerate(hists):
         if hist and hist.entries:
             allempty = False
-        if type(hist) is Hist:
+        if isinstance(hist, Hist):
             # Avoid errors due to zero bins with log y axis
             if options.logy and options.plot_styles[i] != 'errorbar':
                 for j in range(hist.nbins):
@@ -1061,7 +1061,7 @@ def plot_hists_mpl(hists, options):
         histmax = max(histmax, max(hist))
     if allempty:
         fig.text(0.5, 0.5, "No Entries", ha='center', va='center')
-    elif type(refhist) is Hist:
+    elif isinstance(refhist, Hist):
         for i, hist in enumerate(hists):
             if hist:
                 if options.plot_styles[i] == "errorbar":
@@ -1170,7 +1170,7 @@ def plot_hists_mpl(hists, options):
             if options.legend_ncols:
                 kwargs['ncol'] = int(options.legend_ncols)
             objects['legend'] = axes.legend(numpoints=1, **kwargs)
-    elif type(refhist) is Hist2D:
+    elif isinstance(refhist, Hist2D):
         drawfunc = getattr(hist, options.draw2D)
         if 'col' in options.draw2D:
             if options.cmap:
@@ -1599,7 +1599,7 @@ def parse_legend_root(options):
     #### Return the corners to use for the legend based on options.
     legend_height = min(options.legend_entry_height * options.nhists + 0.02,
                         options.max_legend_height)
-    if type(options.legend_location) is int:
+    if isinstance(options.legend_location, int):
         options.legend_location = options.legend_codes[options.legend_location]
     elif options.legend_location.lower() == 'none':
         options.legend_location = None
@@ -1687,9 +1687,9 @@ def process_options(options):
     #### Refine options for this specific plot, based on plotname
     def comma_separator(obj, objtype, nhists):
         #### Split a comma-separated string into a list.
-        if type(obj) is list:
+        if isinstance(obj, list):
             return obj
-        if type(obj) is str and ',' in obj:
+        if isinstance(obj, str) and ',' in obj:
             try:
                 return [objtype(x) for x in obj.split(',')]
             except TypeError:

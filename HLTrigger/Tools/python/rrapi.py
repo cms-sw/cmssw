@@ -15,7 +15,7 @@ class RRApiError(Exception):
         """
         Construct exception by providing response object.
         """
-        if type(resp) == str:
+        if isinstance(resp, str):
             self.message = resp
         else:
             self.url = resp.geturl()
@@ -186,7 +186,7 @@ class RRApi:
         # Check req parameters
         #
 
-        if type(workspace) != str:
+        if not isinstance(workspace, str):
             raise RRApiError("workspace parameter must be str")
 
         #

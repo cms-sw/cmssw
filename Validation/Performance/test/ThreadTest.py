@@ -90,7 +90,7 @@ def main():
     #Now let's set up an infinite loop that will go through the TestToDo list, submit a thread per cpu available from the Available list
     #using pop.
     activeThreads={}
-    while 1:
+    while True:
         #If there are cores available and tests to run:
         print "Main while loop:"
         print Available

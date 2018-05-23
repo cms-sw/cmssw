@@ -281,8 +281,7 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
         runsAndFiles[run].append(fileName)    
         file.close()
 
-    rrKeys = listOfRunsAndLumiFromRR.keys()
-    rrKeys.sort()
+    rrKeys = sorted(listOfRunsAndLumiFromRR.keys())
     dbsKeys = listOfRunsAndLumiFromDBS.keys()
     dbsKeys.sort()
     #I remove the last entry from DBS since I am not sure it is an already closed run!
@@ -511,8 +510,7 @@ def aselectFilesToProcess(listOfFilesToProcess,newRunList):
     lastClosedRun = getLastClosedRun(listOfFilesToProcess)
 #    print "LastClosedRun:-" + str(lastClosedRun) + "-"
 
-    processedRunsKeys = processedRuns.keys()
-    processedRunsKeys.sort()
+    processedRunsKeys = sorted(processedRuns.keys())
 
     for run in processedRunsKeys:
         if run <= lastClosedRun :

@@ -21,8 +21,7 @@ def GetBadCrabEvents(crabdir=None,prefix=None,verbose=False):
         print "<GetBadEvents> Sorry, subdirectory '%s' does not exist!"%newdir
         return badlist
     # Search stdout files
-    allfiles=os.listdir(newdir)
-    allfiles.sort()
+    allfiles=sorted(os.listdir(newdir))
     for f in allfiles:
         if not f.endswith(".stdout"):
             continue

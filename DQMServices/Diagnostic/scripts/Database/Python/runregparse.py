@@ -298,11 +298,9 @@ if JSONFILE != "NONE":
 # buildup cms snippet
 selectlumi="process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange(\n"
 ranges = []
-runs_to_print = selected_dcs.keys()
-runs_to_print.sort()
+runs_to_print = sorted(selected_dcs.keys())
 for run in runs_to_print:
-   blocks = selected_dcs[run]
-   blocks.sort()
+   blocks = sorted(selected_dcs[run])
    prevblock = [-2,-2]
    for lsrange in blocks:
        if lsrange[0] == prevblock[1]+1:

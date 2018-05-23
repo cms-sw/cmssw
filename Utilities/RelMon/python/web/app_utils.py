@@ -132,7 +132,7 @@ def get_folders(c, file_id, filename, dir_id, threshold):  # TODO: If folder [Eg
 
 def join_ranges(ranges, elem):
     '''To do less DB calls, joins [(from_id, till_id), ...] ranges.'''
-    if type(ranges) == tuple:
+    if isinstance(ranges, tuple):
         ranges = [ranges]
     if ranges[-1][-1] + 1 == elem[0]:
         ranges[-1] = (ranges[-1][0], elem[1])

@@ -78,7 +78,7 @@ class connection(object):
 		Setup engine with given credentials from netrc file, and make a session maker.
 		"""
 
-		if type(self.connection_data) == dict:
+		if isinstance(self.connection_data, dict):
 			self.engine = engine_from_dictionary(self.connection_data, pooling=self._pooling)
 		else:
 			# we've been given an engine by the user
@@ -95,7 +95,7 @@ class connection(object):
 			if self.models[key].__class__ == sqlalchemy.ext.declarative.api.DeclarativeMeta\
 			   and str(self.models[key].__name__) != "Base":
 
-			   	if type(self.connection_data) == dict:
+			   	if isinstance(self.connection_data, dict):
 			   		# we can only extract the secrets and schema individuall
 			   		# if we were given a dictionary...  if we were given an engine
 			   		# we can't do this without parsing the connection string from the engine
@@ -275,7 +275,7 @@ class connection(object):
 			self.session.rollback()
 
 	def write_and_commit(self, object):
-		if type(object) == list:
+		if isinstance(object, list):
 			for item in object:
 				self.write_and_commit(item)
 		else:
@@ -399,14 +399,14 @@ def new_connection_dictionary(connection_data, secrets=None, mode="r"):
 				username = str(raw_input("Enter the username you want to connect to the schema '%s' with: " % (schema_name)))
 				password = str(raw_input("Enter the password for the user '%s' in database '%s': " % (username, database_name)))
 			else:
-				if type(secrets) == str:
+				if isinstance(secrets, str):
 					netrc_key = "%s/%s/%s" % (database_name, schema_name, mode_to_netrc_key_suffix[mode])
 					netrc_data = _get_netrc_data(secrets, key=netrc_key)
 					# take the username from the netrc entry corresponding to the mode the database is opened in
 					# eg, if the user has given mode="read", the database_name/schema_name/read entry will be taken
 					username = netrc_data["login"]
 					password = netrc_data["password"]
-				elif type(secrets) == dict:
+				elif isinstance(secrets, dict):
 					username = secrets["user"]
 					password = secrets["password"]
 				else:
