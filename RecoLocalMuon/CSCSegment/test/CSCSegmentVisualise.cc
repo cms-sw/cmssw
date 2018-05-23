@@ -153,7 +153,7 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
     ymin = ymin - 5.;
     ymax = ymax + 5.;
 
-    char a[4];
+    char a[14];
     char evt[10];
 
     sprintf(evt, "Event %d", ievt);
