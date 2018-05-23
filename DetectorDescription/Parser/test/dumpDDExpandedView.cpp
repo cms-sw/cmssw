@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     std::cout << "main::initialize DDL parser\n";
 
     DDCompactView cpv;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLParser myP(cpv);
 
     std::cout << "main::about to start parsing main configuration... \n";
     FIPConfiguration dp(cpv);

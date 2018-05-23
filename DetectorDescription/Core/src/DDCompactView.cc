@@ -56,7 +56,7 @@ DDCompactView::~DDCompactView()
    by an instance of class Graph<DDLogicalPart, DDPosData*). 
    Graph provides methods for navigating its content.
 */      
-const DDCompactView::graph_type & DDCompactView::graph() const 
+const DDCompactView::Graph & DDCompactView::graph() const 
 { 
   return rep_->graph(); 
 }
