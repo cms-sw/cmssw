@@ -715,7 +715,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       int ieta  = laserMonIEtaList_[ich];
 
       // loop over digis, find the digi that matches this channel
-      for(QIE10DataFrame df : (*hLasermon)) {
+      for(const QIE10DataFrame & df : (*hLasermon)) {
         HcalCalibDetId calibId( df.id() );
 
         int ch_cboxch = calibId.cboxChannel();
