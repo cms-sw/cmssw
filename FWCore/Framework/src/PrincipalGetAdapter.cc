@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
@@ -196,9 +197,9 @@ namespace edm {
     ProductResolverIndexAndSkipBit indexAndBit = consumer_->indexFrom(token,branchType(),id);
     ProductResolverIndex index = indexAndBit.productResolverIndex();
     bool skipCurrentProcess = indexAndBit.skipCurrentProcess();
-    if( unlikely(index == ProductResolverIndexInvalid)) {
+    if( UNLIKELY(index == ProductResolverIndexInvalid)) {
       return makeFailToGetException(kindOfType,id,token);
-    } else if( unlikely(index == ProductResolverIndexAmbiguous)) {
+    } else if( UNLIKELY(index == ProductResolverIndexAmbiguous)) {
       // This deals with ambiguities where the process is specified
       throwAmbiguousException(id, token);
     }
@@ -279,7 +280,7 @@ namespace edm {
                                             std::string const& productInstanceName) const {
     ProductResolverIndexHelper const& productResolverIndexHelper = principal_.productLookup();
     ProductResolverIndex index = productResolverIndexHelper.index(PRODUCT_TYPE, type, md_.moduleLabel().c_str(),productInstanceName.c_str(), md_.processName().c_str());
-    if(unlikely(index == ProductResolverIndexInvalid)) {
+    if(UNLIKELY(index == ProductResolverIndexInvalid)) {
       throwUnregisteredPutException(type, productInstanceName);
     }
     ProductResolverBase const*  phb = principal_.getProductResolverByIndex(index);
@@ -307,7 +308,7 @@ namespace edm {
 
   Transition
   PrincipalGetAdapter::transition() const {
-    if(likely(principal().branchType() == InEvent)) {
+    if(LIKELY(principal().branchType() == InEvent)) {
       return Transition::Event;
     }
     if(principal().branchType() == InRun) {

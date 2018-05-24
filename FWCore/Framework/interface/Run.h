@@ -25,6 +25,7 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/RunIndex.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <memory>
 #include <string>
@@ -204,7 +205,7 @@ namespace edm {
   template <typename PROD>
   void
   Run::put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
-    if(unlikely(product.get() == nullptr)) {                // null pointer is illegal
+    if(UNLIKELY(product.get() == nullptr)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("LuminosityBlock", typeID, productInstanceName);
     }
@@ -216,11 +217,11 @@ namespace edm {
   template<typename PROD>
   void
   Run::put(EDPutTokenT<PROD> token, std::unique_ptr<PROD> product) {
-    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
-    if(unlikely(token.isUninitialized())) {
+    if(UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
     putImpl(token.index(),std::move(product));
@@ -229,14 +230,14 @@ namespace edm {
   template<typename PROD>
   void
   Run::put(EDPutToken token, std::unique_ptr<PROD> product) {
-    if(unlikely(product.get() == 0)) {                // null pointer is illegal
+    if(UNLIKELY(product.get() == 0)) {                // null pointer is illegal
       TypeID typeID(typeid(PROD));
       principal_get_adapter_detail::throwOnPutOfNullProduct("Event", typeID, provRecorder_.productInstanceLabel(token));
     }
-    if(unlikely(token.isUninitialized())) {
+    if(UNLIKELY(token.isUninitialized())) {
       principal_get_adapter_detail::throwOnPutOfUninitializedToken("Event", typeid(PROD));
     }
-    if(unlikely(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
+    if(UNLIKELY(provRecorder_.getTypeIDForPutTokenIndex(token.index()) != TypeID{typeid(PROD)})) {
       principal_get_adapter_detail::throwOnPutOfWrongType(typeid(PROD), provRecorder_.getTypeIDForPutTokenIndex(token.index()));
     }
     

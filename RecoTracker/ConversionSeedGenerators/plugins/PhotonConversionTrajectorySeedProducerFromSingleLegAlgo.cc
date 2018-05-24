@@ -60,7 +60,7 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event &
   edm::ESHandle<MagneticField> handleMagField;
   setup.get<IdealMagneticFieldRecord>().get(handleMagField);
   magField = handleMagField.product();
-  if (unlikely(magField->inTesla(GlobalPoint(0.,0.,0.)).z()<0.01)){seedCollection= nullptr;  return;}
+  if (UNLIKELY(magField->inTesla(GlobalPoint(0.,0.,0.)).z()<0.01)){seedCollection= nullptr;  return;}
 
   _IdealHelixParameters.setMagnField(magField);
 
