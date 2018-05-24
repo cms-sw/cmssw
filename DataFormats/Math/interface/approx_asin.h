@@ -1,5 +1,5 @@
-#ifndef approx_asin_h
-#define approx_asin_h
+#ifndef DataFormatsMathapprox_asin_h
+#define DataFormatsMathapprox_asin_h
 
 #include<cmath>
 template<int DEGREE>

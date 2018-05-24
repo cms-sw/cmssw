@@ -1,5 +1,5 @@
-#ifndef APPROX_ATAN2_H
-#define APPROX_ATAN2_H
+#ifndef DataFormatsMathAPPROX_ATAN2_H
+#define DataFormatsMathAPPROX_ATAN2_H
 
 
 /*
