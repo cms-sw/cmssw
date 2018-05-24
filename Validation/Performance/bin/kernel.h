@@ -1,6 +1,7 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
+#include "Random.h"
 double kernel_measureFFT( int FFT_size, double min_time, Random R);
 double kernel_measureSOR( int SOR_size, double min_time, Random R);
 double kernel_measureMonteCarlo( double min_time, Random R);
