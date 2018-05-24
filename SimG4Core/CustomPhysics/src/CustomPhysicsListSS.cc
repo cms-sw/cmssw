@@ -28,8 +28,8 @@ CustomPhysicsListSS::CustomPhysicsListSS(const std::string& name, const edm::Par
 {  
   myConfig = p;
   dfactor = p.getParameter<double>("dark_factor");
-  fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
+  fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
   particleDefFilePath = fp.fullPath();
   fParticleFactory.reset(new CustomParticleFactory());
   fDecayProcess.reset(nullptr);
