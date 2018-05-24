@@ -2,12 +2,14 @@
 #define __L1Trigger_L1THGCal_HGCalVFEProcessorBase_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
+#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
 
 class HGCalVFEProcessorBase { 
   
@@ -18,20 +20,15 @@ class HGCalVFEProcessorBase {
     {}
   virtual ~HGCalVFEProcessorBase() {}
 
-
-  virtual void vfeProcessing(const HGCEEDigiCollection&,
-                             const HGCHEDigiCollection&,
-                             const HGCBHDigiCollection&, 
-                             const edm::EventSetup& es) = 0;
-
   const std::string& name() const { return name_; } 
   
   void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}
- 
-  virtual void setProduces(edm::stream::EDProducer<>& prod) const = 0;
-  virtual void putInEvent(edm::Event& evt) = 0;
 
-  virtual void reset() = 0;
+  virtual void runTriggCell(const HGCEEDigiCollection&,
+                            const HGCHEDigiCollection&,
+                            const HGCBHDigiCollection&,
+                            l1t::HGCalTriggerCellBxCollection& triggerCellColl,
+                            const edm::EventSetup& es) = 0;
   
  protected:
   const HGCalTriggerGeometryBase* geometry_; 

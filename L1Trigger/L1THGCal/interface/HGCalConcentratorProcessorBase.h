@@ -14,7 +14,7 @@ class HGCalConcentratorProcessorBase {
  public:
   HGCalConcentratorProcessorBase(const edm::ParameterSet& conf) : 
     geometry_(nullptr),
-    name_(conf.getParameter<std::string>("ConcProcessorName"))
+    name_(conf.getParameter<std::string>("ProcessorName"))
     {}
     
   virtual ~HGCalConcentratorProcessorBase() {}
@@ -23,12 +23,9 @@ class HGCalConcentratorProcessorBase {
  
   void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}
   
-  virtual void setProduces(edm::stream::EDProducer<>& prod) const = 0;
-  virtual void putInEvent(edm::Event& evt) = 0;
-  virtual void bestChoiceSelect(const l1t::HGCalTriggerCellBxCollection& coll) = 0;
-  virtual void thresholdSelect(const l1t::HGCalTriggerCellBxCollection& coll) = 0;
-  
-  virtual void reset() = 0;
+  virtual void runTriggCell(const l1t::HGCalTriggerCellBxCollection& triggerCellCollInput,
+                            l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
+                            const edm::EventSetup& es) = 0;
  
  protected:
   const HGCalTriggerGeometryBase* geometry_;

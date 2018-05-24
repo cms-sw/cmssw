@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
@@ -17,18 +18,13 @@ class HGCalBackendLayer1ProcessorBase {
     {}
   virtual ~HGCalBackendLayer1ProcessorBase() {}
 
-  const std::string& name() const { return name_; } 
+  const std::string& name() const { return name_; }
+  
   virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) {geometry_ = geom;}
-  
-  virtual void setProduces2D(edm::stream::EDProducer<>& prod) const = 0;
-  
-  virtual void putInEvent2D(edm::Event& evt) = 0;
-  
-  virtual void run2D(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& coll, 
+    
+  virtual void run2DClustering(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& coll, 
                      const edm::EventSetup& es,
-                     edm::Event &e) = 0;
-		   
-  virtual void reset2D() = 0;  
+                     l1t::HGCalClusterBxCollection& collCluster2D) = 0;
 
  protected:
   const HGCalTriggerGeometryBase* geometry_; 

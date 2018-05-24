@@ -29,25 +29,9 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
       }
     }
 
-    void setProduces2D(edm::stream::EDProducer<>& prod) const final
-    {
-      prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibratedTriggerCells" );            
-      prod.produces<l1t::HGCalClusterBxCollection>( "cluster2D" );
-    }
-
-    void putInEvent2D(edm::Event& evt) final 
-    {   
-      evt.put(std::move(cluster_product_), "cluster2D");
-    }
-
-    void reset2D() final 
-    {
-      cluster_product_.reset( new l1t::HGCalClusterBxCollection );
-    }
-
-    void run2D(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle, 
-               const edm::EventSetup & es,
-               edm::Event & evt ) 
+    void run2DClustering(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle, 
+                         const edm::EventSetup & es,
+                         l1t::HGCalClusterBxCollection& collCluster2D) 
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       clustering_.eventSetup(es);
@@ -62,13 +46,13 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
       /* call to C2d clustering */
       switch(clusteringAlgorithmType_){
         case dRC2d : 
-          clustering_.clusterizeDR( triggerCellsPtrs, *cluster_product_);
+          clustering_.clusterizeDR( triggerCellsPtrs, collCluster2D);
           break;
         case NNC2d:
-          clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+          clustering_.clusterizeNN( triggerCellsPtrs, collCluster2D, *triggerGeometry_ );
           break;
         case dRNNC2d:
-          clustering_.clusterizeDRNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+          clustering_.clusterizeDRNN( triggerCellsPtrs, collCluster2D, *triggerGeometry_ );
           break;
         default:
           // Should not happen, clustering type checked in constructor
@@ -82,9 +66,6 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
       NNC2d,
       dRNNC2d
     };
-        
-    /* pointers to collections of trigger-cells, clusters and multiclusters */
-    std::unique_ptr<l1t::HGCalClusterBxCollection> cluster_product_;
 
     edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
