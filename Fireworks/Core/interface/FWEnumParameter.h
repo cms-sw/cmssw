@@ -22,6 +22,7 @@
 
 // user include files
 #include "Fireworks/Core/interface/FWLongParameter.h"
+#include "RtypesCore.h"
 #include <map>
 
 // forward declarations
