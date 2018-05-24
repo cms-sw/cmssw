@@ -20,19 +20,12 @@ using namespace CLHEP;
 
 G4ThreadLocal std::unique_ptr<G4ProcessHelper> CustomPhysicsList::myHelper;
 
-CustomPhysicsList::CustomPhysicsList(const std::string& name, 
-				     const edm::ParameterSet & p, bool apinew)  
+CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::ParameterSet & p)
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
-  if(apinew) {
-    dfactor = p.getParameter<double>("DarkMPFactor");
-    fHadronicInteraction = p.getParameter<bool>("RhadronPhysics");
-  } else {
-    // this is left for backward compatibility
-    dfactor = p.getParameter<double>("dark_factor");
-    fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
-  }
+  dfactor = p.getParameter<double>("dark_factor");
+  fHadronicInteraction = p.getParameter<bool>("rhadronPhysics");
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
   fParticleFactory.reset(new CustomParticleFactory());
