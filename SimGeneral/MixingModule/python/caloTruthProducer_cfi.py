@@ -31,8 +31,9 @@ caloParticles = cms.PSet(
 	HepMCProductLabel = cms.InputTag('generatorSmeared')
 )
 
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(caloParticles, premixStage1 = True)
+
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(caloParticles, cms.PSet()) # don't allow this to run in fastsim
 
-from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-premix_stage1.toModify(caloParticles, premixStage1 = True)
