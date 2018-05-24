@@ -96,7 +96,7 @@ void
 WaitingTaskList::add(WaitingTask* iTask) {
   iTask->increment_ref_count();
   if(!m_waiting) {
-    if(unlikely(bool(m_exceptionPtr))) {
+    if(UNLIKELY(bool(m_exceptionPtr))) {
       iTask->dependentTaskFailed(m_exceptionPtr);
     }
     if(0==iTask->decrement_ref_count()) {
@@ -145,7 +145,7 @@ WaitingTaskList::announce()
       hardware_pause();
     }
     auto t = n->m_task;
-    if(unlikely(bool(m_exceptionPtr))) {
+    if(UNLIKELY(bool(m_exceptionPtr))) {
       t->dependentTaskFailed(m_exceptionPtr);
     }
     if(0==t->decrement_ref_count()){

@@ -203,12 +203,12 @@ EDConsumerBase::updateLookup(BranchType iBranchType,
 ProductResolverIndexAndSkipBit
 EDConsumerBase::indexFrom(EDGetToken iToken, BranchType iBranch, TypeID const& iType) const
 {
-  if(unlikely(iToken.index()>=m_tokenInfo.size())) {
+  if(UNLIKELY(iToken.index()>=m_tokenInfo.size())) {
     throwBadToken(iType,iToken);
   }
   const auto& info = m_tokenInfo.get<kLookupInfo>(iToken.index());
-  if (likely(iBranch == info.m_branchType)) {
-    if (likely(iType == info.m_type)) {
+  if (LIKELY(iBranch == info.m_branchType)) {
+    if (LIKELY(iType == info.m_type)) {
       return info.m_index;
     } else {
       throwTypeMismatch(iType, iToken);

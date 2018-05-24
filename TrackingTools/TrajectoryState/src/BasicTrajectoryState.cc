@@ -100,14 +100,14 @@ void BasicTrajectoryState::notValid() {
 
 namespace {
   void verifyLocalErr(LocalTrajectoryError const & err, const FreeTrajectoryState & state ) {
-     if unlikely(!err.posDef())
+     if UNLIKELY(!err.posDef())
                  edm::LogWarning("BasicTrajectoryState") << "local error not pos-def\n"
                                                         <<  err.matrix()
                                                          << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
                                                           <<  ' ' << state.parameters().magneticFieldInTesla();
   }
   void verifyCurvErr(CurvilinearTrajectoryError const & err, const FreeTrajectoryState & state ) {
-     if unlikely(!err.posDef())
+     if UNLIKELY(!err.posDef())
                  edm::LogWarning("BasicTrajectoryState") << "curv error not pos-def\n" 
                                                         <<  err.matrix()
                                                          << "\npos/mom/mf " << state.position() << ' ' << state.momentum()
@@ -131,9 +131,9 @@ void BasicTrajectoryState::missingError(char const * where) const{
 
 
 void BasicTrajectoryState::checkCurvilinError() const {
-  if likely(theFreeState.hasCurvilinearError()) return;
+  if LIKELY(theFreeState.hasCurvilinearError()) return;
 
-  if unlikely(!theLocalParametersValid) createLocalParameters();
+  if UNLIKELY(!theLocalParametersValid) createLocalParameters();
   
   JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), globalParameters(), *magneticField());
   const AlgebraicMatrix55& jac = loc2Curv.jacobian();
@@ -160,7 +160,7 @@ void BasicTrajectoryState::createLocalParameters() const {
 }
 
 void BasicTrajectoryState::createLocalError() const {
-  if likely(theFreeState.hasCurvilinearError())
+  if LIKELY(theFreeState.hasCurvilinearError())
     createLocalErrorFromCurvilinearError();
   else theLocalError = InvalidError();
 }
@@ -248,13 +248,13 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
 
 void 
 BasicTrajectoryState::rescaleError(double factor) {
-  if unlikely(!hasError()) missingError(" trying to rescale");    
+  if UNLIKELY(!hasError()) missingError(" trying to rescale");    
   theFreeState.rescaleError(factor);
   
   if (theLocalError.valid()){
     //do it by hand if the free state is not around.
     bool zeroField = (magneticField()->nominalValue()==0);
-    if unlikely(zeroField){
+    if UNLIKELY(zeroField){
       AlgebraicSymMatrix55 errors=theLocalError.matrix();
       //scale the 0 indexed covariance by the square root of the factor
       for (unsigned int i=1;i!=5;++i)      errors(i,0)*=factor;

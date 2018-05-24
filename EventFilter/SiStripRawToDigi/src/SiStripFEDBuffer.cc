@@ -97,7 +97,7 @@ namespace sistrip {
     uint16_t offsetBeginningOfChannel = 0;
     for (uint16_t i = 0; i < FEDCH_PER_FED; i++) {
       //if FE unit is not enabled then skip rest of FE unit adding NULL pointers
-      if unlikely( !(fePresent(i/FEDCH_PER_FEUNIT) && feEnabled(i/FEDCH_PER_FEUNIT)) ) {
+      if UNLIKELY( !(fePresent(i/FEDCH_PER_FEUNIT) && feEnabled(i/FEDCH_PER_FEUNIT)) ) {
 	channels_.insert(channels_.end(),uint16_t(FEDCH_PER_FEUNIT),FEDChannel(payloadPointer_,0,0));
 	i += FEDCH_PER_FEUNIT-1;
 	validChannels_ += FEDCH_PER_FEUNIT;
@@ -105,7 +105,7 @@ namespace sistrip {
       }
       //if FE unit is enabled
       //check that channel length bytes fit into buffer
-      if unlikely(offsetBeginningOfChannel+1 >= payloadLength_) {
+      if UNLIKELY(offsetBeginningOfChannel+1 >= payloadLength_) {
 	std::ostringstream ss;
         SiStripFedKey key(0,i/FEDCH_PER_FEUNIT,i%FEDCH_PER_FEUNIT);
         ss << "Channel " << uint16_t(i) << " (FE unit " << key.feUnit() << " channel " << key.feChan() << " according to external numbering scheme)" 
@@ -120,7 +120,7 @@ namespace sistrip {
       uint16_t channelLength = channels_.back().length();
 
       //check that the channel length is long enough to contain the header
-      if unlikely(channelLength < minLength) {
+      if UNLIKELY(channelLength < minLength) {
         SiStripFedKey key(0,i/FEDCH_PER_FEUNIT,i%FEDCH_PER_FEUNIT);
         std::ostringstream ss;
         ss << "Channel " << uint16_t(i) << " (FE unit " << key.feUnit() << " channel " << key.feChan() << " according to external numbering scheme)"
@@ -130,7 +130,7 @@ namespace sistrip {
            << "Min length is " << uint16_t(minLength) << ". ";
         throw cms::Exception("FEDBuffer") << ss.str();
       }
-      if unlikely(offsetBeginningOfChannel+channelLength > payloadLength_) {
+      if UNLIKELY(offsetBeginningOfChannel+channelLength > payloadLength_) {
         SiStripFedKey key(0,i/FEDCH_PER_FEUNIT,i%FEDCH_PER_FEUNIT);
 	std::ostringstream ss;
         ss << "Channel " << uint16_t(i) << " (FE unit " << key.feUnit() << " channel " << key.feChan() << " according to external numbering scheme)" 
