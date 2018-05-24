@@ -19,9 +19,11 @@ namespace sistrip {
 
   // -----------------------------------------------------------------------------
   /** */
-  DigiToRaw::DigiToRaw( FEDReadoutMode mode, 
-			bool useFedKey ) : 
+  DigiToRaw::DigiToRaw( FEDReadoutMode mode,
+                        uint8_t packetCode,
+			bool useFedKey ) :
     mode_(mode),
+    packetCode_(packetCode),
     useFedKey_(useFedKey),
     bufferGenerator_()
   {
@@ -299,7 +301,7 @@ namespace sistrip {
           }
           //create the buffer
           FEDRawData& fedrawdata = buffers->FEDData( *ifed );
-          bufferGenerator_.generateBuffer(&fedrawdata,fedData,*ifed);
+          bufferGenerator_.generateBuffer(&fedrawdata, fedData, *ifed, packetCode_);
 
           if ( edm::isDebugEnabled() ) {
             std::ostringstream debugStream;
@@ -410,7 +412,7 @@ namespace sistrip {
           }
           //create the buffer
           FEDRawData& fedrawdata = buffers->FEDData( *ifed );
-          bufferGenerator_.generateBuffer(&fedrawdata,fedData,*ifed);
+          bufferGenerator_.generateBuffer(&fedrawdata, fedData, *ifed, packetCode_);
 
           if ( edm::isDebugEnabled() ) {
             std::ostringstream debugStream;

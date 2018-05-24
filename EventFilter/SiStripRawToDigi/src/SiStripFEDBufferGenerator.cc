@@ -100,17 +100,17 @@ namespace sistrip {
     }
   }
   
-  FEDBufferPayload FEDBufferPayloadCreator::createPayload(const FEDReadoutMode mode, const FEDStripData& data) const
+  FEDBufferPayload FEDBufferPayloadCreator::createPayload(FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const
   {
     std::vector< std::vector<uint8_t> > channelBuffers(FEDCH_PER_FED,std::vector<uint8_t>());
     for (size_t iCh = 0; iCh < FEDCH_PER_FED; iCh++) {
       if (!feUnitsEnabled_[iCh/FEDCH_PER_FEUNIT]) continue;
-      fillChannelBuffer(&channelBuffers[iCh],mode,data.channel(iCh),channelsEnabled_[iCh]);
+      fillChannelBuffer(&channelBuffers[iCh], mode, packetCode, data.channel(iCh), channelsEnabled_[iCh]);
     }
     return FEDBufferPayload(channelBuffers);
   }
   
-  void FEDBufferPayloadCreator::fillChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDReadoutMode mode,
+  void FEDBufferPayloadCreator::fillChannelBuffer(std::vector<uint8_t>* channelBuffer, FEDReadoutMode mode, uint8_t packetCode,
                                                  const FEDStripData::ChannelData& data, const bool channelEnabled) const
   {
     switch (mode) {
@@ -446,7 +446,7 @@ namespace sistrip {
     return *this;
   }
   
-  void FEDBufferGenerator::generateBuffer(FEDRawData* rawDataObject, const FEDStripData& data, const uint16_t sourceID) const
+  void FEDBufferGenerator::generateBuffer(FEDRawData* rawDataObject, const FEDStripData& data, uint16_t sourceID, uint8_t packetCode) const
   {
     //deal with disabled FE units and channels properly (FE enables, status bits)
     TrackerSpecialHeader tkSpecialHeader(defaultTrackerSpecialHeader_);
@@ -470,7 +470,7 @@ namespace sistrip {
     daqHeader.setSourceID(sourceID);
     //build payload
     const FEDBufferPayloadCreator payloadPacker(feUnitsEnabled_,channelsEnabled_);
-    const FEDBufferPayload payload = payloadPacker(getReadoutMode(),data);
+    const FEDBufferPayload payload = payloadPacker(getReadoutMode(), packetCode, data);
     //fill FE lengths
     for (uint8_t iFE = 0; iFE < FEUNITS_PER_FED; iFE++) {
       fedFeHeader->setFEUnitLength(iFE,payload.getFELength(iFE));
@@ -478,7 +478,7 @@ namespace sistrip {
     //resize buffer
     rawDataObject->resize(bufferSizeInBytes(*fedFeHeader,payload));
     //fill buffer
-    fillBuffer(rawDataObject->data(),daqHeader,defaultDAQTrailer_,tkSpecialHeader,*fedFeHeader,payload);
+    fillBuffer(rawDataObject->data(), daqHeader, defaultDAQTrailer_, tkSpecialHeader, *fedFeHeader, payload);
   }
   
   void FEDBufferGenerator::fillBuffer(uint8_t* pointerToStartOfBuffer,
