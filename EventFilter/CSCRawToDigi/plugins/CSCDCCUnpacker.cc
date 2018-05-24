@@ -772,7 +772,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
   // Bufers
   int word_lines=hl/4;
   char tempbuf[80];
-  char tempbuf1[80];
+  char tempbuf1[130];
   char tempbuf_short[17];
   char sign1[]="  --->| ";
 
