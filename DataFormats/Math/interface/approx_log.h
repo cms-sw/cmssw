@@ -1,5 +1,5 @@
-#ifndef APPROX_LOG_H
-#define APPROX_LOG_H
+#ifndef DataFormatsMathAPPROX_LOG_H
+#define DataFormatsMathAPPROX_LOG_H
 /*  Quick and dirty, branchless, log implementations
     Author: Florent de Dinechin, Aric, ENS-Lyon 
     All right reserved
@@ -26,27 +26,7 @@ Polynomials were obtained using Sollya scripts (in comments):
 please also keep these comments attached to the code of approx_logf. 
 */
 
-#include <cstdint>
-#include <cmath>
-#include <limits>
-#include <algorithm>
-
-
-#ifndef APPROX_MATH_N
-#define APPROX_MATH_N
-namespace approx_math {
-  union binary32 {
-    constexpr binary32() : ui32(0) {};
-    constexpr binary32(float ff) : f(ff) {};
-    constexpr binary32(int32_t ii) : i32(ii){}
-    constexpr binary32(uint32_t ui) : ui32(ui){}
-    
-    uint32_t ui32; /* unsigned int */                
-    int32_t i32; /* Signed int */                
-    float f;
-  };
-}
-#endif
+#include "DataFormats/Math/interface/approx_math.h"
 
 
 template<int DEGREE>

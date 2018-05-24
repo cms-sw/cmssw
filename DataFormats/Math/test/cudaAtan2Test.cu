@@ -18,6 +18,8 @@ echo $f; $f
 end
 */
 
+#include "DataFormats/Math/interface/approx_atan2.h"
+
 #include "cuda/api_wrappers.h"
 
 #include <iostream>
@@ -25,11 +27,9 @@ end
 #include <memory>
 #include <algorithm>
 #include <chrono>
-#include<random>
+#include <random>
 
-#include<cassert>
-
-#include<DataFormats/Math/interface/approx_atan2.h>
+#include <cassert>
 
 constexpr float xmin=-100.001;  // avoid 0
 constexpr float incr = 0.04;

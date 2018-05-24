@@ -1,5 +1,5 @@
-#ifndef APPROX_EXP_H
-#define APPROX_EXP_H
+#ifndef DataFormatsMathAPPROX_EXP_H
+#define DataFormatsMathAPPROX_EXP_H
 /*  Quick and not that dirty vectorizable exp implementations
     Author: Florent de Dinechin, Aric, ENS-Lyon 
     with advice from Vincenzo Innocente, CERN
@@ -33,45 +33,7 @@ Not sure it makes that much sense in the vector context.
 
 // see the comments in the code for the accuracy you get from a given degree
 
-
-#include <cstdint>
-#include <cmath>
-#include <limits>
-#include <algorithm>
-
-#ifndef APPROX_MATH_N
-#define APPROX_MATH_N
-namespace approx_math {
-  union binary32 {
-    constexpr binary32() : ui32(0) {};
-    constexpr binary32(float ff) : f(ff) {};
-    constexpr binary32(int32_t ii) : i32(ii){}
-    constexpr binary32(uint32_t ui) : ui32(ui){}
-    
-    uint32_t ui32; /* unsigned int */                
-    int32_t i32; /* Signed int */                
-    float f;
-  };
-}
-#endif
-
-
-namespace approx_math {
-#ifdef __SSE4_1__
-  constexpr float fpfloor(float x) {
-    return std::floor(x);
-  }
-#else
-  constexpr float fpfloor(float x) {
-    int32_t ret = x;
-    binary32 xx(x);
-    ret-=(xx.ui32>>31);  
-    return ret;
-  }
-#endif
-}
-
-
+#include "DataFormats/Math/interface/approx_math.h"
 
 template<int DEGREE>
 constexpr float approx_expf_P(float p);

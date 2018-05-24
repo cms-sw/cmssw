@@ -13,7 +13,7 @@ namespace reco {
   // assumption is that eta and phi are cached AND phi is computed using std::atan2
   // type is the type of T1::eta();
   template<typename T1, typename T2>
-  constexpr auto  __attribute__((always_constexpr)) deltaR2(const T1 & t1, const T2 & t2) -> decltype(t1.eta()) {
+  constexpr auto deltaR2(const T1 & t1, const T2 & t2) -> decltype(t1.eta()) {
     typedef  decltype(t1.eta()) Float;
     Float p1 = t1.phi(); 
     Float p2 = t2.phi(); 
