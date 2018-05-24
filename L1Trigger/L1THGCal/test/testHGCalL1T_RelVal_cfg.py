@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(20)
 )
 
 # Input source
@@ -55,6 +55,38 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
+#---------
+# For test Output definition
+process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    #outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    outputCommands = cms.untracked.vstring(
+        'keep *_*_HGCHitsEE_*',
+        'keep *_*_HGCHitsHEback_*',
+        'keep *_*_HGCHitsHEfront_*',
+        'keep *_mix_*_*',
+        'keep *_genParticles_*_*',
+	'keep *_hgcalBackEndLayer1Producer_*_*',
+	'keep *_hgcalBackEndLayer2Producer_*_*',
+	'keep *_hgcalVFEProducer_*_*',
+	'keep *_hgcalConcentratorProducer_*_*'
+    ),
+    fileName = cms.untracked.string('file:test.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW')
+    )
+    #SelectEvents = cms.untracked.PSet(
+    #    SelectEvents = cms.vstring('generation_step')
+    #)
+)
+
+process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
+
+#---------------------------------
+
+
 # Output definition
 process.TFileService = cms.Service(
     "TFileService",
@@ -70,6 +102,11 @@ process.load('L1Trigger.L1THGCal.hgcalVFE_cff')
 process.load('L1Trigger.L1THGCal.hgcalConcentrator_cff')
 process.load('L1Trigger.L1THGCal.hgcalBackEndLayer1_cff')
 process.load('L1Trigger.L1THGCal.hgcalBackEndLayer2_cff')
+process.hgcVFE_step = cms.Path(process.hgcalVFE)
+process.hgcConcentrator_step = cms.Path(process.hgcalConcentrator)
+process.hgcBackEndLayer1_step = cms.Path(process.hgcalBackEndLayer1)
+process.hgcBackEndLayer2_step = cms.Path(process.hgcalBackEndLayer2)
+
 # Change to V7 trigger geometry for older samples
 #  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7
 #  process = custom_geometry_ZoltanSplit_V7(process)
@@ -79,6 +116,7 @@ process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')
 process.ntuple_step = cms.Path(process.hgcalTriggerNtuples)
 
 # Schedule definition
+#process.schedule = cms.Schedule(process.hgcVFE_step, process.hgcConcentrator_step, process.hgcBackEndLayer1_step, process.hgcBackEndLayer2_step,process.FEVTDEBUGoutput_step)
 process.schedule = cms.Schedule(process.hgcVFE_step, process.hgcConcentrator_step, process.hgcBackEndLayer1_step, process.hgcBackEndLayer2_step, process.ntuple_step)
 
 # Add early deletion of temporary data products to reduce peak memory need

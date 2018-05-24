@@ -15,8 +15,13 @@
 
 #include <array>
 #include <cmath>
+#include <vector>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 class HGCalTriggerGeometryBase;
 class DetId;
@@ -30,7 +35,7 @@ namespace edm {
 class HGCalTriggerTools {
   public:
     HGCalTriggerTools() : geom_(nullptr),
-      eeLayers_(0), fhLayers_(0), bhLayers_(0), totalLayers_(0){}
+    eeLayers_(0), fhLayers_(0), bhLayers_(0), totalLayers_(0){}
     ~HGCalTriggerTools() {}
 
     void eventSetup(const edm::EventSetup&);
@@ -58,7 +63,16 @@ class HGCalTriggerTools {
     float getLayerZ(const unsigned& layerWithOffset) const;
     float getLayerZ(const int& subdet, const unsigned& layer) const;
 
-
+    template<typename T> 
+    std::vector<T> collectionToVector(const BXVector<T>& coll){    
+      std::vector<T> trigCellVec;     
+      //loop over collection for a given bx and put the objects into a std::vector
+      for( typename std::vector<T>::const_iterator it = coll.begin(0) ; it != coll.end(0) ; ++it )
+      { 
+        trigCellVec.push_back(*it); 
+      }
+      return trigCellVec;
+    }
 
   private:
     const HGCalTriggerGeometryBase* geom_;

@@ -7,6 +7,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 #include <array>
 #include <vector>
@@ -17,10 +18,9 @@ class HGCalConcentratorSelectionImpl
   public:
     HGCalConcentratorSelectionImpl(const edm::ParameterSet& conf);
 
-    void bestChoiceSelectImpl(std::vector<l1t::HGCalTriggerCell>& trigCellVec);
-
+    void bestChoiceSelectImpl(std::vector<l1t::HGCalTriggerCell>& trigCellVec);    
     void thresholdSelectImpl(std::vector<l1t::HGCalTriggerCell>& trigCellVec);
-
+    
     // Retrieve parameters
     size_t   nCellsInModule() const {return nCellsInModule_;}
     double   linLSB() const {return linLSB_;}
@@ -42,7 +42,9 @@ class HGCalConcentratorSelectionImpl
     int      TCThreshold_ADC_;
     double   TCThreshold_fC_;
     int      TCThresholdBH_ADC_;
-    double   TCThresholdBH_MIP_; 
+    double   TCThresholdBH_MIP_;
+    
+    HGCalTriggerTools triggerTools_;
 };
 
 #endif

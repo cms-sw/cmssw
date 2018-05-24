@@ -51,7 +51,7 @@ ntuple_digis = cms.PSet(
 
 ntuple_triggercells = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
-    TriggerCells = cms.InputTag('hgcalVFEProducer:calibratedTriggerCells'),
+    TriggerCells = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
     Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:cluster3D'),
     eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
@@ -86,7 +86,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_digis,
         ntuple_triggercells,
         ntuple_clusters,
-        ntuple_multicluster,
-        ntuple_tower
+        ntuple_multicluster
+        #ntuple_tower
     )
 )

@@ -39,8 +39,7 @@ DEFINE_FWK_MODULE(HGCalBackendLayer1Producer);
 
 HGCalBackendLayer1Producer::
 HGCalBackendLayer1Producer(const edm::ParameterSet& conf):
-input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells"))),
-input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerSums")))
+input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::InputTag>("InputTriggerCells")))
 {   
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
@@ -48,7 +47,7 @@ input_sums_(consumes<l1t::HGCalTriggerSumsBxCollection>(conf.getParameter<edm::I
   HGCalBackendLayer1ProcessorBase* beProc = HGCalBackendLayer1Factory::get()->create(beProcessorName, beParamConfig);
   backendProcess_.reset(beProc);
 
-  backendProcess_->setProduces2D(*this);  
+  produces<l1t::HGCalClusterBxCollection>("cluster2D");
 }
 
 void HGCalBackendLayer1Producer::beginRun(const edm::Run& /*run*/, 
@@ -58,15 +57,15 @@ void HGCalBackendLayer1Producer::beginRun(const edm::Run& /*run*/,
 }
 
 void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& es) {
-      
-  edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
-  edm::Handle<l1t::HGCalTriggerSumsBxCollection> trigSumsBxColl;
 
+  // Output collections
+  std::unique_ptr<l1t::HGCalClusterBxCollection> be_cluster_output( new l1t::HGCalClusterBxCollection );
+    
+  // Input collections
+  edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
   e.getByToken(input_cell_, trigCellBxColl);
-  e.getByToken(input_sums_, trigSumsBxColl);
+
+  backendProcess_->run2DClustering(trigCellBxColl, es, *be_cluster_output);
   
-  backendProcess_->reset2D();  
-  backendProcess_->run2D(trigCellBxColl,es,e);
-  backendProcess_->putInEvent2D(e);
- 
+  e.put(std::move(be_cluster_output), "cluster2D");
 }

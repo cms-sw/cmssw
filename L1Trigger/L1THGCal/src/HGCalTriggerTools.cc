@@ -15,6 +15,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
+
+
+
 namespace {
   constexpr char hgcalee_sens[] = "HGCalEESensitive";
   constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
@@ -52,7 +55,6 @@ namespace {
     check_ddd(ddd);
     return ddd;
   }
-
 }
 
 void 
@@ -191,3 +193,6 @@ float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) con
   }
   return layerGlobalZ;
 }
+
+
+

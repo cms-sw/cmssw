@@ -7,9 +7,8 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
-
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
-#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
@@ -41,14 +40,14 @@ DEFINE_FWK_MODULE(HGCalBackendLayer2Producer);
 HGCalBackendLayer2Producer::
 HGCalBackendLayer2Producer(const edm::ParameterSet& conf): 
 input_cluster(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("InputCluster")))
-{   
+{
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& beProcessorName = beParamConfig.getParameter<std::string>("ProcessorName");
   HGCalBackendLayer2ProcessorBase* beProc = HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig);
   backendProcess_.reset(beProc);
 
-  backendProcess_->setProduces3D(*this);
+  produces<l1t::HGCalMulticlusterBxCollection>("cluster3D");
 }
 
 void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/, 
@@ -59,12 +58,15 @@ void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/,
 }
 
 void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& es) 
-{    
-  edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;
+{
+  // Output collections
+  std::unique_ptr<l1t::HGCalMulticlusterBxCollection> be_multicluster_output( new l1t::HGCalMulticlusterBxCollection );
   
+  // Input collections   
+  edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;  
   e.getByToken(input_cluster, trigCluster2DBxColl);
-    
-  backendProcess_->reset3D();    
-  backendProcess_->run3D(trigCluster2DBxColl,es,e);
-  //backendProcess_->putInEvent3D(e);  
+      
+  backendProcess_->run3DClustering(trigCluster2DBxColl, es, *be_multicluster_output);
+  
+  e.put(std::move(be_multicluster_output), "cluster3D");  
 }

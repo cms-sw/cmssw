@@ -1,29 +1,28 @@
-#include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFEProcessor.h"
+#include "L1Trigger/L1THGCal/interface/veryfrontend/HGCalVFEProcessorSums.h"
 #include <limits>
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
 DEFINE_EDM_PLUGIN(HGCalVFEProcessorBaseFactory, 
-        HGCalVFEProcessor,
-        "HGCalVFEProcessor");
+        HGCalVFEProcessorSums,
+        "HGCalVFEProcessorSums");
 
 
-HGCalVFEProcessor::
-HGCalVFEProcessor(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
+HGCalVFEProcessorSums::
+HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(conf),
   vfeLinearizationImpl_(conf),
   vfeSummationImpl_(conf),
-  calibration_( conf.getParameterSet("calib_parameters") ),
-  triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
-  triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator") )
+  calibration_( conf.getParameterSet("calib_parameters") )
 { 
 }
 
 void
-HGCalVFEProcessor::
-vfeProcessing(const HGCEEDigiCollection& ee,
-              const HGCHEDigiCollection& fh, 
-              const HGCBHDigiCollection& bh, const edm::EventSetup& es) 
+HGCalVFEProcessorSums::runTriggCell(const HGCEEDigiCollection& ee,
+                                    const HGCHEDigiCollection& fh, 
+                                    const HGCBHDigiCollection& bh, 
+                                    l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
+                                    const edm::EventSetup& es) 
 { 
   calibration_.eventSetup(es);
 
@@ -35,7 +34,9 @@ vfeProcessing(const HGCEEDigiCollection& ee,
   if(!ee.empty())
   {
     for(const auto& eedata : ee)
-    {
+    { 
+      uint32_t module = geometry_->getModuleFromCell(eedata.id());
+      if(geometry_->disconnectedModule(module)) continue;
       dataframes.emplace_back(eedata.id());
       for(int i=0; i<eedata.size(); i++)
       {
@@ -46,7 +47,9 @@ vfeProcessing(const HGCEEDigiCollection& ee,
   else if(!fh.empty())
   {
     for(const auto& fhdata : fh)
-    {
+    {  
+       uint32_t module = geometry_->getModuleFromCell(fhdata.id());
+       if(geometry_->disconnectedModule(module)) continue;
        dataframes.emplace_back(fhdata.id());
        for(int i=0; i<fhdata.size(); i++)
        {
@@ -55,9 +58,12 @@ vfeProcessing(const HGCEEDigiCollection& ee,
      }
    }
   else if(!bh.empty())
-  {
-    for(const auto& bhdata : bh)
-    {
+  {  
+     for(const auto& bhdata : bh)
+     { 
+       if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
+       uint32_t module = geometry_->getModuleFromCell(bhdata.id());
+       if(geometry_->disconnectedModule(module)) continue;
        dataframes.emplace_back(bhdata.id());
        for(int i=0; i<bhdata.size(); i++)
        {
@@ -86,18 +92,9 @@ vfeProcessing(const HGCEEDigiCollection& ee,
       { 
         l1t::HGCalTriggerCell calibratedtriggercell( triggerCell );
         calibration_.calibrateInGeV( calibratedtriggercell);     
-        double triggercell_threshold = (triggerCell.subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
-	if(calibratedtriggercell.mipPt()<triggercell_threshold) continue;
-        triggerCell_product_->push_back(0, calibratedtriggercell);
+	triggerCellColl.push_back(0, calibratedtriggercell);
       }
-      //--------------------------------------------- 
     }
   }    
 }
 
-
-void HGCalVFEProcessor::putInEvent(edm::Event& evt)
-{ 
-  evt.put(std::move(triggerCell_product_), "calibratedTriggerCells");
-  evt.put(std::move(triggerSums_product_), "calibratedTriggerCells");
-}

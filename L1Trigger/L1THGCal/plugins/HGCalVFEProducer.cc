@@ -47,17 +47,24 @@ HGCalVFEProducer(const edm::ParameterSet& conf):
   const std::string& vfeProcessorName = vfeParamConfig.getParameter<std::string>("ProcessorName");
   HGCalVFEProcessorBase* vfeProc = HGCalVFEProcessorBaseFactory::get()->create(vfeProcessorName, vfeParamConfig);
   vfeProcess_.reset(vfeProc);
-    
-  vfeProcess_->setProduces(*this);
+  
+  produces<l1t::HGCalTriggerCellBxCollection>("calibratedTriggerCells");
+  produces<l1t::HGCalTriggerSumsBxCollection>("calibratedTriggerCells");
 }
 
 void HGCalVFEProducer::beginRun(const edm::Run& /*run*/, 
-                                          const edm::EventSetup& es) {					  				  
+                                const edm::EventSetup& es) {
   es.get<CaloGeometryRecord>().get(triggerGeometry_);
   vfeProcess_->setGeometry(triggerGeometry_.product());
 }
 
 void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+  
+  // Output collections
+  std::unique_ptr<l1t::HGCalTriggerCellBxCollection> vfe_trigcell_output( new l1t::HGCalTriggerCellBxCollection );
+  std::unique_ptr<l1t::HGCalTriggerSumsBxCollection> vfe_trigsums_output( new l1t::HGCalTriggerSumsBxCollection );
+
+  // Input collections
   edm::Handle<HGCEEDigiCollection> ee_digis_h;
   edm::Handle<HGCHEDigiCollection> fh_digis_h;
   edm::Handle<HGCBHDigiCollection> bh_digis_h;
@@ -69,46 +76,15 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   const HGCEEDigiCollection& ee_digis = *ee_digis_h;
   const HGCHEDigiCollection& fh_digis = *fh_digis_h;
   const HGCBHDigiCollection& bh_digis = *bh_digis_h;
-  // First find modules containing hits and prepare list of hits for each module
-  std::unordered_map<uint32_t, HGCEEDigiCollection> hit_modules_ee;
-  for(const auto& eedata : ee_digis) {
-    uint32_t module = triggerGeometry_->getModuleFromCell(eedata.id());
-    if(triggerGeometry_->disconnectedModule(module)) continue;
-    auto itr_insert = hit_modules_ee.emplace(module,HGCEEDigiCollection());
-    itr_insert.first->second.push_back(eedata);
-  }
-
-  std::unordered_map<uint32_t,HGCHEDigiCollection> hit_modules_fh;
-  for(const auto& fhdata : fh_digis) {
-    uint32_t module = triggerGeometry_->getModuleFromCell(fhdata.id());
-    if(triggerGeometry_->disconnectedModule(module)) continue;
-    auto itr_insert = hit_modules_fh.emplace(module, HGCHEDigiCollection());
-    itr_insert.first->second.push_back(fhdata);
-  }
-
-  std::unordered_map<uint32_t,HGCBHDigiCollection> hit_modules_bh;
-  for(const auto& bhdata : bh_digis) {
-    if(HcalDetId(bhdata.id()).subdetId()!=HcalEndcap) continue;
-    uint32_t module = triggerGeometry_->getModuleFromCell(bhdata.id());
-    if(triggerGeometry_->disconnectedModule(module)) continue;
-    auto itr_insert = hit_modules_bh.emplace(module, HGCBHDigiCollection());
-    itr_insert.first->second.push_back(bhdata);
-  }
   
-  vfeProcess_->reset();
-  for( const auto& module_hits : hit_modules_ee ) {
-    vfeProcess_->vfeProcessing(module_hits.second, HGCHEDigiCollection(), HGCBHDigiCollection(), es);         
-  } //end loop on EE modules
+  // Processing DigiCollections and putting the results into the HGCalTriggerCellBxCollection
+  vfeProcess_->runTriggCell(ee_digis, HGCHEDigiCollection(), HGCBHDigiCollection(), *vfe_trigcell_output, es);         
+  vfeProcess_->runTriggCell(HGCEEDigiCollection(), fh_digis, HGCBHDigiCollection(), *vfe_trigcell_output, es);   
+  vfeProcess_->runTriggCell(HGCEEDigiCollection(), HGCHEDigiCollection(), bh_digis, *vfe_trigcell_output, es);   
   
-      
-  for( const auto& module_hits : hit_modules_fh ) {
-    vfeProcess_->vfeProcessing(HGCEEDigiCollection(), module_hits.second, HGCBHDigiCollection(), es);   
-  } //end loop on FH modules
-
-  for( const auto& module_hits : hit_modules_bh ) {
-    vfeProcess_->vfeProcessing(HGCEEDigiCollection(), HGCHEDigiCollection(), module_hits.second, es);   
-  } //end loop on FH modules
-     
-  vfeProcess_->putInEvent(e);
+  // Put in the event
+  // At the moment the HGCalTriggerSumsBxCollection is empty   
+  e.put(std::move(vfe_trigcell_output), "calibratedTriggerCells");
+  e.put(std::move(vfe_trigsums_output), "calibratedTriggerCells");
 
 }

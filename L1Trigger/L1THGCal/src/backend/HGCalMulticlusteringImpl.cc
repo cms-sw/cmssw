@@ -1,5 +1,3 @@
-
-
 #include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalShowerShape.h"
 #include "DataFormats/Math/interface/deltaR.h"

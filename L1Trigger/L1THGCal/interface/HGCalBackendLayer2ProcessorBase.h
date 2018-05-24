@@ -16,23 +16,18 @@ class HGCalBackendLayer2ProcessorBase {
  public:
   HGCalBackendLayer2ProcessorBase(const edm::ParameterSet& conf) : 
     geometry_(nullptr),
-    name_(conf.getParameter<std::string>("BeProcessorLayer2Name"))
+    name_(conf.getParameter<std::string>("ProcessorName"))
     {}
   virtual ~HGCalBackendLayer2ProcessorBase() {}
 
-  const std::string& name() const { return name_; } 
+  const std::string& name() const { return name_; }
+  
   virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) {geometry_ = geom;}
-  
-  virtual void setProduces3D(edm::stream::EDProducer<>& prod) const = 0;
-  
-  virtual void putInEvent3D(edm::Event& evt) = 0;
-  
-  virtual void run3D(const edm::Handle<l1t::HGCalClusterBxCollection> handleColl,
-                     const edm::EventSetup& es,
-                     edm::Event &e) = 0;
+    
+  virtual void run3DClustering(const edm::Handle<l1t::HGCalClusterBxCollection> handleColl,
+                               const edm::EventSetup& es,
+                               l1t::HGCalMulticlusterBxCollection& collCluster3D) = 0;
 		   
-  virtual void reset3D() = 0;
-
  protected:
   const HGCalTriggerGeometryBase* geometry_; 
   
