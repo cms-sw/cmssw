@@ -82,11 +82,11 @@ namespace sistrip {
       //If a channel is disabled then it is considered to have all zeros in the data but will be present in the data
       FEDBufferPayloadCreator(const std::vector<bool>& enabledFEUnits, const std::vector<bool>& enabledChannels);
       //create the payload for a particular mode
-      FEDBufferPayload createPayload(const FEDReadoutMode mode, const FEDStripData& data) const;
-      FEDBufferPayload operator () (const FEDReadoutMode mode, const FEDStripData& data) const;
+      FEDBufferPayload createPayload(FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const;
+      FEDBufferPayload operator () (FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const;
     private:
       //fill vector with channel data
-      void fillChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDReadoutMode mode,
+      void fillChannelBuffer(std::vector<uint8_t>* channelBuffer, FEDReadoutMode mode, uint8_t packetCode,
                              const FEDStripData::ChannelData& data, const bool channelEnabled) const;
       //fill the vector with channel data for raw mode
       void fillRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode,
@@ -146,7 +146,8 @@ namespace sistrip {
       //FEDRawData object will be resized to fit buffer and filled
       void generateBuffer(FEDRawData* rawDataObject,
                           const FEDStripData& data,
-                          const uint16_t sourceID) const;
+                          uint16_t sourceID,
+                          uint8_t packetCode) const;
     private:
       //method to fill buffer at pointer from pre generated components (only the length and CRC will be changed)
       //at least bufferSizeInBytes(feHeader,payload) must have already been allocated
@@ -309,9 +310,9 @@ namespace sistrip {
       channelsEnabled_(channelsEnabled)
     {}
   
-  inline FEDBufferPayload FEDBufferPayloadCreator::operator () (const FEDReadoutMode mode, const FEDStripData& data) const
+  inline FEDBufferPayload FEDBufferPayloadCreator::operator () (FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const
     {
-      return createPayload(mode,data);
+      return createPayload(mode, packetCode, data);
     }
   
   //FEDBufferGenerator
