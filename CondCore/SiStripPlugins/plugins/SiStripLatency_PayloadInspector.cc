@@ -61,9 +61,6 @@ namespace {
 
 	  for (const auto & l : lat) {
 
-	    //std::cout<<"APV: "<<((l.detIdAndApv)&7)<<"     detID: "<<((l.detIdAndApv)>>3)<<std::endl;
-	    std::cout<<(int)l.latency<<std::endl;
-	    std::cout<<(int)l.mode<<std::endl<<std::endl;
 	    fillWithValue(1.);
 	  } 
 	}
