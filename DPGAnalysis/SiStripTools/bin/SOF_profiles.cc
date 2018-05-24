@@ -23,7 +23,7 @@ TCanvas* printSOF(TFile* file, const int run, const int firstLS,const int zoom) 
   TH1F* evtdcson = nullptr;
   TH1F* evtnostrip = nullptr;
 
-  char dname[400];
+  char dname[422];
 
   sprintf(dname,"ssqhistory/%s",rname);
   if(file->cd(dname)) { badmod = (TProfile*)gDirectory->Get("badmodrun_HVDCS");  }
