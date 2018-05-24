@@ -22,6 +22,7 @@
 #include <set>
 #include <vector>
 #include <string>
+#include <TGFrame.h>
 #include <RQ_OBJECT.h>
 
 // user include files
