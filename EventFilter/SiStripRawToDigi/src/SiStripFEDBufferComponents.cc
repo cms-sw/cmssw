@@ -430,7 +430,60 @@ namespace sistrip {
     //if it was none of the above then return invalid
     return READOUT_MODE_INVALID;
   }
-  
+  uint8_t packetCodeFromString(const std::string& packetCode, FEDReadoutMode mode)
+  {
+    if ( mode == READOUT_MODE_ZERO_SUPPRESSED ) {
+      if        ( packetCode == "ZERO_SUPPRESSED" || packetCode == "Zero suppressed" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED;
+      } else if ( packetCode == "ZERO_SUPPRESSED10" || packetCode == "Zero suppressed 10" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED10;
+      } else if ( packetCode == "ZERO_SUPPRESSED8_BOTBOT" || packetCode == "Zero suppressed 8 BOTBOT" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT;
+      } else if ( packetCode == "ZERO_SUPPRESSED8_TOPBOT" || packetCode == "Zero suppressed 8 TOPBOT" ) {
+        return PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode ZERO_SUPPRESSED";
+
+      }
+    } else if ( mode == READOUT_MODE_VIRGIN_RAW ) {
+      if        ( packetCode == "VIRGIN_RAW" || packetCode == "Virgin raw" ) {
+        return PACKET_CODE_VIRGIN_RAW;
+      } else if ( packetCode == "VIRGIN_RAW10" || packetCode == "Virgin raw 10" ) {
+        return PACKET_CODE_VIRGIN_RAW10;
+      } else if ( packetCode == "VIRGIN_RAW8_BOTBOT" || packetCode == "Virgin raw 8 BOTBOT" ) {
+        return PACKET_CODE_VIRGIN_RAW8_BOTBOT;
+      } else if ( packetCode == "VIRGIN_RAW8_TOPBOT" || packetCode == "Virgin raw 8 TOPBOT" ) {
+        return PACKET_CODE_VIRGIN_RAW8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode VIRGIN_RAW";
+      }
+    } else if ( mode == READOUT_MODE_PROC_RAW ) {
+      if        ( packetCode == "PROC_RAW" || packetCode == "Processed raw" ) {
+        return PACKET_CODE_PROC_RAW;
+      } else if ( packetCode == "PROC_RAW10" || packetCode == "Processed raw 10" ) {
+        return PACKET_CODE_PROC_RAW10;
+      } else if ( packetCode == "PROC_RAW8_BOTBOT" || packetCode == "Processed raw 8 BOTBOT" ) {
+        return PACKET_CODE_PROC_RAW8_BOTBOT;
+      } else if ( packetCode == "PROC_RAW8_TOPBOT" || packetCode == "Processed raw 8 TOPBOT" ) {
+        return PACKET_CODE_PROC_RAW8_TOPBOT;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode PROC_RAW";
+      }
+    } else if ( mode == READOUT_MODE_SCOPE ) {
+      if ( packetCode == "SCOPE" || packetCode == "Scope"
+          || packetCode == "" ) { // default
+        return PACKET_CODE_SCOPE;
+      } else {
+        throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode SCOPE";
+      }
+    } else {
+      if ( packetCode != "" ) {
+        throw cms::Exception("FEDBuffer") << "Packet codes are only needed for zero-suppressed (non-lite), virgin raw, processed raw and spy data. FEDReadoutMode=" << mode << " and packetCode='" << packetCode << "'";
+      }
+      return 0;
+    }
+  }
+
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString)
   {
     if ( (daqEventTypeString == "PHYSICS") ||

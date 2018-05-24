@@ -23,6 +23,7 @@ namespace sistrip {
     desc.add<std::string>("InputModuleLabel", "simSiStripDigis");
     desc.add<std::string>("InputDigiLabel", "ZeroSuppressed");
     desc.add<std::string>("FedReadoutMode", "ZERO_SUPPRESSED");
+    desc.add<std::string>("PacketCode", "ZERO_SUPPRESSED");
     desc.add<bool>("UseFedKey", false);
     desc.add<bool>("UseWrongDigiType", false);
     desc.add<bool>("CopyBufferHeader", false);
@@ -39,6 +40,7 @@ namespace sistrip {
     inputDigiLabel_( pset.getParameter<std::string>( "InputDigiLabel" ) ),
     copyBufferHeader_(pset.getParameter<bool>("CopyBufferHeader")),
     mode_( fedReadoutModeFromString(pset.getParameter<std::string>( "FedReadoutMode" ))),
+    packetCode_(packetCodeFromString(pset.getParameter<std::string>("PacketCode"), mode_)),
     rawdigi_( false ),
     digiToRaw_(nullptr),
     eventCounter_(0),
@@ -89,7 +91,7 @@ namespace sistrip {
     }
 
     // Create instance of DigiToRaw formatter
-    digiToRaw_ = new DigiToRaw( mode_, pset.getParameter<bool>("UseFedKey") );
+    digiToRaw_ = new DigiToRaw(mode_, packetCode_, pset.getParameter<bool>("UseFedKey"));
 
     if (rawdigi_) {
       tokenRawDigi = consumes< edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, inputDigiLabel_));

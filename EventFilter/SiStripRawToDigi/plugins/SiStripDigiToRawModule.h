@@ -45,6 +45,7 @@ namespace sistrip {
     //CAMM can we do without this bool based on the mode ?
     bool copyBufferHeader_;
     FEDReadoutMode mode_;
+    uint8_t packetCode_;
     bool rawdigi_;
     DigiToRaw* digiToRaw_;
     uint32_t eventCounter_;

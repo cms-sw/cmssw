@@ -150,6 +150,7 @@ namespace sistrip {
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
   FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString);
+  uint8_t packetCodeFromString(const std::string& packetCodeString, FEDReadoutMode mode);
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString);
 
   //
