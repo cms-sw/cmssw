@@ -1,9 +1,9 @@
 /*!
-  \file SiStripApvGains_PayloadInspector
-  \Payload Inspector Plugin for SiStrip Gain
-  \author M. Musich
+  \file SiStripLatency_PayloadInspector
+  \Payload Inspector Plugin for SiStrip Latency
+  \author Jessica Prisciandaro
   \version $Revision: 1.0 $
-  \date $Date: 2017/07/02 17:59:56 $
+  \date $Date: 2018/05/22 17:59:56 $
 */
 
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
@@ -41,15 +41,14 @@
 namespace {
 
   /************************************************
-    1d histogram of SiStripApvGains of 1 IOV 
+   ***************  test class ******************
   *************************************************/
 
-  // inherit from one of the predefined plot class: Histogram1D
-  class SiStripLatencyValue : public cond::payloadInspector::Histogram1D<SiStripLatency> {
+  class SiStripLatencyTest : public cond::payloadInspector::Histogram1D<SiStripLatency> {
     
   public:
-    SiStripLatencyValue() : cond::payloadInspector::Histogram1D<SiStripLatency>("SiStripLatency values",
-										 "SiStripLatency values", 200,0.0,2.0){
+    SiStripLatencyTest() : cond::payloadInspector::Histogram1D<SiStripLatency>("SiStripLatency values",
+										 "SiStripLatency values", 5,0.0,5.0){
       Base::setSingleIov( true );
     }
     
@@ -59,58 +58,92 @@ namespace {
 	if( payload.get() ){
 	 
 	  std::vector<SiStripLatency::Latency> lat = payload->allLatencyAndModes();
-	  
+
 	  for (const auto & l : lat) {
 
-	    std::cout<<"APV"<<((l.detIdAndApv)&7)<<"detID"<<((l.detIdAndApv)>>3)<<std::endl;
+	    //std::cout<<"APV: "<<((l.detIdAndApv)&7)<<"     detID: "<<((l.detIdAndApv)>>3)<<std::endl;
 	    std::cout<<(int)l.latency<<std::endl;
 	    std::cout<<(int)l.mode<<std::endl<<std::endl;
 	    fillWithValue(1.);
-	    //SiStripLatency::Range range=payload->getRange(d);
-	    //for(int it=0;it<range.second-range.first;it++){
-
-	      // to be used to fill the histogram
-	      //fillWithValue(payload->getApvGain(it,range));
-	      
-	    // }// loop over APVs
-	  } // loop over detIds
-	}// payload
-      }// iovs
+	  } 
+	}
+      }
       return true;
     }// fill
   };
+
+  /***********************************************
+  // 1d histogram of mode  of 1 IOV 
+  ************************************************/
+  class SiStripLatencyMode : public cond::payloadInspector::Histogram1D<SiStripLatency> {
+    
+  public:
+    SiStripLatencyMode(): cond::payloadInspector::Histogram1D<SiStripLatency>("SiStripLatency mode", "SiStripLatency mode", 70, -10, 60){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripLatency> payload = Base::fetchPayload( std::get<1>(iov) );
+        if( payload.get() ){
+
+	  std::vector<uint16_t> modes;
+	  payload->allModes(modes);
+
+	  for (const auto & mode : modes){
+	    if (mode!=0) fillWithValue(mode);
+	    else fillWithValue(-1);
+	  }
+        }
+      }
+      return true;
+    }
+  };
   
 
+  /****************************************************************************
+   *******************1D histo of mode as a function of the run****************
+   *****************************************************************************/
+
+  class SiStripLatencyModeHistory : public cond::payloadInspector::HistoryPlot<SiStripLatency,uint16_t > {
+    
+  public:
+    SiStripLatencyModeHistory(): cond::payloadInspector::HistoryPlot<SiStripLatency,uint16_t>("Mode vs run number", "Mode vs run number"){
+    }
+
+    uint16_t getFromPayload( SiStripLatency& payload ) override{
+
+      uint16_t singlemode = payload.singleMode();
+      return singlemode; 
+    }
+  };
+  
+
+  /****************************************************************************    
+   *****************number of modes  per run *************************************
+   **************************************************************************/
+  class SiStripLatencyNumbOfModeHistory : public cond::payloadInspector::HistoryPlot<SiStripLatency,int>  {
+    
+  public:
+    SiStripLatencyNumbOfModeHistory(): cond::payloadInspector::HistoryPlot<SiStripLatency,int>("Number of modes vs run ", "Number of modes vs run"){
+    }
+
+    int getFromPayload( SiStripLatency& payload ) override{
+
+      std::vector<uint16_t> modes;
+      payload.allModes(modes);
+
+      return modes.size();
+    }
+  };
+  
 } // close namespace
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiStripLatency){
-  PAYLOAD_INSPECTOR_CLASS(SiStripLatencyValue);
-  /* PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparator);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValuesComparator);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsRatioComparatorByRegion);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvBarrelGainsByLayer);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvAbsoluteBarrelGainsByLayer);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapMinusGainsByDisk);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapPlusGainsByDisk);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvAbsoluteEndcapMinusGainsByDisk);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvAbsoluteEndcapPlusGainsByDisk);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAverageTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsDefaultTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaximumTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMinimumTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio1sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio2sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsAvgDeviationRatio3sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio1sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio2sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio3sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainByRunMeans);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvTIBGainByRunMeans);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvTIDGainByRunMeans);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvTOBGainByRunMeans);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvTECGainByRunMeans);*/
+  PAYLOAD_INSPECTOR_CLASS(SiStripLatencyTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLatencyMode);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLatencyModeHistory);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLatencyNumbOfModeHistory);
+
 }
