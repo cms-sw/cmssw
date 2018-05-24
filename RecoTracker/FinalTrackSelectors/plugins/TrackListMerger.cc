@@ -220,7 +220,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
   indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
   std::string qualityStr = conf.getParameter<std::string>("newQuality");
   
-  if (qualityStr != "") {
+  if (!qualityStr.empty()) {
     qualityToSet_ = reco::TrackBase::qualityByName(conf.getParameter<std::string>("newQuality"));
   }
   else
