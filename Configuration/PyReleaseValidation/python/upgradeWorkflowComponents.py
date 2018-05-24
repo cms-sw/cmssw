@@ -300,7 +300,7 @@ upgradeProperties[2023] = {
         'GT' : 'auto:phase2_realistic',
         'Era' : 'Phase2_timing_layer_new',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
-    }
+    },
     '2023D26' : {
         'Geom' : 'Extended2023D26',
         'HLTmenu': '@fake2',
