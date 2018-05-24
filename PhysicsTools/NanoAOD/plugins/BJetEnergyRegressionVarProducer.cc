@@ -185,7 +185,7 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
           auto genp4 = jet->genJet()->p4(); 
           auto gep4wNu = genp4;
           for(const auto & gp : *srcGP){
-            if(abs(gp.pdgId())==12 || abs(gp.pdgId())==14 || abs(gp.pdgId())==16){
+            if((abs(gp.pdgId())==12 || abs(gp.pdgId())==14 || abs(gp.pdgId())==16) && gp.status()==1){
                 if (Geom::deltaR( genp4, gp.p4() )<0.4) {
 //                    std::cout<<" from "<<gep4wNu.pt()<<std::endl; 
                     gep4wNu=gep4wNu+gp.p4(); 
