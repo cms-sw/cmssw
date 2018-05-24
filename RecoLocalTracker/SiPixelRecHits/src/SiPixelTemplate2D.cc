@@ -64,7 +64,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
    // Add template stored in external file numbered filenum to theTemplateStore
    
    // Local variables
-   char c;
    const int code_version={21};
    
    //  Create a filename for this run
@@ -101,9 +100,10 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
       SiPixelTemplateStore2D theCurrentTemp;
       
       // Read-in a header string first and print it
+      char c;
       for (int i=0; (c=in_file.get()) != '\n'; ++i) {
          if(i < 79) {theCurrentTemp.head.title[i] = c;}
-         if(i > 78) {theCurrentTemp.head.title[79] ='\0';}
+         else       {theCurrentTemp.head.title[79] ='\0';}
       }
       LOGINFO("SiPixelTemplate2D") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
       
@@ -827,7 +827,6 @@ bool SiPixelTemplate2D::interpolate(int id, float cotalpha, float cotbeta, float
 
 void SiPixelTemplate2D::sideload(SiPixelTemplateEntry2D* entry, int iDtype, float locBx, float locBz, float lorwdy, float lorwdx, float q50, float fbin[3], float xsize, float ysize, float zsize)
 {
-   
    // Set class variables to the input parameters
    
    entry00_ = entry;
@@ -951,7 +950,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    int pixx, pixy, k0, k1, l0, l1, deltax, deltay, iflipy, jflipx, imin, imax, jmin, jmax;
    int m, n;
    float dx, dy, ddx, ddy, adx, ady;
-//   const float deltaxy[2] = {8.33f, 12.5f};
+   //   const float deltaxy[2] = {8.33f, 12.5f};
    const float deltaxy[2] = {16.67f, 25.0f};
    
    // Check to see if interpolation is valid
@@ -1087,7 +1086,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
                dpdx2d[k][i][j] = 0.f;
             }
          }
-     }
+      }
       
       // First do shifted +x template
       
@@ -1481,7 +1480,6 @@ bool SiPixelTemplate2D::xytemp(int id, float cotalpha, float cotbeta, float xhit
    // Interpolate for a new set of track angles
    
    if(SiPixelTemplate2D::interpolate(id, cotalpha, cotbeta, locBz, locBx)) {
-      
       return SiPixelTemplate2D::xytemp(xhit, yhit, yd, xd, template2d, derivatives, dpdx2d, QTemplate);
    } else {
       return false;
@@ -1519,27 +1517,27 @@ void SiPixelTemplate2D::xysigma2(float qpixel, int index, float& xysig2)
    
    // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis
    
-			if(qpixel < sxymax_) {
-            sigi = qpixel;
-            qscale = 1.f;
-         } else {
-            sigi = sxymax_;
-            qscale = qpixel/sxymax_;
-         }
-			sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
-			if(index <= T2HYP1) {
-            err00 = xypary0x0_[0][0]+xypary0x0_[0][1]*sigi+xypary0x0_[0][2]*sigi2+xypary0x0_[0][3]*sigi3+xypary0x0_[0][4]*sigi4;
-            err2 = err00
-            +adcota_*(xypary0x1_[0][0]+xypary0x1_[0][1]*sigi+xypary0x1_[0][2]*sigi2+xypary0x1_[0][3]*sigi3+xypary0x1_[0][4]*sigi4 - err00)
-            +adcotb_*(xypary1x0_[0][0]+xypary1x0_[0][1]*sigi+xypary1x0_[0][2]*sigi2+xypary1x0_[0][3]*sigi3+xypary1x0_[0][4]*sigi4 - err00);
-         } else {
-            err00 = xypary0x0_[1][0]+xypary0x0_[1][1]*sigi+xypary0x0_[1][2]*sigi2+xypary0x0_[1][3]*sigi3+xypary0x0_[1][4]*sigi4;
-            err2 = err00
-            +adcota_*(xypary0x1_[1][0]+xypary0x1_[1][1]*sigi+xypary0x1_[1][2]*sigi2+xypary0x1_[1][3]*sigi3+xypary0x1_[1][4]*sigi4 - err00)
-            +adcotb_*(xypary1x0_[1][0]+xypary1x0_[1][1]*sigi+xypary1x0_[1][2]*sigi2+xypary1x0_[1][3]*sigi3+xypary1x0_[1][4]*sigi4 - err00);
-         }
-			xysig2 =qscale*err2;
-			if(xysig2 <= 0.f) {xysig2 = s50_*s50_;}
+   if(qpixel < sxymax_) {
+      sigi = qpixel;
+      qscale = 1.f;
+   } else {
+      sigi = sxymax_;
+      qscale = qpixel/sxymax_;
+   }
+   sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
+   if(index <= T2HYP1) {
+      err00 = xypary0x0_[0][0]+xypary0x0_[0][1]*sigi+xypary0x0_[0][2]*sigi2+xypary0x0_[0][3]*sigi3+xypary0x0_[0][4]*sigi4;
+      err2 = err00
+	+adcota_*(xypary0x1_[0][0]+xypary0x1_[0][1]*sigi+xypary0x1_[0][2]*sigi2+xypary0x1_[0][3]*sigi3+xypary0x1_[0][4]*sigi4 - err00)
+	+adcotb_*(xypary1x0_[0][0]+xypary1x0_[0][1]*sigi+xypary1x0_[0][2]*sigi2+xypary1x0_[0][3]*sigi3+xypary1x0_[0][4]*sigi4 - err00);
+   } else {
+      err00 = xypary0x0_[1][0]+xypary0x0_[1][1]*sigi+xypary0x0_[1][2]*sigi2+xypary0x0_[1][3]*sigi3+xypary0x0_[1][4]*sigi4;
+      err2 = err00
+	+adcota_*(xypary0x1_[1][0]+xypary0x1_[1][1]*sigi+xypary0x1_[1][2]*sigi2+xypary0x1_[1][3]*sigi3+xypary0x1_[1][4]*sigi4 - err00)
+	+adcotb_*(xypary1x0_[1][0]+xypary1x0_[1][1]*sigi+xypary1x0_[1][2]*sigi2+xypary1x0_[1][3]*sigi3+xypary1x0_[1][4]*sigi4 - err00);
+   }
+   xysig2 =qscale*err2;
+   if(xysig2 <= 0.f) {xysig2 = s50_*s50_;}
    
    return;
    
