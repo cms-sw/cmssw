@@ -1,6 +1,7 @@
 #ifndef RKCurvilinearDistance_H
 #define RKCurvilinearDistance_H
 
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "RKDistance.h"
 #include "RKSmallVector.h"
