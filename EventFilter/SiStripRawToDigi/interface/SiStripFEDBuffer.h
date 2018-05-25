@@ -226,7 +226,7 @@ namespace sistrip {
       useZS_(useZS), valuesLeftInCluster_(0)
     {
       if (bitOffsetIncrement_>16) throwBadWordLength(bitOffsetIncrement_); // more than 2 words... still to be implemented
-      if (channelPayloadLength_) readNewClusterInfo();
+      if (useZS_ && channelPayloadLength_) readNewClusterInfo();
     }
 
   inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel, uint16_t num_bits)
