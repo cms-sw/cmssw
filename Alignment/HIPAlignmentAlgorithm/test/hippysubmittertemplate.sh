@@ -2,7 +2,11 @@
 
 set -euo pipefail
 
+! [ "$(git status --porcelain)" ] || (echo "please commit everything before running"; git status; exit 1)
+
 voms-proxy-info | grep timeleft | grep -v 00:00:00 || (echo 'no proxy'; exit 1)
+
+(echo $STY) || (echo "run this on a screen"; exit 1)
 
 #hpnumber=
 hptype=hp   #or sm
@@ -18,6 +22,8 @@ extraopts="--redirectproxy"
 [ -e $common ]
 [ -e $IOVfile ]
 
+commitid=$(git rev-parse HEAD)
+
 bash submitAndWatchHippy.sh $alignmentname \
                             $niterations \
                             $hptype$hpnumber \
@@ -27,3 +33,5 @@ bash submitAndWatchHippy.sh $alignmentname \
                             $lstfile \
                             $IOVfile \
                             "$extraopts"
+
+git tag $hptype$hpnumber $commitid
