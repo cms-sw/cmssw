@@ -2495,15 +2495,17 @@ bool CSCCathodeLCTProcessor::ptnFinding(
           else if ((sz % 2) == 1) first_bx_corrected[key_hstrip] = *(++im);
           else first_bx_corrected[key_hstrip] = ((*im) + (*(++im)))/2;
 
+#if defined(EDM_ML_DEBUG)
+          //LogTrace only ever prints if EDM_ML_DEBUG is defined
           if (infoV > 1) {
-            char bxs[300]="";
-            for (im = mset_for_median.begin(); im != mset_for_median.end(); im++)
-              sprintf(bxs,"%s %d", bxs, *im);
-            LogTrace("CSCCathodeLCTProcessor")
-              <<"bx="<<bx_time<<" bx_cor="<< first_bx_corrected[key_hstrip]<<"  bxset="<<bxs;
+            auto lt = LogTrace("CSCCathodeLCTProcessor")
+              <<"bx="<<bx_time<<" bx_cor="<< first_bx_corrected[key_hstrip]<<"  bxset=";
+            for (im = mset_for_median.begin(); im != mset_for_median.end(); im++) {
+              lt<<" "<<*im;
+            }
           }
+#endif
         }
-
 	// Do not loop over the other (worse) patterns if max. numbers of
 	// hits is found.
 	if (nhits[key_hstrip] == CSCConstants::NUM_LAYERS) break;
