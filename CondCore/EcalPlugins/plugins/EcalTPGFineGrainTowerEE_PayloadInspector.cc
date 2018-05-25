@@ -104,7 +104,7 @@ class EcalTPGFineGrainTowerEEPlot : public cond::payloadInspector::PlotImage<Eca
       8, 7, 7, 6, 6, 0, 2, 4, 4, 7, 7, 9, 0} ;
 
     padem->cd();
-    endc_m->SetStats(0);
+    endc_m->SetStats(false);
     endc_m->SetMinimum(minEE);
     endc_m->SetMaximum(maxEE);
     endc_m->Draw("colz");
@@ -115,7 +115,7 @@ class EcalTPGFineGrainTowerEEPlot : public cond::payloadInspector::PlotImage<Eca
 
  
     padep->cd();
-    endc_p->SetStats(0);
+    endc_p->SetStats(false);
     endc_p->SetMinimum(minEE);
     endc_p->SetMaximum(maxEE);
     endc_p->Draw("colz");

@@ -125,7 +125,7 @@ namespace {
      TLine* l = new TLine(0., 0., 0., 0.);
      l->SetLineWidth(1);
      padb->cd();
-     barrel->SetStats(0);
+     barrel->SetStats(false);
      barrel->SetMaximum(maxEB);
      barrel->SetMinimum(minEB);
      barrel->Draw("colz");
@@ -156,7 +156,7 @@ namespace {
        12,13,13, 0,10,10, 9, 9, 8, 8, 7, 7, 6, 6, 0,10,10, 9, 9, 8,
         8, 7, 7, 6, 6, 0, 2, 4, 4, 7, 7, 9, 0} ;
      padem->cd();
-     endc_m->SetStats(0);
+     endc_m->SetStats(false);
      endc_m->SetMinimum(minEE);
      endc_m->SetMaximum(maxEE);
      endc_m->Draw("colz");
@@ -167,7 +167,7 @@ namespace {
 
  
      padep->cd();
-     endc_p->SetStats(0);
+     endc_p->SetStats(false);
      endc_p->SetMinimum(minEE);
      endc_p->SetMaximum(maxEE);
      endc_p->Draw("colz");

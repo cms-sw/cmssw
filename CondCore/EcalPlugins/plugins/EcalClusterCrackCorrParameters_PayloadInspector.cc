@@ -17,7 +17,7 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 
 namespace {
