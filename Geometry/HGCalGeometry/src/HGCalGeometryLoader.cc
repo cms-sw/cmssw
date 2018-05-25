@@ -30,15 +30,18 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   parametersPerShape_ = ((mode == HGCalGeometryMode::Trapezoid) ?
 			 (int)HGCalGeometry::k_NumberOfParametersPerTrd :
 			 (int)HGCalGeometry::k_NumberOfParametersPerHex);
+  uint32_t numberOfShapes = ((mode == HGCalGeometryMode::Trapezoid) ?
+			     HGCalGeometry::k_NumberOfShapesTrd :
+			     HGCalGeometry::k_NumberOfShapes);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" 
 				<< numberExpected << " for sub-detector " 
 				<< topology.subDetector() << " Shapes " 
-//				<< HGCalGeometry::k_NumberOfShapes << ":" 
-				<< parametersPerShape_ << " mode " << mode;
+				<< numberOfShapes << ":" << parametersPerShape_ 
+				<< " mode " << mode;
 #endif
   geom->allocateCorners( numberOfCells ) ;
-  geom->allocatePar(HGCalGeometry::k_NumberOfShapes, parametersPerShape_);
+  geom->allocatePar(numberOfShapes, parametersPerShape_);
 
   // loop over modules
   ParmVec params(parametersPerShape_,0);

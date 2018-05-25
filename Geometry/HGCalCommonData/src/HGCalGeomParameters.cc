@@ -506,8 +506,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
 	HGCalGeomParameters::layerParameters laypar(rin,rout,zp);
 	layers[lay] = laypar;
       }
-      auto ktr = trforms.find(std::pair<int,int>(lay,zside));
-      if (ktr == trforms.end()) {
+      if (trforms.find(std::make_pair(lay,zside)) == trforms.end()) {
 	DD3Vector x, y, z;
 	fv.rotation().GetComponents( x, y, z ) ;
 	const CLHEP::HepRep3x3 rotation ( x.X(), y.X(), z.X(),
@@ -526,7 +525,7 @@ void HGCalGeomParameters::loadGeometryHexagon8(const DDFilteredView& _fv,
 	mytrf.subsec= 0;
 	mytrf.h3v   = h3v;
 	mytrf.hr    = hr;
-	trforms[std::pair<int,int>(lay,zside)] = mytrf;
+	trforms[std::make_pair(lay,zside)] = mytrf;
       }
     }
     dodet = fv.next();
