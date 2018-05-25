@@ -69,7 +69,7 @@ namespace heterogeneous {
                                      ](cuda::stream::id_t streamId, cuda::status_t status) mutable {
                                       if(status == cudaSuccess) {
                                         locationSetter(HeterogeneousDeviceId(HeterogeneousDevice::kGPUCuda, deviceId));
-                                        edm::LogPrint("GPUCuda") << "  GPU kernel finished (in callback) device " << deviceId << " CUDA stream " << streamId;
+                                        LogTrace("GPUCuda") << "  GPU kernel finished (in callback) device " << deviceId << " CUDA stream " << streamId;
                                         waitingTaskHolder.doneWaiting(nullptr);
                                       }
                                       else {

@@ -65,6 +65,11 @@ namespace edm {
       return event_->put(std::move(product));
     }
 
+    template <typename PROD>
+    auto put(std::unique_ptr<PROD> product, std::string const& productInstanceName) {
+      return event_->put(std::move(product), productInstanceName);
+    }
+
     template <typename Product, typename Type>
     void put(std::unique_ptr<Type> product) {
       assert(location().deviceType() == HeterogeneousDevice::kCPU);

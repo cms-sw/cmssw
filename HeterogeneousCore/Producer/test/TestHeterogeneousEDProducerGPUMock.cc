@@ -65,6 +65,7 @@ TestHeterogeneousEDProducerGPUMock::TestHeterogeneousEDProducerGPUMock(edm::Para
 
   produces<HeterogeneousProduct>();
   produces<int>();
+  produces<int>("foo");
 }
 
 void TestHeterogeneousEDProducerGPUMock::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -139,6 +140,7 @@ void TestHeterogeneousEDProducerGPUMock::produceCPU(edm::HeterogeneousEvent& iEv
 
   iEvent.put<OutputType>(std::make_unique<unsigned int>(output));
   iEvent.put(std::make_unique<int>(1));
+  iEvent.put(std::make_unique<int>(2), "foo");
 
   edm::LogPrint("TestHeterogeneousEDProducerGPUMock") << label_ << " TestHeterogeneousEDProducerGPUMock::produceCPU end event " << iEvent.id().event() << " stream " << iEvent.streamID() << " result " << output;
 }
