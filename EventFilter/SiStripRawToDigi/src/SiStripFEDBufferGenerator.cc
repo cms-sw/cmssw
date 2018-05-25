@@ -110,15 +110,24 @@ namespace sistrip {
     return FEDBufferPayload(channelBuffers);
   }
   
-  void FEDBufferPayloadCreator::fillChannelBuffer(std::vector<uint8_t>* channelBuffer, FEDReadoutMode mode, uint8_t packetCode,
-                                                 const FEDStripData::ChannelData& data, const bool channelEnabled) const
+  void FEDBufferPayloadCreator::fillChannelBuffer(std::vector<uint8_t>* channelBuffer, FEDReadoutMode mode, uint8_t packetCode, const FEDStripData::ChannelData& data, const bool channelEnabled) const
   {
     switch (mode) {
     case READOUT_MODE_SCOPE:
       fillRawChannelBuffer(channelBuffer,PACKET_CODE_SCOPE,data,channelEnabled,false);
       break;
     case READOUT_MODE_VIRGIN_RAW:
-      fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW,data,channelEnabled,true);
+      switch (packetCode) {
+        case PACKET_CODE_VIRGIN_RAW:
+          fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW,data,channelEnabled,true);
+        case PACKET_CODE_VIRGIN_RAW10:
+          fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW10,data,channelEnabled,true);
+        case PACKET_CODE_VIRGIN_RAW8_BOTBOT:
+          fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW8_BOTBOT,data,channelEnabled,true);
+        case PACKET_CODE_VIRGIN_RAW8_TOPBOT:
+          fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW8_TOPBOT,data,channelEnabled,true);
+        break;
+        }
       break;
     case READOUT_MODE_PROC_RAW:
       fillRawChannelBuffer(channelBuffer,PACKET_CODE_PROC_RAW,data,channelEnabled,false);
@@ -167,8 +176,35 @@ namespace sistrip {
     for (uint16_t sampleNumber = 0; sampleNumber < nSamples; sampleNumber++) {
       const uint16_t sampleIndex = ( reorderData ? FEDStripOrdering::physicalOrderForStripInChannel(sampleNumber) : sampleNumber );
       const uint16_t sampleValue = (channelEnabled ? data.getSample(sampleIndex) : 0);
-      channelBuffer->push_back(sampleValue & 0xFF);
-      channelBuffer->push_back((sampleValue & 0x300) >> 8);
+      switch (packetCode) {
+        case PACKET_CODE_VIRGIN_RAW:
+          channelBuffer->push_back(sampleValue & 0xFF);
+          channelBuffer->push_back((sampleValue & 0x300) >> 8);
+        case PACKET_CODE_VIRGIN_RAW10:
+          if (sampleIndex%5==0) {
+            channelBuffer->push_back((sampleValue & 0x3FC) >> 2);
+          }
+          else if (sampleIndex%5==1) {
+            const uint16_t sampleValue_pre = (channelEnabled ? data.getSample(sampleIndex-1) : 0);
+            channelBuffer->push_back(((sampleValue_pre & 0x3) << 6) + ((sampleValue & 0x3F0) << 4));
+          }
+          else if (sampleIndex%5==2) {
+            const uint16_t sampleValue_pre = (channelEnabled ? data.getSample(sampleIndex-1) : 0);
+            channelBuffer->push_back(((sampleValue_pre & 0xF) << 4) + ((sampleValue_pre & 0x3C0) << 2));
+          }
+          else if (sampleIndex%5==3) {
+            const uint16_t sampleValue_post = (channelEnabled ? data.getSample(sampleIndex+1) : 0);
+            channelBuffer->push_back(((sampleValue & 0x3F0) << 6) + (sampleValue_post & 0x3));
+          }
+          else if (sampleIndex%5==4) {
+            channelBuffer->push_back(sampleValue & 0xFF);
+          }
+        case PACKET_CODE_VIRGIN_RAW8_BOTBOT:
+          channelBuffer->push_back((sampleValue & 0x3FC) >> 2);
+        case PACKET_CODE_VIRGIN_RAW8_TOPBOT:
+          channelBuffer->push_back((sampleValue & 0x1FE) >> 1);
+          break;
+      }
     }
   }
   
