@@ -40,10 +40,10 @@ class EcalEBClusterTriggerPrimitiveSample {
   /// get the encoded Et (10 bits)
   int encodedEt() const { return theSample&0x3FF; }
 
-  bool l1aSpike() const  { return (theSample&0x400)!=0; }
+  int l1aSpike() const  { return (theSample&0x400)!=0; }
 
   int time() const { return theSample>>11; }
-  // int time() const {return theSamples&0xF800;}
+
 
   
 

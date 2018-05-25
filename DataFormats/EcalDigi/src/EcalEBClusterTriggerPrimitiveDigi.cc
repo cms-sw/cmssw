@@ -4,9 +4,6 @@
 
 EcalEBClusterTriggerPrimitiveDigi::EcalEBClusterTriggerPrimitiveDigi() : size_(0), data_(MAXSAMPLES) {
 }
-//EcalTriggerPrimitiveDigi::EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id) : id_(id),
-//size_(0), data_(MAXSAMPLES) {
-//}
 
 EcalEBClusterTriggerPrimitiveDigi::EcalEBClusterTriggerPrimitiveDigi(const EBDetId& tpid, const std::vector<EBDetId>& xtalIds, float etaClu, float phiClu) : 
   tpId_(tpid), 
@@ -18,9 +15,9 @@ EcalEBClusterTriggerPrimitiveDigi::EcalEBClusterTriggerPrimitiveDigi(const EBDet
 
 void EcalEBClusterTriggerPrimitiveDigi::setSample(int i, const EcalEBClusterTriggerPrimitiveSample& sam) 
 {
-//  std::cout << " In setSample  i " << i << "  sam " << sam << std::endl;  
+
   data_[i]=sam;
-//  std::cout << " In setSample data_[i] " << data_[i] << std::endl;  
+
   
 }
 
