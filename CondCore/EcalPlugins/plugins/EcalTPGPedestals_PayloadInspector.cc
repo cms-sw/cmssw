@@ -29,7 +29,7 @@ namespace {
   **************************************************/
   class EcalTPGPedestalsPlot : public cond::payloadInspector::PlotImage<EcalTPGPedestals> {
   public:
-    EcalTPGPedestalsPlot() : cond::payloadInspector::PlotImage<EcalTPGPedestals>("ECAL Gain Ratios - map ") {
+    EcalTPGPedestalsPlot() : cond::payloadInspector::PlotImage<EcalTPGPedestals>("Ecal TPG Pedestals - map ") {
       setSingleIov( true );
     }
 
@@ -112,7 +112,7 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Gain TPGPedestals, IOV %i", run));
+      t1.DrawLatex(0.5, 0.96, Form("Ecal TPG Pedestals, IOV %i", run));
 
       float xmi[3] = {0.0 , 0.22, 0.78};
       float xma[3] = {0.22, 0.78, 1.00};
@@ -129,12 +129,20 @@ namespace {
       }
   
       for (int gId = 0; gId < kGains; gId++) {
+      	/*
 	pad[gId][0]->cd();
 	DrawEE(endc_m_m[gId], mEEmin[gId], mEEmax[gId]);
 	pad[gId][1]->cd();
 	DrawEB(barrel_m[gId], mEBmin[gId], mEBmax[gId]);
 	pad[gId][2]->cd();
 	DrawEE(endc_p_m[gId], mEEmin[gId], mEEmax[gId]);
+	*/
+	pad[gId][0]->cd();
+	DrawEE(endc_m_m[gId], 100.0, 300.0);
+	pad[gId][1]->cd();
+	DrawEB(barrel_m[gId], 100.0, 300.0);
+	pad[gId][2]->cd();
+	DrawEE(endc_p_m[gId], 100.0, 300.0);
       }
 
       std::string ImageName(m_imageFileName);
@@ -149,7 +157,7 @@ namespace {
   class EcalTPGPedestalsDiff : public cond::payloadInspector::PlotImage<EcalTPGPedestals> {
 
   public:
-    EcalTPGPedestalsDiff() : cond::payloadInspector::PlotImage<EcalTPGPedestals>("ECAL Gain Ratios difference") {
+    EcalTPGPedestalsDiff() : cond::payloadInspector::PlotImage<EcalTPGPedestals>("Ecal TPG Pedestals difference") {
       setSingleIov(false);
     }
 
@@ -270,8 +278,8 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal TPGPedestals, IOV %i - %i", run[1], run[0]));
+      t1.SetTextSize(0.04);
+      t1.DrawLatex(0.5, 0.96, Form("Ecal TPG Pedestals Diff, IOV %i - %i", run[1], run[0]));
 
       float xmi[3] = {0.0 , 0.22, 0.78};
       float xma[3] = {0.22, 0.78, 1.00};
