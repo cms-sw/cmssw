@@ -69,7 +69,7 @@ void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup,
 				    EcalEBClusterTrigPrimDigiCollection & result,
 				    EcalEBClusterTrigPrimDigiCollection & resultTcp, 
 				    int dEta, int dPhi, 
-				    double hitNoiseCut, double etCutOnSeed)
+				    double hitNoiseCut, double eCutOnSeed)
 {
 
   //typedef typename Coll::Digi Digi;
@@ -214,7 +214,7 @@ void EcalEBTrigPrimClusterAlgo::run(const edm::EventSetup & setup,
   }   // loop over the towers 
 
   
-  std::vector<uint16_t> cluCollection = makeCluster ( hitCollection, result, dEta, dPhi, hitNoiseCut, etCutOnSeed  );
+  std::vector<uint16_t> cluCollection = makeCluster ( hitCollection, result, dEta, dPhi, hitNoiseCut, eCutOnSeed  );
   if (debug_) std::cout << "  TrigPrimClusterAlgo hitCollection size " << hitCollection.size() << " cluster size " << cluCollection.size() <<  std::endl; 
 
 
@@ -226,7 +226,7 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
 								EcalEBClusterTrigPrimDigiCollection & result, 
 								int dEta, int dPhi,
                                                                 double hitNoiseCut,
-								double etCutOnSeed) {
+								double eCutOnSeed) {
 
   EcalEBClusterTriggerPrimitiveDigi tp;
 
@@ -248,9 +248,7 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
        SimpleCaloHit  hit = hitCollection[iChan][iSample];  
        
        
-       float energy = hit.etInGeV()/sin(hit.position().theta());
-       
-       
+       float energy = hit.energy();
        if ( energy < hitNoiseCut ) continue;
        
        if ( !hit.stale && hit.etInGeV() > centerhit.etInGeV() ) {
@@ -262,7 +260,7 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
        
      } //looping over the pseudo-hits
      
-     if ( centerhit.etInGeV() <= etCutOnSeed ) break;
+     if ( centerhit.energy() <= eCutOnSeed ) break;
      centerhit.stale=true;
      if (debug_) {
        std::cout << "-------------------------------------" << std::endl;
@@ -278,8 +276,8 @@ std::vector<uint16_t>  EcalEBTrigPrimClusterAlgo::makeCluster ( std::vector<std:
      
      for (unsigned int iChan=0;iChan<hitCollection.size();++iChan) {
        SimpleCaloHit &hit(hitCollection[iChan][iSample]);  
+
        float energy = hit.energy();
-       
        if ( energy < hitNoiseCut ) continue;
        
        if ( !hit.stale &&  (abs(hit.dieta(centerhit)) < dEta && abs(hit.diphi(centerhit)) <  dPhi ) ) {
