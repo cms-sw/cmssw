@@ -211,13 +211,14 @@ def HGCal_setEndOfLifeNoise(digitizer,process):
         values = cms.vdouble([x for x in endOfLifeNoises])
         )
 
-def HGCal_setPostTDRGeometry(digitizer,process):
-    process.hgceeDigitizer = cms.PSet(
-        geometryType      = cms.uint32(1),
-        )
-    process.hgchefrontDigitizer = cms.PSet(
-        geometryType      = cms.uint32(1),
-        )
-    process.hgchebackDigitizer = cms.PSet(
-        geometryType      = cms.uint32(1),
-        )
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+
+phase2_hgcalV9.toModify( hgceeDigitizer,
+      geometryType      = cms.uint32(1),
+)
+phase2_hgcalV9.toModify( hgchefrontDigitizer,
+      geometryType      = cms.uint32(1),
+)
+phase2_hgcalV9.toModify( hgchebackDigitizer,
+      geometryType      = cms.uint32(1),
+)

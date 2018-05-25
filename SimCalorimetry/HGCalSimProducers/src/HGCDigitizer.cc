@@ -97,7 +97,7 @@ namespace {
       HGCalTestNumbering::unpackHexagonIndex(simId, subdet, zp, layer, sec, subsec, cell);
       //sec is wafer and subsec is celltyp
       //skip this hit if after ganging it is not valid
-      std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,sec,topo.detectorType());
+      auto recoLayerCell = dddConst.simToReco(cell,layer,sec,topo.detectorType());
       cell  = recoLayerCell.first;
       layer = recoLayerCell.second;
       if (layer<0 || cell<0) {
@@ -541,7 +541,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     bool orderChanged = false;
     if(itime == 9){
       if(hitRefs_bx0[id].empty()){
-	hitRefs_bx0[id].push_back(std::pair<float, float>(charge, tof));
+	hitRefs_bx0[id].push_back(std::make_pair(charge, tof));
       }
       else if(tof <= hitRefs_bx0[id].back().second){
 	std::vector<std::pair<float, float> >::iterator findPos =
@@ -565,7 +565,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
       }
       else{
         if(hitRefs_bx0[id].back().first <= tdcForToAOnset[waferThickness-1]){
-          hitRefs_bx0[id].push_back(std::pair<float, float>(hitRefs_bx0[id].back().first+charge, tof));
+          hitRefs_bx0[id].push_back(std::make_pair(hitRefs_bx0[id].back().first+charge, tof));
         }
       }
     }

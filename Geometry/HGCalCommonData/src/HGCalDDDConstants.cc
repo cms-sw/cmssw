@@ -12,6 +12,8 @@
 #include <numeric>
 
 //#define EDM_ML_DEBUG
+static const int maxType = 2;
+static const int minType = 0;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				     const std::string& name) : hgpar_(hp),
@@ -190,13 +192,13 @@ double HGCalDDDConstants::cellThick(int layer, int waferU, int waferV) const {
   if ((mode_ == HGCalGeometryMode::Hexagon8) ||
       (mode_ == HGCalGeometryMode::Hexagon8Full)) {
     auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer,waferU,waferV));
-    int type = ((itr == hgpar_->typesInLayers_.end() ? 2 : 
+    int type = ((itr == hgpar_->typesInLayers_.end() ? maxType : 
 		 hgpar_->waferTypeL_[itr->second]));
     thick    = hgpar_->cellThickness_[type];
   } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	     (mode_ == HGCalGeometryMode::HexagonFull)) {
     int type = (((waferU>=0)&&(waferU<(int)(hgpar_->waferTypeL_.size()))) ? 
-		hgpar_->waferTypeL_[waferU] : 0);
+		hgpar_->waferTypeL_[waferU] : minType);
     thick    = 0.01*type;
   }
   return thick;

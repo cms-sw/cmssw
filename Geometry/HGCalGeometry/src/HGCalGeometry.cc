@@ -34,10 +34,10 @@ HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
     m_cellVec = CellVec(topology_.totalGeomModules());
   }
   m_validIds.reserve( m_topology.totalModules());
-  //#ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Expected total # of Geometry Modules " 
 				<< m_topology.totalGeomModules();
-  //#endif
+#endif
 }
 
 HGCalGeometry::~HGCalGeometry() { }
@@ -220,7 +220,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& id) const {
 				    << ":" << id_.iSec1 << " Global " << glob;
 #endif
     } else if (mode_ == HGCalGeometryMode::Trapezoid) {
-      const HepGeom::Point3D<float> lcoord;
+      const HepGeom::Point3D<float> lcoord(0,0,0);
       glob = m_cellVec2[cellIndex].getPosition(lcoord);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "getPositionTrap:: index " << cellIndex 
