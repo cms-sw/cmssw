@@ -2,6 +2,7 @@
 #define L1TCaloLayer1FetchLUTs_hh
 
 #include "UCTGeometry.hh"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 // External function declaration
 
