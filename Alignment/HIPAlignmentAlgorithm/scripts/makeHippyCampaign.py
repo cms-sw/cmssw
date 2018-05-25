@@ -52,8 +52,6 @@ def main():
     mkdir_p("Jobs")
     mkdir_p("run")
 
-    commit = False
-
     with cd("run"):
       subprocess.check_call(["git", "init"])
 
@@ -62,18 +60,15 @@ def main():
         if not os.path.exists("align_tpl_py.txt"):
           shutil.copy(os.path.join(HIPAlignmentAlgorithm, "python", "align_tpl_py.txt"), ".")
           subprocess.check_call(["git", "add", "align_tpl_py.txt"])
-          commit = True
         if not os.path.exists("common_cff_py_TEMPLATE.txt"):
           shutil.copy(os.path.join(HIPAlignmentAlgorithm, "python", "common_cff_py.txt"), "common_cff_py_TEMPLATE.txt")
           subprocess.check_call(["git", "add", "common_cff_py_TEMPLATE.txt"])
-          commit = True
         mkdir_p("TrackSelection")
         with cd("TrackSelection"):
           for _ in glob.iglob(os.path.join(HIPAlignmentAlgorithm, "python", "*TrackSelection_cff_py.txt")):
             if not os.path.exists(os.path.basename(_)):
               shutil.copy(_, ".")
               subprocess.check_call(["git", "add", os.path.basename(_)])
-              commit = True
 
       mkdir_p("DataFiles")
       with cd("DataFiles"):
@@ -83,7 +78,6 @@ def main():
             f.write(os.path.join(os.getcwd(), "cosmics.txt") + ",,COSMICS,Datatype:1 APVMode:deco Bfield:3.8T\n")
             f.write(os.path.join(os.getcwd(), "CDCs.txt") + ",,CDCS,Datatype:1 APVMode:deco Bfield:3.8T\n")
           subprocess.check_call(["git", "add", "data_example.lst"])
-          commit = True
 
       mkdir_p("IOV")
       with cd("IOV"):
@@ -91,14 +85,16 @@ def main():
           with open("RunXXXXXX", "w") as f:
             f.write("XXXXXX")
           subprocess.check_call(["git", "add", "RunXXXXXX"])
-          commit = True
 
       if not os.path.exists("submit_template.sh"):
         shutil.copy(os.path.join(HIPAlignmentAlgorithm, "test", "hippysubmittertemplate.sh"), "submit_template.sh")
         os.chmod("submit_template.sh", os.stat("submit_template.sh").st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-        commit = True
+        subprocess.check_call(["git", "add", "submit_template.sh"])
 
-      if commit: subprocess.check_call(["git", "commit", "-m", "commit templates"])
+      try:
+        subprocess.check_output(["git", "diff", "--staged", "--quiet"])
+      except subprocess.CalledProcessError:
+        subprocess.check_call(["git", "commit", "-m", "commit templates"])
 
 def mkdir_p(path):
   """http://stackoverflow.com/a/600612/5228524"""
