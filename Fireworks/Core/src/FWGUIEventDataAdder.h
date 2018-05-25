@@ -22,7 +22,6 @@
 #include <set>
 #include <vector>
 #include <string>
-#include <TGFrame.h>
 #include <RQ_OBJECT.h>
 
 // user include files
@@ -37,6 +36,7 @@ class TGCheckButton;
 class TFile;
 class FWTableWidget;
 class DataAdderTableManager;
+class TGFrame;
 
 class FWGUIEventDataAdder
 {
