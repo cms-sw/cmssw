@@ -173,7 +173,12 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
   
   if(checkUros){
   
-  if(mode == 3 || mode ==1) return; //Avoid duplication of Info in FEDIntegrity_EvF
+  if(mode == 3 || mode ==1) {
+	//Booked for completion in general CMS FED test. Not filled
+	hFEDFatal = ibooker.book1D("FEDFatal","# fatal errors DT FED",nFED,fedMin,fedMax+1); //No available in uROS
+        hFEDNonFatal = ibooker.book1D("FEDNonFatal","# NON fatal errors DT FED",nFED,fedMin,fedMax+1); //No available in uROS
+	return; //Avoid duplication of Info in FEDIntegrity_EvF
+	}
 
   string histoType = "ROSSummary";
   for (int wheel=-2;wheel<3;++wheel){
@@ -1875,7 +1880,9 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 	continue;
 	}
     processFED(fedData, fed);
-    
+
+    if(mode == 3 || mode ==1) continue; //Not need for FEDIntegrity_EvF
+ 
     for(int slot=1; slot<=DOCESLOTS; ++slot)
     {
         urosData = fedData.getuROS(slot);
