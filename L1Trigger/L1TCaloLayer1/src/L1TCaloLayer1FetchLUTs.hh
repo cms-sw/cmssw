@@ -3,6 +3,8 @@
 
 #include "UCTGeometry.hh"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include <vector>
+#include <array>
 
 // External function declaration
 
