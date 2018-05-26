@@ -109,13 +109,13 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
   G4ReflectionFactory * refFact = G4ReflectionFactory::Instance();
   refFact->SetScalePrecision(100.*refFact->GetScalePrecision());
 
-  typedef DDCompactView::graph_type graph_type;
-  const graph_type & gra = compactView->graph();
-  typedef graph_type::const_adj_iterator adjl_iterator;
+  using Graph = DDCompactView::Graph;
+  const auto & gra = compactView->graph();
+  using adjl_iterator = Graph::const_adj_iterator;
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();    
 
-  graph_type::index_type i=0;
+  Graph::index_type i=0;
   for (; git != gend; ++git) {
     const DDLogicalPart & ddLP = gra.nodeData(git);
     if ( !(ddLP.isDefined().second) ) {
@@ -126,8 +126,8 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
     ++i;	
     if (!git->empty()) {
       // ask for children of ddLP  
-      graph_type::edge_list::const_iterator cit  = git->begin();
-      graph_type::edge_list::const_iterator cend = git->end();
+      Graph::edge_list::const_iterator cit  = git->begin();
+      Graph::edge_list::const_iterator cend = git->end();
       for (; cit != cend; ++cit) {
 	// fetch specific data
 	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
