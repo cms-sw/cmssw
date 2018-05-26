@@ -27,8 +27,8 @@
 #include "EvtGenBase/EvtIdSet.hh"
 #include "EvtGenBase/EvtConst.hh"
 #include <string>
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 using std::endl;
 
 void EvtLb2plnuLCSRFF::getdiracff(EvtId parent, EvtId daught,

@@ -36,7 +36,7 @@
 #include "EvtGenBase/EvtSemiLeptonicFF.hh"
 #include "EvtGenBase/EvtGammaMatrix.hh"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 using std::endl;
 
