@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco2D.cc (Version 2.50)
+//  SiPixelTemplateReco2D.cc (Version 2.55)
 //  Updated to work with the 2D template generation code
 //  Include all bells and whistles for edge clusters
 //  2.10 - Add y-lorentz drift to estimate starting point [for FPix]
@@ -8,6 +8,7 @@
 //  2.30 - Allow one pixel clusters, improve cosmetics for increased style points from judges
 //  2.50 - Add variable cluster shifting to make the position parameter space more symmetric,
 //         also fix potential problems with variable size input clusters and double pixel flags
+//  2.55 - Fix another double pixel flag problem and a small pseudopixel problem in the edgegflagy = 3 case.
 //
 //
 //
@@ -322,7 +323,7 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
    
    float chi2min[2], xerr2[2], yerr2[2];
    float x2D0[2], y2D0[2], qtfrac0[2];
-   int ipass, niter0[2];
+   int ipass, tpixel, niter0[2];
    
    for(ipass = 0; ipass < npass; ++ipass) {
       
@@ -332,11 +333,17 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
          
          imisshigh = -1;
          imisslow = imax+1;
+// erase pseudo pixels from previous pass
+         for(int k=npixel; k<tpixel; ++k) {         
+            int j = indexxy[0][k];
+            int i = indexxy[1][k];
+            clusxy[j][i] = 0.f;
+         }
       }
       
       // Next, add pseudo pixels around the periphery of the cluster
       
-      int tpixel = npixel;
+      tpixel = npixel;
       for(int k=0; k<npixel; ++k) {
          int j = indexxy[0][k];
          int i = indexxy[1][k];
@@ -437,7 +444,7 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
             chi2 = 0.f;
             qactive = 0.f;
             for(int j=0; j<BXM2; ++j) {for(int i=0; i<BYM2; ++i) {template2d[j][i] = 0.f;}}
-            templ2D.xytemp(xtry, ytry, ydouble, xdouble, template2d, false, dpdx2d, qtemplate);
+            templ2D.xytemp(xtry, ytry, yd, xd, template2d, false, dpdx2d, qtemplate);
             for(int k=0; k<tpixel; ++k) {
                int jpix = indexxy[0][k];
                int ipix = indexxy[1][k];
