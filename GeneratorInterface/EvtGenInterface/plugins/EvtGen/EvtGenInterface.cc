@@ -9,8 +9,8 @@
 // January 2015: Setting of coherent or incoherent B mixing included by Eduard Burelo 
 // January 2015: Adding new feature to allow users to provide new evtgen models
 
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenUserModels/EvtModelUserReg.h"
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
+#include "GeneratorInterface/EvtGenInterface/plugins/EvtGenUserModels/EvtModelUserReg.h"
+#include "GeneratorInterface/EvtGenInterface/plugins/EvtGen/EvtGenInterface.h"
 
 #include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
 #include "GeneratorInterface/EvtGenInterface/interface/myEvtRandomEngine.h"

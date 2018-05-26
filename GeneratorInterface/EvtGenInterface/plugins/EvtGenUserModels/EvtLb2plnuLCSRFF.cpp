@@ -21,7 +21,7 @@
 //--------------------------------------------------------------------------
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtReport.hh"
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenUserModels/EvtLb2plnuLCSRFF.hh"
+#include "GeneratorInterface/EvtGenInterface/plugins/EvtGenUserModels/EvtLb2plnuLCSRFF.hh"
 #include "EvtGenBase/EvtPDL.hh"
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtIdSet.hh"
