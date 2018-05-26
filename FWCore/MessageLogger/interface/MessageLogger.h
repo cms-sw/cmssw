@@ -155,7 +155,15 @@ public:
 				      { if(ap.valid()) ap << f; return *this; }
   LogWarning & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-				      { if(ap.valid()) ap << f; return *this; }     
+				      { if(ap.valid()) ap << f; return *this; }
+
+  template<typename F>
+  LogWarning& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
 private:
   MessageSender ap; 
   LogWarning( LogWarning const& ) = delete;				// Change log 9
@@ -180,6 +188,14 @@ public:
   LogError & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				      { if(ap.valid()) ap << f; return *this; }     
+  
+  template<typename F>
+  LogError& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
 
 private:
   MessageSender ap; 
@@ -206,6 +222,12 @@ public:
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				      { ap << f; return *this; }     
 
+  template<typename F>
+  LogSystem& log(F&& iF) {
+    iF(ap);
+    return *this;
+  }
+
 private:
   MessageSender ap; 
   LogSystem( LogSystem const& ) = delete;				// Change log 9
@@ -231,6 +253,13 @@ public:
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				      { if(ap.valid()) ap << f; return *this; }     
 
+  template<typename F>
+  LogInfo& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
 private:
   MessageSender ap; 
   LogInfo( LogInfo const& ) = delete;					// Change log 9
@@ -257,6 +286,14 @@ public:
   LogVerbatim & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				      { if(ap.valid()) ap << f; return *this; }   
+
+  template<typename F>
+  LogVerbatim& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
 
 private:
   MessageSender ap; 
@@ -285,6 +322,14 @@ public:
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				{ if(ap.valid()) ap << f; return *this; }      
 
+  template<typename F>
+  LogPrint& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
+
 private:
   MessageSender ap; 
   LogPrint( LogPrint const& ) = delete;					// Change log 9
@@ -311,6 +356,14 @@ public:
   LogProblem & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				      { if(ap.valid()) ap << f; return *this; }     
+  
+  template<typename F>
+  LogProblem& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
 
 private:
   MessageSender ap; 
@@ -338,6 +391,14 @@ public:
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				      { if(ap.valid()) ap << f; return *this; }     
 
+  template<typename F>
+  LogImportant& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
+
 private:
   MessageSender ap; 
   LogImportant( LogImportant const& ) = delete;				// Change log 9
@@ -363,6 +424,13 @@ public:
   LogAbsolute & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
 				      { ap << f; return *this; }     
+
+  
+  template<typename F>
+  LogAbsolute& log(F&& iF) {
+    iF(ap);
+    return *this;
+  }
 
 private:
   MessageSender ap; 
@@ -401,6 +469,14 @@ public:
       if (ap.valid()) ap << f; 
       return *this; }
 			   // Change log 8:  The tests for ap.valid() being null 
+  
+  template<typename F>
+  LogDebug_& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
 
 private:
   MessageSender ap; 
@@ -433,6 +509,14 @@ public:
       return *this; }
 			   // Change log 8:  The tests for ap.valid() being null 
  
+  template<typename F>
+  LogTrace_& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
+
 private:
   MessageSender ap; 
   
@@ -455,7 +539,16 @@ public:
 				      { if(ap.valid()) ap << f; return *this; }
   LogWarningThatSuppressesLikeLogInfo & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-				      { if(ap.valid()) ap << f; return *this; }     
+				      { if(ap.valid()) ap << f; return *this; }
+
+  template<typename F>
+  LogWarningThatSuppressesLikeLogInfo& log(F&& iF) {
+    if(ap.valid()) {
+      iF(ap);
+    }
+    return *this;
+  }
+
 private:
   MessageSender ap; 
   LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& ) = delete;				// Change log 9
@@ -474,6 +567,11 @@ public:
     Suppress_LogDebug_ &operator<< (T const&) { return *this; }	// Change log 12
     Suppress_LogDebug_ &operator<< (std::ostream&(*)(std::ostream&)) { return *this; }	// Change log 12
     Suppress_LogDebug_ &operator<< (std::ios_base&(*)(std::ios_base&)) { return *this; } // Change log 12
+  
+  template<typename F>
+  Suppress_LogDebug_& log(F&& iF) {
+    return *this;
+  }
 };  // Suppress_LogDebug_
 
   bool isDebugEnabled();
