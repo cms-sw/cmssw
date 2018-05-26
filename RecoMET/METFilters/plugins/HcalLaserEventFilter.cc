@@ -109,26 +109,24 @@ class HcalLaserEventFilter : public edm::global::EDFilter<> {
 HcalLaserEventFilter::HcalLaserEventFilter(const edm::ParameterSet& iConfig)
 
   // Get values from python cfg file
-  : vetoByRunEventNumber_ (iConfig.getUntrackedParameter<bool>("vetoByRunEventNumber",true))
-  , vetoByHBHEOccupancy_  (iConfig.getUntrackedParameter<bool>("vetoByHBHEOccupancy",false))
-  , minOccupiedHBHE_            (iConfig.getUntrackedParameter<unsigned int>("minOccupiedHBHE",5000))
-  , vetoByLaserMonitor_         (iConfig.getUntrackedParameter<bool>("vetoByLaserMonitor",false))
-  , minLaserMonitorCharge_      (iConfig.getUntrackedParameter<double>("minLaserMonitorCharge_",1000.))
-  , debug_                      (iConfig.getUntrackedParameter<bool>("debug",false))
-  , reverseFilter_              (iConfig.getUntrackedParameter<bool>("reverseFilter",false))
+  : vetoByRunEventNumber_ (iConfig.getParameter<bool>("vetoByRunEventNumber"))
+  , vetoByHBHEOccupancy_  (iConfig.getParameter<bool>("vetoByHBHEOccupancy"))
+  , minOccupiedHBHE_            (iConfig.getParameter<unsigned int>("minOccupiedHBHE"))
+  , vetoByLaserMonitor_         (iConfig.getParameter<bool>("vetoByLaserMonitor"))
+  , minLaserMonitorCharge_      (iConfig.getParameter<double>("minLaserMonitorCharge"))
+  , debug_                      (iConfig.getParameter<bool>("debug"))
+  , reverseFilter_              (iConfig.getParameter<bool>("reverseFilter"))
   , hbheInputLabel_             (iConfig.getUntrackedParameter<edm::InputTag>("hbheInputLabel",edm::InputTag("hbhereco")))
   , hbheToken_             (mayConsume<HBHERecHitCollection>(hbheInputLabel_))
   , hcalNoiseSummaryLabel_      (iConfig.getUntrackedParameter<edm::InputTag>("hcalNoiseSummaryLabel",edm::InputTag("hcalnoise")))
   , hcalNoiseSummaryToken_      (mayConsume<HcalNoiseSummary>(hcalNoiseSummaryLabel_))
   , taggingMode_                (iConfig.getParameter<bool>("taggingMode"))
-  , forceUseRecHitCollection_   (iConfig.getUntrackedParameter<bool>("forceUseRecHitCollection",false))
-  , forceUseHcalNoiseSummary_   (iConfig.getUntrackedParameter<bool>("forceUseHcalNoiseSummary",false))
+  , forceUseRecHitCollection_   (iConfig.getParameter<bool>("forceUseRecHitCollection"))
+  , forceUseHcalNoiseSummary_   (iConfig.getParameter<bool>("forceUseHcalNoiseSummary"))
 
 {
-  std::vector<unsigned int> dummy; // dummy empty vector
-  dummy.clear();
 
-  std::vector<unsigned int> temprunevt   = iConfig.getUntrackedParameter<std::vector<unsigned int> >("BadRunEventNumbers",dummy);
+  std::vector<unsigned int> temprunevt   = iConfig.getParameter<std::vector<unsigned int> >("BadRunEventNumbers");
 
   // Make (run,evt) pairs for storing bad events
   // Make this a map for better search performance?
@@ -286,8 +284,31 @@ HcalLaserEventFilter::fillDescriptions(edm::ConfigurationDescriptions& descripti
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  
+  desc.add<bool>("vetoByRunEventNumber",false)->
+      setComment("Enable filtering by run number");
+  desc.add<bool>("vetoByHBHEOccupancy",true)->
+      setComment("Enable occupancy filtering");
+  desc.add<unsigned int>("minOccupiedHBHE",4000)->
+      setComment("Minimum occupancy to filter events");
+  desc.add<bool>("vetoByLaserMonitor",true)->
+      setComment("Enable Laser monitoring filtering");
+  desc.add<double>("minLaserMonitorCharge",5000.)->
+      setComment("Set minimum laser monitor charge to filter events");
+  desc.add<bool>("debug",false)->
+      setComment("Enable debugging messages");
+  desc.add<bool>("reverseFilter",false)->
+      setComment("Invert filter decision");
+  desc.add<bool>("taggingMode", false)->
+      setComment("do not filter, just tag the event");
+  desc.add<bool>("forceUseRecHitCollection",false)->
+      setComment("force the evaluation using RecHit collection");
+  desc.add<bool>("forceUseHcalNoiseSummary",false)->
+      setComment("force the evaluation using Noise Summary");
+  desc.add<std::vector<unsigned int> >("BadRunEventNumbers",{})->
+      setComment("vector of bad events to filter");
+
+  descriptions.add("hcallaserevent", desc);
 }
 
 std::vector<int>  HcalLaserEventFilter::GetCMSSWVersion(std::string const& instring) const
