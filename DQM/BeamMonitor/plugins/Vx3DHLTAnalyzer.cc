@@ -3,7 +3,7 @@
   \Display Beam-spot monitor entirely based on pixel detector information
            the monitoring is based on a 3D fit to the vertex cloud
   \Author Mauro Dinardo
-  \Version $ Revision: 3.6 $
+  \Version $ Revision: 3.5 $
   \Date $ Date: 2010/23/02 13:15:00 $
 */
 
