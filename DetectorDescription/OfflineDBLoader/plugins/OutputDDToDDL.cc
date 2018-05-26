@@ -103,7 +103,10 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
   edm::ESTransientHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get( pDD );
 
-  DDCompactView::DDCompactView::graph_type gra = pDD->graph();
+  using Graph = DDCompactView::Graph;
+  using adjl_iterator = Graph::const_adj_iterator;
+ 
+  const auto& gra = pDD->graph();
   // temporary stores:
   std::set<DDLogicalPart> lpStore;
   std::set<DDMaterial> matStore;
@@ -133,12 +136,11 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
   std::string ns_ = out.ns_;
 
   (*m_xos) << std::fixed << std::setprecision(18);
-  typedef  DDCompactView::graph_type::const_adj_iterator adjl_iterator;
 
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();    
     
-  DDCompactView::graph_type::index_type i=0;
+  Graph::index_type i=0;
   (*m_xos) << "<PosPartSection label=\"" << ns_ << "\">" << std::endl;
   git = gra.begin();
   for( ; git != gend; ++git ) {
@@ -152,8 +154,8 @@ OutputDDToDDL::beginRun( const edm::Run&, edm::EventSetup const& es )
     ++i;
     if( !git->empty()) {
       // ask for children of ddLP  
-      DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
-      DDCompactView::graph_type::edge_list::const_iterator cend = git->end();
+      auto cit  = git->begin();
+      auto cend = git->end();
       for( ; cit != cend; ++cit ) {
 	const DDLogicalPart & ddcurLP = gra.nodeData( cit->first );
 	if( lpStore.find( ddcurLP ) != lpStore.end()) {
