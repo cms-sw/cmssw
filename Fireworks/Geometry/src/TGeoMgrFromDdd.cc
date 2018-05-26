@@ -21,6 +21,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -106,8 +107,8 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    }
 
    std::cout << "about to initialize the DDCompactView walker" << std::endl;
-   DDCompactView::walker_type             walker(viewH->graph());
-   DDCompactView::walker_type::value_type info = walker.current();
+   auto walker = math::GraphWalker<DDLogicalPart, DDPosData*>( viewH->graph(), viewH->root());
+   auto info = walker.current();
 
    // The top most item is actually the volume holding both the
    // geometry AND the magnetic field volumes!
@@ -133,7 +134,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
 
    do
    {
-      DDCompactView::walker_type::value_type info = walker.current();
+      auto info = walker.current();
 
       if (m_verbose)
       {
