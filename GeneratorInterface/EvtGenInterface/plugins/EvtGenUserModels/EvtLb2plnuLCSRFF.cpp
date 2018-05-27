@@ -21,14 +21,14 @@
 //--------------------------------------------------------------------------
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtReport.hh"
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenUserModels/EvtLb2plnuLCSRFF.hh"
+#include "GeneratorInterface/EvtGenInterface/plugins/EvtGenUserModels/EvtLb2plnuLCSRFF.hh"
 #include "EvtGenBase/EvtPDL.hh"
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtIdSet.hh"
 #include "EvtGenBase/EvtConst.hh"
 #include <string>
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 using std::endl;
 
 void EvtLb2plnuLCSRFF::getdiracff(EvtId parent, EvtId daught,
