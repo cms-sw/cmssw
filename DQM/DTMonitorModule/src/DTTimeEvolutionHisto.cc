@@ -170,7 +170,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       if(nEventsInLastTimeSlot.size() > 1)
 	binLabel << "-" << lastLSinTimeSlot;
 
-      if(lastLSinTimeSlot%(3*(int)theLSPrescale==0)) 
+      //if(lastLSinTimeSlot%(3*(int)theLSPrescale)==0)
 	histo->setBinLabel(nBookedBins,binLabel.str(),1);
 
       // reset the counters for the time slot
