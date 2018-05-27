@@ -156,7 +156,7 @@ void HGCalHitValidation::bookHistograms(DQMStore::IBooker& iB,
 					edm::Run const&, 
 					edm::EventSetup const&) {
 
-  iB.setCurrentFolder("HGCalSimHitsV/HitValidation");
+  iB.setCurrentFolder("HGCAL/HGCalSimHitsV/HitValidation");
 
   //initiating histograms
   heedzVsZ     = iB.book2D("heedzVsZ","",7200,-360,360,100,-0.1,0.1);

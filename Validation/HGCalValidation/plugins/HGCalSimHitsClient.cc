@@ -91,7 +91,7 @@ void HGCalSimHitsClient::runClient_(DQMStore::IBooker &ib, DQMStore::IGetter &ig
       if (verbosity_>0) 
 	edm::LogVerbatim("HGCalValidation") << "fullSubPath: " 
 					    << fullSubDirPath.at(j);
-      std::string nameDirectory = "HGCalSimHitsV/"+nameDetector_;
+      std::string nameDirectory = "HGCAL/HGCalSimHitsV/"+nameDetector_;
 
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = ig.getContents(fullSubDirPath.at(j));
