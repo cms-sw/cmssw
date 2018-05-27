@@ -47,7 +47,7 @@ struct Histograms {
 // simmetrized one.
 // Set mirrorMinusWheels to avoid this.
 namespace {
-  bool mirrorMinusWheels = true;
+  constexpr bool mirrorMinusWheels = true;
 }
 
 // Constructor
