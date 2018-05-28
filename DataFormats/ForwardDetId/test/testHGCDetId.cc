@@ -1,6 +1,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <cmath>
@@ -152,6 +153,27 @@ void testTriggerCell(int type) {
 	    << nerror << " errors for trigger cells" << std::endl;
 }
 
+void testROC() {
+
+  HGCSiliconDetIdToROC idToROC;
+  idToROC.print();
+  for (int k=1; k<=6; ++k) {
+    auto cells = idToROC.getTriggerId(k);
+    bool error(false);
+    std::cout << "ROC " << k << " has " << cells.size() << " trigger cells:";
+    unsigned int i(0);
+    for (auto cell : cells) {
+      int k0 = idToROC.getROCNumber(cell.first,cell.second);
+      std::cout << " [" << i << "] (" << cell.first << "," << cell.second 
+		<< "):" << k0;
+      ++i;
+      if (k0 != k) error = true;
+    }
+    if (error) std::cout << " ***** ERROR *****" << std::endl;
+    else       std::cout << std::endl;
+  }
+}
+
 int main() {
 
   testCell(0);
@@ -162,6 +184,7 @@ int main() {
   testScint(22);
   testTriggerCell(0);
   testTriggerCell(1);
+  testROC();
 
   return 0;
 }
