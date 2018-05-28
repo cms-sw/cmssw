@@ -14,7 +14,7 @@ HGCSiliconDetIdToROC::HGCSiliconDetIdToROC() {
 	int v = start2[roc];
 	int u = start1[roc][i1];
 	for (int i2=0; i2<cellRows; ++i2) {
-	  cells.emplace_back(std::make_pair(u,v));
+	  cells.emplace_back(u,v);
 	  ++u; ++v;
 	}
       }
@@ -23,7 +23,7 @@ HGCSiliconDetIdToROC::HGCSiliconDetIdToROC() {
 	int v = start2[roc];
 	int u = start1[roc][i1];
 	for (int i2=0; i2<cellRows; ++i2) {
-	  cells.emplace_back(std::make_pair(u,v));
+	  cells.emplace_back(u,v);
 	  ++v;
 	}
       }
@@ -32,7 +32,7 @@ HGCSiliconDetIdToROC::HGCSiliconDetIdToROC() {
 	int u = start2[roc];
 	int v = start1[roc][i1];
 	for (int i2=0; i2<cellRows; ++i2) {
-	  cells.emplace_back(std::make_pair(u,v));
+	  cells.emplace_back(u,v);
 	  ++u; ++v;
 	}
       }
@@ -41,24 +41,22 @@ HGCSiliconDetIdToROC::HGCSiliconDetIdToROC() {
   }
 
   // key = trigger cell U,V; value = roc #
-  for (auto itr=triggerIdFromROC_.begin(); 
-       itr!=triggerIdFromROC_.end(); ++itr) {
-    for (auto cell : itr->second)
-      triggerIdToROC_[cell] = itr->first;
+  for (auto const & itr : triggerIdFromROC_) {
+    for (auto cell : itr.second)
+      triggerIdToROC_[cell] = itr.first;
   }
 }
 
 void HGCSiliconDetIdToROC::print() const {
  
-  for (auto itr=triggerIdFromROC_.begin(); itr!=triggerIdFromROC_.end();
-       ++itr) {
-    std::cout << "ROC " << itr->first << " with " << (itr->second).size()
+  for (auto const & itr : triggerIdFromROC_) {
+    std::cout << "ROC " << itr.first << " with " << (itr.second).size()
 	      << " trigger cells:";
-    for (auto cell : itr->second)
+    for (auto cell : itr.second)
       std::cout << " (" << cell.first << "," << cell.second << ")";
     std::cout << std::endl;
   }
-  for (auto itr=triggerIdToROC_.begin(); itr!=triggerIdToROC_.end(); ++itr)
-    std::cout << "Trigger cell (" << (itr->first).first << "," 
-	      << (itr->first).second << ") : ROC " << itr->second <<std::endl;
+  for (auto const & itr : triggerIdToROC_)
+    std::cout << "Trigger cell (" << (itr.first).first << "," 
+	      << (itr.first).second << ") : ROC " << itr.second <<std::endl;
 }
