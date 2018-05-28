@@ -91,7 +91,7 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
     DetId detid = uncalibRH.id();
     // don't produce rechit if detid is a ghost one
 
-    if (detid.det() == DetId::Forward) {
+    if (detid.det() == DetId::Forward || detid.det() == DetId::Hcal) {
       if((detid & rangeMask_) == rangeMatch_)  return false;
     }
 
