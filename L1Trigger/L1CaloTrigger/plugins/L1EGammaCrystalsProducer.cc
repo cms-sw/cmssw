@@ -241,7 +241,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             // while "DataFormats/Math/interface/Point3D.h" also contains a competing definition of GlobalPoint. Oh well...
             ehit.position = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
             ehit.energy = et / sin(ehit.position.theta());
-            if ( debug ) std::cout << " -- ECAL TP encoded ET: " << hit.encodedEt() << std::endl;
+            //if ( debug ) std::cout << " -- ECAL TP encoded ET: " << hit.encodedEt() << std::endl;
             //std::cout << " -- ECAL TP Et: " << ehit.energy << std::endl;
             //std::cout << totNumHits << " -- ehit iPhi: " << ehit.id.iphi() << " -- tp iPhi: " << hit.id().iphi() << std::endl;
             //std::cout << " -- iEta: " << ehit.id.ieta() << std::endl;
@@ -318,7 +318,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
            auto cell = hbGeometry->getGeometry(hcId_i);
            if (cell == 0) continue;
            GlobalVector tmpVector = GlobalVector(cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z());
-           if ( debug ) std::cout << " ---- " << hcId_i << "  subD: " << hcId_i.subdetId() << " : (eta,phi,z), (" << tmpVector.eta() << ", " << tmpVector.phi() << ", " << tmpVector.z() << ")" << std::endl;
+           //if ( debug ) std::cout << " ---- " << hcId_i << "  subD: " << hcId_i.subdetId() << " : (eta,phi,z), (" << tmpVector.eta() << ", " << tmpVector.phi() << ", " << tmpVector.z() << ")" << std::endl;
            hcal_tp_position = tmpVector;
            break;
          }
@@ -330,7 +330,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
          hhit.energy = et / sin(hhit.position.theta());
          hcalhits.push_back(hhit);
 
-         if ( debug ) std::cout << "HCAL TP Position (x,y,z): " << hcal_tp_position << ", TP ET : " << hhit.energy << std::endl;
+         //if ( debug ) std::cout << "HCAL TP Position (x,y,z): " << hcal_tp_position << ", TP ET : " << hhit.energy << std::endl;
       }
    }
 
@@ -647,11 +647,22 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       if ( debug ) std::cout << "Total energy = " << totalEnergy << ", total pt = " << correctedTotalPt << std::endl;
       if ( debug ) std::cout << "Isolation: " << ECalIsolation << std::endl;
 
-      // Calculate H/E if we have are using RecHits
+
+      // Calibrate L1EG pT to match Stage-2 (Phase-I) calibrations
+      // NOTE: working points are defined with respect to normal correctedTotalPt
+      // not to calibrated pT
+      float calibratedPt; 
+      calibratedPt = correctedTotalPt * ( ptAdjustFunc.Eval( correctedTotalPt ) );
+
+
+      // Calculate H/E if we have hcalhits
       // else fill with -1. so no one gets confused
       // and thinks 0. is H/E
       float hcalEnergy = 0.;
       float hovere;
+      float hovereCalibPt;
+      double minimum = 1e-5;
+      float calibratedE = calibratedPt/ TMath::Max( sin(weightedPosition.theta()), minimum);
       if (hcalhits.size() > 0) {
         for(const auto& hit : hcalhits)
         {
@@ -661,19 +672,18 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
            }
         }
         hovere = hcalEnergy/params["uncorrectedE"];
+        hovereCalibPt = hcalEnergy/calibratedE;
       }
-      else hovere = -1.0;
+      else
+      {
+        hovere = -1.0;
+        hovereCalibPt = -1.0;
+      }
 
-      if ( debug ) std::cout << "H/E: " << hovere << std::endl;
-
-      // Calibrate L1EG pT to match Stage-2 (Phase-I) calibrations
-      // NOTE: working points are defined with respect to normal correctedTotalPt
-      // not to calibrated pT
-      float calibratedPt; 
-      calibratedPt = correctedTotalPt * ( ptAdjustFunc.Eval( correctedTotalPt ) );
-
+      if ( debug && calibratedPt > 10 ) std::cout << "E: " << params["uncorrectedE"] << " CalibE: " << calibratedE << " H/E: " << hovere << "   H/E Calib: " << hovereCalibPt << std::endl;
 
       // Check if cluster passes electron or photon WPs
+      // Note: WPs cuts are defined with respect to non-calibrated pT and non-calibrated H/E
       float cluster_eta = weightedPosition.eta();
       electronWP98 = cluster_passes_electronWP98( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
       looseL1TkMatchWP = cluster_passes_looseL1TkMatchWP( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
@@ -684,7 +694,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       
       // Form a l1slhc::L1EGCrystalCluster
       reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
-      l1slhc::L1EGCrystalCluster cluster(p4, calibratedPt, hovere, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
+      l1slhc::L1EGCrystalCluster cluster(p4, calibratedPt, hovereCalibPt, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
             e2x2, e2x5, e3x5, e5x5, electronWP98, photonWP80, electronWP90, looseL1TkMatchWP, passesStage2Eff);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
