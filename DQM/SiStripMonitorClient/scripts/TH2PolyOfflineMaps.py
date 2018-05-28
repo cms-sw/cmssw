@@ -378,7 +378,7 @@ class TH2PolyOfflineMaps:
                   continue
                 for panel in range(1, 3):
                   onlineName = self.__BuildOnlineDiskName(x, y, panel, self.maxBladeToRing[maxY])
-                  self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, (y + maxY) * 2 + panel)})  
+                  self.internalData[self.detDict[onlineName]].update({name : obj.GetBinContent(x + maxX + 1, (y + maxY) * 2 + (3-panel))})  
           else:
             print("Unrecognized plot")
       else:
