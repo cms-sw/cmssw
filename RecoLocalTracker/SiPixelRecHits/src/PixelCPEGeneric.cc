@@ -615,7 +615,7 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
          <<sizex<<" "<<sizey<<endl;
    }
    
-   if likely(UseErrorsFromTemplates_ ) {
+   if LIKELY(UseErrorsFromTemplates_ ) {
       //
       // Use template errors
       //cout << "Track angles are known. We can use either errors from templates or the error parameterization from DB." << endl;

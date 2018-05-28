@@ -328,10 +328,10 @@ IOSize
 XrdFile::readv (IOPosBuffer *into, IOSize n)
 {
   // A trivial vector read - unlikely, considering ROOT data format.
-  if (unlikely(n == 0)) {
+  if (UNLIKELY(n == 0)) {
     return 0;
   }
-  if (unlikely(n == 1)) {
+  if (UNLIKELY(n == 1)) {
     return read(into[0].data(), into[0].size(), into[0].offset());
   }
 

@@ -257,7 +257,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
    // ******************************************************************
    
    // Check exit status
-   if unlikely( theClusterParam.ierr != 0 )
+   if UNLIKELY( theClusterParam.ierr != 0 )
    {
       LogDebug("PixelCPETemplateReco::localPosition") <<
       "reconstruction failed with error " << theClusterParam.ierr << "\n";
@@ -286,7 +286,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
          theClusterParam.templYrec_ = theDetParam.theTopol->localY( theClusterParam.theCluster->y() );
       }
    }
-   else if unlikely( UseClusterSplitter_ && theClusterParam.templQbin_ == 0 )
+   else if UNLIKELY( UseClusterSplitter_ && theClusterParam.templQbin_ == 0 )
    {
       cout << " PixelCPETemplateReco : We should never be here !!!!!!!!!!!!!!!!!!!!!!" << endl;
       cout << "                 (int)UseClusterSplitter_ = " << (int)UseClusterSplitter_ << endl;

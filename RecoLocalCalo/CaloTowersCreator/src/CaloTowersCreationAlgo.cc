@@ -1060,7 +1060,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     
     
     // insert in collection (remove and return if below threshold)
-    if unlikely ( (towerP4[3]==0) & (E_outer>0)  ) {
+    if UNLIKELY ( (towerP4[3]==0) & (E_outer>0)  ) {
         float val = theHOIsUsed ? 0 : 1E-9; // to keep backwards compatibility for theHOIsUsed == true
         collection.emplace_back(id, E_em, E_had, E_outer, -1, -1, CaloTower::PolarLorentzVector(val,hadPoint.eta(), hadPoint.phi(),0),  emPoint, hadPoint); 
     } else {
