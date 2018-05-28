@@ -321,7 +321,7 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
    // ******************************************************************
    
    //--- Check exit status
-   if unlikely( theClusterParam.ierr != 0 )
+   if UNLIKELY( theClusterParam.ierr != 0 )
    {
       LogDebug("PixelCPEClusterRepair::localPosition") <<
       "reconstruction failed with error " << theClusterParam.ierr << "\n";
@@ -441,7 +441,7 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
    // ******************************************************************
    
    //--- Check exit status
-   if unlikely( theClusterParam.ierr2 != 0 )
+   if UNLIKELY( theClusterParam.ierr2 != 0 )
    {
       LogDebug("PixelCPEClusterRepair::localPosition") <<
       "3D reconstruction failed with error " << theClusterParam.ierr2 << "\n";
@@ -502,11 +502,11 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    float xerr = 0.0f, yerr = 0.0f;
 
    //--- Check status of both template calls.
-   if unlikely ( (theClusterParam.ierr !=0) || (theClusterParam.ierr2 !=0) ) {
+   if UNLIKELY ( (theClusterParam.ierr !=0) || (theClusterParam.ierr2 !=0) ) {
      // If reconstruction fails the hit position is calculated from cluster center of gravity
      // corrected in x by average Lorentz drift. Assign huge errors.
      //
-     if unlikely (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
+     if UNLIKELY (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
        throw cms::Exception("PixelCPEClusterRepair::localPosition :")
 	 << "A non-pixel detector type in here?";
      

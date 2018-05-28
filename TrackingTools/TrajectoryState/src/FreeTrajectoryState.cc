@@ -6,6 +6,8 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "FWCore/Utilities/interface/Likely.h"
+
 #include <cmath>
 #include<sstream>
 
@@ -48,9 +50,9 @@ void FreeTrajectoryState::createCurvilinearError(CartesianTrajectoryError const&
 
 
 void FreeTrajectoryState::rescaleError(double factor) {
-  if unlikely(!hasError()) return;
+  if UNLIKELY(!hasError()) return;
   bool zeroField = (parameters().magneticField().nominalValue()==0);  
-  if unlikely(zeroField)  theCurvilinearError.zeroFieldScaling(factor*factor);
+  if UNLIKELY(zeroField)  theCurvilinearError.zeroFieldScaling(factor*factor);
   else theCurvilinearError *= (factor*factor);
 }
 
