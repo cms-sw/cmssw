@@ -69,6 +69,11 @@ Implementation:
 // HCAL TPs
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 
+// Run2/PhaseI EG object:
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+
+#include <bitset>
+
 // Adding boost to read json files for tower mapping
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
@@ -182,6 +187,7 @@ L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& 
    produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterNoCuts");
    produces<l1slhc::L1EGCrystalClusterCollection>("L1EGXtalClusterWithCuts");
    produces<l1extra::L1EmParticleCollection>("L1EGCollectionWithCuts");
+   produces< BXVector<l1t::EGamma> >("L1EGammaCollectionBXVWithCuts");
 
    // Fit parameters measured on 28 May 2017, using 500 MeV threshold for ECAL TPs
    // working in CMSSW 920
@@ -366,6 +372,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1EGXtalClusterNoCuts (new l1slhc::L1EGCrystalClusterCollection );
    std::unique_ptr<l1slhc::L1EGCrystalClusterCollection> L1EGXtalClusterWithCuts( new l1slhc::L1EGCrystalClusterCollection );
    std::unique_ptr<l1extra::L1EmParticleCollection> L1EGCollectionWithCuts( new l1extra::L1EmParticleCollection );
+   std::unique_ptr< BXVector<l1t::EGamma> > L1EGammaCollectionBXVWithCuts(new l1t::EGammaBxCollection);
    
    // Clustering algorithm
    while(true)
@@ -697,7 +704,8 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       
       // Form a l1slhc::L1EGCrystalCluster
       reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
-      l1slhc::L1EGCrystalCluster cluster(p4, calibratedPt, hovereCalibPt, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
+      reco::Candidate::PolarLorentzVector p4calibrated(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
+      l1slhc::L1EGCrystalCluster cluster(p4calibrated, calibratedPt, hovereCalibPt, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
             e2x2, e2x5, e3x5, e5x5, standaloneWP, electronWP98, photonWP80, electronWP90, looseL1TkMatchWP, passesStage2Eff);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
@@ -712,7 +720,12 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
          // Optional min. Et cut
          if ( cluster.pt() >= EtminForStore ) {
             L1EGXtalClusterWithCuts->push_back(cluster);
-            L1EGCollectionWithCuts->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
+            L1EGCollectionWithCuts->push_back(l1extra::L1EmParticle(p4calibrated, edm::Ref<L1GctEmCandCollection>(), 0));
+
+            // BXVector l1t::EGamma quality defined with respect to these WPs
+            int quality = (standaloneWP*2^0) + (electronWP98*2^1) + (looseL1TkMatchWP*2^2) + (photonWP80*2^3) + (electronWP90*2^4) + (passesStage2Eff*2^5);
+            L1EGammaCollectionBXVWithCuts->push_back(0,l1t::EGamma(p4calibrated, calibratedPt, weightedPosition.eta(), weightedPosition.phi(),quality,1 ));
+            if (debug) std::cout << "Quality: "<<  std::bitset<10>(quality) << std::endl;
          }
       }
    }
@@ -720,6 +733,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    iEvent.put(std::move(L1EGXtalClusterNoCuts),"L1EGXtalClusterNoCuts");
    iEvent.put(std::move(L1EGXtalClusterWithCuts), "L1EGXtalClusterWithCuts" );
    iEvent.put(std::move(L1EGCollectionWithCuts), "L1EGCollectionWithCuts" );
+   iEvent.put(std::move(L1EGammaCollectionBXVWithCuts),"L1EGammaCollectionBXVWithCuts");
 }
 
 
