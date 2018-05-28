@@ -220,7 +220,7 @@ RectangularPixelTopology::localX( const float mpx ) const
   float fractionX = mpx - float(binoffx); // find the fraction 
   float local_pitchx = m_pitchx;   // defaultpitch
 
-  if unlikely( m_upgradeGeometry ) {
+  if UNLIKELY( m_upgradeGeometry ) {
 #ifdef EDM_ML_DEBUG
     if( binoffx > m_ROWS_PER_ROC * m_ROCS_X ) // too large
     {
@@ -276,7 +276,7 @@ RectangularPixelTopology::localY( const float mpy ) const
   float fractionY = mpy - float(binoffy); // find the fraction 
   float local_pitchy = m_pitchy;   // defaultpitch
 
-  if unlikely( m_upgradeGeometry ){
+  if UNLIKELY( m_upgradeGeometry ){
  #ifdef EDM_ML_DEBUG
    if( binoffy > m_ROCS_Y * m_COLS_PER_ROC )   // too large
       {
@@ -335,7 +335,7 @@ RectangularPixelTopology::measurementError( const LocalPoint& lp,
   float pitchy=m_pitchy;
   float pitchx=m_pitchx;
 
-  if likely( !m_upgradeGeometry ) {    
+  if LIKELY( !m_upgradeGeometry ) {    
       int iybin = int( (lp.y() - m_yoffset)/m_pitchy );   //get bin for equal picth 
       int iybin0 = iybin%54;  //This is just to avoid many ifs by using the periodicy
       //quasi bins 0,1,52,53 fall into larger pixels  

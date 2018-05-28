@@ -116,7 +116,7 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
 			    const SiPixelFedCabling* theCablingTree, Word32& errorWord, Errors& errors)
 {
   int errorType = (errorWord >> ROC_shift) & ERROR_mask;
-  if likely(errorType<25) return true;
+  if LIKELY(errorType<25) return true;
 
  switch (errorType) {
     case(25) : {

@@ -28,7 +28,7 @@ RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
 				   const Plane& plane) const
 {
   GlobalParametersWithPath gp =  propagateParametersOnPlane( fts, plane);
-  if unlikely(!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
+  if UNLIKELY(!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
 
   SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
     ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
@@ -39,7 +39,7 @@ std::pair< TrajectoryStateOnSurface, double>
 RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylinder& cyl) const
 {
   GlobalParametersWithPath gp =  propagateParametersOnCylinder( fts, cyl);
-  if  unlikely(!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
+  if  UNLIKELY(!gp) return TsosWP(TrajectoryStateOnSurface(),0.);
 
   SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
     ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
@@ -61,7 +61,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um 
   // difference in transversal position at 10m.
   //
-  if  unlikely( fabs(rho)<1.e-10 ) {
+  if  UNLIKELY( fabs(rho)<1.e-10 ) {
     //
     // Instantiate auxiliary object for finding intersection.
     // Frame-independant point and vector are created explicitely to 
@@ -70,7 +70,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     //
     LogDebug("RKPropagatorInS")<<" startZ = "<<startZ;
 
-    if unlikely(fabs(startZ) < 1e-5){  
+    if UNLIKELY(fabs(startZ) < 1e-5){  
       LogDebug("RKPropagatorInS")<< "Propagation is not performed: state is already on final surface.";
       GlobalTrajectoryParameters res( gpos, gmom, ts.charge(), 
 				      theVolume);
@@ -84,7 +84,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     // get solution
     //
     std::pair<bool,double> propResult = planeCrossing.pathLength(plane);
-    if likely( propResult.first && theVolume !=nullptr) {
+    if LIKELY( propResult.first && theVolume !=nullptr) {
       double s = propResult.second;
       // point (reconverted to GlobalPoint)
       GlobalPoint x (planeCrossing.position(s));
@@ -141,7 +141,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
     std::pair<bool,double> path = pathLength( plane, startState.position(), 
 					      startState.momentum(), 
 					      (double) ts.charge(), currentDirection);
-    if  unlikely(!path.first) { 
+    if  UNLIKELY(!path.first) { 
       LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to plane failed!" 
 				   << "...distance to plane " << plane.localZ( globalPosition(startState.position()))
 				   << "...Local starting position in volume " << startState.position() 
@@ -155,7 +155,7 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
    
 
     double sstep = path.second;
-    if  unlikely( std::abs(sstep) < eps) {
+    if  UNLIKELY( std::abs(sstep) < eps) {
       LogDebug("RKPropagatorInS")  << "On-surface accuracy not reached, but pathLength calculation says we are there! "
 		 << "path " << path.second << " distance to plane is " << startZ ;
       GlobalTrajectoryParameters res( gtpFromVolumeLocal( startState, ts.charge()));
@@ -203,7 +203,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
   
   
   const GlobalPoint& sp = cyl.position();
-  if unlikely(sp.x()!=0. || sp.y()!=0.) {
+  if UNLIKELY(sp.x()!=0. || sp.y()!=0.) {
       throw PropagationException("Cannot propagate to an arbitrary cylinder");
     }
   
@@ -222,7 +222,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
   // Straight line approximation? |rho|<1.e-10 equivalent to ~ 1um 
   // difference in transversal position at 10m.
   //
-  if  unlikely( fabs(rho)<1.e-10 ) {
+  if  UNLIKELY( fabs(rho)<1.e-10 ) {
       //
       // Instantiate auxiliary object for finding intersection.
       // Frame-independant point and vector are created explicitely to 
@@ -236,7 +236,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
       // get solution
       //
       std::pair<bool,double> propResult = cylCrossing.pathLength(cyl);
-      if  likely( propResult.first && theVolume !=nullptr) {
+      if  LIKELY( propResult.first && theVolume !=nullptr) {
 	  double s = propResult.second;
 	  // point (reconverted to GlobalPoint)
 	  GlobalPoint x (cylCrossing.position(s));
@@ -271,7 +271,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
 					     currentDirection, eps);
     
     std::pair<bool,double> path = pathLength.pathLength( cyl);
-    if  unlikely(!path.first) { 
+    if  UNLIKELY(!path.first) { 
 	LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to cylinder failed!" 
 				     << "Radius " << cyl.radius() << " pos.perp() " << LocalPoint(startState.position()).perp() ;
 	return GlobalParametersWithPath();
@@ -285,7 +285,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
     
     
     double sstep = path.second;
-    if  unlikely( std::abs(sstep) < eps) {
+    if  UNLIKELY( std::abs(sstep) < eps) {
 	LogDebug("RKPropagatorInS")  << "accuracy not reached, but pathLength calculation says we are there! "
 				     << path.second ;
 	
