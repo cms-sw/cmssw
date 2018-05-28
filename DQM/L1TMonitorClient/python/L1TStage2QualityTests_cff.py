@@ -10,6 +10,7 @@ from DQM.L1TMonitorClient.L1TStage2uGMTQualityTests_cfi import *
 from DQM.L1TMonitorClient.L1TStage2BMTFQualityTests_cfi import *
 from DQM.L1TMonitorClient.L1TStage2EMTFQualityTests_cfi import *
 from DQM.L1TMonitorClient.L1TStage2uGTQualityTests_cfi import *
+from DQM.L1TMonitorClient.L1TStage2MuonQualityTests_cfi import *
 
 # L1 objects quality tests
 
@@ -24,6 +25,7 @@ l1TriggerSystemQualityTests = cms.Sequence(
 
 # sequence for L1 objects
 l1TriggerObjectQualityTests = cms.Sequence(
+                                l1TStage2MuonQualityTests
                                 )
 
 
