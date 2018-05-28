@@ -440,19 +440,13 @@ namespace edmNew {
       // delete content if T is pointer...
     }
 
+    // default or delete is the same...
+    DetSetVector& operator=(const DetSetVector&) = delete;
     // Implement copy constructor because of a (possibly temporary)
     // need in heterogeneous framework prototyping. In general this
     // class is still supposed to be non-copyable, so to prevent
     // accidental copying the assignment operator is left deleted.
-    DetSetVector(const DetSetVector& rh):
-      DetSetVectorTrans(rh),
-      m_subdetId(rh.m_subdetId),
-      m_ids(rh.m_ids),
-      m_data(rh.m_data)
-    {}
-
-    // default or delete is the same...
-    DetSetVector& operator=(const DetSetVector&) = delete;
+    DetSetVector(const DetSetVector&) = default;
     DetSetVector(DetSetVector&&) = default;
     DetSetVector& operator=(DetSetVector&&) = default;
 
