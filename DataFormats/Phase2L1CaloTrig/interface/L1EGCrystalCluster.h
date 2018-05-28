@@ -14,16 +14,16 @@ namespace l1slhc
   class L1EGCrystalCluster : public l1t::L1Candidate {
     public:
       L1EGCrystalCluster() : l1t::L1Candidate(), calibratedPt_(0.), hovere_(0.), iso_(0.), PUcorrPt_(0.), bremStrength_(0.),
-            e2x2_(0.), e2x5_(0.), e3x5_(0.), e5x5_(0.), electronWP98_(0.), photonWP80_(0.), electronWP90_(0.),
+            e2x2_(0.), e2x5_(0.), e3x5_(0.), e5x5_(0.), standaloneWP_(0.), electronWP98_(0.), photonWP80_(0.), electronWP90_(0.),
             looseL1TkMatchWP_(0.), stage2effMatch_(0.) {};
 
       L1EGCrystalCluster(const PolarLorentzVector& p4, float calibratedPt, float hovere, float iso, DetId seedCrystal, 
             float PUcorrPt = 0., float bremStrength = 0., float e2x2 = 0., float e2x5 = 0.,
-            float e3x5 = 0., float e5x5 = 0., bool electronWP98 = false, bool photonWP80 = false,
+            float e3x5 = 0., float e5x5 = 0., bool standaloneWP = false, bool electronWP98 = false, bool photonWP80 = false,
             bool electronWP90 = false, bool looseL1TkMatchWP = false, bool stage2effMatch = false ) :
                     l1t::L1Candidate(p4), calibratedPt_(calibratedPt), hovere_(hovere), iso_(iso), seedCrystal_(seedCrystal),
                     PUcorrPt_(PUcorrPt), bremStrength_(bremStrength), e2x2_(e2x2), e2x5_(e2x5),
-                    e3x5_(e3x5), e5x5_(e5x5), electronWP98_(electronWP98), photonWP80_(photonWP80),
+                    e3x5_(e3x5), e5x5_(e5x5), standaloneWP_(standaloneWP), electronWP98_(electronWP98), photonWP80_(photonWP80),
                     electronWP90_(electronWP90), looseL1TkMatchWP_(looseL1TkMatchWP),
                     stage2effMatch_(stage2effMatch) {};
 
@@ -47,6 +47,7 @@ namespace l1slhc
       inline float e2x5() const { return e2x5_; };
       inline float e3x5() const { return e3x5_; };
       inline float e5x5() const { return e5x5_; };
+      inline float standaloneWP() const { return standaloneWP_; };
       inline float electronWP98() const { return electronWP98_; };
       inline float photonWP80() const { return photonWP80_; };
       inline float electronWP90() const { return electronWP90_; };
@@ -80,6 +81,8 @@ namespace l1slhc
       float e3x5_;
       // Shower shape variable - 5x5 energy containing centered on seed crystal
       float e5x5_;
+      // Standalone L1EG WP
+      bool standaloneWP_;
       // 98% efficient electron WP, for electrons above 35 GeV
       bool electronWP98_;
       // 80% efficient photon WP, for photons above 35 GeV

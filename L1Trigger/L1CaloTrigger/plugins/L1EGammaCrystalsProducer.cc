@@ -80,7 +80,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      bool cluster_passes_base_cuts(const l1slhc::L1EGCrystalCluster& cluster) const;
+      bool cluster_passes_base_cuts(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5) const;
       bool cluster_passes_stage2_eff_cuts(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5, float &hover) const;
       bool cluster_passes_electronWP90(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5, float &hover) const;
       bool cluster_passes_photonWP80(float &cluster_pt, float &cluster_eta, float &iso, float &e2x5, float &e5x5, float &e2x2) const;
@@ -409,6 +409,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float e2x5 = 0.;
       float e5x5 = 0.;
       float e3x5 = 0.;
+      bool standaloneWP;
       bool electronWP98;
       bool looseL1TkMatchWP;
       bool photonWP80;
@@ -661,8 +662,9 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float hcalEnergy = 0.;
       float hovere;
       float hovereCalibPt;
-      double minimum = 1e-5;
-      float calibratedE = calibratedPt/ TMath::Max( sin(weightedPosition.theta()), minimum);
+      float sineTerm = sin(weightedPosition.theta());
+      float minimum = 1e-5;
+      float calibratedE = calibratedPt/ TMath::Max( sineTerm, minimum);
       if (hcalhits.size() > 0) {
         for(const auto& hit : hcalhits)
         {
@@ -685,6 +687,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // Check if cluster passes electron or photon WPs
       // Note: WPs cuts are defined with respect to non-calibrated pT and non-calibrated H/E
       float cluster_eta = weightedPosition.eta();
+      standaloneWP = cluster_passes_base_cuts( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
       electronWP98 = cluster_passes_electronWP98( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
       looseL1TkMatchWP = cluster_passes_looseL1TkMatchWP( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5);
       photonWP80 = cluster_passes_photonWP80( correctedTotalPt, cluster_eta, ECalIsolation, e2x5, e5x5, e2x2);
@@ -695,7 +698,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // Form a l1slhc::L1EGCrystalCluster
       reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
       l1slhc::L1EGCrystalCluster cluster(p4, calibratedPt, hovereCalibPt, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
-            e2x2, e2x5, e3x5, e5x5, electronWP98, photonWP80, electronWP90, looseL1TkMatchWP, passesStage2Eff);
+            e2x2, e2x5, e3x5, e5x5, standaloneWP, electronWP98, photonWP80, electronWP90, looseL1TkMatchWP, passesStage2Eff);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
       params["crystalCount"] = crystalPt.size();
@@ -703,8 +706,8 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       L1EGXtalClusterNoCuts->push_back(cluster);
 
 
-      // Save clusters with some cuts
-      if ( cluster_passes_base_cuts(cluster) )
+      // Save clusters passing ANY of the defined WPs
+      if ( standaloneWP || electronWP98 || looseL1TkMatchWP || photonWP80 || electronWP90 || passesStage2Eff )
       {
          // Optional min. Et cut
          if ( cluster.pt() >= EtminForStore ) {
@@ -813,7 +816,7 @@ L1EGCrystalClusterProducer::cluster_passes_stage2_eff_cuts(float &cluster_pt, fl
 
 
 bool
-L1EGCrystalClusterProducer::cluster_passes_base_cuts(const l1slhc::L1EGCrystalCluster& cluster) const {
+L1EGCrystalClusterProducer::cluster_passes_base_cuts(float &cluster_pt, float &cluster_eta, float &cluster_iso, float &e2x5, float &e5x5) const {
    //return true;
    
    // Currently this producer is optimized based on cluster isolation and shower shape
@@ -821,15 +824,10 @@ L1EGCrystalClusterProducer::cluster_passes_base_cuts(const l1slhc::L1EGCrystalCl
    // 23 May 2017 from CMSSW 92X
    // Optimization based on min ECAL TP ET = 500 MeV for inclusion
    // Only the barrel is considered
-   if ( fabs(cluster.eta()) < 1.479 )
+   if ( fabs(cluster_eta) < 1.479 )
    {
-      //std::cout << "Starting passing check" << std::endl;
-      float cluster_pt = cluster.pt();
-      float clusterE2x5 = cluster.GetExperimentalParam("E2x5");
-      float clusterE5x5 = cluster.GetExperimentalParam("E5x5");
-      float cluster_iso = cluster.isolation();
      
-      if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (clusterE2x5 / clusterE5x5)) )
+      if ( !( 0.94 + 0.052 * TMath::Exp( -0.044 * cluster_pt ) < (e2x5 / e5x5)) )
          return false;
       if ( cluster_pt < 80 ) {
          if ( !(( 0.85 + -0.0080 * cluster_pt ) > cluster_iso ) ) return false;
