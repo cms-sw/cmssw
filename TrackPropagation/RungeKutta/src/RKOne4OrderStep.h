@@ -2,6 +2,7 @@
 #define RKOne4OrderStep_H
 
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "RKDistance.h"
 #include "RK4OneStepTempl.h"
 
 #include <utility>
