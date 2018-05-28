@@ -44,7 +44,7 @@ class EcalEBTriggerPrimitiveDigi {
   int encodedEt() const; 
   
   /// Spike flag
-  bool l1aSpike() const;
+  int l1aSpike() const;
 
   /// Time info
   int time() const;
