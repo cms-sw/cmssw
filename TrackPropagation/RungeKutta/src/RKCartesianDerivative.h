@@ -1,7 +1,7 @@
 #ifndef RKCartesianDerivative_H
 #define RKCartesianDerivative_H
 
-#include "CartesianState.h"
+#include "TrackPropagation/RungeKutta/src/CartesianState.h"
 
 class dso_internal RKCartesianDerivative {
 public:

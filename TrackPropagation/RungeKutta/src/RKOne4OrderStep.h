@@ -3,7 +3,7 @@
 
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "TrackPropagation/RungeKutta/src/RKDistance.h"
-#include "RK4OneStepTempl.h"
+#include "TrackPropagation/RungeKutta/src/RK4OneStepTempl.h"
 
 #include <utility>
 

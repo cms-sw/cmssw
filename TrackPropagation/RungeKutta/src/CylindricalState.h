@@ -4,7 +4,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "FWCore/Utilities/interface/Visibility.h"
-#include "RKSmallVector.h"
+#include "TrackPropagation/RungeKutta/src/RKSmallVector.h"
 
 #include <iostream>
 
