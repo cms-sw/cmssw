@@ -1,9 +1,10 @@
 #ifndef RKCurvilinearDistance_H
 #define RKCurvilinearDistance_H
 
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "FWCore/Utilities/interface/Visibility.h"
-#include "RKDistance.h"
-#include "RKSmallVector.h"
+#include "TrackPropagation/RungeKutta/src/RKDistance.h"
+#include "TrackPropagation/RungeKutta/src/RKSmallVector.h"
 
 template <typename T, int N>
 class dso_internal RKCurvilinearDistance : public RKDistance<T,N> {

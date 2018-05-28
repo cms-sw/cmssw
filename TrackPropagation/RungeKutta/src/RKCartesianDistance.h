@@ -2,9 +2,10 @@
 #define RKCartesianDistance_H
 
 #include "FWCore/Utilities/interface/Visibility.h"
-#include "RKDistance.h"
-#include "RKSmallVector.h"
-#include "CartesianStateAdaptor.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "TrackPropagation/RungeKutta/src/RKDistance.h"
+#include "TrackPropagation/RungeKutta/src/RKSmallVector.h"
+#include "TrackPropagation/RungeKutta/src/CartesianStateAdaptor.h"
 
 #include <cmath>
 
