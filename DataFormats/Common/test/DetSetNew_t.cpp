@@ -125,9 +125,13 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(detsets.subdetId()==4);
   CPPUNIT_ASSERT(detsets.size()==0);
   CPPUNIT_ASSERT(detsets.dataSize()==0);
+  DSTV detsets5(std::move(detsets));
+  CPPUNIT_ASSERT(detsets5.subdetId()==4);
+  CPPUNIT_ASSERT(detsets5.size()==0);
+  CPPUNIT_ASSERT(detsets5.dataSize()==0);
 
   // test copy
-  DSTV detsets4(detsets);
+  DSTV detsets4(detsets5);
   CPPUNIT_ASSERT(detsets4.subdetId()==4);
   CPPUNIT_ASSERT(detsets4.size()==0);
   CPPUNIT_ASSERT(detsets4.dataSize()==0);
@@ -633,8 +637,10 @@ void TestDetSet::onDemand() {
   DSTV detsets3;
   detsets3 = std::move(detsets2);
   CPPUNIT_ASSERT(detsets3.onDemand());
+  DSTV detsets5(std::move(detsets3));
+  CPPUNIT_ASSERT(detsets5.onDemand());
 
-  DSTV detsets4(detsets3);
+  DSTV detsets4(detsets5);
   CPPUNIT_ASSERT(detsets4.onDemand());
 }
 

@@ -70,9 +70,10 @@ namespace edmNew {
 #endif
       }
 
-      DetSetVectorTrans(DetSetVectorTrans&& rh) { // can't be default because of atomics
+      DetSetVectorTrans(DetSetVectorTrans&& rh): // can't be default because of atomics
+        m_filling(false) {
         // better no one is filling...
-        assert(m_filling==false); assert(rh.m_filling==false);
+        assert(rh.m_filling==false);
         m_getter = std::move(rh.m_getter);
 #ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
