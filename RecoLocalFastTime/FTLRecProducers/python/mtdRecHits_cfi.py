@@ -5,7 +5,7 @@ from RecoLocalFastTime.FTLCommonAlgos.mtdRecHitAlgo_cff import mtdRecHitAlgo
 _barrelAlgo = mtdRecHitAlgo.clone()
 _endcapAlgo = mtdRecHitAlgo.clone()
 
-ftlRecHits = cms.EDProducer(
+mtdRecHits = cms.EDProducer(
     "MTDRecHitProducer",
     barrel = _barrelAlgo,
     endcap = _endcapAlgo,
