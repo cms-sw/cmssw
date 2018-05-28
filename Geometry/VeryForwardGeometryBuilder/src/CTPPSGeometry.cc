@@ -1,8 +1,8 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
-*  Jan Kaspar (jan.kaspar@gmail.com) 
+* Authors:
+*  Jan Kaspar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
 
@@ -38,10 +38,11 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
     // check if it is a RP
     if ( d->name().name() == DDD_TOTEM_RP_RP_NAME
       || d->name().name() == DDD_CTPPS_DIAMONDS_RP_NAME
+      || d->name().name() == DDD_CTPPS_UFSD_PLANE_NAME
       || d->name().name() == DDD_CTPPS_PIXELS_RP_NAME ) {
       addRP( d->geographicalID(), d );
     }
-    
+
     for ( unsigned int i = 0; i < d->components().size(); i++ )
       buffer.emplace_back( d->components()[i] );
   }
