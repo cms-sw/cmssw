@@ -377,7 +377,6 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const& e, edm::EventSetup const& eSetup
 
 void SUSY_HLT_VBF_Mu::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-    edm::LogInfo("SUSY_HLT_VBF_Mu") << "SUSY_HLT_VBF_Mu::endLuminosityBlock" << std::endl;
 }
 
 

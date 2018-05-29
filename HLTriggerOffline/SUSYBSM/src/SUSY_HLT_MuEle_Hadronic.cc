@@ -264,7 +264,6 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
 
 void SUSY_HLT_MuEle_Hadronic::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-    edm::LogInfo("SUSY_HLT_MuEle_Hadronic") << "SUSY_HLT_MuEle_Hadronic::endLuminosityBlock" << std::endl;
 }
 
 

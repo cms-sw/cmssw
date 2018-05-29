@@ -546,7 +546,6 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
 //
 void L1TEGammaOffline::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::endLuminosityBlock" << std::endl;
 }
 
 //
