@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel #to configure phase1 geoemtry
 
 # Do not change the order of the interaction models unless you know what you are doing.
 # Not used at the moment: "muonBremsstrahlung", "nuclearInteractionFTF"
@@ -71,6 +72,7 @@ TrackerMaterialBlock = cms.PSet(
                 activeLayer = cms.untracked.string("BPix3"),
                 interactionModels = _trackerMaterialInteractionModels
             ),
+
             ########### Pixel Outside walls and cables (barrel) ###########
             #PIXBOut5
             cms.PSet(
@@ -211,6 +213,7 @@ TrackerMaterialBlock = cms.PSet(
                 activeLayer = cms.untracked.string("FPix2"),
                 interactionModels = _trackerMaterialInteractionModels
             ),
+
             ########### Pixel Endcap outside cables ###########
             #PIXBOut6
             cms.PSet(
@@ -349,5 +352,23 @@ TrackerMaterialBlock = cms.PSet(
             ),
         )
     )
-    
-    
+#new phase1 geometry
+phase1Pixel.toModify(TrackerMaterialBlock, TrackerMaterial = dict(
+        BarrelLayers = TrackerMaterialBlock.TrackerMaterial.BarrelLayers[:4] + [
+            #PIXB4                                                                                                                        
+            cms.PSet(
+                #radius = cms.untracked.double(16),                                                                                        
+                limits = cms.untracked.vdouble(0.0, 28.391),
+                thickness = cms.untracked.vdouble(0.0217),
+                activeLayer = cms.untracked.string("BPix4"),
+                interactionModels = _trackerMaterialInteractionModels
+                ),] + TrackerMaterialBlock.TrackerMaterial.BarrelLayers[4:],
+        EndcapLayers = TrackerMaterialBlock.TrackerMaterial.EndcapLayers[:4] + [
+            #PIXD3                                                                                                                 
+            cms.PSet(
+                limits = cms.untracked.vdouble(4.823, 16.598),
+                thickness = cms.untracked.vdouble(0.058),
+                activeLayer = cms.untracked.string("FPix3"),
+                interactionModels = _trackerMaterialInteractionModels
+                ),] + TrackerMaterialBlock.TrackerMaterial.EndcapLayers[4:]
+        ))
