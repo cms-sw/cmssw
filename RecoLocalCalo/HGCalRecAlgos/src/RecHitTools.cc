@@ -136,13 +136,11 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   if (id.det() == DetId::Forward) {
     const HGCalDetId hid(id);
     auto ddd = get_ddd(geom,hid);
-    unsigned int wafer = hid.wafer();
-    int tidx = ddd->waferTypeL(wafer);
-    thick    = idx_to_thickness*tidx;
+    thick    = ddd->cellThickness(hid.layer(),hid.wafer(),0);
   } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
     const HGCSiliconDetId hid(id);
     auto ddd = get_ddd(geom,hid);
-    thick    = ddd->cellThick(hid.layer(),hid.waferU(),hid.waferV());
+    thick    = ddd->cellThickness(hid.layer(),hid.waferU(),hid.waferV());
   } else {
     LogDebug("getSiThickness::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 

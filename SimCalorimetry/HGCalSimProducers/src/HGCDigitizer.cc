@@ -365,50 +365,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
 
   //configuration to apply for the computation of time-of-flight
-  bool weightToAbyEnergy(false);
   std::array<float, 3> tdcForToAOnset{ {0.f, 0.f, 0.f} };
   float keV2fC(0.f);
-  if (geometryType_ == 0) {
-    switch( mySubDet_ ) {
-    case ForwardSubdetector::HGCEE:
-      weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCEEDigitizer_->tdcForToAOnset();
-      keV2fC            = theHGCEEDigitizer_->keV2fC();
-      break;
-    case ForwardSubdetector::HGCHEF:
-      weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCHEfrontDigitizer_->tdcForToAOnset();
-      keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
-      break;
-    case ForwardSubdetector::HGCHEB:
-      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
-      keV2fC            = theHGCHEbackDigitizer_->keV2fC();
-      break;
-    default:
-      break;
-    }
-  } else {
-    switch(myDet_) {
-    case DetId::HGCalEE:
-      weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCEEDigitizer_->tdcForToAOnset();
-      keV2fC            = theHGCEEDigitizer_->keV2fC();
-      break;
-    case DetId::HGCalHSi:
-      weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCHEfrontDigitizer_->tdcForToAOnset();
-      keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
-      break;
-    case DetId::HGCalHSc:
-      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-      tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
-      keV2fC            = theHGCHEbackDigitizer_->keV2fC();
-      break;
-    default:
-      break;
-    }
-  }
+  bool weightToAbyEnergy= getWeight(tdcForToAOnset, keV2fC);
 
   //create list of tuples (pos in container, RECO DetId, time) to be sorted first
   int nchits=(int)hits->size();
@@ -533,36 +492,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
 void HGCDigitizer::accumulate(const PHGCSimAccumulator& simAccumulator) {
   //configuration to apply for the computation of time-of-flight
-  bool weightToAbyEnergy(false);
-  if (geometryType_ == 0) {
-    switch( mySubDet_ ) {
-    case ForwardSubdetector::HGCEE:
-      weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-      break;
-    case ForwardSubdetector::HGCHEF:
-      weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-      break;
-    case ForwardSubdetector::HGCHEB:
-      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-      break;
-    default:
-      break;
-    }
-  } else {
-    switch(myDet_) {
-    case DetId::HGCalEE:
-      weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-      break;
-    case DetId::HGCalHSi:
-      weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-      break;
-    case DetId::HGCalHSc:
-      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-      break;
-    default:
-      break;
-    }
-  }
+  std::array<float, 3> tdcForToAOnset{ {0.f, 0.f, 0.f} };
+  float keV2fC(0.f);
+  bool weightToAbyEnergy= getWeight(tdcForToAOnset, keV2fC);
   loadSimHitAccumulator(*simHitAccumulator_, simAccumulator, premixStage1MinCharge_, premixStage1MaxCharge_, !weightToAbyEnergy);
 }
 
@@ -659,8 +591,6 @@ bool HGCDigitizer::getWeight(std::array<float,3>& tdcForToAOnset,
 			     float& keV2fC) const {
 
   bool weightToAbyEnergy(false);
-  tdcForToAOnset = std::array<float, 3>{ {0.f, 0.f, 0.f} };
-  keV2fC         = 0.f;
   if (geometryType_ == 0) {
     switch( mySubDet_ ) {
     case ForwardSubdetector::HGCEE:

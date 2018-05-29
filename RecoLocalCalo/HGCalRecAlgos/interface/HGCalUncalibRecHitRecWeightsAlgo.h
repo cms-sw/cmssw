@@ -15,8 +15,6 @@
 #include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 template<class C> class HGCalUncalibRecHitRecWeightsAlgo 

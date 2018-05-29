@@ -1,9 +1,8 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -52,11 +51,11 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
     if( id.det() == DetId::HGCalEE ) {
       energy += eerh_->find(id)->energy()*fraction;
     } else if( id.det() == DetId::HGCalHSi ) {
-      const float & temp = fhrh_->find(id)->energy();
+      const float temp = fhrh_->find(id)->energy();
       energy += temp*fraction;
       energyHad += temp*fraction;
     } else if( id.det() == DetId::HGCalHSc ) {
-      const float & temp = bhrh_->find(id)->energy();
+      const float temp = bhrh_->find(id)->energy();
       energy += temp*fraction;
       energyHad += temp*fraction;
     } else if( id.det() == DetId::Forward ) {

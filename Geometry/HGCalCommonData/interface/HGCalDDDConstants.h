@@ -35,7 +35,7 @@ public:
   std::array<int,3>   assignCellTrap(float x, float y, float z, int lay, 
 				     bool reco) const;
   double              cellSizeHex(int type) const;
-  double              cellThick(int layer, int waferU, int waferV) const;
+  double              cellThickness(int layer, int waferU, int waferV) const;
   void                etaPhiFromPosition(const double x, const double y,
 					 const double z, const int layer,
 					 int& ieta, int& iphi, int& type,
