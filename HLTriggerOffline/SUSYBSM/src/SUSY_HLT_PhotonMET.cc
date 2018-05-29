@@ -39,7 +39,6 @@ void SUSY_HLT_PhotonMET::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run c
 void SUSY_HLT_PhotonMET::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                                               edm::EventSetup const& context)
 {
-  edm::LogInfo("SUSY_HLT_PhotonMET") << "SUSY_HLT_PhotonMET::beginLuminosityBlock" << std::endl;
 }
 
 void SUSY_HLT_PhotonMET::analyze(edm::Event const& e, edm::EventSetup const& eSetup)

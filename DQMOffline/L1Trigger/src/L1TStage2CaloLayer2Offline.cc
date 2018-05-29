@@ -105,7 +105,6 @@ void L1TStage2CaloLayer2Offline::bookHistograms(DQMStore::IBooker & ibooker_, ed
 void L1TStage2CaloLayer2Offline::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
     edm::EventSetup const& context)
 {
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::beginLuminosityBlock" << std::endl;
 }
 
 //

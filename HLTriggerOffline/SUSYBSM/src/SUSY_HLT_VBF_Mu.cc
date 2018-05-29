@@ -87,7 +87,6 @@ void SUSY_HLT_VBF_Mu::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run cons
 void SUSY_HLT_VBF_Mu::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 				       edm::EventSetup const& context)
 {
-  edm::LogInfo("SUSY_HLT_VBF_Mu") << "SUSY_HLT_VBF_Mu::beginLuminosityBlock" << std::endl;
 }
 
 

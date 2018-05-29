@@ -70,7 +70,6 @@ DTNoiseTask::~DTNoiseTask(){}
 void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
 				       const edm::EventSetup& context) {
 
-   LogVerbatim("DTNoiseTask") <<"[DTNoiseTask]: Begin of LS transition"<<endl;
 
 }
 
