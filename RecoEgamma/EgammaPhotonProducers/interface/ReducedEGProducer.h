@@ -145,7 +145,6 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
- const bool                                   doOotPhotons_;
  const edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
  const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_;
  const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTrackT_;

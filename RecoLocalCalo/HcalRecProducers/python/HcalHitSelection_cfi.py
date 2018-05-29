@@ -12,9 +12,4 @@ reducedHcalRecHits = cms.EDProducer("HcalHitSelection",
                                     )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-_pp_on_AA_interestingDetIds  = cms.VInputTag([cms.InputTag("interestingGedEgammaIsoHCALDetId")])
-
-pp_on_AA_2018.toModify(
-    reducedHcalRecHits,
-    interestingDetIds = _pp_on_AA_interestingDetIds
-    )
+pp_on_AA_2018.toModify(reducedHcalRecHits.interestingDetIds, func = lambda list: list.remove(cms.InputTag("interestingOotEgammaIsoHCALDetId")) )
