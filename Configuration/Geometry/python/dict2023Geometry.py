@@ -282,11 +282,11 @@ caloDict = {
             'Geometry/HcalSimData/data/CaloUtil.xml',
             'Geometry/HGCalSimData/data/hgcsensv8.xml',
             'Geometry/HGCalSimData/data/hgccons.xml',
+            'Geometry/HGCalSimData/data/hgcProdCuts.xml',
         ],
         4 : [
             'Geometry/HcalSimData/data/HcalProdCuts.xml',
             'Geometry/EcalSimData/data/EcalProdCuts.xml',
-            'Geometry/HGCalSimData/data/hgcProdCuts.xml',
         ],
         "sim" : [
             'from Geometry.HcalCommonData.hcalParameters_cfi      import *',
