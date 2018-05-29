@@ -31,7 +31,6 @@ public:
 protected:
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
   void processHit(const TrackingRecHit& recHit, edm::EventSetup const& iSetup, const TrackerGeometry& tkGeom, double wfac=1);
   void processClusters(edm::Event const& iEvent, edm::EventSetup const& iSetup, const TrackerGeometry& tkGeom, double wfac=1);
   void addClusterToMap(uint32_t detid, const SiStripCluster* cluster);
