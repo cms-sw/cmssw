@@ -31,12 +31,12 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     GEMEnable = cms.bool(False), # Use hits from GEMs in track-building
 
     # Era (options: 'Run2_2016', 'Run2_2017', 'Run2_2018')
-    Era = cms.string('Run2_2018'),
+    Era = cms.string('Run2_2017'),
 
     # BX
     MinBX    = cms.int32(-3), # Minimum BX considered
     MaxBX    = cms.int32(+3), # Maximum BX considered
-    BXWindow = cms.int32(2),  # Number of BX whose primitives can be included in the same track
+    BXWindow = cms.int32(3),  # Number of BX whose primitives can be included in the same track
 
     # CSC LCT BX offset correction
     CSCInputBXShift = cms.int32(-6), # Shift applied to input CSC LCT primitives, to center at BX = 0
@@ -86,12 +86,12 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
     # Sector processor track-building parameters
     spTBParams16 = cms.PSet(
         ThetaWindow      = cms.int32(8),    # Maximum dTheta between primitives in the same track
-        ThetaWindowZone0 = cms.int32(4),    # Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+        ThetaWindowZone0 = cms.int32(8),    # Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
         UseSingleHits    = cms.bool(False), # Build "tracks" from single LCTs in ME1/1
         BugSt2PhDiff     = cms.bool(False), # Reduced LCT matching window in station 2, resulting in demoted tracks and inefficiency
         BugME11Dupes     = cms.bool(False), # LCTs matched to track may take theta value from other LCT in the same chamber
-        BugAmbigThetaWin = cms.bool(False), # Can allow dThetas outside window when there are 2 LCTs in the same chamber
-        TwoStationSameBX = cms.bool(True),  # Requires the hits in two-station tracks to have the same BX
+        BugAmbigThetaWin = cms.bool(True), # Can allow dThetas outside window when there are 2 LCTs in the same chamber
+        TwoStationSameBX = cms.bool(False),  # Requires the hits in two-station tracks to have the same BX
     ),
 
     # Sector processor ghost-cancellation parameters
@@ -111,7 +111,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         BugNegPt        = cms.bool(False), # In all modes negative (1/pT) set to 3 instead of 511
         BugGMTPhi       = cms.bool(False), # Some drift in uGMT phi conversion, off by up to a few degrees
         PromoteMode7    = cms.bool(False), # Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
-        ModeQualVer     = cms.int32(2),    # Version 2 contains modified mode-quality mapping for 2018
+        ModeQualVer     = cms.int32(1),    # Version 2 contains modified mode-quality mapping for 2018
     ),
 
 )
