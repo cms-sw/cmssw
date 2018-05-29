@@ -202,7 +202,7 @@ class MuScleFitCorrector
     resolMCParArray_ = 0;
     
     // Read the parameters file
-    ifstream parametersFile(fileName.Data());
+    std::ifstream parametersFile(fileName.Data());
     
     if( !parametersFile.is_open() ) {
       std::cout << "Error: file " << fileName << " not found. Aborting." << std::endl;
