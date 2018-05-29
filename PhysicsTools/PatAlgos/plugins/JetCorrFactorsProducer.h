@@ -50,6 +50,7 @@
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
