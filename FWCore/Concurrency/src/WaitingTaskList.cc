@@ -129,6 +129,21 @@ WaitingTaskList::add(WaitingTask* iTask) {
 }
 
 void
+WaitingTaskList::presetTaskAsFailed(std::exception_ptr iExcept) {
+  if(iExcept and m_waiting) {
+    WaitNode* node = m_head.load();
+    while(node) {
+      WaitNode* next;
+      while(node == (next=node->nextNode())) {
+        hardware_pause();
+      }
+      node->m_task->dependentTaskFailed(iExcept);
+      node = next;
+    }
+  }
+}
+
+void
 WaitingTaskList::announce()
 {
   //Need a temporary storage since one of these tasks could

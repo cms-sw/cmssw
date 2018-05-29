@@ -113,6 +113,13 @@ namespace edm {
       
       // ---------- member functions ---------------------------
       
+      /** Use in the case where you need to inform the parent task of a
+       failure before some other child task which may be run later reports
+       a different, but related failure. You must later call doneWaiting
+       with same exception later in the same thread.
+       */
+      void presetTaskAsFailed(std::exception_ptr iExcept);
+
       ///Adds task to the waiting list
       /**If doneWaiting() has already been called then the added task will immediately be spawned.
        * If that is not the case then the task will be held until doneWaiting() is called and will
