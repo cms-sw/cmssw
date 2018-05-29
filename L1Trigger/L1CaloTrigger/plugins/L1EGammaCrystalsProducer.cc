@@ -703,13 +703,14 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
       
       // Form a l1slhc::L1EGCrystalCluster
-      reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
-      reco::Candidate::PolarLorentzVector p4calibrated(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
+      //reco::Candidate::PolarLorentzVector p4(correctedTotalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
+      reco::Candidate::PolarLorentzVector p4calibrated(calibratedPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
       l1slhc::L1EGCrystalCluster cluster(p4calibrated, calibratedPt, hovereCalibPt, ECalIsolation, centerhit.id, totalPtPUcorr, bremStrength,
             e2x2, e2x5, e3x5, e5x5, standaloneWP, electronWP98, photonWP80, electronWP90, looseL1TkMatchWP, passesStage2Eff);
       // Save pt array
       cluster.SetCrystalPtInfo(crystalPt);
       params["crystalCount"] = crystalPt.size();
+      params["preCalibratedPt"] = correctedTotalPt;
       cluster.SetExperimentalParams(params);
       L1EGXtalClusterNoCuts->push_back(cluster);
 
