@@ -266,6 +266,19 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          << std::endl;
          break;
       }
+      case DDSolidShape::ddellipticaltube:
+      {
+	// <EllipticalTube name="CMSWall"  xSemiAxis="[cavernData:CMSWallEDX]"
+	//                                 ySemiAxis="[cavernData:CMSWallEDY]"
+	//                                 zHeight="[cms:HallZ]"/>
+	DDEllipticalTube rs(solid);
+	xos << "<EllipticalTube name=\"" << rs.toString()  << "\""
+	    << " xSemiAxis=\"" << rs.xSemiAxis() << "*mm\""
+	    << " ySemiAxis=\"" << rs.ySemiAxis() << "*mm\""
+	    << " zHeight=\"" << rs.zHeight() << "*mm\"/>"
+	    << std::endl;
+	break;
+      }
       case DDSolidShape::ddcuttubs: 
       {
          //      <Tubs name="TrackerSupportTubeNomex"         rMin="[SupportTubeR1]+[Tol]" 
@@ -312,7 +325,7 @@ DDCoreToDDXMLOutput::solid( const DDSolid& solid, std::ostream& xos )
          // 			 , solid.shape(), pstrs(""), pstrs(""), pstrs("") );
       case DDSolidShape::dd_not_init:
       default:
-         throw cms::Exception("DDException") << "DDCoreToDDXMLOutput::solid(...) either not inited or no such solid.";
+	throw cms::Exception("DDException") << "DDCoreToDDXMLOutput::solid(...) " << solid.name() << " either not inited or no such solid.";
          break;
    }
 }
