@@ -1,4 +1,4 @@
-#include "CAHitQuadrupletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAHitQuadrupletGenerator.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 
@@ -46,7 +46,10 @@ fitFastCircleChi2Cut(cfg.getParameter<bool>("fitFastCircleChi2Cut")),
 useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
 caThetaCut(cfg.getParameter<double>("CAThetaCut")),
 caPhiCut(cfg.getParameter<double>("CAPhiCut")),
-caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
+caHardPtCut(cfg.getParameter<double>("CAHardPtCut")),
+layerList(cfg.getParameter<std::vector<std::string>>("layerList")),
+isFastSim(cfg.getParameter<bool>("isFastSim")),
+layerPairs(cfg.getParameter<std::vector<unsigned>>("layerPairs"))
 {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
@@ -57,6 +60,9 @@ caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
 }
 
 void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
+  edm::ParameterSetDescription empty;
+  empty.setAllowAnything();
+
   desc.add<double>("extraHitRPhitolerance", 0.1);
   desc.add<bool>("fitFastCircle", false);
   desc.add<bool>("fitFastCircleChi2Cut", false);
@@ -64,6 +70,11 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 10);
   desc.add<double>("CAHardPtCut", 0);
+  desc.add<std::vector<std::string>>("layerList",{});
+  desc.add<edm::ParameterSetDescription>("BPix", empty);
+  desc.add<edm::ParameterSetDescription>("FPix", empty);
+  desc.add<bool>("isFastSim", false);
+  desc.add<std::vector<unsigned>>("layerPairs", std::vector<unsigned>{0});
   desc.addOptional<bool>("CAOnlyOneLastHitPerLayerFilter")->setComment("Deprecated and has no effect. To be fully removed later when the parameter is no longer used in HLT configurations.");
   edm::ParameterSetDescription descMaxChi2;
   descMaxChi2.add<double>("pt1", 0.2);
