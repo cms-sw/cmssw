@@ -35,7 +35,7 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   enum variables {BXRANGEGOOD=1, BXRANGEBAD, NMUONGOOD, NMUONBAD, MUONALL, MUONGOOD, PTBAD, ETABAD, LOCALPHIBAD, SIGNBAD, SIGNVALBAD, QUALBAD, HFBAD, LINKBAD, PROCBAD, TFBAD, TRACKADDRBAD, DXYBAD, PT2BAD};
   enum ratioVariables {RBXRANGE=1, RNMUON, RMUON, RPT, RETA, RLOCALPHI, RSIGN, RSIGNVAL, RQUAL, RHF, RLINK, RPROC, RTF, RTRACKADDR, RDXY, RPT2};
   enum tfs {BMTFBIN=1, OMTFNEGBIN, OMTFPOSBIN, EMTFNEGBIN, EMTFPOSBIN};
-  bool incBin[RPT2+1]; // incBin[RTRACKADDR+1]
+  bool incBin[RPT2+1]; // incBin[RTRACKADDR+1] //
 
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken1;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken2;
