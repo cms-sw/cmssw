@@ -1,15 +1,15 @@
-#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
-#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
+#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITTRIPLETGENERATOR_H
+#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITTRIPLETGENERATOR_H
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
-#include "RecoTracker/TkSeedGenerator/interface/FastCircleFit.h"
+
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "CAGraph.h"
-
+#include "RecoPixelVertexing/PixelTriplets/src/CAGraph.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
@@ -17,8 +17,8 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 
+#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
 class TrackingRegion;
 class SeedingLayerSetsHits;
 
@@ -28,22 +28,21 @@ namespace edm {
     class ParameterSetDescription;
 }
 
-class CAHitQuadrupletGenerator {
+class CAHitTripletGenerator {
 public:
     typedef LayerHitMapCache LayerCacheType;
 
-    static constexpr unsigned int minLayers = 4;
+    static constexpr unsigned int minLayers = 3;
     typedef OrderedHitSeeds ResultType;
-
 public:
 
-    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitQuadrupletGenerator(cfg, iC) {}
-    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitTripletGenerator(cfg, iC) {}
+    CAHitTripletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-    ~CAHitQuadrupletGenerator() = default;
+    ~CAHitTripletGenerator() = default;
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
-    static const char *fillDescriptionsLabel() { return "caHitQuadruplet"; }
+    static const char *fillDescriptionsLabel() { return "caHitTriplet"; }
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
@@ -97,11 +96,11 @@ private:
         pt2_(pset.getParameter<double>("pt2")),
         enabled_(pset.getParameter<bool>("enabled")) {
             if (enabled_ && pt1_ >= pt2_)
-                throw cms::Exception("Configuration") << "PixelQuadrupletGenerator::QuantityDependsPt: pt1 (" << pt1_ << ") needs to be smaller than pt2 (" << pt2_ << ")";
+                throw cms::Exception("Configuration") << "CAHitTripletGenerator::QuantityDependsPt: pt1 (" << pt1_ << ") needs to be smaller than pt2 (" << pt2_ << ")";
             if (pt1_ <= 0)
-                throw cms::Exception("Configuration") << "PixelQuadrupletGenerator::QuantityDependsPt: pt1 needs to be > 0; is " << pt1_;
+                throw cms::Exception("Configuration") << "CAHitTripletGenerator::QuantityDependsPt: pt1 needs to be > 0; is " << pt1_;
             if (pt2_ <= 0)
-                throw cms::Exception("Configuration") << "PixelQuadrupletGenerator::QuantityDependsPt: pt2 needs to be > 0; is " << pt2_;
+                throw cms::Exception("Configuration") << "CAHitTripletGenerator::QuantityDependsPt: pt2 needs to be > 0; is " << pt2_;
         }
 
         QuantityDependsPtEval evaluator(const edm::EventSetup& es) const {
@@ -124,12 +123,20 @@ private:
     const float extraHitRPhitolerance;
 
     const QuantityDependsPt maxChi2;
-    const bool fitFastCircle;
-    const bool fitFastCircleChi2Cut;
     const bool useBendingCorrection;
 
     const float caThetaCut = 0.00125f;
-    const float caPhiCut = 0.1f;
+    const float caPhiCut = 1.f;
     const float caHardPtCut = 0.f;
+    //new parameters required by FastSim seeding to pass to SeedingLayerSetsHits
+    std::vector<std::string> layerList;
+    edm::ParameterSetDescription BPix;
+    edm::ParameterSetDescription FPix;
+    const bool isFastSim;
+    std::vector<unsigned> layerPairs;
 };
+
+
+
+
 #endif
