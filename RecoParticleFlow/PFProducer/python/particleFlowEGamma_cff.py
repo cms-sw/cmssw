@@ -58,5 +58,4 @@ particleFlowEGammaFinal = cms.Sequence(particleBasedIsolationTmp*pfNoPileUpIsoSe
 egmPhotonIsolationCITK*egmElectronIsolationCITK*egmElectronIsolationPileUpCITK*gedPhotonSequence*gedElectronPFIsoSequence)
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-for e in [pp_on_AA_2018]:
-  e.toReplaceWith(particleFlowEGammaFull, particleFlowEGammaFull.copyAndExclude([ootPhotonSequence]))
+pp_on_AA_2018.toReplaceWith(particleFlowEGammaFull, particleFlowEGammaFull.copyAndExclude([ootPhotonSequence]))
