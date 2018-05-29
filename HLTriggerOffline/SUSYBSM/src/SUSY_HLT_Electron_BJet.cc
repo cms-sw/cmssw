@@ -61,10 +61,6 @@ void SUSY_HLT_Electron_BJet::bookHistograms(DQMStore::IBooker & ibooker_, edm::R
     bookHistos(ibooker_);
 }
 
-void SUSY_HLT_Electron_BJet::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                                        edm::EventSetup const& context)
-{
-}
 
 
 
@@ -129,9 +125,6 @@ void SUSY_HLT_Electron_BJet::analyze(edm::Event const& e, edm::EventSetup const&
 }
 
 
-void SUSY_HLT_Electron_BJet::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-}
 
 
 void SUSY_HLT_Electron_BJet::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

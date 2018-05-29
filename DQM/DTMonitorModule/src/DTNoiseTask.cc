@@ -67,11 +67,6 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
 DTNoiseTask::~DTNoiseTask(){}
 
 /// To reset the MEs
-void DTNoiseTask::beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg,
-				       const edm::EventSetup& context) {
-
-
-}
 
 
 

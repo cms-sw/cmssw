@@ -72,10 +72,6 @@ void DQMExample_Step1::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run con
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
 //
-void DQMExample_Step1::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) 
-{
-}
 
 
 //
@@ -301,9 +297,6 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 //
 // -------------------------------------- endLuminosityBlock --------------------------------------------
 //
-void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
-{
-}
 
 
 //

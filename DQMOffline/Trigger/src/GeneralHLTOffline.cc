@@ -613,13 +613,7 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
     std::cout << "hist->Fill" << std::endl;
 }  // End fillHltMatrix
 
-void GeneralHLTOffline::beginLuminosityBlock(edm::LuminosityBlock const&,
-                                             edm::EventSetup const&) {
-}
 
 void
-GeneralHLTOffline::endLuminosityBlock(edm::LuminosityBlock const&,
-                                      edm::EventSetup const&) {
-}
 
 DEFINE_FWK_MODULE(GeneralHLTOffline);

@@ -307,9 +307,6 @@ DummyHarvestingClient::endRun(edm::Run const&, edm::EventSetup const&) {
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void
-DummyHarvestingClient::beginLuminosityBlock(edm::LuminosityBlock const&,
-                                            edm::EventSetup const&) {
-}
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 void

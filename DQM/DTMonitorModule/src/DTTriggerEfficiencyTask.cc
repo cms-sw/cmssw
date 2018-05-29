@@ -116,10 +116,6 @@ void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker,
   }
 }
 
-void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-
-
-}
 
 void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
