@@ -8,10 +8,10 @@
   <Constant name="rMaxCoarse"   value="2000.0*cm"/>
   <Constant name="rMin"         value="0.0*fm"/>
   <Constant name="rMax"         value="10.0*cm"/>
-  <Constant name="widthSilicon" value="100.0*mm"/>
-  <Constant name="widthKapton"  value="100.0*mm"/>
+  <Constant name="widthSilicon" value="150.0*mm"/>
+  <Constant name="widthKapton"  value="150.0*mm"/>
   <Constant name="widthScint1"  value="100.0*mm"/>
-  <Constant name="widthScint2"  value="50.0*mm"/>
+  <Constant name="widthScint2"  value="20.0*mm"/>
   <Constant name="thickKapton"  value="0.050*mm"/>
   <Constant name="thickSilicon" value="0.050*mm"/>
   <Constant name="thickScint1"  value="5.0*mm"/>
