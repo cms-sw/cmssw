@@ -14,9 +14,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include <unordered_map>
 
@@ -112,6 +113,7 @@ public:
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
   // wafer longitudinal thickness classification (1 = 100um, 2 = 200um, 3=300um)
   int                 waferTypeL(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;}
+  int                 waferType(DetId const& id) const;
   int                 waferUVMax() const {return hgpar_->waferUVMax_;}
   double              waferZ(int layer, bool reco) const;
 

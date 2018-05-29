@@ -23,21 +23,13 @@ namespace {
 		       const HGCalGeometry* geom,
 		       const DetId& detid ) {
     const auto& dddConst = geom->topology().dddConstants();
-    int  waferTypeL(-1);
-    bool isHalf = false;
-    if ((dddConst.geomMode() == HGCalGeometryMode::Hexagon8) ||
-	(dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
-      waferTypeL = 1 + HGCSiliconDetId(detid).type();
-    } else if (dddConst.geomMode() == HGCalGeometryMode::Trapezoid) {
-      waferTypeL = 1;
-    } else {
-      int wafer  = HGCalDetId(detid).wafer();
-      waferTypeL = dddConst.waferTypeL(wafer);
-      isHalf     = dddConst.isHalfCell(wafer,HGCalDetId(detid).cell());
-    }
+    bool isHalf = (((dddConst.geomMode() == HGCalGeometryMode::Hexagon) ||
+		    (dddConst.geomMode() == HGCalGeometryMode::HexagonFull)) ?
+		   dddConst.isHalfCell(HGCalDetId(detid).wafer(),HGCalDetId(detid).cell()) :
+		   false);
     //base time samples for each DetId, initialized to 0
     info.size = (isHalf ? 0.5 : 1.0);
-    info.thickness = waferTypeL;
+    info.thickness = dddConst.waferType(detid);
   }
 
   void addCellMetadata(HGCCellInfo& info,

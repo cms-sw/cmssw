@@ -1,5 +1,8 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
@@ -829,6 +832,19 @@ std::pair<double,double> HGCalDDDConstants::waferPosition(int waferU,
     yy *= HGCalParameters::k_ScaleToDDD;
   }
   return std::make_pair(xx,yy);
+}
+
+int HGCalDDDConstants::waferType(DetId const& id) const {
+
+  int type(1);
+  if ((mode_ == HGCalGeometryMode::Hexagon8) ||
+      (mode_ == HGCalGeometryMode::Hexagon8Full)) {
+    type = 1 + HGCSiliconDetId(id).type();
+  } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
+	     (mode_ == HGCalGeometryMode::HexagonFull)) {
+    type = waferTypeL(HGCalDetId(id).wafer());
+  }
+  return type;
 }
 
 double HGCalDDDConstants::waferZ(int lay, bool reco) const {
