@@ -118,7 +118,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   for (const edm::InputTag &tag : photonpfclusterisoinputs) {
     photonFloatValueMapTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
   }  
-  std::cout<<" 1 "<<std::endl;
+
   const std::vector<edm::InputTag>&  ootphotonpfclusterisoinputs = 
     config.getParameter<std::vector<edm::InputTag> >("ootPhotonFloatValueMapSources");
   for (const edm::InputTag &tag : ootphotonpfclusterisoinputs) {
@@ -190,10 +190,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   
   edm::Handle<reco::PhotonCollection> photonHandle;
   theEvent.getByToken(photonT_, photonHandle);
-  std::cout<<" 2 "<<std::endl;
+
   edm::Handle<reco::PhotonCollection> ootPhotonHandle;
   if(doOotPhotons_)theEvent.getByToken(ootPhotonT_, ootPhotonHandle);
-  std::cout<<" 3 "<<std::endl;
+
   edm::Handle<reco::GsfElectronCollection> gsfElectronHandle;
   theEvent.getByToken(gsfElectronT_, gsfElectronHandle);  
 
@@ -238,7 +238,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   for (const auto& photonFloatValueMapT : photonFloatValueMapTs_) {
     theEvent.getByToken(photonFloatValueMapT,photonFloatValueMapHandles[index++]);
   }  
-  std::cout<<" 4 "<<std::endl;
+
   std::vector<edm::Handle<edm::ValueMap<float> > > ootPhotonFloatValueMapHandles(ootPhotonFloatValueMapTs_.size());
   if (doOotPhotons_){ 
     index = 0;
@@ -246,7 +246,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       theEvent.getByToken(ootPhotonFloatValueMapT,ootPhotonFloatValueMapHandles[index++]);
     }  
   }
-  std::cout<<" 5 "<<std::endl;
+
   std::vector<edm::Handle<edm::ValueMap<float> > > gsfElectronFloatValueMapHandles(gsfElectronFloatValueMapTs_.size());
   index = 0;
   for (const auto& gsfElectronFloatValueMapT : gsfElectronFloatValueMapTs_) {
@@ -386,7 +386,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     const reco::ConversionRefVector &singleconvrefs = photon.conversionsOneLeg();
     linkConversions(singleconvrefs, *singleConversions, singleConversionMap);
   }
-  std::cout<<" 7, doOotPhotons_ "<<doOotPhotons_<<std::endl;
+
   //loop over oot photons and fill maps
   //special note1: since not PFCand --> no PF isolation, IDs (but we do have FloatValueMap!)
   //special note2: conversion sequence not run over bcs from oot phos, so skip relinking of oot phos
@@ -395,10 +395,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     index = -1;
     for (const auto& ootPhoton : *ootPhotonHandle) {
       index++;
-      std::cout<<" 8 "<<std::endl;
+
       bool keep = keepOOTPhotonSel_(ootPhoton);
       if (!keep) continue;
-      std::cout<<" 9 "<<std::endl;
+
       reco::PhotonRef ootPhotonref(ootPhotonHandle,index);
       
       ootPhotons->push_back(ootPhoton);
@@ -423,7 +423,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       linkSuperCluster(ootSuperCluster, ootSuperClusterMap, *ootSuperClusters, relink, ootSuperClusterFullRelinkMap);
     }
   }
-  std::cout<<" 10 "<<std::endl;
+
   //loop over electrons and fill maps
   index = -1;
   for (const auto& gsfElectron : *gsfElectronHandle) {
