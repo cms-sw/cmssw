@@ -13,14 +13,14 @@
 class EcalEBClusterTriggerPrimitiveSample {
  public:
   EcalEBClusterTriggerPrimitiveSample();
-  EcalEBClusterTriggerPrimitiveSample(uint32_t data);
+  EcalEBClusterTriggerPrimitiveSample(uint64_t data);
   EcalEBClusterTriggerPrimitiveSample(int encodedEt);
   EcalEBClusterTriggerPrimitiveSample(int encodedEt, bool isASpike);
   EcalEBClusterTriggerPrimitiveSample(int encodedEt, bool isASpike, int timing);
   
 
   ///Set data
-  void setValue(uint32_t data){ theSample = data;}
+  void setValue(uint64_t data){ theSample = data;}
   // The cluster trigger primitive  is a 37 bit word defined as:
 
 
@@ -35,7 +35,7 @@ class EcalEBClusterTriggerPrimitiveSample {
   // I store that stuf once in the the final digi
 
   /// get the raw word
-  uint32_t raw() const { return theSample; }
+  uint64_t raw() const { return theSample; }
 
   /// get the encoded Et (10 bits)
   int encodedEt() const { return theSample&0x3FF; }
@@ -49,10 +49,10 @@ class EcalEBClusterTriggerPrimitiveSample {
 
   
   /// for streaming
-  uint32_t operator()() { return theSample; }
+  uint64_t operator()() { return theSample; }
 
  private:
-  uint32_t theSample;
+  uint64_t theSample;
   
 };
 

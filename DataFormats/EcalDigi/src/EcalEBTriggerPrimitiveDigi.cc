@@ -41,7 +41,7 @@ int EcalEBTriggerPrimitiveDigi::encodedEt() const
 }
  
 
-bool EcalEBTriggerPrimitiveDigi::l1aSpike() const
+int EcalEBTriggerPrimitiveDigi::l1aSpike() const
 {
   int sample = sampleOfInterest();
   if (sample != -1)

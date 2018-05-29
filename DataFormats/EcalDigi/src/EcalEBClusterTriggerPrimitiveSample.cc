@@ -3,7 +3,7 @@
 
 
 EcalEBClusterTriggerPrimitiveSample::EcalEBClusterTriggerPrimitiveSample() : theSample(0) { }
-EcalEBClusterTriggerPrimitiveSample::EcalEBClusterTriggerPrimitiveSample(uint32_t data) : theSample(data) { }
+EcalEBClusterTriggerPrimitiveSample::EcalEBClusterTriggerPrimitiveSample(uint64_t data) : theSample(data) { }
 
 EcalEBClusterTriggerPrimitiveSample::EcalEBClusterTriggerPrimitiveSample(int encodedEt, bool isASpike) { 
   theSample=(encodedEt&0x3FF)| ((isASpike)?(0x400):(0));
