@@ -11,7 +11,9 @@
 
 class StorageAccount {
 public:
-  
+
+  // NOTE: if you add any new items to this enum, additionally add them to
+  // the static `allOperations`, initialized in StorageAccount.cc.  
   enum class Operation {
     check,
     close,
@@ -36,6 +38,7 @@ public:
     writeViaCache,
     writev
   };
+  static const std::array<Operation, 22> allOperations;
   
   struct Counter {
     Counter():
@@ -83,13 +86,49 @@ public:
     std::atomic<double>   timeTotal;
     std::atomic<double>   timeMin;
     std::atomic<double>   timeMax;
-    
-    static void addTo(std::atomic<double>& iAtomic, double iToAdd) {
-      double oldValue = iAtomic.load();
+
+    template<typename T>
+    static void combineAtomics(std::atomic<double> & iAtomic, double iToAdd) {
+      double oldValue = iAtomic;
       double newValue = oldValue + iToAdd;
       while( not iAtomic.compare_exchange_weak(oldValue, newValue)) {
-        newValue = oldValue+iToAdd;
+        newValue = T()(oldValue, iToAdd);
       }
+    }
+
+    static void addTo(std::atomic<double> &lhs, double rhs) {
+      combineAtomics<std::plus<double>>(lhs, rhs);
+    }
+
+    struct minObj {
+      double operator()(double a, double b) {return a+b;}
+    };
+    static void minTo(std::atomic<double> &lhs, double rhs) {
+      combineAtomics<minObj>(lhs, rhs);
+    }
+
+    struct maxObj {
+      double operator()(double a, double b) {return a+b;}
+    };
+    static void maxTo(std::atomic<double> &lhs, double rhs) {
+      combineAtomics<maxObj>(lhs, rhs);
+    }
+
+    // Combine the contents of `this` with another counter; returns a reference
+    // to this object.
+    // NOTE: I was tempted to call this "operator+=", but timeMin/timeMax
+    // aren't actually added...
+    Counter & aggregate(const Counter &other) {
+      attempts += other.attempts;
+      successes += other.successes;
+      amount += other.amount;
+      addTo(amount_square, other.amount_square);
+      vector_count += other.vector_count;
+      vector_square += other.vector_square;
+      addTo(timeTotal, other.timeTotal);
+      minTo(timeMin, other.timeMin);
+      maxTo(timeMax, other.timeMax);
+      return *this;
     }
   };
 
@@ -116,13 +155,63 @@ public:
     int m_value;
     
   };
-  
+
+  enum class OpenLabel {
+    Aggregate,
+    Primary,
+    SecondaryFile,
+    SecondarySource
+  };
+
+  /**
+   * The `OpenLabelToken` provides callers of TFile::Open the ability to
+   * retrieve a separate set of statistics in the FrameworkJobReport (and
+   * other statistics services) for IO.  Usage looks like this:
+   *
+   * ```cpp
+   * TFile *file = nullptr;
+   * {
+   *   OpenLabelToken label = StorageAccount::setLabel("MixingModule");
+   *   file = TFile::Open("url://foo/bar");
+   * }
+   * ```
+   *
+   * Any IO activity associated with `file` above will get a separate
+   * aggregation in CMSSW statistics.  This allows, for example, bytes
+   * read from the mixing module to be differentiated from the primary source.
+   */
+  class OpenLabelToken {
+  friend class StorageAccount;
+
+  public:
+    OpenLabelToken(OpenLabelToken const&) = delete;
+    OpenLabelToken(OpenLabelToken &&) = default;
+    ~OpenLabelToken() {s_label = m_original_label;}
+
+  private:
+    OpenLabelToken(OpenLabel label) {
+      m_original_label = s_label;
+      s_label = label;
+    }
+
+    static const OpenLabel &getContextLabel() {return s_label;}
+
+    static thread_local OpenLabel s_label;
+    OpenLabel m_original_label;
+  };
+
+  static OpenLabelToken setContextLabel(OpenLabel label) {return OpenLabelToken(label);}
+  static const OpenLabel getContextLabel() {return OpenLabelToken::getContextLabel();}
+
   typedef tbb::concurrent_unordered_map<int, Counter> OperationStats;
   typedef tbb::concurrent_unordered_map<int, OperationStats > StorageStats;
 
   static char const* operationName(Operation operation);
-  static StorageClassToken tokenForStorageClassName( std::string const& iName);
-  static const std::string& nameForToken( StorageClassToken);
+  static StorageClassToken tokenForStorageClassNameUsingContext(std::string const& iName) {
+    return tokenForStorageClassName(iName, getContextLabel());
+  }
+  static StorageClassToken tokenForStorageClassName(std::string const& iName, OpenLabel iLabel);
+  static const std::pair<OpenLabel, std::string>& nameForToken( StorageClassToken);
   
   static const StorageStats& summary(void);
   static std::string         summaryText(bool banner=false);
@@ -131,6 +220,8 @@ public:
                                       Operation operation);
 
 private:
+  static void aggregateStatistics();
+
   static StorageStats m_stats;
 
 };

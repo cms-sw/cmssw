@@ -54,6 +54,7 @@ namespace edm {
             void firstUpdate();
             void lastUpdate();
             void updateImpl(time_t secsSinceLastUpdate);
+            void updateStorageImpl(const StorageAccount::StorageStats &);
 
             void preSourceConstruction(ModuleDescription const &md, int maxEvents, int maxLumis, int maxSecondsUntilRampdown);
             void eventPost(StreamContext const& iContext);
@@ -355,6 +356,24 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
 
     // Update storage account information
     auto const& stats = StorageAccount::summary();
+    updateStorageImpl(stats);
+    {
+      // Given there is some cost to reporting empty numbers, only push forward the secondary source info
+      // if one file was actually opened via such a source.
+      const auto token = StorageAccount::tokenForStorageClassName("tstoragefile", StorageAccount::OpenLabel::SecondarySource);
+      auto operations = stats.find(token.value());
+      if (operations != stats.end()) {
+        const StorageAccount::Counter &counts = operations->second[static_cast<int>(StorageAccount::Operation::open)];
+        if (counts.amount.load()) {
+          updateStorageImpl(stats);
+        }
+      }
+    }
+}
+
+void
+CondorStatusService::updateStorageImpl(const StorageAccount::StorageStats &stats)
+{
     uint64_t readOps = 0;
     uint64_t readVOps = 0;
     uint64_t readSegs = 0;
@@ -362,7 +381,8 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     uint64_t readTimeTotal = 0;
     uint64_t writeBytes = 0;
     uint64_t writeTimeTotal = 0;
-    const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+      // Depending where it is invoked from updateImpl, the context may be different...
+    const auto token = StorageAccount::tokenForStorageClassNameUsingContext("tstoragefile");
     for (const auto & storage : stats)
     {
         // StorageAccount records statistics for both the TFile layer and the
@@ -393,13 +413,18 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
             }
         }
     }
-    updateChirp("ReadOps", readOps);
-    updateChirp("ReadVOps", readVOps);
-    updateChirp("ReadSegments", readSegs);
-    updateChirp("ReadBytes", readBytes);
-    updateChirp("ReadTimeMsecs", readTimeTotal/(1000*1000));
-    updateChirp("WriteBytes", writeBytes);
-    updateChirp("WriteTimeMsecs", writeTimeTotal/(1000*1000));
+    StorageAccount::OpenLabel olabel = StorageAccount::getContextLabel();
+    std::string label;
+    if (olabel == StorageAccount::OpenLabel::SecondarySource) {
+      label = "Secondary";
+    }
+    updateChirp(label + "ReadOps", readOps);
+    updateChirp(label + "ReadVOps", readVOps);
+    updateChirp(label + "ReadSegments", readSegs);
+    updateChirp(label + "ReadBytes", readBytes);
+    updateChirp(label + "ReadTimeMsecs", readTimeTotal/(1000*1000));
+    updateChirp(label + "WriteBytes", writeBytes);
+    updateChirp(label + "WriteTimeMsecs", writeTimeTotal/(1000*1000));
 }
 
 
