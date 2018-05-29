@@ -41,7 +41,7 @@ namespace {
 
   inline const HcalDDDRecConstants* get_ddd(const CaloSubdetectorGeometry* geom,
 					    const HcalDetId& detid) {
-    const HcalGeometry* hc = dynamic_cast<const HcalGeometry*>(geom);
+    const HcalGeometry* hc = static_cast<const HcalGeometry*>(geom);
     const HcalDDDRecConstants* ddd = hc->topology().dddConstants();
     check_ddd(ddd);
     return ddd;
@@ -49,7 +49,7 @@ namespace {
 
   inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom,
 					  const HGCalDetId& detid) {
-    const HGCalGeometry* hg = dynamic_cast<const HGCalGeometry*>(geom);
+    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
     return ddd;
@@ -57,7 +57,7 @@ namespace {
 
   inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom,
 					  const HGCSiliconDetId& detid) {
-    const HGCalGeometry* hg = dynamic_cast<const HGCalGeometry*>(geom);
+    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
     return ddd;
@@ -65,7 +65,7 @@ namespace {
 
   inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom,
 					  const HGCScintillatorDetId& detid) {
-    const HGCalGeometry* hg = dynamic_cast<const HGCalGeometry*>(geom);
+    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
     return ddd;
@@ -84,17 +84,17 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   geom_ = geom.product();
   unsigned int wmaxEE(0), wmaxFH(0);
   if (mode_ == 0) {
-    auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = 1 + (geomEE->topology().dddConstants()).waferMax();
-    auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
     bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
     wmaxFH    = 1 + (geomFH->topology().dddConstants()).waferMax();
   } else {
-    auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = (geomEE->topology().dddConstants()).waferCount(0);
-    auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
     bhOffset_ = fhOffset_;
     wmaxFH    = (geomFH->topology().dddConstants()).waferCount(0);
   }
@@ -108,7 +108,7 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   if (id.det() == DetId::Hcal) {
     position = geom->getGeometry(id)->getPosition();
   } else {
-    auto hg = dynamic_cast<const HGCalGeometry*>(geom);
+    auto hg = static_cast<const HGCalGeometry*>(geom);
     position = hg->getPosition(id);
   }
   return position;
@@ -174,26 +174,26 @@ unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
   int layer;
   switch (type) {
     case(ForwardSubdetector::HGCEE): {
-      auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
       layer       = (geomEE->topology().dddConstants()).layers(true);
       break;
     }
     case (ForwardSubdetector::HGCHEF): {
-      auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
       layer       = (geomFH->topology().dddConstants()).layers(true);
       break;
     }
     case (ForwardSubdetector::HGCHEB): {
-      auto geomBH = dynamic_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
       layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
       break;
     }
     case (ForwardSubdetector::ForwardEmpty): {
-      auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
       layer       = (geomEE->topology().dddConstants()).layers(true);
-      auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
       layer      += (geomFH->topology().dddConstants()).layers(true);
-      auto geomBH = dynamic_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
       layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
       break;
     }
@@ -207,24 +207,24 @@ unsigned int RecHitTools::getLayer(const DetId::Detector type) const {
   int layer;
   switch (type) {
   case(DetId::HGCalEE): {
-    auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(type,ForwardSubdetector::ForwardEmpty));
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(type,ForwardSubdetector::ForwardEmpty));
     layer       = (geomEE->topology().dddConstants()).layers(true);
     break;
   }
   case (DetId::HGCalHSi): {
-    auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(type,ForwardSubdetector::ForwardEmpty));
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(type,ForwardSubdetector::ForwardEmpty));
     layer       = (geomFH->topology().dddConstants()).layers(true);
     break;
   }
   case (DetId::HGCalHSc): {
-    auto geomBH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(type,ForwardSubdetector::ForwardEmpty));
+    auto geomBH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(type,ForwardSubdetector::ForwardEmpty));
     layer       = (geomBH->topology().dddConstants()).layers(true);
     break;
     }
   case (DetId::Forward): {
-    auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
     layer       = (geomEE->topology().dddConstants()).layers(true);
-    auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
     layer      += (geomFH->topology().dddConstants()).layers(true);
     break;
   }

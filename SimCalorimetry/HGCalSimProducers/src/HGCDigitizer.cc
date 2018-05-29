@@ -104,19 +104,15 @@ namespace {
   float getCCE(const HGCalGeometry* geom,
 	       const DetId& detid,
 	       const std::vector<float>&cces) {
-    if( cces.empty() ) return 1.f;
-    const auto& topo     = geom->topology();
-    const auto& dddConst = topo.dddConstants();
-    int waferTypeL(1);
-    if ((dddConst.geomMode() == HGCalGeometryMode::Hexagon8) ||
-        (dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
-      waferTypeL = 1 + HGCSiliconDetId(detid).type();
-    } else if (dddConst.geomMode() == HGCalGeometryMode::Trapezoid) {
+    if ( cces.empty() ) return 1.f;
+    if ((detid.det() == DetId::Hcal) || (detid.det() == DetId::HGCalHSc)) {
       return 1.f;
     } else {
-      waferTypeL = dddConst.waferTypeL(HGCalDetId(detid).wafer());
+      const auto& topo     = geom->topology();
+      const auto& dddConst = topo.dddConstants();
+      int waferTypeL = dddConst.waferType(detid);
+      return cces[waferTypeL-1];
     }
-    return cces[waferTypeL-1];
   }
 
   float getCCE(const HcalGeometry* geom,
