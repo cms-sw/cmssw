@@ -77,7 +77,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   summary->setBinLabel(TRACKADDRBAD, "track address mismatch", 1);
   if(kalman){
     ibooker.setCurrentFolder(monitorDir);
-    summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), 19, 1, 20); // range to match bin numbering
+    summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), 19, 1, 20); // range to match bin numbering // FIX
     summary->setBinLabel(DXYBAD, "DXY mismatch", 1);
     summary->setBinLabel(PT2BAD, "P_{T}2 mismatch", 1);
   }
