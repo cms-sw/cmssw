@@ -91,16 +91,6 @@ from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_
 lowPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "lowPtTripletStepHitTriplets",
 )
-import FastSimulation.Tracking.TrajectorySeedProducer_cfi
-_fastSim_lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = lowPtTripletStepSeedLayers.layerList.value(),
-    trackingRegions = "lowPtTripletStepTrackingRegions",
-    hitMasks = cms.InputTag("lowPtTripletStepMasks"),
-)
-from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
-_fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets)
-_fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
-fastSim.toReplaceWith(lowPtTripletStepSeeds,_fastSim_lowPtTripletStepSeeds)
 
 from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
 trackingPhase1.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
@@ -115,7 +105,20 @@ trackingPhase1.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProduce
     useBendingCorrection = True,
     CAThetaCut = 0.002,
     CAPhiCut = 0.05,
+    #new parameters required by FastSim phase1 tracking
+    layerList = lowPtTripletStepSeedLayers.layerList.value(),
+    BPix = cms.PSet(
+        TTRHBuilder = cms.string('WithoutRefit'),
+        HitProducer = cms.string('TrackingRecHitProducer'),
+        ),
+    FPix = cms.PSet(
+        TTRHBuilder = cms.string('WithoutRefit'),
+        HitProducer = cms.string('TrackingRecHitProducer'),
+        ),
+    layerPairs = lowPtTripletStepHitDoublets.layerPairs.value(),
 ))
+(trackingPhase1 & fastSim).toModify(lowPtTripletStepHitTriplets, isFastSim = True)
+
 
 trackingPhase2PU140.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
 trackingPhase2PU140.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProducer.clone(
@@ -131,7 +134,22 @@ trackingPhase2PU140.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDPr
     CAPhiCut = 0.05,
 ))
  
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+_fastSim_lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    layerList = lowPtTripletStepSeedLayers.layerList.value(),
+    trackingRegions = "lowPtTripletStepTrackingRegions",
+    hitMasks = cms.InputTag("lowPtTripletStepMasks"),
+)
 
+from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
+_fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets)
+_fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
+#new for phase1
+trackingPhase1.toModify(_fastSim_lowPtTripletStepSeeds, seedFinderSelector = dict(
+        pixelTripletGeneratorFactory = None,
+        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))))
+)
+fastSim.toReplaceWith(lowPtTripletStepSeeds,_fastSim_lowPtTripletStepSeeds)
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff

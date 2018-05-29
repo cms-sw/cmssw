@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
 
 ###############################################
 # Low pT and detached tracks from pixel quadruplets
@@ -67,7 +68,20 @@ detachedQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
     CAThetaCut = 0.0011,
     CAPhiCut = 0,
+    #new parameters required by FastSim phase1 tracking
+    layerList = detachedQuadStepSeedLayers.layerList.value(),
+    BPix = cms.PSet(
+        TTRHBuilder = cms.string('WithoutRefit'),
+        HitProducer = cms.string('TrackingRecHitProducer'),
+        ),
+    FPix = cms.PSet(
+        TTRHBuilder = cms.string('WithoutRefit'),
+        HitProducer = cms.string('TrackingRecHitProducer'),
+        ),
+    layerPairs = detachedQuadStepHitDoublets.layerPairs.value(),
 )
+fastSim.toModify(detachedQuadStepHitQuadruplets, isFastSim = True)
+
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
 detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
     seedingHitSets = "detachedQuadStepHitQuadruplets",
@@ -81,6 +95,17 @@ detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduc
     ),
 )
 
+#For FastSim phase1 tracking
+import FastSimulation.Tracking.TrajectorySeedProducer_cfi
+from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
+_fastSim_detachedQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
+    layerList = detachedQuadStepSeedLayers.layerList.value(),
+    trackingRegions = "detachedQuadStepTrackingRegions",
+    hitMasks = cms.InputTag("detachedQuadStepMasks"),
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets))
+)
+_fastSim_detachedQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
+fastSim.toReplaceWith(detachedQuadStepSeeds,_fastSim_detachedQuadStepSeeds)
 
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1QuadProp.toModify(detachedQuadStepHitDoublets, layerPairs = [0])
@@ -189,6 +214,14 @@ trackingPhase2PU140.toModify(detachedQuadStepTrackCandidates,
     phase2clustersToSkip = cms.InputTag("detachedQuadStepClusters")
 )
 
+#For FastSim phase1 tracking 
+import FastSimulation.Tracking.TrackCandidateProducer_cfi
+_fastSim_detachedQuadStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+    src = cms.InputTag("detachedQuadStepSeeds"),
+    MinNumberOfCrossedLayers = 4,
+    hitMasks = cms.InputTag("detachedQuadStepMasks")
+    )
+fastSim.toReplaceWith(detachedQuadStepTrackCandidates,_fastSim_detachedQuadStepTrackCandidates)
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
@@ -197,6 +230,7 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     src = 'detachedQuadStepTrackCandidates',
     Fitter = 'FlexibleKFFittingSmoother',
 )
+fastSim.toModify(detachedQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
@@ -205,7 +239,7 @@ detachedQuadStep = TrackMVAClassifierDetached.clone(
     mva = dict(GBRForestLabel = 'MVASelectorDetachedQuadStep_Phase1'),
     qualityCuts = [-0.5,0.0,0.5],
 )
-
+fastSim.toModify(detachedQuadStep,vertices = "firstStepPrimaryVerticesBeforeMixing")
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -318,3 +352,15 @@ trackingPhase1QuadProp.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase1P
 _DetachedQuadStep_Phase2PU140 = DetachedQuadStep.copy()
 _DetachedQuadStep_Phase2PU140.replace(detachedQuadStep, detachedQuadStepSelector+detachedQuadStep)
 trackingPhase2PU140.toReplaceWith(DetachedQuadStep, _DetachedQuadStep_Phase2PU140)
+
+#fastsim
+from FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi import maskProducerFromClusterRemover
+detachedQuadStepMasks = maskProducerFromClusterRemover(detachedQuadStepClusters)
+fastSim.toReplaceWith(DetachedQuadStep,
+                      cms.Sequence(detachedQuadStepMasks
+                                   *detachedQuadStepTrackingRegions
+                                   *detachedQuadStepSeeds
+                                   *detachedQuadStepTrackCandidates
+                                   *detachedQuadStepTracks
+                                   *detachedQuadStep
+                                   ) )
