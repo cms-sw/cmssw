@@ -245,9 +245,6 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   ibooker.cd();
 }
 
-void LepHTMonitor::beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                                 const edm::EventSetup &context) {
-}
 
 void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::analyze\n";
@@ -469,9 +466,6 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
   }
 }
 
-void LepHTMonitor::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                               const edm::EventSetup &eSetup) {
-}
 
 void LepHTMonitor::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::endRun\n";

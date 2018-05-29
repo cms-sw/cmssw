@@ -175,9 +175,6 @@ void ZCounting::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, e
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
 //
-void ZCounting::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) 
-{
-}
 
 
 //
@@ -658,9 +655,6 @@ bool ZCounting::ele_tag_selection(double pt, double abseta){
 //
 // -------------------------------------- endLuminosityBlock --------------------------------------------
 //
-void ZCounting::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-}
 
 //
 // -------------------------------------- functions --------------------------------------------

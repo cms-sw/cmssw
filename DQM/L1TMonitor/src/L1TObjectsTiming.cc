@@ -83,7 +83,6 @@ void L1TObjectsTiming::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) 
   }
 }
 
-void L1TObjectsTiming::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
 

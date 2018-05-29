@@ -100,9 +100,6 @@ void L1TEGammaOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
 //
-void L1TEGammaOffline::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)
-{
-}
 
 //
 // -------------------------------------- Analyze --------------------------------------------
@@ -544,9 +541,6 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
 //
 // -------------------------------------- endLuminosityBlock --------------------------------------------
 //
-void L1TEGammaOffline::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-}
 
 //
 // -------------------------------------- endRun --------------------------------------------

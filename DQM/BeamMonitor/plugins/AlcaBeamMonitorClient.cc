@@ -106,8 +106,6 @@ void AlcaBeamMonitorClient::beginRun(const edm::Run& r,
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitorClient::beginLuminosityBlock(const LuminosityBlock& iLumi,
-                                                 const EventSetup& iSetup) {}
 
 //----------------------------------------------------------------------------------------------------------------------
 void AlcaBeamMonitorClient::analyze(const Event& iEvent,

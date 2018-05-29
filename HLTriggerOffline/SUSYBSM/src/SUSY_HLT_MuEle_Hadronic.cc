@@ -67,10 +67,6 @@ void SUSY_HLT_MuEle_Hadronic::bookHistograms(DQMStore::IBooker & ibooker_, edm::
     bookHistos(ibooker_);
 }
 
-void SUSY_HLT_MuEle_Hadronic::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                                        edm::EventSetup const& context)
-{
-}
 
 
 
@@ -262,9 +258,6 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
 }
 
 
-void SUSY_HLT_MuEle_Hadronic::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-}
 
 
 void SUSY_HLT_MuEle_Hadronic::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

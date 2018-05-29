@@ -656,9 +656,6 @@ void DQMStoreStats::beginRun(const edm::Run& r, const EventSetup& context) {
 //==================================================================//
 //==================== beginLuminosityBlock ========================//
 //==================================================================//
-void DQMStoreStats::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
-                                            const EventSetup& context) {
-}
 
 
 //==================================================================//

@@ -102,10 +102,6 @@ void L1TStage2CaloLayer2Offline::bookHistograms(DQMStore::IBooker & ibooker_, ed
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
 //
-void L1TStage2CaloLayer2Offline::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-    edm::EventSetup const& context)
-{
-}
 
 //
 // -------------------------------------- Analyze --------------------------------------------
@@ -477,9 +473,6 @@ void L1TStage2CaloLayer2Offline::fillJetEfficiencies(const double &recoEt,
 //
 // -------------------------------------- endLuminosityBlock --------------------------------------------
 //
-void L1TStage2CaloLayer2Offline::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-}
 
 //
 // -------------------------------------- endRun --------------------------------------------

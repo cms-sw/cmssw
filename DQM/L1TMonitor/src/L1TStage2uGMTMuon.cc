@@ -24,7 +24,6 @@ void L1TStage2uGMTMuon::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
 void L1TStage2uGMTMuon::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
 
-void L1TStage2uGMTMuon::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
 
