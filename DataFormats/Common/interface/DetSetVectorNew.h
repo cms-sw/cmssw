@@ -57,10 +57,23 @@ namespace edmNew {
 
       DetSetVectorTrans(): m_filling(false), m_dataSize(0){}
       DetSetVectorTrans& operator=(const DetSetVectorTrans&) = delete;
-      DetSetVectorTrans(const DetSetVectorTrans&) = delete;
-      DetSetVectorTrans(DetSetVectorTrans&& rh) { // can't be default because of atomics
+
+      DetSetVectorTrans(const DetSetVectorTrans& rh): // can't be default because of atomics
+        m_filling(false) {
         // better no one is filling...
-        assert(m_filling==false); assert(rh.m_filling==false);
+        assert(rh.m_filling==false);
+        m_getter = rh.m_getter;
+#ifdef DSVN_USE_ATOMIC
+        m_dataSize.store(rh.m_dataSize.load());
+#else
+        m_dataSize = rh.m_dataSize;
+#endif
+      }
+
+      DetSetVectorTrans(DetSetVectorTrans&& rh): // can't be default because of atomics
+        m_filling(false) {
+        // better no one is filling...
+        assert(rh.m_filling==false);
         m_getter = std::move(rh.m_getter);
 #ifdef DSVN_USE_ATOMIC
         m_dataSize.store(rh.m_dataSize.exchange(m_dataSize.load()));
@@ -429,7 +442,11 @@ namespace edmNew {
 
     // default or delete is the same...
     DetSetVector& operator=(const DetSetVector&) = delete;
-    DetSetVector(const DetSetVector&) = delete;
+    // Implement copy constructor because of a (possibly temporary)
+    // need in heterogeneous framework prototyping. In general this
+    // class is still supposed to be non-copyable, so to prevent
+    // accidental copying the assignment operator is left deleted.
+    DetSetVector(const DetSetVector&) = default;
     DetSetVector(DetSetVector&&) = default;
     DetSetVector& operator=(DetSetVector&&) = default;
 
