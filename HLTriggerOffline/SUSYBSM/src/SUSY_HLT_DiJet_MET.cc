@@ -226,7 +226,6 @@ void SUSY_HLT_DiJet_MET::analyze(edm::Event const& e, edm::EventSetup const& eSe
 
 void SUSY_HLT_DiJet_MET::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("SUSY_HLT_DiJet_MET") << "SUSY_HLT_DiJet_MET::endLuminosityBlock" << std::endl;
 }
 
 

@@ -660,7 +660,6 @@ bool ZCounting::ele_tag_selection(double pt, double abseta){
 //
 void ZCounting::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("ZCounting") <<  "ZCounting::endLuminosityBlock" << std::endl;
 }
 
 //

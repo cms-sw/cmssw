@@ -219,7 +219,6 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup c
 
 void SUSY_HLT_DoubleEle_Hadronic::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-    edm::LogInfo("SUSY_HLT_DoubleEle_Hadronic") << "SUSY_HLT_DoubleEle_Hadronic::endLuminosityBlock" << std::endl;
 }
 
 

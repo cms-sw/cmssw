@@ -163,7 +163,6 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
 
 void SUSY_HLT_InclusiveHT::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::endLuminosityBlock" << std::endl;
 }
 
 

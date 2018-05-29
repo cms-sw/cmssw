@@ -303,7 +303,6 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 //
 void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
 {
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
 }
 
 

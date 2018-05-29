@@ -131,7 +131,6 @@ void SUSY_HLT_Electron_BJet::analyze(edm::Event const& e, edm::EventSetup const&
 
 void SUSY_HLT_Electron_BJet::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-    edm::LogInfo("SUSY_HLT_Electron_BJet") << "SUSY_HLT_Electron_BJet::endLuminosityBlock" << std::endl;
 }
 
 

@@ -114,7 +114,6 @@ void SUSY_HLT_MuonFakes::analyze(edm::Event const& e, edm::EventSetup const& eSe
 
 void SUSY_HLT_MuonFakes::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("SUSY_HLT_MuonFakes") << "SUSY_HLT_MuonFakes::endLuminosityBlock" << std::endl;
 }
 
 

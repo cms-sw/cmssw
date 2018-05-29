@@ -133,7 +133,6 @@ void SUSY_HLT_PhotonHT::analyze(edm::Event const& e, edm::EventSetup const& eSet
 
 void SUSY_HLT_PhotonHT::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("SUSY_HLT_PhotonHT") << "SUSY_HLT_PhotonHT::endLuminosityBlock" << std::endl;
 }
 
 

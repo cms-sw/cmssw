@@ -471,8 +471,6 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
 
 void LepHTMonitor::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
                                                const edm::EventSetup &eSetup) {
-  edm::LogInfo("LepHTMonitor")
-    << "LepHTMonitor::endLuminosityBlock\n";
 }
 
 void LepHTMonitor::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {

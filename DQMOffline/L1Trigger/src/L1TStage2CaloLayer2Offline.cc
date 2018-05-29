@@ -479,7 +479,6 @@ void L1TStage2CaloLayer2Offline::fillJetEfficiencies(const double &recoEt,
 //
 void L1TStage2CaloLayer2Offline::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::endLuminosityBlock" << std::endl;
 }
 
 //
