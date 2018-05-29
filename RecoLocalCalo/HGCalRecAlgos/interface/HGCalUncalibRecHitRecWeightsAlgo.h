@@ -89,17 +89,7 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
 						 << ' ' << adcLSB_ << ' ' << std::endl;
     }
     
-    int thickness = 1;
-    if( ddd_ != nullptr ) {
-      if ((ddd_->geomMode() == HGCalGeometryMode::Hexagon8) ||
-	  (ddd_->geomMode() == HGCalGeometryMode::Hexagon8Full)) {
-	thickness = 1 + HGCSiliconDetId(dataFrame.id()).type();
-      } else if (ddd_->geomMode() == HGCalGeometryMode::Trapezoid) {
-	thickness = 1;
-      } else {
-	thickness = ddd_->waferTypeL(HGCalDetId(dataFrame.id()).wafer());
-      }
-    }    
+    int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id()) : 1;
     amplitude_ = amplitude_/fCPerMIP_[thickness-1];
 
     LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;

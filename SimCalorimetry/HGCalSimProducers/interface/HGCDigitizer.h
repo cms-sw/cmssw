@@ -82,7 +82,10 @@ public:
   void endRun();
 
 private :
-  
+
+  uint32_t getType() const;
+  bool     getWeight(std::array<float,3>& tdcForToAOnset, float& keV2fC) const;
+
   //input/output names
   std::string hitCollection_,digiCollection_;
 

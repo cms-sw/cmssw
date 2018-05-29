@@ -38,16 +38,7 @@ namespace {
 
   int getCellThickness(const HGCalGeometry* geom, const DetId& detid ) {
     const auto& dddConst = geom->topology().dddConstants();
-    int waferTypeL(-1);
-    if ((dddConst.geomMode() == HGCalGeometryMode::Hexagon8) ||
-        (dddConst.geomMode() == HGCalGeometryMode::Hexagon8Full)) {
-      waferTypeL = 1 + HGCSiliconDetId(detid).type();
-    } else if (dddConst.geomMode() == HGCalGeometryMode::Trapezoid) {
-      waferTypeL = 1;
-    } else {
-      waferTypeL = dddConst.waferTypeL(HGCalDetId(detid).wafer());
-    }
-    return waferTypeL;
+    return dddConst.waferType(detid);
   }
 
   int getCellThickness(const HcalGeometry* geom, const DetId& detid ) {
@@ -221,7 +212,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
     cce_.clear();
     const auto& temp = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").getParameter<std::vector<double>>("values");
     for( double cce : temp ) {
-      cce_.push_back(cce);
+      cce_.emplace_back(cce);
     }
   } else {
     std::vector<float>().swap(cce_);
@@ -265,36 +256,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
 void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es)
 {
   // reserve memory for a full detector
-  unsigned idx = std::numeric_limits<unsigned>::max();
-  if (geometryType_ == 0) {
-    switch(mySubDet_) {
-    case ForwardSubdetector::HGCEE:
-      idx = 0;
-      break;
-    case ForwardSubdetector::HGCHEF:
-      idx = 1;
-      break;
-    case ForwardSubdetector::HGCHEB:
-      idx = 2;
-      break;
-    default:
-      break;
-    }
-  } else {
-    switch(myDet_) {
-    case DetId::HGCalEE:
-      idx = 0;
-      break;
-    case DetId::HGCalHSi:
-      idx = 1;
-      break;
-    case DetId::HGCalHSc:
-      idx = 2;
-      break;
-    default:
-      break;
-    }
-  }
+  unsigned idx = getType();
   simHitAccumulator_->reserve( averageOccupancies_[idx]*validIds_.size() );
 }
 
@@ -308,36 +270,7 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
 					     static_cast<const CaloSubdetectorGeometry*>(gHGCal_)  );
 
   ++nEvents_;
-  unsigned idx = std::numeric_limits<unsigned>::max();
-  if (geometryType_ == 0) {
-    switch(mySubDet_) {
-    case ForwardSubdetector::HGCEE:
-      idx = 0;
-      break;
-    case ForwardSubdetector::HGCHEF:
-      idx = 1;
-      break;
-    case ForwardSubdetector::HGCHEB:
-      idx = 2;
-      break;
-    default:
-      break;
-    }
-  } else {
-    switch(myDet_) {
-    case DetId::HGCalEE:
-      idx = 0;
-      break;
-    case DetId::HGCalHSi:
-      idx = 1;
-      break;
-    case DetId::HGCalHSc:
-      idx = 2;
-      break;
-    default:
-      break;
-    }
-  }
+  unsigned idx = getType();
   // release memory for unfilled parts of hash table
   if( validIds_.size()*averageOccupancies_[idx] > simHitAccumulator_->size() ) {
     simHitAccumulator_->reserve(simHitAccumulator_->size());
@@ -541,7 +474,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     bool orderChanged = false;
     if(itime == 9){
       if(hitRefs_bx0[id].empty()){
-	hitRefs_bx0[id].push_back(std::make_pair(charge, tof));
+	hitRefs_bx0[id].emplace_back(charge, tof);
       }
       else if(tof <= hitRefs_bx0[id].back().second){
 	std::vector<std::pair<float, float> >::iterator findPos =
@@ -565,7 +498,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
       }
       else{
         if(hitRefs_bx0[id].back().first <= tdcForToAOnset[waferThickness-1]){
-          hitRefs_bx0[id].push_back(std::make_pair(hitRefs_bx0[id].back().first+charge, tof));
+          hitRefs_bx0[id].emplace_back(hitRefs_bx0[id].back().first+charge, tof);
         }
       }
     }
@@ -685,6 +618,91 @@ void HGCDigitizer::resetSimHitDataAccumulator()
       it->second.hit_info[0].fill(0.);
       it->second.hit_info[1].fill(0.);
     }
+}
+
+uint32_t HGCDigitizer::getType() const {
+
+  uint32_t idx = std::numeric_limits<unsigned>::max();
+  if (geometryType_ == 0) {
+    switch(mySubDet_) {
+    case ForwardSubdetector::HGCEE:
+      idx = 0;
+      break;
+    case ForwardSubdetector::HGCHEF:
+      idx = 1;
+      break;
+    case ForwardSubdetector::HGCHEB:
+      idx = 2;
+      break;
+    default:
+      break;
+    }
+  } else {
+    switch(myDet_) {
+    case DetId::HGCalEE:
+      idx = 0;
+      break;
+    case DetId::HGCalHSi:
+      idx = 1;
+      break;
+    case DetId::HGCalHSc:
+      idx = 2;
+      break;
+    default:
+      break;
+    }
+  }
+  return idx;
+}
+
+bool HGCDigitizer::getWeight(std::array<float,3>& tdcForToAOnset, 
+			     float& keV2fC) const {
+
+  bool weightToAbyEnergy(false);
+  tdcForToAOnset = std::array<float, 3>{ {0.f, 0.f, 0.f} };
+  keV2fC         = 0.f;
+  if (geometryType_ == 0) {
+    switch( mySubDet_ ) {
+    case ForwardSubdetector::HGCEE:
+      weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCEEDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCEEDigitizer_->keV2fC();
+      break;
+    case ForwardSubdetector::HGCHEF:
+      weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCHEfrontDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
+      break;
+    case ForwardSubdetector::HGCHEB:
+      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCHEbackDigitizer_->keV2fC();
+      break;
+    default:
+      break;
+    }
+  } else {
+    switch(myDet_) {
+    case DetId::HGCalEE:
+      weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCEEDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCEEDigitizer_->keV2fC();
+      break;
+    case DetId::HGCalHSi:
+      weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCHEfrontDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
+      break;
+    case DetId::HGCalHSc:
+      weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
+      tdcForToAOnset    = theHGCHEbackDigitizer_->tdcForToAOnset();
+      keV2fC            = theHGCHEbackDigitizer_->keV2fC();
+      break;
+    default:
+      break;
+    }
+  }
+return weightToAbyEnergy;
 }
 
 template void HGCDigitizer::accumulate<HcalGeometry>(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const HcalGeometry *geom, CLHEP::HepRandomEngine* hre);
