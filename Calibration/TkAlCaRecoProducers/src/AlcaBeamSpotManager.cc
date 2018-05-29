@@ -104,7 +104,7 @@ void AlcaBeamSpotManager::createWeightedPayloads(void){
     bool foundShift = false;
     long countlumi = 0;//Added
     string tmprun = "";//Added
-    long maxNlumis = 60;//Added
+    long maxNlumis = 20;//Added
 //    if weighted:
 //        maxNlumis = 999999999
 
