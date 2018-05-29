@@ -214,7 +214,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         features.sv_features.emplace_back();
         // in C++17 could just get from emplace_back output
         auto & sv_features = features.sv_features.back();
-        btagbtvdeep::sVToFeatures(sv, pv, jet, sv_features);
+        btagbtvdeep::svToFeatures(sv, pv, jet, sv_features);
       }
     }
 
