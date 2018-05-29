@@ -15,6 +15,18 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
                                                          edm::one::WatchLuminosityBlocks, edm::Accumulator> {

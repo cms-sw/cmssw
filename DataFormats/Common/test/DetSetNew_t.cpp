@@ -125,6 +125,16 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(detsets.subdetId()==4);
   CPPUNIT_ASSERT(detsets.size()==0);
   CPPUNIT_ASSERT(detsets.dataSize()==0);
+  DSTV detsets5(std::move(detsets));
+  CPPUNIT_ASSERT(detsets5.subdetId()==4);
+  CPPUNIT_ASSERT(detsets5.size()==0);
+  CPPUNIT_ASSERT(detsets5.dataSize()==0);
+
+  // test copy
+  DSTV detsets4(detsets5);
+  CPPUNIT_ASSERT(detsets4.subdetId()==4);
+  CPPUNIT_ASSERT(detsets4.size()==0);
+  CPPUNIT_ASSERT(detsets4.dataSize()==0);
 }
 
 void TestDetSet::inserting() {
@@ -143,11 +153,19 @@ void TestDetSet::inserting() {
 
     std::copy(sv.begin(),sv.begin()+n,df.begin());
 
+    DSTV detsets2(detsets);
+    CPPUNIT_ASSERT(detsets2.size()==n);
+    CPPUNIT_ASSERT(detsets2.dataSize()==ntot);
+    CPPUNIT_ASSERT(detsets2.detsetSize(n-1)==n);
+
     std::vector<DST::data_type> v1(n);
     std::vector<DST::data_type> v2(n);
+    std::vector<DST::data_type> v3(n);
     std::copy(detsets.m_data.begin()+ntot-n,detsets.m_data.begin()+ntot,v2.begin());
+    std::copy(detsets2.m_data.begin()+ntot-n,detsets2.m_data.begin()+ntot,v3.begin());
     std::copy(sv.begin(),sv.begin()+n,v1.begin());
     CPPUNIT_ASSERT(v1==v2);
+    CPPUNIT_ASSERT(v1==v3);
   }
 
   // test error conditions
@@ -216,6 +234,12 @@ void TestDetSet::filling() {
  CPPUNIT_ASSERT(detsets.exists(30));
 
  {
+   DSTV detsets2(detsets);
+   CPPUNIT_ASSERT(detsets2.size()==5);
+   CPPUNIT_ASSERT(detsets2.exists(30));
+ }
+
+ {
    unsigned int cs = detsets.dataSize();
    FF ff1(detsets, 31);
    ff1.resize(4);
@@ -232,10 +256,22 @@ void TestDetSet::filling() {
  CPPUNIT_ASSERT(!detsets.exists(31));
  { FF ff1(detsets, 32,true); }
  CPPUNIT_ASSERT(detsets.size()==6);
+
+ DSTV detsets2(detsets);
+ CPPUNIT_ASSERT(detsets2.size()==6);
+
  detsets.clean();
  CPPUNIT_ASSERT(detsets.size()==4);
  CPPUNIT_ASSERT(!detsets.exists(30));
  CPPUNIT_ASSERT(!detsets.exists(32));
+
+ CPPUNIT_ASSERT(detsets2.size()==6);
+ CPPUNIT_ASSERT(detsets2.exists(30));
+ CPPUNIT_ASSERT(detsets2.exists(32));
+ detsets2.clean();
+ CPPUNIT_ASSERT(detsets2.size()==4);
+ CPPUNIT_ASSERT(!detsets2.exists(30));
+ CPPUNIT_ASSERT(!detsets2.exists(32));
 
   // test error conditions
   try {
@@ -601,6 +637,11 @@ void TestDetSet::onDemand() {
   DSTV detsets3;
   detsets3 = std::move(detsets2);
   CPPUNIT_ASSERT(detsets3.onDemand());
+  DSTV detsets5(std::move(detsets3));
+  CPPUNIT_ASSERT(detsets5.onDemand());
+
+  DSTV detsets4(detsets5);
+  CPPUNIT_ASSERT(detsets4.onDemand());
 }
 
 void TestDetSet::toRangeMap() {
