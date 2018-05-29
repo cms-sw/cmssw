@@ -189,7 +189,8 @@ std::array<int,3> HGCalDDDConstants::assignCellTrap(float x, float y,
   return std::array<int,3>{ {ieta,iphi,type} };
 }
 
-double HGCalDDDConstants::cellThick(int layer, int waferU, int waferV) const {
+double HGCalDDDConstants::cellThickness(int layer, int waferU, 
+					int waferV) const {
 
   double thick(-1);
   if ((mode_ == HGCalGeometryMode::Hexagon8) ||
