@@ -289,8 +289,6 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
                 if (cand->pt() < 0.95)
                     continue;
 
-                auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
-
                 // get PUPPI weight from value map
                 float puppiw = 1.0; // fallback value
 
@@ -306,6 +304,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
                     auto& c_pf_features = features.c_pf_features.at(entry);
                     // fill feature structure
                     auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(cand);
+		    auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
                     if (packed_cand)
                     {
                         btagbtvdeep::packedCandidateToFeatures(
@@ -330,10 +329,10 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent,
                                 dist = dz;
                             }
                         }
-                        auto PV = reco::VertexRef(vtxs, pvi);
+                        auto pv = reco::VertexRef(vtxs, pvi);
                         btagbtvdeep::recoCandidateToFeatures(
                             reco_cand, jet, trackinfo, drminpfcandsv,
-                            static_cast<float>(jet_radius_), puppiw, pv_ass_quality, PV,
+                            static_cast<float>(jet_radius_), puppiw, pv_ass_quality, pv,
                             c_pf_features);
                     }
                 }
