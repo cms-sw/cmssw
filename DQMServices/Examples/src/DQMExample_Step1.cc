@@ -75,7 +75,6 @@ void DQMExample_Step1::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run con
 void DQMExample_Step1::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
                                             edm::EventSetup const& context) 
 {
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginLuminosityBlock" << std::endl;
 }
 
 

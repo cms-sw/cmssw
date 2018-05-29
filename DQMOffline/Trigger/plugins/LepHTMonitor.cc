@@ -247,7 +247,6 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 
 void LepHTMonitor::beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
                                                  const edm::EventSetup &context) {
-  edm::LogInfo("LepHTMonitor") << "LepHTMonitor::beginLuminosityBlock\n";
 }
 
 void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {

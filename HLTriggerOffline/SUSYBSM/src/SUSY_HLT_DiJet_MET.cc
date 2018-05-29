@@ -70,7 +70,6 @@ void SUSY_HLT_DiJet_MET::dqmBeginRun(edm::Run const &run, edm::EventSetup const 
 void SUSY_HLT_DiJet_MET::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_DiJet_MET") << "SUSY_HLT_DiJet_MET::beginLuminosityBlock" << std::endl;
 }
 
 

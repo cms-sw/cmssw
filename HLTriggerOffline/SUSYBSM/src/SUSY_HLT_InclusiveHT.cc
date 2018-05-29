@@ -42,7 +42,6 @@ void SUSY_HLT_InclusiveHT::dqmBeginRun(edm::Run const &, edm::EventSetup const &
 void SUSY_HLT_InclusiveHT::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_InclusiveHT") << "SUSY_HLT_InclusiveHT::beginLuminosityBlock" << std::endl;
 }
 
 void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& eSetup){

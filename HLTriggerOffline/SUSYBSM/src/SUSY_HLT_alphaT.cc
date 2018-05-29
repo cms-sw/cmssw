@@ -73,7 +73,6 @@ void SUSY_HLT_alphaT::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e)
 void SUSY_HLT_alphaT::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::beginLuminosityBlock" << std::endl;
 }
 
 

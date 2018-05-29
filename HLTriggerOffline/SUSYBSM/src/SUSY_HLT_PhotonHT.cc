@@ -42,7 +42,6 @@ void SUSY_HLT_PhotonHT::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 void SUSY_HLT_PhotonHT::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_PhotonHT") << "SUSY_HLT_PhotonHT::beginLuminosityBlock" << std::endl;
 }
 
 void SUSY_HLT_PhotonHT::analyze(edm::Event const& e, edm::EventSetup const& eSetup){

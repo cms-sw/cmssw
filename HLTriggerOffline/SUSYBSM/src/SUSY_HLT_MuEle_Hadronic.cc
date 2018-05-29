@@ -70,7 +70,6 @@ void SUSY_HLT_MuEle_Hadronic::bookHistograms(DQMStore::IBooker & ibooker_, edm::
 void SUSY_HLT_MuEle_Hadronic::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                                                         edm::EventSetup const& context)
 {
-    edm::LogInfo("SUSY_HLT_MuEle_Hadronic") << "SUSY_HLT_MuEle_Hadronic::beginLuminosityBlock" << std::endl;
 }
 
 

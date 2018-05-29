@@ -40,7 +40,6 @@ void SUSY_HLT_Razor::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
 void SUSY_HLT_Razor::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::beginLuminosityBlock" << std::endl;
 }
 
 void SUSY_HLT_Razor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

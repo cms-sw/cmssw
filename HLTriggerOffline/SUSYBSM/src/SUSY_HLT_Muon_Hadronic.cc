@@ -76,7 +76,6 @@ void SUSY_HLT_Muon_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSetup co
 void SUSY_HLT_Muon_Hadronic::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_Muon_Hadronic") << "SUSY_HLT_Muon_Hadronic::beginLuminosityBlock" << std::endl;
 }
 
 

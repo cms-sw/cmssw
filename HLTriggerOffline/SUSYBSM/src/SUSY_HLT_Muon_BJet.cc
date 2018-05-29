@@ -64,7 +64,6 @@ void SUSY_HLT_Muon_BJet::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run c
 void SUSY_HLT_Muon_BJet::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                                                         edm::EventSetup const& context)
 {
-    edm::LogInfo("SUSY_HLT_Muon_BJet") << "SUSY_HLT_Muon_BJet::beginLuminosityBlock" << std::endl;
 }
 
 

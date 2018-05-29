@@ -337,7 +337,6 @@ void SUSY_HLT_SingleLepton::bookHistograms(DQMStore::IBooker &ibooker,
 
 void SUSY_HLT_SingleLepton::beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
                                                  const edm::EventSetup &context){
-  edm::LogInfo("SUSY_HLT_SingleLepton") << "SUSY_HLT_SingleLepton::beginLuminosityBlock\n";
 }
 
 void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &eSetup){

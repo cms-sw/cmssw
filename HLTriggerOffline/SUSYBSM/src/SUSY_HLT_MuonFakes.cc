@@ -57,7 +57,6 @@ void SUSY_HLT_MuonFakes::dqmBeginRun(edm::Run const &run, edm::EventSetup const 
 void SUSY_HLT_MuonFakes::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
   edm::EventSetup const& context)
 {
-   edm::LogInfo("SUSY_HLT_MuonFakes") << "SUSY_HLT_MuonFakes::beginLuminosityBlock" << std::endl;
 }
 
 
