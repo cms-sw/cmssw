@@ -141,11 +141,11 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                         cms.InputTag("interestingEcalDetIdPFES"),
                                         cms.InputTag("interestingEcalDetIdRefinedES"), 
                                         cms.InputTag("interestingEcalDetIdOOTPFES"),
-                                      ),
+                                        ),
                                       interestingDetIdsNotToClean = cms.VInputTag(
-                                          cms.InputTag("interestingGedEgammaIsoESDetId"),
-                                          cms.InputTag("interestingOotEgammaIsoESDetId"),
-                                      )
+                                        cms.InputTag("interestingGedEgammaIsoESDetId"),
+                                        cms.InputTag("interestingOotEgammaIsoESDetId"),
+                                        )
 )
 
 #selected digis
@@ -180,3 +180,49 @@ phase2_common.toReplaceWith( reducedEcalRecHitsTask , _phase2_reducedEcalRecHits
 _fastSim_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copyAndExclude(seldigisTask)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith( reducedEcalRecHitsTask, _fastSim_reducedEcalRecHitsTask)
+
+_pp_on_AA_reducedEcalRecHitsTask = reducedEcalRecHitsTask.copy()
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEB)
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFEE)
+_pp_on_AA_reducedEcalRecHitsTask.remove(interestingEcalDetIdOOTPFES)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(reducedEcalRecHitsTask, _pp_on_AA_reducedEcalRecHitsTask)
+
+_pp_on_AA_interestingDetIdsEB  = cms.VInputTag(
+    cms.InputTag("interestingEcalDetIdEB"),
+    cms.InputTag("interestingEcalDetIdEBU"),
+    cms.InputTag("interestingEcalDetIdPFEB"),
+    cms.InputTag("interestingEcalDetIdRefinedEB"),
+    cms.InputTag("interestingGedEleIsoDetIdEB"),
+    cms.InputTag("interestingGedGamIsoDetIdEB"),
+    cms.InputTag("interestingGamIsoDetIdEB"),
+    cms.InputTag("muonEcalDetIds"),
+    cms.InputTag("interestingTrackEcalDetIds")
+    )
+_pp_on_AA_interestingDetIdsEE  = cms.VInputTag(
+    cms.InputTag("interestingEcalDetIdEE"),
+    cms.InputTag("interestingEcalDetIdPFEE"),
+    cms.InputTag("interestingEcalDetIdRefinedEE"),
+    cms.InputTag("interestingGedEleIsoDetIdEE"),
+    cms.InputTag("interestingGedGamIsoDetIdEE"),
+    cms.InputTag("interestingGamIsoDetIdEE"),
+    cms.InputTag("muonEcalDetIds"),
+    cms.InputTag("interestingTrackEcalDetIds")
+    )
+_pp_on_AA_interestingDetIdsES  = cms.VInputTag(cms.InputTag("interestingEcalDetIdPFES"),cms.InputTag("interestingEcalDetIdRefinedES"))
+_pp_on_AA_interestingDetIdsNotToClean  = cms.VInputTag(cms.InputTag("interestingGedEgammaIsoESDetId"))
+
+pp_on_AA_2018.toModify(
+    reducedEcalRecHitsEB,
+    interestingDetIdCollections = _pp_on_AA_interestingDetIdsEB,
+    )
+pp_on_AA_2018.toModify(
+    reducedEcalRecHitsEE,
+    interestingDetIdCollections = _pp_on_AA_interestingDetIdsEE,
+    )
+pp_on_AA_2018.toModify(
+    reducedEcalRecHitsES,
+    interestingDetIds = _pp_on_AA_interestingDetIdsES,
+    interestingDetIdsNotToClean =  _pp_on_AA_interestingDetIdsNotToClean
+    )
