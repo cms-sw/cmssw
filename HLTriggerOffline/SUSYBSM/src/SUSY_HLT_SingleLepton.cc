@@ -248,9 +248,9 @@ void SUSY_HLT_SingleLepton::bookHistograms(DQMStore::IBooker &ibooker,
 
   bool is_mu = false;
   bool is_ele = false;
-  if(theElectronTag_.label() == "" && theMuonTag_.label() != ""){
+  if(theElectronTag_.label().empty() && !theMuonTag_.label().empty()){
     is_mu=true;
-  }else if(theElectronTag_.label() != "" && theMuonTag_.label() == ""){
+  }else if(!theElectronTag_.label().empty() && theMuonTag_.label().empty()){
     is_ele=true;
   }
   std::string lepton="lepton", Lepton="Lepton";
@@ -273,19 +273,19 @@ void SUSY_HLT_SingleLepton::bookHistograms(DQMStore::IBooker &ibooker,
                                     (";"+Lepton+" #phi;").c_str(),
                                     20, -3.5, 3.5);
 
-  if(theHLTHTTag_.label()!=""){
+  if(!theHLTHTTag_.label().empty()){
     h_HT_ = ibooker.book1D("HT",
                            ";HLT HT [GeV];",
                            40, 0.0, 1000.0);
   }
 
-  if(theHLTMETTag_.label()!=""){
+  if(!theHLTMETTag_.label().empty()){
     h_MET_ = ibooker.book1D("MET",
                             ";HLT MET [GeV];",
                             40, 0.0, 1000.0);
   }
 
-  if(theHLTJetCollectionTag_.label()!="" && theHLTJetTagCollectionTag_.label()!=""){
+  if(!theHLTJetCollectionTag_.label().empty() && !theHLTJetTagCollectionTag_.label().empty()){
     h_maxCSV_ = ibooker.book1D("maxCSV",
                                ";Max HLT CSV;",
                                20, 0.0, 1.0);
@@ -305,7 +305,7 @@ void SUSY_HLT_SingleLepton::bookHistograms(DQMStore::IBooker &ibooker,
                                      "Denominator;Offline H_{T} [GeV];",
                                      30, 0.0, 1500.0 );
 
-  if(theHLTMETTag_.label()!=""){
+  if(!theHLTMETTag_.label().empty()){
     h_pfMetTurnOn_num_ = ibooker.book1D("pfMetTurnOn_num",
                                         "Numerator;Offline MET [GeV];",
                                         20, 0.0, 500.0 );
@@ -314,7 +314,7 @@ void SUSY_HLT_SingleLepton::bookHistograms(DQMStore::IBooker &ibooker,
                                         20, 0.0, 500.0 );
   }
 
-  if(theHLTJetCollectionTag_.label()!="" && theHLTJetTagCollectionTag_.label()!=""){
+  if(!theHLTJetCollectionTag_.label().empty() && !theHLTJetTagCollectionTag_.label().empty()){
     h_CSVTurnOn_num_ = ibooker.book1D("CSVTurnOn_num",
                                       "Numerator;Offline Max CSV Discriminant;",
                                       20, 0.0, 1.0);
@@ -342,7 +342,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //HLT HT
   edm::Handle<reco::METCollection> HLTHT;
-  if(theHLTHTTag_.label() != ""){
+  if(!theHLTHTTag_.label().empty()){
     e.getByToken(theHLTHT_, HLTHT);
     if( !HLTHT.isValid() ){
       edm::LogInfo("SUSY_HLT_SingleLepton")
@@ -352,7 +352,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //HLT MET
   edm::Handle<reco::METCollection> HLTMET;
-  if(theHLTMETTag_.label() != ""){
+  if(!theHLTMETTag_.label().empty()){
     e.getByToken(theHLTMET_, HLTMET);
     if( !HLTMET.isValid() ){
       edm::LogInfo("SUSY_HLT_SingleLepton")
@@ -362,7 +362,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //HLT Jets
   edm::Handle<reco::CaloJetCollection> HLTJetCollection;
-  if(theHLTJetCollectionTag_.label() != ""){
+  if(!theHLTJetCollectionTag_.label().empty()){
     e.getByToken(theHLTJetCollection_, HLTJetCollection);
     if( !HLTJetCollection.isValid() ){
       edm::LogInfo("SUSY_HLT_SingleLepton")
@@ -372,7 +372,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //HLT Jet Tags
   edm::Handle<reco::JetTagCollection> HLTJetTagCollection;
-  if(theHLTJetTagCollectionTag_.label() != ""){
+  if(!theHLTJetTagCollectionTag_.label().empty()){
     e.getByToken(theHLTJetTagCollection_, HLTJetTagCollection);
     if( !HLTJetTagCollection.isValid() ){
       edm::LogInfo("SUSY_HLT_SingleLepton")
@@ -382,7 +382,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Vertex
   edm::Handle<reco::VertexCollection> VertexCollection;
-  if(theVertexCollectionTag_.label() != ""){
+  if(!theVertexCollectionTag_.label().empty()){
     e.getByToken(theVertexCollection_, VertexCollection);
     if( !VertexCollection.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -392,7 +392,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Conversions
   edm::Handle<reco::ConversionCollection> ConversionCollection;
-  if(theConversionCollectionTag_.label() != ""){
+  if(!theConversionCollectionTag_.label().empty()){
     e.getByToken(theConversionCollection_, ConversionCollection);
     if( !ConversionCollection.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -402,7 +402,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Beam Spot
   edm::Handle<reco::BeamSpot> BeamSpot;
-  if(theBeamSpotTag_.label() != ""){
+  if(!theBeamSpotTag_.label().empty()){
     e.getByToken(theBeamSpot_, BeamSpot);
     if( !BeamSpot.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -412,7 +412,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //MET
   edm::Handle<reco::PFMETCollection> pfMETCollection;
-  if(thePfMETTag_.label() != ""){
+  if(!thePfMETTag_.label().empty()){
     e.getByToken(thePfMETCollection_, pfMETCollection);
     if( !pfMETCollection.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -422,7 +422,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Jets
   edm::Handle<reco::PFJetCollection> pfJetCollection;
-  if(thePfJetTag_.label() != ""){
+  if(!thePfJetTag_.label().empty()){
     e.getByToken (thePfJetCollection_,pfJetCollection);
     if( !pfJetCollection.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -432,7 +432,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //b-tags
   edm::Handle<reco::JetTagCollection> jetTagCollection;
-  if(theJetTagTag_.label() != ""){
+  if(!theJetTagTag_.label().empty()){
     e.getByToken(theJetTagCollection_, jetTagCollection);
     if( !jetTagCollection.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -442,7 +442,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Electron
   edm::Handle<reco::GsfElectronCollection> ElectronCollection;
-  if(theElectronTag_.label() != ""){
+  if(!theElectronTag_.label().empty()){
     e.getByToken (theElectronCollection_, ElectronCollection);
     if( !ElectronCollection.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -452,7 +452,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Muon
   edm::Handle<reco::MuonCollection> MuonCollection;
-  if(theMuonTag_.label() != ""){
+  if(!theMuonTag_.label().empty()){
     e.getByToken (theMuonCollection_, MuonCollection);
     if( !MuonCollection.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -462,7 +462,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
   //Trigger
   edm::Handle<edm::TriggerResults> hltresults;
-  if(theTriggerResultsTag_.label() != ""){
+  if(!theTriggerResultsTag_.label().empty()){
     e.getByToken(theTriggerResults_, hltresults);
     if( !hltresults.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -470,7 +470,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
     }
   }
   edm::Handle<trigger::TriggerEvent> triggerSummary;
-  if(theTrigSummaryTag_.label() != ""){
+  if(!theTrigSummaryTag_.label().empty()){
     e.getByToken(theTrigSummary_, triggerSummary);
     if( !triggerSummary.isValid() ){
       edm::LogWarning("SUSY_HLT_SingleLepton")
@@ -611,7 +611,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   const bool csv_plateau = maxCSV>csv_threshold_ || csv_threshold_<0.0;
 
   //Fill lepton turn-on histograms
-  if(hasFiredLeptonAuxiliary || triggerPathLeptonAuxiliary_=="" || !e.isRealData()){
+  if(hasFiredLeptonAuxiliary || triggerPathLeptonAuxiliary_.empty() || !e.isRealData()){
     //Fill histograms using highest pt reco lepton
     if(ht_plateau && met_plateau && csv_plateau
        && (pfMET>metCut_ || metCut_<0.0)
@@ -622,7 +622,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   }
 
   //Fill remaining turn-on histograms
-  if(hasFiredAuxiliary || triggerPathAuxiliary_=="" || !e.isRealData()){
+  if(hasFiredAuxiliary || triggerPathAuxiliary_.empty() || !e.isRealData()){
     //Fill HT efficiency plot
     if(lep_plateau && met_plateau && csv_plateau){
       if(h_pfHTTurnOn_den_) h_pfHTTurnOn_den_->Fill(pfHT);
