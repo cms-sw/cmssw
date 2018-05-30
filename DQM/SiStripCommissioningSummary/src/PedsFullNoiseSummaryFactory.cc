@@ -466,6 +466,8 @@ void PedsFullNoiseSummaryFactory::format() {
   }
   else if( mon_ == sistrip::NUM_OF_BAD_LOW_NOISE) {
   }
+  else if( mon_ == sistrip::NUM_OF_BAD_LARGE_NOISE) {
+  }
   else if( mon_ == sistrip::NUM_OF_BAD_LARGE_SIGNIF) {
   }
   else if( mon_ == sistrip::NUM_OF_BAD_FIT_STATUS) {

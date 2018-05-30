@@ -72,7 +72,8 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** */
   void fillHistos( const SiStripEventSummary* const,
-		   const edm::DetSetVector<SiStripRawDigi>& );
+		   const edm::DetSetVector<SiStripRawDigi>&,
+		   const edm::DetSetVector<SiStripRawDigi>* = nullptr);
   
   /** */
   void remove();
@@ -101,9 +102,11 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiVirginRawToken_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiScopeModeToken_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiFineDelaySelectionToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > digiReorderedToken_;
 
   /** Name of digi input module. */
   std::string inputModuleLabel_;
+  std::string inputModuleLabelAlt_;
   std::string inputModuleLabelSummary_;
 
   /** Filename of output root file containing source histos. */
@@ -111,9 +114,15 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** Run number used for naming of root file. */
   uint32_t run_;
+  
+  /** to be used in the output file */
+  std::string partitionName_;
 
   /** Record of time used to calculate event rate. */
   int32_t time_;
+  
+  /** to mark whether a DAQ_SCOPE run is from spy */
+  bool isSpy_;
 
   // ---------- Histogram-related ----------
 
