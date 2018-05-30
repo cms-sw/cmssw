@@ -271,7 +271,14 @@ namespace sistrip {
 
   inline bool FEDBSChannelUnpacker::hasData() const
     {
-      return (currentWordOffset_+(currentLocalBitOffset_?1:2)<channelPayloadOffset_+channelPayloadLength_);
+      const uint16_t nextChanWordOffset = channelPayloadOffset_+channelPayloadLength_;
+      if ( currentWordOffset_ + 1 < nextChanWordOffset ) {
+        return true; // fast case: 2 bytes always fit an ADC (even if offset)
+      } else { // close to end
+        const uint16_t plusOneBitOffset = currentLocalBitOffset_+bitOffsetIncrement_;
+        const uint16_t plusOneWordOffset = currentWordOffset_ + plusOneBitOffset/8;
+        return ( plusOneBitOffset % 8 ) ? ( plusOneWordOffset < nextChanWordOffset ) : ( plusOneWordOffset <= nextChanWordOffset );
+      }
     }
 
   inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator ++ ()
