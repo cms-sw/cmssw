@@ -126,9 +126,6 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
     }
   }
 }
-//
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
 
 //
 // -------------------------------------- Analyze --------------------------------------------
@@ -293,10 +290,6 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
     }
   }//loop over tau-L1 pairs
 }
-
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
 
 //
 // -------------------------------------- endRun --------------------------------------------

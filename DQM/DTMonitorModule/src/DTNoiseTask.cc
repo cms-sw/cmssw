@@ -66,10 +66,6 @@ DTNoiseTask::DTNoiseTask(const ParameterSet& ps) : evtNumber(0) {
 
 DTNoiseTask::~DTNoiseTask(){}
 
-/// To reset the MEs
-
-
-
 /// Analyze
 void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
 

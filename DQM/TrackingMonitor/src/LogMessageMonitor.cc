@@ -295,8 +295,8 @@ void
 LogMessageMonitor::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 LogMessageMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
