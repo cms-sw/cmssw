@@ -102,7 +102,6 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
  
   // Iterate through feds and update fed descriptions
   uint16_t updated = 0;
-  long int nstrips = 0;
   SiStripConfigDb::FedDescriptionsV::const_iterator ifed;
 
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) { // Loop on the FED for this partition
@@ -154,7 +153,23 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
         for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
           for ( uint16_t istr = 0; istr < anal->peds()[iapv].size(); istr++ ) { // Loop on the pedestal for each APV
 
-	    nstrips++;
+            if ( not uploadOnlyStripBadChannelBit_ and anal->peds()[iapv][istr] < 1. ) { //@@ ie, zero                                                                                       
+	      edm::LogWarning(mlDqmClient_)
+                << "[PedestalsHistosUsingDb::" << __func__ << "]"
+                << " Skipping ZERO pedestal value (ie, NO UPLOAD TO DB!) for FedKey/Id/Ch: "
+                << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
+                << (*ifed)->getFedId() << "/"
+                << ichan
+                << " and device with FEC/slot/ring/CCU/LLD "
+                << fec_key.fecCrate() << "/"
+                << fec_key.fecSlot() << "/"
+                << fec_key.fecRing() << "/"
+                << fec_key.ccuAddr() << "/"
+                << fec_key.ccuChan() << "/"
+                << fec_key.channel();
+              continue; //@@ do not upload                                                                                                                                                             
+            }
+
             // get the information on the strip as it was on the db
             Fed9U::Fed9UAddress addr( ichan, iapv, istr );
             Fed9U::Fed9UStripDescription temp = (*ifed)->getFedStrips().getStrip( addr );
@@ -210,22 +225,22 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
 	      LogTrace(mlDqmClient_) << ss_disable.str();
 
 	    uint32_t pedestalVal = 0;
-	    uint32_t noiseVal = 0;
-	    uint32_t lowThr   = 0;
-	    uint32_t highThr  = 0;
+            float    noiseVal = 0;
+            float    lowThr   = 0;
+            float    highThr  = 0;
 	    
 	    // download the previous pedestal/noise payload from the DB
 	    if(uploadOnlyStripBadChannelBit_){ 
-	      pedestalVal = temp.getPedestal();
-	      noiseVal    = temp.getNoise();
-	      lowThr      = temp.getLowThreshold();
-	      highThr     = temp.getHighThreshold();
-	    }
+	      pedestalVal = static_cast<uint32_t>(temp.getPedestal());
+              noiseVal    = static_cast<float>(temp.getNoise());
+              lowThr      = static_cast<float>(temp.getLowThresholdFactor());
+              highThr     = static_cast<float>(temp.getHighThresholdFactor());
+ 	    }
 	    else{	      
 	      pedestalVal = static_cast<uint32_t>(anal->peds()[iapv][istr]-pedshift);
-	      noiseVal    = static_cast<uint32_t>(anal->noise()[iapv][istr]);
-	      lowThr      = lowThreshold_;
-	      highThr     = highThreshold_;
+              noiseVal    = anal->noise()[iapv][istr];
+              lowThr      = lowThreshold_;
+              highThr     = highThreshold_;	      
 	    }
 	    
 	    //////
@@ -247,10 +262,10 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
                  << fec_key.ccuAddr() << "/"
                  << fec_key.ccuChan() << std::endl 
                  << " from ped/noise/high/low/disable  : "
-                 << static_cast<uint16_t>( temp.getPedestal() ) << "/" 
-                 << static_cast<uint16_t>( temp.getHighThreshold() ) << "/" 
-                 << static_cast<uint16_t>( temp.getLowThreshold() ) << "/" 
-                 << static_cast<uint16_t>( temp.getNoise() ) << "/" 
+		 << static_cast<uint32_t>( temp.getPedestal() ) << "/"
+                 << static_cast<float>( temp.getHighThresholdFactor() ) << "/"
+                 << static_cast<float>( temp.getLowThresholdFactor() ) << "/"
+                 << static_cast<float>( temp.getNoise() ) << "/"
                  << static_cast<uint16_t>( temp.getDisable() ) << std::endl;
             }
 
@@ -258,10 +273,10 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
 
             if ( data.getDisable() && edm::isDebugEnabled() ) {
               ss << " to ped/noise/high/low/disable    : "
-                 << static_cast<uint16_t>( data.getPedestal() ) << "/" 
-                 << static_cast<uint16_t>( data.getHighThreshold() ) << "/" 
-                 << static_cast<uint16_t>( data.getLowThreshold() ) << "/" 
-                 << static_cast<uint16_t>( data.getNoise() ) << "/" 
+                 << static_cast<uint32_t>( data.getPedestal() ) << "/"
+                 << static_cast<float>( data.getHighThresholdFactor() ) << "/"
+                 << static_cast<float>( data.getLowThresholdFactor() ) << "/"
+                 << static_cast<float>( data.getNoise() ) << "/"
                  << static_cast<uint16_t>( data.getDisable() ) << std::endl;
               LogTrace(mlDqmClient_) << ss.str();
             }	    

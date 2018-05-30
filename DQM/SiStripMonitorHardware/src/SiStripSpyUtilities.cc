@@ -151,14 +151,11 @@ namespace sistrip {
       if (val==0)     numzeroes++;
       if (val==0x3FF) numsats++;
       lFrame.baseline += val;
-//       std::cout<<"val : "<<val<<std::endl;
     }
 
     if (!channelDigis.empty()) lFrame.baseline = lFrame.baseline/channelDigis.size();
     lFrame.digitalLow = min;
     lFrame.digitalHigh = max;
-//    std::cout<<"lFrame.digitalLow : "<<lFrame.digitalLow<<std::endl;
-//    std::cout<<"lFrame.digitalHigh : "<<lFrame.digitalHigh<<std::endl;    
 
     const uint16_t threshold = static_cast<uint16_t>( (2.0 * static_cast<double>(max-min)) / 3.0 );
 
