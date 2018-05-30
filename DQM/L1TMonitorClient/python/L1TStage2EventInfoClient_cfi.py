@@ -442,7 +442,7 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("muon_etaSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonEta"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("muon_etaMeanAt0"),
@@ -452,7 +452,7 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("muon_etaSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonEtaAtVtx"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("muon_phiMeanAt0"),
@@ -462,7 +462,7 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("muon_phiSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhi"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("muon_phiMeanAt0"),
@@ -472,7 +472,7 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("muon_phiSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhiAtVtx"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             cms.PSet(
                                 QualityTestName = cms.string("muon_PtRange"),
@@ -482,7 +482,7 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("muon_PtSpectrum"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPt"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
+                                QualityTestSummaryEnabled = cms.uint32(0)
                                 ),
                             ),
                         ),
