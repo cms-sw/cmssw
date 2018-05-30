@@ -88,9 +88,9 @@ double PuppiContainer::var_within_R(int iId, const vector<PuppiCandidate> & part
 
     vector<double > near_dR2s;     near_dR2s.reserve(std::min(50UL, particles.size()));
     vector<double > near_pts;      near_pts.reserve(std::min(50UL, particles.size()));
-    const double R2 = R*R;
+    const double r2 = R*R;
     for (auto const& part : particles){
-      if ( part.squared_distance(centre) < R2 ){
+      if ( part.squared_distance(centre) < r2 ){
         near_dR2s.push_back(reco::deltaR2(part, centre));
         near_pts.push_back(part.pt());
       }
