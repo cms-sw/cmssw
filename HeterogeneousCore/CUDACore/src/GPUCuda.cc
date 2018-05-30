@@ -12,7 +12,11 @@ namespace heterogeneous {
   GPUCuda::GPUCuda(const edm::ParameterSet& iConfig):
     enabled_(iConfig.getUntrackedParameter<bool>("GPUCuda")),
     forced_(iConfig.getUntrackedParameter<std::string>("force") == "GPUCuda")
-  {}
+  {
+    if(forced_ && !enabled_) {
+      throw cms::Exception("Configuration") << "It makes no sense to force the module on GPUCuda, and then disable GPUCuda.";
+    }
+  }
 
   GPUCuda::~GPUCuda() noexcept(false) {}
 
@@ -24,6 +28,9 @@ namespace heterogeneous {
     edm::Service<CUDAService> cudaService;
     enabled_ = (enabled_ && cudaService->enabled());
     if(!enabled_) {
+      if(forced_) {
+        throw cms::Exception("LogicError") << "This module was forced to run on GPUCuda, but the device is not available.";
+      }
       return;
     }
 
