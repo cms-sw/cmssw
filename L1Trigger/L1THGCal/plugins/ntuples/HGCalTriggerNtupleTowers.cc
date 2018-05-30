@@ -88,8 +88,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     tower_etEm_.emplace_back(tower_itr->etEm());
     tower_etHad_.emplace_back(tower_itr->etHad());
 
-    tower_iX_.emplace_back(tower_itr->id().coord1());
-    tower_iY_.emplace_back(tower_itr->id().coord2());
+    tower_iX_.emplace_back(tower_itr->id().iEta());
+    tower_iY_.emplace_back(tower_itr->id().iPhi());
   }
 }
 
