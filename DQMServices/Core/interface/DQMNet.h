@@ -23,58 +23,58 @@
 class DQMNet
 {
 public:
-  static const uint32_t DQM_PROP_TYPE_MASK	 = 0x000000ff;
-  static const uint32_t DQM_PROP_TYPE_SCALAR	 = 0x0000000f;
-  static const uint32_t DQM_PROP_TYPE_INVALID	 = 0x00000000;
-  static const uint32_t DQM_PROP_TYPE_INT	 = 0x00000001;
-  static const uint32_t DQM_PROP_TYPE_REAL	 = 0x00000002;
-  static const uint32_t DQM_PROP_TYPE_STRING	 = 0x00000003;
-  static const uint32_t DQM_PROP_TYPE_TH1F	 = 0x00000010;
-  static const uint32_t DQM_PROP_TYPE_TH1S	 = 0x00000011;
-  static const uint32_t DQM_PROP_TYPE_TH1D	 = 0x00000012;
-  static const uint32_t DQM_PROP_TYPE_TH2F	 = 0x00000020;
-  static const uint32_t DQM_PROP_TYPE_TH2S	 = 0x00000021;
-  static const uint32_t DQM_PROP_TYPE_TH2D	 = 0x00000022;
-  static const uint32_t DQM_PROP_TYPE_TH3F	 = 0x00000030;
-  static const uint32_t DQM_PROP_TYPE_TH3S	 = 0x00000031;
-  static const uint32_t DQM_PROP_TYPE_TH3D	 = 0x00000032;
-  static const uint32_t DQM_PROP_TYPE_TPROF	 = 0x00000040;
-  static const uint32_t DQM_PROP_TYPE_TPROF2D	 = 0x00000041;
-  static const uint32_t DQM_PROP_TYPE_DATABLOB	 = 0x00000050;
-  
-  static const uint32_t DQM_PROP_REPORT_MASK	 = 0x00000f00;
-  static const uint32_t DQM_PROP_REPORT_CLEAR	 = 0x00000000;
-  static const uint32_t DQM_PROP_REPORT_ERROR	 = 0x00000100;
-  static const uint32_t DQM_PROP_REPORT_WARN	 = 0x00000200;
-  static const uint32_t DQM_PROP_REPORT_OTHER	 = 0x00000400;
-  static const uint32_t DQM_PROP_REPORT_ALARM	 = (DQM_PROP_REPORT_ERROR
-						    | DQM_PROP_REPORT_WARN
-						    | DQM_PROP_REPORT_OTHER);
+  static const uint32_t DQM_PROP_TYPE_MASK       = 0x000000ff;
+  static const uint32_t DQM_PROP_TYPE_SCALAR     = 0x0000000f;
+  static const uint32_t DQM_PROP_TYPE_INVALID    = 0x00000000;
+  static const uint32_t DQM_PROP_TYPE_INT        = 0x00000001;
+  static const uint32_t DQM_PROP_TYPE_REAL       = 0x00000002;
+  static const uint32_t DQM_PROP_TYPE_STRING     = 0x00000003;
+  static const uint32_t DQM_PROP_TYPE_TH1F       = 0x00000010;
+  static const uint32_t DQM_PROP_TYPE_TH1S       = 0x00000011;
+  static const uint32_t DQM_PROP_TYPE_TH1D       = 0x00000012;
+  static const uint32_t DQM_PROP_TYPE_TH2F       = 0x00000020;
+  static const uint32_t DQM_PROP_TYPE_TH2S       = 0x00000021;
+  static const uint32_t DQM_PROP_TYPE_TH2D       = 0x00000022;
+  static const uint32_t DQM_PROP_TYPE_TH3F       = 0x00000030;
+  static const uint32_t DQM_PROP_TYPE_TH3S       = 0x00000031;
+  static const uint32_t DQM_PROP_TYPE_TH3D       = 0x00000032;
+  static const uint32_t DQM_PROP_TYPE_TPROF      = 0x00000040;
+  static const uint32_t DQM_PROP_TYPE_TPROF2D    = 0x00000041;
+  static const uint32_t DQM_PROP_TYPE_DATABLOB   = 0x00000050;
 
-  static const uint32_t DQM_PROP_HAS_REFERENCE	 = 0x00001000;
-  static const uint32_t DQM_PROP_TAGGED		 = 0x00002000;
-  static const uint32_t DQM_PROP_ACCUMULATE	 = 0x00004000;
-  static const uint32_t DQM_PROP_RESET		 = 0x00008000;
+  static const uint32_t DQM_PROP_REPORT_MASK     = 0x00000f00;
+  static const uint32_t DQM_PROP_REPORT_CLEAR    = 0x00000000;
+  static const uint32_t DQM_PROP_REPORT_ERROR    = 0x00000100;
+  static const uint32_t DQM_PROP_REPORT_WARN     = 0x00000200;
+  static const uint32_t DQM_PROP_REPORT_OTHER    = 0x00000400;
+  static const uint32_t DQM_PROP_REPORT_ALARM    = (DQM_PROP_REPORT_ERROR
+                                                    | DQM_PROP_REPORT_WARN
+                                                    | DQM_PROP_REPORT_OTHER);
 
-  static const uint32_t DQM_PROP_NEW		 = 0x00010000;
-  static const uint32_t DQM_PROP_RECEIVED	 = 0x00020000;
-  static const uint32_t DQM_PROP_LUMI		 = 0x00040000;
-  static const uint32_t DQM_PROP_DEAD		 = 0x00080000;
-  static const uint32_t DQM_PROP_STALE		 = 0x00100000;
+  static const uint32_t DQM_PROP_HAS_REFERENCE   = 0x00001000;
+  static const uint32_t DQM_PROP_TAGGED          = 0x00002000;
+  static const uint32_t DQM_PROP_ACCUMULATE      = 0x00004000;
+  static const uint32_t DQM_PROP_RESET           = 0x00008000;
+
+  static const uint32_t DQM_PROP_NEW             = 0x00010000;
+  static const uint32_t DQM_PROP_RECEIVED        = 0x00020000;
+  static const uint32_t DQM_PROP_LUMI            = 0x00040000;
+  static const uint32_t DQM_PROP_DEAD            = 0x00080000;
+  static const uint32_t DQM_PROP_STALE           = 0x00100000;
   static const uint32_t DQM_PROP_EFFICIENCY_PLOT = 0x00200000;
   static const uint32_t DQM_PROP_MARKTODELETE    = 0x01000000;
 
-  static const uint32_t DQM_MSG_HELLO		 = 0;
-  static const uint32_t DQM_MSG_UPDATE_ME	 = 1;
-  static const uint32_t DQM_MSG_LIST_OBJECTS	 = 2;
-  static const uint32_t DQM_MSG_GET_OBJECT	 = 3;
+  static const uint32_t DQM_MSG_HELLO            = 0;
+  static const uint32_t DQM_MSG_UPDATE_ME        = 1;
+  static const uint32_t DQM_MSG_LIST_OBJECTS     = 2;
+  static const uint32_t DQM_MSG_GET_OBJECT       = 3;
 
-  static const uint32_t DQM_REPLY_LIST_BEGIN	 = 101;
-  static const uint32_t DQM_REPLY_LIST_END	 = 102;
-  static const uint32_t DQM_REPLY_NONE		 = 103;
-  static const uint32_t DQM_REPLY_OBJECT	 = 104;
+  static const uint32_t DQM_REPLY_LIST_BEGIN     = 101;
+  static const uint32_t DQM_REPLY_LIST_END       = 102;
+  static const uint32_t DQM_REPLY_NONE           = 103;
+  static const uint32_t DQM_REPLY_OBJECT         = 104;
 
-  static const uint32_t MAX_PEER_WAITREQS	 = 128;
+  static const uint32_t MAX_PEER_WAITREQS        = 128;
 
   struct Peer;
   struct QValue;
@@ -87,115 +87,137 @@ public:
 
   struct QValue
   {
-    int			code;
-    float		qtresult;
-    std::string		message;
-    std::string		qtname;
-    std::string		algorithm;
+    int                 code;
+    float               qtresult;
+    std::string         message;
+    std::string         qtname;
+    std::string         algorithm;
   };
 
-  struct CoreObject
-  {
-    uint32_t		flags;
-    uint32_t 		tag;
-    uint64_t		version;
+  struct KeyObject {
+    KeyObject(uint32_t const r,
+              uint32_t const l,
+              uint32_t const modId,
+              std::string const* dir,
+              std::string name) :
+      run{r}, lumi{l}, streamId{}, moduleId{modId}, dirname{dir}, objname{move(name)}
+    {}
+    KeyObject() = default;
+
     uint32_t            run;
     uint32_t            lumi;
     uint32_t            streamId;
     uint32_t            moduleId;
-    const std::string	*dirname;
-    std::string		objname;
-    QReports		qreports;
+    const std::string   *dirname;
+    std::string         objname;
+
+    bool operator<(KeyObject const& b) const
+    {
+      if (run == b.run) {
+        if (lumi == b.lumi) {
+          if (streamId == b.streamId) {
+            if (moduleId == b.moduleId) {
+              if (*dirname == *b.dirname) {
+                return objname < b.objname;
+              }
+              return *dirname < *b.dirname;
+            }
+            return moduleId < b.moduleId;
+          }
+          return streamId < b.streamId;
+        }
+        return lumi < b.lumi;
+      }
+      return run < b.run;
+    }
+
   };
-  
+
+
+
+  struct CoreObject : KeyObject
+  {
+    uint32_t            flags;
+    uint32_t            tag;
+    uint64_t            version;
+    QReports            qreports;
+  };
+
   struct Object : CoreObject
   {
-    uint64_t		hash;
-    uint64_t		lastreq;
-    DataBlob		rawdata;
-    std::string		scalar;
-    std::string		qdata;
+    uint64_t            hash;
+    uint64_t            lastreq;
+    DataBlob            rawdata;
+    std::string         scalar;
+    std::string         qdata;
   };
 
   struct Bucket
   {
-    Bucket		*next;
-    DataBlob		data;
+    Bucket              *next;
+    DataBlob            data;
   };
 
   struct WaitObject
   {
-    lat::Time		time;
-    std::string		name;
-    std::string		info;
-    Peer		*peer;
+    lat::Time           time;
+    std::string         name;
+    std::string         info;
+    Peer                *peer;
   };
 
   struct AutoPeer;
   struct Peer
   {
-    std::string		peeraddr;
-    lat::Socket		*socket;
-    DataBlob		incoming;
-    Bucket		*sendq;
-    size_t		sendpos;
+    std::string         peeraddr;
+    lat::Socket         *socket;
+    DataBlob            incoming;
+    Bucket              *sendq;
+    size_t              sendpos;
 
-    unsigned		mask;
-    bool		source;
-    bool		update;
-    bool		updated;
-    size_t		updates;
-    size_t		waiting;
-    AutoPeer		*automatic;
+    unsigned            mask;
+    bool                source;
+    bool                update;
+    bool                updated;
+    size_t              updates;
+    size_t              waiting;
+    AutoPeer            *automatic;
   };
 
   struct AutoPeer
   {
-    Peer		*peer;
-    lat::Time		next;
-    std::string		host;
-    int			port;
-    bool		update;
+    Peer                *peer;
+    lat::Time           next;
+    std::string         host;
+    int                 port;
+    bool                update;
   };
 
   DQMNet(const std::string &appname = "");
   virtual ~DQMNet();
 
-  void			debug(bool doit);
-  void			delay(int delay);
-  void			startLocalServer(int port);
-  void			startLocalServer(const char *path);
-  void			staleObjectWaitLimit(lat::TimeSpan time);
-  void			updateToCollector(const std::string &host, int port);
-  void			listenToCollector(const std::string &host, int port);
-  void			shutdown();
-  void			lock();
-  void			unlock();
+  void                  debug(bool doit);
+  void                  delay(int delay);
+  void                  startLocalServer(int port);
+  void                  startLocalServer(const char *path);
+  void                  staleObjectWaitLimit(lat::TimeSpan time);
+  void                  updateToCollector(const std::string &host, int port);
+  void                  listenToCollector(const std::string &host, int port);
+  void                  shutdown();
+  void                  lock();
+  void                  unlock();
 
-  void			start();
-  void			run();
+  void                  start();
+  void                  run();
 
-  void			sendLocalChanges();
+  void                  sendLocalChanges();
 
   static bool setOrder(const CoreObject &a, const CoreObject &b)
-    {
-      if (a.run == b.run) {
-        if (a.lumi == b.lumi) {
-          if (a.streamId == b.streamId) {
-            if (a.moduleId == b.moduleId) {
-              if (*a.dirname == *b.dirname) {
-                return a.objname < b.objname;
-              }
-              return *a.dirname < *b.dirname;
-            }
-            return a.moduleId < b.moduleId;
-          }
-          return a.streamId < b.streamId;
-        }
-        return a.lumi < b.lumi;
-      }
-      return a.run < b.run;
-    }
+  {
+    KeyObject const& ka = a;
+    KeyObject const& kb = b;
+    return ka < kb;
+  }
 
   struct HashOp
   {
@@ -234,7 +256,7 @@ public:
         a ^= c; a -= dqmhashrot(c,4);  \
         b ^= a; b -= dqmhashrot(a,14); \
         c ^= b; c -= dqmhashrot(b,24); }
- 
+
       uint32_t a, b, c;
       a = b = c = 0xdeadbeef + (uint32_t) keylen;
       const auto *k = (const unsigned char *) key;
@@ -285,71 +307,71 @@ public:
 #     undef dqmhashfinal
     }
 
-  static void		packQualityData(std::string &into, const QReports &qr);
-  static void		unpackQualityData(QReports &qr, uint32_t &flags, const char *from);
+  static void           packQualityData(std::string &into, const QReports &qr);
+  static void           unpackQualityData(QReports &qr, uint32_t &flags, const char *from);
 
 protected:
-  std::ostream &	logme();
-  static void		copydata(Bucket *b, const void *data, size_t len);
-  virtual void		sendObjectToPeer(Bucket *msg, Object &o, bool data);
+  std::ostream &        logme();
+  static void           copydata(Bucket *b, const void *data, size_t len);
+  virtual void          sendObjectToPeer(Bucket *msg, Object &o, bool data);
 
-  virtual bool		shouldStop();
-  void			waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner);
-  virtual void		releaseFromWait(Bucket *msg, WaitObject &w, Object *o);
-  virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
+  virtual bool          shouldStop();
+  void                  waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner);
+  virtual void          releaseFromWait(Bucket *msg, WaitObject &w, Object *o);
+  virtual bool          onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
 
-  // bool			reconstructObject(Object &o);
-  // bool			reinstateObject(DQMStore *store, Object &o);
-  virtual Object *	findObject(Peer *p, const std::string &name, Peer **owner = nullptr) = 0;
-  virtual Object *	makeObject(Peer *p, const std::string &name) = 0;
-  virtual void		markObjectsDead(Peer *p) = 0;
-  virtual void		purgeDeadObjects(Peer *p) = 0;
+  // bool                       reconstructObject(Object &o);
+  // bool                       reinstateObject(DQMStore *store, Object &o);
+  virtual Object *      findObject(Peer *p, const std::string &name, Peer **owner = nullptr) = 0;
+  virtual Object *      makeObject(Peer *p, const std::string &name) = 0;
+  virtual void          markObjectsDead(Peer *p) = 0;
+  virtual void          purgeDeadObjects(Peer *p) = 0;
 
-  virtual Peer *	getPeer(lat::Socket *s) = 0;
-  virtual Peer *	createPeer(lat::Socket *s) = 0;
-  virtual void		removePeer(Peer *p, lat::Socket *s) = 0;
-  virtual void		sendObjectListToPeer(Bucket *msg, bool all, bool clear) = 0;
-  virtual void		sendObjectListToPeers(bool all) = 0;
+  virtual Peer *        getPeer(lat::Socket *s) = 0;
+  virtual Peer *        createPeer(lat::Socket *s) = 0;
+  virtual void          removePeer(Peer *p, lat::Socket *s) = 0;
+  virtual void          sendObjectListToPeer(Bucket *msg, bool all, bool clear) = 0;
+  virtual void          sendObjectListToPeers(bool all) = 0;
 
-  void			updateMask(Peer *p);
-  virtual void		updatePeerMasks() = 0;
-  static void		discard(Bucket *&b);
+  void                  updateMask(Peer *p);
+  virtual void          updatePeerMasks() = 0;
+  static void           discard(Bucket *&b);
 
-  bool			debug_;
-  pthread_mutex_t	lock_;
+  bool                  debug_;
+  pthread_mutex_t       lock_;
 
 private:
-  void			losePeer(const char *reason,
-				 Peer *peer,
-				 lat::IOSelectEvent *event,
-				 lat::Error *err = nullptr);
-  void			requestObjectData(Peer *p, const char *name, size_t len);
-  void			releaseFromWait(WaitList::iterator i, Object *o);
-  void			releaseWaiters(const std::string &name, Object *o);
+  void                  losePeer(const char *reason,
+                                 Peer *peer,
+                                 lat::IOSelectEvent *event,
+                                 lat::Error *err = nullptr);
+  void                  requestObjectData(Peer *p, const char *name, size_t len);
+  void                  releaseFromWait(WaitList::iterator i, Object *o);
+  void                  releaseWaiters(const std::string &name, Object *o);
 
-  bool			onPeerData(lat::IOSelectEvent *ev, Peer *p);
-  bool			onPeerConnect(lat::IOSelectEvent *ev);
-  bool			onLocalNotify(lat::IOSelectEvent *ev);
+  bool                  onPeerData(lat::IOSelectEvent *ev, Peer *p);
+  bool                  onPeerConnect(lat::IOSelectEvent *ev);
+  bool                  onLocalNotify(lat::IOSelectEvent *ev);
 
-  std::string		appname_;
-  int			pid_;
+  std::string           appname_;
+  int                   pid_;
 
-  lat::IOSelector	sel_;
-  lat::Socket		*server_;
-  lat::Pipe		wakeup_;
-  lat::Time		version_;
+  lat::IOSelector       sel_;
+  lat::Socket           *server_;
+  lat::Pipe             wakeup_;
+  lat::Time             version_;
 
-  AutoPeer		upstream_;
-  AutoPeer		downstream_;
-  WaitList		waiting_;
+  AutoPeer              upstream_;
+  AutoPeer              downstream_;
+  WaitList              waiting_;
 
-  pthread_t		communicate_;
-  sig_atomic_t		shutdown_;
+  pthread_t             communicate_;
+  sig_atomic_t          shutdown_;
 
-  int			delay_;
-  lat::TimeSpan		waitStale_;
-  lat::TimeSpan		waitMax_;
-  bool			flush_;
+  int                   delay_;
+  lat::TimeSpan         waitStale_;
+  lat::TimeSpan         waitMax_;
+  bool                  flush_;
 
 public:
   // copying is not available
@@ -376,7 +398,7 @@ public:
   DQMImplNet(const std::string &appname = "")
     : DQMNet(appname)
     {}
-  
+
   ~DQMImplNet() override
     = default;
 
@@ -396,31 +418,31 @@ protected:
       typename ObjectMap::iterator pos;
       typename PeerMap::iterator i, e;
       if (owner)
-	*owner = nullptr;
+        *owner = nullptr;
       if (p)
       {
-	auto *ip = static_cast<ImplPeer *>(p);
-	pos = ip->objs.find(proto);
-	if (pos == ip->objs.end())
-	  return nullptr;
-	else
-	{
-	  if (owner) *owner = ip;
-	  return const_cast<ObjType *>(&*pos);
-	}
+        auto *ip = static_cast<ImplPeer *>(p);
+        pos = ip->objs.find(proto);
+        if (pos == ip->objs.end())
+          return nullptr;
+        else
+        {
+          if (owner) *owner = ip;
+          return const_cast<ObjType *>(&*pos);
+        }
       }
       else
       {
-	for (i = peers_.begin(), e = peers_.end(); i != e; ++i)
-	{
-	  pos = i->second.objs.find(proto);
-	  if (pos != i->second.objs.end())
-	  {
-	    if (owner) *owner = &i->second;
-	    return const_cast<ObjType *>(&*pos);
-	  }
-	}
-	return nullptr;
+        for (i = peers_.begin(), e = peers_.end(); i != e; ++i)
+        {
+          pos = i->second.objs.find(proto);
+          if (pos != i->second.objs.end())
+          {
+            if (owner) *owner = &i->second;
+            return const_cast<ObjType *>(&*pos);
+          }
+        }
+        return nullptr;
       }
     }
 
@@ -453,15 +475,15 @@ protected:
   markObjectsDead(Peer *p) override
     {
       uint64_t minreq
-	= (lat::Time::current()
-	  - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
+        = (lat::Time::current()
+          - lat::TimeSpan(0, 0, 5 /* minutes */, 0, 0)).ns();
       auto *ip = static_cast<ImplPeer *>(p);
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; ++i)
       {
-	if (i->lastreq && i->lastreq < minreq)
-	  const_cast<ObjType &>(*i).lastreq = 0;
-	const_cast<ObjType &>(*i).flags |= DQM_PROP_DEAD;
+        if (i->lastreq && i->lastreq < minreq)
+          const_cast<ObjType &>(*i).lastreq = 0;
+        const_cast<ObjType &>(*i).flags |= DQM_PROP_DEAD;
       }
     }
 
@@ -473,10 +495,10 @@ protected:
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; )
       {
-	if (i->flags & DQM_PROP_DEAD)
-	  ip->objs.erase(i++);
-	else
-	  ++i;
+        if (i->flags & DQM_PROP_DEAD)
+          ip->objs.erase(i++);
+        else
+          ++i;
       }
     }
 
@@ -513,14 +535,14 @@ protected:
 
       typename ObjectMap::iterator i, e;
       for (i = ip->objs.begin(), e = ip->objs.end(); i != e; )
-	ip->objs.erase(i++);
-    
+        ip->objs.erase(i++);
+
       peers_.erase(s);
 
       // If we removed a peer with objects, our list of objects
       // has changed and we need to update downstream peers.
       if (needflush)
-	sendLocalChanges();
+        sendLocalChanges();
     }
 
   /// Send all objects to a peer and optionally mark sent objects old.
@@ -532,11 +554,11 @@ protected:
       size_t size = 0;
       size_t numobjs = 0;
       for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-	for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi, ++numobjs)
-	  if (all || (oi->flags & DQM_PROP_NEW))
-	    size += 9*sizeof(uint32_t) + oi->dirname->size()
-		    + oi->objname.size() + 1 + oi->scalar.size() + oi->qdata.size()
-		    + (oi->lastreq > 0 ? oi->rawdata.size() : 0);
+        for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi, ++numobjs)
+          if (all || (oi->flags & DQM_PROP_NEW))
+            size += 9*sizeof(uint32_t) + oi->dirname->size()
+                    + oi->objname.size() + 1 + oi->scalar.size() + oi->qdata.size()
+                    + (oi->lastreq > 0 ? oi->rawdata.size() : 0);
 
       msg->data.reserve(msg->data.size() + size + 8 * sizeof(uint32_t));
 
@@ -549,14 +571,14 @@ protected:
       copydata(msg, &words[0], sizeof(words));
 
       for (pi = peers_.begin(), pe = peers_.end(); pi != pe; ++pi)
-	for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
-	  if (all || (oi->flags & DQM_PROP_NEW))
-	  {
-	    sendObjectToPeer(msg, const_cast<ObjType &>(*oi), oi->lastreq > 0);
-	    if (clear)
-	      const_cast<ObjType &>(*oi).flags &= ~DQM_PROP_NEW;
-	    ++nupdates;
-	  }
+        for (oi = pi->second.objs.begin(), oe = pi->second.objs.end(); oi != oe; ++oi)
+          if (all || (oi->flags & DQM_PROP_NEW))
+          {
+            sendObjectToPeer(msg, const_cast<ObjType &>(*oi), oi->lastreq > 0);
+            if (clear)
+              const_cast<ObjType &>(*oi).flags &= ~DQM_PROP_NEW;
+            ++nupdates;
+          }
 
       words[1] = DQM_REPLY_LIST_END;
       words[2] = nupdates;
@@ -570,29 +592,29 @@ protected:
       typename ObjectMap::iterator oi, oe;
       for (i = peers_.begin(), e = peers_.end(); i != e; ++i)
       {
-	ImplPeer &p = i->second;
-	if (! p.update)
-	  continue;
+        ImplPeer &p = i->second;
+        if (! p.update)
+          continue;
 
-	if (debug_)
-	  logme()
-	    << "DEBUG: notifying " << p.peeraddr << std::endl;
+        if (debug_)
+          logme()
+            << "DEBUG: notifying " << p.peeraddr << std::endl;
 
-	Bucket msg;
+        Bucket msg;
         msg.next = nullptr;
-	sendObjectListToPeer(&msg, !p.updated || all, true);
+        sendObjectListToPeer(&msg, !p.updated || all, true);
 
-	if (! msg.data.empty())
-	{
-	  Bucket **prev = &p.sendq;
-	  while (*prev)
-	    prev = &(*prev)->next;
+        if (! msg.data.empty())
+        {
+          Bucket **prev = &p.sendq;
+          while (*prev)
+            prev = &(*prev)->next;
 
-	  *prev = new Bucket;
-	  (*prev)->next = nullptr;
-	  (*prev)->data.swap(msg.data);
-	}
-	p.updated = true;
+          *prev = new Bucket;
+          (*prev)->next = nullptr;
+          (*prev)->data.swap(msg.data);
+        }
+        p.updated = true;
       }
     }
 
@@ -601,25 +623,25 @@ protected:
     {
       typename PeerMap::iterator i, e;
       for (i = peers_.begin(), e = peers_.end(); i != e; )
-	updateMask(&(i++)->second);
+        updateMask(&(i++)->second);
     }
 
 protected:
-  PeerMap		peers_;
+  PeerMap               peers_;
 };
-  
+
 
 class DQMBasicNet : public DQMImplNet<DQMNet::Object>
 {
 public:
   DQMBasicNet(const std::string &appname = "");
 
-  void			reserveLocalSpace(uint32_t size);
-  void			updateLocalObject(Object &o);
-  bool			removeLocalExcept(const std::set<std::string> &known);
+  void                  reserveLocalSpace(uint32_t size);
+  void                  updateLocalObject(Object &o);
+  bool                  removeLocalExcept(const std::set<std::string> &known);
 
 private:
-  ImplPeer		*local_;
+  ImplPeer              *local_;
 };
 
 
