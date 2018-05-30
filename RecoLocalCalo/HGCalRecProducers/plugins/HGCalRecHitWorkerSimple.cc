@@ -112,7 +112,6 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
       break;
     case DetId::HGCalHSc:
       idtype = hgcbh; 
-      thickness = 1;
       break;
     default:
       switch (detid.subdetId())  {
@@ -127,7 +126,6 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
       case HcalEndcap:
       case HGCHEB:
 	idtype = hgcbh; 
-	thickness = 1;
 	break;
       default:
 	break;
