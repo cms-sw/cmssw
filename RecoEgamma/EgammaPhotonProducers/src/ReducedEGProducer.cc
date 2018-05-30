@@ -46,7 +46,7 @@
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
-  ootPhotonT_(!ootPhotonT_.isUninitialized() ? consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("ootPhotons")) : edm::EDGetTokenT<reco::PhotonCollection>()),
+  ootPhotonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("ootPhotons"))),
   gsfElectronT_(consumes<reco::GsfElectronCollection>(config.getParameter<edm::InputTag>("gsfElectrons"))),
   gsfTrackT_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
   conversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("conversions"))),
