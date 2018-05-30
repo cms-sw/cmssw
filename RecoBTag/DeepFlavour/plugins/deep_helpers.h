@@ -4,8 +4,9 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
-
-
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 namespace btagbtvdeep {
 

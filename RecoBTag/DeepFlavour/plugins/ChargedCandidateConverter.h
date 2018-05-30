@@ -4,6 +4,8 @@
 #include "deep_helpers.h"
 #include "TrackInfoBuilder.h"
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
