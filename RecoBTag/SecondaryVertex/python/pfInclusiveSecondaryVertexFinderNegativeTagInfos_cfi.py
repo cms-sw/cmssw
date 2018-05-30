@@ -5,7 +5,7 @@ from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi impor
 pfInclusiveSecondaryVertexFinderNegativeTagInfos = pfInclusiveSecondaryVertexFinderTagInfos.clone(
     extSVDeltaRToJet = -0.3,
     extSVCollection  = 'inclusiveCandidateNegativeSecondaryVertices',
-    vertexCuts = pfInclusiveSecondaryVertexFinderTagInfos.vertexCuts.clone(
+    vertexCuts = dict(
         distVal2dMin = -2.5,
         distVal2dMax = -0.01,
         distSig2dMin = -99999.9,
