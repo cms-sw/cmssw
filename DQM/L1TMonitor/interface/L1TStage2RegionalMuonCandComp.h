@@ -46,8 +46,6 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   bool verbose;
   bool kalman;
   
-  int nbins=17;
-
   MonitorElement* summary;
   MonitorElement* errorSummaryNum;
   MonitorElement* errorSummaryDen;

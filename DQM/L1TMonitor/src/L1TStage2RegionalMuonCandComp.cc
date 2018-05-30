@@ -54,31 +54,16 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
     trkAddrIgnoreText = " (Bad track addresses ignored)";
   }
 
+  int nbins = 17;
+  if (kalman) {
+    nbins += 2;
+  }
+
+
   // Subsystem Monitoring and Muon Output
-  if(!kalman){
   ibooker.setCurrentFolder(monitorDir);
 
-    summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), 17, 1, 18); // range to match bin numbering
-    summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
-    summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
-    summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
-    summary->setBinLabel(NMUONBAD, "muon collection size mismatch", 1);
-    summary->setBinLabel(MUONALL, "# muons", 1);
-    summary->setBinLabel(MUONGOOD, "# matching muons", 1);
-    summary->setBinLabel(PTBAD, "p_{T} mismatch", 1);
-    summary->setBinLabel(ETABAD, "#eta mismatch", 1);
-    summary->setBinLabel(LOCALPHIBAD, "local #phi mismatch", 1);
-    summary->setBinLabel(SIGNBAD, "sign mismatch", 1);
-    summary->setBinLabel(SIGNVALBAD, "sign valid mismatch", 1);
-    summary->setBinLabel(QUALBAD, "quality mismatch", 1);
-    summary->setBinLabel(HFBAD, "HF bit mismatch", 1);
-    summary->setBinLabel(LINKBAD, "link mismatch", 1);
-    summary->setBinLabel(PROCBAD, "processor mismatch", 1);
-    summary->setBinLabel(TFBAD, "track finder type mismatch", 1);
-    summary->setBinLabel(TRACKADDRBAD, "track address mismatch", 1);}
-  else{
-    ibooker.setCurrentFolder(monitorDir);
-    summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), 19, 1, 20);; // range to match bin numbering 
+    summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), nbins, 1, nbins+1); // range to match bin numbering
     summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
     summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
     summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
@@ -96,30 +81,12 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
     summary->setBinLabel(PROCBAD, "processor mismatch", 1);
     summary->setBinLabel(TFBAD, "track finder type mismatch", 1);
     summary->setBinLabel(TRACKADDRBAD, "track address mismatch", 1);
+  if (kalman){
     summary->setBinLabel(DXYBAD, "DXY mismatch", 1);
     summary->setBinLabel(PT2BAD, "P_{T}2 mismatch", 1);
   }
 
-  if(!kalman) {
-    ibooker.setCurrentFolder(monitorDir);
-    errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), 14, 1, 15); // range to match bin numbering
-    errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
-    errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
-    errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
-    errorSummaryNum->setBinLabel(RPT, "p_{T} mismatch", 1);
-    errorSummaryNum->setBinLabel(RETA, "#eta mismatch", 1);
-    errorSummaryNum->setBinLabel(RLOCALPHI, "local #phi mismatch", 1);
-    errorSummaryNum->setBinLabel(RSIGN, "sign mismatch", 1);
-    errorSummaryNum->setBinLabel(RSIGNVAL, "sign valid mismatch", 1);
-    errorSummaryNum->setBinLabel(RQUAL, "quality mismatch", 1);
-    errorSummaryNum->setBinLabel(RHF, "HF bit mismatch", 1);
-    errorSummaryNum->setBinLabel(RLINK, "link mismatch", 1);
-    errorSummaryNum->setBinLabel(RPROC, "processor mismatch", 1);
-    errorSummaryNum->setBinLabel(RTF, "track finder type mismatch", 1);
-    errorSummaryNum->setBinLabel(RTRACKADDR, "track address mismatch", 1);}
-  else {
-    ibooker.setCurrentFolder(monitorDir);
-    errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), 16, 1, 17); // range to match bin numbering
+    errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), nbins-3, 1, nbins-2); // range to match bin numbering
     errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
     errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
     errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
@@ -134,6 +101,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
     errorSummaryNum->setBinLabel(RPROC, "processor mismatch", 1);
     errorSummaryNum->setBinLabel(RTF, "track finder type mismatch", 1);
     errorSummaryNum->setBinLabel(RTRACKADDR, "track address mismatch", 1);
+  if (kalman) {
     errorSummaryNum->setBinLabel(RDXY, "DXY mismatch", 1);
     errorSummaryNum->setBinLabel(RPT2, "P_{T}2 mismatch", 1);
   }
@@ -149,16 +117,10 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   // This needs to come after the calls to setBinLabel.
   errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
-  if(!kalman){
-    ibooker.setCurrentFolder(monitorDir);
-    errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", 14, 1, 15); // range to match bin numbering
-    errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
-    errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);}
-  else {
-    ibooker.setCurrentFolder(monitorDir);
-    errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", 16, 1, 17); // range to match bin numbering
+    errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", nbins-3, 1, nbins-2); // range to match bin numbering
     errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
     errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
+  if (kalman) {
   }
   for (int i = RMUON; i <= errorSummaryDen->getNbinsX(); ++i) {
     errorSummaryDen->setBinLabel(i, "# muons", 1);
@@ -201,7 +163,6 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl1TrkAddr->setAxisTitle("key", 1);
   muColl1TrkAddr->setAxisTitle("value", 2);
   if (kalman) {
-  ibooker.setCurrentFolder(monitorDir);
     muColl1hwDXY = ibooker.book1D("muhwDXYColl1", (muonColl1Title+" HW DXY"+trkAddrIgnoreText).c_str(), 4, 0, 4);
     muColl1hwDXY->setAxisTitle("Hardware DXY",1);
     muColl1hwPt2 = ibooker.book1D("muhwPt2Coll1", (muonColl1Title+"HW p_{T}2"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
@@ -243,7 +204,6 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl2TrkAddr->setAxisTitle("key", 1);
   muColl2TrkAddr->setAxisTitle("value", 2);
   if (kalman) {
-  ibooker.setCurrentFolder(monitorDir);
     muColl2hwDXY = ibooker.book1D("muhwDXYColl2", (muonColl2Title+" HW DXY"+trkAddrIgnoreText).c_str(), 4, 0, 4);
     muColl2hwDXY->setAxisTitle("Hardware DXY",1);
     muColl2hwPt2 = ibooker.book1D("muhwPt2Coll2", (muonColl2Title+"HW p_{T}2"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
@@ -466,7 +426,7 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         }
         summary->Fill(TRACKADDRBAD);
         if (incBin[RTRACKADDR]) errorSummaryNum->Fill(RTRACKADDR);
-       }
+      }
 
       if (incBin[RMUON] && muonSelMismatch) {
         errorSummaryNum->Fill(RMUON);
@@ -505,9 +465,9 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         muColl1hwHF->Fill(muonIt1->hwHF());
         muColl1TrkAddrSize->Fill(muon1TrackAddr.size());
         if (kalman){
-            muColl1hwDXY->Fill(muonIt1->hwDXY());
-            muColl1hwPt2->Fill(muonIt1->hwPt2());
-          }
+          muColl1hwDXY->Fill(muonIt1->hwDXY());
+          muColl1hwPt2->Fill(muonIt1->hwPt2());
+        }
         for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end(); ++trIt1) {
           muColl1TrkAddr->Fill(trIt1->first, trIt1->second);
         }
@@ -524,9 +484,9 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
         muColl2hwHF->Fill(muonIt2->hwHF());
         muColl2TrkAddrSize->Fill(muon2TrackAddr.size());
         if (kalman){
-            muColl2hwDXY->Fill(muonIt2->hwDXY());
-            muColl2hwPt2->Fill(muonIt2->hwPt2());
-          }
+          muColl2hwDXY->Fill(muonIt2->hwDXY());
+          muColl2hwPt2->Fill(muonIt2->hwPt2());
+        }
         for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end(); ++trIt2) {
           muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
         }
