@@ -47,7 +47,7 @@ public:
     : theSample{data}
   {}
   constexpr HcalQIESample(int adc, int capid, int fiber, 
-                          int fiberchan, bool dv, bool er) 
+                          int fiberchan, bool dv=true, bool er=false) 
     : theSample((uint16_t)((adc&0x7f) | ((capid&0x3)<<7) |
       (((fiber-1)&0x7)<<13) | ((fiberchan&0x3)<<11) |
       ((dv)?(0x0200):(0)) | ((er)?(0x0400):(0))))
