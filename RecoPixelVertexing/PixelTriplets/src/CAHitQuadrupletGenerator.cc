@@ -12,7 +12,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 
-
+#include "CAGraph.h"
 #include "CellularAutomaton.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"
