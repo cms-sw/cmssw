@@ -88,13 +88,19 @@ from L1Trigger.VertexFinder.VertexProducer_cff import *
 
 phase2_SimL1Emulator += VertexProducer
 
-# Kalman BMTF
+# Kalman Barrel MTF
 # ########################################################################
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
 
 phase2_SimL1Emulator += simKBmtfDigis
 
-# Tk + Phase1 
+# Barrel EGamma
+# ########################################################################
+from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
+
+phase2_SimL1Emulator += l1EGammaCrystalsProducer
+
+# Tk + StandaloneObj
 # (include L1TkPrimaryVertex)
 # ########################################################################
 from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
@@ -107,12 +113,6 @@ phase2_SimL1Emulator += L1TkEtMiss
 phase2_SimL1Emulator += L1TkHTMissVtx
 phase2_SimL1Emulator += L1TkMuons
 phase2_SimL1Emulator += L1TkTauFromCalo
-
-# EB EGamma
-# ########################################################################
-from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
-
-phase2_SimL1Emulator += l1EGammaCrystalsProducer
 
 # PF Candidates
 # ########################################################################
