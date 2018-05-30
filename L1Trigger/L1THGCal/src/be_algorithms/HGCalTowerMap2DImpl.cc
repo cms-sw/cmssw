@@ -47,7 +47,7 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
     double etEm = layer<=triggerTools_.lastLayerEE() ? calibPt : 0;
     double etHad = layer>triggerTools_.lastLayerEE() ? calibPt : 0;
 
-    towerMapsTmp[layer].addEt(towerGeometryHelper_.getTriggerTowerFromTriggerCell(tc->detId()), etEm, etHad);
+    towerMapsTmp[layer].addEt(towerGeometryHelper_.getTriggerTowerFromTriggerCell(tc->detId(), tc->eta(), tc->phi()), etEm, etHad);
 
   }
 
