@@ -14,6 +14,7 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDCompactViewImpl;
 class DDDivision;
@@ -26,7 +27,6 @@ namespace DDI {
   class Solid;
   class Specific;
 }
-
 
 /**
   Navigation through the compact view of the detector ...
@@ -84,6 +84,7 @@ class DDCompactView
 { 
 public:
   using Graph = math::Graph<DDLogicalPart, DDPosData* >;
+  using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData* >;
   
   //! Creates a compact-view 
   explicit DDCompactView();
@@ -95,6 +96,7 @@ public:
   
   //! Provides read-only access to the data structure of the compact-view.
   const Graph & graph() const;
+  GraphWalker walker() const;
 
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
