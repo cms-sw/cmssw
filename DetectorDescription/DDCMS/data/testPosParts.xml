@@ -4,37 +4,37 @@
     <PosPart copyNumber="0">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:trap1"/>
-      <rRotation name="testRotations:x90Rotation"/>
+      <rRotation name="testRotations:x90"/>
       <Translation z="0*m" y="0*m" x="0*m"/>
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:trap1"/>
-      <rRotation name="testRotations:x90Rotation"/>
+      <rRotation name="testRotations:x90"/>
       <Translation z="1*m" y="0*m" x="0*m"/>
     </PosPart>
     <PosPart copyNumber="2">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:trap1"/>
-      <rRotation name="testRotations:x90Rotation"/>
+      <rRotation name="testRotations:x90"/>
       <Translation z="2*m" y="0*m" x="0*m"/>
     </PosPart>
     <PosPart copyNumber="3">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:trap1"/>
-      <rRotation name="testRotations:x90Rotation"/>
+      <rRotation name="testRotations:x90"/>
       <Translation z="3*m" y="0*m" x="0*m"/>
     </PosPart>
     <PosPart copyNumber="4">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:trap1"/>
-      <rRotation name="testRotations:x90Rotation"/>
+      <rRotation name="testRotations:x90"/>
       <Translation z="4*m" y="0*m" x="0*m"/>
     </PosPart>
     <PosPart copyNumber="5">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:trap1"/>
-      <rRotation name="testRotations:x90Rotation"/>
+      <rRotation name="testRotations:x90"/>
       <Translation z="5*m" y="0*m" x="0*m"/>
     </PosPart>
 
@@ -59,9 +59,9 @@
       <Translation z="5*m" y="0*m" x="0*m"/>
     </PosPart>
 
-    <PosPart copyNumber="0">
+    <PosPart copyNumber="1">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
-      <rChild name="testLogicalParts:trd2mirror"/>
+      <rChild name="testLogicalParts:trd2"/>
       <rRotation name="testRotations:x90y135"/>
       <Translation z="5.1*m" y="0*m" x="0*m"/>
     </PosPart>
@@ -72,11 +72,6 @@
       <Translation z="-5*m" y="0*m" x="0*m"/>
     </PosPart>
     
-    <PosPart copyNumber="0">
-      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
-      <rChild name="testLogicalParts:pczsect1"/>
-      <Translation z="5.5*m" y="0" x="0"/>
-    </PosPart>
     <PosPart copyNumber="0">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:pczsect2"/>
@@ -140,23 +135,8 @@
     </PosPart>
     <PosPart copyNumber="1">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
-      <rChild name="testLogicalParts:anorb"/>
-      <Translation z="-8.8*m" y="5.8*m" x="0."/>
-    </PosPart>
-    <PosPart copyNumber="1">
-      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:etube"/>
       <Translation z="-8.9*m" y="5.9*m" x="0."/>
-    </PosPart>
-    <PosPart copyNumber="1">
-      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
-      <rChild name="testLogicalParts:anellipsoid"/>
-      <Translation z="-9.*m" y="6.*m" x="0."/>
-    </PosPart>
-    <PosPart copyNumber="1">
-      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
-      <rChild name="testLogicalParts:para"/>
-      <Translation z="-9.1*m" y="6.1*m" x="0."/>
     </PosPart>
   </PosPartSection>
 </DDDefinition>

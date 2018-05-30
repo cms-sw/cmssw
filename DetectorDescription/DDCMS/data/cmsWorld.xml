@@ -19,4 +19,12 @@
       <rMaterial name="materials:Air"/>
     </LogicalPart>
   </LogicalPartSection>
+
+  <PosPartSection label="cmsWorld.xml">
+    <PosPart copyNumber="0">
+      <rParent name="OCMS"/>
+      <rChild name="testLogicalParts:MotherOfAllBoxes"/>
+    </PosPart>
+  </PosPartSection>
+
 </DDDefinition>
