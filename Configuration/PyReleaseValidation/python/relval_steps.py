@@ -387,7 +387,7 @@ steps['RunCharmonium2018A']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018A-v1/
 RunhBStarTk={314890: [[500, 700]]} #for central tracking system
 steps['RunZeroBias_hBStarTk']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissioning2018-v1/RAW',label='zbhBSTk',events=100000,location='STD', ls=RunhBStarTk)}
 RunhBStarRP={314276: [[1, 200]]} #for Roman Pot system
-steps['RunMinBias_hBStarRP']={'INPUT':InputInfo(dataSet='/MinimumBias/Commissioning2018-v1/RAW',label='mbhBSRP',events=100000,location='STD', ls=RunhBStarRP)}
+steps['RunZeroBias1_hBStarRP']={'INPUT':InputInfo(dataSet='/ZeroBias1/Commissioning2018-v1/RAW',label='zbhBSRP',events=100000,location='STD', ls=RunhBStarRP)}
 
 
 
