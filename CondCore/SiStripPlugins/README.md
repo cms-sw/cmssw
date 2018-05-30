@@ -19,6 +19,9 @@ The available inspectors are:
 | `SiStripDCSStatusRcd`           | `SiStripBadStrip`	        | `SiStripBadStrip_PayloadInspector.cc`     |
 | `SiStripDetVOffRcd`             | `SiStripDetVOff` 	        | `SiStripDetVOff_PayloadInspector.cc`      |
 | `SiStripConfObjectRcd`          | `SiStripConfObject` 	| `SiStripConfObject_PayloadInspector.cc`   |
+| `SiStripThresholdRcd `          | `SiStripThreshold`          | `SiStripThreshold_PayloadInspector.cc`    |
+| `SiStripLatencyRcd`             | `SiStripLatency`            | `SiStripLatency_PayloadInspector.cc`      |
+
 
 Plots will be shown within the **cmsDbBrowser** [payload inspector](https://cms-conddb.cern.ch/cmsDbBrowser/payload_inspector/Prod) application.
 In the `CondCore/SiStripPlugins/test` directory a few bash scripts to inspect conditions from command line are available.
