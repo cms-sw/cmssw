@@ -7,7 +7,7 @@ from RecoVertex.AdaptiveVertexFinder.candidateVertexArbitrator_cfi import *
 
 inclusiveCandidateNegativeVertexFinder = inclusiveCandidateVertexFinder.clone(
    vertexMinAngleCosine = -0.95, 
-   clusterizer = inclusiveCandidateVertexFinder.clusterizer.clone(
+   clusterizer = dict(
         clusterMinAngleCosine = -0.5
         )
 )
@@ -40,7 +40,7 @@ inclusiveCandidateNegativeVertexFinderCvsL = inclusiveCandidateVertexFinder.clon
    vertexMinDLen2DSig = 1.25,
    vertexMinDLenSig = 0.25,
    vertexMinAngleCosine = -0.95,
-   clusterizer = inclusiveCandidateVertexFinder.clusterizer.clone(
+   clusterizer = dict(
       clusterMinAngleCosine = -0.5
       )
 )
