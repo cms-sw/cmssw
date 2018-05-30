@@ -383,11 +383,11 @@ steps['RunMuOnia2018A']={'INPUT':InputInfo(dataSet='/MuOnia/Run2018A-v1/RAW',lab
 steps['RunNoBPTX2018A']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018A-v1/RAW',label='noBptx2018A',events=100000,location='STD', ls=Run2018A)}
 steps['RunDisplacedJet2018A']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018A-v1/RAW',label='displacedJet2018A',events=100000,location='STD', ls=Run2018A)}
 steps['RunCharmonium2018A']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018A-v1/RAW',label='charm2018A',events=100000,location='STD', ls=Run2018A)}
-#### for for 90 m beta* Totem run ####
+#### for 90 m beta* Totem run relvals ####
 RunhBStarTk={314890: [[500, 700]]} #for central tracking system
 steps['RunZeroBias_hBStarTk']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissioning2018-v1/RAW',label='zbhBSTk',events=100000,location='STD', ls=RunhBStarTk)}
 RunhBStarRP={314276: [[1, 200]]} #for Roman Pot system
-steps['RunZeroBias_hBStarRP']={'INPUT':InputInfo(dataSet='/MinimumBias/Commissioning2018-v1/RAW',label='zbhBSRP',events=100000,location='STD', ls=RunhBStarRP)}
+steps['RunMinBias_hBStarRP']={'INPUT':InputInfo(dataSet='/MinimumBias/Commissioning2018-v1/RAW',label='mbhBSRP',events=100000,location='STD', ls=RunhBStarRP)}
 
 
 
