@@ -1,6 +1,7 @@
 #ifndef DataFormats_ForwardDetId_HGCSiliconDetIdToROC_H
 #define DataFormats_ForwardDetId_HGCSiliconDetIdToROC_H 1
 
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include <iostream>
 #include <map>
 #include <utility>
@@ -14,19 +15,11 @@ public:
   /** This translated TriggerDetId to ROC and viceversa for HGCSilicon*/
   HGCSiliconDetIdToROC();
    
-  int getROCNumber(int triggerCellU, int triggerCellV) const {
-    auto itr = triggerIdToROC_.find(std::make_pair(triggerCellU,triggerCellV));
-    return ((itr == triggerIdToROC_.end()) ? -1 : itr->second);
+  int getROCNumber(HGCalTriggerDetId const& id) const {
+    return getROCNumber(id.triggerCellU(),id.triggerCellV(),id.type());
   }
-  std::vector<std::pair<int,int> > getTriggerId(int roc) const {
-    auto itr = triggerIdFromROC_.find(roc);
-    if (itr != triggerIdFromROC_.end()) { 
-      return itr-> second;
-    } else {
-      std::vector<std::pair<int,int> > list;
-      return list;
-    }
-  }
+  int getROCNumber(int triggerCellU, int triggerCellV, int type) const;
+  std::vector<std::pair<int,int> > getTriggerId(int roc, int type) const;
   void print() const;
     
 private:

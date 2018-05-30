@@ -157,20 +157,24 @@ void testROC() {
 
   HGCSiliconDetIdToROC idToROC;
   idToROC.print();
-  for (int k=1; k<=6; ++k) {
-    auto cells = idToROC.getTriggerId(k);
-    bool error(false);
-    std::cout << "ROC " << k << " has " << cells.size() << " trigger cells:";
-    unsigned int i(0);
-    for (auto cell : cells) {
-      int k0 = idToROC.getROCNumber(cell.first,cell.second);
-      std::cout << " [" << i << "] (" << cell.first << "," << cell.second 
-		<< "):" << k0;
-      ++i;
-      if (k0 != k) error = true;
+  for (int type=0; type<2; ++type) {
+    int kmax = (type==0) ? 6 : 3;
+    for (int k=1; k<=kmax; ++k) {
+      auto cells = idToROC.getTriggerId(k,type);
+      bool error(false);
+      std::cout << "ROC " << type << ":" << k << " has " << cells.size() 
+		<< " trigger cells:";
+      unsigned int i(0);
+      for (auto cell : cells) {
+	int k0 = idToROC.getROCNumber(cell.first,cell.second,type);
+	std::cout << " [" << i << "] (" << cell.first << "," << cell.second 
+		  << "):" << k0;
+	++i;
+	if (k0 != k) error = true;
+      }
+      if (error) std::cout << " ***** ERROR *****" << std::endl;
+      else       std::cout << std::endl;
     }
-    if (error) std::cout << " ***** ERROR *****" << std::endl;
-    else       std::cout << std::endl;
   }
 }
 
