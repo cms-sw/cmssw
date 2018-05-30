@@ -28,6 +28,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <cmath>
 
 #include <boost/cstdint.hpp>
 
