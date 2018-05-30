@@ -16,5 +16,6 @@ l1tdeStage2Bmtf = DQMEDAnalyzer(
     summaryTitle = cms.untracked.string("Summary of comparison between BMTF muons and BMTF emulator muons"),
     ignoreBin = cms.untracked.vint32(ignoreBinsDeStage2Bmtf),
     verbose = cms.untracked.bool(False),
+    kalman = cms.untracked.bool(False),
 )
 
