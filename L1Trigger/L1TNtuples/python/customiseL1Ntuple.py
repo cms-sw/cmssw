@@ -82,6 +82,19 @@ def L1NtupleRAW(process):
 
     return process
 
+def L1NtupleNANO(process):
+
+    L1NtupleTFileOut(process)
+
+    process.load('L1Trigger.L1TNtuples.L1NtupleNANO_cff')
+    process.l1ntuplenano = cms.Path(
+        process.L1NtupleNANO
+    )
+
+    process.schedule.append(process.l1ntuplenano)
+
+    return process
+
 def L1NtupleRAWCalo(process):
 
     L1NtupleTFileOut(process)
@@ -165,6 +178,18 @@ def L1NtupleRAWEMUCalo(process):
 
     return process
 
+def L1NtupleNANOEMU(process):
+
+    L1NtupleNANO(process)
+    process.load('L1Trigger.L1TNtuples.L1NtupleEMU_cff')
+
+    process.L1NtupleGTEMU = cms.Sequence( process.l1uGTEmuTree )
+    process.l1ntuplegtemu = cms.Path(
+        process.L1NtupleGTEMU
+    )
+    process.schedule.append(process.l1ntuplegtemu)
+
+    return process
 
 def L1NtupleRAWEMULegacy(process):
 
