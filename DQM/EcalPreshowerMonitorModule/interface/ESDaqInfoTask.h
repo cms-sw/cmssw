@@ -34,8 +34,6 @@ class ESDaqInfoTask: public edm::EDAnalyzer{
       /// BeginLuminosityBlock
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup) override;
 
-      /// EndLuminosityBlock
-
       /// Reset
       void reset(void);
 

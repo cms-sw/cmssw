@@ -118,9 +118,6 @@ void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 
 }
 
-
-//--------------------------------------------------------
-
 //-------------------------------------------------------------
 
 void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent, 

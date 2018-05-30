@@ -70,11 +70,6 @@ void DQMExample_Step1::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run con
   bookHistos(ibooker_);
 }
 //
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
-
-
-//
 // -------------------------------------- Analyze --------------------------------------------
 //
 void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
@@ -294,10 +289,6 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
       h_ePt_diff->Fill(ele1->pt()-ele1_HLT->pt());
     }
 }
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
-
 
 //
 // -------------------------------------- endRun --------------------------------------------

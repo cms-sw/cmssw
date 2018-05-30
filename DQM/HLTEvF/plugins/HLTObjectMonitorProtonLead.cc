@@ -681,11 +681,17 @@ double HLTObjectMonitorProtonLead::get_wall_time()
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
+HLTObjectMonitorProtonLead::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
 */
 
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
+HLTObjectMonitorProtonLead::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+{
+}
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
