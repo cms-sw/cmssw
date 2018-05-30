@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco2D.cc (Version 2.55)
+//  SiPixelTemplateReco2D.cc (Version 2.60)
 //  Updated to work with the 2D template generation code
 //  2.10 - Add y-lorentz drift to estimate starting point [for FPix]
 //  2.10 - Remove >1 pixel requirement
@@ -8,6 +8,9 @@
 //  2.50 - Add variable cluster shifting to make the position parameter space more symmetric,
 //         also fix potential problems with variable size input clusters and double pixel flags
 //  2.55 - Fix another double pixel flag problem and a small pseudopixel problem in the edgegflagy = 3 case.
+//  2.60 - Modify the algorithm to return the point with the best chi2 from the starting point scan when
+//         the iterative procedure does not converge [eg 1 pixel clusters]
+
 //
 //
 //  Created by Morris Swartz on 7/13/17.

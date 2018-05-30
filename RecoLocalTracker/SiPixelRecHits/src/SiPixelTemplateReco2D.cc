@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco2D.cc (Version 2.55)
+//  SiPixelTemplateReco2D.cc (Version 2.60)
 //  Updated to work with the 2D template generation code
 //  Include all bells and whistles for edge clusters
 //  2.10 - Add y-lorentz drift to estimate starting point [for FPix]
@@ -9,6 +9,8 @@
 //  2.50 - Add variable cluster shifting to make the position parameter space more symmetric,
 //         also fix potential problems with variable size input clusters and double pixel flags
 //  2.55 - Fix another double pixel flag problem and a small pseudopixel problem in the edgegflagy = 3 case.
+//  2.60 - Modify the algorithm to return the point with the best chi2 from the starting point scan when
+//         the iterative procedure does not converge [eg 1 pixel clusters]
 //
 //
 //
@@ -87,6 +89,10 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
    
    // fraction of truncation signal to measure the cluster ends
    const float fracpix = 0.45f;
+   
+   const int nilist = 9, njlist = 5;
+   const float ilist[nilist] = {0.f, -1.f, -0.75f, -0.5f, -0.25f, 0.25f, 0.5f, 0.75f, 1.f};
+   const float jlist[njlist] = {0.f, -0.5f, -0.25f, 0.25f, 0.5f};
    
    
    // Extract some relevant info from the 2D template
@@ -323,7 +329,8 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
    
    float chi2min[2], xerr2[2], yerr2[2];
    float x2D0[2], y2D0[2], qtfrac0[2];
-   int ipass, tpixel, niter0[2];
+   int ipass, tpixel;
+   // niter0[ipass] = niter;   // Not used -- comment out for now.
    
    for(ipass = 0; ipass < npass; ++ipass) {
       
@@ -436,11 +443,11 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
       
       chi2min[ipass] = 1000000.f;
       float chi2, qtemplate, qactive, qtfrac = 0.f, x2D = 0.f, y2D = 0.f;
-
-      for(int is = -4; is<5; ++is) {
-         for(int js = -2; js<3; ++js) {
-            float xtry = x0 + js*xsize/4.;
-            float ytry = y0 + is*ysize/4.;
+    
+      for(int is = 0; is<nilist; ++is) {
+         for(int js = 0; js<njlist; ++js) {
+            float xtry = x0 + jlist[js]*xsize;
+            float ytry = y0 + ilist[is]*ysize;
             chi2 = 0.f;
             qactive = 0.f;
             for(int j=0; j<BXM2; ++j) {for(int i=0; i<BYM2; ++i) {template2d[j][i] = 0.f;}}
@@ -466,6 +473,7 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
       float xstep = 1.0f, ystep = 1.0f;
       float minv11 = 1000.f, minv12 = 1000.f, minv22 = 1000.f;
       chi2 = chi2min[ipass];
+      // int niter0[2];
       while(chi2 <= chi2min[ipass] && niter < 15 && (niter < 2 || (fabs(xstep) > 0.2 && fabs(ystep) > 0.2))) {
          
          // Remember the present parameters
@@ -475,7 +483,6 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
          xerr2[ipass] = minv11;
          yerr2[ipass] = minv22;
          chi2min[ipass] = chi2;
-         niter0[ipass] = niter;
          
          // Calculate the initial template which also allows the error calculation for the struck pixels
          
@@ -538,20 +545,30 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
    }
    
    ipass = 0;
-   if(npass == 1) {
-      // one pass, require that it have iterated
-      if(niter0[0] == 0) {return 2;}
-   } else {
-      // two passes
-      if(niter0[0] == 0 && niter0[1] == 0) {return 2;}
-      if(niter0[0] > 0 && niter0[1] > 0) {
-         // if both have iterated, take the smaller chi2
-         if(chi2min[1] < chi2min[0]) {ipass = 1;}
-      } else {
-         // if one has iterated, take it
-         if(niter0[1] > 0) {ipass = 1;}
-      }
+
+//--- Somewhat experimental, keep this commented out:
+//   if(npass == 1) {
+//      // one pass, require that it have iterated
+//      if(niter0[0] == 0) {return 2;}
+//   } else {
+//      // two passes
+//      if(niter0[0] == 0 && niter0[1] == 0) {return 2;}
+//      if(niter0[0] > 0 && niter0[1] > 0) {
+//         // if both have iterated, take the smaller chi2
+//         if(chi2min[1] < chi2min[0]) {ipass = 1;}
+//      } else {
+//         // if one has iterated, take it
+//         if(niter0[1] > 0) {ipass = 1;}
+//      }
+//   }
+
+   if(npass > 1) {
+      // two passes, take smaller chisqared
+      if(chi2min[1] < chi2min[0]) {ipass = 1;}
    }
+
+
+
    
    // Correct the charge ratio for missing pixels
    
