@@ -19,6 +19,3 @@ l1tdeStage2KalmanBmtf.kalman = cms.untracked.bool(True)
 
 
 # sequences
-l1tStage2BmtfOnlineDQMSeq = cms.Sequence(
-  l1tdeStage2KalmanBmtf
-)
