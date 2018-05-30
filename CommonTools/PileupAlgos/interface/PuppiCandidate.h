@@ -11,11 +11,12 @@ class PuppiCandidate : public fastjet::PseudoJet {
     double pseudorapidity() const { _ensure_valid_eta(); return _eta; }
     double eta() const { return pseudorapidity(); }
     void _ensure_valid_eta() const { if(_eta==fastjet::pseudojet_invalid_rap) _eta = fastjet::PseudoJet::pseudorapidity(); }
-    void set_info(int puppi_register) { puppi_register_ = puppi_register; }
-    inline int puppi_register() const { return puppi_register_; }
+    void set_info(int puppi_register) { _puppi_register = puppi_register; }
+    inline int puppi_register() const { return _puppi_register; }
   private:
+    // variable names in fastjet style
     mutable double _eta = fastjet::pseudojet_invalid_rap;
-    int puppi_register_;
+    int _puppi_register;
 };
 
 #endif
