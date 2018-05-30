@@ -161,4 +161,9 @@ void Py8GunBase::statistics()
 
 }
 
+void Py8GunBase::evtGenDecay()
+{
+  if (evtgenDecays.get()) evtgenDecays->decay();
+}
+
 }
