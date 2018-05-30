@@ -88,6 +88,12 @@ from L1Trigger.VertexFinder.VertexProducer_cff import *
 
 phase2_SimL1Emulator += VertexProducer
 
+# Kalman BMTF
+# ########################################################################
+from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
+
+phase2_SimL1Emulator += simKBmtfDigis
+
 # Tk + Phase1 
 # (include L1TkPrimaryVertex)
 # ########################################################################
