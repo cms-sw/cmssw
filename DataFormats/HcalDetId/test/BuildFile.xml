@@ -1,0 +1,4 @@
+<bin name="test_hcal_detid" file="test_hcal_detid.cu">
+    <use name="DataFormats/DetId"/>
+    <use name="DataFormats/HcalDetId"/>
+</bin>
