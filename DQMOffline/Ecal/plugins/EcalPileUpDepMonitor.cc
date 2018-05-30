@@ -434,7 +434,5 @@ void EcalPileUpDepMonitor::analyze(const edm::Event& e, const edm::EventSetup&)
   recHitEtEE_PV->Fill(PVCollection_h->size(),RecHitEt_EE); 
 }
 
-void
-
 DEFINE_FWK_MODULE(EcalPileUpDepMonitor);
 
