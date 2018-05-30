@@ -14,6 +14,8 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+
 #include <string>
 
 
