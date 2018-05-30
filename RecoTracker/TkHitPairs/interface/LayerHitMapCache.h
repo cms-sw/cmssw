@@ -75,10 +75,8 @@ public:
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
-      //      auto tmp=new RecHitsSortedInPhi (region.hits(iSetup,layer), region.origin(), layer.detLayer());
       auto tmp = add(layer, std::make_unique<RecHitsSortedInPhi>(region.hits(iSetup,layer), region.origin(), layer.detLayer()));
       tmp->theOrigin = region.origin();
-      //      theCache.add( key, tmp);
       lhm = tmp;
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer.detLayer();
     }
