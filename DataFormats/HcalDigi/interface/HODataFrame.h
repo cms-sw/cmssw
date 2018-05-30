@@ -50,7 +50,7 @@ public:
   }
  
   /// validate appropriate DV and ER bits as well as capid rotation for the specified samples (default is all)
-  constexpr bool validate(int firstSample, int nSamples) const {
+  constexpr bool validate(int firstSample=0, int nSamples=100) const {
     int capid=-1;
     bool ok=true;
     for (int i=0; ok && i<nSamples && i+firstSample<size_; i++) {
@@ -70,7 +70,7 @@ public:
   constexpr void setPresamples(int ps) {
     hcalPresamples_|=ps&0xF;
   }
-  constexpr void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask) {
+  constexpr void setZSInfo(bool unsuppressed, bool markAndPass, uint32_t crossingMask=0) {
     hcalPresamples_&=0x7FC00F0F; // preserve actual presamples and fiber idle offset
     if (markAndPass) hcalPresamples_|=0x10;
     if (unsuppressed) hcalPresamples_|=0x20;
