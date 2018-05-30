@@ -536,7 +536,7 @@ template <> void Converter<DDLRotationByAxis>::operator()(xml_h element) const  
   xml_dim_t xrot(element);
   xml_dim_t par(xrot.parent());
   if( xrot.hasAttr(_U(name))) {
-    string    nam  = xrot.nameStr() + string("Rotation"); // xrot.hasAttr(_U(name)) ? xrot.nameStr() : par.nameStr();
+    string    nam  = xrot.nameStr();// + string("Rotation"); // xrot.hasAttr(_U(name)) ? xrot.nameStr() : par.nameStr();
     string    axis = _ns.attr<string>(xrot,_CMU(axis));
     double    angle = _ns.attr<double>(xrot,_U(angle));
     Rotation3D rot;
@@ -817,23 +817,23 @@ template <> void Converter<DDLTrapezoid>::operator()(xml_h element) const {
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
            "+   Trapezoid:  dz=%10.3f [cm] alp1:%.3f bl1=%.3f tl1=%.3f alp2=%.3f bl2=%.3f tl2=%.3f h2=%.3f phi=%.3f theta=%.3f",
            dz, alp1, bl1, tl1, h1, alp2, bl2, tl2, h2, phi, theta);
-  _ns.addSolid(nam, Trap(dz, theta, phi, h1, bl1, tl1, alp1, h2, bl2, tl2, alp2));
+  _ns.addSolid( nam, Trap( dz, theta, phi, h1, bl1, tl1, alp1, h2, bl2, tl2, alp2 ));
 }
 
 /// Converter for <Trd1/> tags
 template <> void Converter<DDLTrd1>::operator()(xml_h element) const {
-  cms::DDNamespace _ns(_param<cms::DDParsingContext>());
-  xml_dim_t e(element);
+  cms::DDNamespace _ns( _param<cms::DDParsingContext>());
+  xml_dim_t e( element );
   string nam      = e.nameStr();
-  double dx1      = _ns.attr<double>(e,_CMU(dx1));
-  double dy1      = _ns.attr<double>(e,_CMU(dy1));
-  double dx2      = _ns.attr<double>(e,_CMU(dx2),0.0);
-  double dy2      = _ns.attr<double>(e,_CMU(dy2),0.0);
-  double dz       = _ns.attr<double>(e,_CMU(dz));
+  double dx1      = _ns.attr<double>( e, _CMU( dx1 ));
+  double dy1      = _ns.attr<double>( e, _CMU( dy1 ));
+  double dx2      = _ns.attr<double>( e, _CMU( dx2 ), 0.0 );
+  double dy2      = _ns.attr<double>( e, _CMU( dy2 ), dy1 );
+  double dz       = _ns.attr<double>( e, _CMU( dz ));
   printout(_ns.context->debug_shapes ? ALWAYS : DEBUG, "MyDDCMS",
 	   "+   Trd1:       dz=%8.3f [cm] dx1:%.3f dy1:%.3f dx2:%.3f dy2:%.3f",
 	   dz, dx1, dy1, dx2, dy2);
-  _ns.addSolid(nam, Trapezoid(dx1, dx2, dy1, dy2, dz));
+  _ns.addSolid( nam, Trapezoid( dx1, dx2, dy1, dy2, dz ));
 }
 
 /// Converter for <Tubs/> tags
