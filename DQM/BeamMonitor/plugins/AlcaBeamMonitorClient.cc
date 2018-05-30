@@ -28,7 +28,7 @@ AlcaBeamMonitorClient::AlcaBeamMonitorClient(const ParameterSet& ps)
       numberOfValuesToSave_(0) {
   dbe_ = Service<DQMStore>().operator->();
 
-  if (monitorName_ != "") monitorName_ = monitorName_ + "/";
+  if (!monitorName_.empty()) monitorName_ = monitorName_ + "/";
 
   varNamesV_.push_back("x");
   varNamesV_.push_back("y");
