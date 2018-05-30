@@ -15,9 +15,9 @@ namespace l1t {
 
     short zside() const { return ((rawId_ >> zsideShift) & zsideMask) ? 1 : -1;}
 
-    unsigned short coord1() const { return (rawId_ >> coord1Shift) & coordMask; }
+    unsigned short iEta() const { return (rawId_ >> coord1Shift) & coordMask; }
 
-    unsigned short coord2() const { return (rawId_ >> coord2Shift) & coordMask;}
+    unsigned short iPhi() const { return (rawId_ >> coord2Shift) & coordMask;}
 
     unsigned short rawId() const {return rawId_;}
 
