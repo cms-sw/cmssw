@@ -14,8 +14,8 @@ public:
   /** This translated TriggerDetId to ROC and viceversa for HGCSilicon*/
   HGCSiliconDetIdToROC();
    
-  int getROCNumber(int waferU, int waferV) const {
-    auto itr = triggerIdToROC_.find(std::make_pair(waferU,waferV));
+  int getROCNumber(int triggerCellU, int triggerCellV) const {
+    auto itr = triggerIdToROC_.find(std::make_pair(triggerCellU,triggerCellV));
     return ((itr == triggerIdToROC_.end()) ? -1 : itr->second);
   }
   std::vector<std::pair<int,int> > getTriggerId(int roc) const {
