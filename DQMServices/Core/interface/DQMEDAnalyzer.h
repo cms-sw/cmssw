@@ -30,8 +30,11 @@ public:
   void endRun(edm::Run const& run, edm::EventSetup const& setup) override;
   void endRunProduce(edm::Run& run, edm::EventSetup const& setup) override;
 
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
+  void endLuminosityBlockProduce(edm::LuminosityBlock & lumi, edm::EventSetup const& setup) final;
 
 
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);

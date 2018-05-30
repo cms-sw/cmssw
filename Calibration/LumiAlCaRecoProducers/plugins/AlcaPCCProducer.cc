@@ -109,6 +109,8 @@ void AlcaPCCProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
 }
 
 //--------------------------------------------------------------------------------------------------
+void AlcaPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
+}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaPCCProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){

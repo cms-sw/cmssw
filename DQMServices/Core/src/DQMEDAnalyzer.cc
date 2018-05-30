@@ -30,7 +30,11 @@ void DQMEDAnalyzer::endRunProduce(edm::Run& run, edm::EventSetup const& setup)
   run.put(runToken_, std::make_unique<DQMToken>());
 }
 
+void DQMEDAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) 
+{ }
 
+void DQMEDAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) 
+{ }
 
 void DQMEDAnalyzer::endLuminosityBlockProduce(edm::LuminosityBlock & lumi, edm::EventSetup const& setup) 
 {

@@ -295,14 +295,8 @@ void
 LogMessageMonitor::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+
 void
 LogMessageMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
