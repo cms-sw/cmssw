@@ -90,8 +90,10 @@ phase2_SimL1Emulator += VertexProducer
 
 # Kalman Barrel MTF
 # ########################################################################
+from L1Trigger.L1TMuonBarrel.simKBmtfStubs_cfi import *
 from L1Trigger.L1TMuonBarrel.simKBmtfDigis_cfi import *
 
+phase2_SimL1Emulator += simKBmtfStubs
 phase2_SimL1Emulator += simKBmtfDigis
 
 # Barrel EGamma
