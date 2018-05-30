@@ -82,9 +82,15 @@ premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
 # ########################################################################
 phase2_SimL1Emulator = SimL1Emulator.copy()
 
+# Vertex
+# ########################################################################
 from L1Trigger.VertexFinder.VertexProducer_cff import *
+
 phase2_SimL1Emulator += VertexProducer
 
+# Tk + Phase1 
+# (include L1TkPrimaryVertex)
+# ########################################################################
 from L1Trigger.L1TTrackMatch.L1TkObjectProducers_cff import *
 phase2_SimL1Emulator += L1TkElectrons
 phase2_SimL1Emulator += L1TkIsoElectrons
@@ -96,9 +102,14 @@ phase2_SimL1Emulator += L1TkHTMissVtx
 phase2_SimL1Emulator += L1TkMuons
 phase2_SimL1Emulator += L1TkTauFromCalo
 
+# EB EGamma
+# ########################################################################
 from L1Trigger.L1CaloTrigger.l1EGammaCrystalsProducer_cfi import *
+
 phase2_SimL1Emulator += l1EGammaCrystalsProducer
 
+# PF Candidates
+# ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 #l1ParticleFlow = cms.Sequence(
 #    l1EGammaCrystalsProducer + 
@@ -108,9 +119,47 @@ from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
 #    pfClustersFromCombinedCalo +
 #    l1pfProducer
 #)
+l1pfProducerTightTK = l1pfProducer.clone(trkMinStubs = 6)
+l1ParticleFlow += l1pfProducerTightTK 
+
 phase2_SimL1Emulator += l1ParticleFlow
 
+# PF METs
+# ########################################################################
+from RecoMET.METProducers.PFMET_cfi import pfMet
+pfMet.calculateSignificance = False
+l1MetCalo    = pfMet.clone(src = "l1pfProducer:Calo")
+l1MetTK      = pfMet.clone(src = "l1pfProducer:TK")
+l1MetTKV     = pfMet.clone(src = "l1pfProducer:TKVtx")
+l1MetTightTK      = pfMet.clone(src = "l1pfProducerTightTK:TK")
+l1MetTightTKV     = pfMet.clone(src = "l1pfProducerTightTK:TKVtx")
+l1MetPF      = pfMet.clone(src = "l1pfProducer:PF")
+l1MetPuppi   = pfMet.clone(src = "l1pfProducer:Puppi")
+l1PFMets = cms.Sequence( l1MetCalo + l1MetTK + l1MetTKV + l1MetPF + l1MetPuppi
+                        + l1MetTightTK + l1MetTightTKV)
+
+phase2_SimL1Emulator += l1PFMets
+
+# PF Jets
+# ########################################################################
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+ak4L1Calo    = ak4PFJets.clone(src = 'l1pfProducer:Calo')
+ak4L1TK      = ak4PFJets.clone(src = 'l1pfProducer:TK')
+ak4L1TKV     = ak4PFJets.clone(src = 'l1pfProducer:TKVtx')
+ak4L1TightTK      = ak4PFJets.clone(src = 'l1pfProducerTightTK:TK')
+ak4L1TightTKV     = ak4PFJets.clone(src = 'l1pfProducerTightTK:TKVtx')
+ak4L1PF      = ak4PFJets.clone(src = 'l1pfProducer:PF')
+ak4L1Puppi   = ak4PFJets.clone(src = 'l1pfProducer:Puppi')
+l1PFJets = cms.Sequence( ak4L1Calo + ak4L1TK + ak4L1TKV + ak4L1PF + ak4L1Puppi
+                        + ak4L1TightTK + ak4L1TightTKV)
+
+phase2_SimL1Emulator += l1PFJets
+
+
+# Track Jets
+# ########################################################################
 from L1Trigger.L1TTrackMatch.L1TkFastJetProducer_cfi import *
+
 phase2_SimL1Emulator += L1TkFastJets
 
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
