@@ -27,8 +27,8 @@ class HGCalTriggerNtupleHGCTowers : public HGCalTriggerNtupleBase
     std::vector<float> tower_phi_;
     std::vector<float> tower_etEm_;
     std::vector<float> tower_etHad_;
-    std::vector<int> tower_iX_;
-    std::vector<int> tower_iY_;
+    std::vector<int> tower_iEta_;
+    std::vector<int> tower_iPhi_;
 
 };
 
@@ -55,8 +55,8 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("tower_phi", &tower_phi_);
   tree.Branch("tower_etEm", &tower_etEm_);
   tree.Branch("tower_etHad", &tower_etHad_);
-  tree.Branch("tower_iX", &tower_iX_);
-  tree.Branch("tower_iY", &tower_iY_);
+  tree.Branch("tower_iEta", &tower_iEta_);
+  tree.Branch("tower_iPhi", &tower_iPhi_);
 
 }
 
@@ -88,8 +88,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     tower_etEm_.emplace_back(tower_itr->etEm());
     tower_etHad_.emplace_back(tower_itr->etHad());
 
-    tower_iX_.emplace_back(tower_itr->id().iEta());
-    tower_iY_.emplace_back(tower_itr->id().iPhi());
+    tower_iEta_.emplace_back(tower_itr->id().iEta());
+    tower_iPhi_.emplace_back(tower_itr->id().iPhi());
   }
 }
 
@@ -105,6 +105,6 @@ clear()
   tower_phi_.clear();
   tower_etEm_.clear();
   tower_etHad_.clear();
-  tower_iX_.clear();
-  tower_iY_.clear();
+  tower_iEta_.clear();
+  tower_iPhi_.clear();
 }
