@@ -71,8 +71,6 @@ namespace l1t
 
 	  if (muCand.hwQual() == 0 && !isKalman)
 	    continue;//though away muons with Zero-Quality (ONLY BMTF)
-	  if (muCand.hwQual() == 0)
-	    continue;//though away muons with Zero-Quality
 
 	  if (isKalman) {
 	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
