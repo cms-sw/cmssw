@@ -13,6 +13,7 @@ L1TStage2BMTF::L1TStage2BMTF(const edm::ParameterSet & ps):
   //  bmtfSourceTwinMux1(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux1")),
   //  bmtfSourceTwinMux2(ps.getParameter<edm::InputTag>("bmtfSourceTwinMux2")),
   verbose(ps.getUntrackedParameter<bool>("verbose", false)),
+  kalman(ps.getUntrackedParameter<bool>("kalman", false)),
   global_phi(-1000)
 {
   bmtfToken=consumes<l1t::RegionalMuonCandBxCollection>(ps.getParameter<edm::InputTag>("bmtfSource"));
@@ -74,6 +75,28 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
   bmtf_hwQual_bx   = ibooker.book2D("bmtf_hwQual_bx"  , "HW Quality vs BX"      ,  20,   -0.5,  19.5,  5, -2.5, 2.5);
   bmtf_hwQual_bx->setTitle("; HW Quality; BX");
 
+  if (kalman) {
+    ibooker.setCurrentFolder(monitorDir);
+    kbmtf_hwDXY = ibooker.book1D("kbmtf_hwDXY", "HW DXY", 4, 0, 4);
+    kbmtf_hwPt2 = ibooker.book1D("kbmtf_hwPt2", "HW p_{T}2", 512, -0.5, 511.5);
+    bmtf_hwEta->setTitle("kbmtf_hwEta");
+    bmtf_hwLocalPhi->setTitle("kbmtf_hwLocalPhi");
+    bmtf_hwGlobalPhi->setTitle("kbmtf_hwGlobalPhi");
+    kmtf_hwPt  = ibooker.book1D("kmtf_hwPt", "HW p_{T}", 521, -0.5, 520.5);
+    kmtf_hwPt->setTitle("kbmtf_hwPt");
+    bmtf_hwQual->setTitle("kbmtf_hwQual");
+    bmtf_proc->setTitle("kbmtf_proc");
+    bmtf_wedge_bx->setTitle("kbmtf_wedge_bx;Wedge; BX");
+    bmtf_hwEta_hwLocalPhi->setTitle("kbmtf_hwEta_hwLocalPhi;HW #eta; HW Local #phi");
+    bmtf_hwEta_hwGlobalPhi->setTitle("kbmtf_hwEta_hwGlobalPhi;HW #eta; HW Global #phi");
+    bmtf_hwPt_hwEta->setTitle("kbmtf_hwPt_hwEta;HW p_{T}; HW #eta");
+    bmtf_hwPt_hwLocalPhi->setTitle("kbmtf_hwPt_hwLocalPhi;HW p_{T}; HW Local #phi");
+    bmtf_hwEta_bx->setTitle("kbmtf_hwEta_bx;HW #eta; BX");
+    bmtf_hwLocalPhi_bx->setTitle("kbmtf_hwLocalPhi_bx;HW Local #phi; BX");
+    bmtf_hwPt_bx->setTitle("kbmtf_hwPt_bx;HW p_{T}; BX");
+    kmtf_hwQual_bx   = ibooker.book2D("kmtf_hwQual_bx"  , "HW Quality vs BX"      ,  13,   -0.5,  12.5,  5, -2.5, 2.5);
+    kmtf_hwQual_bx->setTitle("kbmtf_hwQual_bx; HW Quality; BX");
+  }
   // bmtf_twinmuxInput_PhiBX = ibooker.book1D("bmtf_twinmuxInput_PhiBX"  , "TwinMux Input Phi BX"      ,  5, -2.5, 2.5);
   // bmtf_twinmuxInput_PhiPhi = ibooker.book1D("bmtf_twinmuxInput_PhiPhi"  , "TwinMux Input Phi HW Phi"      , 201, -100.5, 100.5);
   // bmtf_twinmuxInput_PhiPhiB = ibooker.book1D("bmtf_twinmuxInput_PhiPhiB"  , "TwinMux Input Phi HW PhiB"   , 201, -100.5, 100.5);
@@ -110,12 +133,22 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
 
 void L1TStage2BMTF::analyze(const edm::Event & eve, const edm::EventSetup & eveSetup)
 {
-  if (verbose) {
-    edm::LogInfo("L1TStage2BMTF") << "L1TStage2BMTF: analyze...." << std::endl;
-  }
 
   edm::Handle<l1t::RegionalMuonCandBxCollection> bmtfMuon;
   eve.getByToken(bmtfToken, bmtfMuon);
+
+  if (kalman) {
+    for(int itBX=bmtfMuon->getFirstBX(); itBX<=bmtfMuon->getLastBX(); ++itBX) {
+      for(l1t::RegionalMuonCandBxCollection::const_iterator itMuon = bmtfMuon->begin(itBX); itMuon != bmtfMuon->end(itBX); ++itMuon) {
+        kmtf_hwPt->Fill(itMuon->hwPt());
+        kbmtf_hwDXY->Fill(itMuon->hwDXY());
+        kbmtf_hwPt2->Fill(itMuon->hwPt2());
+        if (fabs(bmtfMuon->getLastBX()-bmtfMuon->getFirstBX())>3){
+          kmtf_hwQual_bx->Fill(itMuon->hwQual(), itBX);
+        }
+      }
+    }
+  }
 
   //  edm::Handle<L1MuDTChambThContainer> bmtfMuonTwinMux1;
   //  eve.getByToken(bmtfTokenTwinMux1, bmtfMuonTwinMux1);
