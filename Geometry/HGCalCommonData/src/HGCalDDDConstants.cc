@@ -198,12 +198,12 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU,
     auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer,waferU,waferV));
     int type = ((itr == hgpar_->typesInLayers_.end() ? maxType : 
 		 hgpar_->waferTypeL_[itr->second]));
-    thick    = hgpar_->cellThickness_[type];
+    thick    = 10000.0*hgpar_->cellThickness_[type];
   } else if ((mode_ == HGCalGeometryMode::Hexagon) ||
 	     (mode_ == HGCalGeometryMode::HexagonFull)) {
     int type = (((waferU>=0)&&(waferU<(int)(hgpar_->waferTypeL_.size()))) ? 
 		hgpar_->waferTypeL_[waferU] : minType);
-    thick    = 0.01*type;
+    thick    = 100.0*type;
   }
   return thick;
 }
