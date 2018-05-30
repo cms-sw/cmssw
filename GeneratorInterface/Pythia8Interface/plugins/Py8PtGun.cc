@@ -106,6 +106,7 @@ bool Py8PtGun::generatePartonsAndHadronize()
    }
    
    if ( !fMasterGen->next() ) return false;
+   evtGenDecay();
    
    event().reset(new HepMC::GenEvent);
    return toHepMC.fill_next_event( fMasterGen->event, event().get() );
