@@ -3,6 +3,7 @@
 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "FWCore/Utilities/interface/Visibility.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class dso_hidden ConversionRegion {
 
