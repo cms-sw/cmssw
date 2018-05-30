@@ -115,7 +115,7 @@ void FiberSD::update(const BeginOfJob * job) {
   es->get<HcalSimNumberingRecord>().get(hdc);
   if (hdc.isValid()) {
     HcalDDDSimConstants *hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
-    theShower->initRun(nullptr, hcalConstants);
+    theShower->initRun(hcalConstants);
   } else {
     edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
     throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";

@@ -40,7 +40,7 @@ public:
 public:
 
   void                initParticleTable(G4ParticleTable *);
-  CastorShowerEvent   getShowerHits(G4Step*, bool&);
+  CastorShowerEvent   getShowerHits(const G4Step*, bool&);
   int                 FindEnergyBin(double);
   int                 FindEtaBin(double);
   int                 FindPhiBin(double);
@@ -70,6 +70,10 @@ private:
   
   std::vector<double> pmom;
 
+  int                 emPDG, epPDG, gammaPDG;
+  int                 pi0PDG, etaPDG, nuePDG, numuPDG, nutauPDG;
+  int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
+  int                 mumPDG, mupPDG;
 // new variables (bins in eta and phi)
   unsigned int        nBinsE, nBinsEta, nBinsPhi;
   unsigned int        nEvtPerBinE, nEvtPerBinEta, nEvtPerBinPhi;

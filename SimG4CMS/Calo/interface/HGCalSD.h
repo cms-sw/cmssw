@@ -22,14 +22,14 @@ class HGCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:    
 
   HGCalSD(const std::string& , const DDCompactView &, const SensitiveDetectorCatalog &,
-	edm::ParameterSet const &, const SimTrackManager*);
+	  edm::ParameterSet const &, const SimTrackManager*);
   ~HGCalSD() override;
-  bool                    ProcessHits(G4Step * , G4TouchableHistory * ) override;
-  double                  getEnergyDeposit(G4Step* ) override;
+
   uint32_t                setDetUnitId(const G4Step* step) override;
 
 protected:
 
+  double                  getEnergyDeposit(const G4Step*) override;
   void                    update(const BeginOfJob *) override;
   void                    initRun() override;
   bool                    filterHit(CaloG4Hit*, double) override;
@@ -38,15 +38,12 @@ private:
 
   uint32_t                setDetUnitId(int, int, int, int, G4ThreeVector &);
   bool                    isItinFidVolume (const G4ThreeVector&) {return true;}
-  int                     setTrackID(const G4Step * step);
-
 
   HGCalNumberingScheme*           numberingScheme_;
   HGCMouseBite*                   mouseBite_;
   DetId::Detector                 mydet_;
   std::string                     nameX_;
-  G4int                           mumPDG_, mupPDG_; 
-  HGCalGeometryMode::GeometryMode m_mode;
+  HGCalGeometryMode::GeometryMode geom_mode_;
   double                          eminHit_, slopeMin_, mouseBiteCut_;
   int                             levelT1_, levelT2_;
   bool                            storeAllG4Hits_, rejectMB_, waferRot_;
