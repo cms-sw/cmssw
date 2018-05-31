@@ -28,6 +28,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <cmath>
 
 #include <boost/cstdint.hpp>
 
@@ -3379,7 +3380,7 @@ bool l1t::TriggerMenuParser::parseAlgorithm( tmeventsetup::esAlgorithm algorithm
     std::string algAlias = algorithm.getName();
     const std::string& algName  = algorithm.getName();
 
-    if (algAlias == "") {
+    if (algAlias.empty()) {
         algAlias = algName;
         LogDebug("TriggerMenuParser")
                 << "\n    No alias defined for algorithm. Alias set to algorithm name."
