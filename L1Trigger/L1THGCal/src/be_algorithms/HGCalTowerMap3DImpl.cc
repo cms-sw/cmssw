@@ -16,7 +16,7 @@ HGCalTowerMap3DImpl::HGCalTowerMap3DImpl( ) {}
 
 
 void HGCalTowerMap3DImpl::buildTowerMap3D(const std::vector<edm::Ptr<l1t::HGCalTowerMap>> & towerMapsPtrs,
-    															        l1t::HGCalTowerBxCollection & towers) {
+                                          l1t::HGCalTowerBxCollection & towers) {
 
   l1t::HGCalTowerMap towerMap;
 
