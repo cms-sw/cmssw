@@ -61,6 +61,12 @@ const DDCompactView::Graph & DDCompactView::graph() const
   return rep_->graph(); 
 }
 
+DDCompactView::GraphWalker
+DDCompactView::walker() const
+{
+  return rep_->walker();
+}
+
 const DDLogicalPart & DDCompactView::root() const
 {
   return rep_->root(); 
@@ -78,6 +84,7 @@ void DDCompactView::position (const DDLogicalPart & self,
 			      const DDRotation & rot,
 			      const DDDivision * div)
 {
+  std::cout << "DDCompactView::position " << self << " with translation " << trans << " and rotation " << rot << "\n";
   int cpno = atoi(copyno.c_str());
   position(self,parent,cpno,trans,rot, div);
 }
