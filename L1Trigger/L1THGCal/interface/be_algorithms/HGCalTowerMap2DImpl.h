@@ -20,7 +20,7 @@ class HGCalTowerMap2DImpl{
   void resetTowerMaps();
 
   void buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
-			                 l1t::HGCalTowerMapBxCollection & towermaps);
+                      l1t::HGCalTowerMapBxCollection & towermaps);
 
 
   void eventSetup(const edm::EventSetup& es) {
@@ -32,7 +32,7 @@ class HGCalTowerMap2DImpl{
   bool useLayerWeights_;
   std::vector<double> layerWeights_;
   HGCalTriggerTools triggerTools_;
-  std::map<int, l1t::HGCalTowerMap> newTowerMaps();
+  std::unordered_map<int, l1t::HGCalTowerMap> newTowerMaps();
 
   HGCalTriggerTowerGeometryHelper towerGeometryHelper_;
 

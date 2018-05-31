@@ -19,8 +19,8 @@ HGCalTowerMap2DImpl::HGCalTowerMap2DImpl(const edm::ParameterSet& conf) : useLay
 }
 
 
-std::map<int, l1t::HGCalTowerMap> HGCalTowerMap2DImpl::newTowerMaps() {
-  std::map<int, l1t::HGCalTowerMap> towerMaps;
+std::unordered_map<int, l1t::HGCalTowerMap> HGCalTowerMap2DImpl::newTowerMaps() {
+  std::unordered_map<int, l1t::HGCalTowerMap> towerMaps;
   for(unsigned layer = 1; layer<=triggerTools_.lastLayerBH(); layer++) {
     // FIXME: this is hardcoded...quite ugly
     if (layer <= triggerTools_.lastLayerEE() && layer%2 == 0) continue;
@@ -34,9 +34,9 @@ std::map<int, l1t::HGCalTowerMap> HGCalTowerMap2DImpl::newTowerMaps() {
 
 
 void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
-					                                l1t::HGCalTowerMapBxCollection & towerMaps){
+                                          l1t::HGCalTowerMapBxCollection & towerMaps)   {
 
-  std::map<int, l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
+  std::unordered_map<int, l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
 
   for(auto tc:  triggerCellsPtrs) {
     unsigned layer = triggerTools_.layerWithOffset(tc->detId());

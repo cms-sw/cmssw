@@ -32,12 +32,12 @@ namespace l1t {
     bool addEt(short bin_id, float etEm, float etHad);
 
     unsigned nTowers() const { return towerMap_.size(); }
-    const std::map<unsigned short, l1t::HGCalTower>& towers() const { return towerMap_; }
+    const std::unordered_map<unsigned short, l1t::HGCalTower>& towers() const { return towerMap_; }
 
 
   private:
 
-    std::map<unsigned short, l1t::HGCalTower>  towerMap_;
+    std::unordered_map<unsigned short, l1t::HGCalTower>  towerMap_;
     unsigned layer_;
 
   };
