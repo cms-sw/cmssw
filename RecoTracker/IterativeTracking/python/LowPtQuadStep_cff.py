@@ -69,19 +69,7 @@ lowPtQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
     CAThetaCut = 0.0017,
     CAPhiCut = 0.3,
-    #new parameters required by FastSim phase1 tracking
-    layerList = lowPtQuadStepSeedLayers.layerList.value(),
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    layerPairs = lowPtQuadStepHitDoublets.layerPairs.value(),
 )
-fastSim.toModify(lowPtQuadStepHitQuadruplets, isFastSim = True)
 
 trackingPhase2PU140.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0015,CAPhiCut = 0.25)
 highBetaStar_2018.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0034,CAPhiCut = 0.6)
@@ -98,7 +86,19 @@ _fastSim_lowPtQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi
     layerList = lowPtQuadStepSeedLayers.layerList.value(),
     trackingRegions = "lowPtQuadStepTrackingRegions",
     hitMasks = cms.InputTag("lowPtQuadStepMasks"),
-    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets))
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets).clone(
+            #new parameters required for phase1 seeding
+            layerList = lowPtQuadStepSeedLayers.layerList.value(),
+            BPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            FPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            layerPairs = lowPtQuadStepHitDoublets.layerPairs.value()
+            ))
 )
 _fastSim_lowPtQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 fastSim.toReplaceWith(lowPtQuadStepSeeds,_fastSim_lowPtQuadStepSeeds)

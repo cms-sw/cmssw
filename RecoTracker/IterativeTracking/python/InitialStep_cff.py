@@ -71,19 +71,7 @@ _initialStepCAHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
     CAThetaCut = 0.0012,
     CAPhiCut = 0.2,
-    #new parameters required by FastSim phase1 tracking
-    layerList = initialStepSeedLayers.layerList.value(),
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    layerPairs = initialStepHitDoublets.layerPairs.value(),
 )
-(trackingPhase1 & fastSim).toModify(_initialStepCAHitQuadruplets, isFastSim = True)
 
 highBetaStar_2018.toModify(_initialStepCAHitQuadruplets,
     CAThetaCut = 0.0024,
@@ -126,7 +114,19 @@ _fastSim_initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedCo
 #new for phase1
 trackingPhase1.toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
-        CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitQuadruplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))))
+        CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitQuadruplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))).clone(
+            #new parameters required for phase1 seeding
+            layerList = initialStepSeedLayers.layerList.value(),
+            BPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            FPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            layerPairs = initialStepHitDoublets.layerPairs.value()
+            ))
 )
 
 fastSim.toReplaceWith(initialStepSeeds,_fastSim_initialStepSeeds)
