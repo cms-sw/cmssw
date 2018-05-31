@@ -40,6 +40,7 @@ class L1TPFCaloProducer : public edm::stream::EDProducer<> {
         double hcalHGCTCEtCut_;
 
         l1tpf::corrector emCorrector_;
+        l1tpf::corrector hcCorrector_;
         l1tpf::corrector hadCorrector_;
 
         l1tpf_calo::SingleCaloClusterer ecalClusterer_, hcalClusterer_;
@@ -65,6 +66,7 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
     ecalOnly_(iConfig.existsAs<bool>("ecalOnly") ? iConfig.getParameter<bool>("ecalOnly") : false),
     debug_(iConfig.getUntrackedParameter<int>("debug",0)),
     emCorrector_(iConfig.getParameter<std::string>("emCorrector"), -1, debug_),
+    hcCorrector_(iConfig.getParameter<std::string>("hcCorrector"), -1, debug_),
     hadCorrector_(iConfig.getParameter<std::string>("hadCorrector"), iConfig.getParameter<double>("hadCorrectorEmfMax"), debug_),
     ecalClusterer_(iConfig.getParameter<edm::ParameterSet>("ecalClusterer")),
     hcalClusterer_(iConfig.getParameter<edm::ParameterSet>("hcalClusterer")),
@@ -86,6 +88,8 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
 
     produces<l1t::PFClusterCollection>("hcalUnclustered");
     produces<l1t::PFClusterCollection>("hcalUncalibrated");
+    produces<l1t::PFClusterCollection>("hcalCalibrated");
+
     produces<l1t::PFClusterCollection>("uncalibrated");
     produces<l1t::PFClusterCollection>("calibrated");
 
@@ -167,8 +171,16 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // this we put separately for debugging
     iEvent.put(hcalClusterer_.fetchCells(/*unclustered=*/true),  "hcalUnclustered");
 
-    auto hcalClustH = iEvent.put(hcalClusterer_.fetch(hcalCellsH),  "hcalUncalibrated");
+    iEvent.put(hcalClusterer_.fetch(hcalCellsH),  "hcalUncalibrated");
 
+    if (hcCorrector_.valid()) { 
+        hcalClusterer_.correct( [&](const l1tpf_calo::Cluster &c) -> float { 
+                return hcCorrector_.correctedPt(c.et, 0., std::abs(c.eta));
+                } );
+    }
+
+    auto hcalClustH = iEvent.put(hcalClusterer_.fetch(hcalCellsH),  "hcalCalibrated");
+ 
     // Calorimeter linking
     caloLinker_.run();
 

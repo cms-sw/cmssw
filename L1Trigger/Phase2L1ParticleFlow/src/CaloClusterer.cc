@@ -55,6 +55,7 @@ l1tpf_calo::Phase1Grid::Phase1Grid() :
 
 int l1tpf_calo::Phase1Grid::find_cell(float eta, float phi) const {
     int ieta = (eta != 0) ? std::distance(towerEtas_, std::lower_bound(towerEtas_, towerEtas_+nEta_, std::abs(eta))) : 1;
+    if (ieta == nEta_) return -1; // outside bounds
     assert(ieta > 0 && ieta < nEta_);
     if (ieta > nEta_) ieta = nEta_;
     if (eta < 0) ieta = -ieta;
