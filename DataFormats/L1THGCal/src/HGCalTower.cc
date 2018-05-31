@@ -12,10 +12,16 @@ HGCalTower::HGCalTower(double etEm,
                        int hwpt,
                        int hweta,
                        int hwphi,
-                       int qual) : L1Candidate(PolarLorentzVector(etEm+etHad, eta, phi, 0.), hwpt, hweta, hwphi, qual),
-                                   etEm_(etEm),
-                                   etHad_(etHad),
-                                   id_(id) {}
+                       int qual,
+                       int hwEtEm,
+                       int hwEtHad,
+                       int hwEtRatio) : L1Candidate(PolarLorentzVector(etEm+etHad, eta, phi, 0.), hwpt, hweta, hwphi, qual),
+                                        etEm_(etEm),
+                                        etHad_(etHad),
+                                        id_(id),
+                                        hwEtEm_(hwEtEm),
+                                        hwEtHad_(hwEtHad),
+                                        hwEtRatio_(hwEtRatio) {}
 
 
 HGCalTower::~HGCalTower() {}
