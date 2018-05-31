@@ -5,6 +5,7 @@ using std::endl;
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
