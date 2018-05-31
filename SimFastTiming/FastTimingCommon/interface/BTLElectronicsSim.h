@@ -41,7 +41,10 @@ class BTLElectronicsSim {
 
   static constexpr int dfSIZE = 5;
 
+
  private:
+
+  float sigma_pe(const float& Q, const float& R) const;
 
   const bool debug_;
 
@@ -53,8 +56,10 @@ class BTLElectronicsSim {
   const float EnergyThreshold_;
   const float TimeThreshold1_;
   const float TimeThreshold2_;
+  const float ReferencePulseNpe_;
 
   const float Npe_to_pC_;
+  const float Npe_to_V_;
 
   // adc/tdc bitwidths
   const uint32_t adcNbits_, tdcNbits_; 

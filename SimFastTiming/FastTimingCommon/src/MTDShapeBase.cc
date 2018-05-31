@@ -7,23 +7,6 @@
 #include <algorithm>
 
 
-double linear_interpolation(const double y,
-			    const double x1, const double x2,
-			    const double y1, const double y2){
-
-  if ( x1 == x2 ){
-    edm::LogError("MTDShapeBase") << " Error in pulse shape interpolation!";
-    return -1.;
-  }
-  
-  double a = (y2-y1)/(x2-x1);
-  double b = y1 - a*x1;
-
-  return (y-b)/a;
-
-}
-
-
 MTDShapeBase::~MTDShapeBase() { }
 
 
@@ -34,21 +17,12 @@ MTDShapeBase::MTDShapeBase() :
   shape_       ( DVec(k1NSecBinsTotal, 0.0) ) { }
 
 
-std::array<float,3> MTDShapeBase::timeAtThr(const float Npe, 
-					    float threshold1, 
-					    float threshold2) const
+std::array<float,3> MTDShapeBase::timeAtThr(const float scale, 
+					    const float threshold1, 
+					    const float threshold2) const
 {
 
   std::array<float,3> times_tmp = { {0., 0., 0.} };
-
-  // --- Change thresholds into Volts
-  const float Npe_to_V = 0.0064;
-  threshold1 *= Npe_to_V;
-  threshold2 *= Npe_to_V;
-  
-
-  // --- The pulse shape corresponds to a signal of 100 p.e.
-  const float scale = Npe/100.;
 
 
   // --- Check if the pulse amplitude is greater than threshold 2
@@ -172,3 +146,23 @@ double MTDShapeBase::operator() ( double aTime ) const
   return ( k1NSecBinsTotal == index ? 0 : shape_[ index ] ) ;
 
 }
+
+
+double MTDShapeBase::linear_interpolation(const double& y,
+					  const double& x1, const double& x2,
+					  const double& y1, const double& y2) const 
+{
+
+  if ( x1 == x2 ){
+    edm::LogError("MTDShapeBase") << " Error in pulse shape interpolation!";
+    return -1.;
+  }
+  
+  double a = (y2-y1)/(x2-x1);
+  double b = y1 - a*x1;
+
+  return (y-b)/a;
+
+}
+
+

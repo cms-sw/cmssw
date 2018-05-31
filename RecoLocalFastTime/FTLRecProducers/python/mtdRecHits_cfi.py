@@ -9,8 +9,8 @@ mtdRecHits = cms.EDProducer(
     "MTDRecHitProducer",
     barrel = _barrelAlgo,
     endcap = _endcapAlgo,
-    barrelUncalibratedRecHits = cms.InputTag('ftlUncalibratedRecHits:FTLBarrel'),
-    endcapUncalibratedRecHits = cms.InputTag('ftlUncalibratedRecHits:FTLEndcap'),
+    barrelUncalibratedRecHits = cms.InputTag('mtdUncalibratedRecHits:FTLBarrel'),
+    endcapUncalibratedRecHits = cms.InputTag('mtdUncalibratedRecHits:FTLEndcap'),
     BarrelHitsName = cms.string('FTLBarrel'),
     EndcapHitsName = cms.string('FTLEndcap')
 )

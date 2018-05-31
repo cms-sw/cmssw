@@ -6,25 +6,6 @@
 #include "CLHEP/Random/RandGaussQ.h"
 
 
-///////////////////////////
-#include <iostream>
-///////////////////////////
-
-
-
-float sigma_pe(const float& Q, float& R) {
-  
-  float OneOverR = 1./R;
-  // --- This is Eq. (17) from Nucl. Instr. Meth. A 564 (2006) 185
-  float sigma = OneOverR * sqrt( Q + 2.*Q*(Q+1.)*OneOverR + 
-				 Q*(Q+1.)*(6.*Q+11)*OneOverR*OneOverR +
-				 Q*(Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR*OneOverR*OneOverR );
-  return sigma;
-
-}
-
-
-
 using namespace mtd;
 
 BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
@@ -35,7 +16,9 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
   EnergyThreshold_(pset.getParameter<double>("EnergyThreshold")),
   TimeThreshold1_(pset.getParameter<double>("TimeThreshold1")),
   TimeThreshold2_(pset.getParameter<double>("TimeThreshold2")),
+  ReferencePulseNpe_(pset.getParameter<double>("ReferencePulseNpe")),
   Npe_to_pC_( pset.getParameter<double>("Npe_to_pC") ),
+  Npe_to_V_( pset.getParameter<double>("Npe_to_V") ),
   adcNbits_( pset.getParameter<uint32_t>("adcNbits") ),
   tdcNbits_( pset.getParameter<uint32_t>("tdcNbits") ),
   adcSaturation_MIP_( pset.getParameter<double>("adcSaturation_MIP") ),
@@ -76,19 +59,17 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       }
 
 
-      // --- Add the time walk
-      std::array<float, 3> times = btlPulseShape_.timeAtThr(Npe, TimeThreshold1_, TimeThreshold2_);
+      // --- Calculate and add the time walk
+      std::array<float, 3> times = btlPulseShape_.timeAtThr(Npe*Npe_to_V_/ReferencePulseNpe_, 
+							    TimeThreshold1_*Npe_to_V_, 
+							    TimeThreshold2_*Npe_to_V_);
+
 
       // --- If the pulse amplitude is smaller than TimeThreshold2, the trigger does not fire
       if (times[1] == 0.) continue;
 
       finalToA1 += times[0];
       finalToA2 += times[1];
-
-//TMP      std::cout << " Npe = " << Npe << " >>>>>>>>>>>>> time walk: " 
-//TMP		<< times[0] << " " 
-//TMP		<< times[1] << " " 
-//TMP		<< times[2] << std::endl;
 
 
       // --- Add time smearing due to the photo-electron statistics
@@ -105,9 +86,6 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       toa2[i]=finalToA2;
 
       chargeColl[i] = Npe*Npe_to_pC_;
-      
-//TMP      std::cout << " " << i << ": DetID = " <<  it->first << std::endl;
-//TMP      std::cout << "    " << chargeColl[i] << " " << toa1[i] << " " << toa2[i] << std::endl;
       
     }
 
@@ -174,4 +152,17 @@ void BTLElectronicsSim::updateOutput(BTLDigiCollection &coll,
     coll.push_back(dataFrame);    
   }
 }
+
+float BTLElectronicsSim::sigma_pe(const float& Q, const float& R) const {
+  
+  float OneOverR = 1./R;
+  // --- This is Eq. (17) from Nucl. Instr. Meth. A 564 (2006) 185
+  float sigma = OneOverR * sqrt( Q + 2.*Q*(Q+1.)*OneOverR + 
+				 Q*(Q+1.)*(6.*Q+11)*OneOverR*OneOverR +
+				 Q*(Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR*OneOverR*OneOverR );
+  return sigma;
+
+}
+
+
 
