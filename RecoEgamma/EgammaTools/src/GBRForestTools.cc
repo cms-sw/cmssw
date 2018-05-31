@@ -34,18 +34,22 @@ namespace {
 // anything else.
 std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string &weightFile,
                                                                  std::vector<std::string> &varNames){
-  try {
-      edm::FileInPath weightFileEdm(weightFile + ".gz");
-      return GBRForestTools::createGBRForest(weightFileEdm, varNames);
-  } catch (...) {
-      try {
-          edm::FileInPath weightFileEdm(weightFile + ".gzip");
-          return GBRForestTools::createGBRForest(weightFileEdm, varNames);
-      } catch (...) {
-          edm::FileInPath weightFileEdm(weightFile);
-          return GBRForestTools::createGBRForest(weightFileEdm, varNames);
-      }
-  }
+
+   std::string gzipExtensions[3] = {"gz", "gzip"};
+
+   for(const std::string &gzipExt : gzipExtensions) {
+     try {
+         edm::FileInPath weightFileEdm(weightFile + "." + gzipExt);
+         return GBRForestTools::createGBRForest(weightFileEdm, varNames);
+     } catch (edm::Exception& e) {
+         if (e.category() == "FileInPathError") continue;
+         else throw e;
+     }
+   }
+
+   edm::FileInPath weightFileEdm(weightFile);
+   return GBRForestTools::createGBRForest(weightFileEdm, varNames);
+
 }
 
 // Creates a pointer to new GBRForest corresponding to a TMVA weights file
