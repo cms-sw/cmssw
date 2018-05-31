@@ -32,20 +32,19 @@ class HGCalTriggerTowerGeometryHelper {
     unsigned short getTriggerTowerFromTriggerCell(const unsigned tcId, const float& eta, const float& phi) const;
 
   private:
-    int binBinarySearch(const std::vector<double>& vec, int start, int end, const double& key) const;
 
     std::vector<l1t::HGCalTowerCoord> tower_coords_;
     std::map<unsigned, short> cells_to_trigger_towers_;
 
-    double minEta;
-    double maxEta;
-    double minPhi;
-    double maxPhi;
-    unsigned int nBinsEta;
-    unsigned int nBinsPhi;
+    double minEta_;
+    double maxEta_;
+    double minPhi_;
+    double maxPhi_;
+    unsigned int nBinsEta_;
+    unsigned int nBinsPhi_;
 
-    std::vector<double> binsEta;
-    std::vector<double> binsPhi;
+    std::vector<double> binsEta_;
+    std::vector<double> binsPhi_;
 
   };
 
