@@ -9,19 +9,13 @@
 
 #include <memory>
 
+#include "L1Trigger/L1TMuonOverlap/interface/IGhostBuster.h"
 #include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
 
-class OMTFGhostBuster {
-
-  public:
-  
-    void select(std::vector<AlgoMuon> & refHitCands, int charge=0);
-
-    void setNphiBins(unsigned int phiBins) {nPhiBins = phiBins;};
-
- private:
-
-    unsigned int nPhiBins;
+class GhostBuster: public IGhostBuster {
+public:
+  virtual ~GhostBuster() {};
+  virtual std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge=0);
 
 };
 #endif

@@ -14,7 +14,8 @@ simOmtfDigis = cms.EDProducer("L1TMuonOverlapTrackProducer",
                               eventsXMLFiles = cms.vstring("TestEvents.xml"),
                               dropRPCPrimitives = cms.bool(False),                                    
                               dropDTPrimitives = cms.bool(False),                                    
-                              dropCSCPrimitives = cms.bool(False)   
+                              dropCSCPrimitives = cms.bool(False),
+                              #ghostBusterType = cms.string("GhostBusterPreferRefDt")
 )
 
 

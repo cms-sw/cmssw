@@ -31,6 +31,7 @@ Implementation:
 
 // input data formats
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -80,6 +81,7 @@ private:
   edm::EDGetTokenT<reco::GenJetCollection> genJetToken_;
   edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genInfoToken_;
 
 };
 
@@ -91,6 +93,7 @@ L1GenTreeProducer::L1GenTreeProducer(const edm::ParameterSet& iConfig)
   genJetToken_ = consumes<reco::GenJetCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genJetToken"));
   genParticleToken_ = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticleToken"));
   pileupInfoToken_ = consumes<std::vector<PileupSummaryInfo> >(iConfig.getUntrackedParameter<edm::InputTag>("pileupInfoToken"));
+  genInfoToken_ = consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genInfoToken"));
   
   l1GenData_ = std::make_unique<L1Analysis::L1AnalysisGeneratorDataFormat>();
 
@@ -117,8 +120,15 @@ L1GenTreeProducer::~L1GenTreeProducer()
 void
 L1GenTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  
+  edm::Handle<GenEventInfoProduct> genInfo;
+  iEvent.getByToken(genInfoToken_, genInfo);
+
   l1GenData_->Reset();
+
+  if (genInfo.isValid()){
+    l1GenData_->weight = genInfo->weight();
+    l1GenData_->pthat = genInfo->hasBinningValues() ? (genInfo->binningValues())[0] : 0.0;
+  }
 
   edm::Handle<reco::GenJetCollection> genJets;
   iEvent.getByToken(genJetToken_, genJets);

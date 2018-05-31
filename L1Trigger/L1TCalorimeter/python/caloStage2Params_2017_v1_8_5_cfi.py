@@ -1,6 +1,6 @@
 #
-# caloStage2Params_2017_v1_8_updateHFSF_cfi
-# change w.r.t. v1_8: change in Layer1HFSF lowest pT bins from 1.0 to 0.7
+# caloStage2Params_2017_v1_8_5_cfi
+# change w.r.t. v1_8_4: tightened H/E cut in the endcaps for L1EG, barrel unchanged wrt default
 #
 import FWCore.ParameterSet.Config as cms
 
@@ -25,15 +25,16 @@ caloStage2Params.regionPUSParams  = cms.vdouble()
 
 # EG
 caloStage2Params.egLsb                      = cms.double(0.5)
+caloStage2Params.egEtaCut                   = cms.int32(28)
 caloStage2Params.egSeedThreshold            = cms.double(2.)
 caloStage2Params.egNeighbourThreshold       = cms.double(1.)
 caloStage2Params.egHcalThreshold            = cms.double(0.)
 caloStage2Params.egTrimmingLUTFile          = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egTrimmingLUT_10_v16.01.19.txt")
 caloStage2Params.egMaxHcalEt                = cms.double(0.)
 caloStage2Params.egMaxPtHOverE          = cms.double(128.)
+caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/HoverEIdentification_0.995_v15.12.23.txt")
 caloStage2Params.egHOverEcutBarrel          = cms.int32(4)
 caloStage2Params.egHOverEcutEndcap          = cms.int32(4)
-caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/HoverEIdentification_0.995_v15.12.23.txt")
 caloStage2Params.egBypassExtHOverE          = cms.uint32(0)
 caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt")
 caloStage2Params.egShapeIdType              = cms.string("compressed")
@@ -47,9 +48,6 @@ caloStage2Params.egIsoLUTFile2               = cms.FileInPath("L1Trigger/L1TCalo
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
 caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(2)
-#caloStage2Params.egIsoPUEstTowerGranularity = cms.uint32(1)
-#caloStage2Params.egIsoMaxEtaAbsForTowerSum  = cms.uint32(4)
-#caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
 caloStage2Params.egPUSParams                = cms.vdouble(1,4,32) #Isolation window in firmware goes up to abs(ieta)=32 for now
 caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
@@ -57,8 +55,8 @@ caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalor
 
 
 # Tau
-caloStage2Params.isoTauEtaMax                  = cms.int32(25)
 caloStage2Params.tauLsb                        = cms.double(0.5)
+caloStage2Params.isoTauEtaMax                  = cms.int32(25)
 caloStage2Params.tauSeedThreshold              = cms.double(0.)
 caloStage2Params.tauNeighbourThreshold         = cms.double(0.)
 caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)

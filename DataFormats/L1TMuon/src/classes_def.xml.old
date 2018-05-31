@@ -39,12 +39,6 @@
   <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
   <class name="l1t::EMTFPtLUT"/>
 
-  <class name="l1t::CPPFDigi" ClassVersion="3">
-    <version ClassVersion="3" checksum="1846750827"/>
-  </class>
-  <class name="l1t::CPPFDigiCollection"/>
-  <class name="edm::Wrapper<l1t::CPPFDigiCollection>"/>
-
   <class name="L1MuBMTrackSegPhi" ClassVersion="10">
     <version ClassVersion="10" checksum="3818011888"/>
   </class>
@@ -53,26 +47,10 @@
     <version ClassVersion="10" checksum="2263077996"/>
  </class>
 
-
-  <class name="L1MuKBMTCombinedStub"/>
-  <class name="L1MuKBMTCombinedStubCollection"/>
-  <class name="edm::Wrapper<L1MuKBMTCombinedStubCollection >"/>
-
- <class name="edm::Ref<L1MuKBMTCombinedStubCollection>" splitLevel="0"/>
- <class name="edm::Wrapper<edm::Ref<L1MuKBMTCombinedStubCollection > >"/>
-
-
-
-  <class name="L1MuBMTrack" ClassVersion="13">
-    <version ClassVersion="10" checksum="955528069"/>
+  <class name="L1MuBMTrack" ClassVersion="10">
     <version ClassVersion="11" checksum="1941187557"/>
-    <version ClassVersion="12" checksum="4194061270"/>
-    <version ClassVersion="13" checksum="879964230"/>
+    <version ClassVersion="10" checksum="955528069"/>
   </class>
-
-
-  <class name="L1MuKBMTrack"/>
-
 
   <class name="L1MuBMSecProcId" ClassVersion="10">
     <version ClassVersion="10" checksum="3768381571"/>
@@ -87,23 +65,12 @@
   </class>
 
   <class name="L1MuBMTrackCollection"/>
-  <class name="L1MuKBMTrackCollection"/>
   <class name="L1MuBMTrackSegPhiCollection"/>
   <class name="L1MuBMTrackSegEtaCollection"/>
 
   <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
-  <class name="edm::Wrapper<L1MuKBMTrackCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
-
-  <class name="l1t::RegionalMuonCandRef"/>
-  <class name="std::vector<l1t::RegionalMuonCandRef>"/>
-  <class name="l1t::RegionalMuonCandRefBxCollection"/>
-  <class name="edm::Wrapper<l1t::RegionalMuonCandRefBxCollection>"/>
-  <class name="l1t::RegionalMuonCandRefPair"/>
-  <class name="std::vector<l1t::RegionalMuonCandRefPair>"/>
-  <class name="l1t::RegionalMuonCandRefPairBxCollection"/>
-  <class name="edm::Wrapper<l1t::RegionalMuonCandRefPairBxCollection>"/>
 
  </selection>
 </lcgdict>

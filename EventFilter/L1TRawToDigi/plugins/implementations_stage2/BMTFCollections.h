@@ -11,24 +11,27 @@
 namespace l1t {
    namespace stage2 {
      class BMTFCollections : public UnpackerCollections {
-         public:
+     public:
             BMTFCollections(edm::Event& e) :
                UnpackerCollections(e),
                outputMuons_ (new RegionalMuonCandBxCollection()),
+	       outputKalmanMuons_ (new RegionalMuonCandBxCollection()),
                inputMuonsPh_ (new L1MuDTChambPhContainer),
                inputMuonsTh_ (new L1MuDTChambThContainer)
             {};
 
             ~BMTFCollections() override;
 
-						inline RegionalMuonCandBxCollection* getBMTFMuons() {return outputMuons_.get();};
-						inline L1MuDTChambPhContainer* getInMuonsPh() { return inputMuonsPh_.get(); };
-						inline L1MuDTChambThContainer* getInMuonsTh() { return inputMuonsTh_.get(); };
+	    inline RegionalMuonCandBxCollection* getBMTFMuons() {return outputMuons_.get();};
+	    inline RegionalMuonCandBxCollection* getkBMTFMuons() {return outputKalmanMuons_.get();};
+	    inline L1MuDTChambPhContainer* getInMuonsPh() { return inputMuonsPh_.get(); };
+	    inline L1MuDTChambThContainer* getInMuonsTh() { return inputMuonsTh_.get(); };
 
-         private:
-						std::unique_ptr<RegionalMuonCandBxCollection> outputMuons_;
-						std::unique_ptr<L1MuDTChambPhContainer> inputMuonsPh_;
-						std::unique_ptr<L1MuDTChambThContainer> inputMuonsTh_;
+     private:
+	    std::unique_ptr<RegionalMuonCandBxCollection> outputMuons_;
+	    std::unique_ptr<RegionalMuonCandBxCollection> outputKalmanMuons_;
+	    std::unique_ptr<L1MuDTChambPhContainer> inputMuonsPh_;
+	    std::unique_ptr<L1MuDTChambThContainer> inputMuonsTh_;
       };
    }
 }

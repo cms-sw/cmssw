@@ -7,6 +7,7 @@ namespace l1t {
       BMTFCollections::~BMTFCollections()
       {
 				event_.put(std::move(outputMuons_),"BMTF");
+				event_.put(std::move(outputKalmanMuons_),"kBMTF");
 				//event_.put(std::move(inputMuonsPh_),"PhiDigis");
 				//event_.put(std::move(inputMuonsTh_),"TheDigis");
 				event_.put(std::move(inputMuonsPh_));

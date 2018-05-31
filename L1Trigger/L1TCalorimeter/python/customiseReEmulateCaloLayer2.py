@@ -1,21 +1,6 @@
-
 import FWCore.ParameterSet.Config as cms
 
-def reEmulateLayer2(process):
-
-    process.load('L1Trigger.Configuration.SimL1Emulator_cff')
-
-    process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
-    process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_2_updateHFSF_v6MET_cfi')
-
-    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
-    
-    process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
-
-    process.schedule.append(process.caloLayer2)
-   
-    return process
-
+static_config = 'L1Trigger.L1TCalorimeter.caloParams_2018_v1_2_cfi'
 
 def hwEmulCompHistos(process):
     
@@ -68,6 +53,50 @@ def hwEmulCompHistos(process):
     return process
 
 
+
+
+def valHistosDB(process):
+
+    process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
+    process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
+    process.simCaloStage2Digis.useStaticConfig = False
+
+    process.load('L1Trigger.Configuration.SimL1Emulator_cff')
+
+    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
+    process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
+
+    process.schedule.append(process.caloLayer2)
+
+    hwEmulCompHistos(process)
+
+    process.caloLayer2.insert(0,process.caloTowersFilter)
+    process.hwEmulHistos.insert(0,process.caloTowersFilter)
+
+    return process
+
+
+
+def valHistosStatic(process):
+
+    process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
+    process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
+    process.simCaloStage2Digis.useStaticConfig = True
+    process.load(static_config)
+
+    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
+    process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
+
+    process.schedule.append(process.caloLayer2)
+
+    hwEmulCompHistos(process)
+
+    process.caloLayer2.insert(0,process.caloTowersFilter)
+    process.hwEmulHistos.insert(0,process.caloTowersFilter)
+
+    return process
+
+
 def L1NtupleRAWEMU(process):
 
     process.load('L1Trigger.L1TNtuples.L1NtupleRAW_cff')
@@ -80,25 +109,19 @@ def L1NtupleRAWEMU(process):
     return process
 
 
-def reEmulateLayer2ValHistos(process):
+def valHistosDBL1Ntuple(process):
 
     process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
+    process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
+    process.simCaloStage2Digis.useStaticConfig = False
 
-    reEmulateLayer2(process)
-    hwEmulCompHistos(process)
+    process.load('L1Trigger.Configuration.SimL1Emulator_cff')
 
-    process.caloLayer2.insert(0,process.caloTowersFilter)
-    process.hwEmulHistos.insert(0,process.caloTowersFilter)
+    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
+    process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
 
-    return process
+    process.schedule.append(process.caloLayer2)
 
-
-
-def reEmulateLayer2ValHistosL1Ntuple(process):
-
-    process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
-
-    reEmulateLayer2(process)
     hwEmulCompHistos(process)
     L1NtupleRAWEMU(process)
 
@@ -107,4 +130,30 @@ def reEmulateLayer2ValHistosL1Ntuple(process):
     process.l1ntuplerawemu.insert(0,process.caloTowersFilter)
 
     return process
+
+
+
+def valHistosStaticL1Ntuple(process):
+
+    process.load('EventFilter.L1TRawToDigi.caloTowersFilter_cfi')
+    process.load('L1Trigger/L1TCalorimeter/simCaloStage2Digis_cfi')
+    process.simCaloStage2Digis.useStaticConfig = True
+    process.load(static_config)
+
+    process.simCaloStage2Digis.towerToken = cms.InputTag("caloStage2Digis", "CaloTower")
+    process.caloLayer2 = cms.Path(process.simCaloStage2Digis)
+
+    process.schedule.append(process.caloLayer2)
+
+    hwEmulCompHistos(process)
+    L1NtupleRAWEMU(process)
+
+    process.caloLayer2.insert(0,process.caloTowersFilter)
+    process.hwEmulHistos.insert(0,process.caloTowersFilter)
+    process.l1ntuplerawemu.insert(0,process.caloTowersFilter)
+
+    return process
+
+
+
 

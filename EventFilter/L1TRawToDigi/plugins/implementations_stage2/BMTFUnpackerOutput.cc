@@ -8,6 +8,7 @@ namespace l1t
 {
   namespace stage2
   {
+
     bool BMTFUnpackerOutput::unpack(const Block& block, UnpackerCollections *coll)
     {
       unsigned int blockId = block.header().getID();
@@ -22,7 +23,11 @@ namespace l1t
 	bxBlocks = block.getBxBlocks((unsigned int)6, false);//it returnes 6-32bit bxBlocks originated from the amc13 Block
 			
       RegionalMuonCandBxCollection *res;
-      res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
+      if (isKalman)
+	res = static_cast<BMTFCollections*>(coll)->getkBMTFMuons();
+      else
+	res = static_cast<BMTFCollections*>(coll)->getBMTFMuons();
+
       //BxBlocks changed the format of the blocks
       int firstBX = 0, lastBX = 0;
       int nBX = 0;
@@ -63,20 +68,30 @@ namespace l1t
 					
 	  RegionalMuonCand muCand;
 	  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
-	  muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 
-	  LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
+	  if (muCand.hwQual() == 0)
+	    continue;//though away muons with Zero-Quality
 
-	  if ( muCand.hwQual() != 0 ) {
-	    res->push_back(ibx, muCand);
+	  if (isKalman) {
+	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
+	    muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
+	    muCand.setHwDXY((raw_secnd >> 2) & 0x3);
+	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi() << " diplacedPt = " << muCand.hwPt2();
 	  }
+	  else {
+	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
+	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
+	  }
+
+	  res->push_back(ibx, muCand);
 
 	}//for iw
       }//for ibx
 
       return true;
     }//unpack
+
   }//ns stage2
 }//ns lt1
-			
+
 DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);
