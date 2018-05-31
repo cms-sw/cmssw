@@ -25,14 +25,13 @@ mssmHbbBtagTriggerMonitor = DQMEDAnalyzer(
     probeBtagMin = cms.double(0.45),
     triggerobjbtag = cms.string("hltBTagCaloDeepCSV0p71Single8Jets30"),
     triggerSummary = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
-    offlineBtag = cms.InputTag("pfDeepCSVJetTags:probb + pfDeepCSVJetTags:probbb"),
+    offlineBtag = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     histoPSet = cms.PSet(
        jetPt  = cms.vdouble(40,45,50,55,60,65,70,75,80,85,90,95,100),
        jetEta = cms.vdouble(-2.5,-2.0,-1.5,-1.0,-0.5,0.0,0.5,1.0,1.5,2.0,2.5),
        jetPhi = cms.vdouble(-3.5,-3.0,-2.5,-2.0,-1.5,-1.0,-0.5,0.0,0.5,1.0,1.5,2.0,2.5,3.0,3.5),
-#       jetBtag = cms.vdouble(0.80,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.90,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1.00),
-       jetBtag = cms.vdouble(0.70,0.72,0.74,0.76,0.78,0.80,0.82,0.84,0.86,0.88,0.90,0.92,0.94,0.96,0.98,1.00),                                                                   
-    ),
+       jetBtag = cms.vdouble(0.80,0.81,0.82,0.83,0.84,0.85,0.86,0.87,0.88,0.89,0.90,0.91,0.92,0.93,0.94,0.95,0.96,0.97,0.98,0.99,1.00),
+       ),
     genericTriggerEventPSet = triggerFlagPSet.clone(),
 )
 
