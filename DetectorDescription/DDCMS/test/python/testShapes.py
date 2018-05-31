@@ -30,5 +30,6 @@ process.test = cms.EDAnalyzer("DDCMSDetector",
                               )
 
 process.testVectors = cms.EDAnalyzer("DDTestVectors")
+process.testDump = cms.EDAnalyzer("DDTestDumpFile")
 
-process.p = cms.Path(process.test+process.testVectors)
+process.p = cms.Path(process.test+process.testVectors+process.testDump)
