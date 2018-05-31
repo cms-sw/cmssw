@@ -3,7 +3,6 @@
 // framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // track reco
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
@@ -27,6 +26,10 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet & cfg,edm::Consum
     , eventSetup_(nullptr)
     , measurementTracker_(nullptr)
     , measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker"))
+    , layerList(cfg.getParameter<std::vector<std::string>>("layerList"))
+    , layerPairs(cfg.getParameter<std::vector<unsigned>>("layerPairs"))
+    , BPix(cfg.getParameter<edm::ParameterSet>("BPix"))
+    , FPix(cfg.getParameter<edm::ParameterSet>("FPix"))
 {
     if(cfg.exists("pixelTripletGeneratorFactory"))
     {
@@ -44,16 +47,16 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet & cfg,edm::Consum
     {
         const edm::ParameterSet & tripletConfig = cfg.getParameter<edm::ParameterSet>("CAHitTripletGeneratorFactory");
 	CAHitTriplGenerator_ = std::make_unique<CAHitTripletGenerator>(tripletConfig,consumesCollector);
-	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(tripletConfig, consumesCollector); //to make SeedingLayerSetsHits pointer for triplet iterations
-        layerPairs_ = tripletConfig.getParameter<std::vector<unsigned>>("layerPairs"); //allowed layer pairs for CA triplets
+	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(cfg, consumesCollector); //to make SeedingLayerSetsHits pointer for triplet iterations
+        layerPairs_ = cfg.getParameter<std::vector<unsigned>>("layerPairs"); //allowed layer pairs for CA triplets
     }
 
     if(cfg.exists("CAHitQuadrupletGeneratorFactory"))
     {
         const edm::ParameterSet & quadrupletConfig = cfg.getParameter<edm::ParameterSet>("CAHitQuadrupletGeneratorFactory");
 	CAHitQuadGenerator_ = std::make_unique<CAHitQuadrupletGenerator>(quadrupletConfig, consumesCollector);
-	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(quadrupletConfig, consumesCollector); //to make SeedingLayerSetsHits pointer for quadruplet iterations
-	layerPairs_ = quadrupletConfig.getParameter<std::vector<unsigned>>("layerPairs"); //allowed layer pairs for CA quadruplets
+	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(cfg, consumesCollector); //to make SeedingLayerSetsHits pointer for quadruplet iterations
+	layerPairs_ = cfg.getParameter<std::vector<unsigned>>("layerPairs"); //allowed layer pairs for CA quadruplets
     }
 
     if((pixelTripletGenerator_ && multiHitGenerator_) || (CAHitTriplGenerator_ && pixelTripletGenerator_) || (CAHitTriplGenerator_ && multiHitGenerator_))
