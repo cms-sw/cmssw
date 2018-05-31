@@ -5,10 +5,6 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-///////////////////////////
-//TMP #include <iostream>
-///////////////////////////
-
 
 BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset) : 
   bxTime_(pset.getParameter<double>("bxTime") ),
@@ -23,11 +19,6 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,flo
 				   const edm::Handle<edm::PSimHitContainer> &hits,
 				   mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator,
 				   CLHEP::HepRandomEngine *hre){
-
-
-//TMP  std::cout << "------------------------------------------------------" << std::endl;
-//TMP  std::cout << "Loop on simHits:" << std::endl;
-
 
   //loop over sorted simHits
   const int nchits = hitRefs.size();
@@ -63,17 +54,9 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,flo
     (simHitIt->second).hit_info[0][itime] += Npe;
 
 
-    // --- Store the time
+    // --- Store the time of the first SimHit
     if( (simHitIt->second).hit_info[1][itime] == 0 )
       (simHitIt->second).hit_info[1][itime] = toa;
-
-
-//TMP    std::cout << " " << ihit << ": DetID = " <<  id << std::endl;
-//TMP    std::cout << "    Energy: " <<  hit.energyLoss() << " --> " << Npe << std::endl;
-//TMP    std::cout << "       accumulated energy: " << (simHitIt->second).hit_info[0][itime]  << std::endl;
-//TMP    std::cout << "    Time:   " <<   std::get<2>(hitRefs[ihit]) << " --> " << toa << std::endl;
-
-
 
   } // ihit loop
 

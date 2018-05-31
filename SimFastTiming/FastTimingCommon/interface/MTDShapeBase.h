@@ -23,14 +23,13 @@ class MTDShapeBase : public CaloVShape
       double       timeOfMax()  const;
       double       timeToRise() const override { return 0.; }
 
-      std::array<float,3> timeAtThr(const float Npe, 
-				    float threshold1, 
-				    float threshold2) const;
+      std::array<float,3> timeAtThr(const float scale, 
+				    const float threshold1, 
+				    const float threshold2) const;
 
-
-      enum { kReadoutTimeInterval = 31  , // in nsec
-	     kNBinsPerNSec        = 100 , // granularity of internal array
-	     k1NSecBinsTotal      = kReadoutTimeInterval*kNBinsPerNSec };
+      static constexpr int kReadoutTimeInterval = 31;    // in nsec
+      static constexpr int kNBinsPerNSec        = 100;   // granularity of internal array
+      static constexpr int k1NSecBinsTotal      = kReadoutTimeInterval*kNBinsPerNSec;
 
 
    protected:
@@ -44,6 +43,10 @@ class MTDShapeBase : public CaloVShape
 
    private:
       
+      double linear_interpolation(const double& y,
+				  const double& x1, const double& x2,
+				  const double& y1, const double& y2) const;
+
       const double qNSecPerBin_;
       unsigned int indexOfMax_;
       double       timeOfMax_ ;

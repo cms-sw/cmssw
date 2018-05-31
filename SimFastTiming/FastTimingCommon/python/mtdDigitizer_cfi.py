@@ -20,7 +20,9 @@ _barrel_MTDDigitizer = cms.PSet(
         EnergyThreshold        = cms.double(4.),       # [photo-electrons]
         TimeThreshold1         = cms.double(20.),      # [photo-electrons]
         TimeThreshold2         = cms.double(50.),      # [photo-electrons]
+        ReferencePulseNpe      = cms.double(100.),     # [photo-electrons]
         Npe_to_pC              = cms.double(0.016),    # [pC] 
+        Npe_to_V               = cms.double(0.0064),   # [V] 
 
         # n bits for the ADC 
         adcNbits          = cms.uint32(10),
