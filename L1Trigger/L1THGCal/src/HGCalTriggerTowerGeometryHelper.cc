@@ -66,13 +66,19 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
     }
 
     unsigned trigger_cell_id = 0;
-    unsigned short ix = 0;
-    unsigned short iy = 0;
+    unsigned short iEta = 0;
+    unsigned short iPhi = 0;
 
-    for(; l1tTriggerTowerMappingStream >> trigger_cell_id >> ix >> iy;) {
+    for(; l1tTriggerTowerMappingStream >> trigger_cell_id >> iEta >> iPhi;) {
+      if(iEta >= nBinsEta_ || iPhi >= nBinsPhi_) {
+        throw edm::Exception(edm::errors::Configuration, "Configuration")
+          << "HGCalTriggerTowerGeometryHelper warning inconsistent mapping TC : " << trigger_cell_id
+          << " to TT iEta: " << iEta << " iPhi: " << iPhi
+          << " when max #bins eta: "  << nBinsEta_ << " phi: " << nBinsPhi_ << std::endl;
+      }
       HGCalDetId detId(trigger_cell_id);
       int zside = detId.zside();
-      l1t::HGCalTowerID towerId(zside, ix, iy);
+      l1t::HGCalTowerID towerId(zside, iEta, iPhi);
       cells_to_trigger_towers_[trigger_cell_id] = towerId.rawId();
     }
     l1tTriggerTowerMappingStream.close();
