@@ -60,7 +60,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
 
       // --- Calculate and add the time walk
-      std::array<float, 3> times = btlPulseShape_.timeAtThr(Npe*Npe_to_V_/ReferencePulseNpe_, 
+      std::array<float, 3> times = btlPulseShape_.timeAtThr(Npe/ReferencePulseNpe_,
 							    TimeThreshold1_*Npe_to_V_, 
 							    TimeThreshold2_*Npe_to_V_);
 

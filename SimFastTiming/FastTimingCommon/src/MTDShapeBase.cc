@@ -42,7 +42,7 @@ std::array<float,3> MTDShapeBase::timeAtThr(const float scale,
     if( amplitude > threshold1 && index_LT1 == 0 )
       index_LT1 = i;
 
-    if( amplitude > threshold2 && index_LT2 ==0 ){
+    if( amplitude > threshold2 && index_LT2 == 0 ){
       index_LT2 = i;
       break;
     }
