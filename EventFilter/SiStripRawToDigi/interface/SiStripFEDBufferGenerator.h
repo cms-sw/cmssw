@@ -92,11 +92,11 @@ namespace sistrip {
       void fillRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode,
                                 const FEDStripData::ChannelData& data, const bool channelEnabled, const bool reorderData) const;
       //fill the vector with channel data for zero suppressed modes
-      void fillZeroSuppressedChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
+      void fillZeroSuppressedChannelBuffer(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
       void fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled, const FEDReadoutMode mode) const;
       void fillPreMixRawChannelBuffer(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const bool channelEnabled) const;
      //add the ZS cluster data for the channel to the end of the vector
-      void fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const;
+      void fillClusterData(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const;
       void fillClusterDataPreMixMode(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const;
       std::vector<bool> feUnitsEnabled_;
       std::vector<bool> channelsEnabled_;

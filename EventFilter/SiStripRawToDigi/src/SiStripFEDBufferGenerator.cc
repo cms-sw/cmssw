@@ -2,6 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cstring>
 #include <stdexcept>
+#include <math.h>
 
 namespace sistrip {
   
@@ -120,10 +121,13 @@ namespace sistrip {
       switch (packetCode) {
         case PACKET_CODE_VIRGIN_RAW:
           fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW,data,channelEnabled,true);
+          break;
         case PACKET_CODE_VIRGIN_RAW10:
           fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW10,data,channelEnabled,true);
+          break;
         case PACKET_CODE_VIRGIN_RAW8_BOTBOT:
           fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW8_BOTBOT,data,channelEnabled,true);
+          break;
         case PACKET_CODE_VIRGIN_RAW8_TOPBOT:
           fillRawChannelBuffer(channelBuffer,PACKET_CODE_VIRGIN_RAW8_TOPBOT,data,channelEnabled,true);
         break;
@@ -134,7 +138,7 @@ namespace sistrip {
       break;
     case READOUT_MODE_ZERO_SUPPRESSED:
     //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-      fillZeroSuppressedChannelBuffer(channelBuffer,data,channelEnabled);
+      fillZeroSuppressedChannelBuffer(channelBuffer,packetCode,data,channelEnabled);
       break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
     case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
@@ -164,8 +168,19 @@ namespace sistrip {
                                                     const bool reorderData) const
   {
     const uint16_t nSamples = data.size();
-    //2 bytes per sample + packet code + 2 bytes for length
-    const uint16_t channelLength = nSamples*2 + 3;
+    uint16_t channelLength = 0;
+    switch (packetCode) {
+      case PACKET_CODE_VIRGIN_RAW:
+        channelLength = nSamples*2 + 3;
+        break;
+      case PACKET_CODE_VIRGIN_RAW10:
+        channelLength = ceil(nSamples*1.25) + 3;
+        break;
+      case PACKET_CODE_VIRGIN_RAW8_BOTBOT:
+      case PACKET_CODE_VIRGIN_RAW8_TOPBOT:
+        channelLength = nSamples*1 + 3;
+        break;
+    }
     channelBuffer->reserve(channelLength);
     //length (max length is 0xFFF)
     channelBuffer->push_back( channelLength & 0xFF );
@@ -173,6 +188,7 @@ namespace sistrip {
     //packet code
     channelBuffer->push_back(packetCode);
     //channel samples
+    uint16_t sampleValue_pre = 0;
     for (uint16_t sampleNumber = 0; sampleNumber < nSamples; sampleNumber++) {
       const uint16_t sampleIndex = ( reorderData ? FEDStripOrdering::physicalOrderForStripInChannel(sampleNumber) : sampleNumber );
       const uint16_t sampleValue = (channelEnabled ? data.getSample(sampleIndex) : 0);
@@ -180,27 +196,26 @@ namespace sistrip {
         case PACKET_CODE_VIRGIN_RAW:
           channelBuffer->push_back(sampleValue & 0xFF);
           channelBuffer->push_back((sampleValue & 0x300) >> 8);
+          break;
         case PACKET_CODE_VIRGIN_RAW10:
-          if (sampleIndex%5==0) {
+          if (sampleNumber%4==0) {
             channelBuffer->push_back((sampleValue & 0x3FC) >> 2);
           }
-          else if (sampleIndex%5==1) {
-            const uint16_t sampleValue_pre = (channelEnabled ? data.getSample(sampleIndex-1) : 0);
-            channelBuffer->push_back(((sampleValue_pre & 0x3) << 6) + ((sampleValue & 0x3F0) << 4));
+          else if (sampleNumber%4==1) {
+            channelBuffer->push_back(((sampleValue_pre & 0x3) << 6) | ((sampleValue & 0x3F0) >> 4));
           }
-          else if (sampleIndex%5==2) {
-            const uint16_t sampleValue_pre = (channelEnabled ? data.getSample(sampleIndex-1) : 0);
-            channelBuffer->push_back(((sampleValue_pre & 0xF) << 4) + ((sampleValue_pre & 0x3C0) << 2));
+          else if (sampleNumber%4==2) {
+            channelBuffer->push_back(((sampleValue_pre & 0xF) << 4) | ((sampleValue & 0x3C0) >> 6));
           }
-          else if (sampleIndex%5==3) {
-            const uint16_t sampleValue_post = (channelEnabled ? data.getSample(sampleIndex+1) : 0);
-            channelBuffer->push_back(((sampleValue & 0x3F0) << 6) + (sampleValue_post & 0x3));
-          }
-          else if (sampleIndex%5==4) {
+          else if (sampleNumber%4==3) {
+            channelBuffer->push_back(((sampleValue_pre & 0x3F) << 2) | ((sampleValue & 0x300)>>8));
             channelBuffer->push_back(sampleValue & 0xFF);
           }
+          sampleValue_pre = sampleValue;
+          break;
         case PACKET_CODE_VIRGIN_RAW8_BOTBOT:
           channelBuffer->push_back((sampleValue & 0x3FC) >> 2);
+          break;
         case PACKET_CODE_VIRGIN_RAW8_TOPBOT:
           channelBuffer->push_back((sampleValue & 0x1FE) >> 1);
           break;
@@ -209,6 +224,7 @@ namespace sistrip {
   }
   
   void FEDBufferPayloadCreator::fillZeroSuppressedChannelBuffer(std::vector<uint8_t>* channelBuffer,
+                                                               const uint8_t packetCode,
                                                                const FEDStripData::ChannelData& data,
                                                                const bool channelEnabled) const
   {
@@ -219,7 +235,20 @@ namespace sistrip {
       channelBuffer->push_back(7);
       channelBuffer->push_back(0);
       //packet code
-      channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
+      switch (packetCode) {
+        case PACKET_CODE_ZERO_SUPPRESSED:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
+        break;
+        case PACKET_CODE_ZERO_SUPPRESSED10:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED10);
+        break;
+        case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT);
+        break;
+        case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT);
+        break;
+      }
       //4 bytes of medians
       channelBuffer->insert(channelBuffer->end(),4,0);
       return;
@@ -229,15 +258,29 @@ namespace sistrip {
     channelBuffer->push_back(0xFF);
     channelBuffer->push_back(0xFF);
     //packet code
-    channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
+      switch (packetCode) {
+        case PACKET_CODE_ZERO_SUPPRESSED:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
+        break;
+        case PACKET_CODE_ZERO_SUPPRESSED10:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED10);
+        break;
+        case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT);
+        break;
+        case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT:
+          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT);
+        break;
+      }
     //add medians
     const std::pair<uint16_t,uint16_t> medians = data.getMedians();
+    // IS THE COMMON MODE ALSO PUSHED BACK WITH A PACKET CODE? THIS LOOKS LIKE PACKET_CODE_ZERO_SUPPRESSED...
     channelBuffer->push_back(medians.first & 0xFF);
     channelBuffer->push_back((medians.first & 0x300) >> 8);
     channelBuffer->push_back(medians.second & 0xFF);
     channelBuffer->push_back((medians.second & 0x300) >> 8);
     //clusters
-    fillClusterData(channelBuffer,data,READOUT_MODE_ZERO_SUPPRESSED);
+    fillClusterData(channelBuffer,packetCode,data,READOUT_MODE_ZERO_SUPPRESSED); //including all the related PACKET_CODES, but the ZERO_SUPPRESSED_LITE is not taken into account here, why? Maybe because this function is all about ZERO_SUPPRESSED?
     //set length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
@@ -262,7 +305,7 @@ namespace sistrip {
     channelBuffer->push_back(0xFF);
     channelBuffer->push_back(0xFF);
     //clusters
-    fillClusterData(channelBuffer,data,mode);
+    fillClusterData(channelBuffer,0,data,mode); // NOTE: pass a packetCode?
     //set fibre length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
@@ -304,56 +347,115 @@ namespace sistrip {
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
   }
   
-  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const
+  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const
   {
     uint16_t clusterSize = 0;
+    std::size_t size_pos = 0;
+    uint16_t adc_pre = 0;
     const uint16_t nSamples = data.size();
-    uint16_t size;
-    switch (mode) {
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-        size = 2; break;
-      default:
-        size = 1; break;
-    }
+
     for( uint16_t strip = 0; strip < nSamples; ++strip) {
       uint16_t adc;
       switch (mode) {
         case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
         case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
           adc = data.get10BitSample(strip); break;
+        case READOUT_MODE_ZERO_SUPPRESSED:
+          switch(packetCode) {
+            case PACKET_CODE_ZERO_SUPPRESSED10:
+              adc = data.get10BitSample(strip); break;
+            default:
+            adc = data.get8BitSample(strip,mode); break;
+          }
         default:
           adc = data.get8BitSample(strip,mode); break;
       }
-
       if(adc) {
 	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
 	  if(clusterSize) { 
-	    *(channelBuffer->end() - size*clusterSize - 1) = clusterSize ; 
+            if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
+              channelBuffer->push_back(adc_pre); adc_pre = 0;
+            } 
+            (*channelBuffer)[size_pos] = clusterSize;
 	    clusterSize = 0; 
 	  }
-	  channelBuffer->push_back(strip); 
-	  channelBuffer->push_back(0); //clustersize	  
+          // cluster header: first strip and size
+	  channelBuffer->push_back(strip);
+          size_pos = channelBuffer->size();
+	  channelBuffer->push_back(0); // for clustersize
 	}
         switch (mode) {
           case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
           case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
 	    channelBuffer->push_back(adc & 0xFF);
-            channelBuffer->push_back((adc & 0x0300) >> 8);
+            channelBuffer->push_back((adc & 0x300) >> 8);
             break;
-          default:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT: 
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+            channelBuffer->push_back((adc & 0x3FC) >> 2);
+            break;
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT: 
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+            channelBuffer->push_back((adc & 0x1FE) >> 1);
+            break;
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
             channelBuffer->push_back(adc & 0xFF);
             break;
+          case READOUT_MODE_ZERO_SUPPRESSED:
+          case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+          {
+            switch (packetCode) {
+              case PACKET_CODE_ZERO_SUPPRESSED:
+	        channelBuffer->push_back(adc & 0xFF);
+                break;
+              case PACKET_CODE_ZERO_SUPPRESSED10:
+                if (clusterSize%4==0) {
+                  channelBuffer->push_back((adc & 0x3FC) >> 2);
+                  adc_pre = ((adc & 0x3) << 6);
+                }
+                else if (clusterSize%4==1) {
+                  channelBuffer->push_back(adc_pre | ((adc & 0x3F0) >> 4));
+                  adc_pre = ((adc & 0xF) << 4);
+                }
+                else if (clusterSize%4==2) {
+                  channelBuffer->push_back(adc_pre | ((adc & 0x3C0) >> 6));
+                  adc_pre = ((adc & 0x3F) << 2);
+                }
+                else if (clusterSize%4==3) {
+                  channelBuffer->push_back(adc_pre | ((adc & 0x300) >> 8));
+                  channelBuffer->push_back(adc & 0xFF);
+                  adc_pre = 0;
+                }
+                break;
+              case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT:
+                channelBuffer->push_back((adc & 0x3FC) >> 2);
+                break;
+              case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT:
+                channelBuffer->push_back((adc & 0x1FE) >> 1);
+                break;
+             }
+           }
+           break;
+           default: ;
         }
 	++clusterSize;
       }
-
-      else if(clusterSize) { 
-	*(channelBuffer->end() - size*clusterSize - 1) = clusterSize ; 
-	clusterSize = 0; 
+      else {
+        if (clusterSize) { 
+          if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
+            channelBuffer->push_back(adc_pre); adc_pre = 0;
+          }
+          (*channelBuffer)[size_pos] = clusterSize;
+          clusterSize = 0;
+        }
       }
     }
-    if(clusterSize) *(channelBuffer->end() - size*clusterSize - 1) = clusterSize ;
+    if(clusterSize) {
+      (*channelBuffer)[size_pos] = clusterSize;
+      if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
+        channelBuffer->push_back(adc_pre); adc_pre = 0;
+      } 
+    }
   }
 
   void FEDBufferPayloadCreator::fillClusterDataPreMixMode(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
