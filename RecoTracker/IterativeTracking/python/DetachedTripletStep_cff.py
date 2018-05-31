@@ -102,19 +102,7 @@ trackingPhase1.toReplaceWith(detachedTripletStepHitTriplets, _caHitTripletEDProd
     CAThetaCut = 0.001,
     CAPhiCut = 0,
     CAHardPtCut = 0.2,
-    #new parameters required by FastSim phase1 tracking
-    layerList = detachedTripletStepSeedLayers.layerList.value(),
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    layerPairs = detachedTripletStepHitDoublets.layerPairs.value(),
 ))
-(trackingPhase1 & fastSim).toModify(detachedTripletStepHitTriplets, isFastSim = True)
 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 _fastSim_detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
@@ -126,7 +114,19 @@ _fastSim_detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProduc
 #new for phase1
 trackingPhase1.toModify(_fastSim_detachedTripletStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
-        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))))
+        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))).clone(
+            #new parameters required for phase1 seeding
+            layerList = detachedTripletStepSeedLayers.layerList.value(),
+            BPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            FPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            layerPairs = detachedTripletStepHitDoublets.layerPairs.value()
+            ))
 )
 fastSim.toReplaceWith(detachedTripletStepSeeds,_fastSim_detachedTripletStepSeeds)
 

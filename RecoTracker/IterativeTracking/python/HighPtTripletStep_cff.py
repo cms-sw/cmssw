@@ -102,19 +102,7 @@ highPtTripletStepHitTriplets = _caHitTripletEDProducer.clone(
     CAThetaCut = 0.004,
     CAPhiCut = 0.07,
     CAHardPtCut = 0.3,
-    #new parameters required by FastSim phase1 tracking
-    layerList = highPtTripletStepSeedLayers.layerList.value(),
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    layerPairs = highPtTripletStepHitDoublets.layerPairs.value(),
 )
-fastSim.toModify(highPtTripletStepHitTriplets, isFastSim = True)
 
 trackingPhase2PU140.toModify(highPtTripletStepHitTriplets,CAThetaCut = 0.003,CAPhiCut = 0.06,CAHardPtCut = 0.5)
 
@@ -138,7 +126,19 @@ _fastSim_highPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer
     layerList = highPtTripletStepSeedLayers.layerList.value(),
     trackingRegions = "highPtTripletStepTrackingRegions",
     hitMasks = cms.InputTag("highPtTripletStepMasks"),
-    seedFinderSelector = dict( CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(highPtTripletStepHitTriplets))
+    seedFinderSelector = dict( CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(highPtTripletStepHitTriplets).clone(
+            #new parameters required for phase1 seeding
+            layerList = highPtTripletStepSeedLayers.layerList.value(),
+            BPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            FPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            layerPairs = highPtTripletStepHitDoublets.layerPairs.value()
+            ))
 )
 _fastSim_highPtTripletStepSeeds.seedFinderSelector.CAHitTripletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 fastSim.toReplaceWith(highPtTripletStepSeeds,_fastSim_highPtTripletStepSeeds)

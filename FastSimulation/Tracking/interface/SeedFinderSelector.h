@@ -8,6 +8,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TrackingRegion;
 class FastTrackerRecHit;
@@ -56,6 +57,11 @@ private:
     std::vector<unsigned> layerPairs_;
     edm::ESHandle<TrackerTopology> trackerTopology;
     std::vector<SeedingLayerSetsBuilder::SeedingLayerId> seedingLayerIds;
+    //new parameters required for phase1 seeding
+    std::vector<std::string> layerList;
+    std::vector<unsigned> layerPairs;
+    edm::ParameterSet BPix;
+    edm::ParameterSet FPix;
 };
 
 #endif

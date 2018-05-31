@@ -105,19 +105,7 @@ trackingPhase1.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProduce
     useBendingCorrection = True,
     CAThetaCut = 0.002,
     CAPhiCut = 0.05,
-    #new parameters required by FastSim phase1 tracking
-    layerList = lowPtTripletStepSeedLayers.layerList.value(),
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    layerPairs = lowPtTripletStepHitDoublets.layerPairs.value(),
 ))
-(trackingPhase1 & fastSim).toModify(lowPtTripletStepHitTriplets, isFastSim = True)
 
 
 trackingPhase2PU140.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
@@ -147,7 +135,19 @@ _fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.S
 #new for phase1
 trackingPhase1.toModify(_fastSim_lowPtTripletStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
-        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))))
+        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))).clone(
+            #new parameters required for phase1 seeding
+            layerList = lowPtTripletStepSeedLayers.layerList.value(),
+            BPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            FPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            layerPairs = lowPtTripletStepHitDoublets.layerPairs.value()
+            ))
 )
 fastSim.toReplaceWith(lowPtTripletStepSeeds,_fastSim_lowPtTripletStepSeeds)
 

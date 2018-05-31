@@ -68,19 +68,7 @@ detachedQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     fitFastCircleChi2Cut = True,
     CAThetaCut = 0.0011,
     CAPhiCut = 0,
-    #new parameters required by FastSim phase1 tracking
-    layerList = detachedQuadStepSeedLayers.layerList.value(),
-    BPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    FPix = cms.PSet(
-        TTRHBuilder = cms.string('WithoutRefit'),
-        HitProducer = cms.string('TrackingRecHitProducer'),
-        ),
-    layerPairs = detachedQuadStepHitDoublets.layerPairs.value(),
 )
-fastSim.toModify(detachedQuadStepHitQuadruplets, isFastSim = True)
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
 detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
@@ -102,7 +90,19 @@ _fastSim_detachedQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_
     layerList = detachedQuadStepSeedLayers.layerList.value(),
     trackingRegions = "detachedQuadStepTrackingRegions",
     hitMasks = cms.InputTag("detachedQuadStepMasks"),
-    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets))
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets).clone(
+             #new parameters required for phase1 seeding
+            layerList = detachedQuadStepSeedLayers.layerList.value(),
+            BPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            FPix = dict(
+                TTRHBuilder = 'WithoutRefit',
+                HitProducer = 'TrackingRecHitProducer',
+                ),
+            layerPairs = detachedQuadStepHitDoublets.layerPairs.value()
+            ))
 )
 _fastSim_detachedQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 fastSim.toReplaceWith(detachedQuadStepSeeds,_fastSim_detachedQuadStepSeeds)
