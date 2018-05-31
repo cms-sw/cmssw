@@ -20,7 +20,7 @@
 
 #include "Fireworks/Core/interface/FWGeometryTableManagerBase.h"
 #include <string>
-#include <boost/tr1/unordered_map.hpp>
+#include <unordered_map>
 
 class FWGeometryTableViewBase;
 class FWGeometryTableView;
@@ -46,11 +46,11 @@ public:
       bool m_childMatches;
       Match() : m_matches(false), m_childMatches(false) {}
 
-      bool accepted() { return m_matches || m_childMatches; }
+      bool accepted() const { return m_matches || m_childMatches; }
    };
 
 
-   typedef boost::unordered_map<TGeoVolume*, Match>  Volumes_t;
+   typedef std::unordered_map<TGeoVolume*, Match>  Volumes_t;
    typedef Volumes_t::iterator               Volumes_i; 
 
    FWGeometryTableManager(FWGeometryTableView*);
