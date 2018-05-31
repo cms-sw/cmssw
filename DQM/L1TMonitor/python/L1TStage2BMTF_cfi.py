@@ -7,7 +7,6 @@ l1tStage2Bmtf = DQMEDAnalyzer(
 #    bmtfSourceTwinMux1 = cms.InputTag("BMTFStage2Digis", "TheDigis"),
 #    bmtfSourceTwinMux2 = cms.InputTag("BMTFStage2Digis", "PhiDigis"),
     monitorDir = cms.untracked.string("L1T/L1TStage2BMTF"),
-    verbose = cms.untracked.bool(False),
-    kalman = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(False)
 )
 

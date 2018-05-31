@@ -63,44 +63,44 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir);
 
-    summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), nbins, 1, nbins+1); // range to match bin numbering
-    summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
-    summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
-    summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
-    summary->setBinLabel(NMUONBAD, "muon collection size mismatch", 1);
-    summary->setBinLabel(MUONALL, "# muons", 1);
-    summary->setBinLabel(MUONGOOD, "# matching muons", 1);
-    summary->setBinLabel(PTBAD, "p_{T} mismatch", 1);
-    summary->setBinLabel(ETABAD, "#eta mismatch", 1);
-    summary->setBinLabel(LOCALPHIBAD, "local #phi mismatch", 1);
-    summary->setBinLabel(SIGNBAD, "sign mismatch", 1);
-    summary->setBinLabel(SIGNVALBAD, "sign valid mismatch", 1);
-    summary->setBinLabel(QUALBAD, "quality mismatch", 1);
-    summary->setBinLabel(HFBAD, "HF bit mismatch", 1);
-    summary->setBinLabel(LINKBAD, "link mismatch", 1);
-    summary->setBinLabel(PROCBAD, "processor mismatch", 1);
-    summary->setBinLabel(TFBAD, "track finder type mismatch", 1);
-    summary->setBinLabel(TRACKADDRBAD, "track address mismatch", 1);
+  summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), nbins, 1, nbins+1); // range to match bin numbering
+  summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
+  summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
+  summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
+  summary->setBinLabel(NMUONBAD, "muon collection size mismatch", 1);
+  summary->setBinLabel(MUONALL, "# muons", 1);
+  summary->setBinLabel(MUONGOOD, "# matching muons", 1);
+  summary->setBinLabel(PTBAD, "p_{T} mismatch", 1);
+  summary->setBinLabel(ETABAD, "#eta mismatch", 1);
+  summary->setBinLabel(LOCALPHIBAD, "local #phi mismatch", 1);
+  summary->setBinLabel(SIGNBAD, "sign mismatch", 1);
+  summary->setBinLabel(SIGNVALBAD, "sign valid mismatch", 1);
+  summary->setBinLabel(QUALBAD, "quality mismatch", 1);
+  summary->setBinLabel(HFBAD, "HF bit mismatch", 1);
+  summary->setBinLabel(LINKBAD, "link mismatch", 1);
+  summary->setBinLabel(PROCBAD, "processor mismatch", 1);
+  summary->setBinLabel(TFBAD, "track finder type mismatch", 1);
+  summary->setBinLabel(TRACKADDRBAD, "track address mismatch", 1);
   if (kalman){
     summary->setBinLabel(DXYBAD, "DXY mismatch", 1);
     summary->setBinLabel(PT2BAD, "P_{T}2 mismatch", 1);
   }
 
-    errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), nbins-3, 1, nbins-2); // range to match bin numbering
-    errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
-    errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
-    errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
-    errorSummaryNum->setBinLabel(RPT, "p_{T} mismatch", 1);
-    errorSummaryNum->setBinLabel(RETA, "#eta mismatch", 1);
-    errorSummaryNum->setBinLabel(RLOCALPHI, "local #phi mismatch", 1);
-    errorSummaryNum->setBinLabel(RSIGN, "sign mismatch", 1);
-    errorSummaryNum->setBinLabel(RSIGNVAL, "sign valid mismatch", 1);
-    errorSummaryNum->setBinLabel(RQUAL, "quality mismatch", 1);
-    errorSummaryNum->setBinLabel(RHF, "HF bit mismatch", 1);
-    errorSummaryNum->setBinLabel(RLINK, "link mismatch", 1);
-    errorSummaryNum->setBinLabel(RPROC, "processor mismatch", 1);
-    errorSummaryNum->setBinLabel(RTF, "track finder type mismatch", 1);
-    errorSummaryNum->setBinLabel(RTRACKADDR, "track address mismatch", 1);
+  errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), nbins-3, 1, nbins-2); // range to match bin numbering
+  errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
+  errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
+  errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
+  errorSummaryNum->setBinLabel(RPT, "p_{T} mismatch", 1);
+  errorSummaryNum->setBinLabel(RETA, "#eta mismatch", 1);
+  errorSummaryNum->setBinLabel(RLOCALPHI, "local #phi mismatch", 1);
+  errorSummaryNum->setBinLabel(RSIGN, "sign mismatch", 1);
+  errorSummaryNum->setBinLabel(RSIGNVAL, "sign valid mismatch", 1);
+  errorSummaryNum->setBinLabel(RQUAL, "quality mismatch", 1);
+  errorSummaryNum->setBinLabel(RHF, "HF bit mismatch", 1);
+  errorSummaryNum->setBinLabel(RLINK, "link mismatch", 1);
+  errorSummaryNum->setBinLabel(RPROC, "processor mismatch", 1);
+  errorSummaryNum->setBinLabel(RTF, "track finder type mismatch", 1);
+  errorSummaryNum->setBinLabel(RTRACKADDR, "track address mismatch", 1);
   if (kalman) {
     errorSummaryNum->setBinLabel(RDXY, "DXY mismatch", 1);
     errorSummaryNum->setBinLabel(RPT2, "P_{T}2 mismatch", 1);
@@ -117,9 +117,9 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   // This needs to come after the calls to setBinLabel.
   errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
-    errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", nbins-3, 1, nbins-2); // range to match bin numbering
-    errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
-    errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
+  errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", nbins-3, 1, nbins-2); // range to match bin numbering
+  errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
+  errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
   if (kalman) {
   }
   for (int i = RMUON; i <= errorSummaryDen->getNbinsX(); ++i) {
