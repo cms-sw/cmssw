@@ -8,7 +8,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
@@ -127,12 +126,6 @@ private:
     const float caThetaCut = 0.00125f;
     const float caPhiCut = 1.f;
     const float caHardPtCut = 0.f;
-    //new parameters required by FastSim seeding to pass to SeedingLayerSetsHits
-    std::vector<std::string> layerList;
-    edm::ParameterSetDescription BPix;
-    edm::ParameterSetDescription FPix;
-    const bool isFastSim;
-    std::vector<unsigned> layerPairs;
 };
 
 

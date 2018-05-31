@@ -41,9 +41,6 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
 		caThetaCut(	cfg.getParameter<double>("CAThetaCut")),
 		caPhiCut(cfg.getParameter<double>("CAPhiCut")),
 		caHardPtCut(cfg.getParameter<double>("CAHardPtCut")),
-		layerList(cfg.getParameter<std::vector<std::string>>("layerList")),
-		isFastSim(cfg.getParameter<bool>("isFastSim")),
-		layerPairs(cfg.getParameter<std::vector<unsigned>>("layerPairs"))
 {
 	edm::ParameterSet comparitorPSet = cfg.getParameter < edm::ParameterSet > ("SeedComparitorPSet");
 	std::string comparitorName = comparitorPSet.getParameter < std::string > ("ComponentName");
@@ -56,20 +53,12 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
 }
 
 void CAHitTripletGenerator::fillDescriptions(edm::ParameterSetDescription& desc) {
-  edm::ParameterSetDescription empty;
-  empty.setAllowAnything();
-
   desc.add<double>("extraHitRPhitolerance", 0.06);
   desc.add<bool>("useBendingCorrection", false);
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 0.1);
   desc.add<double>("CAHardPtCut", 0);
-  desc.add<std::vector<std::string>>("layerList",{});
-  desc.add<edm::ParameterSetDescription>("BPix", empty);
-  desc.add<edm::ParameterSetDescription>("FPix", empty);
-  desc.add<bool>("isFastSim", false);
-  desc.add<std::vector<unsigned>>("layerPairs", std::vector<unsigned>{0});
-
+  
   edm::ParameterSetDescription descMaxChi2;
   descMaxChi2.add<double>("pt1", 0.8);
   descMaxChi2.add<double>("pt2", 2);
