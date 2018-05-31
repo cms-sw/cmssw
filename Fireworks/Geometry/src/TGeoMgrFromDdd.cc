@@ -21,7 +21,6 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DataFormats/Math/interface/GraphWalker.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -68,7 +67,6 @@ namespace
    TGeoCombiTrans* createPlacement(const DDRotationMatrix& iRot,
                                    const DDTranslation&    iTrans)
    {
-      //  std::cout << "in createPlacement" << std::endl;
       double elements[9];
       iRot.GetComponents(elements);
       TGeoRotation r;
@@ -106,8 +104,10 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
       gGeoIdentity = new TGeoIdentity("Identity");
    }
 
-   std::cout << "about to initialize the DDCompactView walker" << std::endl;
-   auto walker = math::GraphWalker<DDLogicalPart, DDPosData*>( viewH->graph(), viewH->root());
+   std::cout << "about to initialize the DDCompactView walker"
+	     << " with a root node " << viewH->root() << std::endl;
+
+   auto walker = viewH->walker();
    auto info = walker.current();
 
    // The top most item is actually the volume holding both the
@@ -120,6 +120,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
    TGeoVolume *top = createVolume(info.first.name().fullname(),
 				  info.first.solid(),
                                   info.first.material());
+
    if (top == nullptr) {
       return std::shared_ptr<TGeoManager>();
    }
@@ -141,7 +142,7 @@ TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRecord)
 	 for(unsigned int i=0; i<parentStack.size();++i) {
 	    std::cout <<" ";
 	 }
-	 std::cout << info.first.name()<<" "<<info.second->copyno()<<" "
+	 std::cout << info.first.name() <<" "<<info.second->copyno()<<" "
 		   << DDSolidShapesName::name(info.first.solid().shape())<<std::endl;
       }
 

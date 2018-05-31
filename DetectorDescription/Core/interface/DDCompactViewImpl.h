@@ -6,6 +6,7 @@
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
 class DDDivision;
 struct DDPosData;
@@ -14,7 +15,8 @@ class DDCompactViewImpl
 {
 public:
   
-  using GraphNav = math::Graph<DDLogicalPart, DDPosData* >;
+  using Graph = math::Graph<DDLogicalPart, DDPosData* >;
+  using GraphWalker = math::GraphWalker<DDLogicalPart, DDPosData* >;
 
   explicit DDCompactViewImpl();
   DDCompactViewImpl(const DDLogicalPart & rootnodedata);
@@ -27,7 +29,8 @@ public:
   
   DDLogicalPart & current() const;
   
-  const GraphNav & graph() const { return graph_; }
+  const Graph& graph() const { return graph_; }
+  GraphWalker walker() const;
 
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
@@ -41,7 +44,7 @@ public:
 protected:    
   // internal use ! (see comments in DDCompactView(bool)!)
   DDLogicalPart root_;
-  GraphNav graph_;
+  Graph graph_;
 };
 
 #endif
