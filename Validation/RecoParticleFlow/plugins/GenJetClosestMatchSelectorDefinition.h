@@ -2,6 +2,9 @@
 #define PhysicsTools_PFCandProducer_GenJetClosestMatchSelectorDefinition
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
