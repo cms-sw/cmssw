@@ -10,88 +10,35 @@ import subprocess
 import codecs
 import re
 import errno
+from getGTfromDQMFile_V2 import getGTfromDQMFile
 
+def setRunDirectory(runNumber):
+    # Don't forget to add an entry when there is a new era
+    dirDict = { 315252:['Data2018', 'Run2018'],\
+                308336:['Data2018', 'Commissioning2018'],\
+                294644:['Data2017', 'Run2017'],\
+                290123:['Data2017', 'Commissioning2017'],\
+                284500:['Data2016', 'PARun2016'],\
+                271024:['Data2016', 'Run2016'],\
+                264200:['Data2016', 'Commissioning2016'],\
+                246907:['Data2015', 'Run2015'],\
+                232881:['Data2015', 'Commissioning2015'],\
+                211658:['Data2013', 'Run2013'],\
+                209634:['Data2013', 'HIRun2013'],\
+                190450:['Data2012', 'Run2012']}
+    runKey=0
+    for key in sorted(dirDict):
+        if runNumber > key:
+            runKey=key
+    return dirDict[runKey]  
 
-
-Run_type = sys.argv[1]
-Run_Number = [int(x) for x in sys.argv[2:]]
-CMSSW_BASE = str(os.popen('echo ${CMSSW_BASE}').read().strip())
-
-###########Check if user enter the right run type######################
-if Run_type == 'Cosmics' or Run_type == 'StreamExpress' or Run_type == 'StreamExpressCosmics' or 'ZeroBias' or re.match('ZeroBias([0-9]+?)',Run_type):
-
-    print Run_type
-else: 
-    print "please enter a valid run type: Cosmics | ZeroBias | StreamExpress | StreamExpressCosmics ";
-    sys.exit(0)
-
-#########Checking Data taking period##########
-for i in range(len(Run_Number)):
-
-    if Run_Number[i] > 308336:
-    	DataLocalDir='Data2018'
-	DataOfflineDir='Commissioning2018'
-
-    elif Run_Number[i] > 294644:
-        DataLocalDir='Data2017'
-        DataOfflineDir='Run2017'
-
-    elif Run_Number[i] > 290123:
-        DataLocalDir='Data2017'
-        DataOfflineDir='Commissioning2017'
-
-
-    elif Run_Number[i] > 284500:
-        DataLocalDir='Data2016';
-        DataOfflineDir='PARun2016';
-
-##2016 data taking period run > 271024
-    elif Run_Number[i] > 271024:
-        DataLocalDir='Data2016';
-        DataOfflineDir='Run2016';
-
-#2016 - Commissioning period                                                                                                                               
-    elif Run_Number[i] > 264200:
-        DataLocalDir='Data2016';
-        DataOfflineDir='Commissioning2016';
-
-#Run2015A
-    elif Run_Number[i] > 246907:
-        DataLocalDir='Data2015';
-        DataOfflineDir='Run2015'
-    
-#2015 Commissioning period (since January)
-    elif Run_Number[i] > 232881:
-        DataLocalDir='Data2015';
-        DataOfflineDir='Commissioning2015';
-
-#2013 pp run (2.76 GeV)
-    elif Run_Number[i] > 211658:
-        DataLocalDir='Data2013';
-        DataOfflineDir='Run2013';
-
-#2013 HI run
-    elif Run_Number[i] > 209634:
-        DataLocalDir='Data2013';
-        DataOfflineDir='HIRun2013';
-   
-    elif Run_Number[i] > 190450:
-        DataLocalDir='Data2012';
-        DataOfflineDir='Run2012';
-
-    else:
-        print "Please enter vaild run numbers"
-        sys.exit(0)
-
-#################Downloading DQM file############################
-    nnn=Run_Number[i]/100
-    nnnOut = Run_Number[i]/1000
-    nnnOnline = Run_Number[i]/10000
-
-    print 'Processing '+Run_type+ ' in '+DataOfflineDir+"..."
-
+def downloadOfflineDQMhisto(run, Run_type):
+    runDirval=setRunDirectory(run)
+    DataLocalDir=runDirval[0]
+    DataOfflineDir=runDirval[1]
+    nnn=run/100
+    print 'Processing '+ Run_type + ' in '+DataOfflineDir+"..."
     File_Name = ''
-
     print 'Directory to fetch the DQM file from: https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/'
     url = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/'
     os.popen("curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET "+url+" > index.html") 
@@ -99,7 +46,6 @@ for i in range(len(Run_Number)):
     index = f.readlines()
     if any(str(Run_Number[i]) in s for s in index):
         for s in index:
-	    print s
             if (str(Run_Number[i]) in s) and ("__DQMIO.root" in s):
                 File_Name = str(str(s).split("xx/")[1].split("'>DQM")[0])
     else:
@@ -107,15 +53,19 @@ for i in range(len(Run_Number)):
         sys.exit(0)
 
     print 'Downloading DQM file:'+File_Name
-
-    
     os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/OfflineData/'+DataOfflineDir+'/'+Run_type+'/000'+str(nnn)+'xx/'+File_Name+' > /tmp/'+File_Name)
+    
+    return File_Name
 
-    filepath = '/tmp/'
-
-
-
-##################online file########    
+def downloadnlineDQMhisto(run, Run_type):
+    runDirval=setRunDirectory(run)
+    DataLocalDir=runDirval[0]
+    DataOfflineDir=runDirval[1]
+    nnn=run/100
+    nnnOnline = run/10000
+    File_Name_online=''
+    deadRocMap = False
+    ##################online file########    
     url1 = 'https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'
     os.popen("curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET "+url1+" > index_online.html")
     
@@ -126,33 +76,71 @@ for i in range(len(Run_Number)):
 
     f_online=codecs.open("index_online.html", 'r')
     index_online = f_online.readlines()
-    if any(str(Run_Number[i]) in x for x in index_online):
+    if any(str(run) in x for x in index_online):
         for x in index_online:
-            if (str(Run_Number[i]) in x) and ("_PixelPhase1_" in x):
+            if (str(run) in x) and ("_PixelPhase1_" in x):
                 File_Name_online=str(str(x).split(".root'>")[1].split("</a></td><td>")[0])
                 deadRocMap = True
     else:
         print "Can't find any file in offline server, trying the online server"
-        if any(str(Run_Number[i]) in y for y in index_online_backup):
+        if any(str(run) in y for y in index_online_backup):
             for y in index_online:
-                if (str(Run_Number[i]) in y) and ("_PixelPhase1_" in y):
+                if (str(run) in y) and ("_PixelPhase1_" in y):
                     File_Name_online=str(str(y).split(".root'>")[1].split("</a></td><td>")[0])
                     deadRocMap = True
         else:
             print 'No Online DQM file available. Skip dead roc map'
             deadRocMap = False
 
-    if deadRocMap == True:		    
-    	print 'Downloading DQM file:'+File_Name_online
+    print 'Downloading DQM file:'+File_Name_online
 
 
-    	os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'+File_Name_online+' > /tmp/'+File_Name_online)
+    os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'+File_Name_online+' > /tmp/'+File_Name_online)
 
-    	os.remove('index_online.html')
-   	os.remove('index_online_backup.html')
+    os.remove('index_online.html')
+    os.remove('index_online_backup.html')
+    return deadRocMap, File_Name_online;
 
 
+def getGT(DQMfile, RunNumber, globalTagVar):
+    globalTag_v0 = getGTfromDQMFile(DQMfile, RunNumber, globalTagVar)
+    print "Global Tag: " + globalTag_v0
+    globalTag = globalTag_v0
 
+    for z in range(len(globalTag_v0)-2):#clean up the garbage string in the GT
+        if (globalTag_v0[z].isdigit()) and  (globalTag_v0[z+1].isdigit()) and (globalTag_v0[z+2].isdigit()) and(globalTag_v0[z+3].isupper()):
+            globalTag = globalTag_v0[z:]
+    if globalTag == "":
+        print " No GlobalTag found: trying from DAS.... ";
+        globalTag = str(os.popen('getGTscript.sh '+filepath+ File_Name+' ' +str(Run_Number[i])));
+        if globalTag == "":
+            print " No GlobalTag found for run: "+str(Run_Number[i]);
+    return globalTag
+
+
+Run_type = sys.argv[1]
+Run_Number = [int(x) for x in sys.argv[2:]]
+CMSSW_BASE = str(os.popen('echo ${CMSSW_BASE}').read().strip())
+
+###########Check if user enter the right run type######################
+if Run_type == 'Cosmics' or Run_type == 'StreamExpress' or Run_type == 'StreamExpressCosmics' or 'ZeroBias' or re.match('ZeroBias([0-9]+?)',Run_type):
+    print Run_type
+else: 
+    print "please enter a valid run type: Cosmics | ZeroBias | StreamExpress | StreamExpressCosmics ";
+    sys.exit(0)
+
+for i in range(len(Run_Number)):
+#################Downloading DQM file############################
+    print "Downloading File!!"
+    nnnOut = Run_Number[i]/1000
+
+    filepath = '/tmp/'
+    File_Name = downloadOfflineDQMhisto(Run_Number[i], Run_type)
+    deadRocMap, File_Name_online = downloadnlineDQMhisto(Run_Number[i], Run_type)
+
+    runDirval=setRunDirectory(Run_Number[i])
+    DataLocalDir=runDirval[0]
+    #DataOfflineDir=runDirval[1]
 
 ################Check if run is complete##############
 
@@ -185,21 +173,10 @@ for i in range(len(Run_Number)):
         
 #######Getting GT##############
     ####After switch production to 10_X_X release, the clean up section need to be reviewed and modified  ##########
-    globalTag_v0 = os.popen('getGTfromDQMFile.py '+ filepath+File_Name+' ' +str(Run_Number[i])+' globalTag_Step1').readline().strip()
-    print "Global Tag: " + globalTag_v0
-    globalTag = globalTag_v0
-
-    for z in range(len(globalTag_v0)-2):#clean up the garbage string in the GT
-        if (globalTag_v0[z].isdigit()) and  (globalTag_v0[z+1].isdigit()) and (globalTag_v0[z+2].isdigit()) and (globalTag_v0[z+3].isupper()):
-            globalTag = globalTag_v0[z:]
-
+    globalTag = getGT(filepath+File_Name, str(Run_Number[i]), 'globalTag_Step1')
     ####################################################
 
-    if globalTag == "":
-        print " No GlobalTag found: trying from DAS.... ";
-        globalTag = str(os.popen('getGTscript.sh '+filepath+ File_Name+' ' +str(Run_Number[i])));
-        if globalTag == "":
-            print " No GlobalTag found for run: "+str(Run_Number[i]);
+
     
     print " Creating the TrackerMap.... "
 
@@ -298,7 +275,7 @@ for i in range(len(Run_Number)):
 
 
 
-######Counting Dead ROCs during the run#########################
+######Counting Dead ROCs and Inefficient DC during the run#########################
     
     if deadRocMap == True:
 
@@ -306,23 +283,14 @@ for i in range(len(Run_Number)):
         os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/change_name.py')
         os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/PixelMapPlotter.py MaskedROC_sum.txt -c')
         os.remove('MaskedROC_sum.txt')
+        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/InefficientDoubleROC.py '+filepath+File_Name_online)
     else:
         print 'No Online DQM file available, Dead ROC maps will not be produced'
+        print 'No Online DQM file available, inefficient DC list  will also not be produced'
 
+#######Merge Dead ROCs and Occupoancy Plot ###################
 
-########Counting Inefficient DC during the run #################
-
-
-    if deadRocMap == True:
-      
-        os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/InefficientDoubleROC.py '+filepath+File_Name_online)
-      
-    else:
-        print 'No Online DQM file available, inefficient DC list  will not be produced'
-
-
-
-
+    os.system('${CMSSW_BASE}/src/DQM/SiStripMonitorClient/scripts/MergeOccDeadROC.py '+filepath+File_Name)
 
 ###################copy ouput files###################
     strip_files = os.listdir('.')
@@ -362,7 +330,8 @@ for i in range(len(Run_Number)):
 
     shutil.copyfile(pixelTreeFileName,'/data/users/event_display/TkCommissioner_runs/'+DataLocalDir+'/'+dest+'/'+pixelTreeFileName)
     os.remove(pixelTreeFileName)
-    os.remove(filepath+File_Name)
-    os.remove(filepath+File_Name_online)
+    if File_Name:
+        os.remove(filepath+File_Name)
+    if File_Name_online:
+        os.remove(filepath+File_Name_online)
     os.chdir(workPath)
-
