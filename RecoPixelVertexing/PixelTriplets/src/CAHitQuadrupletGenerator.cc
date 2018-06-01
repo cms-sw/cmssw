@@ -46,7 +46,7 @@ fitFastCircleChi2Cut(cfg.getParameter<bool>("fitFastCircleChi2Cut")),
 useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
 caThetaCut(cfg.getParameter<double>("CAThetaCut")),
 caPhiCut(cfg.getParameter<double>("CAPhiCut")),
-caHardPtCut(cfg.getParameter<double>("CAHardPtCut")),
+caHardPtCut(cfg.getParameter<double>("CAHardPtCut"))
 {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
