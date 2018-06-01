@@ -57,10 +57,6 @@ class GeneralHLTOffline : public DQMEDAnalyzer {
   void bookHistograms(DQMStore::IBooker &, edm::Run const & iRun,
 			      edm::EventSetup const & iSetup) override;
   void dqmBeginRun(edm::Run const& iRun,edm::EventSetup const& iSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&,
-                                    edm::EventSetup const&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&,
-                                  edm::EventSetup const&) override;
   virtual void setupHltMatrix(DQMStore::IBooker & iBooker, const std::string &, int);
   virtual void fillHltMatrix(const std::string &,
                              const std::string &,
@@ -613,13 +609,5 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
     std::cout << "hist->Fill" << std::endl;
 }  // End fillHltMatrix
 
-void GeneralHLTOffline::beginLuminosityBlock(edm::LuminosityBlock const&,
-                                             edm::EventSetup const&) {
-}
-
-void
-GeneralHLTOffline::endLuminosityBlock(edm::LuminosityBlock const&,
-                                      edm::EventSetup const&) {
-}
 
 DEFINE_FWK_MODULE(GeneralHLTOffline);

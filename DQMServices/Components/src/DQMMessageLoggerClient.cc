@@ -48,11 +48,7 @@ void DQMMessageLoggerClient::beginRun(const edm::Run& r, const edm::EventSetup& 
 void DQMMessageLoggerClient::analyze(const edm::Event& e, const edm::EventSetup& context)  {
 }
 
-void DQMMessageLoggerClient::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const EventSetup& es){
-}
 
-void DQMMessageLoggerClient::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& context){
-}
 
 void DQMMessageLoggerClient::fillHistograms(){
 

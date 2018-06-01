@@ -126,13 +126,6 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
     }
   }
 }
-//
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
-void L1TTauOffline::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)
-{
-  edm::LogInfo("L1TTauOffline") << "L1TTauOffline::beginLuminosityBlock" << std::endl;
-}
 
 //
 // -------------------------------------- Analyze --------------------------------------------
@@ -296,14 +289,6 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
       }
     }
   }//loop over tau-L1 pairs
-}
-
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
-void L1TTauOffline::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("L1TTauOffline") << "L1TTauOffline::endLuminosityBlock" << std::endl;
 }
 
 //

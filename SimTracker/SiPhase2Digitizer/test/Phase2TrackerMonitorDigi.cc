@@ -512,7 +512,5 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker & ibooker, unsi
     layerMEs.insert(std::make_pair(layer, local_mes)); 
   }  
 }
-void Phase2TrackerMonitorDigi::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup){
-}
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2TrackerMonitorDigi);

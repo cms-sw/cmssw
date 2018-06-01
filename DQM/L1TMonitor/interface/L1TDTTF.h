@@ -44,7 +44,6 @@ class L1TDTTF : public DQMEDAnalyzer {
 
   // BeginJob
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
  private:
