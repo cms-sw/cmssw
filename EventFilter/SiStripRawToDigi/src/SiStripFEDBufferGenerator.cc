@@ -235,20 +235,7 @@ namespace sistrip {
       channelBuffer->push_back(7);
       channelBuffer->push_back(0);
       //packet code
-      switch (packetCode) {
-        case PACKET_CODE_ZERO_SUPPRESSED:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
-        break;
-        case PACKET_CODE_ZERO_SUPPRESSED10:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED10);
-        break;
-        case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT);
-        break;
-        case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT);
-        break;
-      }
+      channelBuffer->push_back(packetCode);
       //4 bytes of medians
       channelBuffer->insert(channelBuffer->end(),4,0);
       return;
