@@ -266,7 +266,7 @@ namespace sistrip {
     channelBuffer->push_back(medians.second & 0xFF);
     channelBuffer->push_back((medians.second & 0x300) >> 8);
     //clusters
-    fillClusterData(channelBuffer,packetCode,data,READOUT_MODE_ZERO_SUPPRESSED);
+    fillClusterData(channelBuffer, packetCode, data, READOUT_MODE_ZERO_SUPPRESSED);
     //set length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
@@ -291,7 +291,7 @@ namespace sistrip {
     channelBuffer->push_back(0xFF);
     channelBuffer->push_back(0xFF);
     //clusters
-    fillClusterData(channelBuffer,0,data,mode); // NOTE: pass a packetCode?
+    fillClusterData(channelBuffer, 0, data, mode);
     //set fibre length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
@@ -333,35 +333,41 @@ namespace sistrip {
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
   }
 
-  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const
+  void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, uint8_t packetCode, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const
   {
-    uint16_t clusterSize = 0;
-    std::size_t size_pos = 0;
+    // ZS lite: retrieve "packet code"
+    switch (mode) {
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        packetCode = PACKET_CODE_ZERO_SUPPRESSED;
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        packetCode = PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT;
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        packetCode = PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT;
+        break;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        packetCode = PACKET_CODE_ZERO_SUPPRESSED10;
+        break;
+      default: ;
+    }
+    const bool is10Bit = ( packetCode == PACKET_CODE_ZERO_SUPPRESSED10 );
+    const uint16_t bShift = ( packetCode == PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT ? 2
+                          : ( packetCode == PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT ? 1 : 0 ) );
+
+    uint16_t clusterSize = 0; // counter
+    std::size_t size_pos = 0; // index of cluster size
     uint16_t adc_pre = 0;
     const uint16_t nSamples = data.size();
-
     for( uint16_t strip = 0; strip < nSamples; ++strip) {
-      uint16_t adc;
-      switch (mode) {
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-          adc = data.get10BitSample(strip); break;
-        case READOUT_MODE_ZERO_SUPPRESSED:
-          switch(packetCode) {
-            case PACKET_CODE_ZERO_SUPPRESSED10:
-              adc = data.get10BitSample(strip); break;
-            default:
-            adc = data.get8BitSample(strip,mode); break;
-          }
-        default:
-          adc = data.get8BitSample(strip,mode); break;
-      }
-      if(adc) {
-	if( clusterSize==0 || strip == STRIPS_PER_APV ) {
-	  if(clusterSize) {
-            if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
-              channelBuffer->push_back(adc_pre); adc_pre = 0;
-            }
+      const uint16_t adc = is10Bit ? data.get10BitSample(strip) : data.get8BitSample(strip, bShift);
+      if (adc) {
+	if ( clusterSize==0 || strip == STRIPS_PER_APV ) {
+	  if (clusterSize) {
+            if ( is10Bit && (clusterSize%4) ) { channelBuffer->push_back(adc_pre); }
             (*channelBuffer)[size_pos] = clusterSize;
 	    clusterSize = 0;
 	  }
@@ -370,77 +376,35 @@ namespace sistrip {
           size_pos = channelBuffer->size();
 	  channelBuffer->push_back(0); // for clustersize
 	}
-        switch (mode) {
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-	    channelBuffer->push_back(adc & 0xFF);
-            channelBuffer->push_back((adc & 0x300) >> 8);
-            break;
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        if ( ! is10Bit ) {
+          channelBuffer->push_back(adc & 0xFF);
+        } else {
+          if (clusterSize%4==0) {
             channelBuffer->push_back((adc & 0x3FC) >> 2);
-            break;
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-            channelBuffer->push_back((adc & 0x1FE) >> 1);
-            break;
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+            adc_pre = ((adc & 0x3) << 6);
+          } else if (clusterSize%4==1) {
+            channelBuffer->push_back(adc_pre | ((adc & 0x3F0) >> 4));
+            adc_pre = ((adc & 0xF) << 4);
+          } else if (clusterSize%4==2) {
+            channelBuffer->push_back(adc_pre | ((adc & 0x3C0) >> 6));
+            adc_pre = ((adc & 0x3F) << 2);
+          } else if (clusterSize%4==3) {
+            channelBuffer->push_back(adc_pre | ((adc & 0x300) >> 8));
             channelBuffer->push_back(adc & 0xFF);
-            break;
-          case READOUT_MODE_ZERO_SUPPRESSED:
-          case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-          {
-            switch (packetCode) {
-              case PACKET_CODE_ZERO_SUPPRESSED:
-	        channelBuffer->push_back(adc & 0xFF);
-                break;
-              case PACKET_CODE_ZERO_SUPPRESSED10:
-                if (clusterSize%4==0) {
-                  channelBuffer->push_back((adc & 0x3FC) >> 2);
-                  adc_pre = ((adc & 0x3) << 6);
-                }
-                else if (clusterSize%4==1) {
-                  channelBuffer->push_back(adc_pre | ((adc & 0x3F0) >> 4));
-                  adc_pre = ((adc & 0xF) << 4);
-                }
-                else if (clusterSize%4==2) {
-                  channelBuffer->push_back(adc_pre | ((adc & 0x3C0) >> 6));
-                  adc_pre = ((adc & 0x3F) << 2);
-                }
-                else if (clusterSize%4==3) {
-                  channelBuffer->push_back(adc_pre | ((adc & 0x300) >> 8));
-                  channelBuffer->push_back(adc & 0xFF);
-                  adc_pre = 0;
-                }
-                break;
-              case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT:
-                channelBuffer->push_back((adc & 0x3FC) >> 2);
-                break;
-              case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT:
-                channelBuffer->push_back((adc & 0x1FE) >> 1);
-                break;
-             }
-           }
-           break;
-           default: ;
+            adc_pre = 0;
+          }
         }
 	++clusterSize;
       }
-      else {
-        if (clusterSize) {
-          if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
-            channelBuffer->push_back(adc_pre); adc_pre = 0;
-          }
-          (*channelBuffer)[size_pos] = clusterSize;
-          clusterSize = 0;
-        }
+      else if (clusterSize) {
+        if ( is10Bit && (clusterSize%4) ) { channelBuffer->push_back(adc_pre); }
+        (*channelBuffer)[size_pos] = clusterSize;
+        clusterSize = 0;
       }
     }
     if(clusterSize) {
       (*channelBuffer)[size_pos] = clusterSize;
-      if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
-        channelBuffer->push_back(adc_pre); adc_pre = 0;
-      }
+      if ( is10Bit && (clusterSize%4) ) { channelBuffer->push_back(adc_pre); }
     }
   }
 
