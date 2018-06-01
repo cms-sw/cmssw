@@ -287,11 +287,13 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 #endif
                         }
 			GlobalPoint sv((*v).position().x(),(*v).position().y(),(*v).position().z());
-			float vscal = dir.unit().dot((sv-ppv).unit()) ;
-			//                        std::cout << "Vscal: " <<  vscal << std::endl;
-			if(dlen.significance() > vertexMinDLenSig  && vscal > vertexMinAngleCosine &&  v->normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig)
+			float vscal = dir.unit().dot((sv-ppv).unit());
+			if(dlen.significance() > vertexMinDLenSig  &&
+			   ( (vertexMinAngleCosine > 0) ? (vscal > vertexMinAngleCosine) : (vscal < vertexMinAngleCosine) )
+			   &&  v->normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig)
 			{	 
 				recoVertices->push_back(*v);
+
 #ifdef VTXDEBUG
 	                        std::cout << "ADDED" << std::endl;
 #endif
