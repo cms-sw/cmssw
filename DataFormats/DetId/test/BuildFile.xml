@@ -1,4 +1,4 @@
-<architecture match="!_amd64_">
+<architecture match="_amd64_">
 <bin name="test_detid" file="test_detid.cu">
     <use name="DataFormats/DetId"/>
     <use name="cuda"/>
