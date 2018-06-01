@@ -267,6 +267,9 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     if (i == 12) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
 
     if (i == 0) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+    if (i == 1) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+    if (i == 2) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+    if (i == 3) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
     if (i == 10) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
     if (i == 12) CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
   }
@@ -370,6 +373,9 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     if (i == 12) CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 6);
 
     if (i == 0) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+    if (i == 1) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+    if (i == 2) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+    if (i == 3) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
     if (i == 10) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 5);
     if (i == 12) CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
   }
