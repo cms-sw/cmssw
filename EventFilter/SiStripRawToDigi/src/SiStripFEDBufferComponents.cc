@@ -469,13 +469,13 @@ namespace sistrip {
       }
     } else if ( mode == READOUT_MODE_SCOPE ) {
       if ( packetCode == "SCOPE" || packetCode == "Scope"
-          || packetCode == "" ) { // default
+          || packetCode.empty() ) { // default
         return PACKET_CODE_SCOPE;
       } else {
         throw cms::Exception("FEDBuffer") << "'" << packetCode << "' cannot be converted into a valid packet code for FEDReadoutMode SCOPE";
       }
     } else {
-      if ( packetCode != "" ) {
+      if ( !packetCode.empty() ) {
         throw cms::Exception("FEDBuffer") << "Packet codes are only needed for zero-suppressed (non-lite), virgin raw, processed raw and spy data. FEDReadoutMode=" << mode << " and packetCode='" << packetCode << "'";
       }
       return 0;
