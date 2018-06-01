@@ -5,8 +5,7 @@ from Configuration.StandardSequences.DigiToRaw_cff import *
 # Re-define inputs to look at the DataMixer output
 #
 siPixelRawData.InputLabel = cms.InputTag("mixData:siPixelDigisDM")
-SiStripDigiToRaw.InputModuleLabel = cms.string('mixData')
-SiStripDigiToRaw.InputDigiLabel = cms.string('siStripDigisDM')
+SiStripDigiToRaw.InputDigis = cms.InputTag("mixData", "siStripDigisDM")
 #
 ecalPacker.Label = 'DMEcalDigis'
 ecalPacker.InstanceEB = 'ebDigis'
