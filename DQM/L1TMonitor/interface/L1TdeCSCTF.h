@@ -69,7 +69,6 @@ protected:
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
   void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
 public:
   explicit L1TdeCSCTF(edm::ParameterSet const& pset);

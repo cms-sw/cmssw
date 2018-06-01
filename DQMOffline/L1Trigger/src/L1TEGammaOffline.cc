@@ -97,13 +97,6 @@ void L1TEGammaOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   bookElectronHistos(ibooker);
   bookPhotonHistos(ibooker);
 }
-//
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
-void L1TEGammaOffline::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)
-{
-  edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::beginLuminosityBlock" << std::endl;
-}
 
 //
 // -------------------------------------- Analyze --------------------------------------------
@@ -540,14 +533,6 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
       }
     }
   }
-}
-
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
-void L1TEGammaOffline::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::endLuminosityBlock" << std::endl;
 }
 
 //

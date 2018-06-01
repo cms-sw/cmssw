@@ -37,11 +37,6 @@ void SUSY_HLT_Razor::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_Razor::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& context)
-{
-   edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::beginLuminosityBlock" << std::endl;
-}
 
 void SUSY_HLT_Razor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -215,10 +210,6 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
 }
 
-void SUSY_HLT_Razor::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("SUSY_HLT_Razor") << "SUSY_HLT_Razor::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_Razor::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

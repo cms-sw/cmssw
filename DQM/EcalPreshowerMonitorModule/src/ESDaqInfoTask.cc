@@ -183,9 +183,6 @@ void ESDaqInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
 
 }
 
-void ESDaqInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup) {
-
-}
 
 void ESDaqInfoTask::reset(void) {
 

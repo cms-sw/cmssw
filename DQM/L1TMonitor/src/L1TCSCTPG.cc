@@ -58,8 +58,6 @@ void L1TCSCTPG::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const& iRun,
 void L1TCSCTPG::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
-void L1TCSCTPG::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-}
 
 void L1TCSCTPG::analyze(const Event& e, const EventSetup& c)
 {

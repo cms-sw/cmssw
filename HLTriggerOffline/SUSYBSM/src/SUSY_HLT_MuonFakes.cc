@@ -54,11 +54,6 @@ void SUSY_HLT_MuonFakes::dqmBeginRun(edm::Run const &run, edm::EventSetup const 
   bookHistos(ibooker_);
 }
 
-void SUSY_HLT_MuonFakes::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-  edm::EventSetup const& context)
-{
-   edm::LogInfo("SUSY_HLT_MuonFakes") << "SUSY_HLT_MuonFakes::beginLuminosityBlock" << std::endl;
-}
 
 
 
@@ -113,10 +108,6 @@ void SUSY_HLT_MuonFakes::analyze(edm::Event const& e, edm::EventSetup const& eSe
 }
 
 
-void SUSY_HLT_MuonFakes::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("SUSY_HLT_MuonFakes") << "SUSY_HLT_MuonFakes::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_MuonFakes::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

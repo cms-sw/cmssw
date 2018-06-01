@@ -361,18 +361,6 @@ VertexMonitor::initHisto(DQMStore::IBooker & ibooker)
     }
 }
  
-
-void 
-VertexMonitor::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-VertexMonitor::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 VertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

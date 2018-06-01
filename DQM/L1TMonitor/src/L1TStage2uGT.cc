@@ -31,9 +31,6 @@ void L1TStage2uGT::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evtS
    numAlgs_ = static_cast<int>(gtUtil_->decisionsInitial().size());
 }
 
-void L1TStage2uGT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evtSetup) { 
-   // empty
-}
 
 void L1TStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const& evtSetup) {
    
@@ -189,6 +186,3 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
 }
       
 // End section
-void L1TStage2uGT::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evtSetup) {
-   // empty
-}
