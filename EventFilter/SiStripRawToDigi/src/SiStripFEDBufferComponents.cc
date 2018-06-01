@@ -395,27 +395,25 @@ namespace sistrip {
          (readoutModeString == "Zero suppressed") ) {
       return READOUT_MODE_ZERO_SUPPRESSED;
     }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE") ||
-         (readoutModeString == "Zero suppressed lite") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
-    }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_CMOVERRIDE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_CMO") ||
-         (readoutModeString == "Zero suppressed CM Override") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED;
-    }
-    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMO") ||
-         (readoutModeString == "ZERO_SUPPRESSED_LITE_CMOVERRIDE") ||
-         (readoutModeString == "Zero suppressed lite CM Override") ) {
-      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8") ||
+         (readoutModeString == "Zero suppressed lite8") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8;
     }
     if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT") ||
          (readoutModeString == "ZERO_SUPPRESSED_LITE8_TOPBOT") ||
-         (readoutModeString == "Zero suppressed lite8 TobBot") ){
+         (readoutModeString == "Zero suppressed lite8 TopBot") ){
       return READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE8_BOTBOT") ||
+         (readoutModeString == "Zero suppressed lite8 BotBot") ){
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
+    }
+    if ( (readoutModeString == "READOUT_MODE_ZERO_SUPPRESSED_LITE10") ||
+         (readoutModeString == "ZERO_SUPPRESSED_LITE10") ||
+         (readoutModeString == "Zero suppressed lite10") ) {
+      return READOUT_MODE_ZERO_SUPPRESSED_LITE10;
     }
     if ( (readoutModeString == "READOUT_MODE_PREMIX_RAW") ||
          (readoutModeString == "PREMIX_RAW") ||
