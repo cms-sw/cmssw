@@ -3,7 +3,9 @@
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
