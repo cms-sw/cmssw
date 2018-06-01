@@ -86,6 +86,7 @@ class TrackVertexArbitration{
 	double					trackMinPt;
 	int					trackMinPixels;  
 	double                                  maxTimeSignificance;
+	double                                  sign;
 };
 
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
@@ -107,7 +108,9 @@ TrackVertexArbitration<VTX>::TrackVertexArbitration(const edm::ParameterSet &par
 	trackMinPixels            (params.getParameter<int32_t>("trackMinPixels")),
 	maxTimeSignificance       (params.getParameter<double>("maxTimeSignificance"))
 {
-	dRCut*=dRCut;
+        sign = 1.0;
+        if(dRCut < 0){sign = -1.0;}
+        dRCut*=dRCut;
 }
 template <class VTX>
 bool TrackVertexArbitration<VTX>::trackFilterArbitrator(const reco::TransientTrack &track) const
@@ -203,7 +206,7 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
 		GlobalError refPointErr       = tsos.cartesianError().position();
 		Measurement1D isv = dist.distance(VertexState(RecoVertex::convertPos(sv->position()),RecoVertex::convertError(sv->error())),VertexState(refPoint, refPointErr));	   
 
-		float dR = Geom::deltaR2(flightDir,tt.track()); //.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
+		float dR = Geom::deltaR2(( (sign > 0) ? flightDir : -flightDir),tt.track()); //.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
 		
 		double timeSig = 0.;
 		if( svHasTime && edm::isFinite(tt.timeExt()) ) {
