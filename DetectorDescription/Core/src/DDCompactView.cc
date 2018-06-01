@@ -84,7 +84,6 @@ void DDCompactView::position (const DDLogicalPart & self,
 			      const DDRotation & rot,
 			      const DDDivision * div)
 {
-  std::cout << "DDCompactView::position " << self << " with translation " << trans << " and rotation " << rot << "\n";
   int cpno = atoi(copyno.c_str());
   position(self,parent,cpno,trans,rot, div);
 }
