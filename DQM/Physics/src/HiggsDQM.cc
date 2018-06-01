@@ -172,17 +172,6 @@ HiggsDQM::~HiggsDQM() {
 }
 
 //
-// -- Begin  Luminosity Block
-//
-void HiggsDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                    edm::EventSetup const& context) {
-  // cout<<"Entering HiggsDQM::beginLuminosityBlock: "<<endl;
-
-  edm::LogInfo("HiggsDQM") << "[HiggsDQM]: Begin of LS transition";
-
-  // cout<<"...leaving HiggsDQM::beginLuminosityBlock. "<<endl;
-}
-//
 //  -- Book histograms
 //
 void HiggsDQM::bookHistograms(DQMStore::IBooker & ibooker,

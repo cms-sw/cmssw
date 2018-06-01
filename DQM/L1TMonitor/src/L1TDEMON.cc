@@ -285,8 +285,6 @@ void L1TDEMON::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
 void L1TDEMON::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
-void L1TDEMON::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-}
 
 
 

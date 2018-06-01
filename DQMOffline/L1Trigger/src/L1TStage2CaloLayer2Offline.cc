@@ -100,15 +100,6 @@ void L1TStage2CaloLayer2Offline::bookHistograms(DQMStore::IBooker & ibooker_, ed
   bookHistos(ibooker_);
 }
 //
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
-void L1TStage2CaloLayer2Offline::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-    edm::EventSetup const& context)
-{
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::beginLuminosityBlock" << std::endl;
-}
-
-//
 // -------------------------------------- Analyze --------------------------------------------
 //
 void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
@@ -473,14 +464,6 @@ void L1TStage2CaloLayer2Offline::fillJetEfficiencies(const double &recoEt,
       }
     } // forward jets
   }
-}
-
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
-void L1TStage2CaloLayer2Offline::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::endLuminosityBlock" << std::endl;
 }
 
 //

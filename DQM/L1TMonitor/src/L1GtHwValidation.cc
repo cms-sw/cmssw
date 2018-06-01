@@ -161,9 +161,6 @@ L1GtHwValidation::~L1GtHwValidation() {
 void L1GtHwValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& evSetup){
 }
 
-void L1GtHwValidation::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& evSetup){
-
-}
 
 void L1GtHwValidation::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& evSetup) {
   
