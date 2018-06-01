@@ -322,7 +322,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="32">
+  <class name="pat::PackedCandidate" ClassVersion="33">
+   <version ClassVersion="33" checksum="1092680546"/>
    <version ClassVersion="32" checksum="926869123"/>
    <version ClassVersion="31" checksum="1248040002"/>
    <version ClassVersion="30" checksum="3338823671"/>
@@ -392,7 +393,18 @@
             packedCovariance_.dphidphi = onfile.packedCovarianceDphiDphi_;
    ]]>
    </ioread>
-
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweight_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweight_ = std::numeric_limits<uint8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2. + 0.5);
+   ]]>
+   </ioread>
+  <ioread sourceClass="pat::PackedCandidate" source="int8_t packedPuppiweightNoLepDiff_; int8_t packedPuppiweight_" version="[-32]" targetClass="pat::PackedCandidate"
+   target="packedPuppiweightNoLepDiff_" include="DataFormats/Math/interface/liblogintpack.h">
+   <![CDATA[
+            packedPuppiweightNoLepDiff_ = std::numeric_limits<int8_t>::max()*(logintpack::unpack8logClosed(onfile.packedPuppiweightNoLepDiff_+onfile.packedPuppiweight_,-2,0,64)/2. - logintpack::unpack8logClosed(onfile.packedPuppiweight_,-2,0,64)/2.);
+   ]]>
+   </ioread>
 
 
   <class name="pat::PackedGenParticle" ClassVersion="12">
