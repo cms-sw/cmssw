@@ -122,7 +122,7 @@ uint16_t SiStripAPVRestorer::inspect(uint32_t detId, uint16_t firstAPV, const di
 
   // update boolean version of APV flags
   for ( size_t i = 0; i < apvFlags_.size(); ++i ) {
-    apvFlagsBool_.push_back((apvFlags_[i] != "") && ( ! apvFlagsBoolOverride_[i] ));
+    apvFlagsBool_.push_back((!apvFlags_[i].empty()) && ( ! apvFlagsBoolOverride_[i] ));
   }
 
   return nAPVFlagged;
@@ -134,7 +134,7 @@ void SiStripAPVRestorer::restore(uint16_t firstAPV, digivector_t& digis)
 
   for ( uint16_t iAPV=firstAPV; iAPV < digis.size()/128 + firstAPV; ++iAPV ) {
     auto algoToUse = apvFlags_[iAPV];
-    if ( algoToUse != "") {
+    if ( !algoToUse.empty()) {
       // if(!SelfSelectRestoreAlgo_) algoToUse = RestoreAlgo_;
       if        ( algoToUse == "Flat" ) {
         FlatRestore(iAPV, firstAPV, digis);
@@ -1013,8 +1013,8 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
 
   //----Variables of the first part---//
 
-  bool isMinimumAndNoMax = 0;
-  bool isFirstStrip = 0;
+  bool isMinimumAndNoMax = false;
+  bool isFirstStrip = false;
 
   //---Variables of the second part---//
 
@@ -1076,7 +1076,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
                 discontinuities.erase(itdiscontinuities);
         }
 
-        if ((discontinuities.size()%2==1)&&(discontinuities.size()>0)){ //&&(no_minimo == 0)
+        if ((discontinuities.size()%2==1)&&(!discontinuities.empty())){ //&&(no_minimo == 0)
                 itdiscontinuities=discontinuities.end();
                 --itdiscontinuities;
                 discontinuities.erase(itdiscontinuities);
@@ -1122,7 +1122,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
       }
 
 
-      if (discontinuities.size()>0){
+      if (!discontinuities.empty()){
         itdiscontinuities=discontinuities.end();
         --itdiscontinuities;
       }
@@ -1173,7 +1173,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
 
   //----------THIRD PART reconstruction of the event without baseline-------//
 
-  if(discontinuities.size()>0){
+  if(!discontinuities.empty()){
     if ((first_start_cluster_strip)==127-1) discontinuities.insert(discontinuities.end(), std::pair<int, int >(127, first_start_cluster_ADC));
     if ((isMax==true)&&(isAuxiliary_Minimum==true)) discontinuities.insert(discontinuities.end(), std::pair<int, int >(auxiliary_end_cluster, first_start_cluster_ADC));
   }
@@ -1191,7 +1191,7 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(uint16_t APVn, uint16_t first
     isFirstStrip=false;
   }
 
-  if(discontinuities.size()){
+  if(!discontinuities.empty()){
     itdiscontinuities=discontinuities.begin();
     uint16_t firstStrip  = itdiscontinuities->first;
     int16_t firstADC = itdiscontinuities->second;

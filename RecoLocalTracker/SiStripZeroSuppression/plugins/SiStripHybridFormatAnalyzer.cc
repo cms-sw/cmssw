@@ -76,13 +76,13 @@
 class SiStripHybridFormatAnalyzer : public edm::EDAnalyzer {
    public:
       explicit SiStripHybridFormatAnalyzer(const edm::ParameterSet&);
-      ~SiStripHybridFormatAnalyzer();
+      ~SiStripHybridFormatAnalyzer() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
 	  edm::InputTag srcDigis_;
 	  edm::InputTag srcAPVCM_;
