@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cstring>
 #include <stdexcept>
-#include <math.h>
+#include <cmath>
 
 namespace sistrip {
   
@@ -100,7 +100,7 @@ namespace sistrip {
       throw cms::Exception("FEDBufferGenerator") << ss.str();
     }
   }
-  
+
   FEDBufferPayload FEDBufferPayloadCreator::createPayload(FEDReadoutMode mode, uint8_t packetCode, const FEDStripData& data) const
   {
     std::vector< std::vector<uint8_t> > channelBuffers(FEDCH_PER_FED,std::vector<uint8_t>());
@@ -110,7 +110,7 @@ namespace sistrip {
     }
     return FEDBufferPayload(channelBuffers);
   }
-  
+
   void FEDBufferPayloadCreator::fillChannelBuffer(std::vector<uint8_t>* channelBuffer, FEDReadoutMode mode, uint8_t packetCode, const FEDStripData::ChannelData& data, const bool channelEnabled) const
   {
     switch (mode) {
@@ -160,7 +160,7 @@ namespace sistrip {
       break;
     }
   }
-  
+
   void FEDBufferPayloadCreator::fillRawChannelBuffer(std::vector<uint8_t>* channelBuffer,
                                                     const uint8_t packetCode,
                                                     const FEDStripData::ChannelData& data,
@@ -174,7 +174,7 @@ namespace sistrip {
         channelLength = nSamples*2 + 3;
         break;
       case PACKET_CODE_VIRGIN_RAW10:
-        channelLength = ceil(nSamples*1.25) + 3;
+        channelLength = std::ceil(nSamples*1.25) + 3;
         break;
       case PACKET_CODE_VIRGIN_RAW8_BOTBOT:
       case PACKET_CODE_VIRGIN_RAW8_TOPBOT:
@@ -222,7 +222,7 @@ namespace sistrip {
       }
     }
   }
-  
+
   void FEDBufferPayloadCreator::fillZeroSuppressedChannelBuffer(std::vector<uint8_t>* channelBuffer,
                                                                const uint8_t packetCode,
                                                                const FEDStripData::ChannelData& data,
@@ -258,35 +258,21 @@ namespace sistrip {
     channelBuffer->push_back(0xFF);
     channelBuffer->push_back(0xFF);
     //packet code
-      switch (packetCode) {
-        case PACKET_CODE_ZERO_SUPPRESSED:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED);
-        break;
-        case PACKET_CODE_ZERO_SUPPRESSED10:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED10);
-        break;
-        case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT);
-        break;
-        case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT:
-          channelBuffer->push_back(PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT);
-        break;
-      }
+    channelBuffer->push_back(packetCode);
     //add medians
     const std::pair<uint16_t,uint16_t> medians = data.getMedians();
-    // IS THE COMMON MODE ALSO PUSHED BACK WITH A PACKET CODE? THIS LOOKS LIKE PACKET_CODE_ZERO_SUPPRESSED...
     channelBuffer->push_back(medians.first & 0xFF);
     channelBuffer->push_back((medians.first & 0x300) >> 8);
     channelBuffer->push_back(medians.second & 0xFF);
     channelBuffer->push_back((medians.second & 0x300) >> 8);
     //clusters
-    fillClusterData(channelBuffer,packetCode,data,READOUT_MODE_ZERO_SUPPRESSED); //including all the related PACKET_CODES, but the ZERO_SUPPRESSED_LITE is not taken into account here, why? Maybe because this function is all about ZERO_SUPPRESSED?
+    fillClusterData(channelBuffer,packetCode,data,READOUT_MODE_ZERO_SUPPRESSED);
     //set length
     const uint16_t length = channelBuffer->size();
     (*channelBuffer)[0] = (length & 0xFF);
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
   }
-  
+
   void FEDBufferPayloadCreator::fillZeroSuppressedLiteChannelBuffer(std::vector<uint8_t>* channelBuffer,
                                                                    const FEDStripData::ChannelData& data,
                                                                    const bool channelEnabled,
@@ -311,7 +297,7 @@ namespace sistrip {
     (*channelBuffer)[0] = (length & 0xFF);
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
   }
-  
+
   void FEDBufferPayloadCreator::fillPreMixRawChannelBuffer(std::vector<uint8_t>* channelBuffer,
                                                                    const FEDStripData::ChannelData& data,
                                                                    const bool channelEnabled) const
@@ -346,7 +332,7 @@ namespace sistrip {
     (*channelBuffer)[0] = (length & 0xFF);
     (*channelBuffer)[1] = ((length & 0x300) >> 8);
   }
-  
+
   void FEDBufferPayloadCreator::fillClusterData(std::vector<uint8_t>* channelBuffer, const uint8_t packetCode, const FEDStripData::ChannelData& data, const FEDReadoutMode mode) const
   {
     uint16_t clusterSize = 0;
@@ -371,13 +357,13 @@ namespace sistrip {
           adc = data.get8BitSample(strip,mode); break;
       }
       if(adc) {
-	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
-	  if(clusterSize) { 
+	if( clusterSize==0 || strip == STRIPS_PER_APV ) {
+	  if(clusterSize) {
             if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
               channelBuffer->push_back(adc_pre); adc_pre = 0;
-            } 
+            }
             (*channelBuffer)[size_pos] = clusterSize;
-	    clusterSize = 0; 
+	    clusterSize = 0;
 	  }
           // cluster header: first strip and size
 	  channelBuffer->push_back(strip);
@@ -390,11 +376,11 @@ namespace sistrip {
 	    channelBuffer->push_back(adc & 0xFF);
             channelBuffer->push_back((adc & 0x300) >> 8);
             break;
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT: 
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
           case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
             channelBuffer->push_back((adc & 0x3FC) >> 2);
             break;
-          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT: 
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
           case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
             channelBuffer->push_back((adc & 0x1FE) >> 1);
             break;
@@ -441,7 +427,7 @@ namespace sistrip {
 	++clusterSize;
       }
       else {
-        if (clusterSize) { 
+        if (clusterSize) {
           if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
             channelBuffer->push_back(adc_pre); adc_pre = 0;
           }
@@ -454,7 +440,7 @@ namespace sistrip {
       (*channelBuffer)[size_pos] = clusterSize;
       if ((packetCode == PACKET_CODE_ZERO_SUPPRESSED10) && (clusterSize%4)) {
         channelBuffer->push_back(adc_pre); adc_pre = 0;
-      } 
+      }
     }
   }
 
