@@ -12,7 +12,7 @@
 #include "QualityMetric.h"
 
 namespace XrdCl {
-    class HostList;
+    class File;
 }
 
 namespace XrdAdaptor {
