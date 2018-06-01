@@ -21,7 +21,7 @@ namespace sistrip {
   void DigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<std::string>("FedReadoutMode", "ZERO_SUPPRESSED");
-    desc.add<std::string>("PacketCode", "");
+    desc.add<std::string>("PacketCode", "ZERO_SUPPRESSED");
     desc.add<bool>("UseFedKey", false);
     desc.add<bool>("UseWrongDigiType", false);
     desc.add<bool>("CopyBufferHeader", false);
