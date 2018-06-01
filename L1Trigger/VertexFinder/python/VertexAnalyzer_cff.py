@@ -60,7 +60,7 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
         # Minimum number of tracks to accept vertex
         MinTracks   = cms.uint32(2),
         # Compute the z0 position of the vertex with a mean weighted with track momenta
-        WeightedMean = cms.bool(True),
+        WeightedMean = cms.bool(False),
         # Chi2 cut for the Adaptive Vertex Reconstruction Algorithm
         AVR_chi2cut = cms.double(5.),
         # TDR algorithm assumed vertex width [cm]
@@ -70,11 +70,10 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
         # Kmeans number of clusters
         KmeansNumClusters  = cms.uint32(18),
         # DBSCAN pt threshold
-        DBSCANPtThreshold = cms.double(2.),
+        DBSCANPtThreshold = cms.double(4.),
         # DBSCAN min density tracks
-        DBSCANMinDensityTracks = cms.uint32(1),
-
-        VxMinTrackPt   = cms.double(2.)
+        DBSCANMinDensityTracks = cms.uint32(2),
+        VxMinTrackPt   = cms.double(2.5)
     ),
 
   # Debug printout

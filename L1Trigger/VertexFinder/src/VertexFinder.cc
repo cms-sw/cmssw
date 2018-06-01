@@ -154,9 +154,11 @@ void VertexFinder::DBSCAN()
     unsigned int numDensityTracks = 0;
     if (fitTracks_[i]->pt() > settings_->vx_dbscan_pt())
       numDensityTracks++;
+    else
+      continue;
     for (unsigned int k = 0; k < fitTracks_.size(); ++k) {
       iterations_++;
-      if (k != i and (fabs(fitTracks_[k]->z0() - fitTracks_[i]->z0()) < settings_->vx_distance() or (fabs(fitTracks_[i]->eta()) > 1.5 and fabs(fitTracks_[k]->z0() - fitTracks_[i]->z0()) < 0.5))) {
+      if (k != i and fabs(fitTracks_[k]->z0() - fitTracks_[i]->z0()) < settings_->vx_distance()) {
         neighbourTrackIds.insert(k);
         if (fitTracks_[k]->pt() > settings_->vx_dbscan_pt()) {
           numDensityTracks++;
@@ -177,16 +179,16 @@ void VertexFinder::DBSCAN()
           std::vector<unsigned int> neighbourTrackIds2;
           for (unsigned int k = 0; k < fitTracks_.size(); ++k) {
             iterations_++;
-            if (fabs(fitTracks_[k]->z0() - fitTracks_[id]->z0()) < settings_->vx_distance() or (fabs(fitTracks_[id]->eta()) > 1.5 and fabs(fitTracks_[k]->z0() - fitTracks_[id]->z0()) < 0.5)) {
+            if (fabs(fitTracks_[k]->z0() - fitTracks_[id]->z0()) < settings_->vx_distance()) {
               neighbourTrackIds2.push_back(k);
             }
           }
 
-          if (neighbourTrackIds2.size() >= settings_->vx_minTracks()) {
+          // if (neighbourTrackIds2.size() >= settings_->vx_minTracks()) {
             for (unsigned int id2 : neighbourTrackIds2) {
               neighbourTrackIds.insert(id2);
             }
-          }
+          // }
         }
         if (find(saved.begin(), saved.end(), id) == saved.end())
           vertex.insert(fitTracks_[id]);
@@ -435,7 +437,6 @@ void VertexFinder::AssociatePrimaryVertex(double trueZ0)
     }
   }
 }
-
 
 void VertexFinder::TDRalgorithm()
 {
