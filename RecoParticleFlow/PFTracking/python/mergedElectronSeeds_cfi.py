@@ -7,7 +7,7 @@ electronMergedSeeds =cms.EDProducer("ElectronSeedMerger",
     )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(electronMergedSeeds, TkBasedSeeds = cms.InputTag(''))
+pp_on_AA_2018.toModify(electronMergedSeeds, TkBasedSeeds = '')
 
 electronMergedSeedsFromMultiCl = electronMergedSeeds.clone(
   EcalBasedSeeds = 'ecalDrivenElectronSeedsFromMultiCl'

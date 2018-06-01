@@ -169,5 +169,5 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
 )
 
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtBarrel = cms.double(15.0))
-pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtEndcaps = cms.double(15.0))
+pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtBarrel = 15.0)
+pp_on_AA_2018.toModify(gedGsfElectronsTmp, minSCEtEndcaps = 15.0)
