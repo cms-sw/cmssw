@@ -576,13 +576,20 @@ namespace edm {
       workerManager_.setupOnDemandSystem(ep,es);
       
       ++total_events_;
+
+      //use to give priorities on an error to ones from Paths
+      auto pathErrorHolder = std::make_unique<std::atomic<std::exception_ptr const*>>(nullptr);
+      auto pathErrorPtr = pathErrorHolder.get();
       auto allPathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                            [iTask,this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                            [iTask,this,serviceToken,pathError=std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable
                                             {
                                               ServiceRegistry::Operate operate(serviceToken);
                                               
                                               std::exception_ptr ptr;
-                                              if(iPtr) {
+                                              if(pathError->load()) {
+                                                ptr = *pathError->load();
+                                                delete pathError->load();
+                                              } else if(iPtr) {
                                                 ptr = *iPtr;
                                               }
                                               iTask.doneWaiting(finishProcessOneEvent(ptr));
@@ -593,13 +600,16 @@ namespace edm {
       WaitingTaskHolder allPathsHolder(allPathsDone);
 
       auto pathsDone = make_waiting_task(tbb::task::allocate_root(),
-                                            [allPathsHolder,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
+                                         [allPathsHolder,pathErrorPtr,&ep, &es, this,serviceToken](std::exception_ptr const* iPtr) mutable
                                             {
                                               ServiceRegistry::Operate operate(serviceToken);
 
                                               std::exception_ptr ptr;
                                               if(iPtr) {
                                                 ptr = *iPtr;
+                                                //this is used to prioritize this error over one
+                                                // that happens in EndPath or Accumulate
+                                                pathErrorPtr->store( new std::exception_ptr(ptr) );
                                               }
                                               finishedPaths(ptr, std::move(allPathsHolder), ep, es);
                                             });
