@@ -1,6 +1,7 @@
 #ifndef Utilities_XrdAdaptor_XrdSource_h
 #define Utilities_XrdAdaptor_XrdSource_h
 
+#include "XrdCl/XrdClXRootDResponses.hh"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <memory>
