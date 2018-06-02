@@ -33,6 +33,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"
+#include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfoFeatures.h"
 #include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
@@ -53,6 +54,9 @@
 #include "DataFormats/BTauReco/interface/ChargedCandidateFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourFeatures.h"
 #include "DataFormats/BTauReco/interface/DeepFlavourTagInfo.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleBFeatures.h"
+#include "DataFormats/BTauReco/interface/DeepDoubleBTagInfo.h"
+
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
@@ -412,5 +416,16 @@ namespace DataFormats_BTauReco {
     reco::DeepFlavourTagInfoRefProd deep_flavour_tag_info_collection_ref_prod;
     reco::DeepFlavourTagInfoRefVector deep_flavour_tag_info_collection_ref_vector;
     edm::Wrapper<reco::DeepFlavourTagInfoCollection> deep_flavour_tag_info_collection_edm_wrapper;
+
+    btagbtvdeep::BoostedDoubleSVTagInfoFeatures boosted_double_sv_tag_info_features;
+    btagbtvdeep::DeepDoubleBFeatures deep_doubleb_features;
+    reco::DeepDoubleBTagInfo deep_doubleb_tag_info;
+    reco::DeepDoubleBTagInfoCollection deep_doubleb_tag_info_collection;
+    reco::DeepDoubleBTagInfoRef deep_doubleb_tag_info_collection_ref;
+    reco::DeepDoubleBTagInfoFwdRef deep_doubleb_tag_info_collection_fwd_ref;
+    reco::DeepDoubleBTagInfoRefProd deep_doubleb_tag_info_collection_ref_prod;
+    reco::DeepDoubleBTagInfoRefVector deep_doubleb_tag_info_collection_ref_vector;
+    edm::Wrapper<reco::DeepDoubleBTagInfoCollection> deep_doubleb_tag_info_collection_edm_wrapper;
+
   };
 }
