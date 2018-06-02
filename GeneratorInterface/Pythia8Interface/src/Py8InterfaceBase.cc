@@ -37,19 +37,19 @@ useEvtGen(false), evtgenDecays(nullptr)
 
     if (ps.exists("evtgenDecFile")) {
        edm::FileInPath decay_table(ps.getParameter<std::string>("evtgenDecFile"));
-       evtgenDecFile = decay_table.fullPath().c_str();
+       evtgenDecFile = decay_table.fullPath();
     }
 
     if (ps.exists("evtgenPdlFile")) {      
        edm::FileInPath pdt(ps.getParameter<std::string>("evtgenPdlFile"));
-       evtgenPdlFile = pdt.fullPath().c_str();
+       evtgenPdlFile = pdt.fullPath();
     }
 
     if (ps.exists("evtgenUserFile")) {
        std::vector<std::string> user_decays = ps.getParameter<std::vector<std::string> >("evtgenUserFile");
        for (unsigned int i=0;i<user_decays.size();i++) {
           edm::FileInPath user_decay(user_decays.at(i)); 
-          evtgenUserFiles.push_back(user_decay.fullPath().c_str());
+          evtgenUserFiles.push_back(user_decay.fullPath());
        }
 	    //evtgenUserFiles = ps.getParameter< std::vector<std::string> >("evtgenUserFile");
     }
@@ -70,7 +70,7 @@ useEvtGen(false), evtgenDecays(nullptr)
           std::fputs(user_decay_lines.at(i).c_str(), tmpf);
        }
        std::fclose(tmpf);
-       evtgenUserFiles.push_back(user_decay_tmp.c_str());
+       evtgenUserFiles.push_back(user_decay_tmp);
     }
 
   }
