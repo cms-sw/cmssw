@@ -98,3 +98,11 @@
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="boost_python"/>
 </library>
+
+<library  file="plugin.cc" name="CondCoreSiStripPluginsOthers">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="CondCore/ESSources"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CondFormats/DataRecord"/>
+</library>
