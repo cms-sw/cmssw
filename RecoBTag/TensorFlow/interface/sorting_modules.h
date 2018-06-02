@@ -1,5 +1,5 @@
-#ifndef RecoBTag_DeepFlavour_sorting_modules_h
-#define RecoBTag_DeepFlavour_sorting_modules_h
+#ifndef RecoBTag_TensorFlow_sorting_modules_h
+#define RecoBTag_TensorFlow_sorting_modules_h
 
 #include <algorithm>
 #include <cmath>
@@ -81,4 +81,4 @@ class SortingClass{
 std::vector<std::size_t> invertSortingVector(const std::vector<SortingClass<std::size_t> > & in);
 
 }
-#endif //RecoBTag_DeepFlavour_sorting_modules_h
+#endif //RecoBTag_TensorFlow_sorting_modules_h
