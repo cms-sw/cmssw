@@ -106,6 +106,9 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
                     BTagCalibrationReader reader;
                     //calibs.push_back(calib);            //dummy, so that index of vectors still match
                     readers.push_back(reader);          //dummy, so that index of vectors still match
+                    std::vector<std::string> branches;
+                    branches.push_back("");
+                    inBranchNames.push_back(branches);
                     
                     // report
                     std::cout << "Skipped loading BTagCalibration for "+discShortNames_[iDisc]+" as it was marked as unavailable in the configuration file. Event weights will not be stored.\n" << std::endl;
@@ -207,6 +210,8 @@ BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 else {
                     SF=1.;
                 }
+                
+                
                 
                 if (SF==0.) {                                       // default value of SF is set to 1 in case BTagCalibration returns 0
                     cout << discShortNames_[iDisc]+" SF not found for jet with pT="+to_string(pt)+", eta="+to_string(eta)+", discValue="+to_string(bdisc)+", flavour="+to_string(flavour) +". Setting SF to 1." << endl;
