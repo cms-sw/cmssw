@@ -161,7 +161,7 @@ class StallMonitorParser(object):
         self.numStreams =numStreams
         self._moduleNames = moduleNames
         self.maxNameSize =0
-        for n in moduleNames.iteritems():
+        for n in moduleNames.items():
             self.maxNameSize = max(self.maxNameSize,len(n))
         self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
 
@@ -391,7 +391,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
 def printStalledModulesInOrder(stalledModules):
     priorities = []
     maxNameSize = 0
-    for name,t in stalledModules.iteritems():
+    for name,t in stalledModules.items():
         maxNameSize = max(maxNameSize, len(name))
         t.sort(reverse=True)
         priorities.append((name,sum(t),t))
@@ -554,7 +554,7 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
 #----------------------------------------------
 def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder):
 
-    stalledModuleNames = set([x for x in stalledModuleInfo.iterkeys()])
+    stalledModuleNames = set([x for x in stalledModuleInfo.keys()])
     streamLowestRow = [[] for x in xrange(numStreams)]
     modulesActiveOnStreams = [set() for x in xrange(numStreams)]
     acquireActiveOnStreams = [set() for x in xrange(numStreams)]

@@ -77,7 +77,7 @@ def getSummaryValues(file_name, translate, filters = None):
     evInfo = sub.ReadObj().GetDirectory("Run summary/EventInfo")
     if evInfo == None: continue
 
-    for folder_name in FOLDERS.keys():
+    for folder_name in list(FOLDERS.keys()):
 
       folder = evInfo.GetDirectory(folder_name)
       if folder == None: continue

@@ -12,7 +12,7 @@ def insertValToPSet(name,val,thePSet):
    setattr(thePSet,name,val)
 
 def insertPSetToPSet(inPSet, outPSet):
-   for key,val in getPSetDict(inPSet).iteritems():
+   for key,val in getPSetDict(inPSet).items():
       insertValToPSet(key,val,outPSet)
 
 def insertPSetToVPSet(inPSet, outVPSet):
@@ -110,7 +110,7 @@ class HipPyOptionParser:
 
    def interpretOptions(self):
       gttogetpsets=[]
-      for key,val in self.optdict.iteritems():
+      for key,val in self.optdict.items():
          # Get GT name
          if key=="gt":
             autofind=val.find("auto")

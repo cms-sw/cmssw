@@ -90,7 +90,7 @@ process.goodZToMuMu = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
-for region in dict.keys(): 
+for region in list(dict.keys()): 
     addModuleEtaRegions(process.goodZToMuMu, region,"dimuonsGlobal"  )
 
 #ZMuMu: richiedo almeno 1 HLT trigger match.Per la shape
@@ -142,7 +142,7 @@ process.nonIsolatedZToMuMu = cms.EDFilter(
     filter = cms.bool(True) 
 )
 
-for region in dict.keys(): 
+for region in list(dict.keys()): 
     addModuleEtaRegions(process.nonIsolatedZToMuMu, region,"dimuonsGlobal" )
 
 
@@ -175,7 +175,7 @@ process.zToMuMuOneTrack = cms.EDFilter(
     src = cms.InputTag("zToMuGlobalMuOneTrack"),
     filter = cms.bool(True)
 )
-for region in dict.keys(): 
+for region in list(dict.keys()): 
     addModuleEtaRegions(process.zToMuMuOneTrack, region, "zToMuGlobalMuOneTrack" )
 
 
@@ -186,7 +186,7 @@ process.zToMuMuOneStandAloneMuon = cms.EDFilter(
     filter = cms.bool(True)
 )
 
-for region in dict.keys(): 
+for region in list(dict.keys()): 
     addModuleEtaRegions(process.zToMuMuOneStandAloneMuon, region, "dimuonsOneStandAloneMuon" )
 
 
@@ -282,7 +282,7 @@ process.zmumuSaMassHistogram = cms.EDAnalyzer(
 #   name = cms.untracked.string("zMass")    
     )
 
-for region in dict.keys():
+for region in list(dict.keys()):
     addModuleEtaRegions(process.zmumuSaMassHistogram, region, addModuleEtaRegions(process.goodZToMuMu, region,"dimuonsGlobal"  )  )   
 
 
@@ -334,14 +334,14 @@ goodZToMuMuPlotsTemplate = cms.EDAnalyzer(
 
 #ZMuMu almeno 1 HLT + almeno 1 NON track-iso
 process.goodZToMuMuPlots = goodZToMuMuPlotsTemplate
-for region in dict.keys():
+for region in list(dict.keys()):
      addPlotModuleEtaRegions(process.goodZToMuMuPlots, region, "goodZToMuMuAtLeast1HLT" )   
 
 
 nonIsolatedZToMuMuPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 nonIsolatedZToMuMuPlots.src = cms.InputTag("nonIsolatedZToMuMuAtLeast1HLT")
 setattr(process, "nonIsolatedZToMuMuPlots", nonIsolatedZToMuMuPlots)
-for region in dict.keys():
+for region in list(dict.keys()):
      addPlotModuleEtaRegions(process.nonIsolatedZToMuMuPlots, region, "nonIsolatedZToMuMuAtLeast1HLT" )   
 
 
@@ -359,20 +359,20 @@ process.goodZToMuMuPlots = goodZToMuMuPlotsTemplate
 process.goodZToMuMu1HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMu1HLTPlots.src = cms.InputTag("goodZToMuMu1HLT")
 
-for region in dict.keys():
+for region in list(dict.keys()):
      addPlotModuleEtaRegions(process.goodZToMuMu1HLTPlots, region, "goodZToMuMuAtLeast1HLT" )   
 
 #ZMuMu 2 HLT + 2  track-iso
 process.goodZToMuMu2HLTPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMu2HLTPlots.src = cms.InputTag("goodZToMuMu2HLT")
-for region in dict.keys():
+for region in list(dict.keys()):
      addPlotModuleEtaRegions(process.goodZToMuMu2HLTPlots, region, "goodZToMuMuAtLeast1HLT" )   
 
 
 #ZMuSta First HLT + 2  track-iso
 process.goodZToMuMuOneStandAloneMuonPlots = copy.deepcopy(goodZToMuMuPlotsTemplate)
 process.goodZToMuMuOneStandAloneMuonPlots.src = cms.InputTag("goodZToMuMuOneStandAloneMuonFirstHLT")
-for region in dict.keys():
+for region in list(dict.keys()):
      addPlotModuleEtaRegions(process.goodZToMuMuOneStandAloneMuonPlots, region, "goodZToMuMuOneStandAloneMuonFirstHLT" )   
 
 

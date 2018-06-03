@@ -220,7 +220,7 @@ def parse_arguments():
 
 	# if prep, prod or None were given, convert to URLs in dictionary server_alias_to_url
 	# if not, assume a URL has been given and use this instead
-	if command_line_data.server in server_alias_to_url.keys():
+	if command_line_data.server in list(server_alias_to_url.keys()):
 		command_line_data.server = server_alias_to_url[command_line_data.server]
 
 	# use netrc to get username and password
@@ -282,10 +282,10 @@ def parse_arguments():
 		metadata_dictionary["server"] = server_alias_to_url[None]
 
 		# go through command line options and, if they are set, overwrite entries
-		for (option_name, option_value) in command_line_data.__dict__.items():
+		for (option_name, option_value) in list(command_line_data.__dict__.items()):
 			# if the metadata_dictionary sets this, overwrite it
 			if option_name != "destinationTags":
-				if option_value != None or (option_value == None and not(option_name in metadata_dictionary.keys())):
+				if option_value != None or (option_value == None and not(option_name in list(metadata_dictionary.keys()))):
 					# if option_value has a value, override the metadata file entry
 					# or if option_value is None but the metadata file doesn't give a value,
 					# set the entry to None as well
@@ -293,7 +293,7 @@ def parse_arguments():
 			else:
 				if option_value != {None:{}}:
 					metadata_dictionary["destinationTags"] = {option_value:{}}
-				elif option_value == {None:{}} and not("destinationTags" in metadata_dictionary.keys()):
+				elif option_value == {None:{}} and not("destinationTags" in list(metadata_dictionary.keys())):
 					metadata_dictionary["destinationTags"] = {None:{}}
 
 	if command_line_data.review_options:
@@ -356,7 +356,7 @@ if __name__ == "__main__":
 	
 	# make new dictionary, and copy over everything except "metadata_source"
 	upload_metadata_argument = {}
-	for (key, value) in upload_metadata.items():
+	for (key, value) in list(upload_metadata.items()):
 		if key != "metadata_source":
 			upload_metadata_argument[key] = value
 

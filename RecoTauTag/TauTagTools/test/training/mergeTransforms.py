@@ -39,7 +39,7 @@ weighted_medium_cut = 0.0
 weighted_tight_cut = 0.0
 weight_sum = 0.0
 
-for name in input_transforms.keys():
+for name in list(input_transforms.keys()):
     dm_weight = input_transforms[name].signalDecayModeWeight.value()
     weighted_loose_cut += input_transforms[name].looseCut.value()*dm_weight
     weighted_medium_cut += input_transforms[name].mediumCut.value()*dm_weight

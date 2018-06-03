@@ -311,10 +311,10 @@ class factory():
 
 		# query for the ORM object, and return the appropriate object (None, CondDBFW object, or json_list)
 		model_data = self.connection.session.query(model)
-		if len(pkargs.items()) != 0:
+		if len(list(pkargs.items())) != 0:
 			# apply the filters defined in **kwargs
 			model_data = apply_filters(model_data, model, **pkargs)
-			amount = pkargs["amount"] if "amount" in pkargs.keys() else None
+			amount = pkargs["amount"] if "amount" in list(pkargs.keys()) else None
 			model_data = model_data.limit(amount)
 			if model_data.count() > 1:
 				# if we have multiple objects, return a json_list

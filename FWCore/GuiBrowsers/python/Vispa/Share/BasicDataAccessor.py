@@ -47,7 +47,7 @@ class BasicDataAccessor(object):
         propertiesDict = {}
         for p in self.properties(object):
             propertiesDict[p[1]] = p
-        if name in propertiesDict.keys():
+        if name in list(propertiesDict.keys()):
             return propertiesDict[name]
         else:
             return None

@@ -13,10 +13,10 @@ class TestProcess(cms.Process):
     def fillProcessDesc(self, processPSet):
         if self.__dict__["_TestProcess__moduleToTest"] is None:
             raise LogicError("moduleToTest was not called")
-        for p in self.paths.iterkeys():
+        for p in self.paths.keys():
             if p != "_test_path":
                 delattr(self,p)
-        for p in self.endpaths.iterkeys():
+        for p in self.endpaths.keys():
             if p != "_test_endpath":
                 delattr(self,p)
         if not hasattr(self,"options"):

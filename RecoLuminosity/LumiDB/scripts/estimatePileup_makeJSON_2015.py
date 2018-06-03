@@ -18,7 +18,7 @@ def CalcPileup (deadTable, parameters, luminometer, mode='deadtable'):
     LumiString = ""
     LumiArray = []
 
-    for lumiSection, deadArray in sorted (deadTable.iteritems()):
+    for lumiSection, deadArray in sorted (deadTable.items()):
         numerator = 0
 	if luminometer == "HFOC":
 		threshold = 8.
@@ -230,7 +230,7 @@ if __name__ == '__main__':
                 if OldRun>0:
                     if InGap == 1:  # We have some LS's at the end with no data
                         lastLumiS = 0
-                        for lumiS, lumiInfo in sorted ( GapDict.iteritems() ):
+                        for lumiS, lumiInfo in sorted ( GapDict.items() ):
                             record = lumiInfo[1]
                             lastLumiS = lumiS
                             if record > 0.01:
@@ -267,7 +267,7 @@ if __name__ == '__main__':
                 if lumi == 2:  # there is a missing LS=1 for this run
                     OUTPUTLINE+= '[1,0.0,0.0,0.0],'
 
-            for runNumber, lumiDict in sorted( csvDict.iteritems() ):
+            for runNumber, lumiDict in sorted( csvDict.items() ):
 	#	print runNumber
                 LumiArray = CalcPileup (lumiDict, parameters, luminometer,
                                      mode='csv')
@@ -276,7 +276,7 @@ if __name__ == '__main__':
                 LastDelivered = lumiDict[LumiArray[0]][0] 
 
                 if InGap == 1:  # We have some gap before this in entry in this run
-                    for lumiS, lumiInfo in sorted ( GapDict.iteritems() ):
+                    for lumiS, lumiInfo in sorted ( GapDict.items() ):
                         peakratio = lumiInfo[0]/LastDelivered # roughly, ratio of inst lumi
                         pileup = LumiArray[3]*peakratio     # scale for this LS
                         aveLumi = 0

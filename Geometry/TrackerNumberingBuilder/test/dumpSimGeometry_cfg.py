@@ -9,7 +9,7 @@ def help():
    print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG "
    print "   tag=tagname"
    print "       indentify geometry condition database tag"
-   print "      ", varType.keys()
+   print "      ", list(varType.keys())
    print ""
    print "   out=outputFileName"
    print "       default is cmsSimGeom<tag>.root"

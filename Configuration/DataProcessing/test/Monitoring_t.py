@@ -36,7 +36,7 @@ class untitled(unittest.TestCase):
             msg += str(ex)
             self.fail(msg)
             
-        servicelist = process.services.keys()
+        servicelist = list(process.services.keys())
         self.failUnless("SimpleMemoryCheck" in servicelist, "SimpleMemoryCheck not in list of services")
         self.failUnless("Timing" in servicelist, "Timing not in list of services")
         

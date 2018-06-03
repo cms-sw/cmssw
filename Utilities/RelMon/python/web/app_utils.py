@@ -127,7 +127,7 @@ def get_folders(c, file_id, filename, dir_id, threshold):  # TODO: If folder [Eg
             file_folders[name].append([file_id, ds_name, successes, nulls, fails])
         else:
             file_folders[name] = [file_id, ds_name, successes, nulls, fails]
-    return [('Summary', [file_id, ds_name, total_successes, total_nulls, total_fails])] + file_folders.items()
+    return [('Summary', [file_id, ds_name, total_successes, total_nulls, total_fails])] + list(file_folders.items())
 
 
 def join_ranges(ranges, elem):
@@ -208,7 +208,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
                 folders[folder_name] = [folder_summary, file_folder_stats]
 
     ## Calculate ratios
-    folders = [('Summary', folders.pop('Summary'))] + sorted(folders.items(), key=lambda x: x[0])
+    folders = [('Summary', folders.pop('Summary'))] + sorted(list(folders.items()), key=lambda x: x[0])
     for folder, file_stats in folders:
         # Insert N/A if histo is missing
         if len(file_stats) != len(files)+1:
@@ -245,7 +245,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
     # Fetch stats
     summary_stats = dict()
     detailed_stats = dict()
-    for name, ranges in cum_lvl3_dir_ranges.iteritems():
+    for name, ranges in cum_lvl3_dir_ranges.items():
         successes, nulls, fails = get_stats(c, threshold, ranges)
         if name in detailed_stats:
             detailed_stats[name][0] += successes
@@ -263,13 +263,13 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     # Calculate ratio
     summary_ratios = []
-    for name, stats in summary_stats.iteritems():
+    for name, stats in summary_stats.items():
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)
             summary_ratios.append((name, ratio))
     detailed_ratios = []
-    for name, stats in detailed_stats.iteritems():
+    for name, stats in detailed_stats.items():
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)

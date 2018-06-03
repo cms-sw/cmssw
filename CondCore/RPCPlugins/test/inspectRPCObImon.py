@@ -53,7 +53,7 @@ try:
             except:
                 pass
 
-    for (k,v) in detMapName.items():
+    for (k,v) in list(detMapName.items()):
         print k,v
 
 

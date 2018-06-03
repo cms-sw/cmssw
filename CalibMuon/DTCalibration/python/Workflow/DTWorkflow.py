@@ -395,7 +395,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
             raise IOError("File %s not found" % config_file_path)
         with open(config_file_path, "r") as input_file:
             config_json = json.load(input_file)
-            for key, val in config_json.items():
+            for key, val in list(config_json.items()):
                 if not hasattr(self.options, key) or not getattr(self.options, key):
                     setattr(self.options, key, val)
 

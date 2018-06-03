@@ -32,7 +32,7 @@ def new_SortedKeysDict__deepcopy__(self, memo=None):
     if d is not None:
         return d
     memo[id(self)] = d = self.__class__()
-    d.__init__(deepcopy(self.items(), memo))
+    d.__init__(deepcopy(list(self.items()), memo))
     return d
 typ.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
 
@@ -363,9 +363,9 @@ cms.Process.dumpModificationsWithObjects=new_dumpModificationsWithObjects
 
 def new_moduleItems_(self):
     items = []
-    items += self.producers.items()
-    items += self.filters.items()
-    items += self.analyzers.items()
+    items += list(self.producers.items())
+    items += list(self.filters.items())
+    items += list(self.analyzers.items())
     return tuple(items)
 cms.Process.moduleItems_=new_moduleItems_
 
@@ -376,16 +376,16 @@ def new_items_(self):
     if self.looper:
         items += [("looper", self.looper)]
     items += self.moduleItems_()
-    items += self.outputModules.items()
-    items += self.sequences.items()
-    items += self.paths.iteritems()
-    items += self.endpaths.items()
-    items += self.services.items()
-    items += self.es_producers.items()
-    items += self.es_sources.items()
-    items += self.es_prefers.items()
-    items += self.psets.items()
-    items += self.vpsets.items()
+    items += list(self.outputModules.items())
+    items += list(self.sequences.items())
+    items += iter(self.paths.items())
+    items += list(self.endpaths.items())
+    items += list(self.services.items())
+    items += list(self.es_producers.items())
+    items += list(self.es_sources.items())
+    items += list(self.es_prefers.items())
+    items += list(self.psets.items())
+    items += list(self.vpsets.items())
     if self.schedule:
         items += [("schedule", self.schedule)]
     return tuple(items)

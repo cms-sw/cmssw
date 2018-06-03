@@ -112,7 +112,7 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
     if len(chunks)==0:
         print 'warning: no chunk found.'
         return
-    for comp, cchunks in chunks.iteritems():
+    for comp, cchunks in chunks.items():
         odir = odir_cmd+'/'+'/'.join( [idir, comp] )
         print odir, cchunks
         if removeDestDir:
@@ -125,7 +125,7 @@ def haddChunks(idir, removeDestDir, cleanUp=False, odir_cmd='./'):
             shutil.rmtree(chunkDir)
         os.mkdir(chunkDir)
         print chunks
-        for comp, chunks in chunks.iteritems():
+        for comp, chunks in chunks.items():
             for chunk in chunks:
                 shutil.move(chunk, chunkDir)
         

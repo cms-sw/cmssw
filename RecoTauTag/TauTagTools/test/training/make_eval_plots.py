@@ -135,7 +135,7 @@ discriminator_translator = {
     'hpsTancTausDiscriminationByTancRaw' : 'no transform',
 }
 
-disc_to_plot = discriminators.keys()
+disc_to_plot = list(discriminators.keys())
 
 good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack,
                ROOT.EColor.kGreen-9, ROOT.EColor.kViolet, ROOT.EColor.kAzure]
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     for sample in ['signal', 'background']:
         sample_info = steering[sample]
         sample_info['algos'] = {}
-        for producer in discriminators.keys():
+        for producer in list(discriminators.keys()):
             sample_info['algos'][producer] = {}
             for discriminator in discriminators[producer]:
                 print "Getting %s-%s" % (producer, discriminator)

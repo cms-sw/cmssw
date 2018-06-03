@@ -17,7 +17,7 @@ class frozendict(dict):
         for arg in args:
             if isinstance(arg, dict):
                 arg = copy.copy(arg)
-                for k, v in arg.items():
+                for k, v in list(arg.items()):
                     if isinstance(v, dict):
                         arg[k] = frozendict(v)
                     elif isinstance(v, list):
@@ -42,7 +42,7 @@ class frozendict(dict):
         try:
             return self._cached_hash
         except AttributeError:
-            h = self._cached_hash = hash(frozenset(self.items()))
+            h = self._cached_hash = hash(frozenset(list(self.items())))
             return h
 
     def __repr__(self):

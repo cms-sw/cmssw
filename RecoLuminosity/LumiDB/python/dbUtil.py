@@ -54,7 +54,7 @@ class dbUtil(object):
             tableHandle = self.__schema.tableHandle(tableName)
             query = tableHandle.newQuery()
             queryBind=coral.AttributeList()
-            for colname,coltype in conditionDefDict.items():
+            for colname,coltype in list(conditionDefDict.items()):
                 queryBind.extend(colname,coltype)
                 queryBind[colname].setData(conditionDict[colname])
             query.setCondition(condition,queryBind)
@@ -75,7 +75,7 @@ class dbUtil(object):
             tableHandle = self.__schema.tableHandle(tableName)
             editor = tableHandle.dataEditor()
             inputData = coral.AttributeList()
-            for name,type in tabrowDefDict.items():
+            for name,type in list(tabrowDefDict.items()):
                # print name, type
                 inputData.extend( name, type )
                 inputData[name].setData(tabrowValueDict[name])

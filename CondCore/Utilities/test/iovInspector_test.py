@@ -45,7 +45,7 @@ d = wd.describe()
 print d
 
 ret={}
-for key in d.keys() :
+for key in list(d.keys()) :
     (mode,val) = d[key]
     if (mode=='single') :
         ret[key]=val[1]

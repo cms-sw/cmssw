@@ -38,7 +38,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         super(AutoFillTreeProducer, self).declareHandles()
 #        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
         self.mchandles['GenInfo'] = AutoHandle( ('generator','',''), 'GenEventInfoProduct' )
-        for k,v in self.collections.iteritems():
+        for k,v in self.collections.items():
             if isinstance(v, tuple) and isinstance(v[0], AutoHandle):
                 self.handles[k] = v[0]
 
@@ -96,9 +96,9 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         for v in self.globalVariables:
             v.makeBranch(tree, isMC)
-        for o in self.globalObjects.itervalues(): 
+        for o in self.globalObjects.values(): 
             o.makeBranches(tree, isMC)
-        for c in self.collections.itervalues():
+        for c in self.collections.values():
             if isinstance(c, tuple): c = c[-1]
             if self.scalar:
                 c.makeBranchesScalar(tree, isMC)
@@ -159,11 +159,11 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             if not isMC and v.mcOnly: continue
             v.fillBranch(self.tree, event, isMC)
 
-        for on, o in self.globalObjects.iteritems(): 
+        for on, o in self.globalObjects.items(): 
             if not isMC and o.mcOnly: continue
             o.fillBranches(self.tree, getattr(event, on), isMC)
 
-        for cn, c in self.collections.iteritems():
+        for cn, c in self.collections.items():
             if isinstance(c, tuple) and isinstance(c[0], AutoHandle):
                 if not isMC and c[-1].mcOnly: continue
                 objects = self.handles[cn].product()
@@ -200,7 +200,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         anclass += "    def process(self, event):\n"
 
-        for cname, coll in self.collections.items():
+        for cname, coll in list(self.collections.items()):
             classes += coll.get_py_wrapper_class(isMC)
             anclass += "        event.{0} = {0}.make_array(event)\n".format(coll.name)
         

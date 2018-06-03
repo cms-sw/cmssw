@@ -545,7 +545,7 @@ class SequencePlaceholder(_Sequenceable):
             #print str(processDict.keys())
             if keepIfCannotResolve:
                 return self
-            raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
+            raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(list(processDict.keys())))
         o = processDict[self._name]
         if not isinstance(o,_Sequenceable):
             raise RuntimeError("The SequencePlaceholder "+self._name+ " refers to an object type which is not allowed to be on a sequence: "+str(type(o)))
@@ -579,7 +579,7 @@ class Schedule(_ValidatingParameterListBase,_ConfigureComponent,_Unlabelable):
     def __init__(self,*arg,**argv):
         super(Schedule,self).__init__(*arg)
         self._tasks = OrderedSet()
-        theKeys = argv.keys()
+        theKeys = list(argv.keys())
         if theKeys:
             if len(theKeys) > 1 or theKeys[0] != "tasks":
                 raise RuntimeError("The Schedule constructor can only have one keyword argument after its Path and\nEndPath arguments and it must use the keyword 'tasks'")
@@ -1467,7 +1467,7 @@ class TaskPlaceholder(object):
         if not self._name in processDict:
             if keepIfCannotResolve:
                 return self
-            raise RuntimeError("The TaskPlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
+            raise RuntimeError("The TaskPlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(list(processDict.keys())))
         o = processDict[self._name]
         if not o._isTaskComponent():
             raise RuntimeError("The TaskPlaceholder "+self._name+ " refers to an object type which is not allowed to be on a task: "+str(type(o)))

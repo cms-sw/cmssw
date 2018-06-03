@@ -310,11 +310,11 @@ if __name__ == '__main__':
         '7_6_1_v3':{'file':'Myroot_7_6_1_v3_' + runtype + '.root', 'col':3, 'marker':23, 'width':1},
         }
 
-    for hname, hdict in sorted(vardict.iteritems()):        
+    for hname, hdict in sorted(vardict.items()):        
 
         hists = []
 
-        for rel, rdict in sorted(sampledict.iteritems()):
+        for rel, rdict in sorted(sampledict.items()):
 
             if rel.find('7_6_1')==-1 and (hname.find('MVA6')!=-1 or hname.find('MVArun2')!=-1): continue
             
@@ -357,14 +357,14 @@ if __name__ == '__main__':
         }
 
 
-    for hname, hdict in sorted(hvardict.iteritems()):        
+    for hname, hdict in sorted(hvardict.items()):        
 
         hists = []
 
         if runtype != 'ZTT' and hname.find('pt_resolution')!=-1: continue
         
 
-        for rel, rdict in sorted(sampledict.iteritems()):
+        for rel, rdict in sorted(sampledict.items()):
 
             tfile = TFile(rdict['file'])
             tree = tfile.Get('per_tau')

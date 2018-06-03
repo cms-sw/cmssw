@@ -20,7 +20,7 @@ def new_SortedKeysDict__deepcopy__(self, memo=None):
     if d is not None:
         return d
     memo[id(self)] = d = self.__class__()
-    d.__init__(deepcopy(self.items(), memo))
+    d.__init__(deepcopy(list(self.items()), memo))
     return d
 dicttypes.SortedKeysDict.__deepcopy__ = new_SortedKeysDict__deepcopy__
 
@@ -139,7 +139,7 @@ class ConfigToolBase(object) :
         if self._comment!="":
             dumpPython = '#'+self._comment
         dumpPython += "\n"+self._label+"(process "
-        for key in self._parameters.keys():
+        for key in list(self._parameters.keys()):
 	  if repr(self._parameters[key].value)!=repr(self._defaultParameters[key].value):
             dumpPython+= ", "+str(key)+" = "
             if self._parameters[key].type is str:
@@ -166,7 +166,7 @@ class ConfigToolBase(object) :
         if value==[]:
             self.parAccepted=False
         elif (isinstance(value,dict)) and (isinstance(self._parameters[name].allowedValues,list)):
-            for key in value.keys():
+            for key in list(value.keys()):
                 if (key not in self._parameters[name].allowedValues):
                     raise ValueError("The input key value "+'"'+str(key)+'"'+" for parameter "+'"'+name+'"'+" is not supported. Supported ones are: "+str(self._parameters[name].allowedValues)[1:-1])
         elif (isinstance(value,list)) and (isinstance(self._parameters[name].allowedValues,list )):

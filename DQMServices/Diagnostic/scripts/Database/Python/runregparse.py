@@ -97,7 +97,7 @@ def searchrun(runno):
                             intervals=line.split(":")[1]
                         except:
                             continue
-                        if tag in QF_Req.keys():
+                        if tag in list(QF_Req.keys()):
                             if QF_Req[tag]=="GOOD":
                                 for interval in intervals.split(","):
                                     if "ALL" in interval:
@@ -189,7 +189,7 @@ except:
 print "You asked for the runreg info in the run range:"+RUNMIN+"-"+RUNMAX
 print "for dataset: "+DATASET
 print "with the following quality flags:"
-for SS in QF_Req.keys():
+for SS in list(QF_Req.keys()):
     print SS, QF_Req[SS]
 print "and with the following DCS status:"
 for dcs in DCSLIST:
@@ -208,7 +208,7 @@ sel_runtable="{groupName} ='"+GROUP+"' and {runNumber} >= "+RUNMIN+" and {runNum
 # the lumisection selection is on the Express dataset:
 sel_dstable="{groupName} ='"+GROUP+"' and {runNumber} >= "+RUNMIN+" and {runNumber} <= "+RUNMAX+" and {bfield}>"+BFIELD+" and {datasetName} LIKE '%Express%'"
 
-for key in QF_Req.keys():
+for key in list(QF_Req.keys()):
     if key != "NONE" and QF_Req[key]!="NONE":
         sel_runtable+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"
         sel_dstable+=" and {cmp"+key+"} = '"+QF_Req[key]+"'"

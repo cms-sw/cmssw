@@ -68,7 +68,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
     ls_count = 0
 
     for run in list_runs:
-        if str(run) in l_json.keys():
+        if str(run) in list(l_json.keys()):
             # print "run %s is there"%(run)
             runNumber = run
             # print "Doing lumi-section selection for run %s: "%(run)
@@ -78,7 +78,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
                 if (ls_count > maxNum) & (maxNum != -1):
                     break
                     # return local_dict
-                if runNumber in local_dict.keys():
+                if runNumber in list(local_dict.keys()):
                     local_dict[runNumber].append(LSsegment)
                 else: 
                     local_dict[runNumber] = [LSsegment]
@@ -88,7 +88,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
             print "run %s is NOT present in json %s\n\n"%(run, l_json)
         # print "++    %s"%(local_dict)
 
-    if ( len(local_dict.keys()) > 0 ) :
+    if ( len(list(local_dict.keys())) > 0 ) :
         return local_dict
     else :
         print "No luminosity section interval passed the json and your selection; returning None"
@@ -141,13 +141,13 @@ class InputInfo(object):
         if len(self.run) != 0:
             return "echo '{\n"+",".join(('"%d":[[1,268435455]]\n'%(x,) for x in self.run))+"}'"
         if self.ls :
-            return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
+            return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in list(self.ls.keys())))+"}'"
         return None
 
     def lumis(self):
       query_lumis = []
       if self.ls:
-        for run in self.ls.keys():
+        for run in list(self.ls.keys()):
           run_lumis = []
           for rng in self.ls[run]: run_lumis.append(str(rng[0])+","+str(rng[1]))
           query_lumis.append(":".join(run_lumis))
@@ -165,7 +165,7 @@ class InputInfo(object):
             # and use step1_lumiRanges.log to run only on LS which respect your selection
 
             # DO WE WANT T2_CERN ?
-            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
+            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in list(self.ls.keys())]
             #return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
 
 

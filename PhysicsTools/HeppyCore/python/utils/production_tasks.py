@@ -595,7 +595,7 @@ class MonitorJobs(Task):
 
         #executes bjobs with a list of job IDs
         cmd = ['bjobs','-u',self.options.batch_user]
-        cmd.extend([v for v in jobs.values() if v is not None])#filter out unknown IDs
+        cmd.extend([v for v in list(jobs.values()) if v is not None])#filter out unknown IDs
         child = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         stdout, stderr = child.communicate()
 
@@ -640,7 +640,7 @@ class MonitorJobs(Task):
         
         #after one hour the status is no longer available     
         if result:
-            for id in jobs.values():
+            for id in list(jobs.values()):
                 if id not in result and id in previous:
                     result[id] = previous[id]
         return result
@@ -663,7 +663,7 @@ class MonitorJobs(Task):
             actions = {'FilesToCompress':{'Files':[]}}
             
             result = {}
-            for j, id in jobs.iteritems():
+            for j, id in jobs.items():
                 if id is None:
                     result[j] = 'UNKNOWN'
                 else:
@@ -693,7 +693,7 @@ class MonitorJobs(Task):
         def countJobs(stat):
             """Count jobs that are monitorable - i.e. not in a final state"""
             result = []
-            for j, id in jobs.iteritems():
+            for j, id in jobs.items():
                 if id is not None and id in stat:
                     st = stat[id]
                     if st in ['PEND','PSUSP','RUN','USUSP','SSUSP','WAIT']:
@@ -740,7 +740,7 @@ class CheckJobStatus(Task):
         job_status = input['MonitorJobs']['LSFJobStatus']
 
         result = {}
-        for j, status in job_status.iteritems():
+        for j, status in job_status.items():
             valid = True
             if os.path.exists(status):
 
@@ -805,7 +805,7 @@ class WriteJobReport(Task):
         
         #collect a list of jobs by status
         states = {}
-        for j, status in report['LSFJobStatusCheck'].iteritems():
+        for j, status in report['LSFJobStatusCheck'].items():
             if status not in states:
                 states[status] = []
             states[status].append(j)
@@ -827,7 +827,7 @@ class WriteJobReport(Task):
         if self.options.group is not None:
             user_group = '-G %s' % self.options.group
 
-        for status, jobs in states.iteritems():
+        for status, jobs in states.items():
             output.write('# %d jobs found in state %s\n' % (len(jobs),status) )
             if status == 'VALID':
                 continue

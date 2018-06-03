@@ -43,7 +43,7 @@ parser = OptionParser(usage='Usage: %prog [options] file0_cfg.py file1_cfg.py)')
 parser.add_option('-f','--format',dest='filetype',help='Output format to use (eg png, pdf, dot).',type='string',default='png',metavar='FORMAT')
 parser.add_option('-n','--name',dest='naming',help='Name to use for output files. Defaults config_cfg.(format).',type='string',default='$o.$f',metavar='NAME')
 parser.add_option('-o','--opts',dest='opts',help='Options for DotExport.',type='string',metavar='opt1:val1,opt2:val2',default=None)
-parser.add_option('-p','--preset',dest='preset',help='Use a preset mode.\nKnown modes: %s'%presets.keys(),metavar='PRESET',default=None,type='string')
+parser.add_option('-p','--preset',dest='preset',help='Use a preset mode.\nKnown modes: %s'%list(presets.keys()),metavar='PRESET',default=None,type='string')
 parser.add_option('-v','--verbose',dest='verbose',help='Verbose mode',default=False,action='store_true')
 parser.add_option('-s','--stop',dest='stop',help='Stop on errors',default=False,action='store_true')
 
@@ -59,7 +59,7 @@ verbose('dotbatch starting...')
 if options.preset:
   if options.preset in presets:
     verbose('Setting preset mode: %s'%options.preset)
-    for opt,val in presets[options.preset].items():
+    for opt,val in list(presets[options.preset].items()):
       dot.setOption(opt,val)
   else:
     verbose('Preset mode: %s not found'%options.preset)

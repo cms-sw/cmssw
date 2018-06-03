@@ -101,7 +101,7 @@ if __name__ == "__main__":
         destTabClassName = 'tabs2'
 
     allRows = []
-    pageNames = pages.keys(); pageNames.sort()
+    pageNames = list(pages.keys()); pageNames.sort()
     for page in pageNames:
         allRows = allRows + pages[page]
     pages['All'] = allRows

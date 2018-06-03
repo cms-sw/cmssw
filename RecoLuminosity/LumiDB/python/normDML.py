@@ -321,7 +321,7 @@ def insertValueToNormId(schema,normdataid,sincerun,corrector,amodetag,egev,param
         tabrowValueDict['AMODETAG']=amodetag
         tabrowValueDict['NOMINALEGEV']=egev
         tabrowValueDict['COMMENT']=comment
-        for paramname,paramvalue in parameters.items():
+        for paramname,paramvalue in list(parameters.items()):
             try:
                 floatparam=float(paramvalue)
                 tabrowDefDict[paramname.upper()]='float'
@@ -357,7 +357,7 @@ def exportNormValue(schema,sourcenormname,destnormname,firstsince=None,lastsince
         if not sourcenormid:
             raise RuntimeError('[ERROR] sourcenorm does not exist')
         normvalueDict=normValueById(schema,sourcenormid) #{since:[corrector,{paramname:paramvalue},amodetag,egev,comment]}
-        for sincerun,normvalue in normvalueDict.items():
+        for sincerun,normvalue in list(normvalueDict.items()):
             if sincerun>copysince and sincerun<copylastsince:
                 corrector=normvalue[0]
                 parameters=normvalue[1]

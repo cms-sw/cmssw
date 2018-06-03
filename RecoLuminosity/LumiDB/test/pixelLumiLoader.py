@@ -73,15 +73,15 @@ def parseInputFile(filename,singlerun=None):
     json_data=open(filename)
     strresult=json.load(json_data)
     json_data.close()
-    strruns=strresult.keys()
+    strruns=list(strresult.keys())
     rs=sorted([int(x) for x in strruns])
     print rs
-    for runnum,perrundata in strresult.items():
+    for runnum,perrundata in list(strresult.items()):
         if singlerun:
             if int(runnum)!=int(singlerun):
                 print 'skip '+str(runnum)+' , is not single run ',singlerun
                 continue
-        allls=map(int,perrundata.keys())        
+        allls=map(int,list(perrundata.keys()))        
         for cmsls in range(1,max(allls)+1):
             instlumi=0.0
             if cmsls in allls:
@@ -130,7 +130,7 @@ if __name__ == "__main__":
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
     inputfilename=os.path.abspath(options.inputfile)
     parseresult=parseInputFile(inputfilename,options.singlerun)
-    runlist=parseresult.keys()
+    runlist=list(parseresult.keys())
     irunlsdict={}
     for run in runlist:
         irunlsdict[run]=None
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     #print 'lumirundata ', lumirundata
     alllumirundata=generateLumiRundata(inputfilename,lumirundata,runlist)
     alllumilsdata={}
-    for runnum,perrundata in parseresult.items():
+    for runnum,perrundata in list(parseresult.items()):
         pixellumidataid=0
         session.transaction().start(False)
         #session.transaction().start(True)

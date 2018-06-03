@@ -22,7 +22,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 from Validation.Geometry.plot_utils import _LABELS2COMPS
 
-_ALLOWED_LABELS = _LABELS2COMPS.keys()
+_ALLOWED_LABELS = list(_LABELS2COMPS.keys())
 
 options = VarParsing('analysis')
 options.register('geom',             #name

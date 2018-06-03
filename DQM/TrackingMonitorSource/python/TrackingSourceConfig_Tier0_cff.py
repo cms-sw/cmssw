@@ -227,7 +227,7 @@ from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 def _copyIfExists(mod, pset, name):
     if hasattr(pset, name):
         setattr(mod, name, getattr(pset, name))
-for _step, _pset in seedMonitoring.iteritems():
+for _step, _pset in seedMonitoring.items():
     _mod = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
         doTrackCandHistos = cms.bool(True)
     )

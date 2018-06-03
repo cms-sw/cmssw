@@ -18,7 +18,7 @@ def tofiles(allfills,runsperfill,runtimes,outdir):
     for fill in allfills:
         print >>f,'%d'%(fill)
     f.close()
-    for fill,runs in runsperfill.items():
+    for fill,runs in list(runsperfill.items()):
         filename='fill_'+str(fill)+'.txt'
         if len(runs)!=0:
             f=open(os.path.join(outdir,filename),'w')
@@ -80,7 +80,7 @@ if __name__ == '__main__':
         for fill in allfills:
             runtimes={}
             runsperfill=lumiCalcAPI.fillrunMap(session.nominalSchema(),fillnum=fill)
-            runs=runsperfill.values()#list of lists
+            runs=list(runsperfill.values())#list of lists
             allruns=[item for sublist in runs for item in sublist]
             allls=[None]*len(allruns)
             irunlsdict=dict(list(zip(allruns,allls)))

@@ -21,7 +21,7 @@ parts["PXF%d_pos"]=2
 parts["PXF%d_neg"]=2
 
 import copy
-for p in parts.keys():
+for p in list(parts.keys()):
     for i in range(1,parts[p]+1):
         setattr(CfgNavigationSchoolESProducer,p%(i,),copy.copy(_defaultPSet))
     

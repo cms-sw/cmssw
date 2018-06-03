@@ -157,7 +157,7 @@ class MakePATTrackCandidates(ConfigToolBase):
             process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
         runIsoDeps = {'tracker':False, 'caloTowers':False}
 
-        for source,deltaR in isolation.items():
+        for source,deltaR in list(isolation.items()):
             ## loop items in isolation
             if(source == 'tracker'):
                 runIsoDeps['tracker'] = True
@@ -190,7 +190,7 @@ class MakePATTrackCandidates(ConfigToolBase):
                 runIsoDeps['caloTowers'] = True
                 l1cands.isoDeposits.hcal = cms.InputTag('pat'+label+'IsoDepositCaloTowers', 'hcal')
 
-        for dep in [ dep for dep,runme in runIsoDeps.items() if runme == True ]:
+        for dep in [ dep for dep,runme in list(runIsoDeps.items()) if runme == True ]:
             if(dep == 'tracker'):
                 from RecoMuon.MuonIsolationProducers.trackExtractorBlocks_cff import MIsoTrackExtractorCtfBlock
                 addToProcessAndTask('pat'+label+'IsoDepositTracks',

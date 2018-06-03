@@ -142,9 +142,9 @@ class ToolDataAccessor(BasicDataAccessor):
             properties+=[("MultilineString","code",code.strip("\n"),None,True)]
         if not isinstance(object,(ImportTool,UserCodeTool,ApplyTool)):
             properties+=[("String","comment",object._comment,None,False)]
-        if len(object.getParameters().items())>0:
+        if len(list(object.getParameters().items()))>0:
             properties += [("Category", "Parameters", "")]
-            properties+=[self._property(value.name,value.value,value.description,value.type,object.getAllowedValues(value.name)) for key,value in object.getParameters().items()]
+            properties+=[self._property(value.name,value.value,value.description,value.type,object.getAllowedValues(value.name)) for key,value in list(object.getParameters().items())]
         return properties
     
     def setProperty(self, object, name, value, categoryName):
@@ -186,7 +186,7 @@ class ToolDataAccessor(BasicDataAccessor):
                 logging.warning(__name__ + ": setProperty: Cannot set comment "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
                 return error  
-        if str(id(object))+"."+name in self._parameterErrors.keys():
+        if str(id(object))+"."+name in list(self._parameterErrors.keys()):
             del self._parameterErrors[str(id(object))+"."+name]
         return True
 
@@ -262,4 +262,4 @@ class ToolDataAccessor(BasicDataAccessor):
         return self._toolModules
 
     def parameterErrors(self,object):
-        return [self._parameterErrors[key] for key in self._parameterErrors.keys() if str(id(object))==key.split(".")[0]] 
+        return [self._parameterErrors[key] for key in list(self._parameterErrors.keys()) if str(id(object))==key.split(".")[0]] 

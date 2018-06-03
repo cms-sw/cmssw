@@ -7,7 +7,7 @@ def customise(process):
                                              'keep RandomEngineStates_*_*_'+process.name_())
         )
 
-    for item in process.outputModules_().values():
+    for item in list(process.outputModules_().values()):
         item.outputCommands.extend(RNGStateCleaning.outputCommands)
 
     TRGResultCleaning= cms.PSet(
@@ -15,7 +15,7 @@ def customise(process):
                                              'keep edmTriggerResults_*_*_'+process.name_())
         )
 
-    for item in process.outputModules_().values():
+    for item in list(process.outputModules_().values()):
         item.outputCommands.extend(TRGResultCleaning.outputCommands)
 
 

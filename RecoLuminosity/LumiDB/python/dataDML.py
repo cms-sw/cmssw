@@ -909,7 +909,7 @@ def lumiRunByIds(schema,dataidMap,lumitype='HF'):
     result={}
     if not dataidMap:
         return result
-    inputRange=dataidMap.keys()
+    inputRange=list(dataidMap.keys())
     for r in inputRange:
         lumidataid=dataidMap[r][0]
         if lumidataid:
@@ -925,7 +925,7 @@ def beamstatusByIds(schema,dataidMap):
     result={}
     if not dataidMap:
         return result
-    inputRange=dataidMap.keys()
+    inputRange=list(dataidMap.keys())
     for r in inputRange:
         if r not in result:
             result[r]={}
@@ -2115,7 +2115,7 @@ def insertTrgHltMap(schema,hltkey,trghltmap):
         if not hltkeyExists:
             bulkvalues=[]   
             trghltDefDict=[('HLTKEY','string'),('HLTPATHNAME','string'),('L1SEED','string')]
-            for hltpath,l1seed in trghltmap.items():
+            for hltpath,l1seed in list(trghltmap.items()):
                 bulkvalues.append([('HLTKEY',hltkey),('HLTPATHNAME',hltpath),('L1SEED',l1seed)])
             db=dbUtil.dbUtil(schema)
             db.bulkInsert(nameDealer.trghltMapTableName(),trghltDefDict,bulkvalues)
@@ -2138,7 +2138,7 @@ def bulkInsertTrgLSData(session,runnumber,data_id,trglsdata,bulksize=500):
     nrows=0
     bulkvalues=[]
     try:
-        for cmslsnum,perlstrg in trglsdata.items():
+        for cmslsnum,perlstrg in list(trglsdata.items()):
             deadtimecount=perlstrg[0]           
             bitzerocount=perlstrg[1]
             bitzeroprescale=perlstrg[2]
@@ -2175,7 +2175,7 @@ def bulkInsertHltLSData(session,runnumber,data_id,hltlsdata,bulksize=500):
     nrows=0
     bulkvalues=[]   
     try:             
-        for cmslsnum,perlshlt in hltlsdata.items():
+        for cmslsnum,perlshlt in list(hltlsdata.items()):
             inputcountblob=perlshlt[0]
             acceptcountblob=perlshlt[1]
             prescaleblob=perlshlt[2]
@@ -2216,7 +2216,7 @@ def bulkInsertLumiLSSummary(session,runnumber,data_id,lumilsdata,tableName,bulks
         committedrows=0
         nrows=0
         bulkvalues=[]
-        for lumilsnum,perlslumi in lumilsdata.items():
+        for lumilsnum,perlslumi in list(lumilsdata.items()):
             cmslsnum=perlslumi[0]
             instlumi=perlslumi[1]
             instlumierror=perlslumi[2]

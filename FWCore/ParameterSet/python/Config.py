@@ -140,16 +140,16 @@ class Process(object):
     # some user-friendly methods for command-line browsing
     def producerNames(self):
         """Returns a string containing all the EDProducer labels separated by a blank"""
-        return ' '.join(self.producers_().keys())
+        return ' '.join(list(self.producers_().keys()))
     def analyzerNames(self):
         """Returns a string containing all the EDAnalyzer labels separated by a blank"""
-        return ' '.join(self.analyzers_().keys())
+        return ' '.join(list(self.analyzers_().keys()))
     def filterNames(self):
         """Returns a string containing all the EDFilter labels separated by a blank"""
-        return ' '.join(self.filters_().keys())
+        return ' '.join(list(self.filters_().keys()))
     def pathNames(self):
         """Returns a string containing all the Path names separated by a blank"""
-        return ' '.join(self.paths_().keys())
+        return ' '.join(list(self.paths_().keys()))
 
     def __setstate__(self, pkldict):
         """
@@ -162,7 +162,7 @@ class Process(object):
         """
         self.__dict__.update(pkldict)
         tmpDict = {}
-        for value in self._cloneToObjectDict.values():
+        for value in list(self._cloneToObjectDict.values()):
             tmpDict[id(value)] = value
         self.__dict__['_cloneToObjectDict'] = tmpDict
 
@@ -411,7 +411,7 @@ class Process(object):
        containing mod and return it. If none is found, return None"""
        from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
        l = list()
-       for seqOrTask in seqsOrTasks.itervalues():
+       for seqOrTask in seqsOrTasks.values():
           l[:] = []
           v = ModuleNodeVisitor(l)
           seqOrTask.visit(v)
@@ -426,7 +426,7 @@ class Process(object):
             raise ValueError('this attribute cannot be deleted')
 
         # we have to remove it from all dictionaries/registries
-        dicts = [item for item in self.__dict__.values() if (isinstance(item, dict) or isinstance(item, DictTypes.SortedKeysDict))]
+        dicts = [item for item in list(self.__dict__.values()) if (isinstance(item, dict) or isinstance(item, DictTypes.SortedKeysDict))]
         for reg in dicts:
             if name in reg: del reg[name]
         # if it was a labelable object, the label needs to be removed
@@ -616,7 +616,7 @@ class Process(object):
                 self.extend(item)
 
         #now create a sequence that uses the newly made items
-        for name in seqs.iterkeys():
+        for name in seqs.keys():
             seq = seqs[name]
             #newSeq = seq.copy()
             #
@@ -629,7 +629,7 @@ class Process(object):
                 #now put in proper bucket
                 newSeq._place(name,self)
 
-        for name in tasksToAttach.iterkeys():
+        for name in tasksToAttach.keys():
             task = tasksToAttach[name]
             self.__setattr__(name, task)
 
@@ -668,45 +668,45 @@ class Process(object):
         config+=self._dumpConfigNamedList(self.subProcesses_(),
                                   'subProcess',
                                   options)
-        config+=self._dumpConfigNamedList(self.producers_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.producers_().items()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.filters_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.filters_().items()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.analyzers_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.analyzers_().items()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.outputModules_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.outputModules_().items()),
                                   'module',
                                   options)
-        config+=self._dumpConfigNamedList(self.sequences_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.sequences_().items()),
                                   'sequence',
                                   options)
-        config+=self._dumpConfigNamedList(self.paths_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.paths_().items()),
                                   'path',
                                   options)
-        config+=self._dumpConfigNamedList(self.endpaths_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.endpaths_().items()),
                                   'endpath',
                                   options)
-        config+=self._dumpConfigUnnamedList(self.services_().iteritems(),
+        config+=self._dumpConfigUnnamedList(iter(self.services_().items()),
                                   'service',
                                   options)
-        config+=self._dumpConfigNamedList(self.aliases_().iteritems(),
+        config+=self._dumpConfigNamedList(iter(self.aliases_().items()),
                                   'alias',
                                   options)
         config+=self._dumpConfigOptionallyNamedList(
-            self.es_producers_().iteritems(),
+            iter(self.es_producers_().items()),
             'es_module',
             options)
         config+=self._dumpConfigOptionallyNamedList(
-            self.es_sources_().iteritems(),
+            iter(self.es_sources_().items()),
             'es_source',
             options)
         config += self._dumpConfigESPrefers(options)
-        for name,item in self.psets.iteritems():
+        for name,item in self.psets.items():
             config +=options.indentation()+item.configTypeName()+' '+name+' = '+item.configValue(options)
-        for name,item in self.vpsets.iteritems():
+        for name,item in self.vpsets.items():
             config +=options.indentation()+'VPSet '+name+' = '+item.configValue(options)
         if self.schedule:
             pathNames = [p.label_() for p in self.schedule]
@@ -720,7 +720,7 @@ class Process(object):
         return config
     def _dumpConfigESPrefers(self, options):
         result = ''
-        for item in self.es_prefers_().itervalues():
+        for item in self.es_prefers_().values():
             result +=options.indentation()+'es_prefer '+item.targetLabel_()+' = '+item.dumpConfig(options)
         return result
     def _dumpPythonSubProcesses(self, l, options):
@@ -731,7 +731,7 @@ class Process(object):
     def _dumpPythonList(self, d, options):
         returnValue = ''
         if isinstance(d, DictTypes.SortedKeysDict):
-            for name,item in d.items():
+            for name,item in list(d.items()):
                 returnValue +='process.'+name+' = '+item.dumpPython(options)+'\n\n'
         else:
             for name,item in sorted(d.items()):
@@ -763,7 +763,7 @@ class Process(object):
         # For each item, see what other items it depends upon
         # For our purpose here, an item depends on the items it contains.
         dependencies = {}
-        for label,item in processDictionaryOfItems.iteritems():
+        for label,item in processDictionaryOfItems.items():
             containedItems = []
             if isinstance(item, Task):
                 v = TaskVisitor(containedItems)
@@ -800,18 +800,18 @@ class Process(object):
         # keep looping until we get rid of all dependencies
         while dependencies:
             oldDeps = dict(dependencies)
-            for label,deps in oldDeps.iteritems():
+            for label,deps in oldDeps.items():
                 if len(deps)==0:
                     returnValue[label]=processDictionaryOfItems[label]
                     #remove this as a dependency for all other tasks
                     del dependencies[label]
-                    for lb2,deps2 in dependencies.iteritems():
+                    for lb2,deps2 in dependencies.items():
                         while deps2.count(label):
                             deps2.remove(label)
         return returnValue
     def _dumpPython(self, d, options):
         result = ''
-        for name, value in sorted(d.iteritems()):
+        for name, value in sorted(d.items()):
            result += value.dumpPythonAs(name,options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
@@ -844,15 +844,15 @@ class Process(object):
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
-        for sequenceable in self.sequences.itervalues():
+        for sequenceable in self.sequences.values():
             sequenceable.replace(old,new)
-        for sequenceable in self.paths.itervalues():
+        for sequenceable in self.paths.values():
             sequenceable.replace(old,new)
-        for sequenceable in self.endpaths.itervalues():
+        for sequenceable in self.endpaths.values():
             sequenceable.replace(old,new)
     def _replaceInTasks(self, label, new):
         old = getattr(self,label)
-        for task in self.tasks.itervalues():
+        for task in self.tasks.values():
             task.replace(old, new)
     def _replaceInSchedule(self, label, new):
         if self.schedule_() == None:
@@ -866,7 +866,7 @@ class Process(object):
             raise LookupError("process has no item of label "+label)
         setattr(self,label,new)
     def _insertInto(self, parameterSet, itemDict):
-        for name,value in itemDict.iteritems():
+        for name,value in itemDict.items():
             value.insertInto(parameterSet, name)
     def _insertOneInto(self, parameterSet, label, item, tracked):
         vitems = []
@@ -877,7 +877,7 @@ class Process(object):
         parameterSet.addVString(tracked, label, vitems)
     def _insertManyInto(self, parameterSet, label, itemDict, tracked):
         l = []
-        for name,value in itemDict.iteritems():
+        for name,value in itemDict.items():
           newLabel = value.nameInProcessDesc_(name)
           l.append(newLabel)
           value.insertInto(parameterSet, name)
@@ -952,9 +952,9 @@ class Process(object):
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
 
     def resolve(self,keepUnresolvedSequencePlaceholders=False):
-        for x in self.paths.itervalues():
+        for x in self.paths.values():
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
-        for x in self.endpaths.itervalues():
+        for x in self.endpaths.values():
             x.resolve(self.__dict__,keepUnresolvedSequencePlaceholders)
         if not self.schedule_() == None:
             for task in self.schedule_()._tasks:
@@ -986,8 +986,8 @@ class Process(object):
             for n in unneededPaths:
                 delattr(self,n)
         else:
-            pths = list(self.paths.itervalues())
-            pths.extend(self.endpaths.itervalues())
+            pths = list(self.paths.values())
+            pths.extend(iter(self.endpaths.values()))
             temp = Schedule(*pths)
             usedModules=set(temp.moduleNames())
         unneededModules = self._pruneModules(self.producers_(), usedModules)
@@ -996,12 +996,12 @@ class Process(object):
         #remove sequences that do not appear in remaining paths and endpaths
         seqs = list()
         sv = SequenceVisitor(seqs)
-        for p in self.paths.itervalues():
+        for p in self.paths.values():
             p.visit(sv)
-        for p in self.endpaths.itervalues():
+        for p in self.endpaths.values():
             p.visit(sv)
         keepSeqSet = set(( s for s in seqs if s.hasLabel_()))
-        availableSeqs = set(self.sequences.itervalues())
+        availableSeqs = set(self.sequences.values())
         unneededSeqs = availableSeqs-keepSeqSet
         unneededSeqLabels = []
         for s in unneededSeqs:
@@ -1070,26 +1070,26 @@ class Process(object):
         # the modules, ESSources, ESProducers, and services it visits.
         nodeVisitor = NodeVisitor()
         self._insertPaths(adaptor, nodeVisitor)
-        all_modules_onTasksOrScheduled = { key:value for key, value in all_modules.iteritems() if value in nodeVisitor.modules }
+        all_modules_onTasksOrScheduled = { key:value for key, value in all_modules.items() if value in nodeVisitor.modules }
         self._insertManyInto(adaptor, "@all_modules", all_modules_onTasksOrScheduled, True)
         # Same as nodeVisitor except this one visits all the Tasks attached
         # to the process.
         processNodeVisitor = NodeVisitor()
-        for pTask in self.tasks.itervalues():
+        for pTask in self.tasks.values():
             pTask.visit(processNodeVisitor)
         esProducersToEnable = {}
-        for esProducerName, esProducer in self.es_producers_().iteritems():
+        for esProducerName, esProducer in self.es_producers_().items():
             if esProducer in nodeVisitor.esProducers or not (esProducer in processNodeVisitor.esProducers):
                 esProducersToEnable[esProducerName] = esProducer
         self._insertManyInto(adaptor, "@all_esmodules", esProducersToEnable, True)
         esSourcesToEnable = {}
-        for esSourceName, esSource in self.es_sources_().iteritems():
+        for esSourceName, esSource in self.es_sources_().items():
             if esSource in nodeVisitor.esSources or not (esSource in processNodeVisitor.esSources):
                 esSourcesToEnable[esSourceName] = esSource
         self._insertManyInto(adaptor, "@all_essources", esSourcesToEnable, True)
         #handle services differently
         services = []
-        for serviceName, serviceObject in self.services_().iteritems():
+        for serviceName, serviceObject in self.services_().items():
              if serviceObject in nodeVisitor.services or not (serviceObject in processNodeVisitor.services):
                  serviceObject.insertInto(ServiceInjectorAdaptor(adaptor,services))
         adaptor.addVPSet(False,"services",services)
@@ -1143,7 +1143,7 @@ class Process(object):
         else:
             # maybe it's an unnamed ESModule?
             found = False
-            for name, value in d.iteritems():
+            for name, value in d.items():
                if value.type_() == esname:
                   if found:
                       raise RuntimeError("More than one ES module for "+esname)
@@ -1263,11 +1263,11 @@ class _ParameterModifier(object):
     self.__args = args
   def __call__(self,obj):
     params = {}
-    for k in self.__args.iterkeys():
+    for k in self.__args.keys():
         if hasattr(obj,k):
             params[k] = getattr(obj,k)
     _modifyParametersFromDict(params, self.__args, self._raiseUnknownKey)
-    for k in self.__args.iterkeys():
+    for k in self.__args.keys():
         if k in params:
             setattr(obj,k,params[k])
         else:
@@ -1621,7 +1621,7 @@ if __name__=="__main__":
         def testProcessExtend(self):
             class FromArg(object):
                 def __init__(self,*arg,**args):
-                    for name in args.iterkeys():
+                    for name in args.keys():
                         self.__dict__[name]=args[name]
 
             a=EDAnalyzer("MyAnalyzer")
@@ -2145,7 +2145,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             expectedLabels = ["myTask5", "myTask8", "myTask7", "myTask6", "myTask1"]
             expectedTasks = [process.myTask5, process.myTask8, process.myTask7, process.myTask6, process.myTask1]
             index = 0
-            for testLabel, testTask in testDict.items():
+            for testLabel, testTask in list(testDict.items()):
                 self.assertTrue(testLabel == expectedLabels[index])
                 self.assertTrue(testTask == expectedTasks[index])
                 index += 1
@@ -2458,7 +2458,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.path2 = Path(p.b)
             self.assert_(p.schedule is None)
             pths = p.paths
-            keys = pths.keys()
+            keys = list(pths.keys())
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
             p.prune()
@@ -2477,7 +2477,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))
             p.path1 = Path(p.a)
             self.assert_(p.schedule is None)
             pths = p.paths
-            keys = pths.keys()
+            keys = list(pths.keys())
             self.assertEqual(pths[keys[1]],p.path1)
             self.assertEqual(pths[keys[0]],p.path2)
 
@@ -2663,7 +2663,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.path2 = Path(p.b)
             self.assert_(p.schedule is None)
             pths = p.paths
-            keys = pths.keys()
+            keys = list(pths.keys())
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
             p.pset1 = PSet(parA = string("pset1"))
@@ -2698,7 +2698,7 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             p.path4 = Path(p.b+p.s3)
             p.schedule = Schedule(p.path1,p.path2,p.path3)
             pths = p.paths
-            keys = pths.keys()
+            keys = list(pths.keys())
             self.assertEqual(pths[keys[0]],p.path1)
             self.assertEqual(pths[keys[1]],p.path2)
             p.prune()

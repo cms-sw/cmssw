@@ -11,7 +11,7 @@ else :
 
 print "Generating LUT files for GCT key %s" % (key)
 
-if (not ("TNS_ADMIN" in os.environ.keys())):
+if (not ("TNS_ADMIN" in list(os.environ.keys()))):
     print "Please set TNS_ADMIN using :"
     print "export TNS_ADMIN=/nfshome0/popcondev/conddb"
 

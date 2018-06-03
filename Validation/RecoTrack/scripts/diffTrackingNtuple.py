@@ -64,7 +64,7 @@ def outOfOrder(opts, ntpl1, ntpl2, *args, **kwargs):
         body(opts, ev1, ev2, *args, **kwargs)
 
 
-    for eventIdStr in events2.iterkeys():
+    for eventIdStr in events2.keys():
         print "+", eventIdStr
 
 def main(opts):

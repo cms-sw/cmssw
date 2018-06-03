@@ -69,7 +69,7 @@ def validateProcess(process):
     endpaths=process.endpaths_()
     
     # check output mods are in paths and have appropriate settings
-    for outputModName in process.outputModules_().keys():
+    for outputModName in list(process.outputModules_().keys()):
         outputMod = getattr(process, outputModName)
         if not hasattr(outputMod, 'dataset'):
             msg = "Process contains output module without dataset PSET: %s \n" % outputModName

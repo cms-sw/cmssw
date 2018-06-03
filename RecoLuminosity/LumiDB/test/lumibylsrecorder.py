@@ -67,7 +67,7 @@ def getrunsInCurrentData(schema,minrun=132440,maxrun=500000):
     except:
         if qHandle:del qHandle
         raise
-    if tmpresult:return tmpresult.keys()    
+    if tmpresult:return list(tmpresult.keys())    
     return []
 
 def execCalc(connectStr,authpath,outdir,runnum,minbias):

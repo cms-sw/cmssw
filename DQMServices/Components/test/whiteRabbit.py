@@ -40,14 +40,14 @@ class FWJRParser:
                 continue
             m = re.match('(.*?)_(.*)', node.nodeName)
             if m:
-                if len(result.keys()) >= 1 and m.group(1) not in result.keys():
+                if len(list(result.keys())) >= 1 and m.group(1) not in list(result.keys()):
                     result[subsys] += '}'
                 subsys = m.group(1)
-                if subsys not in result.keys():
+                if subsys not in list(result.keys()):
                     result[subsys] = "{'subsys': '%s', '%s': '%s'" % (m.group(1),m.group(2), node.getAttribute('Value'))
                 else:
                     result[subsys] += ", '%s': '%s'" % (m.group(2), node.getAttribute('Value'))
-        if subsys in result.keys():
+        if subsys in list(result.keys()):
             result[subsys] += '}'
         return result
 
@@ -167,11 +167,11 @@ class TestRunner(Thread):
             fwjr = FWJRParser(single)
             resRun = fwjr.getReport(FWJRParser.Run)
             if resRun:
-                for k in resRun.keys():
+                for k in list(resRun.keys()):
                     f.write("db.results.save({'ts': '%s',  'IB': '%s', 'test': '%s', 'type': 'runProduct', 'logfile':'%s', 'packages': [%s], 'results': %s})\n " % (self.timestamp,cmssw_version,self.testNumber, filename.replace('FrameworkJobReport_',''),testPackages, resRun[k]))
             resLS = fwjr.getReport(FWJRParser.LS)
             if resLS:
-                for k in resLS.keys():
+                for k in list(resLS.keys()):
                     f.write("db.results.save({'ts': '%s',  'IB': '%s', 'test': '%s', 'type': 'lsProduct', 'logfile':'%s', 'packages': [%s], 'results': %s})\n " % (self.timestamp,cmssw_version,self.testNumber, filename.replace('FrameworkJobReport_',''),testPackages, resLS[k]))
             # Now do memory checks aganist reference, if it exists
             if os.path.isfile(filename):

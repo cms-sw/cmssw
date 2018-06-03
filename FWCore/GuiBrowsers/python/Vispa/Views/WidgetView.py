@@ -26,7 +26,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
         self._updatingFlag = 0
 
     def widgets(self):
-        return self._widgetDict.values()
+        return list(self._widgetDict.values())
 
     def widgetSelected(self, widget, multiSelect=False):
         """ Emits signal widgetSelected that the TabController can connect to.
@@ -51,7 +51,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
 
     def widgetByObject(self, object):
         widgets = []
-        for positionName, widget in self._widgetDict.items():
+        for positionName, widget in list(self._widgetDict.items()):
             if widget.object == object:
                 widgets += [(positionName, widget)]
         if len(widgets) > 0:
@@ -79,7 +79,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
     def restoreSelection(self,offset=5):
         """ Restore selection.
         """
-        if self._selection in self._widgetDict.keys():
+        if self._selection in list(self._widgetDict.keys()):
             widget = self._widgetDict[self._selection]
             self._updatingFlag +=1
             widget.select()
@@ -90,7 +90,7 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
     def selection(self):
         """ Return the currently selected object.
         """
-        if self._selection in self._widgetDict.keys():
+        if self._selection in list(self._widgetDict.keys()):
             return self._widgetDict[self._selection].object
         else:
             return None
@@ -109,9 +109,9 @@ class WidgetView(AbstractView, ZoomableScrollableWidgetOwner):
     def addWidget(self, widget, object=None, positionName=0):
         """ Add widget to the view and map it to an id.
         """
-        if str(positionName)+"("+self.dataAccessor().label(object)+")" in self._widgetDict.keys():
+        if str(positionName)+"("+self.dataAccessor().label(object)+")" in list(self._widgetDict.keys()):
             positionName = 0
-            while positionName in self._widgetDict.keys():
+            while positionName in list(self._widgetDict.keys()):
                 positionName += 1
         widget.positionName = str(positionName)+"("+self.dataAccessor().label(object)+")"
         widget.object = object

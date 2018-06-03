@@ -25,7 +25,7 @@ def GetLogTimestamps(ManualO2Ologfilename):
             #     Tmax: 2010 8 29 9 0 0 0
             print "%s- Tmin: %s and Tmax: %s (number log lines %s)"%(IOVCounter,Tmin,Tmax,LinesCounter)
             #Actually Tmin is not necessary... since they all will be set to the first one in the dcs_o2O_template.py used by the ManualO2O.py that created the log we're parsing.
-            if Tmax not in ListOfTmax.keys():
+            if Tmax not in list(ListOfTmax.keys()):
                 TmaxDict.update({Tmax:LinesCounter})
             else:
                 print "This Tmax (%s) seems to be duplicated!!!"%Tmax
@@ -150,7 +150,7 @@ def GetQueryResults(ManualO2Ologfilename):
             #     Tmin: 2010 8 27 10 0 0 0
             #     Tmax: 2010 8 29 9 0 0 0
             #print "%s- Tmin: %s and Tmax: %s (number log lines %s)"%(IOVCounter,Tmin,Tmax,LinesCounter)
-            if (Tmin,Tmax) not in QueryResultsDict.keys():
+            if (Tmin,Tmax) not in list(QueryResultsDict.keys()):
                 QueryResultsDict.update({(Tmin,Tmax):[]})
             else:
                 print "This Tmax (%s) seems to be duplicated!!!"%Tmax
@@ -300,30 +300,30 @@ class TrkVoltageStatus:
         #when determining whether the detids are going ON or OFF... see below.
         for PSUChannel in self.PSUChannels:
             if PSUChannel.endswith("0") or PSUChannel.endswith("1"): #Report all channels that match at the PSU level!
-                self.PSUDetIDmap.update({PSUChannel:[detid for detid in self.DetIDPSUmap.keys() if PSUChannel[:-3] in self.DetIDPSUmap[detid]]}) #PSU matching (picks all detids by PSU) 
+                self.PSUDetIDmap.update({PSUChannel:[detid for detid in list(self.DetIDPSUmap.keys()) if PSUChannel[:-3] in self.DetIDPSUmap[detid]]}) #PSU matching (picks all detids by PSU) 
             else: #For channel002 and channel003 list in this map ONLY the actual mapped ones, the unmapped or crosstalking are listed in the corresponding PSUDetIDUnmappedMap and PSUDetIDCrosstalkingMap (see below).
-                self.PSUDetIDmap.update({PSUChannel:[detid for detid in self.DetIDPSUmap.keys() if (PSUChannel in self.DetIDPSUmap[detid])]})
+                self.PSUDetIDmap.update({PSUChannel:[detid for detid in list(self.DetIDPSUmap.keys()) if (PSUChannel in self.DetIDPSUmap[detid])]})
 
         #Separate PSU-based maps for unmapped and crosstalking detids:
         self.PSUDetIDUnmappedMap={}
-        UnmappedPSUs=list(set([psuchannel[:-10] for psuchannel in self.DetIDPSUmap.values() if psuchannel.endswith("000")]))
+        UnmappedPSUs=list(set([psuchannel[:-10] for psuchannel in list(self.DetIDPSUmap.values()) if psuchannel.endswith("000")]))
         self.PSUDetIDCrosstalkingMap={}
-        CrosstalkingPSUs=list(set([psuchannel[:-10] for psuchannel in self.DetIDPSUmap.values() if psuchannel.endswith("999")]))
+        CrosstalkingPSUs=list(set([psuchannel[:-10] for psuchannel in list(self.DetIDPSUmap.values()) if psuchannel.endswith("999")]))
         for PSU in self.PSUs:
             if PSU in UnmappedPSUs:
-                self.PSUDetIDUnmappedMap.update({PSU:[detid for detid in self.DetIDPSUmap.keys() if (self.DetIDPSUmap[detid].endswith("000") and PSU in self.DetIDPSUmap[detid])]})
+                self.PSUDetIDUnmappedMap.update({PSU:[detid for detid in list(self.DetIDPSUmap.keys()) if (self.DetIDPSUmap[detid].endswith("000") and PSU in self.DetIDPSUmap[detid])]})
             if PSU in CrosstalkingPSUs:
-                self.PSUDetIDCrosstalkingMap.update({PSU:[detid for detid in self.DetIDPSUmap.keys() if (self.DetIDPSUmap[detid].endswith("999") and PSU in self.DetIDPSUmap[detid])]})
+                self.PSUDetIDCrosstalkingMap.update({PSU:[detid for detid in list(self.DetIDPSUmap.keys()) if (self.DetIDPSUmap[detid].endswith("999") and PSU in self.DetIDPSUmap[detid])]})
         #Need also the list of PSU channels that are unmapped and crosstalking with their status!
         #Since the state for those detIDs is determined by the knowledge of the other PSU channel, we need a dictionary for both that keeps their "last value" at all times.
         self.UnmappedPSUChannelStatus={}
         #Initialize the dictionary with all the unmapped (only HV is relevant, channel002/003) PSU channels set to 0 (off).
-        for PSU in self.PSUDetIDUnmappedMap.keys():
+        for PSU in list(self.PSUDetIDUnmappedMap.keys()):
             self.UnmappedPSUChannelStatus.update({PSU+"channel002":0})
             self.UnmappedPSUChannelStatus.update({PSU+"channel003":0})
         self.CrosstalkingPSUChannelStatus={}
         #Initialize the dictionary with all the crosstalking (only HV is relevant, channel002/003) PSU channels set to 0 (off).
-        for PSU in self.PSUDetIDCrosstalkingMap.keys():
+        for PSU in list(self.PSUDetIDCrosstalkingMap.keys()):
             self.CrosstalkingPSUChannelStatus.update({PSU+"channel002":0})
             self.CrosstalkingPSUChannelStatus.update({PSU+"channel003":0})
         
@@ -380,7 +380,7 @@ class TrkVoltageStatus:
         lastTimeStamp,nextTimeStamp=self.getIOV(row['change_date'],self.PSUChannelHistory)
         #Print a warning when the timeStamp is not the last one in the history!
         if self.debug:
-            if row['change_date'] not in self.PSUChannelHistory.keys():
+            if row['change_date'] not in list(self.PSUChannelHistory.keys()):
                 if nextTimeStamp!="Infinity":
                     print "WARNING! Asynchronous updating of the Tracker Voltage Status"
                     print "WARNING! Inserting an IOV between %s, and %s existing timestamps!"%(lastTimeStamp,nextTimeStamp)
@@ -445,7 +445,7 @@ class TrkVoltageStatus:
         """
         #FIXME:
         #this will have to be developed once the detID query is ready and being used in the Tracker DCS O2O
-        if row['change_date'] not in self.history.keys():#New timestamp (i.e. new IOV)
+        if row['change_date'] not in list(self.history.keys()):#New timestamp (i.e. new IOV)
             #For new IOV create a new entry in the dict and initialize it to the last IOV status
             #since only change is reported with STATUS_CHANGE queries.
             lastTimeStamp=sorted(self.history.keys()).pop(0)
@@ -485,16 +485,16 @@ class TrkVoltageStatus:
             #First check only for HV channels!
             if self.PSUChannels[index].endswith("2") or self.PSUChannels[index].endswith("3") :
                 #Then check HV MAPPED channels:
-                if self.PSUChannels[index] in self.PSUDetIDmap.keys():
+                if self.PSUChannels[index] in list(self.PSUDetIDmap.keys()):
                     #print "Extending the list of DetIdsHVOff with the positively matched detids:",self.PSUDetIDmap[self.PSUChannels[index]]
                     DetIDsHVOFF.extend(self.PSUDetIDmap[self.PSUChannels[index]])
                 #Furthermore check the unmapped channels:
-                if self.PSUChannels[index][:-10] in self.PSUDetIDUnmappedMap.keys():
+                if self.PSUChannels[index][:-10] in list(self.PSUDetIDUnmappedMap.keys()):
                     #To turn OFF unmapped channels there is no need to check the "other" channel:
                     #print "Extending the list of DetIdsHVOff with the HV unmapped (PSU-)matched detids:",self.PSUDetIDUnmappedMap[self.PSUChannels[index][:-10]]
                     DetIDsHVOFF.extend(self.PSUDetIDUnmappedMap[self.PSUChannels[index][:-10]])
                 #Further check the crosstalking channels:
-                if self.PSUChannels[index][:-10] in self.PSUDetIDCrosstalkingMap.keys():
+                if self.PSUChannels[index][:-10] in list(self.PSUDetIDCrosstalkingMap.keys()):
                     #To turn OFF crosstalking channels we need to check that the other channel is OFF too!
                     if (self.PSUChannels.index(self.PSUChannels[index][:-1]+"2") in self.PSUChannelHistory[StartTime]) and (self.PSUChannels.index(self.PSUChannels[index][:-1]+"3") in self.PSUChannelHistory[StartTime]):
                         #print "Extending the list of DetIdsHVOff with the HV-CROSSTALKING (PSU-)matched detids:",self.PSUDetIDCrosstalkingMap[self.PSUChannels[index][:-10]]
@@ -705,7 +705,7 @@ class TrkVoltageStatus:
         This can be used by all functions that need to access HistoryDict by timeStamp.
         """        
         
-        TimeStamps=HistoryDict.keys()[:]
+        TimeStamps=list(HistoryDict.keys())[:]
         #Add the wanted timeStamp to the list of TimeStamps (if it is not there already!)
         if timeStamp not in TimeStamps:
             TimeStamps.append(timeStamp)
@@ -731,7 +731,7 @@ class TrkVoltageStatus:
         Function that returns the IOV timestamps (ordered) contained in a given interval.
         """
         #Copy and sort the timestamps in a list
-        TimeStamps=sorted(HistoryDict.keys()[:])
+        TimeStamps=sorted(list(HistoryDict.keys())[:])
         IOVsInTimeInterval=[]
         #loop over them:
         for timestamp in TimeStamps:
@@ -748,7 +748,7 @@ class TrkVoltageStatus:
         deltaTime=datetime.timedelta(seconds=deltaT)
         maxSequenceLength=datetime.timedelta(seconds=maxIOVLength)
         #Copy and sort the timestamps in a list:
-        TimeStamps=sorted(HistoryDict.keys()[:])
+        TimeStamps=sorted(list(HistoryDict.keys())[:])
         ReducedIOVs=TimeStamps[:]
         PreviousTimestamp=TimeStamps[0] 
         SequenceStart=TimeStamps[0]  #Initialization irrelevant see loop
@@ -1189,7 +1189,7 @@ def CompareReducedDetIDs(FirstDict,SecondDict):
     """
     DifferenceDict={}
     for timestamp in sorted(FirstDict.keys()):
-        if timestamp.replace(microsecond=0) in SecondDict.keys():
+        if timestamp.replace(microsecond=0) in list(SecondDict.keys()):
             secondtimestamp=timestamp.replace(microsecond=0)
             print "Timestamp %s is present in both Dictionaries!"%timestamp
         else:
@@ -1287,15 +1287,15 @@ if DifferingTimestamps:
 #    for channel in LVOFF:
 LVChannelHistory={}
 HVChannelHistory={}
-for interval in QueryResults.keys():
+for interval in list(QueryResults.keys()):
     for row in QueryResults[interval]:
         if row['dpname'].endswith('0') or row['dpname'].endswith('1'):
-            if row['dpname'][:-1] not in LVChannelHistory.keys():
+            if row['dpname'][:-1] not in list(LVChannelHistory.keys()):
                 LVChannelHistory.update({row['dpname'][:-1]:[(row['change_date'],row['actual_status'])]})
             else:
                 LVChannelHistory[row['dpname'][:-1]].append((row['change_date'],row['actual_status']))
         else:
-            if row['dpname'] not in HVChannelHistory.keys():
+            if row['dpname'] not in list(HVChannelHistory.keys()):
                 HVChannelHistory.update({row['dpname']:[(row['change_date'],row['actual_status'])]})
             else:
                 HVChannelHistory[row['dpname']].append((row['change_date'],row['actual_status']))

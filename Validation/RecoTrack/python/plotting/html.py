@@ -325,7 +325,7 @@ class Page(object):
         self._tables[section] = table
 
     def isEmpty(self):
-        for plotSet in self._plotSets.itervalues():
+        for plotSet in self._plotSets.values():
             if len(plotSet) > 0:
                 return False
 
@@ -377,7 +377,7 @@ class Page(object):
 
         fileTable = []
 
-        sections = self._orderSets(self._plotSets.keys())
+        sections = self._orderSets(list(self._plotSets.keys()))
         for isec, section in enumerate(sections):
             leg = self._appendLegend(section)
 
@@ -434,7 +434,7 @@ class Page(object):
                     return False
             return True
 
-        sections = self._orderSets(self._tables.keys())
+        sections = self._orderSets(list(self._tables.keys()))
         for isec, section in enumerate(sections):
             leg = self._appendLegend(section)
 
@@ -497,7 +497,7 @@ class Page(object):
     def _orderSets(self, keys):
         keys_sorted = sorted(keys)
         ret = []
-        for section in _sectionNameMapOrder.keys():
+        for section in list(_sectionNameMapOrder.keys()):
             if section in keys_sorted:
                 ret.append(section)
                 keys_sorted.remove(section)
@@ -570,7 +570,7 @@ class PageSet(object):
         #print "TrackingPageSet.write"
         ret = []
 
-        keys = self._orderPages(self._pages.keys())
+        keys = self._orderPages(list(self._pages.keys()))
         for key in keys:
             page = self._pages[key]
             if page.isEmpty():
@@ -598,7 +598,7 @@ class TrackingIterPage(Page):
 
     def _orderSets(self, qualities):
         ret = []
-        for qual in _trackQualityNameOrder.keys():
+        for qual in list(_trackQualityNameOrder.keys()):
             if qual in qualities:
                 ret.append(qual)
                 qualities.remove(qual)
@@ -758,7 +758,7 @@ class HtmlReport:
 
     def write(self):
         # Reorder sections such that Fast vs. Full becomes just after the corresponding Fast
-        keys = self._sections.iterkeys()
+        keys = iter(self._sections.keys())
         newkeys = []
         for key in keys:
             if not key[1]:

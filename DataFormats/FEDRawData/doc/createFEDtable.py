@@ -16,7 +16,7 @@ def retrieveFedEntries(fedNumberingHeader):
                 except KeyError:
                     entries[match.group('name')] = [int(match.group('id'))]
                 entries[match.group('name')].sort()
-    return sorted(entries.items(), key=lambda e: e[1][0])
+    return sorted(list(entries.items()), key=lambda e: e[1][0])
 
 def printHtmlTable(fedEntries):
     lastId = -1

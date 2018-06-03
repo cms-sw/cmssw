@@ -164,7 +164,7 @@ while True:
         if int(runnr) > int(LAST_SEEN_RUN):
           LAST_SEEN_RUN = runnr
   
-  for rFile in NEW.keys():
+  for rFile in list(NEW.keys()):
     if len(NEW[rFile]["TFiles"]):
       continue
       
@@ -182,7 +182,7 @@ while True:
       NEW[rFile]["TFiles"].sort(reverse=True)   
   
   #Process files
-  for rFile in NEW.keys():
+  for rFile in list(NEW.keys()):
     if isFileOpen(rFile):
       logme("INFO: File %s is open", rFile)
       continue
@@ -233,7 +233,7 @@ while True:
         break
   
   #Clean up COLLECTING_DIR
-  for rFile in NEW.keys():
+  for rFile in list(NEW.keys()):
     if not  NEW[rFile]["Processed"]:
       continue
 
@@ -253,7 +253,7 @@ while True:
         os.remove(f)
   
   #Determine if the run has been fully processed.
-  for rFile in NEW.keys():
+  for rFile in list(NEW.keys()):
     if NEW[rFile]['Processed']:
       del NEW[rFile]
       

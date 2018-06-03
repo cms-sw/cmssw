@@ -79,7 +79,7 @@ class Alignable:
         self.location = location
 
     def writeXML(self):
-        parameters = self.location.keys()
+        parameters = list(self.location.keys())
         if self.alignabletype[0:2] == "DT":
             parameters.sort(DTsorter)
         else:
@@ -101,7 +101,7 @@ class Position:
         self.location = location
 
     def writeXML(self):
-        parameters = self.location.keys()
+        parameters = list(self.location.keys())
         parameters.sort(sorter)
 
         output = ["<setposition relativeto=\"ideal\" "]

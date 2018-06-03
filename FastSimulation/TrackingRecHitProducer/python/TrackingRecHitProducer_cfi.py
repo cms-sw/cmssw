@@ -85,8 +85,8 @@ trackerStripGaussianResolutions={
     }
 }
 
-for subdetId,trackerLayers in trackerStripGaussianResolutions.iteritems():
-    for trackerLayer, resolutionX in trackerLayers.iteritems():
+for subdetId,trackerLayers in trackerStripGaussianResolutions.items():
+    for trackerLayer, resolutionX in trackerLayers.items():
         pluginConfig = cms.PSet(
             name = cms.string(subdetId+str(trackerLayer)),
             type=cms.string("TrackingRecHitStripGSPlugin"),

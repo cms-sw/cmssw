@@ -109,7 +109,7 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
 
     # what to do when you get to a <startelement>
     def startElement(self, tag, attrib):
-        attrib = dict(attrib.items())
+        attrib = dict(list(attrib.items()))
         if "rawId" in attrib: raise Exception("Please use \"rawIds = false\"")
         if "aa" in attrib: raise Exception("Please use \"survey = false\"")
 
@@ -178,9 +178,9 @@ class MuonGeometry(xml.sax.handler.ContentHandler):
       writeline("<?xml-stylesheet type=\"text/xml\" href=\"MuonAlignment.xsl\"?>\n")
       writeline("<MuonAlignment>\n\n")
 
-      dtkeys = self.dt.keys()
+      dtkeys = list(self.dt.keys())
       dtkeys.sort(dtorder)
-      csckeys = self.csc.keys()
+      csckeys = list(self.csc.keys())
       csckeys.sort(cscorder)
 
       def f(number): return format % number

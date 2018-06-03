@@ -203,7 +203,7 @@ class Electron( Lepton ):
             if name == "NonTrigSpring15MiniAOD" and self.physObj.hasUserFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"):
                 self._mvaRun2[name] =  self.physObj.userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values")
                 return self._mvaRun2[name]
-            if name not in ElectronMVAID_ByName: raise RuntimeError("Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys()))
+            if name not in ElectronMVAID_ByName: raise RuntimeError("Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, list(ElectronMVAID_ByName.keys())))
             if self.associatedVertex == None: raise RuntimeError("You need to set electron.associatedVertex before calling any MVA")
             if self.rho              == None: raise RuntimeError("You need to set electron.rho before calling any MVA")
             # -v---- below is correct in Heppy 74X, but probably not functional anyway

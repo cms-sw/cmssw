@@ -44,7 +44,7 @@ def customiseTrackingNtuple(process):
 
     # remove the validation_stepN and prevalidatin_stepN of phase2 validation...    
     for p in [process.paths_(), process.endpaths_()]:    
-        for pathName, path in p.iteritems():    
+        for pathName, path in p.items():    
             if "prevalidation_step" in pathName:    
                 if len(pathName.replace("prevalidation_step", "")) > 0:    
                     modifier.toReplaceWith(path, cms.Path())    
@@ -53,10 +53,10 @@ def customiseTrackingNtuple(process):
                     modifier.toReplaceWith(path, cms.EndPath())
 
     # Remove all output modules
-    for outputModule in process.outputModules_().itervalues():
-        for path in process.paths_().itervalues():
+    for outputModule in process.outputModules_().values():
+        for path in process.paths_().values():
             path.remove(outputModule)
-        for path in process.endpaths_().itervalues():
+        for path in process.endpaths_().values():
             path.remove(outputModule)
         
 

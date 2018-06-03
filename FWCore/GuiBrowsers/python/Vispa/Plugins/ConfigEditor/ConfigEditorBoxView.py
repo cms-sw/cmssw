@@ -42,7 +42,7 @@ class ConfigEditorBoxView(BoxDecayView):
         return widget
     
     def createConnections(self, operationId, widgetParent):
-        for connection,values in self._connections.items():
+        for connection,values in list(self._connections.items()):
             # Process application event loop in order to accept user input during time consuming drawing operation
             self._updateCounter+=1
             if self._updateCounter>=self.UPDATE_EVERY:

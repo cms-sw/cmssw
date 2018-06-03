@@ -114,7 +114,7 @@ def get():
       return getRunQuality()
 
 def checkRun(runNumber, runQuality):
-   if not str(runNumber) in runQuality.keys():
+   if not str(runNumber) in list(runQuality.keys()):
       print "WARNING : no certification info for run %s"%runNumber
       return(0)
    else:
@@ -126,6 +126,6 @@ def checkRun(runNumber, runQuality):
 if __name__ == "__main__":
    generateJSON()
    qual = get()
-   for key in qual.keys():
+   for key in list(qual.keys()):
       checkRun(int(key),qual)
 

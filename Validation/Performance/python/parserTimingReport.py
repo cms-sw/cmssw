@@ -232,10 +232,10 @@ def processModuleTimeLogData(modules_timelog, groupBy = "module_name"):
 	##	
 	##	times_bymod[mod_name] = mod_data
 	#Let's rewrite this using the dictionary we now have without any logical change (could do with some...):
-	for key in times_bymod.keys():
-		for label in times_bymod[key].keys():
+	for key in list(times_bymod.keys()):
+		for label in list(times_bymod[key].keys()):
 			mod_data={'label':label}
-			for name in times_bymod[key][label].keys():
+			for name in list(times_bymod[key][label].keys()):
 				mod_data.update({'name':name})
 				mod_data['stats']= calc_MinMaxAvgRMS(f_time= lambda x:x[0],f_evt_num=lambda x:x[1],items=times_bymod[key][label][name])
 				mod_data['stats']['num_events']=len(times_bymod[key][label][name])
@@ -254,7 +254,7 @@ def manual_run():
 			  "CMSSW_3_1_0_pre9/TTBAR__RAW2DIGI,RECO_TimingReport.log")
 			 ## "CMSSW_3_1_0_pre10": 
 			 }
-	for release, files in release_files.items():
+	for release, files in list(release_files.items()):
 		print "Processing release: %s" % release
 		for timelog_f in files:
 			print "Processing file: %s" % timelog_f

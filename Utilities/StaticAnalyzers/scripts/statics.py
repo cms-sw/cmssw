@@ -45,7 +45,7 @@ for tfunc in sorted(toplevelfuncs):
 			for i in range(0,len(path)-1) :			
 				print re.sub(farg,"()",path[i])+G[path[i]][path[i+1]]['kind'],
 			print re.sub(farg,"()",path[i+1])+"' ,",
-			for key in  G[tfunc].keys() :
+			for key in  list(G[tfunc].keys()) :
 				if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
 					print "'"+re.sub(farg,"()",tfunc)+"' overrides '"+re.sub(farg,"()",key)+"'",
 			print
@@ -54,7 +54,7 @@ for tfunc in sorted(toplevelfuncs):
 			for i in range(0,len(path)-1) :			
 				print re.sub(farg,"()",path[i])+G[path[i]][path[i+1]]['kind'],
 			print re.sub(farg,"()",path[i+1])+"' is accessed ,",
-			for key in  G[tfunc].keys() :
+			for key in  list(G[tfunc].keys()) :
 				if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
 					print "'"+re.sub(farg,"()",tfunc)+"' overrides '"+re.sub(farg,"()",key)+"'",
 			print

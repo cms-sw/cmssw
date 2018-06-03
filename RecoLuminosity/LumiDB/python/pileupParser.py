@@ -5,7 +5,7 @@ class pileupParser(object):
         self.__result={}
         self.__strresult={}
         strresult=json.loads(selectStr)
-        for k,v in strresult.items():
+        for k,v in list(strresult.items()):
 #            expandedvalues=[]
 #            print v
             ldict={}
@@ -31,7 +31,7 @@ class pileupParser(object):
             self.__result[int(k)]=ldict
 #            self.__strresult[k]=[str(x) for x in expandedvalues]
     def runs(self):
-        return self.__result.keys()
+        return list(self.__result.keys())
     def runsandls(self):
         '''return expanded {run:lslist}
         '''
@@ -41,7 +41,7 @@ class pileupParser(object):
         '''
         return self.__strresult
     def numruns(self):
-        return len(self.__result.keys())
+        return len(list(self.__result.keys()))
     def numls(self,run):
         return len(self.__result[run])
 if __name__ == "__main__":

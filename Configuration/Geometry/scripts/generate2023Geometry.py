@@ -15,12 +15,12 @@ def generateGeom(detectorTuple, options):
     # reverse dict search if overall D# specified
     if options.v_detector>0:
         detectorVersion = "D"+str(options.v_detector)
-        if detectorVersion in detectorVersionDict.values():
-            detectorTuple = detectorVersionDict.keys()[detectorVersionDict.values().index(detectorVersion)]
+        if detectorVersion in list(detectorVersionDict.values()):
+            detectorTuple = list(detectorVersionDict.keys())[list(detectorVersionDict.values()).index(detectorVersion)]
         else:
             print "Unknown detector "+detectorVersion
             sys.exit(1)
-    elif detectorTuple in detectorVersionDict.keys():
+    elif detectorTuple in list(detectorVersionDict.keys()):
         detectorVersion = detectorVersionDict[detectorTuple]
     else:
         if not doTest: print "Detector "+str(detectorTuple)+" not found in dictionary, using "+("default" if options.detectorVersionManual==detectorVersionDefault else "provided")+" version number "+str(detectorVersion)
@@ -83,7 +83,7 @@ def generateGeom(detectorTuple, options):
         if section==2:
             xmlFile.write("    )+"+"\n"+"    cms.vstring("+"\n")
         for iDict,aDict in enumerate(allDicts):
-            if section in aDict[detectorTuple[iDict]].keys():
+            if section in list(aDict[detectorTuple[iDict]].keys()):
                 xmlFile.write('\n'.join([ "        '"+aLine+"'," for aLine in aDict[detectorTuple[iDict]][section] ])+"\n")
     # postamble
     xmlFile.write("    ),"+"\n"+"    rootNodeName = cms.string('cms:OCMS')"+"\n"+")"+"\n")
@@ -94,7 +94,7 @@ def generateGeom(detectorTuple, options):
     # always need XML
     simFile.write("from Geometry.CMSCommonData."+os.path.basename(xmlName).replace(".py","")+" import *"+"\n")
     for iDict,aDict in enumerate(allDicts):
-        if "sim" in aDict[detectorTuple[iDict]].keys():
+        if "sim" in list(aDict[detectorTuple[iDict]].keys()):
             simFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["sim"] ])+"\n")
     simFile.close()
 
@@ -103,7 +103,7 @@ def generateGeom(detectorTuple, options):
     # always need sim
     recoFile.write("from Configuration.Geometry."+os.path.basename(simName).replace(".py","")+" import *"+"\n\n")
     for iDict,aDict in enumerate(allDicts):
-        if "reco" in aDict[detectorTuple[iDict]].keys():
+        if "reco" in list(aDict[detectorTuple[iDict]].keys()):
             recoFile.write("# "+aDict["name"]+"\n")
             recoFile.write('\n'.join([ aLine for aLine in aDict[detectorTuple[iDict]]["reco"] ])+"\n\n")
     recoFile.close()
@@ -118,14 +118,14 @@ def generateGeom(detectorTuple, options):
         eraLine = ""
         eraLineItems = []
         for iDict,aDict in enumerate(allDicts):
-            if "era" in aDict[detectorTuple[iDict]].keys():
+            if "era" in list(aDict[detectorTuple[iDict]].keys()):
                 eraLineItems.append(aDict[detectorTuple[iDict]]["era"])
         eraLine += ", ".join([ eraLineItem for eraLineItem in eraLineItems ])
         print "The Era for this detector should contain:"
         print eraLine
 
         # specify GeometryConf
-        if not 'Extended2023'+detectorVersion in GeometryConf.keys():
+        if not 'Extended2023'+detectorVersion in list(GeometryConf.keys()):
             print "Please add this line in Configuration/StandardSequences/python/GeometryConf.py:"
             print "    'Extended2023"+detectorVersion+"' : 'Extended2023"+detectorVersion+",Extended2023"+detectorVersion+"Reco',"
 
@@ -138,7 +138,7 @@ def generateGeom(detectorTuple, options):
         if not filecmp.cmp(recoName,os.path.join(simrecoDir,recoName)):
             errorList.append(recoName+" differs");
         # test for Configuration/StandardSequences
-        if not 'Extended2023'+detectorVersion in GeometryConf.keys():
+        if not 'Extended2023'+detectorVersion in list(GeometryConf.keys()):
             errorList.append('Extended2023'+detectorVersion+" missing from GeometryConf")
         # test for Geometry/CMSCommonData
         if not filecmp.cmp(xmlName,os.path.join(xmlDir,xmlName)):
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     
     # check options
     if options.doList and not options.doTest:
-        pprint(sorted(detectorVersionDict.items(),key=operator.itemgetter(1)))
+        pprint(sorted(list(detectorVersionDict.items()),key=operator.itemgetter(1)))
         sys.exit(0)
     elif options.doTest:
         # list of errors

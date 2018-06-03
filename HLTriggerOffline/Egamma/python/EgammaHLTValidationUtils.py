@@ -579,7 +579,7 @@ def findEgammaPaths(process):
                "doublePhoton":   [],
                }
     
-    for path_name, path in process.paths.items():
+    for path_name, path in list(process.paths.items()):
 
         # print "XX",path_name.__class__,path.__class__
 

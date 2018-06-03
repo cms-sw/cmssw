@@ -192,7 +192,7 @@ maxx = -99999.
 minx = 99999.
 maxy = -99999.
 miny = 99999.
-for id,triggercell in triggercells.items():
+for id,triggercell in list(triggercells.items()):
     x = triggercell.center.x
     y = triggercell.center.y
     if x>maxx: maxx=x
@@ -211,7 +211,7 @@ drawstyle = "lf"
 boxes = []
 linesTrigger = []
 linesModule = []
-for id,module in modules.items():
+for id,module in list(modules.items()):
     modulelines = []
     for triggercell in module.cells:
         triggercelllines = []

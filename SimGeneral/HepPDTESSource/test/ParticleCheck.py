@@ -162,25 +162,25 @@ print 'G4ParticleTable contains ',len(G4ParticleTable),'elements'
 print 'G4ParticleTablePDG contains ',len(G4ParticleTablePDG),'elements'
 if len(G4ParticleTable)>len(G4ParticleTablePDG):
     print "The following values were in the G4ParticleTable dictionary but not in the G4ParticleTablePDG one (multiple entries with different names but the same PDG code):"
-    for value in G4ParticleTable.values():
-        if value not in G4ParticleTablePDG.values():
+    for value in list(G4ParticleTable.values()):
+        if value not in list(G4ParticleTablePDG.values()):
             print value
 elif len(G4ParticleTablePDG)>len(G4ParticleTable):
     print "The following values were in the G4ParticleTablePDG dictionary but not in the G4ParticleTable one (multiple entries with different PDG codes but the same Particle Name):"
-    for value in G4ParticleTablePDG.values():
-        if value not in G4ParticleTable.values():
+    for value in list(G4ParticleTablePDG.values()):
+        if value not in list(G4ParticleTable.values()):
             print value
 print 'HepPdtTable contains ',len(HepPdtTable),'elements'
 print 'HepPdtTablePDG contains ',len(HepPdtTablePDG),'elements'
 if len(HepPdtTable)>len(HepPdtTablePDG):
     print "The following values were in the HepPdtTable dictionary but not in the HepPdtTablePDG one (multiple entries with different names but the same PDG code):"
-    for value in HepPdtTable.values():
-        if value not in HepPdtTablePDG.values():
+    for value in list(HepPdtTable.values()):
+        if value not in list(HepPdtTablePDG.values()):
             print value
 elif len(HepPdtTablePDG)>len(HepPdtTable):
     print "The following values were in the HepPdtTablePDG dictionary but not in the HepPdtTable one (multiple entries with different PDG codes but the same Particle Name):"
-    for value in HepPdtTablePDG.values():
-        if value not in HepPdtTable.values():
+    for value in list(HepPdtTablePDG.values()):
+        if value not in list(HepPdtTable.values()):
             print value
 
 #Comparison via dictionaries!
@@ -212,8 +212,8 @@ WriteOutHtml(NoLifeTimePDGFileHtml,['PDG ID', 'HepPdt Particle Name','G4 Particl
 #MatchingPDGctauFileHtml.writelines(['<html>\n','<body>\n','<table align="center", border=2>\n'])
 #WriteOutHtml(MatchingPDGctauFileHtml,['PDG ID', 'HepPdt Particle Name','G4 Particle Name',' HepPdt ctau [mm]','G4 ctau [mm]','ctau Diff [mm]','ctau Diff %'])
 
-for pdgcode in HepPdtTablePDG.keys():
-    if pdgcode in G4ParticleTablePDG.keys():
+for pdgcode in list(HepPdtTablePDG.keys()):
+    if pdgcode in list(G4ParticleTablePDG.keys()):
         #Save the PDG code matching particles Particle Name in MatchingPDG list
         MatchingPDG+=[HepPdtTablePDG[pdgcode]['Particle Name']]
         ######################################################################################

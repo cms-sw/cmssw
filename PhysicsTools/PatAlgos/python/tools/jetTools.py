@@ -828,7 +828,7 @@ class AddJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(list(supportedBtagDiscr.keys())+list(supportedMetaDiscr.keys())),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \
@@ -1234,7 +1234,7 @@ class SwitchJetCollection(ConfigToolBase):
         applied. If you are not interested in MET(Type1) corrections to this new patJet collection pass None as third argument of the python tuple.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging in general the btag discriminators is all relevant \
         information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. If this list is empty no btag \
-        discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        discriminator information will be added to your new patJet collection.", allowedValues=(list(supportedBtagDiscr.keys())+list(supportedMetaDiscr.keys())),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects conatin all relevant information from which all discriminators of a certain \
         type have been calculated. Note that this information on the one hand can be very space consuming and on the other hand is not necessary to access the btag discriminator \
         information that has been derived from it. Only in very special cases the btagInfos might really be needed in your analysis. Add here all btagInfos, that you are interested \
@@ -1447,7 +1447,7 @@ class UpdateJetCollection(ConfigToolBase):
         and \'type-2\' are not case sensitive.", tuple, acceptNoneValue=True)
         self.addParameter(self._defaultParameters,'btagDiscriminators',['None'], "If you are interested in btagging, in most cases just the labels of the btag discriminators that \
         you are interested in is all relevant information that you need for a high level analysis. Add here all btag discriminators, that you are interested in as a list of strings. \
-        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(supportedBtagDiscr.keys()+supportedMetaDiscr.keys()),Type=list)
+        If this list is empty no btag discriminator information will be added to your new patJet collection.", allowedValues=(list(supportedBtagDiscr.keys())+list(supportedMetaDiscr.keys())),Type=list)
         self.addParameter(self._defaultParameters,'btagInfos',['None'], "The btagInfos objects contain all relevant information from which all discriminators of a certain \
         type have been calculated. You might be interested in keeping this information for low level tests or to re-calculate some discriminators from hand. Note that this information \
         on the one hand can be very space consuming and that it is not necessary to access the pre-calculated btag discriminator information that has been derived from it. Only in very \
@@ -1804,7 +1804,7 @@ def unsupportedJetAlgorithm(obj):
     sys.stderr.write("-------------------------------------------------------\n")
     sys.stderr.write(" Error: Unsupported jet algorithm detected.\n")
     sys.stderr.write("        The supported algorithms are:\n")
-    for key in supportedJetAlgos.keys():
+    for key in list(supportedJetAlgos.keys()):
         sys.stderr.write("        " + key.upper() + ", " + key.lower() + ": " + supportedJetAlgos[key] + "\n")
     sys.stderr.write("-------------------------------------------------------\n")
     raise KeyError("Unsupported jet algorithm used in '"+obj._label+"'")

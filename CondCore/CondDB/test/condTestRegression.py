@@ -197,16 +197,16 @@ class CondRegressionTester(object):
           print '='*80
           print "going to write DBs ..."
           self.runSelf('write')
-          for rel in writers.keys():
+          for rel in list(writers.keys()):
              for arch,dbName in writers[rel]:
                  self.run(rel, arch, 'write', dbName)
           
           # now try to read back with all reference releases all the DBs written before ...
           print '='*80
           print "going to read back DBs ..."
-          for rel in readers.keys():
+          for rel in list(readers.keys()):
              for arch in readers[rel]:
-                 for writer in self.dbList.keys(): # for any given rel/arch we check all written DBs
+                 for writer in list(self.dbList.keys()): # for any given rel/arch we check all written DBs
                      dbName = self.dbList[writer]
                      try:
                          self.run(rel, arch, 'read', dbName)
@@ -215,14 +215,14 @@ class CondRegressionTester(object):
                      except:
                          status = False
                          print "rel %s reading %s FAILED." % (rel, writer)
-                     if writer not in self.status.keys():
+                     if writer not in list(self.status.keys()):
                          key = '%s [%s]' %(rel,arch)
                          self.status[writer] = { key : status }
                      else:
                          self.status[writer]['%s [%s]' %(rel,arch)] = status 
 
           # ... and also with this IB/devArea
-          for writer in self.dbList.keys(): # for any given rel/arch we check all written DBs
+          for writer in list(self.dbList.keys()): # for any given rel/arch we check all written DBs
              dbName = self.dbList[writer]
              try:
                 self.runSelf('read', dbName)
@@ -231,7 +231,7 @@ class CondRegressionTester(object):
              except:
                 status = False
                 print "rel %s reading %s FAILED." % (self.rel, writer)
-             if writer not in self.status.keys():
+             if writer not in list(self.status.keys()):
                  self.status[writer] = { 'SELF': status }
              else:
                  self.status[writer]['SELF'] = status 

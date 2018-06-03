@@ -40,7 +40,7 @@ def assignModulesToSeqs():
 if __name__ == "__main__":
 	#print
 	(sequenceWithModules, sequenceWithModulesString) = assignModulesToSeqs()
-	for seq, mods  in sequenceWithModules.items():
+	for seq, mods  in list(sequenceWithModules.items()):
 	#for seq, mods  in sequenceWithModulesString.items():
 	    print "sequence: %s" % (seq)
 	    for module in mods:

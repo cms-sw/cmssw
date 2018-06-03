@@ -192,7 +192,7 @@ Configuration[ruleName]['exceptFilter'] = ['EDM_PLUGIN','RIVET_PLUGIN', 'GENREFL
 
 rulesDescription  = "Rule number    Description\n"
 rulesDescription += "----------------------------------------------------------------------------------------\n"
-for key, value in Configuration.items():
+for key, value in list(Configuration.items()):
     rulesDescription += "     %s         %s\n" %(key, value['description'])
 
 # --------------------------------------------------------------------------------

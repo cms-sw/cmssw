@@ -95,17 +95,17 @@ if __name__ == '__main__':
 
     # loop over pileup JSON as source, since it should have more lumi sections
 
-    for (run, LSPUlist) in sorted (inputPileupRange.iteritems() ):
+    for (run, LSPUlist) in sorted (inputPileupRange.items() ):
         # now, look for matching run, then match lumi sections
         #print "searching for run %d" % (run)
-        if run in inputRange.keys():
+        if run in list(inputRange.keys()):
             OUTPUTLINE+= ('"%d":' % run )
             OUTPUTLINE+= ' ['
             
             lslist = inputRange[run]
             #print "LSPUlist", LSPUlist
             for LSnumber in LSPUlist:
-                if LSnumber in lslist.keys():  # do we find a match in pixel list for this LS?
+                if LSnumber in list(lslist.keys()):  # do we find a match in pixel list for this LS?
                     PUlumiInfo = LSPUlist[LSnumber]
                     PixlumiInfo = lslist[LSnumber]
                     #print "found LS %d" % (LSnumber)

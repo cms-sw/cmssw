@@ -24,7 +24,7 @@ class JsonExport(FileExportPlugin):
     #pset = lambda pdict: [[k,repr(v).split('(',1)[0],(repr(v).split('(',1)[1][:-1])] for k,v in pdict.items()]
     def pset(pdict):
       result = []
-      for k,v in pdict.items():
+      for k,v in list(pdict.items()):
         if v.pythonTypeName()=='cms.PSet' or v.pythonTypeName()=='cms.untracked.PSet':
           result.append([k,v.pythonTypeName(),'pset',pset(v.parameters_())])
         elif v.pythonTypeName()=='cms.VPSet' or v.pythonTypeName()=='cms.untracked.VPSet':

@@ -495,7 +495,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         
         #if empty correction level, no need to try something
         for cor in correctionLevel:
-            if cor not in corNames.keys():
+            if cor not in list(corNames.keys()):
                 if cor != "":
                     print "ERROR : ",cor," is not a proper MET correction name! aborting the MET correction production"
                 return patMetCorrectionSequence, metModName
@@ -525,7 +525,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 configtools.cloneProcessingSnippet(process, getattr(process,"patPFMetT2SmearCorrSequence"), postfix, addToTask = True)
            
         corModules = {}
-        for mod in corModNames.keys():
+        for mod in list(corModNames.keys()):
             corModules[mod] = getattr(process, corModNames[mod] )
                   
         corTags = {
@@ -644,7 +644,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             patMetCorrectionSequence = getattr(process, "patMetCorrectionSequence"+postfix)#cms.Sequence()
             
             #setattr(process, sequenceName+postfix,patMetCorrectionSequence)
-            for cor in corModNames.keys():
+            for cor in list(corModNames.keys()):
                 if not configtools.contains(patMetCorrectionSequence, corTags[cor][0]) and cor in correctionLevel:
                     patMetCorrectionSequence += corModules[cor]
                     
@@ -655,7 +655,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #and finally add the met producers in the sequence for scheduled mode
         if produceIntermediateCorrections:
             interMets = self.addIntermediateMETs(process, metType, correctionLevel, corScheme, corTags,corNames, postfix)
-            for met in interMets.keys():
+            for met in list(interMets.keys()):
                 addToProcessAndTask(met, interMets[met], process, task)
                 patMetCorrectionSequence += getattr(process, met)
 
@@ -741,7 +741,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
             metJERUncModules = self.getVariations(process, metModName, "Jet",preId, jetCollection, "Res", metUncSequence, postfix=postfix )
             
-            for mod in metJERUncModules.keys():
+            for mod in list(metJERUncModules.keys()):
                 addToProcessAndTask(mod, metJERUncModules[mod], process, task)
                 shiftedModuleSequence += getattr(process, mod)
 
@@ -801,14 +801,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                               "Tau":tauCollection,
                               }
         
-        for obj in objectCollections.keys():
+        for obj in list(objectCollections.keys()):
             if not isValidInputTag(objectCollections[obj]): # or objectCollections[obj]=="":
                 print "INFO : %s collection %s does not exists, no energy scale shifting will be performed in MET uncertainty tools" %(obj, objectCollections[obj])
             else:
                 metObjUncModules = self.getVariations(process, metModName, obj,"", objectCollections[obj], "En", metUncSequence, jetUncInfos, postfix )
                 
                 #adding the shifted MET produced to the proper patMetModuleSequence
-                for mod in metObjUncModules.keys():
+                for mod in list(metObjUncModules.keys()):
                     addToProcessAndTask(mod, metObjUncModules[mod], process, task)
                     shiftedModuleSequence += getattr(process, mod)
                     
@@ -1018,7 +1018,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # remove the postfix to put it at the end
         shiftedMetProducers = {}
         baseName = self.removePostfix(metModName, postfix)
-        for mod in shiftedCollModules.keys():
+        for mod in list(shiftedCollModules.keys()):
             modName = baseName+identifier+varType+mod+postfix
             shiftedMETModule = getattr(process, metModName).clone()
             shiftedMetProducers[ modName ] = shiftedMETModule
@@ -1046,7 +1046,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         baseName = self.removePostfix(metModName, postfix)
        
         #adding the shifted collection producers to the sequence, create the shifted MET correction Modules and add them as well
-        for mod in shiftedCollModules.keys():
+        for mod in list(shiftedCollModules.keys()):
             modName = "shiftedPat"+preId+identifier+varType+mod+postfix
             #MM: FIXME MVA
             #if  "MVA" in metModName and identifier == "Jet": #dummy fix

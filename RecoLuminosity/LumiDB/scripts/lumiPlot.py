@@ -314,16 +314,16 @@ if __name__=='__main__':
         (irunlsdict,iresults)=parseInputFiles(options.inputfile)
         #apply further filter only if specified
         if options.fillnum or options.begin or options.end or options.amodetag or options.beamenergy:
-            rruns=[val for val in runlist if val in irunlsdict.keys()]
-            for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+            rruns=[val for val in runlist if val in list(irunlsdict.keys())]
+            for selectedrun in list(irunlsdict.keys()):#if there's further filter on the runlist,clean input dict
                 if selectedrun not in rruns:
                     del irunlsdict[selectedrun]
         else:
-            rruns=irunlsdict.keys()
+            rruns=list(irunlsdict.keys())
     else:
         for run in runlist:
             irunlsdict[run]=None
-        rruns=irunlsdict.keys()
+        rruns=list(irunlsdict.keys())
             
     if options.verbose:
         print '[INFO] runs from db: ',irunlsdict
@@ -363,7 +363,7 @@ if __name__=='__main__':
         if not normname:
             normmap=normDML.normIdByType(session.nominalSchema(),lumitype='HF',defaultonly=True)
             if len(normmap):
-                normname=normmap.keys()[0]
+                normname=list(normmap.keys())[0]
                 normid=normmap[normname]
         else:
             normid=normDML.normIdByName(session.nominalSchema(),normname)
@@ -408,10 +408,10 @@ if __name__=='__main__':
                     rawdata.setdefault('Recorded',[]).append((run,sum([t[6] for t in rundata if t[6]])))
                     for perlsdata in rundata:
                         effdict=perlsdata[8]
-                        pathnames=effdict.keys()
+                        pathnames=list(effdict.keys())
                         for thispath in pathnames:
                             pathdict.setdefault(thispath,[]).append(effdict[thispath][3])
-                    for thispath in pathdict.keys():
+                    for thispath in list(pathdict.keys()):
                         labels.append(thispath)
                         rawdata.setdefault(thispath,[]).append((run,sum([t for t in pathdict[thispath] if t])))
         if options.yscale=='linear':
@@ -437,10 +437,10 @@ if __name__=='__main__':
                         rawdata.setdefault('Recorded',[]).append((fill,run,sum([t[6] for t in rundata if t[6]])))
                         for perlsdata in rundata:
                             effdict=perlsdata[8]
-                            pathnames=effdict.keys()
+                            pathnames=list(effdict.keys())
                             for thispath in pathnames:
                                 pathdict.setdefault(thispath,[]).append(effdict[thispath][3])
-                        for thispath in pathdict.keys():
+                        for thispath in list(pathdict.keys()):
                             labels.append(thispath)
                             rawdata.setdefault(thispath,[]).append((fill,run,sum([t for t in pathdict[thispath] if t])))
         if options.yscale=='linear':
@@ -464,10 +464,10 @@ if __name__=='__main__':
                     rawdata.setdefault('Recorded',[]).append((run,rundata[0][2],rundata[-1][2],sum([t[6] for t in rundata if t[6]])))
                     for perlsdata in rundata:
                         effdict=perlsdata[8]
-                        pathnames=effdict.keys()
+                        pathnames=list(effdict.keys())
                         for thispath in pathnames:
                             pathdict.setdefault(thispath,[]).append(effdict[thispath][3])
-                    for thispath in pathdict.keys():
+                    for thispath in list(pathdict.keys()):
                         labels.append(thispath)
                         rawdata.setdefault(thispath,[]).append((run,rundata[0][2],rundata[-1][2],sum([t for t in pathdict[thispath] if t])))
         if options.yscale=='linear':
@@ -533,12 +533,12 @@ if __name__=='__main__':
             m.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='linear',referenceLabel=referenceLabel)
             mlog.plotPeakPerday_Time(rawdata,resultlines,minTime=begtime,maxTime=endtime,textoutput=outtextfilename,yscale='log',referenceLabel=referenceLabel)
     if options.action=='inst':
-        thisfillnumber=fillrunMap.keys()[0]
+        thisfillnumber=list(fillrunMap.keys())[0]
         starttime=0
         stoptime=0
         rawxdata=[]
         rawydata={}
-        for run,rundata in lumibyls.items():
+        for run,rundata in list(lumibyls.items()):
             rundata.sort()
             totlumils=0
             totcmsls=0

@@ -41,7 +41,7 @@ if __name__ == "__main__":
       continue
 
     messages = []
-    for sub in SUBSYSTEMS.keys():
+    for sub in list(SUBSYSTEMS.keys()):
 
       if not ss == None and not sub == ss:
         continue
@@ -53,7 +53,7 @@ if __name__ == "__main__":
       skeys = {}
       sfolders = []
 
-      for folder in FOLDERS.keys():
+      for folder in list(FOLDERS.keys()):
 
         if folder not in values[sub]:
           messages.append("%s: missing folder EventInfo/%s" % (sub, folder))
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         if 'Summary' not in values[sub][folder]:
           messages.append("%s: missing summary value EventInfo/%s" % (sub, FOLDERS[folder][1]))
 
-        for key in values[sub][folder].keys():
+        for key in list(values[sub][folder].keys()):
           if key == 'Summary':
             continue
           if key not in skeys:

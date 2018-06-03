@@ -21,19 +21,19 @@ parser.add_option("--perKey",    action="store_true",default=False,dest="perKey"
 from queryRR import queryRR
 
 runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
-runs = runKeys.keys(); runs.sort()
+runs = list(runKeys.keys()); runs.sort()
 
 if options.perKey:
  	runsPerKey={}
 	for run in runs:
 		key = runKeys[run]
-		if not key in runsPerKey.keys():
+		if not key in list(runsPerKey.keys()):
 			tmpruns=[]
 			tmpruns.append(run)
 			runsPerKey[key] = tmpruns
 		else:
 			runsPerKey[key].append(run)
-	theKeys = runsPerKey.keys()
+	theKeys = list(runsPerKey.keys())
 	for key in theKeys:
 		theruns = runsPerKey[key]
 		topr=""

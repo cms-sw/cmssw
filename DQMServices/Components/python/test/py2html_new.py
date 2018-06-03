@@ -193,7 +193,7 @@ except:
 out.write(preamble())
 out.write( '<h1>Paths</h1>\n')
 v = visitor(out)
-for k in a.process.paths.keys():
+for k in list(a.process.paths.keys()):
     out.write('<H2>%s</H2>\n' % k)
     a.process.paths[k].visit(v)
     v.reset()
@@ -201,7 +201,7 @@ for k in a.process.paths.keys():
 out.write( '<h1>End Paths</h1>\n')
 v.reset()
 
-for k in a.process.endpaths.keys():
+for k in list(a.process.endpaths.keys()):
     out.write('<H2>%s</H2>\n' % k)
     a.process.endpaths[k].visit(v)
     v.reset()

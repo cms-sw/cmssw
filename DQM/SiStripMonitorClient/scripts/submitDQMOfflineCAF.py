@@ -270,7 +270,7 @@ def Func_ExitBool(int_index):
   """ Function Func_ExitBool():
   Exit after wrong assignment of bool option
   """
-  print '> submitDQMOfflineCAF.py > option %s expects 0/1, FALSE/TRUE, False/True or false/true' %(DICT_optionLetters.items()[int_index])
+  print '> submitDQMOfflineCAF.py > option %s expects 0/1, FALSE/TRUE, False/True or false/true' %(list(DICT_optionLetters.items())[int_index])
   Func_Exit()
 
 ## Function Func_MkDir()
@@ -373,11 +373,11 @@ if bool_standBy:
 # Correct arguments' dictionary
 
 dict_arguments = Dict_arguments
-for str_key, str_value in dict_arguments.items():
-  if str_key in DICT_functionLetters.keys():
+for str_key, str_value in list(dict_arguments.items()):
+  if str_key in list(DICT_functionLetters.keys()):
     del Dict_arguments[str_key]
     Dict_arguments[DICT_functionLetters[str_key]] = str_value
-  if str_key in DICT_optionLetters.keys():
+  if str_key in list(DICT_optionLetters.keys()):
     del Dict_arguments[str_key]
     Dict_arguments[DICT_optionLetters[str_key]] = str_value
     

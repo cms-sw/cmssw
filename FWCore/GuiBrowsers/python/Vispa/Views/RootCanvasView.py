@@ -92,8 +92,8 @@ class RootCanvasView(AbstractView, QWidget):
       elif isinstance(object, pxl.astro.RegionOfInterest) or isinstance(object, pxl.astro.UHECRSource):
         self.p = []
         self.p.append(ROOT.TMarker(object.getLongitude(), object.getLatitude(), 3))
-        logging.debug(__name__ + 'DrawROI with ' + str(len(object.getSoftRelations().getContainer().items())) + ' UHECR')
-        for key, item in object.getSoftRelations().getContainer().items():
+        logging.debug(__name__ + 'DrawROI with ' + str(len(list(object.getSoftRelations().getContainer().items()))) + ' UHECR')
+        for key, item in list(object.getSoftRelations().getContainer().items()):
           
           uhecr = pxl.astro.toUHECR(self.basiccontainer.getById(item))
           if isinstance(uhecr,pxl.astro.UHECR):

@@ -20,8 +20,8 @@ class difference :
         modulesfile1=[]
         modulesfile2=[]
         print '\nList of modules present in both the files with different parameter values\n'
-        for i in module1.keys():
-            for j in module2.keys():
+        for i in list(module1.keys()):
+            for j in list(module2.keys()):
                 if (i==j) and (module1[i]!=module2[j]):
                     print 'Module: '+'"'+i+'"'
                     d=difference(self.verbose)
@@ -38,7 +38,7 @@ class difference :
     def onefilemodules(self,module1,module2,string):
         "Searches for modules present only in one of the two files"
         onlyonefile=False
-        for i in module1.keys():
+        for i in list(module1.keys()):
             if i not in module2:
                 if not onlyonefile:
                     print '\nModule present only in the '+string+ ' file:'+'\n'

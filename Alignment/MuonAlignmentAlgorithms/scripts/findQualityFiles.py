@@ -328,7 +328,7 @@ def getJSONGoodRuns():
     jsondict = json.load(jsonfile)
 
     runs_good = []
-    for run in jsondict.keys(): runs_good.append(int(run))
+    for run in list(jsondict.keys()): runs_good.append(int(run))
     runs_good.sort()
 
     #mruns=[]

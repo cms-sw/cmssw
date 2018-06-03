@@ -275,7 +275,7 @@ class DBSXMLHandler(xml.sax.handler.ContentHandler):
 
         results_valid = True
 
-        res_names = self.results.keys()
+        res_names = list(self.results.keys())
         if len(res_names) > 1:
             for res_name in res_names[1:]:
                 res_tmp = self.results[res_name]
@@ -357,7 +357,7 @@ class CMSHarvester(object):
         self.frontier_connection_name["refhists"] = "frontier://" \
                                                     "FrontierProd/"
         self.frontier_connection_overridden = {}
-        for key in self.frontier_connection_name.keys():
+        for key in list(self.frontier_connection_name.keys()):
             self.frontier_connection_overridden[key] = False
 
         # This contains information specific to each of the harvesting
@@ -839,7 +839,7 @@ class CMSHarvester(object):
         frontier_type = opt_str.split("-")[-1]
         if frontier_type == "connection":
             # Main option: change all connection strings.
-            frontier_types = self.frontier_connection_name.keys()
+            frontier_types = list(self.frontier_connection_name.keys())
         else:
             frontier_types = [frontier_type]
 
@@ -1442,7 +1442,7 @@ class CMSHarvester(object):
 
         # Now call the checker for all (unique) subdirs.
         castor_dirs = []
-        for (dataset_name, runs) in self.datasets_to_use.iteritems():
+        for (dataset_name, runs) in self.datasets_to_use.items():
 
 	    for run in runs:
                 castor_dirs.append(self.datasets_information[dataset_name] \
@@ -2307,7 +2307,7 @@ class CMSHarvester(object):
         ###
 
         # Dump some info about the Frontier connections used.
-        for (key, value) in self.frontier_connection_name.iteritems():
+        for (key, value) in self.frontier_connection_name.items():
             frontier_type_str = "unknown"
             if key == "globaltag":
                 frontier_type_str = "the GlobalTag"
@@ -2463,7 +2463,7 @@ class CMSHarvester(object):
         # DEBUG DEBUG DEBUG end
 
         # Extract the results.
-        datasets = handler.results.values()[0]
+        datasets = list(handler.results.values())[0]
 
         # End of dbs_resolve_dataset_name.
         return datasets
@@ -2506,7 +2506,7 @@ class CMSHarvester(object):
         assert(handler.check_results_validity()), "ERROR The DBSXMLHandler screwed something up!"
         # DEBUG DEBUG DEBUG end
 
-        cmssw_version = handler.results.values()[0]
+        cmssw_version = list(handler.results.values())[0]
 
         # DEBUG DEBUG DEBUG
         assert len(cmssw_version) == 1
@@ -2612,7 +2612,7 @@ class CMSHarvester(object):
         assert(handler.check_results_validity()), "ERROR The DBSXMLHandler screwed something up!"
         # DEBUG DEBUG DEBUG end
 
-        runs = handler.results.values()[0]
+        runs = list(handler.results.values())[0]
         # Turn strings into integers.
         runs = sorted([int(i) for i in runs])
 
@@ -2664,7 +2664,7 @@ class CMSHarvester(object):
         assert(handler.check_results_validity()), "ERROR The DBSXMLHandler screwed something up!"
         # DEBUG DEBUG DEBUG end
 
-        globaltag = handler.results.values()[0]
+        globaltag = list(handler.results.values())[0]
 
         # DEBUG DEBUG DEBUG
         assert len(globaltag) == 1
@@ -2714,7 +2714,7 @@ class CMSHarvester(object):
         assert(handler.check_results_validity()), "ERROR The DBSXMLHandler screwed something up!"
         # DEBUG DEBUG DEBUG end
 
-        datatype = handler.results.values()[0]
+        datatype = list(handler.results.values())[0]
 
         # DEBUG DEBUG DEBUG
         assert len(datatype) == 1
@@ -3195,9 +3195,9 @@ class CMSHarvester(object):
         # Remove any information for files that are not available
         # anywhere. NOTE: After introducing the ugly hack above, this
         # is a bit redundant, but let's keep it for the moment.
-        for run_number in files_info.keys():
+        for run_number in list(files_info.keys()):
             files_without_sites = [i for (i, j) in \
-                                   files_info[run_number].items() \
+                                   list(files_info[run_number].items()) \
                                    if len(j[1]) < 1]
             if len(files_without_sites) > 0:
                 self.logger.warning("Removing %d file(s)" \
@@ -3211,8 +3211,8 @@ class CMSHarvester(object):
 
         # And another bit of a kludge.
         num_events_catalog = {}
-        for run_number in files_info.keys():
-            site_names = list(set([j for i in files_info[run_number].values() for j in i[1]]))
+        for run_number in list(files_info.keys()):
+            site_names = list(set([j for i in list(files_info[run_number].values()) for j in i[1]]))
 
             # NOTE: The term `mirrored' does not have the usual
             # meaning here. It basically means that we can apply
@@ -3226,12 +3226,12 @@ class CMSHarvester(object):
                 # containing exactly the full list of files for this
                 # dataset that DBS knows about. In that case we just
                 # use only that site.
-                all_file_names = files_info[run_number].keys()
+                all_file_names = list(files_info[run_number].keys())
                 all_file_names = set(all_file_names)
                 sites_with_complete_copies = []
                 for site_name in site_names:
                     files_at_site = [i for (i, (j, k)) \
-                                     in files_info[run_number].items() \
+                                     in list(files_info[run_number].items()) \
                                      if site_name in k]
                     files_at_site = set(files_at_site)
                     if files_at_site == all_file_names:
@@ -3270,7 +3270,7 @@ class CMSHarvester(object):
                     # Remove any references to incomplete sites if we
                     # have at least one complete site (and if there
                     # are incomplete sites).
-                    for (file_name, (i, sites)) in files_info[run_number].items():
+                    for (file_name, (i, sites)) in list(files_info[run_number].items()):
                         complete_sites = [site for site in sites \
                                           if site in sites_with_complete_copies]
                         files_info[run_number][file_name] = (i, complete_sites)
@@ -3278,7 +3278,7 @@ class CMSHarvester(object):
 
             self.logger.debug("  for run #%d:" % run_number)
             num_events_catalog[run_number] = {}
-            num_events_catalog[run_number]["all_sites"] = sum([i[0] for i in files_info[run_number].values()])
+            num_events_catalog[run_number]["all_sites"] = sum([i[0] for i in list(files_info[run_number].values())])
             if len(site_names) < 1:
                 self.logger.debug("    run is not available at any site")
                 self.logger.debug("      (but should contain %d events" % \
@@ -3287,7 +3287,7 @@ class CMSHarvester(object):
                 self.logger.debug("    at all sites combined there are %d events" % \
                                   num_events_catalog[run_number]["all_sites"])
                 for site_name in site_names:
-                    num_events_catalog[run_number][site_name] = sum([i[0] for i in files_info[run_number].values() if site_name in i[1]])
+                    num_events_catalog[run_number][site_name] = sum([i[0] for i in list(files_info[run_number].values()) if site_name in i[1]])
                     self.logger.debug("    at site `%s' there are %d events" % \
                                       (site_name, num_events_catalog[run_number][site_name]))
             num_events_catalog[run_number]["mirrored"] = mirrored
@@ -3589,8 +3589,8 @@ class CMSHarvester(object):
 
         # Simple approach: just loop and search.
         dataset_names_filtered = copy.deepcopy(self.datasets_to_use)
-        for dataset_name in self.datasets_to_use.keys():
-            if dataset_name in self.datasets_to_ignore.keys():
+        for dataset_name in list(self.datasets_to_use.keys()):
+            if dataset_name in list(self.datasets_to_ignore.keys()):
                 del dataset_names_filtered[dataset_name]
 
         self.logger.info("  --> Removed %d dataset(s)" % \
@@ -3752,7 +3752,7 @@ class CMSHarvester(object):
         for dataset_name in self.datasets_to_use:
             for run_number in self.datasets_information[dataset_name]["runs"]:
                 max_events = max(self.datasets_information[dataset_name]["sites"][run_number].values())
-                sites_with_max_events = [i[0] for i in self.datasets_information[dataset_name]["sites"][run_number].items() if i[1] == max_events]
+                sites_with_max_events = [i[0] for i in list(self.datasets_information[dataset_name]["sites"][run_number].items()) if i[1] == max_events]
                 self.logger.warning("Singlifying dataset `%s', " \
                                     "run %d" % \
                                     (dataset_name, run_number))
@@ -3818,7 +3818,7 @@ class CMSHarvester(object):
 
         dataset_names_after_checks = copy.deepcopy(self.datasets_to_use)
 
-        for dataset_name in self.datasets_to_use.keys():
+        for dataset_name in list(self.datasets_to_use.keys()):
 
             # Check CMSSW version.
             version_from_dataset = self.datasets_information[dataset_name] \
@@ -3923,8 +3923,8 @@ class CMSHarvester(object):
 
             # Require that each run is available at least somewhere.
             runs_without_sites = [i for (i, j) in \
-                                  self.datasets_information[dataset_name] \
-                                  ["sites"].items() \
+                                  list(self.datasets_information[dataset_name] \
+                                  ["sites"].items()) \
                                   if len(j) < 1 and \
                                   i in self.datasets_to_use[dataset_name]]
             if len(runs_without_sites) > 0:
@@ -3977,8 +3977,8 @@ class CMSHarvester(object):
             # time around, we do include them in the book keeping.
             # BUG BUG BUG
             # This should sum only over the runs that we use!
-            tmp = [j for (i, j) in self.datasets_information \
-                   [dataset_name]["num_events"].items() \
+            tmp = [j for (i, j) in list(self.datasets_information \
+                   [dataset_name]["num_events"].items()) \
                    if i in self.datasets_to_use[dataset_name]]
             num_events_dataset = sum(tmp)
             # BUG BUG BUG end
@@ -3999,8 +3999,8 @@ class CMSHarvester(object):
                 continue
 	      
             tmp = [i for i in \
-                   self.datasets_information[dataset_name] \
-                   ["num_events"].items() if i[1] < 1]
+                   list(self.datasets_information[dataset_name] \
+                   ["num_events"].items()) if i[1] < 1]
             tmp = [i for i in tmp if i[0] in self.datasets_to_use[dataset_name]]
             empty_runs = dict(tmp)
             if len(empty_runs) > 0:
@@ -4019,7 +4019,7 @@ class CMSHarvester(object):
         # If we emptied out a complete dataset, remove the whole
         # thing.
         dataset_names_after_checks_tmp = copy.deepcopy(dataset_names_after_checks)
-        for (dataset_name, runs) in dataset_names_after_checks.iteritems():
+        for (dataset_name, runs) in dataset_names_after_checks.items():
             if len(runs) < 1:
                 self.logger.warning("  Removing dataset without any runs " \
                                     "(left) `%s'" % \
@@ -4366,8 +4366,8 @@ class CMSHarvester(object):
                             self.datasets_information[dataset_name]["mirrored"]
                     # DEBUG DEBUG DEBUG end
 
-                    site_names = self.datasets_information[dataset_name] \
-                             ["sites"][run].keys()
+                    site_names = list(self.datasets_information[dataset_name] \
+                             ["sites"][run].keys())
 
                     for i in range(1, number_max_sites, 1):
                         if len(site_names) > 0: 
@@ -5191,7 +5191,7 @@ class CMSHarvester(object):
         else:
             tmp = [self.ref_hist_mappings_needed(dataset_name) \
                    for dataset_name in \
-                   self.datasets_information.keys()]
+                   list(self.datasets_information.keys())]
             mappings_needed = (True in tmp)
 
         # End of ref_hist_mappings_needed.
@@ -5266,8 +5266,8 @@ class CMSHarvester(object):
 
         self.logger.info("  Successfully loaded %d mapping(s)" % \
                          len(self.ref_hist_mappings))
-        max_len = max([len(i) for i in self.ref_hist_mappings.keys()])
-        for (map_from, map_to) in self.ref_hist_mappings.iteritems():
+        max_len = max([len(i) for i in list(self.ref_hist_mappings.keys())])
+        for (map_from, map_to) in self.ref_hist_mappings.items():
             self.logger.info("    %-*s -> %s" % \
                               (max_len, map_from, map_to))
 
@@ -5395,7 +5395,7 @@ class CMSHarvester(object):
 
             # Extract the total event counts.
             num_events = {}
-            for run_number in sites_catalog.keys():
+            for run_number in list(sites_catalog.keys()):
                 num_events[run_number] = sites_catalog \
                                          [run_number]["all_sites"]
                 del sites_catalog[run_number]["all_sites"]
@@ -5403,7 +5403,7 @@ class CMSHarvester(object):
             # Extract the information about whether or not datasets
             # are mirrored.
             mirror_catalog = {}
-            for run_number in sites_catalog.keys():
+            for run_number in list(sites_catalog.keys()):
                 mirror_catalog[run_number] = sites_catalog \
                                              [run_number]["mirrored"]
                 del sites_catalog[run_number]["mirrored"]
@@ -5454,7 +5454,7 @@ class CMSHarvester(object):
             castor_paths = dict(list(zip(runs,
                                     [self.create_castor_path_name_special(dataset_name, i, castor_path_common) \
                                      for i in runs])))
-            for path_name in castor_paths.values():
+            for path_name in list(castor_paths.values()):
                 self.logger.debug("      %s" % path_name)
             self.datasets_information[dataset_name]["castor_path"] = \
                                                                    castor_paths
@@ -5612,7 +5612,7 @@ class CMSHarvester(object):
                                      "for a total of %d runs" % \
                                      (len(self.datasets_to_use),
                                       sum([len(i) for i in \
-                                           self.datasets_to_use.values()])))
+                                           list(self.datasets_to_use.values())])))
 
                     # NOTE: The order in which things are done here is
                     # important. At the end of the job, independent on
@@ -5654,7 +5654,7 @@ class CMSHarvester(object):
                     # configuration. For the two-step harvesting we
                     # also need a configuration file for the first
                     # step: the monitoring element extraction.
-                    for dataset_name in self.datasets_to_use.keys():
+                    for dataset_name in list(self.datasets_to_use.keys()):
                         try:
                             self.write_harvesting_config(dataset_name)
                             if self.harvesting_mode == "two-step":

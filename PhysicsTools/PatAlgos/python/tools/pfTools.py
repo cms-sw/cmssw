@@ -362,7 +362,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
                         prefix = prefix.replace('kt6PFJets','')
                         prefix = prefix.replace('kt6CaloJets','')
                         prefix = getattr(process,'patJetCorrFactors'+prefix+postfix).payload.pythonValue().replace("'","")
-                        for essource in process.es_sources_().keys():
+                        for essource in list(process.es_sources_().keys()):
                             if essource == prefix+'L1FastJet':
                                 setattr(process,essource+postfix,getattr(process,essource).clone(srcRho=cms.InputTag(mod,'rho')))
                                 addToProcessAndTask(prefix+'CombinedCorrector'+postfix,

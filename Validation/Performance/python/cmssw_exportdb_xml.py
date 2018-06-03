@@ -7,7 +7,7 @@ def createNode(xml_doc, node_name, values = {}, parent = None):
 	#create node
 	node = xml_doc.createElement(node_name)
 	# assign the values
-	for (key, value) in values.items():
+	for (key, value) in list(values.items()):
 		node.setAttribute(key, str(value))
 	parent.appendChild(node)
 
@@ -144,7 +144,7 @@ def export_xml(release, jobID, timelog_result, xml_doc, metadata = None, edmSize
  	(mod_timelog_result, evt_timelog_result, rss_result, vsize_result) = timelog_result
 
 	# modules data
-	for (mod_name, mod_time_result) in mod_timelog_result.items():
+	for (mod_name, mod_time_result) in list(mod_timelog_result.items()):
 		xml_export_ModuleTimeRecord(mod_time_result, jobStatsNode, xml_doc)
 
 	""" #TODO: actualy we're not supposed to have any of the old statistics
@@ -224,7 +224,7 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	runInfoNode = createNode(node_name= "RunInfo", xml_doc=xml_doc, parent=node_xml, 
 			values=str_values)
 	#create nodes for TestResults:
-	for (testName, result) in run_info["TestResults"].items():
+	for (testName, result) in list(run_info["TestResults"].items()):
 		#either we have one node or multiple ones (if list)
 		if isinstance(result, list):
 			for result_item in result:

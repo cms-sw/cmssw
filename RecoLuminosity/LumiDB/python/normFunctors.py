@@ -37,7 +37,7 @@ class normFunctionFactory(object):
             avglumi=c1*luminonorm/nBXs
         Afterglow=1.0
         if fillschemeStr and fillschemePatterns:
-            for apattern,cfactor in fillschemePatterns.items():
+            for apattern,cfactor in list(fillschemePatterns.items()):
                 if re.match(apattern,fillschemeStr):
                     Afterglow=cfactor
         driftterm=1.0

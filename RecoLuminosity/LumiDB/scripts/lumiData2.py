@@ -8,7 +8,7 @@ def listRemoveDuplicate(inlist):
     d={}
     for x in inlist:
         d[x]=x
-    return d.values()
+    return list(d.values())
 
 def main():
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description="list lumi data availability")

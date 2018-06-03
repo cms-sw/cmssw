@@ -74,9 +74,9 @@ def massSearchReplaceAnyInputTag(sequence, oldInputTag, newInputTag,verbose=Fals
     sequence.visit(MassSearchReplaceAnyInputTagVisitor(oldInputTag,newInputTag,verbose=verbose,moduleLabelOnly=moduleLabelOnly,skipLabelTest=skipLabelTest))
 
 def massReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker",verbose=False,moduleLabelOnly=False,skipLabelTest=False):
-    for s in process.paths_().keys():
+    for s in list(process.paths_().keys()):
         massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
-    for s in process.endpaths_().keys():
+    for s in list(process.endpaths_().keys()):
         massSearchReplaceAnyInputTag(getattr(process,s), old, new, verbose, moduleLabelOnly, skipLabelTest)
     if process.schedule_() is not None:
         for task in process.schedule_()._tasks:
@@ -117,9 +117,9 @@ def massSearchReplaceParam(sequence,paramName,paramOldValue,paramValue,verbose=F
     sequence.visit(MassSearchReplaceParamVisitor(paramName,paramOldValue,paramValue,verbose))
 
 def massReplaceParameter(process,name="label",old="rawDataCollector",new="rawDataRepacker",verbose=False):
-    for s in process.paths_().keys():
+    for s in list(process.paths_().keys()):
         massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
-    for s in process.endpaths_().keys():
+    for s in list(process.endpaths_().keys()):
         massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
     if process.schedule_() is not None:
         for task in process.schedule_()._tasks:

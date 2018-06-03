@@ -91,7 +91,7 @@ def _eventContent_DEBUG(edm_report):
 					EC_count[ec] = []	
 				EC_count[ec].append(prod)
 		#print out the statistics
-		for (ec, prods) in EC_count.items():
+		for (ec, prods) in list(EC_count.items()):
 			print "==== %s EVENT CONTENT: have %d items, the listing is: ===" % (ec, len(prods))
 			# list of products
 			print "\n *".join(["%(cpp_type)s_%(module_name)s_%(module_label)s" % prod for prod in prods])
@@ -107,7 +107,7 @@ def assign_event_content_for_product(product):
 
 def get_modules_sequences_relationships():
 	(sequenceWithModules, sequenceWithModulesString) =ModuleToSequenceAssign.assignModulesToSeqs()
-	return [{"name": seq, "modules": ",".join(modules)} for (seq, modules) in sequenceWithModulesString.items()]
+	return [{"name": seq, "modules": ",".join(modules)} for (seq, modules) in list(sequenceWithModulesString.items())]
 
 
 def exportIgProfReport(path, igProfReport, igProfType, runinfo):
@@ -221,7 +221,7 @@ def process_timesize_dir(path, runinfo):
 		print "Dictionary based jobID %s: " % str(jobID)
 		
 		#if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
-		discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
+		discard = len([key for key, value in list(jobID.items()) if key != "pileup_type" and not value])
 		if discard:
 			print " ====================== The job HAS BEEN DISCARDED =============== "
 			print " NOT ALL DATA WAS AVAILABLE "
@@ -304,7 +304,7 @@ def process_memcheck_dir(path, runinfo):
                 print "Dictionary based jobID %s: " % str(jobID)
             
                 #if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
-                discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
+                discard = len([key for key, value in list(jobID.items()) if key != "pileup_type" and not value])
                 if discard:
                     print " ====================== The job HAS BEEN DISCARDED =============== "
                     print " NOT ALL DATA WAS AVAILABLE "
@@ -382,7 +382,7 @@ def process_igprof_dir(path, runinfo):
                 igProfType = path.split("/")[-1].replace("TTbar_", "").replace("MinBias_", "").replace("PU_", "")
                 
 	        #if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
-                discard = len([key for key, value in jobID.items() if key != "pileup_type" and not value])
+                discard = len([key for key, value in list(jobID.items()) if key != "pileup_type" and not value])
                 if discard:
                     print " ====================== The job HAS BEEN DISCARDED =============== "
                     print " NOT ALL DATA WAS AVAILABLE "
@@ -590,7 +590,7 @@ if __name__ == "__main__":
     now = datetime.datetime.now()
     #Changing slightly the XML filename format
     #FIXME: review this convention and archive the xml in a separate CASTOR xml directory for quick recovery of DB...
-    file_name = "%s___%s___%s___%s___%s___%s___%s.xml" % (release, "_".join(steps.keys()), "_".join(candles.keys()), "_".join(pileups.keys()),event_content,conditions,now.isoformat())
+    file_name = "%s___%s___%s___%s___%s___%s___%s.xml" % (release, "_".join(list(steps.keys())), "_".join(list(candles.keys())), "_".join(list(pileups.keys())),event_content,conditions,now.isoformat())
     print "Writing the output to: %s " % file_name
 
     write_xml(xmldoc, output_dir, file_name) #change this function to be able to handle directories in remote machines (via tar pipes for now could always revert to rsync later).

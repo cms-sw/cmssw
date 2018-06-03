@@ -77,7 +77,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in self.__dict__.itervalues():
+    for v in self.__dict__.values():
         if v is not None: return True
     return False
 
@@ -388,7 +388,7 @@ if __name__ == '__main__':
 	thehistos = thedata[ikey].histos
 	afilelist[afilename] = TFile(afilename)
 	if verbose : print "== get histograms: "
-	histonamekeys = thehistos.keys()
+	histonamekeys = list(thehistos.keys())
 	for ihname in histonamekeys:
 	    if verbose : print "=== Histogram name: \""+ ihname + "\" source: \""+thehistos[ihname]+"\""
 	    thedata[ikey].TH1s[ihname] = ROOT.gDirectory.Get(thehistos[ihname])
@@ -423,7 +423,7 @@ if __name__ == '__main__':
 		aweight = float(listweight[ihnameIt])
 		#aweight = float(thedata[jkey].weight)
 	    for jkey in thedata:
-		tmpkeys = thedata[jkey].histos.keys()
+		tmpkeys = list(thedata[jkey].histos.keys())
 		for tmpname in tmpkeys:
 		    if tmpname == ihname:
 			ath = thedata[jkey].TH1s[tmpname]
@@ -487,7 +487,7 @@ if __name__ == '__main__':
 	cv[thedivition[ikey].name] = TCanvas(thedivition[ikey].name,thedivition[ikey].name,700,700)
 
 	for jkey in thedata:
-	    tmpkeys = thedata[jkey].histos.keys()
+	    tmpkeys = list(thedata[jkey].histos.keys())
 	    for tmpname in tmpkeys:
 		if tmpname == numerator:
 		    numeratorth = thedata[jkey].TH1s[tmpname]
@@ -592,7 +592,7 @@ if __name__ == '__main__':
 	for ihname in listname:
 	
 	    for jkey in thedata:
-		tmpkeys = thedata[jkey].histos.keys()
+		tmpkeys = list(thedata[jkey].histos.keys())
 		
 		for tmpname in tmpkeys:
 		
@@ -854,7 +854,7 @@ if __name__ == '__main__':
         for ihname in listname:
              
             for jkey in thedata:
-                tmpkeys = thedata[jkey].histos.keys()
+                tmpkeys = list(thedata[jkey].histos.keys())
                         
                 for tmpname in tmpkeys:
                     

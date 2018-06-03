@@ -44,7 +44,7 @@ if __name__ == '__main__':
                     for runObject in runObjects:
                         try:
                             runs = ast.literal_eval(runObject)
-                            for (run, lumis) in runs.iteritems():
+                            for (run, lumis) in runs.items():
                                 runList = runsLumisDict.setdefault (int(run), [])
                                 runList.extend(lumis)
                         except ValueError: # Old style handled above

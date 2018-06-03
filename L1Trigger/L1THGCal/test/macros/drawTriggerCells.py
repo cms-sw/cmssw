@@ -149,7 +149,7 @@ maxx = -99999.
 minx = 99999.
 maxy = -99999.
 miny = 99999.
-for id,triggercell in triggercells.items():
+for id,triggercell in list(triggercells.items()):
     x = triggercell.center.x
     y = triggercell.center.y
     if x>maxx: maxx=x
@@ -167,7 +167,7 @@ canvas.Range(minx, miny, maxx, maxy)
 drawstyle = "lf"
 boxes = []
 lines = []
-for id,triggercell in triggercells.items():
+for id,triggercell in list(triggercells.items()):
     triggercelllines = []
     for cell in triggercell.cells:
         box = cell.box()
@@ -193,9 +193,9 @@ for line in lines:
 
 ## Print missing cells
 missingboxes = []
-for id,cell in cells.items():
+for id,cell in list(cells.items()):
     missing = True
-    for tid,triggercell in triggercells.items():
+    for tid,triggercell in list(triggercells.items()):
         if cell in triggercell.cells:
             missing = False
             break

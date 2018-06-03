@@ -29,7 +29,7 @@ process.db_source = cms.ESSource(
 
 process.saver = cms.EDAnalyzer(
     "TauMVATrainerSave",
-    toCopy = cms.vstring(input_config.keys()),
+    toCopy = cms.vstring(list(input_config.keys())),
     toPut = cms.vstring()
 )
 

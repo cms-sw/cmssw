@@ -89,7 +89,7 @@ def manipulate_log(outdir, logfile_name, secsperbin):
     graph.GetYaxis().SetRangeUser(0, max_val)
     # Fill them
     total_time = 0
-    for event_num in data.keys():
+    for event_num in list(data.keys()):
         seconds = data[event_num]
         graph.SetPoint(event_num-1, event_num, seconds)
         histo.Fill(seconds)

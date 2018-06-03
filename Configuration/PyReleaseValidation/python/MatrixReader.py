@@ -95,7 +95,7 @@ class MatrixReader(object):
         cmd = ''
         cfg = None
         input = None
-        for k,v in step.items():
+        for k,v in list(step.items()):
             if 'no_exec' in k : continue  # we want to really run it ...
             if k.lower() == 'cfg':
                 cfg = v
@@ -112,7 +112,7 @@ class MatrixReader(object):
     
     def makeStep(self,step,overrides):
         from Configuration.PyReleaseValidation.relval_steps import merge
-        if len(overrides.keys()) > 0:
+        if len(list(overrides.keys())) > 0:
             copyStep=merge([overrides]+[step])
             return copyStep
         else:    
@@ -142,13 +142,13 @@ class MatrixReader(object):
                 if ':' in i:
                     (ik,il)=i.split(':')
                     if ik=='all':
-                        for k in self.relvalModule.workflows.keys():
+                        for k in list(self.relvalModule.workflows.keys()):
                             fromInput[float(k)]=int(il)
                     else:
                         fromInput[float(ik)]=int(il)
                 else:
                     if i=='all':
-                        for k in self.relvalModule.workflows.keys():
+                        for k in list(self.relvalModule.workflows.keys()):
                             fromInput[float(k)]=0
                     else:
                         fromInput[float(i)]=0
@@ -180,7 +180,7 @@ class MatrixReader(object):
                     )
             
 
-        for num, wfInfo in self.relvalModule.workflows.items():
+        for num, wfInfo in list(self.relvalModule.workflows.items()):
             commands=[]
             wfName = wfInfo[0]
             stepList = wfInfo[1]
@@ -220,7 +220,7 @@ class MatrixReader(object):
                     else:
                         testName=step+'INPUT'
                     #print "JR",stepI,stepIr,testName,stepList
-                    if testName in self.relvalModule.steps.keys():
+                    if testName in list(self.relvalModule.steps.keys()):
                         #print "JR",stepI,stepIr
                         stepList[stepI]=testName
                         #pop the rest in the list
@@ -321,7 +321,7 @@ class MatrixReader(object):
             dataFileName = matrixFile.replace('relval_', 'cmsDriver_')+'_hlt.txt'
             outFile = open(dataFileName,'w')
 
-            print "found ", len(self.workFlowSteps.keys()), ' workflows for ', dataFileName
+            print "found ", len(list(self.workFlowSteps.keys())), ' workflows for ', dataFileName
             ids = sorted(self.workFlowSteps.keys())
             indexAndSteps=[]
 
@@ -454,7 +454,7 @@ class MatrixReader(object):
         prefixIn = self.filesPrefMap[fileNameIn]
 
         # get through the list of items and update the requested workflows only
-        keyList = self.workFlowSteps.keys()
+        keyList = list(self.workFlowSteps.keys())
         ids = []
         for item in keyList:
             id, pref = item

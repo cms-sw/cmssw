@@ -50,7 +50,7 @@ MapIndex=readIndex()
 runKeys = queryRR(options.firstRun,options.lastRun,options.groupName)
 prescaleTable = {}
 Absent = []
-runs = runKeys.keys(); runs.sort()
+runs = list(runKeys.keys()); runs.sort()
 stderr.write("Querying ConfDB for prescales for path %s...\n" % (path));
 jsout = {}
 for run in runs:

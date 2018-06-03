@@ -33,7 +33,7 @@ def updatedb(schema,runkeymap,keymaskmap):
     inputData.extend('techmask','unsigned long long')
     inputData.extend('runnum','unsigned int')
     db=dbUtil.dbUtil(schema)
-    for runnum in runkeymap.keys():
+    for runnum in list(runkeymap.keys()):
         gt_rs_key=runkeymap[runnum]
         print runnum,gt_rs_key
         [algo_h,algo_l,tech]=keymaskmap[gt_rs_key]

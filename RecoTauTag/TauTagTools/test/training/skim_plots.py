@@ -28,7 +28,7 @@ bkg = config['bkg']
 # Load our files
 sig['filename'] =  sys.argv[1]
 bkg['filename'] =  sys.argv[2]
-for sample in config.keys():
+for sample in list(config.keys()):
     config[sample]['file'] = ROOT.TFile(config[sample]['filename'], 'READ')
 
 # Figure out where our plots are stored

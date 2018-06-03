@@ -52,7 +52,7 @@ for targzfile in targz_files:
         print "Xtracting ",txtfilename
         txtfile = f.extractfile(txtfilename)
         for line in txtfile.readlines():
-            for key,histos in h_dict.items():
+            for key,histos in list(h_dict.items()):
                 if key in line and "+/-" in line:
                     #disambiguation between sigma and s
                     if key == "RooRealVar::s" and "RooRealVar::sigma" in line: continue
@@ -70,7 +70,7 @@ ROOT.gStyle.SetOptStat(2211)
 # Write histos on a TFile
 ofilename="testCrabToyMC_summary.root"
 ofile = ROOT.TFile(ofilename,"RECREATE");ofile.cd()
-for key,histos in h_dict.items():
+for key,histos in list(h_dict.items()):
     for histo in histos:
         histoname=histo.GetName()
         print "Saving ",histoname," on file ",ofilename

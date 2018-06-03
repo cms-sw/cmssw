@@ -23,7 +23,7 @@ class TreeAnalyzer(object):
                 if '.glimpse_index' in file: continue
             	fileName = os.path.join(path, file)
             	fileSize = os.path.getsize(fileName)
-            	if path in self.dirSizes.keys() :
+            	if path in list(self.dirSizes.keys()) :
             	    self.dirSizes[path] += fileSize
             	else:
             	    self.dirSizes[path] =  fileSize
@@ -53,8 +53,8 @@ class TreeAnalyzer(object):
         # for p,s in self.dirSizes.items():
         #     print p, s
 
-        topDirs  = sorted(self.dirSizes.items() , key=itemgetter(1), reverse=True)
-        topFiles = sorted(self.fileSizes.items(), key=itemgetter(1), reverse=True)
+        topDirs  = sorted(list(self.dirSizes.items()) , key=itemgetter(1), reverse=True)
+        topFiles = sorted(list(self.fileSizes.items()), key=itemgetter(1), reverse=True)
 
         emptyFiles = []
         for pair in topFiles:
@@ -63,11 +63,11 @@ class TreeAnalyzer(object):
                 emptyFiles.append(p)
         print "found ",len(emptyFiles),"empty files. "
 
-        print "found ", len(self.dirSizes.keys()), 'directories, top 10 are:'
+        print "found ", len(list(self.dirSizes.keys())), 'directories, top 10 are:'
         for i in range(10):
             print topDirs[i]
 
-        print "found ", len(self.fileSizes.keys()), 'files, top 10 are:'
+        print "found ", len(list(self.fileSizes.keys())), 'files, top 10 are:'
         for i in range(10):
             print topFiles[i]
 

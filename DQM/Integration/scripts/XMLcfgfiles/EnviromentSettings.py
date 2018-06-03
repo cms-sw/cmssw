@@ -6,7 +6,7 @@ def detectEnviroment():
 					"PYTHONPATH":"","PATH":"","ROOTSYS":"","SEAL":"","SEAL_KEEP_MODULES":"","SEAL_PLUGINS":"","TNS_ADMIN":"",
 					"XDAQ_DOCUMENT_ROOT":"","XDAQ_OS":"","XDAQ_PLATFORM":"","XDAQ_ROOT":"","XDAQ_SETUP_ROOT":"",
 					"XDAQ_ZONE":"","SCRAM_ARCH":""}
-	cmd='env | grep  -E "(%s)" | sort' % "|".join(["^%s=" % v for v in envVariables.keys()])
+	cmd='env | grep  -E "(%s)" | sort' % "|".join(["^%s=" % v for v in list(envVariables.keys())])
 	fpd=os.popen(cmd)
 	line=fpd.readline()
 	while line:
@@ -23,9 +23,9 @@ def detectEnviroment():
 	CMSSW_Release=envVariables["CMSSW_VERSION"]
 	CMSSW_Release_Number=CMSSW_Release.split("_",1)[1]
 	#envVariables["LD_LIBRARY_PATH"]=envVariables["XDAQ_ROOT"]+"/lib:/nfshome0/dqmpro/lib_"+CMSSW_Release_Number
-	for (key,value) in envVariables.items():
+	for (key,value) in list(envVariables.items()):
 		envVariables[key]=value.replace("/cmsnfshome0","")
-	return " ".join(["%s=%s" % (k,v) for (k,v) in envVariables.items()])
+	return " ".join(["%s=%s" % (k,v) for (k,v) in list(envVariables.items())])
 ################################################################################
 user=""
 users=["dqmpro","dqmdev"]

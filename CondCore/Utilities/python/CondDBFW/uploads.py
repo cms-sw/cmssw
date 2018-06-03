@@ -124,7 +124,7 @@ class uploader(object):
 		if self.metadata_source.get("destinationTags") == None:
 			self.exit_upload("No destination Tag was given.")
 		else:
-			if isinstance(self.metadata_source.get("destinationTags"), dict) and self.metadata_source.get("destinationTags").keys()[0] == None:
+			if isinstance(self.metadata_source.get("destinationTags"), dict) and list(self.metadata_source.get("destinationTags").keys())[0] == None:
 				self.exit_upload("No destination Tag was given.")
 
 		# make sure a destination database was given
@@ -253,7 +253,7 @@ class uploader(object):
 		If it is a dictionary, and one of its keys is "error", the server returned an error
 		"""
 		# if the decoded response data is a dictionary and has an error key in it, we should display an error and its traceback
-		if isinstance(response_dict, dict) and "error" in response_dict.keys():
+		if isinstance(response_dict, dict) and "error" in list(response_dict.keys()):
 			splitter_string = "\n%s\n" % ("-"*50)
 			self._outputter.write("\nERROR: %s" % splitter_string, ignore_verbose=True)
 			self._outputter.write(response_dict["error"], ignore_verbose=True)
@@ -278,7 +278,7 @@ class uploader(object):
 					return False
 				else:
 					exit()
-		elif not("error" in response_dict.keys()) and "log_data" in response_dict.keys():
+		elif not("error" in list(response_dict.keys())) and "log_data" in list(response_dict.keys()):
 			# store the log data, if it's there, in memory - this is used if a request times out and we don't get any log data back
 			self._log_data = response_dict["log_data"]
 			return True
@@ -506,7 +506,7 @@ class uploader(object):
 		# this method's end result is obtaining a token.
 		body_data = base64.b64encode(json.dumps(
 				{
-					"destinationTag" : self.data_to_send["destinationTags"].keys()[0],
+					"destinationTag" : list(self.data_to_send["destinationTags"].keys())[0],
 					"username_or_token" : self.data_to_send["username"],
 					"password" : self.data_to_send["password"]
 				}
@@ -541,7 +541,7 @@ class uploader(object):
 		url_data = {
 						"database" : self.data_to_send["destinationDatabase"],
 						"upload_session_id" : upload_session_id,
-						"destinationTag" : self.data_to_send["destinationTags"].keys()[0],
+						"destinationTag" : list(self.data_to_send["destinationTags"].keys())[0],
 						"sourceTagSync" : self.data_to_send["fcsr_filter"]
 					}
 		query = url_query(url=self._SERVICE_URL + "get_fcsr/", url_data=url_data)
@@ -693,7 +693,7 @@ class uploader(object):
 		url_data = {"database" : self.data_to_send["destinationDatabase"], "upload_session_id" : upload_session_id}
 
 		# construct the data to send in the body and header of the HTTPs request
-		for key in payload.keys():
+		for key in list(payload.keys()):
 			# skip blob
 			if key != "data":
 				if key == "insertion_time":
@@ -724,7 +724,7 @@ class uploader(object):
 
 		# set user text if it's empty
 		if self.data_to_send["userText"] in ["", None]:
-			self.data_to_send["userText"] = "Tag '%s' uploaded from CondDBFW client." % self.data_to_send["destinationTags"].keys()[0]
+			self.data_to_send["userText"] = "Tag '%s' uploaded from CondDBFW client." % list(self.data_to_send["destinationTags"].keys())[0]
 
 		self._outputter.write("Sending metadata to server - see server_side_log at server_side_logs/upload_log_%s for details on metadata processing on server side."\
 							% self.upload_session_id)
@@ -757,7 +757,7 @@ See https://cms-conddb-dev.cern.ch/cmsDbCondUpload for information on how to obt
 
 	# make new dictionary, and copy over everything except "metadata_source"
 	upload_metadata_argument = {}
-	for (key, value) in upload_metadata.items():
+	for (key, value) in list(upload_metadata.items()):
 		if key != "metadata_source":
 			upload_metadata_argument[key] = value
 

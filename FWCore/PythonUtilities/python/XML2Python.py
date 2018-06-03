@@ -134,7 +134,7 @@ class DataNode (object):
             retval += '\n' + ' ' * offset
             retval += '%s: ' % name
         first = True
-        for key, value in sorted (self._attrs.iteritems()):
+        for key, value in sorted (self._attrs.items()):
             if first:
                 retval += '{ \n'
                 tempspace = offset + 3
@@ -172,7 +172,7 @@ class TreeBuilder (xml.sax.handler.ContentHandler):
         self.current = DataNode (nameChangeDict = self._ncDict)
         self._text_parts = []
         # xml attributes --> python attributes
-        for k, v in attrs.items():
+        for k, v in list(attrs.items()):
             self.current._add_xml_attr (TreeBuilder._name_mangle(k), v)
 
     def endElement (self, name):
@@ -195,7 +195,7 @@ class TreeBuilder (xml.sax.handler.ContentHandler):
 
     def topLevel (self):
         '''Returns top level object'''
-        return self._root.attributes().values()[0]
+        return list(self._root.attributes().values())[0]
         
 
     @staticmethod

@@ -75,7 +75,7 @@ autoSkimDPG = {
 
 def mergeMapping(map1,map2):
     merged={}
-    for k in list(set(map1.keys()+map2.keys())):
+    for k in list(set(list(map1.keys())+list(map2.keys()))):
         items=[]
         if k in map1: 
             items.append(map1[k])

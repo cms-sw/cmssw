@@ -23,7 +23,7 @@ class unscheduled:
     "ModuleSeqParent":{"creator":"modSeqCreate","simple": False},
     "ProdConsumParent":{"creator":"prodConCreate","simple": False}
     }
-    for name,x in self._parents.iteritems():
+    for name,x in self._parents.items():
       x["pfile"] = self._filenames(name)
       x["cfile"] = self._filenames(x["creator"])
     self._type = "%stypes.js"%(fullDir)
@@ -174,7 +174,7 @@ class unscheduled:
     if(not self._mother and not self._daughter):
       return  
     for name,theDict in {"producer":self._mother, 
-                         "consumer":self._daughter}.iteritems():
+                         "consumer":self._daughter}.items():
       thedataFile , fulldataFile = self._calcFilenames(name)
       self._saveData(name.capitalize(),
                       self._parents[self._prodConsP]["creator"],
@@ -200,7 +200,7 @@ class unscheduled:
     }
     """
     name = "data"
-    for pname,x in self._parents.iteritems():
+    for pname,x in self._parents.items():
       simple = base%(pname,name)
       filename,fullfilename= x["cfile"]
       self._allJSFiles.append(filename)
@@ -439,7 +439,7 @@ def getParameters(parameters):
   all =[]
   if(not parameters):
     return []
-  for (name,valType) in parameters.iteritems():
+  for (name,valType) in parameters.items():
     theT= (valType.configTypeName() if(
            hasattr(valType,"configTypeName")) else "").split(" ",1)[-1]
     temp = re.sub("<|>|'", "", str(type(valType)))
@@ -559,7 +559,7 @@ class visitor:
         seqs[currentName].append([name])
     # If we've seen this name before, no need to compute values again.
     # we need to put this mod/seq name under the path name in the dict
-    if(name not in self._modulesToPaths.keys()):
+    if(name not in list(self._modulesToPaths.keys())):
       self._modulesToPaths[name] =[self._pathLength]
       filename = modObj._filename.split("/")[-1]
       generic,specific = self._getType(modObj)
@@ -567,7 +567,7 @@ class visitor:
       d = getParamSeqDict(getParameters(modObj.parameters_()),
                           filename, specific, modObj.type_())
       theS='"%s":%s'
-      if(len(self._modulesToPaths.keys()) > 1): theS=","+theS
+      if(len(list(self._modulesToPaths.keys())) > 1): theS=","+theS
       dataFile.write(theS%(name, JSONFormat(d))) 
     else:
       #oldMods.append(name) 
@@ -649,13 +649,13 @@ class html:
     l= """
 <option value=%(n)s data-base="%(d)s" data-files="%(f)s"> %(n)s</option>"""
     s= [l%({"n":x,"f":y["data-files"],"d":y["data-base"]})
-        for x,y in items.iteritems()]
+        for x,y in items.items()]
     return " ".join(s)
 
   def _searchitems(self,items):
     b = """<option value="%(name)s" data-base="%(d)s">%(name)s</option> """
     return "\n ".join([b%({"name": x, "d":y["data-base"]})
-           for x,y in items.iteritems()])
+           for x,y in items.items()])
 
   def _printHtml(self,name,scrip,css,items, search):
     with open(name,'w') as htmlFile:

@@ -9,7 +9,7 @@ def help():
    print "Usage: cmsRun dumpFWRecoGeometry_cfg.py  tag=TAG "
    print "   tag=tagname"
    print "       indentify geometry condition database tag"
-   print "      ", varType.keys()
+   print "      ", list(varType.keys())
    print ""
    print "   tgeo=bool"
    print "       dump in TGeo format to borwse it geomtery viewer"

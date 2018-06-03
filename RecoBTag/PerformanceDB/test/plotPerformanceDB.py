@@ -155,7 +155,7 @@ def main():
     outfilename = "plotPerformanceDB.root"
     outputroot = TFile( outfilename, "RECREATE")
         
-    for key in histogram.keys():
+    for key in list(histogram.keys()):
         histogram[key].Write()
 
     outputroot.Close()

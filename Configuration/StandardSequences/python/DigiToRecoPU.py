@@ -26,7 +26,7 @@ def customise(process):
                                              'keep RandomEngineStates_*_*_'+process.name_())
         )
 
-    for item in process.outputModules_().values():
+    for item in list(process.outputModules_().values()):
         item.outputCommands.extend(RNGStateCleaning.outputCommands)
 
     # REDO the GenJets etc. in case labels have been changed

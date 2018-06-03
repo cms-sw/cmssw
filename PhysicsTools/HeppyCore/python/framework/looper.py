@@ -42,7 +42,7 @@ class Setup(object):
         
     def close(self):
         '''Stop all services'''
-        for service in self.services.values():
+        for service in list(self.services.values()):
             service.stop()
         
 
@@ -277,7 +277,7 @@ if __name__ == '__main__':
         jsonfilename = options.options
         jfile = open (jsonfilename, 'r')
         opts=json.loads(jfile.readline())
-        for k,v in opts.iteritems():
+        for k,v in opts.items():
             _heppyGlobalOptions[k]=v
         jfile.close()
 

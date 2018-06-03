@@ -117,7 +117,7 @@ class PageElement(object):
     def _invert(h):
         "Cheap function to invert a hash."
         i = {}
-        for k,v in h.items():
+        for k,v in list(h.items()):
             i[v] = k
         return i
 
@@ -544,7 +544,7 @@ class Tag(PageElement):
         if attrs is None:
             attrs = []
         elif isinstance(attrs, dict):
-            attrs = attrs.items()
+            attrs = list(attrs.items())
         self.attrs = attrs
         self.contents = []
         self.setup(parent, previous)
@@ -928,7 +928,7 @@ class SoupStrainer:
             else:
                 match = True
                 markupAttrMap = None
-                for attr, matchAgainst in self.attrs.items():
+                for attr, matchAgainst in list(self.attrs.items()):
                     if not markupAttrMap:
                          if hasattr(markupAttrs, 'get'):
                             markupAttrMap = markupAttrs
@@ -1023,7 +1023,7 @@ def buildTagMap(default, *args):
     for portion in args:
         if hasattr(portion, 'items'):
             #It's a map. Merge it.
-            for k,v in portion.items():
+            for k,v in list(portion.items()):
                 built[k] = v
         elif hasattr(portion, '__iter__'): # is a list
             #It's a list. Map each item to the default.

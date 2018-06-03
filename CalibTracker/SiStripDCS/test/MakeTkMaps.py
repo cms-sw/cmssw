@@ -74,13 +74,13 @@ def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by defa
 			HVDict.update({detid:HV})
 	
 		#Handle the LV/HV files:
-		for detid in StripDetIDAlias.keys():
+		for detid in list(StripDetIDAlias.keys()):
 			detid=str(detid)
-			if detid in LVDict.keys(): #Set the detids to whatever status they were reported (can be ON or OFF, since the detid would be reported in the case of HV OFF and LV ON of course...)
+			if detid in list(LVDict.keys()): #Set the detids to whatever status they were reported (can be ON or OFF, since the detid would be reported in the case of HV OFF and LV ON of course...)
 				LVfile.write(detid+"\t"+LVDict[detid]+"\n")
 			else: #Set the remaining detids as ON (they would be reported otherwise in the LVDict)
 				LVfile.write(detid+"\tON\n")
-			if detid in HVDict.keys(): #Set the detids to whatever status they were reported (should only reported when OFF..., HV ON while LV OFF should be impossible)
+			if detid in list(HVDict.keys()): #Set the detids to whatever status they were reported (should only reported when OFF..., HV ON while LV OFF should be impossible)
 				HVfile.write(detid+"\t"+HVDict[detid]+"\n")
 			else: #Set the remaining detids as ON (they would be reported otherwise in the HVDict)
 				HVfile.write(detid+"\tON\n")

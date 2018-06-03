@@ -80,7 +80,7 @@ class Alignables:
                 pattern = dict(zip(map(lambda x: x.lower(), struct.discriminator), number))
                 # name out of pattern
                 name = " ".join("{0} {1}".format(key.lower(), value)
-                                for (key, value) in pattern.items())
+                                for (key, value) in list(pattern.items()))
                 # get detids of child
                 detids = self.get_detids(struct.subdetid, pattern)
                 # create child and add it to parent

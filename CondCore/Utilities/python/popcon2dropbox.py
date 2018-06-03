@@ -126,7 +126,7 @@ def copy( args, dbName ):
 
     datef = datetime.now()
     destMap = { "oracle://cms_orcoff_prep/cms_conditions": "oradev", "oracle://cms_orcon_prod/cms_conditions": "onlineorapro"  }
-    if destDb.lower() in destMap.keys():
+    if destDb.lower() in list(destMap.keys()):
         destDb = destMap[destDb.lower()]
     else:
         if destDb.startswith('sqlite'):

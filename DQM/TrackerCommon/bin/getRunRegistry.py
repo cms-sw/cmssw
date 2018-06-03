@@ -65,12 +65,12 @@ bOptions = {
 iArgument  = 0
 for token in sys.argv[ 1:-1 ]:
   iArgument = iArgument + 1
-  if token in sOptions.keys():
-    if not sys.argv[ iArgument + 1 ] in sOptions.keys() and not sys.argv[ iArgument + 1 ] in bOptions.keys():
+  if token in list(sOptions.keys()):
+    if not sys.argv[ iArgument + 1 ] in list(sOptions.keys()) and not sys.argv[ iArgument + 1 ] in list(bOptions.keys()):
       del sOptions[ token ]
       sOptions[ token ] = sys.argv[ iArgument + 1 ]
 for token in sys.argv[ 1: ]:
-  if token in bOptions.keys():
+  if token in list(bOptions.keys()):
     del bOptions[ token ]
     bOptions[ token ] = True
 if bOptions[ '-h' ]:

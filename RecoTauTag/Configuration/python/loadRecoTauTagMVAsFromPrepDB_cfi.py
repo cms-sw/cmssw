@@ -197,7 +197,7 @@ tauIdDiscrMVA_mvaOutput_normalizations_run2_2017 = {
     'tauIdMVAIsoDBoldDMdR0p3wLT2017' : "mvaOutput_normalization"
 }
 tauIdDiscrMVA_version = "v1"
-for training, gbrForestName in tauIdDiscrMVA_trainings.items():
+for training, gbrForestName in list(tauIdDiscrMVA_trainings.items()):
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('GBRWrapperRcd'),
@@ -205,7 +205,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings.items():
             label = cms.untracked.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_version))
         )
     )
-    for WP in tauIdDiscrMVA_WPs[training].keys():
+    for WP in list(tauIdDiscrMVA_WPs[training].keys()):
         loadRecoTauTagMVAsFromPrepDB.toGet.append(
             cms.PSet(
                 record = cms.string('PhysicsTGraphPayloadRcd'),
@@ -220,7 +220,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings.items():
             label = cms.untracked.string("RecoTauTag_%s%s_mvaOutput_normalization" % (gbrForestName, tauIdDiscrMVA_version))
         )
     )
-for training, gbrForestName in tauIdDiscrMVA_trainings_run2.items():
+for training, gbrForestName in list(tauIdDiscrMVA_trainings_run2.items()):
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('GBRWrapperRcd'),
@@ -228,7 +228,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2.items():
             label = cms.untracked.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_version))
         )
     )
-    for WP in tauIdDiscrMVA_WPs_run2[training].keys():
+    for WP in list(tauIdDiscrMVA_WPs_run2[training].keys()):
         loadRecoTauTagMVAsFromPrepDB.toGet.append(
             cms.PSet(
                 record = cms.string('PhysicsTGraphPayloadRcd'),
@@ -244,7 +244,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2.items():
         )
     )
 # MVAIso 2016
-for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2016.items():
+for training, gbrForestName in list(tauIdDiscrMVA_trainings_run2_2016.items()):
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
 	cms.PSet(
 	    record = cms.string('GBRWrapperRcd'),
@@ -252,7 +252,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2016.items():
 	    label = cms.untracked.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_version))
 	)
     )
-    for WP in tauIdDiscrMVA_WPs_run2_2016[training].keys():
+    for WP in list(tauIdDiscrMVA_WPs_run2_2016[training].keys()):
         loadRecoTauTagMVAsFromPrepDB.toGet.append(
 	    cms.PSet(
 		record = cms.string('PhysicsTGraphPayloadRcd'),
@@ -270,7 +270,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2016.items():
 # MVAIso 2017
 tauIdDiscrMVA_2017_version = ["v1","v2"]
 for ver2017 in tauIdDiscrMVA_2017_version:
-    for training, gbrForestName in tauIdDiscrMVA_trainings_run2_2017.items():
+    for training, gbrForestName in list(tauIdDiscrMVA_trainings_run2_2017.items()):
         if ver2017=="v1" and (training.find("newDM")>-1 or training.find("dR0p3")>-1):
             continue #skip nonexistent trainings
         loadRecoTauTagMVAsFromPrepDB.toGet.append(
@@ -280,7 +280,7 @@ for ver2017 in tauIdDiscrMVA_2017_version:
                 label = cms.untracked.string("RecoTauTag_%s%s" % (gbrForestName, ver2017))
             )
         )
-        for WP in tauIdDiscrMVA_WPs_run2_2017[training].keys():
+        for WP in list(tauIdDiscrMVA_WPs_run2_2017[training].keys()):
             loadRecoTauTagMVAsFromPrepDB.toGet.append(
                 cms.PSet(
                     record = cms.string('PhysicsTGraphPayloadRcd'),
@@ -318,7 +318,7 @@ antiElectronDiscrMVA5_categories = {
 }
 antiElectronDiscrMVA5_WPs = [ "eff99", "eff96", "eff91", "eff85", "eff79" ]
 antiElectronDiscrMVA5_version = "v1"
-for category, gbrForestName in antiElectronDiscrMVA5_categories.items():
+for category, gbrForestName in list(antiElectronDiscrMVA5_categories.items()):
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('GBRWrapperRcd'),
@@ -347,7 +347,7 @@ antiElectronDiscrMVA6_categories = {
 }
 antiElectronDiscrMVA6_WPs = [ "Eff99", "Eff96", "Eff91", "Eff85", "Eff79" ]
 antiElectronDiscrMVA6_version = "v1"
-for category, gbrForestName in antiElectronDiscrMVA6_categories.items():
+for category, gbrForestName in list(antiElectronDiscrMVA6_categories.items()):
     loadRecoTauTagMVAsFromPrepDB.toGet.append(
         cms.PSet(
             record = cms.string('GBRWrapperRcd'),

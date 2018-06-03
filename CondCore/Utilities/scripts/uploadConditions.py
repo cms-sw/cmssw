@@ -380,7 +380,7 @@ class HTTP(object):
         # make sure the logs are safe ... at least somewhat :)
         data4log = copy.copy(data)
         if data4log:
-            if 'password' in data4log.keys():
+            if 'password' in list(data4log.keys()):
                 data4log['password'] = '*'
 
         retries = [0] + list(self.retries)
@@ -407,9 +407,9 @@ class HTTP(object):
                         finalData.update(data)
 
                     if files is not None:
-                        for (key, fileName) in files.items():
+                        for (key, fileName) in list(files.items()):
                             finalData[key] = (self.curl.FORM_FILE, fileName)
-                    self.curl.setopt( self.curl.HTTPPOST, finalData.items() )
+                    self.curl.setopt( self.curl.HTTPPOST, list(finalData.items()) )
 
                 self.curl.setopt(pycurl.VERBOSE, 0)
 
@@ -602,7 +602,7 @@ class ConditionsUploader(object):
         okTags      = []
         skippedTags = []
         failedTags  = []
-        for tag, info in statusInfo['itemStatus'].items():
+        for tag, info in list(statusInfo['itemStatus'].items()):
             logging.debug('checking tag %s, info %s', tag, str(json.dumps(info, indent=4,sort_keys=True)) )
             if 'ok'   in info['status'].lower() :
                 okTags.append( tag )

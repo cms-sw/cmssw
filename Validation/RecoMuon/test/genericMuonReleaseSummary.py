@@ -59,7 +59,7 @@ macroReco='macro/RecoValHistoPublisher.C'
 macroIsol='macro/IsoValHistoPublisher.C'
 
 def replace(map, filein, fileout):
-    replace_items = map.items()
+    replace_items = list(map.items())
     while True:
         line = filein.readline()
         if not line: break

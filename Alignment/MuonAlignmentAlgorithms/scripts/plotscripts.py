@@ -1578,13 +1578,13 @@ def mapplot(tfiles, name, param, mode="from2d", window=10., abscissa=None, title
         f.SetLineColor(ROOT.kRed)
         f.SetLineWidth(2)
         if len(fixfitpars)>0:
-          for fpar in fixfitpars.keys():
+          for fpar in list(fixfitpars.keys()):
             f.FixParameter(fpar, fixfitpars[fpar])
         #hist.Fit(f,"N")
         if fitpeaks: hpeaks.Fit(f,"NQ")
         else: hist.Fit(f,"NEQ")
         if len(fixfitpars)>0:
-          for fpar in fixfitpars.keys():
+          for fpar in list(fixfitpars.keys()):
             f.ReleaseParameter(fpar)
         fitsine_const = f.GetParameter(0), f.GetParError(0)
         fitsine_sin = f.GetParameter(1), f.GetParError(1)
@@ -3613,10 +3613,10 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
       postal_addresses.append(r1.postal_address)
   # otherwise, use chamber addresses from xmls
   else:
-    for key in geometry0.dt.keys():
+    for key in list(geometry0.dt.keys()):
       if len(key)==3  and  key in geometryX.dt  and  key in geometryY.dt:
         postal_addresses.append( tuple(['DT'] + list(key)) )
-    for key in geometry0.csc.keys():
+    for key in list(geometry0.csc.keys()):
       # skip ME1/a
       if key[2]==1 and key[3]==4: continue
       if len(key)==4  and  key in geometryX.csc  and  key in geometryY.csc:

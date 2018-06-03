@@ -79,7 +79,7 @@ class csvLumibyLSParser(object):
         self.__result[runnumber]=ldict #catch the last one
 
     def runs(self):
-        return self.__result.keys()
+        return list(self.__result.keys())
     def runsandls(self):
         '''return {run:lslist}
         '''
@@ -89,7 +89,7 @@ class csvLumibyLSParser(object):
 #        '''
 #        return self.__strresult
     def numruns(self):
-        return len(self.__result.keys())
+        return len(list(self.__result.keys()))
     def numls(self,run):
         return len(self.__result[run])
         

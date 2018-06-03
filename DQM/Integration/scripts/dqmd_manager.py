@@ -48,11 +48,11 @@ def usage():
     print('Usage: ' + sys.argv[0] + ' MACHINES ACTIONS')
 
     print('\tMACHINES:')
-    for target in machines.keys():
+    for target in list(machines.keys()):
         print('\t\t' + target + ': ' + ', '.join(machines[target]))
 
     print('\tACTIONS:')
-    for action in actions.keys():
+    for action in list(actions.keys()):
         print('\t\t' + action)
 
 

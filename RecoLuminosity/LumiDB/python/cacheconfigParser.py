@@ -14,7 +14,7 @@ class cacheconfigParser(object):
             if node.nodeType!=Node.TEXT_NODE and node.nodeType!=Node.COMMENT_NODE:
                 tagname=node.tagName
                 attrs=node.attributes
-                for attrName in attrs.keys():
+                for attrName in list(attrs.keys()):
                     attrNode=attrs.get(attrName)
                     attrValue=attrNode.nodeValue
                     if  tagname in self.__parameterDict:

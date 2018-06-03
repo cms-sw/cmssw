@@ -293,7 +293,7 @@ def patchDeadtimeForRun(dbsession,c,runnum,deadtimeDict):
             raise Exception('cannot connect to schema ')
         if not schema.existsTable(c.lumitrgtable):
             raise Exception('non-existing table '+c.lumitrgtable)
-        for lsnum,deadtimebeamactive in deadtimeDict.items():
+        for lsnum,deadtimebeamactive in list(deadtimeDict.items()):
             nchanged=0
             inputData=coral.AttributeList()
             inputData.extend('deadtimebeamactive','unsigned int')
@@ -359,7 +359,7 @@ def main():
         print 'LS:deadtimebeamactive'
         #print deadresult
         if deadresult and len(deadresult)!=0:
-            for cmsls,deadtimebeamactive in deadresult.items():
+            for cmsls,deadtimebeamactive in list(deadresult.items()):
                 print cmsls,deadtimebeamactive
         else:
             print 'no deadtime found for run ',runnumber
@@ -367,11 +367,11 @@ def main():
             return
         print 'total LS: ',len(deadresult)
 #        if len(deadresult)!=max( [ (deadresult[x],x) for x in deadresult] )[1]:
-        if len(deadresult)!=max( [ x for x in deadresult.keys() ] ):
+        if len(deadresult)!=max( [ x for x in list(deadresult.keys()) ] ):
             print 'total ls: ',len(deadresult)
             #print 'max key: ',max( [ x for x in deadresult.keys()])
             print 'alert: missing Lumi Sections in the middle'
-            for x in range(1,max( [ x for x in deadresult.keys()] ) ):
+            for x in range(1,max( [ x for x in list(deadresult.keys())] ) ):
                 if x not in deadresult:
                     print 'filling up LS deadtime with 0: LS : ',x
                     deadresult[x]=0
@@ -389,7 +389,7 @@ def main():
         print 'LS:deadtimebeamactive'
         #print deadresult
         if deadresult and len(deadresult)!=0:
-            for cmsls,deadtimebeamactive in deadresult.items():
+            for cmsls,deadtimebeamactive in list(deadresult.items()):
                 print cmsls,deadtimebeamactive
         else:
             print 'no deadtime found for run ',runnumber

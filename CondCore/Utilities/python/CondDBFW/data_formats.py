@@ -72,10 +72,10 @@ def _to_array_of_dicts(data):
 	return json_data_node.make(array_of_dicts)
 
 def _to_datatables(data):
-	headers = map(str, data.get(0).data().keys())
+	headers = map(str, list(data.get(0).data().keys()))
 	new_data = []
 	for n in range(0, len(data.data())):
-		new_data.append(map(lambda entry : str(entry) if isinstance(entry, unicode) else entry, data.get(n).data().values()))
+		new_data.append(map(lambda entry : str(entry) if isinstance(entry, unicode) else entry, list(data.get(n).data().values())))
 	return json_data_node.make({
 		"headers" : headers,
 		"data" : new_data

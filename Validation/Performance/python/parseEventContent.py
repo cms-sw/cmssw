@@ -120,7 +120,7 @@ def product_in_EventContent(rules, product):
 
 #initialize
 EventContents = {}
-for (ec_name, obj) in EventContents_def.items():
+for (ec_name, obj) in list(EventContents_def.items()):
 	# I'm not sure if this is needed, but I feel more comfident dealing with Python objects that CMSSWs PSet
 	rules_txt = [a for a in obj.outputCommands]
 
@@ -133,7 +133,7 @@ for (ec_name, obj) in EventContents_def.items():
 def List_ECs_forProduct(product):
 	""" returns a list of EC titles the product belongs to """
 	EC_list = []
-	for (ec_name, ec) in EventContents.items():
+	for (ec_name, ec) in list(EventContents.items()):
 		if product_in_EventContent(ec["rules_regexp"], product):
 			EC_list.append(ec_name)
 	return EC_list
@@ -142,7 +142,7 @@ def getTxtEventContentRules():
 	#TODO: We should where to assign products to Event-Content, on harvesting or on importing part
 	""" returns a dictionary of lists with rules """
 	txt_rules = {}
-	for (ec_name, ec) in EventContents.items():
+	for (ec_name, ec) in list(EventContents.items()):
 		txt_rules[ec_name] = ec["text_rules"]
 	return txt_rules
 	

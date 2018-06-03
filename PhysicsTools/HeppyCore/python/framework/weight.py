@@ -2,7 +2,7 @@
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 def printWeights( weights ):
-    for key, value in weights.iteritems():
+    for key, value in weights.items():
         print key
         print value 
 

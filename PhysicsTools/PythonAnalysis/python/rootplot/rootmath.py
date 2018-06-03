@@ -331,7 +331,7 @@ def main():
     if len(files) == 1:
         f = files[0]
         for thisdir in dirs:
-            for operation_type, separator in separators.items():
+            for operation_type, separator in list(separators.items()):
                 for arg_set in getattr(args, operation_type):
                     paths = [joined(thisdir, x) for x in arg_set]
                     if f.GetDirectory(paths[0]):
@@ -355,7 +355,7 @@ def main():
                         math_func = globals()[operation_type]
                         math_func(outfile, dest, hists)
     else:
-        for operation_type, separator in separators.items():
+        for operation_type, separator in list(separators.items()):
             arg_sets = getattr(args, operation_type)
             if arg_sets and arg_sets != [[]]:
                 raise ValueError("No arguments to --%s allowed when multiple "

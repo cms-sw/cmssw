@@ -81,7 +81,7 @@ class ReplaceProcessNameOfInputTags(object):
 
     def doIt(self,pset,base):
         if isinstance(pset, cms._Parameterizable):
-            for name in pset.parameters_().keys():
+            for name in list(pset.parameters_().keys()):
                 # if I use pset.parameters_().items() I get copies of the parameter values
                 # so I can't modify the nested pset
                 value = getattr(pset,name) 
@@ -398,7 +398,7 @@ if len(options.direct_input_files) == 0:
     if len(ARGV) < 1:
         print >> sys.stderr, "No data sample specified. Try the -h option to get more detailed usage help."
         print >> sys.stderr
-        print >> sys.stderr,"known samples are: " + " ".join(knownDatasets.keys())
+        print >> sys.stderr,"known samples are: " + " ".join(list(knownDatasets.keys()))
         print >> sys.stderr
         sys.exit(1)
 
@@ -406,7 +406,7 @@ if len(options.direct_input_files) == 0:
 
     # check whether we know the specified sample
     if sampleSpec not in knownDatasets:
-        print >> sys.stderr,"unknown sample " + sampleSpec + ", known samples are: " + " ".join(knownDatasets.keys())
+        print >> sys.stderr,"unknown sample " + sampleSpec + ", known samples are: " + " ".join(list(knownDatasets.keys()))
         sys.exit(1)
 
     if not options.useThisProjectArea:

@@ -88,7 +88,7 @@ else:
 
 # there seems not to be a standard URL encoding scheme used here...
 
-for analysisType in knownDatasets.keys():
+for analysisType in list(knownDatasets.keys()):
 
     dqmdir = knownDatasets[analysisType]['dqmdir']
 
@@ -108,7 +108,7 @@ for analysisType in knownDatasets.keys():
 
     print "analysis: " + analysisType
     print
-    print "          " + base_url + "?" + ";".join([ x + "=" + urllib.quote(str(parameters[x])) for x in parameters.keys() ])
+    print "          " + base_url + "?" + ";".join([ x + "=" + urllib.quote(str(parameters[x])) for x in list(parameters.keys()) ])
 
     print
     print

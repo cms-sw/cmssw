@@ -37,7 +37,7 @@ def pset_dict_to_string(psetDict):
     stream = cStringIO.StringIO()
     stream.write('\n{\n')
 
-    for name, value in psetDict.iteritems():
+    for name, value in psetDict.items():
         stream.write('%s' % printable_parameter(name, value))
         stream.write('\n')        
     
@@ -49,7 +49,7 @@ def secsource_dict_to_string(secSourceDict):
     """Make a string representing the secsource"""
     stream = cStringIO.StringIO()
     stream.write("%s\n{\n" %  secSourceDict["@classname"][2])
-    for name, value in secSourceDict.iteritems():
+    for name, value in secSourceDict.items():
         if name[0] != '@':
             stream.write('%s' % printable_parameter(name, value))
             stream.write('\n')
@@ -123,7 +123,7 @@ class cmsconfig:
 
     def moduleNames(self):
         """Return the names of modules. Returns a list."""
-        return self.psdata['modules'].keys()
+        return list(self.psdata['modules'].keys())
 
     def module(self, name):
         """Get the module with this name. Exception raised if name is
@@ -132,7 +132,7 @@ class cmsconfig:
 
     def psetNames(self):
         """Return the names of psets. Returns a list."""
-        return self.psdata['psets'].keys()
+        return list(self.psdata['psets'].keys())
 
     def pset(self, name):
         """Get the pset with this name. Exception raised if name is
@@ -148,7 +148,7 @@ class cmsconfig:
     def esSourceNames(self):
         """Return the names of all ESSources. Names are of the form '<C++ type>@<label>' where
         label can be empty. Returns a list."""
-        return self.psdata['es_sources'].keys()
+        return list(self.psdata['es_sources'].keys())
 
     def esSource(self, name):
         """Get the ESSource with this name. Exception raised if name is
@@ -158,7 +158,7 @@ class cmsconfig:
     def esModuleNames(self):
         """Return the names of all ESModules. Names are of the form '<C++ type>@<label>' where
         label can be empty. Returns a list."""
-        return self.psdata['es_modules'].keys()
+        return list(self.psdata['es_modules'].keys())
 
     def esModule(self, name):
         """Get the ESModule with this name. Exception raised if name is
@@ -168,7 +168,7 @@ class cmsconfig:
     def esPreferNames(self):
         """Return the names of all es_prefer statements. Names are of the form 'esprefer_<C++ type>@<label>' where
         label can be empty. Returns a list."""
-        return self.psdata['es_prefers'].keys()
+        return list(self.psdata['es_prefers'].keys())
 
     def esPrefer(self, name):
         """Get the es_prefer statement with this name. Exception raised if name is
@@ -178,7 +178,7 @@ class cmsconfig:
     def serviceNames(self):
         """Return the names of all Services. Names are actually the C++ class names
         Returns a list."""
-        return self.psdata['services'].keys()
+        return list(self.psdata['services'].keys())
 
     def service(self, name):
         """Get the Service with this name. Exception raised if name is
@@ -186,7 +186,7 @@ class cmsconfig:
         return self.psdata['services'][name]
 
     def pathNames(self):
-        return self.psdata['paths'].keys()
+        return list(self.psdata['paths'].keys())
 
     def path(self, name):
         """Get the path description for the path of the given
@@ -198,7 +198,7 @@ class cmsconfig:
         return self.psdata['schedule']
 
     def sequenceNames(self):
-        return self.psdata['sequences'].keys()
+        return list(self.psdata['sequences'].keys())
 
     def sequence(self, name):
         """Get the sequence description for the sequence of the given
@@ -207,7 +207,7 @@ class cmsconfig:
         return self.psdata['sequences'][name]
 
     def endpathNames(self):
-        return self.psdata['endpaths'].keys()
+        return list(self.psdata['endpaths'].keys())
 
     def endpath(self, name):
         """Return the endpath description, as a string."""
@@ -412,7 +412,7 @@ class cmsconfig:
         use any member data of the object, but I'm not sure we can
         rely on a new-enough version of Python to make use of static
         methods."""
-        for name, value in moddict.iteritems():
+        for name, value in moddict.items():
             if name[0] != '@':
                 fileobj.write('%s' % printable_parameter(name, value))
                 fileobj.write('\n')

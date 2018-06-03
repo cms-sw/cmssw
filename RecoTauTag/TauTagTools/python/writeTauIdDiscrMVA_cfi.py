@@ -82,7 +82,7 @@ writeTauIdDiscrMVAoutputNormalizations = cms.EDAnalyzer("TFormulaWriter",
     jobs = cms.VPSet()
 )
 
-for training, gbrForestName in tauIdDiscrMVA_trainings.items():
+for training, gbrForestName in list(tauIdDiscrMVA_trainings.items()):
     writeTauIdDiscrMVAs.jobs.append(
         cms.PSet(
             inputFileName = cms.FileInPath(tauIdDiscrMVA_inputFileNames[training]['GBRForest']),
@@ -92,7 +92,7 @@ for training, gbrForestName in tauIdDiscrMVA_trainings.items():
             outputRecord = cms.string("RecoTauTag_%s%s" % (gbrForestName, tauIdDiscrMVA_version))
         )
     )
-    for WP in tauIdDiscrMVA_WPs[training].keys():
+    for WP in list(tauIdDiscrMVA_WPs[training].keys()):
         writeTauIdDiscrWPs.jobs.append(
             cms.PSet(
                 inputFileName = cms.FileInPath(tauIdDiscrMVA_inputFileNames[training]['TGraph']),

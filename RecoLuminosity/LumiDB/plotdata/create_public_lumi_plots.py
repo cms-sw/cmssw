@@ -486,7 +486,7 @@ def loadCertificationJSON(json_file_name):
     full_object = cjson.decode(full_file_content[0])
 
     # Now turn this into a dictionary for easier handling.
-    tmp = full_object.keys()
+    tmp = list(full_object.keys())
     tmp = [int(i) for i in tmp]
     run_list = sorted(tmp)
     certification_data = {}
@@ -687,14 +687,14 @@ if __name__ == "__main__":
         print "Selecting data for beam energy %.0f GeV" % beam_energy
     else:
         print "Selecting data for default beam energy for '%s' from:" % accel_mode
-        for (key, val) in beam_energy_defaults[accel_mode].iteritems():
+        for (key, val) in beam_energy_defaults[accel_mode].items():
             print "  %d : %.1f GeV" % (key, val)
     if beam_fluctuation_from_cfg:
         print "Using beam energy fluctuation of +/- %.0f%%" % \
               (100. * beam_fluctuation)
     else:
         print "Using default beam energy fluctuation for '%s' from:" % accel_mode
-        for (key, val) in beam_fluctuation_defaults[accel_mode].iteritems():
+        for (key, val) in beam_fluctuation_defaults[accel_mode].items():
             print "  %d : +/- %.0f%%" % (key, 100. * val)
     if use_oracle:
         print "Using direct access to the Oracle luminosity database"
@@ -892,7 +892,7 @@ if __name__ == "__main__":
     # Bunch lumiCalc data together into weeks.
     print "Combining lumiCalc data week-by-week"
     lumi_data_by_week = {}
-    for (day, lumi) in lumi_data_by_day.iteritems():
+    for (day, lumi) in lumi_data_by_day.items():
         year = day.isocalendar()[0]
         week = day.isocalendar()[1]
         try:
@@ -904,8 +904,8 @@ if __name__ == "__main__":
                 lumi_data_by_week[year] = {week: lumi.copy()}
 
     lumi_data_by_week_per_year = {}
-    for (year, tmp_lumi) in lumi_data_by_week.iteritems():
-        for (week, lumi) in tmp_lumi.iteritems():
+    for (year, tmp_lumi) in lumi_data_by_week.items():
+        for (week, lumi) in tmp_lumi.items():
             try:
                 lumi_data_by_week_per_year[year].add(lumi)
             except KeyError:
@@ -914,7 +914,7 @@ if __name__ == "__main__":
     # Bunch lumiCalc data together into years.
     print "Combining lumiCalc data year-by-year"
     lumi_data_by_year = {}
-    for (day, lumi) in lumi_data_by_day.iteritems():
+    for (day, lumi) in lumi_data_by_day.items():
         year = day.isocalendar()[0]
         try:
             lumi_data_by_year[year] += lumi
@@ -922,7 +922,7 @@ if __name__ == "__main__":
             lumi_data_by_year[year] = lumi.copy()
 
     lumi_data_by_day_per_year = {}
-    for (day, lumi) in lumi_data_by_day.iteritems():
+    for (day, lumi) in lumi_data_by_day.items():
         year = day.isocalendar()[0]
         try:
             lumi_data_by_day_per_year[year].add(lumi)

@@ -625,7 +625,7 @@ def alldataTags(schema,lumitype='HF'):
             tagmap[tagid]=[tagname,0,0,creationtime]
         del qHandle
         
-        tagids=tagmap.keys()
+        tagids=list(tagmap.keys())
         allruns=set()
         for tagid in tagids:
             qConditionStr='TAGID<=:tagid'
@@ -763,7 +763,7 @@ def dataTagInfo(schema,tagname,runlist=None,lumitype='HF'):
             tagmap[tagid]=[tagname,0,0,creationtime]
         del qHandle
         
-        tagids=tagmap.keys()
+        tagids=list(tagmap.keys())
         allruns=set()
         for tagid in tagids:
             qConditionStr='TAGID<=:tagid'
@@ -867,7 +867,7 @@ def dataIdsByTagId(schema,tagid,runlist=None,withcomment=False,lumitype='HF'):
                 commentdict[(lumidataid,trgdataid,hltdataid)]=(creationtime,comment)
         del qHandle
         if withcomment:
-            for run,resultentry in result.items():
+            for run,resultentry in list(result.items()):
                 lumiid=resultentry[0]
                 trgid=resultentry[1]
                 hltid=resultentry[2]

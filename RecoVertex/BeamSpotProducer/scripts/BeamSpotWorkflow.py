@@ -282,12 +282,12 @@ def selectFilesToProcess(listOfRunsAndLumiFromDBS,listOfRunsAndLumiFromRR,newRun
         file.close()
 
     rrKeys = sorted(listOfRunsAndLumiFromRR.keys())
-    dbsKeys = listOfRunsAndLumiFromDBS.keys()
+    dbsKeys = list(listOfRunsAndLumiFromDBS.keys())
     dbsKeys.sort()
     #I remove the last entry from DBS since I am not sure it is an already closed run!
     lastUnclosedRun = dbsKeys.pop()
     #print "Last unclosed run: " + str(lastUnclosedRun)
-    procKeys = runsAndLumisProcessed.keys()
+    procKeys = list(runsAndLumisProcessed.keys())
     procKeys.sort()
     #print "Run Registry:"    
     #print rrKeys
@@ -478,7 +478,7 @@ def removeUncompleteRuns(newRunList,dataSet):
             processedRuns[run] = 0
         processedRuns[run] += 1
 
-    for run in processedRuns.keys():   
+    for run in list(processedRuns.keys()):   
         nFiles = getNumberOfFilesToProcessForRun(dataSet,run)
         if processedRuns[run] < nFiles:
             print "I haven't processed all files yet : " + str(processedRuns[run]) + " out of " + str(nFiles) + " for run: " + str(run)

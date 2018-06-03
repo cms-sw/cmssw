@@ -12,7 +12,7 @@ def help():
    print "Usage: cmsRun dumpSimGeometry_cfg.py  tag=TAG version=VERSION "
    print "   tag=tagname"
    print "       indentify geometry scenario "
-   print "      ", varType.keys()
+   print "      ", list(varType.keys())
    print ""
    print "   version=versionNumber"
    print "       scenario version from 2023 dictionary:"
@@ -25,7 +25,7 @@ def help():
 def versionCheck(ver):
    if ver == "":
       print "Please, specify 2023 scenario version\n"
-      pprint(sorted(detectorVersionDict.items(),key=operator.itemgetter(1)))
+      pprint(sorted(list(detectorVersionDict.items()),key=operator.itemgetter(1)))
       help()
 
 def simGeoLoad(score):

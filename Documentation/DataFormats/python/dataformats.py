@@ -112,7 +112,7 @@ def search(query):
         for type in ["full", "reco", "aod"]:
             for data_items in dict[type]['data']:
                 if query.lower() in data_items.__str__().lower() and not (("No documentation".lower()) in data_items.__str__().lower()):
-                    data+= module.replace("_json", "")+" ("+ type.replace("full", "FEVT") + ")||" + "||".join(data_items.values())+"\n"
+                    data+= module.replace("_json", "")+" ("+ type.replace("full", "FEVT") + ")||" + "||".join(list(data_items.values()))+"\n"
     
     if (data != ""):
         rows = [row.strip().split('||')  for row in data.splitlines()]
