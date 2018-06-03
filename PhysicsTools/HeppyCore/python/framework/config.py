@@ -188,7 +188,7 @@ class Component( CFG ):
     DataComponent, MCComponent, EmbedComponent
     for more information.'''
     def __init__(self, name, files, tree_name=None, triggers=None, **kwargs):
-        if isinstance(triggers, basestring):
+        if isinstance(triggers, str):
             triggers = [triggers]
         if isinstance(files, str):
             files = sorted(glob.glob(files))

@@ -14,7 +14,7 @@ class FWLiteAnalyzer(object):
     gROOT.SetBatch()        # don't pop up canvases
 
     if inputFiles:
-      if isinstance(inputFiles, basestring):
+      if isinstance(inputFiles, str):
         self.inputFiles = [inputFiles]
       else:
         self.inputFiles = inputFiles

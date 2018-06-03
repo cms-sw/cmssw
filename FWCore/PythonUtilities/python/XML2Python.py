@@ -23,7 +23,7 @@ class DataNode (object):
 
 
     def __getitem__ (self, key):
-        if isinstance (key, basestring):
+        if isinstance (key, str):
             return self._attrs.get(key,None)
         else:
             return [self][key]

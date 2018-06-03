@@ -1551,7 +1551,7 @@ class PlotText:
             self._l.SetTextFont(font)
         if size is not None:
             self._l.SetTextSize(size)
-        if isinstance(align, basestring):
+        if isinstance(align, str):
             if align.lower() == "left":
                 self._l.SetTextAlign(11)
             elif align.lower() == "center":

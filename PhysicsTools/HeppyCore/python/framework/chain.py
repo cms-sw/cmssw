@@ -45,7 +45,7 @@ class Chain( object ):
                       this TTree is used.
         """
         self.files = input
-        if isinstance(input, basestring): # input is a pattern
+        if isinstance(input, str): # input is a pattern
             self.files = glob.glob(input)
             if len(self.files)==0:
                 raise ValueError('no matching file name: '+input)
