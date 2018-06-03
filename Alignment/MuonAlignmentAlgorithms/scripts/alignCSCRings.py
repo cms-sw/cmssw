@@ -53,7 +53,7 @@ allOptions = "-l "+options.runLabel+" -i "+options.dir+" -x "+options.xml
 #if options.diagnostic: allOptions += " --diagnostic"
 print sys.argv[0]+" "+allOptions
 
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 if not os.access(options.dir,os.F_OK):
   print "Directory " + options.dir + " does not exist. Exiting..."

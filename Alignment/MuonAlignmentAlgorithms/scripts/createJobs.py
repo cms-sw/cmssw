@@ -344,7 +344,7 @@ if (options.inputInBlocks):
 
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
 
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 copytrackerdb = ""
 if trackerconnect[0:12] == "sqlite_file:": copytrackerdb += "%s " % trackerconnect[12:]
