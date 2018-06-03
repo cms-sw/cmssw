@@ -21,7 +21,7 @@ class checkforupdate:
         cleanresult=re.sub(r'\s+|\t+',' ',cleanresult)
         allfields=cleanresult.split(' ')
         workingversion = "n/a"
-        for line in filter(lambda line: "Sticky Tag" in line, result.split('\n')):
+        for line in [line for line in result.split('\n') if "Sticky Tag" in line]:
             workingversion = line.split()[2]
         if workingversion=='(none)':
             workingversion='HEAD'

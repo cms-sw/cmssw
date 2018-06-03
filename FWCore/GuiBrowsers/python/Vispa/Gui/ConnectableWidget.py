@@ -289,7 +289,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         return [port for port in self._ports if port.portType() == "sink"]
         def isSink(port):
             return port.portType() == 'sink'
-        return filter(isSink, self._ports)
+        return list(filter(isSink, self._ports))
     
     def sourcePorts(self):
         """ Returns list of all source ports set.
@@ -297,7 +297,7 @@ class ConnectableWidget(VispaWidget, VispaWidgetOwner):
         return [port for port in self._ports if port.portType() == "source"]
         def isSource(port):
             return port.portType() == 'source'
-        return filter(isSource, self._ports)
+        return list(filter(isSource, self._ports))
     
     def sinkPort(self, name):
         """ Returns sink port with given name or None if no such port is found.

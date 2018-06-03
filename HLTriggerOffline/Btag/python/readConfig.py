@@ -18,7 +18,7 @@ class fileINI:
 #		 self.denominatorTriggerPath=ConfigSectionMap("config")["denominatorTriggerPath"]
 
 		 files=files.splitlines()
-		 self.files=filter(lambda x: len(x)>0,files)
+		 self.files=[x for x in files if len(x)>0]
 
 		 self.btag_modules=cms.VInputTag()
 		 self.btag_pathes=cms.vstring()

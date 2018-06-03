@@ -156,7 +156,7 @@ class SetupAlignment(object):
             datasets = map(lambda x: x.strip(),
                            self._config.get("general",
                                             "externalDatasets").split(","))
-            datasets = filter(lambda x: len(x.strip()) > 0, datasets)
+            datasets = [x for x in datasets if len(x.strip()) > 0]
             for item in datasets:
                 splitted = item.split("|")
                 dataset = splitted[0].strip()
@@ -328,7 +328,7 @@ class SetupAlignment(object):
                        "cmscafuser:"+self._mss_dir]
             if dataset["numberOfEvents"] > 0:
                 command.extend(["--max-events", str(dataset["numberOfEvents"])])
-            command = filter(lambda x: len(x.strip()) > 0, command)
+            command = [x for x in command if len(x.strip()) > 0]
 
             # Some output:
             print "Creating jobs for dataset:", name

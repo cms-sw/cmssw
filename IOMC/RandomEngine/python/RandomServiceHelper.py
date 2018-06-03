@@ -57,7 +57,7 @@ class RandomNumberServiceHelper(object):
 
         #print svcAttrs
 
-        return filter(self.__containsSeed, svcAttrs)
+        return list(filter(self.__containsSeed, svcAttrs))
 
 
     def countSeeds(self):

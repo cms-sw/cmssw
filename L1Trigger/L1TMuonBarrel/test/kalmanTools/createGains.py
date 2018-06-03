@@ -10,7 +10,7 @@ def getBit(q,i):
 def fetchKMTF(event,etaMax=0.83,chi2=800000,dxyCut=100000):
     kmtfH  = Handle('vector<L1MuKBMTrack>')
     event.getByLabel('simKBmtfDigis',kmtfH)
-    kmtf=filter(lambda x: abs(x.eta())<etaMax and x.approxChi2()<chi2 and abs(x.dxy())<dxyCut,kmtfH.product())
+    kmtf=[x for x in kmtfH.product() if abs(x.eta())<etaMax and x.approxChi2()<chi2 and abs(x.dxy())<dxyCut]
     return sorted(kmtf,key=lambda x: x.pt(),reverse=True)
 
 ####Save the Kalman Gains for LUTs

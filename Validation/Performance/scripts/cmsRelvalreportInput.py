@@ -654,7 +654,7 @@ def writeCommands(simcandles,
                 stepToWrite = stepToWrite.replace("HLT", "HLT:GRun")
             
             #Checking now if the current step matches the first of a composite step in userSteps
-            hypMatch = filter(lambda x: "-" in x,filter(lambda x: step == x.split("-")[0],userSteps))
+            hypMatch = [x for x in [x for x in userSteps if step == x.split("-")[0]] if "-" in x]
             if not len(hypMatch) == 0 :
                 hypsteps    = expandHyphens(hypMatch[0])
                 #print hypsteps
@@ -669,7 +669,7 @@ def writeCommands(simcandles,
                 else:
                     aftStep     = hypsteps[-1]
                 oneShotProf = True
-            if filter(lambda x: stepToWrite==x.split(":")[0],userSteps):
+            if [x for x in userSteps if stepToWrite==x.split(":")[0]]:
                 #print "Inside the filter if!"
                 #print stepToWrite
                 #Here we are assuming that the steps specified with : are not duplicate in the userSteps command:

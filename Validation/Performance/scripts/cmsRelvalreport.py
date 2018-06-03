@@ -550,7 +550,7 @@ class Profile:
                 if not IgProfDumps:
                     localFiles=os.listdir('.')
                     IgProfDumpProfilesPrevious=re.compile(r"\w+.\d+.gz")
-                    IgProfDumps=filter(lambda x: IgProfDumpProfilesPrevious.search(x),localFiles)
+                    IgProfDumps=[x for x in localFiles if IgProfDumpProfilesPrevious.search(x)]
                 #Now if there are dumps execute the following analyses:
                 if IgProfDumps:
                     IgProfDumps.sort()

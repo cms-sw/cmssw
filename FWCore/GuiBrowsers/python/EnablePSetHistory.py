@@ -307,10 +307,10 @@ def new_dumpModifications(self, comments=True, process=True, module=False, seque
     for name, o in self.items_():
         modifications += self.recurseDumpModifications_(name, o)
     if not sequence:
-        modifications = filter(lambda x: not x['type'] == 'seq', modifications)
+        modifications = [x for x in modifications if not x['type'] == 'seq']
     checkpoint = self.__dict__['_Process__modifiedcheckpoint']
     if not checkpoint == None:
-        modifications = filter(lambda x: any([x['name'].startswith(check) for check in checkpoint]), modifications)
+        modifications = [x for x in modifications if any([x['name'].startswith(check) for check in checkpoint])]
     if module:
         value = False
         comments = False

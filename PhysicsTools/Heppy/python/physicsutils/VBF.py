@@ -79,7 +79,7 @@ class VBF( object ):
                 return True
             else:
                 return False
-        centralJets = filter( isCentral, otherJets )
+        centralJets = list(filter( isCentral, otherJets ))
         return centralJets
 
     def calcP4(self, jets):

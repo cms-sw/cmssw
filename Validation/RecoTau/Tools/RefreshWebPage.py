@@ -29,9 +29,9 @@ except:
     sys.exit(0)
 
 webDir           += '/'
-webDir_subdirs    = filter( lambda x: os.path.isdir(webDir+x), os.listdir( webDir ) )
-official_releases = sorted( filter( lambda x: re.findall(r'^CMSSW_[0-9]+_[0-9]+_[0-9]+(?:_pre[0-9]+)?$',x), webDir_subdirs), key=unpackRelease)
-special_releases  = sorted( filter( lambda x: re.findall(r'^CMSSW_[0-9]+_[0-9]+_[0-9]+',x) and not x in official_releases, webDir_subdirs), key=unpackRelease)
+webDir_subdirs    = [x for x in os.listdir( webDir ) if os.path.isdir(webDir+x)]
+official_releases = sorted( [x for x in webDir_subdirs if re.findall(r'^CMSSW_[0-9]+_[0-9]+_[0-9]+(?:_pre[0-9]+)?$',x)], key=unpackRelease)
+special_releases  = sorted( [x for x in webDir_subdirs if re.findall(r'^CMSSW_[0-9]+_[0-9]+_[0-9]+',x) and not x in official_releases], key=unpackRelease)
 custom_made       = [d for d in webDir_subdirs if not d in official_releases and not d in special_releases]
 
 
@@ -47,7 +47,7 @@ main_web_page_html.close()
 for rel in official_releases+special_releases:
     tauid_dir = webDir+rel+'/TauID/'
     reldir    = webDir+rel+'/'
-    datasets  = filter(lambda x: os.path.isdir(tauid_dir+x) and not x == 'Reference', os.listdir(tauid_dir))
+    datasets  = [x for x in os.listdir(tauid_dir) if os.path.isdir(tauid_dir+x) and not x == 'Reference']
     cfg_file  = glob.glob(tauid_dir+'*/Config/showtags.txt')[0] if glob.glob(tauid_dir+'*/Config/showtags.txt') else None
     config    = open(cfg_file).read() if cfg_file else 'NO CONFIGURATION AVAILABLE!'
     data_html = []
