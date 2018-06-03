@@ -218,7 +218,7 @@ def conddb(*args):
     sys.argv[1:] = args
     bkpstdout = sys.stdout
     with NamedTemporaryFile(bufsize=0) as sys.stdout:
-        exec conddb in namespace
+        exec(conddb, namespace)
         namespace["main"]()
         with open(sys.stdout.name) as f:
             result = f.read()
