@@ -57,7 +57,7 @@ class ElementBase:
       self.name = []
     elif isinstance(other, ElementBase):
       self.name = other.name
-    elif isinstance(other, basestring):
+    elif isinstance(other, str):
       self.parse(other)
     else:
       raise TypeError("Cannot initialize an ElementBase from type %s" % type(other))
