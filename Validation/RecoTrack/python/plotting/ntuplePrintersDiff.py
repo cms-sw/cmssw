@@ -150,7 +150,7 @@ class _DiffResult(object):
                 yield line
 
     def __str__(self):
-        return "\n".join(filter(lambda s: s != "", (str(item) for item in self._diff)))
+        return "\n".join([s for s in (str(item) for item in self._diff) if s != ""])
 
     def __len__(self):
         return len(self._diff)

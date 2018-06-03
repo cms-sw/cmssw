@@ -83,7 +83,7 @@ helpers.cloneProcessingSnippet( proc, proc.GeneralMuSequence, 'AtSingleMu') #clo
 seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForSingleMuDataset'), hltPaths = cms.vstring('HLT_IsoMu24_eta2p1_v*') ) ) )
 proc.GeneralMuSequenceAtSingleMu.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtSingleMu') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('AtSingleMu') != -1)]
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
@@ -99,7 +99,7 @@ helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealData
 seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForJetDataset'), hltPaths = cms.vstring('HLT_Jet30_L1FastJet_v*') ) ) )
 proc.TauValNumeratorAndDenominatorRealDataAtJet.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtJet') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('AtJet') != -1)]
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
@@ -115,7 +115,7 @@ helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealData
 seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForMultiJetDataset'), hltPaths = cms.vstring('OUR_HLT_FALLBACK_PATH') ) ) )
 proc.TauValNumeratorAndDenominatorRealDataAtMultiJet.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtMultiJet') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('AtMultiJet') != -1)]
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
@@ -131,7 +131,7 @@ helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealElec
 seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForDoubleElectronDataset'), hltPaths = cms.vstring('HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_v*') ) ) ) 
 proc.TauValNumeratorAndDenominatorRealElectronsDataAtDoubleElectron.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('AtDoubleElectron') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('AtDoubleElectron') != -1)]
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)
@@ -147,7 +147,7 @@ helpers.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominatorRealElec
 seqModifier = ApplyFunctionToSequence( lambda module: setTrigger( module, cms.PSet( hltDBKey = cms.string('TauTriggerForTauPlusXDataset'), hltPaths = cms.vstring('HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v*') ) ) )
 proc.TauValNumeratorAndDenominatorRealElectronsDataTauPlusX.visit(seqModifier)
 #checks what's new in the process (the cloned sequences and modules in them)
-newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('TauPlusX') != -1), dir(proc) )
+newProcAttributes = [x for x in dir(proc) if (x not in procAttributes) and (x.find('TauPlusX') != -1)]
 #spawns a local variable with the same name as the proc attribute, needed for future process.load
 for newAttr in newProcAttributes:
     locals()[newAttr] = getattr(proc,newAttr)

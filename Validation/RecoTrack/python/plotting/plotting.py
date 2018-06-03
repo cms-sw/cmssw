@@ -400,7 +400,7 @@ def _getYmaxWithError(th1):
     return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in xrange(1, th1.GetNbinsX()+1)])
 
 def _getYminIgnoreOutlier(th1):
-    yvals = sorted(filter(lambda n: n>0, [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)]))
+    yvals = sorted([n for n in [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)] if n>0])
     if len(yvals) == 0:
         return th1.GetMinimum()
     if len(yvals) == 1:
@@ -424,7 +424,7 @@ def _getYminMaxAroundMedian(obj, coverage, coverageRange=None):
 
     if isinstance(obj, ROOT.TH1):
         yvals = [obj.GetBinContent(i) for i in xrange(1, obj.GetNbinsX()+1) if inRange2(obj.GetXaxis().GetBinLowEdge(i), obj.GetXaxis().GetBinUpEdge(i))]
-        yvals = filter(lambda x: x != 0, yvals)
+        yvals = [x for x in yvals if x != 0]
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
         yvals = [obj.GetY()[i] for i in xrange(0, obj.GetN()) if inRange(obj.GetX()[i])]
     else:
@@ -475,8 +475,8 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
             xmaxs.append(_getXmax(th1, limitToNonZeroContent=isinstance(xmax, list)))
 
         # Filter out cases where histograms have zero content
-        xmins = filter(lambda h: h is not None, xmins)
-        xmaxs = filter(lambda h: h is not None, xmaxs)
+        xmins = [h for h in xmins if h is not None]
+        xmaxs = [h for h in xmaxs if h is not None]
 
         if xmin is None:
             xmin = min(xmins)
@@ -487,7 +487,7 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                     print "Histogram is zero, using the smallest given value for xmin from", str(xmin)
             else:
                 xm = min(xmins)
-                xmins_below = filter(lambda x: x<=xm, xmin)
+                xmins_below = [x for x in xmin if x<=xm]
                 if len(xmins_below) == 0:
                     xmin = min(xmin)
                     if xm < xmin:
@@ -505,7 +505,7 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                     print "Histogram is zero, using the smallest given value for xmax from", str(xmin)
             else:
                 xm = max(xmaxs)
-                xmaxs_above = filter(lambda x: x>xm, xmax)
+                xmaxs_above = [x for x in xmax if x>xm]
                 if len(xmaxs_above) == 0:
                     xmax = max(xmax)
                     if xm > xmax:
@@ -569,7 +569,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
         elif isinstance(ymin, list):
             ym_unscaled = min(ymins)
             ym = y_scale_min(ym_unscaled)
-            ymins_below = filter(lambda y: y<=ym, ymin)
+            ymins_below = [y for y in ymin if y<=ym]
             if len(ymins_below) == 0:
                 ymin = min(ymin)
                 if ym_unscaled < ymin:
@@ -585,7 +585,7 @@ def _findBoundsY(th1s, ylog, ymin=None, ymax=None, coverage=None, coverageRange=
         elif isinstance(ymax, list):
             ym_unscaled = max(ymaxs)
             ym = y_scale_max(ym_unscaled)
-            ymaxs_above = filter(lambda y: y>ym, ymax)
+            ymaxs_above = [y for y in ymax if y>ym]
             if len(ymaxs_above) == 0:
                 ymax = max(ymax)
                 if ym_unscaled > ymax:
@@ -1041,8 +1041,8 @@ class AggregateBins:
             for i, val in enumerate(binValues):
                 if val is None:
                     binLabels[i] = None
-            binValues = filter(lambda v: v is not None, binValues)
-            binLabels = filter(lambda v: v is not None, binLabels)
+            binValues = [v for v in binValues if v is not None]
+            binLabels = [v for v in binLabels if v is not None]
             if len(binValues) == 0:
                 return None
 
@@ -1838,7 +1838,7 @@ class Plot:
 
     def getNumberOfHistograms(self):
         """Return number of existing histograms."""
-        return len(filter(lambda h: h is not None, self._histograms))
+        return len([h for h in self._histograms if h is not None])
 
     def isEmpty(self):
         """Return true if there are no histograms created for the plot"""
@@ -2091,7 +2091,7 @@ class Plot:
 
         if ratio:
             self._ratios = _calculateRatios(histos, self._ratioUncertainty) # need to keep these in memory too ...
-            ratioHistos = filter(lambda h: h is not None, [r.getRatio() for r in self._ratios[1:]])
+            ratioHistos = [h for h in [r.getRatio() for r in self._ratios[1:]] if h is not None]
 
             if len(ratioHistos) > 0:
                 ratioBoundsY = _findBoundsY(ratioHistos, ylog=False, ymin=self._ratioYmin, ymax=self._ratioYmax, coverage=0.68, coverageRange=self._ratioCoverageXrange)
@@ -2767,7 +2767,7 @@ class PlotterFolder:
         if limitOnlyTo is None:
             return self._dqmSubFolders
 
-        return filter(lambda s: self._plotFolder.limitSubFolder(limitOnlyTo, s.translated), self._dqmSubFolders)
+        return [s for s in self._dqmSubFolders if self._plotFolder.limitSubFolder(limitOnlyTo, s.translated)]
 
     def getTableCreators(self):
         return self._tableCreators
@@ -2823,7 +2823,7 @@ class PlotterFolder:
 class PlotterInstance:
     """Instance of plotter that knows the directory content, holds many folders."""
     def __init__(self, folders):
-        self._plotterFolders = filter(lambda f: f is not None, folders)
+        self._plotterFolders = [f for f in folders if f is not None]
 
     def iterFolders(self, limitSubFoldersOnlyTo=None):
         for plotterFolder in self._plotterFolders:

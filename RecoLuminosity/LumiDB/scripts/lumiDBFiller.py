@@ -44,7 +44,7 @@ def getRunsToBeUploaded(connectionString, dropbox, authpath='',minrun=180250):
     # check if there are new runs to be uploaded
     #command = 'ls -ltr '+dropbox
     p=re.compile('^CMS_LUMI_RAW_\d\d\d\d\d\d\d\d_\d\d\d\d\d\d\d\d\d_\d\d\d\d_\d.root$')
-    files=filter(os.path.isfile,[os.path.join(dropbox,x) for x in os.listdir(dropbox) if p.match(x)])
+    files=list(filter(os.path.isfile,[os.path.join(dropbox,x) for x in os.listdir(dropbox) if p.match(x)]))
     files.sort(key=lambda x: os.path.getmtime(os.path.join(dropbox,x)))
     #print 'sorted files ',files
     #print files

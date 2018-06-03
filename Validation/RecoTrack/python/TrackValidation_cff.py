@@ -250,9 +250,9 @@ _sequenceForEachEra(_addSelectorsByHp, args=["_algos"], names="_selectorsByAlgoH
 for _eraName, _postfix, _era in _relevantEras:
     locals()["_selectorsByAlgoAndHp"+_postfix] = locals()["_selectorsByAlgo"+_postfix] + locals()["_selectorsByAlgoHp"+_postfix]
     # For ByAlgoMask
-    locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] = filter(lambda n: n not in ["generalTracks", "cutsRecoTracksHp"], locals()["_selectorsByAlgoAndHp"+_postfix])
+    locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] = [n for n in locals()["_selectorsByAlgoAndHp"+_postfix] if n not in ["generalTracks", "cutsRecoTracksHp"]]
     # For ByOriginalAlgo
-    locals()["_selectorsByAlgoAndHpNoGenTkDupMerge"+_postfix] = filter(lambda n: n not in ["cutsRecoTracksDuplicateMerge", "cutsRecoTracksDuplicateMergeHp"], locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix])
+    locals()["_selectorsByAlgoAndHpNoGenTkDupMerge"+_postfix] = [n for n in locals()["_selectorsByAlgoAndHpNoGenTk"+_postfix] if n not in ["cutsRecoTracksDuplicateMerge", "cutsRecoTracksDuplicateMergeHp"]]
 _sequenceForEachEra(_addSelectorsByOriginalAlgoMask, modDict = globals(),
                     args = ["_selectorsByAlgoAndHpNoGenTkDupMerge"], plainArgs = ["ByOriginalAlgo", "originalAlgorithm"],
                     names = "_selectorsByOriginalAlgo", sequence = "_tracksValidationSelectorsByOriginalAlgo")

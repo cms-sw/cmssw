@@ -43,8 +43,7 @@ class Alignables:
                 for structure in discriminator:
                     ndiscriminator[structure].append(getattr(entry, structure))
         for structure in discriminator:
-            ndiscriminator[structure] = filter(lambda x: x != 0,
-                                               ndiscriminator[structure])
+            ndiscriminator[structure] = [x for x in ndiscriminator[structure] if x != 0]
 
         return [len(set(ndiscriminator[structure]))
                 for structure in discriminator]

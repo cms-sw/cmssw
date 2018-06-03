@@ -76,7 +76,7 @@ for year in upgradeKeys:
                 # skip ALCA
                 trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly']
                 for tv in trackingVariations:
-                    stepList[tv] = filter(lambda s : "ALCA" not in s, stepList[tv])
+                    stepList[tv] = [s for s in stepList[tv] if "ALCA" not in s]
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]
                 if '2017' in key:
                     for tv in trackingVariations[1:]:
