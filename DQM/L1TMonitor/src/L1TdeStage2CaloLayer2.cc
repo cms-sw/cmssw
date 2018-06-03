@@ -26,7 +26,8 @@ L1TdeStage2CaloLayer2::L1TdeStage2CaloLayer2 (const edm::ParameterSet& ps)
     calol2EtSumCollectionEmul(consumes <l1t::EtSumBxCollection>(
 				ps.getParameter<edm::InputTag>(
 				  "calol2EtSumCollectionEmul"))),
-    verbose(ps.getUntrackedParameter<bool> ("verbose", false))
+    verbose(ps.getUntrackedParameter<bool> ("verbose", false)),
+    enable2DComp(ps.getUntrackedParameter<bool> ("enable2DComp", false)) // When true eta-phi comparison plots are also produced
 {}
 
 void L1TdeStage2CaloLayer2::bookHistograms(
@@ -49,9 +50,21 @@ void L1TdeStage2CaloLayer2::bookHistograms(
 			      227, -113.5, 113.5);
   jetPhiEmul = ibooker.book1D("Problematic Emul Jet iPhi", "Jet i#phi",
 			      288, -0.5, 143.5);
+  //if enable2DComp is true book also 2D eta-phi plots
+  if(enable2DComp){
+    jet2DEtaPhiData = ibooker.book2D("Problematic Data Jet Eta - Phi","Jet #eta - #phi map",
+                                      50,-5.,5.,25,-3.2,3.2);
+    jet2DEtaPhiData->setAxisTitle("#eta", 1);
+    jet2DEtaPhiData->setAxisTitle("#phi", 2);
+
+    jet2DEtaPhiEmul = ibooker.book2D("Problematic Emul Jet Eta - Phi","Jet #eta - #phi map",
+                                      50,-5.,5.,25,-3.2,3.2);
+    jet2DEtaPhiEmul->setAxisTitle("#eta", 1);
+    jet2DEtaPhiEmul->setAxisTitle("#phi", 2);
+  }
 
   // DQM directory to store histograms with problematic e/gs
-  ibooker.setCurrentFolder(monitorDir + "/Problematic EG candidtes");
+  ibooker.setCurrentFolder(monitorDir + "/Problematic EG candidates");
 
   egEtData = ibooker.book1D("Problematic Data Eg iEt", "Eg iE_{T}",
 			    1400, 0, 1399);
@@ -65,7 +78,18 @@ void L1TdeStage2CaloLayer2::bookHistograms(
 			     227, -113.5, 113.5);
   egPhiEmul = ibooker.book1D("Problematic Emul Eg iPhi", "Eg i#phi",
 			     288, -0.5, 143.5);
+  //if enable2DComp is true book also 2D eta-phi plots
+  if(enable2DComp){
+    eg2DEtaPhiData = ibooker.book2D("Problematic Data Eg Eta - Phi","Eg #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    eg2DEtaPhiData->setAxisTitle("#eta", 1);
+    eg2DEtaPhiData->setAxisTitle("#phi", 2);
 
+    eg2DEtaPhiEmul = ibooker.book2D("Problematic Emul Eg Eta - Phi","Eg #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    eg2DEtaPhiEmul->setAxisTitle("#eta", 1);
+    eg2DEtaPhiEmul->setAxisTitle("#phi", 2);
+  }
   isoEgEtData = ibooker.book1D("Problematic Isolated Data Eg iEt",
 			       "Iso Eg iE_{T}", 1400, 0, 1399);
   isoEgEtaData = ibooker.book1D("Problematic Isolated Data Eg iEta",
@@ -78,9 +102,20 @@ void L1TdeStage2CaloLayer2::bookHistograms(
 				"Iso Eg i#eta", 227, -113.5, 113.5);
   isoEgPhiEmul = ibooker.book1D("Problematic Isolated Emul Eg iPhi",
 				"Iso Eg i#phi", 288, -0.5, 143.5);
+  // enable2DComp is true book also 2D eta-phi plots
+  if(enable2DComp){
+    isoEg2DEtaPhiData = ibooker.book2D("Problematic Isolated Data Eg Eta - Phi","Iso Eg #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    isoEg2DEtaPhiData->setAxisTitle("#eta", 1);
+    isoEg2DEtaPhiData->setAxisTitle("#phi", 2);
 
+    isoEg2DEtaPhiEmul = ibooker.book2D("Problematic Isolated Emul Eg Eta - Phi","Iso Eg #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    isoEg2DEtaPhiEmul->setAxisTitle("#eta", 1);
+    isoEg2DEtaPhiEmul->setAxisTitle("#phi", 2);
+  }
   // DQM directory to store histograms with problematic taus
-  ibooker.setCurrentFolder(monitorDir + "/Problematic Tau candidtes");
+  ibooker.setCurrentFolder(monitorDir + "/Problematic Tau candidates");
 
   tauEtData = ibooker.book1D("Problematic Data Tau iEt", "Tau iE_{T}",
 			     1400, 0, 1399);
@@ -94,7 +129,18 @@ void L1TdeStage2CaloLayer2::bookHistograms(
 			      227, -113.5, 113.5);
   tauPhiEmul = ibooker.book1D("Problematic Emul Tau iPhi", "Tau i#phi",
 			      288, -0.5, 143.5);
+  // enable2DComp is true book also 2D eta-phi plots
+  if(enable2DComp){
+    tau2DEtaPhiData = ibooker.book2D("Problematic Data Tau Eta - Phi","Tau #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    tau2DEtaPhiData->setAxisTitle("#eta", 1);
+    tau2DEtaPhiData->setAxisTitle("#phi", 2);
 
+    tau2DEtaPhiEmul = ibooker.book2D("Problematic Emul Tau Eta - Phi","Tau #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    tau2DEtaPhiEmul->setAxisTitle("#eta", 1);
+    tau2DEtaPhiEmul->setAxisTitle("#phi", 2);
+  }
   isoTauEtData = ibooker.book1D("Problematic Isolated Data Tau iEt",
 				"Iso Tau iE_{T}", 1400, 0, 1399);
   isoTauEtaData = ibooker.book1D("Problematic Isolated Data Tau iEta",
@@ -107,7 +153,18 @@ void L1TdeStage2CaloLayer2::bookHistograms(
 				 "Iso Tau i#eta", 227, -113.5, 113.5);
   isoTauPhiEmul = ibooker.book1D("Problematic Isolated Emul Tau iPhi",
 				 "Iso Tau i#phi", 288, -0.5, 143.5);
+  // enable2DComp is true book also 2D eta-phi plots
+  if(enable2DComp){
+    isoTau2DEtaPhiData = ibooker.book2D("Problematic Isolated Data Tau Eta - Phi","Iso Tau #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    isoTau2DEtaPhiData->setAxisTitle("#eta", 1);
+    isoTau2DEtaPhiData->setAxisTitle("#phi", 2);
 
+    isoTau2DEtaPhiEmul = ibooker.book2D("Problematic Isolated Emul Tau Eta - Phi","Iso Tau #eta - #phi map",
+                                      30,-3.,3.,25,-3.2,3.2);
+    isoTau2DEtaPhiEmul->setAxisTitle("#eta", 1);
+    isoTau2DEtaPhiEmul->setAxisTitle("#phi", 2);
+  }
   // DQM directory to store histograms with problematic sums
   ibooker.setCurrentFolder(monitorDir + "/Problematic Sums");
 
@@ -406,6 +463,7 @@ bool L1TdeStage2CaloLayer2::compareJets(
 	jetEtData->Fill(dataIt->hwPt());
 	jetEtaData->Fill(dataIt->hwEta());
 	jetPhiData->Fill(dataIt->hwPhi());
+        if(enable2DComp) jet2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
 	++dataIt;
 
@@ -421,7 +479,8 @@ bool L1TdeStage2CaloLayer2::compareJets(
 
 	jetEtEmul->Fill(emulIt->hwPt());
 	jetEtaEmul->Fill(emulIt->hwEta());
-	jetPhiEmul->Fill(emulIt->hwPhi());
+	jetPhiEmul->Fill(emulIt->hwPhi()); 
+        if(enable2DComp) jet2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
 
 	++emulIt;
 
@@ -434,7 +493,7 @@ bool L1TdeStage2CaloLayer2::compareJets(
 	jetEtEmul->Fill(dataIt->hwPt());
 	jetEtaEmul->Fill(dataIt->hwEta());
 	jetPhiEmul->Fill(dataIt->hwPhi());
-
+         
 	++dataIt;
 
 	if (dataIt == dataCol->end(currBx))
@@ -483,10 +542,12 @@ bool L1TdeStage2CaloLayer2::compareJets(
 	jetEtData->Fill(dataIt->hwPt());
 	jetEtaData->Fill(dataIt->hwEta());
 	jetPhiData->Fill(dataIt->hwPhi());
+        if(enable2DComp) jet2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
 	jetEtEmul->Fill(emulIt->hwPt());
 	jetEtaEmul->Fill(emulIt->hwEta());
 	jetPhiEmul->Fill(emulIt->hwPhi());
+        if(enable2DComp) jet2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
 
 	if (verbose) {
 	  edm::LogInfo("L1TdeStage2CaloLayer2") << "--- jet ---"<< std::endl;
@@ -561,11 +622,13 @@ bool L1TdeStage2CaloLayer2::compareEGs(
 	if (dataIt->hwIso()) {
 	  isoEgEtData->Fill(dataIt->hwPt());
 	  isoEgEtaData->Fill(dataIt->hwEta());
-	  isoEgPhiData->Fill(dataIt->hwPhi());
+	  isoEgPhiData->Fill(dataIt->hwPhi());  
+          if(enable2DComp) isoEg2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 	} else {
 	  egEtData->Fill(dataIt->hwPt());
 	  egEtaData->Fill(dataIt->hwEta());
 	  egPhiData->Fill(dataIt->hwPhi());
+          if(enable2DComp) eg2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 	}
 
 	++dataIt;
@@ -583,10 +646,12 @@ bool L1TdeStage2CaloLayer2::compareEGs(
 	  isoEgEtEmul->Fill(emulIt->hwPt());
 	  isoEgEtaEmul->Fill(emulIt->hwEta());
 	  isoEgPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) isoEg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());    
 	} else {
 	  egEtEmul->Fill(emulIt->hwPt());
 	  egEtaEmul->Fill(emulIt->hwEta());
 	  egPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) eg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi()); 
 	}
 
 	++emulIt;
@@ -644,18 +709,22 @@ bool L1TdeStage2CaloLayer2::compareEGs(
 	  isoEgEtData->Fill(dataIt->hwPt());
 	  isoEgEtaData->Fill(dataIt->hwEta());
 	  isoEgPhiData->Fill(dataIt->hwPhi());
+          if(enable2DComp) isoEg2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
 	  isoEgEtEmul->Fill(emulIt->hwPt());
 	  isoEgEtaEmul->Fill(emulIt->hwEta());
 	  isoEgPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) isoEg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
 	} else {
 	  egEtData->Fill(dataIt->hwPt());
 	  egEtaData->Fill(dataIt->hwEta());
 	  egPhiData->Fill(dataIt->hwPhi());
+          if(enable2DComp) eg2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
 	  egEtEmul->Fill(emulIt->hwPt());
 	  egEtaEmul->Fill(emulIt->hwEta());
 	  egPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) eg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
 	}
 
 	if (verbose) {
@@ -746,11 +815,13 @@ bool L1TdeStage2CaloLayer2::compareTaus(
 	if (dataIt->hwIso()) {
 	  isoTauEtData->Fill(dataIt->hwPt());
 	  isoTauEtaData->Fill(dataIt->hwEta());
-	  isoTauPhiData->Fill(dataIt->hwPhi());
+	  isoTauPhiData->Fill(dataIt->hwPhi()); 
+          if(enable2DComp) isoTau2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 	} else {
 	  tauEtData->Fill(dataIt->hwPt());
 	  tauEtaData->Fill(dataIt->hwEta());
 	  tauPhiData->Fill(dataIt->hwPhi());
+          if(enable2DComp) tau2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 	}
 
 	++dataIt;
@@ -771,10 +842,13 @@ bool L1TdeStage2CaloLayer2::compareTaus(
 	  isoTauEtEmul->Fill(emulIt->hwPt());
 	  isoTauEtaEmul->Fill(emulIt->hwEta());
 	  isoTauPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) isoTau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
+          
 	} else {
 	  tauEtEmul->Fill(emulIt->hwPt());
 	  tauEtaEmul->Fill(emulIt->hwEta());
 	  tauPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) tau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
 	}
 
 	++emulIt;
@@ -831,19 +905,23 @@ bool L1TdeStage2CaloLayer2::compareTaus(
 	  isoTauEtData->Fill(dataIt->hwPt());
 	  isoTauEtaData->Fill(dataIt->hwEta());
 	  isoTauPhiData->Fill(dataIt->hwPhi());
+          if(enable2DComp) isoTau2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
 	  isoTauEtEmul->Fill(emulIt->hwPt());
 	  isoTauEtaEmul->Fill(emulIt->hwEta());
 	  isoTauPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) isoTau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
 
 	} else {
 	  tauEtData->Fill(dataIt->hwPt());
 	  tauEtaData->Fill(dataIt->hwEta());
 	  tauPhiData->Fill(dataIt->hwPhi());
+          if(enable2DComp) tau2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
 	  tauEtEmul->Fill(emulIt->hwPt());
 	  tauEtaEmul->Fill(emulIt->hwEta());
 	  tauPhiEmul->Fill(emulIt->hwPhi());
+          if(enable2DComp) tau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
 	}
 
 	if (verbose) {
