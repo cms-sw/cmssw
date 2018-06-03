@@ -218,7 +218,7 @@ nanoDQM = cms.EDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 Count1D('_size', 20, -0.5, 19.5, 'slimmedJets, i.e. ak4 PFJets CHS with JECs applied, after basic selection (pt > 15)'),
                 Plot1D('area', 'area', 20, 0.2, 0.8, 'jet catchment area, for JECs'),
-                Plot1D('bReg', 'bReg', 20, 30, 500, 'pt corrected with b-jet regression'),
+                Plot1D('bRegCorr', 'bRegCorr', 20, 0, 3, 'pt corrected with b-jet regression'),
                 Plot1D('bRegRes', 'bRegRes', 20, 0, 0.6, 'res on pt corrected with b-jet regression'),
                 Plot1D('btagCMVA', 'btagCMVA', 20, -1, 1, 'CMVA V2 btag discriminator'),
                 Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
