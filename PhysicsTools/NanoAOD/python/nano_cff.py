@@ -66,14 +66,14 @@ btagWeightTable = cms.EDProducer("BTagSFProducer",
         "CMVA"
     ),
     weightFiles = cms.vstring(                                  #default settings are for 2017 94X. toModify function is called later for other eras.
-        btagSFdir+"CSVv2_94XSF_V1_B_F.csv",
-        btagSFdir+"DeepCSV_94XSF_V1_B_F.csv",                    
-        "unavailable"                                           #if SFs for an algorithm in an era is unavailable, all weights will be stored as 1.0
+        btagSFdir+"CSVv2_94XSF_V2_B_F.csv",
+        btagSFdir+"DeepCSV_94XSF_V2_B_F.csv",                    
+        "unavailable"                                           #if SFs for an algorithm in an era is unavailable, the corresponding branch will not be stored
     ),
-    operatingPoints = cms.vstring("1","1","1"),                 #loose = 0, medium = 1, tight = 2, reshaping = 3
-    measurementTypesB = cms.vstring("comb","comb","ttbar"),     #e.g. "comb", "incl", "ttbar", "iterativefit"
-    measurementTypesC = cms.vstring("comb","comb","ttbar"),
-    measurementTypesUDSG = cms.vstring("incl","incl","incl"),
+    operatingPoints = cms.vstring("3","3","3"),                 #loose = 0, medium = 1, tight = 2, reshaping = 3
+    measurementTypesB = cms.vstring("iterativefit","iterativefit","iterativefit"),     #e.g. "comb", "incl", "ttbar", "iterativefit"
+    measurementTypesC = cms.vstring("iterativefit","iterativefit","iterativefit"),
+    measurementTypesUDSG = cms.vstring("iterativefit","iterativefit","iterativefit"),
     sysTypes = cms.vstring("central","central","central")
 )
 
@@ -81,7 +81,7 @@ run2_miniAOD_80XLegacy.toModify(btagWeightTable,
     cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
     weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
         btagSFdir+"CSVv2_Moriond17_B_H.csv",            
-        btagSFdir+"DeepCSV_Moriond17_B_H.csv",                    
+        "unavailable",                    
         btagSFdir+"cMVAv2_Moriond17_B_H.csv"                                            
     )
 )
