@@ -3,7 +3,7 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
 
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
@@ -52,9 +52,13 @@ class TrackingRecHitAlgorithm
         //this function will only be called once per stream
         virtual void beginStream(const edm::StreamID& id);
         
+        //this function will only be called once per run
+        virtual void beginRun(edm::Run const& run, const edm::EventSetup& eventSetup);
+
         //this function will only be called once per event
         virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
 
+	//the main action is here
         virtual TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const;
 
         //this function will only be called once per event

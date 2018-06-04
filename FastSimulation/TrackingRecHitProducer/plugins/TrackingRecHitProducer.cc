@@ -109,9 +109,12 @@ void TrackingRecHitProducer::beginStream(edm::StreamID id)
     }
 }
 
-void TrackingRecHitProducer::beginRun(edm::Run const&, const edm::EventSetup& eventSetup)
+void TrackingRecHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup)
 {
-
+    for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+    {
+        algo->beginRun(run, eventSetup);
+    }
 }
 
 void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)

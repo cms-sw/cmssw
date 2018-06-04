@@ -114,19 +114,18 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
 
 PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
 {
-  //--- Delete the histogram storage containers.
-  // &&& No need to do this since now all these are unique_ptr<>'s... ?
-  // delete theEdgePixelResolutions;
-  // delete theBigPixelResolutions;
-  // delete theRegularPixelResolutions;
+  //--- Delete the templates
+  for (auto x : thePixelTemp_) x.destroy();
 }
 
 
 //-------------------------------------------------------------------------------
-//   beginEvent();  we need to re-implement it to fetch Templates (1D, 2D) and
-//   possibly other goodies from the EventSetup.  We do it here, once per event.
+//   beginRun();  we need to re-implement it to fetch Templates (1D, 2D) and
+//   possibly other goodies from the EventSetup.  We do it here, once per run.
+//   Given that this is MC, it is extremely unlikely that, once loaded, the
+//   templates will ever change per job.
 //-------------------------------------------------------------------------------
-void PixelTemplateSmearerBase::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
+void PixelTemplateSmearerBase::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup)
 {
   //--- Check if we need to load the template from the DB (namely if id = -1).
   //    Otherwise the template has already been loaded from the ascii file in constructor.
@@ -147,18 +146,6 @@ void PixelTemplateSmearerBase::beginEvent(edm::Event& event, const edm::EventSet
   }
 
 }
-
-
-//-------------------------------------------------------------------------------
-//   endEvent().  Reassign everything to zero to ensure that these are not used
-//   while in an undefined state.
-//   &&& Check if we truly need to do this, or whether this is an overkill.
-//-------------------------------------------------------------------------------
-void PixelTemplateSmearerBase::endEvent(edm::Event& event, const edm::EventSetup& eventSetup)
-{
-  pixelTemplateDBObject_ = nullptr;
-}
-
 
 
 //-------------------------------------------------------------------------------
@@ -426,15 +413,28 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit (
     if( xbin < 0 )    xbin = 0;
     if( xbin > 39 )   xbin = 39; 
 
+
+    int ID = templateId;
+    if ( templateId == -1 ) {
+      // We have loaded the whole template set from the DB,
+      // so ask the DB object to find us the right one.
+      ID = pixelTemplateDBObject_->getTemplateID( detUnit->geographicalId() );  // need uint32_t detid
+      //				    theDetParam.theDet->geographicalId());
+    }
+
+    //--- Make the template object
+    SiPixelTemplate templ(thePixelTemp_);
+
+    //--- Produce the template that corresponds to our local angles.
+    templ.interpolate( ID, cotalpha, cotbeta);
+
     //Variables for SiPixelTemplate output
     //qBin -- normalized pixel charge deposition
     float qbin_frac[4];
     //Single pixel cluster projection possibility
     float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
     bool singlex = false, singley = false;
-    SiPixelTemplate templ(thePixelTemp_);
-    templ.interpolate(templateId, cotalpha, cotbeta);
-    templ.qbin_dist(templateId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
+    templ.qbin_dist( ID, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
     int  nqbin;
 
     double xsizeProbability = random->flatShoot();
@@ -573,8 +573,8 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit (
     //Variables for SiPixelTemplate pixel hit error output
     float sigmay, sigmax, sy1, sy2, sx1, sx2;  
     templ.temperrors(
-        templateId, cotalpha, cotbeta, nqbin,     // inputs
-        sigmay, sigmax, sy1, sy2, sx1, sx2        // outputs
+        ID, cotalpha, cotbeta, nqbin,          // inputs
+        sigmay, sigmax, sy1, sy2, sx1, sx2     // outputs
     );
 
     if(edge)
@@ -869,15 +869,27 @@ smearMergeGroup (
     if( xbin < 0 )    xbin = 0;
     if( xbin > 39 )   xbin = 39; 
 
+    int ID = templateId;
+    if ( templateId == -1 ) {
+      // We have loaded the whole template set from the DB,
+      // so ask the DB object to find us the right one.
+      ID = pixelTemplateDBObject_->getTemplateID( detUnit->geographicalId() );  // need uint32_t detid
+      //				    theDetParam.theDet->geographicalId());
+    }
+
+    //--- Make the template object
+    SiPixelTemplate templ(thePixelTemp_);
+
+    //--- Produce the template that corresponds to our local angles.
+    templ.interpolate( ID, cotalpha, cotbeta);
+
     // Variables for SiPixelTemplate output
     // qBin -- normalized pixel charge deposition
     float qbin_frac[4];
     // Single pixel cluster projection possibility
     float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
     bool singlex = false, singley = false;
-    SiPixelTemplate templ(thePixelTemp_);
-    templ.interpolate(templateId, cotalpha, cotbeta);
-    templ.qbin_dist(templateId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
+    templ.qbin_dist( ID, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
     int  nqbin;
 
     //  double xsizeProbability = random->flatShoot();
@@ -936,7 +948,7 @@ smearMergeGroup (
 
     //Variables for SiPixelTemplate pixel hit error output
     float sigmay, sigmax, sy1, sy2, sx1, sx2;  
-    templ.temperrors(templateId, cotalpha, cotbeta, nqbin,          // inputs
+    templ.temperrors( ID, cotalpha, cotbeta, nqbin,       // inputs
 	       sigmay, sigmax, sy1, sy2, sx1, sx2 );      // outputs
 
     // define private mebers --> Errors
