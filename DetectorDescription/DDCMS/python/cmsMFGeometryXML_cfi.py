@@ -6,5 +6,5 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
                                                                    'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
                                                                    'MagneticField/GeomBuilder/data/MagneticFieldVolumes_160812_1.xml',
                                                                    'Geometry/CMSCommonData/data/materials.xml'),
-                                        rootNodeName = cms.string('cmsMagneticField:MAGF')
+                                        rootNodeName = cms.string('cms:MCMS')
                                         )
