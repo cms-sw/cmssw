@@ -11,5 +11,5 @@ l1tdeStage2CaloLayer2 = DQMEDAnalyzer('L1TdeStage2CaloLayer2',
     calol2EtSumCollectionData = cms.InputTag("caloStage2Digis", "EtSum"),
     calol2EtSumCollectionEmul = cms.InputTag("valCaloStage2Layer2Digis"),
     monitorDir = cms.untracked.string("L1TEMU/L1TStage2CaloLayer2/L1TdeStage2CaloLayer2"),
-    enable2DComp = cms.untracked.bool(False) # When true eta-phi comparison plots are also produced
+    enable2DComp = cms.untracked.bool(True) # When true eta-phi comparison plots are also produced
 )
