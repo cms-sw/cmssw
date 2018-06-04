@@ -140,7 +140,7 @@ class Table(object):
         return self.colNames
 
     def newRow(self,name):
-        if name in self.rows.keys():
+        if name in list(self.rows.keys()):
             pass
         else:
             self.keys.append(name)
@@ -177,7 +177,7 @@ class Table(object):
         return (self.keys, self.rows)
 
     def addRow(self,row,name):
-        if name in self.rows.keys():
+        if name in list(self.rows.keys()):
             pass
         else:
             self.keys.append(name)

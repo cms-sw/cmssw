@@ -279,7 +279,7 @@ class json_list(json_data_node):
 			table_name = None
 			data = self.data()
 			# gets headers stored in first dictionary
-			headers = data[0].keys()
+			headers = list(data[0].keys())
 
 		if columns != None:
 			headers = columns

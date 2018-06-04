@@ -225,7 +225,7 @@ def switchToPFTauByType(process,
         'hpsPFTau'           : switchToPFTauHPS,
         'caloRecoTau'        : switchToCaloTau
     }
-    if not pfTauType in mapping.keys():
+    if not pfTauType in list(mapping.keys()):
         raise ValueError("Error in <switchToPFTauByType>: Undefined pfTauType = %s !!" % pfTauType)
     
     mapping[pfTauType](process, tauSource = tauSource,

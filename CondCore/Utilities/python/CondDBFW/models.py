@@ -179,7 +179,7 @@ def apply_filter(orm_query, orm_class, attribute, value):
     return orm_query
 
 def apply_filters(orm_query, orm_class, **filters):
-    for (key, value) in filters.items():
+    for (key, value) in list(filters.items()):
         if not(key in ["amount"]):
             orm_query = apply_filter(orm_query, orm_class, key, value)
     return orm_query
@@ -244,7 +244,7 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(GlobalTag)
             query = apply_filters(query, self.__class__, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(GlobalTag.name).limit(amount).all()
             gts = data_sources.json_data_node.make(query_result)
             return gts
@@ -256,7 +256,7 @@ def generate(map_blobs=False, class_name=None):
             kwargs["global_tag_name"] = self.name
             all_tags = self.session.query(GlobalTagMap.global_tag_name, GlobalTagMap.record, GlobalTagMap.label, GlobalTagMap.tag_name)
             all_tags = apply_filters(all_tags, GlobalTagMap, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             all_tags = all_tags.order_by(GlobalTagMap.tag_name).limit(amount).all()
             column_names = ["global_tag_name", "record", "label", "tag_name"]
             all_tags = map(lambda row : dict(zip(column_names, map(to_timestamp, row))), all_tags)
@@ -279,7 +279,7 @@ def generate(map_blobs=False, class_name=None):
             tag_names = self.tags().get_members("tag_name").data()
             iovs_all_tags = self.session.query(IOV).filter(IOV.tag_name.in_(tag_names))
             iovs_all_tags = apply_filters(iovs_all_tags, IOV, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             iovs_all_tags = iovs_all_tags.limit(amount).subquery()
 
             # now, join Global Tag Map table onto IOVs
@@ -461,7 +461,7 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(IOV)
             query = apply_filters(query, IOV, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(IOV.tag_name).order_by(IOV.since).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
@@ -535,7 +535,7 @@ def generate(map_blobs=False, class_name=None):
                 query = apply_filters(query, IOV, **kwargs)
                 query_result = query.all()
                 tag_names = map(lambda entry : entry[0], query_result)
-                amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+                amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
                 tags = self.session.query(Tag).filter(Tag.name.in_(tag_names)).order_by(Tag.name).limit(amount).all()
                 return data_sources.json_data_node.make(tags)
 
@@ -545,7 +545,7 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(Payload)
             query = apply_filters(query, Payload, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(Payload.hash).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
@@ -581,7 +581,7 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(Record)
             query = apply_filters(query, Record, kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(Record.record).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
@@ -655,7 +655,7 @@ def generate(map_blobs=False, class_name=None):
                 query_result = query.all()
                 if len(query_result) != 0:
                     global_tag_names = map(lambda entry : entry[0], query_result)
-                    amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+                    amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
                     global_tags = self.session.query(GlobalTag).filter(GlobalTag.name.in_(global_tag_names)).order_by(GlobalTag.name).limit(amount).all()
                 else:
                     global_tags = None
@@ -667,7 +667,7 @@ def generate(map_blobs=False, class_name=None):
             """
             query = self.session.query(Tag)
             query = apply_filters(query, Tag, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             query_result = query.order_by(Tag.name).limit(amount).all()
             return data_sources.json_data_node.make(query_result)
 
@@ -678,7 +678,7 @@ def generate(map_blobs=False, class_name=None):
             # filter_params contains a list of columns to filter the iovs by
             iovs_query = self.session.query(IOV).filter(IOV.tag_name == self.name)
             iovs_query = apply_filters(iovs_query, IOV, **kwargs)
-            amount = kwargs["amount"] if "amount" in kwargs.keys() else None
+            amount = kwargs["amount"] if "amount" in list(kwargs.keys()) else None
             iovs = iovs_query.order_by(IOV.since).limit(amount).all()
             return data_sources.json_data_node.make(iovs)
 

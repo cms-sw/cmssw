@@ -58,7 +58,7 @@ class inputFilesetParser(object):
                 runnumber=int(field0)
                 if runnumber not in result:
                     result[runnumber]=None
-        return result.keys()
+        return list(result.keys())
     def selectedRunsWithresult(self):
         '''
         output: [run,run,...]

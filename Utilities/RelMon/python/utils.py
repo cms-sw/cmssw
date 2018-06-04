@@ -588,13 +588,13 @@ def make_files_pairs(files, verbose=True):
         for version in versions_files:
             print '%s: %d files' % (str(version),  len(versions_files[version]))
 
-    if len(versions_files.keys()) <= 1:
+    if len(list(versions_files.keys())) <= 1:
         print '\nFound too little versions, there is nothing to pair. Exiting...\n'
         exit()
 
     ## Select two biggest groups.
-    versions = versions_files.keys()
-    sizes = [len(value) for value in versions_files.values()]
+    versions = list(versions_files.keys())
+    sizes = [len(value) for value in list(versions_files.values())]
     v1 = versions[sizes.index(max(sizes))]
     versions.remove(v1)
     sizes.remove(max(sizes))

@@ -107,7 +107,7 @@ def autoPlot1D(name, col, branch):
     xmin, xmax = map(smartRound, (xmin,xmax))
     return Plot1D(name, col, 20, xmin, xmax)
 
-for head in sorted(branchgroups.iterkeys()):
+for head in sorted(branchgroups.keys()):
     pset = getattr(nanoDQM.vplots, head, None)
     if not pset:
         if options.verbose: print "%s <skipped as it's not in vplots>" % head
@@ -118,7 +118,7 @@ for head in sorted(branchgroups.iterkeys()):
     existing = set(x[0] for x in allplots)
     found  = set()
     title  = dict( (n,x.title.value()) for (n,x) in allplots if x.kind.value() != "none" and x.title.value() )
-    for (t,branch) in sorted(branchgroups[head].iteritems()):
+    for (t,branch) in sorted(branchgroups[head].items()):
         t_noat = t.replace("@","_")
         found.add(t_noat)
         if t_noat not in title: title[t_noat] = branch.title

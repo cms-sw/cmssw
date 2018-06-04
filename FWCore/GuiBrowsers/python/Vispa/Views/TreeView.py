@@ -119,7 +119,7 @@ class TreeView(AbstractView, QTreeWidget):
         """
         #logging.debug(__name__ + ": select")
         items = []
-        for positionName, item in self._itemDict.items():
+        for positionName, item in list(self._itemDict.items()):
             if item.object == object:
                 items += [(positionName, item)]
         if len(items) > 0:
@@ -130,7 +130,7 @@ class TreeView(AbstractView, QTreeWidget):
             self._updatingFlag -=1
 
     def _selectedItem(self):
-        if self._selection in self._itemDict.keys():
+        if self._selection in list(self._itemDict.keys()):
             return self._itemDict[self._selection]
         elif self._firstItem!=None:
             return self._firstItem

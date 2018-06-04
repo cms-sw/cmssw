@@ -25,7 +25,7 @@ for year in upgradeKeys:
         numWF=numWFAll[year][i]
         for frag in upgradeFragments:
             stepList={}
-            for stepType in upgradeSteps.keys():
+            for stepType in list(upgradeSteps.keys()):
                 stepList[stepType] = []
             hasHarvest = False
             for step in upgradeProperties[year][key]['ScenToRun']:                    
@@ -37,7 +37,7 @@ for year in upgradeKeys:
                 
                 if 'HARVEST' in step: hasHarvest = True
 
-                for stepType in upgradeSteps.keys():
+                for stepType in list(upgradeSteps.keys()):
                     # use variation only when available
                     if stepType == 'Premix':
                         # Premixing stage1

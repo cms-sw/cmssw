@@ -24,14 +24,14 @@ def patchV2(dbsession,runnum,inputpathnames,inputdata):
         existinglsdata=dataDML.hltLSById(dbsession.nominalSchema(),oldhltdataid)
         dbsession.transaction().commit()
         oldlsdata=existinglsdata[1]
-        existinglslist=oldlsdata.keys()
+        existinglslist=list(oldlsdata.keys())
         toupdate={}#{cmslsnum:[presc,presc...]}
         toinsert={}#{cmslsnum:[presc,presc...]}
         if existinglslist and len(existinglslist)!=0:#there are some existing data
-            for cmslsnum,oldlscontent in oldlsdata.items():
-                if cmslsnum in inputdata.keys(): # if overlap with new data, update old data with new 
+            for cmslsnum,oldlscontent in list(oldlsdata.items()):
+                if cmslsnum in list(inputdata.keys()): # if overlap with new data, update old data with new 
                     toupdate[cmslsnum]=inputdata[cmslsnum]
-        for cmslsnum,lshltcontent in inputdata.items():
+        for cmslsnum,lshltcontent in list(inputdata.items()):
             if cmslsnum in toupdate: continue #it's to update not to insert
             toinsert[cmslsnum]=inputdata[cmslsnum]
         #
@@ -39,7 +39,7 @@ def patchV2(dbsession,runnum,inputpathnames,inputdata):
         #
         dbsession.transaction().start(False)
         tabrowDefDict={'DATA_ID':'unsigned long long','RUNNUM':'unsigned int','CMSLSNUM':'unsigned int','PRESCALEBLOB':'blob','HLTCOUNTBLOB':'blob','HLTACCEPTBLOB':'blob'}
-        for cmslsnum,perlsdata in toinsert.items():
+        for cmslsnum,perlsdata in list(toinsert.items()):
             prescaleArray=array.array('I')
             hltcountArray=array.array('I')
             hltacceptArray=array.array('I')
@@ -62,7 +62,7 @@ def patchV2(dbsession,runnum,inputpathnames,inputdata):
             #
         setClause='PRESCALEBLOB=:prescaleblob,HLTCOUNTBLOB=:hltcountblob,HLTACCEPTBLOB=:hltacceptblob'
         updateCondition='DATA_ID=:oldhltdataid and CMSLSNUM=:cmslsnum'
-        for cmslsnum,perlsdata in toupdate.items():
+        for cmslsnum,perlsdata in list(toupdate.items()):
             prescaleArray=array.array('I')
             hltcountArray=array.array('I')
             hltacceptArray=array.array('I')
@@ -106,7 +106,7 @@ def insertV2(dbsession,runnum,inputpathnames,inputdata):
         hltrundata=[pathnamesClob,'text file']
         (hltrevid,hltentryid,hltdataid)=dataDML.addHLTRunDataToBranch(dbsession.nominalSchema(),runnum,hltrundata,(branchrevision_id,'DATA'))
         hltlsdata={}
-        for cmslsnum,perlsdata in inputdata.items():
+        for cmslsnum,perlsdata in list(inputdata.items()):
             prescaleArray=array.array('I')
             hltcountArray=array.array('I')
             hltacceptArray=array.array('I')

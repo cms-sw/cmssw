@@ -201,7 +201,7 @@ class queueNode():
 class queueList(dict):
   def __init__(self,servers = [],cores = 4,jay = 2):
     dict.__init__(self,dict.fromkeys(servers))
-    for srv in self.keys():
+    for srv in list(self.keys()):
       self[srv]=queueNode(cores,jay)
     self.Cores = cores
     self.Jay = jay
@@ -210,9 +210,9 @@ class queueList(dict):
   
 
   def smallestQueue(self):
-    smallest=self.keys()[0]
+    smallest=list(self.keys())[0]
     sizeSmallest=self[smallest].pendingThreads()
-    for srv in self.keys()[1:]:
+    for srv in list(self.keys())[1:]:
       size=self[srv].pendingThreads()
       if size < sizeSmallest:
         smallest = srv
@@ -220,9 +220,9 @@ class queueList(dict):
     return smallest
       
   def thinerQueue(self):
-    thinnest=self.keys()[0]
+    thinnest=list(self.keys())[0]
     weightThinnest=self[thinnest].queueWeight()
-    for srv in self.keys()[1:]:
+    for srv in list(self.keys())[1:]:
       weight=self[srv].queueWeight()
       if weight < weightThinnest:
         thinnest = srv

@@ -258,7 +258,7 @@ class SetupAlignment(object):
         json_regex = re.compile('setupJson\s*\=\s*.*$', re.M)
 
         first_dataset = True
-        for name, dataset in self._datasets.iteritems():
+        for name, dataset in self._datasets.items():
             print "="*75
             # Build config from template/Fill in variables
             try:
@@ -439,7 +439,7 @@ class SetupAlignment(object):
             print "Properly set up the alignment before using the -w option."
             sys.exit(1)
 
-        firstDataset = next(self._datasets.itervalues())
+        firstDataset = next(iter(self._datasets.values()))
         config_template = firstDataset["configTemplate"]
         collection = firstDataset["collection"]
 
@@ -503,7 +503,7 @@ class SetupAlignment(object):
                                               run_number, input_db_name)
 
         self._override_gt = ""
-        for record,tag in tags.iteritems():
+        for record,tag in tags.items():
             if self._override_gt == "":
                 self._override_gt \
                     += ("\nimport "
@@ -558,13 +558,13 @@ class SetupAlignment(object):
                 print self._first_run, "!=", iovs[0]
                 sys.exit(1)
 
-        for inp in inputs.itervalues():
+        for inp in inputs.values():
             inp["iovs"] = mps_tools.get_iovs(inp["connect"], inp["tag"])
 
         # check consistency of input with output
         problematic_gt_inputs = {}
         input_indices = {key: len(value["iovs"]) -1
-                         for key,value in inputs.iteritems()}
+                         for key,value in inputs.items()}
         for iov in reversed(iovs):
             for inp in inputs:
                 if inputs[inp].pop("problematic", False):
@@ -604,7 +604,7 @@ class SetupAlignment(object):
 
         # check consistency of 'TrackerAlignmentRcd' with other inputs
         input_indices = {key: len(value["iovs"]) -1
-                         for key,value in inputs.iteritems()
+                         for key,value in inputs.items()
                          if (key != "TrackerAlignmentRcd")
                          and (inp not in problematic_gt_inputs)}
         for iov in reversed(inputs["TrackerAlignmentRcd"]["iovs"]):
@@ -666,7 +666,7 @@ class SetupAlignment(object):
                 if var == "testMode": continue
                 print "No '" + var + "' given in [general] section."
 
-        for dataset in self._external_datasets.itervalues():
+        for dataset in self._external_datasets.values():
             dataset["general"] = {}
             for var in ("globaltag", "configTemplate", "json"):
                 try:
@@ -701,7 +701,7 @@ class SetupAlignment(object):
                                "weight": None}
         all_configs.update(self._external_datasets)
 
-        for config in all_configs.itervalues():
+        for config in all_configs.values():
             global_weight = "1" if config["weight"] is None else config["weight"]
             if global_weight+self._config.config_path in self._common_weights:
                 global_weight = self._common_weights[global_weight+
@@ -847,8 +847,8 @@ class SetupAlignment(object):
                         print "inputfilelist as the number of jobs."
 
             # check if local weights override global weights and resolve name clashes
-            for weight_name, weight_values in common_weights.iteritems():
-                for key, weight in weight_dict.iteritems():
+            for weight_name, weight_values in common_weights.items():
+                for key, weight in weight_dict.items():
                     if any([weight_name in w for w in weight]):
                         self._common_weights[weight_name+config["config"].config_path] = weight_values
                         self._weight_dict[key] = [mps_tools.replace_factors(w,
@@ -863,7 +863,7 @@ class SetupAlignment(object):
 
         if len(self._datasets) == 0:
             print "No dataset section defined in '{0}'".format(
-                ", ".join([self._args.aligmentConfig]+self._external_datasets.keys()))
+                ", ".join([self._args.aligmentConfig]+list(self._external_datasets.keys())))
             print "At least one section '[dataset:<name>]' is required."
             sys.exit(1)
 

@@ -63,11 +63,11 @@ if __name__ == "__main__":
     irunlsdict={}
     if options.runnumber: # if runnumber specified, do not go through other run selection criteria
         irunlsdict[options.runnumber]=None
-        runlist=irunlsdict.keys()
+        runlist=list(irunlsdict.keys())
     else:
         if options.inputfile:
             (irunlsdict,iresults)=parseInputFiles(options.inputfile)
-            runlist=irunlsdict.keys()
+            runlist=list(irunlsdict.keys())
     session.transaction().start(True)
     (hf_tagid,hf_tagname)=revisionDML.currentDataTag(session.nominalSchema(),lumitype='HF')
     hfdataidmap=revisionDML.dataIdsByTagId(session.nominalSchema(),hf_tagid,runlist,withcomment=False,lumitype='HF')
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     #{runnum: (datasource(1),nominalegev(2),ncollidingbunches(3)}
     GrunsummaryData=lumiCalcAPI.runsummaryMap(session.nominalSchema(),irunlsdict)
     session.transaction().commit()
-    for runnum in lumirundata.keys():
+    for runnum in list(lumirundata.keys()):
         session.transaction().start(True)
         hfdataidinfo=hfdataidmap[runnum]
         hflumidata=lumiCalcAPI.instLumiForIds(session.nominalSchema(),irunlsdict,hfdataidmap,GrunsummaryData,beamstatusfilter=None,withBXInfo=True,bxAlgo='OCC1')

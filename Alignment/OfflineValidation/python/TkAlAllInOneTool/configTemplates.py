@@ -388,10 +388,10 @@ queue = .oO[queue]Oo.
 
 def alternateTemplate( templateName, alternateTemplateName ):
 
-    if not templateName in globals().keys():
+    if not templateName in list(globals().keys()):
         msg = "unknown template to replace %s"%templateName
         raise AllInOneError(msg)
-    if not alternateTemplateName in globals().keys():
+    if not alternateTemplateName in list(globals().keys()):
         msg = "unknown template to replace %s"%alternateTemplateName
         raise AllInOneError(msg)
     globals()[ templateName ] = globals()[ alternateTemplateName ]

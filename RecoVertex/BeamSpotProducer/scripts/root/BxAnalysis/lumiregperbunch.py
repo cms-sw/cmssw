@@ -38,7 +38,7 @@ class bsmeas(object):
 
 def timeof(run,lumisection):
     # first check if this run is already in the list, otherwise read it
-    if run not in runlstime.keys():
+    if run not in list(runlstime.keys()):
         print "Reading lumi time from lumireg localcopy files"
         filename="localcopy/BeamFitResults_Run"+run+".txt"
         if not os.path.exists(filename):
@@ -162,7 +162,7 @@ def readroot():
                             print "New range:",label," found in ",histoname
                             rls.append(label)
                                 
-                        if label in thisbx.keys():
+                        if label in list(thisbx.keys()):
                             thismeas=thisbx[label]
                         else:
                             thisbx[label]=bsmeas()
@@ -223,11 +223,11 @@ if __name__ == '__main__':
     allmeas=readroot()
     # now write it
     
-    for bx in allmeas.keys():
+    for bx in list(allmeas.keys()):
         print "writing bx=",bx
         bxmeas=allmeas[bx]
         lines={}
-        for meas in bxmeas.keys():
+        for meas in list(bxmeas.keys()):
             # first derive time in unix time
             runno=meas.split(':')[0]
             runno=runno.strip()

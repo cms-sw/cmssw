@@ -325,7 +325,7 @@ def createMergeScript( path, validations, options ):
     #prepare dictionary containing handle objects for parallel merge batch jobs
     if options.mergeOfflineParallel:
         parallelMergeObjects={}
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in comparisonLists.items():
         for validation in validations:
             #parallel merging
             if (isinstance(validation, PreexistingValidation)
@@ -413,12 +413,12 @@ def createMergeScript( path, validations, options ):
         repMap["DownloadData"] = ""
 
     repMap["RunValidationPlots"] = ""
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in comparisonLists.items():
         if issubclass(validationType, ValidationWithPlots):
             repMap["RunValidationPlots"] += validationType.doRunPlots(validations)
 
     repMap["CompareAlignments"] = "#run comparisons"
-    for (validationType, referencename), validations in comparisonLists.iteritems():
+    for (validationType, referencename), validations in comparisonLists.items():
         if issubclass(validationType, ValidationWithComparison):
             repMap["CompareAlignments"] += validationType.doComparison(validations)
     

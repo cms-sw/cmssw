@@ -35,14 +35,14 @@ class ThreadChain(QThread):
         self._commandTuples += [(id, command, attr)]
         if self.NO_THREADS_FLAG:
             self._returnValues[id] = command.__call__(*attr)
-            self.emit(SIGNAL('finishedThreadChain'), self._returnValues.values())
+            self.emit(SIGNAL('finishedThreadChain'), list(self._returnValues.values()))
             return
         
     def clearReturnValues(self):
         self._returnValues.clear()
         
     def clearReturnValue(self, command):
-        if command in self._returnValues.keys():
+        if command in list(self._returnValues.keys()):
             self._returnValues.pop(command)
             return True
         return False
@@ -53,13 +53,13 @@ class ThreadChain(QThread):
         The id is returned by addCommand().
         If id is None the return value of the last command will be returned.
         """
-        if id in self._returnValues.keys():
+        if id in list(self._returnValues.keys()):
             return self._returnValues[id]
         valueLength = len(self._returnValues)
         if valueLength == 0:
             return []
             # TODO: maybe raise exception to distinguish from None return value?
-        return self._returnValues[self._returnValues.keys()[valueLength-1]]
+        return self._returnValues[list(self._returnValues.keys())[valueLength-1]]
         
     def start(self):
         if self.NO_THREADS_FLAG:
@@ -76,4 +76,4 @@ class ThreadChain(QThread):
             
         # signal contains list of return values 
         # for compatibility with old implementation
-        self.emit(SIGNAL('finishedThreadChain'), self._returnValues.values())
+        self.emit(SIGNAL('finishedThreadChain'), list(self._returnValues.values()))

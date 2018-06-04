@@ -128,7 +128,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         names_after_cleaning = [alignment.name for alignment in alignments]
         duplicates = [name
                       for name, count
-                      in collections.Counter(names_after_cleaning).items()
+                      in list(collections.Counter(names_after_cleaning).items())
                       if count > 1]
         if len(duplicates) > 0:
             msg = "Duplicate alignment names after removing invalid characters: "
@@ -158,7 +158,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "logdir":os.getcwd(),
             "eosdir": "",
             }
-        self.checkInput("general", knownSimpleOptions = defaults.keys())
+        self.checkInput("general", knownSimpleOptions = list(defaults.keys()))
         general = self.getResultingSection( "general", defaultDict = defaults )
         internal_section = "internals"
         if not self.has_section(internal_section):
@@ -216,7 +216,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         if section == "validation":
             if raw or vars:
                 raise NotImplementedError("'raw' and 'vars' do not work for betterConfigParser.items()!")
-            items = self._sections["validation"].items()
+            items = list(self._sections["validation"].items())
             return items
         else:
             return ConfigParser.ConfigParser.items(self, section, raw, vars)
@@ -225,7 +225,7 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         """Write an .ini-format representation of the configuration state."""
         for section in self._sections:
             fp.write("[%s]\n" % section)
-            for (key, value) in self._sections[section].items():
+            for (key, value) in list(self._sections[section].items()):
                 if key == "__name__" or not isinstance(value, (str, unicode)):
                     continue
                 if value is not None:

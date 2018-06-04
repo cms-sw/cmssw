@@ -35,9 +35,9 @@ def findpr(options):
     findpr.prd=copy.deepcopy(findpr.pralld)
     #dictionary with pclbadmodules only     
 
-    for k in findpr.prd.keys():
+    for k in list(findpr.prd.keys()):
             
-        for l in findpr.prd[k].keys():
+        for l in list(findpr.prd[k].keys()):
             if pcl not in findpr.prd[k][l]:
                 findpr.prd[k].pop(l)
     

@@ -25,9 +25,9 @@ def root2map(dir,ana,treename):
         jsonind[run] =  list(set(jsonind[run]))
 
     nruns = len(jsonind)
-    nlumis = sum(len(v) for v in jsonind.itervalues())
+    nlumis = sum(len(v) for v in jsonind.values())
     jsonmap = {}
-    for r,lumis in jsonind.iteritems():
+    for r,lumis in jsonind.items():
         if len(lumis) == 0: continue # shouldn't happen
         lumis.sort()
         ranges = [ [ lumis[0], lumis[0] ] ]

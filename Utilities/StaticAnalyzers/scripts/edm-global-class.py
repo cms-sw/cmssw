@@ -96,7 +96,7 @@ fileinput.close()
 
 
 for n,nbrdict in G.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
+	for nbr,eattr in list(nbrdict.items()):
 		if n in badfuncs or nbr in badfuncs :
 			if 'kind' in eattr and eattr['kind'] == ' overrides function '  :
 				print "'"+n+"'"+eattr['kind']+"'"+nbr+"'"

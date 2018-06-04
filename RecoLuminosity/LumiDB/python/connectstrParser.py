@@ -46,7 +46,7 @@ class connectstrParser(object):
         if len(parameterDict)==0:
             raise 'empty frontier parameters, cannot construct full connect string'
         result='frontier://'
-        for k,v in parameterDict.items():
+        for k,v in list(parameterDict.items()):
             ##if attr name=url, concatenate; if attrname=value discard
             if k=='load' and v[0][0]=='balance':
                 result+='(loadbalance='+v[0][1]+')'

@@ -37,7 +37,7 @@ if __name__=="__main__":
             moduleblock1=self._r.readfile('newfile')
             moduleblock2=self._r.readfile('newfile2')
             keys1=sorted(moduleblock1.keys())
-            keys2=moduleblock2.keys()
+            keys2=list(moduleblock2.keys())
             keys2.sort()
             self.assertEqual(keys1,['HLT2','Processing'])
             self.assertEqual(keys2,['HLT','Processing'])

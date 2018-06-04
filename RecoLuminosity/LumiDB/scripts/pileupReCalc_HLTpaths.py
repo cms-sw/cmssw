@@ -94,17 +94,17 @@ if __name__ == '__main__':
     OUTPUTLINE = ""
     OUTPUTLINE+='{'
 
-    for (run, lslist) in sorted (inputRange.iteritems() ):
+    for (run, lslist) in sorted (inputRange.items() ):
         # now, look for matching run, then match lumi sections
         #print "searching for run %d" % (run)
-        if run in inputPileupRange.keys():
+        if run in list(inputPileupRange.keys()):
             OUTPUTLINE+= ('"%d":' % run )
             OUTPUTLINE+= ' ['
             
             LSPUlist = inputPileupRange[run]
             #print "LSPUlist", LSPUlist
             for LSnumber in lslist:
-                if LSnumber in LSPUlist.keys():
+                if LSnumber in list(LSPUlist.keys()):
                     PUlumiInfo = LSPUlist[LSnumber]
                     HLTlumiInfo = lslist[LSnumber]
                     #print "found LS %d" % (LSnumber)

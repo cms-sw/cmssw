@@ -133,7 +133,7 @@ class matplotRender():
         csvreport=None
         rows=[]
         flat=[]
-        for label,yvalues in rawdata.items():
+        for label,yvalues in list(rawdata.items()):
             yvalues.sort()
             flat.append([t[1] for t in yvalues])
             ypoints[label]=[]
@@ -232,7 +232,7 @@ class matplotRender():
         csvreport=None
         rows=[]
         flat=[]
-        for label,yvalues in rawdata.items():
+        for label,yvalues in list(rawdata.items()):
             yvalues.sort()
             flat.append([t[2] for t in yvalues])
             ypoints[label]=[]
@@ -341,7 +341,7 @@ class matplotRender():
         csvreport=None
         rows=[]
         flat=[]
-        for label,yvalues in rawdata.items():
+        for label,yvalues in list(rawdata.items()):
             yvalues.sort()
             flat.append([t[3] for t in yvalues])
             if label==referenceLabel:
@@ -473,7 +473,7 @@ class matplotRender():
         fulldays=range(MinDay,MaxDay+1)
         allstarts=[]
         allstops=[]
-        for label,yvalues in rawdata.items():
+        for label,yvalues in list(rawdata.items()):
             yvalues.sort()
             flat.append([t[3] for t in yvalues])
             alldays=[t[0] for t in yvalues]
@@ -617,7 +617,7 @@ class matplotRender():
         MinDay=minTime.date().toordinal()
         MaxDay=maxTime.date().toordinal()
         fulldays=range(MinDay,MaxDay+1)
-        for label in rawdata.keys():
+        for label in list(rawdata.keys()):
             yvalues=sorted(rawdata[label])
             alldays=[t[0] for t in yvalues]
             alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
@@ -732,7 +732,7 @@ class matplotRender():
         #print len(xpoints)
         ypoints={}
         ymax={}
-        for ylabel,yvalue in rawydata.items():
+        for ylabel,yvalue in list(rawydata.items()):
             ypoints[ylabel]=[y/lslength for y in yvalue]
             ymax[ylabel]=max(yvalue)/lslength
         left=0.15

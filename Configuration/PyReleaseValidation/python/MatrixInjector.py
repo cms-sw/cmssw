@@ -244,11 +244,11 @@ class MatrixInjector(object):
             wmsplit={}
 
         acqEra=False
-        for (n,dir) in directories.items():
+        for (n,dir) in list(directories.items()):
             chainDict=copy.deepcopy(self.defaultChain)
             print "inspecting",dir
             nextHasDSInput=None
-            for (x,s) in mReader.workFlowSteps.items():
+            for (x,s) in list(mReader.workFlowSteps.items()):
                 #x has the format (num, prefix)
                 #s has the format (num, name, commands, stepList)
                 if x[0]==n:
@@ -423,7 +423,7 @@ class MatrixInjector(object):
                     primary=t_second['nowmIO']['primary'][0].replace('file:','')
                     for i_input in reversed(range(0,i_second)):
                         t_input=chainDict['nowmTasklist'][i_input]
-                        for (om,o) in t_input['nowmIO'].items():
+                        for (om,o) in list(t_input['nowmIO'].items()):
                             if primary in o:
                                 #print "found",primary,"procuced by",om,"of",t_input['TaskName']
                                 t_second['InputTask'] = t_input['TaskName']
@@ -451,8 +451,8 @@ class MatrixInjector(object):
             #  - and also Campaign to be always the same as the AcquisitionEra
 
             if acqEra:
-                chainDict['AcquisitionEra'] = chainDict['AcquisitionEra'].values()[0] 
-                chainDict['ProcessingString'] = chainDict['ProcessingString'].values()[0]
+                chainDict['AcquisitionEra'] = list(chainDict['AcquisitionEra'].values())[0] 
+                chainDict['ProcessingString'] = list(chainDict['ProcessingString'].values())[0]
             else:
                 chainDict['AcquisitionEra'] = chainDict['nowmTasklist'][0]['AcquisitionEra']
                 chainDict['ProcessingString'] = chainDict['nowmTasklist'][0]['ProcessingString']
@@ -519,7 +519,7 @@ class MatrixInjector(object):
             return cacheId
     
     def upload(self):
-        for (n,d) in self.chainDicts.items():
+        for (n,d) in list(self.chainDicts.items()):
             for it in d:
                 if it.startswith("Task") and it!='TaskChain':
                     #upload
@@ -550,7 +550,7 @@ class MatrixInjector(object):
                 sys.exit(-17)
 
         import pprint
-        for (n,d) in self.chainDicts.items():
+        for (n,d) in list(self.chainDicts.items()):
             if self.testMode:
                 print "Only viewing request",n
                 print pprint.pprint(d)

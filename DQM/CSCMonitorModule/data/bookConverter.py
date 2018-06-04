@@ -41,7 +41,7 @@ def read_data():
           except ValueError:
             elements[name]['type'] = 'xs:string'
 
-        for k in keys.keys():
+        for k in list(keys.keys()):
           if keys[k]['name'] == name and keys[k]['value'] == value:
             keys[k]['count'] = keys[k]['count'] + 1
             h.append(k)
@@ -55,7 +55,7 @@ def read_data():
     histograms.append(h)
 
 def create_xsd():
-  for k in keys.keys():
+  for k in list(keys.keys()):
     name = keys[k]['name']
 
   root = resdoc.createElement("xs:complexType")
@@ -116,7 +116,7 @@ def compute(min, max):
           results[ci].append(h) 
 
 def priorities():
-  for ci in comb.keys():
+  for ci in list(comb.keys()):
     l = len(results[ci])
     if l == 1: 
       continue

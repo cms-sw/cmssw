@@ -164,14 +164,14 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
         print "Users loaded and parsed..."
         
         self.data = {}
-        for i in self.managers.keys():
+        for i in list(self.managers.keys()):
             self.data[i] = {"__DATA__":{"Contact":[]}}
             for j in self.managers[i]:
                 self.data[i]["__DATA__"]["Contact"].append(self.users[j])
         self.domains = self.ParseJsonFromURL(self.CMSSWURL)
         print "Domains loaded and parsed..."
         
-        for i in self.domains.keys():
+        for i in list(self.domains.keys()):
             for j in self.domains[i]:
                 if self.__ParseItem(j) not in self.data[i]:
                     self.data[i][self.__ParseItem(j)] = {}
@@ -239,10 +239,10 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
                 self.classesURLs[i.a.text] = i.a['href']
         print "Class URLs was loaded... (%s)" % len(self.classesURLs)
         
-        for i in self.data.keys():
-            for j in self.data[i].keys():
+        for i in list(self.data.keys()):
+            for j in list(self.data[i].keys()):
                 if j not in self.classes: continue
-                for k in self.data[i][j].keys():
+                for k in list(self.data[i][j].keys()):
                     if "Package " + j + "/" + k in self.packages:
                         self.data[i][j][k]["__DATA__"]["packageDoc"] = '../' + self.packages["Package " + j + "/" + k]
                     if k not in self.classes[j]: continue
@@ -386,7 +386,7 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
     def HTMLTreeBegin(self, title, links = {}):
         html = '\n<li>\n<div class="hitarea expandable-hitarea"></div>\n'
         html = html + '<span class="folder">%s\n' % title
-        for i in links.keys():
+        for i in list(links.keys()):
             html = html + '<a target="_blank" href="%s">[%s]</a> \n' % (links[i], i)
         html = html + '</span>\n'
         html = html + '<ul style="display: block;">\n'
@@ -409,7 +409,7 @@ $(".doctable").find("td").each(function(){ if (this.id.indexOf("hoba_") != -1)it
                 html = html + '<span class="emptyFolder">%s ' % title
             else:
                 html = html + '<span class="file">%s ' % title
-            for i in links.keys():
+            for i in list(links.keys()):
                 html = html + '<a target="_blank" href="%s">[%s]</a> \n' % (links[i], i)
             html = html + '</span>'
         else:

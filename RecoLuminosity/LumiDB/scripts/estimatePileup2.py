@@ -206,7 +206,7 @@ if __name__ == '__main__':
             print 'failed to parse the input file', options.inputfile
             raise
         if not options.withoutFineCorrection:
-            rruns=inputRange.keys()
+            rruns=list(inputRange.keys())
             schema=session.nominalSchema()
             session.transaction().start(True)
             finecorrections=lumiCorrections.correctionsForRange(schema,rruns)
@@ -217,7 +217,7 @@ if __name__ == '__main__':
         session.transaction().commit()
         # {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),(bxidx,bxvalues,bxerrs)(8),None]}}
     ##convert lumiData to lumiDict format #{run:[[cmslsnum,avg]]}
-        for runnum,perrundata in lumiData.items():
+        for runnum,perrundata in list(lumiData.items()):
             bxlumiinfo=[]
             for perlsdata in perrundata:
                 cmslsnum=perlsdata[1]
@@ -233,7 +233,7 @@ if __name__ == '__main__':
                       options.maxPileupBin + 1,
                       -0.5, options.maxPileupBin + 0.5)
     histList = []
-    for runNumber, lumiList in sorted( runDict.iteritems() ):
+    for runNumber, lumiList in sorted( runDict.items() ):
         if options.saveRuns:
             hist = fillPileupHistogram (lumiList,options.pileupHistName,options.maxPileupBin,
                                         runNumber = runNumber,

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def addL3ToHLT(process):
 	def filters_by_type(process, type):
-		return (filter for filter in process._Process__filters.values() if filter._TypedParameterizable__type == type)
+		return (filter for filter in list(process._Process__filters.values()) if filter._TypedParameterizable__type == type)
 	
 	for l3Filter in filters_by_type(process, 'HLTMuonL3PreFilter'):
 		if hasattr(l3Filter, 'CandTag'):
@@ -18,7 +18,7 @@ def addL3ToHLT(process):
 		process.hltIter2L3MuonPixelSeeds.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltIterL3MuonCandidates")
 
 	def producers_by_type(process, type):
-    		return (module for module in process._Process__producers.values() if module._TypedParameterizable__type == type)
+    		return (module for module in list(process._Process__producers.values()) if module._TypedParameterizable__type == type)
 
 	for PFModule in producers_by_type(process, 'MuonHLTRechitInRegionsProducer'):
 		if hasattr(PFModule, 'l1TagIsolated'):

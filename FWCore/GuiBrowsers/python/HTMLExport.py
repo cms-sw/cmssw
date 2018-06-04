@@ -18,7 +18,7 @@ from FWCore.GuiBrowsers.FileExportPlugin import FileExportPlugin
 def elem(elemtype, innerHTML='', html_class='', **kwargs):
     if html_class: #since 'class' cannot be used as a kwarg
         kwargs['class'] = html_class
-    args = ' '.join(['%s="%s"' % i for i in kwargs.items()])
+    args = ' '.join(['%s="%s"' % i for i in list(kwargs.items())])
     if args:
         return "<%s %s>%s</%s>\n" % (elemtype, args, innerHTML, elemtype)
     else:
@@ -689,7 +689,7 @@ class HTMLExport(FileExportPlugin):
 
     def pset_to_json(self, pset):
         result = []
-        for k, v in pset.items():
+        for k, v in list(pset.items()):
             typename = v.pythonTypeName().split('.')[-1]
             item = {'label': k, 'type': typename}
             if not v.isTracked():
@@ -759,7 +759,7 @@ class HTMLExportStatic(FileExportPlugin):
     def elem(elemtype,innerHTML='',html_class='',**kwargs):
       if html_class:
         kwargs['class']=html_class
-      return "<%s %s>%s</%s>\n" % (elemtype,' '.join(['%s="%s"'%(k,v) for k,v in kwargs.items()]),innerHTML,elemtype)
+      return "<%s %s>%s</%s>\n" % (elemtype,' '.join(['%s="%s"'%(k,v) for k,v in list(kwargs.items())]),innerHTML,elemtype)
     def div(innerHTML='',html_class='',**kwargs):
       return elem('div',innerHTML,html_class,**kwargs)
     
@@ -775,7 +775,7 @@ class HTMLExportStatic(FileExportPlugin):
         return inputtag
 
       pset_items_html=''
-      for k,v in pset.items():
+      for k,v in list(pset.items()):
         if isinstance(v,mix._ParameterTypeBase):
           if isinstance(v,mix._SimpleParameterTypeBase):
             item_class='other'

@@ -91,7 +91,7 @@ class Eras (object):
             print 'Inspecting the '+name+' era',
 
         allEras=[]
-        for key, value in self.__dict__.items():
+        for key, value in list(self.__dict__.items()):
             if isinstance(value, ModifierChain): allEras.append(key)
 
         for e in allEras:

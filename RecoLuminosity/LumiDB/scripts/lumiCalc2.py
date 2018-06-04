@@ -304,7 +304,7 @@ if __name__ == '__main__':
     filerunlist=None
     if options.inputfile:
         (irunlsdict,iresults)=parseInputFiles(options.inputfile)
-        filerunlist=irunlsdict.keys()
+        filerunlist=list(irunlsdict.keys())
         
     
     #if not irunlsdict: #no file
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         sys.exit(14)
     rruns=[]
     #crosscheck dataid value
-    for irun,(lid,tid,hid) in dataidmap.items():
+    for irun,(lid,tid,hid) in list(dataidmap.items()):
         if not lid:
             print '[INFO] No qualified lumi data found for run, ',irun
         if reqTrg and not tid:
@@ -342,7 +342,7 @@ if __name__ == '__main__':
     if not irunlsdict: #no file
         irunlsdict=dict(list(zip(rruns,[None]*len(rruns))))
     else:
-        for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
+        for selectedrun in list(irunlsdict.keys()):#if there's further filter on the runlist,clean input dict
             if selectedrun not in rruns:
                 del irunlsdict[selectedrun]
     if not irunlsdict:
@@ -360,7 +360,7 @@ if __name__ == '__main__':
         if not normname:
             normmap=normDML.normIdByType(session.nominalSchema(),lumitype='HF',defaultonly=True)
             if len(normmap):
-                normname=normmap.keys()[0]
+                normname=list(normmap.keys())[0]
                 normid=normmap[normname]
         else:
             normid=normDML.normIdByName(session.nominalSchema(),normname)

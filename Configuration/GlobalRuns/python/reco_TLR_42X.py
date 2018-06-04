@@ -83,11 +83,11 @@ def memorySavingTracking(process):
             #print ckfm,"untouched"
             
     #all seeding layers should point to the same rechits collections
-    for esp in process.es_producers_().keys():
+    for esp in list(process.es_producers_().keys()):
         es = getattr(process,esp)
         if es._TypedParameterizable__type != 'SeedingLayersESProducer':
             continue
-        for pm in es.parameters_().keys():
+        for pm in list(es.parameters_().keys()):
             p=getattr(es,pm)
             if p.pythonTypeName() == 'cms.PSet':
                 if hasattr(p,'HitProducer'):

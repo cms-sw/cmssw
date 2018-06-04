@@ -14,12 +14,12 @@ class SortedKeysDict(dict):
                         self.list.append(x)
                         s.add(x)
             else:
-                self.list = list(args[0].iterkeys())
+                self.list = list(args[0].keys())
             return
-        self.list = list(super(SortedKeysDict,self).iterkeys())
+        self.list = list(super(SortedKeysDict,self).keys())
 
     def __repr__(self):
-        meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in self.iteritems() ])
+        meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in self.items() ])
         return '{' + meat + '}'
     def __iter__(self):
         for key in self.list:
@@ -104,23 +104,23 @@ if __name__=="__main__":
             sd['c']=3
             sd['d']=4
             count =1
-            for key in sd.iterkeys():
+            for key in sd.keys():
                 self.assertEqual(count,sd[key])
                 count +=1
             sd2 = SortedKeysDict(sd)
             count =1
-            for key in sd2.iterkeys():
+            for key in sd2.keys():
                 self.assertEqual(count,sd2[key])
                 count +=1
             sd3 = SortedKeysDict([('a',1),('b',2),('c',3),('d',4)])
             count =1
-            for key in sd3.iterkeys():
+            for key in sd3.keys():
                 self.assertEqual(count,sd3[key])
                 count +=1
             self.assertEqual(count-1,len(sd3))
             sd3 = SortedKeysDict(a=1,b=2,c=3,d=4)
             count =1
-            for key in sd3.iterkeys():
+            for key in sd3.keys():
                 count +=1
             self.assertEqual(count-1,len(sd3))
             sd['d']=5

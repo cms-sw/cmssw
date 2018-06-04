@@ -244,7 +244,7 @@ def main():
     cvx = TCanvas("cvx","cvx",700,700)
 
     i = 0
-    for ibx in histox.keys():
+    for ibx in list(histox.keys()):
 	if i==0:
 	    t1 = histox[ibx].ProjectionX("xall_"+str(ibx))
 	    t1.Draw()

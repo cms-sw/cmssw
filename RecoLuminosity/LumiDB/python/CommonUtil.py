@@ -142,7 +142,7 @@ def count_dups(l):
     tally=defaultdict(int)
     for x in l:
         tally[x]+=1
-    return tally.items()
+    return list(tally.items())
 def transposed(lists, defaultval=None):
     """
     transposing list of lists
@@ -210,7 +210,7 @@ def tolegalJSON(inputstring):
        print 'error in converting string to dict'
        raise
    result={}
-   for k,v in mydict.items():
+   for k,v in list(mydict.items()):
        if not isinstance(k,str):
            result[str(k)]=v
        else:

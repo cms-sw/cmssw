@@ -53,7 +53,7 @@ def get_iovs(db, tag):
         'frontier://FrontierPrep/CMS_CONDITIONS' :'dev', 
         }
     
-    if db in officialdbs.keys():
+    if db in list(officialdbs.keys()):
         db = officialdbs[db]
 
     ## allow to use input sqlite files as well

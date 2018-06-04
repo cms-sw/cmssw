@@ -78,7 +78,7 @@ batch = {
         }
 
 # do the main job here
-for config,fileName in batch.iteritems():
+for config,fileName in batch.items():
 
     sqlplus = subprocess.Popen(sqlplusCmd, shell=False, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     with open(fileName,'w') as f:
@@ -102,5 +102,5 @@ for line in re.split('\n',sqlplus.communicate(queryKeys+';')[0]):
     print line
 
 
-print 'Results are saved in ' + ' '.join(batch.values()) + ' files'
+print 'Results are saved in ' + ' '.join(list(batch.values())) + ' files'
 

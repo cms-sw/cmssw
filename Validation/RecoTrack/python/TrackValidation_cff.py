@@ -174,7 +174,7 @@ def _sequenceForEachEra(function, args, names, sequence, modDict, plainArgs=[], 
         _era.toReplaceWith(defaultSequence, modDict[sequence+_postfix])
 def _setForEra(module, eraName, era, **kwargs):
     if eraName == "":
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             setattr(module, key, value)
     else:
         era.toModify(module, **kwargs)
@@ -234,7 +234,7 @@ def _getMVASelectors(postfix):
     mvaSel = _utils.getMVASelectors(postfix)
 
     pset = cms.untracked.PSet()
-    for iteration, (trackProducer, classifiers) in mvaSel.iteritems():
+    for iteration, (trackProducer, classifiers) in mvaSel.items():
         setattr(pset, trackProducer, cms.untracked.vstring(classifiers))
     return pset
 for _eraName, _postfix, _era in _relevantEras:

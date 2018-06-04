@@ -159,7 +159,7 @@ process.esout = cms.EndPath( process.escontent + process.esretrieval )
 if process.schedule_() is not None:
     process.schedule_().append( process.esout )
 
-for name, module in process.es_sources_().iteritems():
+for name, module in process.es_sources_().items():
     print "ESModules> provider:%s '%s'" % ( name, module.type_() )
-for name, module in process.es_producers_().iteritems():
+for name, module in process.es_producers_().items():
     print "ESModules> provider:%s '%s'" % ( name, module.type_() )

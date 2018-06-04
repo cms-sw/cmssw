@@ -156,7 +156,7 @@ if __name__ == '__main__':
             lumiReport.toScreenNormDetail(options.normname,norminfo,normvalues)
         elif options.lumitype:
             luminormidmap=normDML.normIdByType(dbsession.nominalSchema(),lumitype=options.lumitype,defaultonly=False)
-            for normname,normid in luminormidmap.items():
+            for normname,normid in list(luminormidmap.items()):
                 norminfo=normDML.normInfoByName(dbsession.nominalSchema(),normname)
                 normvalues=normDML.normValueById(dbsession.nominalSchema(),normid)
                 lumiReport.toScreenNormDetail(normname,norminfo,normvalues)

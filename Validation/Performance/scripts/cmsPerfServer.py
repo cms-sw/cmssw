@@ -226,7 +226,7 @@ def request_benchmark(cmds):
             logh = open(logfile,"w")
             logh.write("This perfsuite run was configured with the following options:\n")
             #logh.write(str(cmdwdefs) + "\n")
-            for key in cmdwdefs.keys():
+            for key in list(cmdwdefs.keys()):
                 logh.write(key + "\t" +str(cmdwdefs[key])+"\n")
             logh.close()
             print "Calling cmsPerfSuite.main() function\n"

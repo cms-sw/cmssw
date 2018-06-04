@@ -21,7 +21,7 @@ def unhashEBDetId(i):
        return ieta,iphi
 
 def setWhat(w,ret) :
-       for key in ret.keys():
+       for key in list(ret.keys()):
               _val = ret[key]
               if (isinstance(_val, type([]))) :
                      _vi = CondDB.VInt()
@@ -151,7 +151,7 @@ try :
        for elem in db.iov(tag).elements :
           p = Plug.Object(elem)
           p.extract(ex)
-          v = [i for i in ex.values()]        
+          v = [i for i in list(ex.values())]        
  #      print v
        histo=TH1F("h","h",100,-2,2) 
        for c in v :
@@ -167,12 +167,12 @@ try :
        for elem in db.iov(reference_tag).elements :
           p = Plug.Object(elem)
           p.extract(ex)
-          coeff_1 = [i for i in ex.values()]
+          coeff_1 = [i for i in list(ex.values())]
 
        for elem in db.iov(compare_tag).elements :
           p = Plug.Object(elem)
           p.extract(ex)
-          coeff_2 = [i for i in ex.values()]
+          coeff_2 = [i for i in list(ex.values())]
 
        can=TCanvas("c","c")
 

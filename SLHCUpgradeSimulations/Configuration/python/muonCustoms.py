@@ -79,7 +79,7 @@ def remove_from_all_paths(process, module_name):
         return process
 
     # walk over all the paths:
-    for path_name in process._Process__paths.keys():
+    for path_name in list(process._Process__paths.keys()):
         the_path = getattr(process, path_name)
         module_names = the_path.moduleNames()
         if module_name in module_names:

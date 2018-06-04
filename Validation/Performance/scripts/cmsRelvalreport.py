@@ -993,7 +993,7 @@ if __name__=="__main__":
     
     if options.infile == '':
         logger('Script options:')
-        for key,val in options.__dict__.items():
+        for key,val in list(options.__dict__.items()):
             if val!='':
                 logger ('\t\t|- %s = %s' %(key, str(val)))
                 logger ('\t\t|')

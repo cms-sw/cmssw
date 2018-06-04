@@ -73,7 +73,7 @@ if __name__ == "__main__" :
             tot_nrunlpc+=1
         l.close()
         if fill in plotfilldata:
-            runs=plotfilldata[fill].keys()
+            runs=list(plotfilldata[fill].keys())
             if not runs: continue
             nruns_pplot=len(runs)
             tot_nrunpplot+=nruns_pplot

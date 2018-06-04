@@ -236,7 +236,7 @@ if __name__ == "__main__":
    #########################################
    ## Run useReflexToDescribeForGenObject ##
    #########################################
-    for key, value in sorted (collection.iteritems()):
+    for key, value in sorted (collection.items()):
         name      = value[0].name
         prettyName = nonAlphaRE.sub('', name)
         descriptionName = prettyName + '.txt'
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     ##################################
     ## Run edmOneToOneComparison.py ##
     ##################################
-    for key, value in sorted (collection.iteritems()):
+    for key, value in sorted (collection.items()):
         #print "%-40s" % key,
         for obj in value:
             # print "  ", obj.label(),

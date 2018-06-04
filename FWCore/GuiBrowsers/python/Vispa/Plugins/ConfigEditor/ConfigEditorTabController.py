@@ -262,7 +262,7 @@ class ConfigEditorTabController(BrowserTabController):
             presets = {'seqconnect':False, 'tagconnect':True, 'seq':False, 'services':False, 'es':False, 'endpath':True, 'source':True, 'legend':False}
         else:
             presets = {'seqconnect':True, 'tagconnect':False, 'seq':True, 'services':False, 'es':False, 'endpath':True, 'source':True, 'legend':False}
-        for opt, val in presets.items():
+        for opt, val in list(presets.items()):
             dot.setOption(opt, val)
         types = ""
         for ft in dot.file_types:
@@ -445,7 +445,7 @@ class ConfigEditorTabController(BrowserTabController):
         return True
 
     def updateConfigHighlight(self):
-        if self.tab().editorTableView().selection() in self.toolDataAccessor().toolModules().keys():
+        if self.tab().editorTableView().selection() in list(self.toolDataAccessor().toolModules().keys()):
             self.tab().centerView().highlight(self.toolDataAccessor().toolModules()[self.tab().editorTableView().selection()])
         else:
             self.tab().centerView().highlight([])

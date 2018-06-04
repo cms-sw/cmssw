@@ -95,17 +95,17 @@ while True:
           NEW.setdefault(runnr, {}).setdefault(subsystem,[]).append(f)
           NFOUND += 1  
           
-    if len(NEW.keys()) == 0:
+    if len(list(NEW.keys())) == 0:
       time.sleep(WAITTIME)
       continue
       
     TAGS=sorted(glob.glob('%s/tagfile_runend_*' % COLLECTDIR ),reverse=True)
     if len(TAGS)==0:
-      if len(NEW.keys()) <= 1:
+      if len(list(NEW.keys())) <= 1:
         time.sleep(WAITTIME)
         continue
         
-      TAGRUNEND=long(sorted(NEW.keys(),reverse=True)[1])
+      TAGRUNEND=long(sorted(list(NEW.keys()),reverse=True)[1])
       
     else:
       TAGRUNEND=long(TAGS[0].split("_")[2])
@@ -113,11 +113,11 @@ while True:
     for tag in TAGS:
       os.remove(tag)
 
-    for run,subsystems in NEW.items():
+    for run,subsystems in list(NEW.items()):
       if run > TAGRUNEND:
         continue 
         
-      for subsystem,files in  subsystems.items():
+      for subsystem,files in  list(subsystems.items()):
         done=False
         keeper=0
         Tfiles=sorted(files,cmp=lambda x,y: "_T" not in x and x != y and 1  or cmp(x,y))[::-1]

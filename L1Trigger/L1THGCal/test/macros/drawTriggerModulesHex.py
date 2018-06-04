@@ -109,7 +109,7 @@ maxx = -99999.
 minx = 99999.
 maxy = -99999.
 miny = 99999.
-for id,cell in cells.items():
+for id,cell in list(cells.items()):
     x = cell.center.x
     y = cell.center.y
     if x>maxx: maxx=x
@@ -129,7 +129,7 @@ hexagons = []
 print ''
 print '>> Drawing subdet', subdet, 'layer', layer, 'zside', zside
 print ' Trigger cells are not drawn for all the modules, to reduce the (long) drawing time'
-for id,module in modules.items():
+for id,module in list(modules.items()):
     if imod%10==0: print " Drawing module {0}/{1}".format(imod, len(modules))
     imod+=1
     modulelines = []

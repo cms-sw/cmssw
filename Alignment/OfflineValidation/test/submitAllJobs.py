@@ -546,7 +546,7 @@ def main():
         log_fout.write("- allFromGT?  : "+allFromGT[iConf]+"\n")
         log_fout.write("- extraCond?  : "+applyEXTRACOND[iConf]+"\n")
         for x in conditions:
-            for attribute,value in x.items():
+            for attribute,value in list(x.items()):
                      log_fout.write('   - {} : {}'.format(attribute, value)+"\n")
         log_fout.write("- Align db    : "+alignmentDB[iConf]+"\n")     
         log_fout.write("- Align tag   : "+alignmentTAG[iConf]+"\n")    

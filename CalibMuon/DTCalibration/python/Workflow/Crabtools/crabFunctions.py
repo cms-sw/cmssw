@@ -495,7 +495,7 @@ class CrabTask:
     def resubmit_failed( self ):
         failedJobIds = []
         controller =  CrabController()
-        for jobkey in self.jobs.keys():
+        for jobkey in list(self.jobs.keys()):
             job = self.jobs[jobkey]
             if job['State'] == 'failed':
                 failedJobIds.append( job['JobIds'][-1] )
@@ -524,7 +524,7 @@ class CrabTask:
             #try it once more
             time.sleep(2)
             self.state , self.jobs,self.failureReason = controller.status(self.crab_folder)
-        self.nJobs = len(self.jobs.keys())
+        self.nJobs = len(list(self.jobs.keys()))
         self.updateJobStats()
         if self.state == "NOSTATE":
             self.log.debug( "Trying to resubmit because of NOSTATE" )
@@ -576,7 +576,7 @@ class CrabTask:
         for key in jobKeys:
             job = self.jobs[key]
              #check if all completed files are on decache
-            for statekey in stateDict.keys():
+            for statekey in list(stateDict.keys()):
                 if statekey in job['State']:
                     stateDict[statekey]+=1
                     # check if finished fails are found on dCache if dCacheFilelist is given

@@ -67,7 +67,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             from Configuration.AlCa.autoCond import autoCond
             globaltag = globaltag[5:]
             if globaltag not in autoCond:
-                raise Exception('no correspondence for '+globaltag+'\navailable keys are\n'+','.join(autoCond.keys()))
+                raise Exception('no correspondence for '+globaltag+'\navailable keys are\n'+','.join(list(autoCond.keys())))
             if 'phase1_2017_design' == globaltag:
                 sys.stderr.write('Warning: %s now points to %s. This has reco-Beamspot centered to (0,0,0)\n'%(globaltag,autoCond[globaltag]))
             autoKey = autoCond[globaltag]
@@ -123,7 +123,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # explicit payloads toGet from DB
     if custom_conditions:
-        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.iteritems()):
+        for ( (record, label), (tag, connection, snapshotTime) ) in sorted(custom_conditions.items()):
             payload = cms.PSet()
             payload.record = cms.string( record )
             if label:

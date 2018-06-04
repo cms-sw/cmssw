@@ -993,7 +993,7 @@ class AggregateBins:
         values = _th1ToOrderedDict(th1, self._renameBin)
 
         binIndexOrder = [] # for reordering bins if self._originalOrder is True
-        for i, (key, labels) in enumerate(self._mapping.iteritems()):
+        for i, (key, labels) in enumerate(self._mapping.items()):
             sumTime = 0.
             sumErrorSq = 0.
             nsum = 0
@@ -1015,7 +1015,7 @@ class AggregateBins:
                 # the iteration timing plots), so let's test them all
                 for lab in labels:
                     if lab in values:
-                        ivalue = values.keys().index(lab)
+                        ivalue = list(values.keys()).index(lab)
                         break
             binIndexOrder.append( (ivalue, i) )
 
@@ -1090,7 +1090,7 @@ class AggregateHistos:
     def create(self, tdirectory):
         """Create and return the histogram from a TDirectory"""
         result = []
-        for key, histoName in self._mapping.iteritems():
+        for key, histoName in self._mapping.items():
             th1 = _getObject(tdirectory, histoName)
             if th1 is None:
                 continue
@@ -1824,7 +1824,7 @@ class Plot:
         self._histograms = []
 
     def setProperties(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -2277,7 +2277,7 @@ class PlotGroup(object):
         self._ratioFactor = 1.25
 
     def setProperties(self, **kwargs):
-        for name, value in kwargs.iteritems():
+        for name, value in kwargs.items():
             if not hasattr(self, "_"+name):
                 raise Exception("No attribute '%s'" % name)
             setattr(self, "_"+name, value)
@@ -2562,7 +2562,7 @@ class PlotFolder:
         self._section = kwargs.pop("section", None)
         self._numberOfEventsHistogram = kwargs.pop("numberOfEventsHistogram", None)
         if len(kwargs) > 0:
-            raise Exception("Got unexpected keyword arguments: "+ ",".join(kwargs.keys()))
+            raise Exception("Got unexpected keyword arguments: "+ ",".join(list(kwargs.keys())))
 
     def loopSubFolders(self):
         """Return True if the PlotGroups of this folder should be applied to the all subfolders"""
@@ -2720,7 +2720,7 @@ class PlotterFolder:
                     if sf_translated is not None and not sf_translated in subfolders:
                         subfolders[sf_translated] = DQMSubFolder(sf, sf_translated)
 
-            self._dqmSubFolders = subfolders.values()
+            self._dqmSubFolders = list(subfolders.values())
             self._dqmSubFolders.sort(key=lambda sf: sf.subfolder)
 
         self._fallbackNames = fallbackNames

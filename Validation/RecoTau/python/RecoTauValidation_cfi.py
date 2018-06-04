@@ -472,7 +472,7 @@ def ConvertDrawJobToLegacyCompare(input):
    if not hasattr(input, "drawJobs"):
       return
    myDrawJobs = input.drawJobs.parameters_()
-   for drawJobName, drawJobData in myDrawJobs.iteritems():
+   for drawJobName, drawJobData in myDrawJobs.items():
       print drawJobData
       if not drawJobData.plots.pythonTypeName() == "cms.PSet":
          continue
@@ -596,5 +596,5 @@ def setBinning(module,pset):
 def setTrigger(module,pset):
    if hasattr(module,'_TypedParameterizable__type') and module._TypedParameterizable__type == 'TauTagValidation':
       setattr(module,'turnOnTrigger',cms.bool(True)) #Turns on trigger (in case is off)
-      for item in pset.parameters_().items():
+      for item in list(pset.parameters_().items()):
          setattr(module.GenericTriggerSelection,item[0],item[1])

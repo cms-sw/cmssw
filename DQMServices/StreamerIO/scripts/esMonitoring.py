@@ -76,7 +76,7 @@ class ElasticReport(object):
         return id
 
     def update_doc_recursive(self, old_obj, new_obj):
-        for key, value in new_obj.items():
+        for key, value in list(new_obj.items()):
             if (key in old_obj and 
                 isinstance(value, dict) and 
                 isinstance(old_obj[key], dict)):

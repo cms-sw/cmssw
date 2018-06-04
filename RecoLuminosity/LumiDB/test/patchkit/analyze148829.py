@@ -38,7 +38,7 @@ def insertLumischemaV2(dbsession,runnum,datasource,perlsrawdata,perbunchrawdata)
     branchinfo=(branchrevision_id,'DATA')
     lumirundata=[datasource]
     lumilsdata={}
-    for cmslsnum,instlumi in perlsrawdata.items():
+    for cmslsnum,instlumi in list(perlsrawdata.items()):
         mystartorbit=startorbit+numorbit*(cmslsnum-1)
         bxdataArray=array.array('f')
         bxerrorArray=array.array('f')
@@ -106,7 +106,7 @@ def insertLumiSummarydata(dbsession,perlsrawdata):
     iddealer=idDealer.idDealer(dbsession.nominalSchema())
     db=dbUtil.dbUtil(dbsession.nominalSchema())
     lumisummary_id=0
-    for cmslsnum,instlumi in perlsrawdata.items():
+    for cmslsnum,instlumi in list(perlsrawdata.items()):
         mystartorbit=startorbit+numorbit*(cmslsnum-1)
         lumisummary_id=iddealer.generateNextIDForTable('LUMISUMMARY')
         summaryidlsmap[cmslsnum]=lumisummary_id
@@ -131,7 +131,7 @@ def insertLumiDetaildata(dbsession,perlsrawdata,perbunchrawdata,summaryidlsmap):
     db=dbUtil.dbUtil(dbsession.nominalSchema())
     print 'to insert lumidetail '
     for algoname in ['OCC1','OCC2','ET']:
-        for cmslsnum,instlumi in perlsrawdata.items():
+        for cmslsnum,instlumi in list(perlsrawdata.items()):
             lumisummary_id=summaryidlsmap[cmslsnum]
             lumidetail_id=iddealer.generateNextIDForTable('LUMIDETAIL')
             bxdata=array.array('f')

@@ -330,7 +330,7 @@ class ConfigBuilder(object):
             #exec(command.replace("process.","self.process."))
 
     def addCommon(self):
-            if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
+            if 'HARVESTING' in list(self.stepMap.keys()) or 'ALCAHARVEST' in list(self.stepMap.keys()):
                     self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
             else:
                     self.process.options = cms.untracked.PSet( )
@@ -435,18 +435,18 @@ class ConfigBuilder(object):
 		   self.process.source=cms.Source("DQMStreamerReader")
 		   
 			   
-           if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
+           if ('HARVESTING' in list(self.stepMap.keys()) or 'ALCAHARVEST' in list(self.stepMap.keys())) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
 	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 	       filesFromDASQuery(self._options.dasquery,self._options.dasoption,self.process.source)
 	       
-	       if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
+	       if ('HARVESTING' in list(self.stepMap.keys()) or 'ALCAHARVEST' in list(self.stepMap.keys())) and (not self._options.filetype == "DQM"):
 		       self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 		       
 	##drop LHEXMLStringProduct on input to save memory if appropriate
-	if 'GEN' in self.stepMap.keys():
+	if 'GEN' in list(self.stepMap.keys()):
         	if self._options.inputCommands:
         		self._options.inputCommands+=',drop LHEXMLStringProduct_*_*_*,'
 		else:
@@ -466,7 +466,7 @@ class ConfigBuilder(object):
 		import FWCore.PythonUtilities.LumiList as LumiList
 		self.process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange( LumiList.LumiList(self._options.lumiToProcess).getCMSSWString().split(',') )
 
-        if 'GEN' in self.stepMap.keys() or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
+        if 'GEN' in list(self.stepMap.keys()) or 'LHE' in self.stepMap or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
                 self.process.source=cms.Source("EmptySource")
 
@@ -536,8 +536,8 @@ class ConfigBuilder(object):
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
 				
-			if len(outDefDict.keys()):
-				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
+			if len(list(outDefDict.keys())):
+				raise Exception("unused keys from --output options: "+','.join(list(outDefDict.keys())))
 			if theStreamType=='DQMIO': theStreamType='DQM'
 			if theStreamType=='ALL':
 				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
@@ -686,7 +686,7 @@ class ConfigBuilder(object):
 		# Does the requested pile-up scenario exist?
 		from Configuration.StandardSequences.Mixing import Mixing,defineMixing
 		if not pileupSpec in Mixing and '.' not in pileupSpec and 'file:' not in pileupSpec:
-			message = pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(Mixing.keys())
+			message = pileupSpec+' is not a know mixing scenario:\n available are: '+'\n'.join(list(Mixing.keys()))
 			raise Exception(message)
 
 		# Put mixing parameters in a dictionary
@@ -710,7 +710,7 @@ class ConfigBuilder(object):
 			self.loadAndRemember(mixingDict['file'])
 
 		mixingDict.pop('file')
-		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
+		if not "DATAMIX" in list(self.stepMap.keys()): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
 			if self._options.pileup_input:
 				if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
 					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],),self._options.pileup_dasoption)[0]
@@ -722,7 +722,7 @@ class ConfigBuilder(object):
 			for command in specialization:
 				self.executeAndRemember(command)
 			if len(mixingDict)!=0:
-				raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
+				raise Exception('unused mixing specification: '+list(mixingDict.keys()).__str__())
 
 
         # load the geometry file
@@ -945,7 +945,7 @@ class ConfigBuilder(object):
         self.CFWRITERDefaultCFF = "Configuration/StandardSequences/CrossingFrameWriter_cff"
         self.REPACKDefaultCFF="Configuration/StandardSequences/DigiToRaw_Repack_cff"
 
-        if "DATAMIX" in self.stepMap.keys():
+        if "DATAMIX" in list(self.stepMap.keys()):
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
@@ -1501,7 +1501,7 @@ class ConfigBuilder(object):
                   optionsForHLT['type'] = 'HIon'
                 else:
                   optionsForHLT['type'] = 'GRun'
-                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.iteritems())
+                optionsForHLTConfig = ', '.join('%s=%s' % (key, repr(val)) for (key, val) in optionsForHLT.items())
 		if sequence == 'run,fromSource':
 			if hasattr(self.process.source,'firstRun'):
 				self.executeAndRemember('process.loadHltConfiguration("run:%%d"%%(process.source.firstRun.value()),%s)'%(optionsForHLTConfig))
@@ -1830,7 +1830,7 @@ class ConfigBuilder(object):
 
             def doIt(self,pset,base):
                     if isinstance(pset, cms._Parameterizable):
-                            for name in pset.parameters_().keys():
+                            for name in list(pset.parameters_().keys()):
                                     # skip whitelisted parameters
                                     if name in self._whitelist:
                                         continue
@@ -1940,7 +1940,7 @@ class ConfigBuilder(object):
 		if (i!=0):
 			pathName='dqmoffline_%d_step'%(i)
 			
-		if 'HLT' in self.stepMap.keys() or self._options.hltProcess:
+		if 'HLT' in list(self.stepMap.keys()) or self._options.hltProcess:
 			self.renameHLTprocessInSequence(sequence)
                 
                 setattr(self.process,pathName, cms.EndPath( getattr(self.process,sequence ) ) )
@@ -1981,7 +1981,7 @@ class ConfigBuilder(object):
 
 	for name in harvestingList:
 		if not name in harvestingConfig.__dict__:
-			print name,"is not a possible harvesting type. Available are",harvestingConfig.__dict__.keys()
+			print name,"is not a possible harvesting type. Available are",list(harvestingConfig.__dict__.keys())
 			continue
 		harvestingstream = getattr(harvestingConfig,name)
 		if isinstance(harvestingstream,cms.Path):
@@ -2110,7 +2110,7 @@ class ConfigBuilder(object):
 
 
         outputModuleCfgCode=""
-        if not 'HARVESTING' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
+        if not 'HARVESTING' in list(self.stepMap.keys()) and not 'ALCAHARVEST' in list(self.stepMap.keys()) and not 'ALCAOUTPUT' in list(self.stepMap.keys()) and self.with_output:
                 outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
@@ -2287,7 +2287,7 @@ class ConfigBuilder(object):
 				ioJson['secondary']=self.process.source.secondaryFileNames.value()
 		if self._options.pileup_input and (self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:')):
 			ioJson['pileup']=self._options.pileup_input[4:]
-		for (o,om) in self.process.outputModules_().items():
+		for (o,om) in list(self.process.outputModules_().items()):
 			ioJson[o]=om.fileName.value()
 		ioJson['GT']=self.process.GlobalTag.globaltag.value()
 		if self.productionFilterSequence:

@@ -49,20 +49,20 @@ def eleRej(locpath,var):
 #
 #SingleMu
 #
-toAdd = [ defaults('SingleMu/00%s - Fake rate from muons vs %s' % item,'RealMuonsData',item[1]) for item in variables.items() ]
-toAdd.extend( [ muRej('SingleMu/01%s - Muon rejection fake rate vs %s' % item,item[1]) for item in variables.items() ] )
-toAdd.extend( [ defaults('SingleMu/02%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in variables.items() ] )
+toAdd = [ defaults('SingleMu/00%s - Fake rate from muons vs %s' % item,'RealMuonsData',item[1]) for item in list(variables.items()) ]
+toAdd.extend( [ muRej('SingleMu/01%s - Muon rejection fake rate vs %s' % item,item[1]) for item in list(variables.items()) ] )
+toAdd.extend( [ defaults('SingleMu/02%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in list(variables.items()) ] )
 
 #
 #Jet
 #
-toAdd.extend([ defaults('Jet/00%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in variables.items() ] )
+toAdd.extend([ defaults('Jet/00%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in list(variables.items()) ] )
 
 #
 #DoubleE / TauPlusX
 #
-toAdd.extend([ defaults('DoubleElectron_OR_TauPlusX/00%s - Fake rate from electrons vs %s' % item,'RealElectronsData',item[1]) for item in variables.items() ] )
-toAdd.extend( [ eleRej('DoubleElectron_OR_TauPlusX/01%s - Electron rejection fake rate vs %s' % item,item[1]) for item in variables.items() ] )
+toAdd.extend([ defaults('DoubleElectron_OR_TauPlusX/00%s - Fake rate from electrons vs %s' % item,'RealElectronsData',item[1]) for item in list(variables.items()) ] )
+toAdd.extend( [ eleRej('DoubleElectron_OR_TauPlusX/01%s - Electron rejection fake rate vs %s' % item,item[1]) for item in list(variables.items()) ] )
 
 layout = open('shift_pftau_T0_layout.py','w')
 layout.write(outputFileString % '\n'.join(toAdd) )
@@ -133,24 +133,24 @@ sumVar = dict( list(zip(string.letters,[elem for elem in ['signalPFCands','isola
 #
 #SingleMu
 #
-toAdd = [ layDefaults('SingleMu/00%s - Fake rate from muons vs %s' % item,'RealMuonsData',item[1]) for item in variables.items() ]
-toAdd.extend( [ muRej('SingleMu/01%s - Muon rejection fake rate vs %s' % (item[0]%'',item[1]),item[1]) for item in variables.items() ] )
-toAdd.extend( [ layDefaults('SingleMu/02%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in variables.items() ] )
-toAdd.extend( [ sizeSumpt('SingleMu/03%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealMuonsData']),'RealMuonsData',item[1]) for item in sumVar.items() ] )
-toAdd.extend( [ sizeSumpt('SingleMu/04%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealData']),'RealData',item[1]) for item in sumVar.items() ] )
+toAdd = [ layDefaults('SingleMu/00%s - Fake rate from muons vs %s' % item,'RealMuonsData',item[1]) for item in list(variables.items()) ]
+toAdd.extend( [ muRej('SingleMu/01%s - Muon rejection fake rate vs %s' % (item[0]%'',item[1]),item[1]) for item in list(variables.items()) ] )
+toAdd.extend( [ layDefaults('SingleMu/02%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in list(variables.items()) ] )
+toAdd.extend( [ sizeSumpt('SingleMu/03%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealMuonsData']),'RealMuonsData',item[1]) for item in list(sumVar.items()) ] )
+toAdd.extend( [ sizeSumpt('SingleMu/04%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealData']),'RealData',item[1]) for item in list(sumVar.items()) ] )
 
 #
 #Jet
 #
-toAdd.extend([ layDefaults('Jet/00%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in variables.items() ] )
-toAdd.extend( [ sizeSumpt('Jet/01%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealData']),'RealData',item[1]) for item in sumVar.items() ] )
+toAdd.extend([ layDefaults('Jet/00%s - Fake rate from jets vs %s' % item,'RealData',item[1]) for item in list(variables.items()) ] )
+toAdd.extend( [ sizeSumpt('Jet/01%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealData']),'RealData',item[1]) for item in list(sumVar.items()) ] )
 
 #
 #DoubleE / TauPlusX
 #
-toAdd.extend([ layDefaults('DoubleElectron_OR_TauPlusX/00%s - Fake rate from electrons vs %s' % item,'RealElectronsData',item[1]) for item in variables.items() ] )
-toAdd.extend( [ eleRej('DoubleElectron_OR_TauPlusX/01%s - Electron rejection fake rate vs %s' % (item[0].replace('%s',''),item[1]),item[1]) for item in variables.items() ] )
-toAdd.extend( [ sizeSumpt('DoubleElectron_OR_TauPlusX/04%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealElectronsData']),'RealElectronsData',item[1]) for item in sumVar.items() ] )
+toAdd.extend([ layDefaults('DoubleElectron_OR_TauPlusX/00%s - Fake rate from electrons vs %s' % item,'RealElectronsData',item[1]) for item in list(variables.items()) ] )
+toAdd.extend( [ eleRej('DoubleElectron_OR_TauPlusX/01%s - Electron rejection fake rate vs %s' % (item[0].replace('%s',''),item[1]),item[1]) for item in list(variables.items()) ] )
+toAdd.extend( [ sizeSumpt('DoubleElectron_OR_TauPlusX/04%s - Distributions of size and sumPt for %s, %s faking taus' % (item[0], item[1],datasetNames['RealElectronsData']),'RealElectronsData',item[1]) for item in list(sumVar.items()) ] )
 
 layout = open('pftatau_T0_layouts.py','w')
 layout.write(layoutString % '\n'.join(toAdd) )

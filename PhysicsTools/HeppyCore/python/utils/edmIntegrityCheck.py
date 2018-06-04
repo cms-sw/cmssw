@@ -106,8 +106,8 @@ class IntegrityCheck(object):
         import re
         
         filemask = {}
-        for dirname, files in self.test_result.iteritems():
-            for name, status in files.iteritems():
+        for dirname, files in self.test_result.items():
+            for name, status in files.items():
                 fname = os.path.join(dirname, name)
                 filemask[fname] = status
         
@@ -166,11 +166,11 @@ class IntegrityCheck(object):
         #support updating to speed things up
         prev_results = {}
         if previous is not None:
-            for name, status in previous['Files'].iteritems():
+            for name, status in previous['Files'].items():
                 prev_results[name] = status
         
         filesToTest = self.sortByBaseDir(self.listRootFiles(self.directory))
-        for dir, filelist in filesToTest.iteritems():
+        for dir, filelist in filesToTest.items():
             filemask = {}
             #apply a UNIX wildcard if specified
             filtered = filelist
@@ -215,9 +215,9 @@ class IntegrityCheck(object):
         print 'DBS Dataset name: %s' % self.options.name
         print 'Storage path: %s' % self.topdir
         
-        for dirname, files in self.test_result.iteritems():
+        for dirname, files in self.test_result.items():
             print 'Directory: %s' % dirname
-            for name, status in files.iteritems():
+            for name, status in files.items():
                 fname = os.path.join(dirname, name)
                 if not fname in self.duplicates:
                     print '\t\t %s: %s' % (name, str(status))
@@ -256,9 +256,9 @@ class IntegrityCheck(object):
                   'DateCreated':datetime.datetime.now().strftime("%s"),
                   'Files':{}}
         
-        for dirname, files in self.test_result.iteritems():
+        for dirname, files in self.test_result.items():
             report['PathList'].append(dirname)
-            for name, status in files.iteritems():
+            for name, status in files.items():
                 fname = os.path.join(dirname, name)
                 report['Files'][fname] = status
                 if status[0]:

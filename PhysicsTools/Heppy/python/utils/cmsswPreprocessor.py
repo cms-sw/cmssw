@@ -100,7 +100,7 @@ class CmsswPreprocessor :
 
 		outfilename=wd+"/cmsswPreProcessing.root"
 		# for outName in cmsswConfig.process.endpath.moduleNames():
-		for module in cmsswConfig.process.endpaths.viewvalues():
+		for module in cmsswConfig.process.endpaths.values():
 			for outName in module.moduleNames():
 				out = getattr(cmsswConfig.process,outName)
 			if not hasattr(out,"fileName"): continue

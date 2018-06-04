@@ -36,7 +36,7 @@ def printXMLtree(head,l=0,bn=0):
 		print "[%d-%d-%d]"%(l,bn,head.nodeType)+tabs+"+++++>"+str(e)
 	print "[%d-%d-%d-v]"%(l,bn,head.nodeType)+tabs+"."+ (head.nodeValue or "None")
 	try:
-		for katt,vatt in head.attributes.items():
+		for katt,vatt in list(head.attributes.items()):
 			if katt!="environmentString":
 				print tabs+"%s=%s"%(katt,vatt)
 			else:
@@ -126,7 +126,7 @@ def filterNodeList(branch1,nodeList):
 		branch=branch1[:len(branch1)]
 		idx=0
 		for item in range(len(nodeList)):
-			vals=[v for (k,v) in nodeList[idx].attributes.items()]
+			vals=[v for (k,v) in list(nodeList[idx].attributes.items())]
 			if branch[0] not in vals:
 				del nodeList[idx]
 			else:
@@ -150,7 +150,7 @@ def fillTable(order,branch=[]):
 		lista=filterNodeList(branch,lista)
 		for item in lista:
 			table[item.attributes["hostname"].value]=""
-		for item in table.keys():
+		for item in list(table.keys()):
 			table[item]=fillTable(order.copy(),branch + [item])
 	elif k=="a":
 		lista=xmldoc.getElementsByTagName("XdaqExecutive")
@@ -164,14 +164,14 @@ def fillTable(order,branch=[]):
 			else:
 				App=item.getElementsByTagName("xc:Application")
 				table[App[0].attributes["class"].value]=""
-		for item in table.keys():
+		for item in list(table.keys()):
 			table[item]=fillTable(order.copy(),branch)
 	elif k=="p":
 		lista=xmldoc.getElementsByTagName("XdaqExecutive")
 		lista=filterNodeList(branch,lista)
 		for item in lista:
 			table[item.attributes["port"].value]=""
-		for item in table.keys():
+		for item in list(table.keys()):
 			table[item]=fillTable(order.copy(),branch + [item])
 	elif k=="c":
 		lista=xmldoc.getElementsByTagName("XdaqExecutive")
@@ -182,7 +182,7 @@ def fillTable(order,branch=[]):
 				table["No additional file"]=""	
 			else:
 				table[pset[0].firstChild.nodeValue]=""
-		for item in table.keys():
+		for item in list(table.keys()):
 			table[item]=fillTable(order.copy(),branch)
 	else:
 		pass
@@ -191,12 +191,12 @@ def fillTable(order,branch=[]):
 def SortAndGrid(table,order):
 	"""table => {s:{p:{c:{a:{}}}}}"""
 	grid=[]
-	for (server,ports) in table.items():
-		for (port,configfiles) in ports.items():
-			for (configfile,appnames) in configfiles.items():
-				for appname in appnames.keys():
+	for (server,ports) in list(table.items()):
+		for (port,configfiles) in list(ports.items()):
+			for (configfile,appnames) in list(configfiles.items()):
+				for appname in list(appnames.keys()):
 					line=[]
-					for col in order.values():
+					for col in list(order.values()):
 						if col=="s":
 							line.append(server)
 						if col=="p":

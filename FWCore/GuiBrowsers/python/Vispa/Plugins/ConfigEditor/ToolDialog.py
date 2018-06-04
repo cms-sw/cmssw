@@ -64,16 +64,16 @@ class ToolDialog(QDialog):
             module=imp.load_source(pythonModule, toolsFile)
             for name in dir(module):
                 tool=getattr(module,name)
-                if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not self._toolDataAccessor.label(tool) in self._toolsDict.keys() and not tool==ConfigToolBase:
+                if inspect.isclass(tool) and issubclass(tool,ConfigToolBase) and not self._toolDataAccessor.label(tool) in list(self._toolsDict.keys()) and not tool==ConfigToolBase:
                     self._toolsDict[self._toolDataAccessor.label(tool)]=tool
         # Show test tool
         #from FWCore.GuiBrowsers.editorTools import ChangeSource
         #self._toolsDict["ChangeSource"]=ChangeSource
-        if len(self._toolsDict.keys())==0 and self._toolsDir==standardToolsDir:
+        if len(list(self._toolsDict.keys()))==0 and self._toolsDir==standardToolsDir:
             logging.error(__name__ + ": Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
             QCoreApplication.instance().errorMessage("Could not find any PAT tools. These will be available for the ConfigEditor in a future release.")
             return
-        for item in self._toolsDict.keys():
+        for item in list(self._toolsDict.keys()):
             self._toolList.addItem(item)
         self._toolList.sortItems()
 

@@ -266,16 +266,16 @@ def transformIntoGraph(depgraph,toplevel):
     packageDict[toplevel] = Package(toplevel, top = True) 
 
     # create package objects
-    for key, value in depgraph.iteritems():
+    for key, value in depgraph.items():
         if key.count(".") == 2 and key != toplevel: 
             packageDict[key] = Package(key)
-        for name in value.keys():
+        for name in list(value.keys()):
             if name.count(".") == 2: packageDict[name] = Package(name)
     # now create dependencies
-    for key, value in depgraph.iteritems():
+    for key, value in depgraph.items():
         if key.count(".") == 2 or key == toplevel:
             package = packageDict[key]
-            package.dependencies = [packageDict[name] for name in value.keys() if name.count(".") == 2]
+            package.dependencies = [packageDict[name] for name in list(value.keys()) if name.count(".") == 2]
 
     removeRecursiveLoops( packageDict[toplevel] )
     # find and return the top level config

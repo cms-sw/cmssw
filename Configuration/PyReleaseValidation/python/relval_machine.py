@@ -39,7 +39,7 @@ def convert_keys_to_string(dictionary):
     if isinstance(dictionary, basestring):
         return str(dictionary)
     elif isinstance(dictionary, collections.Mapping):
-        return dict(map(convert_keys_to_string, dictionary.iteritems()))
+        return dict(map(convert_keys_to_string, iter(dictionary.items())))
     elif isinstance(dictionary, collections.Iterable):
         return type(dictionary)(map(convert_keys_to_string, dictionary))
     else:
@@ -53,7 +53,7 @@ def load_steps_and_workflows():
             data = convert_keys_to_string(data)
             label = data["label"]
             steps_names = []
-            for step_name, step in data["steps"].items():
+            for step_name, step in list(data["steps"].items()):
                 steps_names.append((step_name, step["sequence_number"]))
                 if step_name in steps:
                     continue  # this step was inserted already

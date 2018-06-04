@@ -40,7 +40,7 @@ datasetDict={
 def FillSource(eventType,source):
     import os
     requirements = ''
-    for item in datasetDict[eventType].items():
+    for item in list(datasetDict[eventType].items()):
         requirements += item[0]+' = '+item[1]+' and '
     requirements += 'release = %s' % os.environ['CMSSW_VERSION']
     foundDs = GetDbsInfo('dataset', requirements)
@@ -63,7 +63,7 @@ def FillSource(eventType,source):
 
 def serialize(root):
         xmlstr = ''
-        for key in root.keys():
+        for key in list(root.keys()):
             if isinstance(root[key], dict):
                 xmlstr = '%s<%s>%s</%s>' % (xmlstr, key, serialize(root[key]), key)
             elif isinstance(root[key], list):

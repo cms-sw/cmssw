@@ -110,7 +110,7 @@ class version_db(object):
                             cmssw_v = r
         logging.debug('Boost version will be verified in release %s' %cmssw_v) 
 
-        if cmssw_v in self.cmssw_boost_map.keys():
+        if cmssw_v in list(self.cmssw_boost_map.keys()):
             return self.cmssw_boost_map[cmssw_v]
     
         if releaseRoot is None:
@@ -159,7 +159,7 @@ class conddb_tool(object):
             db_service = prod_db_service
         else:
             raise Exception("Database '%s' is not known." %args.db )
-        if self.args.accessType not in db_service[1].keys():
+        if self.args.accessType not in list(db_service[1].keys()):
             raise Exception('The specified database connection %s does not support the requested action.' %db_service[0])
         service = db_service[1][self.args.accessType]
         creds = auth.get_credentials( authPathEnvVar, service, self.args.auth )
@@ -245,7 +245,7 @@ class conddb_tool(object):
             gtBoostVersion = self.version_db.lookup_boost_in_cmssw( gtCMSSWVersion  )
             if sm.cmp_boost_version( gtBoostVersion, tagBoostVersion )<0:
                 logging.warning( 'The boost version computed from all the iovs in the tag (%s) is incompatible with the gt [%s] %s (consuming ver: %s, snapshot: %s)' %(tagBoostVersion,ngt,gt[0],gtBoostVersion,str(gt[2])))
-                if str(gt[2]) not in boost_snapshot_map.keys():
+                if str(gt[2]) not in list(boost_snapshot_map.keys()):
                     tagSnapshotBoostVersion = None
                     minIov = None
                     tagSnapshotBoostVersion, minIov = self.process_tag_boost_version(t, timetype, tagSnapshotBoostVersion, minIov, gt[2])

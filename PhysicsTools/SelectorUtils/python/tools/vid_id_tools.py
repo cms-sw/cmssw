@@ -27,7 +27,7 @@ def setupVIDSelection(vidproducer,cutflow):
 def addVIDSelectionToPATProducer(patProducer,idProducer,idName,addUserData=True):
     patProducerIDs = None
     userDatas = None
-    for key in patProducer.__dict__.keys():
+    for key in list(patProducer.__dict__.keys()):
         if 'IDSources' in key:
             patProducerIDs = getattr(patProducer,key)
         if 'userData' in key:

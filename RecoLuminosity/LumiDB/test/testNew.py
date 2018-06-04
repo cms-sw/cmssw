@@ -27,7 +27,7 @@ if __name__=='__main__':
         print 'lumilsnum,cmslsnum,instlumi ',lsnum,lumiLSdata[lsnum][0],lumiLSdata[lsnum][1]*normval
         
     (runnum,trgLSdata)=dataDML.trgLSById(schema,trgdataid)
-    cmsls=trgLSdata.keys()
+    cmsls=list(trgLSdata.keys())
     cmsls.sort()
     for lsnum in cmsls:
         print 'cmslsnum,deadtime,bizerocount,bitzeroprescale,deadfrac ',lsnum,trgLSdata[lsnum][0],trgLSdata[lsnum][1],trgLSdata[lsnum][2],trgLSdata[lsnum][3]
@@ -35,7 +35,7 @@ if __name__=='__main__':
     print 'npath,pathnames ',npath,pathnames
     pathnameList=pathnames.split(',')
     (runnum,hltLSdata)=dataDML.hltLSById(schema,hltdataid)
-    cmsls=hltLSdata.keys()
+    cmsls=list(hltLSdata.keys())
     cmsls.sort()
     for lsnum in cmsls:
         prescaleblob=hltLSdata[lsnum][0]

@@ -85,7 +85,7 @@ class LumiCorrector(object):
     
     def PixelAfterglowFactor(self,nBXs):
         Afterglow = 1.0
-        for bxthreshold,correction in self.pixelAfterglowMap_.items():
+        for bxthreshold,correction in list(self.pixelAfterglowMap_.items()):
             if nBXs >= bxthreshold :
                 Afterglow = correction
                 return Afterglow

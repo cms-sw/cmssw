@@ -32,13 +32,13 @@ deepInspectionPlots = {
 
 allEfficiencyPlots = []
 add_plot = allEfficiencyPlots.append
-for variable, thresholds in variables.iteritems():
+for variable, thresholds in variables.items():
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
             add_plot(plotName)
 
-for variable, thresholds in deepInspectionThresholds.iteritems():
+for variable, thresholds in deepInspectionThresholds.items():
     for plot in deepInspectionPlots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
@@ -83,13 +83,13 @@ deepInspectionThresholds_HI = {
 
 allEfficiencyPlots_HI = []
 add_plot = allEfficiencyPlots_HI.append
-for variable, thresholds in variables_HI.iteritems():
+for variable, thresholds in variables_HI.items():
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
             add_plot(plotName)
 
-for variable, thresholds in deepInspectionThresholds_HI.iteritems():
+for variable, thresholds in deepInspectionThresholds_HI.items():
     for plot in deepInspectionPlots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)

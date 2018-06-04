@@ -40,7 +40,7 @@ def runRules(ruleNumberList, directory):
             print '\nWrite -h for help'
             return -1
 
-    for rule in configuration.keys():
+    for rule in list(configuration.keys()):
         configuration[rule]['filter'] = re.compile(configuration[rule]['filter'])
 
     osWalk.extend(os.walk(directory))

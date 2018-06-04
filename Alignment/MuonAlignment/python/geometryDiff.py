@@ -59,11 +59,11 @@ def rotFromEuler(g):
 
 def loopover(which):
   if which == "DT":
-    keys = geom1.dt.keys()
+    keys = list(geom1.dt.keys())
     keys.sort(dtorder)
 
   elif which == "CSC":
-    keys = geom1.csc.keys()
+    keys = list(geom1.csc.keys())
     keys.sort(cscorder)
 
   else: raise Exception

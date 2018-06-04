@@ -67,7 +67,7 @@ hltGTs = {
 }
 
 def autoCondHLT(autoCond):
-    for key,val in hltGTs.iteritems():
+    for key,val in hltGTs.items():
         if len(val)==1 :
            autoCond[key] = ( autoCond[val[0]] )
         else:

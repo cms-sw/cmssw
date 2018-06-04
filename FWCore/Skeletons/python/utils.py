@@ -58,7 +58,7 @@ def functor(code, kwds, debug=0):
     http://lucumr.pocoo.org/2011/2/1/exec-in-python/
     """
     args  = []
-    for key, val in kwds.items():
+    for key, val in list(kwds.items()):
         if  isinstance(val, basestring):
             arg = '%s="%s"' % (key, val)
         elif isinstance(val, list):

@@ -109,7 +109,7 @@ class Options(dict):
     def kwarg_list(self):
         diffs = {}
         defaults = parse_arguments([])
-        for key, value in self.items():
+        for key, value in list(self.items()):
             if (key not in ['filenames', 'targets', 'configs'] and
                 defaults[key] != value):
                 diffs[key] = value
@@ -518,7 +518,7 @@ print ''
 '''
 
 ## remove leading blank lines from the templates
-for key, value in globals().items():
+for key, value in list(globals().items()):
     if 'template' in key:
         globals()[key] = value[1:]
 
@@ -693,7 +693,7 @@ def rootplot(*args, **kwargs):
         argstring = ', '.join(["'%s'" % x for x in (filenames + targets +
                                                     options.configs)])
         reduced_kwargs = dict(kwargs)
-        for key, value in reduced_kwargs.items():
+        for key, value in list(reduced_kwargs.items()):
             if key in global_opts:
                 del reduced_kwargs[key]
             elif isinstance(value, str):
@@ -701,7 +701,7 @@ def rootplot(*args, **kwargs):
         if 'numbering' in kwargs:
             reduced_kwargs['numbering'] = i + 1
         optstring = ', '.join(['%s=%s' % (key, value)
-                               for key, value in reduced_kwargs.items()])
+                               for key, value in list(reduced_kwargs.items())])
         if optstring:
             argstring = "%s, %s" % (argstring, optstring)
         plotpath, title, legentries = get_plotpath(filenames, targets)
@@ -896,7 +896,7 @@ def get_plot_inputs(files, options):
 
 def fill_options(args, kwargs, scope):
     options = parse_arguments(args, scope=scope)
-    for key, value in kwargs.items():
+    for key, value in list(kwargs.items()):
         options[key] = value
     options.process_configs(scope=scope)
     options.size = parse_size(options.size)
@@ -1626,7 +1626,7 @@ def parse_legend_root(options):
     return [0, 0, 0, 0]
 
 def load_matplotlib(ext):
-    if 'mpl' not in globals().keys():
+    if 'mpl' not in list(globals().keys()):
         global r2m, mpl, np, plt
         try:
             import matplotlib as mpl
@@ -1782,7 +1782,7 @@ def process_options(options):
                 options.marker_sizes[i] = ROOT.gStyle.GetMarkerSize()
         if nhists == 2 and options.mc_color:
             options.fill_colors[(i+1)%2] = options.mc_color
-    for opt in [x for x in options.keys() if 'colors' in x]:
+    for opt in [x for x in list(options.keys()) if 'colors' in x]:
         try:
             colors = options[opt]
             options[opt] = [parse_color(x, not use_mpl) for x in colors]

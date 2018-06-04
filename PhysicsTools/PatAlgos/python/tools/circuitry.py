@@ -53,7 +53,7 @@ def plotModuleInputs(seq,filename,printOuter=True,printLinkNames=True):
             pass
     def greptags(ps,basename=""):
         ret = []
-        for pn, pv in ps.parameters_().items():
+        for pn, pv in list(ps.parameters_().items()):
             type = pv.configTypeName()
             if type == 'InputTag'    : ret.append( (basename+pn, pv.configValue()) )
             elif type == 'VInputTag' : ret += [ ("%s%s[%d]"%(basename,pn,i+1),v.configValue()) for i,v in enumerate(pv.value()) ]
@@ -72,8 +72,8 @@ def plotModuleInputs(seq,filename,printOuter=True,printLinkNames=True):
         for (tn,tv) in tags:
             tve = escapeParValue(tv)
             if tve not in alls: alls[tve]=True
-    names = deps.keys();
-    if printOuter: names = alls.keys()
+    names = list(deps.keys());
+    if printOuter: names = list(alls.keys())
     done = {}
     for n in names:
         ne = escapeParValue(n)

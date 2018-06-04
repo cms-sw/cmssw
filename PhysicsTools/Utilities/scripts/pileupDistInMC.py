@@ -73,7 +73,7 @@ if __name__ == "__main__":
     print "normalized:"
 
     renormDict = {}
-    for key, count in countDict.iteritems():
+    for key, count in countDict.items():
         renormDict[key] = count / total
     pprint (renormDict)
     

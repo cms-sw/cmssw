@@ -39,7 +39,7 @@ def factory_tests(querying_tests):
 		"""
 		keys = ["globaltag", "globaltagmap", "tag", "iov", "payload"]
 		for key in keys:
-			self.assertTrue(key in self.connection.models.keys())
+			self.assertTrue(key in list(self.connection.models.keys()))
 		proxy_method_names = ["global_tag", "global_tag_map", "tag", "iov", "payload"]
 		for name in proxy_method_names:
 			self.assertTrue(hasattr(self.connection, name))

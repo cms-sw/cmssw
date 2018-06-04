@@ -13,7 +13,7 @@ plots = {
 
 allEfficiencyPlots = []
 add_plot = allEfficiencyPlots.append
-for variable, thresholds in variables.iteritems():
+for variable, thresholds in variables.items():
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
@@ -55,7 +55,7 @@ variables_HI['jet'] = L1TStep1.jetEfficiencyThresholds_HI
 
 allEfficiencyPlots_HI = []
 add_plot = allEfficiencyPlots_HI.append
-for variable, thresholds in variables_HI.iteritems():
+for variable, thresholds in variables_HI.items():
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)

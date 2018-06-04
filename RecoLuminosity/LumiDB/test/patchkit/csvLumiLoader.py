@@ -59,7 +59,7 @@ def generateLumidata(lumirundatafromfile,lsdatafromfile,rundatafromdb,lsdatafrom
         print '[INFO]Operation: insert a new fake run'
     for lumilsnum in range(replacelsMin,replacelsMax+1):
         instlumi=lsdatafromfile[lumilsnum]
-        if lumilsnum in lsdatafromdb.keys(): #if this is a hole
+        if lumilsnum in list(lsdatafromdb.keys()): #if this is a hole
             lumilsdata[lumilsnum][1]=instlumi
         else:                                #if this is an extension
             instlumierror=0.0

@@ -88,10 +88,10 @@ def loopover(muSystem):
   movedChamberKeys = []
   
   if muSystem == "DT":
-    keys = geom0.dt.keys()
+    keys = list(geom0.dt.keys())
     keys.sort(dtorder)
   elif muSystem == "CSC":
-    keys = geom0.csc.keys()
+    keys = list(geom0.csc.keys())
     keys.sort(cscorder)
   else: raise Exception
   

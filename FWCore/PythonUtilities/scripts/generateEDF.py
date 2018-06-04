@@ -158,7 +158,7 @@ class LumiInfoCont (dict):
         # use lumFactor to make everything consistent
         #print "units", self.invunits, "factor", lumFactor
         self.totalRecLum /= lumFactor
-        for lumis in self.values():
+        for lumis in list(self.values()):
             lumis.delivered /= lumFactor
             lumis.recorded  /= lumFactor
         # Probably want to rename this next subroutine, but I'll leave
@@ -169,7 +169,7 @@ class LumiInfoCont (dict):
 
     def __str__ (self):
         retval = 'run,     lum     del ( dt  ) inst (#xng)\n'
-        for key, value in sorted (self.iteritems()):
+        for key, value in sorted (self.items()):
             retval += "%s\n" % value
         return retval
 
@@ -193,7 +193,7 @@ class LumiInfoCont (dict):
     def _integrateContainer (self):
         # calculate numbers for recorded integrated luminosity
         total = 0.
-        for key, lumi in self.iteritems():
+        for key, lumi in self.items():
             total += lumi.recorded
             lumi.totalRecorded = total
             lumi.fracRecorded  = total / self.totalRecLum
@@ -203,7 +203,7 @@ class LumiInfoCont (dict):
             return
         xingKeyList = []
         maxAveInstLum = 0.
-        for key, lumi in self.iteritems():
+        for key, lumi in self.items():
             if not lumi.xingInfo and not lumi.fixXingInfo():
                 if not self.noWarnings:
                     print "Do not have lumi xing info for %s" % lumi.keyString
@@ -300,7 +300,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
             expectedVals = []
             predVals   = []
         # loop over events
-        for key, eventList in sorted( eventsDict.iteritems() ):
+        for key, eventList in sorted( eventsDict.items() ):
             usePoints = True
             # should we add this point?
             if lumiCont.minRun and lumiCont.minRun > key[0] or \
@@ -403,7 +403,7 @@ def makeEDFplot (lumiCont, eventsDict, totalWeight, outputFile, options):
         eventTupList = []
         if not lumiCont.xingInfo:
             raise RuntimeError("Luminosity Xing information missing.")
-        for key, eventList in sorted( eventsDict.iteritems() ):
+        for key, eventList in sorted( eventsDict.items() ):
             try:
                 lumi =  lumiCont[key]
                 instLum   = lumi.aveInstLum
@@ -649,7 +649,7 @@ if __name__ == '__main__':
         recLumValue = recLumis [recLumIndex]
         prevRecLumi = 0.
         done = False
-        for key, lumi in cont.iteritems():
+        for key, lumi in cont.items():
             if prevRecLumi >= recLumValue and recLumValue < lumi.totalRecorded:
                 # found it
                 print "%s contains total recorded lumi %f" % \

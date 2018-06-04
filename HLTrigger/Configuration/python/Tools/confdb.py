@@ -67,7 +67,7 @@ class HLTProcess(object):
     args = ['--configName', self.config.setup ]
     args.append('--noedsources')
     args.append('--nopaths')
-    for key, vals in self.options.iteritems():
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
     args.append('--cff')
@@ -85,7 +85,7 @@ class HLTProcess(object):
     else:
       args = ['--configName', self.config.menu.name ]
     args.append('--noedsources')
-    for key, vals in self.options.iteritems():
+    for key, vals in self.options.items():
       if vals:
         args.extend(('--'+key, ','.join(vals)))
 

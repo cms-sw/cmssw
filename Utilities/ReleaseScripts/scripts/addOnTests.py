@@ -147,15 +147,15 @@ class StandardTester(object):
                      }
 
         self.commands={}
-        for dirName, command in lines.items():
+        for dirName, command in list(lines.items()):
             self.commands[dirName] = command
 
-        for dirName, commandList in hltTests.items():
+        for dirName, commandList in list(hltTests.items()):
             self.commands[dirName] = commandList
         return
 	
     def dumpTest(self):
-        print ",".join(self.commands.keys())
+        print ",".join(list(self.commands.keys()))
         return
 
     def file2Path(self,rFile):
@@ -178,7 +178,7 @@ class StandardTester(object):
     	
     	print 'Running in %s thread(s)' % self.maxThreads
     	
-        for dirName, command in self.commands.items():
+        for dirName, command in list(self.commands.items()):
 
     	    if testList and not dirName in testList:
                 del self.commands[dirName]

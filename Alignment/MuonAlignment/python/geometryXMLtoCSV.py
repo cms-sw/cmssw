@@ -35,7 +35,7 @@ print ", endcap, station, ring, chamber, layer, , , , , , alpha, beta, gamma, , 
 class ContentHandler(handler.ContentHandler):
     # what to do when you get to a <startelement>
     def startElement(self, tag, attrib):
-        attrib = dict(attrib.items())
+        attrib = dict(list(attrib.items()))
         if "rawId" in attrib: raise Exception("Please use \"rawIds = false\"")
         if "aa" in attrib: raise Exception("Please use \"survey = false\"")
 

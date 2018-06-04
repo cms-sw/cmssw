@@ -75,7 +75,7 @@ class EventContentView(QTableWidget, AbstractView):
                     text="Yes"
                 else:
                     text="No"
-                if "_".join(entry) in comment.keys():
+                if "_".join(entry) in list(comment.keys()):
                     text+=" ("+comment["_".join(entry)]+")"
                 #if relative:
                 color=Qt.white
@@ -118,7 +118,7 @@ class EventContentView(QTableWidget, AbstractView):
         """ Return an item in the TableView with a certain object.
         """
         items = []
-        for positionName, item in self._itemDict.items():
+        for positionName, item in list(self._itemDict.items()):
             if item.object == self.dataAccessor().label(object):
                 items += [(positionName, item)]
         if len(items) > 0:

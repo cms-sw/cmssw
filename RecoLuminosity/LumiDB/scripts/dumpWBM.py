@@ -128,7 +128,7 @@ def main():
         if deadresult and len(deadresult)!=0:
             print 'run',runnumber
             print 'ls deadcount'
-            for cmsls,deadcount in deadresult.items():
+            for cmsls,deadcount in list(deadresult.items()):
                 print cmsls,deadcount
         else:
             print 'no deadtime found for run ',runnumber
@@ -141,7 +141,7 @@ def main():
         if deadresult and len(deadresult)!=0:
             #print 'run',runnumber
             #print 'ls deadfraction'
-            for cmsls,deadcount in deadresult.items():
+            for cmsls,deadcount in list(deadresult.items()):
                 bitzero=bitzeroresult[cmsls]
                 bitzero_prescale=1.0
                 if int(runnumber)>=146315:

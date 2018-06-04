@@ -74,9 +74,9 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         self.maxDaughters=1000
         
     def isRead(self,object,levels=1):
-        if not id(object) in self._edmChildrenObjects.keys():
+        if not id(object) in list(self._edmChildrenObjects.keys()):
             return False
-        if levels>1 and id(object) in self._edmChildren.keys():
+        if levels>1 and id(object) in list(self._edmChildren.keys()):
             for child in self._edmChildren[id(object)]:
                 if not self.isRead(child, levels-1):
                     return False
@@ -84,28 +84,28 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
 
     def children(self,object):
         """ Get children of an object """
-        if id(object) in self._edmChildren.keys() and self.isRead(object):
+        if id(object) in list(self._edmChildren.keys()) and self.isRead(object):
             return self._edmChildren[id(object)]
         else:
             return ()
 
     def isContainer(self,object):
         """ Get children of an object """
-        if id(object) in self._edmChildren.keys() and self.isRead(object):
+        if id(object) in list(self._edmChildren.keys()) and self.isRead(object):
             return len(self._edmChildren[id(object)])>0
         else:
             return True
 
     def motherRelations(self,object):
         """ Get motherRelations of an object """
-        if id(object) in self._edmMotherRelations.keys():
+        if id(object) in list(self._edmMotherRelations.keys()):
             return self._edmMotherRelations[id(object)]
         else:
             return ()
 
     def daughterRelations(self,object):
         """ Get daughterRelations of an object """
-        if id(object) in self._edmDaughterRelations.keys():
+        if id(object) in list(self._edmDaughterRelations.keys()):
             return self._edmDaughterRelations[id(object)]
         else:
             return ()
@@ -114,7 +114,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         return self.getShortLabel(object)
 
     def getShortLabel(self,object):
-        if id(object) in self._edmLabel.keys():
+        if id(object) in list(self._edmLabel.keys()):
             splitlabel=self._edmLabel[id(object)].strip(".").split(".")
             return splitlabel[len(splitlabel)-1]
         else:
@@ -141,14 +141,14 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
     
     def getBranch(self,object):
         entry=object
-        while id(entry) in self._edmParent.keys() and self._edmParent[id(entry)]!=None:
+        while id(entry) in list(self._edmParent.keys()) and self._edmParent[id(entry)]!=None:
             entry=self._edmParent[id(entry)]
         return entry
 
     def getDepth(self,object):
         entry=object
         i=0
-        while id(entry) in self._edmParent.keys() and self._edmParent[id(entry)]!=None:
+        while id(entry) in list(self._edmParent.keys()) and self._edmParent[id(entry)]!=None:
             entry=self._edmParent[id(entry)]
             i+=1
         return i
@@ -282,10 +282,10 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                             if self.compareObjects(daughter,da):
                                 daughter=da
                                 found=True
-                        if not id(mother) in self._edmDaughterRelations.keys():
+                        if not id(mother) in list(self._edmDaughterRelations.keys()):
                             self._edmDaughterRelations[id(mother)]=[]
                         self._edmDaughterRelations[id(mother)]+=[daughter]
-                        if not id(daughter) in self._edmMotherRelations.keys():
+                        if not id(daughter) in list(self._edmMotherRelations.keys()):
                             self._edmMotherRelations[id(daughter)]=[]
                         self._edmMotherRelations[id(daughter)]+=[mother]
                 except Exception as message:
@@ -311,7 +311,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
 
         objectproperties={}
         objectproperties_sorted=[]
-        if id(object) in self._edmChildrenObjects.keys():
+        if id(object) in list(self._edmChildrenObjects.keys()):
             for name,value,ref,propertyType in self._edmChildrenObjects[id(object)]:
                 if propertyType!=None:
                     objectproperties[name]=(value,propertyType)
@@ -335,36 +335,36 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
             properties+=[("String","Process",branchlabel.split("_")[3])]
 
         for property in ["pdgId","charge","status"]:
-            if property in objectproperties.keys():
+            if property in list(objectproperties.keys()):
                 properties+=[(objectproperties[property][1],property,objectproperties[property][0])]
                 del objectproperties[property]
 
-        if "px" in objectproperties.keys():
+        if "px" in list(objectproperties.keys()):
             properties+=[("Category","Vector","")]
             for property in ["energy","px","py","pz","mass","pt","eta","phi","p","theta","y","rapidity","et","mt","mtSqr","massSqr"]:
-                if property in objectproperties.keys():
+                if property in list(objectproperties.keys()):
                     properties+=[(objectproperties[property][1],property,objectproperties[property][0])]
                     del objectproperties[property]
 
-        if "x" in objectproperties.keys():
+        if "x" in list(objectproperties.keys()):
             properties+=[("Category","Vector","")]
             for property in ["x","y","z"]:
-                if property in objectproperties.keys():
+                if property in list(objectproperties.keys()):
                     properties+=[(objectproperties[property][1],property,objectproperties[property][0])]
                     del objectproperties[property]
 
-        if False in [str(value[0]).startswith("ERROR") for value in objectproperties.values()]:
+        if False in [str(value[0]).startswith("ERROR") for value in list(objectproperties.values())]:
             properties+=[("Category","Values","")]
             for property in objectproperties_sorted:
-                if property in objectproperties.keys():
+                if property in list(objectproperties.keys()):
                     if not str(objectproperties[property][0]).startswith("ERROR"):
                         properties+=[(objectproperties[property][1],property,objectproperties[property][0])]
                         del objectproperties[property]
             
-        if len(objectproperties.keys())>0:
+        if len(list(objectproperties.keys()))>0:
             properties+=[("Category","Errors","")]
             for property in objectproperties_sorted:
-                if property in objectproperties.keys():
+                if property in list(objectproperties.keys()):
                     properties+=[(objectproperties[property][1],property,objectproperties[property][0])]
                 
         return tuple(properties)
@@ -373,7 +373,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         """ read edm objects recursive """
         logging.debug(__name__ + ": readObjectsRecursive (levels="+str(levels)+"): "+label)
         # save object information
-        if not id(edmobject) in self._edmLabel.keys():
+        if not id(edmobject) in list(self._edmLabel.keys()):
             if not isinstance(edmobject,(int,float,long,complex,str,unicode,bool)):
                 # override comparison operator of object
                 try:
@@ -384,7 +384,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
             self._edmLabel[id(edmobject)]=label
             self._edmParent[id(edmobject)]=mother
             self._edmChildren[id(edmobject)]=[]
-            if not id(mother) in self._edmChildren.keys():
+            if not id(mother) in list(self._edmChildren.keys()):
                 self._edmChildren[id(mother)]=[]
             self._edmChildren[id(mother)]+=[edmobject]
         if levels==0:
@@ -398,7 +398,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
         """ read daughter objects of an edmobject """
         logging.debug(__name__ + ": readDaughtersRecursive (levels="+str(levels)+"): "+str(edmobject))
         # read children information
-        if not id(edmobject) in self._edmChildrenObjects.keys():
+        if not id(edmobject) in list(self._edmChildrenObjects.keys()):
             self._edmChildrenObjects[id(edmobject)]=self.getDaughterObjects(edmobject)
         # analyze children information
         ok=True
@@ -411,7 +411,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     label="* "+name
                 else:
                     label=name
-                if id(edmobject) in self._edmLabel.keys() and self._edmLabel[id(edmobject)]!="":
+                if id(edmobject) in list(self._edmLabel.keys()) and self._edmLabel[id(edmobject)]!="":
                     label=self._edmLabel[id(edmobject)]+"."+label
                 (res,ok)=self.readObjectsRecursive(edmobject,label,daughter,levels-1)
                 objects+=res

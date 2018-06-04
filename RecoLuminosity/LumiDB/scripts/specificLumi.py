@@ -26,7 +26,7 @@ def getFillFromDB(schema,fillnum):
     runtimesInFill={}
     fillrundict=lumiCalcAPI.fillrunMap(schema,fillnum)
     if len(fillrundict)>0:
-        runs=fillrundict.values()[0]
+        runs=list(fillrundict.values())[0]
         runlsdict=dict(list(zip(runs,[None]*len(runs))))
         runresult=lumiCalcAPI.runsummary(schema,runlsdict)    
         for perrundata in runresult:
@@ -126,7 +126,7 @@ def filltofiles(allfills,runsperfill,runtimes,dirname):
     for fill in allfills:
         print >>f,'%d'%(fill)
     f.close()
-    for fill,runs in runsperfill.items():
+    for fill,runs in list(runsperfill.items()):
         filename='fill_'+str(fill)+'.txt'
         if len(runs)!=0:
             f=open(os.path.join(dirname,filename),'w')
@@ -148,7 +148,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
     filloutdir=os.path.join(outdir,str(fillnum))
     if not os.path.exists(filloutdir):
         os.mkdir(filloutdir)
-    for cmsbxidx,perbxdata in filldata.items():
+    for cmsbxidx,perbxdata in list(filldata.items()):
         lhcbucket=0
         if cmsbxidx!=0:
             lhcbucket=(cmsbxidx-1)*10+1
@@ -223,7 +223,7 @@ def specificlumiTofile(fillnum,filldata,outdir):
         previoustime=lstime
     #print summaryls
    
-    summarylstimes=summaryls.keys()
+    summarylstimes=list(summaryls.keys())
     summarylstimes.sort()
     lumip=lumiParameters.ParametersObject()
     for bts in summarylstimes:
@@ -248,7 +248,7 @@ def getSpecificLumi(schema,fillnum,inputdir,dataidmap,normmap,xingMinLum=0.0,amo
     t=lumiTime.lumiTime()
     fillbypos={}#{bxidx:[[ts,beamstatusfrac,lumi,lumierror,spec1,specerror],[]]}
     runtimesInFill=getFillFromDB(schema,fillnum)#{runnum:starttimestr}
-    runlist=runtimesInFill.keys()
+    runlist=list(runtimesInFill.keys())
     if not runlist: return fillbypos
     irunlsdict=dict(list(zip(runlist,[None]*len(runlist))))
     #prirunlsdict
@@ -464,7 +464,7 @@ if __name__ == '__main__':
         if not normname:
             normmap=normDML.normIdByType(session.nominalSchema(),lumitype='HF',defaultonly=True)
             if len(normmap):
-                normname=normmap.keys()[0]
+                normname=list(normmap.keys())[0]
                 normid=normmap[normname]
         else:
             normid=normDML.normIdByName(session.nominalSchema(),normname)

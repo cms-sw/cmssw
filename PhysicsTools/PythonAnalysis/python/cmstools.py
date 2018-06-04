@@ -113,7 +113,7 @@ class EventTree(object):
       def tree(self):
           return self._tree
       def __setBranchIndicies(self):
-          for branch in self._usedBranches.itervalues():
+          for branch in self._usedBranches.values():
               branch.setIndex(self._index)
       def __getattr__(self, name):
           return self.branch(name)

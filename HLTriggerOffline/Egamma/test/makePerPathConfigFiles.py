@@ -141,7 +141,7 @@ allPathsWritten = []
 
 
 
-for hltPathCategory, thisCategoryData in configData.iteritems():
+for hltPathCategory, thisCategoryData in configData.items():
 
     # get the HLT path objects for this category
     paths = pathsByCategory[hltPathCategory]

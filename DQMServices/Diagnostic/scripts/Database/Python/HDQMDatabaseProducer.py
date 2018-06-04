@@ -35,8 +35,8 @@ if len(config.RecoTypes) == 0:
     for file in fullList:
         # print file.split("__")[2]
         keys[file.split("__")[2]] = 1
-    print "Found the following reco types:", keys.keys()
-    config.RecoTypes = keys.keys()
+    print "Found the following reco types:", list(keys.keys())
+    config.RecoTypes = list(keys.keys())
 
 # Save the list of recoTypes to file for the WebInterface
 recoTypesFile = open('recoTypesFile.txt', 'w')

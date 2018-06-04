@@ -64,7 +64,7 @@ def get_num_evts_per_merged_dataset(merged_datasets,num_evts_per_dataset):
     `merge_datasets' for an explanation of <merged_dataset>.
     """
     num_evts_per_merged_dataset = {}
-    for merged_dataset,datasets in merged_datasets.iteritems():
+    for merged_dataset,datasets in merged_datasets.items():
         num_evts = 0
         for dataset in datasets:
             num_evts = num_evts + num_evts_per_dataset[dataset]
@@ -84,7 +84,7 @@ def merge_datasets(num_evts_per_dataset):
 
     The returned dict has as value a list of the merged datasets.
     """
-    datasets = num_evts_per_dataset.keys()
+    datasets = list(num_evts_per_dataset.keys())
     merged_datasets = {}
     for dataset in datasets:
         bare_name = dataset[0:dataset.find("run")].rstrip("_")
@@ -104,7 +104,7 @@ def print_merging_scheme(merged_datasets):
     of what is meant by merged dataset.
     """
     print "Defining the following merged datasets:"
-    for merged_dataset,datasets in merged_datasets.iteritems():
+    for merged_dataset,datasets in merged_datasets.items():
         print "\n  `"+merged_dataset+"' from:"
         for dataset in datasets:
             print "    `"+dataset+"'"

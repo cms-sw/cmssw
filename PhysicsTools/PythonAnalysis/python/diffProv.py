@@ -24,8 +24,8 @@ class difference :
     def module_diff(self,module1,module2, string1, string2):
         "Searches for modules which are in both the files but whose parameters are setted at different values"
         print '\nList of modules present in both the files with different parameter values\n'
-        for i in module1.keys():
-            for j in module2.keys():
+        for i in list(module1.keys()):
+            for j in list(module2.keys()):
                 if (i==j) and (i=='Processing'):
                     list= module1[i]
                     for k in range(len(list)):
@@ -62,9 +62,9 @@ class difference :
     def onefilemodules(self,module1,module2,string):
         "Searches for modules present only in one of the two files"
         print '\nModules run only on the '+string+ ' edmfile:'+'\n'
-        for i in module1.keys():
+        for i in list(module1.keys()):
             labelList=[]
-            if (i not in module2.keys())and (i not in self._sameprocess):
+            if (i not in list(module2.keys()))and (i not in self._sameprocess):
                 print '\n Process '+i+' not run on edmfile '+string +'\n'
             elif i!='Processing':
                 k=i

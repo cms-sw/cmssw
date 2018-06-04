@@ -172,7 +172,7 @@ def main():
         p=re.compile(r'^/cdaq/physics/.+')
         result=hltkeyForRun(session,c,runnumber)
         print 'runnumber hltkey'
-        for runnum,hltkey in result.items():
+        for runnum,hltkey in list(result.items()):
             if not args.collisiononly:
                 print runnum,hltkey
             if args.collisiononly and re.match(p,hltkey):
@@ -183,7 +183,7 @@ def main():
         p=re.compile(r'^TSC_.+_collisions_.+')
         result=l1keyForRun(session,c,runnumber)
         print 'runnumber tsc_key'
-        for runnum,l1key in result.items():
+        for runnum,l1key in list(result.items()):
             if not args.collisiononly:
                 print runnum,l1key
             if args.collisiononly and re.match(p,l1key):

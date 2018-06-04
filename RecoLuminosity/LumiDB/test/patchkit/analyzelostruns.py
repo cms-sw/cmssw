@@ -110,7 +110,7 @@ def insertLumischemaV2(dbsession,runnum,datasource,perlsrawdata,perbunchrawdata,
     branchinfo=(branchrevision_id,'DATA')
     lumirundata=[datasource]
     lumilsdata={}
-    for cmslsnum,instlumi in perlsrawdata.items():
+    for cmslsnum,instlumi in list(perlsrawdata.items()):
         mystartorbit=startorbit+numorbit*(cmslsnum-1)
         bxdataocc1blob=None
         bxdataocc2blob=None

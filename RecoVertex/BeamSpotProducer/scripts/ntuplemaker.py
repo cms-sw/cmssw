@@ -57,7 +57,7 @@ def getFill( json, run ):
 
     thefill = 0
     run = int(run)
-    keys = json.keys()
+    keys = list(json.keys())
     
     for i in keys:
 
@@ -280,7 +280,7 @@ if __name__ == '__main__':
         listmap = readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)
         # bx
         print "List of bunch crossings in the file:"
-        print listmap.keys()
+        print list(listmap.keys())
         listbeam = listmap[option.Xrossing]
     else:
         readBeamSpotFile(datafilename,listbeam,IOVbase,firstRun,lastRun)

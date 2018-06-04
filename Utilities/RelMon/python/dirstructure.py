@@ -107,7 +107,7 @@ class Directory(Weighted):
     
     self.n_skiped = 0
     self.n_comp_skiped = 0
-    self.n_missing_objs = len(self.different_histograms['file1'].keys())+len(self.different_histograms['file2'].keys())
+    self.n_missing_objs = len(list(self.different_histograms['file1'].keys()))+len(list(self.different_histograms['file2'].keys()))
     if self.n_missing_objs != 0:
       print "    [*] Missing in %s: %s" %(self.filename1, self.different_histograms['file1'])
       print "    [*] Missing in %s: %s" %(self.filename2, self.different_histograms['file2'])

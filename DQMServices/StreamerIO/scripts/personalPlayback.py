@@ -139,7 +139,7 @@ class Playback(Applet):
             return os.path.join(self.output, f)
 
         written_files = set()
-        for stream, v  in streams.items():
+        for stream, v  in list(streams.items()):
             jsn_orig_fn, stream_source = v
             jsn_play_fn = "run%06d_ls%04d_stream%s_%s.jsn" % (self.run, play_lumi, stream, stream_source)
 
@@ -379,7 +379,7 @@ class FrameworkJob(Applet):
 
         # find max global for which there is a run directory
         run_set = set(runs.keys())
-        run_set = run_set.intersection(globals.keys())
+        run_set = run_set.intersection(list(globals.keys()))
 
         if self.opts.run < 0:
             largest = max(run_set)

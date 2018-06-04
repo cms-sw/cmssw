@@ -284,7 +284,7 @@ def main(argv):
         "DIGI":{"runSimDigiDumper_cfg.py":"/src/Validation/Performance/test/"}
         }
     
-    for CfgFile in CfgFilesLocation[step].keys():
+    for CfgFile in list(CfgFilesLocation[step].keys()):
         GetFile(CfgFile,CfgFilesLocation[step][CfgFile])
 
     #Modify the cfgs as needed 1 copy of each pointing to the SIMSavedSeedsFile, 1 copy of each pointing to the SIMRestoredSeedsFile:
@@ -295,7 +295,7 @@ def main(argv):
     
     RootFiles=[SavedSeedsFile+".root",RestoredSeedsFile+".root"]
     
-    for CfgFile in CfgFilesLocation[step].keys():
+    for CfgFile in list(CfgFilesLocation[step].keys()):
         for RootFile in RootFiles: 
             Cfg=MakeCfg(CfgFile,"myfile.root",RootFile)
             DumpFile=Cfg.split(".")[0]+".log"

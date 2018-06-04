@@ -136,7 +136,7 @@ if __name__ == '__main__':
                       action='store_true'
                       )
     parser.add_option('-l','--list',
-                     help='Coma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
+                     help='Coma separated list of workflow to be shown or ran. Possible keys are also '+str(list(predefinedSet.keys()))+'. and wild card like muon, or mc',
                      dest='testList',
                      default=None
                      )

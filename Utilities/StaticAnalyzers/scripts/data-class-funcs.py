@@ -92,7 +92,7 @@ for line in fileinput.input(files =('function-statics-db.txt','function-calls-db
 fileinput.close()
 
 for n,nbrdict in G.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
+	for nbr,eattr in list(nbrdict.items()):
 		if n in badfuncs or nbr in badfuncs :
 			if 'kind' in eattr and eattr['kind'] == ' overrides function '  :
 				print "'"+n+"'"+eattr['kind']+"'"+nbr+"'"
@@ -100,13 +100,13 @@ for n,nbrdict in G.adjacency_iter():
 print
 
 for n,nbrdict in H.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
+	for nbr,eattr in list(nbrdict.items()):
 		if n in badclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
 			virtclasses.add(nbr)
 
 
 for n,nbrdict in H.adjacency_iter():
-	for nbr,eattr in nbrdict.items():
+	for nbr,eattr in list(nbrdict.items()):
 		if nbr in dclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
 			dclasses.add(n)
 
@@ -176,7 +176,7 @@ for dataclassfunc in sorted(dataclassfuncs):
 					for p in path:
 						print p+"; ",
 					print "' ",
-					for key in  G[tfunc].keys() :
+					for key in  list(G[tfunc].keys()) :
 						if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
 							print "'"+tfunc+"'"+G[tfunc][key]['kind']+"'"+key+"'",
 					print ""
@@ -185,7 +185,7 @@ for dataclassfunc in sorted(dataclassfuncs):
 					for p in path:
 						print p+"; ",
 					print "' flagged event setup data class '"+dataclass+"' is accessed. ",
-					for key in  G[tfunc].keys() :
+					for key in  list(G[tfunc].keys()) :
 						if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
 							print "'"+tfunc+"'"+G[tfunc][key]['kind']+"'"+key+"'",
 					print ""

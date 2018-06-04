@@ -62,7 +62,7 @@ for line in fin:
     # limit to one entry per dataset
     if label in line:
         # select datasets of interest
-        for str in dsFlags.keys():
+        for str in list(dsFlags.keys()):
             if str in line:
                 # extract dataset path
                 path = line.split('\'')[1].strip()

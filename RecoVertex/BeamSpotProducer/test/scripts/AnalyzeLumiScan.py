@@ -102,13 +102,13 @@ def main():
 ##    print runsinfo
 
     for i in range(len(runsinfo)):
-        d=runsinfo.keys()[i]
+        d=list(runsinfo.keys())[i]
         if os.path.exists(d):
             print "Directory \""+d[:len(d)-1]+"\" exists!!!"
             sys.exit() ## remove for test
 
     for i in range(len(runsinfo)):
-        d=runsinfo.keys()[i]
+        d=list(runsinfo.keys())[i]
         os.system("mkdir -p "+d[:len(d)-1])
         print "Output and log files will be saved to: ",
         print d[:len(d)-1]

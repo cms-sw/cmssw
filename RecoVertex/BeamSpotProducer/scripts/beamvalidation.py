@@ -37,7 +37,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in self.__dict__.itervalues():
+    for v in self.__dict__.values():
         if v is not None: return True
     return False
 
@@ -133,7 +133,7 @@ def write_tags(tags, lines):
     br = '<BR>'+end
 
     lines.append('<tr>'+end)
-    for i in tags.keys():
+    for i in list(tags.keys()):
         
         lines.append('<th>'+i)
         lines.append('</th>'+end)
@@ -141,7 +141,7 @@ def write_tags(tags, lines):
 
     for ntags in range(0,len(tags['offline'])):
         lines.append('<tr>'+end)
-        for i in tags.keys():
+        for i in list(tags.keys()):
             alist = tags[i]
             if ntags < len(tags[i]):
                 lines.append('<td> '+alist[ntags]+' </td>'+end)
@@ -156,13 +156,13 @@ def write_iovs(iovs, lines):
     br = '<BR>'+end
     # hearder
     lines.append('<tr>'+end)
-    for i in iovs.keys():        
+    for i in list(iovs.keys()):        
         lines.append('<th>'+i)
         lines.append('</th>'+end)
     lines.append('</tr>'+end)
     # lumi type
     lines.append('<tr>'+end)
-    for i in iovs.keys():
+    for i in list(iovs.keys()):
 	aIOVlist = iovs[i]
 	aIOV = IOV()
 	if len(aIOVlist) > 0:
@@ -170,9 +170,9 @@ def write_iovs(iovs, lines):
 	lines.append('<td> '+aIOV.type+' </td>'+end)
     lines.append('</tr>'+end)
     # print iovs
-    for niovs in range(0,len(iovs[iovs.keys()[0]])):
+    for niovs in range(0,len(iovs[list(iovs.keys())[0]])):
         lines.append('<tr>'+end)
-        for i in iovs.keys():
+        for i in list(iovs.keys()):
             aIOVlist = iovs[i]
 	    aIOV = IOV()
 	    if len(aIOVlist) > niovs:
@@ -419,7 +419,7 @@ if __name__ == '__main__':
     write_tags( list_tags, lines)
     lines.append('</table>'+end)
 
-    lasttag = list_lastIOVs.keys()[0]
+    lasttag = list(list_lastIOVs.keys())[0]
     lines.append('<h2>Plots of the latest IOVs from condDB tag: '+lasttag+' </h2>'+end)
     lines.append(br)
     

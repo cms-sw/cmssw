@@ -41,7 +41,7 @@ class TriggerBitAnalyzer( Analyzer ):
             self.allPaths = set()
             self.triggerBitCheckersSingleBits = []
 
-        for T, TL in self.cfg_ana.triggerBits.iteritems():
+        for T, TL in self.cfg_ana.triggerBits.items():
                 trigVec = ROOT.vector(ROOT.string)()
                 for TP in TL:
                     trigVec.push_back(TP)

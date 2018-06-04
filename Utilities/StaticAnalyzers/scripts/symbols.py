@@ -50,7 +50,7 @@ for p in paths:
 	            get_symbols(fpth)
                     get_libraries(fpth)
 
-for fname, symbols in requires.items():
+for fname, symbols in list(requires.items()):
     deps=set()
     for library in libraries[fname]:
         for s in symbols : 
@@ -68,7 +68,7 @@ for fname, symbols in requires.items():
 
 import networkx as nx
 G=nx.DiGraph()
-for key,values in dependencies.items():
+for key,values in list(dependencies.items()):
 	G.add_node(key)
 	for val in values: G.add_edge(key,val)
 
@@ -76,7 +76,7 @@ for node in nx.nodes_iter(G):
 	s = nx.dfs_successors(G,node)
 	deps=set()
 	if s : 
-		for key,vals in s.items() : 
+		for key,vals in list(s.items()) : 
 			if key != node : deps.add(key)
 			for v in vals :
 				deps.add(v)
@@ -85,7 +85,7 @@ for node in nx.nodes_iter(G):
 import pydot
 
 H=nx.DiGraph()
-for key,values in dependencies.items():
+for key,values in list(dependencies.items()):
 	H.add_node(os.path.basename(key))
 	for val in values: H.add_edge(os.path.basename(key),os.path.basename(val))
 for node in nx.nodes_iter(H):

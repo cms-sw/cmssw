@@ -33,7 +33,7 @@ else:
 #-------------------------------------------------------------------------------
 
 def encode_obj_url(url):
-  for old,new in url_encode_dict.items():
+  for old,new in list(url_encode_dict.items()):
     url=url.replace(old,new)
   return url
 
@@ -516,7 +516,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
 
   list_of_names=[]
   if the_aggr_pairs==[]:
-    for samplename,sampledir in dir_dict.items():
+    for samplename,sampledir in list(dir_dict.items()):
       for subsysdirname in sorted(sampledir.get_subdirs_dict().keys()):
         if not subsysdirname in list_of_names:
           list_of_names.append(subsysdirname)
@@ -530,9 +530,9 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
     present_subdirs={}
     total_ndirs=0
     # Loop on samples
-    for dirname, sampledir in dir_dict.items():
+    for dirname, sampledir in list(dir_dict.items()):
       # Loop on directories
-      for subdirname,subdir in sampledir.get_subdirs_dict().items():        
+      for subdirname,subdir in list(sampledir.get_subdirs_dict().items()):        
         if subdirname in subdir_list:          
           nsucc=subdir.n_successes
           total_successes+=nsucc
@@ -548,7 +548,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
           else:
             present_subdirs[subdirname]={"nsucc":nsucc,"weight":weight}
         # Make it usable also for subdirectories
-        for subsubdirname,subsubdir in subdir.get_subdirs_dict().items():          
+        for subsubdirname,subsubdir in list(subdir.get_subdirs_dict().items()):          
           for pathname in filter(lambda name:"/" in name,subdir_list):           
             selected_subdirname,selected_subsubdirname = pathname.split("/")
             if selected_subdirname == subdirname and selected_subsubdirname==subsubdirname:
@@ -621,7 +621,7 @@ def make_categories_summary(dir_dict,aggregation_rules):
 def make_twiki_table(dir_dict,aggregation_rules):
   
   # decide the release
-  meta= dir_dict.items()[0][1].meta
+  meta= list(dir_dict.items())[0][1].meta
   releases=sorted([meta.release1,meta.release2])
   latest_release=releases[1].split("-")[0]
   
@@ -756,7 +756,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
     
   # union of all subdirs names
   all_subdirs=[]
-  for directory in dir_dict.values():
+  for directory in list(dir_dict.values()):
     for subdir_name in directory.get_subdirs_names():
       all_subdirs.append(subdir_name)
   all_subdirs=sorted(list(set(all_subdirs)))

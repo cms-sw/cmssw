@@ -21,15 +21,15 @@ class RunType(PSet):
     
   def setRunType(self,rt):
     if isinstance(rt,int): 
-      if rt not in self.__runTypesDict.values():
+      if rt not in list(self.__runTypesDict.values()):
         raise TypeError("%d not a valid Run Type" % rt)
       
       self.__runType = rt
-      self.__runTypeName = [k for k, v in self.__runTypesDict.items() if v == rt][0]
+      self.__runTypeName = [k for k, v in list(self.__runTypesDict.items()) if v == rt][0]
       return
     
     if isinstance(rt,str):
-      if rt not in self.__runTypesDict.keys():
+      if rt not in list(self.__runTypesDict.keys()):
         raise TypeError("%s not a valid Run Type" % rt)
       
       self.__runTypeName = rt

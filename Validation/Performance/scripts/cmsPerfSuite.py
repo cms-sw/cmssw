@@ -1419,7 +1419,7 @@ class PerfSuite:
                         simpleGenReportArgs=TestsToDo.pop()
                         self.printFlush("Let's submit %s test on core %s"%(simpleGenReportArgs['Name'],cpu))
                         #Adding a Total timer for each of the threaded tests:
-                        if simpleGenReportArgs['Name'] not in TimerInfo.keys():
+                        if simpleGenReportArgs['Name'] not in list(TimerInfo.keys()):
                            #if 'TotalTime' not in TimerInfo[simpleGenReportArgs['Name']].keys():
                            self.PerfTestTotalTimer=PerfSuiteTimer(start=datetime.datetime.now()) #Start the TimeSize timer
                            TimerInfo.update({simpleGenReportArgs['Name']:{'TotalTime':self.PerfTestTotalTimer}}) #Add the TimeSize timer to the dictionary 
@@ -1434,7 +1434,7 @@ class PerfSuite:
                   #Test activePerfThreads:
                   activeTestNames=[]
                   activeTestNamesPU=[]
-                  for cpu in activePerfTestThreads.keys():
+                  for cpu in list(activePerfTestThreads.keys()):
                      if activePerfTestThreads[cpu].isAlive():
                         #print "%% cpu %s activerPerfTestThreads[cpu] %s activePerfTestThreads[cpu].simpleGenReportArgs['cmsdriverOptions'] %s"%(cpu,activePerfTestThreads[cpu],activePerfTestThreads[cpu].simpleGenReportArgs['cmsdriverOptions'])
                         if "--pileup" in activePerfTestThreads[cpu].simpleGenReportArgs['cmsdriverOptions']:
@@ -1710,10 +1710,10 @@ class PerfSuite:
         #PerfSuiteTimerInfo.close()
         #For now print it at the bottom of the log:
         self.logh.write("Test type\tActual Test\tDuration\tStart Time\tEnd Time\n")
-        for key in TimerInfo.keys():
+        for key in list(TimerInfo.keys()):
            #self.printFlush(key)
            TimerInfoStr.update({key:{}})
-           for test in TimerInfo[key].keys():
+           for test in list(TimerInfo[key].keys()):
               TimerInfoStr[key].update({test:[str(TimerInfo[key][test].get_duration()['hours'])+" hrs ("+str(TimerInfo[key][test].get_duration()['minutes'])+" mins)",TimerInfo[key][test].get_start(),TimerInfo[key][test].get_end()]})
               self.logh.write(key+"\t"+test+"\t")
               self.logh.write("%s hrs (%s mins)\t"%(TimerInfo[key][test].get_duration()['hours'],TimerInfo[key][test].get_duration()['minutes']))
@@ -1810,7 +1810,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
     
     #Debug printout that we could silence...
     ActualLogfile.write("Initial PerfSuite Arguments:\n")
-    for key in PerfSuiteArgs.keys():
+    for key in list(PerfSuiteArgs.keys()):
         ActualLogfile.write("%s %s\n"%(key,PerfSuiteArgs[key]))
     ActualLogfile.flush()
     #print PerfSuiteArgs
@@ -1867,7 +1867,7 @@ def main(argv=[__name__]): #argv is a list of arguments.
             #print PerfSuiteArgs
             suitethread[cpu].start()
             
-        while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),suitethread.values())):
+        while reduce(lambda x,y: x or y, map(lambda x: x.isAlive(),list(suitethread.values()))):
            try:            
               time.sleep(5.0)
               sys.stdout.flush()

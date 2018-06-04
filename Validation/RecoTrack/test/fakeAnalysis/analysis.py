@@ -1158,17 +1158,17 @@ def Save_Normalisation_Coefficients(ntuple_file):
     '''
     norm_c = copy(layer_data_tmp)
 
-    print sum([val for ind, val in norm_c.iteritems()])
+    print sum([val for ind, val in norm_c.items()])
     for event in ntuple_file:
 	print event.entry()+1
 	for particle in event.trackingParticles():
 	    for hit in particle.hits():
 		if hit.isValidHit():
 		    norm_c[layer_names_rev[hit.layerStr()]] += 1
-    norm_sum = sum([val for ind, val in norm_c.iteritems()])
+    norm_sum = sum([val for ind, val in norm_c.items()])
     print norm_sum
     print norm_c
-    for i, c in norm_c.iteritems():
+    for i, c in norm_c.items():
 	norm_c[i] = 1.0*c/norm_sum
     #normalisation = [1.0*c/norm_sum for c in norm_c]
     print "normalisation_coefficients.dmp"

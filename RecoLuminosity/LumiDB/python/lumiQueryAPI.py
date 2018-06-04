@@ -65,7 +65,7 @@ def lsBylsLumi (deadtable):
     output: {lsnum:[instlumi, recordedlumi...]}
     """
     result = {}
-    for myls, deadArray in deadtable.items():
+    for myls, deadArray in list(deadtable.items()):
         lstime = lslengthsec (deadArray[3], 3564)
         instlumi = deadArray[1] * lstime
         if float( deadArray[2] ) ==  0.0:
@@ -126,7 +126,7 @@ def recordedLumiForRange (dbsession, parameters, inputRange,finecorrections=None
                 maxLumiSectionDict[run] = max ( max (lslist),
                                            maxLumiSectionDict.get(run,0) )
             runLsDict.setdefault (run, []).append (lslist)
-        for run, metaLsList in sorted (runLsDict.iteritems()):
+        for run, metaLsList in sorted (runLsDict.items()):
             if parameters.verbose:
                 print "run", run
             runLumiData = []
@@ -357,7 +357,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
         #trgtable
         #print 'trgprescalemap', trgprescalemap
         #print lumidata[1]
-        for hpath, trgdataseq in lumidata[1].items():   
+        for hpath, trgdataseq in list(lumidata[1].items()):   
             bitn = trgdataseq[0]
             if bitn in trgprescalemap and len (trgdataseq) == 2:
                 lumidata[1][hpath].append (trgprescalemap[bitn])                
@@ -365,7 +365,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
         lumidata[2] = filterDeadtable (deadtable, lslist)
         if not parameters.noWarnings:
             if len(lumidata[2])!=0:
-                for lumi, deaddata in lumidata[2].items():
+                for lumi, deaddata in list(lumidata[2].items()):
                     if deaddata[1] == 0.0 and deaddata[2]!=0 and deaddata[0]!=0:
                         print '[Warning] : run %s :ls %d has 0 instlumi but trigger has data' % (runnum, lumi)
                     if (deaddata[2] == 0 or deaddata[0] == 0) and deaddata[1]!=0.0:
@@ -388,7 +388,7 @@ def filterDeadtable (inTable, lslist):
         return inTable
     if len (lslist) == 0: #if request no ls, then return nothing
         return result
-    for existingLS in inTable.keys():
+    for existingLS in list(inTable.keys()):
         if existingLS in lslist:
             result[existingLS] = inTable[existingLS]
     return result
@@ -415,7 +415,7 @@ def calculateTotalRecorded (deadtable):
     output: recordedLumi
     """
     recordedLumi = 0.0
-    for myls, d in deadtable.items():
+    for myls, d in list(deadtable.items()):
         instLumi = d[1]
         #deadfrac = float (d[0])/float (d[2]*3564)
         #print myls, float (d[2])
@@ -451,7 +451,7 @@ def calculateEffective (trgtable, totalrecorded):
     """
     #print 'inputtrgtable', trgtable
     result = {}
-    for hltpath, data in trgtable.items():
+    for hltpath, data in list(trgtable.items()):
         if len (data) ==  3:
             result[hltpath] = totalrecorded/ (data[1]*data[2])
         else:
@@ -465,7 +465,7 @@ def getDeadfractions (deadtable):
     output: {lsnum:deadfraction}
     """
     result = {}
-    for myls, d in deadtable.items():
+    for myls, d in list(deadtable.items()):
         #deadfrac = float (d[0])/ (float (d[2])*float (3564))
         if float (d[2]) == 0.0: ##no beam
             deadfrac = -1.0
@@ -493,7 +493,7 @@ def printPerLSLumi (lumidata, isVerbose = False):
         deadtable = perrundata[2]
         lumiresult = lsBylsLumi (deadtable)
         totalSelectedLS = totalSelectedLS+len (deadtable)
-        for lsnum, dataperls in lumiresult.items():
+        for lsnum, dataperls in list(lumiresult.items()):
             rowdata = []
             if len (dataperls) == 0:
                 rowdata  +=  [str (runnumber), str (lsnum), 'N/A', 'N/A']
@@ -519,7 +519,7 @@ def dumpPerLSLumi (lumidata):
         runnumber = perrundata[0]
         deadtable = perrundata[2]
         lumiresult = lsBylsLumi (deadtable)
-        for lsnum, dataperls in lumiresult.items():
+        for lsnum, dataperls in list(lumiresult.items()):
             rowdata = []
             if len (dataperls) == 0:
                 rowdata += [str (runnumber), str (lsnum), 'N/A', 'N/A']
@@ -580,10 +580,10 @@ def printRecordedLumi (lumidata, isVerbose = False, hltpath = ''):
             datatoprint.append (rowdata)
             continue
         
-        for trg, trgdata in trgdict.items():
+        for trg, trgdata in list(trgdict.items()):
             #print trg, trgdata
             rowdata = []                    
-            if trg == trgdict.keys()[0]:
+            if trg == list(trgdict.keys())[0]:
                 rowdata += [str (runnum)]
             else:
                 rowdata += ['']
@@ -628,7 +628,7 @@ def printRecordedLumi (lumidata, isVerbose = False, hltpath = ''):
             #print 'perlsdata 2 : ', perlsdata
             deadT = getDeadfractions (perlsdata)
             t = ''
-            for myls, de in deadT.items():
+            for myls, de in list(deadT.items()):
                 if de<0:
                     t += str (myls)+':nobeam '
                 else:
@@ -668,7 +668,7 @@ def dumpRecordedLumi (lumidata, hltpath = ''):
             datatodump.append (rowdata)
             continue
         
-        for trg, trgdata in trgdict.items():
+        for trg, trgdata in list(trgdict.items()):
             #print trg, trgdata
             rowdata = []                    
             rowdata += [str (runnum)]
@@ -708,7 +708,7 @@ def printOverviewData (delivered, recorded, hltpath = ''):
             continue
         totalDeliveredLS += int (deliveredrowdata[1])
         totalDelivered += float (deliveredrowdata[2])
-        selectedls = recorded[runidx][2].keys()
+        selectedls = list(recorded[runidx][2].keys())
         #print 'runidx ', runidx, deliveredrowdata
         #print 'selectedls ', selectedls
         if len (selectedls) == 0:
@@ -879,7 +879,7 @@ def mergeXingLumi (triplet, xingLumiDict):
     luminosity information is merged with the general information'''
     runNumber = triplet[0]
     deadTable = triplet[2]
-    for lumi, lumiList in deadTable.iteritems():
+    for lumi, lumiList in deadTable.items():
         key = ( int(runNumber), int(lumi) )
         xingLumiValues = xingLumiDict.get (key)
         if xingLumiValues:
@@ -1029,7 +1029,7 @@ def validation(queryHandle,run=None,cmsls=None):
         result[runnum].append([cmslsnum,flag,comment])
     if run and cmsls and len(cmsls)!=0:
         selectedresult={}
-        for runnum,perrundata in result.items():
+        for runnum,perrundata in list(result.items()):
             for lsdata in perrundata:
                 if lsdata[0] not in cmsls:
                     continue

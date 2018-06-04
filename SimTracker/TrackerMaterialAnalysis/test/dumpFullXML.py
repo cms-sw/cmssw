@@ -28,7 +28,7 @@ def checkEnvironment():
     """
     Check if the CMSSW environment is set. If not, quit the program.
     """
-    if not 'CMSSW_RELEASE_BASE' in os.environ.keys():
+    if not 'CMSSW_RELEASE_BASE' in list(os.environ.keys()):
         print 'CMSSW Environments not setup, quitting\n'
         sys.exit(CMSSW_NOT_SET)
 
@@ -167,11 +167,11 @@ def compareNewXMLWithOld(args):
                                                                                 )
             else:
                 print 'Element not found: %s' % current_detector
-    for group in differences.keys():
+    for group in list(differences.keys()):
         header.write('  m_diff["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
                                                                                    differences[group]['TrackerRadLength'][2],
                                                                                    differences[group]['TrackerXi'][2]))
-    for group in differences.keys():
+    for group in list(differences.keys()):
         header.write('  m_values["%s"] = std::make_pair<float, float>(%f, %f);\n' % (group,
                                                                                      differences[group]['TrackerRadLength'][1],
                                                                                      differences[group]['TrackerXi'][1]))

@@ -170,7 +170,7 @@ class DotProducer(object):
     allobjects = [self.nodes[n]['obj'] for n in self.nodes if self.nodes[n]['inpath']]
     self.data.readConnections(allobjects)
     connections = self.data.connections()
-    for objects,names in connections.items():
+    for objects,names in list(connections.items()):
       if self.options['taglabel']:
         result += '%s->%s[label="%s",color="%s",fontcolor="%s",fontsize=%s,fontname="%s"]\n' % (objects[0],objects[1],names[1],self.options['color_inputtag'],self.options['color_inputtag'],self.options['font_size'],self.options['font_name'])
       else:
@@ -228,7 +228,7 @@ class DotProducer(object):
       self.nodes[n]['n_fontsize']=self.options['font_size']
       if self.options['url']:
         self.nodes[n]['n_URL']=self.nodeURL(self.nodes[n]['obj'])
-      result += "%s[%s]\n" % (n,','.join(['%s="%s"' % (k[2:],v) for k,v in self.nodes[n].items() if k[0:2]=='n_']))
+      result += "%s[%s]\n" % (n,','.join(['%s="%s"' % (k[2:],v) for k,v in list(self.nodes[n].items()) if k[0:2]=='n_']))
     return result
     
   def produceLegend(self):
@@ -455,7 +455,7 @@ class DotExport(FileExportPlugin):
             cell[cd]=cell_default[cd]
         x1,y1 = top_x+split_x*cell['left'],top_y+split_y*cell['top']
         x2,y2 = x1+split_x*cell['width'],y1+split_y*cell['height']
-        area_html = '<area shape="rect" coords="%s,%s,%s,%s" %s />' % (x1,y1,x2,y2,' '.join(['%s="%s"'%(key.split('_',1)[1],value) for key, value in cell.items() if key.startswith('html_')]))
+        area_html = '<area shape="rect" coords="%s,%s,%s,%s" %s />' % (x1,y1,x2,y2,' '.join(['%s="%s"'%(key.split('_',1)[1],value) for key, value in list(cell.items()) if key.startswith('html_')]))
         new_areas.append(area_html)
     return '<map id="configbrowse" name="configbrowse">\n%s\n</map>'%('\n'.join(new_areas))  
     

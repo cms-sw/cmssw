@@ -251,7 +251,7 @@ class DQMcommunicator(object):
       url="/"+url    
     url = url.replace(" ","%20")
     objects=[]
-    for name,description in self.ls(url,True).items():     
+    for name,description in list(self.ls(url,True).items()):     
       if "dir" not in description["type"]  and "ROOT" in description["kind"]:
         objects.append(literal2root(description["obj_as_string"],description["type"]))
     return objects
@@ -265,7 +265,7 @@ class DQMcommunicator(object):
       url=self.server+"/"+url    
     url = url.replace(" ","%20")
     objects={}
-    for name,description in self.ls(url,True).items():     
+    for name,description in list(self.ls(url,True).items()):     
       if "dir" not in description["type"] and "ROOT" in description["kind"]:
         objects[name]=literal2root(description["obj_as_string"],description["type"])
     return objects
@@ -282,7 +282,7 @@ class DQMcommunicator(object):
     if not null_url: 
       self.cd(url)
     objects=[]
-    for name,description in self.ls("",True).items():     
+    for name,description in list(self.ls("",True).items()):     
       if "dir" in description["type"]:
         objects+=self.get_root_objects_list_recursive(name)
         self.cd("..")
@@ -309,7 +309,7 @@ class DQMcommunicator(object):
     if not null_url:
       self.cd(url)
     objects_names=[]
-    for name,description in self.ls("",False).items():     
+    for name,description in list(self.ls("",False).items()):     
       if "dir" in description["type"]:        
         objects_names+=self.get_root_objects_names_list_recursive(name,present_url)
         self.cd("..")
@@ -336,7 +336,7 @@ class DQMcommunicator(object):
     #if not null_url:
     self.cd(url)
     objects={}
-    for name,description in self.ls("",True).items():     
+    for name,description in list(self.ls("",True).items()):     
       if "dir" in description["type"]:
         objects.update(self.get_root_objects_recursive(name,present_url))
         self.cd("..")
@@ -565,12 +565,12 @@ class DirWalkerFile(object):
                 if not exists(directory_name):
                     makedirs(directory_name)
                     chdir(directory_name)  
-            tmp = self.dqmrootfile2.ls().keys()
+            tmp = list(self.dqmrootfile2.ls().keys())
             for elem in tmp:
                 if "Run" in elem:
                     next_dir = elem
             self.dqmrootfile2.cd(next_dir)
-            tmp = self.dqmrootfile1.ls().keys()
+            tmp = list(self.dqmrootfile1.ls().keys())
             for elem in tmp:
                 if "Run" in elem:
                     next_dir = elem
@@ -594,7 +594,7 @@ class DirWalkerFile(object):
     contents={}
     self.different_histograms['file1']= {}
     self.different_histograms['file2']= {}
-    keys = filter(lambda key: key in contents1,contents2.keys()) #set of all possible contents from both files
+    keys = filter(lambda key: key in contents1,list(contents2.keys())) #set of all possible contents from both files
     #print " ## keys: %s" %(keys)
     for key in keys:  #iterate on all unique keys
       if contents1[key]!=contents2[key]:
@@ -652,7 +652,7 @@ class DirWalkerFile(object):
     #print contents
     cont_counter=1
     comparisons=[]
-    for name,obj_type in contents.items():
+    for name,obj_type in list(contents.items()):
       if obj_type=="TDirectoryFile":        
         #We have a dir, launch recursion!
         #Some feedback on the progress
@@ -709,7 +709,7 @@ class DirWalkerFile(object):
       #print  self.ls().keys()
       first_run_dir = ""
       try:
-        first_run_dir = filter(lambda k: "Run " in k, self.ls().keys())[0]
+        first_run_dir = filter(lambda k: "Run " in k, list(self.ls().keys()))[0]
       except:
          print "\nRundir not there: Is this a generic rootfile?\n"
       rundir=first_run_dir

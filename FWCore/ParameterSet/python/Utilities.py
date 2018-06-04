@@ -106,7 +106,7 @@ def cleanUnscheduled(proc):
   # On each path we move EDProducers and EDFilters that
   # are ignored to Tasks
   producerList = list()
-  for pName, originalPath in pathsAndEndPaths.iteritems():
+  for pName, originalPath in pathsAndEndPaths.items():
     producerList[:] = []
     qualified_names = []
     v = cms.DecoratedNodeNamePlusVisitor(qualified_names)
@@ -164,8 +164,8 @@ def moduleLabelsInSequences(* sequences):
 
 def createTaskWithAllProducersAndFilters(process):
   from FWCore.ParameterSet.Config import Task
-  l = [ p for p in process.producers.itervalues()]
-  l.extend( (f for f in process.filters.itervalues()) )
+  l = [ p for p in process.producers.values()]
+  l.extend( (f for f in process.filters.values()) )
   return Task(*l)
 
 def convertToSingleModuleEndPaths(process):
@@ -175,7 +175,7 @@ def convertToSingleModuleEndPaths(process):
     import FWCore.ParameterSet.Config as cms
     toRemove =[]
     added = []
-    for n,ep in process.endpaths_().iteritems():
+    for n,ep in process.endpaths_().items():
         tsks = []
         ep.visit(cms.TaskVisitor(tsks))
 

@@ -86,9 +86,9 @@ def maininfo(infile, outfile):
                         if not pathname in names4:
                                 names4[pathname] = k.ReadObj().GetMean()
 
-        names2 = dict(sorted(names1.iteritems(), key=operator.itemgetter(1),reverse=True)[:10])
+        names2 = dict(sorted(iter(names1.items()), key=operator.itemgetter(1),reverse=True)[:10])
 	names3 = sorted(names2, key=names2.get, reverse=True)
-        names5 = dict(sorted(names4.iteritems(), key=operator.itemgetter(1),reverse=True)[:10])
+        names5 = dict(sorted(iter(names4.items()), key=operator.itemgetter(1),reverse=True)[:10])
 	names6 = sorted(names5, key=names5.get, reverse=True)
 
         texfile = open(outfile+'-main.tex', 'w')
@@ -273,7 +273,7 @@ def specificpathinfo(infile, outfile, path):
 			pathname = '_'.join(allnames.split('_')[1:-1])
 			if not pathname in names:
 				names[pathname] = {}
-	for pathnames in names.keys():
+	for pathnames in list(names.keys()):
 		histo = file1.Get('moduleInPathTimeSummary_'+pathnames)
 		for bin in range(histo.GetNbinsX()):
 			label = histo.GetXaxis().GetBinLabel(bin+1)
@@ -291,7 +291,7 @@ def specificpathinfo(infile, outfile, path):
 			texfile.write('\\newpage \section{Per event incremental time for '+ path.replace('_','\_') +'} \centering \includegraphics[scale=0.6]{incPathTime'+ path.replace('_','') +'temp.png}\n')
 			get_plot1(infile,'incPathTime_'+path)
 			texfile.write('\section{Running time per event for '+path.replace('_','\_')+'}')	
-			for modules in names[path].values():
+			for modules in list(names[path].values()):
 				texfile.write('\subsection{'+ modules +'} \centering \includegraphics[scale=0.6]{moduleInPathScaledTime'+ path.replace('_','') + modules +'temp.png}\n')
 			        get_plot1(infile,'moduleInPathScaledTime_'+ path +'_'+ modules)
 	texfile.write('\\end{document}')

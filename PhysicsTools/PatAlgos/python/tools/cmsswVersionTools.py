@@ -204,7 +204,7 @@ class PickRelValInputFiles( ConfigToolBase ):
         # Debugging output
         if debug:
             print '%s DEBUG: Called with...'%( self._label )
-            for key in self._parameters.keys():
+            for key in list(self._parameters.keys()):
                print '    %s:\t'%( key ),
                print self._parameters[ key ].value,
                if self._parameters[ key ].value is self.getDefaultParameters()[ key ].value:

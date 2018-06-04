@@ -23,7 +23,7 @@ def replaceByMap(target, the_map):
                     result = result.replace(".oO["+key+"]Oo.",the_map[key])
                 except TypeError:   #try a dict
                     try:
-                        for keykey, value in the_map[key].iteritems():
+                        for keykey, value in the_map[key].items():
                            result = result.replace(".oO[" + key + "['" + keykey + "']]Oo.", value)
                            result = result.replace(".oO[" + key + '["' + keykey + '"]]Oo.', value)
                     except AttributeError:   #try a list
@@ -152,12 +152,12 @@ def cache(function):
     cache = {}
     def newfunction(*args, **kwargs):
         try:
-            return cache[args, tuple(sorted(kwargs.iteritems()))]
+            return cache[args, tuple(sorted(kwargs.items()))]
         except TypeError:
-            print args, tuple(sorted(kwargs.iteritems()))
+            print args, tuple(sorted(kwargs.items()))
             raise
         except KeyError:
-            cache[args, tuple(sorted(kwargs.iteritems()))] = function(*args, **kwargs)
+            cache[args, tuple(sorted(kwargs.items()))] = function(*args, **kwargs)
             return newfunction(*args, **kwargs)
     newfunction.__name__ = function.__name__
     return newfunction

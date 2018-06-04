@@ -18,7 +18,7 @@ def getDictFromObject (obj, varDict, prefix = ''):
     if prefix:
         obj = getPieceFromObject (obj, prefix)
     retval = {}
-    for key, description in varDict.iteritems():
+    for key, description in varDict.items():
         retval[key] = getPieceFromObject (obj, description)
     return retval
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                       " class at a time.")
             name = match.group(1)
             continue
-        for key, regexTuple in variableREDict.iteritems():
+        for key, regexTuple in variableREDict.items():
             if regexTuple[0].search(line):
                 typeFoundSet.add( key )
                 continue

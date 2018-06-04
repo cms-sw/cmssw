@@ -200,7 +200,7 @@ sum_phiyphiy = 0.
 sum_phiyphiz = 0.
 sum_phizphiz = 0.
 
-for xi, yi, zi, phixi, phiyi, phizi in misal.values():
+for xi, yi, zi, phixi, phiyi, phizi in list(misal.values()):
     sum_x += xi
     sum_y += yi
     sum_z += zi
@@ -313,7 +313,7 @@ xmlfile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
 xmlfile.write("<?xml-stylesheet type=\"text/xml\" href=\"MuonAlignment.xsl\"?>\n")
 xmlfile.write("<MuonAlignment>\n\n")
 
-for (system, whendcap, station, ring, sector), (xi, yi, zi, phixi, phiyi, phizi) in misal.items():
+for (system, whendcap, station, ring, sector), (xi, yi, zi, phixi, phiyi, phizi) in list(misal.items()):
     if system == "DT": wheel = whendcap
     if system == "CSC": endcap = whendcap
 

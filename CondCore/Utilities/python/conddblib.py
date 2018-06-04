@@ -48,7 +48,7 @@ class EnumMetaclass(type):
     def __init__(cls, name, bases, dct):
         cls._members = sorted([member for member in dir(cls) if not member.startswith('_')])
         cls._map = dict([(member, getattr(cls, member)) for member in cls._members])
-        cls._reversemap = dict([(value, key) for (key, value) in cls._map.items()])
+        cls._reversemap = dict([(value, key) for (key, value) in list(cls._map.items())])
         super(EnumMetaclass, cls).__init__(name, bases, dct)
 
     def __len__(cls):
@@ -220,7 +220,7 @@ def make_dbtype( backendName, schemaName, baseType ):
     members['__table_args__'] = None
     if schemaName is not None:
         members['__table_args__'] = {'schema': schemaName }
-    for k,v in baseType.columns.items():
+    for k,v in list(baseType.columns.items()):
         if isinstance(v[0],DbRef):
             refColDbt = v[0].rtype.columns[v[0].rcol][0]
             pk = (True if v[1]==_Col.pk else False)
@@ -241,7 +241,7 @@ def make_dbtype( backendName, schemaName, baseType ):
                 members[k] = sqlalchemy.Column(v[0],nullable=nullable)
     dbType = type(dbtype_name,(_Base,),members)
     
-    if backendName not in db_models.keys():
+    if backendName not in list(db_models.keys()):
         db_models[backendName] = {}
     db_models[backendName][baseType.__name__] = dbType
     return dbType
@@ -388,7 +388,7 @@ class Connection(object):
 
     def get_dbtype(self,theType):
         basename = theType.__name__
-        if self._backendName not in db_models.keys() or basename not in db_models[self._backendName].keys():
+        if self._backendName not in list(db_models.keys()) or basename not in list(db_models[self._backendName].keys()):
             return make_dbtype( self._backendName, self._schemaName, theType )
         else:
             return db_models[self._backendName][basename]
@@ -462,13 +462,13 @@ def getSessionOnMasterDB( session1, session2 ):
     sessiondict[key %(session1._url.drivername,session1._url.host)] = session1
     sessiondict[key %(session2._url.drivername,session2._url.host)] = session2
     masterkey = key %('oracle',ONLINEORAPRO)
-    if masterkey in sessiondict.keys():
+    if masterkey in list(sessiondict.keys()):
         return sessiondict[masterkey]
     adgkey = key %('oracle',ORAPRO)
-    if adgkey in sessiondict.keys():
+    if adgkey in list(sessiondict.keys()):
         return sessiondict[adgkey]
     frontierkey = key %('frontier',PRO)
-    if frontierkey in sessiondict.keys():
+    if frontierkey in list(sessiondict.keys()):
         return sessiondict[frontierkey]
     # default case: frontier on pro
     conn = Connection(make_url())
@@ -517,13 +517,13 @@ def make_url(database='pro',read_only = True):
                                                                 'W': dbwriter_user_name }, ),
     }
 
-    if database in officialdbs.keys():
+    if database in list(officialdbs.keys()):
         key = ('R' if read_only else 'W')
         mapping = officialdbs[database]
         tech = mapping[0]
         service = mapping[1]
         schema_dict = mapping[2]
-        if key in schema_dict.keys():
+        if key in list(schema_dict.keys()):
             database = _getCMSSQLAlchemyConnectionString(tech,service,schema_dict[key])
         else:
             raise Exception("Read-only database %s://%s cannot be accessed in update mode." %(tech,service))

@@ -299,7 +299,7 @@ class parserPerfsuiteMetadata:
 
 		""" postprocess the candles list """
 		candles = {}
-		for field, value in info.items():
+		for field, value in list(info.items()):
 			if field.startswith("candles_"):
 				test = field.replace("candles_", "")
 				value = [v.strip(" '") for v in value.split(",")]
@@ -307,7 +307,7 @@ class parserPerfsuiteMetadata:
 				candles[test]=value
 				del info[field]
 		#print candles
-		info["candles"] = self._LINE_SEPARATOR.join([k+":"+",".join(v) for (k, v) in candles.items()])
+		info["candles"] = self._LINE_SEPARATOR.join([k+":"+",".join(v) for (k, v) in list(candles.items())])
 
 
 		""" TAGS """
@@ -481,7 +481,7 @@ class parserPerfsuiteMetadata:
 				except Exception as e:
 					print "Error while getting exit code (Other test): %s" + str(e)
 					
-				for key, thread in test.items():
+				for key, thread in list(test.items()):
 					for i in range(0, len(thread)):
 						if thread[i]["thread_id"] == thread_id:
 							thread[i].update({"end": time, "exit_code": exit_code})

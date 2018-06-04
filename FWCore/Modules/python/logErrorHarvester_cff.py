@@ -8,7 +8,7 @@ def customiseLogErrorHarvesterUsingOutputCommands(process):
 
     modulesFromAllOutput = set()
     onlyOneOutput = (len(process.outputModules_()) == 1)
-    for o in process.outputModules_().itervalues():
+    for o in process.outputModules_().values():
         if not hasattr(o,"outputCommands"):
             continue
         modulesFromOutput = set()

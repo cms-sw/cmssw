@@ -56,7 +56,7 @@ def updatedb(schema,runmap,lumitype):
     inputData.extend('runnum','unsigned int')
     inputData.extend('lumidataid','unsigned long long')
     db=dbUtil.dbUtil(schema)
-    for (run,lumidataid) in runmap.keys():
+    for (run,lumidataid) in list(runmap.keys()):
         [runstarttime,runstoptime,nls]=runmap[(run,lumidataid)]
         runstartT=coral.TimeStamp(runstarttime.year,runstarttime.month,runstarttime.day,runstarttime.hour,runstarttime.minute,runstarttime.second,runstarttime.microsecond*1000)
         runstopT=coral.TimeStamp(runstoptime.year,runstoptime.month,runstoptime.day,runstoptime.hour,runstoptime.minute,runstoptime.second,runstoptime.microsecond*1000)
@@ -74,10 +74,10 @@ if __name__ == "__main__" :
     runlengthfile='nlsperrun-pixel.dat'
     dfmt='%d-%m-%Y %H:%M:%S'
     t=parsetimefile(f,dfmt)
-    timedrunlist=t.keys()
+    timedrunlist=list(t.keys())
     r=parserunlength(runlengthfile)
     output={}#{(run,lumidataid):[[date,nls]]}
-    for (run,lumidataid) in r.keys():
+    for (run,lumidataid) in list(r.keys()):
         nls=r[(run,lumidataid)]
         if run in timedrunlist:
             runstarttime=t[run]

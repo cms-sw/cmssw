@@ -71,7 +71,7 @@ def prepareParameter(parameter):
         return (type(parameter).__name__, trackedness(parameter), configValue )
     if isinstance(parameter, cms.PSet):
         configValue = {}
-        for name, item in parameter.parameters_().iteritems():
+        for name, item in parameter.parameters_().items():
           configValue[name] = prepareParameter(item)
         return (type(parameter).__name__, trackedness(parameter), configValue )
     else:
@@ -80,7 +80,7 @@ def prepareParameter(parameter):
 def parsePSet(module):
   if module is None: return
   config = DictTypes.SortedKeysDict()
-  for parameterName,parameter in module.parameters_().iteritems():
+  for parameterName,parameter in module.parameters_().items():
     config[parameterName] = prepareParameter(parameter)
   return config
 
@@ -88,7 +88,7 @@ def parseSource(module):
   if module is None: return
   config = DictTypes.SortedKeysDict()
   config['@classname'] = ('string','tracked',module.type_())
-  for parameterName,parameter in module.parameters_().iteritems():
+  for parameterName,parameter in module.parameters_().items():
     config[parameterName] = prepareParameter(parameter)
   return config
 
@@ -97,7 +97,7 @@ def parseModule(name, module):
   config = DictTypes.SortedKeysDict()
   config['@classname'] = ('string','tracked',module.type_())
   config['@label'] = ('string','tracked',name)
-  for parameterName,parameter in module.parameters_().iteritems():
+  for parameterName,parameter in module.parameters_().items():
     config[parameterName] = prepareParameter(parameter)
   return config
 
@@ -106,41 +106,41 @@ def parseModules(process):
  
   result['main_input'] = parseSource(process.source)
 
-  for name,item in process.producers.iteritems():
+  for name,item in process.producers.items():
     result['modules'][name] = parseModule(name, item)
 
-  for name,item in process.filters.iteritems():
+  for name,item in process.filters.items():
     result['modules'][name] = parseModule(name, item)
 
-  for name,item in process.analyzers.iteritems():
+  for name,item in process.analyzers.items():
     result['modules'][name] = parseModule(name, item)
 
-  for name,item in process.outputModules.iteritems():
+  for name,item in process.outputModules.items():
     result['modules'][name] = parseModule(name, item)
     result['output_modules'].append(name)
 
-  for name,item in process.es_sources.iteritems():
+  for name,item in process.es_sources.items():
     result['es_sources'][name + '@'] = parseModule(name, item)
 
-  for name,item in process.es_producers.iteritems():
+  for name,item in process.es_producers.items():
     result['es_modules'][name + '@'] = parseModule(name, item)
 
-  for name,item in process.es_prefers.iteritems():
+  for name,item in process.es_prefers.items():
     result['es_prefers'][name + '@'] = parseModule(name, item)
 
-  for name,item in process.psets.iteritems():
+  for name,item in process.psets.items():
     result['psets'][name] = parsePSet(item)
 
-  for name,item in process.sequences.iteritems():
+  for name,item in process.sequences.items():
     result['sequences'][name] = "'" + item.dumpConfig("")[1:-2] + "'"
 
-  for name,item in process.paths.iteritems():
+  for name,item in process.paths.items():
     result['paths'][name] = "'" + item.dumpConfig("")[1:-2] + "'"
 
-  for name,item in process.endpaths.iteritems():
+  for name,item in process.endpaths.items():
     result['endpaths'][name] = "'" + item.dumpConfig("")[1:-2] + "'"
 
-  for name,item in process.services.iteritems():
+  for name,item in process.services.items():
     result['services'][name] = parseModule(name, item)
 
   # TODO still missing:
@@ -206,7 +206,7 @@ for key in hltAcceptedOrder:
     else:
         print ", '%s':  {" % key
         comma = ''
-        for name,object in result[key].iteritems():
+        for name,object in result[key].items():
             print comma+"'%s': %s" %(name, dumpObject(object,key))
             comma = ', '
         print '} # end of %s' % key

@@ -127,7 +127,7 @@ macro='macro/TrackValHistoPublisher.C'
 ############ Functions
 
 def replace(map, filein, fileout):
-    replace_items = map.items()
+    replace_items = list(map.items())
     while True:
         line = filein.readline()
         if not line: break

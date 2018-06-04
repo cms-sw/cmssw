@@ -311,7 +311,7 @@ class TH2PolyOfflineMaps:
           # init internal data structure
           self.internalData.update({int(items[0]) : {}})
           
-      self.rawToOnlineDict = dict((v,k) for k,v in self.detDict.iteritems())    
+      self.rawToOnlineDict = dict((v,k) for k,v in self.detDict.items())    
       
       self.__GroupHistograms()
       
@@ -402,7 +402,7 @@ class TH2PolyOfflineMaps:
     monitoredValues = []
     gStyle.SetPalette(1)
     for key in self.internalData:
-      monitoredValues = self.internalData[key].keys()
+      monitoredValues = list(self.internalData[key].keys())
       # print(monitoredValues)
       break
     

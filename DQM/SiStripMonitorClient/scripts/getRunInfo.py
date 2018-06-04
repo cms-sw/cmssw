@@ -239,7 +239,7 @@ def Func_FillInfoRunRegistry():
     print '> getRunInfo.py > run %s not found in run registry' %(Str_run)
     return False
   dict_tagsRunRegistry = Func_GetHtmlTags(str_runRunRegistry)
-  for str_tagRunRegistry in dict_tagsRunRegistry.keys():
+  for str_tagRunRegistry in list(dict_tagsRunRegistry.keys()):
     if dict_tagsRunRegistry[str_tagRunRegistry] == False:
       Dict_runRegistry[str_tagRunRegistry] = Func_GetHtmlTagValue(str_tagRunRegistry, str_runRunRegistry)
   if Dict_runRegistry['SUBSYSTEMS'].find(STR_SiStrip) < 0:
@@ -282,11 +282,11 @@ def Func_FillInfoRunSummary():
         if int_tableItem == int_endItem:
           Dict_wbmRunSummary[STR_runEnd] = str_wbmRunSummary.split('&nbsp;</TD>')[0].split('<TD>')[-1]
       continue
-    for str_keyRunSummary in DICT_keysRunSummary.keys():
+    for str_keyRunSummary in list(DICT_keysRunSummary.keys()):
       if str_wbmRunSummary.find(str_keyRunSummary) >= 0:
         Dict_wbmRunSummary[str_keyRunSummary] = str_wbmRunSummary.split('</TD></TR>')[0].split('>')[-1]
         break
-    for str_summaryKeysTrigger in DICT_keysRunSummaryTrigger.keys():
+    for str_summaryKeysTrigger in list(DICT_keysRunSummaryTrigger.keys()):
       if str_wbmRunSummary.find(str_summaryKeysTrigger) >= 0:
         Dict_wbmRunSummary[str_summaryKeysTrigger] = str_wbmRunSummary.split('</A></TD></TR>')[0].split('>')[-1]
         if str_summaryKeysTrigger == 'HLT Key':
@@ -398,7 +398,7 @@ if bool_runRegistry:
   print
   print '> getRunInfo.py > * information from run registry *'
   print
-  for str_htmlTag in DICT_tagsRunRegistry.keys():
+  for str_htmlTag in list(DICT_tagsRunRegistry.keys()):
     if str_htmlTag in Dict_runRegistry:
       print '> getRunInfo.py > %s: %s' %(DICT_tagsRunRegistry[str_htmlTag],Dict_runRegistry[str_htmlTag])
   
@@ -411,10 +411,10 @@ Func_FillInfoRunSummary()
 print
 print '> getRunInfo.py > * information from run summary *'
 print
-for str_key in DICT_keysRunSummary.keys():
+for str_key in list(DICT_keysRunSummary.keys()):
   if str_key in Dict_wbmRunSummary:
     print '> getRunInfo.py > %s: %s' %(DICT_keysRunSummary[str_key],Dict_wbmRunSummary[str_key])
-for str_key in DICT_keysRunSummaryTrigger.keys():
+for str_key in list(DICT_keysRunSummaryTrigger.keys()):
   if str_key in Dict_wbmRunSummary:
     print '> getRunInfo.py > %s: %s' %(DICT_keysRunSummaryTrigger[str_key],Dict_wbmRunSummary[str_key])
     

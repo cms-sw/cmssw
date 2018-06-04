@@ -37,7 +37,7 @@ writeAntiElectronDiscrWPs = cms.EDAnalyzer("TGraphWriter",
     jobs = cms.VPSet()
 )
 
-for category, gbrForestName in antiElectronDiscrMVA_categories.items():
+for category, gbrForestName in list(antiElectronDiscrMVA_categories.items()):
     writeAntiElectronDiscrMVAs.jobs.append(
         cms.PSet(
             inputFileName = cms.FileInPath(antiElectronDiscrMVA_inputFileName['GBRForest']),

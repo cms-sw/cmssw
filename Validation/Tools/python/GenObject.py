@@ -359,7 +359,7 @@ class GenObject (object):
         ntupleDict = GenObject._ntupleDict.setdefault (genObject, {})
         ntupleDict['_useChain'] = True
         ntupleDict['_tree'] = "goTree"
-        for objName in GenObject._objsDict.keys():
+        for objName in list(GenObject._objsDict.keys()):
             rootObjName = GenObject.rootClassName (objName)
             if GenObject.isSingleton (objName):
                 ntupleDict[objName] = objName
@@ -368,7 +368,7 @@ class GenObject (object):
             tofillDict = GenObject._tofillDict.\
                          setdefault (genObject, {}).\
                          setdefault (objName, {})
-            for varName in GenObject._objsDict [objName].keys():
+            for varName in list(GenObject._objsDict [objName].keys()):
                 # if the key starts with an '_', then it is not a
                 # variable, so don't treat it as one.
                 if varName.startswith ("_"):
@@ -698,7 +698,7 @@ class GenObject (object):
         genObj = GenObject (objName)
         origObj = obj
         if debug: warn (objName, spaces = 9)
-        for genVar, ntDict in tofillObjDict.iteritems():
+        for genVar, ntDict in tofillObjDict.items():
             if debug: warn (genVar, spaces = 12)
             # lets work our way down the list
             partsList = ntDict[0]
@@ -716,7 +716,7 @@ class GenObject (object):
     def _rootObjectCopy (goSource, rootTarget):
         """Copies information from goSourse into Root Object"""
         objName = goSource._objName
-        for varName in GenObject._objsDict [objName].keys():
+        for varName in list(GenObject._objsDict [objName].keys()):
             # if the key starts with an '_', then it is not a
             # variable, so don't treat it as one.
             if varName.startswith ("_"):
@@ -734,7 +734,7 @@ class GenObject (object):
             goName = GenObject.rootClassName (objName)
             classObj = GenObject._rootClassDict[ goName ]
         rootObj = classObj()
-        for varName in GenObject._objsDict [objName].keys():
+        for varName in list(GenObject._objsDict [objName].keys()):
             setattr( rootObj, varName, obj (varName) )
         return rootObj
 
@@ -748,7 +748,7 @@ class GenObject (object):
         if not rootObj:
             diffName = GenObject.rootDiffClassName( objName )
             rootObj = GenObject._rootClassDict[diffName]()
-        for varName in GenObject._objsDict [objName].keys():
+        for varName in list(GenObject._objsDict [objName].keys()):
             if varName.startswith ("_"): continue
             goType = GenObject._objsDict[objName][varName]['varType']
             if not goType in GenObject._basicSet:
@@ -844,7 +844,7 @@ class GenObject (object):
     @staticmethod
     def _fillRootObjects (event):
         """Fills root objects from GenObject 'event'"""
-        for objName, obj in sorted (event.iteritems()):
+        for objName, obj in sorted (event.items()):
             if GenObject.isSingleton (objName):
                 # Just one
                 GenObject._rootObjectCopy (obj,
@@ -950,13 +950,13 @@ class GenObject (object):
     def printEvent (event):
         """Prints out event dictionary.  Mostly for debugging"""
         # Print out all singletons first
-        for objName, obj in sorted (event.iteritems()):
+        for objName, obj in sorted (event.items()):
             #obj = event[objName]
             # is this a singleton?
             if GenObject.isSingleton (objName):
                 print "%s: %s" % (objName, obj)
         # Now print out all vectors
-        for objName, obj in sorted (event.iteritems()):
+        for objName, obj in sorted (event.items()):
             #obj = event[objName]
             # is this a singleton?
             if not GenObject.isSingleton (objName):
@@ -971,7 +971,7 @@ class GenObject (object):
     def setAliases (eventTree, tupleName):
         """runs SetAlias on all saved aliases"""
         aliases = GenObject._ntupleDict[tupleName].get('_alias', {})
-        for name, alias in aliases.iteritems():
+        for name, alias in aliases.items():
             eventTree.SetAlias (name, alias)
 
 
@@ -1086,14 +1086,14 @@ class GenObject (object):
         firstOnly  = set()
         secondOnly = set()
         # loop over the keys of the first dict and compare to second dict
-        for key in firstDict.keys():
+        for key in list(firstDict.keys()):
             if key in secondDict:
                 overlap.add (key)
             else:
                 firstOnly.add (key)
         # now loop over keys of second dict and only check for missing
         # entries in first dict
-        for key in secondDict.keys():
+        for key in list(secondDict.keys()):
             if key not in firstDict:
                 secondOnly.add (key)
         # All done
@@ -1241,7 +1241,7 @@ class GenObject (object):
         objName = item1._objName
         problems = {}
         relative = GenObject._kitchenSinkDict.get ('relative', False)
-        for varName in GenObject._objsDict[objName].keys():
+        for varName in list(GenObject._objsDict[objName].keys()):
             prec = item1.getVariableProperty (varName, 'prec')
             if prec:
                 # we want to check within a precision
@@ -1290,7 +1290,7 @@ class GenObject (object):
             count = 0
             for obj in event[objName]:
                 count += 1
-                for varName in GenObject._objsDict[objName].keys():
+                for varName in list(GenObject._objsDict[objName].keys()):
                     if isinstance (obj.__dict__[varName], str):
                         # don't bother
                         continue
@@ -1425,9 +1425,9 @@ class GenObject (object):
                     problems = GenObject.\
                                compareTwoItems (vec1[ pair[1 - 1] ],
                                                 vec2[ pair[2 - 1] ])
-                    if problems.keys():
+                    if list(problems.keys()):
                         # pprint.pprint (problems)
-                        for varName in problems.keys():
+                        for varName in list(problems.keys()):
                             countDict = resultsDict.\
                                         setdefault (objName, {}).\
                                         setdefault ('_var', {})
@@ -1549,7 +1549,7 @@ class GenObject (object):
             raise RuntimeError("Failed to create GenObject object.")
         self._localObjsDict = GenObject._objsDict [objName]
         self._objName = objName;
-        for key, varDict in self._localObjsDict.iteritems():
+        for key, varDict in self._localObjsDict.items():
             # if the key starts with an '_', then it is not a
             # variable, so don't treat it as one.
             if key.startswith ("_"):
@@ -1620,7 +1620,7 @@ class GenObject (object):
     def __str__ (self):
         """String representation"""
         retval = ""
-        for varName, value in sorted (self.__dict__.iteritems()):
+        for varName, value in sorted (self.__dict__.items()):
             if varName.startswith ('_'): continue
             form = self.getVariableProperty (varName, "form")
             if form:

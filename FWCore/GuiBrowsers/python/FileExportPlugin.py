@@ -4,7 +4,7 @@ class FileExportPlugin(object):
   file_types=()
   def __init__(self):
     self.options={}
-    for k,v in self.option_types.items():
+    for k,v in list(self.option_types.items()):
       self.options[k]=v[2]
     
   def pluginName(self):

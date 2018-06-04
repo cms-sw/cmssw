@@ -25,11 +25,11 @@ class csvSelectionParser(object):
                 self.__result[runnumber].append(lsnumber)
             else:
                 self.__result[runnumber]=[lsnumber]            
-        for k,lsvalues in self.__result.items():
+        for k,lsvalues in list(self.__result.items()):
             lsvalues.sort()
             self.__strresult[k]=[str(x) for x in lsvalues]
     def runs(self):
-        return self.__result.keys()
+        return list(self.__result.keys())
     def runsandls(self):
         '''return {run:lslist}
         '''
@@ -39,7 +39,7 @@ class csvSelectionParser(object):
         '''
         return self.__strresult
     def numruns(self):
-        return len(self.__result.keys())
+        return len(list(self.__result.keys()))
     def numls(self,run):
         return len(self.__result[run])
         

@@ -83,7 +83,7 @@ def beamForRange(schema,inputRange,withBeamIntensity=False,minIntensity=0.1,tabl
     if branchName is None:
         branchName='DATA'
     result={}
-    for run in inputRange.keys():
+    for run in list(inputRange.keys()):
         lslist=inputRange[run]
         if lslist is not None and len(lslist)==0:
             result[run]=[]#if no LS is selected for a run
@@ -120,7 +120,7 @@ def beamForIds(schema,irunlsdict,dataidmap,withBeamIntensity=False,minIntensity=
     output : {runnumber:[(lumicmslnum(0),cmslsnum(1),beamenergy(2),beamstatus(3),ncollidingbx(4),[(ibx,b1,b2)])...](5)}
     '''
     result={}
-    for run in irunlsdict.keys():
+    for run in list(irunlsdict.keys()):
         result[run]=[]
         lslist=irunlsdict[run]
         if lslist is not None and len(lslist)==0:
@@ -161,7 +161,7 @@ def hltForIds(schema,irunlsdict,dataidmap,hltpathname=None,hltpathpattern=None,w
     output: {runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
     result={}
-    for run in irunlsdict.keys():
+    for run in list(irunlsdict.keys()):
         lslist=irunlsdict[run]
         if lslist is not None and len(lslist)==0:
             result[run]=[]#if no LS is selected for a run
@@ -205,7 +205,7 @@ def trgForIds(schema,irunlsdict,dataidmap,trgbitname=None,trgbitnamepattern=None
             result {run:[[cmslsnum(0),deadfrac(1),deadtimecount(2),bitzero_count(3),bitzero_prescale(4),[(bitname,prescale,counts,mask)](5)]]}
     '''
     result={}
-    for run in irunlsdict.keys():
+    for run in list(irunlsdict.keys()):
         result[run]=[]
         lslist=irunlsdict[run]
         if lslist is not None and len(lslist)==0:
@@ -281,7 +281,7 @@ def instLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=No
         lumitableName=nameDealer.pixellumidataTableName()
         lumilstableName=nameDealer.pixellumisummaryv2TableName()
     result={}
-    for run in irunlsdict.keys():
+    for run in list(irunlsdict.keys()):
     #for run,(lumidataid,trgid,hltid ) in dataidmap.items():
         lslist=irunlsdict[run]
         if lslist is not None and len(lslist)==0:
@@ -299,7 +299,7 @@ def instLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=No
         (lumirunnum,perlsresult)=dataDML.lumiLSById(schema,lumidataid,beamstatus=beamstatusfilter,withBXInfo=withBXInfo,bxAlgo=bxAlgo,withBeamIntensity=withBeamIntensity,tableName=lumilstableName)
         lsresult=[]
         c=lumiTime.lumiTime()
-        for lumilsnum in perlsresult.keys():
+        for lumilsnum in list(perlsresult.keys()):
             perlsdata=perlsresult[lumilsnum]
             cmslsnum=perlsdata[0]
             if lslist is not None and cmslsnum not in lslist: #ls exists but not selected
@@ -396,7 +396,7 @@ def deliveredLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilt
     
     intglumimap={}
     if lumitype=='HF':
-        intglumimap=dataDML.intglumiForRange(schema,irunlsdict.keys())#some runs need drift correction
+        intglumimap=dataDML.intglumiForRange(schema,list(irunlsdict.keys()))#some runs need drift correction
     allsince=[]
     if normmap:
         allsince=sorted(normmap.keys())
@@ -407,7 +407,7 @@ def deliveredLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilt
     if lumitype=='PIXEL':
         correctorname='fPolyScheme' #PIXEL default
         fillschemePatternMap=dataDML.fillschemePatternMap(schema,'PIXEL')
-    for run,perrundata in instresult.items():
+    for run,perrundata in list(instresult.items()):
         if perrundata is None:
             result[run]=None
             continue
@@ -501,7 +501,7 @@ def lumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=None,t
     '''
     deliveredresult=deliveredLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=beamstatusfilter,timeFilter=timeFilter,normmap=normmap,withBXInfo=withBXInfo,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=withBeamIntensity,lumitype=lumitype,minbiasXsec=minbiasXsec)
     trgresult=trgForIds(schema,irunlsdict,dataidmap)
-    for run in deliveredresult.keys():#loop over delivered,already selected
+    for run in list(deliveredresult.keys()):#loop over delivered,already selected
         perrundata=deliveredresult[run]
         if perrundata is None or len(perrundata)==0: #pass through 
             continue
@@ -556,7 +556,7 @@ def effectiveLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap=None,beamstatu
     deliveredresult=deliveredLumiForIds(schema,irunlsdict,dataidmap,runsummaryMap,beamstatusfilter=beamstatusfilter,timeFilter=timeFilter,normmap=normmap,withBXInfo=withBXInfo,bxAlgo=bxAlgo,xingMinLum=xingMinLum,withBeamIntensity=withBeamIntensity,lumitype=lumitype,minbiasXsec=minbiasXsec)
     trgresult=trgForIds(schema,irunlsdict,dataidmap,withPrescale=True) #{run:[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(bitname,prescale,counts,mask)]]}
     hltresult=hltForIds(schema,irunlsdict,dataidmap,hltpathname=hltpathname,hltpathpattern=hltpathpattern,withL1Pass=False,withHLTAccept=False) #{runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
-    for run in deliveredresult.keys(): #loop over delivered
+    for run in list(deliveredresult.keys()): #loop over delivered
         perrundata=deliveredresult[run]
         if perrundata is None or len(perrundata)==0:#pass through 
             continue

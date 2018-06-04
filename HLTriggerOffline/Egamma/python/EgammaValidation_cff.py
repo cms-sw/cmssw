@@ -203,7 +203,7 @@ else:
     #----------------------------------------
     egammaSelectors = []
 
-    for hltPathCategory, thisCategoryData in configData.iteritems():
+    for hltPathCategory, thisCategoryData in configData.items():
         # all paths in the current category share the same
         # generator level requirement
         #
@@ -252,7 +252,7 @@ else:
 
         pathsByCategory = EgammaHLTValidationUtils.findEgammaPaths(refProcess)
 
-        for hltPathCategory, thisCategoryData in configData.iteritems():
+        for hltPathCategory, thisCategoryData in configData.items():
 
             # get the HLT path objects for this category
             paths = pathsByCategory[hltPathCategory]

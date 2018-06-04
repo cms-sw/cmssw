@@ -120,7 +120,7 @@ def main():
             else:
                 pass
         #Test activeThreads:
-        for cpu in activeThreads.keys():
+        for cpu in list(activeThreads.keys()):
             if activeThreads[cpu].isAlive():
                 pass
             elif cpu not in Available:

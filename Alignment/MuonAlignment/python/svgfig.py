@@ -44,7 +44,7 @@ def rgb(r, g, b, maximum=1.):
   return "#%02x%02x%02x" % (max(0, min(r*255./maximum, 255)), max(0, min(g*255./maximum, 255)), max(0, min(b*255./maximum, 255)))
 
 def attr_preprocess(attr):
-  for name in attr.keys():
+  for name in list(attr.keys()):
     name_colon = re.sub("__", ":", name)
     if name_colon != name:
       attr[name_colon] = attr[name]
@@ -224,7 +224,7 @@ class SVG:
         self.iterators = []
         for i, s in enumerate(self.svg.sub):
           self.iterators.append(self.__class__(s, self.ti + (i,), self.depth_limit))
-        for k, s in self.svg.attr.items():
+        for k, s in list(self.svg.attr.items()):
           self.iterators.append(self.__class__(s, self.ti + (k,), self.depth_limit))
         self.iterators = itertools.chain(*self.iterators)
 
@@ -328,9 +328,9 @@ class SVG:
     """
 
     attrstr = []
-    for n, v in self.attr.items():
+    for n, v in list(self.attr.items()):
       if isinstance(v, dict):
-        v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in v.items()])
+        v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in list(v.items())])
       elif isinstance(v, (list, tuple)):
         v = ", ".join(v)
       attrstr.append(" %s=%s" % (n, repr(v)))
@@ -372,9 +372,9 @@ class SVG:
   def __standalone_xml(self, indent, newl):
     output = [u"<%s" % self.t]
 
-    for n, v in self.attr.items():
+    for n, v in list(self.attr.items()):
       if isinstance(v, dict):
-        v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in v.items()])
+        v = "; ".join(["%s:%s" % (ni, vi) for ni, vi in list(v.items())])
       elif isinstance(v, (list, tuple)):
         v = ", ".join(v)
       output.append(u" %s=\"%s\"" % (n, v))
@@ -561,7 +561,7 @@ def load_stream(stream):
 
     def startElement(self, name, attr):
       s = SVG(name)
-      s.attr = dict(attr.items())
+      s.attr = dict(list(attr.items()))
       if len(self.stack) > 0:
         last = self.stack[-1]
         last.sub.append(s)
@@ -746,7 +746,7 @@ class Fig:
 
     self.trans = kwds["trans"]; del kwds["trans"]
     if len(kwds) != 0:
-      raise TypeError("Fig() got unexpected keyword arguments %s" % kwds.keys())
+      raise TypeError("Fig() got unexpected keyword arguments %s" % list(kwds.keys()))
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object.
@@ -851,7 +851,7 @@ class Plot:
     self.text_attr = kwds["text_attr"]; del kwds["text_attr"]
     self.axis_attr = kwds["axis_attr"]; del kwds["axis_attr"]
     if len(kwds) != 0:
-      raise TypeError("Plot() got unexpected keyword arguments %s" % kwds.keys())
+      raise TypeError("Plot() got unexpected keyword arguments %s" % list(kwds.keys()))
 
   def SVG(self, trans=None):
     """Apply the transformation "trans" and return an SVG object."""
@@ -950,7 +950,7 @@ class Frame:
     self.axis_attr.update(kwds["axis_attr"]); del kwds["axis_attr"]
 
     if len(kwds) != 0:
-      raise TypeError("Frame() got unexpected keyword arguments %s" % kwds.keys())
+      raise TypeError("Frame() got unexpected keyword arguments %s" % list(kwds.keys()))
 
   def SVG(self):
     """Apply the window transformation and return an SVG object."""
@@ -1010,7 +1010,7 @@ def pathtoPath(svg):
   attr = dict(svg.attr)
   d = attr["d"]
   del attr["d"]
-  for key in attr.keys():
+  for key in list(attr.keys()):
     if not isinstance(key, str):
       value = attr[key]
       del attr[key]
@@ -2464,7 +2464,7 @@ class Ticks:
 
     eps = _epsilon * (self.high - self.low)
 
-    for t, label in self.last_ticks.items():
+    for t, label in list(self.last_ticks.items()):
       (X, Y), (xhatx, xhaty), (yhatx, yhaty), angle = self.orient_tickmark(t, trans)
       
       if (not self.arrow_start or abs(t - self.low) > eps) and (not self.arrow_end or abs(t - self.high) > eps):
@@ -2489,7 +2489,7 @@ class Ticks:
 
     for t in self.last_miniticks:
       skip = False
-      for tt in self.last_ticks.keys():
+      for tt in list(self.last_ticks.keys()):
         if abs(t - tt) < eps:
           skip = True
           break
@@ -2651,7 +2651,7 @@ class Ticks:
           return {v1: format(v1), v2: format(v2)}
         else:
           low_in_ticks, high_in_ticks = False, False
-          for t in last_trial.keys():
+          for t in list(last_trial.keys()):
             if 1.*abs(t - self.low)/last_granularity < _epsilon: low_in_ticks = True
             if 1.*abs(t - self.high)/last_granularity < _epsilon: high_in_ticks = True
 
@@ -2749,7 +2749,7 @@ class Ticks:
       keys = keys[::i]
       values = map(lambda k: output[k], keys)
       if len(values) <= N:
-        for k in output.keys():
+        for k in list(output.keys()):
           if k not in keys:
             output[k] = ""
         break
@@ -2900,7 +2900,7 @@ class LineAxis(Line, Ticks):
     if self.exclude == None: return ticks, miniticks
 
     ticks2 = {}
-    for loc, label in ticks.items():
+    for loc, label in list(ticks.items()):
       if self.exclude[0] <= loc <= self.exclude[1]:
         ticks2[loc] = ""
       else:
@@ -3158,7 +3158,7 @@ class HGrid(Ticks):
     self.last_ticks, self.last_miniticks = Ticks.interpret(self)
 
     ticksd = []
-    for t in self.last_ticks.keys():
+    for t in list(self.last_ticks.keys()):
       ticksd += Line(self.xmin, t, self.xmax, t).Path(trans).d
 
     miniticksd = []
@@ -3208,7 +3208,7 @@ class VGrid(Ticks):
     self.last_ticks, self.last_miniticks = Ticks.interpret(self)
 
     ticksd = []
-    for t in self.last_ticks.keys():
+    for t in list(self.last_ticks.keys()):
       ticksd += Line(t, self.ymin, t, self.ymax).Path(trans).d
 
     miniticksd = []
@@ -3261,9 +3261,9 @@ class Grid(Ticks):
     self.last_yticks, self.last_yminiticks = Ticks.interpret(self)
 
     ticksd = []
-    for t in self.last_xticks.keys():
+    for t in list(self.last_xticks.keys()):
       ticksd += Line(t, self.ymin, t, self.ymax).Path(trans).d
-    for t in self.last_yticks.keys():
+    for t in list(self.last_yticks.keys()):
       ticksd += Line(self.xmin, t, self.xmax, t).Path(trans).d
 
     miniticksd = []

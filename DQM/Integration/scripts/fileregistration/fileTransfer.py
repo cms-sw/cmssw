@@ -28,9 +28,9 @@ def getFileLists():
       except:
         version=1
         vlfn=f
-      if vlfn in newfiles.keys() and version >= newfiles[vlfn][0]:
+      if vlfn in list(newfiles.keys()) and version >= newfiles[vlfn][0]:
         newfiles[vlfn]=(version,"%s/%s" % (dir1,f))
-      elif vlfn not in newfiles.keys():
+      elif vlfn not in list(newfiles.keys()):
         newfiles[vlfn]=(version,"%s/%s" % (dir1,f))
       else:
         trashfiles.append("%s/%s" % (dir1,f))
@@ -96,7 +96,7 @@ def transferFiles():
         shutil.move(tf,tfname)
         
     #Down to bussines
-    for ver,f in newfiles.values():
+    for ver,f in list(newfiles.values()):
       ifr=injectFile(f)
     time.sleep(WAIT_TIMEt	)
 #=====================================================================================

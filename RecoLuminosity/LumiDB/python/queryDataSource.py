@@ -528,7 +528,7 @@ def trgFromOldGT(session,runnumber):
         # reprocess Algo name result filling unallocated trigger bit with string "False"
         #
         for algoidx in range(NAlgoBit):
-            if algoidx in triggernamemap.keys():
+            if algoidx in list(triggernamemap.keys()):
                 bitnames.append(triggernamemap[algoidx])
             else:
                 bitnames.append('False')
@@ -650,7 +650,7 @@ def trgFromOldGT(session,runnumber):
         #
         #assemble result
         #
-        for cmslsnum,deadcount in deadtimeresult.items():
+        for cmslsnum,deadcount in list(deadtimeresult.items()):
             bitzerocount=bitzerocountDict[cmslsnum]
             bitzeroprescale=bitzeroprescaleDict[cmslsnum]
             trgcounts=array.array('I')

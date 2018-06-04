@@ -4,7 +4,7 @@ def customiseClusterCheckForHighPileup(process):
 
     _maxElement = 1000000
 
-    for module in process._Process__producers.values():
+    for module in list(process._Process__producers.values()):
         cppType = module._TypedParameterizable__type
 
         # cluster multiplicity check

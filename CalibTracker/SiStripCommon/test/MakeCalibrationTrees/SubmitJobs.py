@@ -25,7 +25,7 @@ def mail(STDruns,AAGruns,cleanUpLog):
    nJobs=1
    runs = {}
    for run in STDruns:
-      if not run[0] in runs.keys():
+      if not run[0] in list(runs.keys()):
          runs[run[0]]=1
       else:
          runs[run[0]]+=1
@@ -38,11 +38,11 @@ def mail(STDruns,AAGruns,cleanUpLog):
    message += "Aag bunch : processed the following runs :\n"
    runs={}
    for run in AAGruns:
-      if not run[0] in runs.keys():
+      if not run[0] in list(runs.keys()):
          runs[run[0]]=1
       else:
          runs[run[0]]+=1
-   runsOrdered = runs.keys()
+   runsOrdered = list(runs.keys())
    runsOrdered.sort()
 
    for r in runsOrdered:

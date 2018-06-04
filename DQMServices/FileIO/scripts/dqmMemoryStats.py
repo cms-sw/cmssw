@@ -48,7 +48,7 @@ class HistogramAnalyzer(object):
     def group(self, level, countObjects):
         group_stats = {}
 
-        for k, v in self._all.items():
+        for k, v in list(self._all.items()):
             group_key = "/".join(k.split("/")[:level])
 
             current = group_stats.get(group_key, 0)
@@ -67,7 +67,7 @@ class HistogramAnalyzer(object):
                 a.extra - b.extra,
                 a.total_bytes - b.total_bytes )
 
-        for k, refv in ref._all.items():
+        for k, refv in list(ref._all.items()):
             results._all[k] = cmp(self._all.get(k, zero), refv)
 
         return results
@@ -89,7 +89,7 @@ def displayDirectoryStatistics(stats, args):
 
     cutoff, display = args.cutoff * 1024, args.display
 
-    as_list = [(v, k, ) for (k, v) in group_stats.items()]
+    as_list = [(v, k, ) for (k, v) in list(group_stats.items())]
     as_list.sort(reverse=True, key=lambda v_k1: abs(v_k1[0]))
 
     if cutoff is not None:

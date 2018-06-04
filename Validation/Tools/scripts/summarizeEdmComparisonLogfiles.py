@@ -15,9 +15,9 @@ def summaryOK (summary):
     retval = True
     count    = -1
     compared = summary.get('eventsCompared', -1)
-    if len( summary.keys()) != 2:
+    if len( list(summary.keys())) != 2:
         retval = False
-    for key,value in summary.iteritems():
+    for key,value in summary.items():
         if countRE.search(key):
             count = value
     return (retval, {'count':count, 'compared':compared})
@@ -146,7 +146,7 @@ if __name__ == "__main__":
             if success1RE.search (line) or success2RE.search(line):
                 success = True
                 continue
-            for key, regex in problemDict.iteritems():
+            for key, regex in problemDict.items():
                 #print "considering %s for %s" % (key, line)
                 if regex.search(line):
                     if key in problemSet:
@@ -182,8 +182,8 @@ if __name__ == "__main__":
                 #pprint.pprint (summary, indent=4)
                 if objectName and compRoot and soName:
                     # do the diffTree magic
-                    varNames = summary.get(objectName, {}).\
-                               get('_var', {}).keys()
+                    varNames = list(summary.get(objectName, {}).\
+                               get('_var', {}).keys())
                     variables = ['eta', 'phi']
                     for var in sorted (varNames):
                         if var not in variables and var not in avoid:
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     print "weird:      ", weird
     print "Tool issue types:"
     total = 0
-    for key, value in sorted (problemTypes.iteritems()):
+    for key, value in sorted (problemTypes.items()):
         print "  %-15s: %4d" % (key, value)
         total += value
     print " ", '-'*13, " : ----"
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     
     if not options.counts:
         print "\nDetailed Problems list:"
-        for key, problemList in sorted (problems.iteritems()):
+        for key, problemList in sorted (problems.items()):
             if options.problem and problemList[0] != options.problem:
                 continue
             if options.mismatch and not isinstance (problemList, str):
@@ -234,5 +234,5 @@ if __name__ == "__main__":
         if not options.problem and not options.mismatch:
             print "\n", '='*78, '\n'
             print "Success list:"
-            for key, successesList in sorted (successes.iteritems()):
+            for key, successesList in sorted (successes.items()):
                 print "   %s:\n   %s\n" % (key, successesList)

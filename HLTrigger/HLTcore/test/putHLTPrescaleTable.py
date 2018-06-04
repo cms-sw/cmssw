@@ -41,7 +41,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.PrescaleTable = cms.PSet()
 from HLTrigger.HLTcore.tmpPrescaleService import PrescaleService
-for pn, pv in PrescaleService.parameters_().items(): setattr(process.PrescaleTable, pn, pv)
+for pn, pv in list(PrescaleService.parameters_().items()): setattr(process.PrescaleTable, pn, pv)
 process.hltPrescaleRecorder.psetName=cms.string("PrescaleTable")
 
 from HLTrigger.HLTcore.tmpPrescaleService import HLTConfigVersion

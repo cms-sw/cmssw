@@ -103,7 +103,7 @@ def main():
     if(not listOfRunsAndLumi):
         listOfRunsAndLumi = getListOfRunsAndLumiFromFile(-1,"/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/Cert_132440-149442_7TeV_StreamExpress_Collisions10_JSON_v3.txt");
 
-    runKeys = listOfRunsAndLumi.keys();            
+    runKeys = list(listOfRunsAndLumi.keys());            
     runKeys.sort();
     runFiles = [];
     for fileName in fileList:

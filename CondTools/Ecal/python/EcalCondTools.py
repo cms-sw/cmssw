@@ -118,9 +118,9 @@ def compare(tag1,db1,since1,
             found=1
             payload.load(elem)
             payload.extract(exb)
-            coeff_1_b = [i for i in exb.values()]# first set of coefficients
+            coeff_1_b = [i for i in list(exb.values())]# first set of coefficients
             payload.extract(exe)
-            coeff_1_e = [i for i in exe.values()]
+            coeff_1_e = [i for i in list(exe.values())]
         db1.commitTransaction()
 
       except Exception as er :
@@ -150,9 +150,9 @@ def compare(tag1,db1,since1,
             found=1
             payload.load(elem)
             payload.extract(exb)
-            coeff_2_b = [i for i in exb.values()]# second set of coefficients
+            coeff_2_b = [i for i in list(exb.values())]# second set of coefficients
             payload.extract(exe)
-            coeff_2_e = [i for i in exe.values()]
+            coeff_2_e = [i for i in list(exe.values())]
         db2.commitTransaction()
      
       except Exception as er :
@@ -257,9 +257,9 @@ def histo (db, tag,since,filename='histo.root'):
             found=1
             payload.load(elem)
             payload.extract(exb)
-            coeff_barl = [i for i in exb.values()]
+            coeff_barl = [i for i in list(exb.values())]
             payload.extract(exe)
-            coeff_endc = [i for i in exe.values()]
+            coeff_endc = [i for i in list(exe.values())]
         db.commitTransaction()
 
       except Exception as er :

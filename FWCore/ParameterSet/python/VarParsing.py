@@ -141,7 +141,7 @@ class VarParsing (object):
         """Sets up information for tags for output names"""
         necessaryKeys = set (['ifCond', 'tag'])
         allowedKeys   = set (['tagArg'])
-        for key in kwargs.keys():
+        for key in list(kwargs.keys()):
             if key in allowedKeys:
                 continue
             if key in necessaryKeys:
@@ -557,15 +557,15 @@ class VarParsing (object):
         formInfo = "  %%%ds  - %%s" % (maxLen - 2)
         formItem = "  %%%ds    %%s" % (maxLen - 1)
         retval = ""
-        if len (self._singletons.keys()):
+        if len (list(self._singletons.keys())):
             retval = retval + "Singletons:\n"
-        for varName, value in sorted (self._singletons.iteritems()):
+        for varName, value in sorted (self._singletons.items()):
             retval = retval + form % (varName, value) + "\n";
             if self._info.get(varName):
                 retval = retval + formInfo % ('', self._info[varName]) + "\n"
-        if len (self._singletons.keys()):
+        if len (list(self._singletons.keys())):
             retval = retval +  "Lists:\n"
-        for varName, value in sorted (self._lists.iteritems()):
+        for varName, value in sorted (self._lists.items()):
             stringValue = "%s" % value
             if len (stringValue) < 76 - maxLen:
                 retval = retval + form % (varName, value) + "\n"

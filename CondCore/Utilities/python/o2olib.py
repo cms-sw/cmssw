@@ -263,7 +263,7 @@ class O2OJobMgr(O2OMgr):
             enabled = 'Y' if (r[2]==1) else 'N'
             row.append('%4s' %enabled )
             lastRun = '-'
-            if r[0] in runs.keys():
+            if r[0] in list(runs.keys()):
                 lastRun = runs[r[0]]
             row.append( lastRun )
             table.append(row)

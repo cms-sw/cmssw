@@ -29,8 +29,8 @@ class Analyzer(CoreAnalyzer):
         # if not self.beginLoopCalled:
         #    # necessary in case the user calls process to go straight to a given event, before looping
         #    self.beginLoop(setup)
-        for str,handle in self.handles.iteritems():
+        for str,handle in self.handles.items():
             handle.Load( iEvent )
         if self.cfg_comp.isMC:
-            for str,handle in self.mchandles.iteritems():
+            for str,handle in self.mchandles.items():
                 handle.Load( iEvent )

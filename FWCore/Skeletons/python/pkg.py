@@ -134,7 +134,7 @@ class AbstractPkg(object):
                     code  = ""
                     continue
                 if  not read_code:
-                    for key, val in kwds.items():
+                    for key, val in list(kwds.items()):
                         if  isinstance(val, basestring):
                             line = line.replace(key, val)
                     stream.write(line)
