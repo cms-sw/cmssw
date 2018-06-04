@@ -83,7 +83,8 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   minPt_(iConfig.getUntrackedParameter<double>("minPt",1.)),
   maxPt_(iConfig.getUntrackedParameter<double>("maxPt",20.)),
   debug_(iConfig.getParameter<bool>("Debug")),
-  runControl_(iConfig.getUntrackedParameter<bool>("runControl",false))
+  runControl_(iConfig.getUntrackedParameter<bool>("runControl",false)),
+  forceBeamSpotContraint_(iConfig.getUntrackedParameter<bool>("forceBeamSpot",false))
 {
   
   // now do what ever initialization is needed
@@ -669,12 +670,18 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	  if(debug_)
 	    edm::LogInfo("PrimaryVertexValidation")<<"Transient Track Collection size: "<<theFinalTracks.size();
 	  try{
-	      
-	    auto theFitter = std::unique_ptr<VertexFitter<5> >( new AdaptiveVertexFitter());
-	    TransientVertex theFittedVertex = theFitter->vertex(theFinalTracks);
 
 	    //AdaptiveVertexFitter* theFitter = new AdaptiveVertexFitter;
-	    //TransientVertex theFittedVertex = theFitter->vertex(theFinalTracks,beamSpot);  // if you want the beam constraint
+	    auto theFitter = std::unique_ptr<VertexFitter<5> >( new AdaptiveVertexFitter());
+	    TransientVertex theFittedVertex;
+
+	    if(forceBeamSpotContraint_){
+	      theFittedVertex = theFitter->vertex(theFinalTracks,beamSpot);  // if you want the beam constraint
+	    } else {
+	      theFittedVertex = theFitter->vertex(theFinalTracks);
+	    }
+
+
 
 	    double totalTrackWeights=0;
 	    if(theFittedVertex.isValid ()){
