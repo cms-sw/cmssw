@@ -405,7 +405,7 @@ class GenWeightsTableProducer : public edm::global::EDProducer<edm::StreamCache<
                                         if (ismg26x==0){
                                             member = std::stoi(groups.str(2));
                                         } else {
-                                            if (groups.str(4)!=""){
+                                            if (!groups.str(4).empty()){
                                                 member = std::stoi(groups.str(4));
                                              }
                                         }
