@@ -56,6 +56,7 @@ problem with it.  Can a Polycone come to a point "in the real world?" -->
     <Tubs name="tube2" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg"/>
     <CutTubs name="cuttubs" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg" lx="0" ly="-0.7" lz="-0.71" tx="0.7" ty="0" tz="0.71"/>
     <TruncTubs name="trunctubs1" zHalf="50*cm" rMin="20*cm" rMax="40*cm" startPhi="0*deg" deltaPhi="90*deg" cutAtStart="25*cm" cutAtDelta="35*cm" cutInside="true"/>
+    <TruncTubs name="trunctubs2" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true" startPhi="0*deg" deltaPhi="15*deg" zHalf="6.57005*m"/>
     <ShapelessSolid name="momma"/>
     <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
     <Torus name="torus" innerRadius="7.5*cm" outerRadius="10*cm" torusRadius="30*cm" startPhi="0*deg" deltaPhi="360*deg"/>
