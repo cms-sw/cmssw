@@ -10,14 +10,14 @@
 namespace GPU {
 template <class T> struct SimpleVector {
   // Constructors
-  __host__ __device__ SimpleVector(int capacity, T *data) // ownership of m_data stays within the caller
+  constexpr SimpleVector(int capacity, T *data) // ownership of m_data stays within the caller
       : m_size(0), m_capacity(capacity), m_data(data) {
     static_assert(std::is_trivially_destructible<T>::value);
   }
 
-  __host__ __device__ SimpleVector() : SimpleVector(0) {}
+  constexpr SimpleVector() : SimpleVector(0) {}
 
-  __inline__ __host__ __device__ int push_back_unsafe(const T &element) {
+  __inline__ constexpr int push_back_unsafe(const T &element) {
     auto previousSize = m_size;
     m_size++;
     if (previousSize < m_capacity) {
@@ -29,7 +29,7 @@ template <class T> struct SimpleVector {
     }
   }
 
-  template <class... Ts> __host__ __device__ int emplace_back_unsafe(Ts &&... args) {
+  template <class... Ts> constexpr int emplace_back_unsafe(Ts &&... args) {
     auto previousSize = m_size;
     m_size++;
     if (previousSize < m_capacity) {
@@ -41,7 +41,7 @@ template <class T> struct SimpleVector {
     }
   }
 
-  __inline__ __host__ __device__ T & back() const {
+  __inline__ constexpr T & back() const {
 
     if (m_size > 0) {
       return m_data[m_size - 1];
@@ -74,19 +74,19 @@ template <class T> struct SimpleVector {
   }
 #endif
 
-  __inline__ __host__ __device__ T& operator[](int i) const { return m_data[i]; }
+  __inline__ constexpr T& operator[](int i) const { return m_data[i]; }
 
-  __inline__ __host__ __device__ void reset() { m_size = 0; }
+  __inline__ constexpr void reset() { m_size = 0; }
 
-  __inline__ __host__ __device__ int size() const { return m_size; }
+  __inline__ constexpr int size() const { return m_size; }
 
-  __inline__ __host__ __device__ int capacity() const { return m_capacity; }
+  __inline__ constexpr int capacity() const { return m_capacity; }
 
-  __inline__ __host__ __device__ T *data() const { return m_data; }
+  __inline__ constexpr T *data() const { return m_data; }
     
-  __inline__ __host__ __device__ void resize(int size) { m_size = size; }
+  __inline__ constexpr void resize(int size) { m_size = size; }
     
-  __inline__ __host__ __device__ void set_data(T * data) { m_data = data; }
+  __inline__ constexpr void set_data(T * data) { m_data = data; }
 
 
 private:

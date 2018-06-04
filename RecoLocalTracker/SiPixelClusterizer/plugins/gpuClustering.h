@@ -1,18 +1,13 @@
 #ifndef RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
 #define RecoLocalTracker_SiPixelClusterizer_plugins_gpuClustering_h
 
+#include "gpuClusteringConstants.h"
+
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
 
 namespace gpuClustering {
-
-  constexpr uint32_t MaxNumModules = 2000;
-
-  constexpr uint32_t MaxNumPixels = 256*2000;  // this does not mean maxPixelPerModule==256!
-  
-  constexpr uint16_t InvId=9999; // must be > MaxNumModules
-  
   __global__ void countModules(uint16_t const * id,
 			       uint32_t * moduleStart,
 			       int32_t * clus,

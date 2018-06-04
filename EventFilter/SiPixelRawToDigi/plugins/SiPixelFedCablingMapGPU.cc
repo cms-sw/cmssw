@@ -54,7 +54,7 @@ void deallocateCablingMap(SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCab
 
 void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry const& trackerGeom,
                        SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCablingMapGPU* cablingMapDevice, 
-                       const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules) {
+                       const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules, cuda::stream_t<>& stream) {
   std::vector<unsigned int> const& fedIds = cablingMap.fedIds();
   std::unique_ptr<SiPixelFedCablingTree> const& cabling = cablingMap.cablingTree();
 
@@ -108,8 +108,6 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
   // Link varies between 1 to 48
   // idinLnk varies between 1 to 8
 
-  cudaDeviceSynchronize();
-
   for (int i = 1; i < index; i++) {
     if (RawId[i] == 9999) {
       moduleId[i] = 9999;
@@ -132,20 +130,21 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
   }
 
   cablingMapHost->size = index-1;
-  cudaCheck(cudaMemcpy(cablingMapHost->fed,      fedMap.data(),   fedMap.size()   * sizeof(unsigned int),  cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapHost->link,     linkMap.data(),  linkMap.size()  * sizeof(unsigned int),  cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapHost->roc,      rocMap.data(),   rocMap.size()   * sizeof(unsigned int),  cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapHost->RawId,    RawId.data(),    RawId.size()    * sizeof(unsigned int),  cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapHost->rocInDet, rocInDet.data(), rocInDet.size() * sizeof(unsigned int),  cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapHost->moduleId, moduleId.data(), moduleId.size() * sizeof(unsigned int),  cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapHost->badRocs,  badRocs.data(),  badRocs.size()  * sizeof(unsigned char), cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapHost->modToUnp, modToUnp.data(), modToUnp.size() * sizeof(unsigned char), cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault));
-  cudaDeviceSynchronize();
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->fed,      fedMap.data(),   fedMap.size()   * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->link,     linkMap.data(),  linkMap.size()  * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->roc,      rocMap.data(),   rocMap.size()   * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->RawId,    RawId.data(),    RawId.size()    * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->rocInDet, rocInDet.data(), rocInDet.size() * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->moduleId, moduleId.data(), moduleId.size() * sizeof(unsigned int),  cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->badRocs,  badRocs.data(),  badRocs.size()  * sizeof(unsigned char), cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapHost->modToUnp, modToUnp.data(), modToUnp.size() * sizeof(unsigned char), cudaMemcpyDefault, stream.id()));
+  cudaCheck(cudaMemcpyAsync(cablingMapDevice, cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault));
 }
 
 void
-processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeometry const& geom, SiPixelGainForHLTonGPU * & gainsOnGPU, SiPixelGainForHLTonGPU::DecodingStructure * & gainDataOnGPU) {
+processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeometry const& geom,
+                       SiPixelGainForHLTonGPU *gainsOnHost, SiPixelGainForHLTonGPU * & gainsOnGPU,
+                       SiPixelGainForHLTonGPU::DecodingStructure * & gainDataOnGPU, cuda::stream_t<>& stream) {
   // bizzarre logic (looking for fist strip-det) don't ask
   auto const & dus = geom.detUnits();
   unsigned m_detectors = dus.size();
@@ -161,14 +160,12 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
   std::cout << "sizes " << sizeof(char) << ' ' << sizeof(uint8_t) << ' ' << sizeof(SiPixelGainForHLTonGPU::DecodingStructure) << std::endl;
   */
 
-  SiPixelGainForHLTonGPU * gg;
-  cudaCheck(cudaMallocHost((void**) & gg, sizeof(SiPixelGainForHLTonGPU)));
+  SiPixelGainForHLTonGPU * gg = gainsOnHost;
 
   assert(nullptr==gainDataOnGPU);
-  cudaCheck(cudaMalloc((void**) & gainDataOnGPU, gains.data().size()));
-  cudaCheck(cudaMalloc((void**) & gainsOnGPU, sizeof(SiPixelGainForHLTonGPU)));
+  cudaCheck(cudaMalloc((void**) & gainDataOnGPU, gains.data().size())); // TODO: this could be changed to cuda::memory::device::unique_ptr<>
   // gains.data().data() is used also for non-GPU code, we cannot allocate it on aligned and write-combined memory
-  cudaCheck(cudaMemcpy(gainDataOnGPU, gains.data().data(), gains.data().size(), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpyAsync(gainDataOnGPU, gains.data().data(), gains.data().size(), cudaMemcpyDefault, stream.id()));
 
   gg->v_pedestals = gainDataOnGPU;
 
@@ -217,7 +214,5 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
     // gg->rangeAndCols[i] = std::make_pair(SiPixelGainForHLTonGPU::Range(ind[i].ibegin,ind[i].iend), ind[i].ncols);
   }
 
-  cudaCheck(cudaMemcpy(gainsOnGPU, gg, sizeof(SiPixelGainForHLTonGPU), cudaMemcpyDefault));
-  cudaFreeHost(gg);
-  cudaDeviceSynchronize();
+  cudaCheck(cudaMemcpyAsync(gainsOnGPU, gg, sizeof(SiPixelGainForHLTonGPU), cudaMemcpyDefault, stream.id()));
 }

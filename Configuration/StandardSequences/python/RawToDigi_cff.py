@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # scenarios. In this case it makes changes for Run 2.
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
+from EventFilter.SiPixelRawToDigi.siPixelDigisHeterogeneous_cfi import *
 
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 
@@ -59,6 +60,10 @@ RawToDigi = cms.Sequence(L1TRawToDigi
                          +tcdsDigis
                          +onlineMetaDataDigis
                          )
+from Configuration.ProcessModifiers.gpu_cff import gpu
+_RawToDigi_gpu = RawToDigi.copy()
+_RawToDigi_gpu.replace(siPixelDigis, siPixelDigisHeterogeneous+siPixelDigis)
+gpu.toReplaceWith(RawToDigi, _RawToDigi_gpu)
 
 RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +ecalDigis
@@ -73,10 +78,11 @@ RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +onlineMetaDataDigis
                               )
 
-RawToDigi_pixelOnly = cms.Sequence(siPixelDigis)
+RawToDigi_pixelOnly = cms.Sequence(siPixelDigisHeterogeneous+siPixelDigis)
 
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-siPixelDigis.InputLabel = 'rawDataCollector'
+siPixelDigisHeterogeneous.InputLabel = 'rawDataCollector'
+(~gpu).toModify(siPixelDigis, InputLabel = 'rawDataCollector')
 #false by default anyways ecalDigis.DoRegional = False
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'

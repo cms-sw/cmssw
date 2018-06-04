@@ -4,6 +4,8 @@
 // C++ includes
 #include <set>
 
+#include "cuda/api_wrappers.h"
+
 class SiPixelFedCablingMap;
 class SiPixelQuality;
 class TrackerGeometry;
@@ -44,11 +46,14 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,
                        SiPixelFedCablingMapGPU* cablingMapHost,
                        SiPixelFedCablingMapGPU* cablingMapDevice,
                        SiPixelQuality const* badPixelInfo,
-                       std::set<unsigned int> const& modules);
+                       std::set<unsigned int> const& modules,
+                       cuda::stream_t<>& stream);
 
 void processGainCalibration(SiPixelGainCalibrationForHLT const& gains,
                             TrackerGeometry const& trackerGeom,
+                            SiPixelGainForHLTonGPU *gainsOnHost,
                             SiPixelGainForHLTonGPU * & gainsOnGPU,
-                            SiPixelGainForHLTonGPU_DecodingStructure * & gainDataOnGPU);
+                            SiPixelGainForHLTonGPU_DecodingStructure * & gainDataOnGPU,
+                            cuda::stream_t<>& stream);
 
 #endif // EventFilter_SiPixelRawToDigi_plugins_SiPixelFedCablingMapGPU_h

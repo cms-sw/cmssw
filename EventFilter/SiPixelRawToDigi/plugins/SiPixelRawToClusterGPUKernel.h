@@ -1,11 +1,14 @@
-#ifndef EventFilter_SiPixelRawToDigi_plugins_SiPixelRawToDigiGPUKernel_h
-#define EventFilter_SiPixelRawToDigi_plugins_SiPixelRawToDigiGPUKernel_h
+#ifndef EventFilter_SiPixelRawToDigi_plugins_SiPixelRawToClusterGPUKernel_h
+#define EventFilter_SiPixelRawToDigi_plugins_SiPixelRawToClusterGPUKernel_h
 
 #include <algorithm>
 #include <cuda_runtime.h>
+#include "cuda/api_wrappers.h"
 
+#include "FWCore/Utilities/interface/typedefs.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
 #include "SiPixelFedCablingMapGPU.h"
+#include "siPixelRawToClusterHeterogeneousProduct.h"
 
 namespace pixelgpudetails {
 
@@ -139,25 +142,96 @@ namespace pixelgpudetails {
            (adc << thePacking.adc_shift);
   }
 
-  struct error_obj {
-    uint32_t rawId;
-    uint32_t word;
-    unsigned char errorType;
-    unsigned char fedId;
+  using error_obj = siPixelRawToClusterHeterogeneousProduct::error_obj;
 
-    __host__ __device__
-    error_obj(uint32_t a, uint32_t b, unsigned char c, unsigned char d):
-      rawId(a),
-      word(b),
-      errorType(c),
-      fedId(d)
-    { }
+
+  class SiPixelRawToClusterGPUKernel {
+  public:
+    SiPixelRawToClusterGPUKernel();
+    ~SiPixelRawToClusterGPUKernel();
+
+    
+    SiPixelRawToClusterGPUKernel(const SiPixelRawToClusterGPUKernel&) = delete;
+    SiPixelRawToClusterGPUKernel(SiPixelRawToClusterGPUKernel&&) = delete;
+    SiPixelRawToClusterGPUKernel& operator=(const SiPixelRawToClusterGPUKernel&) = delete;
+    SiPixelRawToClusterGPUKernel& operator=(SiPixelRawToClusterGPUKernel&&) = delete;
+
+    void updateCablingMap(SiPixelFedCablingMap const& cablingMap,
+                          TrackerGeometry const& trackerGeom,
+                          SiPixelQuality const* badPixelInfo,
+                          std::set<unsigned int> const& modules,
+                          cuda::stream_t<>& stream) {
+      processCablingMap(cablingMap, trackerGeom, cablingMapGPUHost_, cablingMapGPUDevice_, badPixelInfo, modules, stream);
+    }
+
+    void updateGainCalibration(SiPixelGainCalibrationForHLT const& gains,
+                               TrackerGeometry const& trackerGeom,
+                               cuda::stream_t<>& stream) {
+      processGainCalibration(gains, trackerGeom, gainForHLTonHost_, gainForHLTonGPU_, gainDataOnGPU_, stream);
+    }
+
+    void initializeWordFed(int fedId, unsigned int wordCounterGPU, const cms_uint32_t *src, unsigned int length);
+    
+    // Not really very async yet...
+    void makeClustersAsync(const uint32_t wordCounter, const uint32_t fedCounter, bool convertADCtoElectrons,
+                           bool useQualityInfo, bool includeErrors, bool debug,
+                           cuda::stream_t<>& stream);
+
+    auto getProduct() const {
+      return siPixelRawToClusterHeterogeneousProduct::GPUProduct{
+        pdigi_h, rawIdArr_h, clus_h, adc_h, error_h,
+        nDigis, nModulesActive,
+        xx_d, yy_d, adc_d, moduleInd_d, moduleStart_d,clus_d, clusInModule_d, moduleId_d
+      };
+    }
+
+  private:
+    // Conditions
+    SiPixelFedCablingMapGPU *cablingMapGPUHost_ = nullptr;
+    SiPixelFedCablingMapGPU *cablingMapGPUDevice_ = nullptr;
+    //  gain calib
+    SiPixelGainForHLTonGPU * gainForHLTonHost_ = nullptr;
+    SiPixelGainForHLTonGPU * gainForHLTonGPU_ = nullptr;
+    SiPixelGainForHLTonGPU_DecodingStructure * gainDataOnGPU_ = nullptr;
+
+    // input
+    unsigned int *word = nullptr;        // to hold input for rawtodigi
+    unsigned char *fedId_h = nullptr;    // to hold fed index for each word
+
+    // output
+    uint32_t *pdigi_h = nullptr, *rawIdArr_h = nullptr;                   // host copy of output
+    uint16_t *adc_h = nullptr; int32_t *clus_h = nullptr; // host copy of calib&clus output
+    pixelgpudetails::error_obj *data_h = nullptr;
+    GPU::SimpleVector<pixelgpudetails::error_obj> *error_h = nullptr;
+    GPU::SimpleVector<pixelgpudetails::error_obj> *error_h_tmp = nullptr;
+
+    uint32_t nDigis = 0;
+    uint32_t nModulesActive = 0;
+
+    // scratch memory buffers
+    uint32_t * word_d;
+    uint8_t *  fedId_d;
+    uint32_t * pdigi_d;
+    uint16_t * xx_d;
+    uint16_t * yy_d;
+    uint16_t * adc_d;
+    uint16_t * moduleInd_d;
+    uint32_t * rawIdArr_d;
+
+    GPU::SimpleVector<error_obj> * error_d;
+    error_obj * data_d;
+
+    // these are for the clusterizer (to be moved)
+    uint32_t * moduleStart_d;
+    int32_t *  clus_d;
+    uint32_t * clusInModule_d;
+    uint32_t * moduleId_d;
+    uint32_t * debug_d;
   };
 
+  
   // configuration and memory buffers alocated on the GPU
   struct context {
-    cudaStream_t stream;
-
     uint32_t * word_d;
     uint8_t *  fedId_d;
     uint32_t * pdigi_d;
@@ -209,4 +283,4 @@ namespace pixelgpudetails {
 
 }
 
-#endif // EventFilter_SiPixelRawToDigi_plugins_SiPixelRawToDigiGPUKernel_h
+#endif // EventFilter_SiPixelRawToDigi_plugins_SiPixelRawToClusterGPUKernel_h
