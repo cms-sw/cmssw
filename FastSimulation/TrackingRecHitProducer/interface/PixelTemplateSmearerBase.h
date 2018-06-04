@@ -89,8 +89,9 @@ class PixelTemplateSmearerBase:
 
         ~PixelTemplateSmearerBase() override;
         TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const override;
-	void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
-	void endEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
+	// void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
+	void beginRun(edm::Run const& run, const edm::EventSetup& eventSetup) override;
+	// void endEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
         //--- Process all unmerged hits. Calls smearHit() for each.
         TrackingRecHitProductPtr processUnmergedHits( 
