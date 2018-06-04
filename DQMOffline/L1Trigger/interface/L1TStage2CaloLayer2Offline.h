@@ -33,8 +33,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-// CaloJets
-#include "DataFormats/JetReco/interface/CaloJet.h"
+// PFJets
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 // Calo MET
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -94,8 +94,6 @@ protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
@@ -106,6 +104,7 @@ private:
 
   void fillEnergySums(edm::Event const& e, const unsigned int nVertex);
   void fillJets(edm::Event const& e, const unsigned int nVertex);
+  void fillJetEfficiencies(const double & recoEt, const double & l1Et, const double & recoEta);
 
   bool doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const;
 
@@ -113,7 +112,7 @@ private:
   math::XYZPoint PVPoint_;
 
   //variables from config file
-  edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
+  edm::EDGetTokenT<reco::PFJetCollection> thePFJetCollection_;
   edm::EDGetTokenT<reco::CaloMETCollection> thecaloMETCollection_;
   edm::EDGetTokenT<reco::CaloMETCollection> thecaloETMHFCollection_;
   edm::EDGetTokenT<reco::VertexCollection> thePVCollection_;
@@ -194,17 +193,17 @@ private:
 
 
   // jet reco vs L1
-  MonitorElement* h_L1JetETvsCaloJetET_HB_;
-  MonitorElement* h_L1JetETvsCaloJetET_HE_;
-  MonitorElement* h_L1JetETvsCaloJetET_HF_;
-  MonitorElement* h_L1JetETvsCaloJetET_HB_HE_;
+  MonitorElement* h_L1JetETvsPFJetET_HB_;
+  MonitorElement* h_L1JetETvsPFJetET_HE_;
+  MonitorElement* h_L1JetETvsPFJetET_HF_;
+  MonitorElement* h_L1JetETvsPFJetET_HB_HE_;
 
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HB_;
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HE_;
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HF_;
-  MonitorElement* h_L1JetPhivsCaloJetPhi_HB_HE_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HB_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HE_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HF_;
+  MonitorElement* h_L1JetPhivsPFJetPhi_HB_HE_;
 
-  MonitorElement* h_L1JetEtavsCaloJetEta_;
+  MonitorElement* h_L1JetEtavsPFJetEta_;
 
   // jet resolutions
   MonitorElement* h_resolutionJetET_HB_;
