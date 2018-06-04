@@ -301,4 +301,11 @@ def L1NtupleEMUNoEventTree(process):
 
     return process
 
+def PrefireVetoFilter(process):
 
+    process.load('EventFilter.L1TRawToDigi.triggerRulePrefireVetoFilter_cfi')
+    process.l1ntupleraw.insert(0,process.triggerRulePrefireVetoFilter)
+    process.l1ntupleemu.insert(0,process.triggerRulePrefireVetoFilter)
+    process.l1ntupleaod.insert(0,process.triggerRulePrefireVetoFilter)
+
+    return process
