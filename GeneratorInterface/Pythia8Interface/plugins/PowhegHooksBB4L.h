@@ -1,14 +1,14 @@
 // PowhegHooksBB4L.h 
-
-// Author: Tomas Jezo, Markus Seidel and Ben Nachman based on 
-// PowhegHooks.h by Richard Corke
+// Copyright (C) 2017 Silvia Ferrario Ravasio, Tomas Jezo, Paolo Nason, Markus Seidel
+// inspired by PowhegHooks.h by Richard Corke
+// adjusted to work with EmissionVetoHook1 in CMSSW by Alexander Grohsjean
 
 #ifndef Pythia8_PowhegHooksBB4L_H
 #define Pythia8_PowhegHooksBB4L_H
 
 // Includes
 #include "Pythia8/Pythia.h"
-#include <cassert>
+#include <assert.h>
 struct{
   int radtype;
 } radtype_;
@@ -21,12 +21,12 @@ namespace Pythia8 {
 
     //--- Constructor and destructor -------------------------------------------
   PowhegHooksBB4L() : nFSRvetoBB4l(0) {}
-    ~PowhegHooksBB4L() override {
+    ~PowhegHooksBB4L() {
       std::cout << "Number of FSR vetoed in BB4l = " << nFSRvetoBB4l << std::endl;
     }
 	
     //--- Initialization -----------------------------------------------------------------------
-    bool initAfterBeams() override {
+    bool initAfterBeams() {
       // settings of this class
       vetoFSREmission = settingsPtr->flag("POWHEG:bb4l:FSREmission:veto");
       onlyDistance1 = settingsPtr->flag("POWHEG:bb4l:FSREmission:onlyDistance1");
@@ -48,8 +48,8 @@ namespace Pythia8 {
     //--- PROCESS LEVEL HOOK ---------------------------------------------------
 
     // called at the LHE level
-    inline bool canVetoProcessLevel() override { return true; }
-    inline bool doVetoProcessLevel(Event &e) override {
+    inline bool canVetoProcessLevel() { return true; }
+    inline bool doVetoProcessLevel(Event &e) {
       
       // extract the radtype from the event comment
       stringstream ss;
@@ -83,9 +83,9 @@ namespace Pythia8 {
     //--- PARTON LEVEL HOOK ----------------------------------------------------
 
     // called after shower
-    bool retryPartonLevel() override { return vetoPartonLevel || vetoAtPL; }
-    inline bool canVetoPartonLevel() override { return vetoPartonLevel || vetoAtPL; }
-    inline bool doVetoPartonLevel(const Event &e) override {
+    bool retryPartonLevel() { return vetoPartonLevel || vetoAtPL; }
+    inline bool canVetoPartonLevel() { return vetoPartonLevel || vetoAtPL; }
+    inline bool doVetoPartonLevel(const Event &e) {
       if(radtype_.radtype==2)
 	return false;
       if (debug){
@@ -120,8 +120,8 @@ namespace Pythia8 {
     //           PowhegHooksBB4L::canVetoFSREmission, so FSR veto in production
     //           must be handled here. ISR and MPI veto are instead still
     //           handled by PowhegHooks.)
-    inline bool canVetoFSREmission() override { return vetoFSREmission; } // || vetoProduction; }
-    inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) override {
+    inline bool canVetoFSREmission() { return vetoFSREmission; } // || vetoProduction; }
+    inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) {
       //////////////////////////////
       //VETO INSIDE THE RESONANCE //
       //////////////////////////////
@@ -237,12 +237,12 @@ namespace Pythia8 {
 
     //--- SCALE RESONANCE HOOK -------------------------------------------------
     // called before each resonance decay shower
-    inline bool canSetResonanceScale() override { return scaleResonanceVeto; }
+    inline bool canSetResonanceScale() { return scaleResonanceVeto; }
     // if the resonance is the (anti)top set the scale to:
     //  ---> (anti)top virtuality if radtype=2
     //  ---> (a)topresscale otherwise
     // if is not the top, set it to a big number
-    inline double scaleResonance(int iRes, const Event &e) override {		
+    inline double scaleResonance(int iRes, const Event &e) {		
       if (e[iRes].id() == 6){
 	if(radtype_.radtype == 2)
 	  return sqrt(e[iRes].m2Calc());
@@ -278,273 +278,234 @@ namespace Pythia8 {
 	// No radiating resonance found
 	scale = pTmin;
       }
-      else if (std::abs(event[iRes].id()) == 6) {
+      else if (abs(event[iRes].id()) == 6) {
 	// Find top daughters
 	int idw = -1, idb = -1, idg = -1;
 			
-			for (int i = 0; i < nDau; i++) {
-				int iDau = event[iRes].daughterList()[i];
-				if (std::abs(event[iDau].id()) == 24) idw = iDau;
-				if (std::abs(event[iDau].id()) ==  5) idb = iDau;
-				if (std::abs(event[iDau].id()) == 21) idg = iDau;
-			}
-			
-			// Get daughter 4-vectors in resonance frame
-			Vec4 pw(event[idw].p());
-			pw.bstback(event[iRes].p());
-			
-			Vec4 pb(event[idb].p());
-			pb.bstback(event[iRes].p());
-			
-			Vec4 pg(event[idg].p());
-			pg.bstback(event[iRes].p());
-			
-			// Calculate scale
-			scale = sqrt(2*pg*pb*pg.e()/pb.e());
-		}
-		else {
-			scale = 1e30;
-		}
-
-		return scale;
+	for (int i = 0; i < nDau; i++) {
+	  int iDau = event[iRes].daughterList()[i];
+	  if (abs(event[iDau].id()) == 24) idw = iDau;
+	  if (abs(event[iDau].id()) ==  5) idb = iDau;
+	  if (abs(event[iDau].id()) == 21) idg = iDau;
 	}
+			
+	// Get daughter 4-vectors in resonance frame
+	Vec4 pw(event[idw].p());
+	pw.bstback(event[iRes].p());
+			
+	Vec4 pb(event[idb].p());
+	pb.bstback(event[iRes].p());
+			
+	Vec4 pg(event[idg].p());
+	pg.bstback(event[iRes].p());
+			
+	// Calculate scale
+	scale = sqrt(2*pg*pb*pg.e()/pb.e());
+      }
+      else {
+	scale = 1e30;
+      }
 
-//--------------------------------------------------------------------------
+      return scale;
+    }
 
-	// The following routine will match daughters of particle `e[iparticle]` to an expected pattern specified via the list of expected particle PDG ID's `ids`, 
-	// id wildcard is specified as 0 if match is obtained, the positions and the momenta of these particles are returned in vectors `positions` and `momenta` 
-	// respectively
-	// if exitOnExtraLegs==true, it will exit if the decay has more particles than expected, but not less
-	inline bool match_decay(int iparticle, const Event &e, const vector<int> &ids, vector<int> &positions, vector<Vec4> &momenta, bool exitOnExtraLegs = true){
-		// compare sizes
-		if (e[iparticle].daughterList().size() != ids.size()) {
-			if (exitOnExtraLegs && e[iparticle].daughterList().size() > ids.size()) exit(-1);
-			return false; 
-		}
-		// compare content
-		for (unsigned int i = 0; i < e[iparticle].daughterList().size(); i++) {
-			int di = e[iparticle].daughterList()[i];
-			if (ids[i] != 0 && e[di].id() != ids[i]) 
-				return false;
-		}
-		// reset the positions and momenta vectors (because they may be reused)
-		positions.clear();
-		momenta.clear();
-		// construct the array of momenta
-		for (unsigned int i = 0; i < e[iparticle].daughterList().size(); i++) {
-			int di = e[iparticle].daughterList()[i];
-			positions.push_back(di);
-			momenta.push_back(e[di].p());
-		}
-		return true;
+    // The following routine will match daughters of particle `e[iparticle]` to an expected pattern specified via the list of expected particle PDG ID's `ids`, 
+    // id wildcard is specified as 0 if match is obtained, the positions and the momenta of these particles are returned in vectors `positions` and `momenta` 
+    // respectively
+    // if exitOnExtraLegs==true, it will exit if the decay has more particles than expected, but not less
+    inline bool match_decay(int iparticle, const Event &e, const vector<int> &ids, vector<int> &positions, vector<Vec4> &momenta, bool exitOnExtraLegs = true){
+      // compare sizes
+      if (e[iparticle].daughterList().size() != ids.size()) {
+	if (exitOnExtraLegs && e[iparticle].daughterList().size() > ids.size()) {
+	  cout << "extra leg" << endl;
+	  exit(-1);
 	}
+	return false; 
+      }
+      // compare content
+      for (unsigned i = 0; i < e[iparticle].daughterList().size(); i++) {
+	int di = e[iparticle].daughterList()[i];
+	if (ids[i] != 0 && e[di].id() != ids[i]) 
+	  return false;
+      }
+      // reset the positions and momenta vectors (because they may be reused)
+      positions.clear();
+      momenta.clear();
+      // construct the array of momenta
+      for (unsigned i = 0; i < e[iparticle].daughterList().size(); i++) {
+	int di = e[iparticle].daughterList()[i];
+	positions.push_back(di);
+	momenta.push_back(e[di].p());
+      }
+      return true;
+    }
 
-	inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
-		p1.bstback(pt);
-		p2.bstback(pt);
-		return sqrt( 2*p1*p2*p2.e()/p1.e() );
+    inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
+      p1.bstback(pt);
+      p2.bstback(pt);
+      return sqrt( 2*p1*p2*p2.e()/p1.e() );
+    }
+
+    inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
+      p1.bstback(pt);
+      p2.bstback(pt);		
+      return sqrt( 2*p1*p2*p1.e()*p2.e()/(pow(p1.e()+p2.e(),2)) );
+    }
+
+    // Routines to calculate the pT (according to pTdefMode) in a FS splitting:
+    // i (radiator before) -> j (emitted after) k (radiator after)
+    // For the Pythia pT definition, a recoiler (after) must be specified.
+    // (INSPIRED BY pythia8F77_31.cc double pTpythia)
+    inline double pTpythia(const Event &e, int RadAfterBranch, int EmtAfterBranch,
+			   int RecAfterBranch)
+    {
+
+      // Convenient shorthands for later
+      Vec4 radVec = e[RadAfterBranch].p();
+      Vec4 emtVec = e[EmtAfterBranch].p();
+      Vec4 recVec = e[RecAfterBranch].p();
+      int  radID  = e[RadAfterBranch].id();
+
+      // Calculate virtuality of splitting
+      Vec4 Q(radVec + emtVec);
+      double Qsq = Q.m2Calc();
+		
+
+      // Mass term of radiator
+      double m2Rad = (abs(radID) >= 4 && abs(radID) < 7) ?
+	pow2(particleDataPtr->m0(radID)) : 0.;
+	
+      // z values for FSR 
+      double z, pTnow;
+      // Construct 2 -> 3 variables
+      Vec4 sum = radVec + recVec + emtVec;
+      double m2Dip = sum.m2Calc();
+		  
+      double x1 = 2. * (sum * radVec) / m2Dip;
+      double x3 = 2. * (sum * emtVec) / m2Dip;
+      z     = x1 / (x1 + x3);
+      pTnow = z * (1. - z);
+
+
+      // Virtuality
+      pTnow *= (Qsq - m2Rad);
+
+      if (pTnow < 0.) {
+	cout << "Warning: pTpythia was negative" << endl;
+	return -1.;
+      }
+      else
+	return(sqrt(pTnow));
+    }
+
+    inline double getdechardness(int topcharge, const Event &e){
+      int tid = 6*topcharge, wid = 24*topcharge, bid = 5*topcharge, gid = 21, wildcard = 0;
+      // find last top in the record
+      int i_top = -1;
+      Vec4 p_top, p_b, p_g, p_g1, p_g2;
+      for (int i = 0; i < e.size(); i++) 
+	if (e[i].id() == tid) {
+	  i_top = i;
+	  p_top = e[i].p();
 	}
-
-	inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2){
-		p1.bstback(pt);
-		p2.bstback(pt);		
-		return sqrt( 2*p1*p2*p1.e()*p2.e()/(pow(p1.e(),2)+pow(p2.e(),2)) );
-	}
-
-
-	inline double getdechardness(int topcharge, const Event &e){
-		// construct pdg ids of top and its decay products
-		int tid = 6*topcharge, wid = 24*topcharge, bid = 5*topcharge, gid = 21, wildcard = 0;
-		// find last top in the record
-		int i_top = -1;
-		Vec4 p_top, p_b, p_g, p_g1, p_g2;
-		for (int i = 0; i < e.size(); i++) 
-			if (e[i].id() == tid) {				
-				i_top = i;
-				p_top = e[i].p();
-			}
-		if (i_top == -1) return -1.0;
+      if (i_top == -1) return -1.0;
 				
-		// summary of cases
-		// 1.) t > W b
-		//   a.) b > 3     ... error
-		//   b.) b > b g   ... h = sqrt(2*p_g*p_b*p_g.e()/p_b.e())
-		//   c.) b > other ... h = -1
-		//   return h
-		// 2.) t > W b g
-		//   a.)   b > 3     ... error
-		//   b.)   b > b g   ... h1 = sqrt(2*p_g*p_b*p_g.e()/p_b.e())
-		//   c.)   b > other ... h1 = -1
-		//   i.)   g > 3     ... error
-		//   ii.)  g > 2     ... h2 = sqrt(2*p_g1*p_g2*p_g1.e()*p_g2.e()/(pow(p_g1.e(),2)+pow(p_g2.e(),2))) );
-		//   iii.) g > other ... h2 = -1
-		//   return max(h1,h2)
-		// 3.) else ... error
+      // summary of cases
+      // 1.) t > W b
+      //   a.) b > 3     ... error
+      //   b.) b > b g   ... h = sqrt(2*p_g*p_b*p_g.e()/p_b.e())
+      //   c.) b > other ... h = -1
+      //   return h
+      // 2.) t > W b g
+      //   a.)   b > 3     ... error
+      //   b.)   b > b g   ... h1 = sqrt(2*p_g*p_b*p_g.e()/p_b.e())
+      //   c.)   b > other ... h1 = -1
+      //   i.)   g > 3     ... error
+      //   ii.)  g > 2     ... h2 = sqrt(2*p_g1*p_g2*p_g1.e()*p_g2.e()/(pow(p_g1.e(),2)+pow(p_g2.e(),2))) );
+      //   iii.) g > other ... h2 = -1
+      //   return max(h1,h2)
+      // 3.) else ... error
 
-		vector<Vec4> momenta;
-		vector<int> positions;
+      vector<Vec4> momenta;
+      vector<int> positions;
 
-		// 1.) t > b W
-		if ( match_decay(i_top, e, vector<int> {wid, bid}, positions, momenta, false) ) {
-			double h;
-			int i_b = positions[1];
-			// a.+b.) b > 3 or b > b g 
-			if ( match_decay(i_b, e, vector<int> {bid, gid}, positions, momenta) )
-				h = qSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
-			// c.) b > other
-			else 
-				h = -1;
-			return h;
-		} 
-		// 2.) t > b W g
-		else if ( match_decay(i_top, e, vector<int> {wid, bid, gid}, positions, momenta, false) ) {
-			double h1, h2;
-			int i_b = positions[1], i_g = positions[2];
-			// a.+b.) b > 3 or b > b g
-			if ( match_decay(i_b, e, vector<int> {bid, gid}, positions, momenta) )
-				h1 = qSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
-			// c.) b > other
-			else 
-				h1 = -1;
-			// i.+ii.) g > 3 or g > 2
-			if ( match_decay(i_g, e, vector<int> {wildcard, wildcard}, positions, momenta) )
-				h2 = gSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
-			// c.) b > other
-			else 
-				h2 = -1;
-			return max(h1, h2);
-		}
-		// 3.) else
-		else { 
-			exit(-1);
-		}
-	}	
-
-//--------------------------------------------------------------------------
-
-	// called after shower -- cannot be used for veto, because the event will get discarded
-	inline bool canVetoPartonLevel() { return true; }
-	inline bool doVetoPartonLevel(const Event &e) {
-		double topdechardness = getdechardness(1, e),  atopdechardness = getdechardness(-1, e);
-		if ((topdechardness > topresscale) or (atopdechardness > atopresscale)) {
-//			cout << " PYTHIA Warning in PowhegHooksBB4L::doVetoPartonLevel: passed doVetoFSREmission veto, but wouldn't have passed veto based on the full event listing" << endl;
-			infoPtr->errorMsg("Warning in PowhegHooksBB4L::doVetoPartonLevel: passed doVetoFSREmission veto, but wouldn't have passed veto based on the full event listing");
-		}
-//		cout << " veto scales: " << fixed << setprecision(17) << setw(30) << topresscale << setw(30) << atopresscale << endl;
-		topresscale = -1;	
-		atopresscale = -1;	
-
-		return false;
+      // 1.) t > b W
+      if ( match_decay(i_top, e, vector<int> {wid, bid}, positions, momenta, false) ) {
+	double h;
+	int i_b = positions[1];
+	// a.+b.) b > 3 or b > b g 
+	if ( match_decay(i_b, e, vector<int> {bid, gid}, positions, momenta) )
+	  h = qSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
+	// c.) b > other
+	else 
+	  h = -1;
+	return h;
+      } 
+      // 2.) t > b W g
+      else if ( match_decay(i_top, e, vector<int> {wid, bid, gid}, positions, momenta, false) ) {
+	double h1, h2;
+	int i_b = positions[1], i_g = positions[2];
+	// a.+b.) b > 3 or b > b g
+	if ( match_decay(i_b, e, vector<int> {bid, gid}, positions, momenta) )
+	  h1 = qSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
+	// c.) b > other
+	else 
+	  h1 = -1;
+	// i.+ii.) g > 3 or g > 2
+	if ( match_decay(i_g, e, vector<int> {wildcard, wildcard}, positions, momenta) )
+	  h2 = gSplittingScale(e[i_top].p(), momenta[0], momenta[1]);
+	// c.) b > other
+	else 
+	  h2 = -1;
+	return max(h1, h2);
+      }
+      // 3.) else
+      else { 
+	cout << "getdechardness" << endl;
+	cout << "top at position " << i_top << endl;
+	cout << "with " << e[i_top].daughterList().size() << " daughters " << endl;
+	for (unsigned i = 0; i < e[i_top].daughterList().size(); i++) {
+	  int di = e[i_top].daughterList()[i];
+	  cout << "with daughter " << di << ": " << e[di].id() << endl;
 	}
-
-	// called before each resonance decay shower
-	inline bool canSetResonanceScale() { return true; }
-	inline double scaleResonance(int iRes, const Event &e) {		
-		double scale = 1e30;
-		if (e[iRes].id() == 6) 
-			scale = topresscale = findresscale(iRes, e);
-		else if (e[iRes].id() == -6) 
-			scale = atopresscale = findresscale(iRes, e);
-		if (useScaleResonanceInstead) 
-			return scale;
-		else 			
-			return 1e30;
-	}
-
-//--------------------------------------------------------------------------
-
-	// FSR veto
-	inline bool canVetoFSREmission() { 
-		if (useScaleResonanceInstead) 
-			return false;
-		else 
-			return true; 
-	}
-	inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) {
-
-		// call parent PowhegHook veto
-//		if (PowhegHooks::doVectoFSREmission(sizeOld, Event &e, iSys, inResonance)) return true;
-
-		if (inResonance) {
-
-			// get the participants of the splitting: the radiator and the emitted
-			int iEmt = e.size() - 2;
-			int iRadAft = e.size() - 3;
-			int iRadBef = e[iEmt].mother1();
-
-			// find the top resonance the radiator originates from
-			int iTop = e[iRadBef].mother1();
-			int distance = 1;
-			while (std::abs(e[iTop].id()) != 6 && iTop > 0) {
-				iTop = e[iTop].mother1();
-				distance ++;
-			}
-			if (iTop == 0) {
-				infoPtr->errorMsg("Warning in PowhegHooksBB4L::doVetoFSREmission: emission in resonance not from top quark, not vetoing");
-				return false;
-			}
-			int iTopCharge = (e[iTop].id()>0)?1:-1;
+	exit(-1);
+      }
+    }
 
 
-			// calculate the scale of the emission
-			Vec4 pr(e[iRadAft].p()), pe(e[iEmt].p()), pt(e[iTop].p());
-			double scale;
-			// gluon splitting into two partons
-			if (e[iRadBef].id() == 21)
-				scale = gSplittingScale(pt, pr, pe);
-			// quark emitting a gluon
-			else if (std::abs(e[iRadBef].id()) <= 5)
-				scale = qSplittingScale(pt, pr, pe);
-			// other stuff (which we should not veto)
-			else {
-				scale = 0;
-			}
 
-			if (iTopCharge > 0) {
-				if (onlyDistance1) {
-					if ((distance == 1) && scale > topresscale) {
-					  nFSRveto++;
-					  return true;
-					}
-				}
-				else
-					if (scale > topresscale) {
-					  nFSRveto++;
-					  return true;
-					}
-			}
-			else {
-				if (onlyDistance1) {
-					if ((distance == 1) && scale > atopresscale) {
-					  nFSRveto++;
-					  return true;
-					}
-				}
-				else
-					if (scale > atopresscale) {
-					  nFSRveto++;
-					  return true;
-					}
-			}
-		}
-		return false;
-	}
+    //--------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------
+    // Functions to return information
 
-  // Functions to return information
+    //  inline int    getNFSRveto() { return nFSRveto; } 
 
-  inline int    getNFSRveto() { return nFSRveto; }
+    //--------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------
+  private:
+    // FSR emission veto flags
+    bool vetoFSREmission, dryRunFSR, wouldVetoFsr, onlyDistance1, vetoAtPL, vetoQED;
+    // Parton Level veto flags
+    bool vetoPartonLevel, excludeFSRConflicting;
+    // Scale Resonance veto flags
+    double scaleResonanceVeto;
+    // other flags
+    bool debug;
+    // internal: resonance scales
+    double topresscale, atopresscale;
+    // internal: inter veto communication
+    double vetoDecScale;
+    int vetoTopCharge;
+    bool vetoDipoleFrame;
+    bool pTpythiaVeto;
+    //bool vetoProduction;
+    double pTmin;
+    // Statistics on vetos
+    unsigned long int nFSRvetoBB4l; 
 
-private:
-	int nFSRveto = 0;
-	double topresscale, atopresscale;
-	bool onlyDistance1, useScaleResonanceInstead;
-};
+  };
 
-//==========================================================================
+  //==========================================================================
 
 } // end namespace Pythia8
 

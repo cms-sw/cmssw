@@ -158,7 +158,6 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
 
     int nISRveto;
     int nFSRveto;
-    int nFSRvetoBB4L;
     
 };
 
@@ -169,7 +168,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   comEnergy(params.getParameter<double>("comEnergy")),
   LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName","")),
   fInitialState(PP),
-  nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0), nFSRvetoBB4L(0)
+  nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0)
 {
 
   // J.Y.: the following 3 parameters are hacked "for a reason"
@@ -616,11 +615,6 @@ void Pythia8Hadronizer::statistics()
       << "Number of FSR vetoed = " << nFSRveto;
   }
 
-  if(fPowhegHooksBB4L.get()) {
-    edm::LogInfo("Pythia8Interface") << "\n"
-      << "BB4L: Number of FSR vetoed = " << nFSRvetoBB4L;
-  }
-
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
   double err  = fMasterGen->info.sigmaErr(); // cross section err in mb
@@ -685,9 +679,6 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
   if (fEmissionVetoHook.get()) {
     nISRveto += fEmissionVetoHook->getNISRveto();
     nFSRveto += fEmissionVetoHook->getNFSRveto();  
-  }
-  if (fPowhegHooksBB4L.get()) {
-    nFSRvetoBB4L += fPowhegHooksBB4L->getNFSRveto();
   }
   
   //fill additional weights for systematic uncertainties

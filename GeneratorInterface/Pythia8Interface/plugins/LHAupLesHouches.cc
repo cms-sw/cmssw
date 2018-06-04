@@ -118,6 +118,13 @@ bool LHAupLesHouches::setEvent(int inProcId)
     (*infoPtr->eventAttributes)["npNLO"] = buffer;
   }
   
+  //add #rwgt info from comments 
+  const std::vector<std::string> &comments = event->getComments(); 
+  for (unsigned i=0; i<comments.size(); i++){
+    if (comments[i].rfind("#rwgt", 0)==0)
+      (*infoPtr->eventAttributes)["#rwgt"] = comments[i]; 
+  }
+  
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
     this->setPdf(pdf->id.first, pdf->id.second,
