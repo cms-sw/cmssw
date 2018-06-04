@@ -21,8 +21,8 @@ const std::map<std::string, unsigned int> L1TStage2CaloLayer2Offline::PlotConfig
 // -------------------------------------- Constructor --------------------------------------------
 //
 L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& ps) :
-        theCaloJetCollection_(
-            consumes < reco::CaloJetCollection > (ps.getParameter < edm::InputTag > ("caloJetCollection"))),
+        thePFJetCollection_(
+            consumes < reco::PFJetCollection > (ps.getParameter < edm::InputTag > ("pfJetCollection"))),
         thecaloMETCollection_(
             consumes < reco::CaloMETCollection > (ps.getParameter < edm::InputTag > ("caloMETCollection"))),
         thecaloETMHFCollection_(
@@ -145,8 +145,8 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   edm::Handle<l1t::EtSumBxCollection> l1EtSums;
   e.getByToken(stage2CaloLayer2EtSumToken_, l1EtSums);
 
-  edm::Handle<reco::CaloJetCollection> caloJets;
-  e.getByToken(theCaloJetCollection_, caloJets);
+  edm::Handle<reco::PFJetCollection> pfJets;
+  e.getByToken(thePFJetCollection_, pfJets);
 
   edm::Handle<reco::CaloMETCollection> caloMETs;
   e.getByToken(thecaloMETCollection_, caloMETs);
@@ -154,8 +154,8 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   edm::Handle<reco::CaloMETCollection> caloETMHFs;
   e.getByToken(thecaloETMHFCollection_, caloETMHFs);
 
-  if (!caloJets.isValid()) {
-    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+  if (!pfJets.isValid()) {
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: PF jets " << std::endl;
     return;
   }
   if (!caloMETs.isValid()) {
@@ -221,7 +221,7 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
 
   TVector2 mht(0., 0.);
 
-  for (auto jet = caloJets->begin(); jet != caloJets->end(); ++jet) {
+  for (auto jet = pfJets->begin(); jet != pfJets->end(); ++jet) {
     double et = jet->et();
     if (et < 30) {
       continue;
@@ -320,11 +320,11 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   edm::Handle<l1t::JetBxCollection> l1Jets;
   e.getByToken(stage2CaloLayer2JetToken_, l1Jets);
 
-  edm::Handle<reco::CaloJetCollection> caloJets;
-  e.getByToken(theCaloJetCollection_, caloJets);
+  edm::Handle<reco::PFJetCollection> pfJets;
+  e.getByToken(thePFJetCollection_, pfJets);
 
-  if (!caloJets.isValid()) {
-    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+  if (!pfJets.isValid()) {
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: PF jets " << std::endl;
     return;
   }
   if (!l1Jets.isValid()) {
@@ -332,12 +332,12 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
 
-  if (caloJets->empty()) {
-    LogDebug("L1TStage2CaloLayer2Offline") << "no calo jets found" << std::endl;
+  if (pfJets->empty()) {
+    LogDebug("L1TStage2CaloLayer2Offline") << "no PF jets found" << std::endl;
     return;
   }
 
-  auto leadingRecoJet = caloJets->front();
+  auto leadingRecoJet = pfJets->front();
 
   // find corresponding L1 jet
   double minDeltaR = 0.3;
@@ -392,42 +392,42 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   }
 
   // eta
-  fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
+  fill2DWithinLimits(h_L1JetEtavsPFJetEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionJetEta_, resolutionEta);
 
   if (std::abs(recoEta) <= 1.479) { // barrel
     // et
-    fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_, recoEt, l1Et);
-    fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_HE_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsPFJetET_HB_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsPFJetET_HB_HE_, recoEt, l1Et);
     //resolution
     fillWithinLimits(h_resolutionJetET_HB_, resolutionEt);
     fillWithinLimits(h_resolutionJetET_HB_HE_, resolutionEt);
     // phi
-    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HB_, recoPhi, l1Phi);
-    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HB_HE_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsPFJetPhi_HB_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsPFJetPhi_HB_HE_, recoPhi, l1Phi);
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HB_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
   } else if (std::abs(recoEta) <= 3.0) { // end-cap
     // et
-    fill2DWithinLimits(h_L1JetETvsCaloJetET_HE_, recoEt, l1Et);
-    fill2DWithinLimits(h_L1JetETvsCaloJetET_HB_HE_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsPFJetET_HE_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsPFJetET_HB_HE_, recoEt, l1Et);
     //resolution
     fillWithinLimits(h_resolutionJetET_HE_, resolutionEt);
     fillWithinLimits(h_resolutionJetET_HB_HE_, resolutionEt);
     // phi
-    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HE_, recoPhi, l1Phi);
-    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HB_HE_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsPFJetPhi_HE_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsPFJetPhi_HB_HE_, recoPhi, l1Phi);
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HE_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
   } else { // forward jets
     // et
-    fill2DWithinLimits(h_L1JetETvsCaloJetET_HF_, recoEt, l1Et);
+    fill2DWithinLimits(h_L1JetETvsPFJetET_HF_, recoEt, l1Et);
     // resolution
     fillWithinLimits(h_resolutionJetET_HF_, resolutionEt);
     // phi
-    fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HF_, recoPhi, l1Phi);
+    fill2DWithinLimits(h_L1JetPhivsPFJetPhi_HF_, recoPhi, l1Phi);
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HF_, resolutionPhi);
   }
@@ -620,38 +620,38 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "Offline Jet E_{T}; Offline Jet E_{T} (GeV); events", 500, 0, 5e3);
   // jet reco vs L1
   dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
-  h_L1JetETvsCaloJetET_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
+  h_L1JetETvsPFJetET_HB_ = ibooker.book2D("L1JetETvsPFJetET_HB",
       "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
       templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
-  h_L1JetETvsCaloJetET_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HE",
+  h_L1JetETvsPFJetET_HE_ = ibooker.book2D("L1JetETvsPFJetET_HE",
       "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
       templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
-  h_L1JetETvsCaloJetET_HF_ = ibooker.book2D("L1JetETvsCaloJetET_HF",
+  h_L1JetETvsPFJetET_HF_ = ibooker.book2D("L1JetETvsPFJetET_HF",
       "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
       templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
-  h_L1JetETvsCaloJetET_HB_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HB_HE",
+  h_L1JetETvsPFJetET_HB_HE_ = ibooker.book2D("L1JetETvsPFJetET_HB_HE",
       "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
       templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
   dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
-  h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB",
+  h_L1JetPhivsPFJetPhi_HB_ = ibooker.book2D("L1JetPhivsPFJetPhi_HB",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
       templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
       templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
-  h_L1JetPhivsCaloJetPhi_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HE",
+  h_L1JetPhivsPFJetPhi_HE_ = ibooker.book2D("L1JetPhivsPFJetPhi_HE",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
       templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
       templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
-  h_L1JetPhivsCaloJetPhi_HF_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HF",
+  h_L1JetPhivsPFJetPhi_HF_ = ibooker.book2D("L1JetPhivsPFJetPhi_HF",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
       templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
       templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
-  h_L1JetPhivsCaloJetPhi_HB_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB_HE",
+  h_L1JetPhivsPFJetPhi_HB_HE_ = ibooker.book2D("L1JetPhivsPFJetPhi_HB_HE",
       "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
       templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
       templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
-  h_L1JetEtavsCaloJetEta_ = ibooker.book2D("L1JetEtavsCaloJetEta_HB",
+  h_L1JetEtavsPFJetEta_ = ibooker.book2D("L1JetEtavsPFJetEta_HB",
       "L1 Jet #eta vs Offline Jet #eta; Offline Jet #eta; L1 Jet #eta", 100, -10, 10, 100, -10, 10);
 
   // jet resolutions
