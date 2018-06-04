@@ -20,11 +20,11 @@
 class HLTPixelTrackFilter : public edm::stream::EDFilter<> {
 public:
   explicit HLTPixelTrackFilter(const edm::ParameterSet&);
-  ~HLTPixelTrackFilter();
+  ~HLTPixelTrackFilter() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 //  int countLayersWithClusters(edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & clusterCol,const TrackerTopology& tTopo);
 
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
