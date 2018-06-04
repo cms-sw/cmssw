@@ -168,12 +168,21 @@ ALCAHARVESTSiPixelQuality_dbOutput = cms.VPSet(cms.PSet(record = cms.string('SiP
                                                )
 
 if ALCAHARVESTSiPixelQuality.debug == cms.untracked.bool(True) :
-   ALCAHARVESTSiPixelQuality_dbOutput.append(
-       cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_PCL'),
+   dbOutput_ext = cms.VPSet(
+        cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_PCL'),
                 tag = cms.string('SiPixelQualityFromDbRcd_PCL'),
                 timetype = cms.untracked.string('lumiid')
-                )
+                ),
+        cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_FEDerror25'),
+                tag = cms.string('SiPixelQualityFromDbRcd_FEDerror25'),
+                timetype = cms.untracked.string('lumiid'),
+        ),
+        cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
+                tag = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
+                timetype = cms.untracked.string('runnumber')
+        )
    )
+   ALCAHARVESTSiPixelQuality_dbOutput.extend(dbOutput_ext)
 
 # define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
