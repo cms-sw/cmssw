@@ -80,7 +80,6 @@ private:
   std::vector<const DetLayer *> theLayerDets;
   std::vector<const TransientTrackingRecHitBuilder *> theTTRHBuilders;
   std::vector<LayerSpec> theLayers;
-  bool isFastSim = false;
 };
 
 #endif
