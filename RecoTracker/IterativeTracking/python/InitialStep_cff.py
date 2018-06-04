@@ -138,19 +138,19 @@ _fastSim_initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedCo
 #new for phase1
 trackingPhase1.toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
-        CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitQuadruplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))).clone(
-            #new parameters required for phase1 seeding
-            layerList = initialStepSeedLayers.layerList.value(),
-            BPix = dict(
-                TTRHBuilder = 'WithoutRefit',
-                HitProducer = 'TrackingRecHitProducer',
-                ),
-            FPix = dict(
-                TTRHBuilder = 'WithoutRefit',
-                HitProducer = 'TrackingRecHitProducer',
-                ),
-            layerPairs = initialStepHitDoublets.layerPairs.value()
-            ))
+        CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitQuadruplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))),
+        #new parameters required for phase1 seeding
+        layerList = initialStepSeedLayers.layerList.value(),
+        BPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        FPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        layerPairs = initialStepHitDoublets.layerPairs.value()
+        )
 )
 
 fastSim.toReplaceWith(initialStepSeeds,_fastSim_initialStepSeeds)

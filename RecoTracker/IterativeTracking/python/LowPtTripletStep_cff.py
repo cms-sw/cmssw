@@ -135,19 +135,19 @@ _fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.S
 #new for phase1
 trackingPhase1.toModify(_fastSim_lowPtTripletStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
-        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))).clone(
-            #new parameters required for phase1 seeding
-            layerList = lowPtTripletStepSeedLayers.layerList.value(),
-            BPix = dict(
-                TTRHBuilder = 'WithoutRefit',
-                HitProducer = 'TrackingRecHitProducer',
-                ),
-            FPix = dict(
-                TTRHBuilder = 'WithoutRefit',
-                HitProducer = 'TrackingRecHitProducer',
-                ),
-            layerPairs = lowPtTripletStepHitDoublets.layerPairs.value()
-            ))
+        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))),
+        #new parameters required for phase1 seeding
+        layerList = lowPtTripletStepSeedLayers.layerList.value(),
+        BPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        FPix = dict(
+            TTRHBuilder = 'WithoutRefit',
+            HitProducer = 'TrackingRecHitProducer',
+            ),
+        layerPairs = lowPtTripletStepHitDoublets.layerPairs.value()
+        )
 )
 fastSim.toReplaceWith(lowPtTripletStepSeeds,_fastSim_lowPtTripletStepSeeds)
 

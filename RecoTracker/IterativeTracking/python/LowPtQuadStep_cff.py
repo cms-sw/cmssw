@@ -108,20 +108,14 @@ _fastSim_lowPtQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi
     layerList = lowPtQuadStepSeedLayers.layerList.value(),
     trackingRegions = "lowPtQuadStepTrackingRegions",
     hitMasks = cms.InputTag("lowPtQuadStepMasks"),
-    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets).clone(
-            #new parameters required for phase1 seeding
-            layerList = lowPtQuadStepSeedLayers.layerList.value(),
-            BPix = dict(
-                TTRHBuilder = 'WithoutRefit',
-                HitProducer = 'TrackingRecHitProducer',
-                ),
-            FPix = dict(
-                TTRHBuilder = 'WithoutRefit',
-                HitProducer = 'TrackingRecHitProducer',
-                ),
-            layerPairs = lowPtQuadStepHitDoublets.layerPairs.value()
-            ))
-)
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets),
+                               #new parameters required for phase1 seeding
+                               layerList = lowPtQuadStepSeedLayers.layerList.value(),
+                               BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
+                               FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
+                               layerPairs = lowPtQuadStepHitDoublets.layerPairs.value()
+                               ))
+
 _fastSim_lowPtQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 fastSim.toReplaceWith(lowPtQuadStepSeeds,_fastSim_lowPtQuadStepSeeds)
 >>>>>>> Phase1 iterations in FastSim
