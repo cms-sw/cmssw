@@ -46,7 +46,6 @@
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
-  ootPhotonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("ootPhotons"))),
   gsfElectronT_(consumes<reco::GsfElectronCollection>(config.getParameter<edm::InputTag>("gsfElectrons"))),
   gsfTrackT_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
   conversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("conversions"))),
@@ -98,6 +97,10 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
   relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
 {  
+
+  const edm::InputTag& aTag = config.getParameter<edm::InputTag>("ootPhotons");
+  if (not aTag.label().empty()) ootPhotonT_ = consumes<reco::PhotonCollection>(aTag);  
+  
   const std::vector<edm::InputTag>& photonidinputs = 
     config.getParameter<std::vector<edm::InputTag> >("photonIDSources");
   for (const edm::InputTag &tag : photonidinputs) {
