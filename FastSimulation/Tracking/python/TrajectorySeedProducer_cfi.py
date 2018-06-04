@@ -11,7 +11,8 @@ trajectorySeedProducer = cms.EDProducer(
     layerList = cms.vstring(),
     seedFinderSelector = cms.PSet(
         measurementTracker = cms.string(""),
-        layerList = cms.vstring(""),
+        #new parameters for phase1 seeding
+        layerList = cms.vstring(),
         BPix = cms.PSet(
             TTRHBuilder = cms.string(''),
             HitProducer = cms.string(''),
