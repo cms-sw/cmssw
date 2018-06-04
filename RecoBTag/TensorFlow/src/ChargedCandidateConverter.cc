@@ -21,9 +21,10 @@ namespace btagbtvdeep {
 				 const pat::Jet & jet,
 				 const TrackInfoBuilder & track_info,
 				 const float drminpfcandsv, const float jetR,
-				 ChargedCandidateFeatures & c_pf_features) {
+				 ChargedCandidateFeatures & c_pf_features,
+				 const bool flip) {
     
-    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features);
+    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip);
     
     c_pf_features.vtx_ass = c_pf->pvAssociationQuality();
     
@@ -50,9 +51,10 @@ namespace btagbtvdeep {
 			       const float drminpfcandsv, const float jetR, const float puppiw,
 			       const int pv_ass_quality,
 			       const reco::VertexRef & pv, 
-			       ChargedCandidateFeatures & c_pf_features) {
+			       ChargedCandidateFeatures & c_pf_features,
+			       const bool flip) {
     
-    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features);
+    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip);
     
     c_pf_features.vtx_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
     if (c_pf->trackRef().isNonnull() && 
