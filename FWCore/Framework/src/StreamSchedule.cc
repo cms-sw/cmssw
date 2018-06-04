@@ -578,7 +578,7 @@ namespace edm {
       ++total_events_;
 
       //use to give priorities on an error to ones from Paths
-      auto pathErrorHolder = std::make_unique<std::atomic<std::exception_ptr const*>>(nullptr);
+      auto pathErrorHolder = std::make_unique<std::atomic<std::exception_ptr*>>(nullptr);
       auto pathErrorPtr = pathErrorHolder.get();
       auto allPathsDone = make_waiting_task(tbb::task::allocate_root(),
                                             [iTask,this,serviceToken,pathError=std::move(pathErrorHolder)](std::exception_ptr const* iPtr) mutable
@@ -589,7 +589,8 @@ namespace edm {
                                               if(pathError->load()) {
                                                 ptr = *pathError->load();
                                                 delete pathError->load();
-                                              } else if(iPtr) {
+                                              } 
+                                              if( (not ptr) and iPtr) {
                                                 ptr = *iPtr;
                                               }
                                               iTask.doneWaiting(finishProcessOneEvent(ptr));
@@ -604,14 +605,12 @@ namespace edm {
                                             {
                                               ServiceRegistry::Operate operate(serviceToken);
 
-                                              std::exception_ptr ptr;
                                               if(iPtr) {
-                                                ptr = *iPtr;
                                                 //this is used to prioritize this error over one
                                                 // that happens in EndPath or Accumulate
-                                                pathErrorPtr->store( new std::exception_ptr(ptr) );
+                                                pathErrorPtr->store( new std::exception_ptr(*iPtr) );
                                               }
-                                              finishedPaths(ptr, std::move(allPathsHolder), ep, es);
+                                              finishedPaths(*pathErrorPtr, std::move(allPathsHolder), ep, es);
                                             });
       
       //The holder guarantees that if the paths finish before the loop ends
@@ -639,12 +638,12 @@ namespace edm {
   }
   
   void
-  StreamSchedule::finishedPaths(std::exception_ptr iExcept, WaitingTaskHolder iWait, EventPrincipal& ep,
+  StreamSchedule::finishedPaths(std::atomic<std::exception_ptr*>& iExcept, WaitingTaskHolder iWait, EventPrincipal& ep,
                                 EventSetup const& es) {
     
     if(iExcept) {
       try {
-        std::rethrow_exception(iExcept);
+        std::rethrow_exception(*(iExcept.load()));
       }
       catch(cms::Exception& e) {
         exception_actions::ActionCodes action = actionTable().find(e.category());
@@ -652,13 +651,13 @@ namespace edm {
         assert (action != exception_actions::FailPath);
         if (action == exception_actions::SkipEvent) {
           edm::printCmsExceptionWarning("SkipEvent", e);
-          iExcept = std::exception_ptr();
+          *(iExcept.load()) = std::exception_ptr();
         } else {
-          iExcept = std::current_exception();
+          *(iExcept.load()) = std::current_exception();
         }
       }
       catch(...) {
-        iExcept = std::current_exception();
+        *(iExcept.load()) = std::current_exception();
       }
     }
 
@@ -683,16 +682,20 @@ namespace edm {
             ost << "Processing Event " << ep.id();
             ex.addContext(ost.str());
           }
-          iExcept = std::current_exception();
+          iExcept.store( new std::exception_ptr(std::current_exception()));
         }
       }
       catch(...) {
         if (not iExcept) {
-          iExcept = std::current_exception();
+          iExcept.store(new std::exception_ptr(std::current_exception()));
         }
       }
     }
-    iWait.doneWaiting(iExcept);
+    std::exception_ptr ptr;
+    if(iExcept) {
+      ptr = *iExcept.load();
+    }
+    iWait.doneWaiting(ptr);
   }
 
   
