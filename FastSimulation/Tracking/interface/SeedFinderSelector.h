@@ -57,11 +57,6 @@ private:
     std::vector<unsigned> layerPairs_;
     edm::ESHandle<TrackerTopology> trackerTopology;
     std::vector<SeedingLayerSetsBuilder::SeedingLayerId> seedingLayerIds;
-    //new parameters required for phase1 seeding
-    std::vector<std::string> layerList;
-    std::vector<unsigned> layerPairs;
-    edm::ParameterSet BPix;
-    edm::ParameterSet FPix;
 };
 
 #endif

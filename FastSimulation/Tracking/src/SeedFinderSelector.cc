@@ -26,10 +26,6 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet & cfg,edm::Consum
     , eventSetup_(nullptr)
     , measurementTracker_(nullptr)
     , measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker"))
-    , layerList(cfg.getParameter<std::vector<std::string>>("layerList"))
-    , layerPairs(cfg.getParameter<std::vector<unsigned>>("layerPairs"))
-    , BPix(cfg.getParameter<edm::ParameterSet>("BPix"))
-    , FPix(cfg.getParameter<edm::ParameterSet>("FPix"))
 {
     if(cfg.exists("pixelTripletGeneratorFactory"))
     {
