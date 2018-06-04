@@ -50,7 +50,7 @@ simpleCleanerTable = cms.EDProducer("NanoAODSimpleCrossCleaner",
    tauName=cms.string("Tau"),photonName=cms.string("Photon")
 )
 
-btagSFdir="/src/PhysicsTools/NanoAOD/data/btagSF/"
+btagSFdir="PhysicsTools/NanoAOD/data/btagSF/"
 
 btagWeightTable = cms.EDProducer("BTagSFProducer",
     src = cms.InputTag("linkedObjects","jets"),

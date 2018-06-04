@@ -58,7 +58,8 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
                 if (weightFiles_[iDisc]!="unavailable")  {
                     // setup calibration                
                     BTagCalibration calib;
-                    calib=BTagCalibration(discShortNames_[iDisc],std::string(std::getenv("CMSSW_BASE"))+weightFiles_[iDisc]);
+                    edm::FileInPath fip(weightFiles_[iDisc]);
+                    calib=BTagCalibration(discShortNames_[iDisc],fip.fullPath());
                     
                     // determine op
                     std::string opname;
