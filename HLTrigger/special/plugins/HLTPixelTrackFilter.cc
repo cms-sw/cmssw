@@ -1,4 +1,3 @@
-//#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 
@@ -25,7 +24,6 @@ public:
 
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
-//  int countLayersWithClusters(edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & clusterCol,const TrackerTopology& tTopo);
 
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   unsigned int  min_pixelTracks_;      // minimum number of clusters
@@ -68,12 +66,6 @@ HLTPixelTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 // ------------ method called to produce the data  ------------
 bool HLTPixelTrackFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
 {
-  // All HLT filters must create and fill an HLT filter object,
-  // recording any reconstructed physics objects satisfying (or not)
-  // this HLT filter, and place it in the Event.
-
-  // The filter object
-
   // get hold of products from Event
   edm::Handle< reco::TrackCollection> trackColl;
   event.getByToken(inputToken_, trackColl);
