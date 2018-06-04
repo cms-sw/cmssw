@@ -275,7 +275,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
 
     const edm::Provenance *prov = shallow_tag_infos.provenance();
-    edm::ParameterSet psetFromProvenance = edm::parameterSet(*prov);
+    const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
     double negative_cut = (( psetFromProvenance.getParameter<edm::ParameterSet>("computer") ).getParameter<edm::ParameterSet>("trackSelection")).getParameter<double>("sip3dSigMax");
 
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
