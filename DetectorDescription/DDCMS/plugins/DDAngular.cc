@@ -61,7 +61,7 @@ static long algorithm( Detector& /* description */,
 			  << "\tChild " << child.name() << " NameSpace "
 			  << ns.name();
 
-  Rotation3D solidRot;
+  Rotation3D solidRot = Rotation3D();  // Identity rotation
   auto sz = rotateSolid.size();
   if( sz%3 )
   {
