@@ -5,12 +5,14 @@ public:
   // Constructor and destructor.
   EmissionVetoHook1(int nFinalIn, bool vetoOnIn, int vetoCountIn,
                     int pThardModeIn, int pTemtModeIn, int emittedModeIn,
-                    int pTdefModeIn, bool MPIvetoOnIn, int VerbosityIn) :
+                    int pTdefModeIn, bool MPIvetoOnIn, int QEDvetoModeIn,
+                    int nFinalModeIn, int VerbosityIn) :
                     nFinalExt(nFinalIn),
                     vetoOn(vetoOnIn), vetoCount(vetoCountIn),
                     pThardMode(pThardModeIn), pTemtMode(pTemtModeIn),
                     emittedMode(emittedModeIn), pTdefMode(pTdefModeIn),
-                    MPIvetoOn(MPIvetoOnIn), nISRveto(0), nFSRveto(0),
+		    MPIvetoOn(MPIvetoOnIn), QEDvetoMode(QEDvetoModeIn),
+		    nFinalMode(nFinalModeIn), nISRveto(0), nFSRveto(0),
                     Verbosity(VerbosityIn) {}
  ~EmissionVetoHook1() {
     std::cout << "Number of ISR vetoed = " << nISRveto << std::endl;
@@ -45,10 +47,10 @@ public:
 
 private:
   int    nFinalExt, vetoOn, vetoCount, pThardMode, pTemtMode,
-         emittedMode, pTdefMode, MPIvetoOn;
+         emittedMode, pTdefMode, MPIvetoOn, QEDvetoMode, nFinalMode;      
   int    nFinal;
   double pThard, pTMPI;
-  bool   accepted;
+  bool   accepted, isEmt;
   // The number of accepted emissions (in a row)
   int nAcceptSeq;
   // Statistics on vetos

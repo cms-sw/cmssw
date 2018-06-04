@@ -157,9 +157,10 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
       int jMax = (j > 0) ? j + 1 : e.size();
       for (; jNow < jMax; jNow++) {
 
-        // Final-state and coloured jNow or photon only
+        // Final-state only 
         if (!e[jNow].isFinal()) continue;
-        if (e[jNow].colType() == 0 && e[jNow].id() != 22) continue;
+	// Exclude photons (and W/Z!)
+	if (QEDvetoMode==0 && e[jNow].colType() == 0) continue;
 
         // POWHEG
         if (pTdefMode == 0 || pTdefMode == 1) {
@@ -178,8 +179,10 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
             for (int iMem = 0; iMem < outSize; iMem++) {
               int iNow = partonSystemsPtr->getOut(0, iMem);
 
-              // Coloured only, i != jNow and no carbon copies
-              if (iNow == jNow || e[iNow].colType() == 0) continue;
+              // if i != jNow and no carbon copies
+              if (iNow == jNow) continue;
+	      // Exlude photons (and W/Z!) 
+	      if (QEDvetoMode==0 && e[iNow].colType() == 0) continue;
               if (jNow == e[iNow].daughter1() 
                   && jNow == e[iNow].daughter2()) continue;
 
@@ -204,9 +207,9 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
           // FSR - try all final-state coloured partons as radiator
           //       after emission (k).
           } else {
-            for (int kNow = 0; kNow < e.size(); kNow++) {
-              if (kNow == jNow || !e[kNow].isFinal() ||
-                  e[kNow].colType() == 0) continue;
+	    for (int kNow = 0; kNow < e.size(); kNow++) {
+	      if (kNow == jNow || !e[kNow].isFinal()) continue;
+              if (QEDvetoMode==0 && e[kNow].colType() == 0) continue;
   
               // For this kNow, need to have a recoiler.
               // Try two incoming.
@@ -220,7 +223,8 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
               // Try all other outgoing.
               for (int rNow = 0; rNow < e.size(); rNow++) {
                 if (rNow == kNow || rNow == jNow ||
-                    !e[rNow].isFinal() || e[rNow].colType() == 0) continue;
+                    !e[rNow].isFinal()) continue;
+		if(QEDvetoMode==0 && e[rNow].colType() == 0) continue;
                 pTnow = pTpythia(e, kNow, jNow, rNow, FSR);
                 if (pTnow > 0.) pTemt = (pTemt < 0) 
                   ? pTnow : std::min(pTemt, pTnow);
@@ -248,7 +252,6 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
 // Assume that all the final-state particles are in a continuous block
 // at the end of the event and the final entry is the POWHEG emission.
 // If there is no POWHEG emission, then pThard is set to QRen.
-
 bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   // Extra check on nMPI
   if (nMPI > 1) return false;
@@ -256,20 +259,35 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   // Find if there is a POWHEG emission. Go backwards through the
   // event record until there is a non-final particle. Also sum pT and
   // find pT_1 for possible MPI vetoing
+  // Flag if POWHEG radiation is present and index at the same time
   int count = 0, inonfinal = 0;
   double pT1 = 0., pTsum = 0.;
+  isEmt = false;
+  int iEmt = -1; 
+  
   for (int i = e.size() - 1; i > 0; i--) {
     inonfinal = i;
     if (e[i].isFinal()) {
       count++;
       pT1    = e[i].pT();
       pTsum += e[i].pT();
+      // the following was added for bbbar4l and will be triggered by specifying nfinalmode == 2 
+      // the solution provided by Tomas may not be process independent but should work for hvq and bb4l
+      // if the particle is a light quark or a gluon and 
+      // comes for a light quark or a gluon (not a resonance, not a top)
+      // then it is the POWHEG emission (hvq) or the POWHEG emission in production (bb4l)
+      if (nFinalMode == 2) {
+	if ((abs(e[i].id()) < 6 || e[i].id() == 21) && 
+	    (abs(e[e[i].mother1()].id()) < 6 || e[e[i].mother1()].id() == 21)) {
+	  isEmt = true;
+	  iEmt = i;
+	}
+      } 
     } else break;
   }
-
+  
   nFinal = nFinalExt;
-
-  if (nFinal < 0) {      // nFinal is not specified from external, try to find out
+  if (nFinal < 0 || nFinalMode == 1) {      // nFinal is not specified from external, try to find out
     int first = -1, myid;
     int last = -1;
     for(int ip = 2; ip < e.size(); ip++) {
@@ -287,14 +305,16 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
     nFinal = last - inonfinal;
   }
 
-  // Extra check that we have the correct final state
-  if (count != nFinal && count != nFinal + 1)
-    fatalEmissionVeto(std::string("Wrong number of final state particles in event"));
-
-  // Flag if POWHEG radiation present and index
-  bool isEmt = (count == nFinal) ? false : true;
-  int  iEmt  = (isEmt) ? e.size() - 1 : -1;
-
+  // don't perform a cross check in case of nfinalmode == 2 
+  if (nFinalMode != 2) { 
+    // Extra check that we have the correct final state
+    if (count != nFinal && count != nFinal + 1)
+      fatalEmissionVeto(std::string("Wrong number of final state particles in event"));
+    // Flag if POWHEG radiation present and index
+    if (count == nFinal + 1) isEmt = true;
+    if (isEmt) iEmt = e.size() - 1;
+  } 
+  
   // If there is no radiation or if pThardMode is 0 then set pThard to QRen.
   if (!isEmt || pThardMode == 0) {
     pThard = infoPtr->QRen();
@@ -324,7 +344,7 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
 
   // Initialise other variables
   accepted   = false;
-  nAcceptSeq = 0;
+  nAcceptSeq = 0; // should not  reset nISRveto = nFSRveto = nFSRvetoBB4l here 
 
   // Do not veto the event
   return false;
@@ -368,11 +388,21 @@ bool EmissionVetoHook1::doVetoISREmission(int, const Pythia8::Event &e, int iSys
   std::cout << "doVetoISREmission: pTemt = " << pTemt << std::endl << std::endl;
 #endif
 
+  // If a Born configuration, and a colorless FS, and QEDvetoMode=2,
+  // then don't veto photons, W, or Z harder than pThard
+  bool vetoParton = (!isEmt && e[iEmt].colType()==0 && QEDvetoMode==2)
+      ? false: true;
+  
   // Veto if pTemt > pThard
   if (pTemt > pThard) {
-    nAcceptSeq = 0;
-    nISRveto++;
+    if(!vetoParton) {
+      // Don't veto ANY emissions afterwards 
+      nAcceptSeq = vetoCount-1;
+    } else {	  
+      nAcceptSeq = 0;
+      nISRveto++;
     return true;
+    }
   }
 
   // Else mark that an emission has been accepted and continue
@@ -385,9 +415,13 @@ bool EmissionVetoHook1::doVetoISREmission(int, const Pythia8::Event &e, int iSys
 
 // FSR veto
 
-bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys, bool) {
+bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys, bool inResonance) {
+
   // Must be radiation from the hard system
   if (iSys != 0) return false;
+
+  // only use for outside resonance vetos in combination with bb4l:FSREmission:veto
+  if (!inResonance && settingsPtr->flag("POWHEG:bb4l:FSREmission:veto")==1) return false;
 
   // If we already have accepted 'vetoCount' emissions in a row, do nothing
   if (vetoOn && nAcceptSeq >= vetoCount) return false;
@@ -442,13 +476,23 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
   std::cout << "doVetoFSREmission: pTemt = " << pTemt << std::endl << std::endl;
 #endif
 
+  // If a Born configuration, and a colorless FS, and QEDvetoMode=2,
+  // then don't veto photons, W, or Z harder than pThard
+  bool vetoParton = (!isEmt && e[iEmt].colType()==0 && QEDvetoMode==2)
+      ? false: true;
+  
   // Veto if pTemt > pThard
   if (pTemt > pThard) {
-    nAcceptSeq = 0;
-    nFSRveto++;
-    return true;
+    if(!vetoParton) {
+      // Don't veto ANY emissions afterwards 
+      nAcceptSeq = vetoCount-1;
+    } else {	    
+      nAcceptSeq = 0;
+      nFSRveto++;
+      return true;
+    }
   }
-
+  
   // Else mark that an emission has been accepted and continue
   nAcceptSeq++;
   accepted = true;
@@ -464,7 +508,7 @@ bool EmissionVetoHook1::doVetoMPIEmission(int, const Pythia8::Event &e) {
     if (e[e.size() - 1].pT() > pTMPI) {
 #ifdef DBGOUTPUT
       std::cout << "doVetoMPIEmission: pTnow = " << e[e.size() - 1].pT()
-           << ", pTMPI = " << pTMPI << std::endl << std::endl;
+		<< ", pTMPI = " << pTMPI << std::endl << std::endl;
 #endif
       return true;
     }
