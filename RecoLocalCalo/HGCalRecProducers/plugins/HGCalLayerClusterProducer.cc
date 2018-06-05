@@ -45,7 +45,6 @@ class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
   reco::CaloCluster::AlgoId algoId;
 
   std::unique_ptr<HGCalImagingAlgo> algo;
-  std::unique_ptr<HGCal3DClustering> multicluster_algo;
   bool doSharing;
   std::string detector;
 
@@ -62,6 +61,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   double ecut = ps.getParameter<double>("ecut");
   std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
   double kappa = ps.getParameter<double>("kappa");
+  std::vector<double> multicluster_radii = ps.getParameter<std::vector<double> >("multiclusterRadii");
   std::vector<double> dEdXweights = ps.getParameter<std::vector<double> >("dEdXweights");
   std::vector<double> thicknessCorrection = ps.getParameter<std::vector<double> >("thicknessCorrection");
   std::vector<double> fcPerMip = ps.getParameter<std::vector<double> >("fcPerMip");
@@ -94,6 +94,8 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   }else{
     algo = std::make_unique<HGCalImagingAlgo>(vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }
+
+
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
 
@@ -113,9 +115,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   algo->reset();
 
   algo->getEventSetup(es);
-
-  multicluster_algo->getEvent(evt);
-  multicluster_algo->getEventSetup(es);
 
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
@@ -146,10 +145,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
   *clusters = algo->getClusters(false);
   if(doSharing)
     *clusters_sharing = algo->getClusters(true);
-
-  std::vector<std::string> names;
-  names.push_back(std::string("gen"));
-  names.push_back(std::string("calo_face"));
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
