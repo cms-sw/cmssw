@@ -200,7 +200,7 @@ if (options.inputInBlocks):
     sys.exit()
 
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 bsubfile = ["#!/bin/sh", ""]
 bsubnames = []
