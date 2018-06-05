@@ -111,49 +111,49 @@ HGCalMultiClusterProducer::HGCalMultiClusterProducer(const edm::ParameterSet &ps
 void HGCalMultiClusterProducer::produce(edm::Event& evt,
 				       const edm::EventSetup& es) {
 
-  edm::Handle<HGCRecHitCollection> ee_hits;
-  edm::Handle<HGCRecHitCollection> fh_hits;
-  edm::Handle<HGCRecHitCollection> bh_hits;
-
-
+  // edm::Handle<HGCRecHitCollection> ee_hits;
+  // edm::Handle<HGCRecHitCollection> fh_hits;
+  // edm::Handle<HGCRecHitCollection> bh_hits;
+  //
+  //
   std::unique_ptr<std::vector<reco::BasicCluster> > clusters( new std::vector<reco::BasicCluster> ),
     clusters_sharing( new std::vector<reco::BasicCluster> );
-
-  algo->reset();
-
-  algo->getEventSetup(es);
-
-
-  switch(algoId){
-  case reco::CaloCluster::hgcal_em:
-    evt.getByToken(hits_ee_token,ee_hits);
-    algo->populate(*ee_hits);
-    break;
-  case  reco::CaloCluster::hgcal_had:
-    evt.getByToken(hits_fh_token,fh_hits);
-    evt.getByToken(hits_bh_token,bh_hits);
-    if( fh_hits.isValid() ) {
-      algo->populate(*fh_hits);
-    } else if ( bh_hits.isValid() ) {
-      algo->populate(*bh_hits);
-    }
-    break;
-  case reco::CaloCluster::hgcal_mixed:
-    evt.getByToken(hits_ee_token,ee_hits);
-    algo->populate(*ee_hits);
-    evt.getByToken(hits_fh_token,fh_hits);
-    algo->populate(*fh_hits);
-    evt.getByToken(hits_bh_token,bh_hits);
-    algo->populate(*bh_hits);
-    break;
-  default:
-    break;
-  }
-  algo->makeClusters();
-  *clusters = algo->getClusters(false);
-  if(doSharing)
-    *clusters_sharing = algo->getClusters(true);
-
+  //
+  // algo->reset();
+  //
+  // algo->getEventSetup(es);
+  //
+  //
+  // switch(algoId){
+  // case reco::CaloCluster::hgcal_em:
+  //   evt.getByToken(hits_ee_token,ee_hits);
+  //   algo->populate(*ee_hits);
+  //   break;
+  // case  reco::CaloCluster::hgcal_had:
+  //   evt.getByToken(hits_fh_token,fh_hits);
+  //   evt.getByToken(hits_bh_token,bh_hits);
+  //   if( fh_hits.isValid() ) {
+  //     algo->populate(*fh_hits);
+  //   } else if ( bh_hits.isValid() ) {
+  //     algo->populate(*bh_hits);
+  //   }
+  //   break;
+  // case reco::CaloCluster::hgcal_mixed:
+  //   evt.getByToken(hits_ee_token,ee_hits);
+  //   algo->populate(*ee_hits);
+  //   evt.getByToken(hits_fh_token,fh_hits);
+  //   algo->populate(*fh_hits);
+  //   evt.getByToken(hits_bh_token,bh_hits);
+  //   algo->populate(*bh_hits);
+  //   break;
+  // default:
+  //   break;
+  // }
+  // algo->makeClusters();
+  // *clusters = algo->getClusters(false);
+  // if(doSharing)
+  //   *clusters_sharing = algo->getClusters(true);
+  //
 
 
   auto clusterHandle = evt.put(std::move(clusters));
