@@ -592,13 +592,13 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "HTT resolution; (L1 Total H_{T} - Offline Total H_{T})/Offline Total H_{T}; events", 70, -1.0, 2.5);
 
   h_resolutionMETPhi_ = ibooker.book1D("resolutionMETPhi",
-      "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi; events", 200, -1, 1);
+      "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi); events", 200, -1, 1);
   h_resolutionETMHFPhi_ = ibooker.book1D("resolutionETMHFPhi",
-      "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (HF); events", 200, -1, 1);
+      "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi) (HF); events", 200, -1, 1);
   h_resolutionPFMetNoMuPhi_ = ibooker.book1D("resolutionPFMetNoMuPhi",
-      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (PFMetNoMu); events", 200, -1, 1);
+      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi); events", 200, -1, 1);
   h_resolutionMHTPhi_ = ibooker.book1D("resolutionMHTPhi",
-      "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events",  200, -1, 1);
+      "MET #phi resolution; (L1 MHT #phi - reco MHT #phi); events",  200, -1, 1);
 
   // energy sum turn ons
   ibooker.setCurrentFolder(efficiencyFolderEtSum_);
@@ -708,20 +708,20 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "jet ET resolution (HB+HE); (L1 Jet E_{T} - Offline Jet E_{T})/Offline Jet E_{T}; events", 50, -1, 1.5);
 
   h_resolutionJetPhi_HB_ = ibooker.book1D("resolutionJetPhi_HB",
-      "#phi_{jet} resolution (HB); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "#phi_{jet} resolution (HB); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
   h_resolutionJetPhi_HE_ = ibooker.book1D("resolutionJetPhi_HE",
-      "jet #phi resolution (HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "jet #phi resolution (HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
   h_resolutionJetPhi_HF_ = ibooker.book1D("resolutionJetPhi_HF",
-      "jet #phi resolution (HF); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "jet #phi resolution (HF); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
   h_resolutionJetPhi_HB_HE_ = ibooker.book1D("resolutionJetPhi_HB_HE",
-      "jet #phi resolution (HB+HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline})/#phi_{jet}^{offline}; events", 120, -0.3,
+      "jet #phi resolution (HB+HE); (#phi_{jet}^{L1} - #phi_{jet}^{offline}); events", 120, -0.3,
       0.3);
 
   h_resolutionJetEta_ = ibooker.book1D("resolutionJetEta",
-      "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta)/Offline Jet #eta; events", 120, -0.3, 0.3);
+      "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta); events", 120, -0.3, 0.3);
 
   // jet turn-ons
   ibooker.setCurrentFolder(efficiencyFolderJet_);
