@@ -107,8 +107,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 //-----------------------------------------------------------------------------
 PixelCPEClusterRepair::~PixelCPEClusterRepair()
 {
-   for(auto x : thePixelTemp_) x.destroy();
-   // Note: this is not needed for Template 2D
+   for (auto x : thePixelTemp_)   x.destroy();
+   for (auto x : thePixelTemp2D_) x.destroy();
 }
 
 PixelCPEBase::ClusterParam* PixelCPEClusterRepair::createClusterParam(const SiPixelCluster & cl) const
