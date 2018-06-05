@@ -122,7 +122,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   // This needs to come after the calls to setBinLabel.
   errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
-  errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", nbins-3, 1, nbins-2); // range to match bin numbering
+  errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", nbinsNum, 1, nbinsNum+1); // range to match bin numbering
   errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
   errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
   for (int i = RMUON; i <= errorSummaryDen->getNbinsX(); ++i) {

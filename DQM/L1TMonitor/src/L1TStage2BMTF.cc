@@ -41,11 +41,18 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
     histoPrefix = "kbmtf";
   }
 
+  int ptbins = 512;
+  int hwQual_bxbins = 20;
+  if (kalman) {
+    ptbins = 522;
+    hwQual_bxbins = 15;
+  }
+
   ibooker.setCurrentFolder(monitorDir);
   bmtf_hwEta = ibooker.book1D(histoPrefix+"_hwEta", "HW #eta", 461, -230.5, 230.5);
   bmtf_hwLocalPhi = ibooker.book1D(histoPrefix+"_hwLocalPhi", "HW Local #phi", 201, -100.5, 100.5);
   bmtf_hwGlobalPhi = ibooker.book1D(histoPrefix+"_hwGlobalPhi", "HW Global #phi", 576, -0.5, 575.5);
-  bmtf_hwPt  = ibooker.book1D(histoPrefix+"_hwPt", "HW p_{T}", 512, -0.5, 511.5);
+  bmtf_hwPt  = ibooker.book1D(histoPrefix+"_hwPt", "HW p_{T}", ptbins, -0.5, ptbins-0.5);
   bmtf_hwQual= ibooker.book1D(histoPrefix+"_hwQual" , "HW Quality", 20, -0.5, 19.5);
   bmtf_proc  = ibooker.book1D(histoPrefix+"_proc" , "Processor", 12, -0.5, 11.5);
 
@@ -76,13 +83,9 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
   bmtf_hwPt_bx     = ibooker.book2D(histoPrefix+"_hwPt_bx"    , "HW p_{T} vs BX"     , 511,   -0.5, 510.5,  5, -2.5, 2.5);
   bmtf_hwPt_bx->setTitle(";HW p_{T}; BX");
 
-  bmtf_hwQual_bx   = ibooker.book2D(histoPrefix+"_hwQual_bx"  , "HW Quality vs BX"      ,  20,   -0.5,  19.5,  5, -2.5, 2.5);
+  bmtf_hwQual_bx   = ibooker.book2D(histoPrefix+"_hwQual_bx"  , "HW Quality vs BX"      ,  hwQual_bxbins,   -0.5,  hwQual_bxbins-0.5,  5, -2.5, 2.5);
   bmtf_hwQual_bx->setTitle("; HW Quality; BX");
   if (kalman) {
-    bmtf_hwPt  = ibooker.book1D(histoPrefix+"_hwPt", "HW p_{T}", 522, -0.5, 521.5);
-    bmtf_hwQual_bx   = ibooker.book2D(histoPrefix+"_hwQual_bx"  , "HW Quality vs BX"      ,  20,   -0.5,  19.5,  5, -2.5, 2.5);
-    bmtf_hwQual_bx->setTitle("; HW Quality; BX");
-  
     kbmtf_hwDXY = ibooker.book1D(histoPrefix+"_hwDXY", "HW DXY", 4, 0, 4);
     kbmtf_hwPt2 = ibooker.book1D(histoPrefix+"_hwPt2", "HW p_{T}2", 512, -0.5, 511.5);
   }
