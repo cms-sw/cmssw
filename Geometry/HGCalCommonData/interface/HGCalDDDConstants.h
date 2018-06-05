@@ -14,9 +14,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include <unordered_map>
 
@@ -34,6 +35,7 @@ public:
   std::array<int,3>   assignCellTrap(float x, float y, float z, int lay, 
 				     bool reco) const;
   double              cellSizeHex(int type) const;
+  double              cellThickness(int layer, int waferU, int waferV) const;
   void                etaPhiFromPosition(const double x, const double y,
 					 const double z, const int layer,
 					 int& ieta, int& iphi, int& type,
@@ -59,16 +61,19 @@ public:
   unsigned int        layersInit(bool reco) const;
   std::pair<float,float> locateCell(int cell, int lay, int type, 
 				    bool reco) const;
-  std::pair<float,float> locateCell(int lay, int waferU, int waferV, 
-				    int cellU, int cellV, bool reco) const;
+  std::pair<float,float> locateCell(int lay, int waferU, int waferV, int cellU,
+				    int cellV, bool reco, bool all) const;
   std::pair<float,float> locateCellHex(int cell, int wafer, bool reco) const;
   std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
 					bool reco) const;
   int                 levelTop(int ind=0) const {return hgpar_->levelT_[ind];}
-  int                 maxCellUV() const {return 2*hgpar_->nCellsFine_;}
+  int                 maxCellUV() const {
+    return ((mode_==HGCalGeometryMode::Trapezoid) ? hgpar_->nCellsFine_ :
+	    2*hgpar_->nCellsFine_);}
   int                 maxCells(bool reco) const;
   int                 maxCells(int lay, bool reco) const;
   int                 maxModules() const {return modHalf_;}
+  int                 maxMoudlesPerLayer() const {return maxWafersPerLayer_;}
   int                 maxRows(int lay, bool reco) const;
   double              minSlope() const {return hgpar_->slopeMin_;}
   int                 modules(int lay, bool reco) const;
@@ -108,6 +113,7 @@ public:
   int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
   // wafer longitudinal thickness classification (1 = 100um, 2 = 200um, 3=300um)
   int                 waferTypeL(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;}
+  int                 waferType(DetId const& id) const;
   int                 waferUVMax() const {return hgpar_->waferUVMax_;}
   double              waferZ(int layer, bool reco) const;
 
@@ -125,16 +131,18 @@ private:
   const float  dPhiMin           = 0.02;
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  
   typedef std::array<int,3>                   HGCWaferParam;
-  const HGCalParameters*          hgpar_;
-  constexpr static double         tan30deg_ = 0.5773502693;
-  const double                    sqrt3_;
-  double                          rmax_, hexside_;
-  HGCalGeometryMode::GeometryMode mode_;
-  int32_t                         tot_wafers_, modHalf_;
-  std::array<uint32_t,2>          tot_layers_;
-  Simrecovecs                     max_modules_layer_;
-  std::map<int,HGCWaferParam>     waferLayer_;
-  std::array<int,4>               waferMax_;
+  const HGCalParameters*                      hgpar_;
+  constexpr static double                     tan30deg_ = 0.5773502693;
+  const double                                sqrt3_;
+  double                                      rmax_, hexside_;
+  HGCalGeometryMode::GeometryMode             mode_;
+  int32_t                                     tot_wafers_, modHalf_;
+  std::array<uint32_t,2>                      tot_layers_;
+  Simrecovecs                                 max_modules_layer_;
+  int32_t                                     maxWafersPerLayer_;
+  std::map<int,HGCWaferParam>                 waferLayer_;
+  std::array<int,4>                           waferMax_;
+  std::unordered_map<int32_t,bool>            waferIn_;
 };
 
 #endif
