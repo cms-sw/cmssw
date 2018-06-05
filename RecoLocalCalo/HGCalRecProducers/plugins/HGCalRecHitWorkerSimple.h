@@ -25,7 +25,9 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection & result) override;
   
  protected:
-  
+
+  enum detectortype { hgcee=1, hgcfh=2, hgcbh=3};
+
   double hgcEE_keV2DIGI_,  hgceeUncalib2GeV_;
   std::vector<double> hgcEE_fCPerMIP_;
   std::vector<double> hgcEE_cce_;

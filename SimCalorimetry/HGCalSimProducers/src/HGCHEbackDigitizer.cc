@@ -22,18 +22,14 @@ namespace {
   void addCellMetadata(HGCCellInfo& info,
 		       const HGCalGeometry* geom,
 		       const DetId& detid ) {
-    const auto& topo     = geom->topology();
-    const auto& dddConst = topo.dddConstants();
-    uint32_t id(detid.rawId());
-    int waferTypeL = 0;
-    bool isHalf = false;
-    HGCalDetId hid(id);
-    int wafer = HGCalDetId(id).wafer();
-    waferTypeL = dddConst.waferTypeL(wafer);
-    isHalf = dddConst.isHalfCell(wafer,hid.cell());
+    const auto& dddConst = geom->topology().dddConstants();
+    bool isHalf = (((dddConst.geomMode() == HGCalGeometryMode::Hexagon) ||
+		    (dddConst.geomMode() == HGCalGeometryMode::HexagonFull)) ?
+		   dddConst.isHalfCell(HGCalDetId(detid).wafer(),HGCalDetId(detid).cell()) :
+		   false);
     //base time samples for each DetId, initialized to 0
     info.size = (isHalf ? 0.5 : 1.0);
-    info.thickness = waferTypeL;
+    info.thickness = dddConst.waferType(detid);
   }
 
   void addCellMetadata(HGCCellInfo& info,
