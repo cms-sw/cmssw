@@ -595,6 +595,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     int numHits = Track->NumHits();
     int modeNeighbor = Track->Mode_neighbor();
     int modeRPC = Track->Mode_RPC();
+    int singleMuQuality = 12;
+    int singleMuPT = 22;
 
     // Only plot if there are <= 1 neighbor hits in the track to avoid spikes at sector boundaries
     if (modeNeighbor >= 2 && modeNeighbor != 4 && modeNeighbor != 8) continue;
@@ -611,12 +613,12 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     RPCvsEMTFTrackMode->Fill(mode, modeRPC);
     emtfTrackPhi->Fill(phi_glob_rad);
 
-    if (quality >= 12) {
+    if (quality >= singleMuQuality) {
         emtfTrackPtHighQuality->Fill(Track->Pt());
         emtfTrackEtaHighQuality->Fill(eta);
         emtfTrackPhiHighQuality->Fill(phi_glob_rad);
         emtfTrackOccupancyHighQuality->Fill(eta, phi_glob_rad);
-        if (Track->Pt()>=22) {
+        if (Track->Pt()>= singleMuPT) {
            emtfTrackPtHighQualityHighPT->Fill(Track->Pt());
            emtfTrackEtaHighQualityHighPT->Fill(eta);
            emtfTrackPhiHighQualityHighPT->Fill(phi_glob_rad);
