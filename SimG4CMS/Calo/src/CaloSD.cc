@@ -20,6 +20,9 @@
 #include "G4SystemOfUnits.hh"
 #include "G4PhysicalConstants.hh"
 
+#include <iostream>
+#include <fstream>
+
 //#define DebugLog
 
 CaloSD::CaloSD(const std::string& name, const DDCompactView & cpv,
@@ -402,7 +405,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep) {
                             << " save: " << (etrack >= energyCut || forceSave);
 #endif
     if (etrack >= energyCut || forceSave) {
-      TrackInformation* trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+      TrackInformation* trkInfo = cmsTrackInformation(theTrack);
       trkInfo->storeTrack(true);
       trkInfo->putInHistory();
     }
@@ -492,7 +495,7 @@ void CaloSD::update(const BeginOfEvent *) {
 
 void CaloSD::update(const EndOfTrack * trk) {
   int id = (*trk)()->GetTrackID();
-  TrackInformation *trkI =(TrackInformation *)((*trk)()->GetUserInformation());
+  TrackInformation *trkI = cmsTrackInformation((*trk)());
   int lastTrackID = -1;
   if (trkI) lastTrackID = trkI->getIDonCaloSurface();
   if (id == lastTrackID) {
@@ -591,7 +594,7 @@ int CaloSD::getTrackID(const G4Track* aTrack) {
 
   int primaryID = 0;
   forceSave = false;
-  TrackInformation* trkInfo=(TrackInformation *)(aTrack->GetUserInformation());
+  TrackInformation* trkInfo = cmsTrackInformation(aTrack);
   if (trkInfo) {
     primaryID = trkInfo->getIDonCaloSurface(); 
 #ifdef DebugLog
@@ -612,7 +615,7 @@ int CaloSD::getTrackID(const G4Track* aTrack) {
 int CaloSD::setTrackID(const G4Step* aStep) {
 
   auto const theTrack = aStep->GetTrack();
-  TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+  TrackInformation * trkInfo = cmsTrackInformation(theTrack);
   int primaryID = trkInfo->getIDonCaloSurface();
   if (primaryID == 0) { primaryID = theTrack->GetTrackID(); }
 
@@ -643,7 +646,7 @@ bool CaloSD::filterHit(CaloG4Hit* hit, double time) {
 double CaloSD::getResponseWt(const G4Track* aTrack) {
   double wt = 1.0;
   if (meanResponse.get()) {
-    TrackInformation * trkInfo = (TrackInformation *)(aTrack->GetUserInformation());
+    TrackInformation * trkInfo = cmsTrackInformation(aTrack);
     wt = meanResponse.get()->getWeight(trkInfo->genParticlePID(), trkInfo->genParticleP());
   }
   return wt;
@@ -697,7 +700,7 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
 
 void CaloSD::update(const BeginOfTrack * trk) {
   int primary = -1;
-  TrackInformation * trkInfo = (TrackInformation *)((*trk)()->GetUserInformation());
+  TrackInformation * trkInfo = cmsTrackInformation((*trk)());
   if ( trkInfo->isPrimary() ) primary = (*trk)()->GetTrackID();
   
 #ifdef DebugLog
