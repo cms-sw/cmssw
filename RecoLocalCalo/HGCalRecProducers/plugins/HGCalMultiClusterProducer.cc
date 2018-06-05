@@ -123,8 +123,6 @@ void HGCalMultiClusterProducer::produce(edm::Event& evt,
 
   algo->getEventSetup(es);
 
-  multicluster_algo->getEvent(evt);
-  multicluster_algo->getEventSetup(es);
 
   switch(algoId){
   case reco::CaloCluster::hgcal_em:
@@ -156,9 +154,7 @@ void HGCalMultiClusterProducer::produce(edm::Event& evt,
   if(doSharing)
     *clusters_sharing = algo->getClusters(true);
 
-  std::vector<std::string> names;
-  names.push_back(std::string("gen"));
-  names.push_back(std::string("calo_face"));
+
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
@@ -179,6 +175,8 @@ void HGCalMultiClusterProducer::produce(edm::Event& evt,
   std::unique_ptr<std::vector<reco::HGCalMultiCluster> >
     multiclusters( new std::vector<reco::HGCalMultiCluster> ),
     multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );
+    multicluster_algo->getEvent(evt);
+    multicluster_algo->getEventSetup(es);
 
   std::chrono::high_resolution_clock::time_point then = std::chrono::high_resolution_clock::now();
   *multiclusters = multicluster_algo->makeClusters(clusterPtrs);
