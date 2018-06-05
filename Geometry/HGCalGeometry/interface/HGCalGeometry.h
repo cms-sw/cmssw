@@ -41,10 +41,11 @@ public:
   typedef HGCalGeometryRecord        AlignedRecord   ; // NOTE: not aligned yet
   typedef PHGCalRcd                  PGeometryRecord ;
 
-  static constexpr unsigned int k_NumberOfParametersPerTrd = 12; // FlatTrd
-  static constexpr unsigned int k_NumberOfParametersPerHex = 3 ; // FlatHexagon
+  static constexpr unsigned int k_NumberOfParametersPerTrd   = 12; // FlatTrd
+  static constexpr unsigned int k_NumberOfParametersPerHex   = 3 ; // FlatHexagon
   static constexpr unsigned int k_NumberOfParametersPerShape = 3; // FlatHexagon
-  static constexpr unsigned int k_NumberOfShapes = 50; 
+  static constexpr unsigned int k_NumberOfShapes    = 100; 
+  static constexpr unsigned int k_NumberOfShapesTrd = 1000; 
 
   static std::string dbString() { return "PHGCalRcd" ; }
  

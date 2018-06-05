@@ -25,8 +25,7 @@ HGCScintillatorDetId::HGCScintillatorDetId(int type, int layer, int eta,
 
 HGCScintillatorDetId::HGCScintillatorDetId(const DetId& gen) {
   if (!gen.null()) {
-    if ((gen.det()!=HGCalHSc) || 
-	(ForwardSubdetector)(gen.subdetId()!=HGCHEB)) {
+    if (gen.det()!=HGCalHSc) {
       throw cms::Exception("Invalid DetId") << "Cannot initialize HGCScintillatorDetId from " << std::hex << gen.rawId() << std::dec; 
     }  
   }
@@ -35,8 +34,7 @@ HGCScintillatorDetId::HGCScintillatorDetId(const DetId& gen) {
 
 HGCScintillatorDetId& HGCScintillatorDetId::operator=(const DetId& gen) {
   if (!gen.null()) {
-    if ((gen.det()!=HGCalHSc) || 
-	(ForwardSubdetector)(gen.subdetId()!=HGCHEB)) {
+    if (gen.det()!=HGCalHSc) {
       throw cms::Exception("Invalid DetId") << "Cannot assign HGCScintillatorDetId from " << std::hex << gen.rawId() << std::dec; 
     }  
   }

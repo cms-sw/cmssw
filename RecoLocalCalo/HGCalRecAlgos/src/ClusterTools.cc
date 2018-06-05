@@ -1,7 +1,8 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -47,7 +48,17 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
   for( const auto& hit : hits ) {
     const auto& id = hit.first;
     const float fraction = hit.second;
-    if( id.det() == DetId::Forward ) {
+    if( id.det() == DetId::HGCalEE ) {
+      energy += eerh_->find(id)->energy()*fraction;
+    } else if( id.det() == DetId::HGCalHSi ) {
+      const float temp = fhrh_->find(id)->energy();
+      energy += temp*fraction;
+      energyHad += temp*fraction;
+    } else if( id.det() == DetId::HGCalHSc ) {
+      const float temp = bhrh_->find(id)->energy();
+      energy += temp*fraction;
+      energyHad += temp*fraction;
+    } else if( id.det() == DetId::Forward ) {
       switch( id.subdetId() ) {
         case HGCEE:
         energy += eerh_->find(id)->energy()*fraction;
@@ -138,10 +149,11 @@ bool ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaeta
     if ((clus.hitsAndFractions())[ih].second==0.) continue;
 
     HGCRecHitCollection::const_iterator theHit;
-    if (id.det()==DetId::Forward && id.subdetId()==HGCEE) {
+    if ((id.det() == DetId::HGCalEE) ||
+	(id.det()==DetId::Forward && id.subdetId()==HGCEE)) {
       const HGCRecHit * theHit = &(*eerh_->find(id));
 
-      GlobalPoint cellPos = rhtools_.getPosition(HGCalDetId(id));
+      GlobalPoint cellPos = rhtools_.getPosition(id);
       double weight = theHit->energy();
       // take w0=2 To be optimized
       double logweight = 0;
