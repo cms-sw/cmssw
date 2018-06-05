@@ -37,14 +37,14 @@ class HGCalMultiClusterProducer : public edm::stream::EDProducer<> {
   void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-    edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token;
     edm::EDGetTokenT<HGCRecHitCollection> hits_fh_token;
+    edm::EDGetTokenT<HGCRecHitCollection> hits_ee_token;
     edm::EDGetTokenT<HGCRecHitCollection> hits_bh_token;
-  edm::EDGetTokenT<std::vector<reco::BasicCluster> > clusters_token;
-  edm::EDGetTokenT<std::vector<reco::BasicCluster> > clusters_sharing_token;
-  std::unique_ptr<HGCal3DClustering> multicluster_algo;
-  bool doSharing;
-  HGCalImagingAlgo::VerbosityLevel verbosity;
+    edm::EDGetTokenT<std::vector<reco::BasicCluster> > clusters_token;
+    edm::EDGetTokenT<std::vector<reco::BasicCluster> > clusters_sharing_token;
+    std::unique_ptr<HGCal3DClustering> multicluster_algo;
+    bool doSharing;
+    HGCalImagingAlgo::VerbosityLevel verbosity;
 };
 
 DEFINE_FWK_MODULE(HGCalMultiClusterProducer);
