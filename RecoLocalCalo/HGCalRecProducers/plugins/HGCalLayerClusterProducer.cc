@@ -104,8 +104,6 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
 
-  produces<std::vector<reco::HGCalMultiCluster> >();
-  produces<std::vector<reco::HGCalMultiCluster> >("sharing");
 }
 
 void HGCalLayerClusterProducer::produce(edm::Event& evt,
@@ -162,7 +160,7 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
-
+  std::cout << "pippo!" << std::endl;
   edm::PtrVector<reco::BasicCluster> clusterPtrs, clusterPtrsSharing;
   for( unsigned i = 0; i < clusterHandle->size(); ++i ) {
     edm::Ptr<reco::BasicCluster> ptr(clusterHandle,i);
@@ -175,22 +173,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
       clusterPtrsSharing.push_back(ptr);
     }
   }
-
-  std::unique_ptr<std::vector<reco::HGCalMultiCluster> >
-    multiclusters( new std::vector<reco::HGCalMultiCluster> ),
-    multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );
-
-  std::chrono::high_resolution_clock::time_point then = std::chrono::high_resolution_clock::now();
-  *multiclusters = multicluster_algo->makeClusters(clusterPtrs);
-  if(doSharing)
-    *multiclusters_sharing = multicluster_algo->makeClusters(clusterPtrsSharing);
-  evt.put(std::move(multiclusters));
-  if(doSharing)
-    evt.put(std::move(multiclusters_sharing),"sharing");
-  std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(now - then);
-  // delta += float (now.tv_usec - then.tv_usec)/1000.;
-  edm::LogInfo ("HGCalLayerClusterProducer") << "Time taken by multiclustering " << time_span.count() << " ms";
 }
 
 #endif
