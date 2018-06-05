@@ -89,7 +89,6 @@ void HGCalMultiClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
           clusterPtrsSharing.push_back(ptr);
         }
     }
-    std::cout << "PUPPAAAA" << std::endl;
     std::unique_ptr<std::vector<reco::HGCalMultiCluster> >
     multiclusters( new std::vector<reco::HGCalMultiCluster> ),
     multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );

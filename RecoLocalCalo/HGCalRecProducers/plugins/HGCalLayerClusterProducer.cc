@@ -62,8 +62,6 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   double ecut = ps.getParameter<double>("ecut");
   std::vector<double> vecDeltas = ps.getParameter<std::vector<double> >("deltac");
   double kappa = ps.getParameter<double>("kappa");
-  std::vector<double> multicluster_radii = ps.getParameter<std::vector<double> >("multiclusterRadii");
-  double minClusters = ps.getParameter<unsigned>("minClusters");
   std::vector<double> dEdXweights = ps.getParameter<std::vector<double> >("dEdXweights");
   std::vector<double> thicknessCorrection = ps.getParameter<std::vector<double> >("thicknessCorrection");
   std::vector<double> fcPerMip = ps.getParameter<std::vector<double> >("fcPerMip");
@@ -96,11 +94,6 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   }else{
     algo = std::make_unique<HGCalImagingAlgo>(vecDeltas, kappa, ecut, algoId, dependSensor, dEdXweights, thicknessCorrection, fcPerMip, fcPerEle, nonAgedNoises, noiseMip, verbosity);
   }
-
-  auto sumes = consumesCollector();
-
-  multicluster_algo = std::make_unique<HGCal3DClustering>(ps, sumes, multicluster_radii, minClusters);
-
   produces<std::vector<reco::BasicCluster> >();
   produces<std::vector<reco::BasicCluster> >("sharing");
 
@@ -160,7 +153,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt,
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");
-  std::cout << "pippo!" << std::endl;
   edm::PtrVector<reco::BasicCluster> clusterPtrs, clusterPtrsSharing;
   for( unsigned i = 0; i < clusterHandle->size(); ++i ) {
     edm::Ptr<reco::BasicCluster> ptr(clusterHandle,i);
