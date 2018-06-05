@@ -304,8 +304,18 @@ def L1NtupleEMUNoEventTree(process):
 def PrefireVetoFilter(process):
 
     process.load('EventFilter.L1TRawToDigi.triggerRulePrefireVetoFilter_cfi')
-    process.l1ntupleraw.insert(0,process.triggerRulePrefireVetoFilter)
-    process.l1ntupleemu.insert(0,process.triggerRulePrefireVetoFilter)
-    process.l1ntupleaod.insert(0,process.triggerRulePrefireVetoFilter)
+
+    if hasattr(process, 'l1ntupleraw'):
+        process.l1ntupleraw.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleemu'):
+        process.l1ntupleemu.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleaod'):
+        process.l1ntupleaod.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntuplerawcalo'):
+        process.l1ntuplerawcalo.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleemucalo'):
+        process.l1ntupleemucalo.insert(0,process.triggerRulePrefireVetoFilter)
+    if hasattr(process, 'l1ntupleaodcalo'):
+        process.l1ntupleaodcalo.insert(0,process.triggerRulePrefireVetoFilter)
 
     return process
