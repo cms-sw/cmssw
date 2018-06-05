@@ -59,7 +59,7 @@ except:
   if options.dataset == 'auto':
     print "Querying DAS for a dataset..."
     import subprocess
-    out = subprocess.check_output("das_client --query 'dataset run=%d dataset=/*Express*/*/*FEVT*'" % options.runNumber, shell=True)
+    out = subprocess.check_output("dasgoclient --query 'dataset run=%d dataset=/*Express*/*/*FEVT*'" % options.runNumber, shell=True)
     dataset = out.splitlines()[-1]
     print "Using dataset=%s." % dataset
   else:
@@ -90,7 +90,7 @@ print "Selected %d files and %d LS." % (len(readFiles), len(lumirange))
 
 source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles, lumisToProcess = lumirange)
 maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # Fix to allow scram to compile
