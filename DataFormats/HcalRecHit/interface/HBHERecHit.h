@@ -5,7 +5,7 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 
 /** \class HBHERecHit
  *  
@@ -15,32 +15,50 @@ class HBHERecHit : public CaloRecHit {
 public:
   typedef HcalDetId key_type;
 
-  HBHERecHit();
+  constexpr HBHERecHit()
+    : CaloRecHit(),
+      chiSquared_(-1),
+      rawEnergy_(-1.0e21),
+      auxEnergy_(-1.0e21),
+      auxHBHE_(0),
+      auxPhase1_(0)
+  {}
   //HBHERecHit(const HcalDetId& id, float energy, float time);
-  HBHERecHit(const HcalDetId& id, float amplitude, float timeRising, float timeFalling=0);
+  constexpr HBHERecHit(const HcalDetId& id, float amplitude, 
+                       float timeRising, float timeFalling=0)
+    : CaloRecHit(id,energy,timeRising),
+      timeFalling_(timeFalling),
+      chiSquared_(-1),
+      rawEnergy_(-1.0e21),
+      auxEnergy_(-1.0e21),
+      auxHBHE_(0),
+      auxPhase1_(0)
+  {}
 
   /// get the hit falling time
-  inline float timeFalling() const { return timeFalling_; }
+  constexpr inline float timeFalling() const { return timeFalling_; }
   /// get the id
-  inline HcalDetId id() const { return HcalDetId(detid()); }
+  constexpr inline HcalDetId id() const { return HcalDetId(detid()); }
 
-  inline void setChiSquared(const float chi2) {chiSquared_ = chi2;}
-  inline float chi2() const {return chiSquared_;}
+  constexpr inline void setChiSquared(const float chi2) {chiSquared_ = chi2;}
+  constexpr inline float chi2() const {return chiSquared_;}
 
-  inline void setRawEnergy(const float en) {rawEnergy_ = en;}
-  inline float eraw() const {return rawEnergy_;}
+  constexpr inline void setRawEnergy(const float en) {rawEnergy_ = en;}
+  constexpr inline float eraw() const {return rawEnergy_;}
 
-  inline void setAuxEnergy(const float en) {auxEnergy_ = en;}
-  inline float eaux() const {return auxEnergy_;}
+  constexpr inline void setAuxEnergy(const float en) {auxEnergy_ = en;}
+  constexpr inline float eaux() const {return auxEnergy_;}
 
-  inline void setAuxHBHE(const uint32_t aux) { auxHBHE_ = aux;}
-  inline uint32_t auxHBHE() const {return auxHBHE_;}
+  constexpr inline void setAuxHBHE(const uint32_t aux) { auxHBHE_ = aux;}
+  constexpr inline uint32_t auxHBHE() const {return auxHBHE_;}
 
-  inline void setAuxPhase1(const uint32_t aux) { auxPhase1_ = aux;}
-  inline uint32_t auxPhase1() const {return auxPhase1_;}
+  constexpr inline void setAuxPhase1(const uint32_t aux) { auxPhase1_ = aux;}
+  constexpr inline uint32_t auxPhase1() const {return auxPhase1_;}
 
   // The following method returns "true" for "Plan 1" merged rechits
-  bool isMerged() const;
+  constexpr bool isMerged() const {
+    return auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED);
+  }
 
   // The following method fills the vector with the ids of the
   // rechits that have been merged to construct the "Plan 1" rechit.
@@ -48,7 +66,14 @@ public:
   void getMergedIds(std::vector<HcalDetId>* ids) const;
 
   // Returns the DetId of the front Id if it is a merged RecHit in "Plan 1"
-  HcalDetId idFront() const;
+  constexpr HcalDetId idFront() const {
+    if (auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED)) {
+      const HcalDetId myId(id());
+      return HcalDetId(myId.subdet(), myId.ieta(), myId.iphi(), auxHBHE_ & 0xf);
+    } else {
+      return id();
+    }
+  }
 private:
   float timeFalling_;
   float chiSquared_;
