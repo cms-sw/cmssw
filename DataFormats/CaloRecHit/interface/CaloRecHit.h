@@ -4,20 +4,18 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <ostream>
 
-namespace {
 #ifdef __CUDA_ARCH__
   __constant__
 #else
   constexpr
 #endif
-  uint32_t masks[] = {
+  uint32_t calo_rechit_masks[] = {
     0x00000000u,0x00000001u,0x00000003u,0x00000007u,0x0000000fu,0x0000001fu,
     0x0000003fu,0x0000007fu,0x000000ffu,0x000001ffu,0x000003ffu,0x000007ffu,
     0x00000fffu,0x00001fffu,0x00003fffu,0x00007fffu,0x0000ffffu,0x0001ffffu,
     0x0003ffffu,0x0007ffffu,0x000fffffu,0x001fffffu,0x003fffffu,0x007fffffu,
     0x00ffffffu,0x01ffffffu,0x03ffffffu,0x07ffffffu,0x0fffffffu,0x1fffffffu,
     0x3fffffffu,0x7fffffffu,0xffffffffu};
-}
 
 /** \class CaloRecHit
  * 
@@ -26,7 +24,7 @@ namespace {
 class CaloRecHit {
 public:
   constexpr CaloRecHit() : energy_(0), time_(0), flags_(0), aux_(0) {}
-  constexpr explicit CaloRecHit(const DetId& id, float energy, float time, 
+  constexpr CaloRecHit(const DetId& id, float energy, float time, 
                                 uint32_t flags = 0, uint32_t aux=0)
 	: id_(id),energy_(energy), time_(time), flags_(flags), aux_(aux) {}
 
@@ -38,28 +36,17 @@ public:
   constexpr uint32_t flags() const { return flags_; }
   constexpr void setFlags(uint32_t flags) { flags_=flags; }
   constexpr void setFlagField(uint32_t value, int base, int width=1) {
-#ifdef __CUDA_ARCH__
-    value&=masks[max(min(width, 32), 0)];
-    value<<=max(min(base, 31), 0);
-    uint32_t clear = masks[max(min(width, 32), 0)];
-    clear=clear<<max(min(base, 31), 0);
-#else
-    value&=masks[std::max(std::min(width,32),0)];
+    value&=calo_rechit_masks[std::max(std::min(width,32),0)];
     value<<=std::max(std::min(base,31),0);
     // clear out the relevant bits
-    uint32_t clear=masks[std::max(std::min(width,32),0)];
+    uint32_t clear=calo_rechit_masks[std::max(std::min(width,32),0)];
     clear=clear<<std::max(std::min(base,31),0);
-#endif
     clear^=0xFFFFFFFFu;
     flags_&=clear;
     flags_|=value;
   }
   constexpr uint32_t flagField(int base, int width=1) const {
-#ifdef __CUDA_ARCH__
-    return (flags_>>max(min(base,31),0))&masks[max(min(width,32),0)];
-#else
-    return (flags_>>std::max(std::min(base,31),0))&masks[std::max(std::min(width,32),0)];
-#endif
+    return (flags_>>std::max(std::min(base,31),0))&calo_rechit_masks[std::max(std::min(width,32),0)];
   }
   constexpr void setAux(uint32_t value) { aux_=value; }
   constexpr uint32_t aux() const { return aux_; }
