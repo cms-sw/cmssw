@@ -86,6 +86,10 @@
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:trunctubs1"/>
     </LogicalPart> 
+    <LogicalPart name="trunctubs2">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:trunctubs2"/>
+    </LogicalPart> 
     <LogicalPart name="momma">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:momma"/>
