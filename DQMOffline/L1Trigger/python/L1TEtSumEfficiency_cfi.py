@@ -9,7 +9,7 @@ variables = {
 }
 
 plots = {
-    'met': ['efficiencyMET', 'efficiencyETMHF'],
+    'met': ['efficiencyMET', 'efficiencyETMHF', 'efficiencyPFMetNoMu'],
     'mht': ['efficiencyMHT'],
     'ett': ['efficiencyETT'],
     'htt': ['efficiencyHTT'],
