@@ -173,9 +173,7 @@ void ElectronMVAVariableHelper<ParticleType>::writeValueMap(edm::Event &iEvent,
                                                       const std::vector<T> & values,
                                                       const std::string    & label) const
 {
-  using namespace edm;
-  using namespace std;
-  auto valMap = std::make_unique<ValueMap<T>>();
+  auto valMap = std::make_unique<edm::ValueMap<T>>();
   typename edm::ValueMap<T>::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();

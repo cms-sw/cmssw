@@ -41,6 +41,10 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(
 
 void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNames) {
 
+  if(debug_) {
+    std::cout << " *** Inside " << name_ << tag_ << std::endl;
+  }
+
   // Initialize GBRForests
   if( (int)(weightFileNames.size()) != nCategories_ )
     throw cms::Exception("MVA config failure: ")
@@ -61,6 +65,11 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNa
     nVariables_.push_back(variableNamesInCategory.size());
 
     variables_.push_back(variablesInCategory);
+
+    if(debug_) {
+      std::cout << " *** Inside " << name_ << tag_ << std::endl;
+      std::cout << " category " << i << " with nVariables " << nVariables_[i] << std::endl;
+    }
 
     for (int j=0; j<nVariables_[i];++j) {
         int index = mvaVarMngr_.getVarIndex(variableNamesInCategory[j]);
@@ -117,7 +126,6 @@ mvaValue( const edm::Ptr<reco::GsfElectron>& particle, const edm::EventBase & iE
 
 float ElectronMVAEstimatorRun2::
 mvaValue( const int iCategory, const std::vector<float> & vars) const  {
-  const float response = gbrForests_.at(iCategory)->GetResponse(vars.data()); // The BDT score
 
   if(debug_) {
     std::cout << " *** Inside " << name_ << tag_ << std::endl;
@@ -125,6 +133,10 @@ mvaValue( const int iCategory, const std::vector<float> & vars) const  {
     for (int i = 0; i < nVariables_[iCategory]; ++i) {
         std::cout << " " << mvaVarMngr_.getName(variables_[iCategory][i]) << " " << vars[i] << std::endl;
     }
+  }
+  const float response = gbrForests_.at(iCategory)->GetResponse(vars.data()); // The BDT score
+
+  if(debug_) {
     std::cout << " ### MVA " << response << std::endl << std::endl;
   }
 
