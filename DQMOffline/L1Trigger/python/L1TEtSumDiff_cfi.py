@@ -9,7 +9,7 @@ variables = {
 }
 
 plots = {
-    'met': ['efficiencyMET', 'efficiencyETMHF'],
+    'met': ['efficiencyMET', 'efficiencyETMHF', 'efficiencyPFMetNoMu'],
     'mht': ['efficiencyMHT'],
     'ett': ['efficiencyETT'],
     'htt': ['efficiencyHTT'],
@@ -26,13 +26,13 @@ for variable, thresholds in variables.iteritems():
 from DQMOffline.L1Trigger.L1TDiffHarvesting_cfi import l1tDiffHarvesting
 
 resolution_plots = [
-    "resolutionMET", "resolutionETMHF", "resolutionMHT", "resolutionETT",
-    "resolutionHTT", "resolutionMETPhi", "resolutionETMHFPhi",
+    "resolutionMET", "resolutionETMHF", "resolutionPFMetNoMu", "resolutionMHT", "resolutionETT",
+    "resolutionHTT", "resolutionMETPhi", "resolutionETMHFPhi", "resolutionPFMetNoMuPhi",
     "resolutionMHTPhi",
 ]
 plots2D = [
-    'L1METvsCaloMET', 'L1ETMHFvsCaloETMHF', 'L1MHTvsRecoMHT', 'L1ETTvsCaloETT',
-    'L1HTTvsRecoHTT', 'L1METPhivsCaloMETPhi', 'L1ETMHFPhivsCaloETMHFPhi',
+    'L1METvsCaloMET', 'L1ETMHFvsCaloETMHF', 'L1METvsPFMetNoMu', 'L1MHTvsRecoMHT', 'L1ETTvsCaloETT',
+    'L1HTTvsRecoHTT', 'L1METPhivsCaloMETPhi', 'L1METPhivsPFMetNoMuPhi', 'L1ETMHFPhivsCaloETMHFPhi',
     'L1MHTPhivsRecoMHTPhi',
 ]
 
@@ -44,8 +44,10 @@ allPlots.extend(plots2D)
 l1tEtSumEmuDiff = l1tDiffHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(  # EMU comparison
-            dir1=cms.untracked.string("L1T/L1TObjects/L1TEtSum/L1TriggerVsReco"),
-            dir2=cms.untracked.string("L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco"),
+            dir1=cms.untracked.string(
+                "L1T/L1TObjects/L1TEtSum/L1TriggerVsReco"),
+            dir2=cms.untracked.string(
+                "L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco"),
             outputDir=cms.untracked.string(
                 "L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco/Comparison"),
             plots=cms.untracked.vstring(allPlots)
@@ -70,7 +72,7 @@ allPlots_HI.extend(resolution_plots)
 allPlots_HI.extend(plots2D)
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-ppRef_2017.toModify(l1tEtSumEmuDiff,
-    plotCfgs = {0:dict(plots = allPlots_HI)}
+ppRef_2017.toModify(
+    l1tEtSumEmuDiff,
+    plotCfgs={0: dict(plots=allPlots_HI)}
 )
-
