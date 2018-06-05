@@ -15,7 +15,6 @@ mvaProducerModuleLabel = "electronMVAValueMapProducer"
 
 # The files with the variable definitions
 mvaVariablesFile        = "RecoEgamma/ElectronIdentification/data/ElectronMVAEstimatorRun2Variables.txt"
-mvaVariablesFileClassic = "RecoEgamma/ElectronIdentification/data/ElectronMVAEstimatorRun2VariablesClassic.txt"
 
 # =======================================
 # Define some commonly used category cuts
