@@ -50,8 +50,7 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
     const edm::ParameterSet& config,
     edm::ConsumesCollector& consumesCollector 
 ):
-  TrackingRecHitAlgorithm(name,config,consumesCollector),
-  templateId(-1), pixelTemplateDBObject_(nullptr)
+  TrackingRecHitAlgorithm(name,config,consumesCollector)
 {
     //--- Basic stuff
     mergeHitsOn = config.getParameter<bool>("MergeHitsOn");
@@ -114,37 +113,44 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
 
 PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
 {
-  //--- Delete the templates
+  //--- Delete the templates. This is safe even if thePixelTemp_ vector is empty.
   for (auto x : thePixelTemp_) x.destroy();
 }
 
 
 //-------------------------------------------------------------------------------
-//   beginRun();  we need to re-implement it to fetch Templates (1D, 2D) and
-//   possibly other goodies from the EventSetup.  We do it here, once per run.
-//   Given that this is MC, it is extremely unlikely that, once loaded, the
-//   templates will ever change per job.
+//   beginRun(); the templates are loaded in TrackingRecHitProducer, and unpacked
+//   into the template store.  We get their references here, and use them.  However,
+//   if we are loading a dedicated template ID from an ascii file just for this
+//   rechit smearing algorithm, then we use our own template store.
 //-------------------------------------------------------------------------------
-void PixelTemplateSmearerBase::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup)
+void PixelTemplateSmearerBase::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup,
+					const SiPixelTemplateDBObject * pixelTemplateDBObjectPtr,
+					std::vector< SiPixelTemplateStore > & tempStoreRef )
 {
-  //--- Check if we need to load the template from the DB (namely if id = -1).
-  //    Otherwise the template has already been loaded from the ascii file in constructor.
+  //--- Check if we need to use the template from the DB (namely if
+  //    id == -1).  Otherwise the template has already been loaded from
+  //    the ascii file in constructor, and thePixelTempRef wakes up
+  //    pointing to thePixelTemp_, so then we use our own store.
   //
   if ( templateId == -1 ) {
-    //
-    edm::ESHandle<SiPixelTemplateDBObject> templateDBobject;
-    eventSetup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
-    pixelTemplateDBObject_ = templateDBobject.product();
-
-    //--- Now that we have the DB object, load the correct templates from the DB.  
-    //    (They are needed for data and full sim MC, so in a production FastSim
-    //    run, everything should already be in the DB.)
-    if ( !SiPixelTemplate::pushfile( *pixelTemplateDBObject_ , thePixelTemp_) ) {
-      throw cms::Exception("PixelTemplateSmearerPlugin:")
-	<<"SiPixel Template " << templateId << " Not Loaded Correctly!"<<endl;
-    }
+    thePixelTempRef = tempStoreRef;        // we use the store from TrackingRecHitProducer
+    pixelTemplateDBObject_ = pixelTemplateDBObjectPtr;   // needed for template<-->DetId map.
   }
+  
 
+  //--- Commented code below (the DB interface) should say here, in case we need it:
+  // edm::ESHandle<SiPixelTemplateDBObject> templateDBobject;
+  // eventSetup.get<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
+  // pixelTemplateDBObject_ = templateDBobject.product();
+  
+  // //--- Now that we have the DB object, load the correct templates from the DB.  
+  // //    (They are needed for data and full sim MC, so in a production FastSim
+  // //    run, everything should already be in the DB.)
+  // if ( !SiPixelTemplate::pushfile( *pixelTemplateDBObject_ , thePixelTemp_) ) {
+  //   throw cms::Exception("PixelTemplateSmearerPlugin:")
+  // 	<<"SiPixel Template " << templateId << " Not Loaded Correctly!"<<endl;
+  // }
 }
 
 

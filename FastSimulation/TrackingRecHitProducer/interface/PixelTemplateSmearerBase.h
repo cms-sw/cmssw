@@ -48,9 +48,13 @@ class PixelTemplateSmearerBase:
         };
 
     protected:
-        bool mergeHitsOn; 
-        std::vector< SiPixelTemplateStore > thePixelTemp_;
-        int templateId;
+        bool mergeHitsOn = false;   // if true then see if neighboring hits might merge
+
+	//--- Template DB Object(s)
+	const SiPixelTemplateDBObject * pixelTemplateDBObject_ = nullptr; // needed for template<-->DetId map.
+        std::vector< SiPixelTemplateStore > thePixelTemp_ ;      // our own template storage
+	std::vector< SiPixelTemplateStore > & thePixelTempRef = thePixelTemp_;   // points to the one we will use.
+        int templateId = -1;
         
         //--- Flag to tell us whether we are in barrel or in forward.
 	//    This is needed since the parameterization is slightly
@@ -79,8 +83,6 @@ class PixelTemplateSmearerBase:
         std::unique_ptr<TFile> theMergedPixelResolutionYFile;                  
         std::string theMergedPixelResolutionYFileName;
 
-	//--- Template DB Object(s)
-	const SiPixelTemplateDBObject * pixelTemplateDBObject_ ; 
 	
     public:
         explicit PixelTemplateSmearerBase(  const std::string& name,
@@ -90,7 +92,9 @@ class PixelTemplateSmearerBase:
         ~PixelTemplateSmearerBase() override;
         TrackingRecHitProductPtr process(TrackingRecHitProductPtr product) const override;
 	// void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
-	void beginRun(edm::Run const& run, const edm::EventSetup& eventSetup) override;
+	void beginRun(edm::Run const& run, const edm::EventSetup& eventSetup,
+		      const SiPixelTemplateDBObject * pixelTemplateDBObjectPtr,
+		      std::vector< SiPixelTemplateStore > & tempStoreRef ) override;
 	// void endEvent(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
         //--- Process all unmerged hits. Calls smearHit() for each.

@@ -78,7 +78,9 @@ void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
 }
 
 
-void TrackingRecHitAlgorithm::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup)
+void TrackingRecHitAlgorithm::beginRun(edm::Run const& run, const edm::EventSetup& eventSetup,
+				       const SiPixelTemplateDBObject * pixelTemplateDBObjectPtr,
+				       std::vector< SiPixelTemplateStore > & tempStoreRef )
 {
   // The default is to do nothing.
 }
