@@ -8,6 +8,11 @@
 
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
+// Pixel-related stuff:
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+
+
 #include <string>
 #include <memory>
 
@@ -53,7 +58,9 @@ class TrackingRecHitAlgorithm
         virtual void beginStream(const edm::StreamID& id);
         
         //this function will only be called once per run
-        virtual void beginRun(edm::Run const& run, const edm::EventSetup& eventSetup);
+	virtual void beginRun(edm::Run const& run, const edm::EventSetup& eventSetup,
+			      const SiPixelTemplateDBObject * pixelTemplateDBObjectPtr,
+			      std::vector< SiPixelTemplateStore > & tempStoreRef );
 
         //this function will only be called once per event
         virtual void beginEvent(edm::Event& event, const edm::EventSetup& eventSetup);
