@@ -37,6 +37,7 @@ public:
 
   /// get the hit falling time
   constexpr inline float timeFalling() const { return timeFalling_; }
+  constexpr inline void setTimeFalling(float timeFalling) { timeFalling_ = timeFalling; }
   /// get the id
   constexpr inline HcalDetId id() const { return HcalDetId(detid()); }
 
