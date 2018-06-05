@@ -86,7 +86,12 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
     summary->setBinLabel(PT2BAD, "P_{T}2 mismatch", 1);
   }
 
-  errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), nbins-3, 1, nbins-2); // range to match bin numbering
+  int nbinsNum = 14;
+  if (kalman) {
+    nbinsNum += 2;
+  }
+
+  errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), nbinsNum, 1, nbinsNum+1); // range to match bin numbering
   errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
   errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
   errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
@@ -120,8 +125,6 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", nbins-3, 1, nbins-2); // range to match bin numbering
   errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
   errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
-  if (kalman) {
-  }
   for (int i = RMUON; i <= errorSummaryDen->getNbinsX(); ++i) {
     errorSummaryDen->setBinLabel(i, "# muons", 1);
   }
