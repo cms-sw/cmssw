@@ -85,14 +85,23 @@ int main()
       char deviceName[256];
       for( CUdevice i=0; i<deviceCount; ++i )
       {
-	ret = cuDeviceComputeCapability(&major, &minor, i);
+	ret = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, i);
 	if( ret != CUDA_SUCCESS )
 	{
 	  std::ostringstream errstr;
-	  errstr << "Unable to query the device " << i << " compute capability using the CUDA driver API: ("
+	  errstr << "Unable to query the device " << i << " compute capability major using the CUDA driver API: ("
 		 << ret << ") " << getCudaDrvErrorString( ret );
 	  throw cms::Exception( "CUDAService", errstr.str() );
 	}
+	ret = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, i);
+	if( ret != CUDA_SUCCESS )
+	{
+	  std::ostringstream errstr;
+	  errstr << "Unable to query the device " << i << " compute capability minor using the CUDA driver API: ("
+		 << ret << ") " << getCudaDrvErrorString( ret );
+	  throw cms::Exception( "CUDAService", errstr.str() );
+	}
+
         ret = cuDeviceGetName( deviceName, 256, i );
         if( ret != CUDA_SUCCESS )
 	{

@@ -39,11 +39,17 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
   computeCapabilities_.reserve(numberOfDevices_);
   for(int i=0; i<numberOfDevices_; ++i) {
     int major, minor;
-    ret = cuDeviceComputeCapability(&major, &minor, i);
+    ret = cuDeviceGetAttribute(&major, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR, i);
     if(CUDA_SUCCESS != ret) {
-      edm::LogWarning("CUDAService") << "Failed to call cuDeviceComputeCapability for device " << i << " from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
+      edm::LogWarning("CUDAService") << "Failed to call cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MAJOR) for device " << i << " from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
       return;
     }
+    ret = cuDeviceGetAttribute(&minor, CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR, i);
+    if(CUDA_SUCCESS != ret) {
+      edm::LogWarning("CUDAService") << "Failed to call cuDeviceGetAttribute(CU_DEVICE_ATTRIBUTE_COMPUTE_CAPABILITY_MINOR) for device " << i << " from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
+      return;
+    }
+
     edm::LogInfo("CUDAService") << "Device " << i << " compute capability major " << major << " minor " << minor;
     computeCapabilities_.emplace_back(major, minor);
   }
