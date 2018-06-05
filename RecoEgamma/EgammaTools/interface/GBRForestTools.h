@@ -22,6 +22,9 @@
 
 #include "CommonTools/Utils/interface/TMVAZipReader.h"
 
+#include "FWCore/Utilities/interface/EDMException.h"
+
+
 class GBRForestTools
 {
   public:
@@ -29,6 +32,10 @@ class GBRForestTools
 
     static std::unique_ptr<const GBRForest> createGBRForest(const std::string &weightFile);
     static std::unique_ptr<const GBRForest> createGBRForest(const edm::FileInPath &weightFile);
+
+    // Overloaded versions which are taking string vectors by reference to strore the variable names in
+    static std::unique_ptr<const GBRForest> createGBRForest(const std::string &weightFile, std::vector<std::string> &varNames);
+    static std::unique_ptr<const GBRForest> createGBRForest(const edm::FileInPath &weightFile, std::vector<std::string> &varNames);
 
 };
 

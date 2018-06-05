@@ -11,7 +11,7 @@ namespace {
     int found = 0;
     for (unsigned int i=0 ; i<nth ; ++i) {
         std::size_t pos = haystack.find(needle, found);
-        if (pos == std::string::npos) return -1; 
+        if (pos == std::string::npos) return -1;
         else found = pos+1;
     }
     return found;
@@ -27,13 +27,34 @@ namespace {
 
 };
 
-std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string &weightFile){
-  edm::FileInPath weightFileEdm(weightFile);
-  return GBRForestTools::createGBRForest(weightFileEdm);
+// Creates a pointer to new GBRForest corresponding to a TMVA weights file,
+// given a file path as string.  When the file is not found, also the same name
+// appended with ".gz" and ".gzip" is tried.  This allows the maintainters of
+// the data repositories to gzip weight files a posteriori without changing
+// anything else.
+std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string &weightFile,
+                                                                 std::vector<std::string> &varNames){
+
+   std::string gzipExtensions[3] = {"gz", "gzip"};
+
+   for(const std::string &gzipExt : gzipExtensions) {
+     try {
+         edm::FileInPath weightFileEdm(weightFile + "." + gzipExt);
+         return GBRForestTools::createGBRForest(weightFileEdm, varNames);
+     } catch (edm::Exception& e) {
+         if (e.category() == "FileInPathError") continue;
+         else throw e;
+     }
+   }
+
+   edm::FileInPath weightFileEdm(weightFile);
+   return GBRForestTools::createGBRForest(weightFileEdm, varNames);
+
 }
 
 // Creates a pointer to new GBRForest corresponding to a TMVA weights file
-std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::FileInPath &weightFile){
+std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::FileInPath &weightFile,
+                                                                 std::vector<std::string> &varNames){
 
   std::string method;
 
@@ -43,7 +64,7 @@ std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::File
   std::vector<float> dumbVars;
   std::vector<float> dumbSpecs;
 
-  std::vector<std::string> varNames;
+  varNames.clear();
   std::vector<std::string> specNames;
 
   std::string line;
@@ -134,4 +155,14 @@ std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::File
   delete mvaReader;
 
   return gbrForest;
+}
+
+std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string &weightFile){
+  std::vector<std::string> varNames;
+  return GBRForestTools::createGBRForest(weightFile);
+}
+
+std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::FileInPath &weightFile){
+    std::vector<std::string> varNames;
+    return GBRForestTools::createGBRForest(weightFile, varNames);
 }
