@@ -572,10 +572,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }
   }
 
-  if(!ootPhotonT_.isUninitialized()) {
-    theEvent.put(std::move(ebRecHits),outEBRecHits_);
-    theEvent.put(std::move(eeRecHits),outEERecHits_);
-  }
+  theEvent.put(std::move(ebRecHits),outEBRecHits_);
+  theEvent.put(std::move(eeRecHits),outEERecHits_);
 
   if (doPreshowerEcalHits_) { 
     for (const EcalRecHit &rechit : *preshowerHitHandle) {
