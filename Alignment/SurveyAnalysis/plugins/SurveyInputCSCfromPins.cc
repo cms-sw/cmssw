@@ -39,7 +39,7 @@ SurveyInputCSCfromPins::SurveyInputCSCfromPins(const edm::ParameterSet& cfg)
   , m_stationErrorPhiZ(cfg.getParameter<double>("stationErrorPhiZ"))
 {}
 
-void SurveyInputCSCfromPins::orient(LocalVector LC1, LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ) {
+void SurveyInputCSCfromPins::orient(align::LocalVector LC1, align::LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ) {
    double cosPhX, sinPhX, cosPhZ, sinPhZ;
 
    LocalPoint LP1(LC1.x(), LC1.y() + a, LC1.z() + b);
