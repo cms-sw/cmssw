@@ -79,40 +79,7 @@ void L1TStage2BMTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& i
   bmtf_hwQual_bx   = ibooker.book2D(histoPrefix+"_hwQual_bx"  , "HW Quality vs BX"      ,  20,   -0.5,  19.5,  5, -2.5, 2.5);
   bmtf_hwQual_bx->setTitle("; HW Quality; BX");
   if (kalman) {
-    bmtf_hwEta = ibooker.book1D(histoPrefix+"_hwEta", "HW #eta", 461, -230.5, 230.5);
-    bmtf_hwLocalPhi = ibooker.book1D(histoPrefix+"_hwLocalPhi", "HW Local #phi", 201, -100.5, 100.5);
-    bmtf_hwGlobalPhi = ibooker.book1D(histoPrefix+"_hwGlobalPhi", "HW Global #phi", 576, -0.5, 575.5);
     bmtf_hwPt  = ibooker.book1D(histoPrefix+"_hwPt", "HW p_{T}", 522, -0.5, 521.5);
-    bmtf_hwQual= ibooker.book1D(histoPrefix+"_hwQual" , "HW Quality", 20, -0.5, 19.5);
-    bmtf_proc  = ibooker.book1D(histoPrefix+"_proc" , "Processor", 12, -0.5, 11.5);
-
-    bmtf_wedge_bx  = ibooker.book2D(histoPrefix+"_wedge_bx", "Wedge vs BX", 12, -0.5, 11.5, 5, -2.5, 2.5);
-    bmtf_wedge_bx->setTitle(";Wedge; BX");
-    for (int bin = 1; bin < 13; ++bin) {
-      bmtf_wedge_bx->setBinLabel(bin, std::to_string(bin), 1);
-    }
-
-    bmtf_hwEta_hwLocalPhi = ibooker.book2D(histoPrefix+"_hwEta_hwLocalPhi", "HW #eta vs HW Local #phi" , 461, -230.5, 230.5, 201, -100.5, 100.5);
-    bmtf_hwEta_hwLocalPhi->setTitle(";HW #eta; HW Local #phi");
-
-    bmtf_hwEta_hwGlobalPhi = ibooker.book2D(histoPrefix+"_hwEta_hwGlobalPhi", "HW #eta vs HW Global #phi" , 100, -230.5, 230.5, 120, -0.5, 575.5);
-    bmtf_hwEta_hwGlobalPhi->setTitle(";HW #eta; HW Global #phi");
-
-    bmtf_hwPt_hwEta  = ibooker.book2D(histoPrefix+"_hwPt_hwEta" , "HW p_{T} vs HW #eta", 511, -0.5, 510.5, 461, -230.5, 230.5);
-    bmtf_hwPt_hwEta->setTitle(";HW p_{T}; HW #eta");
-
-    bmtf_hwPt_hwLocalPhi  = ibooker.book2D(histoPrefix+"_hwPt_hwLocalPhi" , "HW p_{T} vs HW Local #phi", 511, -0.5, 510.5, 201, -100.5, 100.5);
-    bmtf_hwPt_hwLocalPhi->setTitle(";HW p_{T}; HW Local #phi");
-
-    bmtf_hwEta_bx    = ibooker.book2D(histoPrefix+"_hwEta_bx"   , "HW #eta vs BX"      , 461, -230.5, 230.5,  5, -2.5, 2.5);
-    bmtf_hwEta_bx->setTitle(";HW #eta; BX");
-
-    bmtf_hwLocalPhi_bx    = ibooker.book2D(histoPrefix+"_hwLocalPhi_bx"   , "HW Local #phi vs BX"      , 201, -100.5, 100.5,  5, -2.5, 2.5);
-    bmtf_hwLocalPhi_bx->setTitle(";HW Local #phi; BX");
-
-    bmtf_hwPt_bx     = ibooker.book2D(histoPrefix+"_hwPt_bx"    , "HW p_{T} vs BX"     , 511,   -0.5, 510.5,  5, -2.5, 2.5);
-    bmtf_hwPt_bx->setTitle(";HW p_{T}; BX");
-
     bmtf_hwQual_bx   = ibooker.book2D(histoPrefix+"_hwQual_bx"  , "HW Quality vs BX"      ,  20,   -0.5,  19.5,  5, -2.5, 2.5);
     bmtf_hwQual_bx->setTitle("; HW Quality; BX");
   
