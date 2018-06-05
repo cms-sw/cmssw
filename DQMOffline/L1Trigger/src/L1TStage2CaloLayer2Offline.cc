@@ -375,6 +375,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
       minDeltaR = currentDeltaR;
       closestL1Jet = *jet;
       foundMatch = true;
+      break;
     }
 
   }
