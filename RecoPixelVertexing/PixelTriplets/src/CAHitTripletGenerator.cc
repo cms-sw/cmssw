@@ -58,7 +58,7 @@ void CAHitTripletGenerator::fillDescriptions(edm::ParameterSetDescription& desc)
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 0.1);
   desc.add<double>("CAHardPtCut", 0);
-  
+
   edm::ParameterSetDescription descMaxChi2;
   descMaxChi2.add<double>("pt1", 0.8);
   descMaxChi2.add<double>("pt2", 2);

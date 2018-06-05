@@ -61,7 +61,6 @@ from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_
 initialStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "initialStepHitTriplets",
 )
-trackingPhase1.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
 from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
 _initialStepCAHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     doublets = "initialStepHitDoublets",
@@ -77,7 +76,6 @@ _initialStepCAHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAThetaCut = 0.0012,
     CAPhiCut = 0.2,
 )
-
 initialStepHitQuadruplets = _initialStepCAHitQuadruplets.clone()
 trackingPhase1.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
 

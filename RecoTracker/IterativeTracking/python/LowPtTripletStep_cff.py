@@ -107,7 +107,6 @@ trackingPhase1.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProduce
     CAPhiCut = 0.05,
 ))
 
-
 trackingPhase2PU140.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
 trackingPhase2PU140.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProducer.clone(
     doublets = "lowPtTripletStepHitDoublets",
@@ -135,7 +134,7 @@ _fastSim_lowPtTripletStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.S
 #new for phase1
 trackingPhase1.toModify(_fastSim_lowPtTripletStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
-        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))),
+        CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtTripletStepHitTriplets).clone(SeedComparitorPSet = dict(ComponentName = "none")),
         #new parameters required for phase1 seeding
         layerList = lowPtTripletStepSeedLayers.layerList.value(),
         BPix = dict(

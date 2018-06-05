@@ -90,15 +90,14 @@ _fastSim_detachedQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_
     layerList = detachedQuadStepSeedLayers.layerList.value(),
     trackingRegions = "detachedQuadStepTrackingRegions",
     hitMasks = cms.InputTag("detachedQuadStepMasks"),
-    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets),
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets).clone(
+            SeedComparitorPSet = dict(ComponentName = "none")),
                                #new parameters required for phase1 seeding
                                layerList = detachedQuadStepSeedLayers.layerList.value(),
                                BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                layerPairs = detachedQuadStepHitDoublets.layerPairs.value()
                                ))
-
-_fastSim_detachedQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 fastSim.toReplaceWith(detachedQuadStepSeeds,_fastSim_detachedQuadStepSeeds)
 
 from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
