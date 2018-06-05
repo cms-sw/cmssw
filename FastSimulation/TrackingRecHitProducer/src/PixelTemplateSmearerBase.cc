@@ -429,10 +429,10 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit (
     }
 
     //--- Make the template object
-    SiPixelTemplate templ(thePixelTemp_);
+    SiPixelTemplate templ( thePixelTempRef );
 
     //--- Produce the template that corresponds to our local angles.
-    templ.interpolate( ID, cotalpha, cotbeta);
+    templ.interpolate( ID, cotalpha, cotbeta );
 
     //Variables for SiPixelTemplate output
     //qBin -- normalized pixel charge deposition
@@ -884,10 +884,10 @@ smearMergeGroup (
     }
 
     //--- Make the template object
-    SiPixelTemplate templ(thePixelTemp_);
+    SiPixelTemplate templ( thePixelTempRef );
 
     //--- Produce the template that corresponds to our local angles.
-    templ.interpolate( ID, cotalpha, cotbeta);
+    templ.interpolate( ID, cotalpha, cotbeta );
 
     // Variables for SiPixelTemplate output
     // qBin -- normalized pixel charge deposition
