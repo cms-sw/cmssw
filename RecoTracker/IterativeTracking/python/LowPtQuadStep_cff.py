@@ -70,7 +70,6 @@ lowPtQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAThetaCut = 0.0017,
     CAPhiCut = 0.3,
 )
-
 trackingPhase2PU140.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0015,CAPhiCut = 0.25)
 highBetaStar_2018.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0034,CAPhiCut = 0.6)
 
@@ -86,7 +85,8 @@ _fastSim_lowPtQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi
     layerList = lowPtQuadStepSeedLayers.layerList.value(),
     trackingRegions = "lowPtQuadStepTrackingRegions",
     hitMasks = cms.InputTag("lowPtQuadStepMasks"),
-    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets),
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets).clone(
+            SeedComparitorPSet = dict(ComponentName = "none")),
                                #new parameters required for phase1 seeding
                                layerList = lowPtQuadStepSeedLayers.layerList.value(),
                                BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
