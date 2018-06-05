@@ -5,12 +5,28 @@
 #include <cuda_runtime.h>
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 
-__global__ void kernel_test_hcal_rechits(HBHERecHit* other) {
+__global__ void kernel_test_hcal_rechits(HBHERecHit *other) {
     HBHERecHit rh(HcalDetId(0), 10.0f, 10.0f, 10.0f);
     other->setEnergy(rh.energy());
     other->setTime(rh.time());
     other->setTimeFalling(rh.timeFalling());
+}
+
+__global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
+    HBHEChannelInfo info{true, true};
+    info.setChannelInfo(
+        HcalDetId{0},
+        10, 10, 10, 1,
+        2.0, 2.0, 2.0,
+        false, false, false);
+    other->setChannelInfo(
+        info.id(),
+        info.recoShape(), info.nSamples(), info.soi(), info.capid(),
+        info.darkCurrent(), info.fcByPE(), info.lambda(),
+        info.hasLinkError(), info.hasCapidError(), info.isDropped()
+        );
 }
 
 void test_hcal_rechits() {
@@ -35,6 +51,43 @@ void test_hcal_rechits() {
     assert(h_rh.time() == h_rh_test.time());
     assert(h_rh.timeFalling() == h_rh_test.timeFalling());
     assert(h_rh.chi2() == h_rh_test.chi2());
+
+    std::cout << "all good in " << __FUNCTION__ << std::endl;
+}
+
+void test_hcal_hbhechinfo() {
+    auto check_error = [](auto code) {
+        if (code != cudaSuccess)
+            std::cout << cudaGetErrorString(code) << std::endl;
+    };
+
+    HBHEChannelInfo h_info, h_info_test{true, true};
+    h_info_test.setChannelInfo(
+        HcalDetId{0},
+        10, 10, 10, 1,
+        2.0, 2.0, 2.0,
+        false, false, false);
+    HBHEChannelInfo *d_info;
+
+    cudaMalloc((void**)&d_info, sizeof(HBHEChannelInfo));
+    cudaMemcpy(d_info, &h_info, sizeof(HBHEChannelInfo), cudaMemcpyHostToDevice);
+    kernel_test_hcal_hbhechinfo<<<1,1>>>(d_info);
+    cudaDeviceSynchronize();
+    check_error(cudaGetLastError());
+    cudaMemcpy(&h_info, d_info, sizeof(HBHEChannelInfo), cudaMemcpyDeviceToHost);
+
+    assert(h_info.id() == h_info_test.id());
+    assert(h_info.recoShape() == h_info_test.recoShape());
+    assert(h_info.nSamples() == h_info_test.nSamples());
+    assert(h_info.soi() == h_info_test.soi());
+    assert(h_info.capid() == h_info_test.capid());
+    assert(h_info.darkCurrent() == h_info_test.darkCurrent());
+    assert(h_info.fcByPE() == h_info_test.fcByPE());
+    assert(h_info.lambda() == h_info_test.lambda());
+    assert(h_info.hasLinkError() == h_info_test.hasLinkError());
+    assert(h_info.hasCapidError() == h_info_test.hasCapidError());
+
+    std::cout << "all good in " << __FUNCTION__ << std::endl;
 }
 
 int main(int argc, char ** argv) {
@@ -44,6 +97,7 @@ int main(int argc, char ** argv) {
 
     if (nDevices > 0) {
         test_hcal_rechits();
+        test_hcal_hbhechinfo();
 
         std::cout << "all good" << std::endl;
     }
