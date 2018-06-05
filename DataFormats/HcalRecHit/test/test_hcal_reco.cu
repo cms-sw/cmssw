@@ -7,6 +7,7 @@
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
+#include "DataFormats/HcalRecHit/interface/HFQIE10Info.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 
 template<typename T>
@@ -15,6 +16,10 @@ __global__ void kernel_test_hcal_rechits(T *other) {
     other->setEnergy(rh.energy());
     other->setTime(rh.time());
     other->setTimeFalling(rh.timeFalling());
+}
+
+__global__ void kernel_test_hcal_hfqie10info() {
+    HFQIE10Info info;
 }
 
 __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
@@ -32,11 +37,25 @@ __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
         );
 }
 
+void test_hcal_hfqie10info() {
+    auto check_error = [](auto code) {
+        if (code != cudaSuccess) {
+            std::cout << cudaGetErrorString(code) << std::endl;
+            assert(false);
+        }
+    };
+
+    kernel_test_hcal_hfqie10info<<<1,1>>>();
+    check_error(cudaGetLastError());
+}
+
 template<typename T>
 void test_hcal_rechits() {
     auto check_error = [](auto code) {
-        if (code != cudaSuccess)
+        if (code != cudaSuccess) {
             std::cout << cudaGetErrorString(code) << std::endl;
+            assert(false);
+        }
     };
 
     T h_rh, h_rh_test{HcalDetId(0), 10.0f, 10.0f, 10.0f};
@@ -60,8 +79,10 @@ void test_hcal_rechits() {
 
 void test_hcal_hbhechinfo() {
     auto check_error = [](auto code) {
-        if (code != cudaSuccess)
+        if (code != cudaSuccess) {
             std::cout << cudaGetErrorString(code) << std::endl;
+            assert(false);
+        }
     };
 
     HBHEChannelInfo h_info, h_info_test{true, true};
