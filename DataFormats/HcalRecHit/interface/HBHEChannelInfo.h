@@ -19,15 +19,23 @@ public:
     static const unsigned MAXSAMPLES = 10;
 
     constexpr HBHEChannelInfo()
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
-        gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-        dFcPerADC_{0.f}, hasTimeInfo_(false), hasEffectivePedestals_(false) {clear();}
+      : id_(), rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
+        gain_{0.}, gainWidth_{0.}, darkCurrent_{0}, fcByPE_{0}, lambda_{0},
+        riseTime_{0.f}, adc_{0},
+        dFcPerADC_{0.f}, recoShape_{0}, nSamples_{0}, 
+        soi_{0}, capid_{0}, hasTimeInfo_{false}, hasEffectivePedestals_{false},
+        dropped_{true}, hasLinkError_{false}, hasCapidError_{false}
+    {clear();}
 
     constexpr explicit HBHEChannelInfo(const bool hasTimeFromTDC, const bool hasEffectivePed)
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
-        gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-        dFcPerADC_{0.f}, hasTimeInfo_(hasTimeFromTDC), 
-        hasEffectivePedestals_(hasEffectivePed) {clear();}
+      : id_(), rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
+        gain_{0.}, gainWidth_{0.}, darkCurrent_{0}, fcByPE_{0}, lambda_{0}, 
+        riseTime_{0.f}, adc_{0},
+        dFcPerADC_{0.f}, recoShape_{0}, nSamples_{0}, 
+        soi_{0}, capid_{0}, hasTimeInfo_(hasTimeFromTDC), 
+        hasEffectivePedestals_(hasEffectivePed),
+        dropped_{true}, hasLinkError_{false}, hasCapidError_{false}
+    {clear();}
 
     constexpr void clear()
     {
