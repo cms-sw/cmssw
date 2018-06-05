@@ -74,7 +74,6 @@ detachedQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAThetaCut = 0.0011,
     CAPhiCut = 0,
 )
-
 highBetaStar_2018.toModify(detachedQuadStepHitQuadruplets,CAThetaCut = 0.0022,CAPhiCut = 0.1)
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
@@ -97,15 +96,14 @@ _fastSim_detachedQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_
     layerList = detachedQuadStepSeedLayers.layerList.value(),
     trackingRegions = "detachedQuadStepTrackingRegions",
     hitMasks = cms.InputTag("detachedQuadStepMasks"),
-    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets),
+    seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets).clone(
+            SeedComparitorPSet = dict(ComponentName = "none")),
                                #new parameters required for phase1 seeding
                                layerList = detachedQuadStepSeedLayers.layerList.value(),
                                BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                layerPairs = detachedQuadStepHitDoublets.layerPairs.value()
                                ))
-
-_fastSim_detachedQuadStepSeeds.seedFinderSelector.CAHitQuadrupletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 fastSim.toReplaceWith(detachedQuadStepSeeds,_fastSim_detachedQuadStepSeeds)
 
 # QUALITY CUTS DURING TRACK BUILDING
