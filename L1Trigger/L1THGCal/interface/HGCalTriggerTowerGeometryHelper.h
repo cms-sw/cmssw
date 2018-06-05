@@ -14,6 +14,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTowerID.h"
 
 #include <vector>
+#include <unordered_map>
 
 namespace l1t {
   class HGCalTowerID;
@@ -34,7 +35,7 @@ class HGCalTriggerTowerGeometryHelper {
   private:
 
     std::vector<l1t::HGCalTowerCoord> tower_coords_;
-    std::map<unsigned, short> cells_to_trigger_towers_;
+    std::unordered_map<unsigned, short> cells_to_trigger_towers_;
 
     double minEta_;
     double maxEta_;
