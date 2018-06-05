@@ -138,5 +138,15 @@
       <rChild name="testLogicalParts:etube"/>
       <Translation z="-8.9*m" y="5.9*m" x="0."/>
     </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:trunctubs1"/>
+      <Translation z="-18.9*m" y="5.9*m" x="0."/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:trunctubs2"/>
+      <Translation z="-28.9*m" y="5.9*m" x="0."/>
+    </PosPart>
   </PosPartSection>
 </DDDefinition>
