@@ -1,3 +1,5 @@
+#include "GeneratorInterface/Pythia8Interface/plugins/PowhegHooksBB4L.h"
+
 class EmissionVetoHook1 : public Pythia8::UserHooks {
 
 public:  
