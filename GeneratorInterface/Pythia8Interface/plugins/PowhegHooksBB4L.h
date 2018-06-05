@@ -8,7 +8,7 @@
 
 // Includes
 #include "Pythia8/Pythia.h"
-#include <assert.h>
+#include <cassert>
 struct{
   int radtype;
 } radtype_;
@@ -21,12 +21,12 @@ namespace Pythia8 {
 
     //--- Constructor and destructor -------------------------------------------
   PowhegHooksBB4L() : nFSRvetoBB4l(0) {}
-    ~PowhegHooksBB4L() {
+    ~PowhegHooksBB4L() override {
       std::cout << "Number of FSR vetoed in BB4l = " << nFSRvetoBB4l << std::endl;
     }
 	
     //--- Initialization -----------------------------------------------------------------------
-    bool initAfterBeams() {
+    bool initAfterBeams() override {
       // settings of this class
       vetoFSREmission = settingsPtr->flag("POWHEG:bb4l:FSREmission:veto");
       onlyDistance1 = settingsPtr->flag("POWHEG:bb4l:FSREmission:onlyDistance1");
@@ -48,8 +48,8 @@ namespace Pythia8 {
     //--- PROCESS LEVEL HOOK ---------------------------------------------------
 
     // called at the LHE level
-    inline bool canVetoProcessLevel() { return true; }
-    inline bool doVetoProcessLevel(Event &e) {
+    inline bool canVetoProcessLevel() override { return true; }
+    inline bool doVetoProcessLevel(Event &e) override {
       
       // extract the radtype from the event comment
       stringstream ss;
@@ -83,9 +83,9 @@ namespace Pythia8 {
     //--- PARTON LEVEL HOOK ----------------------------------------------------
 
     // called after shower
-    bool retryPartonLevel() { return vetoPartonLevel || vetoAtPL; }
-    inline bool canVetoPartonLevel() { return vetoPartonLevel || vetoAtPL; }
-    inline bool doVetoPartonLevel(const Event &e) {
+    bool retryPartonLevel() override { return vetoPartonLevel || vetoAtPL; }
+    inline bool canVetoPartonLevel() override { return vetoPartonLevel || vetoAtPL; }
+    inline bool doVetoPartonLevel(const Event &e) override {
       if(radtype_.radtype==2)
 	return false;
       if (debug){
@@ -120,8 +120,8 @@ namespace Pythia8 {
     //           PowhegHooksBB4L::canVetoFSREmission, so FSR veto in production
     //           must be handled here. ISR and MPI veto are instead still
     //           handled by PowhegHooks.)
-    inline bool canVetoFSREmission() { return vetoFSREmission; } // || vetoProduction; }
-    inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) {
+    inline bool canVetoFSREmission() override { return vetoFSREmission; } // || vetoProduction; }
+    inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) override {
       //////////////////////////////
       //VETO INSIDE THE RESONANCE //
       //////////////////////////////
@@ -237,12 +237,12 @@ namespace Pythia8 {
 
     //--- SCALE RESONANCE HOOK -------------------------------------------------
     // called before each resonance decay shower
-    inline bool canSetResonanceScale() { return scaleResonanceVeto; }
+    inline bool canSetResonanceScale() override { return scaleResonanceVeto; }
     // if the resonance is the (anti)top set the scale to:
     //  ---> (anti)top virtuality if radtype=2
     //  ---> (a)topresscale otherwise
     // if is not the top, set it to a big number
-    inline double scaleResonance(int iRes, const Event &e) {		
+    inline double scaleResonance(int iRes, const Event &e) override {		
       if (e[iRes].id() == 6){
 	if(radtype_.radtype == 2)
 	  return sqrt(e[iRes].m2Calc());
