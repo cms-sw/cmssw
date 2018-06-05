@@ -1,6 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
+# This MVA implementation class name
+mvaClassName = "PhotonMVAEstimator"
+
+# The locatoins of value maps with the actual MVA values and categories
+# for all particles.
+# The names for the maps are "<module name>:<MVA class name>Values" 
+# and "<module name>:<MVA class name>Categories"
+mvaProducerModuleLabel = "photonMVAValueMapProducer"
+
 # =======================================================
 # Define simple containers for MVA cut values and related
 # =======================================================
@@ -72,14 +81,6 @@ def configureVIDMVAPhoID_V1( mvaWP ):
 
 def configureFullVIDMVAPhoID(mvaTag, variablesFile, weightFiles, wpConfig, **addKwargsForValueProducer):
 
-    # This MVA implementation class name
-    mvaClassName = "PhotonMVAEstimator"
-
-    # The locatoins of value maps with the actual MVA values and categories
-    # for all particles.
-    # The names for the maps are "<module name>:<MVA class name>Values" 
-    # and "<module name>:<MVA class name>Categories"
-    mvaProducerModuleLabel = "photonMVAValueMapProducer"
     mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaClassName + mvaTag + "Values"
     mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaClassName + mvaTag + "Categories"
 

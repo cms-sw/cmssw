@@ -2,17 +2,20 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import *
 from os import path
 
+# Egamma presentation on this ID:
+# https://indico.cern.ch/event/732971/contributions/3022864/attachments/1658765/2656595/180530_egamma.pdf
+
 mvaTag = "Fall17IsoV2"
 
 weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Fall17IsoV2"
 
 mvaWeightFiles = cms.vstring(
-     path.join(weightFileDir, "EB1_5.weights.xml"), # EB1_5
-     path.join(weightFileDir, "EB2_5.weights.xml"), # EB2_5
-     path.join(weightFileDir, "EE_5.weights.xml"), # EE_5
-     path.join(weightFileDir, "EB1_10.weights.xml"), # EB1_10
-     path.join(weightFileDir, "EB2_10.weights.xml"), # EB2_10
-     path.join(weightFileDir, "EE_10.weights.xml"), # EE_10
+     path.join(weightFileDir, "EB1_5.weights.xml.gz"), # EB1_5
+     path.join(weightFileDir, "EB2_5.weights.xml.gz"), # EB2_5
+     path.join(weightFileDir, "EE_5.weights.xml.gz"), # EE_5
+     path.join(weightFileDir, "EB1_10.weights.xml.gz"), # EB1_10
+     path.join(weightFileDir, "EB2_10.weights.xml.gz"), # EB2_10
+     path.join(weightFileDir, "EE_10.weights.xml.gz"), # EE_10
      )
 
 categoryCuts = cms.vstring(
@@ -79,7 +82,7 @@ mvaEleID_Fall17_iso_V2_wp80 = configureVIDMVAEleID( mvaEleID_Fall17_iso_V2_wp80_
 mvaEleID_Fall17_iso_V2_wpLoose = configureVIDMVAEleID( mvaEleID_Fall17_iso_V2_wpLoose_container )
 mvaEleID_Fall17_iso_V2_wp90 = configureVIDMVAEleID( mvaEleID_Fall17_iso_V2_wp90_container )
 
-mvaEleID_Fall17_iso_V2_wpHZZ.isPOGApproved = cms.untracked.bool(False)
-mvaEleID_Fall17_iso_V2_wp80.isPOGApproved = cms.untracked.bool(False)
-mvaEleID_Fall17_iso_V2_wpLoose.isPOGApproved = cms.untracked.bool(False)
-mvaEleID_Fall17_iso_V2_wp90.isPOGApproved = cms.untracked.bool(False)
+mvaEleID_Fall17_iso_V2_wpHZZ.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_iso_V2_wp80.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_iso_V2_wpLoose.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Fall17_iso_V2_wp90.isPOGApproved = cms.untracked.bool(True)

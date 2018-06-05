@@ -14,11 +14,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 outputFile = "photon_validation_ntuple.root"
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-# process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/data_CMS/cms/rembser/store/mc/RunIISummer17MiniAOD/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/92X_upgrade2017_realistic_v10_ext1-v1/110000/02CF84A2-6086-E711-A3A1-0CC47A7C3458.root'
+         '/store/mc/RunIIFall17MiniAOD/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/RECOSIMstep_94X_mc2017_realistic_v10-v1/00000/0293A280-B5F3-E711-8303-3417EBE33927.root'
     )
 )
 
