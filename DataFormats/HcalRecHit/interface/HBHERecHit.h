@@ -5,7 +5,6 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloRecHit/interface/CaloRecHit.h"
-#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 
 /** \class HBHERecHit
  *  
@@ -17,6 +16,7 @@ public:
 
   constexpr HBHERecHit()
     : CaloRecHit(),
+      timeFalling_(-1.0),
       chiSquared_(-1),
       rawEnergy_(-1.0e21),
       auxEnergy_(-1.0e21),
@@ -24,7 +24,7 @@ public:
       auxPhase1_(0)
   {}
   //HBHERecHit(const HcalDetId& id, float energy, float time);
-  constexpr HBHERecHit(const HcalDetId& id, float amplitude, 
+  constexpr HBHERecHit(const HcalDetId& id, float energy, 
                        float timeRising, float timeFalling=0)
     : CaloRecHit(id,energy,timeRising),
       timeFalling_(timeFalling),
@@ -56,9 +56,7 @@ public:
   constexpr inline uint32_t auxPhase1() const {return auxPhase1_;}
 
   // The following method returns "true" for "Plan 1" merged rechits
-  constexpr bool isMerged() const {
-    return auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED);
-  }
+  bool isMerged() const;
 
   // The following method fills the vector with the ids of the
   // rechits that have been merged to construct the "Plan 1" rechit.
@@ -66,14 +64,7 @@ public:
   void getMergedIds(std::vector<HcalDetId>* ids) const;
 
   // Returns the DetId of the front Id if it is a merged RecHit in "Plan 1"
-  constexpr HcalDetId idFront() const {
-    if (auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED)) {
-      const HcalDetId myId(id());
-      return HcalDetId(myId.subdet(), myId.ieta(), myId.iphi(), auxHBHE_ & 0xf);
-    } else {
-      return id();
-    }
-  }
+  HcalDetId idFront() const;
 private:
   float timeFalling_;
   float chiSquared_;
