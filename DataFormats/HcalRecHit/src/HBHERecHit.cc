@@ -1,5 +1,19 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
+
+HcalDetId HBHERecHit::idFront() const {
+  if (auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED)) {
+     const HcalDetId myId(id());
+     return HcalDetId(myId.subdet(), myId.ieta(), myId.iphi(), auxHBHE_ & 0xf);
+  } else {
+    return id();
+  }
+}
+
+bool HBHERecHit::isMerged() const {
+  return auxPhase1_ & (1U << HBHERecHitAuxSetter::OFF_COMBINED);
+}
 
 std::ostream& operator<<(std::ostream& s, const HBHERecHit& hit) {
   s << hit.id() << ": " << hit.energy() << " GeV";
