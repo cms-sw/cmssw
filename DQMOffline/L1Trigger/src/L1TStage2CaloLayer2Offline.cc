@@ -297,7 +297,12 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   fillWithinLimits(h_resolutionPFMetNoMu_, resolutionPFMetNoMu);
   fillWithinLimits(h_resolutionMHT_, resolutionMHT);
   fillWithinLimits(h_resolutionETT_, resolutionETT);
-  fillWithinLimits(h_resolutionHTT_, resolutionHTT);
+  if (resolutionMHT < outOfBounds){
+    fillWithinLimits(h_resolutionMHT_, resolutionMHT);
+  }
+  if(resolutionHTT < outOfBounds){
+    fillWithinLimits(h_resolutionHTT_, resolutionHTT);
+  }
 
   fillWithinLimits(h_resolutionMETPhi_, resolutionMETPhi);
   fillWithinLimits(h_resolutionETMHFPhi_, resolutionETMHFPhi);
@@ -576,26 +581,24 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
 
   // energy sum resolutions
   h_resolutionMET_ = ibooker.book1D("resolutionMET",
-      "MET resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss}; events", 50, -1, 1.5);
+      "MET resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss}; events", 70, -1.0, 2.5);
   h_resolutionETMHF_ = ibooker.book1D("resolutionETMHF",
-      "MET resolution (HF); (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (HF); events", 50, -1, 1.5);
+      "MET resolution (HF); (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (HF); events", 70, -1.0, 2.5);
   h_resolutionPFMetNoMu_ = ibooker.book1D("resolutionPFMetNoMu",
-          "PFMetNoMu resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (PFMetNoMu); events", 50, -1, 1.5);
-  h_resolutionMHT_ = ibooker.book1D("resolutionMHT", "MHT resolution; (L1 MHT - reco MHT)/reco MHT; events", 50, -1,
-      1.5);
-  h_resolutionETT_ = ibooker.book1D("resolutionETT", "ETT resolution; (L1 ETT - calo ETT)/calo ETT; events", 50, -1,
-      1.5);
+          "PFMetNoMu resolution; (L1 E_{T}^{miss} - Offline E_{T}^{miss})/Offline E_{T}^{miss} (PFMetNoMu); events", 70, -1.0, 2.5);
+  h_resolutionMHT_ = ibooker.book1D("resolutionMHT", "MHT resolution; (L1 MHT - reco MHT)/reco MHT; events", 70, -1.0, 2.5);
+  h_resolutionETT_ = ibooker.book1D("resolutionETT", "ETT resolution; (L1 ETT - calo ETT)/calo ETT; events", 70, -1.0, 2.5);
   h_resolutionHTT_ = ibooker.book1D("resolutionHTT",
-      "HTT resolution; (L1 Total H_{T} - Offline Total H_{T})/Offline Total H_{T}; events", 50, -1, 1.5);
+      "HTT resolution; (L1 Total H_{T} - Offline Total H_{T})/Offline Total H_{T}; events", 70, -1.0, 2.5);
 
   h_resolutionMETPhi_ = ibooker.book1D("resolutionMETPhi",
-      "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi; events", 120, -0.3, 0.3);
+      "MET #phi resolution; (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi; events", 200, -1, 1);
   h_resolutionETMHFPhi_ = ibooker.book1D("resolutionETMHFPhi",
-      "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (HF); events", 120, -0.3, 0.3);
+      "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (HF); events", 200, -1, 1);
   h_resolutionPFMetNoMuPhi_ = ibooker.book1D("resolutionPFMetNoMuPhi",
-      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (PFMetNoMu); events", 120, -0.3, 0.3);
+      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi)/reco MET #phi (PFMetNoMu); events", 200, -1, 1);
   h_resolutionMHTPhi_ = ibooker.book1D("resolutionMHTPhi",
-      "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
+      "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events",  200, -1, 1);
 
   // energy sum turn ons
   ibooker.setCurrentFolder(efficiencyFolderEtSum_);
