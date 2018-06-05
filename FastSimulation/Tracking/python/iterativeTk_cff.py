@@ -43,7 +43,7 @@ _iterTracking_Phase1 = cms.Sequence(
     +LowPtQuadStep
     +HighPtTripletStep
     +LowPtTripletStep
-    +DetachedQuadrupletStep
+    +DetachedQuadStep
     +DetachedTripletStep
     +PixelPairStep
     +MixedTripletStep
