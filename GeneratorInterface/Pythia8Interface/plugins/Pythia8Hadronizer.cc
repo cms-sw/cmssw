@@ -147,6 +147,8 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     int  EV1_emittedMode;
     int  EV1_pTdefMode;
     bool EV1_MPIvetoOn;   
+    int  EV1_QEDvetoMode;
+    int  EV1_nFinalMode;
 
     static const std::vector<std::string> p8SharedResources;
     
@@ -282,9 +284,14 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     if(params.exists("EV1_pTdefMode")) EV1_pTdefMode = params.getParameter<int>("EV1_pTdefMode");
     EV1_MPIvetoOn = false;
     if(params.exists("EV1_MPIvetoOn")) EV1_MPIvetoOn = params.getParameter<bool>("EV1_MPIvetoOn");
+    EV1_QEDvetoMode = 0;
+    if(params.exists("EV1_QEDvetoMode")) EV1_QEDvetoMode = params.getParameter<int>("EV1_QEDvetoMode");
+    EV1_nFinalMode = 0;
+    if(params.exists("EV1_nFinalMode")) EV1_nFinalMode = params.getParameter<int>("EV1_nFinalMode");
     fEmissionVetoHook1.reset(new EmissionVetoHook1(EV1_nFinal, EV1_vetoOn,
                                EV1_maxVetoCount, EV1_pThardMode, EV1_pTempMode,
-                               EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0));
+                               EV1_emittedMode, EV1_pTdefMode, 
+			       EV1_MPIvetoOn, EV1_QEDvetoMode, EV1_nFinalMode, 0));
   }
   
 }

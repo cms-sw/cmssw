@@ -8,58 +8,279 @@
 
 // Includes
 #include "Pythia8/Pythia.h"
-//#include "Pythia8Plugins/PowhegHooks.h"
+#include <cassert>
+struct{
+  int radtype;
+} radtype_;
 
 namespace Pythia8 {
 
-//==========================================================================
+  class PowhegHooksBB4L : public UserHooks {
 
-// Use userhooks to veto PYTHIA emissions above the POWHEG scale.
+  public:
 
-class PowhegHooksBB4L : public UserHooks {
-//class PowhegHooksBB4L : public PowhegHooks {
+    //--- Constructor and destructor -------------------------------------------
+  PowhegHooksBB4L() : nFSRvetoBB4l(0) {}
+    ~PowhegHooksBB4L() override {
+      std::cout << "Number of FSR vetoed in BB4l = " << nFSRvetoBB4l << std::endl;
+    }
+	
+    //--- Initialization -----------------------------------------------------------------------
+    bool initAfterBeams() override {
+      // settings of this class
+      vetoFSREmission = settingsPtr->flag("POWHEG:bb4l:FSREmission:veto");
+      onlyDistance1 = settingsPtr->flag("POWHEG:bb4l:FSREmission:onlyDistance1");
+      dryRunFSR = settingsPtr->flag("POWHEG:bb4l:FSREmission:dryRun");
+      vetoAtPL = settingsPtr->flag("POWHEG:bb4l:FSREmission:vetoAtPL");
+      vetoQED = settingsPtr->flag("POWHEG:bb4l:FSREmission:vetoQED");
+      vetoPartonLevel = settingsPtr->flag("POWHEG:bb4l:PartonLevel:veto");
+      excludeFSRConflicting = settingsPtr->flag("POWHEG:bb4l:PartonLevel:excludeFSRConflicting");
+      debug = settingsPtr->flag("POWHEG:bb4l:DEBUG");
+      scaleResonanceVeto = settingsPtr->flag("POWHEG:bb4l:ScaleResonance:veto");
+      vetoDipoleFrame = settingsPtr->flag("POWHEG:bb4l:FSREmission:vetoDipoleFrame");
+      pTpythiaVeto = settingsPtr->flag("POWHEG:bb4l:FSREmission:pTpythiaVeto");
+      //vetoProduction = (settingsPtr->mode("POWHEG:veto")==1);
+      pTmin = settingsPtr->parm("POWHEG:bb4l:pTminVeto");
+      return true;
+    }
 
-public:
 
-	// Constructor and destructor.
-	PowhegHooksBB4L() {}
-	~PowhegHooksBB4L() {}
-//--------------------------------------------------------------------------
+    //--- PROCESS LEVEL HOOK ---------------------------------------------------
 
-	// Initialize settings
-	bool initAfterBeams() {			
-		// settings of the parent class
-//		PowhegHook::initAfterBeams();
-		// settings of this class
-		onlyDistance1 = settingsPtr->flag("POWHEG:bb4l:onlyDistance1");
-		useScaleResonanceInstead = settingsPtr->flag("POWHEG:bb4l:useScaleResonanceInstead");
-		// variables used during the veto
-		topresscale = -1;	
-		atopresscale = -1;	
-		return true;
+    // called at the LHE level
+    inline bool canVetoProcessLevel() override { return true; }
+    inline bool doVetoProcessLevel(Event &e) override {
+      
+      // extract the radtype from the event comment
+      stringstream ss;
+      // use eventattribute as comments not filled when using edm input 
+      //ss << infoPtr->getEventComments();
+      ss << infoPtr->getEventAttribute("#rwgt");
+      string temp;
+      ss >> temp >> radtype_.radtype;
+      assert (temp == "#rwgt");
+      
+      // find last top and the last anti-top in the record
+      int i_top = -1, i_atop = -1;
+      for (int i = 0; i < e.size(); i++) {
+	if (e[i].id() == 6) i_top = i;
+	if (e[i].id() == -6) i_atop = i;
+      }
+      if (i_top != -1) 
+	topresscale = findresscale(i_top, e);
+      else 
+	topresscale = 1e30;
+      if (i_top != -1) 
+	atopresscale = findresscale(i_atop, e);
+      else 
+	atopresscale = 1e30;
+      // initialize stuff
+      doVetoFSRInit();
+      // do not veto, ever
+      return false;
+    }
+
+    //--- PARTON LEVEL HOOK ----------------------------------------------------
+
+    // called after shower
+    bool retryPartonLevel() override { return vetoPartonLevel || vetoAtPL; }
+    inline bool canVetoPartonLevel() override { return vetoPartonLevel || vetoAtPL; }
+    inline bool doVetoPartonLevel(const Event &e) override {
+      if(radtype_.radtype==2)
+	return false;
+      if (debug){
+	if (dryRunFSR && wouldVetoFsr) {
+	  double scale = getdechardness(vetoTopCharge, e);
+	  cout << "FSRdecScale = " << vetoDecScale << ", PLdecScale = " << scale << ", ratio = " << vetoDecScale/scale << endl;
 	}
+      }
+      if (vetoPartonLevel) {
+	double topdecscale = getdechardness(1, e);
+	double atopdecscale = getdechardness(-1, e);
+	if ((topdecscale > topresscale) || (atopdecscale > atopresscale)) {
+	  //if(dryRunFSR && ! wouldVetoFsr) mydatacontainer_.excludeEvent = excludeFSRConflicting?1:0;
+	  return true;
+	}
+	else 
+	  //if(dryRunFSR && wouldVetoFsr) mydatacontainer_.excludeEvent = excludeFSRConflicting?1:0;
+	  return false;
+      }
+      if (vetoAtPL) {
+	if (dryRunFSR && wouldVetoFsr) return true;
+	else return false;
+      }
+      return false;
+    }
 
-//--------------------------------------------------------------------------
+    //--- FSR EMISSION LEVEL HOOK ----------------------------------------------
 
-	// Calculates the scale of the hardest emission from within the resonance system
-	// translated by Markus Seidel modified by Tomas Jezo
-	inline double findresscale( const int iRes, const Event& event) {
-		double scale = 0.;
-    
-		int nDau = event[iRes].daughterList().size();
-    
-		if (nDau == 0) {
-			// No resonance found, set scale to high value
-			// Pythia will shower any MC generated resonance unrestricted
-			scale = 1e30;
-		}
-		else if (nDau < 3) {
-			// No radiating resonance found
-			scale = 0.8;
-		}
-		else if (std::abs(event[iRes].id()) == 6) {
-			// Find top daughters
-			int idw = -1, idb = -1, idg = -1;
+    // FSR veto: this should be true if we want PowhegHooksBB4l veto in decay
+    //           OR PowhegHooks veto in production. (The virtual method
+    //           PowhegHooks::canVetoFSREmission has been replaced by
+    //           PowhegHooksBB4L::canVetoFSREmission, so FSR veto in production
+    //           must be handled here. ISR and MPI veto are instead still
+    //           handled by PowhegHooks.)
+    inline bool canVetoFSREmission() override { return vetoFSREmission; } // || vetoProduction; }
+    inline bool doVetoFSREmission(int sizeOld, const Event &e, int iSys, bool inResonance) override {
+      //////////////////////////////
+      //VETO INSIDE THE RESONANCE //
+      //////////////////////////////
+      if (inResonance && vetoFSREmission) {
+	int iRecAft = e.size() - 1;
+	int iEmt = e.size() - 2;
+	int iRadAft = e.size() - 3;
+	int iRadBef = e[iEmt].mother1();
+
+	// find the top resonance the radiator originates from
+	int iTop = e[iRadBef].mother1();
+	int distance = 1;
+	while (abs(e[iTop].id()) != 6 && iTop > 0) {
+	  iTop = e[iTop].mother1();
+	  distance ++;
+	}
+	if (iTop == 0) {
+	  infoPtr->errorMsg("Warning in PowhegHooksBB4L::doVetoFSREmission: emission in resonance not from top quark, not vetoing");
+	  return doVetoFSR(false,0,0);
+	  //return false;
+	}
+	int iTopCharge = (e[iTop].id()>0)?1:-1;
+
+	// calculate the scale of the emission
+	double scale;
+	//using pythia pT definition ...
+	if(pTpythiaVeto)
+	  scale = pTpythia(e, iRadAft, iEmt, iRecAft);
+	//.. or using POWHEG pT definition
+	else{
+	  Vec4 pr(e[iRadAft].p()), pe(e[iEmt].p()), pt(e[iTop].p()), prec(e[iRecAft].p()), psystem;
+	  // The computation of the POWHEG pT can be done in the top rest frame or in the diple one.
+	  // pdipole = pemt +prec +prad (after the emission)
+	  // For the first emission off the top resonance pdipole = pw +pb (before the emission) = ptop
+	  if(vetoDipoleFrame)
+	    psystem = pr+pe+prec;
+	  else
+	    psystem = pt;
+		    
+	  // gluon splitting into two partons
+	  if (e[iRadBef].id() == 21)
+	    scale = gSplittingScale(psystem, pr, pe);
+	  // quark emitting a gluon (or a photon)
+	  else if (abs(e[iRadBef].id()) == 5 && ((e[iEmt].id() == 21) && ! vetoQED) )
+	    scale = qSplittingScale(psystem, pr, pe);
+	  // other stuff (which we should not veto)
+	  else 
+	    scale = 0;
+	}
+		
+	if (iTopCharge > 0) {
+	  if (onlyDistance1) {
+	    if ( debug && (distance == 1) && scale > topresscale && ! wouldVetoFsr)
+	      cout << e[iTop].id() << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+	    return doVetoFSR((distance == 1) && scale > topresscale,scale,iTopCharge);
+	  }
+	  else {
+	    if ( debug && scale > topresscale && ! wouldVetoFsr)
+	      cout << e[iTop].id() << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+	    return doVetoFSR(scale > topresscale,scale,iTopCharge);
+	  }
+	}
+	else if (iTopCharge < 0){
+	  if (onlyDistance1){
+	    if ( debug && (distance == 1) && scale > atopresscale && ! wouldVetoFsr)
+	      cout << e[iTop].id() << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+	    return doVetoFSR((distance == 1) && scale > atopresscale,scale,iTopCharge);
+	  }
+	  else {
+	    if ( debug && scale > topresscale && ! wouldVetoFsr)
+	      cout << e[iTop].id() << ": " << e[iRadBef].id() << " > " << e[iRadAft].id() << " + " << e[iEmt].id() << "; " << scale << endl;
+	    return doVetoFSR(scale > atopresscale,scale,iTopCharge);
+	  }
+	}
+	else {
+	  cout << "Bug in PohwgeHooksBB4l" << endl;		
+	}
+      }
+      /////////////////////////////////
+      // VETO THE PRODUCTION PROCESS //
+      /////////////////////////////////
+      // covered by multiuserhook, i.e. need to turn on EV1    
+      // else if(!inResonance && vetoProduction){
+      // return EmissionVetoHook1::doVetoFSREmission(sizeOld, e, iSys, inResonance);
+      // }
+
+      return false; 
+    }
+
+    inline bool doVetoFSR(bool condition, double scale, int iTopCharge)  {
+      if(radtype_.radtype==2)
+	return false;
+      if (condition) {
+	if (!wouldVetoFsr) {
+	  wouldVetoFsr = true;
+	  vetoDecScale = scale;
+	  vetoTopCharge = iTopCharge;
+	}
+	if (dryRunFSR) return false;
+	else { 
+	  nFSRvetoBB4l++; 
+	  return true; 
+	}
+      }
+      else return false;
+    }
+
+    inline void doVetoFSRInit() {
+      wouldVetoFsr = false;
+      vetoDecScale = -1;
+      vetoTopCharge = 0;
+    }
+
+    //--- SCALE RESONANCE HOOK -------------------------------------------------
+    // called before each resonance decay shower
+    inline bool canSetResonanceScale() override { return scaleResonanceVeto; }
+    // if the resonance is the (anti)top set the scale to:
+    //  ---> (anti)top virtuality if radtype=2
+    //  ---> (a)topresscale otherwise
+    // if is not the top, set it to a big number
+    inline double scaleResonance(int iRes, const Event &e) override {		
+      if (e[iRes].id() == 6){
+	if(radtype_.radtype == 2)
+	  return sqrt(e[iRes].m2Calc());
+	else
+	  return topresscale;
+      }
+      else if (e[iRes].id() == -6){
+	if(radtype_.radtype == 2)
+	  return sqrt(e[iRes].m2Calc());
+	else
+	  return atopresscale;
+      }
+      else
+	return pow(10.0,30.);
+    }
+
+
+    //--- Internal helper functions --------------------------------------------
+
+    // Calculates the scale of the hardest emission from within the resonance system
+    // translated by Markus Seidel modified by Tomas Jezo
+    inline double findresscale( const int iRes, const Event& event) {
+      double scale = 0.;
+
+      int nDau = event[iRes].daughterList().size();
+
+      if (nDau == 0) {
+	// No resonance found, set scale to high value
+	// Pythia will shower any MC generated resonance unrestricted
+	scale = 1e30;
+      }
+      else if (nDau < 3) {
+	// No radiating resonance found
+	scale = pTmin;
+      }
+      else if (std::abs(event[iRes].id()) == 6) {
+	// Find top daughters
+	int idw = -1, idb = -1, idg = -1;
 			
 			for (int i = 0; i < nDau; i++) {
 				int iDau = event[iRes].daughterList()[i];
