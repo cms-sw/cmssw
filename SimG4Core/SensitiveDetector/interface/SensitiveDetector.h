@@ -4,13 +4,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-//#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4VSensitiveDetector.hh"
 
 #include <string>
+#include <cstdint>
 
+class G4Track;
 class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
@@ -22,7 +24,7 @@ class SensitiveDetector : public G4VSensitiveDetector
 public:
   explicit SensitiveDetector(const std::string & iname, 
                              const DDCompactView & cpv,
-			     const SensitiveDetectorCatalog & ,
+			     const SensitiveDetectorCatalog &,
 			     edm::ParameterSet const & p);
   ~SensitiveDetector() override;
 
@@ -37,6 +39,7 @@ public:
  
 protected:
 
+  // generic geometry methods, all coordinates in mm
   enum coordinates {WorldCoordinates, LocalCoordinates};
   Local3DPoint InitialStepPosition(const G4Step * step, coordinates) const;
   Local3DPoint FinalStepPosition(const G4Step * step, coordinates) const;
@@ -49,6 +52,8 @@ protected:
   
   void setNames(const std::vector<std::string>&);
   void NaNTrap(const G4Step* step ) const;
+
+  TrackInformation* cmsTrackInformation(const G4Track* aTrack);
     
 private:
 

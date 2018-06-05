@@ -56,7 +56,6 @@ private:
     void update(const BeginOfJob *) override;
 
     Local3DPoint RotateAndScale(const Local3DPoint&);
-    TrackInformation* getTrackInformation(const G4Track *);
 
     // data members initialised before run
     const SimTrackManager* theManager;
