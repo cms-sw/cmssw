@@ -18,11 +18,15 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
-class BeamSpot;
-class TrackCollection;
-class VertexCollection;
 class TrackingRecHit;
+class SiStripCluster;
+class PileupSummaryInfo;
 
 class StandaloneTrackMonitor : public DQMEDAnalyzer {
 public:
