@@ -1,14 +1,17 @@
 #include <iostream>
 #include <cassert>
+#include <type_traits>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
 
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHEChannelInfo.h"
 
-__global__ void kernel_test_hcal_rechits(HBHERecHit *other) {
-    HBHERecHit rh(HcalDetId(0), 10.0f, 10.0f, 10.0f);
+template<typename T>
+__global__ void kernel_test_hcal_rechits(T *other) {
+    T rh(HcalDetId(0), 10.0f, 10.0f, 10.0f);
     other->setEnergy(rh.energy());
     other->setTime(rh.time());
     other->setTimeFalling(rh.timeFalling());
@@ -29,28 +32,28 @@ __global__ void kernel_test_hcal_hbhechinfo(HBHEChannelInfo *other) {
         );
 }
 
+template<typename T>
 void test_hcal_rechits() {
     auto check_error = [](auto code) {
         if (code != cudaSuccess)
             std::cout << cudaGetErrorString(code) << std::endl;
     };
 
-    HBHERecHit h_rh, h_rh_test{HcalDetId(0), 10.0f, 10.0f, 10.0f};
-    HBHERecHit *d_rh;
+    T h_rh, h_rh_test{HcalDetId(0), 10.0f, 10.0f, 10.0f};
+    T *d_rh;
 
-    cudaMalloc((void**)&d_rh, sizeof(HBHERecHit));
-    cudaMemcpy(d_rh, &h_rh, sizeof(HBHERecHit), cudaMemcpyHostToDevice);
-    kernel_test_hcal_rechits<<<1,1>>>(d_rh);
+    cudaMalloc((void**)&d_rh, sizeof(T));
+    cudaMemcpy(d_rh, &h_rh, sizeof(T), cudaMemcpyHostToDevice);
+    kernel_test_hcal_rechits<T><<<1,1>>>(d_rh);
     cudaDeviceSynchronize();
     check_error(cudaGetLastError());
-    cudaMemcpy(&h_rh, d_rh, sizeof(HBHERecHit), cudaMemcpyDeviceToHost);
+    cudaMemcpy(&h_rh, d_rh, sizeof(T), cudaMemcpyDeviceToHost);
 
     std::cout << h_rh << std::endl;
     std::cout << h_rh_test << std::endl;
     assert(h_rh.energy() == h_rh_test.energy());
     assert(h_rh.time() == h_rh_test.time());
     assert(h_rh.timeFalling() == h_rh_test.timeFalling());
-    assert(h_rh.chi2() == h_rh_test.chi2());
 
     std::cout << "all good in " << __FUNCTION__ << std::endl;
 }
@@ -96,7 +99,8 @@ int main(int argc, char ** argv) {
     std::cout << "nDevices = " << nDevices << std::endl;
 
     if (nDevices > 0) {
-        test_hcal_rechits();
+        test_hcal_rechits<HBHERecHit>();
+        test_hcal_rechits<HFRecHit>();
         test_hcal_hbhechinfo();
 
         std::cout << "all good" << std::endl;
