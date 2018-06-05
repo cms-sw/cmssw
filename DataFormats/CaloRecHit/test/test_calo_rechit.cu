@@ -48,4 +48,5 @@ int main(int argc, char** argv) {
         test_calo_rechit();
 
     std::cout << "all good!" << std::endl;
+    return 0;
 }
