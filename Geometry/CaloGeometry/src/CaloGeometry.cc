@@ -20,10 +20,14 @@ CaloGeometry::makeIndex( DetId::Detector det    ,
 
    ok = ( kMinDet <= idet   &&
 	  kMaxDet >= idet   &&
-	  0       <  subdet &&
+	  0       <= subdet &&
 	  kMaxSub >= subdet    ) ;
+   if (!ok)
+     edm::LogWarning("CaloGeometry") << "Det:Subdet " << idet << ":" << subdet 
+				     << " min|max Det " << kMinDet << ":" 
+				     << kMaxDet << " min|max subdet 0:" <<kMaxSub;
    
-   return ( ( det - kMinDet )*kMaxSub + subdet - 1 ) ;
+   return ( ( det - kMinDet ) * kNSubDets + subdet ) ;
 }
 
 void 
@@ -34,8 +38,9 @@ CaloGeometry::setSubdetGeometry( DetId::Detector                det    ,
    const unsigned int index = makeIndex( det, subdet, ok ) ;
    if( ok ) m_geos[index] = geom ;
 
-//   std::cout<<"Detector="<<(int)det<<", subset="<<subdet<<", index="<<index
-//	    <<", size="<<m_geos.size()<<std::endl;
+   edm::LogVerbatim("CaloGeometry") << "Detector=" << (int)det << ", subset="
+				    << subdet << ", index=" << index
+				    << ", size=" << m_geos.size();
 
    assert( ok ) ;
 }
@@ -106,7 +111,8 @@ std::vector<DetId> CaloGeometry::getValidDetIds() const
       {
 	 const std::vector< DetId >& aVec = m_geos[i]->getValidDetIds();	 
 	 if( aVec.empty() ) {
-	   edm::LogWarning("EmptyDetIdList") << "Valid det id list at index " << i << " is empty!" << std::endl;
+	   edm::LogWarning("CaloGeometry") << "Valid det id list at index " 
+					   << i << " is empty!";
 	 }
 	 const bool isHcal ( !aVec.empty() && DetId::Hcal == aVec.front().det() ) ;
 	 if( !doneHcal ||
