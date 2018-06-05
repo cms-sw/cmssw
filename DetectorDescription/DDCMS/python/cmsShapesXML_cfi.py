@@ -7,6 +7,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
                                "DetectorDescription/DDCMS/data/testRotations.xml",
                                "DetectorDescription/DDCMS/data/testSolids.xml",
                                "DetectorDescription/DDCMS/data/testPosParts.xml",
+                               "DetectorDescription/DDCMS/data/testAlgorithm.xml",
                                "DetectorDescription/DDCMS/data/materials.xml"),
     rootNodeName = cms.string('cmsWorld:OCMS')
 )
