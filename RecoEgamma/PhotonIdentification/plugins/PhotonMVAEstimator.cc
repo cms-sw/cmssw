@@ -79,14 +79,17 @@ mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) co
       vars[10] = TMath::Max( phoIsoCorr, phoIsoCutoff_);
   }
 
-  const float response = gbrForests_.at(iCategory)->GetResponse(vars.data());
-
   if(debug_) {
     std::cout << " *** Inside " << name_ << tag_ << std::endl;
     std::cout << " category " << iCategory << std::endl;
     for (int i = 0; i < nVariables_[iCategory]; ++i) {
         std::cout << " " << mvaVarMngr_.getName(variables_[iCategory][i]) << " " << vars[i] << std::endl;
     }
+  }
+
+  const float response = gbrForests_.at(iCategory)->GetResponse(vars.data());
+
+  if(debug_) {
     std::cout << " ### MVA " << response << std::endl << std::endl;
   }
 
