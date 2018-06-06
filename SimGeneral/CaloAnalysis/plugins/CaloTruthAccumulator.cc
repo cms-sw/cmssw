@@ -201,11 +201,13 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   };
 
  private:
-  const HGCalTopology* hgtopo_[2];
-  const HGCalDDDConstants* hgddd_[2];
-  const HcalDDDRecConstants* hcddd_;
+  const HGCalTopology* hgtopo_[3] = {nullptr,nullptr,nullptr};
+  const HGCalDDDConstants* hgddd_[3] = {nullptr,nullptr,nullptr};
+  const HcalDDDRecConstants* hcddd_ = nullptr;
   OutputCollections output_;
   calo_particles m_caloParticles;
+  //geometry type (0 pre-TDR; 1 TDR)
+  int geometryType_;
 };
 
 /* Graph utility functions */
@@ -376,7 +378,9 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet& config,
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
       minEnergy_(config.getParameter<double>("MinEnergy")),
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
-      premixStage1_(config.getParameter<bool>("premixStage1")) {
+      premixStage1_(config.getParameter<bool>("premixStage1")),
+      geometryType_(config.getParameter<uint32_t>("geometryType"))
+{
   mixMod.produces<SimClusterCollection>("MergedCaloTruth");
   mixMod.produces<CaloParticleCollection>("MergedCaloTruth");
   if(premixStage1_) {
@@ -408,21 +412,28 @@ void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const& iLum
                                                          const edm::EventSetup& iSetup) {
   edm::ESHandle<CaloGeometry> geom;
   iSetup.get<CaloGeometryRecord>().get(geom);
-  const HGCalGeometry *eegeom, *fhgeom;
-  const HcalGeometry* bhgeom;
+  const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
+  const HcalGeometry* bhgeom = nullptr;
 
-  eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
-  fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
-  bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-
+  if(geometryType_==0){
+    eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
+    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
+    bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
+  }
+  else {
+    eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
+    bhgeomnew = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSc,ForwardSubdetector::ForwardEmpty));
+  }
   hgtopo_[0] = &(eegeom->topology());
   hgtopo_[1] = &(fhgeom->topology());
+  if(bhgeomnew) hgtopo_[2] = &(bhgeomnew->topology());
 
-  for (unsigned i = 0; i < 2; ++i) {
-    hgddd_[i] = &(hgtopo_[i]->dddConstants());
+  for (unsigned i = 0; i < 3; ++i) {
+    if(hgtopo_[i]) hgddd_[i] = &(hgtopo_[i]->dddConstants());
   }
 
-  hcddd_ = bhgeom->topology().dddConstants();
+  if(bhgeom) hcddd_ = bhgeom->topology().dddConstants();
 }
 
 void CaloTruthAccumulator::initializeEvent(edm::Event const& event,
