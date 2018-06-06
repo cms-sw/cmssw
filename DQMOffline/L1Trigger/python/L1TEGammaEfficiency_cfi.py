@@ -40,6 +40,10 @@ deepInspectionThresholds_HI = {
     'photon': [],
 }
 
+# remove photon variables (code to produce them is currently commented out)
+variables['photon'] = []
+variables_HI['photon'] = []
+
 from DQMOffline.L1Trigger.L1TCommon import generateEfficiencyStrings as ges
 efficiencyStrings = list(ges(variables, plots))
 efficiencyStrings += list(ges(deepInspectionThresholds, deepInspectionPlots))
@@ -58,7 +62,7 @@ l1tEGammaEfficiency = DQMEDHarvester(
     efficiencyProfile=cms.untracked.vstring(efficiencyStrings),
 )
 
-l1tEGammaEmuEfficiency = l1tEtSumEfficiency.clone(
+l1tEGammaEmuEfficiency = l1tEGammaEfficiency.clone(
     subDirs=cms.untracked.vstring(
         'L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco'),
 )
