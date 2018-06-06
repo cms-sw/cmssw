@@ -95,7 +95,7 @@ void L1TEGammaOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
 
   //book at beginRun
   bookElectronHistos(ibooker);
-  bookPhotonHistos(ibooker);
+  // bookPhotonHistos(ibooker);
 }
 //
 // -------------------------------------- beginLuminosityBlock --------------------------------------------
@@ -143,7 +143,7 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   }
   // L1T
   fillElectrons(e, nVertex);
-  fillPhotons(e, nVertex);
+  // fillPhotons(e, nVertex);
 }
 
 void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVertex)
