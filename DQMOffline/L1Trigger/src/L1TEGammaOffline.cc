@@ -57,7 +57,51 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         triggerIndices_(),
         triggerResults_(),
         triggerEvent_(),
-        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
+        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
+        h_nVertex_(),
+        h_tagAndProbeMass_(),
+        h_L1EGammaETvsElectronET_EB_(),
+        h_L1EGammaETvsElectronET_EE_(),
+        h_L1EGammaETvsElectronET_EB_EE_(),
+        h_L1EGammaPhivsElectronPhi_EB_(),
+        h_L1EGammaPhivsElectronPhi_EE_(),
+        h_L1EGammaPhivsElectronPhi_EB_EE_(),
+        h_L1EGammaEtavsElectronEta_(),
+        h_resolutionElectronET_EB_(),
+        h_resolutionElectronET_EE_(),
+        h_resolutionElectronET_EB_EE_(),
+        h_resolutionElectronPhi_EB_(),
+        h_resolutionElectronPhi_EE_(),
+        h_resolutionElectronPhi_EB_EE_(),
+        h_resolutionElectronEta_(),
+        h_efficiencyElectronET_EB_pass_(),
+        h_efficiencyElectronET_EE_pass_(),
+        h_efficiencyElectronET_EB_EE_pass_(),
+        h_efficiencyElectronPhi_vs_Eta_pass_(),
+        h_efficiencyElectronEta_pass_(),
+        h_efficiencyElectronPhi_pass_(),
+        h_efficiencyElectronNVertex_pass_(),
+        h_efficiencyElectronET_EB_total_(),
+        h_efficiencyElectronET_EE_total_(),
+        h_efficiencyElectronET_EB_EE_total_(),
+        h_efficiencyElectronPhi_vs_Eta_total_(),
+        h_efficiencyElectronEta_total_(),
+        h_efficiencyElectronPhi_total_(),
+        h_efficiencyElectronNVertex_total_(),
+        h_L1EGammaETvsPhotonET_EB_(),
+        h_L1EGammaETvsPhotonET_EE_(),
+        h_L1EGammaETvsPhotonET_EB_EE_(),
+        h_L1EGammaPhivsPhotonPhi_EB_(),
+        h_L1EGammaPhivsPhotonPhi_EE_(),
+        h_L1EGammaPhivsPhotonPhi_EB_EE_(),
+        h_L1EGammaEtavsPhotonEta_(),
+        h_resolutionPhotonEta_(),
+        h_efficiencyPhotonET_EB_pass_(),
+        h_efficiencyPhotonET_EE_pass_(),
+        h_efficiencyPhotonET_EB_EE_pass_(),
+        h_efficiencyPhotonET_EB_total_(),
+        h_efficiencyPhotonET_EE_total_(),
+        h_efficiencyPhotonET_EB_EE_total_()
 {
   edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
@@ -758,6 +802,31 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
   }
 
   ibooker.cd();
+}
+
+void L1TEGammaOffline::endJob(){
+  normalise2DHistogramsToBinArea();
+}
+
+void L1TEGammaOffline::normalise2DHistogramsToBinArea() {
+  std::vector<MonitorElement *> monElementstoNormalize = {
+      h_L1EGammaETvsElectronET_EB_,    h_L1EGammaETvsElectronET_EE_,
+      h_L1EGammaETvsElectronET_EB_EE_, h_L1EGammaPhivsElectronPhi_EB_,
+      h_L1EGammaPhivsElectronPhi_EE_,  h_L1EGammaPhivsElectronPhi_EB_EE_,
+      h_L1EGammaEtavsElectronEta_,     h_L1EGammaETvsPhotonET_EB_,
+      h_L1EGammaETvsPhotonET_EE_,      h_L1EGammaETvsPhotonET_EB_EE_,
+      h_L1EGammaPhivsPhotonPhi_EB_,    h_L1EGammaPhivsPhotonPhi_EE_,
+      h_L1EGammaPhivsPhotonPhi_EB_EE_, h_L1EGammaEtavsPhotonEta_
+  };
+
+  for (auto mon : monElementstoNormalize) {
+    if (mon != nullptr) {
+      auto h = mon->getTH2F();
+      if (h != nullptr) {
+        h->Scale(1, "width");
+      }
+    }
+  }
 }
 
 //define this as a plug-in
