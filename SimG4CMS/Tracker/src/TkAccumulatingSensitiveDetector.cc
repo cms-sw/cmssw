@@ -308,13 +308,13 @@ void TkAccumulatingSensitiveDetector::updateHit(const G4Step * aStep)
     mySimHit->addEnergyLoss(theEnergyLoss);
     if (printHits) {
       globalExitPoint = ConvertToLocal3DPoint(aStep->GetPostStepPoint()->GetPosition());
-    }
-    LogDebug("TrackerSimDebug")
+      LogDebug("TrackerSimDebug")
       << " updateHit: for " << aStep->GetTrack()->GetDefinition()->GetParticleName()
       << " trackID= " << aStep->GetTrack()->GetTrackID() << " deltaEloss= " << theEnergyLoss
       << "\n Updated PSimHit: " << mySimHit->detUnitId() << " " << mySimHit->trackId()
       << " " << mySimHit->energyLoss() << " " << mySimHit->entryPoint() 
       << " " << mySimHit->exitPoint();
+    }
 }
 
 bool TkAccumulatingSensitiveDetector::newHit(const G4Step * aStep)
