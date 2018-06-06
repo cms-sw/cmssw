@@ -226,9 +226,9 @@ bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     isClassifier = cms.bool(False),
     variablesOrder = cms.vstring(["Jet_pt","nPVs","Jet_eta","Jet_mt","Jet_leadTrackPt","Jet_leptonPtRel","Jet_leptonPt","Jet_leptonDeltaR","Jet_neHEF","Jet_neEmEF","Jet_vtxPt","Jet_vtxMass","Jet_vtx3dL","Jet_vtxNtrk","Jet_vtx3deL"]),
     variables = cms.PSet(
-	Jet_pt = cms.string("pt"),
-	Jet_eta = cms.string("eta"),
-	Jet_mt = cms.string("mt"),
+    Jet_pt = cms.string("pt"),
+    Jet_eta = cms.string("eta"),
+    Jet_mt = cms.string("mt"),
     Jet_leadTrackPt = cms.string("userFloat('leadTrackPt')"),
     Jet_vtxNtrk = cms.string("userInt('vtxNtrk')"),
     Jet_vtxMass = cms.string("userFloat('vtxMass')"),
@@ -236,10 +236,10 @@ bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     Jet_vtx3deL = cms.string("userFloat('vtx3deL')"),
     Jet_vtxPt = cms.string("userFloat('vtxPt')"),
     Jet_leptonPtRel = cms.string("userFloat('leptonPtRelv0')"),
-	Jet_leptonPt = cms.string("?overlaps('muons').size()>0?overlaps('muons')[0].pt():(?overlaps('electrons').size()>0?overlaps('electrons')[0].pt():0)"),
-	Jet_neHEF = cms.string("neutralHadronEnergy()/energy()"),
-	Jet_neEmEF = cms.string("neutralEmEnergy()/energy()"),
-	Jet_leptonDeltaR = cms.string('''?overlaps('muons').size()>0?deltaR(eta,phi,overlaps('muons')[0].eta,overlaps('muons')[0].phi):
+    Jet_leptonPt = cms.string("?overlaps('muons').size()>0?overlaps('muons')[0].pt():(?overlaps('electrons').size()>0?overlaps('electrons')[0].pt():0)"),
+    Jet_neHEF = cms.string("neutralHadronEnergy()/energy()"),
+    Jet_neEmEF = cms.string("neutralEmEnergy()/energy()"),
+    Jet_leptonDeltaR = cms.string('''?overlaps('muons').size()>0?deltaR(eta,phi,overlaps('muons')[0].eta,overlaps('muons')[0].phi):
 				(?overlaps('electrons').size()>0?deltaR(eta,phi,overlaps('electrons')[0].eta,overlaps('electrons')[0].phi):
 				0)'''),
     )

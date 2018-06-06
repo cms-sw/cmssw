@@ -55,17 +55,17 @@ class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
     
     float cone_boundaries[] = { 0.05, 0.1, 0.2, 0.3,0.4 }; 
     size_t ncone_boundaries = sizeof(cone_boundaries)/sizeof(float);
-    std::vector<float> EmFractionEnergyRings(ncone_boundaries+1);
-    std::vector<float> ChFractionEnergyRings(ncone_boundaries+1);
-    std::vector<float> NeFractionEnergyRings(ncone_boundaries+1);
-    std::vector<float> MuFractionEnergyRings(ncone_boundaries+1);
+    std::vector<float> emFractionEnergyRings(ncone_boundaries+1);
+    std::vector<float> chFractionEnergyRings(ncone_boundaries+1);
+    std::vector<float> neFractionEnergyRings(ncone_boundaries+1);
+    std::vector<float> muFractionEnergyRings(ncone_boundaries+1);
     float jetRawEnergy=j.p4().E()*j.jecFactor("Uncorrected");
     int numDaughtersPt03=0;
         for (unsigned int ijcone = 0; ijcone<ncone_boundaries; ijcone++){
-            EmFractionEnergyRings[ijcone] = 0;
-            MuFractionEnergyRings[ijcone] = 0;
-            ChFractionEnergyRings[ijcone] = 0;
-            NeFractionEnergyRings[ijcone] = 0;
+            emFractionEnergyRings[ijcone] = 0;
+            muFractionEnergyRings[ijcone] = 0;
+            chFractionEnergyRings[ijcone] = 0;
+            neFractionEnergyRings[ijcone] = 0;
         }
         for(const auto & d : j.daughterPtrVector()){
            float candDr   = Geom::deltaR(d->p4(),j.p4());
@@ -73,44 +73,44 @@ class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
            float candEnergy = d->energy()/jetRawEnergy;
            int pdgid = abs(d->pdgId()) ;
            if( pdgid == 22 || pdgid == 11 ) {
-               EmFractionEnergyRings[icone] += candEnergy;
+               emFractionEnergyRings[icone] += candEnergy;
             } else if ( pdgid == 13 ) { 
-               MuFractionEnergyRings[icone] += candEnergy;
+               muFractionEnergyRings[icone] += candEnergy;
            } else if ( d->charge() != 0 ) {
-               ChFractionEnergyRings[icone] += candEnergy;
+               chFractionEnergyRings[icone] += candEnergy;
            } else {
-               NeFractionEnergyRings[icone] += candEnergy;
+               neFractionEnergyRings[icone] += candEnergy;
            } 
            if(d->pt()>0.3) numDaughtersPt03+=1;
          } // end of jet daughters loop
 
-    this->setValue("Jet_energyRing_dR0_em_Jet_rawEnergy", EmFractionEnergyRings[0]);
-    this->setValue("Jet_energyRing_dR1_em_Jet_rawEnergy", EmFractionEnergyRings[1]);
-    this->setValue("Jet_energyRing_dR2_em_Jet_rawEnergy", EmFractionEnergyRings[2]);
-    this->setValue("Jet_energyRing_dR3_em_Jet_rawEnergy", EmFractionEnergyRings[3]);
-    this->setValue("Jet_energyRing_dR4_em_Jet_rawEnergy", EmFractionEnergyRings[4]);
-  //  this->setValue("Jet_energyRing_dR5_em_Jet_rawEnergy", EmFractionEnergyRings[5]);
+    this->setValue("Jet_energyRing_dR0_em_Jet_rawEnergy", emFractionEnergyRings[0]);
+    this->setValue("Jet_energyRing_dR1_em_Jet_rawEnergy", emFractionEnergyRings[1]);
+    this->setValue("Jet_energyRing_dR2_em_Jet_rawEnergy", emFractionEnergyRings[2]);
+    this->setValue("Jet_energyRing_dR3_em_Jet_rawEnergy", emFractionEnergyRings[3]);
+    this->setValue("Jet_energyRing_dR4_em_Jet_rawEnergy", emFractionEnergyRings[4]);
+  //  this->setValue("Jet_energyRing_dR5_em_Jet_rawEnergy", emFractionEnergyRings[5]);
     
-    this->setValue("Jet_energyRing_dR0_ch_Jet_rawEnergy", ChFractionEnergyRings[0]);
-    this->setValue("Jet_energyRing_dR1_ch_Jet_rawEnergy", ChFractionEnergyRings[1]);
-    this->setValue("Jet_energyRing_dR2_ch_Jet_rawEnergy", ChFractionEnergyRings[2]);
-    this->setValue("Jet_energyRing_dR3_ch_Jet_rawEnergy", ChFractionEnergyRings[3]);
-    this->setValue("Jet_energyRing_dR4_ch_Jet_rawEnergy", ChFractionEnergyRings[4]);
-  //  this->setValue("Jet_energyRing_dR5_ch_Jet_rawEnergy", ChFractionEnergyRings[5]);
+    this->setValue("Jet_energyRing_dR0_ch_Jet_rawEnergy", chFractionEnergyRings[0]);
+    this->setValue("Jet_energyRing_dR1_ch_Jet_rawEnergy", chFractionEnergyRings[1]);
+    this->setValue("Jet_energyRing_dR2_ch_Jet_rawEnergy", chFractionEnergyRings[2]);
+    this->setValue("Jet_energyRing_dR3_ch_Jet_rawEnergy", chFractionEnergyRings[3]);
+    this->setValue("Jet_energyRing_dR4_ch_Jet_rawEnergy", chFractionEnergyRings[4]);
+  //  this->setValue("Jet_energyRing_dR5_ch_Jet_rawEnergy", chFractionEnergyRings[5]);
     
-    this->setValue("Jet_energyRing_dR0_mu_Jet_rawEnergy", MuFractionEnergyRings[0]);
-    this->setValue("Jet_energyRing_dR1_mu_Jet_rawEnergy", MuFractionEnergyRings[1]);
-    this->setValue("Jet_energyRing_dR2_mu_Jet_rawEnergy", MuFractionEnergyRings[2]);
-    this->setValue("Jet_energyRing_dR3_mu_Jet_rawEnergy", MuFractionEnergyRings[3]);
-    this->setValue("Jet_energyRing_dR4_mu_Jet_rawEnergy", MuFractionEnergyRings[4]);
-  //  this->setValue("Jet_energyRing_dR5_mu_Jet_rawEnergy", MuFractionEnergyRings[5]);
+    this->setValue("Jet_energyRing_dR0_mu_Jet_rawEnergy", muFractionEnergyRings[0]);
+    this->setValue("Jet_energyRing_dR1_mu_Jet_rawEnergy", muFractionEnergyRings[1]);
+    this->setValue("Jet_energyRing_dR2_mu_Jet_rawEnergy", muFractionEnergyRings[2]);
+    this->setValue("Jet_energyRing_dR3_mu_Jet_rawEnergy", muFractionEnergyRings[3]);
+    this->setValue("Jet_energyRing_dR4_mu_Jet_rawEnergy", muFractionEnergyRings[4]);
+  //  this->setValue("Jet_energyRing_dR5_mu_Jet_rawEnergy", muFractionEnergyRings[5]);
     
-    this->setValue("Jet_energyRing_dR0_neut_Jet_rawEnergy", NeFractionEnergyRings[0]);
-    this->setValue("Jet_energyRing_dR1_neut_Jet_rawEnergy", NeFractionEnergyRings[1]);
-    this->setValue("Jet_energyRing_dR2_neut_Jet_rawEnergy", NeFractionEnergyRings[2]);
-    this->setValue("Jet_energyRing_dR3_neut_Jet_rawEnergy", NeFractionEnergyRings[3]);
-    this->setValue("Jet_energyRing_dR4_neut_Jet_rawEnergy", NeFractionEnergyRings[4]);
-//    this->setValue("Jet_energyRing_dR5_neut_Jet_rawEnergy", NeFractionEnergyRings[5]);
+    this->setValue("Jet_energyRing_dR0_neut_Jet_rawEnergy", neFractionEnergyRings[0]);
+    this->setValue("Jet_energyRing_dR1_neut_Jet_rawEnergy", neFractionEnergyRings[1]);
+    this->setValue("Jet_energyRing_dR2_neut_Jet_rawEnergy", neFractionEnergyRings[2]);
+    this->setValue("Jet_energyRing_dR3_neut_Jet_rawEnergy", neFractionEnergyRings[3]);
+    this->setValue("Jet_energyRing_dR4_neut_Jet_rawEnergy", neFractionEnergyRings[4]);
+//    this->setValue("Jet_energyRing_dR5_neut_Jet_rawEnergy", neFractionEnergyRings[5]);
 
     this->setValue("Jet_numDaughters_pt03",numDaughtersPt03);
 
