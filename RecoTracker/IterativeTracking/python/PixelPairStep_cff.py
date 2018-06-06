@@ -110,9 +110,9 @@ pixelPairStepSeedsA = pixelPairStepSeeds.clone()
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 fastSim.toReplaceWith(pixelPairStepSeeds,
                       FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-        layerList = pixelPairStepSeedLayers.layerList.value(),
         trackingRegions = "pixelPairStepTrackingRegions",
         hitMasks = cms.InputTag("pixelPairStepMasks"),
+        seedFinderSelector = dict(layerList = pixelPairStepSeedLayers.layerList.value())
         )
 )
 

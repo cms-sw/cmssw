@@ -104,13 +104,12 @@ trackingPhase1QuadProp.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStep
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_lowPtQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = lowPtQuadStepSeedLayers.layerList.value(),
     trackingRegions = "lowPtQuadStepTrackingRegions",
     hitMasks = cms.InputTag("lowPtQuadStepMasks"),
     seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(lowPtQuadStepHitQuadruplets).clone(
             SeedComparitorPSet = dict(ComponentName = "none")),
-                               #new parameters required for phase1 seeding
                                layerList = lowPtQuadStepSeedLayers.layerList.value(),
+                               #new parameters required for phase1 seeding
                                BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                layerPairs = lowPtQuadStepHitDoublets.layerPairs.value()

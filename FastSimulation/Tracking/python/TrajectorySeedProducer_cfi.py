@@ -8,11 +8,10 @@ trajectorySeedProducer = cms.EDProducer(
     SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi.SeedFromConsecutiveHitsCreator.clone(
         TTRHBuilder = cms.string("WithoutRefit")),
     recHitCombinations = cms.InputTag("fastMatchedTrackerRecHitCombinations"),
-    layerList = cms.vstring(),
     seedFinderSelector = cms.PSet(
         measurementTracker = cms.string(""),
-        #new parameters for phase1 seeding
         layerList = cms.vstring(),
+        #new parameters for phase1 seeding
         BPix = cms.PSet(
             TTRHBuilder = cms.string(''),
             HitProducer = cms.string(''),
@@ -21,7 +20,7 @@ trajectorySeedProducer = cms.EDProducer(
             TTRHBuilder = cms.string(''),
             HitProducer = cms.string(''),
             ),
-        layerPairs = cms.vuint32(0)
+        layerPairs = cms.vuint32()
         )
     )
 

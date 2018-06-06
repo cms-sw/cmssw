@@ -123,12 +123,11 @@ trackingPhase1QuadProp.toReplaceWith(highPtTripletStepHitTriplets, _highPtTriple
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_highPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = highPtTripletStepSeedLayers.layerList.value(),
     trackingRegions = "highPtTripletStepTrackingRegions",
     hitMasks = cms.InputTag("highPtTripletStepMasks"),
     seedFinderSelector = dict( CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(highPtTripletStepHitTriplets),
-                               #new parameters required for phase1 seeding
                                layerList = highPtTripletStepSeedLayers.layerList.value(),
+                               #new parameters required for phase1 seeding
                                BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                layerPairs = highPtTripletStepHitDoublets.layerPairs.value()

@@ -87,13 +87,12 @@ detachedQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduc
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_detachedQuadStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = detachedQuadStepSeedLayers.layerList.value(),
     trackingRegions = "detachedQuadStepTrackingRegions",
     hitMasks = cms.InputTag("detachedQuadStepMasks"),
     seedFinderSelector = dict( CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedQuadStepHitQuadruplets).clone(
             SeedComparitorPSet = dict(ComponentName = "none")),
-                               #new parameters required for phase1 seeding
                                layerList = detachedQuadStepSeedLayers.layerList.value(),
+                               #new parameters required for phase1 seeding
                                BPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                FPix = dict(TTRHBuilder = 'WithoutRefit', HitProducer = 'TrackingRecHitProducer',),
                                layerPairs = detachedQuadStepHitDoublets.layerPairs.value()

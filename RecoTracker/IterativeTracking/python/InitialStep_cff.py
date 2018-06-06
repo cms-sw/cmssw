@@ -128,9 +128,9 @@ trackingPhase2PU140.toReplaceWith(initialStepSeeds, _initialStepSeedsConsecutive
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = initialStepSeedLayers.layerList.value(),
     trackingRegions = "initialStepTrackingRegions",
-    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitTriplets))
+    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitTriplets),
+                               layerList = initialStepSeedLayers.layerList.value())
 )
 _fastSim_initialStepSeeds.seedFinderSelector.pixelTripletGeneratorFactory.SeedComparitorPSet.ComponentName = "none"
 #new for phase1
@@ -138,7 +138,6 @@ trackingPhase1.toModify(_fastSim_initialStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
         CAHitQuadrupletGeneratorFactory = _hitSetProducerToFactoryPSet(initialStepHitQuadruplets).clone(dict( SeedComparitorPSet = dict(ComponentName = "none"))),
         #new parameters required for phase1 seeding
-        layerList = initialStepSeedLayers.layerList.value(),
         BPix = dict(
             TTRHBuilder = 'WithoutRefit',
             HitProducer = 'TrackingRecHitProducer',

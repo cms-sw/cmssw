@@ -106,17 +106,16 @@ trackingPhase1.toReplaceWith(detachedTripletStepHitTriplets, _caHitTripletEDProd
 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 _fastSim_detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = detachedTripletStepSeedLayers.layerList.value(),
     trackingRegions = "detachedTripletStepTrackingRegions",
     hitMasks = cms.InputTag("detachedTripletStepMasks"),
-    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedTripletStepHitTriplets))
+    seedFinderSelector = dict( pixelTripletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedTripletStepHitTriplets),
+                               layerList = detachedTripletStepSeedLayers.layerList.value())
 )
 #new for phase1
 trackingPhase1.toModify(_fastSim_detachedTripletStepSeeds, seedFinderSelector = dict(
         pixelTripletGeneratorFactory = None,
         CAHitTripletGeneratorFactory = _hitSetProducerToFactoryPSet(detachedTripletStepHitTriplets).clone(SeedComparitorPSet = dict(ComponentName = "none")),
         #new parameters required for phase1 seeding
-        layerList = detachedTripletStepSeedLayers.layerList.value(),
         BPix = dict(
             TTRHBuilder = 'WithoutRefit',
             HitProducer = 'TrackingRecHitProducer',
