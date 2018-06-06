@@ -140,7 +140,7 @@ G4bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   } else { 
     if(aStep->GetTotalEnergyDeposit() > 0.0) { 
       G4TouchableHistory* touch =(G4TouchableHistory*)(theTrack->GetTouchable());
-      edm::LogWarning("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
+      edm::LogInfo("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID
 				 << " currUnit=   " << currentID.unitID()
 				 << " Detector: " << GetName()
 				 << " trackID= " << theTrack->GetTrackID() 
