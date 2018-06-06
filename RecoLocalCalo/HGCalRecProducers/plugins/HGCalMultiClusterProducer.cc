@@ -16,8 +16,6 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
-#include <memory>
-#include <chrono>
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
@@ -79,8 +77,8 @@ void HGCalMultiClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
     edm::PtrVector<reco::BasicCluster> clusterPtrs, clusterPtrsSharing;
     for( unsigned i = 0; i < clusterHandle->size(); ++i ) {
-    edm::Ptr<reco::BasicCluster> ptr(clusterHandle,i);
-    clusterPtrs.push_back(ptr);
+        edm::Ptr<reco::BasicCluster> ptr(clusterHandle,i);
+        clusterPtrs.push_back(ptr);
     }
 
     if(doSharing){
@@ -89,23 +87,21 @@ void HGCalMultiClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
           clusterPtrsSharing.push_back(ptr);
         }
     }
-    std::unique_ptr<std::vector<reco::HGCalMultiCluster> >
-    multiclusters( new std::vector<reco::HGCalMultiCluster> ),
-    multiclusters_sharing( new std::vector<reco::HGCalMultiCluster> );
+
+    auto multiclusters = std::make_unique<std::vector<reco::HGCalMultiCluster>>();
+    auto multiclusters_sharing = std::make_unique<std::vector<reco::HGCalMultiCluster>>();
+
+
     multicluster_algo->getEvent(evt);
     multicluster_algo->getEventSetup(es);
 
-  std::chrono::high_resolution_clock::time_point then = std::chrono::high_resolution_clock::now();
   *multiclusters = multicluster_algo->makeClusters(clusterPtrs);
   if(doSharing)
     *multiclusters_sharing = multicluster_algo->makeClusters(clusterPtrsSharing);
   evt.put(std::move(multiclusters));
   if(doSharing)
     evt.put(std::move(multiclusters_sharing),"sharing");
-  std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<float> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(now - then);
-  // delta += float (now.tv_usec - then.tv_usec)/1000.;
-  edm::LogInfo ("HGCalMultiClusterProducer") << "Time taken by multiclustering " << time_span.count() << " ms";
+
 }
 
 #endif
