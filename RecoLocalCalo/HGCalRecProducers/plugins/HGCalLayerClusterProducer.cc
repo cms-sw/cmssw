@@ -16,12 +16,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
-#include <memory>
-#include <chrono>
-
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
-#include "RecoLocalCalo/HGCalRecAlgos/interface/HGCal3DClustering.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
