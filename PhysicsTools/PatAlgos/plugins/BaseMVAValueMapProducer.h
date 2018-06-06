@@ -95,7 +95,7 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
         session_ = tensorflow::createSession(graph_, sessionOptions);
 
     } else  {
-        //FIXME: throw config error
+          throw cms::Exception("ConfigError") << "Only 'TF' and 'TMVA' backends are supported\n";
     }
    if(tmva_) produces<edm::ValueMap<float>>();
    else {
@@ -110,10 +110,6 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
   void setValue(const std::string var,float val) {
       if(positions_.find(var)!=positions_.end())
           values_[positions_[var]]=val;
-      else {
-       //   edm::LogWarning("MVAUnexpectedVariable") << "Variable not expected: " << var ;
-         // std::cout << "Variable not expected: " << var << std::endl;
-      }
   }
   
   static edm::ParameterSetDescription getDescription();
@@ -181,10 +177,8 @@ BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
        std::vector<tensorflow::Tensor> outputs;
        std::vector<std::string> names; names.push_back(outputTensorName_);
        tensorflow::run(session_, input_tensors, names, &outputs);
-//       for(size_t k=0;k<output_names_.size();k++) mvaOut[k].push_back(outputs.at(0).matrix<float>()(0, k));
        std::vector<float> tmpOut;
        for(int k=0;k<outputs.at(0).matrix<float>().dimension(1);k++) tmpOut.push_back(outputs.at(0).matrix<float>()(0, k));
-       //StringObjectFunction<std::vector<float>> ss("at(0)");
        for(size_t k=0;k<output_names_.size();k++) mvaOut[k].push_back(output_formulas_[k](tmpOut));
 
     }

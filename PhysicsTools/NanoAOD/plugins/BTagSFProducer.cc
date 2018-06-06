@@ -91,7 +91,7 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
                     readers.push_back(reader);
                     
                     // report
-                    std::cout << "Loaded "+discShortNames_[iDisc]+" SFs from weight file "+weightFiles_[iDisc]+" with\noperating point: "+opname+",\nmeasurement type: B="+measurementTypesB_[iDisc]+", C="+measurementTypesC_[iDisc]+", UDSG="+measurementTypesUDSG_[iDisc]+",\nsystematic type: "+sysTypes_[iDisc]+".\n" << std::endl;
+                    edm::LogInfo("BTagSFProducer") << "Loaded "+discShortNames_[iDisc]+" SFs from weight file "+weightFiles_[iDisc]+" with\noperating point: "+opname+",\nmeasurement type: B="+measurementTypesB_[iDisc]+", C="+measurementTypesC_[iDisc]+", UDSG="+measurementTypesUDSG_[iDisc]+",\nsystematic type: "+sysTypes_[iDisc]+".\n" << std::endl;
         
                     // find if multiple MiniAOD branches need to be summed up (e.g., DeepCSV b+bb) and separate them using '+' delimiter from config                
                     std::stringstream dName(discNames_[iDisc]);
@@ -112,7 +112,7 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
                     inBranchNames.push_back(branches);
                     
                     // report
-                    std::cout << "Skipped loading BTagCalibration for "+discShortNames_[iDisc]+" as it was marked as unavailable in the configuration file. Event weights will not be stored.\n" << std::endl;
+                    edm::LogWarning("BTagSFProducer") << "Skipped loading BTagCalibration for "+discShortNames_[iDisc]+" as it was marked as unavailable in the configuration file. Event weights will not be stored.\n" << std::endl;
                 }
             }
         }
@@ -215,7 +215,8 @@ BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 
                 
                 if (SF==0.) {                                       // default value of SF is set to 1 in case BTagCalibration returns 0
-                    cout << discShortNames_[iDisc]+" SF not found for jet with pT="+to_string(pt)+", eta="+to_string(eta)+", discValue="+to_string(bdisc)+", flavour="+to_string(flavour) +". Setting SF to 1." << endl;
+                    //no need to log this as could be pretty common, leaving the cout commented in case this is needed by the author for simple debugging
+                    //cout << discShortNames_[iDisc]+" SF not found for jet with pT="+to_string(pt)+", eta="+to_string(eta)+", discValue="+to_string(bdisc)+", flavour="+to_string(flavour) +". Setting SF to 1." << endl;
                     SF=1.;
                 }
                 
