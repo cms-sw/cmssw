@@ -12,11 +12,12 @@ using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
 //
-HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
+template <class DFr>
+HGCHEbackDigitizer<DFr>::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase<DFr>(ps)
 {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   keV2MIP_   = cfg.getParameter<double>("keV2MIP");
-  keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
+  this->keV2fC_    = 1.0; //keV2MIP_; // hack for HEB
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise_MIP").getParameter<double>("value");
   nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
   nTotalPE_  = cfg.getParameter<double>("nTotalPE");
@@ -25,7 +26,8 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
 }
 
 //
-void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCBHDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
+template <class DFr>
+void HGCHEbackDigitizer<DFr>::runDigitizer(std::unique_ptr<HGCHEbackDigitizer::DColl> &digiColl,HGCSimHitDataAccumulator &simData,
 				      const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 				      uint32_t digitizationType, CLHEP::HepRandomEngine* engine)
 {
@@ -33,7 +35,8 @@ void HGCHEbackDigitizer::runDigitizer(std::unique_ptr<HGCBHDigiCollection> &digi
 }
 
 //
-void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCBHDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,
+template <class DFr>
+void HGCHEbackDigitizer<DFr>::runCaliceLikeDigitizer(std::unique_ptr<HGCHEbackDigitizer::DColl> &digiColl,HGCSimHitDataAccumulator &simData,
 						const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
 						CLHEP::HepRandomEngine* engine)
 {
@@ -86,16 +89,20 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCBHDigiCollect
 	}
 
       //init a new data frame and run shaper
-      HGCBHDataFrame newDataFrame( id );
-      myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl, 1 );
+      DFr newDataFrame( id );
+      this->myFEelectronics_->runTrivialShaper( newDataFrame, chargeColl, 1 );
 
       //prepare the output
-      updateOutput(digiColl,newDataFrame);
+      this->updateOutput(digiColl,newDataFrame);
     }
 }
 
 //
-HGCHEbackDigitizer::~HGCHEbackDigitizer()
+template <class DFr>
+HGCHEbackDigitizer<DFr>::~HGCHEbackDigitizer()
 {
 }
 
+//explicit instantiations
+template class HGCHEbackDigitizer<HGCBHDataFrame>;
+template class HGCHEbackDigitizer<HGCHEDataFrame>;

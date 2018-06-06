@@ -26,6 +26,10 @@
 class PCaloHit;
 class PileUpEventPrincipal;
 
+//typedefs
+typedef HGCHEbackDigitizer<HGCBHDataFrame> HGCHEbackDigitizerOld;
+typedef HGCHEbackDigitizer<HGCHEDataFrame> HGCHEbackDigitizerNew;
+
 class HGCDigitizer
 {
 public:
@@ -74,6 +78,7 @@ public:
   bool producesHEbackDigis()   { 
     return ((mySubDet_==ForwardSubdetector::HGCHEB)||(myDet_==DetId::HGCalHSc)); }
   std::string digiCollection() { return digiCollection_; }
+  int geometryType() { return geometryType_; }
 
   /**
       @short actions at the start/end of run
@@ -111,7 +116,8 @@ private :
 
   //digitizers
   std::unique_ptr<HGCEEDigitizer>      theHGCEEDigitizer_;
-  std::unique_ptr<HGCHEbackDigitizer>  theHGCHEbackDigitizer_;
+  std::unique_ptr<HGCHEbackDigitizerOld>  theHGCHEbackDigitizerOld_;
+  std::unique_ptr<HGCHEbackDigitizerNew>  theHGCHEbackDigitizerNew_;
   std::unique_ptr<HGCHEfrontDigitizer> theHGCHEfrontDigitizer_;
   
   //geometries
