@@ -53,7 +53,7 @@ for idmod in my_id_modules:
 
 process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
         # AOD case
-        src                  = cms.InputTag('gedGsfPhotons'),
+        src                  = cms.InputTag('gedPhotons'),
         vertices             = cms.InputTag('offlinePrimaryVertices'),
         pileup               = cms.InputTag('addPileupInfo'),
         # miniAOD case
