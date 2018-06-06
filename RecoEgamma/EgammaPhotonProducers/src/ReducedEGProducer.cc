@@ -46,7 +46,6 @@
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
-  ootPhotonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("ootPhotons"))),
   gsfElectronT_(consumes<reco::GsfElectronCollection>(config.getParameter<edm::InputTag>("gsfElectrons"))),
   gsfTrackT_(consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"))),
   conversionT_(consumes<reco::ConversionCollection>(config.getParameter<edm::InputTag>("conversions"))),
@@ -98,6 +97,10 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
   relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
 {  
+
+  const edm::InputTag& aTag = config.getParameter<edm::InputTag>("ootPhotons");
+  if (not aTag.label().empty()) ootPhotonT_ = consumes<reco::PhotonCollection>(aTag);  
+  
   const std::vector<edm::InputTag>& photonidinputs = 
     config.getParameter<std::vector<edm::InputTag> >("photonIDSources");
   for (const edm::InputTag &tag : photonidinputs) {
@@ -141,8 +144,10 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
 
   produces< reco::PhotonCollection >(outPhotons_);
   produces< reco::PhotonCoreCollection >(outPhotonCores_);
-  produces< reco::PhotonCollection >(outOOTPhotons_);
-  produces< reco::PhotonCoreCollection >(outOOTPhotonCores_);
+  if(!ootPhotonT_.isUninitialized()){ 
+    produces< reco::PhotonCollection >(outOOTPhotons_);
+    produces< reco::PhotonCoreCollection >(outOOTPhotonCores_);
+  }
   produces< reco::GsfElectronCollection >(outGsfElectrons_);
   produces< reco::GsfElectronCoreCollection >(outGsfElectronCores_);
   produces< reco::GsfTrackCollection >(outGsfTracks_);
@@ -151,9 +156,11 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   produces< reco::SuperClusterCollection >(outSuperClusters_);  
   produces< reco::CaloClusterCollection >(outEBEEClusters_);
   produces< reco::CaloClusterCollection >(outESClusters_);
-  produces< reco::SuperClusterCollection >(outOOTSuperClusters_);  
-  produces< reco::CaloClusterCollection >(outOOTEBEEClusters_);
-  produces< reco::CaloClusterCollection >(outOOTESClusters_);
+  if(!ootPhotonT_.isUninitialized()){
+    produces< reco::SuperClusterCollection >(outOOTSuperClusters_);  
+    produces< reco::CaloClusterCollection >(outOOTEBEEClusters_);
+    produces< reco::CaloClusterCollection >(outOOTESClusters_);
+  }
   produces< EcalRecHitCollection >(outEBRecHits_);
   produces< EcalRecHitCollection >(outEERecHits_);
   if (doPreshowerEcalHits_) produces< EcalRecHitCollection >(outESRecHits_);    
@@ -168,8 +175,10 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   for (const std::string &outid : outPhotonFloatValueMaps_) {
     produces< edm::ValueMap<float> >(outid);   
   }
-  for (const std::string &outid : outOOTPhotonFloatValueMaps_) {
-    produces< edm::ValueMap<float> >(outid);   
+  if(!ootPhotonT_.isUninitialized()){
+    for (const std::string &outid : outOOTPhotonFloatValueMaps_) {
+      produces< edm::ValueMap<float> >(outid);   
+    }
   }
   for (const std::string &outid : outGsfElectronFloatValueMaps_) {
     produces< edm::ValueMap<float> >(outid);   
@@ -184,12 +193,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   //get input collections
   
-  
   edm::Handle<reco::PhotonCollection> photonHandle;
   theEvent.getByToken(photonT_, photonHandle);
 
   edm::Handle<reco::PhotonCollection> ootPhotonHandle;
-  theEvent.getByToken(ootPhotonT_, ootPhotonHandle);
+  if(!ootPhotonT_.isUninitialized())theEvent.getByToken(ootPhotonT_, ootPhotonHandle);
 
   edm::Handle<reco::GsfElectronCollection> gsfElectronHandle;
   theEvent.getByToken(gsfElectronT_, gsfElectronHandle);  
@@ -235,12 +243,14 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   for (const auto& photonFloatValueMapT : photonFloatValueMapTs_) {
     theEvent.getByToken(photonFloatValueMapT,photonFloatValueMapHandles[index++]);
   }  
-  
+
   std::vector<edm::Handle<edm::ValueMap<float> > > ootPhotonFloatValueMapHandles(ootPhotonFloatValueMapTs_.size());
-  index = 0;
-  for (const auto& ootPhotonFloatValueMapT : ootPhotonFloatValueMapTs_) {
-    theEvent.getByToken(ootPhotonFloatValueMapT,ootPhotonFloatValueMapHandles[index++]);
-  }  
+  if (!ootPhotonT_.isUninitialized()){ 
+    index = 0;
+    for (const auto& ootPhotonFloatValueMapT : ootPhotonFloatValueMapTs_) {
+      theEvent.getByToken(ootPhotonFloatValueMapT,ootPhotonFloatValueMapHandles[index++]);
+    }  
+  }
 
   std::vector<edm::Handle<edm::ValueMap<float> > > gsfElectronFloatValueMapHandles(gsfElectronFloatValueMapTs_.size());
   index = 0;
@@ -269,7 +279,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   edm::ESHandle<CaloTopology> theCaloTopology;
   theEventSetup.get<CaloTopologyRecord>().get(theCaloTopology);  
   const CaloTopology *caloTopology = & (*theCaloTopology);  
-  
+
   //initialize output collections
   auto photons = std::make_unique<reco::PhotonCollection>();
   auto photonCores = std::make_unique<reco::PhotonCoreCollection>();
@@ -386,37 +396,39 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //special note1: since not PFCand --> no PF isolation, IDs (but we do have FloatValueMap!)
   //special note2: conversion sequence not run over bcs from oot phos, so skip relinking of oot phos
   //special note3: clusters and superclusters in own collections!
-  index = -1;
-  for (const auto& ootPhoton : *ootPhotonHandle) {
-    index++;
+  if(!ootPhotonT_.isUninitialized()) {
+    index = -1;
+    for (const auto& ootPhoton : *ootPhotonHandle) {
+      index++;
+      
+      bool keep = keepOOTPhotonSel_(ootPhoton);
+      if (!keep) continue;
 
-    bool keep = keepOOTPhotonSel_(ootPhoton);
-    if (!keep) continue;
-    
-    reco::PhotonRef ootPhotonref(ootPhotonHandle,index);
-    
-    ootPhotons->push_back(ootPhoton);
-        
-    //fill photon pfclusteriso valuemap vectors
-    int subindex = 0;
-    for (const auto& ootPhotonFloatValueMapHandle : ootPhotonFloatValueMapHandles) {
-      ootPhotonFloatValueMapVals[subindex++].push_back((*ootPhotonFloatValueMapHandle)[ootPhotonref]);
-    }    
-
-    //link photon core
-    const reco::PhotonCoreRef &ootPhotonCore = ootPhoton.photonCore();
-    linkCore(ootPhotonCore, *ootPhotonCores, ootPhotonCoreMap);
-
-    bool slimRelink = slimRelinkOOTPhotonSel_(ootPhoton);
-    //no supercluster relinking unless slimRelink selection is satisfied
-    if (!slimRelink) continue;
-    
-    bool relink = relinkOOTPhotonSel_(ootPhoton);
-    
-    const reco::SuperClusterRef &ootSuperCluster = ootPhoton.superCluster();
-    linkSuperCluster(ootSuperCluster, ootSuperClusterMap, *ootSuperClusters, relink, ootSuperClusterFullRelinkMap);
+      reco::PhotonRef ootPhotonref(ootPhotonHandle,index);
+      
+      ootPhotons->push_back(ootPhoton);
+      
+      //fill photon pfclusteriso valuemap vectors
+      int subindex = 0;
+      for (const auto& ootPhotonFloatValueMapHandle : ootPhotonFloatValueMapHandles) {
+	ootPhotonFloatValueMapVals[subindex++].push_back((*ootPhotonFloatValueMapHandle)[ootPhotonref]);
+      }    
+      
+      //link photon core
+      const reco::PhotonCoreRef &ootPhotonCore = ootPhoton.photonCore();
+      linkCore(ootPhotonCore, *ootPhotonCores, ootPhotonCoreMap);
+      
+      bool slimRelink = slimRelinkOOTPhotonSel_(ootPhoton);
+      //no supercluster relinking unless slimRelink selection is satisfied
+      if (!slimRelink) continue;
+      
+      bool relink = relinkOOTPhotonSel_(ootPhoton);
+      
+      const reco::SuperClusterRef &ootSuperCluster = ootPhoton.superCluster();
+      linkSuperCluster(ootSuperCluster, ootSuperClusterMap, *ootSuperClusters, relink, ootSuperClusterFullRelinkMap);
+    }
   }
-  
+
   //loop over electrons and fill maps
   index = -1;
   for (const auto& gsfElectron : *gsfElectronHandle) {
@@ -525,25 +537,26 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   //loop over output OOTSuperClusters and fill maps
-  index = 0;
-  for (auto& ootSuperCluster : *ootSuperClusters) {
-    
-    //link seed cluster no matter what
-    const reco::CaloClusterPtr &ootSeedCluster = ootSuperCluster.seed();
-    linkCaloCluster(ootSeedCluster, *ootEbeeClusters, ootEbeeClusterMap);
-
-    //only proceed if ootSuperCluster is marked for full relinking
-    bool fullrelink = ootSuperClusterFullRelinkMap.count(index++);
-    if (!fullrelink) {
-      //zero detid vector which is anyways not useful without stored rechits
-      ootSuperCluster.clearHitsAndFractions();
-      continue; 
+  if(!ootPhotonT_.isUninitialized()) {
+    index = 0;
+    for (auto& ootSuperCluster : *ootSuperClusters) {
+      
+      //link seed cluster no matter what
+      const reco::CaloClusterPtr &ootSeedCluster = ootSuperCluster.seed();
+      linkCaloCluster(ootSeedCluster, *ootEbeeClusters, ootEbeeClusterMap);
+      
+      //only proceed if ootSuperCluster is marked for full relinking
+      bool fullrelink = ootSuperClusterFullRelinkMap.count(index++);
+      if (!fullrelink) {
+	//zero detid vector which is anyways not useful without stored rechits
+	ootSuperCluster.clearHitsAndFractions();
+	continue; 
+      }
+      
+      // link calo clusters
+      linkCaloClusters(ootSuperCluster, *ootEbeeClusters, ootEbeeClusterMap, rechitMap, barrelHitHandle, endcapHitHandle, caloTopology, *ootEsClusters, ootEsClusterMap);
     }
-
-    // link calo clusters
-    linkCaloClusters(ootSuperCluster, *ootEbeeClusters, ootEbeeClusterMap, rechitMap, barrelHitHandle, endcapHitHandle, caloTopology, *ootEsClusters, ootEsClusterMap);
   }
-
   //now finalize and add to the event collections in "reverse" order
   
   //rechits (fill output collections of rechits to be stored)
@@ -558,7 +571,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       eeRecHits->push_back(rechit);
     }
   }
- 
+
   theEvent.put(std::move(ebRecHits),outEBRecHits_);
   theEvent.put(std::move(eeRecHits),outEERecHits_);
 
@@ -583,14 +596,16 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   //OOTCaloClusters
   //put ootcalocluster output collections in event and get orphan handles to create ptrs
-  const edm::OrphanHandle<reco::CaloClusterCollection> &outOOTEBEEClusterHandle = theEvent.put(std::move(ootEbeeClusters),outOOTEBEEClusters_);
-  const edm::OrphanHandle<reco::CaloClusterCollection> &outOOTESClusterHandle = theEvent.put(std::move(ootEsClusters),outOOTESClusters_);;  
-  
+  edm::OrphanHandle<reco::CaloClusterCollection> outOOTEBEEClusterHandle;
+  edm::OrphanHandle<reco::CaloClusterCollection> outOOTESClusterHandle;
   //Loop over OOTSuperClusters and relink OOTPhoton CaloClusters
-  for (reco::SuperCluster &ootSuperCluster : *ootSuperClusters) {
-    relinkCaloClusters(ootSuperCluster, ootEbeeClusterMap, ootEsClusterMap, outOOTEBEEClusterHandle, outOOTESClusterHandle);
+  if(!ootPhotonT_.isUninitialized()) {
+    outOOTEBEEClusterHandle = theEvent.put(std::move(ootEbeeClusters),outOOTEBEEClusters_);
+    outOOTESClusterHandle = theEvent.put(std::move(ootEsClusters),outOOTESClusters_);  
+    for (reco::SuperCluster &ootSuperCluster : *ootSuperClusters) {
+      relinkCaloClusters(ootSuperCluster, ootEbeeClusterMap, ootEsClusterMap, outOOTEBEEClusterHandle, outOOTESClusterHandle);
+    }
   }
-
   //put superclusters and conversions in the event
   const edm::OrphanHandle<reco::SuperClusterCollection> &outSuperClusterHandle = theEvent.put(std::move(superClusters),outSuperClusters_);
   const edm::OrphanHandle<reco::ConversionCollection> &outConversionHandle = theEvent.put(std::move(conversions),outConversions_);
@@ -616,9 +631,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     relinkSuperCluster(gsfElectronCore, superClusterMap, outSuperClusterHandle);
     relinkGsfTrack(gsfElectronCore, gsfTrackMap, outGsfTrackHandle);
   }
-  
+
   //put ootsuperclusters in the event
-  const edm::OrphanHandle<reco::SuperClusterCollection> &outOOTSuperClusterHandle = theEvent.put(std::move(ootSuperClusters),outOOTSuperClusters_);
+  edm::OrphanHandle<reco::SuperClusterCollection> outOOTSuperClusterHandle;
+  if(!ootPhotonT_.isUninitialized()) outOOTSuperClusterHandle = theEvent.put(std::move(ootSuperClusters),outOOTSuperClusters_);
   
   //Relink OOTPhoton SuperClusters
   for (reco::PhotonCore &ootPhotonCore : *ootPhotonCores) {
@@ -627,16 +643,19 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   //put photoncores and gsfelectroncores into the event
   const edm::OrphanHandle<reco::PhotonCoreCollection> &outPhotonCoreHandle = theEvent.put(std::move(photonCores),outPhotonCores_);
-  const edm::OrphanHandle<reco::PhotonCoreCollection> &outOOTPhotonCoreHandle = theEvent.put(std::move(ootPhotonCores),outOOTPhotonCores_);
+  edm::OrphanHandle<reco::PhotonCoreCollection> outOOTPhotonCoreHandle;
+  if(!ootPhotonT_.isUninitialized()) outOOTPhotonCoreHandle = theEvent.put(std::move(ootPhotonCores),outOOTPhotonCores_);
   const edm::OrphanHandle<reco::GsfElectronCoreCollection> &outgsfElectronCoreHandle = theEvent.put(std::move(gsfElectronCores),outGsfElectronCores_);
- 
+
   //loop over photons, oot photons, and electrons and relink the cores
   for (reco::Photon &photon : *photons) {
     relinkPhotonCore(photon, photonCoreMap, outPhotonCoreHandle);
   }
 
-  for (reco::Photon &ootPhoton : *ootPhotons) {
-    relinkPhotonCore(ootPhoton, ootPhotonCoreMap, outOOTPhotonCoreHandle);
+  if(!ootPhotonT_.isUninitialized()) {
+    for (reco::Photon &ootPhoton : *ootPhotons) {
+      relinkPhotonCore(ootPhoton, ootPhotonCoreMap, outOOTPhotonCoreHandle);
+    }
   }
 
   for (reco::GsfElectron &gsfElectron : *gsfElectrons) {
@@ -671,10 +690,11 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     ambigTracksInThisElectron.clear();
     
   }
-  
+
   //(finally) store the output photon and electron collections
   const edm::OrphanHandle<reco::PhotonCollection> &outPhotonHandle = theEvent.put(std::move(photons),outPhotons_);  
-  const edm::OrphanHandle<reco::PhotonCollection> &outOOTPhotonHandle = theEvent.put(std::move(ootPhotons),outOOTPhotons_);  
+  edm::OrphanHandle<reco::PhotonCollection> outOOTPhotonHandle;
+  if(!ootPhotonT_.isUninitialized()) outOOTPhotonHandle = theEvent.put(std::move(ootPhotons),outOOTPhotons_);  
   const edm::OrphanHandle<reco::GsfElectronCollection> &outGsfElectronHandle = theEvent.put(std::move(gsfElectrons),outGsfElectrons_);
   
   //still need to output relinked valuemaps
@@ -721,10 +741,12 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     fillMap(outPhotonHandle, vals, theEvent, outPhotonFloatValueMaps_[index++]);
   }
 
-  //oot photon iso value maps
-  index = 0;
-  for (auto const& vals : ootPhotonFloatValueMapVals){
-    fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonFloatValueMaps_[index++]);
+  if(!ootPhotonT_.isUninitialized()) {
+    //oot photon iso value maps
+    index = 0;
+    for (auto const& vals : ootPhotonFloatValueMapVals){
+      fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonFloatValueMaps_[index++]);
+    }
   }
 
   //electron iso value maps
