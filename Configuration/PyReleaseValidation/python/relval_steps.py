@@ -765,7 +765,7 @@ step1FastUpg2015_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:
 step1FastUpg2017Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,EI,VALIDATION:@standardValidation,DQM:@standardDQM',
                            '--fast':'',
                            '--conditions'  :'auto:phase1_2017_realistic',
-                           '--beamspot'    : 'Realistic50ns13TeVCollision',
+                           '--beamspot'    : 'Realistic25ns13TeVEarly2017Collision',
                            '--era'         :'Run2_2017_FastSim',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
