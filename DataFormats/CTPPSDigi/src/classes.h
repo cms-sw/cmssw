@@ -15,6 +15,7 @@
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigiCollection.h"
@@ -56,6 +57,14 @@ namespace DataFormats_CTPPSDigi {
     std::vector<edm::DetSet<CTPPSDiamondDigi> > vec_ds_rp_diamo_dig;
     edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> > wds_rp_diamo_dig;
     edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> > wdsv_rp_diamo_dig;
+    
+    TotemTimingDigi rm_totTiming_dig;
+    edm::DetSet<TotemTimingDigi> ds_rp_totTiming_dig;
+    std::vector<TotemTimingDigi> vec_rp_totTiming_dig;
+    edm::DetSetVector<TotemTimingDigi> dsv_rp_totTiming_dig;
+    std::vector<edm::DetSet<TotemTimingDigi> > vec_ds_rp_totTiming_dig;
+    edm::Wrapper<edm::DetSet<TotemTimingDigi> > wds_rp_totTiming_dig;
+    edm::Wrapper<edm::DetSetVector<TotemTimingDigi> > wdsv_rp_totTiming_dig;
 
     HPTDCErrorFlags rm_hptdcerr;
     CTPPSPixelDigi ff0;
