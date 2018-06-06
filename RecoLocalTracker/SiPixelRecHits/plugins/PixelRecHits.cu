@@ -42,7 +42,7 @@ namespace pixelgpudetails {
   void PixelRecHitGPUKernel::makeHitsAsync(const siPixelRawToClusterHeterogeneousProduct::GPUProduct& input,
                                            pixelCPEforGPU::ParamsOnGPU const * cpeParams,
                                            cuda::stream_t<>& stream) {
-    thrust::exclusive_scan(thrust::cuda::par,
+    thrust::exclusive_scan(thrust::cuda::par.on(stream.id()),
                            input.clusInModule_d,
                            input.clusInModule_d + gpuClustering::MaxNumModules + 1,
                            gpu_.hitsModuleStart_d);
