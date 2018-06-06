@@ -56,14 +56,11 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         vertices             = cms.InputTag('offlinePrimaryVertices'),
         pileup               = cms.InputTag('addPileupInfo'),
         genParticles         = cms.InputTag('genParticles'),
-        # MET                  = cms.InputTag('pfMet'),
-        MET                  = cms.InputTag('slimmedMETs'),
         # miniAOD case
         srcMiniAOD           = cms.InputTag('slimmedElectrons'),
         verticesMiniAOD      = cms.InputTag('offlineSlimmedPrimaryVertices'),
         pileupMiniAOD        = cms.InputTag('slimmedAddPileupInfo'),
         genParticlesMiniAOD  = cms.InputTag('prunedGenParticles'),
-        METMiniAOD           = cms.InputTag('slimmedMETs'),
         #
         eleMVAs             = cms.vstring(
                                           ),
