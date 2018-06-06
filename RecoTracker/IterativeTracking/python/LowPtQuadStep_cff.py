@@ -36,6 +36,11 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
                 )
                                                             )
 )
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(lowPtQuadStepTrackingRegions,RegionPSet = dict(
+     ptMin = 0.05,
+     originRadius = 0.2,
+))
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -65,6 +70,7 @@ lowPtQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAPhiCut = 0.3,
 )
 trackingPhase2PU140.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0015,CAPhiCut = 0.25)
+highBetaStar_2018.toModify(lowPtQuadStepHitQuadruplets,CAThetaCut = 0.0034,CAPhiCut = 0.6)
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 lowPtQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
@@ -168,6 +174,7 @@ lowPtQuadStep =  TrackMVAClassifierPrompt.clone(
     mva = dict(GBRForestLabel = 'MVASelectorLowPtQuadStep_Phase1'),
     qualityCuts = [-0.7,-0.35,-0.15],
 )
+highBetaStar_2018.toModify(lowPtQuadStep,qualityCuts = [-0.9,-0.35,-0.15])
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
