@@ -122,6 +122,8 @@ HLTDebugRAW   = cms.PSet(
         'keep *_hltCleanedHiCorrectedIslandBarrelSuperClustersHI_*_*',
         'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
         'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
+        'keep *_hltDeepCombinedSecondaryVertexBJetTagsCalo_*_*',
+        'keep *_hltDeepCombinedSecondaryVertexBJetTagsPF_*_*',
         'keep *_hltConvPFTausTightIsoTrackFindingIsolation_*_*',
         'keep *_hltConvPFTausTightIsoTrackFinding_*_*',
         'keep *_hltConvPFTausTightIsoTrackPt5Isolation_*_*',
