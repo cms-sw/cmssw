@@ -305,7 +305,13 @@ namespace sistrip {
                     << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
                     << " Invalid packet code " << buffer->packetCode(legacy_, iconn->fedCh())
                     << " for " << *ifed << " channel " << iconn->fedCh();
-                } }
+                }
+                if ( packet_code == 0 ) {
+                  // workaround for a pre-2015 bug in the packer: assume default ZS packing
+                  sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()));
+                  while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc())); unpacker++;}
+                }
+              }
             }
           } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
