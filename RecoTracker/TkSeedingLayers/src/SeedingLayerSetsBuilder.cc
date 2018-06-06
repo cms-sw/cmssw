@@ -180,7 +180,13 @@ std::string SeedingLayerSetsBuilder::LayerSpec::print(const std::vector<std::str
   return str.str();
 }
 
-SeedingLayerSetsBuilder::SeedingLayerSetsBuilder() {}
+//FastSim specific constructor
+SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC, const edm::InputTag& fastsimHitTag):
+  SeedingLayerSetsBuilder(cfg, iC)
+{
+  fastSimrecHitsToken_ = iC.consumes<FastTrackerRecHitCollection>(fastsimHitTag); 
+}
+
 SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC):
   SeedingLayerSetsBuilder(cfg, iC)
 {}
@@ -188,7 +194,6 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, 
 {
   std::vector<std::string> namesPset = cfg.getParameter<std::vector<std::string> >("layerList");
   std::vector<std::vector<std::string> > layerNamesInSets = this->layerNamesInSets(namesPset);
-  fastSimrecHitsToken_ = iC.consumes<FastTrackerRecHitCollection>(edm::InputTag("fastTrackerRecHits")); //fix: to pass as argument to constructor
   // debug printout of layers
   typedef std::vector<std::string>::const_iterator IS;
   typedef std::vector<std::vector<std::string> >::const_iterator IT;
