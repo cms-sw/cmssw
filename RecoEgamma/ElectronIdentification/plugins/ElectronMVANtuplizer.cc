@@ -86,14 +86,12 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       edm::EDGetToken vertices_;
       edm::EDGetToken pileup_;
       edm::EDGetToken genParticles_;
-      edm::EDGetToken metToken_;
 
       // for miniAOD case
       edm::EDGetToken srcMiniAOD_;
       edm::EDGetToken verticesMiniAOD_;
       edm::EDGetToken pileupMiniAOD_;
       edm::EDGetToken genParticlesMiniAOD_;
-      edm::EDGetToken metTokenMiniAOD_;
 
       // other
       TTree* tree_;
@@ -106,7 +104,6 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       int nEvent_, nRun_, nLumi_;
       int genNpu_;
       int vtxN_;
-      float met_;
 
       // electron variables
       float eleQ_;
@@ -177,12 +174,10 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
   vertices_              (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"))),
   pileup_                (consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileup"))),
   genParticles_          (consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticles"))),
-  metToken_              (consumes<pat::METCollection >(iConfig.getParameter<edm::InputTag>("MET"))),
   srcMiniAOD_            (consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"))),
   verticesMiniAOD_       (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("verticesMiniAOD"))),
   pileupMiniAOD_         (consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileupMiniAOD"))),
   genParticlesMiniAOD_   (consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticlesMiniAOD"))),
-  metTokenMiniAOD_       (consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("METMiniAOD"))),
   mvaVarMngr_            (iConfig.getParameter<std::string>("variableDefinition")),
   isMC_                  (iConfig.getParameter<bool>("isMC")),
   deltaR_                (iConfig.existsAs<double>("deltaR")          ? iConfig.getParameter<double>("deltaR"): 0.1),
@@ -235,7 +230,6 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
    tree_->Branch("nLumi",   &nLumi_);
    if (isMC_) tree_->Branch("genNpu", &genNpu_);
    tree_->Branch("vtxN",   &vtxN_);
-   tree_->Branch("met",   &met_);
 
    tree_->Branch("ele_q",&eleQ_);
    tree_->Branch("ele_3q",&ele3Q_);
@@ -318,18 +312,6 @@ ElectronMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
 
     vtxN_ = vertices->size();
-
-    // MET
-    edm::Handle<pat::METCollection> metHandle;
-    iEvent.getByToken(metToken_,metHandle);
-    if( !metHandle.isValid() ){
-      iEvent.getByToken(metTokenMiniAOD_,metHandle);
-      if( metHandle.isValid() )
-        throw cms::Exception(" Collection not found: ")
-          << " failed to find a standard AOD or miniAOD MET collection " << std::endl;
-    }
-    const pat::MET &met = metHandle->front();
-    met_ = met.pt();
 
     // Retrieve Pileup Info
     if(isMC_) {
