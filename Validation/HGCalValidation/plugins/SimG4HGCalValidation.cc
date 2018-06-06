@@ -19,6 +19,7 @@
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalTestNumbering.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -80,26 +81,30 @@ private:
 
 private:
   //Keep reference to instantiate HcalNumberingFromDDD later
-  HcalNumberingFromDDD *           numberingFromDDD_;
+  HcalNumberingFromDDD *             numberingFromDDD_;
 
   //HGCal numbering scheme
-  std::vector<HGCNumberingScheme*> hgcNumbering_;
+  std::vector<HGCNumberingScheme*>   hgcNumbering_;
+  std::vector<HGCalNumberingScheme*> hgcalNumbering_;
   
   // to read from parameter set
-  std::vector<std::string>  names_;
-  std::vector<int>          types_, subdet_;
-  std::string               labelLayer_;
+  std::vector<std::string>           names_;
+  std::vector<int>                   types_, subdet_;
+  std::string                        labelLayer_;
+
+  // parameters from geometry
+  int                                levelT1_, levelT2_;
 
   // some private members for ananlysis 
-  unsigned int              count_;                  
-  double                    edepEE_, edepHEF_, edepHEB_;
-  std::vector<double>       hgcEEedep_, hgcHEFedep_, hgcHEBedep_;
-  std::vector<unsigned int> dets_, hgchitDets_, hgchitIndex_;
-  std::vector<double>	    hgchitX_, hgchitY_, hgchitZ_; 
+  unsigned int                       count_;                  
+  double                             edepEE_, edepHEF_, edepHEB_;
+  std::vector<double>                hgcEEedep_, hgcHEFedep_, hgcHEBedep_;
+  std::vector<unsigned int>          dets_, hgchitDets_, hgchitIndex_;
+  std::vector<double>	             hgchitX_, hgchitY_, hgchitZ_; 
 };
 
 SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet &p): 
-  numberingFromDDD_(nullptr), count_(0) {
+  numberingFromDDD_(nullptr), levelT1_(999), levelT2_(999), count_(0) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("SimG4HGCalValidation");
   names_        = m_Anal.getParameter<std::vector<std::string> >("Names");
@@ -119,9 +124,9 @@ SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet &p):
 } 
    
 SimG4HGCalValidation::~SimG4HGCalValidation() {
-  if (numberingFromDDD_) delete numberingFromDDD_;
-  for (unsigned int k=0; k<hgcNumbering_.size(); ++k)
-    if (hgcNumbering_[k]) delete hgcNumbering_[k];
+  delete numberingFromDDD_;
+  for (auto number : hgcNumbering_)   delete number;
+  for (auto number : hgcalNumbering_) delete number;
 }
 
 void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
@@ -138,24 +143,37 @@ void SimG4HGCalValidation::update(const BeginOfJob * job) {
     int layers(0);
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
-      dets_.push_back((unsigned int)(DetId::Forward));
-      if (type == 0) {
-	subdet_.push_back((int)(ForwardSubdetector::HGCEE));
-	nameX        = "HGCalEESensitive";
-      } else if (type == 1) {
-	subdet_.push_back((int)(ForwardSubdetector::HGCHEF));
-	nameX        = "HGCalHESiliconSensitive";
+      if (types_[type] == 0) {
+	subdet_.emplace_back(ForwardSubdetector::ForwardEmpty);
+	if      (type == 0) dets_.emplace_back((int)(DetId::HGCalEE));
+	else if (type == 1) dets_.emplace_back((int)(DetId::HGCalHSi));
+	else                dets_.emplace_back((int)(DetId::HGCalHSc));
       } else {
-	subdet_.push_back((int)(ForwardSubdetector::HGCHEB));
-	nameX        = "HGCalHEScintillatorSensitive";
+	dets_.push_back((unsigned int)(DetId::Forward));
+	if      (type == 0) subdet_.emplace_back((int)(ForwardSubdetector::HGCEE));
+	else if (type == 1) subdet_.emplace_back((int)(ForwardSubdetector::HGCHEF));
+	else                subdet_.emplace_back((int)(ForwardSubdetector::HGCHEB));
       }
+      if        (type == 0) nameX = "HGCalEESensitive";
+      else if   (type == 1) nameX = "HGCalHESiliconSensitive";
+      else                  nameX = "HGCalHEScintillatorSensitive";
       edm::ESHandle<HGCalDDDConstants>    hdc;
       es->get<IdealGeometryRecord>().get(nameX,hdc);
       if (hdc.isValid()) {
 	HGCalGeometryMode::GeometryMode m_mode = hdc->geomMode();
-	hgcNumbering_.push_back(new HGCNumberingScheme(*hdc,nameX));
-	if (m_mode == HGCalGeometryMode::Square) types_[type] = 0;
-	else                                     types_[type] = 1;
+	levelT1_ = hdc->levelTop(0); 
+	levelT2_ = hdc->levelTop(1); 
+	if (m_mode == HGCalGeometryMode::Trapezoid) {
+	  types_[type] =-1;
+	  hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc,(DetId::Detector)(dets_[type]),nameX));
+	} else if ((m_mode == HGCalGeometryMode::Hexagon) ||
+		   (m_mode == HGCalGeometryMode::HexagonFull)) {
+	  types_[type] = 1;
+	  hgcNumbering_.push_back(new HGCNumberingScheme(*hdc,nameX));
+	} else {
+	  types_[type] = 0;
+	  hgcalNumbering_.emplace_back(new HGCalNumberingScheme(*hdc,(DetId::Detector)(dets_[type]),nameX));
+	}
 	layers = hdc->layers(false);
       } else {
 	edm::LogError("ValidHGCal") << "Cannot find HGCalDDDConstants for "
@@ -237,17 +255,30 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 	  // HGCal
 	  G4ThreeVector localpos = touchable->GetHistory()->GetTopTransform().TransformPoint(hitPoint);	  
 	  float globalZ=touchable->GetTranslation(0).z();
-	  int iz( globalZ>0 ? 1 : -1);
-	  int module(0), cell(0);
-	  if (types_[type] == 0) {
-	    layer  = touchable->GetReplicaNumber(0);
-	    module = touchable->GetReplicaNumber(1);
+	  int iz(globalZ>0 ? 1 : -1);
+	  int module(-1), cell(-1);
+	  if (types_[type] == 1) {
+	    if (touchable->GetHistoryDepth() == levelT1_) {
+	      layer  = touchable->GetReplicaNumber(0);
+	    } else {
+	      layer  = touchable->GetReplicaNumber(2);
+	      module = touchable->GetReplicaNumber(1);
+	      cell   = touchable->GetReplicaNumber(0);
+	    }
+	    index = hgcNumbering_[type]->getUnitID((ForwardSubdetector)(subdet_[type]), layer, module, cell, iz, localpos);
 	  } else {
-	    layer  = touchable->GetReplicaNumber(2);
-	    module = touchable->GetReplicaNumber(1);
-	    cell   = touchable->GetReplicaNumber(0);
+	    if ((touchable->GetHistoryDepth() == levelT1_) || 
+		(touchable->GetHistoryDepth() == levelT2_)) {
+	      layer  = touchable->GetReplicaNumber(0);
+	    } else {
+	      layer  = touchable->GetReplicaNumber(3);
+	      module = touchable->GetReplicaNumber(2);
+	      cell   = touchable->GetReplicaNumber(1);
+	    }
+	    double weight(0);
+	    index = hgcalNumbering_[type]->getUnitID(layer, module, cell, iz,
+						     hitPoint, weight);
 	  }
-	  index = hgcNumbering_[type]->getUnitID((ForwardSubdetector)(subdet_[type]), layer, module, cell, iz, localpos);
 	} else {
 	  // Hcal
 	  int depth = (touchable->GetReplicaNumber(0))%10 + 1;
@@ -272,13 +303,16 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 				   << hitPoint;
 	if (type == 0) {
 	  edepEE_  += edeposit;
-	  if (layer < (int)(hgcEEedep_.size()))  hgcEEedep_[layer]  += edeposit;
+	  if (layer < (int)(hgcEEedep_.size()))
+	    hgcEEedep_[layer]  += edeposit;
 	} else if (type == 1) {
 	  edepHEF_ += edeposit;
-	  if (layer < (int)(hgcHEFedep_.size())) hgcHEFedep_[layer] += edeposit;
+	  if (layer < (int)(hgcHEFedep_.size())) 
+	    hgcHEFedep_[layer] += edeposit;
 	} else {
 	  edepHEB_ += edeposit;
-	  if (layer < (int)(hgcHEBedep_.size())) hgcHEBedep_[layer] += edeposit;
+	  if (layer < (int)(hgcHEBedep_.size())) 
+	    hgcHEBedep_[layer] += edeposit;
 	}
 	G4String nextVolume("XXX");
 	if (aStep->GetTrack()->GetNextVolume()!=nullptr)

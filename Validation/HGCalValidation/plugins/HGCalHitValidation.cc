@@ -265,11 +265,11 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				 << std::get<0>(itr->second) 
 				 << "; Position (" << std::get<1>(itr->second) 
 				 << ", " << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+				 << std::get<3>(itr->second) << ")";
     }
 #endif
   } else {   
-    edm::LogWarning("HGCalValid") << "No EE SimHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No EE SimHit Found ";
   }
 
   //Accesing fh simhits
@@ -286,11 +286,11 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				 << std::get<0>(itr->second) << "; Position (" 
 				 << std::get<1>(itr->second) << ", "
 				 << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+				 << std::get<3>(itr->second) << ")";
     }
 #endif
   } else {
-    edm::LogWarning("HGCalValid") << "No FH SimHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No FH SimHit Found ";
   }
 	
   //Accessing bh simhits
@@ -335,11 +335,11 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				 << std::get<0>(itr->second) << "; Position (" 
 				 << std::get<1>(itr->second) << ", "
 				 << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+				 << std::get<3>(itr->second) << ")";
     }
 #endif
   } else {
-    edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No BH SimHit Found ";
   }
 
   //accessing EE Rechit information
@@ -368,12 +368,12 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				   << std::get<2>(itr->second) << ", " 
 				   << std::get<3>(itr->second) << ") Rec (" 
 				   << energy << ", "  << xyz.x() << ", " 
-				   << xyz.y() << ", " << xyz.z() << ")\n";
+				   << xyz.y() << ", " << xyz.z() << ")";
 #endif
       }
     }
   } else {
-    edm::LogWarning("HGCalValid") << "No EE RecHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No EE RecHit Found ";
   }
 
   //accessing FH Rechit information
@@ -403,12 +403,12 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 				   << std::get<2>(itr->second) << ", " 
 				   << std::get<3>(itr->second) << ") Rec (" 
 				   << energy << "," << xyz.x() << ", " 
-				   << xyz.y() << ", " << xyz.z() << ")\n";
+				   << xyz.y() << ", " << xyz.z() << ")";
 #endif
       }
     }
   } else {
-    edm::LogWarning("HGCalValid") << "No FH RecHit Found " << std::endl;
+    edm::LogVerbatim("HGCalValid") << "No FH RecHit Found ";
   }
 
 
@@ -420,7 +420,7 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
       const HBHERecHitCollection* theHits = (bhRecHit.product());
       analyzeHGCalRecHit(theHits, bhHitRefs);
     } else {
-      edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
+      edm::LogVerbatim("HGCalValid") << "No BH RecHit Found ";
     }
   } else {
     edm::Handle<HGChebRecHitCollection> bhRecHit;
@@ -429,7 +429,7 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
       const HGChebRecHitCollection* theHits = (bhRecHit.product());
       analyzeHGCalRecHit(theHits, bhHitRefs);
     } else {
-      edm::LogWarning("HGCalValid") << "No BH RecHit Found " << std::endl;
+      edm::LogVerbatim("HGCalValid") << "No BH RecHit Found ";
     }
   }
 }
