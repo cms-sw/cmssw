@@ -40,6 +40,10 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "CommonTools/Utils/interface/TMVAZipReader.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 #include <string>
