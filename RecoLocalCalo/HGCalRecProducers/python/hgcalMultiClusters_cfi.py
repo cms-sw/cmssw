@@ -10,5 +10,5 @@ hgcalMultiClusters =  cms.EDProducer(
     HGCFHInput = cms.InputTag('HGCalRecHit:HGCHEFRecHits'),
     HGCBHInput = cms.InputTag('HGCalRecHit:HGCHEBRecHits'),
     HGCLayerClusters = cms.InputTag('hgcalLayerClusters:'),
-    HGCLayerClustersSharing = cms.InputTag('hgcalLayerClusters:sharing'),
+    HGCLayerClustersSharing = cms.InputTag('hgcalLayerClusters:sharing')
     )
