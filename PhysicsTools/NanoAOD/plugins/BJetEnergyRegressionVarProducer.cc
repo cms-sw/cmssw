@@ -31,6 +31,8 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -76,8 +78,6 @@ class BJetEnergyRegressionVarProducer : public edm::global::EDProducer<> {
    public:
   explicit BJetEnergyRegressionVarProducer(const edm::ParameterSet &iConfig):
     srcJet_(consumes<edm::View<pat::Jet>>(iConfig.getParameter<edm::InputTag>("src"))),
-//     srcMu_(consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("musrc"))),
-//     srcEle_(consumes<edm::View<pat::Electron>>(iConfig.getParameter<edm::InputTag>("elesrc"))),
     srcVtx_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvsrc"))),
     srcSV_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<edm::InputTag>("svsrc"))),
 	srcGP_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("gpsrc")))
@@ -85,7 +85,7 @@ class BJetEnergyRegressionVarProducer : public edm::global::EDProducer<> {
     //un prodotto da copiare
     produces<edm::ValueMap<float>>("leptonPtRel");
     produces<edm::ValueMap<float>>("leptonPtRatio");
-    produces<edm::ValueMap<float>>("leptonPtRelInv");//una variabile sbagliata?
+    produces<edm::ValueMap<float>>("leptonPtRelInv");//wrong variable?
     produces<edm::ValueMap<float>>("leptonPtRelv0");
     produces<edm::ValueMap<float>>("leptonPtRatiov0");
     produces<edm::ValueMap<float>>("leptonPtRelInvv0");//v0 ~ heppy?
@@ -116,8 +116,6 @@ class BJetEnergyRegressionVarProducer : public edm::global::EDProducer<> {
         // ----------member data ---------------------------
 
   edm::EDGetTokenT<edm::View<pat::Jet>> srcJet_;
-//   edm::EDGetTokenT<edm::View<pat::Electron>> srcEle_;
-//   edm::EDGetTokenT<edm::View<pat::Muon>> srcMu_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> srcVtx_;
   edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> srcSV_;
   edm::EDGetTokenT<std::vector<reco::GenParticle>> srcGP_;
@@ -143,10 +141,6 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
 
   edm::Handle<edm::View<pat::Jet>> srcJet;
   iEvent.getByToken(srcJet_, srcJet);
-//   edm::Handle<edm::View<pat::Muon>> srcMu;
-//   iEvent.getByToken(srcMu_, srcMu);
-//   edm::Handle<edm::View<pat::Electron>> srcEle;
-//   iEvent.getByToken(srcEle_, srcEle);
   edm::Handle<std::vector<reco::Vertex>> srcVtx;
   iEvent.getByToken(srcVtx_, srcVtx);  
   edm::Handle<edm::View<reco::VertexCompositePtrCandidate>> srcSV;
@@ -186,7 +180,7 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
           auto gep4wNu = genp4;
           for(const auto & gp : *srcGP){
             if((abs(gp.pdgId())==12 || abs(gp.pdgId())==14 || abs(gp.pdgId())==16) && gp.status()==1){
-                if (Geom::deltaR( genp4, gp.p4() )<0.4) {
+                if (reco::deltaR( genp4, gp.p4() )<0.4) {
 //                    std::cout<<" from "<<gep4wNu.pt()<<std::endl; 
                     gep4wNu=gep4wNu+gp.p4(); 
 //                    std::cout<<" to "<<gep4wNu.pt()<<std::endl;
@@ -227,7 +221,7 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
               leptonPtRel_v0[ij] = std::get<1>(res2);
               leptonPtRelInv_v0[ij] = std::get<2>(res2);
               leptonPdgId[ij] = d->pdgId();
-              leptonDeltaR[ij]=Geom::deltaR( jet->p4(), d->p4() );
+              leptonDeltaR[ij]=reco::deltaR( jet->p4(), d->p4() );
               leptonPt[ij] = d->pt();
               maxLepPt = d->pt();
               
@@ -249,7 +243,7 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
       for(const auto &sv: *srcSV){
       GlobalVector flightDir(sv.vertex().x() - pv.x(), sv.vertex().y() - pv.y(),sv.vertex().z() - pv.z());
          GlobalVector jetDir(jet->px(),jet->py(),jet->pz());
-         if( Geom::deltaR2( flightDir, jetDir ) < 0.09 ){
+         if( reco::deltaR2( flightDir, jetDir ) < 0.09 ){
             Measurement1D dl= vdist.distance(pv,VertexState(RecoVertex::convertPos(sv.position()),RecoVertex::convertError(sv.error())));
             if(dl.significance() > maxFoundSignificance){
                  maxFoundSignificance=dl.significance();

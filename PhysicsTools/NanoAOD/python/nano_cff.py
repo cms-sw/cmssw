@@ -151,7 +151,6 @@ def nanoAOD_addDeepBTagFor80X(process):
     process.additionalendpath = cms.EndPath(patAlgosToolsTask)
     return process
 
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 def nanoAOD_customizeCommon(process):
     run2_miniAOD_80XLegacy.toModify(process, nanoAOD_addDeepBTagFor80X)
     return process
@@ -172,7 +171,6 @@ def nanoAOD_customizeMC(process):
     return process
 
 ### Era dependent customization
-from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 _80x_sequence = nanoSequence.copy()
 #remove stuff 
 _80x_sequence.remove(isoTrackTable)
