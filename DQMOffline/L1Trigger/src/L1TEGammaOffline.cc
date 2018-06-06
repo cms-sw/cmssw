@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 // Geometry
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "TLorentzVector.h"
@@ -200,8 +201,8 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
-  double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
-  double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
+  double resolutionEta = l1Eta - recoEta;
+  double resolutionPhi = reco::deltaPhi(l1Phi, recoPhi);
 
   using namespace dqmoffline::l1t;
   // eta
@@ -478,8 +479,8 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
   // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
-  double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
-  double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
+  double resolutionEta = l1Eta - recoEta;
+  double resolutionPhi = reco::deltaPhi(l1Phi, recoPhi);
 
   using namespace dqmoffline::l1t;
   // eta
@@ -595,19 +596,19 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
 
   h_resolutionElectronPhi_EB_ =
       ibooker.book1D("resolutionElectronPhi_EB",
-          "#phi_{electron} resolution (EB); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
+          "#phi_{electron} resolution (EB); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
   h_resolutionElectronPhi_EE_ =
       ibooker.book1D("resolutionElectronPhi_EE",
-          "electron #phi resolution (EE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
+          "electron #phi resolution (EE); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
   h_resolutionElectronPhi_EB_EE_ =
       ibooker.book1D("resolutionElectronPhi_EB_EE",
-          "electron #phi resolution (EB+EE); (#phi_{electron}^{L1} - #phi_{electron}^{offline})/#phi_{electron}^{offline}; events",
+          "electron #phi resolution (EB+EE); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
           120, -0.3, 0.3);
 
   h_resolutionElectronEta_ = ibooker.book1D("resolutionElectronEta",
-      "electron #eta resolution  (EB); (L1 EGamma #eta - GSF Electron #eta)/GSF Electron #eta; events", 120, -0.3, 0.3);
+      "electron #eta resolution  (EB); L1 EGamma #eta - GSF Electron #eta; events", 120, -0.3, 0.3);
 
   // electron turn-ons
   ibooker.setCurrentFolder(efficiencyFolder_);
@@ -715,17 +716,17 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
       "photon ET resolution (EB+EE); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events", 50, -1, 1.5);
 
   h_resolutionPhotonPhi_EB_ = ibooker.book1D("resolutionPhotonPhi_EB",
-      "#phi_{photon} resolution (EB); (#phi_{photon}^{L1} - #phi_{photon}^{offline})/#phi_{photon}^{offline}; events",
+      "#phi_{photon} resolution (EB); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
       120, -0.3, 0.3);
   h_resolutionPhotonPhi_EE_ = ibooker.book1D("resolutionPhotonPhi_EE",
-      "photon #phi resolution (EE); (#phi_{photon}^{L1} - #phi_{photon}^{offline})/#phi_{photon}^{offline}; events",
+      "photon #phi resolution (EE); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
       120, -0.3, 0.3);
   h_resolutionPhotonPhi_EB_EE_ = ibooker.book1D("resolutionPhotonPhi_EB_EE",
-      "photon #phi resolution (EB+EE); (#phi_{photon}^{L1} - #phi_{photon}^{offline})/#phi_{photon}^{offline}; events",
+      "photon #phi resolution (EB+EE); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
       120, -0.3, 0.3);
 
   h_resolutionPhotonEta_ = ibooker.book1D("resolutionPhotonEta",
-      "photon #eta resolution  (EB); (L1 EGamma #eta -  Photon #eta)/ Photon #eta; events", 120, -0.3, 0.3);
+      "photon #eta resolution  (EB); L1 EGamma #eta -  Photon #eta; events", 120, -0.3, 0.3);
 
   // photon turn-ons
   ibooker.setCurrentFolder(efficiencyFolder_);
