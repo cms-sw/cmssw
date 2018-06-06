@@ -1,6 +1,8 @@
 #ifndef CSCSPTrailer_h
 #define CSCSPTrailer_h
 
+#include <cstring>
+
 class CSCSPTrailer {
 private:
 	/////// word 1 ///////
@@ -66,7 +68,7 @@ public:
 
 	unsigned int crc     (void) const throw() { return crc_low|(crc_high<<11); }
 
-	bool unpack(const unsigned short *&buf) throw()  { memcpy(this, buf, 8*sizeof(short)); buf+=8; return check(); }
+	bool unpack(const unsigned short *&buf) throw()  { std::memcpy(this, buf, 8*sizeof(short)); buf+=8; return check(); }
 
 	CSCSPTrailer(void){}
 };
