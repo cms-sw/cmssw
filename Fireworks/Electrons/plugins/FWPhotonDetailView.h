@@ -16,6 +16,7 @@
 #include "Fireworks/Core/interface/FWDetailViewGL.h"
 
 class FWECALDetailViewBuilder;
+class TEveCaloData;
 namespace reco {
 class Photon;
 }
