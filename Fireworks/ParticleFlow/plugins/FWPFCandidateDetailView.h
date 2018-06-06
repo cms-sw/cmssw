@@ -12,6 +12,7 @@
 class TGLEmbeddedViewer;
 class FWIntValueListener;
 class TEveCaloLego;
+class TGSlider;
 
 namespace reco {
 //   class PFCandidate;
