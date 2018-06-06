@@ -41,7 +41,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
     thePV(nullptr), theHit(nullptr), theDetUnitId(0), theTrackID(0), theManager(manager)
 {
   edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
-  ePersistentCutGeV = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency");//Default 1. GeV
+  ePersistentCutGeV = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency")/CLHEP::GeV;//Default 1. GeV
   allMuonsPersistent = m_MuonSD.getParameter<bool>("AllMuonsPersistent");
   printHits  = m_MuonSD.getParameter<bool>("PrintHits");
   
@@ -125,6 +125,9 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
       } else {
 	updateHit(aStep);
       } 
+    } else {
+      thePV = aStep->GetPreStepPoint()->GetPhysicalVolume();
+      theTrackID = aStep->GetTrack()->GetTrackID();
     }
   }
   return true;
@@ -154,8 +157,7 @@ uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
 bool MuonSensitiveDetector::newHit(const G4Step * aStep){
 
   return (!theHit || (aStep->GetTrack()->GetTrackID() != theTrackID) 
-	  || (aStep->GetPreStepPoint()->GetPhysicalVolume() != thePV) 
-	  || (setDetUnitId(aStep) !=  theDetUnitId));
+	  || (aStep->GetPreStepPoint()->GetPhysicalVolume() != thePV));
 }
 
 void MuonSensitiveDetector::createHit(const G4Step * aStep){
