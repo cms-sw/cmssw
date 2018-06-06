@@ -100,7 +100,7 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker)
   events_per_bx = ibooker.book1D("events per BX", "rp;Event.BX", 4002, -1.5, 4000. + 0.5);
   events_per_bx_short = ibooker.book1D("events per BX (short)", "rp;Event.BX", 102, -1.5, 100. + 0.5);
 
-  RPState = ibooker.book2D("ctpps_common_rpstate_vs_lumisection","RP State per Lumisection;Luminosity Section;",MAX_LUMIS, 0, MAX_LUMIS, MAX_VBINS, 0., MAX_VBINS);
+  RPState = ibooker.book2D("rpstate per LS","RP State per Lumisection;Luminosity Section;",MAX_LUMIS, 0, MAX_LUMIS, MAX_VBINS, 0., MAX_VBINS);
   {
     TH2F* hist = RPState->getTH2F();
     hist->SetCanExtend(TH1::kAllAxes);
@@ -261,8 +261,8 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
      RP name: RP_56_220_NR_TP
      */
 
+  rpstate.clear();
   if(currentLS > endLS){
-    rpstate.clear();
     for (uint8_t i = 0; i < CTPPSRecord::RomanPot::Last; ++i) {
       rpstate.push_back(rp->status(i));
     }
