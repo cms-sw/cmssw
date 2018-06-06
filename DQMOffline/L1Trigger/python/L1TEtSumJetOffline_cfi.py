@@ -41,11 +41,53 @@ httEfficiencyBins.extend(list(xrange(200, 400, 20)))
 httEfficiencyBins.extend(list(xrange(400, 500, 50)))
 httEfficiencyBins.extend(list(xrange(500, 601, 10)))
 
+# from https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2017
+centralJetSelection = [
+    'abs(eta) <= 2.7',
+    'neutralHadronEnergyFraction < 0.9',
+    'neutralEmEnergyFraction < 0.9',
+    'numberOfDaughters > 1',
+    'muonEnergyFraction < 0.8'
+]
+withinTrackerSelection = centralJetSelection[:]
+withinTrackerSelection += [
+    'abs(eta) <= 2.4',
+    'chargedHadronEnergyFraction > 0',
+    'chargedMultiplicity > 0',
+    'chargedEmEnergyFraction < 0.8'
+]
+forwardJetSelection = [
+    'abs(eta) > 2.7',
+    'abs(eta) <= 3.0',
+    'neutralEmEnergyFraction > 0.02',
+    'neutralEmEnergyFraction < 0.99',
+    'neutralMultiplicity > 2'
+]
+veryForwardJetSelection = [
+    'abs(eta) > 3.0',
+    'neutralEmEnergyFraction < 0.99',
+    'neutralHadronEnergyFraction > 0.02',
+    'neutralMultiplicity > 10'
+]
+centralJetSelection = ' && '.join(centralJetSelection)
+withinTrackerSelection = ' && '.join(withinTrackerSelection)
+forwardJetSelection = ' && '.join(forwardJetSelection)
+veryForwardJetSelection = ' && '.join(veryForwardJetSelection)
+completeSelection = 'et > 30 && (' + ' || '.join([centralJetSelection, withinTrackerSelection,
+                                       forwardJetSelection, veryForwardJetSelection]) + ')'
+
+goodPFJetsForL1T = cms.EDFilter(
+    "PFJetSelector",
+    src=cms.InputTag("ak4PFJetsCHS"),
+    cut=cms.string(completeSelection),
+    filter=cms.bool(True),
+)
+
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 l1tEtSumJetOfflineDQM = DQMEDAnalyzer(
     "L1TStage2CaloLayer2Offline",
     electronCollection=cms.InputTag("gedGsfElectrons"),
-    caloJetCollection=cms.InputTag("ak4CaloJets"),
+    pfJetCollection=cms.InputTag("goodPFJetsForL1T"),
     caloMETCollection=cms.InputTag("caloMetBE"),
     # MET collection including HF
     caloETMHFCollection=cms.InputTag("caloMet"),
@@ -120,6 +162,6 @@ l1tEtSumJetOfflineDQMEmu = l1tEtSumJetOfflineDQM.clone(
     stage2CaloLayer2JetSource=cms.InputTag("simCaloStage2Digis"),
     stage2CaloLayer2EtSumSource=cms.InputTag("simCaloStage2Digis"),
 
-    histFolderEtSum = cms.string('L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco'),
-    histFolderJet = cms.string('L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco'),
+    histFolderEtSum=cms.string('L1TEMU/L1TObjects/L1TEtSum/L1TriggerVsReco'),
+    histFolderJet=cms.string('L1TEMU/L1TObjects/L1TJet/L1TriggerVsReco'),
 )
