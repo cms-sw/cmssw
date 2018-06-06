@@ -59,6 +59,7 @@ protected:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void endJob() override;
 
 private:
   bool passesLooseEleId(reco::GsfElectron const& electron) const;
@@ -75,6 +76,8 @@ private:
   void fillPhotons(edm::Event const& e, const unsigned int nVertex);
   bool findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons);
   bool matchesAnHLTObject(double eta, double phi) const;
+
+  void normalise2DHistogramsToBinArea();
 
   math::XYZPoint PVPoint_;
 
@@ -180,7 +183,7 @@ private:
 
   MonitorElement* h_resolutionPhotonEta_;
 
-  // electron turn-ons
+  // photon turn-ons
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_pass_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EE_pass_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_EE_pass_;
