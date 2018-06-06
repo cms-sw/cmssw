@@ -43,7 +43,7 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet & cfg,edm::Consum
     {
         const edm::ParameterSet & tripletConfig = cfg.getParameter<edm::ParameterSet>("CAHitTripletGeneratorFactory");
 	CAHitTriplGenerator_ = std::make_unique<CAHitTripletGenerator>(tripletConfig,consumesCollector);
-	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(cfg, consumesCollector); //to make SeedingLayerSetsHits pointer for triplet iterations
+	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(cfg, consumesCollector, edm::InputTag("fastTrackerRecHits")); //calling the new FastSim specific constructor to make SeedingLayerSetsHits pointer for triplet iterations
         layerPairs_ = cfg.getParameter<std::vector<unsigned>>("layerPairs"); //allowed layer pairs for CA triplets
     }
 
@@ -51,7 +51,7 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet & cfg,edm::Consum
     {
         const edm::ParameterSet & quadrupletConfig = cfg.getParameter<edm::ParameterSet>("CAHitQuadrupletGeneratorFactory");
 	CAHitQuadGenerator_ = std::make_unique<CAHitQuadrupletGenerator>(quadrupletConfig, consumesCollector);
-	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(cfg, consumesCollector); //to make SeedingLayerSetsHits pointer for quadruplet iterations
+	seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(cfg, consumesCollector, edm::InputTag("fastTrackerRecHits")); //calling the new FastSim specific constructor to make SeedingLayerSetsHits pointer for quadruplet iterations
 	layerPairs_ = cfg.getParameter<std::vector<unsigned>>("layerPairs"); //allowed layer pairs for CA quadruplets
     }
 

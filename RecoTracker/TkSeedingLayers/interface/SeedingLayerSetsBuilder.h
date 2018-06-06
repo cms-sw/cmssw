@@ -28,6 +28,7 @@ public:
   using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide, int>;
 
   SeedingLayerSetsBuilder() = default;
+  SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC, const edm::InputTag& fastsimHitTag); //FastSim specific constructor
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector&& iC);
   ~SeedingLayerSetsBuilder();
