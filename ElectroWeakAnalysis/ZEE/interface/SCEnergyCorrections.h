@@ -1,4 +1,7 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 reco::CaloClusterPtrVector CaloClusterVectorCopier(const reco::SuperCluster& sc);
 
