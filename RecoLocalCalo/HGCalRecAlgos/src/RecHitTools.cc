@@ -83,20 +83,22 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
 
   geom_ = geom.product();
   unsigned int wmaxEE(0), wmaxFH(0);
-  if (mode_ == 0) {
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
-    fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
-    wmaxEE    = 1 + (geomEE->topology().dddConstants()).waferMax();
-    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
-    bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
-    wmaxFH    = 1 + (geomFH->topology().dddConstants()).waferMax();
-  } else {
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+  auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+  //check if it's the new geometry
+  if(geomEE) {
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = (geomEE->topology().dddConstants()).waferCount(0);
     auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
     bhOffset_ = fhOffset_;
     wmaxFH    = (geomFH->topology().dddConstants()).waferCount(0);
+  }
+  else {
+    geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+    fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
+    wmaxEE    = 1 + (geomEE->topology().dddConstants()).waferMax();
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+    bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
+    wmaxFH    = 1 + (geomFH->topology().dddConstants()).waferMax();
   }
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE,wmaxFH);
 }

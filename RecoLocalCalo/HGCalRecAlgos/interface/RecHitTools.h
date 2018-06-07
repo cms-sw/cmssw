@@ -18,7 +18,7 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
-    RecHitTools() : geom_(nullptr), mode_(0), fhOffset_(0), bhOffset_(0) {}
+    RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0) {}
     ~RecHitTools() {}
 
     void getEvent(const edm::Event&);
@@ -54,10 +54,8 @@ namespace hgcal {
     unsigned int lastLayerEE() const {return fhOffset_;}
     unsigned int lastLayerFH() const {return bhOffset_;}
     unsigned int maxNumberOfWafersPerLayer() const {return maxNumberOfWafersPerLayer_;}
-    void         setMode(int mode) { mode_ = mode;}
   private:
     const CaloGeometry* geom_;
-    int                 mode_;
     unsigned int        fhOffset_, bhOffset_, maxNumberOfWafersPerLayer_;
   };
 }
