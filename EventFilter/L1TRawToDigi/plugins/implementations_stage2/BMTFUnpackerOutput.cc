@@ -9,7 +9,7 @@ namespace l1t
   namespace stage2
   {
 
-    bool unpacking(const Block& block, UnpackerCollections *coll, const bool isKalman = false)
+    bool BMTFUnpackerOutput::unpack(const Block& block, UnpackerCollections *coll)
     {
       unsigned int blockId = block.header().getID();
       LogDebug("L1T") << "Block ID: " << blockId << " size: " << block.header().getSize();
@@ -68,37 +68,29 @@ namespace l1t
 					
 	  RegionalMuonCand muCand;
 	  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
-          muCand.setLink(48 + processor);
 
+	  if (muCand.hwQual() == 0 && !isKalman)
+	    continue;//though away muons with Zero-Quality (ONLY BMTF)
+
+	  muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	  if (isKalman) {
 	    muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
-	    muCand.setHwDXY((raw_secnd >> 18) & 0x3);
+	    muCand.setHwDXY((raw_secnd >> 2) & 0x3);
 	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi() << " diplacedPt = " << muCand.hwPt2();
 	  }
-	  else {
+	  else
 	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
-	  }
 
-	  if ( muCand.hwQual() != 0 ) {
-	    res->push_back(ibx, muCand);
-	  }
+	  res->push_back(ibx, muCand);
 
 	}//for iw
       }//for ibx
 
       return true;
-    }//unpacking
-
-    bool BMTFUnpackerOutput::unpack(const Block& block, UnpackerCollections *coll) {
-      return unpacking(block, coll);
-    }
-
-    bool BMTFUnpackerKalmanOutput::unpack(const Block& block, UnpackerCollections *coll) {
-      return unpacking(block, coll, true);
-    }
+    }//unpack
 
   }//ns stage2
 }//ns lt1
-			
+
 DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerKalmanOutput);
+//DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerKalmanOutput);
