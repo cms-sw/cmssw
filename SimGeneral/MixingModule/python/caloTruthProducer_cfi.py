@@ -29,7 +29,6 @@ caloParticles = cms.PSet(
 	genParticleCollection = cms.InputTag('genParticles'),
 	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
 	HepMCProductLabel = cms.InputTag('generatorSmeared'),
-    geometryType = cms.uint32(0),
 )
 
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
@@ -38,7 +37,6 @@ premix_stage1.toModify(caloParticles, premixStage1 = True)
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 phase2_hgcalV9.toModify(
     caloParticles,
-    geometryType = cms.uint32(1),
     simHitCollections = dict(hgc = {2 : cms.InputTag('g4SimHits','HGCHitsHEback')} ),
 )
 
