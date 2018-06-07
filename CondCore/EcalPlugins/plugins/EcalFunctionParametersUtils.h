@@ -1,6 +1,6 @@
 #include "TH2F.h"
 #include <string>
-#include <math.h>
+#include <cmath>
 
 
 int countEmptyRows(std::vector<float> & vec){
