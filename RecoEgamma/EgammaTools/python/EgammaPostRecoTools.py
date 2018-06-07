@@ -29,6 +29,12 @@ def _getEnergyCorrectionFile(era):
         raise RuntimeError('Error in postRecoEgammaTools, era 2016-Feb17ReMiniAOD is not currently implimented') 
     raise RuntimeError('Error in postRecoEgammaTools, era '+era+' not recognised. Allowed eras are 2017-Nov17ReReco, 2016-Legacy, 2016-Feb17ReMiniAOD')
 
+def _is80XRelease(era):
+    if era=="2016-Legacy" or era=="2016-Feb17ReMiniAOD": return True
+    elif era!="2017-Nov17ReReco":
+        raise RuntimeError('Error in postRecoEgammaTools, era '+era+' not recognised. Allowed eras are 2017-Nov17ReReco, 2016-Legacy, 2016-Feb17ReMiniAOD')
+
+
 def _setupEgammaPostRECOSequence(process,applyEnergyCorrections=False,applyVIDOnCorrectedEgamma=False,era="2017-Nov17ReReco"):
     if applyVIDOnCorrectedEgamma:
         raise RuntimeError('Error in postRecoEgammaTools, _setupEgammaPostRECOSequence can not currently apply VID on corrected E/gammas in AOD due to ValueMap issues'.format(applyEnergyCorrections,applyVIDOnCorrectedEgamma))
@@ -37,6 +43,17 @@ def _setupEgammaPostRECOSequence(process,applyEnergyCorrections=False,applyVIDOn
 
     phoSrc = cms.InputTag('gedPhotons')
     eleSrc = cms.InputTag('gedGsfElectrons')
+
+    if _is80XRelease(era): 
+        print "EgammaPostRecoTools: begin warning:"
+        print "   when running in 80X AOD, currenly do not fill 94X new data members "
+        print "   members not filled: "
+        print "      eles: e2x5Left, e2x5Right, e2x5Top, e2x5Bottom, nSaturatedXtals, isSeedSaturated"
+        print "      phos: nStaturatedXtals, isSeedSaturated"
+        print "   these are needed for the 80X energy regression if you are running it (if you dont know if  you are, you are not)"
+        print "   the miniAOD method fills them correctly"
+        print "   if you have a use case for AOD and need those members, contact e/gamma pog and we can find a solution"
+        print "EgammaPostRecoTools: end warning"
 
     process.load('RecoEgamma.EgammaTools.calibratedEgammas_cff')
     #this code is just here waiting for VM issues to be solved, it cant be called right now
@@ -130,8 +147,9 @@ def _setupEgammaPostRECOSequenceMiniAOD(process,applyEnergyCorrections=False,app
         process.heepIDVarValueMaps.dataFormat = 2
 
 
-    from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications,egamma8XLegacyEtScaleSysModifier
-    from RecoEgamma.EgammaTools.egammaObjectModifications_tools import makeVIDBitsModifier,makeVIDinPATIDsModifier,makeEnergyScaleAndSmearingSysModifier                                     
+    from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications,egamma8XLegacyEtScaleSysModifier,egamma8XObjectUpdateModifier
+    from RecoEgamma.EgammaTools.egammaObjectModifications_tools import makeVIDBitsModifier,makeVIDinPATIDsModifier,makeEnergyScaleAndSmearingSysModifier  
+    if _is80XRelease(era): egamma_modifications.append(egamma8XObjectUpdateModifier) #if we were generated in 80X, we need fill in missing data members in 94X
     egamma_modifications.append(makeVIDBitsModifier(process,"egmGsfElectronIDs","egmPhotonIDs"))
     egamma_modifications.append(makeVIDinPATIDsModifier(process,"egmGsfElectronIDs","egmPhotonIDs"))
     egamma_modifications.append(makeEnergyScaleAndSmearingSysModifier("calibratedPatElectrons","calibratedPatPhotons"))
