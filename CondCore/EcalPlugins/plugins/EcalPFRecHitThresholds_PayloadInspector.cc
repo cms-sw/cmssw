@@ -6,7 +6,7 @@
 #include "CondCore/EcalPlugins/plugins/EcalDrawUtils.h"
 #include "CondCore/EcalPlugins/plugins/EcalFloatCondObjectContainerUtils.h"
 // the data format of the condition to be inspected
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 
 #include "TH2F.h"
 #include "TCanvas.h"
@@ -24,17 +24,17 @@ namespace {
 
   /*******************************************************
    
-     2d histogram of ECAL barrel Intercalib Constants of 1 IOV 
+     2d histogram of ECAL barrel PFRec Hit Thresholds of 1 IOV 
 
   *******************************************************/
 
   // inherit from one of the predefined plot class: Histogram2D
-  class EcalIntercalibConstantsEBMap : public cond::payloadInspector::Histogram2D<EcalIntercalibConstants> {
+  class EcalPFRecHitThresholdsEBMap : public cond::payloadInspector::Histogram2D<EcalPFRecHitThresholds> {
 
   public:
-    EcalIntercalibConstantsEBMap() : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>("ECAL Barrel Intercalib Constants - map ",
-												  "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI + 1,
-												  "ieta", EBhistEtaMax, -MAX_IETA, MAX_IETA + 1) {
+    EcalPFRecHitThresholdsEBMap() : cond::payloadInspector::Histogram2D<EcalPFRecHitThresholds>("ECAL Barrel PFRec Hit Thresholds- map ",
+                          "iphi", MAX_IPHI, MIN_IPHI, MAX_IPHI + 1,
+                          "ieta", EBhistEtaMax, -MAX_IETA, MAX_IETA + 1) {
       Base::setSingleIov( true );
     }
 
@@ -42,81 +42,95 @@ namespace {
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for (auto const & iov: iovs) {
-	std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  // looping over the EB channels, via the dense-index, mapped into EBDetId's
-	  if (payload->barrelItems().empty()) return false;
-	  // set to -1 for ieta 0 (no crystal)
-	  for(int iphi = MIN_IPHI; iphi < MAX_IPHI+1; iphi++) fillWithValue(iphi, 0, -1);
+        std::shared_ptr<EcalPFRecHitThresholds> payload = Base::fetchPayload( std::get<1>(iov) );
+        if( payload.get() ){
+          // looping over the EB channels, via the dense-index, mapped into EBDetId's
+          if (payload->barrelItems().empty()) return false;
+          // set to -1 for ieta 0 (no crystal)
+          for(int iphi = MIN_IPHI; iphi < MAX_IPHI+1; iphi++) fillWithValue(iphi, 0, -1);
 
-	  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-	    uint32_t rawid = EBDetId::unhashIndex(cellid);
+          for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
+            uint32_t rawid = EBDetId::unhashIndex(cellid);
 
-	    // check the existence of ECAL Intercalib Constants, for a given ECAL barrel channel
-	    EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	    if (value_ptr == payload->end()) continue; // cell absent from payload
-	    float weight = (float)(*value_ptr);
+            // check the existence of Ecal PFRec Hit Thresholds, for a given ECAL barrel channel
+            EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
+            if (value_ptr == payload->end())
+              continue; // cell absent from payload
 
-	    // fill the Histogram2D here
-	    fillWithValue(  (EBDetId(rawid)).iphi() , (EBDetId(rawid)).ieta(), weight);
-	  }// loop over cellid
-	}// if payload.get()
+            float weight = (float)(*value_ptr);
+
+            // fill the Histogram2D here
+            fillWithValue(  (EBDetId(rawid)).iphi() , (EBDetId(rawid)).ieta(), weight);
+          }// loop over cellid
+        }// if payload.get()
       }// loop over IOV's (1 in this case)
 
       return true;
-    }// fill method
+
+    }//fill method
   };
 
-  class EcalIntercalibConstantsEEMap : public cond::payloadInspector::Histogram2D<EcalIntercalibConstants> {
+  /*******************************************************
+   
+     2d histogram of ECAL EndCaps PFRec Hit Thresholds of 1 IOV 
+
+  *******************************************************/
+
+  class EcalPFRecHitThresholdsEEMap : public cond::payloadInspector::Histogram2D<EcalPFRecHitThresholds> {
 
   private:
     int EEhistSplit = 20;
 
   public:
-    EcalIntercalibConstantsEEMap() : cond::payloadInspector::Histogram2D<EcalIntercalibConstants>( "ECAL Endcap Intercalib Constants - map ",
-												   "ix", EEhistXMax, IX_MIN, EEhistXMax + 1, 
-												   "iy", IY_MAX, IY_MIN, IY_MAX + 1) {
+    EcalPFRecHitThresholdsEEMap() : cond::payloadInspector::Histogram2D<EcalPFRecHitThresholds>( "ECAL Endcap PFRec Hit Thresholds- map ",
+                           "ix", EEhistXMax, IX_MIN, EEhistXMax + 1, 
+                           "iy", IY_MAX, IY_MIN, IY_MAX + 1) {
       Base::setSingleIov( true );
     }
 
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for (auto const & iov: iovs) {
-	std::shared_ptr<EcalIntercalibConstants> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  if (payload->endcapItems().empty()) return false;
+        std::shared_ptr<EcalPFRecHitThresholds> payload = Base::fetchPayload( std::get<1>(iov) );
+        if( payload.get() ){
+          if (payload->endcapItems().empty()) return false;
 
-	  // set to -1 everywhwere
-	  for(int ix = IX_MIN; ix < EEhistXMax + 1; ix++)
-	    for(int iy = IY_MAX; iy < IY_MAX + 1; iy++)
-	      fillWithValue(ix, iy, -1);
+          // set to -1 everywhwere
+          for(int ix = IX_MIN; ix < EEhistXMax + 1; ix++)
+            for(int iy = IY_MAX; iy < IY_MAX + 1; iy++)
+              fillWithValue(ix, iy, -1);
 
-	  for (int cellid = 0;  cellid < EEDetId::kSizeForDenseIndexing; ++cellid){    // loop on EE cells
-	    if (EEDetId::validHashIndex(cellid)){  
-	      uint32_t rawid = EEDetId::unhashIndex(cellid);
-	      EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
-	      if (value_ptr == payload->end()) continue; // cell absent from payload
-	      float weight = (float)(*value_ptr);
-	      EEDetId myEEId(rawid);
-	      if(myEEId.zside() == -1)
-		fillWithValue(myEEId.ix(), myEEId.iy(), weight);
-	      else
-		fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), weight);
-	    }  // validDetId 
-	  }   // loop over cellid
-	}    // payload
+          for (int cellid = 0;  cellid < EEDetId::kSizeForDenseIndexing; ++cellid){    // loop on EE cells
+            if (EEDetId::validHashIndex(cellid)){  
+              uint32_t rawid = EEDetId::unhashIndex(cellid);
+              EcalFloatCondObjectContainer::const_iterator value_ptr =  payload->find(rawid);
+              if (value_ptr == payload->end())
+                continue; // cell absent from payload
+
+              float weight = (float)(*value_ptr);
+              EEDetId myEEId(rawid);
+              if(myEEId.zside() == -1)
+                fillWithValue(myEEId.ix(), myEEId.iy(), weight);
+              else
+                fillWithValue(myEEId.ix() + IX_MAX + EEhistSplit, myEEId.iy(), weight);
+            }  // validDetId 
+          }   // loop over cellid
+
+        }    // payload
       }     // loop over IOV's (1 in this case)
       return true;
     }// fill method
+
   };
 
-  /*************************************************
-     2d plot of ECAL IntercalibConstants of 1 IOV
+
+ /*************************************************
+     2d plot of Ecal PFRec Hit Thresholds of 1 IOV
   *************************************************/
-  class EcalIntercalibConstantsPlot : public cond::payloadInspector::PlotImage<EcalIntercalibConstants> {
+  class EcalPFRecHitThresholdsPlot : public cond::payloadInspector::PlotImage<EcalPFRecHitThresholds> {
 
   public:
-    EcalIntercalibConstantsPlot() : cond::payloadInspector::PlotImage<EcalIntercalibConstants>("ECAL Intercalib Constants - map ") {
+    EcalPFRecHitThresholdsPlot() : cond::payloadInspector::PlotImage<EcalPFRecHitThresholds>("Ecal PFRec Hit Thresholds - map ") {
       setSingleIov( true );
     }
 
@@ -126,7 +140,7 @@ namespace {
       TH2F* endc_m = new TH2F("EE-", "mean EE-", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
 
       auto iov = iovs.front();
-      std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
+      std::shared_ptr<EcalPFRecHitThresholds> payload = fetchPayload( std::get<1>(iov) );
       unsigned int run = std::get<0>(iov);
 
       if( payload.get() ){
@@ -134,13 +148,13 @@ namespace {
         if (payload->barrelItems().empty())
           return false;
 
-        fillEBMap_SingleIOV<EcalIntercalibConstants>(payload, barrel);
+        fillEBMap_SingleIOV<EcalPFRecHitThresholds>(payload, barrel);
 
 
         if (payload->endcapItems().empty())
           return false;
         
-        fillEEMap_SingleIOV<EcalIntercalibConstants>(payload, endc_m, endc_p);
+        fillEEMap_SingleIOV<EcalPFRecHitThresholds>(payload, endc_m, endc_p);
 
       }    // payload
 
@@ -151,14 +165,14 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal IntercalibConstants, IOV %i", run));
+      t1.DrawLatex(0.5, 0.96, Form("Ecal PFRec Hit Thresholds, IOV %i", run));
 
       float xmi[3] = {0.0 , 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad** pad = new TPad*;
       for (int obj = 0; obj < 3; obj++) {
-      	pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
-      	pad[obj]->Draw();
+        pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj]->Draw();
       }
       //      EcalDrawMaps ICMap;
       pad[0]->cd();
@@ -178,12 +192,12 @@ namespace {
   };
 
   /*****************************************************************
-     2d plot of ECAL IntercalibConstants difference between 2 IOVs
+     2d plot of Ecal PFRec Hit Thresholds between 2 IOVs
   *****************************************************************/
-  class EcalIntercalibConstantsDiff : public cond::payloadInspector::PlotImage<EcalIntercalibConstants> {
+  class EcalPFRecHitThresholdsDiff : public cond::payloadInspector::PlotImage<EcalPFRecHitThresholds> {
 
   public:
-    EcalIntercalibConstantsDiff() : cond::payloadInspector::PlotImage<EcalIntercalibConstants>("ECAL Intercalib Constants difference ") {
+    EcalPFRecHitThresholdsDiff() : cond::payloadInspector::PlotImage<EcalPFRecHitThresholds>("Ecal PFRec Hit Thresholds difference ") {
       setSingleIov(false);
     }
 
@@ -200,20 +214,20 @@ namespace {
       unsigned int run[2], irun = 0;
       float pEB[kEBChannels], pEE[kEEChannels];
       for ( auto const & iov: iovs) {
-    	std::shared_ptr<EcalIntercalibConstants> payload = fetchPayload( std::get<1>(iov) );
-    	run[irun] = std::get<0>(iov);
+        std::shared_ptr<EcalPFRecHitThresholds> payload = fetchPayload( std::get<1>(iov) );
+        run[irun] = std::get<0>(iov);
 
         if( payload.get() ){
 
           if (payload->barrelItems().empty())
             return false;
 
-          fillEBMap_DiffIOV<EcalIntercalibConstants>(payload, barrel, irun, pEB, pEBmin, pEBmax);
+          fillEBMap_DiffIOV<EcalPFRecHitThresholds>(payload, barrel, irun, pEB, pEBmin, pEBmax);
 
           if (payload->endcapItems().empty())
             return false;
           
-          fillEEMap_DiffIOV<EcalIntercalibConstants>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax);
+          fillEEMap_DiffIOV<EcalPFRecHitThresholds>(payload, endc_m, endc_p, irun, pEE, pEEmin, pEEmax);
  
         }// payload
         irun++;
@@ -227,15 +241,17 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal IntercalibConstants, IOV %i - %i", run[1], run[0]));
+      t1.DrawLatex(0.5, 0.96, Form("Ecal PFRec Hit Thresholds Diff, IOV %i - %i", run[1], run[0]));
 
       float xmi[3] = {0.0 , 0.24, 0.76};
       float xma[3] = {0.24, 0.76, 1.00};
       TPad** pad = new TPad*;
+      
       for (int obj = 0; obj < 3; obj++) {
-	pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
-	pad[obj]->Draw();
+        pad[obj] = new TPad(Form("p_%i", obj),Form("p_%i", obj), xmi[obj], 0.0, xma[obj], 0.94);
+        pad[obj]->Draw();
       }
+
       pad[0]->cd();
       DrawEE(endc_m, pEEmin, pEEmax);
       pad[1]->cd();
@@ -251,18 +267,18 @@ namespace {
 
 
 /*******************************************************
- 2d plot of Ecal Intercalib Constants Summary of 1 IOV
+ 2d plot of Ecal PFRec Hit Thresholds Summary of 1 IOV
  *******************************************************/
-class EcalIntercalibConstantsSummaryPlot: public cond::payloadInspector::PlotImage<EcalIntercalibConstants>{
+class EcalPFRecHitThresholdsSummaryPlot: public cond::payloadInspector::PlotImage<EcalPFRecHitThresholds>{
   public:
-    EcalIntercalibConstantsSummaryPlot():
-      cond::payloadInspector::PlotImage<EcalIntercalibConstants>("Ecal Intercalib Constants Summary - map "){
+    EcalPFRecHitThresholdsSummaryPlot():
+      cond::payloadInspector::PlotImage<EcalPFRecHitThresholds>("Ecal PFRec Hit Thresholds Summary - map "){
         setSingleIov(true);
     }
 
   bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs)override {
     auto iov=iovs.front();
-    std::shared_ptr <EcalIntercalibConstants> payload = fetchPayload(std::get<1> (iov));
+    std::shared_ptr <EcalPFRecHitThresholds> payload = fetchPayload(std::get<1> (iov));
     unsigned int run=std::get<0> (iov);
     TH2F* align;
     int NbRows;
@@ -283,7 +299,7 @@ class EcalIntercalibConstantsSummaryPlot: public cond::payloadInspector::PlotIma
 
 
       payload->summary(mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
-      fillTableWithSummary(align, "Ecal Intercalib Constants", mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
+      fillTableWithSummary(align, "Ecal PFRec Hit Thresholds", mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
     }else
       return false;
 
@@ -295,16 +311,14 @@ class EcalIntercalibConstantsSummaryPlot: public cond::payloadInspector::PlotIma
     t1.SetTextAlign(26);
     t1.SetTextSize(0.04);
     t1.SetTextColor(2);
-    t1.DrawLatex(0.5, 0.96,Form("Ecal Intercalib Constants Summary, IOV %i", run));
+    t1.DrawLatex(0.5, 0.96,Form("Ecal PFRec Hit Thresholds Summary, IOV %i", run));
 
 
     TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
     pad->Draw();
     pad->cd();
     align->Draw("TEXT");
-    TLine* l = new TLine;
-    l->SetLineWidth(1);
-
+    
     drawTable(NbRows,4);
 
     std::string ImageName(m_imageFileName);
@@ -314,15 +328,13 @@ class EcalIntercalibConstantsSummaryPlot: public cond::payloadInspector::PlotIma
   }
 };
 
-
-
-} // close namespace
+}
 
 // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE( EcalIntercalibConstants ){
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsEBMap);
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsEEMap);
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsPlot);
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsDiff);
-  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsSummaryPlot);
+PAYLOAD_INSPECTOR_MODULE( EcalPFRecHitThresholds ){
+  PAYLOAD_INSPECTOR_CLASS( EcalPFRecHitThresholdsEBMap );
+  PAYLOAD_INSPECTOR_CLASS( EcalPFRecHitThresholdsEEMap );
+  PAYLOAD_INSPECTOR_CLASS( EcalPFRecHitThresholdsPlot );
+  PAYLOAD_INSPECTOR_CLASS( EcalPFRecHitThresholdsDiff );
+  PAYLOAD_INSPECTOR_CLASS( EcalPFRecHitThresholdsSummaryPlot );
 }
