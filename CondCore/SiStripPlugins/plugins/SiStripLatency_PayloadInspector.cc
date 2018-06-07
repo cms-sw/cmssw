@@ -59,7 +59,7 @@ namespace {
 	 
 	  std::vector<SiStripLatency::Latency> lat = payload->allLatencyAndModes();
 
-	  for (const auto & l : lat) {
+	  for (unsigned l=0; l < lat.size(); l++) {
 
 	    fillWithValue(1.);
 	  } 
