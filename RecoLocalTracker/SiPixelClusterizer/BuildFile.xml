@@ -1,0 +1,9 @@
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/SiPixelCluster"/>
+<use   name="CalibTracker/SiPixelESProducers"/>
+
+<export>
+    <lib name="1"/>
+</export>

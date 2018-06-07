@@ -42,10 +42,10 @@
 // Pixel, PixelPos and Shift as inner classes.
 //
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "PixelClusterizerBase.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelClusterizerBase.h"
 
 // The private pixel buffer
-#include "SiPixelArrayBuffer.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
 
 // Parameter Set:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,7 +56,7 @@
 #include <vector>
 
 
-class dso_hidden PixelThresholdClusterizer final : public PixelClusterizerBase {
+class PixelThresholdClusterizer final : public PixelClusterizerBase {
  public:
 
   PixelThresholdClusterizer(edm::ParameterSet const& conf);

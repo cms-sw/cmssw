@@ -11,6 +11,8 @@
 <use   name="boost"/>
 <use   name="vdt_headers"/>
 
+<use   name="cuda"/>
+
 <export>
   <lib   name="1"/>
 </export>

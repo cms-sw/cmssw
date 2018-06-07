@@ -28,7 +28,7 @@
 //!
 //---------------------------------------------------------------------------
 
-#include "PixelClusterizerBase.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelClusterizerBase.h"
 
 //#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 

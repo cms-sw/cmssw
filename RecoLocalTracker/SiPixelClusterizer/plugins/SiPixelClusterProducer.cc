@@ -13,7 +13,7 @@
 
 // Our own stuff
 #include "SiPixelClusterProducer.h"
-#include "PixelThresholdClusterizer.h"
+#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
