@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include <vector>
 
 namespace edm {
