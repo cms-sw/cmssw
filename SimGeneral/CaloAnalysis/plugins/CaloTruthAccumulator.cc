@@ -206,8 +206,6 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   const HcalDDDRecConstants* hcddd_ = nullptr;
   OutputCollections output_;
   calo_particles m_caloParticles;
-  //geometry type (0 pre-TDR; 1 TDR)
-  int geometryType_;
 };
 
 /* Graph utility functions */
@@ -378,8 +376,7 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet& config,
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
       minEnergy_(config.getParameter<double>("MinEnergy")),
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
-      premixStage1_(config.getParameter<bool>("premixStage1")),
-      geometryType_(config.getParameter<uint32_t>("geometryType"))
+      premixStage1_(config.getParameter<bool>("premixStage1"))
 {
   mixMod.produces<SimClusterCollection>("MergedCaloTruth");
   mixMod.produces<CaloParticleCollection>("MergedCaloTruth");
@@ -415,15 +412,16 @@ void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const& iLum
   const HGCalGeometry *eegeom = nullptr, *fhgeom = nullptr, *bhgeomnew = nullptr;
   const HcalGeometry* bhgeom = nullptr;
 
-  if(geometryType_==0){
+  eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+  //check if it's the new geometry
+  if(eegeom){
+    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
+    bhgeomnew = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSc,ForwardSubdetector::ForwardEmpty));
+  }
+  else {
     eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
     fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
     bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
-  }
-  else {
-    eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
-    fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
-    bhgeomnew = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSc,ForwardSubdetector::ForwardEmpty));
   }
   hgtopo_[0] = &(eegeom->topology());
   hgtopo_[1] = &(fhgeom->topology());
