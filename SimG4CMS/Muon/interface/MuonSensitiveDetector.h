@@ -83,6 +83,7 @@ private:
   const G4VPhysicalVolume* thePV;
   UpdatablePSimHit* theHit;
   uint32_t theDetUnitId;
+  uint32_t newDetUnitId;
   int theTrackID;
  
   bool printHits;
