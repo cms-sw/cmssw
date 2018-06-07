@@ -296,6 +296,102 @@ namespace {
     }// fill method
   };
 
+
+/*******************************************************
+ 2d plot of Ecal Intercalib Constants Summary of 1 IOV
+ *******************************************************/
+class EcalIntercalibConstantsSummaryPlot: public cond::payloadInspector::PlotImage<EcalIntercalibConstants>{
+  public:
+    EcalIntercalibConstantsSummaryPlot():
+      cond::payloadInspector::PlotImage<EcalIntercalibConstants>("Ecal Intercalib Constants Summary - map "){
+        setSingleIov(true);
+    }
+
+  bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs)override {
+    auto iov=iovs.front();
+    std::shared_ptr <EcalIntercalibConstants> payload = fetchPayload(std::get<1> (iov));
+    unsigned int run=std::get<0> (iov);
+    TH2F* align;
+    int NbRows;
+
+    if(payload.get()){
+      NbRows=2;
+      align=new TH2F("Ecal Intercalib Constants","EB/EE      mean_x      rms        num_x",4,0,4,NbRows,0,NbRows);
+      
+
+      float mean_x_EB=0.0f;   
+      float mean_x_EE=0.0f;
+
+      float rms_EB=0.0f;
+      float rms_EE=0.0f;
+                       
+      int num_x_EB=0;      
+      int num_x_EE=0;
+
+
+      payload->summary(mean_x_EB, rms_EB, num_x_EB, mean_x_EE, rms_EE, num_x_EE);
+
+      double row = NbRows-0.5;
+
+      align->Fill(0.5,row,1);
+      align->Fill(1.5,row,mean_x_EB);
+      align->Fill(2.5,row,rms_EB);
+      align->Fill(3.5,row,num_x_EB);
+      
+      row--;
+      
+      align->Fill(0.5,row,2);
+      align->Fill(1.5,row,mean_x_EE);
+      align->Fill(2.5,row,rms_EE);
+      align->Fill(3.5,row,num_x_EE);
+    }else
+      return false;
+
+    gStyle->SetPalette(1);
+    gStyle->SetOptStat(0);
+    TCanvas canvas("CC map", "CC map", 1000, 1000);
+    TLatex t1;
+    t1.SetNDC();
+    t1.SetTextAlign(26);
+    t1.SetTextSize(0.04);
+    t1.SetTextColor(2);
+    t1.DrawLatex(0.5, 0.96,Form("Ecal Intercalib Constants Summary, IOV %i", run));
+
+
+    TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+    pad->Draw();
+    pad->cd();
+    align->Draw("TEXT");
+    TLine* l = new TLine;
+    l->SetLineWidth(1);
+
+    for (int i = 1; i < NbRows; i++) {
+      double y = (double) i;
+      l = new TLine(0., y, 4., y);
+      l->Draw();
+    }
+
+    for (int i = 1; i < 4; i++) {
+      double x = (double) i;
+      double y = (double) NbRows;
+      l = new TLine(x, 0., x, y);
+      l->Draw();
+    }
+
+    align->GetXaxis()->SetTickLength(0.);
+    align->GetXaxis()->SetLabelSize(0.);
+    align->GetYaxis()->SetTickLength(0.);
+    align->GetYaxis()->SetLabelSize(0.);
+
+    std::string ImageName(m_imageFileName);
+    canvas.SaveAs(ImageName.c_str());
+
+    return true;
+  }
+};
+
+
+
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -304,4 +400,5 @@ PAYLOAD_INSPECTOR_MODULE( EcalIntercalibConstants ){
   PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsEEMap);
   PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsPlot);
   PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsDiff);
+  PAYLOAD_INSPECTOR_CLASS( EcalIntercalibConstantsSummaryPlot);
 }

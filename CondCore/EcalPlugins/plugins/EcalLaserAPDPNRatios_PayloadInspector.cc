@@ -45,18 +45,18 @@ namespace {
     bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
 
       for (auto const & iov: iovs) {
-	std::shared_ptr<EcalLaserAPDPNRatios> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	  // set to -1 for ieta 0 (no crystal)
-	  for(int iphi = 1; iphi < 361; iphi++) fillWithValue(iphi, 0, -1);
+		std::shared_ptr<EcalLaserAPDPNRatios> payload = Base::fetchPayload( std::get<1>(iov) );
+		if( payload.get() ){
+		  // set to -1 for ieta 0 (no crystal)
+		  for(int iphi = 1; iphi < 361; iphi++) fillWithValue(iphi, 0, -1);
 
-	  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
-	    uint32_t rawid = EBDetId::unhashIndex(cellid);
-	    float p2 = (payload->getLaserMap())[rawid].p2;
-	    // fill the Histogram2D here
-	    fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), p2);
-	  } // loop over cellid
-	}  // if payload.get()
+		  for(int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
+		    uint32_t rawid = EBDetId::unhashIndex(cellid);
+		    float p2 = (payload->getLaserMap())[rawid].p2;
+		    // fill the Histogram2D here
+		    fillWithValue((EBDetId(rawid)).iphi(), (EBDetId(rawid)).ieta(), p2);
+		  } // loop over cellid
+		}  // if payload.get()
       }   // loop over IOV's (1 in this case)
 
       return true;
