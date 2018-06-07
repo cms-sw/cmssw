@@ -26,9 +26,6 @@
 
 namespace hcaldqm
 {
-
-	using namespace quantity;
-	using namespace mapper;
 	class Container1D : public Container
 	{
 		public:
@@ -39,8 +36,8 @@ namespace hcaldqm
 			//
 			Container1D(std::string const& folder,
 				hashfunctions::HashType, 
-				Quantity*,
-				Quantity *qy =  new ValueQuantity(quantity::fN));
+				quantity::Quantity*,
+				quantity::Quantity *qy =  new quantity::ValueQuantity(quantity::fN));
 			~Container1D() override;
 
 			//	Initialize Container
@@ -49,15 +46,15 @@ namespace hcaldqm
 			//	@nametitle - namebase of the name and of the title
 			//
 			virtual void initialize(std::string const& folder, 
-				hashfunctions::HashType,  Quantity*,
-				Quantity *qy = new ValueQuantity(quantity::fN), 
+				hashfunctions::HashType,  quantity::Quantity*,
+				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN), 
 				int debug=0);
 
 			//	@qname - to replace the QyvsQx naming
 			virtual void initialize(std::string const& folder, 
 				std::string const &qname,
-				hashfunctions::HashType,  Quantity*,
-				Quantity *qy = new ValueQuantity(quantity::fN), 
+				hashfunctions::HashType,  quantity::Quantity*,
+				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN), 
 				int debug=0);
  			using Container::initialize;
 
@@ -323,14 +320,17 @@ namespace hcaldqm
 			//	set lumi flags for all mes
 			virtual void setLumiFlag();
 
+			virtual void showOverflowX(bool showOverflow);
+			virtual void showOverflowY(bool showOverflow);
+
 		protected:
 			virtual void customize(MonitorElement*);
 
 			typedef boost::unordered_map<uint32_t, MonitorElement*> MEMap;
 			MEMap									_mes;
 			mapper::HashMapper						_hashmap;
-			Quantity								*_qx;
-			Quantity								*_qy;
+			quantity::Quantity								*_qx;
+			quantity::Quantity								*_qy;
 	};
 }
 
