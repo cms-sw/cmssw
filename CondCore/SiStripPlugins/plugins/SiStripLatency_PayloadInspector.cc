@@ -47,8 +47,7 @@ namespace {
   class SiStripLatencyTest : public cond::payloadInspector::Histogram1D<SiStripLatency> {
     
   public:
-    SiStripLatencyTest() : cond::payloadInspector::Histogram1D<SiStripLatency>("SiStripLatency values",
-									       "SiStripLatency values", 5,0.0,5.0){
+    SiStripLatencyTest() : cond::payloadInspector::Histogram1D<SiStripLatency>("SiStripLatency values","SiStripLatency values", 5,0.0,5.0){
       Base::setSingleIov( true );
     }
     
@@ -56,7 +55,6 @@ namespace {
       for ( auto const & iov: iovs) {
 	std::shared_ptr<SiStripLatency> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
-	  
 	  std::vector<SiStripLatency::Latency> lat = payload->allLatencyAndModes();
 	  fillWithValue(lat.size());
 	} 
