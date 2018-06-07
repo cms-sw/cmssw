@@ -32,12 +32,14 @@ class HGCalUncalibRecHitWorkerWeights : public HGCalUncalibRecHitWorkerBaseClass
   bool run1(const edm::Event& evt, const HGCEEDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result) override;
   bool run2(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result) override;
   bool run3(const edm::Event& evt, const HGCBHDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) override;
+  bool run4(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result) override;
 
  protected:
     
   HGCalUncalibRecHitRecWeightsAlgo<HGCEEDataFrame> uncalibMaker_ee_;
   HGCalUncalibRecHitRecWeightsAlgo<HGCHEDataFrame> uncalibMaker_hef_;
-  HGCalUncalibRecHitRecWeightsAlgo<HGCBHDataFrame> uncalibMaker_heb_;
+  HGCalUncalibRecHitRecWeightsAlgo<HGCBHDataFrame> uncalibMaker_heb_old_;
+  HGCalUncalibRecHitRecWeightsAlgo<HGCHEDataFrame> uncalibMaker_heb_new_;
 
 };
 
