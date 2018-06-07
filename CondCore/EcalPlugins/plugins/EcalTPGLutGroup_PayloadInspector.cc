@@ -124,7 +124,7 @@ namespace {
      TLine* l = new TLine(0., 0., 0., 0.);
      l->SetLineWidth(1);
      padb->cd();
-     barrel->SetStats(0);
+     barrel->SetStats(false);
      barrel->SetMaximum(maxEB);
      barrel->SetMinimum(minEB);
      barrel->Draw("colz");

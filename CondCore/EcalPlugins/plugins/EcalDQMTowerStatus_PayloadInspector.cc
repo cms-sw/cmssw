@@ -101,7 +101,7 @@ class EcalDQMTowerStatusPlot : public cond::payloadInspector::PlotImage<EcalDQMT
      TLine* l = new TLine(0., 0., 0., 0.);
      l->SetLineWidth(1);
      padb->cd();
-     barrel->SetStats(0);
+     barrel->SetStats(false);
      barrel->SetMaximum(maxEB);
      barrel->SetMinimum(0);
      barrel->Draw("colz");
@@ -242,7 +242,7 @@ class EcalDQMTowerStatusDiffPlot : public cond::payloadInspector::PlotImage<Ecal
      TLine* l = new TLine(0., 0., 0., 0.);
      l->SetLineWidth(1);
      padb->cd();
-     barrel->SetStats(0);
+     barrel->SetStats(false);
      barrel->SetMaximum(1.15);
      barrel->SetMinimum(0);
      barrel->Draw("colz");
