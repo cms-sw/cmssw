@@ -451,16 +451,16 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       int pvIndex = 0;   
       math::XYZPoint refPoint;
       if(doMVA) {
-         pvIndex = getPv(iTrack.index(), &(*vertex)); //HFDumpUtitilies
-         if (pvIndex > -1) {
-	   refPoint = vertex->at(pvIndex).position();
-         } else {
-	   if (&(*beamSpot)==NULL) {
-	     refPoint = beamSpot->position();
-	   } else {
-	     cout << "ERROR: No beam sport found!" << endl;
-	   }
-         }
+        pvIndex = getPv(iTrack.index(), &(*vertex)); //HFDumpUtitilies
+        if (pvIndex > -1) {
+          refPoint = vertex->at(pvIndex).position();
+        } else {
+          if(beamSpot.isValid()) {
+            refPoint = beamSpot->position();
+          } else {
+            edm::LogInfo("MuonRecoAnalyzer") << "ERROR: No beam sport found!" << endl;
+          }
+        }
       }
       ptSoftMuonMVA->Fill(iTrack->eta());
       deltaRSoftMuonMVA->Fill(getDeltaR(*iTrack,*oTrack));
