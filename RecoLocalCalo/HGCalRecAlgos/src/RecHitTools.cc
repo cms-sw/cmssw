@@ -262,39 +262,53 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
 }
 
 unsigned int RecHitTools::getWafer(const DetId& id) const {
-  if( id.det() != DetId::Forward ) {
+  unsigned int wafer = std::numeric_limits<unsigned int>::max();
+  if (id.det() == DetId::Forward) {
+    wafer = HGCalDetId(id).wafer();
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    wafer = HGCSiliconDetId(id).wafer();
+  } else if (id.det() == DetId::HGCalHSc) {
+    wafer = HGCScintillatorDetId(id).wafer();
+  }
+  else {
     edm::LogError("getWafer::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 
       << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<unsigned int>::max();
   }
-  const HGCalDetId hid(id);
-  unsigned int wafer = hid.wafer();
   return wafer;
 }
 
 unsigned int RecHitTools::getCell(const DetId& id) const {
-  if( id.det() != DetId::Forward ) {
+  unsigned int cell = std::numeric_limits<unsigned int>::max();
+  if (id.det() == DetId::Forward) {
+    cell = HGCalDetId(id).cell();
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    cell = HGCSiliconDetId(id).cell();
+  } else if (id.det() == DetId::HGCalHSc) {
+    cell = HGCScintillatorDetId(id).cell();
+  }
+  else {
     edm::LogError("getCell::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 
       << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<unsigned int>::max();
   }
-  const HGCalDetId hid(id);
-  unsigned int cell = hid.cell();
   return cell;
 }
 
 bool RecHitTools::isHalfCell(const DetId& id) const {
-  if( id.det() != DetId::Forward ) {
-    return false;
+  bool ishalf = false;
+  if (id.det() == DetId::Forward) {
+    HGCalDetId hid(id);
+    auto geom = geom_->getSubdetectorGeometry(hid);
+    check_geom(geom);
+    auto ddd = get_ddd(geom,hid);
+    const int waferType = ddd->waferTypeT(hid.waferType());
+    return ddd->isHalfCell(waferType,hid.cell());
   }
-  auto geom = geom_->getSubdetectorGeometry(id);
-  check_geom(geom);
-  const HGCalDetId hid(id);
-  auto ddd = get_ddd(geom,hid);
-  const int waferType = ddd->waferTypeT(hid.waferType());
-  return ddd->isHalfCell(waferType,hid.cell());
+  //new geometry is always false
+  return ishalf;
 }
 
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
