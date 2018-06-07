@@ -1044,6 +1044,156 @@ namespace {
     }    // fill method
   };
 
+
+/*****************************************
+ 2d plot of Ecal Pedestals Summary of 1 IOV
+ ******************************************/
+class EcalPedestalsSummaryPlot: public cond::payloadInspector::PlotImage<EcalPedestals> {
+public:
+  EcalPedestalsSummaryPlot() :
+      cond::payloadInspector::PlotImage<EcalPedestals>("Ecal Pedestals Summary - map ") {
+    setSingleIov(true);
+  }
+
+  bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs)override {
+
+    auto iov = iovs.front(); //get reference to 1st element in the vector iovs
+    std::shared_ptr < EcalPedestals > payload = fetchPayload(std::get < 1 > (iov)); //std::get<1>(iov) refers to the Hash in the tuple iov
+    unsigned int run = std::get < 0 > (iov);  //referes to Time_t in iov.
+    TH2F* align;  //pointer to align which is a 2D histogram
+
+    int NbRows=6;
+    int NbColumns=5;
+
+    if (payload.get()) { //payload is an iov retrieved from payload using hash.
+     
+      align =new TH2F("Ecal Pedestals Summary","EB/EE      Gain                   Mean               RMS            Total Items",NbColumns, 0, NbColumns, NbRows, 0, NbRows);
+
+
+      float ebVals[]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+      float eeVals[]={0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+
+      long unsigned int ebTotal=(payload->barrelItems()).size();
+      long unsigned int eeTotal=(payload->endcapItems()).size();
+
+      pedestalsSummary(payload->barrelItems(),ebVals,ebTotal);
+	  pedestalsSummary(payload->endcapItems(),eeVals,eeTotal);
+
+      
+      double row = NbRows - 0.5;
+      
+      //EB summary values
+      align->Fill(1.5, row, 12);//Gain
+      align->Fill(2.5, row, ebVals[0]);//mean12
+      align->Fill(3.5, row, ebVals[1]);//rms12
+      
+      row--;
+
+      align->Fill(0.5, row, 1);
+  	  align->Fill(1.5, row, 6);//Gain
+      align->Fill(2.5, row, ebVals[2]);//mean6
+      align->Fill(3.5, row, ebVals[3]);//rms6
+      align->Fill(4.5, row, ebTotal);
+
+      row--;
+
+      align->Fill(1.5, row, 1);//Gain
+      align->Fill(2.5, row, ebVals[4]);//mean1
+      align->Fill(3.5, row, ebVals[5]);//rms1
+
+      row--;
+
+      //EE summary values
+      align->Fill(1.5, row, 12);//Gain
+      align->Fill(2.5, row, eeVals[0]);//mean12
+      align->Fill(3.5, row, eeVals[1]);//rms12
+      
+      row--;
+
+      align->Fill(0.5, row, 2);
+  	  align->Fill(1.5, row, 6);//Gain
+      align->Fill(2.5, row, eeVals[2]);//mean6
+      align->Fill(3.5, row, eeVals[3]);//rms6
+      align->Fill(4.5, row, eeTotal);
+
+      row--;
+
+      align->Fill(1.5, row, 1);//Gain
+      align->Fill(2.5, row, eeVals[4]);//mean1
+      align->Fill(3.5, row, eeVals[5]);//rms1
+
+
+    }   // if payload.get()
+    else
+      return false;
+
+    gStyle->SetPalette(1);
+    gStyle->SetOptStat(0);
+    TCanvas canvas("CC map", "CC map", 1000, 1000);
+    TLatex t1;
+    t1.SetNDC();
+    t1.SetTextAlign(26);
+    t1.SetTextSize(0.05);
+    t1.SetTextColor(2);
+    t1.DrawLatex(0.5, 0.96,Form("Ecal Pedestals Summary, IOV %i", run));
+
+
+    TPad* pad = new TPad("pad", "pad", 0.0, 0.0, 1.0, 0.94);
+    pad->Draw();
+    pad->cd();
+    align->Draw("TEXT");
+    TLine* l = new TLine;
+    l->SetLineWidth(1);
+
+    for (int i = 1; i < NbRows; i++) {
+      double y = (double) i;
+      if(i==NbRows/2) l = new TLine(0., y, NbColumns, y);
+      else l = new TLine(1., y, NbColumns-1, y);
+      l->Draw();
+    }
+
+    for (int i = 1; i < NbColumns; i++) {
+      double x = (double) i;
+      double y = (double) NbRows;
+      l = new TLine(x, 0., x, y);
+      l->Draw();
+    }
+
+    align->GetXaxis()->SetTickLength(0.);
+    align->GetXaxis()->SetLabelSize(0.);
+    align->GetYaxis()->SetTickLength(0.);
+    align->GetYaxis()->SetLabelSize(0.);
+
+    std::string ImageName(m_imageFileName);
+    canvas.SaveAs(ImageName.c_str());
+    return true;
+  }      // fill method
+
+  void pedestalsSummary(std::vector<EcalPedestal> vItems,float vals[],long unsigned int & total){
+
+	for(std::vector<EcalPedestal>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems){
+		//vals[0]=100;
+	    vals[0] += iItems->mean(1);//G12
+	    vals[1] += iItems->rms(1);
+	    vals[2] += iItems->mean(2);//G6
+	    vals[3] += iItems->rms(2);
+	    vals[4] += iItems->mean(3);//G1
+	    vals[5] += iItems->rms(3);
+    }
+
+    vals[0]=vals[0]/total;
+    vals[1]=vals[1]/total;
+    vals[2]=vals[2]/total;
+    vals[3]=vals[3]/total;
+    vals[4]=vals[4]/total;
+    vals[5]=vals[5]/total;
+    
+  }
+
+
+};
+
+
 } // close namespace
 
 // Register the classes as boost python plugin
@@ -1063,4 +1213,5 @@ PAYLOAD_INSPECTOR_MODULE( EcalPedestals){
   PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEERMS12Map);
   PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEERMS6Map );
   PAYLOAD_INSPECTOR_CLASS( EcalPedestalsEERMS1Map );
+  PAYLOAD_INSPECTOR_CLASS( EcalPedestalsSummaryPlot );
 }
