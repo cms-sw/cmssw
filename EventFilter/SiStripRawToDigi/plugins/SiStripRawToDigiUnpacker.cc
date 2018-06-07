@@ -19,50 +19,6 @@
 #include <ext/algorithm>
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
-namespace {
-  class WarningSummary {
-  public:
-    WarningSummary(const std::string& category, const std::string& name, bool debug=false)
-      : m_debug(debug)
-      , m_category(category)
-      , m_name(name)
-    {}
-
-    void add(const std::string& message, const std::string& details="")
-    {
-      const auto wIt = std::find_if(std::begin(m_warnings), std::end(m_warnings),
-          [&message] ( const std::pair<std::string,std::size_t>& item ) { return item.first == message; } );
-      if ( std::end(m_warnings) == wIt ) {
-        m_warnings.emplace_back(message, 1);
-      } else {
-        ++(wIt->second);
-      }
-      if ( m_debug ) {
-        edm::LogWarning(m_category) << message << ": " << details;
-      }
-    }
-
-    void printSummary() const
-    {
-      if ( ! m_warnings.empty() ) {
-        std::stringstream message;
-        message << m_name << " warnings:";
-        for ( const auto& warnAndCount : m_warnings ) {
-          message << std::endl << warnAndCount.first << " (" << warnAndCount.second << ")";
-        }
-        edm::LogWarning(m_category) << message.str();
-      }
-    }
-
-  private:
-    bool m_debug;
-    std::string m_category;
-    std::string m_name;
-    std::vector<std::pair<std::string,std::size_t>> m_warnings;
-  };
-}
-
-
 namespace sistrip {
 
   RawToDigiUnpacker::RawToDigiUnpacker( int16_t appended_bytes, int16_t fed_buffer_dump_freq, int16_t fed_event_dump_freq, int16_t trigger_fed_id,
@@ -82,7 +38,8 @@ namespace sistrip {
     extractCm_(false),
     doFullCorruptBufferChecks_(false),
     doAPVEmulatorCheck_(true),
-    errorThreshold_(errorThreshold)
+    errorThreshold_(errorThreshold),
+    warnings_(sistrip::mlRawToDigi_, "[sistrip::RawToDigiUnpacker::createDigis]", edm::isDebugEnabled())
   {
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
@@ -109,9 +66,34 @@ namespace sistrip {
 
   }
 
-  void RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& detids, RawDigis& cm_values ) {
+  void RawToDigiUnpacker::WarningSummary::add(const std::string& message, const std::string& details)
+  {
+    const auto wIt = std::find_if(std::begin(m_warnings), std::end(m_warnings),
+        [&message] ( const std::pair<std::string,std::size_t>& item ) { return item.first == message; } );
+    if ( std::end(m_warnings) == wIt ) {
+      m_warnings.emplace_back(message, 1);
+      edm::LogWarning(m_category) << message << ": " << details << (m_debug?"":"\nNote: further warnings of this type will be suppressed (this can be changed by enabling debugging printout)");
+    } else {
+      ++(wIt->second);
+      if ( m_debug ) {
+        edm::LogWarning(m_category) << message << ": " << details;
+      }
+    }
+  }
 
-    WarningSummary warnings{sistrip::mlRawToDigi_, (boost::format("[sistrip::RawToDigiUnpacker::%1%]") % __func__).str(), edm::isDebugEnabled()};
+  void RawToDigiUnpacker::WarningSummary::printSummary() const
+  {
+    if ( ! m_warnings.empty() ) {
+      std::stringstream message;
+      message << m_name << " warnings:";
+      for ( const auto& warnAndCount : m_warnings ) {
+        message << std::endl << warnAndCount.first << " (" << warnAndCount.second << ")";
+      }
+      edm::LogWarning(m_category) << message.str();
+    }
+  }
+
+  void RawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling, const FEDRawDataCollection& buffers, SiStripEventSummary& summary, RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, DetIdCollection& detids, RawDigis& cm_values ) {
 
     // Clear done at the end
     assert(zs_work_digis_.empty()); 
@@ -121,7 +103,7 @@ namespace sistrip {
   
     // Check if FEDs found in cabling map and event data
     if ( cabling.fedIds().empty() ) {
-      warnings.add("No FEDs found in cabling map!");
+      warnings_.add("No FEDs found in cabling map!");
       if ( edm::isDebugEnabled() ) {
 	// Check which FED ids have non-zero size buffers
 	std::vector<uint16_t> feds;
@@ -186,7 +168,7 @@ namespace sistrip {
     
       // Check on FEDRawData pointer
       if ( !input.data() ) {
-        warnings.add("NULL pointer to FEDRawData for FED", (boost::format("id %1%") % *ifed).str());
+        warnings_.add("NULL pointer to FEDRawData for FED", (boost::format("id %1%") % *ifed).str());
         // Mark FED modules as bad
         detids.reserve(detids.size()+conns.size());
         std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
@@ -199,7 +181,7 @@ namespace sistrip {
     
       // Check on FEDRawData size
       if ( !input.size() ) {
-        warnings.add("FEDRawData has zero size for FED", (boost::format("id %1%") % *ifed).str());
+        warnings_.add("FEDRawData has zero size for FED", (boost::format("id %1%") % *ifed).str());
         // Mark FED modules as bad
         detids.reserve(detids.size()+conns.size());
         std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
@@ -224,7 +206,7 @@ namespace sistrip {
         }
       }
       catch (const cms::Exception& e) {
-        warnings.add("Exception caught when creating FEDBuffer object for FED", (boost::format("id %1%: %2%") % *ifed % e.what()).str());
+        warnings_.add("Exception caught when creating FEDBuffer object for FED", (boost::format("id %1%: %2%") % *ifed % e.what()).str());
         // FED buffer is bad and should not be unpacked. Skip this FED and mark all modules as bad. 
         std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
         for ( ; iconn != conns.end(); iconn++ ) {
@@ -239,7 +221,7 @@ namespace sistrip {
     
       // Check to see if EventSummary info is set
       if ( !quiet_ && !summary.isSet() ) {
-        warnings.add("EventSummary is not set correctly! Missing information from both \"trigger FED\" and \"DAQ registers\"!");
+        warnings_.add("EventSummary is not set correctly! Missing information from both \"trigger FED\" and \"DAQ registers\"!");
       }
     
       // Check to see if event is to be analyzed according to EventSummary
@@ -326,7 +308,7 @@ namespace sistrip {
                 while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<1)); unpacker++;}
                 break; }
               default: {
-                warnings.add((boost::format("Invalid packet code %1$#x for zero-suppressed data") % uint16_t(buffer->packetCode(legacy_, iconn->fedCh()))).str(), (boost::format("FED %1% channel %2%") % *ifed % iconn->fedCh()).str());
+                warnings_.add((boost::format("Invalid packet code %1$#x for zero-suppressed data") % uint16_t(buffer->packetCode(legacy_, iconn->fedCh()))).str(), (boost::format("FED %1% channel %2%") % *ifed % iconn->fedCh()).str());
                 if ( packet_code == 0 ) {
                   // workaround for a pre-2015 bug in the packer: assume default ZS packing
                   sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()));
@@ -335,7 +317,7 @@ namespace sistrip {
               }
             }
           } catch (const cms::Exception& e) {
-            warnings.add("Clusters are not ordered", (boost::format("FED %1% channel %2% : %3%") % *ifed % iconn->fedCh() % e.what()).str());
+            warnings_.add("Clusters are not ordered", (boost::format("FED %1% channel %2% : %3%") % *ifed % iconn->fedCh() % e.what()).str());
             detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }
@@ -355,7 +337,7 @@ namespace sistrip {
 	      cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(1) ) );
 	      cm_work_registry_.push_back( regItem2 );
  	    } catch (const cms::Exception& e) {
-              warnings.add("Problem extracting common modes", (boost::format("FED %1% channel %2%:\n %3%") % *ifed % iconn->fedCh() % e.what()).str());
+              warnings_.add("Problem extracting common modes", (boost::format("FED %1% channel %2%:\n %3%") % *ifed % iconn->fedCh() % e.what()).str());
  	    }
  	  }
 	  
@@ -372,7 +354,7 @@ namespace sistrip {
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
 	  } catch (const cms::Exception& e) {
-            warnings.add("Clusters are not ordered", (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
+            warnings_.add("Clusters are not ordered", (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
             detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }  
@@ -405,7 +387,7 @@ namespace sistrip {
     	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
    	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<bits_shift));unpacker++;}
  	  } catch (const cms::Exception& e) {
-            warnings.add("Clusters are not ordered", (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
+            warnings_.add("Clusters are not ordered", (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
             detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }
@@ -432,7 +414,7 @@ namespace sistrip {
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adcPreMix()));unpacker++;}
 	  } catch (const cms::Exception& e) {
-            warnings.add("Clusters are not ordered", (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
+            warnings_.add("Clusters are not ordered", (boost::format("FED %1% channel %2%: %3%") % *ifed % iconn->fedCh() % e.what()).str());
             detids.push_back(iconn->detId()); //@@ Possible multiple entries (ok for Giovanni)
             continue;
           }  
@@ -532,7 +514,7 @@ namespace sistrip {
 	
 	else { // Unknown readout mode! => assume scope mode
 
-          warnings.add((boost::format("Unknown FED readout mode (%1%)! Assuming SCOPE MODE...") % mode).str());
+          warnings_.add((boost::format("Unknown FED readout mode (%1%)! Assuming SCOPE MODE...") % mode).str());
 
 	  std::vector<uint16_t> samples; 
 	
@@ -561,13 +543,12 @@ namespace sistrip {
 	      LogTrace("SiStripRawToDigi") << ss.str();
 	    }
 	  } else {
-            warnings.add("No SM digis found!");
+            warnings_.add("No SM digis found!");
           }
 	}
       } // channel loop
     } // fed loop
 
-    warnings.printSummary();
     // bad channels warning
     unsigned int detIdsSize = detids.size();
     if ( edm::isDebugEnabled() && detIdsSize ) {
