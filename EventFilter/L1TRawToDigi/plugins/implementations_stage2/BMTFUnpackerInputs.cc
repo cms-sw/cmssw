@@ -55,7 +55,7 @@ namespace l1t
       //Get header ID and payload from the given Block
       unsigned int blockId = block.header().getID();
       LogDebug("L1T") << "Block ID: " << blockId << " size: " << block.header().getSize();
-      auto payload = block.payload();
+      const auto& payload = block.payload();
 			
       //Make output CMSSW collections
       L1MuDTChambPhContainer *resPhi = static_cast<BMTFCollections*>(coll)->getInMuonsPh();
