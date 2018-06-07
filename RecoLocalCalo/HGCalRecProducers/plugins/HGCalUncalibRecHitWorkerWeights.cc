@@ -67,7 +67,8 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
   const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
   configureIt(ee_cfg,uncalibMaker_ee_);
   configureIt(hef_cfg,uncalibMaker_hef_);
-  configureIt(heb_cfg,uncalibMaker_heb_);
+  configureIt(heb_cfg,uncalibMaker_heb_old_);
+  configureIt(heb_cfg,uncalibMaker_heb_new_);
 }
 
 void
@@ -83,7 +84,8 @@ HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
     es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",hgchefGeoHandle) ; 
     uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
   }  
-  uncalibMaker_heb_.setGeometry(nullptr);  
+  uncalibMaker_heb_old_.setGeometry(nullptr);  
+  uncalibMaker_heb_new_.setGeometry(nullptr);  
 }
 
 
@@ -110,7 +112,16 @@ HGCalUncalibRecHitWorkerWeights::run3( const edm::Event & evt,
 				       const HGCBHDigiCollection::const_iterator & itdg,
 				       HGChebUncalibratedRecHitCollection & result )
 {
-  result.push_back(uncalibMaker_heb_.makeRecHit(*itdg));
+  result.push_back(uncalibMaker_heb_old_.makeRecHit(*itdg));
+  return true;
+}
+
+bool
+HGCalUncalibRecHitWorkerWeights::run4( const edm::Event & evt,
+				       const HGCHEDigiCollection::const_iterator & itdg,
+				       HGChebUncalibratedRecHitCollection & result )
+{
+  result.push_back(uncalibMaker_heb_new_.makeRecHit(*itdg));
   return true;
 }
 
