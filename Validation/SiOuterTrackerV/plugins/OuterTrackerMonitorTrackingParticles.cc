@@ -326,7 +326,10 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     }
 
     // To make efficiency plots where the denominator has NO stub cuts
-    if (VtxR < 1.0) tp_pt->Fill(tmp_tp_pt); // pT efficiency has no cut on pT, but includes VtxR cut
+    if (VtxR < 1.0) {
+      tp_pt->Fill(tmp_tp_pt); // pT efficiency has no cut on pT, but includes VtxR cut
+      if(tmp_tp_pt>0 && tmp_tp_pt<=10)tp_pt_zoom->Fill(tmp_tp_pt); // pT efficiency has no cut on pT, but includes VtxR cut
+    }
     if (tmp_tp_pt < TP_minPt) continue;
     tp_VtxR->Fill(tmp_tp_VtxR); // VtxR efficiency has no cut on VtxR
     if (VtxR > 1.0) continue;
@@ -431,12 +434,12 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
   } // End loop over tracking particles
 
   for (unsigned j=0;j<trkParts_eta.size();j++) { //Over all TPs
-    double eta =  trkParts_eta[j];
-    double pt = trkParts_pt[j];
-    double VtxR = trkParts_VtxR[j];
-    double d0 = trkParts_d0[j];
-    double VtxZ = trkParts_VtxZ[j];
-    double eventId = trkParts_eventId[j];
+    float eta =  trkParts_eta[j];
+    float pt = trkParts_pt[j];
+    float VtxR = trkParts_VtxR[j];
+    float d0 = trkParts_d0[j];
+    float VtxZ = trkParts_VtxZ[j];
+    float eventId = trkParts_eventId[j];
 
     // cut on event ID (eventid=0 means the TP is from the primary interaction, so *not* selecting only eventid=0 means including stuff from pileup)
     if (TP_select_eventid == 0 && eventId != 0) continue;
@@ -457,6 +460,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
 
     // fill matched track histograms (if passes all criteria)
     match_tp_pt->Fill(pt);
+    if(pt>0 && pt<=10)match_tp_pt_zoom->Fill(pt);
     match_tp_eta->Fill(eta);
     match_tp_d0->Fill(d0);
     match_tp_VtxR->Fill(VtxR);
@@ -469,18 +473,18 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     res_eta->Fill(matchTrk_eta[j] - trkParts_eta[j]);
 
     // Eta and pT histograms for resolution
-    double pt_res = (matchTrk_pt[j] - trkParts_pt[j])/trkParts_pt[j];
-    double eta_res = matchTrk_eta[j] - trkParts_eta[j];
-    double phi_res = matchTrk_phi[j] - trkParts_phi[j];
-    double VtxZ_res = matchTrk_VtxZ[j] - trkParts_VtxZ[j];
-    double d0_res = matchTrk_d0[j] - trkParts_d0[j];
+    float pt_res = (matchTrk_pt[j] - trkParts_pt[j])/trkParts_pt[j];
+    float eta_res = matchTrk_eta[j] - trkParts_eta[j];
+    float phi_res = matchTrk_phi[j] - trkParts_phi[j];
+    float VtxZ_res = matchTrk_VtxZ[j] - trkParts_VtxZ[j];
+    float d0_res = matchTrk_d0[j] - trkParts_d0[j];
 
-    double tP_eta = trkParts_eta[j];
-    double tP_pt = trkParts_pt[j];
+    float tP_eta = trkParts_eta[j];
+    float tP_pt = trkParts_pt[j];
 
     // Fill resolution plots for different abs(eta) bins:
     // (0, 0.7), (0.7, 1.0), (1.0, 1.2), (1.2, 1.6), (1.6, 2.0), (2.0, 2.4)
-    if (abs(tP_eta) >= 0  && abs(tP_eta) < 0.7){
+    if (fabs(tP_eta) >= 0  && fabs(tP_eta) < 0.7){
       reseta_eta0to0p7->Fill(eta_res);
       resphi_eta0to0p7->Fill(phi_res);
       resVtxZ_eta0to0p7->Fill(VtxZ_res);
@@ -489,7 +493,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta0to0p7_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta0to0p7_pt8toInf->Fill(pt_res);
     }
-    else if (abs(tP_eta) >= 0.7 && abs(tP_eta) < 1.0){
+    else if (fabs(tP_eta) >= 0.7 && fabs(tP_eta) < 1.0){
       reseta_eta0p7to1->Fill(eta_res);
       resphi_eta0p7to1->Fill(phi_res);
       resVtxZ_eta0p7to1->Fill(VtxZ_res);
@@ -498,7 +502,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta0p7to1_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta0p7to1_pt8toInf->Fill(pt_res);
     }
-    else if (abs(tP_eta) >= 1.0 && abs(tP_eta) < 1.2){
+    else if (fabs(tP_eta) >= 1.0 && fabs(tP_eta) < 1.2){
       reseta_eta1to1p2->Fill(eta_res);
       resphi_eta1to1p2->Fill(phi_res);
       resVtxZ_eta1to1p2->Fill(VtxZ_res);
@@ -507,7 +511,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta1to1p2_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta1to1p2_pt8toInf->Fill(pt_res);
     }
-    else if (abs(tP_eta) >= 1.2 && abs(tP_eta) < 1.6){
+    else if (fabs(tP_eta) >= 1.2 && fabs(tP_eta) < 1.6){
       reseta_eta1p2to1p6->Fill(eta_res);
       resphi_eta1p2to1p6->Fill(phi_res);
       resVtxZ_eta1p2to1p6->Fill(VtxZ_res);
@@ -516,7 +520,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta1p2to1p6_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta1p2to1p6_pt8toInf->Fill(pt_res);
     }
-    else if (abs(tP_eta) >= 1.6 && abs(tP_eta) < 2.0){
+    else if (fabs(tP_eta) >= 1.6 && fabs(tP_eta) < 2.0){
       reseta_eta1p6to2->Fill(eta_res);
       resphi_eta1p6to2->Fill(phi_res);
       resVtxZ_eta1p6to2->Fill(VtxZ_res);
@@ -525,7 +529,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta1p6to2_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta1p6to2_pt8toInf->Fill(pt_res);
     }
-    else if (abs(tP_eta) >= 2.0 && abs(tP_eta) <= 2.4){
+    else if (fabs(tP_eta) >= 2.0 && fabs(tP_eta) <= 2.4){
       reseta_eta2to2p4->Fill(eta_res);
       resphi_eta2to2p4->Fill(phi_res);
       resVtxZ_eta2to2p4->Fill(VtxZ_res);
@@ -645,6 +649,25 @@ void OuterTrackerMonitorTrackingParticles::bookHistograms(DQMStore::IBooker &iBo
       psEffic_pt.getParameter<double>("xmax"));
   match_tp_pt->setAxisTitle("p_{T} [GeV]", 1);
   match_tp_pt->setAxisTitle("# matched tracking particles", 2);
+
+  //pT zoom (0-10 GeV)
+  edm::ParameterSet psEffic_pt_zoom =  conf_.getParameter<edm::ParameterSet>("TH1Effic_pt_zoom");
+  HistoName = "tp_pt_zoom";
+  tp_pt_zoom = iBooker.book1D(HistoName, HistoName,
+      psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt_zoom.getParameter<double>("xmin"),
+      psEffic_pt_zoom.getParameter<double>("xmax"));
+  tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
+  tp_pt_zoom->setAxisTitle("# tracking particles", 2);
+
+  //Matched pT zoom (0-10 GeV)
+  HistoName = "match_tp_pt_zoom";
+  match_tp_pt_zoom = iBooker.book1D(HistoName, HistoName,
+      psEffic_pt_zoom.getParameter<int32_t>("Nbinsx"),
+      psEffic_pt_zoom.getParameter<double>("xmin"),
+      psEffic_pt_zoom.getParameter<double>("xmax"));
+  match_tp_pt_zoom->setAxisTitle("p_{T} [GeV]", 1);
+  match_tp_pt_zoom->setAxisTitle("# matched tracking particles", 2);
 
   //eta
   edm::ParameterSet psEffic_eta =  conf_.getParameter<edm::ParameterSet>("TH1Effic_eta");
