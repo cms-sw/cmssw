@@ -93,4 +93,3 @@ namespace l1t
 }//ns lt1
 
 DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);
-//DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerKalmanOutput);
