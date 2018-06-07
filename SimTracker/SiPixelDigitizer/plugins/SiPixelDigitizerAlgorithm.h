@@ -13,6 +13,7 @@
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate2D.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
@@ -76,6 +77,10 @@ class SiPixelDigitizerAlgorithm  {
   void calculateInstlumiFactor(PileupMixingContent* puInfo);
   void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
 
+  // for premixing
+  void calculateInstlumiFactor(const std::vector<PileupSummaryInfo> &ps, int bunchSpacing); // TODO: try to remove the duplication of logic...
+  void setSimAccumulator(const std::map<uint32_t, std::map<int, int> >& signalMap);
+  
  private:
   
   //Accessing Lorentz angle from DB:
