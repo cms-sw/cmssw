@@ -38,7 +38,8 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
 					     edm::ParameterSet const & p,
 					     const SimTrackManager* manager) 
   : SensitiveTkDetector(name, cpv, clg, p),
-    thePV(nullptr), theHit(nullptr), theDetUnitId(0), theTrackID(0), theManager(manager)
+    thePV(nullptr), theHit(nullptr), theDetUnitId(0), newDetUnitId(0), 
+    theTrackID(0), theManager(manager)
 {
   edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
   ePersistentCutGeV = m_MuonSD.getParameter<double>("EnergyThresholdForPersistency")/CLHEP::GeV;//Default 1. GeV
@@ -114,6 +115,8 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
 			   <<InitialStepPosition(aStep,WorldCoordinates);
 
   if (aStep->GetTotalEnergyDeposit()>0.){
+    newDetUnitId = setDetUnitId(aStep);
+
     // do not count neutrals that are killed by User Limits MinEKine
     //---VI: this is incorrect, neutral particle, like neutron may have local
     //       energy deposit, which potentially may make a hit
@@ -128,6 +131,7 @@ bool MuonSensitiveDetector::ProcessHits(G4Step * aStep, G4TouchableHistory * ROh
     } else {
       thePV = aStep->GetPreStepPoint()->GetPhysicalVolume();
       theTrackID = aStep->GetTrack()->GetTrackID();
+      theDetUnitId = newDetUnitId;
     }
   }
   return true;
@@ -157,7 +161,8 @@ uint32_t MuonSensitiveDetector::setDetUnitId(const G4Step * aStep)
 bool MuonSensitiveDetector::newHit(const G4Step * aStep){
 
   return (!theHit || (aStep->GetTrack()->GetTrackID() != theTrackID) 
-	  || (aStep->GetPreStepPoint()->GetPhysicalVolume() != thePV));
+	  || (aStep->GetPreStepPoint()->GetPhysicalVolume() != thePV)
+	  || newDetUnitId != theDetUnitId);
 }
 
 void MuonSensitiveDetector::createHit(const G4Step * aStep){
@@ -194,7 +199,7 @@ void MuonSensitiveDetector::createHit(const G4Step * aStep){
   float theEnergyLoss = aStep->GetTotalEnergyDeposit()/CLHEP::GeV;
   int theParticleType = G4TrackToParticleID::particleID(theTrack);
 
-  theDetUnitId = setDetUnitId(aStep);
+  theDetUnitId = newDetUnitId;
   thePV = preStepPoint->GetPhysicalVolume();
   theTrackID = theTrack->GetTrackID();
 
