@@ -201,6 +201,7 @@ CTPPSCommonDQMSource::CTPPSCommonDQMSource(const edm::ParameterSet& ps) :
 
   currentLS = 0;
   endLS = 0;
+  rpstate.clear();
 
 }
 
@@ -261,8 +262,8 @@ void CTPPSCommonDQMSource::analyze(edm::Event const& event, edm::EventSetup cons
      RP name: RP_56_220_NR_TP
      */
 
-  rpstate.clear();
   if(currentLS > endLS){
+    rpstate.clear();
     for (uint8_t i = 0; i < CTPPSRecord::RomanPot::Last; ++i) {
       rpstate.push_back(rp->status(i));
     }
@@ -414,6 +415,7 @@ void CTPPSCommonDQMSource::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
   }
 
   endLS = iLumi.luminosityBlock();
+  rpstate.clear();
 
 }
 //----------------------------------------------------------------------------------------------------
