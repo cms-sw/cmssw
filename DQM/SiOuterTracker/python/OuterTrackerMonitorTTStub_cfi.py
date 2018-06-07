@@ -50,16 +50,16 @@ OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
 
 #TTStub Barrel Layers
     TH1TTStub_Layers = cms.PSet(
-        Nbinsx = cms.int32(6),
+        Nbinsx = cms.int32(7),
         xmin = cms.double(0.5),
-        xmax = cms.double(6.5)
+        xmax = cms.double(7.5)
         ),
 
 #TTStub EC Discs
     TH1TTStub_Discs = cms.PSet(
-        Nbinsx = cms.int32(5),
+        Nbinsx = cms.int32(6),
         xmin = cms.double(0.5),
-        xmax = cms.double(5.5)
+        xmax = cms.double(6.5)
         ),
 
 #TTStub EC Rings

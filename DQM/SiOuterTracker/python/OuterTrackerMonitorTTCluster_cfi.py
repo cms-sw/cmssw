@@ -9,15 +9,15 @@ OuterTrackerMonitorTTCluster = DQMEDAnalyzer('OuterTrackerMonitorTTCluster',
 
 # Number of clusters per layer
     TH1TTCluster_Barrel = cms.PSet(
-        Nbinsx = cms.int32(6),
-        xmax = cms.double(6.5),
+        Nbinsx = cms.int32(7),
+        xmax = cms.double(7.5),
         xmin = cms.double(0.5)
         ),
 
 # Number of clusters per disc
     TH1TTCluster_ECDiscs = cms.PSet(
-        Nbinsx = cms.int32(5),
-        xmax = cms.double(5.5),
+        Nbinsx = cms.int32(6),
+        xmax = cms.double(6.5),
         xmin = cms.double(0.5)
         ),
 
