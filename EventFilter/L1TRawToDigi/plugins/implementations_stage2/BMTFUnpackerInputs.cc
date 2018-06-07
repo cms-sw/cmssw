@@ -9,7 +9,7 @@ namespace l1t
 {
   namespace stage2
   {
-    void numWheelSectorTrTag(int& wheelNo, int& tagSegID, int linkNo, int amcNo)
+    void numWheelSectorTrTag_bmtf(int& wheelNo, int& tagSegID, int linkNo, int amcNo)
     {
       if (linkNo >= 0 && linkNo < 6)
 	wheelNo = -2;
@@ -28,7 +28,7 @@ namespace l1t
 	tagSegID = 1;
     }
 
-    bool checkQual(const unsigned int& value, const bool& isNewFw)
+    bool checkQual_bmtf(const unsigned int& value, const bool& isNewFw)
     {
       if (isNewFw)
 	return (value == 7);
@@ -36,7 +36,7 @@ namespace l1t
 	return (value == 0);
     }
 
-    bool unpacking(const Block& block, UnpackerCollections *coll, qualityHits& linkAndQual_, const bool& isNewFw)
+    bool unpacking_bmtf(const Block& block, UnpackerCollections *coll, qualityHits& linkAndQual_, const bool& isNewFw)
     {
 
       unsigned int ownLinks[] = {4,5,12,13,20,21,22,23,28,29};
@@ -80,12 +80,17 @@ namespace l1t
 	  int bxNum = ibx.header().getBx();
 	  uint32_t inputWords[ibx.getSize()]; //array of 6 uint32_t payload-words (size of the payload in the BxBlock)
 
+	  //Note
+	  /*In the non-ZS fashion, the expression "block.header().getSize()/nBX" was 6 in any case
+	    the reason is that the size is 6 or 30, and these numbers are divided by 1 or 5 respectively.*/
+
 	  //Fill the above uint32_t array
 	  for(unsigned int iw = 0; iw < ibx.getSize(); iw++)
 	    inputWords[iw] = (ibx.payload())[iw];
+
 			
 	  int wheel, sector, trTag;//Container information
-	  numWheelSectorTrTag(wheel, trTag, blockId/2, block.amc().getAMCNumber());//this returns wheel & tsTag
+	  numWheelSectorTrTag_bmtf(wheel, trTag, blockId/2, block.amc().getAMCNumber());//this returns wheel & tsTag
 	  sector = block.amc().getBoardID() - 1;
 
 	  //Check if the sector is "out of range" - (trys then to use AMC13 information?)
@@ -125,7 +130,7 @@ namespace l1t
 	      mbBxC[iw] = (inputWords[iw] >> 30) & 0x3;
 
 	      //if (mbQual[iw] == 0)
-	      if (checkQual(mbQual[iw], isNewFw))
+	      if (checkQual_bmtf(mbQual[iw], isNewFw))
 		continue;
 					
 	      phiData.push_back( L1MuDTChambPhDigi( bxNum, wheel, sector, iw+1, mbPhi[iw], mbPhiB[iw], mbQual[iw], trTag, mbBxC[iw], mbRPC[iw] ) );
@@ -181,12 +186,12 @@ namespace l1t
 		
     bool BMTFUnpackerInputsOldQual::unpack(const Block& block, UnpackerCollections *coll)
     {
-      return unpacking(block, coll, linkAndQual_, false);
+      return unpacking_bmtf(block, coll, linkAndQual_, false);
     }//unpack old quality
 
     bool BMTFUnpackerInputsNewQual::unpack(const Block& block, UnpackerCollections *coll)
     {
-      return unpacking(block, coll, linkAndQual_, true);
+      return unpacking_bmtf(block, coll, linkAndQual_, true);
     }//unpack new quality
   }//ns2
 }//ns l1t;
