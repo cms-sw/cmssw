@@ -151,6 +151,24 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   return thick;
 }
 
+int RecHitTools::getSiThickIndex(const DetId& id) const {
+  int thickIndex = -1;
+  if (id.det() == DetId::Forward) {
+    float thickness = getSiThickness(id);
+    if (thickness > 99. && thickness < 101.)
+      thickIndex = 0;
+    else if (thickness > 199. && thickness < 201.)
+      thickIndex = 1;
+    else if (thickness > 299. && thickness < 301.)
+      thickIndex = 2;
+    else
+      assert(thickIndex > 0 && "ERROR - silicon thickness has a nonsensical value");
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    thickIndex = HGCSiliconDetId(id).type();
+  }
+  return thickIndex;
+}
+
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   auto geom = geom_->getSubdetectorGeometry(id);
   check_geom(geom);
@@ -265,16 +283,11 @@ unsigned int RecHitTools::getWafer(const DetId& id) const {
   unsigned int wafer = std::numeric_limits<unsigned int>::max();
   if (id.det() == DetId::Forward) {
     wafer = HGCalDetId(id).wafer();
-  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
-    wafer = HGCSiliconDetId(id).wafer();
-  } else if (id.det() == DetId::HGCalHSc) {
-    wafer = HGCScintillatorDetId(id).wafer();
   }
   else {
     edm::LogError("getWafer::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 
       << id.det() << " is not HGCal silicon!";
-    return std::numeric_limits<unsigned int>::max();
   }
   return wafer;
 }
@@ -283,16 +296,11 @@ unsigned int RecHitTools::getCell(const DetId& id) const {
   unsigned int cell = std::numeric_limits<unsigned int>::max();
   if (id.det() == DetId::Forward) {
     cell = HGCalDetId(id).cell();
-  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
-    cell = HGCSiliconDetId(id).cell();
-  } else if (id.det() == DetId::HGCalHSc) {
-    cell = HGCScintillatorDetId(id).cell();
   }
   else {
     edm::LogError("getCell::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 
       << id.det() << " is not HGCal silicon!";
-    return std::numeric_limits<unsigned int>::max();
   }
   return cell;
 }
