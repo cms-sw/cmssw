@@ -50,6 +50,8 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         deepInspectionElectronThresholds_(ps.getParameter < std::vector<double> > ("deepInspectionElectronThresholds")),
         photonEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("photonEfficiencyThresholds")),
         photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
+        maxDeltaRForL1Matching_(ps.getParameter <double> ("maxDeltaRForL1Matching")),
+        maxDeltaRForHLTMatching_(ps.getParameter <double> ("maxDeltaRForHLTMatching")),
         tagElectron_(),
         probeElectron_(),
         tagAndProbleInvariantMass_(-1.),
@@ -219,7 +221,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   auto probeElectron = probeElectron_;
 
   // find corresponding L1 EG
-  double minDeltaR = 0.3;
+  double minDeltaR = maxDeltaRForL1Matching_;
   l1t::EGamma closestL1EGamma;
   bool foundMatch = false;
 
@@ -232,6 +234,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
       minDeltaR = currentDeltaR;
       closestL1EGamma = *egamma;
       foundMatch = true;
+      break;
     }
 
   }
@@ -467,7 +470,7 @@ bool L1TEGammaOffline::matchesAnHLTObject(double eta, double phi) const{
   std::vector<unsigned int> firedTriggers = getFiredTriggerIndices(triggerIndices_, results);
   std::vector<edm::InputTag> hltFilters = getHLTFilters(firedTriggers, hltConfig_, triggerProcess_);
   const trigger::TriggerObjectCollection hltObjects = getTriggerObjects(hltFilters, triggerEvent_);
-  const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(eta, phi, 0.3, hltObjects);
+  const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(eta, phi, maxDeltaRForHLTMatching_, hltObjects);
 
   return !matchedObjects.empty();
 }

@@ -103,6 +103,9 @@ private:
   std::vector<double> photonEfficiencyThresholds_;
   std::vector<double> photonEfficiencyBins_;
 
+  double maxDeltaRForL1Matching_;
+  double maxDeltaRForHLTMatching_;
+
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;
   double tagAndProbleInvariantMass_;
