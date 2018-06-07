@@ -715,7 +715,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string& hName = qHist->getName();
+                const std::string hName = qHist->getName();
 
                 // if (m_verbose) {
 		if (true) {  // Force printout - AWB 03.12.16
@@ -829,7 +829,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string& hName = qHist->getName();
+                const std::string hName = qHist->getName();
 
 		if (m_verbose) std::cout << "\nNumber of quality tests "
 					 << " for histogram " << hitObjQtHist[iHitObjQTest]
@@ -931,7 +931,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string& hName = qHist->getName();
+                const std::string hName = qHist->getName();
 
 		if (m_verbose) std::cout << "\nNumber of quality tests "
 					 << " for histogram " << noisyStrpQtHist[iNoisyStrpQTest]
@@ -1032,7 +1032,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore:
 
             if (qHist) {
                 const std::vector<QReport*> qtVec = qHist->getQReports();
-                const std::string& hName = qHist->getName();
+                const std::string hName = qHist->getName();
 
 		if (m_verbose) std::cout << "\nNumber of quality tests "
 					 << " for histogram " << deadStrpQtHist[iDeadStrpQTest]
