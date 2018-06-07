@@ -43,3 +43,12 @@ EV1_MPIvetoOn     (D=false)   MPI vetoing
                               Attention! If true add 'MultipartonInteractions:pTmaxMatch = 2' to pythia
                               parameters.
 
+EV1_QEDvetoMode   (D=0)       Treatment of non-QCD radiation. 
+		  	      0 - Colorless partons are not included in pT calculated from the shower for pTemt>0 .
+		  	      1 - Colorless partons are included for pTemt>0.
+ 			      2 - Colorless partons are included for pTemt>0. Additionally, if a colorless parton is emitted with pT > pThard in Born-level events, then the entire event is accepted. This is relevant for all values of pTemt .  
+
+EV1_nFinalMode    (D=0)       Specification of nfinal.  
+		  	      0 - nfinal needs to be specified and is cross-checked against the final state particle content in the event to estimate whether we are dealing with radiation or not.
+                              1 - nfinal doesn't need to be specified (same as neg. value of nfinal) but will be estimated. Result will be cross checked as in mode 0. 
+			      2 - nfinal is not specified, the Powheg emission will be estimated by looking for particles that are a light quark(5F)/gluon that comes from a light quark/gluon (not resonance, nor top) 
