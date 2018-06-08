@@ -615,17 +615,12 @@ void HGCalImagingAlgo::computeThreshold() {
 
   if (initialized)
     return; // only need to calculate thresholds once
-  const std::vector<DetId> &listee(rhtools_.getGeometry()->getValidDetIds(
-      DetId::Forward, ForwardSubdetector::HGCEE));
-  const std::vector<DetId> &listfh(rhtools_.getGeometry()->getValidDetIds(
-      DetId::Forward, ForwardSubdetector::HGCHEF));
 
   std::vector<double> dummy;
   const unsigned maxNumberOfThickIndices = 3;
   dummy.resize(maxNumberOfThickIndices, 0);
   thresholds.resize(maxlayer, dummy);
   v_sigmaNoise.resize(maxlayer, dummy);
-  int previouswafer = -999;
 
   for (unsigned ilayer = 1; ilayer <= maxlayer; ++ilayer) {
     for (unsigned ithick = 0; ithick < maxNumberOfThickIndices; ++ithick) {
