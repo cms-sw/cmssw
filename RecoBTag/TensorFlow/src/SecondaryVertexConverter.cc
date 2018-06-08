@@ -17,7 +17,7 @@ namespace btagbtvdeep {
     
     math::XYZVector jet_dir = jet.momentum().Unit();
     sv_features.pt = sv.pt();
-    sv_features.deltaR = catch_infs_and_bound(std::fabs(Geom::deltaR(sv.position() - pv.position(), flip ? -jet_dir : jet_dir))-0.5,
+    sv_features.deltaR = catch_infs_and_bound(std::fabs(reco::deltaR(sv.position() - pv.position(), flip ? -jet_dir : jet_dir))-0.5,
 					      0,-2,0);
     sv_features.mass = sv.mass();
     sv_features.ntracks = sv.numberOfDaughters();
@@ -32,11 +32,7 @@ namespace btagbtvdeep {
     sv_features.d3d = d3d_meas.value();
     sv_features.d3dsig = catch_infs_and_bound(d3d_meas.value()/d3d_meas.error(),
 					      0,-1,800);
-    float costhetasvpv = vertexDdotP(sv,pv);
-    if(flip){
-      costhetasvpv = -costhetasvpv;
-    }
-    sv_features.costhetasvpv = costhetasvpv;
+    sv_features.costhetasvpv = (flip ? -1.f : 1.f)* vertexDdotP(sv,pv);
     sv_features.enratio = sv.energy()/jet.energy();
     
   } 
