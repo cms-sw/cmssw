@@ -24,6 +24,8 @@ class G4StepPoint;
 class G4VTouchable;
 class G4VPhysicalVolume;
 class G4LogicalVolume;
+class G4TouchableHistory;
+namespace edm {class ParameterSet;}
 
 class TrackingMaterialProducer : public SimProducer,
                                  public Observer<const BeginOfJob*>,
