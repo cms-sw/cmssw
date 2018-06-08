@@ -37,6 +37,13 @@
 #include <iostream>
 #include <fstream>
 
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 //
 // class decleration
 //
