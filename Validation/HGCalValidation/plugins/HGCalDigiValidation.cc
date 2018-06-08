@@ -300,7 +300,7 @@ void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom,
   hinfo.z       =  global1.z();
   hinfo.adc     =  adc;
   hinfo.charge  =  charge; //charges[0];
-  hinfo.layer   =  layer;
+  hinfo.layer   =  std::min(layer,layers_);
   
   if (verbosity_>1) 
     edm::LogVerbatim("HGCalValidation") << "gx =  "  << hinfo.x
@@ -309,8 +309,8 @@ void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom,
   
   fillDigiInfo(hinfo);
 
-  if (global1.eta() > 0)  fillOccupancyMap(OccupancyMap_plus_, layer -1);
-  else                    fillOccupancyMap(OccupancyMap_minus_, layer -1);
+  if (global1.eta() > 0)  fillOccupancyMap(OccupancyMap_plus_, hinfo.layer -1);
+  else                    fillOccupancyMap(OccupancyMap_minus_, hinfo.layer -1);
   
 }
 
