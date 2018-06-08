@@ -218,7 +218,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
               { return btagbtvdeep::sv_vertex_comparator(sva, svb, pv); });
     // fill features from secondary vertices
     for (const auto & sv : svs_sorted) {
-      if (Geom::deltaR(sv.position() - pv.position(), flip_ ? -jet_dir : jet_dir) > jet_radius_) continue;
+      if (reco::deltaR2(sv.position() - pv.position(), flip_ ? -jet_dir : jet_dir) > (jet_radius_*jet_radius_)) continue;
       else {
         features.sv_features.emplace_back();
         // in C++17 could just get from emplace_back output
@@ -276,7 +276,9 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     const edm::Provenance *prov = shallow_tag_infos.provenance();
     const edm::ParameterSet& psetFromProvenance = edm::parameterSet(*prov);
-    double negative_cut = (( psetFromProvenance.getParameter<edm::ParameterSet>("computer") ).getParameter<edm::ParameterSet>("trackSelection")).getParameter<double>("sip3dSigMax");
+    double negative_cut = ( ( psetFromProvenance.getParameter<edm::ParameterSet>("computer") 
+			      ).getParameter<edm::ParameterSet>("trackSelection") 
+			    ).getParameter<double>("sip3dSigMax");
 
   for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
 
