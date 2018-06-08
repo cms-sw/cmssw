@@ -297,6 +297,7 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
   edm::Handle<std::vector<PCaloHit>> bhSimHits;
   iEvent.getByToken(bhSimHitToken_, bhSimHits);
   if (bhSimHits.isValid()) {
+   if(ifHCAL_){
     for (std::vector<PCaloHit>::const_iterator simHit = bhSimHits->begin();
 	 simHit != bhSimHits->end(); ++simHit) {
       int subdet, z, depth, eta, phi, lay;
@@ -326,6 +327,10 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
 	}
       }
     }
+   }
+   else {
+    analyzeHGCalSimHit(bhSimHits, 2, hebEnSim, bhHitRefs);
+   }
 #ifdef EDM_ML_DEBUG
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=bhHitRefs.begin();
 	 itr != bhHitRefs.end(); ++itr) {
@@ -473,7 +478,7 @@ void HGCalHitValidation::analyzeHGCalRecHit(T1 const & theHits,
 					    std::map<unsigned int, HGCHitTuple> const& hitRefs) {
   for (auto it = theHits->begin(); it!=theHits->end(); ++it) {
     DetId id = it->id();
-    if (id.subdetId() == (int)(HcalEndcap)) {
+    if (id.det() == DetId::Hcal and id.subdetId() == (int)(HcalEndcap)) {
       double energy = it->energy();
       hebEnRec->Fill(energy);
       GlobalPoint xyz = hcGeometry_->getGeometry(id)->getPosition();
