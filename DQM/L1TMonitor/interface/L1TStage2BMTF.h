@@ -103,8 +103,6 @@ private:
 
   MonitorElement* kbmtf_hwDXY;
   MonitorElement* kbmtf_hwPt2;
-  MonitorElement* kmtf_hwPt;
-  MonitorElement* kmtf_hwQual_bx;
   /* MonitorElement* bmtf_twinmuxInput_PhiBX; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhi; */
   /* MonitorElement* bmtf_twinmuxInput_PhiPhiB; */
