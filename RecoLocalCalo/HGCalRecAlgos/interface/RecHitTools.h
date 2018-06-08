@@ -19,7 +19,7 @@ namespace edm {
 namespace hgcal {
   class RecHitTools {
   public:
-    RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0) {}
+    RecHitTools() : geom_(nullptr), fhOffset_(0), bhOffset_(0), geometryType_(0) {}
     ~RecHitTools() {}
 
     void getEvent(const edm::Event&);
@@ -27,6 +27,7 @@ namespace hgcal {
     const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const;
 
     GlobalPoint getPosition(const DetId& id) const;
+    GlobalPoint getPositionLayer(unsigned layer) const;
     // zside returns +/- 1
     int zside(const DetId& id) const;
 
@@ -60,6 +61,7 @@ namespace hgcal {
   private:
     const CaloGeometry* geom_;
     unsigned int        fhOffset_, bhOffset_, maxNumberOfWafersPerLayer_;
+    int geometryType_;
   };
 }
 

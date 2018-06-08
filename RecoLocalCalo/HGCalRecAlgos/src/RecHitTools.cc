@@ -86,6 +86,7 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
   //check if it's the new geometry
   if(geomEE) {
+    geometryType_ = 1;
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = (geomEE->topology().dddConstants()).waferCount(0);
     auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
@@ -93,6 +94,7 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
     wmaxFH    = (geomFH->topology().dddConstants()).waferCount(0);
   }
   else {
+    geometryType_ = 0;
     geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = 1 + (geomEE->topology().dddConstants()).waferMax();
@@ -123,6 +125,20 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   return position;
 }
 
+GlobalPoint RecHitTools::getPositionLayer(unsigned layer) const {
+  DetId id(0);
+  if(geometryType_==0){
+    if (layer <= fhOffset_) id = HGCalDetId(ForwardSubdetector::HGCEE, 1, layer, 1, 50, 1);
+    else if (layer <= bhOffset_) id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, layer - fhOffset_, 1, 50, 1);
+    else  id = HcalDetId(HcalSubdetector::HcalEndcap, 50, 100, layer - bhOffset_);
+  }
+  else {
+    if (layer <= fhOffset_) id = HGCSiliconDetId(DetId::HGCalEE, 1, 0, layer, 0, 0, 0, 0);
+    else if (layer <= bhOffset_) id = HGCSiliconDetId(DetId::HGCalHSi, 1, 0, layer - fhOffset_, 0, 0, 0, 0);
+    else  id = HGCScintillatorDetId(0, layer - bhOffset_, 1, 0);
+  }
+  return getPosition(id);
+}
 
 int RecHitTools::zside(const DetId& id) const {
   int zside = 0;
