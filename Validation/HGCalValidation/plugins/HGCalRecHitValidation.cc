@@ -236,7 +236,7 @@ void HGCalRecHitValidation::recHitValidation(DetId & detId, int layer,
   hinfo.x      = globalx;
   hinfo.y      = globaly;
   hinfo.z      = globalz;
-  hinfo.layer  = layer;
+  hinfo.layer  = std::min((unsigned)layer,layers_);
   hinfo.phi    = global.phi();
   hinfo.eta    = global.eta();
       
@@ -244,12 +244,12 @@ void HGCalRecHitValidation::recHitValidation(DetId & detId, int layer,
     edm::LogVerbatim("HGCalValidation") << "--------------------------   gx = "
 					<< globalx << " gy = "  << globaly   
 					<< " gz = " << globalz << " phi = " 
-					<< hinfo.phi << " eta = " << hinfo.eta;
+					<< hinfo.phi << " eta = " << hinfo.eta << " lay = " << hinfo.layer;
       
   fillHitsInfo(hinfo);
       
-  if (hinfo.eta > 0)  fillOccupancyMap(OccupancyMap_plus, layer -1);
-  else                fillOccupancyMap(OccupancyMap_minus, layer -1);
+  if (hinfo.eta > 0)  fillOccupancyMap(OccupancyMap_plus, hinfo.layer -1);
+  else                fillOccupancyMap(OccupancyMap_minus, hinfo.layer -1);
       
 }      
 
