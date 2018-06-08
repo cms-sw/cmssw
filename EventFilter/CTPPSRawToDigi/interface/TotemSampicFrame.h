@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <iomanip>
 #include <bitset>
+#include <iostream>
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h"
 
