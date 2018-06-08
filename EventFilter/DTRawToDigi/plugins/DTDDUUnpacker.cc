@@ -7,7 +7,6 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/DTDigi/interface/DTDDUWords.h"
-#include "DataFormats/DTDigi/interface/DTControlData.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h"
