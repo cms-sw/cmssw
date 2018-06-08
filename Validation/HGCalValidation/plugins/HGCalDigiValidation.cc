@@ -112,7 +112,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
   } else {
     throw cms::Exception("BadHGCDigiSource")
       << "HGCal DetectorName given as " << nameDetector_ << " must be: "
-      << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", "
+      << "\"HGCalEESensitive\", \"HGCalHESiliconSensitive\", "
       << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!"; 
   }  
 }
