@@ -896,7 +896,7 @@ void HcalDDDSimConstants::initialize( void ) {
   int noffk(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+5)) {
     noffk += (2*hpar->noff[noffsize+4]);
-    if ((int)(hpar->noff.size()) > noffk+5) {
+    if ((int)(hpar->noff.size()) >= noffk+7) {
       int dtype = hpar->noff[noffk+1];
       int nphi  = hpar->noff[noffk+2];
       int ndeps = hpar->noff[noffk+3];
