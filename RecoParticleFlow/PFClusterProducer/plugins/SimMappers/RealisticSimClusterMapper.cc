@@ -68,7 +68,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     auto const& hits = *input;
     RealisticHitToClusterAssociator realisticAssociator;
     int geometryType = 0;
-    DetId testid(hits.size()>0 ? hits[0].detId() : 0);
+    DetId testid(!hits.empty() ? hits[0].detId() : 0);
     if(DetId(hits[0].detId()).det()==DetId::HGCalEE or 
        DetId(hits[0].detId()).det()==DetId::HGCalHSi or 
        DetId(hits[0].detId()).det()==DetId::HGCalHSc)
