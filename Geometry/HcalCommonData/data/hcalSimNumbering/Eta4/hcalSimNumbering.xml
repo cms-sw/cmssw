@@ -82,7 +82,7 @@
   <Vector name="HEGains" type="numeric" nEntries="7">
     178.0, 178.0, 178.0, 178.0, 178.0, 178.0, 178.0
   </Vector>
-  <Vector name="HEShift" type="numeric" nEntries="3">
+  <Vector name="HEShift" type="numeric" nEntries="7">
     0, 0, 0, 0, 0, 0, 0
   </Vector>
   <Vector name="HFGains" type="numeric" nEntries="4">
