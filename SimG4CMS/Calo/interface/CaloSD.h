@@ -26,9 +26,6 @@
 #include "G4Track.hh"
 #include "G4VGFlashSensitiveDetector.hh"
 
-#include <cstdint>
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <map>
 
