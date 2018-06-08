@@ -103,9 +103,16 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE,wmaxFH);
 }
 
-GlobalPoint RecHitTools::getPosition(const DetId& id) const {
-  auto geom = geom_->getSubdetectorGeometry(id);
+const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry( const DetId& id ) const {
+  DetId::Detector det = id.det();
+  int subdet = (det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc) ? ForwardSubdetector::ForwardEmpty : id.subdetId();
+  auto geom = geom_->getSubdetectorGeometry(det,subdet);
   check_geom(geom);
+  return geom;
+}
+
+GlobalPoint RecHitTools::getPosition(const DetId& id) const {
+  auto geom = getSubdetectorGeometry(id);
   GlobalPoint position;
   if (id.det() == DetId::Hcal) {
     position = geom->getGeometry(id)->getPosition();
@@ -132,8 +139,7 @@ int RecHitTools::zside(const DetId& id) const {
 }
 
 std::float_t RecHitTools::getSiThickness(const DetId& id) const {
-  auto geom = geom_->getSubdetectorGeometry(id);
-  check_geom(geom);
+  auto geom = getSubdetectorGeometry(id);
   std::float_t thick(0.37);
   if (id.det() == DetId::Forward) {
     const HGCalDetId hid(id);
@@ -170,8 +176,7 @@ int RecHitTools::getSiThickIndex(const DetId& id) const {
 }
 
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
-  auto geom = geom_->getSubdetectorGeometry(id);
-  check_geom(geom);
+  auto geom = getSubdetectorGeometry(id);
   std::float_t size(std::numeric_limits<std::float_t>::max());
   if (id.det() == DetId::Forward) {
     const HGCalDetId hid(id);
@@ -309,8 +314,7 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   bool ishalf = false;
   if (id.det() == DetId::Forward) {
     HGCalDetId hid(id);
-    auto geom = geom_->getSubdetectorGeometry(hid);
-    check_geom(geom);
+    auto geom = getSubdetectorGeometry(hid);
     auto ddd = get_ddd(geom,hid);
     const int waferType = ddd->waferTypeT(hid.waferType());
     return ddd->isHalfCell(waferType,hid.cell());

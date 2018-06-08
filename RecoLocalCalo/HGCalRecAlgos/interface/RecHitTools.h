@@ -8,6 +8,7 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 class CaloGeometry;
+class CaloSubdetectorGeometry;
 class DetId;
 
 namespace edm {
@@ -23,6 +24,7 @@ namespace hgcal {
 
     void getEvent(const edm::Event&);
     void getEventSetup(const edm::EventSetup&);
+    const CaloSubdetectorGeometry* getSubdetectorGeometry( const DetId& id ) const;
 
     GlobalPoint getPosition(const DetId& id) const;
     // zside returns +/- 1
