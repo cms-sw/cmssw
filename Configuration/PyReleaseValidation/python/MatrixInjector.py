@@ -110,7 +110,7 @@ class MatrixInjector(object):
             "Multicore" : 1,   # do not set multicore for the whole chain
             "Memory" : 3000,
             "SizePerEvent" : 1234,
-            "TimePerEvent" : 0.1,
+            "TimePerEvent" : 10,
             "PrepID": os.getenv('CMSSW_VERSION')
             }
 
