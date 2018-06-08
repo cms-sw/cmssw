@@ -343,7 +343,7 @@ IOSize DavixFile::read(void *into, IOSize n) {
 }
 
 IOSize DavixFile::write(const void *from, IOSize n) {
-  cms::Exception ex("FileWriteError");
+  edm::Exception ex(edm::errors::FileWriteError);
   ex << "DavixFile::write(name='" << m_name << "') not implemented";
   ex.addContext("Calling DavixFile::write()");
   throw ex;
