@@ -87,7 +87,7 @@ mvaEleID_Fall17_iso_V1_producer_config = cms.PSet(
     categoryCuts        = EleMVA_6CategoriesCuts,
     # Weight files and variable definitions
     weightFileNames     = mvaFall17WeightFiles_V1,
-    variableDefinition  = cms.string(mvaVariablesFile)
+    variableDefinition  = cms.string("RecoEgamma/ElectronIdentification/data/ElectronMVAEstimatorRun2Fall17V1Variables.txt")
     )
 # Create the VPset's for VID cuts
 mvaEleID_Fall17_V1_wpLoose = configureVIDMVAEleID( MVA_WPLoose )
