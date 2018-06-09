@@ -90,6 +90,7 @@ private:
   std::vector<std::string>              geometrySource_;
   std::vector<int>                      ietaExcludeBH_;
   bool                                  ifHCAL_;
+  bool                                  ifHCALsim_;
 
   edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
   edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
@@ -127,6 +128,7 @@ HGCalHitValidation::HGCalHitValidation(const edm::ParameterSet &cfg) {
   fhRecHitToken_  = consumes<HGChefRecHitCollection>(cfg.getParameter<edm::InputTag>("fhRecHitSource"));
   ietaExcludeBH_  = cfg.getParameter<std::vector<int> >("ietaExcludeBH");
   ifHCAL_         = cfg.getParameter<bool>("ifHCAL");
+  ifHCALsim_      = cfg.getParameter<bool>("ifHCALsim");
   if (ifHCAL_) 
     bhRecHitTokenh_ = consumes<HBHERecHitCollection>(cfg.getParameter<edm::InputTag>("bhRecHitSource"));
   else
@@ -297,7 +299,7 @@ void HGCalHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetu
   edm::Handle<std::vector<PCaloHit>> bhSimHits;
   iEvent.getByToken(bhSimHitToken_, bhSimHits);
   if (bhSimHits.isValid()) {
-   if(ifHCAL_){
+   if(ifHCALsim_){
     for (std::vector<PCaloHit>::const_iterator simHit = bhSimHits->begin();
 	 simHit != bhSimHits->end(); ++simHit) {
       int subdet, z, depth, eta, phi, lay;

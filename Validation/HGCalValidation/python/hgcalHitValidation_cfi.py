@@ -12,7 +12,8 @@ hgcalHitValidation = DQMEDAnalyzer('HGCalHitValidation',
                                     fhRecHitSource = cms.InputTag("HGCalRecHit","HGCHEFRecHits"),
 								    bhRecHitSource = cms.InputTag("HGCalRecHit","HGCHEBRecHits"),
                                     ietaExcludeBH  = cms.vint32([]),
-                                    ifHCAL         = cms.bool(True)
+                                    ifHCAL         = cms.bool(False),
+                                    ifHCALsim      = cms.bool(True),
                                     )
 
 from Validation.HGCalValidation.hgcalHitCalibration_cfi import hgcalHitCalibration
@@ -24,5 +25,5 @@ from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 phase2_hgcalV9.toModify(hgcalHitValidation,
     bhSimHitSource = cms.InputTag("g4SimHits","HGCHitsHEback"),
     geometrySource = cms.untracked.vstring("HGCalEESensitive","HGCalHESiliconSensitive","HGCalHEScintillatorSensitive"),
-    ifHCAL         = cms.bool(False),
+    ifHCALsim      = cms.bool(False),
 )
