@@ -19,6 +19,7 @@ class CSCCrosstalkGenerator;
 class CSCStripConditions;
 #include <vector>
 #include <string>
+#include <list>
 
 namespace CLHEP {
   class HepRandomEngine;
