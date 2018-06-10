@@ -249,8 +249,17 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( PuppiCandidate const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
+      if(fClonePackedCands && (!fUseExistingWeights)) {
+        if(fPuppiForLeptons)
+          pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[puppiMatched-lCandidates.begin()]);
+        else
+          pCand->setPuppiWeight(lWeights[puppiMatched-lCandidates.begin()],pCand->puppiWeightNoLep());
+      }
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);
+      if(fClonePackedCands && (!fUseExistingWeights)) {
+        pCand->setPuppiWeight(0,0);
+      }
     }
     puppiP4s.push_back( pVec );
 
