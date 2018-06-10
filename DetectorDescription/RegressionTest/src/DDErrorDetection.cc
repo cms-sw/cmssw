@@ -221,24 +221,18 @@ const std::map<DDSolid,std::set<DDSolid> > & DDErrorDetection::so()
     }
   }
   
-    std::vector<DDSolid>::const_iterator mit(errs.begin()),
-                                      med(errs.end());
-    for (; mit != med; ++mit) {
+  std::vector<DDSolid>::const_iterator mit(errs.begin()),
+    med(errs.end());
+  for (; mit != med; ++mit) {
 
-    try {
-      // loop over erroreous materials
-      ma_walker_t w(mag,*mit);
-      while (w.next()) {
-        result_[*mit].insert(w.current().first);
-      }
-      std::cout << std::endl;
-    } 
-    catch(DDSolid m) {
-      ;
-      //std::cout << "no such material: " << m << " for creating a walker." << std::endl;
+    ma_walker_t w(mag,*mit);
+    while (w.next()) {
+      result_[*mit].insert(w.current().first);
     }
-   } 
-   return result_;
+    std::cout << std::endl;
+  } 
+  
+  return result_;
 }
 
 
