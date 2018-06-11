@@ -71,7 +71,6 @@ bool HLTPixelTrackFilter::filter(edm::Event& event, const edm::EventSetup& iSetu
   event.getByToken(inputToken_, trackColl);
 
   unsigned int numTracks = trackColl->size();
-  std::cout << numTracks << std::endl;
   LogDebug("") << "Number of tracks accepted: " << numTracks;
   bool accept = (numTracks >= min_pixelTracks_);
   if(max_pixelTracks_ > 0)
