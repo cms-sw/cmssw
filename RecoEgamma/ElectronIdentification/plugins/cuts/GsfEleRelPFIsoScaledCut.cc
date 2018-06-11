@@ -19,22 +19,21 @@ class GsfEleRelPFIsoScaledCut : public CutApplicatorWithEventContentBase {
     }
 
   private:
-    const float _barrelC0, _endcapC0, _barrelCpt, _endcapCpt, _barrelCutOff;
-    bool _isRelativeIso;
-    EffectiveAreas _effectiveAreas;
-    edm::Handle<double> _rhoHandle;
+    const float barrelC0_, endcapC0_, barrelCpt_, endcapCpt_, barrelCutOff_;
+    EffectiveAreas effectiveAreas_;
+    edm::Handle<double> rhoHandle_;
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory, GsfEleRelPFIsoScaledCut, "GsfEleRelPFIsoScaledCut");
 
 GsfEleRelPFIsoScaledCut::GsfEleRelPFIsoScaledCut(const edm::ParameterSet& c) :
   CutApplicatorWithEventContentBase(c),
-  _barrelC0(c.getParameter<double>("barrelC0")),
-  _endcapC0(c.getParameter<double>("endcapC0")),
-  _barrelCpt(c.getParameter<double>("barrelCpt")),
-  _endcapCpt(c.getParameter<double>("endcapCpt")),
-  _barrelCutOff(c.getParameter<double>("barrelCutOff")),
-  _effectiveAreas( (c.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath())
+  barrelC0_(c.getParameter<double>("barrelC0")),
+  endcapC0_(c.getParameter<double>("endcapC0")),
+  barrelCpt_(c.getParameter<double>("barrelCpt")),
+  endcapCpt_(c.getParameter<double>("endcapCpt")),
+  barrelCutOff_(c.getParameter<double>("barrelCutOff")),
+  effectiveAreas_((c.getParameter<edm::FileInPath>("effAreasConfigFile")).fullPath())
 {
   edm::InputTag rhoTag = c.getParameter<edm::InputTag>("rho");    
   contentTags_.emplace("rho",rhoTag);  
@@ -46,15 +45,15 @@ void GsfEleRelPFIsoScaledCut::setConsumes(edm::ConsumesCollector& cc){
 }
 
 void GsfEleRelPFIsoScaledCut::getEventContent(const edm::EventBase& ev){
-  ev.getByLabel(contentTags_["rho"],_rhoHandle);
+  ev.getByLabel(contentTags_["rho"], rhoHandle_);
 }
 
 CutApplicatorBase::result_type GsfEleRelPFIsoScaledCut::operator()(const reco::GsfElectronPtr& cand) const {  
   // Establish the cut value
   double absEta = std::abs(cand->superCluster()->eta());
 
-  const float C0     = (absEta < _barrelCutOff ? _barrelC0  : _endcapC0);
-  const float Cpt    = (absEta < _barrelCutOff ? _barrelCpt : _endcapCpt);
+  const float C0     = (absEta < barrelCutOff_ ? barrelC0_  : endcapC0_);
+  const float Cpt    = (absEta < barrelCutOff_ ? barrelCpt_ : endcapCpt_);
   const float isoCut = C0+Cpt/cand->pt();
 
   return value(cand) < isoCut;
@@ -71,8 +70,8 @@ double GsfEleRelPFIsoScaledCut::value(const reco::CandidatePtr& cand) const {
   const float chad = pfIso.sumChargedHadronPt;
   const float nhad = pfIso.sumNeutralHadronEt;
   const float pho  = pfIso.sumPhotonEt;
-  const float  eA  = _effectiveAreas.getEffectiveArea(absEta);
-  const float rho  = _rhoHandle.isValid() ? (float)(*_rhoHandle) : 0; // std::max likes float arguments
+  const float  eA  = effectiveAreas_.getEffectiveArea(absEta);
+  const float rho  = rhoHandle_.isValid() ? (float)(*rhoHandle_) : 0; // std::max likes float arguments
   const float iso  = chad + std::max(0.0f, nhad + pho - rho*eA);
   return iso/cand->pt();
 }
