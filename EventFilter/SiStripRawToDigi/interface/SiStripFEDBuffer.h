@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace sistrip {
+  constexpr uint16_t BITS_PER_BYTE = 8;
 
   //
   // Class definitions
@@ -261,10 +262,10 @@ namespace sistrip {
 
   inline uint16_t FEDBSChannelUnpacker::adc() const
     {
-      uint16_t bits_missing = (bitOffsetIncrement_-8)+currentLocalBitOffset_;
+      uint16_t bits_missing = (bitOffsetIncrement_-BITS_PER_BYTE)+currentLocalBitOffset_;
       uint16_t adc = (data_[currentWordOffset_^7]<<bits_missing);
       if (currentWordOffset_>oldWordOffset_) {
-        adc += ( (data_[(currentWordOffset_+1)^7]>>(8-bits_missing)) );
+        adc += ( (data_[(currentWordOffset_+1)^7]>>(BITS_PER_BYTE-bits_missing)) );
       }
       return (adc&((1<<bitOffsetIncrement_)-1));
     }
@@ -276,8 +277,8 @@ namespace sistrip {
         return true; // fast case: 2 bytes always fit an ADC (even if offset)
       } else { // close to end
         const uint16_t plusOneBitOffset = currentLocalBitOffset_+bitOffsetIncrement_;
-        const uint16_t plusOneWordOffset = currentWordOffset_ + plusOneBitOffset/8;
-        return ( plusOneBitOffset % 8 ) ? ( plusOneWordOffset < nextChanWordOffset ) : ( plusOneWordOffset <= nextChanWordOffset );
+        const uint16_t plusOneWordOffset = currentWordOffset_ + plusOneBitOffset/BITS_PER_BYTE;
+        return ( plusOneBitOffset % BITS_PER_BYTE ) ? ( plusOneWordOffset < nextChanWordOffset ) : ( plusOneWordOffset <= nextChanWordOffset );
       }
     }
 
@@ -285,9 +286,9 @@ namespace sistrip {
     {
       oldWordOffset_ = currentWordOffset_;
       currentLocalBitOffset_ += bitOffsetIncrement_;
-      while (currentLocalBitOffset_>=8) {
+      while (currentLocalBitOffset_>=BITS_PER_BYTE) {
         currentWordOffset_++;
-        currentLocalBitOffset_ -= 8;
+        currentLocalBitOffset_ -= BITS_PER_BYTE;
       }
       if (useZS_) {
 	if (valuesLeftInCluster_) { currentStrip_++; valuesLeftInCluster_--; }
