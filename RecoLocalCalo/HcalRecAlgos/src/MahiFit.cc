@@ -62,7 +62,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
 			channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)+
 			channelData.tsPedestalWidth(3)*channelData.tsPedestalWidth(3) );
 
-  nnlsWork_.pedConstraint = pedVal*SampleMatrix::Ones(nnlsWork_.tsSize, nnlsWork_.tsSize);
+  nnlsWork_.pedConstraint.setConstant(nnlsWork_.tsSize, nnlsWork_.tsSize, pedVal);
   nnlsWork_.amplitudes.resize(nnlsWork_.tsSize);
   nnlsWork_.noiseTerms.resize(nnlsWork_.tsSize);
 
@@ -137,7 +137,10 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     nnlsWork_.bxOffset = bxOffsetConf_;
   }
 
-  nnlsWork_.bxs.resize(bxSize);
+  nnlsWork_.nPulseTot = bxSize;
+
+  if (dynamicPed_) nnlsWork_.nPulseTot++;
+  nnlsWork_.bxs.setZero(nnlsWork_.nPulseTot);
 
   if (nbx==1) {
     nnlsWork_.bxs.coeffRef(0) = 0;
@@ -148,28 +151,25 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     }
   }
 
-  nnlsWork_.nPulseTot = bxSize;
+  nnlsWork_.maxoffset = nnlsWork_.bxs.coeffRef(bxSize-1);
+  if (dynamicPed_) nnlsWork_.bxs[nnlsWork_.nPulseTot-1] = pedestalBX_;
 
-  if (dynamicPed_) {
-    nnlsWork_.nPulseTot++;
-    nnlsWork_.bxs.resize(nnlsWork_.nPulseTot);
-    nnlsWork_.bxs[nnlsWork_.nPulseTot-1] = pedestalBX_;
-  }
-
-  nnlsWork_.pulseMat.resize(nnlsWork_.tsSize,nnlsWork_.nPulseTot);
-  nnlsWork_.ampVec = PulseVector::Zero(nnlsWork_.nPulseTot);
-  nnlsWork_.errVec = PulseVector::Zero(nnlsWork_.nPulseTot);
+  nnlsWork_.pulseMat.setZero(nnlsWork_.tsSize,nnlsWork_.nPulseTot);  
+  nnlsWork_.invcovp.setZero(nnlsWork_.tsSize,nnlsWork_.nPulseTot);
+  nnlsWork_.ampVec.setZero(nnlsWork_.nPulseTot);
+  nnlsWork_.ampvecpermtest.setZero(nnlsWork_.nPulseTot);
 
   int offset=0;
   for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; ++iBX) {
     offset=nnlsWork_.bxs.coeff(iBX);
 
-    nnlsWork_.pulseShapeArray[iBX] = FullSampleVector::Zero(MaxFSVSize);
-    nnlsWork_.pulseDerivArray[iBX] = FullSampleVector::Zero(MaxFSVSize);
-    nnlsWork_.pulseCovArray[iBX]   = FullSampleMatrix::Constant(0);
+    nnlsWork_.pulseShapeArray[iBX].setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+    nnlsWork_.pulseDerivArray[iBX].setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+    nnlsWork_.pulseCovArray[iBX].setZero(nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset, nnlsWork_.tsSize + nnlsWork_.maxoffset + nnlsWork_.bxOffset);
+
 
     if (offset==pedestalBX_) {
-      nnlsWork_.ampVec.coeffRef(iBX) = 0;
+      nnlsWork_.pulseMat.col(iBX) = SampleVector::Ones(nnlsWork_.tsSize);
     }
     else {
 
@@ -178,21 +178,16 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
 		       nnlsWork_.pulseDerivArray[iBX],
 		       nnlsWork_.pulseCovArray[iBX]);
       
-      nnlsWork_.ampVec.coeffRef(iBX)=0;
 
-      nnlsWork_.pulseMat.col(iBX) = nnlsWork_.pulseShapeArray[iBX].segment(nnlsWork_.fullTSOffset - offset, nnlsWork_.tsSize);
-
+      nnlsWork_.pulseMat.col(iBX) = nnlsWork_.pulseShapeArray[iBX].segment(nnlsWork_.maxoffset - offset, nnlsWork_.tsSize);
     }
   }
 
-  nnlsWork_.pulseMat.col(nnlsWork_.nPulseTot-1) = SampleVector::Ones(nnlsWork_.tsSize);
-
-  nnlsWork_.aTaMat.resize(nnlsWork_.nPulseTot, nnlsWork_.nPulseTot);
-  nnlsWork_.aTbVec.resize(nnlsWork_.nPulseTot);
+  nnlsWork_.aTaMat.setZero(nnlsWork_.nPulseTot, nnlsWork_.nPulseTot);
+  nnlsWork_.aTbVec.setZero(nnlsWork_.nPulseTot);
+  nnlsWork_.updateWork.setZero(nnlsWork_.nPulseTot);
 
   double chiSq = minimize(); 
-
-  nnlsWork_.residuals = nnlsWork_.pulseMat*nnlsWork_.ampVec - nnlsWork_.amplitudes;
 
   bool foundintime = false;
   unsigned int ipulseintime = 0;
@@ -282,23 +277,23 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   //with previous SOI=TS4 case assumed by psfPtr_->getPulseShape()
   int delta =nnlsWork_. tsOffset == 3 ? 1 : 0;
 
-  for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset + nnlsWork_.tsSize; ++iTS) {
+  for (unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS) {
 
-    pulseShape.coeffRef(iTS) = nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset+delta];
-    pulseDeriv.coeffRef(iTS) = 0.5*(nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset+delta]+nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset+delta])/(2*nnlsWork_.dt);
+    pulseShape.coeffRef(iTS+nnlsWork_.maxoffset) = nnlsWork_.pulseN[iTS+delta];
+    pulseDeriv.coeffRef(iTS+nnlsWork_.maxoffset) = 0.5*(nnlsWork_.pulseM[iTS+delta]+nnlsWork_.pulseP[iTS+delta])/(2*nnlsWork_.dt);
 
-    nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset] -= nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset];
-    nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset] -= nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset];
+    nnlsWork_.pulseM[iTS] -= nnlsWork_.pulseN[iTS];
+    nnlsWork_.pulseP[iTS] -= nnlsWork_.pulseN[iTS];
   }
 
-  for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset+nnlsWork_.tsSize; ++iTS) {
-    for (unsigned int jTS=nnlsWork_.fullTSOffset; jTS<iTS+1; ++jTS) {
+  for (unsigned int iTS=0; iTS<nnlsWork_.tsSize; ++iTS) {
+    for (unsigned int jTS=0; jTS<iTS+1; ++jTS) {
       
-      double tmp = 0.5*( nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset+delta]*nnlsWork_.pulseP[jTS-nnlsWork_.fullTSOffset+delta] +
-			 nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset+delta]*nnlsWork_.pulseM[jTS-nnlsWork_.fullTSOffset+delta] );
-      
-      pulseCov(iTS,jTS) += tmp;
-      pulseCov(jTS,iTS) += tmp;
+      double tmp = 0.5*( nnlsWork_.pulseP[iTS+delta]*nnlsWork_.pulseP[jTS+delta] +
+			 nnlsWork_.pulseM[iTS+delta]*nnlsWork_.pulseM[jTS+delta] );
+
+      pulseCov(iTS+nnlsWork_.maxoffset,jTS+nnlsWork_.maxoffset) += tmp;
+      pulseCov(jTS+nnlsWork_.maxoffset,iTS+nnlsWork_.maxoffset) += tmp;      
       
     }
   }
@@ -320,7 +315,7 @@ void MahiFit::updateCov() const {
     if (offset==pedestalBX_) continue;		       
     else { 
       nnlsWork_.invCovMat += nnlsWork_.ampVec.coeff(iBX)*nnlsWork_.ampVec.coeff(iBX)
-	*nnlsWork_.pulseCovArray.at(offset+nnlsWork_.bxOffset).block(nnlsWork_.fullTSOffset-offset, nnlsWork_.fullTSOffset-offset, nnlsWork_.tsSize, nnlsWork_.tsSize);
+	*nnlsWork_.pulseCovArray.at(offset+nnlsWork_.bxOffset).block(nnlsWork_.maxoffset-offset, nnlsWork_.maxoffset-offset, nnlsWork_.tsSize, nnlsWork_.tsSize);
     }
   }
   
@@ -329,7 +324,9 @@ void MahiFit::updateCov() const {
 
 double MahiFit::calculateArrivalTime() const {
 
-  nnlsWork_.pulseDerivMat.resize(nnlsWork_.tsSize,nnlsWork_.nPulseTot);
+  nnlsWork_.residuals = nnlsWork_.pulseMat*nnlsWork_.ampVec - nnlsWork_.amplitudes;
+
+  nnlsWork_.pulseDerivMat.setZero(nnlsWork_.tsSize,nnlsWork_.nPulseTot);
 
   int itIndex=0;
 
@@ -341,7 +338,7 @@ double MahiFit::calculateArrivalTime() const {
       nnlsWork_.pulseDerivMat.col(iBX) = SampleVector::Zero(nnlsWork_.tsSize);
     }
     else {
-      nnlsWork_.pulseDerivMat.col(iBX) = nnlsWork_.pulseDerivArray.at(offset+nnlsWork_.bxOffset).segment(nnlsWork_.fullTSOffset-offset, nnlsWork_.tsSize);
+      nnlsWork_.pulseDerivMat.col(iBX) = nnlsWork_.pulseDerivArray.at(offset+nnlsWork_.bxOffset).segment(nnlsWork_.maxoffset-offset, nnlsWork_.tsSize);
     }
   }
 
@@ -357,16 +354,6 @@ double MahiFit::calculateArrivalTime() const {
 
 void MahiFit::nnls() const {
   const unsigned int npulse = nnlsWork_.nPulseTot;
-  
-  for (unsigned int iBX=0; iBX<npulse; ++iBX) {
-    int offset=nnlsWork_.bxs.coeff(iBX);
-    if (offset==pedestalBX_) {
-      nnlsWork_.pulseMat.col(iBX) = SampleVector::Ones(nnlsWork_.tsSize);
-    }
-    else {
-      nnlsWork_.pulseMat.col(iBX) = nnlsWork_.pulseShapeArray.at(offset+nnlsWork_.bxOffset).segment(nnlsWork_.fullTSOffset-offset, nnlsWork_.tsSize);
-    }
-  }
 
   nnlsWork_.invcovp = nnlsWork_.covDecomp.matrixL().solve(nnlsWork_.pulseMat);
   nnlsWork_.aTaMat = nnlsWork_.invcovp.transpose().lazyProduct(nnlsWork_.invcovp);
@@ -452,6 +439,7 @@ void MahiFit::nnls() const {
     }
     
   }
+
   
 }
 
@@ -667,33 +655,18 @@ void MahiFit::resetWorkspace() const {
   nnlsWork_.tsOffset=0;
   nnlsWork_.fullTSOffset=0;
   nnlsWork_.bxOffset=0;
+  nnlsWork_.maxoffset=0;
   nnlsWork_.dt=0;
-
-  std::fill(std::begin(nnlsWork_.pulseCovArray), std::end(nnlsWork_.pulseCovArray), FullSampleMatrix::Zero());
-  std::fill(std::begin(nnlsWork_.pulseShapeArray), std::end(nnlsWork_.pulseShapeArray), FullSampleVector::Zero());
-  std::fill(std::begin(nnlsWork_.pulseDerivArray), std::end(nnlsWork_.pulseDerivArray), FullSampleVector::Zero());
 
   std::fill(std::begin(nnlsWork_.pulseN), std::end(nnlsWork_.pulseN), 0);
   std::fill(std::begin(nnlsWork_.pulseM), std::end(nnlsWork_.pulseM), 0);
   std::fill(std::begin(nnlsWork_.pulseP), std::end(nnlsWork_.pulseP), 0);
 
   nnlsWork_.amplitudes.setZero();
-  nnlsWork_.bxs.setZero();
   nnlsWork_.invCovMat.setZero();
   nnlsWork_.noiseTerms.setZero();
   nnlsWork_.pedConstraint.setZero();
-  nnlsWork_.pulseMat.setZero();
-  nnlsWork_.pulseDerivMat.setZero();
   nnlsWork_.residuals.setZero();
-  nnlsWork_.ampVec.setZero();
-  nnlsWork_.errVec.setZero();
-  nnlsWork_.ampvecpermtest.setZero();
-  nnlsWork_.invcovp.setZero();
-  nnlsWork_.aTaMat.setZero();
-  nnlsWork_.aTbVec.setZero();
-  nnlsWork_.updateWork.setZero();
-  nnlsWork_.covDecompLinv.setZero();
-  nnlsWork_.topleft_work.setZero();
 
 
 
