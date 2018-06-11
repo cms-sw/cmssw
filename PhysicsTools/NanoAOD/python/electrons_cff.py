@@ -36,16 +36,16 @@ run2_nanoAOD_92X.toModify(heepIDVarValueMaps, elesMiniAOD = "slimmedElectronsUpd
 
 _electron_id_modules_WorkingPoints = cms.PSet(
     modules = cms.vstring(
-        'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
+        'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
         'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',
     ),
     WorkingPoints = cms.vstring(
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-veto",
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-loose",
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-medium",
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-tight",
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-veto",
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-loose",
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-medium",
+        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-tight",
     )
 )
 run2_miniAOD_80XLegacy.toModify(_electron_id_modules_WorkingPoints,
@@ -85,8 +85,8 @@ isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     relative = cms.bool(False),
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     rho_PFIso = cms.InputTag("fixedGridRhoFastjetAll"),
-    EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
-    EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"),
+    EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
+    EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
 run2_miniAOD_80XLegacy.toModify(isoForEle, src = "slimmedElectronsUpdated",
                                 EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
@@ -137,10 +137,10 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         mvaFall17noIso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp90"),
         mvaFall17noIso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wp80"),
         mvaFall17noIso_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V1-wpLoose"),
-        cutbasedID_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-veto"),
-        cutbasedID_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-loose"),
-        cutbasedID_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-medium"),
-        cutbasedID_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-tight"),
+        cutbasedID_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-veto"),
+        cutbasedID_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-loose"),
+        cutbasedID_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-medium"),
+        cutbasedID_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-tight"),
         cutbasedID_HEEP = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV70"),
     ),
     userInts = cms.PSet(
