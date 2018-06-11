@@ -164,18 +164,17 @@ cutBasedElectronID_Fall17_94X_V2_loose  = configureVIDCutBasedEleID_V5(WP_Loose_
 cutBasedElectronID_Fall17_94X_V2_medium = configureVIDCutBasedEleID_V5(WP_Medium_EB, WP_Medium_EE, isoInputs)
 cutBasedElectronID_Fall17_94X_V2_tight  = configureVIDCutBasedEleID_V5(WP_Tight_EB,  WP_Tight_EE, isoInputs)
 
-
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
-# 1) comment out the lines below about the registry, 
+# 1) comment out the lines below about the registry and the isPOGApproved lines,
 # 2) run "calculateIdMD5 <this file name> <one of the VID config names just above>
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_veto.idName,   '43be9b381a8d9b0910b7f81a5ad8ff3a')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_loose.idName,  '0b8456d622494441fe713a6858e0f7c1')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_medium.idName, 'a238ee70910de53d36866e89768500e9')
-#central_id_registry.register(cutBasedElectronID_Fall17_94X_V1_tight.idName,  '4acb2d2796efde7fba75380ce8823fc2')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_veto.idName,   '74e217e3ece16b49bd337026a29fc3e9')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_loose.idName,  '5547e2c8b5c222192519c41bff05bc2e')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_medium.idName, '48702f025a8df2c527f53927af8b66d0')
+central_id_registry.register(cutBasedElectronID_Fall17_94X_V2_tight.idName,  'c06761e199f084f5b0f7868ac48a3e19')
 
 ### for now until we have a database...
 cutBasedElectronID_Fall17_94X_V2_veto.isPOGApproved   = cms.untracked.bool(True)
