@@ -105,7 +105,7 @@ ALCAHARVESTBeamSpotHPLowPUByRun_dbOutput = cms.PSet(record = cms.string('BeamSpo
 # --------------------------------------------------------------------------------------
 # BeamSpot HP - Low PU - by Lumi
 ALCAHARVESTBeamSpotHPLowPUByLumi = ALCAHARVESTBeamSpotHPByLumi.clone()
-ALCAHARVESTBeamSpotHPLowPUByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHP')
+ALCAHARVESTBeamSpotHPLowPUByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHPLowPU')
 
 
 # configuration of DropBox metadata and DB output
