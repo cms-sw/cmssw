@@ -6,8 +6,10 @@ class MTDRecHitAlgo : public MTDRecHitAlgoBase {
   MTDRecHitAlgo( const edm::ParameterSet& conf,
                        edm::ConsumesCollector& sumes ) : 
     MTDRecHitAlgoBase( conf, sumes ),
-    thresholdToKeep_( conf.getParameter<double>("thresholdToKeep") ),
-    calibration_( conf.getParameter<double>("calibrationConstant") ) { }
+    BTLthresholdToKeep_( conf.getParameter<double>("BTLthresholdToKeep") ),
+    BTLcalibration_( conf.getParameter<double>("BTLcalibrationConstant") ),
+    ETLthresholdToKeep_( conf.getParameter<double>("ETLthresholdToKeep") ),
+    ETLcalibration_( conf.getParameter<double>("ETLcalibrationConstant") ) { }
 
   /// Destructor
   ~MTDRecHitAlgo() override { }
@@ -21,13 +23,14 @@ class MTDRecHitAlgo : public MTDRecHitAlgoBase {
   FTLRecHit makeETLRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const final;
 
  private:  
-  double thresholdToKeep_, calibration_;
+  double BTLthresholdToKeep_, BTLcalibration_;
+  double ETLthresholdToKeep_, ETLcalibration_;
 };
 
 FTLRecHit 
 MTDRecHitAlgo::makeBTLRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const { 
   
-  float energy = uRecHit.amplitude() * calibration_;
+  float energy = uRecHit.amplitude() * BTLcalibration_;
   float time   = uRecHit.time();
   float timeError = uRecHit.timeError();
   
@@ -35,7 +38,7 @@ MTDRecHitAlgo::makeBTLRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& fla
     
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-  if( energy > thresholdToKeep_ ) {
+  if( energy > BTLthresholdToKeep_ ) {
     flags = FTLRecHit::kGood;
     rh.setFlag(flags);    
   } else {
@@ -49,7 +52,7 @@ MTDRecHitAlgo::makeBTLRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& fla
 FTLRecHit 
 MTDRecHitAlgo::makeETLRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const { 
   
-  float energy = uRecHit.amplitude() * calibration_;
+  float energy = uRecHit.amplitude() * ETLcalibration_;
   float time   = uRecHit.time();
   float timeError = uRecHit.timeError();
   
@@ -57,7 +60,7 @@ MTDRecHitAlgo::makeETLRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& fla
     
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-  if( energy > thresholdToKeep_ ) {
+  if( energy > ETLthresholdToKeep_ ) {
     flags = FTLRecHit::kGood;
     rh.setFlag(flags);    
   } else {
