@@ -160,7 +160,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
       } else {
 	std::array<int,5> kxy, lxy;
 	kxy = hgdc.assignCellHex(localx,localy,i+loff,reco_);
-	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_);
+	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_,true);
 	lxy = hgdc.assignCellHex(xy.first,xy.second,i+loff,reco_);
 	flg = (kxy == lxy) ? " " : " ***** Error *****";
 	std::cout << "Input: (" << localx << "," << localy << ", " << i+loff 
@@ -171,7 +171,7 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 		  << lxy[2] << ":" << lxy[3] << ":" << lxy[4] << ")" << flg 
 		  << std::endl;
 	kxy = hgdc.assignCellHex(-localx,-localy,i+loff,reco_);
-	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_);
+	xy  = hgdc.locateCell(i+loff,kxy[0],kxy[1],kxy[3],kxy[4],reco_,true);
 	lxy = hgdc.assignCellHex(xy.first,xy.second,i+loff,reco_);
 	flg = (kxy == lxy) ? " " : " ***** Error *****";
 	std::cout << "Input: (" <<-localx << "," <<-localy << ", " << i+loff 

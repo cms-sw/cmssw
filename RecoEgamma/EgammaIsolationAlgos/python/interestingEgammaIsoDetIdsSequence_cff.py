@@ -122,3 +122,12 @@ interestingEgammaIsoDetIdsTask = cms.Task(
     interestingOotEgammaIsoESDetId
 )
 interestingEgammaIsoDetIds = cms.Sequence(interestingEgammaIsoDetIdsTask)
+
+_pp_on_AA_interestingEgammaIsoDetIdsTask = interestingEgammaIsoDetIdsTask.copy()
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotGamIsoDetIdEB)
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotGamIsoDetIdEE)
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotEgammaIsoHCALDetId)
+_pp_on_AA_interestingEgammaIsoDetIdsTask.remove(interestingOotEgammaIsoESDetId)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toReplaceWith(interestingEgammaIsoDetIdsTask, _pp_on_AA_interestingEgammaIsoDetIdsTask)

@@ -547,7 +547,6 @@ namespace edm {
 
     bool lumiMissing = (lumi == 0 && event != 0);
 
-    std::vector<RunOrLumiIndexes>::const_iterator it;
     std::vector<RunOrLumiIndexes>::const_iterator iEnd = runOrLumiIndexes().end();
     std::vector<RunOrLumiIndexes>::const_iterator phEnd;
 

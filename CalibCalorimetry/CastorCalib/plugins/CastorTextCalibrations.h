@@ -24,6 +24,11 @@ class CastorChannelQualityRcd;
 class CastorElectronicsMapRcd;
 class CastorRecoParamsRcd;
 class CastorSaturationCorrsRcd;
+class CastorGains;
+class CastorGainWidths;
+class CastorChannelQuality;
+class CastorRecoParams;
+class CastorSaturationCorrs;
 
 class CastorTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder

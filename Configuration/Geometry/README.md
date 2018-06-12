@@ -11,6 +11,7 @@ Tracker:
 * T10:Same as T5 but with an increase of 50% of the material (stress test studies) 
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
+* C4  HGCal (v9) + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -35,6 +36,7 @@ Several detector combinations have been generated:
 * D25 = T6+C3+M2+I4+O2+F2 
 * D26 = T9+C3+M2+I1+C2+F2
 * D27 = T10+C3+M2+I1+O2+F2
+* D28 = T6+C4+M2+I1+O2+F2
 
 Currently, D17 is considered to be the baseline for the Phase 2 Muon and Barrel TDRs.
 

@@ -166,6 +166,9 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
 
 )
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(ecalDrivenGsfElectrons, minSCEtBarrel = 15.0)
+pp_on_AA_2018.toModify(ecalDrivenGsfElectrons, minSCEtEndcaps = 15.0)
 
 #==============================================================================
 # Final producer of persistent gsf electrons
