@@ -37,7 +37,7 @@ public:
     TH2F* align;  //pointer to align which is a 2D histogram
 
     int NbRows=2;
-    int NbColumns=7;
+    int NbColumns=8;
 
     if (payload.get()) { //payload is an iov retrieved from payload using hash.
      
@@ -123,11 +123,6 @@ public:
         }
       }
     }
-
-    for(int i=0;i<6;i++){
-      vals[i]=vals[i]/total;  
-    }
-    
 
   }
 

@@ -57,22 +57,20 @@ namespace {
       if( payload.get() ){
 
         const std::map<uint32_t, EcalTPGFineGrainConstEB> &towerMap = (*payload).getMap();        
-        std::map<uint32_t, EcalTPGFineGrainConstEB>::const_iterator it;
+        std::map<uint32_t, EcalTPGFineGrainConstEB>::const_iterator it = towerMap.begin();
 
-        for(it = towerMap.begin(); it != towerMap.end(); it++) {
-            
-          
-            EcalTrigTowerDetId ttId((*it).first);
-            int ieta = ttId.ieta();
-            int iphi = ttId.iphi() - 1;  // 0 to 71
+        
+        for(int iphi = MIN_IPHI-1; iphi <= MAX_IPHI; iphi++){
+          for(int ieta= -1*MAX_IETA; ieta < MAX_IETA; ieta++){
 
-            if(ieta > 0) ieta--;
+
+
+            //if(ieta > 0) ieta--;
             
-            if(ttId.subDet() == 1) {   // barrel
 
               EcalTPGFineGrainConstEB fg=(*it).second;
-              fg.setValues(ThresholdETLow,ThresholdETHigh,RatioLow,RatioHigh,LUT);
-
+              
+				      fg.getValues(ThresholdETLow,ThresholdETHigh,RatioLow,RatioHigh,LUT);
 
               barrel[0]->Fill(iphi, ieta,ThresholdETLow);
               barrel[1]->Fill(iphi, ieta,ThresholdETHigh);
@@ -93,9 +91,16 @@ namespace {
               if(RatioHigh>pEBmax[3])pEBmax[3]=RatioHigh;
               if(LUT>pEBmax[4])pEBmax[4]=LUT;
 
+
+
+
               EBcnt++;
-            }
+          }     
         }
+
+      
+
+      
       }  // payload
 
       gStyle->SetPalette(1);
