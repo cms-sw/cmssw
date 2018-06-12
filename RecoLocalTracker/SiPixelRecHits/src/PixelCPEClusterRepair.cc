@@ -271,6 +271,17 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
 
    }
 
+   //--- Make sure cluster repair returns all info about the hit back up to caller
+   //--- Necessary because it copied the base class so it does not modify it
+   theClusterParamBase.isOnEdge_ = theClusterParam.isOnEdge_;
+   theClusterParamBase.hasBadPixels_ = theClusterParam.hasBadPixels_;
+   theClusterParamBase.spansTwoROCs_ = theClusterParam.spansTwoROCs_;
+   theClusterParamBase.hasFilledProb_ = theClusterParam.hasFilledProb_;
+   theClusterParamBase.qBin_ = theClusterParam.qBin_;
+   theClusterParamBase.probabilityQ_ = theClusterParam.probabilityQ_;
+   theClusterParamBase.probabilityX_ = theClusterParam.templProbXY_;
+   theClusterParamBase.probabilityY_ = 0.;
+   theClusterParamBase.filled_from_2d = true;
 
    
    return LocalPoint( theClusterParam.templXrec_, theClusterParam.templYrec_ );
@@ -307,17 +318,25 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
    std::vector<std::pair<int, int> > zeropix;
    int nypix =0, nxpix = 0;
    //
-   theClusterParam.ierr =
-   PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
-                   locBz, locBx,
-                   clusterPayload,
-                   templ,
-                   theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.probabilityY_,
-                   theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.probabilityX_,
-                   theClusterParam.qBin_,
-		   speed_, deadpix, zeropix,
-		   theClusterParam.probabilityQ_, nypix, nxpix
-                   );
+   if(clusterPayload.mrow > 4){
+       // The cluster is too big, the 2D reco will perform horribly.
+       // Better to return immediately in error
+       theClusterParam.ierr = 8;
+
+   }
+   else{
+       theClusterParam.ierr =
+       PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
+                       locBz, locBx,
+                       clusterPayload,
+                       templ,
+                       theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.probabilityY_,
+                       theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.probabilityX_,
+                       theClusterParam.qBin_,
+               speed_, deadpix, zeropix,
+               theClusterParam.probabilityQ_, nypix, nxpix
+                       );
+   }
    // ******************************************************************
    
    //--- Check exit status
