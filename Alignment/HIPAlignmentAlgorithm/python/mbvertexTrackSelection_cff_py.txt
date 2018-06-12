@@ -49,10 +49,10 @@ elif hasattr(optpy, "applyPVConstraint"):
                                             cut = cms.string("!isFake && ndof >= 4.0 && abs(z) <= 24.0 && abs(position.Rho) <= 2.0"),
                                             filter = cms.bool(True)
                                          )
-   process.load("RecoTracker.TrackProducer.VertexConstraintProducer_cff")
-   process.VertexConstraint.srcTrk = "AlignmentTrackSelector"
-   process.VertexConstraint.srcVtx = "goodOfflinePrimaryVertices"
-   strTrackConstrainer="VertexConstraint,vertex"
+   process.load("RecoTracker.TrackProducer.VertexConstraintProducer_cfi")
+   process.vertexConstraint.srcTrk = "AlignmentTrackSelector"
+   process.vertexConstraint.srcVtx = "goodOfflinePrimaryVertices"
+   strTrackConstrainer="vertexConstraint,vertex"
 
 
 process.TrackRefitterSequence = TrackRefitterSequencer.getSequence(
