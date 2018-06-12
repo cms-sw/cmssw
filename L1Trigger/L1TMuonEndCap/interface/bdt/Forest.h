@@ -31,7 +31,7 @@ class Forest
 
         // Get info on variable importance.
         void rankVariables(std::vector<int>& rank);
- 
+
         // Output the list of split values used for each variable.
         void saveSplitValues(const char* savefilename);
 
@@ -39,17 +39,17 @@ class Forest
         void listEvents(std::vector< std::vector<Event*> >& e);
         void sortEventVectors(std::vector< std::vector<Event*> >& e);
         void generate(int numTrainEvents, int numTestEvents, double sigma);
-        void loadForestFromXML(const char* directory, unsigned int numTrees); 
+        void loadForestFromXML(const char* directory, unsigned int numTrees);
         void loadFromCondPayload(const L1TMuonEndCapForest::DForest& payload);
 
         // Perform the regression
         void updateRegTargets(Tree *tree, double learningRate, LossFunction* l);
-        void doRegression(int nodeLimit, int treeLimit, double learningRate, LossFunction* l, 
+        void doRegression(int nodeLimit, int treeLimit, double learningRate, LossFunction* l,
                           const char* savetreesdirectory, bool saveTrees);
 
         // Stochastic Gradient Boosting
         void prepareRandomSubsample(double fraction);
-        void doStochasticRegression(int nodeLimit, int treeLimit, double learningRate, 
+        void doStochasticRegression(int nodeLimit, int treeLimit, double learningRate,
                                     double fraction, LossFunction* l);
 
         // Predict some events

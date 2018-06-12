@@ -1,16 +1,16 @@
 #include <cassert>
 #include <cstdlib>
-#include "L1Trigger/L1TMuonEndCap/interface/PtLutVarCalc.h"
+#include "L1Trigger/L1TMuonEndCap/interface/PtLUTVarCalc.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngineAux2017.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLutVarCalc.cc
+// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLUTVarCalc.cc
 
 PtAssignmentEngineAux2017 ENG;
 
 
 int CalcTrackTheta( const int th1, const int th2, const int th3, const int th4,
-		    const int st1_ring2, const int mode, const bool BIT_COMP ) {
+                    const int st1_ring2, const int mode, const bool BIT_COMP ) {
 
   int theta = -99;
 
@@ -34,8 +34,8 @@ int CalcTrackTheta( const int th1, const int th2, const int th3, const int th4,
 
 
 void CalcDeltaPhis( int& dPh12, int& dPh13, int& dPh14, int& dPh23, int& dPh24, int& dPh34, int& dPhSign,
-		    int& dPhSum4, int& dPhSum4A, int& dPhSum3, int& dPhSum3A, int& outStPh,
-		    const int ph1, const int ph2, const int ph3, const int ph4, const int mode, const bool BIT_COMP ) {
+                    int& dPhSum4, int& dPhSum4A, int& dPhSum3, int& dPhSum3A, int& outStPh,
+                    const int ph1, const int ph2, const int ph3, const int ph4, const int mode, const bool BIT_COMP ) {
 
   dPh12 = ph2 - ph1;
   dPh13 = ph3 - ph1;
@@ -116,15 +116,15 @@ void CalcDeltaPhis( int& dPh12, int& dPh13, int& dPh14, int& dPh23, int& dPh24, 
 
   // Compute summed quantities
   if (mode == 15) CalcDeltaPhiSums( dPhSum4, dPhSum4A, dPhSum3, dPhSum3A, outStPh,
-				    dPh12,  dPh13,  dPh14,  dPh23,  dPh24,  dPh34 );
+                                    dPh12,  dPh13,  dPh14,  dPh23,  dPh24,  dPh34 );
 
 } // End function: CalcDeltaPhis()
 
 
 
 void CalcDeltaThetas( int& dTh12, int& dTh13, int& dTh14, int& dTh23, int& dTh24, int& dTh34,
-		      const int th1, const int th2, const int th3, const int th4, const int mode, const bool BIT_COMP ) {
-  
+                      const int th1, const int th2, const int th3, const int th4, const int mode, const bool BIT_COMP ) {
+
   dTh12 = th2 - th1;
   dTh13 = th3 - th1;
   dTh14 = th4 - th1;
@@ -148,14 +148,14 @@ void CalcDeltaThetas( int& dTh12, int& dTh13, int& dTh14, int& dTh23, int& dTh24
 
 
 void CalcBends( int& bend1, int& bend2, int& bend3, int& bend4,
-		const int pat1, const int pat2, const int pat3, const int pat4,
-		const int dPhSign, const int endcap, const int mode, const bool BIT_COMP ) {
+                const int pat1, const int pat2, const int pat3, const int pat4,
+                const int dPhSign, const int endcap, const int mode, const bool BIT_COMP ) {
 
   bend1 = CalcBendFromPattern( pat1, endcap );
   bend2 = CalcBendFromPattern( pat2, endcap );
   bend3 = CalcBendFromPattern( pat3, endcap );
   bend4 = CalcBendFromPattern( pat4, endcap );
-  
+
   if (BIT_COMP) {
     int nBits = 3;
     if (mode == 7 || mode == 11 || mode > 12)
@@ -170,11 +170,11 @@ void CalcBends( int& bend1, int& bend2, int& bend3, int& bend4,
     if ( (mode % 2)     > 0 ) // Has station 4 hit
       bend4 = ENG.getCLCT( pat4, endcap, dPhSign, nBits );
   } // End conditional: if (BIT_COMP)
-  
+
 } // End function: CalcBends()
 
 void CalcRPCs( int& RPC1, int& RPC2, int& RPC3, int& RPC4, const int mode,
-	       const int st1_ring2, const int theta, const bool BIT_COMP ) {
+               const int st1_ring2, const int theta, const bool BIT_COMP ) {
 
   if (BIT_COMP) {
 
@@ -184,55 +184,55 @@ void CalcRPCs( int& RPC1, int& RPC2, int& RPC3, int& RPC4, const int mode,
       RPC1 = 0;
       RPC2 = 0;
       if (theta < 4) {
-	RPC3 = 0;
-	RPC4 = 0;
+        RPC3 = 0;
+        RPC4 = 0;
       }
     }
 
     int nRPC = (RPC1 == 1) + (RPC2 == 1) + (RPC3 == 1) + (RPC4 == 1);
-    
+
     // In 3- and 4-station modes, only specify some combinations of RPCs
     if (nRPC >= 2) {
 
       if        (mode == 15) {
-	if        (RPC1 == 1 && RPC2 == 1) {
-	  RPC3 = 0;
-	  RPC4 = 0;
-	} else if (RPC1 == 1 && RPC3 == 1) {
-	  RPC4 = 0;
-	} else if (RPC4 == 1 && RPC2 == 1) {
-	  RPC3 = 0;
-	} else if (RPC3 == 1 && RPC4 == 1 && !st1_ring2) {
-	  RPC3 = 0;
-	}
+        if        (RPC1 == 1 && RPC2 == 1) {
+          RPC3 = 0;
+          RPC4 = 0;
+        } else if (RPC1 == 1 && RPC3 == 1) {
+          RPC4 = 0;
+        } else if (RPC4 == 1 && RPC2 == 1) {
+          RPC3 = 0;
+        } else if (RPC3 == 1 && RPC4 == 1 && !st1_ring2) {
+          RPC3 = 0;
+        }
       } else if (mode == 14) {
-	if        (RPC1 == 1) {
-	  RPC2 = 0;
-	  RPC3 = 0;
-	} else if (RPC3 == 1) {
-	  RPC2 = 0;
-	}
+        if        (RPC1 == 1) {
+          RPC2 = 0;
+          RPC3 = 0;
+        } else if (RPC3 == 1) {
+          RPC2 = 0;
+        }
       } else if (mode == 13) {
-	if        (RPC1 == 1) {
-	  RPC2 = 0;
-	  RPC4 = 0;
-	} else if (RPC4 == 1) {
-	  RPC2 = 0;
-	}
+        if        (RPC1 == 1) {
+          RPC2 = 0;
+          RPC4 = 0;
+        } else if (RPC4 == 1) {
+          RPC2 = 0;
+        }
       } else if (mode == 11) {
-	if        (RPC1 == 1) {
-	  RPC3 = 0;
-	  RPC4 = 0;
-	} else if (RPC4 == 1) {
-	  RPC3 = 0;
-	}
+        if        (RPC1 == 1) {
+          RPC3 = 0;
+          RPC4 = 0;
+        } else if (RPC4 == 1) {
+          RPC3 = 0;
+        }
       } else if (mode == 7) {
-	if        (RPC2 == 1) {
-	  RPC3 = 0;
-	  RPC4 = 0;
-	} else if (RPC4 == 1) {
-	  RPC3 = 0;
-	}
+        if        (RPC2 == 1) {
+          RPC3 = 0;
+          RPC4 = 0;
+        } else if (RPC4 == 1) {
+          RPC3 = 0;
+        }
       }
 
     } // End conditional: if (nRPC >= 2)
@@ -265,7 +265,7 @@ int CalcBendFromPattern( const int pattern, const int endcap ) {
 
 
 void CalcDeltaPhiSums( int& dPhSum4, int& dPhSum4A, int& dPhSum3, int& dPhSum3A, int& outStPh,
-		       const int dPh12, const int dPh13, const int dPh14, const int dPh23, const int dPh24, const int dPh34 ) {
+                       const int dPh12, const int dPh13, const int dPh14, const int dPh23, const int dPh24, const int dPh34 ) {
 
     dPhSum4  = dPh12 + dPh13 + dPh14 + dPh23 + dPh24 + dPh34;
     dPhSum4A = abs(dPh12) + abs(dPh13) + abs(dPh14) + abs(dPh23) + abs(dPh24) + abs(dPh34);
@@ -273,13 +273,13 @@ void CalcDeltaPhiSums( int& dPhSum4, int& dPhSum4A, int& dPhSum3, int& dPhSum3A,
     int devSt2 = abs(dPh12) + abs(dPh23) + abs(dPh24);
     int devSt3 = abs(dPh13) + abs(dPh23) + abs(dPh34);
     int devSt4 = abs(dPh14) + abs(dPh24) + abs(dPh34);
-    
+
     if      (devSt4 > devSt3 && devSt4 > devSt2 && devSt4 > devSt1)  outStPh = 4;
     else if (devSt3 > devSt4 && devSt3 > devSt2 && devSt3 > devSt1)  outStPh = 3;
     else if (devSt2 > devSt4 && devSt2 > devSt3 && devSt2 > devSt1)  outStPh = 2;
     else if (devSt1 > devSt4 && devSt1 > devSt3 && devSt1 > devSt2)  outStPh = 1;
     else                                                             outStPh = 0;
-    
+
     if      (outStPh == 4) {
       dPhSum3  = dPh12 + dPh13 + dPh23;
       dPhSum3A = abs(dPh12) + abs(dPh13) + abs(dPh23);
