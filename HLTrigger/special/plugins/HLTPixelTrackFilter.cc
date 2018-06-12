@@ -38,8 +38,8 @@ private:
 
 HLTPixelTrackFilter::HLTPixelTrackFilter(const edm::ParameterSet& config):
   inputTag_     (config.getParameter<edm::InputTag>("pixelTracks")),
-  min_pixelTracks_ (config.getParameter<unsigned int>("maxPixelTracks")),
-  max_pixelTracks_ (config.getParameter<unsigned int>("minPixelTracks"))
+  min_pixelTracks_ (config.getParameter<unsigned int>("minPixelTracks")),
+  max_pixelTracks_ (config.getParameter<unsigned int>("maxPixelTracks"))
 {
   inputToken_ = consumes< reco::TrackCollection >(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
