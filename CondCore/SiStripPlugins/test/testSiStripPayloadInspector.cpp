@@ -79,6 +79,10 @@ int main(int argc, char** argv) {
   histo9.process(connectionString, tag, runTimeType, start, end);
   std::cout <<histo9.data()<<std::endl;
 
+  SiStripNoiseComparatorMeanByRegion histoCompareMeanByRegion;
+  histoCompareMeanByRegion.process(connectionString, tag, runTimeType, start, start);
+  std::cout <<histoCompareMeanByRegion.data()<<std::endl;
+
   // Pedestals
 
   tag   = "SiStripPedestals_v2_prompt";

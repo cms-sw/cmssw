@@ -1317,10 +1317,6 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMeanByRegion); 
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMinByRegion);  
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMaxByRegion);  
-  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorRMSByRegion);  
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity);
   PAYLOAD_INSPECTOR_CLASS(TIBNoiseHistory);
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseHistory);
