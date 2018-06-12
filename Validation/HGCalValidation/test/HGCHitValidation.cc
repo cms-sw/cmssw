@@ -38,6 +38,8 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -103,7 +105,7 @@ private:
   const CaloSubdetectorGeometry*        hcGeometry_;
   std::vector<std::string>              geometrySource_;
   std::vector<int>                      ietaExcludeBH_;
-  bool                                  ifHCAL_;
+  bool                                  ifHCAL_, ifHcalG_;
 
   edm::InputTag eeSimHitSource, fhSimHitSource, bhSimHitSource;
   edm::EDGetTokenT<std::vector<PCaloHit>> eeSimHitToken_;
@@ -126,7 +128,7 @@ private:
 };
 
 
-HGCHitValidation::HGCHitValidation( const edm::ParameterSet &cfg ) {
+HGCHitValidation::HGCHitValidation( const edm::ParameterSet &cfg ) : ifHcalG_(false) {
 
   usesResource(TFileService::kSharedResource);
 
@@ -222,6 +224,7 @@ void HGCHitValidation::beginRun(edm::Run const& iRun,
   //initiating hgc Geometry
   for (size_t i=0; i<geometrySource_.size(); i++) {
     if (geometrySource_[i].find("Hcal") != std::string::npos) {
+      ifHcalG_ = true;
       edm::ESHandle<HcalDDDSimConstants> pHSNDC;
       iSetup.get<HcalSimNumberingRecord>().get(pHSNDC);
       if (pHSNDC.isValid()) {
@@ -317,33 +320,37 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
   edm::Handle<std::vector<PCaloHit>> bhSimHits;
   iEvent.getByToken(bhSimHitToken_, bhSimHits);
   if (bhSimHits.isValid()) {
-    for (std::vector<PCaloHit>::const_iterator simHit = bhSimHits->begin();
-	 simHit != bhSimHits->end(); ++simHit) {
-      int subdet, z, depth, eta, phi, lay;
-      HcalTestNumbering::unpackHcalIndex(simHit->id(), subdet, z, depth, eta, phi, lay);
+    if (ifHcalG_) {
+      for (std::vector<PCaloHit>::const_iterator simHit = bhSimHits->begin();
+	   simHit != bhSimHits->end(); ++simHit) {
+	int subdet, z, depth, eta, phi, lay;
+	HcalTestNumbering::unpackHcalIndex(simHit->id(), subdet, z, depth, eta, phi, lay);
+	
+	if (subdet == static_cast<int>(HcalEndcap)) {
+	  HcalCellType::HcalCell cell = hcCons_->cell(subdet, z, lay, eta, phi);
+	  double zp  = cell.rz/10; 
 
-      if (subdet == static_cast<int>(HcalEndcap)) {
-	HcalCellType::HcalCell cell = hcCons_->cell(subdet, z, lay, eta, phi);
-	double zp  = cell.rz/10; 
+	  HcalDDDRecConstants::HcalID idx = hcConr_->getHCID(subdet,eta,phi,lay,depth);
+	  int sign = (z==0)?(-1):(1);
+	  zp      *= sign;
+	  HcalDetId id = HcalDetId(HcalEndcap,sign*idx.eta,idx.phi,idx.depth);  
 
-	HcalDDDRecConstants::HcalID idx = hcConr_->getHCID(subdet,eta,phi,lay,depth);
-	int sign = (z==0)?(-1):(1);
-	zp      *= sign;
-	HcalDetId id = HcalDetId(HcalEndcap,sign*idx.eta,idx.phi,idx.depth);  
+	  float energy = simHit->energy();
+	  float energySum(0);
+	  if (bhHitRefs.count(id.rawId()) != 0) energySum = std::get<0>(bhHitRefs[id.rawId()]);
+	  energySum += energy;
+	  if (std::find(ietaExcludeBH_.begin(),ietaExcludeBH_.end(),idx.eta) == ietaExcludeBH_.end()) {
 
-	float energy = simHit->energy();
-	float energySum(0);
-	if (bhHitRefs.count(id.rawId()) != 0) energySum = std::get<0>(bhHitRefs[id.rawId()]);
-	energySum += energy;
-	if (std::find(ietaExcludeBH_.begin(),ietaExcludeBH_.end(),idx.eta) == ietaExcludeBH_.end()) {
-
-	  bhHitRefs[id.rawId()] = std::make_tuple(energySum,cell.eta,cell.phi,zp);
-	  edm::LogVerbatim("HGCalValid") << "Accept " << id << std::endl;
-	} else {
-	  edm::LogVerbatim("HGCalValid") << "Rejected cell " << idx.eta
-					 << "," << id << std::endl;
+	    bhHitRefs[id.rawId()] = std::make_tuple(energySum,cell.eta,cell.phi,zp);
+	    edm::LogVerbatim("HGCalValid") << "Accept " << id << std::endl;
+	  } else {
+	    edm::LogVerbatim("HGCalValid") << "Rejected cell " << idx.eta
+					   << "," << id << std::endl;
+	  }
 	}
       }
+    } else {
+      analyzeHGCalSimHit(bhSimHits, 2, bhHitRefs);
     }
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=bhHitRefs.begin();
 	 itr != bhHitRefs.end(); ++itr) {
@@ -555,9 +562,6 @@ void HGCHitValidation::analyzeHGCalRecHit(T1 const & theHits,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(HGCHitValidation);
-
-
-
 
 
 
