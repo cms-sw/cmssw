@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.PhotonMonitor_cff import *
 from DQMOffline.Trigger.VBFMETMonitor_cff import *
+from DQMOffline.Trigger.HMesonGammaMonitor_cff import *
 from DQMOffline.Trigger.METMonitor_cfi import hltMETmonitoring
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 from DQMOffline.Trigger.VBFTauMonitor_cff import *
@@ -490,4 +491,5 @@ higHLTDQMSourceExtra = cms.Sequence(
   + QuadPFJet111_90_80_15	
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
+  + HMesonGammamonitoring
 )
