@@ -34,7 +34,7 @@
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateDefs.h"
+#include "CondFormats/SiPixelCommon/interface/SiPixelTemplateDefs.h"
 #else
 #include "SiPixelTemplateDefs.h"
 #endif

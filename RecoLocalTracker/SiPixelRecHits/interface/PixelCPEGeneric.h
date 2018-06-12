@@ -36,8 +36,8 @@
 
 // The template header files
 //#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
+#include "CondFormats/SiPixelCommon/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelCommon/interface/SiPixelGenError.h"
 
 
 #include <utility>

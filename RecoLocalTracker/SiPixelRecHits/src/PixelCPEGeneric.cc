@@ -4,7 +4,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
 // this is needed to get errors from templates
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelCommon/interface/SiPixelTemplate.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 
