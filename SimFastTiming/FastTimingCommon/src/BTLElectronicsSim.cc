@@ -10,13 +10,18 @@ using namespace mtd;
 
 BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
   debug_( pset.getUntrackedParameter<bool>("debug",false) ),
-  ScintillatorDecayTime_(pset.getParameter<double>("ScintillatorDecayTime")),
-  ChannelTimeOffset_(pset.getParameter<double>("ChannelTimeOffset")),
-  smearChannelTimeOffset_(pset.getParameter<double>("smearChannelTimeOffset")),
-  EnergyThreshold_(pset.getParameter<double>("EnergyThreshold")),
-  TimeThreshold1_(pset.getParameter<double>("TimeThreshold1")),
-  TimeThreshold2_(pset.getParameter<double>("TimeThreshold2")),
-  ReferencePulseNpe_(pset.getParameter<double>("ReferencePulseNpe")),
+  ScintillatorRiseTime_( pset.getParameter<double>("ScintillatorRiseTime") ),
+  ScintillatorDecayTime_( pset.getParameter<double>("ScintillatorDecayTime") ),
+  ChannelTimeOffset_( pset.getParameter<double>("ChannelTimeOffset") ),
+  smearChannelTimeOffset_( pset.getParameter<double>("smearChannelTimeOffset") ),
+  EnergyThreshold_( pset.getParameter<double>("EnergyThreshold") ),
+  TimeThreshold1_( pset.getParameter<double>("TimeThreshold1") ),
+  TimeThreshold2_( pset.getParameter<double>("TimeThreshold2") ),
+  ReferencePulseNpe_( pset.getParameter<double>("ReferencePulseNpe") ),
+  SinglePhotonTimeResolution_( pset.getParameter<double>("SinglePhotonTimeResolution") ),
+  DarkCountRate_( pset.getParameter<double>("DarkCountRate") ),
+  SigmaElectronicNoise_( pset.getParameter<double>("SigmaElectronicNoise") ),
+  SigmaClock_( pset.getParameter<double>("SigmaClock")),
   Npe_to_pC_( pset.getParameter<double>("Npe_to_pC") ),
   Npe_to_V_( pset.getParameter<double>("Npe_to_V") ),
   adcNbits_( pset.getParameter<uint32_t>("adcNbits") ),
@@ -72,9 +77,35 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       finalToA2 += times[1];
 
 
-      // --- Add time smearing due to the photo-electron statistics
-      finalToA1 += CLHEP::RandGaussQ::shoot(hre, 0., ScintillatorDecayTime_*sigma_pe(TimeThreshold1_,Npe));
-      finalToA2 += CLHEP::RandGaussQ::shoot(hre, 0., ScintillatorDecayTime_*sigma_pe(TimeThreshold2_,Npe));
+      // --- Uncertainty due to the fluctuations of the n-th photon arrival time:
+      float sigma2_tot_thr1 = ScintillatorDecayTime_*ScintillatorDecayTime_*sigma2_pe(TimeThreshold1_,Npe);
+      float sigma2_tot_thr2 = ScintillatorDecayTime_*ScintillatorDecayTime_*sigma2_pe(TimeThreshold2_,Npe);
+
+
+      // --- Add in quadrature the uncertainty due to the SiPM timing resolution:
+      sigma2_tot_thr1 += SinglePhotonTimeResolution_*SinglePhotonTimeResolution_/TimeThreshold1_;
+      sigma2_tot_thr2 += SinglePhotonTimeResolution_*SinglePhotonTimeResolution_/TimeThreshold2_;
+
+
+      // --- Add in quadrature the uncertainty due to the SiPM DCR:
+      float slew = ScintillatorDecayTime_/Npe;
+      sigma2_tot_thr1 += ScintillatorRiseTime_*DarkCountRate_*slew*slew;
+      sigma2_tot_thr2 += ScintillatorRiseTime_*DarkCountRate_*slew*slew;
+
+
+      // --- Add in quadrature the uncertainty due to the electronic noise:
+      sigma2_tot_thr1 += SigmaElectronicNoise_*SigmaElectronicNoise_*slew*slew;
+      sigma2_tot_thr2 += SigmaElectronicNoise_*SigmaElectronicNoise_*slew*slew;
+
+
+      // --- Add in quadrature the uncertainty due to the clock distribution:
+      sigma2_tot_thr1 += SigmaClock_*SigmaClock_;
+      sigma2_tot_thr2 += SigmaClock_*SigmaClock_;
+
+
+      // --- Smear the arrival times using the total uncertainty:
+      finalToA1 += CLHEP::RandGaussQ::shoot(hre, 0., sqrt(sigma2_tot_thr1));
+      finalToA2 += CLHEP::RandGaussQ::shoot(hre, 0., sqrt(sigma2_tot_thr2));
 
 
       while(finalToA1 < 0.f)  finalToA1 += 25.f;
@@ -153,14 +184,16 @@ void BTLElectronicsSim::updateOutput(BTLDigiCollection &coll,
   }
 }
 
-float BTLElectronicsSim::sigma_pe(const float& Q, const float& R) const {
+float BTLElectronicsSim::sigma2_pe(const float& Q, const float& R) const {
   
   float OneOverR = 1./R;
   // --- This is Eq. (17) from Nucl. Instr. Meth. A 564 (2006) 185
-  float sigma = OneOverR * sqrt( Q + 2.*Q*(Q+1.)*OneOverR + 
-				 Q*(Q+1.)*(6.*Q+11)*OneOverR*OneOverR +
-				 Q*(Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR*OneOverR*OneOverR );
-  return sigma;
+  float sigma2 = Q*OneOverR*OneOverR + 
+                 2.*Q*(Q+1.)*OneOverR*OneOverR*OneOverR + 
+                 Q*(Q+1.)*(6.*Q+11)*OneOverR*OneOverR*OneOverR*OneOverR +
+                 Q*(Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR*OneOverR*OneOverR*OneOverR*OneOverR;
+
+  return sigma2;
 
 }
 
