@@ -251,13 +251,13 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   double outOfBounds = 9999;
 
   double resolutionMET = recoMET > 0 ? (l1MET - recoMET) / recoMET : outOfBounds;
-  double resolutionMETPhi = std::abs(recoMETPhi) > 0 ? (l1METPhi - recoMETPhi) / recoMETPhi : outOfBounds;
+  double resolutionMETPhi = reco::deltaPhi(l1METPhi, recoMETPhi);
 
   double resolutionETMHF = recoETMHF > 0 ? (l1ETMHF - recoETMHF) / recoETMHF : outOfBounds;
-  double resolutionETMHFPhi = std::abs(recoETMHFPhi) > 0 ? (l1ETMHFPhi - recoETMHFPhi) / recoETMHFPhi : outOfBounds;
+  double resolutionETMHFPhi = reco::deltaPhi(l1ETMHFPhi, recoETMHFPhi);
 
   double resolutionMHT = recoMHT > 0 ? (l1MHT - recoMHT) / recoMHT : outOfBounds;
-  double resolutionMHTPhi = std::abs(recoMHTPhi) > 0 ? (l1MHTPhi - recoMHTPhi) / recoMHTPhi : outOfBounds;
+  double resolutionMHTPhi = reco::deltaPhi(l1MHTPhi, recoMHTPhi);
 
   double resolutionETT = recoETT > 0 ? (l1ETT - recoETT) / recoETT : outOfBounds;
   double resolutionHTT = recoHTT > 0 ? (l1HTT - recoHTT) / recoHTT : outOfBounds;
@@ -346,11 +346,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     return;
   }
 
-  if (l1Jets->size() == 0) {
-    LogDebug("L1TStage2CaloLayer2Offline") << "no L1 jets found" << std::endl;
-    return;
-  }
-
   auto leadingRecoJet = caloJets->front();
 
   // find corresponding L1 jet
@@ -362,7 +357,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   int bunchCrossing = 0;
   for (auto jet = l1Jets->begin(bunchCrossing); jet != l1Jets->end(bunchCrossing); ++jet) {
     double currentDeltaR = deltaR(jet->eta(), jet->phi(), leadingRecoJet.eta(), leadingRecoJet.phi());
-    if (currentDeltaR > minDeltaR) {
+    if (currentDeltaR >= minDeltaR) {
       continue;
     } else {
       minDeltaR = currentDeltaR;
@@ -375,7 +370,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 
   if (!foundMatch) {
     LogDebug("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
-    return;
   }
 
   if(!doesNotOverlapWithHLTObjects(closestL1Jet)){
@@ -386,23 +380,29 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   double recoEta = leadingRecoJet.eta();
   double recoPhi = leadingRecoJet.phi();
 
-  double l1Et = closestL1Jet.et();
-  double l1Eta = closestL1Jet.eta();
-  double l1Phi = closestL1Jet.phi();
-
-  // if no reco value, relative resolution does not make sense -> sort to overflow
   double outOfBounds = 9999;
+  double l1Et = foundMatch ? closestL1Jet.et() : 0;
+  double l1Eta = foundMatch ? closestL1Jet.eta() : outOfBounds;
+  double l1Phi = foundMatch ? closestL1Jet.phi() : outOfBounds;
+
   double resolutionEt = recoEt > 0 ? (l1Et - recoEt) / recoEt : outOfBounds;
-  double resolutionEta = std::abs(recoEta) > 0 ? (l1Eta - recoEta) / recoEta : outOfBounds;
-  double resolutionPhi = std::abs(recoPhi) > 0 ? (l1Phi - recoPhi) / recoPhi : outOfBounds;
+  double resolutionEta = l1Eta - recoEta;
+  double resolutionPhi = l1Phi < outOfBounds ? reco::deltaPhi(l1Phi, recoPhi) : outOfBounds;
 
   using namespace dqmoffline::l1t;
-  // eta
-  fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
-  fillWithinLimits(h_resolutionJetEta_, resolutionEta);
+  // fill efficiencies regardless of matched jet found
+  fillJetEfficiencies(recoEt, l1Et, recoEta);
   // control plots
   fillWithinLimits(h_controlPlots_[ControlPlots::L1JetET], l1Et);
   fillWithinLimits(h_controlPlots_[ControlPlots::OfflineJetET], recoEt);
+  // don't fill anything else if no matched L1 jet is found
+  if (!foundMatch){
+    return;
+  }
+
+  // eta
+  fill2DWithinLimits(h_L1JetEtavsCaloJetEta_, recoEta, l1Eta);
+  fillWithinLimits(h_resolutionJetEta_, resolutionEta);
 
   if (std::abs(recoEta) <= 1.479) { // barrel
     // et
@@ -417,17 +417,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HB_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
-
-    // efficiencies
-    for (auto threshold : jetEfficiencyThresholds_) {
-      fillWithinLimits(h_efficiencyJetEt_HB_total_[threshold], recoEt);
-      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
-      if (l1Et > threshold) {
-        fillWithinLimits(h_efficiencyJetEt_HB_pass_[threshold], recoEt);
-        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
-      }
-    }
-
   } else if (std::abs(recoEta) <= 3.0) { // end-cap
     // et
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HE_, recoEt, l1Et);
@@ -441,16 +430,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HE_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
-
-    // efficiencies
-    for (auto threshold : jetEfficiencyThresholds_) {
-      fillWithinLimits(h_efficiencyJetEt_HE_total_[threshold], recoEt);
-      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
-      if (l1Et > threshold) {
-        fillWithinLimits(h_efficiencyJetEt_HE_pass_[threshold], recoEt);
-        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
-      }
-    }
   } else { // forward jets
     // et
     fill2DWithinLimits(h_L1JetETvsCaloJetET_HF_, recoEt, l1Et);
@@ -460,13 +439,39 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HF_, recoPhi, l1Phi);
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HF_, resolutionPhi);
-    // efficiencies
+  }
+}
+
+
+void L1TStage2CaloLayer2Offline::fillJetEfficiencies(const double &recoEt,
+                                                     const double &l1Et,
+                                                     const double &recoEta) {
+  using namespace dqmoffline::l1t;
+  if (std::abs(recoEta) <= 1.479) { // barrel
+    for (auto threshold : jetEfficiencyThresholds_) {
+      fillWithinLimits(h_efficiencyJetEt_HB_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
+      if (l1Et > threshold) {
+        fillWithinLimits(h_efficiencyJetEt_HB_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
+      }
+    }
+  } else if (std::abs(recoEta) <= 3.0) { // end-cap
+    for (auto threshold : jetEfficiencyThresholds_) {
+      fillWithinLimits(h_efficiencyJetEt_HE_total_[threshold], recoEt);
+      fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
+      if (l1Et > threshold) {
+        fillWithinLimits(h_efficiencyJetEt_HE_pass_[threshold], recoEt);
+        fillWithinLimits(h_efficiencyJetEt_HB_HE_pass_[threshold], recoEt);
+      }
+    }
+  } else {
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HF_total_[threshold], recoEt);
       if (l1Et > threshold) {
         fillWithinLimits(h_efficiencyJetEt_HF_pass_[threshold], recoEt);
       }
-    }
+    } // forward jets
   }
 }
 
@@ -585,37 +590,37 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
   for (auto threshold : metEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyMET_pass_[threshold] = ibooker.book1D("efficiencyMET_threshold_" + str_threshold + "_Num",
-        "MET efficiency (numerator); Offline E_{T}^{miss} (GeV); events", metBins.size() - 1, &(metBins[0]));
+        "MET efficiency (numerator); Offline E_{T}^{miss} (GeV);", metBins.size() - 1, &(metBins[0]));
     h_efficiencyMET_total_[threshold] = ibooker.book1D("efficiencyMET_threshold_" + str_threshold + "_Den",
-        "MET efficiency (denominator); Offline E_{T}^{miss} (GeV); events", metBins.size() - 1, &(metBins[0]));
+        "MET efficiency (denominator); Offline E_{T}^{miss} (GeV);", metBins.size() - 1, &(metBins[0]));
 
     h_efficiencyETMHF_pass_[threshold] = ibooker.book1D("efficiencyETMHF_threshold_" + str_threshold + "_Num",
-        "MET efficiency (numerator); Offline E_{T}^{miss} (GeV) (HF); events", metBins.size() - 1, &(metBins[0]));
+        "MET efficiency (numerator); Offline E_{T}^{miss} (GeV) (HF);", metBins.size() - 1, &(metBins[0]));
     h_efficiencyETMHF_total_[threshold] = ibooker.book1D("efficiencyETMHF_threshold_" + str_threshold + "_Den",
-        "MET efficiency (denominator); Offline E_{T}^{miss} (GeV) (HF); events", metBins.size() - 1, &(metBins[0]));
+        "MET efficiency (denominator); Offline E_{T}^{miss} (GeV) (HF);", metBins.size() - 1, &(metBins[0]));
   }
 
   for (auto threshold : mhtEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyMHT_pass_[threshold] = ibooker.book1D("efficiencyMHT_threshold_" + str_threshold + "_Num",
-        "MHT efficiency (numerator); Offline MHT (GeV); events", mhtBins.size() - 1, &(mhtBins[0]));
+        "MHT efficiency (numerator); Offline MHT (GeV);", mhtBins.size() - 1, &(mhtBins[0]));
     h_efficiencyMHT_total_[threshold] = ibooker.book1D("efficiencyMHT_threshold_" + str_threshold + "_Den",
-        "MHT efficiency (denominator); Offline MHT (GeV); events", mhtBins.size() - 1, &(mhtBins[0]));
+        "MHT efficiency (denominator); Offline MHT (GeV);", mhtBins.size() - 1, &(mhtBins[0]));
   }
 
   for (auto threshold : ettEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyETT_pass_[threshold] = ibooker.book1D("efficiencyETT_threshold_" + str_threshold + "_Num",
-        "ETT efficiency (numerator); Offline ETT (GeV); events", ettBins.size() - 1, &(ettBins[0]));
+        "ETT efficiency (numerator); Offline ETT (GeV);", ettBins.size() - 1, &(ettBins[0]));
     h_efficiencyETT_total_[threshold] = ibooker.book1D("efficiencyETT_threshold_" + str_threshold + "_Den",
-        "ETT efficiency (denominator); Offline ETT (GeV); events", ettBins.size() - 1, &(ettBins[0]));
+        "ETT efficiency (denominator); Offline ETT (GeV);", ettBins.size() - 1, &(ettBins[0]));
   }
   for (auto threshold : httEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
     h_efficiencyHTT_pass_[threshold] = ibooker.book1D("efficiencyHTT_threshold_" + str_threshold + "_Num",
-        "HTT efficiency (numerator); Offline Total H_{T} (GeV); events", httBins.size() - 1, &(httBins[0]));
+        "HTT efficiency (numerator); Offline Total H_{T} (GeV);", httBins.size() - 1, &(httBins[0]));
     h_efficiencyHTT_total_[threshold] = ibooker.book1D("efficiencyHTT_threshold_" + str_threshold + "_Den",
-        "HTT efficiency (denominator); Offline Total H_{T} (GeV); events", httBins.size() - 1, &(httBins[0]));
+        "HTT efficiency (denominator); Offline Total H_{T} (GeV);", httBins.size() - 1, &(httBins[0]));
   }
 
   ibooker.cd();
