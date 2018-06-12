@@ -41,8 +41,21 @@ class EcalTimeBiasCorrectionsPlot: public cond::payloadInspector::PlotImage<Ecal
 
 		if(payload.get()){
 			EcalTimeBiasCorrections it=(*payload);
-			NbRows=it.EBTimeCorrAmplitudeBins.size();
+/*
+std::ostream stream(nullptr);
+std::stringbuf str;
+stream.rdbuf(&str);
+it.print(stream);
+std::cout<<str.str()<<std::endl;
+*/
 
+			NbRows=it.EBTimeCorrAmplitudeBins.size();
+/*
+      std::cout<<"....."<<std::endl<<it.EBTimeCorrAmplitudeBins.size()<<std::endl;
+      std::cout<<it.EBTimeCorrShiftBins.size()<<std::endl;
+      std::cout<<it.EETimeCorrAmplitudeBins.size()<<std::endl;
+      std::cout<<it.EETimeCorrShiftBins.size()<<std::endl;
+*/
       if(NbRows==0)
         return false;
 
@@ -75,6 +88,7 @@ class EcalTimeBiasCorrectionsPlot: public cond::payloadInspector::PlotImage<Ecal
 		pad->cd();
 		align->Draw("TEXT");
 
+
     drawTable(NbRows,4);
 
 		align->GetXaxis()->SetTickLength(0.);
@@ -88,7 +102,7 @@ class EcalTimeBiasCorrectionsPlot: public cond::payloadInspector::PlotImage<Ecal
 		return true;
 	}
 
-  void fillPlot_align(std::vector<float>& vect,TH2F* align, float column, double row) {
+  void fillPlot_align(std::vector<float>& vect,TH2F* align, float column, double & row) {
     for (std::vector<float>::const_iterator i = vect.begin(); i != vect.end();i++) {
       align->Fill(column,row, *i);
       row = row-1;

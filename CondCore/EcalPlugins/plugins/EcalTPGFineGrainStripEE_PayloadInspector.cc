@@ -35,7 +35,8 @@ namespace {
       TH2F* endc_thresh_m = new TH2F("EE-","EE- TPGFineGrainStrip Threshold", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
       
       TH2F* endc_lut_p = new TH2F("EE+","EE+ TPG Crystal Status Lut", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
-      TH2F* endc_lut_m = new TH2F("EE-","EE- TPG Crystal Status Lut", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);     int EEcount[2] = {0, 0};
+      TH2F* endc_lut_m = new TH2F("EE-","EE- TPG Crystal Status Lut", IX_MAX, IX_MIN, IX_MAX + 1, IY_MAX, IY_MIN, IY_MAX + 1);
+      int EEcount[2] = {0, 0};
 
       std::string mappingFile = "Geometry/EcalMapping/data/EEMap.txt";   
       std::ifstream f(edm::FileInPath(mappingFile).fullPath().c_str());
@@ -60,10 +61,10 @@ namespace {
 
         EEDetId detid(ix,iy,iz,EEDetId::XYMODE);
         uint32_t rawId = detid.denseIndex();
-        if(tccid > NTCC || tower > NTower || pseudostrip_in_TT > NStrip || xtal_in_pseudostrip > NXtal)
-          std::cout << " tccid " << tccid <<  " tower " << tower << " pseudostrip_in_TT "<< pseudostrip_in_TT
-              <<" xtal_in_pseudostrip " << xtal_in_pseudostrip << std::endl;
-        else {
+        if(tccid > NTCC || tower > NTower || pseudostrip_in_TT > NStrip || xtal_in_pseudostrip > NXtal){
+        //  std::cout << " tccid " << tccid <<  " tower " << tower << " pseudostrip_in_TT "<< pseudostrip_in_TT
+        //      <<" xtal_in_pseudostrip " << xtal_in_pseudostrip << std::endl;
+        }else {
           rawEE[tccid - 1][tower - 1][pseudostrip_in_TT - 1][xtal_in_pseudostrip - 1] = rawId;
           NbrawEE[tccid - 1][tower - 1][pseudostrip_in_TT - 1]++;
         }
@@ -76,6 +77,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<EcalTPGFineGrainStripEE> payload = fetchPayload( std::get<1>(iov) );
       unsigned int run = std::get<0>(iov);
+      double max1=1.0, max2=1.0;
 
       if( payload.get() ){
         const EcalTPGFineGrainStripEEMap &stripMap = (*payload).getMap();
@@ -92,8 +94,8 @@ namespace {
             strip /= 128;
             int tccid = strip & 0x7F;
             int NbXtalInStrip = NbrawEE[tccid - 1][tt - 1][pseudostrip - 1];
-            if(NbXtalInStrip != NXtal) std::cout << " Strip TCC " << tccid << " TT " << tt << " ST " << pseudostrip
-                   << " Nx Xtals " << NbXtalInStrip << std::endl;
+            //if(NbXtalInStrip != NXtal) std::cout << " Strip TCC " << tccid << " TT " << tt << " ST " << pseudostrip
+            //       << " Nx Xtals " << NbXtalInStrip << std::endl;
 
 
             for(int Xtal = 0; Xtal < NbXtalInStrip; Xtal++) {
@@ -109,13 +111,24 @@ namespace {
                 endc_thresh_m->Fill(x + 0.5, y + 0.5, item.threshold);
                 endc_lut_m->Fill(x + 0.5, y + 0.5, item.lut);
                 EEcount[0]++;
+
+                if(max1<item.threshold)
+                  max1=item.threshold;
+
+                if(max2<item.lut)
+                  max2=item.lut;
+
               }else {
                 endc_thresh_p->Fill(x + 0.5, y + 0.5, item.threshold);
                 endc_lut_p->Fill(x + 0.5, y + 0.5, item.lut);
                 EEcount[1]++;
-              }
 
-              //std::cout<<std::endl<<item.threshold<<"-"<<item.lut<<std::endl;
+                if(max1<item.threshold)
+                  max1=item.threshold;
+
+                if(max2<item.lut)
+                  max2=item.lut;
+              }
 
             }
 
@@ -163,26 +176,32 @@ namespace {
 
      // t1.DrawLatex(0.2, 0.94, Form("%i crystals", EBstat));
 
-
       pad[0]->cd();
-      DrawEE(endc_thresh_m, 0., 1.);
+      DrawEE(endc_thresh_m, 0., max1);
       t1.DrawLatex(0.15, 0.92, Form("%i crystals", EEcount[0]));
       
       pad[1]->cd();
-      DrawEE(endc_thresh_p, 0., 1.);
+      DrawEE(endc_thresh_p, 0., max1);
       t1.DrawLatex(0.15, 0.92, Form("%i crystals", EEcount[1]));
       
 
       pad[2]->cd();
-      DrawEE(endc_lut_m, 0., 1.);
+      DrawEE(endc_lut_m, 0., max2);
       t1.DrawLatex(0.15, 0.92, Form("%i crystals", EEcount[0]));
 
       pad[3]->cd();
-      DrawEE(endc_lut_p, 0., 1.);
+      DrawEE(endc_lut_p, 0., max2);
       t1.DrawLatex(0.15, 0.92, Form("%i crystals", EEcount[1]));
 
       std::string ImageName(m_imageFileName);
+
       canvas.SaveAs(ImageName.c_str());
+
+      delete pad;
+      delete endc_lut_p;
+      delete endc_lut_m;
+      delete endc_thresh_p;
+      delete endc_thresh_m;
       return true;
     }// fill method
   };
