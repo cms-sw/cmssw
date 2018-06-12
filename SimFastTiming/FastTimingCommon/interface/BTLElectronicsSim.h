@@ -44,11 +44,11 @@ class BTLElectronicsSim {
 
  private:
 
-  float sigma_pe(const float& Q, const float& R) const;
+  float sigma2_pe(const float& Q, const float& R) const;
 
   const bool debug_;
 
-  //const bool  FluctuateNpe_;
+  const float ScintillatorRiseTime_;
   const float ScintillatorDecayTime_;
   const float ChannelTimeOffset_;
   const float smearChannelTimeOffset_;
@@ -57,6 +57,11 @@ class BTLElectronicsSim {
   const float TimeThreshold1_;
   const float TimeThreshold2_;
   const float ReferencePulseNpe_;
+
+  const float SinglePhotonTimeResolution_;
+  const float DarkCountRate_;
+  const float SigmaElectronicNoise_;
+  const float SigmaClock_;
 
   const float Npe_to_pC_;
   const float Npe_to_V_;
