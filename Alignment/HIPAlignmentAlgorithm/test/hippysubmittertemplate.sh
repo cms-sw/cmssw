@@ -24,14 +24,25 @@ extraopts="--redirectproxy"
 
 commitid=$(git rev-parse HEAD)
 
-bash submitAndWatchHippy.sh $alignmentname \
-                            $niterations \
-                            $hptype$hpnumber \
-                            $common \
-                            Configurations/align_tpl_py.txt \
-                            Configurations/TrackSelection \
-                            $lstfile \
-                            $IOVfile \
-                            "$extraopts"
+git tag $hptype$hpnumber $commitid || (
+  status=$?
+  echo
+  echo "failed to make the tag, see ^"
+  echo
+  echo "if you previously tried to start the alignment but it failed,"
+  echo "you can delete the tag by doing"
+  echo
+  echo "  git tag --delete $hptype$hpnumber"
+  echo
+  exit $status
+)
 
-git tag $hptype$hpnumber $commitid
+submitAndWatchHippy.sh $alignmentname \
+                       $niterations \
+                       $hptype$hpnumber \
+                       $common \
+                       Configurations/align_tpl_py.txt \
+                       Configurations/TrackSelection \
+                       $lstfile \
+                       $IOVfile \
+                       "$extraopts"
