@@ -27,7 +27,7 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 // ----------------------------------------------------------------------
 
 namespace reco {

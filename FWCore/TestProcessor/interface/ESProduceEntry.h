@@ -23,6 +23,10 @@
 // user include files
 
 // forward declarations
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/DataProxy.h"
+#include <memory>
 namespace edm {
 namespace test {
 struct ESProduceEntry {

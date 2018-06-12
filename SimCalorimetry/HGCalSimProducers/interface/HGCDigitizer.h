@@ -67,9 +67,12 @@ public:
 
   /**
    */
-  bool producesEEDigis()       { return (mySubDet_==ForwardSubdetector::HGCEE);  }
-  bool producesHEfrontDigis()  { return (mySubDet_==ForwardSubdetector::HGCHEF); }
-  bool producesHEbackDigis()   { return (mySubDet_==ForwardSubdetector::HGCHEB); }
+  bool producesEEDigis()       { 
+    return ((mySubDet_==ForwardSubdetector::HGCEE)||(myDet_==DetId::HGCalEE)); }
+  bool producesHEfrontDigis()  { 
+    return ((mySubDet_==ForwardSubdetector::HGCHEF)||(myDet_==DetId::HGCalHSi)); }
+  bool producesHEbackDigis()   { 
+    return ((mySubDet_==ForwardSubdetector::HGCHEB)||(myDet_==DetId::HGCalHSc)); }
   std::string digiCollection() { return digiCollection_; }
 
   /**
@@ -79,9 +82,15 @@ public:
   void endRun();
 
 private :
-  
+
+  uint32_t getType() const;
+  bool     getWeight(std::array<float,3>& tdcForToAOnset, float& keV2fC) const;
+
   //input/output names
   std::string hitCollection_,digiCollection_;
+
+  //geometry type (0 pre-TDR; 1 TDR)
+  int geometryType_;
 
   //digitization type (it's up to the specializations to decide it's meaning)
   int digitizationType_;
@@ -110,7 +119,8 @@ private :
   const HGCalGeometry* gHGCal_;
   const HcalGeometry* gHcal_;
 
-  //subdetector id
+  //detector and subdetector id
+  DetId::Detector    myDet_;
   ForwardSubdetector mySubDet_;
 
   //misc switches

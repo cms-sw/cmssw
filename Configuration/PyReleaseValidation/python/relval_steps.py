@@ -383,6 +383,13 @@ steps['RunMuOnia2018A']={'INPUT':InputInfo(dataSet='/MuOnia/Run2018A-v1/RAW',lab
 steps['RunNoBPTX2018A']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2018A-v1/RAW',label='noBptx2018A',events=100000,location='STD', ls=Run2018A)}
 steps['RunDisplacedJet2018A']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2018A-v1/RAW',label='displacedJet2018A',events=100000,location='STD', ls=Run2018A)}
 steps['RunCharmonium2018A']={'INPUT':InputInfo(dataSet='/Charmonium/Run2018A-v1/RAW',label='charm2018A',events=100000,location='STD', ls=Run2018A)}
+#### for 90 m beta* Totem run relvals ####
+RunhBStarTk={314890: [[500, 700]]} #for central tracking system
+steps['RunZeroBias_hBStarTk']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissioning2018-v1/RAW',label='zbhBSTk',events=100000,location='STD', ls=RunhBStarTk)}
+RunhBStarRP={314276: [[1, 200]]} #for Roman Pot system
+steps['RunZeroBias1_hBStarRP']={'INPUT':InputInfo(dataSet='/ZeroBias1/Commissioning2018-v1/RAW',label='zbhBSRP',events=100000,location='STD', ls=RunhBStarRP)}
+
+
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -1415,6 +1422,8 @@ steps['HLTDR2_2017']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2017,},{'--con
 hltKey2018='relval2018'
 steps['HLTDR2_2018']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2018,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2018'},steps['HLTD'] ] )
 
+steps['HLTDR2_2018_hBStar']=merge( [ {'--era' : 'Run2_2018_highBetaStar'},steps['HLTDR2_2018'] ] )
+
 # use --era
 steps['RECODR2_50ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_50ns',},dataReco])
 steps['RECODR2_25ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data_relval','--era':'Run2_25ns','--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns'},dataReco])
@@ -1798,6 +1807,8 @@ steps['RECODR2_2018reHLT_skimCharmonium_Prompt']=merge([{'--conditions':'auto:ru
 steps['RECODR2_2018reHLT_skimSingleMu_Prompt_Lumi']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGSkim+ZMu+MuTau,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@lumi+@L1TMuon'},steps['RECODR2_2018reHLT_skimSingleMu_Prompt']])
 steps['RECODR2_2018reHLTAlCaTkCosmics_Prompt']=merge([{'--conditions':'auto:run2_data_promptlike'},steps['RECODR2_2018reHLTAlCaTkCosmics']])
 
+steps['RECODR2_2018reHLT_Prompt_hBStar']=merge([{'--era':'Run2_2018_highBetaStar'},steps['RECODR2_2018reHLT_Prompt']])
+
 steps['RECO']=merge([step3Defaults])
 
 
@@ -2069,6 +2080,7 @@ steps['HARVEST2017_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT
 steps['HARVEST2018'] = merge([ {'--conditions':'auto:run2_data_relval','--era':'Run2_2018','--conditions':'auto:run2_data_promptlike',}, steps['HARVESTD'] ])
 steps['HARVEST2018_L1TEgDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TEgamma'}, steps['HARVEST2018'] ])
 steps['HARVEST2018_L1TMuDQM'] = merge([ {'-s':'HARVESTING:@standardDQM+@ExtraHLT+@miniAODDQM+@L1TMuon'}, steps['HARVEST2018'] ])
+steps['HARVEST2018_hBStar'] = merge([ {'--era' : 'Run2_2018_highBetaStar'}, steps['HARVEST2018'] ])
 
 steps['DQMHLTonAOD_2017']={
     '-s':'DQM:offlineHLTSourceOnAOD', ### DQM-only workflow on AOD input: for HLT

@@ -102,6 +102,7 @@ if os.environ.get('DEBUG', False):
     )
 
 process.dqmoffline_step = cms.Path(
+    process.goodPFJetsForL1T *
     process.l1tEtSumJetOfflineDQMEmu +
     process.l1tEtSumJetOfflineDQM +
     process.l1tEGammaOfflineDQM +
