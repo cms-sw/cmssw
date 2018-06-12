@@ -5,6 +5,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
+<architecture match="_amd64_">
 <bin name="test_hcal_reco" file="test_hcal_reco.cu">
     <use name="DataFormats/CaloRecHit"/>
     <use name="DataFormats/HcalRecHit"/>
