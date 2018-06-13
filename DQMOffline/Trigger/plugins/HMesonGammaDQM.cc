@@ -30,11 +30,11 @@ void HMesonGammaDQM::bookHistograms(DQMStore::IBooker     & ibooker)
 
   histname = "gammaeta"; histtitle = "Gamma eta";
   bookME(ibooker,gammaetaME_,histname,histtitle,eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
-  setMETitle(gammaetaME_,"Gamma #eta","events / [rad]");
+  setMETitle(gammaetaME_,"Gamma #eta","events");
 
   histname = "mesoneta"; histtitle = "Meson eta";
   bookME(ibooker,mesonetaME_,histname,histtitle,eta_binning_.nbins,eta_binning_.xmin, eta_binning_.xmax);
-  setMETitle(mesonetaME_,"Meson #eta","events / [rad]");
+  setMETitle(mesonetaME_,"Meson #eta","events");
 
   histname = "gammaetaVsLS"; histtitle = "Gamma eta vs LS";
   bookME(ibooker,gammaetaVsLS_,histname,histtitle,ls_binning_.nbins, ls_binning_.xmin, ls_binning_.xmax,eta_binning_.xmin, eta_binning_.xmax);

@@ -53,6 +53,9 @@ ObjMonitor::ObjMonitor( const edm::ParameterSet& iConfig ) :
   if (do_ht_ ){
     htDQM_.initialise(iConfig);
   }
+  if (do_hmg_ ){
+    hmgDQM_.initialise(iConfig);
+  }
 }
 
 ObjMonitor::~ObjMonitor() = default;
@@ -68,6 +71,7 @@ void ObjMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   if (do_met_) metDQM_.bookHistograms(ibooker);
   if (do_jet_) jetDQM_.bookHistograms(ibooker);
   if (do_ht_ ) htDQM_.bookHistograms(ibooker);
+  if (do_hmg_ ) hmgDQM_.bookHistograms(ibooker);
 
   // Initialize the GenericTriggerEventFlag
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
