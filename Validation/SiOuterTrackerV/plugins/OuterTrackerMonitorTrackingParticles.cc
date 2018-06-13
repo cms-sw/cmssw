@@ -167,12 +167,12 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
           for (auto it: *trackingParticleHandle){ // Loop over TPs
             counter++;
             float allowedRes = 0.001;
-            if (fabs(it.vx()-x)>allowedRes) continue;
-            if (fabs(it.vy()-y)>allowedRes) continue;
-            if (fabs(it.vz()-z)>allowedRes) continue;
-            if (fabs(it.px()-px)>allowedRes) continue;
-            if (fabs(it.py()-py)>allowedRes) continue;
-            if (fabs(it.pz()-pz)>allowedRes) continue;
+            if (std::fabs(it.vx()-x)>allowedRes) continue;
+            if (std::fabs(it.vy()-y)>allowedRes) continue;
+            if (std::fabs(it.vz()-z)>allowedRes) continue;
+            if (std::fabs(it.px()-px)>allowedRes) continue;
+            if (std::fabs(it.py()-py)>allowedRes) continue;
+            if (std::fabs(it.pz()-pz)>allowedRes) continue;
 
             idx=counter;
           }
@@ -233,7 +233,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     double trkParts_nLayers = v_tp_nLayers[j]; // the number of layers hit for each tracking particle
 
     // Fill the 1D distribution plots for tracking particles, to monitor change in stub definition
-    if (fabs(trkParts_eta)<2.4 && trkParts_pt>2 && trkParts_nLayers>=4) {
+    if (std::fabs(trkParts_eta)<2.4 && trkParts_pt>2 && trkParts_nLayers>=4) {
       // Fill 1D distributions
       trackParts_Pt ->Fill(trkParts_pt);
       trackParts_Eta->Fill(trkParts_eta);
@@ -316,8 +316,8 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     // ----------------------------------------------------------------------------------------------
     // look for L1 tracks matched to the tracking particle
     if (tmp_eventid > 0) continue; //only care about tracking particles from the primary interaction
-    if (fabs(tmp_tp_eta) > TP_maxEta) continue;
-    if (fabs(tmp_tp_VtxZ) > TP_maxVtxZ) continue;
+    if (std::fabs(tmp_tp_eta) > TP_maxEta) continue;
+    if (std::fabs(tmp_tp_VtxZ) > TP_maxVtxZ) continue;
 
     // ----------------------------------------------------------------------------------------------
     // only consider TPs with >= X stubs (configurable option)
@@ -365,9 +365,9 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       int match_id = 999;
 
       edm::Ptr< TrackingParticle > my_tp = MCTruthTTTrackHandle->findTrackingParticlePtr(thisTrack);
-      dmatch_pt  = fabs(my_tp->p4().pt() - tmp_tp_pt);
-      dmatch_eta = fabs(my_tp->p4().eta() - tmp_tp_eta);
-      dmatch_phi = fabs(my_tp->p4().phi() - tmp_tp_phi);
+      dmatch_pt  = std::fabs(my_tp->p4().pt() - tmp_tp_pt);
+      dmatch_eta = std::fabs(my_tp->p4().eta() - tmp_tp_eta);
+      dmatch_phi = std::fabs(my_tp->p4().phi() - tmp_tp_phi);
       match_id = my_tp->pdgId();
       float tmp_trk_chi2dof = (thisTrack->getChi2(L1Tk_nPar)) / (2*tmp_trk_nstub - L1Tk_nPar);
 
@@ -446,7 +446,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     if (VtxR > 1) continue;
     if (pt < 2) continue;
     if (pt > TP_maxPt) continue;
-    if (fabs(eta) > TP_maxEta) continue;
+    if (std::fabs(eta) > TP_maxEta) continue;
     if (trkParts_nMatch[j] < 1) continue; // was the tracking particle matched to a L1 track?
     if (matchTrk_nStub[j] < L1Tk_minNStub) continue;     // use only tracks with min X stubs
 
@@ -484,7 +484,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
 
     // Fill resolution plots for different abs(eta) bins:
     // (0, 0.7), (0.7, 1.0), (1.0, 1.2), (1.2, 1.6), (1.6, 2.0), (2.0, 2.4)
-    if (fabs(tP_eta) >= 0  && fabs(tP_eta) < 0.7){
+    if (std::fabs(tP_eta) >= 0  && std::fabs(tP_eta) < 0.7){
       reseta_eta0to0p7->Fill(eta_res);
       resphi_eta0to0p7->Fill(phi_res);
       resVtxZ_eta0to0p7->Fill(VtxZ_res);
@@ -493,7 +493,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta0to0p7_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta0to0p7_pt8toInf->Fill(pt_res);
     }
-    else if (fabs(tP_eta) >= 0.7 && fabs(tP_eta) < 1.0){
+    else if (std::fabs(tP_eta) >= 0.7 && std::fabs(tP_eta) < 1.0){
       reseta_eta0p7to1->Fill(eta_res);
       resphi_eta0p7to1->Fill(phi_res);
       resVtxZ_eta0p7to1->Fill(VtxZ_res);
@@ -502,7 +502,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta0p7to1_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta0p7to1_pt8toInf->Fill(pt_res);
     }
-    else if (fabs(tP_eta) >= 1.0 && fabs(tP_eta) < 1.2){
+    else if (std::fabs(tP_eta) >= 1.0 && std::fabs(tP_eta) < 1.2){
       reseta_eta1to1p2->Fill(eta_res);
       resphi_eta1to1p2->Fill(phi_res);
       resVtxZ_eta1to1p2->Fill(VtxZ_res);
@@ -511,7 +511,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta1to1p2_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta1to1p2_pt8toInf->Fill(pt_res);
     }
-    else if (fabs(tP_eta) >= 1.2 && fabs(tP_eta) < 1.6){
+    else if (std::fabs(tP_eta) >= 1.2 && std::fabs(tP_eta) < 1.6){
       reseta_eta1p2to1p6->Fill(eta_res);
       resphi_eta1p2to1p6->Fill(phi_res);
       resVtxZ_eta1p2to1p6->Fill(VtxZ_res);
@@ -520,7 +520,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta1p2to1p6_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta1p2to1p6_pt8toInf->Fill(pt_res);
     }
-    else if (fabs(tP_eta) >= 1.6 && fabs(tP_eta) < 2.0){
+    else if (std::fabs(tP_eta) >= 1.6 && std::fabs(tP_eta) < 2.0){
       reseta_eta1p6to2->Fill(eta_res);
       resphi_eta1p6to2->Fill(phi_res);
       resVtxZ_eta1p6to2->Fill(VtxZ_res);
@@ -529,7 +529,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       else if (tP_pt >= 3  && tP_pt < 8) respt_eta1p6to2_pt3to8->Fill(pt_res);
       else if (tP_pt >= 8) respt_eta1p6to2_pt8toInf->Fill(pt_res);
     }
-    else if (fabs(tP_eta) >= 2.0 && fabs(tP_eta) <= 2.4){
+    else if (std::fabs(tP_eta) >= 2.0 && std::fabs(tP_eta) <= 2.4){
       reseta_eta2to2p4->Fill(eta_res);
       resphi_eta2to2p4->Fill(phi_res);
       resVtxZ_eta2to2p4->Fill(VtxZ_res);
@@ -1177,7 +1177,7 @@ int OuterTrackerMonitorTrackingParticles::Layer(const float R_, const float Z_) 
   const float zMin[sectionNum]={0.,125.,145.,165.,200.,240.};
   int layer=-1;
   for (int i=5;i>=0;--i){
-    if(fabs(Z_)>=zMin[i]){
+    if(std::fabs(Z_)>=zMin[i]){
       layer=5+i;
       break;
     }
