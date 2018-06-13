@@ -12,6 +12,10 @@ HMesonGammamonitoring.phoSelection = cms.string("pt > 35 && abs(eta)<2.1 && hadT
 HMesonGammamonitoring.trkSelection = cms.string("pt > 5 && quality('highPurity')")
 HMesonGammamonitoring.nphotons = cms.int32(1)
 HMesonGammamonitoring.nmesons = cms.int32(1)
+HMesonGammamonitoring.doMETHistos = cms.bool(False)
+HMesonGammamonitoring.doJetHistos = cms.bool(False)
+HMesonGammamonitoring.doHTHistos = cms.bool(False)
+HMesonGammamonitoring.doHMesonGammaHistos = cms.bool(True) 
 #HMesonGammamonitoring.metSelection = cms.string("pt>150")
 
 hmesongammamonitoring = cms.Sequence(

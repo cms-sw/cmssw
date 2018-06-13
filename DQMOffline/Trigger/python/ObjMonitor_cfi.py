@@ -54,7 +54,7 @@ hltobjmonitoring.jets      = cms.InputTag("ak4PFJetsCHS")
 hltobjmonitoring.electrons = cms.InputTag("gedGsfElectrons")
 hltobjmonitoring.muons     = cms.InputTag("muons")
 hltobjmonitoring.photons   = cms.InputTag("gedPhotons")
-hltobjmonitoring.tracks    = cms.InputTag("tracks")
+hltobjmonitoring.tracks    = cms.InputTag("generalTracks")
 
 hltobjmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltobjmonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
