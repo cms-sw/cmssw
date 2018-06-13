@@ -69,20 +69,28 @@ dbname="alignments_iter$niter.db"
 fname="$outdir/$dbname"
 
 if [ ! -f $fname ];then
-  mail -s $hpname $emailList <<< "$hpname/$dbname is not done."
+  if ! [ -z $emailList ]; then
+    mail -s $hpname $emailList <<< "$hpname/$dbname is not done."
+  fi
 else
   if [[ "$hpname" == *"Monitor"* ]];then
-    mail -s $hpname $emailList <<< "$hpname/$dbname is done. Monitor jobs cannot be linked."
+    if ! [ -z $emailList ]; then
+      mail -s $hpname $emailList <<< "$hpname/$dbname is done. Monitor jobs cannot be linked."
+    fi
   else
     (
       cd $outdir
       cp $dbname "alignments_iter$(echo $niter + 1 | bc).db"
-      sqlite3 $fnextname 'update iov set since=1'
+      sqlite3 alignments_iter$(echo $niter + 1 | bc).db 'update iov set since=1'
+      mkdir -p /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy/alignments/$linkhp
       for a in *.db; do
         ln -s $(readlink -f $a) /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy/alignments/$linkhp/
+      done
     )
 
-    mail -s $hpname $emailList <<< "$hpname/$dbname is done. Linking to $linkhp"
+    if ! [ -z $emailList ]; then
+      mail -s $hpname $emailList <<< "$hpname/$dbname is done. Linking to $linkhp"
+    fi
 
   fi
 fi
