@@ -657,7 +657,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return config
     def dumpPython(self, options=PrintOptions()):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
-    def clone(self, *args, **params):
+    def clone(self, **params):
         myparams = self.parameters_()
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
         returnValue = PSet(**myparams)
@@ -1416,6 +1416,10 @@ if __name__ == "__main__":
             self.assertEqual(p4.b.b.value(), 5)
             self.assertEqual(p4.a.b.value(), 1)
             self.assertEqual(p4.ui.value(), 2)
+            # couple of cases of "weird" arguments
+            self.assertRaises(TypeError, p4.clone, dict(b = None))
+            self.assertRaises(TypeError, p4.clone, [])
+            self.assertRaises(TypeError, p4.clone, 42)
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)
