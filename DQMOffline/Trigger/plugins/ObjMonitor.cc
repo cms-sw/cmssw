@@ -161,7 +161,7 @@ void ObjMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 	if (!trkSelection_(trk2)) continue;
 	if (trk1.charge() * trk2.charge() != -1) continue;
 	
-	for (unsigned hyp = 0; hyp < 1; ++hyp){
+	for (unsigned hyp = 0; hyp < 2; ++hyp){
 	  
 	  t1.SetPtEtaPhiM(trk1.pt(),trk1.eta(),trk1.phi(),hadronMassHyp[hyp]);
 	  t2.SetPtEtaPhiM(trk2.pt(),trk2.eta(),trk2.phi(),hadronMassHyp[hyp]);
