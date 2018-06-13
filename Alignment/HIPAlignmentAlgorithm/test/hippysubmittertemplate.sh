@@ -26,6 +26,9 @@ commitid=$(git rev-parse HEAD)
 
 git tag $hptype$hpnumber $commitid || (
   status=$?
+  if [ $(git rev-parse HEAD) == $(git rev-parse $hptype$hpnumber) ]; then
+    exit 0  #from the parentheses
+  fi
   echo
   echo "failed to make the tag, see ^"
   echo
