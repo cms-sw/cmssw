@@ -21,6 +21,7 @@
 using namespace std;
 using namespace edm;
 
+namespace dtrechit {
 struct Histograms{
   std::unique_ptr<HRes1DHit> hRes_S1RPhi;           // RecHits, 1. step, RPh
   std::unique_ptr<HRes1DHit> hRes_S2RPhi;           // RecHits, 2. step, RPhi
@@ -69,7 +70,9 @@ struct Histograms{
   std::unique_ptr<HEff1DHit> hEff_S1RZWS[3][4];     // RecHits, 3. step, by wheel/station
   std::unique_ptr<HEff1DHit> hEff_S3RZWS[3][4];     // RecHits, 3. step, by wheel/station
 };
+}
 
+using namespace dtrechit;
 
 // In phi SLs, The dependency on X and angle is specular in positive
 // and negative wheels. Since positive and negative wheels are filled
