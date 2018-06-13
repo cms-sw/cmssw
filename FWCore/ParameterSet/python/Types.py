@@ -188,7 +188,7 @@ class string(_SimpleParameterTypeBase):
 class EventID(_ParameterTypeBase):
     def __init__(self, run, *args):
         super(EventID,self).__init__()
-        if isinstance(run, basestring):
+        if isinstance(run, str):
             self.__run = self._valueFromString(run).__run
             self.__luminosityBlock = self._valueFromString(run).__luminosityBlock
             self.__event = self._valueFromString(run).__event
@@ -233,7 +233,7 @@ class EventID(_ParameterTypeBase):
 class LuminosityBlockID(_ParameterTypeBase):
     def __init__(self, run, block=None):
         super(LuminosityBlockID,self).__init__()
-        if isinstance(run, basestring):
+        if isinstance(run, str):
             self.__run = self._valueFromString(run).__run
             self.__block = self._valueFromString(run).__block
         else:
@@ -262,7 +262,7 @@ class LuminosityBlockID(_ParameterTypeBase):
 class LuminosityBlockRange(_ParameterTypeBase):
     def __init__(self, start, startSub=None, end=None, endSub=None):
         super(LuminosityBlockRange,self).__init__()
-        if isinstance(start, basestring):
+        if isinstance(start, str):
             parsed = self._valueFromString(start)
             self.__start    = parsed.__start
             self.__startSub = parsed.__startSub
@@ -323,7 +323,7 @@ class LuminosityBlockRange(_ParameterTypeBase):
 class EventRange(_ParameterTypeBase):
     def __init__(self, start, *args):
         super(EventRange,self).__init__()
-        if isinstance(start, basestring):
+        if isinstance(start, str):
             parsed = self._valueFromString(start)
             self.__start     = parsed.__start
             self.__startLumi = parsed.__startLumi
@@ -803,7 +803,7 @@ class VLuminosityBlockID(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = LuminosityBlockID._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVLuminosityBlockID(self.isTracked(), myname, cppIDs)
@@ -879,7 +879,7 @@ class VEventID(_ValidatingParameterListBase):
         return EventID.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
         # we tolerate strings as members
-        if isinstance(item, basestring):
+        if isinstance(item, str):
             return '"'+item+'"'
         else:
             return item.dumpPython(options)
@@ -890,7 +890,7 @@ class VEventID(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = EventID._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVEventID(self.isTracked(), myname, cppIDs)
@@ -905,7 +905,7 @@ class VLuminosityBlockRange(_ValidatingParameterListBase):
     def configValueForItem(self,item,options):
         return LuminosityBlockRange.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
-        if isinstance(item, basestring):
+        if isinstance(item, str):
             return '"'+item+'"'
         else:
             return item.dumpPython(options)
@@ -916,7 +916,7 @@ class VLuminosityBlockRange(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = LuminosityBlockRange._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVLuminosityBlockRange(self.isTracked(), myname, cppIDs)
@@ -931,7 +931,7 @@ class VEventRange(_ValidatingParameterListBase):
     def configValueForItem(self,item,options):
         return EventRange.formatValueForConfig(item)
     def pythonValueForItem(self,item, options):
-        if isinstance(item, basestring):
+        if isinstance(item, str):
             return '"'+item+'"'
         else:
             return item.dumpPython(options)
@@ -942,7 +942,7 @@ class VEventRange(_ValidatingParameterListBase):
         cppIDs = list()
         for i in self:
             item = i
-            if isinstance(item, basestring):
+            if isinstance(item, str):
                 item = EventRange._valueFromString(item)
             cppIDs.append(item.cppID(parameterSet))
         parameterSet.addVEventRange(self.isTracked(), myname, cppIDs)

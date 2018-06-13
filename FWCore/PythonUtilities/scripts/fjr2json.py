@@ -36,7 +36,7 @@ if __name__ == '__main__':
                         runList.append (lumi)
             except:
                 try: # JSON-like version in CRAB XML files, runObjects is usually a list
-                    if isinstance(inputFile.Runs, basestring):
+                    if isinstance(inputFile.Runs, str):
                         runObjects = [inputFile.Runs]
                     else:
                         runObjects = inputFile.Runs
