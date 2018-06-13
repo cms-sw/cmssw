@@ -6,6 +6,7 @@ import sys
 import dataLoader
 import ROOT
 
+import six
 
 data = None
 check_flavor = True
@@ -144,7 +145,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
             assert len(sys_dict) == len(entries)
             sys_cent = sys_dict.pop('central', None)
             x = discr if op == 3 else pt
-            for syst, e in sys_dict.iteritems():
+            for syst, e in six.iteritems(sys_dict):
                 sys_val = e.tf1_func.Eval(x)
                 cent_val = sys_cent.tf1_func.Eval(x)
                 if syst.startswith('up') and not sys_val > cent_val:

@@ -3,6 +3,7 @@
 import sys
 import re
 import os
+import six
 
 input_file = sys.argv[1]
 output_dir = sys.argv[2]
@@ -116,7 +117,7 @@ if __name__ == "__main__":
         histo_info[type] = histo
 
     variable_canvas = ROOT.TCanvas("var", "var", 1000, 1000)
-    for variable, histograms in input_distributions.iteritems():
+    for variable, histograms in six.iteritems(input_distributions):
         maximum = max(histograms[type].GetMaximum()
                       for type in ['Signal', 'Background'])
         for type in ['Signal', 'Background']:

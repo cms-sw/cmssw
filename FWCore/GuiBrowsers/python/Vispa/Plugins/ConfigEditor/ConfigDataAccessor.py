@@ -12,6 +12,7 @@ import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.Modules as mod
 import FWCore.ParameterSet.Types as typ
 
+import six
 imported_configs = {}
 file_dict = {}
 
@@ -177,12 +178,12 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             del imported_configs[i]
         
 # make dictionary that connects every cms-object with the file in which it is defined
-        for j in imported_configs.itervalues():
+        for j in six.itervalues(imported_configs):
           setj = set(dir(j))
           for entry in setj:
               if entry[0] != "_" and entry != "cms":
                 source = 1
-                for k in imported_configs.itervalues():
+                for k in six.itervalues(imported_configs):
                     if hasattr(k, entry):
                       setk = set(dir(k))
                       if len(setk) < len(setj) and setk < setj:
@@ -236,8 +237,8 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
         if self.process().schedule != None:
             folder_list += [("paths", self.process().schedule)]
         else:
-            folder_list += [("paths", self.process().paths.itervalues())]
-        folder_list += [("endpaths", self.process().endpaths.itervalues())]
+            folder_list += [("paths", self.process(six.itervalues().paths))]
+        folder_list += [("endpaths", self.process(six.itervalues().endpaths))]
         folder_list += [("modules", self._sort_list(self.process().producers.values()+self.process().filters.values()+self.process().analyzers.values()))]
         folder_list += [("services", self._sort_list(self.process().services.values()))]
         folder_list += [("psets", self._sort_list(self.process().psets.values()))]

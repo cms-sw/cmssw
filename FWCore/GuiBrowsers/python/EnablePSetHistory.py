@@ -1,5 +1,6 @@
 from copy import deepcopy
 import inspect
+import six
 
 ACTIVATE_INSPECTION=True
 
@@ -378,7 +379,7 @@ def new_items_(self):
     items += self.moduleItems_()
     items += self.outputModules.items()
     items += self.sequences.items()
-    items += self.paths.iteritems()
+    items += six.iteritems(self.paths)
     items += self.endpaths.items()
     items += self.services.items()
     items += self.es_producers.items()

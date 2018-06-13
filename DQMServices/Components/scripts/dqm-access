@@ -5,6 +5,7 @@ from DQMServices.Components.X509 import SSLOptions
 from optparse import OptionParser
 from time import strptime, time
 import sys, re, cjson, pycurl, urllib
+import six
 
 DIR = 0
 FILE = 1
@@ -236,7 +237,7 @@ def process(c):
           newreq[newpath] = []
         newreq[newpath].append((filters, newpos))
 
-  for path, filterspec in newreq.iteritems():
+  for path, filterspec in six.iteritems(newreq):
     reqman.put((options, sample, path, filterspec))
 
 #-------------------------------------------------------------------------------

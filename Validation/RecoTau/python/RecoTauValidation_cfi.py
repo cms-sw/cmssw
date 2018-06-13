@@ -8,6 +8,7 @@ import os
 
 
 """
+import six
 
    RecoTauValidation_cfi.py
 
@@ -472,7 +473,7 @@ def ConvertDrawJobToLegacyCompare(input):
    if not hasattr(input, "drawJobs"):
       return
    myDrawJobs = input.drawJobs.parameters_()
-   for drawJobName, drawJobData in myDrawJobs.iteritems():
+   for drawJobName, drawJobData in six.iteritems(myDrawJobs):
       print drawJobData
       if not drawJobData.plots.pythonTypeName() == "cms.PSet":
          continue

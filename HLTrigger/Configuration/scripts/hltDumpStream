@@ -4,6 +4,7 @@
 import sys, imp, re
 import operator
 import FWCore.ParameterSet.Config as cms
+import six
 
 mode = 'text'
 try:
@@ -252,7 +253,7 @@ def dumpPath(stream, dataset, name, out, end):
 def getEndPath(output):
   # look for the EndPath with the corresponding output module
   out = ''
-  for o in process.endpaths.itervalues():
+  for o in six.itervalues(process.endpaths):
     searchOut = SearchModuleByName(output)
     o.visit(searchOut)
     if searchOut.found:
