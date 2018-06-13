@@ -4,9 +4,12 @@
 #include "DataFormats/ForwardDetId/interface/MTDDetId.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 
+#include <iostream>
 
 BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset) : 
+  refSpeed_( 0.1*CLHEP::c_light ),
   bxTime_(pset.getParameter<double>("bxTime") ),
   LightYield_(pset.getParameter<double>("LightYield")),
   LightCollEff_(pset.getParameter<double>("LightCollectionEff")),
@@ -38,8 +41,11 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int,uint32_t,flo
     // --- Get the simHit energy and convert it from MeV to photo-electrons
     float Npe = 1000.*hit.energyLoss()*LightYield_*LightCollEff_*PDE_;
 
-    // --- Get the simHit time of arrival
-    float toa = std::get<2>(hitRefs[ihit]) + LightCollTime_;
+    // --- Get the distance to the center of the detector
+    const float dist2center = 0.1f*hit.entryPoint().mag();
+
+    // --- Get the simHit time of arrival and correct for the nominal time of flight
+    float toa = std::get<2>(hitRefs[ihit]) - dist2center/refSpeed_ + LightCollTime_;
 
     if ( smearLightCollTime_ > 0. )
       toa += CLHEP::RandGaussQ::shoot(hre, 0., smearLightCollTime_);
