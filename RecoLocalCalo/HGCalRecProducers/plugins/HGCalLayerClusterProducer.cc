@@ -8,6 +8,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
@@ -29,6 +31,7 @@ class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
  public:
   HGCalLayerClusterProducer(const edm::ParameterSet&);
   ~HGCalLayerClusterProducer() override { }
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -95,6 +98,39 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet &ps
   produces<std::vector<reco::BasicCluster> >("sharing");
 
 }
+
+
+void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // hgcalLayerClusters
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("detector", "all");
+  desc.add<bool>("doSharing", false);
+  desc.add<std::vector<double>>("deltac", {
+    2.0,
+    5.0,
+    5.0,
+  });
+  desc.add<bool>("dependSensor", true);
+  desc.add<double>("ecut", 3.0);
+  desc.add<double>("kappa", 9.0);
+  desc.addUntracked<unsigned int>("verbosity", 3);
+  desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit","HGCEERecHits"));
+  desc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
+  desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+  desc.add<std::vector<double>>("dEdXweights",{});
+  desc.add<std::vector<double>>("thicknessCorrection",{});
+  desc.add<std::vector<double>>("fcPerMip",{});
+  desc.add<double>("fcPerEle",0.0);
+  edm::ParameterSetDescription descNestedNoises;
+  descNestedNoises.add<std::vector<double> >("values", {});
+  desc.add<edm::ParameterSetDescription>("noises", descNestedNoises);
+  edm::ParameterSetDescription descNestedNoiseMIP;
+  descNestedNoiseMIP.add<double>("value", 0 );
+  desc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
+  descriptions.add("hgcalLayerClusters", desc);
+
+}
+
 
 void HGCalLayerClusterProducer::produce(edm::Event& evt,
 				       const edm::EventSetup& es) {
