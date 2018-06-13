@@ -8,7 +8,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
@@ -16,7 +17,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 
-    
+
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalImagingAlgo.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCal3DClustering.h"
@@ -31,6 +32,7 @@ class HGCalMultiClusterProducer : public edm::stream::EDProducer<> {
  public:
   HGCalMultiClusterProducer(const edm::ParameterSet&);
   ~HGCalMultiClusterProducer() override { }
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
@@ -63,6 +65,26 @@ HGCalMultiClusterProducer::HGCalMultiClusterProducer(const edm::ParameterSet &ps
 
   produces<std::vector<reco::HGCalMultiCluster> >();
   produces<std::vector<reco::HGCalMultiCluster> >("sharing");
+}
+
+
+void HGCalMultiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // hgcalMultiClusters
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("HGCLayerClusters", edm::InputTag("hgcalLayerClusters"));
+  desc.addUntracked<unsigned int>("verbosity", 3);
+  desc.add<bool>("doSharing", false);
+  desc.add<edm::InputTag>("HGCEEInput", edm::InputTag("HGCalRecHit","HGCEERecHits"));
+  desc.add<edm::InputTag>("HGCFHInput", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
+  desc.add<std::vector<double>>("multiclusterRadii", {
+    2.0,
+    5.0,
+    5.0,
+  });
+  desc.add<edm::InputTag>("HGCBHInput", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+  desc.add<edm::InputTag>("HGCLayerClustersSharing", edm::InputTag("hgcalLayerClusters","sharing"));
+  desc.add<unsigned int>("minClusters", 3);
+  descriptions.add("hgcalMultiClusters", desc);
 }
 
 void HGCalMultiClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
