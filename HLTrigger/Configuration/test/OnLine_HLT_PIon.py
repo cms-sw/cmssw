@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_10_1_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run2_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_10_1_0/PIon/V49 (CMSSW_10_1_4)
+# /dev/CMSSW_10_1_0/PIon/V52 (CMSSW_10_1_4)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_1_0/PIon/V49')
+  tableName = cms.string('/dev/CMSSW_10_1_0/PIon/V52')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4281,8 +4281,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Random_v3',
   'HLT_ZeroBias_v6' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
-      'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
+      'keep *_hltDeepCombinedSecondaryVertexBJetTagsCalo_*_*',
+      'keep *_hltDeepCombinedSecondaryVertexBJetTagsPF_*_*',
       'keep *_hltEcalRecHit_*_*',
       'keep *_hltEgammaCandidates_*_*',
       'keep *_hltEgammaGsfElectrons_*_*',
@@ -4299,7 +4299,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltMergedTracks_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltPFJetForBtag_*_*',
-      'keep *_hltPixelTracksMerged_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVertices_*_*',
       'keep *_hltSelector8CentralJetsL1FastJet_*_*',
