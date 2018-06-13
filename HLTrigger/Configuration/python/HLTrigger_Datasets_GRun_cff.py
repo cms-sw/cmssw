@@ -326,15 +326,6 @@ streamPhysicsEndOfFill_datasetEmptyBX_selector.triggerConditions = cms.vstring(
     'HLT_L1UnpairedBunchBptxPlus_v2'
 )
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetFSQJet2_selector
-streamPhysicsEndOfFill_datasetFSQJet2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsEndOfFill_datasetFSQJet2_selector.l1tResults = cms.InputTag('')
-streamPhysicsEndOfFill_datasetFSQJet2_selector.throw      = cms.bool(False)
-streamPhysicsEndOfFill_datasetFSQJet2_selector.triggerConditions = cms.vstring(
-    'HLT_DiPFJetAve15_HFJEC_v17', 
-    'HLT_DiPFJetAve25_HFJEC_v17'
-)
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsEndOfFill_datasetHINCaloJets_selector
 streamPhysicsEndOfFill_datasetHINCaloJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsEndOfFill_datasetHINCaloJets_selector.l1tResults = cms.InputTag('')
