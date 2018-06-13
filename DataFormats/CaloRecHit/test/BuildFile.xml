@@ -10,3 +10,4 @@
     <use name="DataFormats/DetId"/>
     <use name="cuda"/>
 </bin>
+</architecture>

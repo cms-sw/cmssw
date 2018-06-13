@@ -13,3 +13,4 @@
     <use name="DataFormats/HcalDigi"/>
     <use name="cuda"/>
 </bin>
+</architecture>
