@@ -32,6 +32,7 @@ class BTLDeviceSim {
   
  private:
 
+  const float refSpeed_;  
   const float bxTime_;
   const float LightYield_;
   const float LightCollEff_;
