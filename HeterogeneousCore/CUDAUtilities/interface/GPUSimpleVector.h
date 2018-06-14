@@ -74,8 +74,8 @@ template <class T> struct SimpleVector {
   }
 #endif
 
-  __inline__ constexpr T& operator[](int i) const { return m_data[i]; }
-
+  __inline__ constexpr T& operator[](int i) { return m_data[i]; }
+  __inline__ constexpr const T& operator[](int i) const { return m_data[i]; }
   __inline__ constexpr void reset() { m_size = 0; }
 
   __inline__ constexpr int size() const { return m_size; }
@@ -83,9 +83,9 @@ template <class T> struct SimpleVector {
   __inline__ constexpr int capacity() const { return m_capacity; }
 
   __inline__ constexpr T *data() const { return m_data; }
-    
+
   __inline__ constexpr void resize(int size) { m_size = size; }
-    
+
   __inline__ constexpr void set_data(T * data) { m_data = data; }
 
 
@@ -98,4 +98,3 @@ private:
 } // namespace GPU
 
 #endif // HeterogeneousCore_CUDAUtilities_GPUSimpleVector_h
-
