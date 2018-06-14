@@ -644,7 +644,7 @@ def _mapCollectionToAlgoQuality(collName):
 def _collhelper(name):
     return (name, [name])
 _collLabelMap = collections.OrderedDict(map(_collhelper, ["generalTracks"]+_possibleTrackingColls))
-_collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+filter(lambda n: "Step" in n, _possibleTrackingColls)))
+_collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+[n for n in _possibleTrackingColls if "Step" in n]))
 def _summaryBinRename(binLabel, highPurity, byOriginalAlgo, byAlgoMask, ptCut, seeds):
     (algo, quality) = _mapCollectionToAlgoQuality(binLabel)
     if algo == "ootb":
@@ -1564,9 +1564,9 @@ _iterations = [
 def _iterModuleMap(includeConvStep=True, onlyConvStep=False):
     iterations = _iterations
     if not includeConvStep:
-        iterations = filter(lambda i: i.name() != "ConvStep", iterations)
+        iterations = [i for i in iterations if i.name() != "ConvStep"]
     if onlyConvStep:
-        iterations = filter(lambda i: i.name() == "ConvStep", iterations)
+        iterations = [i for i in iterations if i.name() == "ConvStep"]
     return collections.OrderedDict([(i.name(), i.all()) for i in iterations])
 def _stepModuleMap():
     def getProp(prop):

@@ -52,9 +52,7 @@ def new_log_file_id():
 	"""
 	# new id = number of log files + 1
 	# (primitive - matching the hash of the upload session may be a better idea)
-	log_files = filter(lambda file : "upload_log" in file,
-						os.listdir(os.path.join(os.getcwd(), "upload_logs"))
-					)
+	log_files = [file for file in os.listdir(os.path.join(os.getcwd(), "upload_logs")) if "upload_log" in file]
 	new_id = len(log_files)+1
 	return new_id
 
@@ -601,7 +599,7 @@ class uploader(object):
 
 		# only select iovs that have sinces >= max_since_below_dest
 		# and then shift any IOVs left to the destination since
-		self.data_to_send["iovs"] = filter(lambda iov : iov["since"] >= max_since_below_dest, self.data_to_send["iovs"])
+		self.data_to_send["iovs"] = [iov for iov in self.data_to_send["iovs"] if iov["since"] >= max_since_below_dest]
 		for (i, iov) in enumerate(self.data_to_send["iovs"]):
 			if self.data_to_send["iovs"][i]["since"] < self.data_to_send["since"]:
 				self.data_to_send["iovs"][i]["since"] = self.data_to_send["since"]
