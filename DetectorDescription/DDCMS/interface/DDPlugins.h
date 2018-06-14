@@ -3,6 +3,7 @@
 
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDUnits.h"
+#include "DD4hep/Factories.h"
 #include "DD4hep/Plugins.h"
 
 namespace dd4hep {
@@ -19,7 +20,7 @@ namespace dd4hep {
 }
 
 namespace {
-  namespace ns { class xml_h; }
+  
   template <typename P, typename S> class Factory;
   DD4HEP_PLUGIN_FACTORY_ARGS_4( long, dd4hep::Detector*,
 				cms::DDParsingContext*, ns::xml_h*,
