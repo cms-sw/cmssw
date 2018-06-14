@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 class ParameterSet;
 
