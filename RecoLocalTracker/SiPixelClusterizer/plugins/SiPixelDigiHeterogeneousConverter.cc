@@ -37,7 +37,7 @@ SiPixelDigiHeterogeneousConverter::SiPixelDigiHeterogeneousConverter(edm::Parame
 
 void SiPixelDigiHeterogeneousConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisHeterogeneous"));
+  desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersHeterogeneous"));
   desc.add<bool>("includeErrors",true);
 
   descriptions.addWithDefaultLabel(desc);

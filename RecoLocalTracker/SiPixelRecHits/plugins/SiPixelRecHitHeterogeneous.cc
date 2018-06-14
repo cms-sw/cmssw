@@ -19,7 +19,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
-#include "EventFilter/SiPixelRawToDigi/plugins/siPixelRawToClusterHeterogeneousProduct.h" // TODO: we need a proper place for this header...
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/siPixelRawToClusterHeterogeneousProduct.h" // TODO: we need a proper place for this header...
 
 #include "PixelRecHits.h"
 
@@ -75,7 +75,7 @@ SiPixelRecHitHeterogeneous::SiPixelRecHitHeterogeneous(const edm::ParameterSet& 
 void SiPixelRecHitHeterogeneous::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<edm::InputTag>("heterogeneousSrc", edm::InputTag("siPixelDigisHeterogeneous"));
+  desc.add<edm::InputTag>("heterogeneousSrc", edm::InputTag("siPixelClustersHeterogeneous"));
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClusters"));
   desc.add<std::string>("CPE", "PixelCPEFast");
 
@@ -150,12 +150,11 @@ void SiPixelRecHitHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent& i
   if (!fcpe) {
     throw cms::Exception("Configuration") << "too bad, not a fast cpe gpu processing not possible....";
   }
-  assert(fcpe->d_paramsOnGPU);
 
   edm::Handle<siPixelRawToClusterHeterogeneousProduct::GPUProduct> hinput;
   iEvent.getByToken<Input>(token_, hinput);
 
-  gpuAlgo_->makeHitsAsync(*hinput, fcpe->d_paramsOnGPU, cudaStream);
+  gpuAlgo_->makeHitsAsync(*hinput, fcpe->getGPUProductAsync(cudaStream), cudaStream);
 }
 
 void SiPixelRecHitHeterogeneous::produceGPUCuda(edm::HeterogeneousEvent& iEvent, const edm::EventSetup& iSetup, cuda::stream_t<>& cudaStream) {

@@ -1,5 +1,17 @@
+<use   name="DataFormats/Common"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/SiPixelCluster"/>
 <use   name="boost_serialization"/>
 <use   name="RecoLocalTracker/SiPixelClusterizer"/>
-<library   file="*.cc" name="RecoLocalTrackerSiPixelClusterizerPlugins">
+<use   name="RecoTracker/Record"/>
+<use   name="CalibTracker/SiPixelESProducers"/>
+<use   name="EventFilter/SiPixelRawToDigi"/>
+<use   name="HeterogeneousCore/Producer"/>
+<use   name="HeterogeneousCore/Product"/>
+<use   name="HeterogeneousCore/CUDACore"/>
+<use   name="cuda"/>
+<use   name="cuda-api-wrappers"/>
+<library   file="*.cc *.cu" name="RecoLocalTrackerSiPixelClusterizerPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

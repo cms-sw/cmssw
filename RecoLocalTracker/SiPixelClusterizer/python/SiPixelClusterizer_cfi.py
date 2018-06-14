@@ -58,5 +58,5 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 )
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
-from EventFilter.SiPixelRawToDigi.siPixelClusterHeterogeneousConverter_cfi import siPixelClusterHeterogeneousConverter as _siPixelClusterHeterogeneousConverter
+from RecoLocalTracker.SiPixelClusterizer.siPixelClusterHeterogeneousConverter_cfi import siPixelClusterHeterogeneousConverter as _siPixelClusterHeterogeneousConverter
 gpu.toReplaceWith(siPixelClusters, _siPixelClusterHeterogeneousConverter.clone())

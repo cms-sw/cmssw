@@ -1,7 +1,7 @@
 #ifndef RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
 #define RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHits_h
 
-#include "EventFilter/SiPixelRawToDigi/plugins/siPixelRawToClusterHeterogeneousProduct.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/siPixelRawToClusterHeterogeneousProduct.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClusteringConstants.h"
 
 #include <cuda/api_wrappers.h>

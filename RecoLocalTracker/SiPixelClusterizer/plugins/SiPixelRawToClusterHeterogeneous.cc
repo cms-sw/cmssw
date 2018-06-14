@@ -9,6 +9,8 @@
 #include <cuda_runtime.h>
 
 // CMSSW includes
+#include "CalibTracker/Records/interface/SiPixelGainCalibrationForHLTGPURcd.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTGPU.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
@@ -47,10 +49,13 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
 #include "HeterogeneousCore/Product/interface/HeterogeneousProduct.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
+
+#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelFedCablingMapGPUWrapper.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "SiPixelRawToClusterGPUKernel.h"
 #include "siPixelRawToClusterHeterogeneousProduct.h"
+#include "PixelThresholdClusterizer.h"
 
 namespace {
   struct AccretionCluster {
@@ -129,7 +134,6 @@ std::unique_ptr<PixelUnpackingRegions> regions_;
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   edm::ESWatcher<SiPixelQualityRcd> qualityWatcher;
   bool recordWatcherUpdatedSinceLastTransfer_ = false;
-  bool qualityWatcherUpdatedSinceLastTransfer_ = false;
 
   bool usePilotBlade;
   bool usePhase1;
@@ -146,6 +150,7 @@ std::unique_ptr<PixelUnpackingRegions> regions_;
 
   // GPU algo
   std::unique_ptr<pixelgpudetails::SiPixelRawToClusterGPUKernel> gpuAlgo_;
+  std::unique_ptr<SiPixelFedCablingMapGPUWrapper::ModulesToUnpack> gpuModulesToUnpack_;
   PixelDataFormatter::Errors errors_;
 };
 
@@ -199,7 +204,7 @@ void SiPixelRawToClusterHeterogeneous::fillDescriptions(edm::ConfigurationDescri
     temp1.push_back(40);
     desc.add<std::vector<int> >("UserErrorList",temp1)->setComment("## UserErrorList: list of error codes used by Pixel experts for investigation");
   }
-  desc.add<edm::InputTag>("InputLabel",edm::InputTag("siPixelRawData"));
+  desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
   {
     edm::ParameterSetDescription psd0;
     psd0.addOptional<std::vector<edm::InputTag>>("inputs");
@@ -229,7 +234,7 @@ void SiPixelRawToClusterHeterogeneous::fillDescriptions(edm::ConfigurationDescri
 
   HeterogeneousEDProducer::fillPSetDescription(desc);
 
-  descriptions.add("siPixelDigisHeterogeneousDefault",desc);
+  descriptions.add("siPixelClustersHeterogeneousDefault",desc);
 }
 
 const FEDRawDataCollection *SiPixelRawToClusterHeterogeneous::initialize(const edm::Event& ev, const edm::EventSetup& es) {
@@ -258,7 +263,6 @@ const FEDRawDataCollection *SiPixelRawToClusterHeterogeneous::initialize(const e
     if (!badPixelInfo_) {
       edm::LogError("SiPixelQualityNotPresent")<<" Configured to use SiPixelQuality, but SiPixelQuality not present";
     }
-    qualityWatcherUpdatedSinceLastTransfer_ = true;
   }
 
   // tracker geometry: to make sure numbering of DetId is consistent...
@@ -422,23 +426,31 @@ void SiPixelRawToClusterHeterogeneous::produceCPU(edm::HeterogeneousEvent& ev, c
 void SiPixelRawToClusterHeterogeneous::beginStreamGPUCuda(edm::StreamID streamId, cuda::stream_t<>& cudaStream) {
   // Allocate GPU resources here
   gpuAlgo_ = std::make_unique<pixelgpudetails::SiPixelRawToClusterGPUKernel>();
+  gpuModulesToUnpack_ = std::make_unique<SiPixelFedCablingMapGPUWrapper::ModulesToUnpack>();
 }
 
 void SiPixelRawToClusterHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEvent& ev, const edm::EventSetup& es, cuda::stream_t<>& cudaStream) {
   const auto buffers = initialize(ev.event(), es);
 
-  std::set<unsigned int> modules;
   if (regions_) {
-    modules = *(regions_->modulesToUnpack());
+    std::set<unsigned int> modules = *(regions_->modulesToUnpack());
+    gpuModulesToUnpack_->fillAsync(*cablingMap_, modules, cudaStream);
+  }
+  else if(recordWatcherUpdatedSinceLastTransfer_) {
+    // If regions_ are disabled, it is enough to fill and transfer only if cablingMap has changed
+    gpuModulesToUnpack_->fillAsync(*cablingMap_, std::set<unsigned int>(), cudaStream);
   }
 
-  if(recordWatcherUpdatedSinceLastTransfer_) {
-    // convert the cabling map to a GPU-friendly version
-    gpuAlgo_->updateCablingMap(*cablingMap_, *geom_, badPixelInfo_, modules, cudaStream);
-    gpuAlgo_->updateGainCalibration(theSiPixelGainCalibration_.payload(), *geom_, cudaStream);
-
-    recordWatcherUpdatedSinceLastTransfer_ = false;
+  edm::ESHandle<SiPixelFedCablingMapGPUWrapper> hgpuMap;
+  es.get<CkfComponentsRecord>().get(hgpuMap);
+  if(hgpuMap->hasQuality() != useQuality) {
+    throw cms::Exception("LogicError") << "UseQuality of the module (" << useQuality<< ") differs the one from SiPixelFedCablingMapGPUWrapper. Please fix your configuration.";
   }
+  // get the GPU product already here so that the async transfer can begin
+  const auto *gpuMap = hgpuMap->getGPUProductAsync(cudaStream);
+
+  edm::ESHandle<SiPixelGainCalibrationForHLTGPU> hgains;
+  es.get<SiPixelGainCalibrationForHLTGPURcd>().get(hgains);
 
   errors_.clear();
 
@@ -503,7 +515,8 @@ void SiPixelRawToClusterHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEv
 
   } // end of for loop
 
-  gpuAlgo_->makeClustersAsync(wordCounterGPU, fedCounter, convertADCtoElectrons,
+  gpuAlgo_->makeClustersAsync(gpuMap, gpuModulesToUnpack_->get(), hgains->getGPUProductAsync(cudaStream),
+                              wordCounterGPU, fedCounter, convertADCtoElectrons,
                               useQuality, includeErrors, debug, cudaStream);
 }
 

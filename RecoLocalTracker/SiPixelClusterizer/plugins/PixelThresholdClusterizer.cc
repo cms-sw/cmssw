@@ -20,8 +20,8 @@
 //----------------------------------------------------------------------------
 
 // Our own includes
-#include "RecoLocalTracker/SiPixelClusterizer/interface/PixelThresholdClusterizer.h"
-#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
+#include "PixelThresholdClusterizer.h"
+#include "SiPixelArrayBuffer.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibrationOffline.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"

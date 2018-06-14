@@ -1,14 +1,4 @@
 <use name="EventFilter/SiPixelRawToDigi"/>
-<library file="SiPixelDigiToRaw.cc SiPixelRawToDigi.cc" name="EventFilterSiPixelRawToDigiPlugins">
-  <flags EDM_PLUGIN="1"/>
-</library>
-<library file="SiPixelRawToClusterHeterogeneous.cc SiPixelFedCablingMapGPU.cc SiPixelRawToClusterGPUKernel.cu SiPixelDigiHeterogeneousConverter.cc SiPixelClusterHeterogeneousConverter.cc" name="EventFilterSiPixelRawToDigiGPUPlugins">
-  <use name="cuda"/>
-  <use name="cuda-api-wrappers"/>
-  <use name="CalibTracker/SiPixelESProducers"/>
-  <use name="HeterogeneousCore/Producer"/>
-  <use name="HeterogeneousCore/Product"/>
-  <use name="HeterogeneousCore/CUDACore"/>
-  <use name="RecoLocalTracker/SiPixelClusterizer"/>
+<library file="*.cc" name="EventFilterSiPixelRawToDigiPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

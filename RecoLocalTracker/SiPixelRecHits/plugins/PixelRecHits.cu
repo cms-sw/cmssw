@@ -10,7 +10,7 @@
 #include <thrust/system/cuda/execution_policy.h>
 
 // CMSSW headers
-#include "EventFilter/SiPixelRawToDigi/plugins/SiPixelRawToClusterGPUKernel.h"
+#include "RecoLocalTracker/SiPixelClusterizer/plugins/SiPixelRawToClusterGPUKernel.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 #include "PixelRecHits.h"

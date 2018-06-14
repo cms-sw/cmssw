@@ -18,6 +18,7 @@
 #include <cuda_runtime.h>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+#include "HeterogeneousCore/CUDAServices/interface/numberOfCUDADevices.h"
 
 #include <iostream>
 
@@ -69,6 +70,20 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
    fillParamsForGpu();   
 }
 
+const pixelCPEforGPU::ParamsOnGPU *PixelCPEFast::getGPUProductAsync(cuda::stream_t<>& cudaStream) const {
+  const auto& data = gpuData_.dataForCurrentDeviceAsync(cudaStream, [this](GPUData& data, cuda::stream_t<>& stream) {
+      // and now copy to device...
+      cudaCheck(cudaMalloc((void**) & data.h_paramsOnGPU.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
+      cudaCheck(cudaMalloc((void**) & data.h_paramsOnGPU.m_detParams, this->m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams)));
+      cudaCheck(cudaMalloc((void**) & data.d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
+
+      cudaCheck(cudaMemcpyAsync(data.d_paramsOnGPU, &data.h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_commonParams, &this->m_commonParamsGPU, sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyDefault, stream.id()));
+      cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_detParams, this->m_detParamsGPU.data(), this->m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyDefault, stream.id()));
+    });
+  return data.d_paramsOnGPU;
+}
+
 void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.theThicknessB = m_DetParams.front().theThickness;
   m_commonParamsGPU.theThicknessE = m_DetParams.back().theThickness;
@@ -115,22 +130,16 @@ void PixelCPEFast::fillParamsForGpu() {
     auto rr = pixelCPEforGPU::Rotation(p.theDet->surface().rotation());
     g.frame = pixelCPEforGPU::Frame(vv.x(),vv.y(),vv.z(),rr);
   }
-
-  // and now copy to device...
-  cudaCheck(cudaMalloc((void**) & h_paramsOnGPU.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
-  cudaCheck(cudaMalloc((void**) & h_paramsOnGPU.m_detParams, m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams)));
-  cudaCheck(cudaMalloc((void**) & d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
-
-  cudaCheck(cudaMemcpy(d_paramsOnGPU, &h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_commonParams, &m_commonParamsGPU, sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_detParams, m_detParamsGPU.data(), m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyDefault));
-  cudaDeviceSynchronize();
 }
 
-PixelCPEFast::~PixelCPEFast() {
-  cudaFree(h_paramsOnGPU.m_commonParams);
-  cudaFree(h_paramsOnGPU.m_detParams);
-  cudaFree(d_paramsOnGPU);
+PixelCPEFast::~PixelCPEFast() {}
+
+PixelCPEFast::GPUData::~GPUData() {
+  if(d_paramsOnGPU != nullptr) {
+    cudaFree(h_paramsOnGPU.m_commonParams);
+    cudaFree(h_paramsOnGPU.m_detParams);
+    cudaFree(d_paramsOnGPU);
+  }
 }
 
 PixelCPEBase::ClusterParam* PixelCPEFast::createClusterParam(const SiPixelCluster & cl) const
