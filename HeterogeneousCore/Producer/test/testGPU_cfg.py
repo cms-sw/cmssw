@@ -15,7 +15,7 @@ process.options = cms.untracked.PSet(
 from HeterogeneousCore.Producer.testHeterogeneousEDProducerGPU_cfi import testHeterogeneousEDProducerGPU as prod
 
 #process.Tracer = cms.Service("Tracer")
-process.CUDAService = cms.Service("CUDAService")
+process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
 process.prod1 = prod.clone()
 process.prod2 = prod.clone(src = "prod1")
 process.prod3 = prod.clone(src = "prod1")
@@ -30,3 +30,6 @@ process.p.associate(process.t)
 
 # Example of disabling CUDA device type for one module via configuration
 #process.prod4.heterogeneousEnabled_.GPUCuda = False
+
+# Example of limiting the number of EDM streams per device
+#process.CUDAService.numberOfStreamsPerDevice = 1

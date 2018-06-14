@@ -36,6 +36,12 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
     return;
   }
 
+  auto numberOfStreamsPerDevice = iConfig.getUntrackedParameter<unsigned int>("numberOfStreamsPerDevice");
+  if(numberOfStreamsPerDevice > 0) {
+    numberOfStreamsTotal_ = numberOfStreamsPerDevice * numberOfDevices_;
+    edm::LogSystem("CUDAService") << "Number of edm::Streams per CUDA device has been set to " << numberOfStreamsPerDevice << ". With " << numberOfDevices_ << " CUDA devices, this means total of " << numberOfStreamsTotal_ << " edm::Streams for all CUDA devices."; // TODO: eventually silence to LogDebug
+  }
+
   computeCapabilities_.reserve(numberOfDevices_);
   for(int i=0; i<numberOfDevices_; ++i) {
     int major, minor;
@@ -61,6 +67,7 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
 void CUDAService::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("enabled", true);
+  desc.addUntracked<unsigned int>("numberOfStreamsPerDevice", 0)->setComment("Upper limit of the number of edm::Streams that will run on a single CUDA GPU device. The remaining edm::Streams will be run only on other devices (for time being this means CPU in practice). The value '0' means 'unlimited', a value >= 1 imposes the limit.");
 
   descriptions.add("CUDAService", desc);
 }

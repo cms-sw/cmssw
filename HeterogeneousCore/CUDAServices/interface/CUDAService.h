@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCore_CUDAServices_CUDAService_h
 #define HeterogeneousCore_CUDAServices_CUDAService_h
 
+#include "FWCore/Utilities/interface/StreamID.h"
+
 #include <utility>
 #include <vector>
 
@@ -24,7 +26,11 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
+  // To be used in global context when an edm::Stream is not available
   bool enabled() const { return enabled_; }
+  // To be used in stream context when an edm::Stream is available
+  bool enabled(edm::StreamID streamId) const { return enabled(static_cast<unsigned int>(streamId)); }
+  bool enabled(unsigned int streamId) const { return enabled_ && (numberOfStreamsTotal_ == 0 || streamId < numberOfStreamsTotal_); } // to make testing easier
 
   int numberOfDevices() const { return numberOfDevices_; }
 
@@ -42,6 +48,7 @@ public:
 
 private:
   int numberOfDevices_ = 0;
+  unsigned int numberOfStreamsTotal_ = 0;
   std::vector<std::pair<int, int> > computeCapabilities_;
   bool enabled_ = false;
 };
