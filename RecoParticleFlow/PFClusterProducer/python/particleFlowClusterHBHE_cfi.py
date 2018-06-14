@@ -116,13 +116,10 @@ particleFlowClusterHBHE = cms.EDProducer(
 
 #####
 
-# offline phase2 restore what has been studied in the TDR
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-
 # offline 2018 -- uncollapsed
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
-(run2_HE_2018 & ~run2_HECollapse_2018 & ~phase2_hcal).toModify(particleFlowClusterHBHE,
+(run2_HE_2018 & ~run2_HECollapse_2018).toModify(particleFlowClusterHBHE,
     seedFinder = dict(thresholdsByDetector = {1 : dict(seedingThreshold = _seedingThresholdsHEphase1) } ),
     initialClusteringStep = dict(thresholdsByDetector = {1 : dict(gatheringThreshold = _thresholdsHEphase1) } ),
     pfClusterBuilder = dict(
@@ -134,7 +131,7 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 
 # offline 2019
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-(run3_HB & ~phase2_hcal).toModify(particleFlowClusterHBHE,
+run3_HB.toModify(particleFlowClusterHBHE,
     seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThreshold = _seedingThresholdsHBphase1) } ),
     initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThreshold = _thresholdsHBphase1) } ),
     pfClusterBuilder = dict(
