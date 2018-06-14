@@ -60,7 +60,7 @@ class AlCa(Scenario):
         """
         step = ""
         pclWflws = [x for x in skims if "PromptCalibProd" in x]
-        skims = filter(lambda x: x not in pclWflws, skims)
+        skims = [x for x in skims if x not in pclWflws]
 
         if len(pclWflws):
             step += 'ALCA:'+('+'.join(pclWflws))

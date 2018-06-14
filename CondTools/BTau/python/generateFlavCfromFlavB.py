@@ -8,10 +8,7 @@ import checkBTagCalibrationConsistency as checker
 
 
 def generate_flav_c(loaded_data):
-    flav_b_data = filter(
-        lambda e: e.params.jetFlavor == 0,
-        loaded_data.entries
-    )
+    flav_b_data = [e for e in loaded_data.entries if e.params.jetFlavor == 0]
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.operatingPoint)
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.measurementType)
     flav_b_data = sorted(flav_b_data, key=lambda e: e.params.etaMin)

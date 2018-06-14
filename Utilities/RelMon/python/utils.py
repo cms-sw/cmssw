@@ -245,7 +245,7 @@ class Chi2(StatisticalTest):
         if h.GetBinContent(ibin)>0:
           nfilled+=1
       n_filled_l.append(nfilled)
-    return len(filter (lambda x:x>=min_filled,n_filled_l) )>0
+    return len([x for x in n_filled_l if x>=min_filled] )>0
 
   def absval(self):
     nbins=getNbins(self.h1)

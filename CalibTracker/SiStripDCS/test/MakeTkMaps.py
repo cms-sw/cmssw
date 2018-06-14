@@ -22,7 +22,7 @@ def ProduceTkMapVoltageInputFiles(workdir=os.getcwd()): #Setting the dir by defa
 	"""
 	#Get all the files in the directory workdir (1 file per IOV):
 	print "Analysing %s directory"%workdir
-	logfilenames=filter(lambda x: x.startswith("DetVOffReaderDebug"), os.listdir(workdir))
+	logfilenames=[x for x in os.listdir(workdir) if x.startswith("DetVOffReaderDebug")]
 	if logfilenames:
 		print "Processing %s logfiles..."%len(logfilenames)
 	else:
@@ -119,7 +119,7 @@ def CreateTkVoltageMapsCfgs(workdir=os.getcwd()): #Default to current working di
 	It returns the list of cfgs ready to be cmsRun to produce the maps 
 	"""
 	#Use HV log files to loop... could use also LV logs...
-	HVLogs=filter(lambda x: x.startswith("HV") and "FROM" in x and x.endswith(".log"),os.listdir(workdir))
+	HVLogs=[x for x in os.listdir(workdir) if x.startswith("HV") and "FROM" in x and x.endswith(".log")]
 	
 	#Open the file to use as template
 	TkMapCreatorTemplateFile=open(os.path.join(os.getenv("CMSSW_BASE"),"src/CalibTracker/SiStripDCS/test","TkVoltageMapCreator_cfg.py"),"r")
@@ -157,7 +157,7 @@ def CreateTkVoltageMaps(workdir=os.getcwd()): #Default to current working direct
 	Function that looks for TkVoltageMap*cfg.py in the workdir directory and launches each of them
 	creating 2 TkVoltageMaps per IOV, one for LV and one of HV status (each as a png file). 
 	"""
-	TkMapCfgs=filter(lambda x: x.startswith("TkVoltageMap") and "FROM" in x and x.endswith("cfg.py"),os.listdir(workdir))
+	TkMapCfgs=[x for x in os.listdir(workdir) if x.startswith("TkVoltageMap") and "FROM" in x and x.endswith("cfg.py")]
 	for TkMapCfg in TkMapCfgs:
 		#Make sure we run the cfg in the workdir and also the logfile is saved there...
 		TkMapCfg=os.path.join(workdir,TkMapCfg)

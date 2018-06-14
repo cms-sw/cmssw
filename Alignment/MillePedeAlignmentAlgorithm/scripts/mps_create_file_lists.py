@@ -593,8 +593,7 @@ class FileListCreator(object):
                       "'{}'.".format(track_collections[0]))
             return track_collections[0]
         else:
-            alcareco_tracks = filter(lambda x: x.startswith("ALCARECO"),
-                                     track_collections)
+            alcareco_tracks = [x for x in track_collections if x.startswith("ALCARECO")]
             if len(alcareco_tracks) == 0 and "generalTracks" in track_collections:
                 print_msg("\tDetermined track collection as 'generalTracks'.")
                 return "generalTracks"
