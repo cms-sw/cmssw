@@ -14,6 +14,7 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HBHERecalibration.h"
+#include "CondFormats/DataRecord/interface/HcalTPParametersRcd.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbHardcode.h"
 
