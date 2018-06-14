@@ -34,13 +34,10 @@ particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
        energyCorrector = cms.PSet()
 )
 
-# offline phase2 restore what has been studied in the TDR
-from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-
 # offline 2018 -- uncollapsed
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
-(run2_HE_2018 & ~run2_HECollapse_2018 & ~phase2_hcal).toModify(particleFlowClusterHCAL,
+(run2_HE_2018 & ~run2_HECollapse_2018).toModify(particleFlowClusterHCAL,
     pfClusterBuilder = dict(
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
     ),
@@ -48,7 +45,7 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 
 # offline 2019
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-(run3_HB & ~phase2_hcal).toModify(particleFlowClusterHCAL,
+run3_HB.toModify(particleFlowClusterHCAL,
     pfClusterBuilder = dict(
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
     ),
