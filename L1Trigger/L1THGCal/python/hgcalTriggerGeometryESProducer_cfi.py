@@ -18,6 +18,7 @@ disconnectedTriggerLayers = [
         ]
 
 
+
 geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexLayerBasedImp1'),
                      L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping_8inch_aligned_192_432_V8_0.txt"),
                      L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/panel_mapping_tdr_0.txt"),
@@ -32,5 +33,3 @@ hgcalTriggerGeometryESProducer = cms.ESProducer(
     'HGCalTriggerGeometryESProducer',
     TriggerGeometry = geometry
 )
-
-
