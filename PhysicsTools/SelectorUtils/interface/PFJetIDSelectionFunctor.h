@@ -621,12 +621,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
 
    // Cuts for |eta| < 2.4 for FIRSTDATA, RUNIISTARTUP, WINTER16 and WINTER17
-<<<<<<< HEAD
-    if(version_ != WINTER17 ||  quality_ != TIGHT ) {if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);}
-=======
     if((version_ != WINTER17 && version_ != WINTER17PUPPI) ||  quality_ != TIGHT ) {if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);}
 
->>>>>>> ed8ce8b98f8... implement PUPPI jet iD
     if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
     if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);
 
