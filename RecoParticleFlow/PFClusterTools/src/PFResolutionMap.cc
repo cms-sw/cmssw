@@ -312,12 +312,12 @@ double PFResolutionMap::dCrackPhi(double phi, double eta){
   constexpr double twopiO18= pi/9;// 3.14159265358979323846;
   
   //Location of the 18 phi-cracks
-  constexpr std::array<double,18> cPhi {2.97025, 
+  constexpr std::array<double,18> cPhi {{2.97025, 
 					2.97025-twopiO18, 2.97025-2*twopiO18, 2.97025-3*twopiO18, 2.97025-4*twopiO18,
 					2.97025-5*twopiO18, 2.97025-6*twopiO18, 2.97025-7*twopiO18, 2.97025-8*twopiO18,
 					2.97025-9*twopiO18, 2.97025-10*twopiO18, 2.97025-11*twopiO18, 2.97025-12*twopiO18,
 					2.97025-13*twopiO18, 2.97025-14*twopiO18, 2.97025-15*twopiO18, 2.97025-16*twopiO18,
-					2.97025-17*twopiO18};
+					2.97025-17*twopiO18}};
 
   //Shift of this location if eta<0
   constexpr double delta_cPhi=0.00638;
