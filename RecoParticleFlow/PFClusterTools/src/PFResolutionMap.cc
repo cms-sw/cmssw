@@ -8,6 +8,7 @@
 #include <TMath.h>
 #include <vector>
 using namespace std;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 const unsigned PFResolutionMap::lineSize_ = 10000;
@@ -90,13 +91,13 @@ bool PFResolutionMap::WriteMapFile(const char* mapfile) {
 
   std::ofstream outf(mapfile);
   if( !outf.good() ) {
-    cout<<"PFResolutionMap::Write : cannot open file "<<mapfile<<endl;
+    edm::LogWarning("PFResolutionMap::Write")<<" : cannot open file "<<mapfile;
     return false;
   }
   
   outf<<(*this)<<endl;
   if(!outf.good() ) {
-    cerr<<"PFResolutionMap::Write : corrupted file "<<mapfile<<endl;
+    edm::LogError("PFResolutionMap::Write")<<" : corrupted file "<<mapfile;
     return false;
   }
   else {
@@ -229,10 +230,10 @@ bool PFResolutionMap::ReadMapFile(const char* mapfile) {
 
 
 double PFResolutionMap::getRes(double eta, double phi, double e, int MapEta){
-  static double fMinEta = -2.95;
-  static double fMaxEta = 2.95;
-  static double fMinE=0;
-  static double fMaxE=100;
+  constexpr double fMinEta = -2.95;
+  constexpr double fMaxEta = 2.95;
+  constexpr double fMinE=0;
+  constexpr double fMaxE=100;
 
   if( eta<fMinEta ) eta = fMinEta+0.001;
   if( eta>fMaxEta ) eta = fMaxEta-0.001;
@@ -306,30 +307,34 @@ double PFResolutionMap::minimum(double a,double b){
 //compute the unsigned distance to the closest phi-crack in the barrel
 double PFResolutionMap::dCrackPhi(double phi, double eta){
 
-  static double pi= M_PI;// 3.14159265358979323846;
+  constexpr double pi= M_PI;// 3.14159265358979323846;
+  constexpr double twopi= 2.*pi;// 3.14159265358979323846;
+  constexpr double twopiO18= pi/9;// 3.14159265358979323846;
   
   //Location of the 18 phi-cracks
-  static std::vector<double> cPhi;
-  cPhi.resize(18,0);
-  cPhi[0]=2.97025;
-  for(unsigned i=1;i<=17;i++) cPhi[i]=cPhi[0]-2*i*pi/18;
+  constexpr std::array<double,18> cPhi {2.97025, 
+					2.97025-twopiO18, 2.97025-2*twopiO18, 2.97025-3*twopiO18, 2.97025-4*twopiO18,
+					2.97025-5*twopiO18, 2.97025-6*twopiO18, 2.97025-7*twopiO18, 2.97025-8*twopiO18,
+					2.97025-9*twopiO18, 2.97025-10*twopiO18, 2.97025-11*twopiO18, 2.97025-12*twopiO18,
+					2.97025-13*twopiO18, 2.97025-14*twopiO18, 2.97025-15*twopiO18, 2.97025-16*twopiO18,
+					2.97025-17*twopiO18};
 
   //Shift of this location if eta<0
-  static double delta_cPhi=0.00638;
+  constexpr double delta_cPhi=0.00638;
 
   double m; //the result
 
   //the location is shifted
   if(eta<0){ 
     phi +=delta_cPhi;
-    if(phi>pi) phi-=2*pi;
+    if(phi>pi) phi-=twopi;
   }
   if (phi>=-pi && phi<=pi){
 
     //the problem of the extrema
     if (phi<cPhi[17] || phi>=cPhi[0]){
-      if (phi<0) phi+= 2*pi;
-      m = minimum(phi -cPhi[0],phi-cPhi[17]-2*pi);        	
+      if (phi<0) phi+= twopi;
+      m = minimum(phi -cPhi[0],phi-cPhi[17]-twopi);        	
     }
 
     //between these extrema...
@@ -347,7 +352,7 @@ double PFResolutionMap::dCrackPhi(double phi, double eta){
   }
   else{
     m=0.;        //if there is a problem, we assum that we are in a crack
-    std::cout<<"Problem in dminphi"<<std::endl;
+    edm::LogWarning("PFResolutionMap:Problem")<<"Problem in dminphi";
   }
   if(eta<0) m=-m;   //because of the disymetry
   return m;
