@@ -126,11 +126,14 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
 }
 
 GlobalPoint RecHitTools::getPositionLayer(unsigned layer) const {
+  const int hgcal_default_wafer = 50;
+  const int hcal_default_ieta = 50;
+  const int hcal_default_iphi = 100;
   DetId id(0);
   if(geometryType_==0){
-    if (layer <= fhOffset_) id = HGCalDetId(ForwardSubdetector::HGCEE, 1, layer, 1, 50, 1);
-    else if (layer <= bhOffset_) id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, layer - fhOffset_, 1, 50, 1);
-    else  id = HcalDetId(HcalSubdetector::HcalEndcap, 50, 100, layer - bhOffset_);
+    if (layer <= fhOffset_) id = HGCalDetId(ForwardSubdetector::HGCEE, 1, layer, 1, hgcal_default_wafer, 1);
+    else if (layer <= bhOffset_) id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, layer - fhOffset_, 1, hgcal_default_wafer, 1);
+    else  id = HcalDetId(HcalSubdetector::HcalEndcap, hcal_default_ieta, hcal_default_iphi, layer - bhOffset_);
   }
   else {
     if (layer <= fhOffset_) id = HGCSiliconDetId(DetId::HGCalEE, 1, 0, layer, 0, 0, 0, 0);
