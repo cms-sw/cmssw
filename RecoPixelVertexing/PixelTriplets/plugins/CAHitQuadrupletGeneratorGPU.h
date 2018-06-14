@@ -1,5 +1,8 @@
-#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
-#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
+#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATORGPU_H
+#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATORGPU_H
+
+#include <cuda_runtime.h>
+#include "GPUHitsAndDoublets.h"
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
@@ -10,7 +13,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "CAGraph.h"
 
-
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,6 +20,8 @@
 
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitSeeds.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/GPUSimpleVector.h"
+#include "GPUCACell.h"
 
 class TrackingRegion;
 class SeedingLayerSetsHits;
@@ -28,7 +32,7 @@ namespace edm {
     class ParameterSetDescription;
 }
 
-class CAHitQuadrupletGenerator {
+class CAHitQuadrupletGeneratorGPU {
 public:
     typedef LayerHitMapCache LayerCacheType;
 
@@ -37,20 +41,27 @@ public:
 
 public:
 
-    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitQuadrupletGenerator(cfg, iC) {}
-    CAHitQuadrupletGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+    CAHitQuadrupletGeneratorGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC): CAHitQuadrupletGeneratorGPU(cfg, iC) {}
+    CAHitQuadrupletGeneratorGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-    ~CAHitQuadrupletGenerator() = default;
+    ~CAHitQuadrupletGeneratorGPU();
 
     static void fillDescriptions(edm::ParameterSetDescription& desc);
-    static const char *fillDescriptionsLabel() { return "caHitQuadrupletDefault"; }
+    static const char *fillDescriptionsLabel() { return "caHitQuadrupletGPU"; }
 
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
                      std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
-                     const SeedingLayerSetsHits& layers);
+                     const SeedingLayerSetsHits& layers, const cudaStream_t& stream);
+    void fillResults(const IntermediateHitDoublets& regionDoublets,
+                     std::vector<OrderedHitSeeds>& result,
+                     const edm::EventSetup& es,
+                     const SeedingLayerSetsHits& layers, const cudaStream_t& stream);
+
+    void allocateOnGPU();
+    void deallocateOnGPU();
 
 private:
     LayerCacheType theLayerCache;
@@ -121,7 +132,12 @@ private:
         const bool enabled_;
     };
 
+
+
+    void  launchKernels(const TrackingRegion &, int);
+    std::vector<std::array<std::pair<int,int> ,3 > > fetchKernelResult(int );
     const float extraHitRPhitolerance;
+    std::vector<std::vector<const HitDoublets *> > hitDoublets;
 
     const QuantityDependsPt maxChi2;
     const bool fitFastCircle;
@@ -131,5 +147,48 @@ private:
     const float caThetaCut = 0.00125f;
     const float caPhiCut = 0.1f;
     const float caHardPtCut = 0.f;
+
+    cudaStream_t cudaStream_;
+
+    static constexpr int maxNumberOfQuadruplets_ = 10000;
+    static constexpr int maxCellsPerHit_ = 512;
+    static constexpr int maxNumberOfLayerPairs_ = 13;
+    static constexpr unsigned int maxNumberOfRootLayerPairs_ = 13;
+    static constexpr int maxNumberOfLayers_ = 10;
+    static constexpr int maxNumberOfDoublets_ = 262144;
+    static constexpr int maxNumberOfHits_ = 10000;
+    static constexpr int maxNumberOfRegions_ = 30;
+
+    unsigned int numberOfRootLayerPairs_ = 0;
+    unsigned int numberOfLayerPairs_ = 0;
+    unsigned int numberOfLayers_ = 0;
+
+
+    GPULayerDoublets* h_doublets_;
+    GPULayerHits* h_layers_;
+
+    unsigned int* h_indices_;
+    float *h_x_, *h_y_, *h_z_;
+    float *d_x_, *d_y_, *d_z_;
+    unsigned int* d_rootLayerPairs_;
+    GPULayerHits* d_layers_;
+    GPULayerDoublets* d_doublets_;
+    unsigned int* d_indices_;
+    unsigned int* h_rootLayerPairs_;
+    std::vector< GPU::SimpleVector<Quadruplet>* > h_foundNtupletsVec_;
+    std::vector< Quadruplet* > h_foundNtupletsData_;
+
+
+    std::vector<GPU::SimpleVector<Quadruplet>*> d_foundNtupletsVec_;
+    std::vector<GPU::SimpleVector<Quadruplet>*> tmp_foundNtupletsVec_;
+
+    std::vector<Quadruplet*> d_foundNtupletsData_;
+
+    GPUCACell* device_theCells_;
+    GPU::VecArray< unsigned int, maxCellsPerHit_>* device_isOuterHitOfCell_;
+
+    GPULayerHits* tmp_layers_;
+    GPULayerDoublets* tmp_layerDoublets_;
+
 };
 #endif
