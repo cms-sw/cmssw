@@ -74,6 +74,7 @@ def ageSiPM(process,turnon,lumi):
     # todo: determine ZS threshold adjustments
 
     # adjust PF thresholds for increased noise
+    # based on: https://baylor.box.com/s/w32ja75krcbxcycyifexu28dwlgrj7wg
     hcal_lumis = [300, 1000, 3000, 4500, 1e10]
     hcal_thresholds = {
         300: {
