@@ -7,7 +7,7 @@ _thresholdsHBphase1 = cms.vdouble(0.1, 0.2, 0.3, 0.3)
 _thresholdsHEphase1 = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
 _seedingThresholdsHB = cms.vdouble(1.0, 1.0, 1.0, 1.0)
 _seedingThresholdsHE = cms.vdouble(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)
-_seedingThresholdsHBphase1 = cms.vdouble(0.125, 0.25, 0.25, 0.25)
+_seedingThresholdsHBphase1 = cms.vdouble(0.125, 0.25, 0.35, 0.35)
 _seedingThresholdsHEphase1 = cms.vdouble(0.1375, 0.275, 0.275, 0.275, 0.275, 0.275, 0.275)
 
 
