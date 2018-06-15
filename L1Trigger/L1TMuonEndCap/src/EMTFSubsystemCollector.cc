@@ -67,6 +67,28 @@ void EMTFSubsystemCollector::extractPrimitives(
   return;
 }
 
+// Specialized for CPPF
+template<>
+void EMTFSubsystemCollector::extractPrimitives(
+    emtf::CPPFTag tag, // Defined in interface/EMTFSubsystemTag.h, maps to CPPFDigi
+    const edm::Event& iEvent,
+    const edm::EDGetToken& token,
+    TriggerPrimitiveCollection& out
+) const {
+  edm::Handle<emtf::CPPFTag::digi_collection> cppfDigis;
+  iEvent.getByToken(token, cppfDigis);
+
+  TriggerPrimitiveCollection muon_primitives;
+
+  for (auto digi : *cppfDigis) {
+    muon_primitives.emplace_back(digi.rpcId(), digi);
+  }
+
+  // Output
+  std::copy(muon_primitives.begin(), muon_primitives.end(), std::back_inserter(out));
+  return;
+}
+
 // Specialized for GEM
 template<>
 void EMTFSubsystemCollector::extractPrimitives(
