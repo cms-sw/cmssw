@@ -134,6 +134,9 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
   _rpc.strip = digi.strip();
   _rpc.strip_low = digi.strip();
   _rpc.strip_hi = digi.strip();
+  _rpc.phi_int = 0;
+  _rpc.theta_int = 0;
+  _rpc.emtf_sector = 0;
   _rpc.layer = detid.layer();
   _rpc.bx = digi.bx();
   _rpc.valid = 1;
@@ -150,6 +153,9 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
   _rpc.strip = strip;
   _rpc.strip_low = strip;
   _rpc.strip_hi = strip;
+  _rpc.phi_int = 0;
+  _rpc.theta_int = 0;
+  _rpc.emtf_sector = 0;
   _rpc.layer = layer;
   _rpc.bx = bx;
   _rpc.valid = 1;
@@ -162,6 +168,7 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
   _id(detid),
   _subsystem(TriggerPrimitive::kRPC) {
   calculateGlobalSector(detid,_globalsector,_subsector);
+  // In unpacked CPPF digis, the strip number and cluster size are not available, and are set to -99
   _rpc.strip       = ( digi.first_strip() < 0 ? 0 : digi.first_strip() + (digi.cluster_size() / 2) );
   _rpc.strip_low   = ( digi.first_strip() < 0 ? 0 : digi.first_strip() );
   _rpc.strip_hi    = ( digi.first_strip() < 0 ? 0 : digi.first_strip() + digi.cluster_size() - 1 );
