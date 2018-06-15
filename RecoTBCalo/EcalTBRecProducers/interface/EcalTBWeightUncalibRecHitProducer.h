@@ -37,8 +37,8 @@ class EcalTBWeightUncalibRecHitProducer : public edm::EDProducer {
     EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> EBalgo_;
     EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> EEalgo_;
 
-    const EEShape testbeamEEShape;  
-    const EBShape testbeamEBShape; 
+    EEShape testbeamEEShape;  
+    EBShape testbeamEBShape; 
 
 /*     HepMatrix makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec); */
 /*     HepMatrix makeDummySymMatrix(int size); */

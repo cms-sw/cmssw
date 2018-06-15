@@ -67,10 +67,10 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::Produc
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params,  edm::ConsumesCollector& iC) :
    DigiAccumulatorMixMod(),
-   m_APDShape         ( params.getParameter<double>( "apdShapeTstart" ) ,
-			params.getParameter<double>( "apdShapeTau"    )   )  ,
-   m_EBShape          (   ) ,
-   m_EEShape          (   ) ,
+   useDBShape         ( false) ,
+   m_APDShape         ( useDBShape ) ,
+   m_EBShape          ( useDBShape ) ,
+   m_EEShape          ( useDBShape ) ,
    m_ESShape          (   ) ,
    m_EBdigiCollection ( params.getParameter<std::string>("EBdigiCollection") ) ,
    m_EEdigiCollection ( params.getParameter<std::string>("EEdigiCollection") ) ,
@@ -648,4 +648,10 @@ void EcalDigiProducer::setESNoiseSignalGenerator(EcalBaseSignalGenerator * noise
   if(nullptr != m_ESDigitizer) m_ESDigitizer->setNoiseSignalGenerator(noiseGenerator);  
 }
 
+
+void EcalDigiProducer::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
+   m_EBShape.setEventSetup(setup); 
+   m_EEShape.setEventSetup(setup);
+   m_APDShape.setEventSetup(setup);
+}
 
