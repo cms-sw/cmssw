@@ -22,6 +22,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
 	conf.getParameter<double>("HcalThreshold"),
 	conf.getParameter<double>("HBThreshold"),
 	conf.getParameter<double>("HBThreshold1"),
+	conf.getParameter<double>("HBThreshold2"),
 	conf.getParameter<double>("HESThreshold"),
 	conf.getParameter<double>("HESThreshold1"),
 	conf.getParameter<double>("HEDThreshold"),
@@ -309,6 +310,7 @@ void CaloTowersCreator::fillDescriptions(edm::ConfigurationDescriptions& descrip
 	desc.add<double>("HOThresholdMinus2", 3.5);
 	desc.add<double>("HBThreshold", 0.7);
 	desc.add<double>("HBThreshold1", 0.7);
+	desc.add<double>("HBThreshold2", 0.7);
 	desc.add<double>("HF1Threshold", 0.5);
 	desc.add<double>("HEDWeight", 1.0);
 	desc.add<double>("EEWeight", 1.0);
