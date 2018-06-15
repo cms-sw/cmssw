@@ -93,6 +93,7 @@ def ageSiPM(process,turnon,lumi):
             "rec": [1.25, 2.5, 2.5, 2.5],
         },
     }
+    ctmodules = ['calotowermaker','caloTowerForTrk','caloTowerForTrkPreSplitting','towerMaker','towerMakerWithHO']
     for ilumi, hcal_lumi in enumerate(hcal_lumis[:-1]):
         if lumi >= hcal_lumi and lumi < hcal_lumis[ilumi+1]:
             if hasattr(process,'particleFlowClusterHBHE'):
@@ -105,6 +106,10 @@ def ageSiPM(process,turnon,lumi):
                 process.particleFlowClusterHCAL.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
             if hasattr(process,'particleFlowRecHitHBHE'):
                 process.particleFlowRecHitHBHE.producers[0].qualityTests[0].cuts[0].threshold = hcal_thresholds[hcal_lumi]["rec"]
+            for ctmod in ctmodules:
+                if hasattr(process,ctmod):
+                    getattr(process,ctmod).HBThreshold1 = hcal_thresholds[hcal_lumi]["rec"][0]
+                    getattr(process,ctmod).HBThreshold = hcal_thresholds[hcal_lumi]["rec"][-1]
             break
 
     return process
