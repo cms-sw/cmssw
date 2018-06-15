@@ -7,3 +7,10 @@ except:
     badEvents=[]
 
 hcalLaserEventFilter = hcallaserevent.clone(BadRunEventNumbers=cms.vuint32(badEvents) )
+
+from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+run2_HCAL_2018.toModify( hcalLaserEventFilter,
+                           vetoByHBHEOccupancy = cms.bool( False),
+                           minOccupiedHBHE = cms.uint32(8000)
+                       )
+
