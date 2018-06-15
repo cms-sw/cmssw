@@ -45,7 +45,10 @@
 #include <vector>
 
 #define DEBUG
-EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps) {
+EcalTBWeightUncalibRecHitProducer::EcalTBWeightUncalibRecHitProducer(const edm::ParameterSet& ps):
+testbeamEEShape(EEShape(false)), // Shapes have been updated in 2018 such as to be able to fetch shape from the DB if EBShape(true)//EEShape(true) are used
+testbeamEBShape(EBShape(false))  // use false as argument if you would rather prefer to use Phase I hardcoded shapes (18.05.2018 K. Theofilatos)
+{
 
    EBdigiCollection_ = ps.getParameter<edm::InputTag>("EBdigiCollection");
    EEdigiCollection_ = ps.getParameter<edm::InputTag>("EEdigiCollection");
@@ -62,7 +65,8 @@ EcalTBWeightUncalibRecHitProducer::~EcalTBWeightUncalibRecHitProducer() {
 }
 
 void
-EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+{
 
    using namespace edm;
    
@@ -454,7 +458,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 	 //chi2mat[1]=&mat4;
 
 	 EcalUncalibratedRecHit aHit =
-	   EEalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape);
+	   EEalgo_.makeRecHit(itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape); 
 	   //EEalgo_.makeRecHit(itdg, pedVec, gainRatios, weights, chi2mat);
 	 EEuncalibRechits->push_back( aHit );
 #ifdef DEBUG

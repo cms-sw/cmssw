@@ -64,6 +64,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 
 namespace CondFormats_EcalObjects {
   struct dictionary {
@@ -221,6 +222,15 @@ namespace CondFormats_EcalObjects {
     EcalContainer<EEDetId,EcalPulseSymmCovariance> ec_eeDetId_ecalPulseSymmCovariance;
     EcalContainer<EBDetId,EcalPulseSymmCovariance> ec_ebDetId_ecalPulseSymmCovariance;
     EcalCondObjectContainer<EcalPulseSymmCovariance> ecalSPCmap; //typedef EcalPulseSymmCovariance
+
+    EcalSimPulseShape ecal_sim_pulse_shapes;
+    std::vector<double> v_barrel_shape;
+    std::vector<double> v_endcap_shape;
+    std::vector<double> v_apd_shape; 
+    double barrel_thresh;
+    double endcap_thresh;
+    double apd_thresh;
+    float time_interval; 
 
   };
 }

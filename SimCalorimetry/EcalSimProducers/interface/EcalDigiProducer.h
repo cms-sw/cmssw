@@ -67,6 +67,7 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
       void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
       void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
+      void beginRun(edm::Run const& run, edm::EventSetup const& setup) override;
 
       void setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
       void setEENoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
@@ -86,9 +87,10 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
 
-      const APDShape m_APDShape ;
-      const EBShape  m_EBShape  ;
-      const EEShape  m_EEShape  ;
+      bool useDBShape;
+      APDShape m_APDShape ;
+      EBShape  m_EBShape  ;
+      EEShape  m_EEShape  ;
       ESShape        m_ESShape  ; // no const because gain must be set
 
       const std::string m_EBdigiCollection ;

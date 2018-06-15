@@ -173,6 +173,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   Int_t * ntupleInts_ ;
   Char_t ntupleDet_[10] ;
   Char_t ntupleCrate_[10] ;
+  
+  bool useDBShape_;
 
 };
 #endif
