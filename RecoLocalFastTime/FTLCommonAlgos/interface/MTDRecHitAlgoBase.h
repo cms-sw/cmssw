@@ -34,10 +34,8 @@ class MTDRecHitAlgoBase {
   virtual void getEventSetup(const edm::EventSetup&) = 0;
 
   /// make rechits from dataframes
-  virtual FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags,
-			       const double& calibration, const double& thresholdToKeep) const = 0;
+  virtual FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const = 0;
  
-
   const std::string& name() const { return name_; }
 
  private:

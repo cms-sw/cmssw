@@ -5,8 +5,9 @@ class MTDRecHitAlgo : public MTDRecHitAlgoBase {
   /// Constructor
   MTDRecHitAlgo( const edm::ParameterSet& conf,
                        edm::ConsumesCollector& sumes ) : 
-    MTDRecHitAlgoBase( conf, sumes )
-  { }
+    MTDRecHitAlgoBase( conf, sumes ),
+    thresholdToKeep_( conf.getParameter<double>("thresholdToKeep") ),
+    calibration_( conf.getParameter<double>("calibrationConstant") ) { }
 
   /// Destructor
   ~MTDRecHitAlgo() override { }
@@ -16,17 +17,17 @@ class MTDRecHitAlgo : public MTDRecHitAlgoBase {
   void getEventSetup(const edm::EventSetup&) final {}
 
   /// make the rec hit
-  FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags,
-		       const double& calibration, const double& thresholdToKeep) const final;
+  FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags ) const final;
 
+ private:  
+  double thresholdToKeep_, calibration_;
 };
 
 
 FTLRecHit 
-MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags,
-			  const double& calibration, const double& thresholdToKeep) const {
+MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const {
 
-  float energy = uRecHit.amplitude() * calibration;
+  float energy = uRecHit.amplitude() * calibration_;
   float time   = uRecHit.time();
   float timeError = uRecHit.timeError();
   
@@ -34,7 +35,7 @@ MTDRecHitAlgo::makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags,
     
   // Now fill flags
   // all rechits from the digitizer are "good" at present
-  if( energy > thresholdToKeep ) {
+  if( energy > thresholdToKeep_ ) {
     flags = FTLRecHit::kGood;
     rh.setFlag(flags);    
   } else {
