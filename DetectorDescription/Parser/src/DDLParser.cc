@@ -28,9 +28,10 @@ DDLParser::DDLParser( DDCompactView& cpv )
   
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreValidation, false);   // optional
   SAX2Parser_->setFeature(XMLUni::fgSAX2CoreNameSpaces, false);   // optional
-  
-  expHandler_  = new DDLSAX2ExpressionHandler(cpv);
-  fileHandler_ = new DDLSAX2FileHandler(cpv);
+
+  elementRegistry_ = new DDLElementRegistry();
+  expHandler_  = new DDLSAX2ExpressionHandler(cpv, *elementRegistry_);
+  fileHandler_ = new DDLSAX2FileHandler(cpv, *elementRegistry_);
   errHandler_  = new DDLSAX2Handler();
   SAX2Parser_->setErrorHandler(errHandler_); 
   SAX2Parser_->setContentHandler(fileHandler_); 
@@ -43,6 +44,7 @@ DDLParser::~DDLParser( void )
   delete expHandler_;
   delete fileHandler_;
   delete errHandler_;
+  delete elementRegistry_;
   cms::concurrency::xercesTerminate();
 }
 

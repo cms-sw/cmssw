@@ -49,7 +49,4 @@ class DDLElementRegistry
   RegistryMap registry_;
 };
 
-///This is only here because of the boost::spirit::parser stuff of DDLMap needing to be re-designed.
-typedef DDI::Singleton<DDLElementRegistry> DDLGlobalRegistry;
-
 #endif

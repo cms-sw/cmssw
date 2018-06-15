@@ -10,8 +10,8 @@ class DDCompactView;
 
 // XERCES_CPP_NAMESPACE_USE 
 
-DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv )
-  : cpv_(cpv)
+DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv, DDLElementRegistry& reg )
+  : cpv_(cpv), registry_{reg}
 {
   init();
 }
@@ -46,7 +46,7 @@ DDLSAX2FileHandler::startElement( const XMLCh* const uri,
     names_.emplace_back(namesMap_.size() - 1);
   }
 
-  auto myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  auto myElement = registry_.getElement(myElementName);
 
   unsigned int numAtts = attrs.getLength();
   std::vector<std::string> attrNames, attrValues;
@@ -70,7 +70,7 @@ DDLSAX2FileHandler::endElement( const XMLCh* const uri,
   std::string ts(cStr(qname).ptr());
   const std::string&  myElementName = self();
 
-  auto myElement = DDLGlobalRegistry::instance().getElement(myElementName);
+  auto myElement = registry_.getElement(myElementName);
 
   std::string nmspace = nmspace_;
   // The need for processElement to have the nmspace so that it can 
@@ -98,7 +98,7 @@ void
 DDLSAX2FileHandler::characters( const XMLCh* const chars,
 				const XMLSize_t length )
 {
-  auto myElement = DDLGlobalRegistry::instance().getElement(self());
+  auto myElement = registry_.getElement(self());
   std::string inString = "";
   for (XMLSize_t i = 0; i < length; ++i)
   {
