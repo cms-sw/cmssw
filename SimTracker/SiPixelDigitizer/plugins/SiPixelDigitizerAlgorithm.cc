@@ -265,7 +265,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Add pixel radiation damage for upgrade studies
   AddPixelAging(conf.getParameter<bool>("DoPixelAging")),
-  UseReweighting(conf.exists("UseReweighting")?conf.getParameter<bool>("UseReweighting"):false),
+  UseReweighting(conf.exists("UseReweighting")?conf.getParameter<bool>("UseReweighting"):true),
   PrintClusters(conf.exists("PrintClusters")?conf.getParameter<bool>("PrintClusters"):false),
   PrintTemplates(conf.exists("PrintTemplates")?conf.getParameter<bool>("PrintTemplates"):false),
 
