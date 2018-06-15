@@ -13,39 +13,9 @@
 
 class DDCompactView;
 
-class VectorMakeDouble
-{
-public:
-  void operator() (char const* str, char const* end) const
-    {
-      ddlVector_->do_makeDouble(str, end);
-    }
-  
-  VectorMakeDouble() {
-    ddlVector_ = std::static_pointer_cast<DDLVector>(DDLGlobalRegistry::instance().getElement("Vector"));
-  }
-private: 
-  std::shared_ptr<DDLVector> ddlVector_;
-};
-
-class VectorMakeString
-{
-public:
-  void operator() (char const* str, char const* end) const
-    {
-      ddlVector_->do_makeString(str, end);
-    }
-  
-  VectorMakeString() {
-    ddlVector_ = std::static_pointer_cast<DDLVector>(DDLGlobalRegistry::instance().getElement("Vector"));
-  }
-private:
-  std::shared_ptr<DDLVector> ddlVector_;
-};
-
 namespace {
 template<typename F>
-void parse(char const* str, F& f) {
+void parse(char const* str, F&& f) {
 
   auto ptr = str;
 
@@ -80,18 +50,20 @@ void parse(char const* str, F& f) {
 
 
 bool
-DDLVector::parse_numbers(char const* str) const
+DDLVector::parse_numbers(char const* str)
 {
-  static VectorMakeDouble makeDouble;
-  parse(str, makeDouble);
+  parse(str, [this](char const* st, char const* end) {
+      do_makeDouble(st, end);
+    });
   return true;
 }
 
 bool
-DDLVector::parse_strings(char const* str) const
+DDLVector::parse_strings(char const* str)
 {
-  static VectorMakeString makeString;
-  parse(str,makeString);
+  parse(str,[this](char const* st, char const* end) {
+      do_makeString(st,end);
+    });
   return true;
 }
 
