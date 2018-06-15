@@ -33,10 +33,7 @@ class MTDBaseNumber;
 //-------------------------------------------------------------------
 
 class MtdSD : public SensitiveTkDetector,
-                    public Observer<const BeginOfJob *>,
-                    public Observer<const BeginOfRun *>,
-                    public Observer<const BeginOfEvent*>,
-                    public Observer<const EndOfEvent*> {
+                    public Observer<const BeginOfEvent*>{
 
 public:
   
@@ -50,29 +47,23 @@ public:
 
   void     Initialize(G4HCofThisEvent * HCE) override;
   void     EndOfEvent(G4HCofThisEvent * eventHC) override;
-  void     clear() override;
-  void     DrawAll() override;
   void     PrintAll() override;
 
-  double   getEnergyDeposit(const G4Step* step);
   void     fillHits(edm::PSimHitContainer&, const std::string&) override;
   void     clearHits() override;
   
-private:
-  void     update(const BeginOfJob *) override;
-  void     update(const BeginOfRun *) override;
+protected:
   void     update(const BeginOfEvent *) override;
-  void     update(const ::EndOfEvent *) override;
 
+private:
   G4ThreeVector    SetToLocal(const G4ThreeVector& global);
   G4ThreeVector    SetToLocalExit(const G4ThreeVector& globalPoint);
-  void             GetStepInfo(G4Step* aStep);
+  void             GetStepInfo(const G4Step* aStep);
   G4bool           HitExists();
   void             CreateNewHit();
   void             UpdateHit();
   void             StoreHit(BscG4Hit*);
   void             ResetForNewPrimary();
-  void             Summarize();
   std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
   void             setNumberingScheme(MTDNumberingScheme*);
   void             getBaseNumber(const G4Step*);
@@ -88,21 +79,20 @@ private:
   float                        incidentEnergy;
   G4int                        primID  ; 
   
-  std::string                  name;
   G4int                        hcID;
   BscG4HitCollection*          theHC; 
   const SimTrackManager*       theManager;
  
   G4int                        tsID; 
   BscG4Hit*                    currentHit;
-  G4Track*                     theTrack;
-  G4VPhysicalVolume*           currentPV;
+  const G4Track*               theTrack;
+  const G4VPhysicalVolume*     currentPV;
   uint32_t                     unitID, previousUnitID;
   G4int                        primaryID, tSliceID;  
   G4double                     tSlice;
   
-  G4StepPoint*                 preStepPoint; 
-  G4StepPoint*                 postStepPoint; 
+  const G4StepPoint*           preStepPoint; 
+  const G4StepPoint*           postStepPoint; 
   float                        edeposit;
   
   G4ThreeVector                hitPoint;
@@ -110,7 +100,7 @@ private:
   G4ThreeVector                hitPointLocal;
   G4ThreeVector                hitPointLocalExit;
 
-  float                        Pabs, Tof, Eloss;	
+  float                        Pabs, Tof;	
   short                        ParticleType; 
   float                        ThetaAtEntry, PhiAtEntry;
   
@@ -118,14 +108,10 @@ private:
   float                        Vx,Vy,Vz;
   float                        X,Y,Z;
   
-  int                          eventno;
-
   MTDNumberingScheme *         numberingScheme;
   MTDBaseNumber                theBaseNumber;
   bool                         isBTL;
   bool                         isETL;
-  
-protected:
   
   float                        edepositEM, edepositHAD;
 };
