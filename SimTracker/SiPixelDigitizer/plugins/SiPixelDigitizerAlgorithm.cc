@@ -2346,7 +2346,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
     cotalpha = track[3]/track[5]; //if track[5] (direction in z) is 0 the hit is not processed by re-weighting
     cotbeta = track[4]/track[5];
   } else {
-    LogWarning ("Pixel Digitizer") << "Reweighting angle is not good!" << std::endl;
+    LogDebug ("Pixel Digitizer") << "Reweighting angle is not good!" << std::endl;
     return 9; //returned value here indicates that no reweighting was done in this case
   }
 
