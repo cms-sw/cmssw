@@ -1,9 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalFastTime.FTLCommonAlgos.mtdRecHitAlgo_cff import mtdRecHitAlgo
+_barrelAlgo = cms.PSet(
+    algoName = cms.string("MTDRecHitAlgo"),
+    thresholdToKeep = cms.double(1.),              # MeV
+    calibrationConstant = cms.double(0.026041667), # MeV/pC
+)
 
-_barrelAlgo = mtdRecHitAlgo.clone()
-_endcapAlgo = mtdRecHitAlgo.clone()
+
+_endcapAlgo = cms.PSet(
+    algoName = cms.string("MTDRecHitAlgo"),
+    thresholdToKeep = cms.double(0.5), # MIPs
+    calibrationConstant = cms.double(1.),
+)
+
 
 mtdRecHits = cms.EDProducer(
     "MTDRecHitProducer",
@@ -13,8 +22,4 @@ mtdRecHits = cms.EDProducer(
     endcapUncalibratedRecHits = cms.InputTag('mtdUncalibratedRecHits:FTLEndcap'),
     BarrelHitsName = cms.string('FTLBarrel'),
     EndcapHitsName = cms.string('FTLEndcap'),
-    BTLthresholdToKeep = cms.double(1.),
-    BTLcalibrationConstant = cms.double(0.026041667), # MeV/pC
-    ETLthresholdToKeep = cms.double(0.5),
-    ETLcalibrationConstant = cms.double(1.)
 )
