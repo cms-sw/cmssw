@@ -41,7 +41,7 @@ public:
       EMTFHit& conv_hit
   ) const;
 
-  void convert_rpc_details(EMTFHit& conv_hit) const;
+  void convert_rpc_details(EMTFHit& conv_hit, const bool use_cppf_lut) const;
 
   // GEM functions
   void convert_gem(
