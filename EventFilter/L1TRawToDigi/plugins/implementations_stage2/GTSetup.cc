@@ -119,11 +119,9 @@ namespace l1t {
             res[14] = jet_unp;
             res[16] = tau_unp;
             res[18] = tau_unp;
-
             res[20] = etsum_unp;
 
-            //only unpack first uGT board for the inputs (single copy)
-            if(amc == 1) { 
+            if(amc == 1) { // only unpack first uGT board for the external signal inputs (single copy)
                 res[24] = ext_unp;
                 //res[22] = empty link no data
                 res[26] = ext_unp;
