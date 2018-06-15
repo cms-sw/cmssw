@@ -107,7 +107,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("doSharing", false);
   desc.add<std::vector<double>>("deltac", {
     2.0,
-    5.0,
+    2.0,
     5.0,
   });
   desc.add<bool>("dependSensor", true);
