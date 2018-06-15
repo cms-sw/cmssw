@@ -19,7 +19,8 @@ calotowermaker = cms.EDProducer("CaloTowersCreator",
     HOThresholdMinus2 = cms.double(3.5),
     HBGrid = cms.vdouble(-1.0, 1.0, 10.0, 100.0, 1000.0),
     # Energy threshold for HB cell inclusion [GeV]
-    HBThreshold = cms.double(0.7),
+    HBThreshold1 = cms.double(0.7), # depth 1
+    HBThreshold = cms.double(0.7), # depths 2-4
     EEWeights = cms.vdouble(1.0, 1.0, 1.0, 1.0, 1.0),
     # Energy threshold for long-fiber HF readout inclusion [GeV]
     HF1Threshold = cms.double(0.5),
@@ -162,4 +163,10 @@ run2_HECollapse_2018.toModify(calotowermaker,
     HESThreshold  = cms.double(0.8),
     HEDThreshold1 = cms.double(0.8),
     HEDThreshold  = cms.double(0.8)
+)
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify(calotowermaker,
+    HBThreshold1 = cms.double(0.1),
+    HBThreshold = cms.double(0.3),
 )

@@ -23,6 +23,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
 
    theHcalThreshold(-1000.),
    theHBthreshold(-1000.),
+   theHBthreshold1(-1000.),
    theHESthreshold(-1000.),
    theHESthreshold1(-1000.),
    theHEDthreshold(-1000.),
@@ -98,7 +99,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 					       bool useSymEETreshold,				    
 
 					       double HcalThreshold,
-					       double HBthreshold, 
+					       double HBthreshold, double HBthreshold1,
                                                double HESthreshold, double HESthreshold1, 
                                                double HEDthreshold, double HEDthreshold1,
 					       double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -127,6 +128,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
+    theHBthreshold1(HBthreshold1),
     theHESthreshold(HESthreshold),
     theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
@@ -201,7 +203,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
        bool useSymEETreshold,
 
        double HcalThreshold,
-       double HBthreshold, 
+       double HBthreshold, double HBthreshold1,
        double HESthreshold, double HESthreshold1, 
        double HEDthreshold, double HEDthreshold1,
        double HOthreshold0, double HOthresholdPlus1, double HOthresholdMinus1,  
@@ -238,6 +240,7 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
 
     theHcalThreshold(HcalThreshold),
     theHBthreshold(HBthreshold),
+    theHBthreshold1(HBthreshold1),
     theHESthreshold(HESthreshold),
     theHESthreshold1(HESthreshold1),
     theHEDthreshold(HEDthreshold),
@@ -1231,7 +1234,7 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     int depth =  hcalDetId.depth();   
 
     if(subdet == HcalBarrel) {
-      threshold = theHBthreshold;
+      threshold = (depth == 1) ? theHBthreshold1 : theHBthreshold;
       weight = theHBweight;
       if (weight <= 0.) {
         ROOT::Math::Interpolator my(theHBGrid,theHBWeights,ROOT::Math::Interpolation::kAKIMA);
