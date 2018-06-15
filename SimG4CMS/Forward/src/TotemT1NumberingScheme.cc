@@ -26,5 +26,4 @@ TotemT1NumberingScheme::TotemT1NumberingScheme(int i) {
 }
 
 TotemT1NumberingScheme::~TotemT1NumberingScheme() {
-  edm::LogInfo("ForwardSim") << " Deleting TotemT1NumberingScheme";
 }
