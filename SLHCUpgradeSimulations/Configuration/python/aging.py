@@ -109,6 +109,7 @@ def ageSiPM(process,turnon,lumi):
             for ctmod in ctmodules:
                 if hasattr(process,ctmod):
                     getattr(process,ctmod).HBThreshold1 = hcal_thresholds[hcal_lumi]["rec"][0]
+                    getattr(process,ctmod).HBThreshold2 = hcal_thresholds[hcal_lumi]["rec"][1]
                     getattr(process,ctmod).HBThreshold = hcal_thresholds[hcal_lumi]["rec"][-1]
             break
 
