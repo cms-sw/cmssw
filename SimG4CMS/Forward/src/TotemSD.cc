@@ -51,7 +51,7 @@ TotemSD::TotemSD(const std::string& name, const DDCompactView & cpv,
   SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr), 
   hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
-  postStepPoint(nullptr), eventno(0){
+  postStepPoint(nullptr){
 
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("TotemSD");
@@ -81,19 +81,14 @@ TotemSD::~TotemSD() {
 
 bool TotemSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == nullptr) {
+  GetStepInfo(aStep);
+  if (!HitExists() && edeposit>0.) { 
+    CreateNewHit();
     return true;
-  } else {
-    GetStepInfo(aStep);
-    if (HitExists() == false && edeposit>0.) { 
-      CreateNewHit();
-      return true;
-    }
-    if (HitExists() == false && (((unitID==1111 || unitID==2222) && 
-				  ParentId==0 && ParticleType==2212))) { 
-      CreateNewHitEvo();
-      return true;
-    }
+  }
+  if (!HitExists() && (((unitID==1111 || unitID==2222) && 
+			ParentId==0 && ParticleType==2212))) { 
+    CreateNewHitEvo();
   }
   return true;
 }
@@ -140,14 +135,7 @@ void TotemSD::EndOfEvent(G4HCofThisEvent* ) {
 			       aHit->getThetaAtEntry(),aHit->getPhiAtEntry()));
 
   }
-  Summarize();
 }
-
-void TotemSD::clear() {
-} 
-
-void TotemSD::DrawAll() {
-} 
 
 void TotemSD::PrintAll() {
   LogDebug("ForwardSim") << "TotemSD: Collection " << theHC->GetName();
@@ -162,10 +150,6 @@ void TotemSD::update (const BeginOfEvent * i) {
   LogDebug("ForwardSim") << " Dispatched BeginOfEvent for " << GetName()
                        << " !" ;
    clearHits();
-   eventno = (*i)()->GetEventID();
-}
-
-void TotemSD::update (const ::EndOfEvent*) {
 }
 
 void TotemSD::clearHits(){
@@ -180,7 +164,7 @@ G4ThreeVector TotemSD::SetToLocal(const G4ThreeVector& global) {
   return localPoint;  
 }
 
-void TotemSD::GetStepInfo(G4Step* aStep) {
+void TotemSD::GetStepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -203,7 +187,6 @@ void TotemSD::GetStepInfo(G4Step* aStep) {
   LogDebug("ForwardSim") << "UNITa " << unitID;
 #endif
   primaryID = theTrack->GetTrackID();
-
 
   Posizio = hitPoint;
   Pabs    = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
@@ -252,6 +235,7 @@ bool TotemSD::HitExists() {
 	aPreviousHit->getUnitID()      == unitID       ) {
       currentHit = aPreviousHit;
       found      = true;
+      break;
     }
   }          
 
@@ -283,8 +267,7 @@ void TotemSD::CreateNewHit() {
     LogDebug("ForwardSim") << " daughter of part. " << theTrack->GetParentID();
   }
 
-  cout  << " and created by " ;
-  if (theTrack->GetCreatorProcess()!=NULL)
+  if (theTrack->GetCreatorProcess()!=nullptr)
     LogDebug("ForwardSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
     LogDebug("ForwardSim") << "NO process";
@@ -347,7 +330,6 @@ void TotemSD::CreateNewHitEvo() {
   if(flagAcc==1){
     currentHit->setEntry(_PosizioEvo.x(),_PosizioEvo.y(),_PosizioEvo.z());
 
-    // if(flagAcc==1)
     UpdateHit();
   
     StoreHit(currentHit);
@@ -450,11 +432,9 @@ G4ThreeVector TotemSD::PosizioEvo(const G4ThreeVector& Pos, double vx, double vy
   return PosEvo;
 }
  
-
 void TotemSD::UpdateHit() {
   //
   if (Eloss > 0.) {
-    //  currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 
 #ifdef debug
     LogDebug("ForwardSim") << "G4TotemT1SD updateHit: add eloss " << Eloss 
@@ -465,17 +445,6 @@ void TotemSD::UpdateHit() {
 
     currentHit->setEnergyLoss(Eloss);
   }  
-  //  if(PostStepPoint->GetPhysicalVolume() != CurrentPV){
-  //  currentHit->setExitPoint(SetToLocal(postStepPoint->GetPosition()));
-  // Local3DPoint exit=currentHit->exitPoint();
-/*
-#ifdef debug
-  LogDebug("ForwardSim") << "G4TotemT1SD updateHit: exit point " 
-			 << exit.x() << " " << exit.y() << " " << exit.z();
-//  LogDebug("ForwardSim") << "Energy deposit in Unit " << unitID << " em " << edepositEM/MeV
-// << " hadronic " << edepositHAD/MeV << " MeV";
-#endif
-*/
 
   // buffer for next steps:
   tsID           = tSliceID;
@@ -500,5 +469,4 @@ void TotemSD::ResetForNewPrimary() {
   incidentEnergy = preStepPoint->GetKineticEnergy();
 }
 
-void TotemSD::Summarize() {
-}
+
