@@ -73,6 +73,40 @@ def ageSiPM(process,turnon,lumi):
 
     # todo: determine ZS threshold adjustments
 
+    # adjust PF thresholds for increased noise
+    hcal_lumis = [300, 1000, 3000, 4500, 1e10]
+    hcal_thresholds = {
+        300: {
+            "seed": [0.5, 0.625, 0.75, 0.75],
+            "rec": [0.4, 0.5, 0.6, 0.6],
+        },
+        1000: {
+            "seed": [1.0, 1.5, 1.5, 1.5],
+            "rec": [0.8, 1.2, 1.2, 1.2],
+        },
+        3000: {
+            "seed": [1.25, 2.5, 2.5, 2.5],
+            "rec": [1.0, 2.0, 2.0, 2.0],
+        },
+        4500: {
+            "seed": [1.5, 3.0, 3.0, 3.0],
+            "rec": [1.25, 2.5, 2.5, 2.5],
+        },
+    }
+    for ilumi, hcal_lumi in enumerate(hcal_lumis[:-1]):
+        if lumi >= hcal_lumi and lumi < hcal_lumis[ilumi+1]:
+            if hasattr(process,'particleFlowClusterHBHE'):
+                process.particleFlowClusterHBHE.seedFinder.thresholdsByDetector[0].seedingThreshold              = hcal_thresholds[hcal_lumi]["seed"]
+                process.particleFlowClusterHBHE.initialClusteringStep.thresholdsByDetector[0].gatheringThreshold = hcal_thresholds[hcal_lumi]["rec"]
+                process.particleFlowClusterHBHE.pfClusterBuilder.recHitEnergyNorms[0].recHitEnergyNorm           = hcal_thresholds[hcal_lumi]["rec"]
+                process.particleFlowClusterHBHE.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
+                process.particleFlowClusterHBHE.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
+            if hasattr(process,'particleFlowClusterHCAL'):
+                process.particleFlowClusterHCAL.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector[0].logWeightDenominator = hcal_thresholds[hcal_lumi]["rec"]
+            if hasattr(process,'particleFlowRecHitHBHE'):
+                process.particleFlowRecHitHBHE.producers[0].qualityTests[0].cuts[0].threshold = hcal_thresholds[hcal_lumi]["rec"]
+            break
+
     return process
 
 def ageHcal(process,lumi,instLumi,scenarioHLLHC):
