@@ -75,6 +75,12 @@ class BTLElectronicsSim {
   const float adcThreshold_MIP_;
   const float toaLSB_ns_;
 
+  const float ScintillatorDecayTime2_;
+  const float SPTR2_;
+  const float DCRxRiseTime_;
+  const float SigmaElectronicNoise2_;
+  const float SigmaClock2_;
+
   const BTLPulseShape btlPulseShape_; 
 
 };

@@ -25,6 +25,9 @@ class MTDRecHitProducer : public edm::stream::EDProducer<> {
   
   const std::string ftlbInstance_; // instance name of barrel hits
   const std::string ftleInstance_; // instance name of endcap hits
+
+  const double BTLthresholdToKeep_, BTLcalibration_;
+  const double ETLthresholdToKeep_, ETLcalibration_;
   
   std::unique_ptr<MTDRecHitAlgoBase> barrel_,endcap_;
 };
@@ -33,7 +36,12 @@ MTDRecHitProducer::MTDRecHitProducer(const edm::ParameterSet& ps) :
   ftlbURecHits_( consumes<FTLUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("barrelUncalibratedRecHits") ) ),
   ftleURecHits_( consumes<FTLUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("endcapUncalibratedRecHits") ) ),
   ftlbInstance_( ps.getParameter<std::string>("BarrelHitsName") ),
-  ftleInstance_( ps.getParameter<std::string>("EndcapHitsName") ) {
+  ftleInstance_( ps.getParameter<std::string>("EndcapHitsName") ),
+  BTLthresholdToKeep_( ps.getParameter<double>("BTLthresholdToKeep") ),
+  BTLcalibration_( ps.getParameter<double>("BTLcalibrationConstant") ),
+  ETLthresholdToKeep_( ps.getParameter<double>("ETLthresholdToKeep") ),
+  ETLcalibration_( ps.getParameter<double>("ETLcalibrationConstant") )
+{
   
   produces< FTLRecHitCollection >(ftlbInstance_);
   produces< FTLRecHitCollection >(ftleInstance_);
@@ -72,7 +80,9 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   barrelRechits->reserve(hBarrel->size()/2);
   for(const auto& uhit : *hBarrel) {
     uint32_t flags = FTLRecHit::kGood;
-    auto rechit = std::move(barrel_->makeBTLRecHit(uhit, flags));
+    auto rechit = std::move( barrel_->makeRecHit(uhit, flags,
+						 BTLcalibration_, 
+						 BTLthresholdToKeep_) );
     if( flags == FTLRecHit::kGood ) barrelRechits->push_back( std::move(rechit) );
   }
 
@@ -81,7 +91,9 @@ MTDRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   endcapRechits->reserve(hEndcap->size()/2);
   for(const auto& uhit : *hEndcap) {
     uint32_t flags = FTLRecHit::kGood;
-    auto rechit = std::move(endcap_->makeETLRecHit(uhit, flags));
+    auto rechit = std::move( barrel_->makeRecHit(uhit, flags,
+						 ETLcalibration_, 
+						 ETLthresholdToKeep_) );
     if( flags == FTLRecHit::kGood ) endcapRechits->push_back( std::move(rechit) );
   }
       
