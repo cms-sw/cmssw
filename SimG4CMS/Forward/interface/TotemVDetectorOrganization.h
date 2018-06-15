@@ -6,7 +6,7 @@
 #define Forward_TotemVDetectorOrganization_h
 
 #include "G4Step.hh"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class TotemVDetectorOrganization {
 
