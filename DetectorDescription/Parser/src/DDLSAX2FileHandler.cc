@@ -119,7 +119,7 @@ DDLSAX2FileHandler::comment( const XMLCh* const chars,
 void
 DDLSAX2FileHandler::createDDConstants( void ) const
 {
-  DDConstant::createConstantsFromEvaluator();
+  DDConstant::createConstantsFromEvaluator(registry_.evaluator());
 }
 
 const std::string&
