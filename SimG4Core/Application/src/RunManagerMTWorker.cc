@@ -79,30 +79,23 @@ namespace {
                       int thisThreadID
                       )
   {
-    using namespace std;
-    using namespace edm;
     if(!iP.exists("Watchers")) { return; }
 
-    vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
-    
-    if(thisThreadID > 0) {
-      throw edm::Exception(edm::errors::Configuration) << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
-    }
+    std::vector<edm::ParameterSet> watchers = 
+      iP.getParameter<std::vector<edm::ParameterSet> >("Watchers");
 
-    for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
-        itWatcher != watchers.end();
-        ++itWatcher) {
+    for(auto & watcher : watchers) {
       std::unique_ptr<SimWatcherMakerBase> maker(
-        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type"))
+        SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type"))
       );
       if(maker.get()==nullptr) {
         throw edm::Exception(edm::errors::Configuration)
-	  << "Unable to find the requested Watcher";
+	  << "Unable to find the requested Watcher <"
+	  << watcher.getParameter<std::string>("type");
       }
-
       std::shared_ptr<SimWatcher> watcherTemp;
       std::shared_ptr<SimProducer> producerTemp;
-      maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
+      maker->make(watcher,iReg,watcherTemp,producerTemp);
       oWatchers.push_back(watcherTemp);
       if(producerTemp) {
         oProds.push_back(producerTemp);
