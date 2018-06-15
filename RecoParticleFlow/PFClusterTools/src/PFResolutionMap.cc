@@ -19,8 +19,6 @@ PFResolutionMap::PFResolutionMap(const char* name, unsigned nbinseta,
 				 unsigned nbinse, 
 				 double mine, double maxe, double value) 
   : TH2D(name, name, nbinseta, mineta, maxeta, nbinse, mine, maxe) {
-  // fNbinsEta(nbinseta), fMinEta(mineta), fMaxEta(maxeta),
-  //    fNbinsE(nbinse), fMinE(mine), fMaxE(maxe) {
 
   GetXaxis()->SetTitle("#eta");
   GetYaxis()->SetTitle("E");
@@ -37,38 +35,6 @@ PFResolutionMap::PFResolutionMap(const char* name, unsigned nbinseta,
   
 }
 
-// void PFResolutionMap::Init(unsigned nbinseta,  
-// 			   double mineta, double maxeta,
-// 			   unsigned nbinse, 
-// 			   double mine, double maxe) {
-//   assert(mineta<maxeta);
-//   assert(mine<maxe);
-  
-//   unsigned nbins =  nbinseta*nbinse;
-//   fData.reserve( nbins );
-//   for(unsigned i=0; i<nbins; i++) {
-//     fData.push_back(-1);
-//   } 
-  
-//   // calculate lower bound of eta and e bins
-//   double binsize =  (fMaxEta - fMinEta)/fNbinsEta;
-//   double lb = fMinEta;
-//   // cout<<"eta bins lower bounds : "<<endl;
-//   for(unsigned i=0; i<nbinseta; i++) {
-//     fEtaBinsLowerBounds[lb] = i; 
-//     // cout<<i<<" "<<lb<<endl;
-//     lb += binsize;
-//   }
-  
-//   binsize =  (fMaxE - fMinE)/fNbinsE;
-//   lb = fMinE;
-//   // cout<<"E bins lower bounds : "<<endl;
-//   for(unsigned i=0; i<nbinse; i++) {
-//     fEBinsLowerBounds[lb] = i; 
-//     // cout<<i<<" "<<lb<<endl;
-//     lb += binsize;
-//   } 
-// }
 
 PFResolutionMap::PFResolutionMap(const char* name, const char* mapfile) { 
   SetTitle(name);
@@ -138,9 +104,6 @@ bool PFResolutionMap::ReadMapFile(const char* mapfile) {
 
   SetBins(nbinseta, mineta, maxeta, nbinse, mine, maxe);
 
-  // Init(fNbinsEta,fMinEta,fMaxEta,fNbinsE,fMinE,fMaxE);
-
-  // char data[lineSize_];
   char s[lineSize_];
   int pos=inf.tellg();
 
@@ -182,51 +145,6 @@ bool PFResolutionMap::ReadMapFile(const char* mapfile) {
 }
 
 
-
-// int PFResolutionMap::FindBin(double eta, double e) const {
-  
-//   if(eta<fMinEta || eta>=fMaxEta) {
-//     cout<<"PFResolutionMap::FindBin "<<eta<<" out of eta bounds "<<fMinEta<<" "<<fMaxEta<<endl;
-//     return -1;
-//   }
-//   if(e<fMinE || e>=fMaxE) {
-//     cout<<"PFResolutionMap::FindBin "<<e<<" out of e bounds "<<fMinE<<" "<<fMaxE<<endl;
-//     return -1;
-//   }
-  
-//   map<double,unsigned >::const_iterator iteta = 
-//     fEtaBinsLowerBounds.upper_bound( eta );
-//   iteta--;
-		 
-// //   if( iteta != fEtaBinsLowerBounds.end() ) {
-// //     cout<<"eta lower bound "<<iteta->first<<" "<<iteta->second<<endl;
-// //   }
-// //   else return -1;
-
-//   map<double,unsigned>::const_iterator ite = 
-//     fEBinsLowerBounds.upper_bound( e );
-//   ite--;
-// //   if( ite != fEBinsLowerBounds.end() ) {
-// //     cout<<"e lower bound "<<ite->first<<" "<<ite->second<<endl;
-// //   }
-// //   else return -1;
-
-// //   cout<<"returning "<<ite->second * fNbinsEta + iteta->second<<endl;
-// //   cout<<"returning "<<ite->second<<" "<<iteta->second<<endl;
-
-//   return ite->second * fNbinsEta + iteta->second;
-// }
-
-// void PFResolutionMap::Fill(double eta, double e, double res) {
-
-//   unsigned bin = FindBin(eta, e);
-//   if( bin<0 || bin>fData.size() ) {
-//     // cout<<"PFResolutionMap::Fill : out of range " <<bin<<endl;
-//     return;
-//   }
-  
-//   fData[bin] = res;
-// }
 
 
 double PFResolutionMap::getRes(double eta, double phi, double e, int MapEta){
@@ -308,16 +226,17 @@ double PFResolutionMap::minimum(double a,double b){
 double PFResolutionMap::dCrackPhi(double phi, double eta){
 
   constexpr double pi= M_PI;// 3.14159265358979323846;
-  constexpr double twopi= 2.*pi;// 3.14159265358979323846;
-  constexpr double twopiO18= pi/9;// 3.14159265358979323846;
+  constexpr double twopi= 2.*pi;
+  constexpr double twopiO18= pi/9;
   
   //Location of the 18 phi-cracks
-  constexpr std::array<double,18> cPhi {{2.97025, 
-					2.97025-twopiO18, 2.97025-2*twopiO18, 2.97025-3*twopiO18, 2.97025-4*twopiO18,
-					2.97025-5*twopiO18, 2.97025-6*twopiO18, 2.97025-7*twopiO18, 2.97025-8*twopiO18,
-					2.97025-9*twopiO18, 2.97025-10*twopiO18, 2.97025-11*twopiO18, 2.97025-12*twopiO18,
-					2.97025-13*twopiO18, 2.97025-14*twopiO18, 2.97025-15*twopiO18, 2.97025-16*twopiO18,
-					2.97025-17*twopiO18}};
+  constexpr double c0 = 2.97025;
+  constexpr std::array<double,18> cPhi {{c0, 
+					c0-twopiO18, c0-2*twopiO18, c0-3*twopiO18, c0-4*twopiO18,
+					c0-5*twopiO18, c0-6*twopiO18, c0-7*twopiO18, c0-8*twopiO18,
+					c0-9*twopiO18, c0-10*twopiO18, c0-11*twopiO18, c0-12*twopiO18,
+					c0-13*twopiO18, c0-14*twopiO18, c0-15*twopiO18, c0-16*twopiO18,
+					c0-17*twopiO18}};
 
   //Shift of this location if eta<0
   constexpr double delta_cPhi=0.00638;
