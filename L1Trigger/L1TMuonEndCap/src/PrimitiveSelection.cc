@@ -213,6 +213,10 @@ void PrimitiveSelection::process(
       if (tmp_primitives.size() > 2)
         tmp_primitives.erase(tmp_primitives.begin()+2, tmp_primitives.end());
 
+      // Skip cluster size cut if primitives are from CPPF emulator or EMTF unpacker (already clustered)
+      if (tmp_primitives.size() > 0 && tmp_primitives.at(0).getRPCData().isCPPF)
+	break;
+
       // Apply cluster size cut
       tmp_primitives.erase(
           std::remove_if(tmp_primitives.begin(), tmp_primitives.end(), cluster_size_cut),
@@ -442,8 +446,9 @@ void PrimitiveSelection::merge(
           tmp_rpc_primitives.push_back(tp);
         }
       }
-      if (not(rpc_primitives.size() <= 2))  // at most 2 hits
-	{ edm::LogError("L1T") << "rpc_primitives.size() = " << rpc_primitives.size(); return; }
+      if (not(tmp_rpc_primitives.size() <= 2))  // at most 2 hits
+	{ edm::LogError("L1T") << "tmp_rpc_primitives.size() = " << tmp_rpc_primitives.size(); return; }
+
       selected_prim_map[selected_rpc] = tmp_rpc_primitives;
 
     } else {
@@ -630,6 +635,11 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
 
     int tp_bx        = tp_data.bx;
     int tp_strip     = tp_data.strip;
+    int tp_emtf_sect = tp_data.emtf_sector;
+    bool tp_CPPF     = tp_data.isCPPF;
+
+    // In neighbor chambers, have two separate CPPFDigis for the two EMTF sectors
+    if (tp_CPPF && (tp_emtf_sect != sector_)) return selected;
 
     if ( !(tp_region != 0) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_region = "  << tp_region; return selected; }
@@ -645,7 +655,7 @@ int PrimitiveSelection::select_rpc(const TriggerPrimitive& muon_primitive) const
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_ring = " << tp_ring; return selected; }
     if ( !(1 <= tp_roll && tp_roll <= 3) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_roll = "  << tp_roll; return selected; }
-    if ( !(1 <= tp_strip && tp_strip <= 32) ) {
+    if ( !(tp_CPPF || (1 <= tp_strip && tp_strip <= 32)) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_data.strip = "   << tp_data.strip; return selected; }
     if ( !(tp_station > 2 || tp_ring != 3) ) {
       edm::LogWarning("L1T") << "EMTF RPC format error: tp_station = " << tp_station << ", tp_ring = " << tp_ring; return selected; }
