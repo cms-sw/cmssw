@@ -52,6 +52,9 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
   void characters( const XMLCh* chars, XMLSize_t length) override;
   void comment( const XMLCh* chars, XMLSize_t length ) override;
 
+  //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
+  void createDDConstants() const; 
+
  protected:
   DDLElementRegistry& registry() { return registry_; }
  private:
@@ -59,8 +62,6 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
   virtual const std::string& self() const;
   
  private:
-  //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
-  void createDDConstants() const; 
 
   std::vector< std::string > namesMap_;
   std::vector< size_t > names_;

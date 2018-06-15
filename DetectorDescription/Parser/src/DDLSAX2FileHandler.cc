@@ -19,7 +19,6 @@ DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv, DDLElementRegistry&
 void
 DDLSAX2FileHandler::init()
 {
-  createDDConstants();
   namesMap_.emplace_back("*** root ***");
   names_.emplace_back(namesMap_.size() - 1);
 }
