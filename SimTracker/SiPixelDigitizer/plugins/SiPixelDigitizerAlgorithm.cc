@@ -2280,7 +2280,10 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
     ierr = PixelTempRewgt2D(IDden, IDden, pixrewgt);
   }
   if (ierr!=0){
-    LogInfo ("PixelDigitizer ") << "Cluster Charge Reweighting did not work properly.";
+#ifdef TP_DEBUG 
+    LogDebug ("PixelDigitizer ") << "Cluster Charge Reweighting did not work properly.";
+#endif
+    return false;
   }
   
   if(PrintClusters){
@@ -2371,7 +2374,10 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
 
   if(!templ2D.xytemp(id_in, cotalpha, cotbeta, xhit2D, yhit2D, ydouble, xdouble, xy_in)) {success = 1;}
   if(success != 0){
-    LogWarning ("Pixel Digitizer") << "No matching template found" << std::endl;
+#ifdef TP_DEBUG 
+    LogDebug("Pixel Digitizer") << "No matching template found" << std::endl;
+#endif
+    return 2;
   }
 
   if(PrintTemplates){
