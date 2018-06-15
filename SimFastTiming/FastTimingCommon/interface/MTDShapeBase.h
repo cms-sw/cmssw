@@ -1,7 +1,7 @@
 #ifndef __SimFastTiming_FastTimingCommon_MTDShapeBase_h__
 #define __SimFastTiming_FastTimingCommon_MTDShapeBase_h__
 
-#include<vector>
+#include <vector>
 #include <array>
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
@@ -27,9 +27,9 @@ class MTDShapeBase : public CaloVShape
 				    const float threshold1, 
 				    const float threshold2) const;
 
-      static constexpr int kReadoutTimeInterval = 31;    // in nsec
-      static constexpr int kNBinsPerNSec        = 100;   // granularity of internal array
-      static constexpr int k1NSecBinsTotal      = kReadoutTimeInterval*kNBinsPerNSec;
+      static constexpr unsigned int kReadoutTimeInterval = 31;    // in nsec
+      static constexpr unsigned int kNBinsPerNSec        = 100;   // granularity of internal array
+      static constexpr unsigned int k1NSecBinsTotal      = kReadoutTimeInterval*kNBinsPerNSec;
 
 
    protected:

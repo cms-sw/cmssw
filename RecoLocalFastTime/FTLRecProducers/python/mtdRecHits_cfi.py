@@ -12,5 +12,9 @@ mtdRecHits = cms.EDProducer(
     barrelUncalibratedRecHits = cms.InputTag('mtdUncalibratedRecHits:FTLBarrel'),
     endcapUncalibratedRecHits = cms.InputTag('mtdUncalibratedRecHits:FTLEndcap'),
     BarrelHitsName = cms.string('FTLBarrel'),
-    EndcapHitsName = cms.string('FTLEndcap')
+    EndcapHitsName = cms.string('FTLEndcap'),
+    BTLthresholdToKeep = cms.double(1.),
+    BTLcalibrationConstant = cms.double(0.026041667), # MeV/pC
+    ETLthresholdToKeep = cms.double(0.5),
+    ETLcalibrationConstant = cms.double(1.)
 )

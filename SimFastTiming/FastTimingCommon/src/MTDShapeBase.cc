@@ -1,18 +1,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimFastTiming/FastTimingCommon/interface/MTDShapeBase.h"
 
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-
 
 MTDShapeBase::~MTDShapeBase() { }
 
 
 MTDShapeBase::MTDShapeBase() :
   qNSecPerBin_ ( 1./kNBinsPerNSec ),
-  indexOfMax_  ( 0 ),
+  indexOfMax_  ( 0  ),
   timeOfMax_   ( 0. ),
   shape_       ( DVec(k1NSecBinsTotal, 0.0) ) { }
 
@@ -35,7 +30,7 @@ std::array<float,3> MTDShapeBase::timeAtThr(const float scale,
   unsigned int index_LT1 = 0;
   unsigned int index_LT2 = 0;
 
-  for( unsigned int i=320; i<indexOfMax_; ++i ){
+  for( unsigned int i=0; i<indexOfMax_; ++i ){
     
     float amplitude = shape_[i]*scale;
 
@@ -125,15 +120,14 @@ void MTDShapeBase::buildMe()
 
 unsigned int MTDShapeBase::timeIndex( double aTime ) const
 {
-  const int index ( (unsigned int) ( aTime*kNBinsPerNSec) ) ;
+  const unsigned int index = aTime*kNBinsPerNSec;
   
-  const bool bad ( (int) k1NSecBinsTotal <= index    ) ;
+  const bool bad = ( k1NSecBinsTotal <= index );
   
-  if( bad ) {
+  if( bad )
     LogDebug("MTDShapeBase") << " MTD pulse shape requested for out of range time " << aTime;
-  }
 
-  return ( bad ? k1NSecBinsTotal : (unsigned int) index ) ;
+  return ( bad ? k1NSecBinsTotal : index ) ;
 
 }
 
@@ -153,10 +147,8 @@ double MTDShapeBase::linear_interpolation(const double& y,
 					  const double& y1, const double& y2) const 
 {
 
-  if ( x1 == x2 ){
-    edm::LogError("MTDShapeBase") << " Error in pulse shape interpolation!";
-    return -1.;
-  }
+  if ( x1 == x2 )
+    throw cms::Exception("BadValue") << " MTDShapeBase: Trying to interpolate two points with the same x coordinate!";
   
   double a = (y2-y1)/(x2-x1);
   double b = y1 - a*x1;

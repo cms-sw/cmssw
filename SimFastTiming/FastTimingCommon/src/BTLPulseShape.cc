@@ -14,3110 +14,3107 @@ BTLPulseShape::BTLPulseShape() :
 void BTLPulseShape::fillShape( MTDShapeBase::DVec& aVec ) const
 {
 
-  unsigned int index = 0;
-
   // --- Pulse shape for a signal of 100 p.e.
 
-  aVec[index++] = 1.098909e-08; // time = 0.00 ns (index=0)
-  aVec[index++] = 1.099191e-08; // time = 0.01 ns (index=1)
-  aVec[index++] = 1.099733e-08; // time = 0.02 ns (index=2)
-  aVec[index++] = 1.100358e-08; // time = 0.03 ns (index=3)
-  aVec[index++] = 1.100999e-08; // time = 0.04 ns (index=4)
-  aVec[index++] = 1.101297e-08; // time = 0.05 ns (index=5)
-  aVec[index++] = 1.102126e-08; // time = 0.06 ns (index=6)
-  aVec[index++] = 1.102651e-08; // time = 0.07 ns (index=7)
-  aVec[index++] = 1.103147e-08; // time = 0.08 ns (index=8)
-  aVec[index++] = 1.103672e-08; // time = 0.09 ns (index=9)
-  aVec[index++] = 1.104167e-08; // time = 0.10 ns (index=10)
-  aVec[index++] = 1.104705e-08; // time = 0.11 ns (index=11)
-  aVec[index++] = 1.105182e-08; // time = 0.12 ns (index=12)
-  aVec[index++] = 1.105485e-08; // time = 0.13 ns (index=13)
-  aVec[index++] = 1.106160e-08; // time = 0.14 ns (index=14)
-  aVec[index++] = 1.106858e-08; // time = 0.15 ns (index=15)
-  aVec[index++] = 1.107218e-08; // time = 0.16 ns (index=16)
-  aVec[index++] = 1.107962e-08; // time = 0.17 ns (index=17)
-  aVec[index++] = 1.108506e-08; // time = 0.18 ns (index=18)
-  aVec[index++] = 1.108884e-08; // time = 0.19 ns (index=19)
-  aVec[index++] = 1.109397e-08; // time = 0.20 ns (index=20)
-  aVec[index++] = 1.109745e-08; // time = 0.21 ns (index=21)
-  aVec[index++] = 1.110102e-08; // time = 0.22 ns (index=22)
-  aVec[index++] = 1.110138e-08; // time = 0.23 ns (index=23)
-  aVec[index++] = 1.109704e-08; // time = 0.24 ns (index=24)
-  aVec[index++] = 1.108464e-08; // time = 0.25 ns (index=25)
-  aVec[index++] = 1.106658e-08; // time = 0.26 ns (index=26)
-  aVec[index++] = 1.102989e-08; // time = 0.27 ns (index=27)
-  aVec[index++] = 1.098267e-08; // time = 0.28 ns (index=28)
-  aVec[index++] = 1.089817e-08; // time = 0.29 ns (index=29)
-  aVec[index++] = 1.079356e-08; // time = 0.30 ns (index=30)
-  aVec[index++] = 1.062089e-08; // time = 0.31 ns (index=31)
-  aVec[index++] = 1.040988e-08; // time = 0.32 ns (index=32)
-  aVec[index++] = 1.008290e-08; // time = 0.33 ns (index=33)
-  aVec[index++] = 9.098334e-09; // time = 0.34 ns (index=34)
-  aVec[index++] = 8.380512e-09; // time = 0.35 ns (index=35)
-  aVec[index++] = 7.377135e-09; // time = 0.36 ns (index=36)
-  aVec[index++] = 6.136758e-09; // time = 0.37 ns (index=37)
-  aVec[index++] = 4.479834e-09; // time = 0.38 ns (index=38)
-  aVec[index++] = 2.408614e-09; // time = 0.39 ns (index=39)
-  aVec[index++] = -2.422733e-10; // time = 0.40 ns (index=40)
-  aVec[index++] = -3.558343e-09; // time = 0.41 ns (index=41)
-  aVec[index++] = -7.673352e-09; // time = 0.42 ns (index=42)
-  aVec[index++] = -1.274178e-08; // time = 0.43 ns (index=43)
-  aVec[index++] = -1.894088e-08; // time = 0.44 ns (index=44)
-  aVec[index++] = -2.647295e-08; // time = 0.45 ns (index=45)
-  aVec[index++] = -3.556766e-08; // time = 0.46 ns (index=46)
-  aVec[index++] = -4.648447e-08; // time = 0.47 ns (index=47)
-  aVec[index++] = -5.951521e-08; // time = 0.48 ns (index=48)
-  aVec[index++] = -7.498661e-08; // time = 0.49 ns (index=49)
-  aVec[index++] = -9.326302e-08; // time = 0.50 ns (index=50)
-  aVec[index++] = -1.147491e-07; // time = 0.51 ns (index=51)
-  aVec[index++] = -1.398924e-07; // time = 0.52 ns (index=52)
-  aVec[index++] = -1.691866e-07; // time = 0.53 ns (index=53)
-  aVec[index++] = -2.031737e-07; // time = 0.54 ns (index=54)
-  aVec[index++] = -2.424473e-07; // time = 0.55 ns (index=55)
-  aVec[index++] = -2.876553e-07; // time = 0.56 ns (index=56)
-  aVec[index++] = -3.395024e-07; // time = 0.57 ns (index=57)
-  aVec[index++] = -3.987533e-07; // time = 0.58 ns (index=58)
-  aVec[index++] = -4.662352e-07; // time = 0.59 ns (index=59)
-  aVec[index++] = -5.428403e-07; // time = 0.60 ns (index=60)
-  aVec[index++] = -6.295287e-07; // time = 0.61 ns (index=61)
-  aVec[index++] = -7.273310e-07; // time = 0.62 ns (index=62)
-  aVec[index++] = -8.373503e-07; // time = 0.63 ns (index=63)
-  aVec[index++] = -9.607649e-07; // time = 0.64 ns (index=64)
-  aVec[index++] = -1.098831e-06; // time = 0.65 ns (index=65)
-  aVec[index++] = -1.252882e-06; // time = 0.66 ns (index=66)
-  aVec[index++] = -1.424337e-06; // time = 0.67 ns (index=67)
-  aVec[index++] = -1.614695e-06; // time = 0.68 ns (index=68)
-  aVec[index++] = -1.825540e-06; // time = 0.69 ns (index=69)
-  aVec[index++] = -2.058545e-06; // time = 0.70 ns (index=70)
-  aVec[index++] = -2.315470e-06; // time = 0.71 ns (index=71)
-  aVec[index++] = -2.598163e-06; // time = 0.72 ns (index=72)
-  aVec[index++] = -2.908564e-06; // time = 0.73 ns (index=73)
-  aVec[index++] = -3.248702e-06; // time = 0.74 ns (index=74)
-  aVec[index++] = -3.620701e-06; // time = 0.75 ns (index=75)
-  aVec[index++] = -4.026774e-06; // time = 0.76 ns (index=76)
-  aVec[index++] = -4.469230e-06; // time = 0.77 ns (index=77)
-  aVec[index++] = -4.950467e-06; // time = 0.78 ns (index=78)
-  aVec[index++] = -5.472978e-06; // time = 0.79 ns (index=79)
-  aVec[index++] = -6.039346e-06; // time = 0.80 ns (index=80)
-  aVec[index++] = -6.652249e-06; // time = 0.81 ns (index=81)
-  aVec[index++] = -7.314453e-06; // time = 0.82 ns (index=82)
-  aVec[index++] = -8.028815e-06; // time = 0.83 ns (index=83)
-  aVec[index++] = -8.798279e-06; // time = 0.84 ns (index=84)
-  aVec[index++] = -9.625877e-06; // time = 0.85 ns (index=85)
-  aVec[index++] = -1.051473e-05; // time = 0.86 ns (index=86)
-  aVec[index++] = -1.146803e-05; // time = 0.87 ns (index=87)
-  aVec[index++] = -1.248907e-05; // time = 0.88 ns (index=88)
-  aVec[index++] = -1.358121e-05; // time = 0.89 ns (index=89)
-  aVec[index++] = -1.474789e-05; // time = 0.90 ns (index=90)
-  aVec[index++] = -1.599261e-05; // time = 0.91 ns (index=91)
-  aVec[index++] = -1.731897e-05; // time = 0.92 ns (index=92)
-  aVec[index++] = -1.873061e-05; // time = 0.93 ns (index=93)
-  aVec[index++] = -2.023124e-05; // time = 0.94 ns (index=94)
-  aVec[index++] = -2.182465e-05; // time = 0.95 ns (index=95)
-  aVec[index++] = -2.351467e-05; // time = 0.96 ns (index=96)
-  aVec[index++] = -2.530518e-05; // time = 0.97 ns (index=97)
-  aVec[index++] = -2.720012e-05; // time = 0.98 ns (index=98)
-  aVec[index++] = -2.920347e-05; // time = 0.99 ns (index=99)
-  aVec[index++] = -3.131924e-05; // time = 1.00 ns (index=100)
-  aVec[index++] = -3.355150e-05; // time = 1.01 ns (index=101)
-  aVec[index++] = -3.590432e-05; // time = 1.02 ns (index=102)
-  aVec[index++] = -3.838183e-05; // time = 1.03 ns (index=103)
-  aVec[index++] = -4.098815e-05; // time = 1.04 ns (index=104)
-  aVec[index++] = -4.372743e-05; // time = 1.05 ns (index=105)
-  aVec[index++] = -4.660383e-05; // time = 1.06 ns (index=106)
-  aVec[index++] = -4.962151e-05; // time = 1.07 ns (index=107)
-  aVec[index++] = -5.278463e-05; // time = 1.08 ns (index=108)
-  aVec[index++] = -5.609735e-05; // time = 1.09 ns (index=109)
-  aVec[index++] = -5.956381e-05; // time = 1.10 ns (index=110)
-  aVec[index++] = -6.318813e-05; // time = 1.11 ns (index=111)
-  aVec[index++] = -6.697441e-05; // time = 1.12 ns (index=112)
-  aVec[index++] = -7.092672e-05; // time = 1.13 ns (index=113)
-  aVec[index++] = -7.504910e-05; // time = 1.14 ns (index=114)
-  aVec[index++] = -7.934553e-05; // time = 1.15 ns (index=115)
-  aVec[index++] = -8.381996e-05; // time = 1.16 ns (index=116)
-  aVec[index++] = -8.847626e-05; // time = 1.17 ns (index=117)
-  aVec[index++] = -9.331826e-05; // time = 1.18 ns (index=118)
-  aVec[index++] = -9.834972e-05; // time = 1.19 ns (index=119)
-  aVec[index++] = -1.035743e-04; // time = 1.20 ns (index=120)
-  aVec[index++] = -1.089956e-04; // time = 1.21 ns (index=121)
-  aVec[index++] = -1.146172e-04; // time = 1.22 ns (index=122)
-  aVec[index++] = -1.204425e-04; // time = 1.23 ns (index=123)
-  aVec[index++] = -1.264747e-04; // time = 1.24 ns (index=124)
-  aVec[index++] = -1.327172e-04; // time = 1.25 ns (index=125)
-  aVec[index++] = -1.391730e-04; // time = 1.26 ns (index=126)
-  aVec[index++] = -1.458450e-04; // time = 1.27 ns (index=127)
-  aVec[index++] = -1.527363e-04; // time = 1.28 ns (index=128)
-  aVec[index++] = -1.598495e-04; // time = 1.29 ns (index=129)
-  aVec[index++] = -1.671872e-04; // time = 1.30 ns (index=130)
-  aVec[index++] = -1.747519e-04; // time = 1.31 ns (index=131)
-  aVec[index++] = -1.825459e-04; // time = 1.32 ns (index=132)
-  aVec[index++] = -1.905714e-04; // time = 1.33 ns (index=133)
-  aVec[index++] = -1.988303e-04; // time = 1.34 ns (index=134)
-  aVec[index++] = -2.073246e-04; // time = 1.35 ns (index=135)
-  aVec[index++] = -2.160560e-04; // time = 1.36 ns (index=136)
-  aVec[index++] = -2.250259e-04; // time = 1.37 ns (index=137)
-  aVec[index++] = -2.342356e-04; // time = 1.38 ns (index=138)
-  aVec[index++] = -2.436864e-04; // time = 1.39 ns (index=139)
-  aVec[index++] = -2.533791e-04; // time = 1.40 ns (index=140)
-  aVec[index++] = -2.633147e-04; // time = 1.41 ns (index=141)
-  aVec[index++] = -2.734936e-04; // time = 1.42 ns (index=142)
-  aVec[index++] = -2.839163e-04; // time = 1.43 ns (index=143)
-  aVec[index++] = -2.945829e-04; // time = 1.44 ns (index=144)
-  aVec[index++] = -3.054934e-04; // time = 1.45 ns (index=145)
-  aVec[index++] = -3.166476e-04; // time = 1.46 ns (index=146)
-  aVec[index++] = -3.280451e-04; // time = 1.47 ns (index=147)
-  aVec[index++] = -3.396851e-04; // time = 1.48 ns (index=148)
-  aVec[index++] = -3.515669e-04; // time = 1.49 ns (index=149)
-  aVec[index++] = -3.636893e-04; // time = 1.50 ns (index=150)
-  aVec[index++] = -3.760511e-04; // time = 1.51 ns (index=151)
-  aVec[index++] = -3.886506e-04; // time = 1.52 ns (index=152)
-  aVec[index++] = -4.014861e-04; // time = 1.53 ns (index=153)
-  aVec[index++] = -4.145556e-04; // time = 1.54 ns (index=154)
-  aVec[index++] = -4.278569e-04; // time = 1.55 ns (index=155)
-  aVec[index++] = -4.413875e-04; // time = 1.56 ns (index=156)
-  aVec[index++] = -4.551447e-04; // time = 1.57 ns (index=157)
-  aVec[index++] = -4.691257e-04; // time = 1.58 ns (index=158)
-  aVec[index++] = -4.833273e-04; // time = 1.59 ns (index=159)
-  aVec[index++] = -4.977460e-04; // time = 1.60 ns (index=160)
-  aVec[index++] = -5.123782e-04; // time = 1.61 ns (index=161)
-  aVec[index++] = -5.272202e-04; // time = 1.62 ns (index=162)
-  aVec[index++] = -5.422677e-04; // time = 1.63 ns (index=163)
-  aVec[index++] = -5.575165e-04; // time = 1.64 ns (index=164)
-  aVec[index++] = -5.729621e-04; // time = 1.65 ns (index=165)
-  aVec[index++] = -5.885996e-04; // time = 1.66 ns (index=166)
-  aVec[index++] = -6.044239e-04; // time = 1.67 ns (index=167)
-  aVec[index++] = -6.204300e-04; // time = 1.68 ns (index=168)
-  aVec[index++] = -6.366123e-04; // time = 1.69 ns (index=169)
-  aVec[index++] = -6.529651e-04; // time = 1.70 ns (index=170)
-  aVec[index++] = -6.694824e-04; // time = 1.71 ns (index=171)
-  aVec[index++] = -6.861583e-04; // time = 1.72 ns (index=172)
-  aVec[index++] = -7.029862e-04; // time = 1.73 ns (index=173)
-  aVec[index++] = -7.199596e-04; // time = 1.74 ns (index=174)
-  aVec[index++] = -7.370718e-04; // time = 1.75 ns (index=175)
-  aVec[index++] = -7.543158e-04; // time = 1.76 ns (index=176)
-  aVec[index++] = -7.716843e-04; // time = 1.77 ns (index=177)
-  aVec[index++] = -7.891700e-04; // time = 1.78 ns (index=178)
-  aVec[index++] = -8.067653e-04; // time = 1.79 ns (index=179)
-  aVec[index++] = -8.244623e-04; // time = 1.80 ns (index=180)
-  aVec[index++] = -8.422532e-04; // time = 1.81 ns (index=181)
-  aVec[index++] = -8.601297e-04; // time = 1.82 ns (index=182)
-  aVec[index++] = -8.780835e-04; // time = 1.83 ns (index=183)
-  aVec[index++] = -8.961062e-04; // time = 1.84 ns (index=184)
-  aVec[index++] = -9.141889e-04; // time = 1.85 ns (index=185)
-  aVec[index++] = -9.323228e-04; // time = 1.86 ns (index=186)
-  aVec[index++] = -9.504990e-04; // time = 1.87 ns (index=187)
-  aVec[index++] = -9.687082e-04; // time = 1.88 ns (index=188)
-  aVec[index++] = -9.869412e-04; // time = 1.89 ns (index=189)
-  aVec[index++] = -1.005188e-03; // time = 1.90 ns (index=190)
-  aVec[index++] = -1.023440e-03; // time = 1.91 ns (index=191)
-  aVec[index++] = -1.041687e-03; // time = 1.92 ns (index=192)
-  aVec[index++] = -1.059918e-03; // time = 1.93 ns (index=193)
-  aVec[index++] = -1.078125e-03; // time = 1.94 ns (index=194)
-  aVec[index++] = -1.096297e-03; // time = 1.95 ns (index=195)
-  aVec[index++] = -1.114423e-03; // time = 1.96 ns (index=196)
-  aVec[index++] = -1.132494e-03; // time = 1.97 ns (index=197)
-  aVec[index++] = -1.150498e-03; // time = 1.98 ns (index=198)
-  aVec[index++] = -1.168426e-03; // time = 1.99 ns (index=199)
-  aVec[index++] = -1.186267e-03; // time = 2.00 ns (index=200)
-  aVec[index++] = -1.204009e-03; // time = 2.01 ns (index=201)
-  aVec[index++] = -1.221643e-03; // time = 2.02 ns (index=202)
-  aVec[index++] = -1.239158e-03; // time = 2.03 ns (index=203)
-  aVec[index++] = -1.256542e-03; // time = 2.04 ns (index=204)
-  aVec[index++] = -1.273785e-03; // time = 2.05 ns (index=205)
-  aVec[index++] = -1.290876e-03; // time = 2.06 ns (index=206)
-  aVec[index++] = -1.307803e-03; // time = 2.07 ns (index=207)
-  aVec[index++] = -1.324557e-03; // time = 2.08 ns (index=208)
-  aVec[index++] = -1.341124e-03; // time = 2.09 ns (index=209)
-  aVec[index++] = -1.357496e-03; // time = 2.10 ns (index=210)
-  aVec[index++] = -1.373659e-03; // time = 2.11 ns (index=211)
-  aVec[index++] = -1.389604e-03; // time = 2.12 ns (index=212)
-  aVec[index++] = -1.405319e-03; // time = 2.13 ns (index=213)
-  aVec[index++] = -1.420793e-03; // time = 2.14 ns (index=214)
-  aVec[index++] = -1.436015e-03; // time = 2.15 ns (index=215)
-  aVec[index++] = -1.450974e-03; // time = 2.16 ns (index=216)
-  aVec[index++] = -1.465659e-03; // time = 2.17 ns (index=217)
-  aVec[index++] = -1.480058e-03; // time = 2.18 ns (index=218)
-  aVec[index++] = -1.494162e-03; // time = 2.19 ns (index=219)
-  aVec[index++] = -1.507958e-03; // time = 2.20 ns (index=220)
-  aVec[index++] = -1.521436e-03; // time = 2.21 ns (index=221)
-  aVec[index++] = -1.534585e-03; // time = 2.22 ns (index=222)
-  aVec[index++] = -1.547395e-03; // time = 2.23 ns (index=223)
-  aVec[index++] = -1.559855e-03; // time = 2.24 ns (index=224)
-  aVec[index++] = -1.571953e-03; // time = 2.25 ns (index=225)
-  aVec[index++] = -1.583680e-03; // time = 2.26 ns (index=226)
-  aVec[index++] = -1.595025e-03; // time = 2.27 ns (index=227)
-  aVec[index++] = -1.605978e-03; // time = 2.28 ns (index=228)
-  aVec[index++] = -1.616528e-03; // time = 2.29 ns (index=229)
-  aVec[index++] = -1.626666e-03; // time = 2.30 ns (index=230)
-  aVec[index++] = -1.636380e-03; // time = 2.31 ns (index=231)
-  aVec[index++] = -1.645662e-03; // time = 2.32 ns (index=232)
-  aVec[index++] = -1.654501e-03; // time = 2.33 ns (index=233)
-  aVec[index++] = -1.662887e-03; // time = 2.34 ns (index=234)
-  aVec[index++] = -1.670812e-03; // time = 2.35 ns (index=235)
-  aVec[index++] = -1.678265e-03; // time = 2.36 ns (index=236)
-  aVec[index++] = -1.685238e-03; // time = 2.37 ns (index=237)
-  aVec[index++] = -1.691720e-03; // time = 2.38 ns (index=238)
-  aVec[index++] = -1.697704e-03; // time = 2.39 ns (index=239)
-  aVec[index++] = -1.703179e-03; // time = 2.40 ns (index=240)
-  aVec[index++] = -1.708138e-03; // time = 2.41 ns (index=241)
-  aVec[index++] = -1.712572e-03; // time = 2.42 ns (index=242)
-  aVec[index++] = -1.716471e-03; // time = 2.43 ns (index=243)
-  aVec[index++] = -1.719829e-03; // time = 2.44 ns (index=244)
-  aVec[index++] = -1.722637e-03; // time = 2.45 ns (index=245)
-  aVec[index++] = -1.724886e-03; // time = 2.46 ns (index=246)
-  aVec[index++] = -1.726570e-03; // time = 2.47 ns (index=247)
-  aVec[index++] = -1.727680e-03; // time = 2.48 ns (index=248)
-  aVec[index++] = -1.728209e-03; // time = 2.49 ns (index=249)
-  aVec[index++] = -1.728150e-03; // time = 2.50 ns (index=250)
-  aVec[index++] = -1.727495e-03; // time = 2.51 ns (index=251)
-  aVec[index++] = -1.726238e-03; // time = 2.52 ns (index=252)
-  aVec[index++] = -1.724373e-03; // time = 2.53 ns (index=253)
-  aVec[index++] = -1.721892e-03; // time = 2.54 ns (index=254)
-  aVec[index++] = -1.718789e-03; // time = 2.55 ns (index=255)
-  aVec[index++] = -1.715058e-03; // time = 2.56 ns (index=256)
-  aVec[index++] = -1.710693e-03; // time = 2.57 ns (index=257)
-  aVec[index++] = -1.705688e-03; // time = 2.58 ns (index=258)
-  aVec[index++] = -1.700038e-03; // time = 2.59 ns (index=259)
-  aVec[index++] = -1.693738e-03; // time = 2.60 ns (index=260)
-  aVec[index++] = -1.686781e-03; // time = 2.61 ns (index=261)
-  aVec[index++] = -1.679164e-03; // time = 2.62 ns (index=262)
-  aVec[index++] = -1.670881e-03; // time = 2.63 ns (index=263)
-  aVec[index++] = -1.661928e-03; // time = 2.64 ns (index=264)
-  aVec[index++] = -1.652300e-03; // time = 2.65 ns (index=265)
-  aVec[index++] = -1.641993e-03; // time = 2.66 ns (index=266)
-  aVec[index++] = -1.631003e-03; // time = 2.67 ns (index=267)
-  aVec[index++] = -1.619326e-03; // time = 2.68 ns (index=268)
-  aVec[index++] = -1.606958e-03; // time = 2.69 ns (index=269)
-  aVec[index++] = -1.593897e-03; // time = 2.70 ns (index=270)
-  aVec[index++] = -1.580139e-03; // time = 2.71 ns (index=271)
-  aVec[index++] = -1.565680e-03; // time = 2.72 ns (index=272)
-  aVec[index++] = -1.550519e-03; // time = 2.73 ns (index=273)
-  aVec[index++] = -1.534651e-03; // time = 2.74 ns (index=274)
-  aVec[index++] = -1.518076e-03; // time = 2.75 ns (index=275)
-  aVec[index++] = -1.500790e-03; // time = 2.76 ns (index=276)
-  aVec[index++] = -1.482791e-03; // time = 2.77 ns (index=277)
-  aVec[index++] = -1.464078e-03; // time = 2.78 ns (index=278)
-  aVec[index++] = -1.444649e-03; // time = 2.79 ns (index=279)
-  aVec[index++] = -1.424502e-03; // time = 2.80 ns (index=280)
-  aVec[index++] = -1.403635e-03; // time = 2.81 ns (index=281)
-  aVec[index++] = -1.382049e-03; // time = 2.82 ns (index=282)
-  aVec[index++] = -1.359741e-03; // time = 2.83 ns (index=283)
-  aVec[index++] = -1.336710e-03; // time = 2.84 ns (index=284)
-  aVec[index++] = -1.312957e-03; // time = 2.85 ns (index=285)
-  aVec[index++] = -1.288481e-03; // time = 2.86 ns (index=286)
-  aVec[index++] = -1.263281e-03; // time = 2.87 ns (index=287)
-  aVec[index++] = -1.237357e-03; // time = 2.88 ns (index=288)
-  aVec[index++] = -1.210710e-03; // time = 2.89 ns (index=289)
-  aVec[index++] = -1.183339e-03; // time = 2.90 ns (index=290)
-  aVec[index++] = -1.155244e-03; // time = 2.91 ns (index=291)
-  aVec[index++] = -1.126427e-03; // time = 2.92 ns (index=292)
-  aVec[index++] = -1.096888e-03; // time = 2.93 ns (index=293)
-  aVec[index++] = -1.066628e-03; // time = 2.94 ns (index=294)
-  aVec[index++] = -1.035647e-03; // time = 2.95 ns (index=295)
-  aVec[index++] = -1.003946e-03; // time = 2.96 ns (index=296)
-  aVec[index++] = -9.715283e-04; // time = 2.97 ns (index=297)
-  aVec[index++] = -9.383934e-04; // time = 2.98 ns (index=298)
-  aVec[index++] = -9.045434e-04; // time = 2.99 ns (index=299)
-  aVec[index++] = -8.699800e-04; // time = 3.00 ns (index=300)
-  aVec[index++] = -8.347048e-04; // time = 3.01 ns (index=301)
-  aVec[index++] = -7.987198e-04; // time = 3.02 ns (index=302)
-  aVec[index++] = -7.620271e-04; // time = 3.03 ns (index=303)
-  aVec[index++] = -7.246287e-04; // time = 3.04 ns (index=304)
-  aVec[index++] = -6.865270e-04; // time = 3.05 ns (index=305)
-  aVec[index++] = -6.477244e-04; // time = 3.06 ns (index=306)
-  aVec[index++] = -6.082233e-04; // time = 3.07 ns (index=307)
-  aVec[index++] = -5.680264e-04; // time = 3.08 ns (index=308)
-  aVec[index++] = -5.271364e-04; // time = 3.09 ns (index=309)
-  aVec[index++] = -4.855562e-04; // time = 3.10 ns (index=310)
-  aVec[index++] = -4.432885e-04; // time = 3.11 ns (index=311)
-  aVec[index++] = -4.003365e-04; // time = 3.12 ns (index=312)
-  aVec[index++] = -3.567033e-04; // time = 3.13 ns (index=313)
-  aVec[index++] = -3.123921e-04; // time = 3.14 ns (index=314)
-  aVec[index++] = -2.674061e-04; // time = 3.15 ns (index=315)
-  aVec[index++] = -2.217487e-04; // time = 3.16 ns (index=316)
-  aVec[index++] = -1.754234e-04; // time = 3.17 ns (index=317)
-  aVec[index++] = -1.284337e-04; // time = 3.18 ns (index=318)
-  aVec[index++] = -8.078328e-05; // time = 3.19 ns (index=319)
-  aVec[index++] = -3.247572e-05; // time = 3.20 ns (index=320)
-  aVec[index++] = 1.648520e-05; // time = 3.21 ns (index=321)
-  aVec[index++] = 6.609568e-05; // time = 3.22 ns (index=322)
-  aVec[index++] = 1.163518e-04; // time = 3.23 ns (index=323)
-  aVec[index++] = 1.672497e-04; // time = 3.24 ns (index=324)
-  aVec[index++] = 2.187854e-04; // time = 3.25 ns (index=325)
-  aVec[index++] = 2.709548e-04; // time = 3.26 ns (index=326)
-  aVec[index++] = 3.237539e-04; // time = 3.27 ns (index=327)
-  aVec[index++] = 3.771784e-04; // time = 3.28 ns (index=328)
-  aVec[index++] = 4.312243e-04; // time = 3.29 ns (index=329)
-  aVec[index++] = 4.858873e-04; // time = 3.30 ns (index=330)
-  aVec[index++] = 5.411631e-04; // time = 3.31 ns (index=331)
-  aVec[index++] = 5.970474e-04; // time = 3.32 ns (index=332)
-  aVec[index++] = 6.535360e-04; // time = 3.33 ns (index=333)
-  aVec[index++] = 7.106244e-04; // time = 3.34 ns (index=334)
-  aVec[index++] = 7.683082e-04; // time = 3.35 ns (index=335)
-  aVec[index++] = 8.265831e-04; // time = 3.36 ns (index=336)
-  aVec[index++] = 8.854446e-04; // time = 3.37 ns (index=337)
-  aVec[index++] = 9.448882e-04; // time = 3.38 ns (index=338)
-  aVec[index++] = 1.004909e-03; // time = 3.39 ns (index=339)
-  aVec[index++] = 1.065504e-03; // time = 3.40 ns (index=340)
-  aVec[index++] = 1.126667e-03; // time = 3.41 ns (index=341)
-  aVec[index++] = 1.188394e-03; // time = 3.42 ns (index=342)
-  aVec[index++] = 1.250681e-03; // time = 3.43 ns (index=343)
-  aVec[index++] = 1.313523e-03; // time = 3.44 ns (index=344)
-  aVec[index++] = 1.376916e-03; // time = 3.45 ns (index=345)
-  aVec[index++] = 1.440854e-03; // time = 3.46 ns (index=346)
-  aVec[index++] = 1.505334e-03; // time = 3.47 ns (index=347)
-  aVec[index++] = 1.570351e-03; // time = 3.48 ns (index=348)
-  aVec[index++] = 1.635901e-03; // time = 3.49 ns (index=349)
-  aVec[index++] = 1.701978e-03; // time = 3.50 ns (index=350)
-  aVec[index++] = 1.768578e-03; // time = 3.51 ns (index=351)
-  aVec[index++] = 1.835698e-03; // time = 3.52 ns (index=352)
-  aVec[index++] = 1.903331e-03; // time = 3.53 ns (index=353)
-  aVec[index++] = 1.971475e-03; // time = 3.54 ns (index=354)
-  aVec[index++] = 2.040124e-03; // time = 3.55 ns (index=355)
-  aVec[index++] = 2.109273e-03; // time = 3.56 ns (index=356)
-  aVec[index++] = 2.178919e-03; // time = 3.57 ns (index=357)
-  aVec[index++] = 2.249057e-03; // time = 3.58 ns (index=358)
-  aVec[index++] = 2.319683e-03; // time = 3.59 ns (index=359)
-  aVec[index++] = 2.390792e-03; // time = 3.60 ns (index=360)
-  aVec[index++] = 2.462379e-03; // time = 3.61 ns (index=361)
-  aVec[index++] = 2.534441e-03; // time = 3.62 ns (index=362)
-  aVec[index++] = 2.606973e-03; // time = 3.63 ns (index=363)
-  aVec[index++] = 2.679970e-03; // time = 3.64 ns (index=364)
-  aVec[index++] = 2.753429e-03; // time = 3.65 ns (index=365)
-  aVec[index++] = 2.827345e-03; // time = 3.66 ns (index=366)
-  aVec[index++] = 2.900494e-03; // time = 3.67 ns (index=367)
-  aVec[index++] = 2.975304e-03; // time = 3.68 ns (index=368)
-  aVec[index++] = 3.050559e-03; // time = 3.69 ns (index=369)
-  aVec[index++] = 3.126255e-03; // time = 3.70 ns (index=370)
-  aVec[index++] = 3.202387e-03; // time = 3.71 ns (index=371)
-  aVec[index++] = 3.278951e-03; // time = 3.72 ns (index=372)
-  aVec[index++] = 3.355943e-03; // time = 3.73 ns (index=373)
-  aVec[index++] = 3.433359e-03; // time = 3.74 ns (index=374)
-  aVec[index++] = 3.511195e-03; // time = 3.75 ns (index=375)
-  aVec[index++] = 3.589447e-03; // time = 3.76 ns (index=376)
-  aVec[index++] = 3.668111e-03; // time = 3.77 ns (index=377)
-  aVec[index++] = 3.747184e-03; // time = 3.78 ns (index=378)
-  aVec[index++] = 3.826660e-03; // time = 3.79 ns (index=379)
-  aVec[index++] = 3.906537e-03; // time = 3.80 ns (index=380)
-  aVec[index++] = 3.986811e-03; // time = 3.81 ns (index=381)
-  aVec[index++] = 4.067477e-03; // time = 3.82 ns (index=382)
-  aVec[index++] = 4.148533e-03; // time = 3.83 ns (index=383)
-  aVec[index++] = 4.229973e-03; // time = 3.84 ns (index=384)
-  aVec[index++] = 4.311796e-03; // time = 3.85 ns (index=385)
-  aVec[index++] = 4.393996e-03; // time = 3.86 ns (index=386)
-  aVec[index++] = 4.476570e-03; // time = 3.87 ns (index=387)
-  aVec[index++] = 4.559515e-03; // time = 3.88 ns (index=388)
-  aVec[index++] = 4.642827e-03; // time = 3.89 ns (index=389)
-  aVec[index++] = 4.716785e-03; // time = 3.90 ns (index=390)
-  aVec[index++] = 4.800779e-03; // time = 3.91 ns (index=391)
-  aVec[index++] = 4.860228e-03; // time = 3.92 ns (index=392)
-  aVec[index++] = 4.944828e-03; // time = 3.93 ns (index=393)
-  aVec[index++] = 5.029780e-03; // time = 3.94 ns (index=394)
-  aVec[index++] = 5.115078e-03; // time = 3.95 ns (index=395)
-  aVec[index++] = 5.200721e-03; // time = 3.96 ns (index=396)
-  aVec[index++] = 5.286705e-03; // time = 3.97 ns (index=397)
-  aVec[index++] = 5.373026e-03; // time = 3.98 ns (index=398)
-  aVec[index++] = 5.459681e-03; // time = 3.99 ns (index=399)
-  aVec[index++] = 5.546667e-03; // time = 4.00 ns (index=400)
-  aVec[index++] = 5.633980e-03; // time = 4.01 ns (index=401)
-  aVec[index++] = 5.721618e-03; // time = 4.02 ns (index=402)
-  aVec[index++] = 5.809577e-03; // time = 4.03 ns (index=403)
-  aVec[index++] = 5.897854e-03; // time = 4.04 ns (index=404)
-  aVec[index++] = 5.986446e-03; // time = 4.05 ns (index=405)
-  aVec[index++] = 6.075349e-03; // time = 4.06 ns (index=406)
-  aVec[index++] = 6.164562e-03; // time = 4.07 ns (index=407)
-  aVec[index++] = 6.254079e-03; // time = 4.08 ns (index=408)
-  aVec[index++] = 6.343899e-03; // time = 4.09 ns (index=409)
-  aVec[index++] = 6.434018e-03; // time = 4.10 ns (index=410)
-  aVec[index++] = 6.524434e-03; // time = 4.11 ns (index=411)
-  aVec[index++] = 6.615143e-03; // time = 4.12 ns (index=412)
-  aVec[index++] = 6.706143e-03; // time = 4.13 ns (index=413)
-  aVec[index++] = 6.797429e-03; // time = 4.14 ns (index=414)
-  aVec[index++] = 6.889000e-03; // time = 4.15 ns (index=415)
-  aVec[index++] = 6.980853e-03; // time = 4.16 ns (index=416)
-  aVec[index++] = 7.072984e-03; // time = 4.17 ns (index=417)
-  aVec[index++] = 7.165391e-03; // time = 4.18 ns (index=418)
-  aVec[index++] = 7.258071e-03; // time = 4.19 ns (index=419)
-  aVec[index++] = 7.344061e-03; // time = 4.20 ns (index=420)
-  aVec[index++] = 7.437257e-03; // time = 4.21 ns (index=421)
-  aVec[index++] = 7.507320e-03; // time = 4.22 ns (index=422)
-  aVec[index++] = 7.600977e-03; // time = 4.23 ns (index=423)
-  aVec[index++] = 7.764711e-03; // time = 4.24 ns (index=424)
-  aVec[index++] = 7.859072e-03; // time = 4.25 ns (index=425)
-  aVec[index++] = 7.948416e-03; // time = 4.26 ns (index=426)
-  aVec[index++] = 8.043264e-03; // time = 4.27 ns (index=427)
-  aVec[index++] = 8.113847e-03; // time = 4.28 ns (index=428)
-  aVec[index++] = 8.209122e-03; // time = 4.29 ns (index=429)
-  aVec[index++] = 8.268231e-03; // time = 4.30 ns (index=430)
-  aVec[index++] = 8.388249e-03; // time = 4.31 ns (index=431)
-  aVec[index++] = 8.448592e-03; // time = 4.32 ns (index=432)
-  aVec[index++] = 8.623842e-03; // time = 4.33 ns (index=433)
-  aVec[index++] = 8.699293e-03; // time = 4.34 ns (index=434)
-  aVec[index++] = 8.796001e-03; // time = 4.35 ns (index=435)
-  aVec[index++] = 8.887281e-03; // time = 4.36 ns (index=436)
-  aVec[index++] = 9.008743e-03; // time = 4.37 ns (index=437)
-  aVec[index++] = 9.033048e-03; // time = 4.38 ns (index=438)
-  aVec[index++] = 9.179162e-03; // time = 4.39 ns (index=439)
-  aVec[index++] = 9.239326e-03; // time = 4.40 ns (index=440)
-  aVec[index++] = 9.351253e-03; // time = 4.41 ns (index=441)
-  aVec[index++] = 9.430171e-03; // time = 4.42 ns (index=442)
-  aVec[index++] = 9.549081e-03; // time = 4.43 ns (index=443)
-  aVec[index++] = 9.618590e-03; // time = 4.44 ns (index=444)
-  aVec[index++] = 9.750111e-03; // time = 4.45 ns (index=445)
-  aVec[index++] = 9.831134e-03; // time = 4.46 ns (index=446)
-  aVec[index++] = 9.945375e-03; // time = 4.47 ns (index=447)
-  aVec[index++] = 1.003266e-02; // time = 4.48 ns (index=448)
-  aVec[index++] = 1.012995e-02; // time = 4.49 ns (index=449)
-  aVec[index++] = 1.023328e-02; // time = 4.50 ns (index=450)
-  aVec[index++] = 1.033005e-02; // time = 4.51 ns (index=451)
-  aVec[index++] = 1.042802e-02; // time = 4.52 ns (index=452)
-  aVec[index++] = 1.051933e-02; // time = 4.53 ns (index=453)
-  aVec[index++] = 1.066376e-02; // time = 4.54 ns (index=454)
-  aVec[index++] = 1.071341e-02; // time = 4.55 ns (index=455)
-  aVec[index++] = 1.082196e-02; // time = 4.56 ns (index=456)
-  aVec[index++] = 1.092823e-02; // time = 4.57 ns (index=457)
-  aVec[index++] = 1.104319e-02; // time = 4.58 ns (index=458)
-  aVec[index++] = 1.112455e-02; // time = 4.59 ns (index=459)
-  aVec[index++] = 1.124004e-02; // time = 4.60 ns (index=460)
-  aVec[index++] = 1.139491e-02; // time = 4.61 ns (index=461)
-  aVec[index++] = 1.144136e-02; // time = 4.62 ns (index=462)
-  aVec[index++] = 1.158306e-02; // time = 4.63 ns (index=463)
-  aVec[index++] = 1.166896e-02; // time = 4.64 ns (index=464)
-  aVec[index++] = 1.176264e-02; // time = 4.65 ns (index=465)
-  aVec[index++] = 1.189712e-02; // time = 4.66 ns (index=466)
-  aVec[index++] = 1.194938e-02; // time = 4.67 ns (index=467)
-  aVec[index++] = 1.206556e-02; // time = 4.68 ns (index=468)
-  aVec[index++] = 1.223572e-02; // time = 4.69 ns (index=469)
-  aVec[index++] = 1.231404e-02; // time = 4.70 ns (index=470)
-  aVec[index++] = 1.241710e-02; // time = 4.71 ns (index=471)
-  aVec[index++] = 1.252029e-02; // time = 4.72 ns (index=472)
-  aVec[index++] = 1.261829e-02; // time = 4.73 ns (index=473)
-  aVec[index++] = 1.272173e-02; // time = 4.74 ns (index=474)
-  aVec[index++] = 1.281226e-02; // time = 4.75 ns (index=475)
-  aVec[index++] = 1.291593e-02; // time = 4.76 ns (index=476)
-  aVec[index++] = 1.300011e-02; // time = 4.77 ns (index=477)
-  aVec[index++] = 1.310399e-02; // time = 4.78 ns (index=478)
-  aVec[index++] = 1.318632e-02; // time = 4.79 ns (index=479)
-  aVec[index++] = 1.329040e-02; // time = 4.80 ns (index=480)
-  aVec[index++] = 1.347657e-02; // time = 4.81 ns (index=481)
-  aVec[index++] = 1.355877e-02; // time = 4.82 ns (index=482)
-  aVec[index++] = 1.366324e-02; // time = 4.83 ns (index=483)
-  aVec[index++] = 1.374643e-02; // time = 4.84 ns (index=484)
-  aVec[index++] = 1.385108e-02; // time = 4.85 ns (index=485)
-  aVec[index++] = 1.393601e-02; // time = 4.86 ns (index=486)
-  aVec[index++] = 1.404084e-02; // time = 4.87 ns (index=487)
-  aVec[index++] = 1.412865e-02; // time = 4.88 ns (index=488)
-  aVec[index++] = 1.423364e-02; // time = 4.89 ns (index=489)
-  aVec[index++] = 1.432570e-02; // time = 4.90 ns (index=490)
-  aVec[index++] = 1.443084e-02; // time = 4.91 ns (index=491)
-  aVec[index++] = 1.463429e-02; // time = 4.92 ns (index=492)
-  aVec[index++] = 1.473964e-02; // time = 4.93 ns (index=493)
-  aVec[index++] = 1.484505e-02; // time = 4.94 ns (index=494)
-  aVec[index++] = 1.495052e-02; // time = 4.95 ns (index=495)
-  aVec[index++] = 1.505605e-02; // time = 4.96 ns (index=496)
-  aVec[index++] = 1.516164e-02; // time = 4.97 ns (index=497)
-  aVec[index++] = 1.526727e-02; // time = 4.98 ns (index=498)
-  aVec[index++] = 1.537295e-02; // time = 4.99 ns (index=499)
-  aVec[index++] = 1.547867e-02; // time = 5.00 ns (index=500)
-  aVec[index++] = 1.558443e-02; // time = 5.01 ns (index=501)
-  aVec[index++] = 1.569022e-02; // time = 5.02 ns (index=502)
-  aVec[index++] = 1.579604e-02; // time = 5.03 ns (index=503)
-  aVec[index++] = 1.590190e-02; // time = 5.04 ns (index=504)
-  aVec[index++] = 1.600778e-02; // time = 5.05 ns (index=505)
-  aVec[index++] = 1.611368e-02; // time = 5.06 ns (index=506)
-  aVec[index++] = 1.621960e-02; // time = 5.07 ns (index=507)
-  aVec[index++] = 1.632555e-02; // time = 5.08 ns (index=508)
-  aVec[index++] = 1.643150e-02; // time = 5.09 ns (index=509)
-  aVec[index++] = 1.653747e-02; // time = 5.10 ns (index=510)
-  aVec[index++] = 1.664344e-02; // time = 5.11 ns (index=511)
-  aVec[index++] = 1.674943e-02; // time = 5.12 ns (index=512)
-  aVec[index++] = 1.685541e-02; // time = 5.13 ns (index=513)
-  aVec[index++] = 1.696140e-02; // time = 5.14 ns (index=514)
-  aVec[index++] = 1.706739e-02; // time = 5.15 ns (index=515)
-  aVec[index++] = 1.717338e-02; // time = 5.16 ns (index=516)
-  aVec[index++] = 1.727936e-02; // time = 5.17 ns (index=517)
-  aVec[index++] = 1.738533e-02; // time = 5.18 ns (index=518)
-  aVec[index++] = 1.749129e-02; // time = 5.19 ns (index=519)
-  aVec[index++] = 1.759724e-02; // time = 5.20 ns (index=520)
-  aVec[index++] = 1.770317e-02; // time = 5.21 ns (index=521)
-  aVec[index++] = 1.780909e-02; // time = 5.22 ns (index=522)
-  aVec[index++] = 1.791499e-02; // time = 5.23 ns (index=523)
-  aVec[index++] = 1.802086e-02; // time = 5.24 ns (index=524)
-  aVec[index++] = 1.812671e-02; // time = 5.25 ns (index=525)
-  aVec[index++] = 1.823253e-02; // time = 5.26 ns (index=526)
-  aVec[index++] = 1.833832e-02; // time = 5.27 ns (index=527)
-  aVec[index++] = 1.844408e-02; // time = 5.28 ns (index=528)
-  aVec[index++] = 1.854981e-02; // time = 5.29 ns (index=529)
-  aVec[index++] = 1.865550e-02; // time = 5.30 ns (index=530)
-  aVec[index++] = 1.876115e-02; // time = 5.31 ns (index=531)
-  aVec[index++] = 1.886675e-02; // time = 5.32 ns (index=532)
-  aVec[index++] = 1.897231e-02; // time = 5.33 ns (index=533)
-  aVec[index++] = 1.907783e-02; // time = 5.34 ns (index=534)
-  aVec[index++] = 1.918329e-02; // time = 5.35 ns (index=535)
-  aVec[index++] = 1.928871e-02; // time = 5.36 ns (index=536)
-  aVec[index++] = 1.939406e-02; // time = 5.37 ns (index=537)
-  aVec[index++] = 1.949936e-02; // time = 5.38 ns (index=538)
-  aVec[index++] = 1.960460e-02; // time = 5.39 ns (index=539)
-  aVec[index++] = 1.970978e-02; // time = 5.40 ns (index=540)
-  aVec[index++] = 1.981489e-02; // time = 5.41 ns (index=541)
-  aVec[index++] = 1.991994e-02; // time = 5.42 ns (index=542)
-  aVec[index++] = 2.002491e-02; // time = 5.43 ns (index=543)
-  aVec[index++] = 2.012982e-02; // time = 5.44 ns (index=544)
-  aVec[index++] = 2.023465e-02; // time = 5.45 ns (index=545)
-  aVec[index++] = 2.033940e-02; // time = 5.46 ns (index=546)
-  aVec[index++] = 2.044407e-02; // time = 5.47 ns (index=547)
-  aVec[index++] = 2.054865e-02; // time = 5.48 ns (index=548)
-  aVec[index++] = 2.065316e-02; // time = 5.49 ns (index=549)
-  aVec[index++] = 2.075757e-02; // time = 5.50 ns (index=550)
-  aVec[index++] = 2.086190e-02; // time = 5.51 ns (index=551)
-  aVec[index++] = 2.096613e-02; // time = 5.52 ns (index=552)
-  aVec[index++] = 2.107027e-02; // time = 5.53 ns (index=553)
-  aVec[index++] = 2.117431e-02; // time = 5.54 ns (index=554)
-  aVec[index++] = 2.127826e-02; // time = 5.55 ns (index=555)
-  aVec[index++] = 2.138210e-02; // time = 5.56 ns (index=556)
-  aVec[index++] = 2.148583e-02; // time = 5.57 ns (index=557)
-  aVec[index++] = 2.158947e-02; // time = 5.58 ns (index=558)
-  aVec[index++] = 2.169299e-02; // time = 5.59 ns (index=559)
-  aVec[index++] = 2.179640e-02; // time = 5.60 ns (index=560)
-  aVec[index++] = 2.189970e-02; // time = 5.61 ns (index=561)
-  aVec[index++] = 2.200288e-02; // time = 5.62 ns (index=562)
-  aVec[index++] = 2.210594e-02; // time = 5.63 ns (index=563)
-  aVec[index++] = 2.220889e-02; // time = 5.64 ns (index=564)
-  aVec[index++] = 2.231171e-02; // time = 5.65 ns (index=565)
-  aVec[index++] = 2.241441e-02; // time = 5.66 ns (index=566)
-  aVec[index++] = 2.251698e-02; // time = 5.67 ns (index=567)
-  aVec[index++] = 2.261943e-02; // time = 5.68 ns (index=568)
-  aVec[index++] = 2.272174e-02; // time = 5.69 ns (index=569)
-  aVec[index++] = 2.282392e-02; // time = 5.70 ns (index=570)
-  aVec[index++] = 2.292597e-02; // time = 5.71 ns (index=571)
-  aVec[index++] = 2.302788e-02; // time = 5.72 ns (index=572)
-  aVec[index++] = 2.312965e-02; // time = 5.73 ns (index=573)
-  aVec[index++] = 2.323128e-02; // time = 5.74 ns (index=574)
-  aVec[index++] = 2.333277e-02; // time = 5.75 ns (index=575)
-  aVec[index++] = 2.343411e-02; // time = 5.76 ns (index=576)
-  aVec[index++] = 2.353531e-02; // time = 5.77 ns (index=577)
-  aVec[index++] = 2.363635e-02; // time = 5.78 ns (index=578)
-  aVec[index++] = 2.373725e-02; // time = 5.79 ns (index=579)
-  aVec[index++] = 2.383799e-02; // time = 5.80 ns (index=580)
-  aVec[index++] = 2.393858e-02; // time = 5.81 ns (index=581)
-  aVec[index++] = 2.403902e-02; // time = 5.82 ns (index=582)
-  aVec[index++] = 2.413930e-02; // time = 5.83 ns (index=583)
-  aVec[index++] = 2.423941e-02; // time = 5.84 ns (index=584)
-  aVec[index++] = 2.433937e-02; // time = 5.85 ns (index=585)
-  aVec[index++] = 2.443916e-02; // time = 5.86 ns (index=586)
-  aVec[index++] = 2.453879e-02; // time = 5.87 ns (index=587)
-  aVec[index++] = 2.463825e-02; // time = 5.88 ns (index=588)
-  aVec[index++] = 2.473754e-02; // time = 5.89 ns (index=589)
-  aVec[index++] = 2.483666e-02; // time = 5.90 ns (index=590)
-  aVec[index++] = 2.493561e-02; // time = 5.91 ns (index=591)
-  aVec[index++] = 2.503438e-02; // time = 5.92 ns (index=592)
-  aVec[index++] = 2.513298e-02; // time = 5.93 ns (index=593)
-  aVec[index++] = 2.523141e-02; // time = 5.94 ns (index=594)
-  aVec[index++] = 2.532965e-02; // time = 5.95 ns (index=595)
-  aVec[index++] = 2.542772e-02; // time = 5.96 ns (index=596)
-  aVec[index++] = 2.552560e-02; // time = 5.97 ns (index=597)
-  aVec[index++] = 2.562330e-02; // time = 5.98 ns (index=598)
-  aVec[index++] = 2.572081e-02; // time = 5.99 ns (index=599)
-  aVec[index++] = 2.581814e-02; // time = 6.00 ns (index=600)
-  aVec[index++] = 2.591528e-02; // time = 6.01 ns (index=601)
-  aVec[index++] = 2.601223e-02; // time = 6.02 ns (index=602)
-  aVec[index++] = 2.610899e-02; // time = 6.03 ns (index=603)
-  aVec[index++] = 2.620556e-02; // time = 6.04 ns (index=604)
-  aVec[index++] = 2.630194e-02; // time = 6.05 ns (index=605)
-  aVec[index++] = 2.639811e-02; // time = 6.06 ns (index=606)
-  aVec[index++] = 2.649410e-02; // time = 6.07 ns (index=607)
-  aVec[index++] = 2.658988e-02; // time = 6.08 ns (index=608)
-  aVec[index++] = 2.668547e-02; // time = 6.09 ns (index=609)
-  aVec[index++] = 2.678085e-02; // time = 6.10 ns (index=610)
-  aVec[index++] = 2.687603e-02; // time = 6.11 ns (index=611)
-  aVec[index++] = 2.697101e-02; // time = 6.12 ns (index=612)
-  aVec[index++] = 2.706578e-02; // time = 6.13 ns (index=613)
-  aVec[index++] = 2.716035e-02; // time = 6.14 ns (index=614)
-  aVec[index++] = 2.725471e-02; // time = 6.15 ns (index=615)
-  aVec[index++] = 2.734886e-02; // time = 6.16 ns (index=616)
-  aVec[index++] = 2.744280e-02; // time = 6.17 ns (index=617)
-  aVec[index++] = 2.753653e-02; // time = 6.18 ns (index=618)
-  aVec[index++] = 2.763004e-02; // time = 6.19 ns (index=619)
-  aVec[index++] = 2.772335e-02; // time = 6.20 ns (index=620)
-  aVec[index++] = 2.781643e-02; // time = 6.21 ns (index=621)
-  aVec[index++] = 2.790930e-02; // time = 6.22 ns (index=622)
-  aVec[index++] = 2.800196e-02; // time = 6.23 ns (index=623)
-  aVec[index++] = 2.809439e-02; // time = 6.24 ns (index=624)
-  aVec[index++] = 2.818661e-02; // time = 6.25 ns (index=625)
-  aVec[index++] = 2.827860e-02; // time = 6.26 ns (index=626)
-  aVec[index++] = 2.837038e-02; // time = 6.27 ns (index=627)
-  aVec[index++] = 2.846193e-02; // time = 6.28 ns (index=628)
-  aVec[index++] = 2.855325e-02; // time = 6.29 ns (index=629)
-  aVec[index++] = 2.864435e-02; // time = 6.30 ns (index=630)
-  aVec[index++] = 2.873522e-02; // time = 6.31 ns (index=631)
-  aVec[index++] = 2.882587e-02; // time = 6.32 ns (index=632)
-  aVec[index++] = 2.891629e-02; // time = 6.33 ns (index=633)
-  aVec[index++] = 2.900647e-02; // time = 6.34 ns (index=634)
-  aVec[index++] = 2.909643e-02; // time = 6.35 ns (index=635)
-  aVec[index++] = 2.918616e-02; // time = 6.36 ns (index=636)
-  aVec[index++] = 2.927565e-02; // time = 6.37 ns (index=637)
-  aVec[index++] = 2.936491e-02; // time = 6.38 ns (index=638)
-  aVec[index++] = 2.945393e-02; // time = 6.39 ns (index=639)
-  aVec[index++] = 2.954272e-02; // time = 6.40 ns (index=640)
-  aVec[index++] = 2.963127e-02; // time = 6.41 ns (index=641)
-  aVec[index++] = 2.971959e-02; // time = 6.42 ns (index=642)
-  aVec[index++] = 2.980766e-02; // time = 6.43 ns (index=643)
-  aVec[index++] = 2.989550e-02; // time = 6.44 ns (index=644)
-  aVec[index++] = 2.998310e-02; // time = 6.45 ns (index=645)
-  aVec[index++] = 3.007045e-02; // time = 6.46 ns (index=646)
-  aVec[index++] = 3.015757e-02; // time = 6.47 ns (index=647)
-  aVec[index++] = 3.024444e-02; // time = 6.48 ns (index=648)
-  aVec[index++] = 3.033106e-02; // time = 6.49 ns (index=649)
-  aVec[index++] = 3.041745e-02; // time = 6.50 ns (index=650)
-  aVec[index++] = 3.050358e-02; // time = 6.51 ns (index=651)
-  aVec[index++] = 3.058947e-02; // time = 6.52 ns (index=652)
-  aVec[index++] = 3.067512e-02; // time = 6.53 ns (index=653)
-  aVec[index++] = 3.076051e-02; // time = 6.54 ns (index=654)
-  aVec[index++] = 3.084566e-02; // time = 6.55 ns (index=655)
-  aVec[index++] = 3.093056e-02; // time = 6.56 ns (index=656)
-  aVec[index++] = 3.101521e-02; // time = 6.57 ns (index=657)
-  aVec[index++] = 3.109960e-02; // time = 6.58 ns (index=658)
-  aVec[index++] = 3.118375e-02; // time = 6.59 ns (index=659)
-  aVec[index++] = 3.126764e-02; // time = 6.60 ns (index=660)
-  aVec[index++] = 3.135128e-02; // time = 6.61 ns (index=661)
-  aVec[index++] = 3.143466e-02; // time = 6.62 ns (index=662)
-  aVec[index++] = 3.151779e-02; // time = 6.63 ns (index=663)
-  aVec[index++] = 3.160067e-02; // time = 6.64 ns (index=664)
-  aVec[index++] = 3.168329e-02; // time = 6.65 ns (index=665)
-  aVec[index++] = 3.176565e-02; // time = 6.66 ns (index=666)
-  aVec[index++] = 3.184775e-02; // time = 6.67 ns (index=667)
-  aVec[index++] = 3.192960e-02; // time = 6.68 ns (index=668)
-  aVec[index++] = 3.201119e-02; // time = 6.69 ns (index=669)
-  aVec[index++] = 3.209252e-02; // time = 6.70 ns (index=670)
-  aVec[index++] = 3.217359e-02; // time = 6.71 ns (index=671)
-  aVec[index++] = 3.225440e-02; // time = 6.72 ns (index=672)
-  aVec[index++] = 3.233494e-02; // time = 6.73 ns (index=673)
-  aVec[index++] = 3.241523e-02; // time = 6.74 ns (index=674)
-  aVec[index++] = 3.249525e-02; // time = 6.75 ns (index=675)
-  aVec[index++] = 3.257501e-02; // time = 6.76 ns (index=676)
-  aVec[index++] = 3.265451e-02; // time = 6.77 ns (index=677)
-  aVec[index++] = 3.273374e-02; // time = 6.78 ns (index=678)
-  aVec[index++] = 3.281270e-02; // time = 6.79 ns (index=679)
-  aVec[index++] = 3.289141e-02; // time = 6.80 ns (index=680)
-  aVec[index++] = 3.296984e-02; // time = 6.81 ns (index=681)
-  aVec[index++] = 3.304801e-02; // time = 6.82 ns (index=682)
-  aVec[index++] = 3.312592e-02; // time = 6.83 ns (index=683)
-  aVec[index++] = 3.320355e-02; // time = 6.84 ns (index=684)
-  aVec[index++] = 3.328092e-02; // time = 6.85 ns (index=685)
-  aVec[index++] = 3.335802e-02; // time = 6.86 ns (index=686)
-  aVec[index++] = 3.343485e-02; // time = 6.87 ns (index=687)
-  aVec[index++] = 3.351141e-02; // time = 6.88 ns (index=688)
-  aVec[index++] = 3.358770e-02; // time = 6.89 ns (index=689)
-  aVec[index++] = 3.366372e-02; // time = 6.90 ns (index=690)
-  aVec[index++] = 3.373947e-02; // time = 6.91 ns (index=691)
-  aVec[index++] = 3.381495e-02; // time = 6.92 ns (index=692)
-  aVec[index++] = 3.389016e-02; // time = 6.93 ns (index=693)
-  aVec[index++] = 3.396509e-02; // time = 6.94 ns (index=694)
-  aVec[index++] = 3.403976e-02; // time = 6.95 ns (index=695)
-  aVec[index++] = 3.411415e-02; // time = 6.96 ns (index=696)
-  aVec[index++] = 3.418826e-02; // time = 6.97 ns (index=697)
-  aVec[index++] = 3.426211e-02; // time = 6.98 ns (index=698)
-  aVec[index++] = 3.433568e-02; // time = 6.99 ns (index=699)
-  aVec[index++] = 3.440897e-02; // time = 7.00 ns (index=700)
-  aVec[index++] = 3.448199e-02; // time = 7.01 ns (index=701)
-  aVec[index++] = 3.455474e-02; // time = 7.02 ns (index=702)
-  aVec[index++] = 3.462721e-02; // time = 7.03 ns (index=703)
-  aVec[index++] = 3.469940e-02; // time = 7.04 ns (index=704)
-  aVec[index++] = 3.477132e-02; // time = 7.05 ns (index=705)
-  aVec[index++] = 3.484296e-02; // time = 7.06 ns (index=706)
-  aVec[index++] = 3.491432e-02; // time = 7.07 ns (index=707)
-  aVec[index++] = 3.498541e-02; // time = 7.08 ns (index=708)
-  aVec[index++] = 3.505622e-02; // time = 7.09 ns (index=709)
-  aVec[index++] = 3.512675e-02; // time = 7.10 ns (index=710)
-  aVec[index++] = 3.519700e-02; // time = 7.11 ns (index=711)
-  aVec[index++] = 3.526698e-02; // time = 7.12 ns (index=712)
-  aVec[index++] = 3.533668e-02; // time = 7.13 ns (index=713)
-  aVec[index++] = 3.540609e-02; // time = 7.14 ns (index=714)
-  aVec[index++] = 3.547523e-02; // time = 7.15 ns (index=715)
-  aVec[index++] = 3.554409e-02; // time = 7.16 ns (index=716)
-  aVec[index++] = 3.561267e-02; // time = 7.17 ns (index=717)
-  aVec[index++] = 3.568097e-02; // time = 7.18 ns (index=718)
-  aVec[index++] = 3.574899e-02; // time = 7.19 ns (index=719)
-  aVec[index++] = 3.581673e-02; // time = 7.20 ns (index=720)
-  aVec[index++] = 3.588419e-02; // time = 7.21 ns (index=721)
-  aVec[index++] = 3.595137e-02; // time = 7.22 ns (index=722)
-  aVec[index++] = 3.601826e-02; // time = 7.23 ns (index=723)
-  aVec[index++] = 3.608488e-02; // time = 7.24 ns (index=724)
-  aVec[index++] = 3.615122e-02; // time = 7.25 ns (index=725)
-  aVec[index++] = 3.621727e-02; // time = 7.26 ns (index=726)
-  aVec[index++] = 3.628304e-02; // time = 7.27 ns (index=727)
-  aVec[index++] = 3.634853e-02; // time = 7.28 ns (index=728)
-  aVec[index++] = 3.641374e-02; // time = 7.29 ns (index=729)
-  aVec[index++] = 3.647866e-02; // time = 7.30 ns (index=730)
-  aVec[index++] = 3.654331e-02; // time = 7.31 ns (index=731)
-  aVec[index++] = 3.660767e-02; // time = 7.32 ns (index=732)
-  aVec[index++] = 3.667175e-02; // time = 7.33 ns (index=733)
-  aVec[index++] = 3.673554e-02; // time = 7.34 ns (index=734)
-  aVec[index++] = 3.679905e-02; // time = 7.35 ns (index=735)
-  aVec[index++] = 3.686228e-02; // time = 7.36 ns (index=736)
-  aVec[index++] = 3.692523e-02; // time = 7.37 ns (index=737)
-  aVec[index++] = 3.698789e-02; // time = 7.38 ns (index=738)
-  aVec[index++] = 3.705027e-02; // time = 7.39 ns (index=739)
-  aVec[index++] = 3.711237e-02; // time = 7.40 ns (index=740)
-  aVec[index++] = 3.717419e-02; // time = 7.41 ns (index=741)
-  aVec[index++] = 3.723572e-02; // time = 7.42 ns (index=742)
-  aVec[index++] = 3.729696e-02; // time = 7.43 ns (index=743)
-  aVec[index++] = 3.735793e-02; // time = 7.44 ns (index=744)
-  aVec[index++] = 3.741861e-02; // time = 7.45 ns (index=745)
-  aVec[index++] = 3.747900e-02; // time = 7.46 ns (index=746)
-  aVec[index++] = 3.753912e-02; // time = 7.47 ns (index=747)
-  aVec[index++] = 3.759894e-02; // time = 7.48 ns (index=748)
-  aVec[index++] = 3.765849e-02; // time = 7.49 ns (index=749)
-  aVec[index++] = 3.771775e-02; // time = 7.50 ns (index=750)
-  aVec[index++] = 3.777673e-02; // time = 7.51 ns (index=751)
-  aVec[index++] = 3.783542e-02; // time = 7.52 ns (index=752)
-  aVec[index++] = 3.789383e-02; // time = 7.53 ns (index=753)
-  aVec[index++] = 3.795196e-02; // time = 7.54 ns (index=754)
-  aVec[index++] = 3.800980e-02; // time = 7.55 ns (index=755)
-  aVec[index++] = 3.806736e-02; // time = 7.56 ns (index=756)
-  aVec[index++] = 3.812464e-02; // time = 7.57 ns (index=757)
-  aVec[index++] = 3.818163e-02; // time = 7.58 ns (index=758)
-  aVec[index++] = 3.823834e-02; // time = 7.59 ns (index=759)
-  aVec[index++] = 3.829476e-02; // time = 7.60 ns (index=760)
-  aVec[index++] = 3.835090e-02; // time = 7.61 ns (index=761)
-  aVec[index++] = 3.840676e-02; // time = 7.62 ns (index=762)
-  aVec[index++] = 3.846233e-02; // time = 7.63 ns (index=763)
-  aVec[index++] = 3.851762e-02; // time = 7.64 ns (index=764)
-  aVec[index++] = 3.857263e-02; // time = 7.65 ns (index=765)
-  aVec[index++] = 3.862736e-02; // time = 7.66 ns (index=766)
-  aVec[index++] = 3.868180e-02; // time = 7.67 ns (index=767)
-  aVec[index++] = 3.873595e-02; // time = 7.68 ns (index=768)
-  aVec[index++] = 3.878983e-02; // time = 7.69 ns (index=769)
-  aVec[index++] = 3.884342e-02; // time = 7.70 ns (index=770)
-  aVec[index++] = 3.889673e-02; // time = 7.71 ns (index=771)
-  aVec[index++] = 3.894976e-02; // time = 7.72 ns (index=772)
-  aVec[index++] = 3.900250e-02; // time = 7.73 ns (index=773)
-  aVec[index++] = 3.905496e-02; // time = 7.74 ns (index=774)
-  aVec[index++] = 3.910714e-02; // time = 7.75 ns (index=775)
-  aVec[index++] = 3.915904e-02; // time = 7.76 ns (index=776)
-  aVec[index++] = 3.921065e-02; // time = 7.77 ns (index=777)
-  aVec[index++] = 3.926199e-02; // time = 7.78 ns (index=778)
-  aVec[index++] = 3.931304e-02; // time = 7.79 ns (index=779)
-  aVec[index++] = 3.936381e-02; // time = 7.80 ns (index=780)
-  aVec[index++] = 3.941430e-02; // time = 7.81 ns (index=781)
-  aVec[index++] = 3.946451e-02; // time = 7.82 ns (index=782)
-  aVec[index++] = 3.951443e-02; // time = 7.83 ns (index=783)
-  aVec[index++] = 3.956408e-02; // time = 7.84 ns (index=784)
-  aVec[index++] = 3.961344e-02; // time = 7.85 ns (index=785)
-  aVec[index++] = 3.966253e-02; // time = 7.86 ns (index=786)
-  aVec[index++] = 3.971133e-02; // time = 7.87 ns (index=787)
-  aVec[index++] = 3.975985e-02; // time = 7.88 ns (index=788)
-  aVec[index++] = 3.980810e-02; // time = 7.89 ns (index=789)
-  aVec[index++] = 3.985606e-02; // time = 7.90 ns (index=790)
-  aVec[index++] = 3.990374e-02; // time = 7.91 ns (index=791)
-  aVec[index++] = 3.995115e-02; // time = 7.92 ns (index=792)
-  aVec[index++] = 3.999827e-02; // time = 7.93 ns (index=793)
-  aVec[index++] = 4.004512e-02; // time = 7.94 ns (index=794)
-  aVec[index++] = 4.009169e-02; // time = 7.95 ns (index=795)
-  aVec[index++] = 4.013797e-02; // time = 7.96 ns (index=796)
-  aVec[index++] = 4.018398e-02; // time = 7.97 ns (index=797)
-  aVec[index++] = 4.022972e-02; // time = 7.98 ns (index=798)
-  aVec[index++] = 4.027517e-02; // time = 7.99 ns (index=799)
-  aVec[index++] = 4.032035e-02; // time = 8.00 ns (index=800)
-  aVec[index++] = 4.036525e-02; // time = 8.01 ns (index=801)
-  aVec[index++] = 4.040987e-02; // time = 8.02 ns (index=802)
-  aVec[index++] = 4.045422e-02; // time = 8.03 ns (index=803)
-  aVec[index++] = 4.049828e-02; // time = 8.04 ns (index=804)
-  aVec[index++] = 4.054208e-02; // time = 8.05 ns (index=805)
-  aVec[index++] = 4.058559e-02; // time = 8.06 ns (index=806)
-  aVec[index++] = 4.062883e-02; // time = 8.07 ns (index=807)
-  aVec[index++] = 4.067180e-02; // time = 8.08 ns (index=808)
-  aVec[index++] = 4.071449e-02; // time = 8.09 ns (index=809)
-  aVec[index++] = 4.075690e-02; // time = 8.10 ns (index=810)
-  aVec[index++] = 4.079904e-02; // time = 8.11 ns (index=811)
-  aVec[index++] = 4.084091e-02; // time = 8.12 ns (index=812)
-  aVec[index++] = 4.088250e-02; // time = 8.13 ns (index=813)
-  aVec[index++] = 4.092382e-02; // time = 8.14 ns (index=814)
-  aVec[index++] = 4.096486e-02; // time = 8.15 ns (index=815)
-  aVec[index++] = 4.100563e-02; // time = 8.16 ns (index=816)
-  aVec[index++] = 4.104613e-02; // time = 8.17 ns (index=817)
-  aVec[index++] = 4.108635e-02; // time = 8.18 ns (index=818)
-  aVec[index++] = 4.112631e-02; // time = 8.19 ns (index=819)
-  aVec[index++] = 4.116599e-02; // time = 8.20 ns (index=820)
-  aVec[index++] = 4.120540e-02; // time = 8.21 ns (index=821)
-  aVec[index++] = 4.124454e-02; // time = 8.22 ns (index=822)
-  aVec[index++] = 4.128340e-02; // time = 8.23 ns (index=823)
-  aVec[index++] = 4.132200e-02; // time = 8.24 ns (index=824)
-  aVec[index++] = 4.136032e-02; // time = 8.25 ns (index=825)
-  aVec[index++] = 4.139838e-02; // time = 8.26 ns (index=826)
-  aVec[index++] = 4.143617e-02; // time = 8.27 ns (index=827)
-  aVec[index++] = 4.147368e-02; // time = 8.28 ns (index=828)
-  aVec[index++] = 4.151093e-02; // time = 8.29 ns (index=829)
-  aVec[index++] = 4.154791e-02; // time = 8.30 ns (index=830)
-  aVec[index++] = 4.158462e-02; // time = 8.31 ns (index=831)
-  aVec[index++] = 4.162106e-02; // time = 8.32 ns (index=832)
-  aVec[index++] = 4.165724e-02; // time = 8.33 ns (index=833)
-  aVec[index++] = 4.169315e-02; // time = 8.34 ns (index=834)
-  aVec[index++] = 4.172879e-02; // time = 8.35 ns (index=835)
-  aVec[index++] = 4.176416e-02; // time = 8.36 ns (index=836)
-  aVec[index++] = 4.179927e-02; // time = 8.37 ns (index=837)
-  aVec[index++] = 4.183412e-02; // time = 8.38 ns (index=838)
-  aVec[index++] = 4.186869e-02; // time = 8.39 ns (index=839)
-  aVec[index++] = 4.190301e-02; // time = 8.40 ns (index=840)
-  aVec[index++] = 4.193705e-02; // time = 8.41 ns (index=841)
-  aVec[index++] = 4.197084e-02; // time = 8.42 ns (index=842)
-  aVec[index++] = 4.200436e-02; // time = 8.43 ns (index=843)
-  aVec[index++] = 4.203762e-02; // time = 8.44 ns (index=844)
-  aVec[index++] = 4.207061e-02; // time = 8.45 ns (index=845)
-  aVec[index++] = 4.210334e-02; // time = 8.46 ns (index=846)
-  aVec[index++] = 4.213581e-02; // time = 8.47 ns (index=847)
-  aVec[index++] = 4.216802e-02; // time = 8.48 ns (index=848)
-  aVec[index++] = 4.219996e-02; // time = 8.49 ns (index=849)
-  aVec[index++] = 4.223165e-02; // time = 8.50 ns (index=850)
-  aVec[index++] = 4.226307e-02; // time = 8.51 ns (index=851)
-  aVec[index++] = 4.229423e-02; // time = 8.52 ns (index=852)
-  aVec[index++] = 4.232514e-02; // time = 8.53 ns (index=853)
-  aVec[index++] = 4.235578e-02; // time = 8.54 ns (index=854)
-  aVec[index++] = 4.238617e-02; // time = 8.55 ns (index=855)
-  aVec[index++] = 4.241630e-02; // time = 8.56 ns (index=856)
-  aVec[index++] = 4.244616e-02; // time = 8.57 ns (index=857)
-  aVec[index++] = 4.247578e-02; // time = 8.58 ns (index=858)
-  aVec[index++] = 4.250513e-02; // time = 8.59 ns (index=859)
-  aVec[index++] = 4.253423e-02; // time = 8.60 ns (index=860)
-  aVec[index++] = 4.256307e-02; // time = 8.61 ns (index=861)
-  aVec[index++] = 4.259165e-02; // time = 8.62 ns (index=862)
-  aVec[index++] = 4.261998e-02; // time = 8.63 ns (index=863)
-  aVec[index++] = 4.264806e-02; // time = 8.64 ns (index=864)
-  aVec[index++] = 4.267588e-02; // time = 8.65 ns (index=865)
-  aVec[index++] = 4.270344e-02; // time = 8.66 ns (index=866)
-  aVec[index++] = 4.273076e-02; // time = 8.67 ns (index=867)
-  aVec[index++] = 4.275782e-02; // time = 8.68 ns (index=868)
-  aVec[index++] = 4.278462e-02; // time = 8.69 ns (index=869)
-  aVec[index++] = 4.281118e-02; // time = 8.70 ns (index=870)
-  aVec[index++] = 4.283748e-02; // time = 8.71 ns (index=871)
-  aVec[index++] = 4.286353e-02; // time = 8.72 ns (index=872)
-  aVec[index++] = 4.288933e-02; // time = 8.73 ns (index=873)
-  aVec[index++] = 4.291488e-02; // time = 8.74 ns (index=874)
-  aVec[index++] = 4.294018e-02; // time = 8.75 ns (index=875)
-  aVec[index++] = 4.296522e-02; // time = 8.76 ns (index=876)
-  aVec[index++] = 4.299003e-02; // time = 8.77 ns (index=877)
-  aVec[index++] = 4.301458e-02; // time = 8.78 ns (index=878)
-  aVec[index++] = 4.303888e-02; // time = 8.79 ns (index=879)
-  aVec[index++] = 4.306294e-02; // time = 8.80 ns (index=880)
-  aVec[index++] = 4.308675e-02; // time = 8.81 ns (index=881)
-  aVec[index++] = 4.311031e-02; // time = 8.82 ns (index=882)
-  aVec[index++] = 4.313362e-02; // time = 8.83 ns (index=883)
-  aVec[index++] = 4.315669e-02; // time = 8.84 ns (index=884)
-  aVec[index++] = 4.317952e-02; // time = 8.85 ns (index=885)
-  aVec[index++] = 4.320210e-02; // time = 8.86 ns (index=886)
-  aVec[index++] = 4.322443e-02; // time = 8.87 ns (index=887)
-  aVec[index++] = 4.324653e-02; // time = 8.88 ns (index=888)
-  aVec[index++] = 4.326837e-02; // time = 8.89 ns (index=889)
-  aVec[index++] = 4.328998e-02; // time = 8.90 ns (index=890)
-  aVec[index++] = 4.331134e-02; // time = 8.91 ns (index=891)
-  aVec[index++] = 4.333247e-02; // time = 8.92 ns (index=892)
-  aVec[index++] = 4.335335e-02; // time = 8.93 ns (index=893)
-  aVec[index++] = 4.337399e-02; // time = 8.94 ns (index=894)
-  aVec[index++] = 4.339438e-02; // time = 8.95 ns (index=895)
-  aVec[index++] = 4.341454e-02; // time = 8.96 ns (index=896)
-  aVec[index++] = 4.343446e-02; // time = 8.97 ns (index=897)
-  aVec[index++] = 4.345415e-02; // time = 8.98 ns (index=898)
-  aVec[index++] = 4.347359e-02; // time = 8.99 ns (index=899)
-  aVec[index++] = 4.349279e-02; // time = 9.00 ns (index=900)
-  aVec[index++] = 4.351176e-02; // time = 9.01 ns (index=901)
-  aVec[index++] = 4.353049e-02; // time = 9.02 ns (index=902)
-  aVec[index++] = 4.354899e-02; // time = 9.03 ns (index=903)
-  aVec[index++] = 4.356725e-02; // time = 9.04 ns (index=904)
-  aVec[index++] = 4.358527e-02; // time = 9.05 ns (index=905)
-  aVec[index++] = 4.360306e-02; // time = 9.06 ns (index=906)
-  aVec[index++] = 4.362062e-02; // time = 9.07 ns (index=907)
-  aVec[index++] = 4.363794e-02; // time = 9.08 ns (index=908)
-  aVec[index++] = 4.365503e-02; // time = 9.09 ns (index=909)
-  aVec[index++] = 4.367188e-02; // time = 9.10 ns (index=910)
-  aVec[index++] = 4.368851e-02; // time = 9.11 ns (index=911)
-  aVec[index++] = 4.370490e-02; // time = 9.12 ns (index=912)
-  aVec[index++] = 4.372106e-02; // time = 9.13 ns (index=913)
-  aVec[index++] = 4.373699e-02; // time = 9.14 ns (index=914)
-  aVec[index++] = 4.375269e-02; // time = 9.15 ns (index=915)
-  aVec[index++] = 4.376816e-02; // time = 9.16 ns (index=916)
-  aVec[index++] = 4.378340e-02; // time = 9.17 ns (index=917)
-  aVec[index++] = 4.379842e-02; // time = 9.18 ns (index=918)
-  aVec[index++] = 4.381320e-02; // time = 9.19 ns (index=919)
-  aVec[index++] = 4.382776e-02; // time = 9.20 ns (index=920)
-  aVec[index++] = 4.384209e-02; // time = 9.21 ns (index=921)
-  aVec[index++] = 4.385620e-02; // time = 9.22 ns (index=922)
-  aVec[index++] = 4.387008e-02; // time = 9.23 ns (index=923)
-  aVec[index++] = 4.388373e-02; // time = 9.24 ns (index=924)
-  aVec[index++] = 4.389716e-02; // time = 9.25 ns (index=925)
-  aVec[index++] = 4.391037e-02; // time = 9.26 ns (index=926)
-  aVec[index++] = 4.392335e-02; // time = 9.27 ns (index=927)
-  aVec[index++] = 4.393611e-02; // time = 9.28 ns (index=928)
-  aVec[index++] = 4.394865e-02; // time = 9.29 ns (index=929)
-  aVec[index++] = 4.396097e-02; // time = 9.30 ns (index=930)
-  aVec[index++] = 4.397306e-02; // time = 9.31 ns (index=931)
-  aVec[index++] = 4.398493e-02; // time = 9.32 ns (index=932)
-  aVec[index++] = 4.399659e-02; // time = 9.33 ns (index=933)
-  aVec[index++] = 4.400802e-02; // time = 9.34 ns (index=934)
-  aVec[index++] = 4.401923e-02; // time = 9.35 ns (index=935)
-  aVec[index++] = 4.403023e-02; // time = 9.36 ns (index=936)
-  aVec[index++] = 4.404101e-02; // time = 9.37 ns (index=937)
-  aVec[index++] = 4.405157e-02; // time = 9.38 ns (index=938)
-  aVec[index++] = 4.406191e-02; // time = 9.39 ns (index=939)
-  aVec[index++] = 4.407203e-02; // time = 9.40 ns (index=940)
-  aVec[index++] = 4.408195e-02; // time = 9.41 ns (index=941)
-  aVec[index++] = 4.409164e-02; // time = 9.42 ns (index=942)
-  aVec[index++] = 4.410112e-02; // time = 9.43 ns (index=943)
-  aVec[index++] = 4.411039e-02; // time = 9.44 ns (index=944)
-  aVec[index++] = 4.411944e-02; // time = 9.45 ns (index=945)
-  aVec[index++] = 4.412828e-02; // time = 9.46 ns (index=946)
-  aVec[index++] = 4.413691e-02; // time = 9.47 ns (index=947)
-  aVec[index++] = 4.414532e-02; // time = 9.48 ns (index=948)
-  aVec[index++] = 4.415353e-02; // time = 9.49 ns (index=949)
-  aVec[index++] = 4.416152e-02; // time = 9.50 ns (index=950)
-  aVec[index++] = 4.416930e-02; // time = 9.51 ns (index=951)
-  aVec[index++] = 4.417687e-02; // time = 9.52 ns (index=952)
-  aVec[index++] = 4.418424e-02; // time = 9.53 ns (index=953)
-  aVec[index++] = 4.419139e-02; // time = 9.54 ns (index=954)
-  aVec[index++] = 4.419834e-02; // time = 9.55 ns (index=955)
-  aVec[index++] = 4.420508e-02; // time = 9.56 ns (index=956)
-  aVec[index++] = 4.421161e-02; // time = 9.57 ns (index=957)
-  aVec[index++] = 4.421794e-02; // time = 9.58 ns (index=958)
-  aVec[index++] = 4.422406e-02; // time = 9.59 ns (index=959)
-  aVec[index++] = 4.422997e-02; // time = 9.60 ns (index=960)
-  aVec[index++] = 4.423568e-02; // time = 9.61 ns (index=961)
-  aVec[index++] = 4.424119e-02; // time = 9.62 ns (index=962)
-  aVec[index++] = 4.424649e-02; // time = 9.63 ns (index=963)
-  aVec[index++] = 4.425159e-02; // time = 9.64 ns (index=964)
-  aVec[index++] = 4.425649e-02; // time = 9.65 ns (index=965)
-  aVec[index++] = 4.426119e-02; // time = 9.66 ns (index=966)
-  aVec[index++] = 4.426568e-02; // time = 9.67 ns (index=967)
-  aVec[index++] = 4.426998e-02; // time = 9.68 ns (index=968)
-  aVec[index++] = 4.427407e-02; // time = 9.69 ns (index=969)
-  aVec[index++] = 4.427796e-02; // time = 9.70 ns (index=970)
-  aVec[index++] = 4.428166e-02; // time = 9.71 ns (index=971)
-  aVec[index++] = 4.428515e-02; // time = 9.72 ns (index=972)
-  aVec[index++] = 4.428845e-02; // time = 9.73 ns (index=973)
-  aVec[index++] = 4.429155e-02; // time = 9.74 ns (index=974)
-  aVec[index++] = 4.429446e-02; // time = 9.75 ns (index=975)
-  aVec[index++] = 4.429717e-02; // time = 9.76 ns (index=976)
-  aVec[index++] = 4.429968e-02; // time = 9.77 ns (index=977)
-  aVec[index++] = 4.430200e-02; // time = 9.78 ns (index=978)
-  aVec[index++] = 4.430412e-02; // time = 9.79 ns (index=979)
-  aVec[index++] = 4.430605e-02; // time = 9.80 ns (index=980)
-  aVec[index++] = 4.430779e-02; // time = 9.81 ns (index=981)
-  aVec[index++] = 4.430933e-02; // time = 9.82 ns (index=982)
-  aVec[index++] = 4.431068e-02; // time = 9.83 ns (index=983)
-  aVec[index++] = 4.431184e-02; // time = 9.84 ns (index=984)
-  aVec[index++] = 4.431281e-02; // time = 9.85 ns (index=985)
-  aVec[index++] = 4.431359e-02; // time = 9.86 ns (index=986)
-  aVec[index++] = 4.431417e-02; // time = 9.87 ns (index=987)
-  aVec[index++] = 4.431457e-02; // time = 9.88 ns (index=988)
-  aVec[index++] = 4.431478e-02; // time = 9.89 ns (index=989)
-  aVec[index++] = 4.431480e-02; // time = 9.90 ns (index=990)
-  aVec[index++] = 4.431464e-02; // time = 9.91 ns (index=991)
-  aVec[index++] = 4.431429e-02; // time = 9.92 ns (index=992)
-  aVec[index++] = 4.431375e-02; // time = 9.93 ns (index=993)
-  aVec[index++] = 4.431302e-02; // time = 9.94 ns (index=994)
-  aVec[index++] = 4.431211e-02; // time = 9.95 ns (index=995)
-  aVec[index++] = 4.431101e-02; // time = 9.96 ns (index=996)
-  aVec[index++] = 4.430973e-02; // time = 9.97 ns (index=997)
-  aVec[index++] = 4.430827e-02; // time = 9.98 ns (index=998)
-  aVec[index++] = 4.430694e-02; // time = 9.99 ns (index=999)
-  aVec[index++] = 4.430550e-02; // time = 10.00 ns (index=1000)
-  aVec[index++] = 4.430415e-02; // time = 10.01 ns (index=1001)
-  aVec[index++] = 4.430250e-02; // time = 10.02 ns (index=1002)
-  aVec[index++] = 4.430029e-02; // time = 10.03 ns (index=1003)
-  aVec[index++] = 4.429789e-02; // time = 10.04 ns (index=1004)
-  aVec[index++] = 4.429531e-02; // time = 10.05 ns (index=1005)
-  aVec[index++] = 4.429256e-02; // time = 10.06 ns (index=1006)
-  aVec[index++] = 4.428962e-02; // time = 10.07 ns (index=1007)
-  aVec[index++] = 4.428651e-02; // time = 10.08 ns (index=1008)
-  aVec[index++] = 4.428322e-02; // time = 10.09 ns (index=1009)
-  aVec[index++] = 4.427975e-02; // time = 10.10 ns (index=1010)
-  aVec[index++] = 4.427610e-02; // time = 10.11 ns (index=1011)
-  aVec[index++] = 4.427228e-02; // time = 10.12 ns (index=1012)
-  aVec[index++] = 4.426828e-02; // time = 10.13 ns (index=1013)
-  aVec[index++] = 4.426411e-02; // time = 10.14 ns (index=1014)
-  aVec[index++] = 4.425976e-02; // time = 10.15 ns (index=1015)
-  aVec[index++] = 4.425524e-02; // time = 10.16 ns (index=1016)
-  aVec[index++] = 4.425054e-02; // time = 10.17 ns (index=1017)
-  aVec[index++] = 4.424568e-02; // time = 10.18 ns (index=1018)
-  aVec[index++] = 4.424064e-02; // time = 10.19 ns (index=1019)
-  aVec[index++] = 4.423543e-02; // time = 10.20 ns (index=1020)
-  aVec[index++] = 4.423004e-02; // time = 10.21 ns (index=1021)
-  aVec[index++] = 4.422449e-02; // time = 10.22 ns (index=1022)
-  aVec[index++] = 4.421877e-02; // time = 10.23 ns (index=1023)
-  aVec[index++] = 4.421287e-02; // time = 10.24 ns (index=1024)
-  aVec[index++] = 4.420681e-02; // time = 10.25 ns (index=1025)
-  aVec[index++] = 4.420058e-02; // time = 10.26 ns (index=1026)
-  aVec[index++] = 4.419418e-02; // time = 10.27 ns (index=1027)
-  aVec[index++] = 4.418762e-02; // time = 10.28 ns (index=1028)
-  aVec[index++] = 4.418089e-02; // time = 10.29 ns (index=1029)
-  aVec[index++] = 4.417399e-02; // time = 10.30 ns (index=1030)
-  aVec[index++] = 4.416692e-02; // time = 10.31 ns (index=1031)
-  aVec[index++] = 4.415970e-02; // time = 10.32 ns (index=1032)
-  aVec[index++] = 4.415230e-02; // time = 10.33 ns (index=1033)
-  aVec[index++] = 4.414475e-02; // time = 10.34 ns (index=1034)
-  aVec[index++] = 4.413703e-02; // time = 10.35 ns (index=1035)
-  aVec[index++] = 4.412914e-02; // time = 10.36 ns (index=1036)
-  aVec[index++] = 4.412110e-02; // time = 10.37 ns (index=1037)
-  aVec[index++] = 4.411289e-02; // time = 10.38 ns (index=1038)
-  aVec[index++] = 4.410453e-02; // time = 10.39 ns (index=1039)
-  aVec[index++] = 4.409600e-02; // time = 10.40 ns (index=1040)
-  aVec[index++] = 4.408731e-02; // time = 10.41 ns (index=1041)
-  aVec[index++] = 4.407846e-02; // time = 10.42 ns (index=1042)
-  aVec[index++] = 4.406946e-02; // time = 10.43 ns (index=1043)
-  aVec[index++] = 4.406029e-02; // time = 10.44 ns (index=1044)
-  aVec[index++] = 4.405097e-02; // time = 10.45 ns (index=1045)
-  aVec[index++] = 4.404149e-02; // time = 10.46 ns (index=1046)
-  aVec[index++] = 4.403185e-02; // time = 10.47 ns (index=1047)
-  aVec[index++] = 4.402206e-02; // time = 10.48 ns (index=1048)
-  aVec[index++] = 4.401212e-02; // time = 10.49 ns (index=1049)
-  aVec[index++] = 4.400201e-02; // time = 10.50 ns (index=1050)
-  aVec[index++] = 4.399176e-02; // time = 10.51 ns (index=1051)
-  aVec[index++] = 4.398135e-02; // time = 10.52 ns (index=1052)
-  aVec[index++] = 4.397078e-02; // time = 10.53 ns (index=1053)
-  aVec[index++] = 4.396006e-02; // time = 10.54 ns (index=1054)
-  aVec[index++] = 4.394920e-02; // time = 10.55 ns (index=1055)
-  aVec[index++] = 4.393818e-02; // time = 10.56 ns (index=1056)
-  aVec[index++] = 4.392700e-02; // time = 10.57 ns (index=1057)
-  aVec[index++] = 4.391568e-02; // time = 10.58 ns (index=1058)
-  aVec[index++] = 4.390421e-02; // time = 10.59 ns (index=1059)
-  aVec[index++] = 4.389259e-02; // time = 10.60 ns (index=1060)
-  aVec[index++] = 4.388082e-02; // time = 10.61 ns (index=1061)
-  aVec[index++] = 4.386890e-02; // time = 10.62 ns (index=1062)
-  aVec[index++] = 4.385683e-02; // time = 10.63 ns (index=1063)
-  aVec[index++] = 4.384462e-02; // time = 10.64 ns (index=1064)
-  aVec[index++] = 4.383226e-02; // time = 10.65 ns (index=1065)
-  aVec[index++] = 4.381975e-02; // time = 10.66 ns (index=1066)
-  aVec[index++] = 4.380710e-02; // time = 10.67 ns (index=1067)
-  aVec[index++] = 4.379430e-02; // time = 10.68 ns (index=1068)
-  aVec[index++] = 4.378136e-02; // time = 10.69 ns (index=1069)
-  aVec[index++] = 4.376827e-02; // time = 10.70 ns (index=1070)
-  aVec[index++] = 4.375504e-02; // time = 10.71 ns (index=1071)
-  aVec[index++] = 4.374167e-02; // time = 10.72 ns (index=1072)
-  aVec[index++] = 4.372815e-02; // time = 10.73 ns (index=1073)
-  aVec[index++] = 4.371450e-02; // time = 10.74 ns (index=1074)
-  aVec[index++] = 4.370070e-02; // time = 10.75 ns (index=1075)
-  aVec[index++] = 4.368676e-02; // time = 10.76 ns (index=1076)
-  aVec[index++] = 4.367268e-02; // time = 10.77 ns (index=1077)
-  aVec[index++] = 4.365846e-02; // time = 10.78 ns (index=1078)
-  aVec[index++] = 4.364410e-02; // time = 10.79 ns (index=1079)
-  aVec[index++] = 4.362961e-02; // time = 10.80 ns (index=1080)
-  aVec[index++] = 4.361497e-02; // time = 10.81 ns (index=1081)
-  aVec[index++] = 4.360020e-02; // time = 10.82 ns (index=1082)
-  aVec[index++] = 4.358529e-02; // time = 10.83 ns (index=1083)
-  aVec[index++] = 4.357025e-02; // time = 10.84 ns (index=1084)
-  aVec[index++] = 4.355506e-02; // time = 10.85 ns (index=1085)
-  aVec[index++] = 4.353975e-02; // time = 10.86 ns (index=1086)
-  aVec[index++] = 4.352429e-02; // time = 10.87 ns (index=1087)
-  aVec[index++] = 4.350871e-02; // time = 10.88 ns (index=1088)
-  aVec[index++] = 4.349299e-02; // time = 10.89 ns (index=1089)
-  aVec[index++] = 4.347713e-02; // time = 10.90 ns (index=1090)
-  aVec[index++] = 4.346115e-02; // time = 10.91 ns (index=1091)
-  aVec[index++] = 4.344503e-02; // time = 10.92 ns (index=1092)
-  aVec[index++] = 4.342878e-02; // time = 10.93 ns (index=1093)
-  aVec[index++] = 4.341240e-02; // time = 10.94 ns (index=1094)
-  aVec[index++] = 4.339589e-02; // time = 10.95 ns (index=1095)
-  aVec[index++] = 4.337924e-02; // time = 10.96 ns (index=1096)
-  aVec[index++] = 4.336247e-02; // time = 10.97 ns (index=1097)
-  aVec[index++] = 4.334557e-02; // time = 10.98 ns (index=1098)
-  aVec[index++] = 4.332854e-02; // time = 10.99 ns (index=1099)
-  aVec[index++] = 4.331138e-02; // time = 11.00 ns (index=1100)
-  aVec[index++] = 4.329410e-02; // time = 11.01 ns (index=1101)
-  aVec[index++] = 4.327669e-02; // time = 11.02 ns (index=1102)
-  aVec[index++] = 4.325915e-02; // time = 11.03 ns (index=1103)
-  aVec[index++] = 4.324148e-02; // time = 11.04 ns (index=1104)
-  aVec[index++] = 4.322369e-02; // time = 11.05 ns (index=1105)
-  aVec[index++] = 4.320578e-02; // time = 11.06 ns (index=1106)
-  aVec[index++] = 4.318774e-02; // time = 11.07 ns (index=1107)
-  aVec[index++] = 4.316958e-02; // time = 11.08 ns (index=1108)
-  aVec[index++] = 4.315129e-02; // time = 11.09 ns (index=1109)
-  aVec[index++] = 4.313288e-02; // time = 11.10 ns (index=1110)
-  aVec[index++] = 4.311435e-02; // time = 11.11 ns (index=1111)
-  aVec[index++] = 4.309569e-02; // time = 11.12 ns (index=1112)
-  aVec[index++] = 4.307692e-02; // time = 11.13 ns (index=1113)
-  aVec[index++] = 4.305802e-02; // time = 11.14 ns (index=1114)
-  aVec[index++] = 4.303901e-02; // time = 11.15 ns (index=1115)
-  aVec[index++] = 4.301987e-02; // time = 11.16 ns (index=1116)
-  aVec[index++] = 4.300062e-02; // time = 11.17 ns (index=1117)
-  aVec[index++] = 4.298124e-02; // time = 11.18 ns (index=1118)
-  aVec[index++] = 4.296175e-02; // time = 11.19 ns (index=1119)
-  aVec[index++] = 4.294214e-02; // time = 11.20 ns (index=1120)
-  aVec[index++] = 4.292241e-02; // time = 11.21 ns (index=1121)
-  aVec[index++] = 4.290257e-02; // time = 11.22 ns (index=1122)
-  aVec[index++] = 4.288261e-02; // time = 11.23 ns (index=1123)
-  aVec[index++] = 4.286253e-02; // time = 11.24 ns (index=1124)
-  aVec[index++] = 4.284234e-02; // time = 11.25 ns (index=1125)
-  aVec[index++] = 4.282203e-02; // time = 11.26 ns (index=1126)
-  aVec[index++] = 4.280161e-02; // time = 11.27 ns (index=1127)
-  aVec[index++] = 4.278108e-02; // time = 11.28 ns (index=1128)
-  aVec[index++] = 4.276043e-02; // time = 11.29 ns (index=1129)
-  aVec[index++] = 4.273967e-02; // time = 11.30 ns (index=1130)
-  aVec[index++] = 4.271880e-02; // time = 11.31 ns (index=1131)
-  aVec[index++] = 4.269781e-02; // time = 11.32 ns (index=1132)
-  aVec[index++] = 4.267672e-02; // time = 11.33 ns (index=1133)
-  aVec[index++] = 4.265551e-02; // time = 11.34 ns (index=1134)
-  aVec[index++] = 4.263419e-02; // time = 11.35 ns (index=1135)
-  aVec[index++] = 4.261277e-02; // time = 11.36 ns (index=1136)
-  aVec[index++] = 4.259123e-02; // time = 11.37 ns (index=1137)
-  aVec[index++] = 4.256959e-02; // time = 11.38 ns (index=1138)
-  aVec[index++] = 4.254783e-02; // time = 11.39 ns (index=1139)
-  aVec[index++] = 4.252597e-02; // time = 11.40 ns (index=1140)
-  aVec[index++] = 4.250400e-02; // time = 11.41 ns (index=1141)
-  aVec[index++] = 4.248193e-02; // time = 11.42 ns (index=1142)
-  aVec[index++] = 4.245975e-02; // time = 11.43 ns (index=1143)
-  aVec[index++] = 4.243746e-02; // time = 11.44 ns (index=1144)
-  aVec[index++] = 4.241507e-02; // time = 11.45 ns (index=1145)
-  aVec[index++] = 4.239257e-02; // time = 11.46 ns (index=1146)
-  aVec[index++] = 4.236997e-02; // time = 11.47 ns (index=1147)
-  aVec[index++] = 4.234726e-02; // time = 11.48 ns (index=1148)
-  aVec[index++] = 4.232445e-02; // time = 11.49 ns (index=1149)
-  aVec[index++] = 4.230154e-02; // time = 11.50 ns (index=1150)
-  aVec[index++] = 4.227853e-02; // time = 11.51 ns (index=1151)
-  aVec[index++] = 4.225541e-02; // time = 11.52 ns (index=1152)
-  aVec[index++] = 4.223219e-02; // time = 11.53 ns (index=1153)
-  aVec[index++] = 4.220887e-02; // time = 11.54 ns (index=1154)
-  aVec[index++] = 4.218545e-02; // time = 11.55 ns (index=1155)
-  aVec[index++] = 4.216193e-02; // time = 11.56 ns (index=1156)
-  aVec[index++] = 4.213831e-02; // time = 11.57 ns (index=1157)
-  aVec[index++] = 4.211459e-02; // time = 11.58 ns (index=1158)
-  aVec[index++] = 4.209077e-02; // time = 11.59 ns (index=1159)
-  aVec[index++] = 4.206686e-02; // time = 11.60 ns (index=1160)
-  aVec[index++] = 4.204284e-02; // time = 11.61 ns (index=1161)
-  aVec[index++] = 4.201873e-02; // time = 11.62 ns (index=1162)
-  aVec[index++] = 4.199452e-02; // time = 11.63 ns (index=1163)
-  aVec[index++] = 4.197022e-02; // time = 11.64 ns (index=1164)
-  aVec[index++] = 4.194582e-02; // time = 11.65 ns (index=1165)
-  aVec[index++] = 4.192132e-02; // time = 11.66 ns (index=1166)
-  aVec[index++] = 4.189673e-02; // time = 11.67 ns (index=1167)
-  aVec[index++] = 4.187204e-02; // time = 11.68 ns (index=1168)
-  aVec[index++] = 4.184726e-02; // time = 11.69 ns (index=1169)
-  aVec[index++] = 4.182239e-02; // time = 11.70 ns (index=1170)
-  aVec[index++] = 4.179743e-02; // time = 11.71 ns (index=1171)
-  aVec[index++] = 4.177237e-02; // time = 11.72 ns (index=1172)
-  aVec[index++] = 4.174721e-02; // time = 11.73 ns (index=1173)
-  aVec[index++] = 4.172197e-02; // time = 11.74 ns (index=1174)
-  aVec[index++] = 4.169664e-02; // time = 11.75 ns (index=1175)
-  aVec[index++] = 4.167121e-02; // time = 11.76 ns (index=1176)
-  aVec[index++] = 4.164570e-02; // time = 11.77 ns (index=1177)
-  aVec[index++] = 4.162009e-02; // time = 11.78 ns (index=1178)
-  aVec[index++] = 4.159440e-02; // time = 11.79 ns (index=1179)
-  aVec[index++] = 4.156861e-02; // time = 11.80 ns (index=1180)
-  aVec[index++] = 4.154274e-02; // time = 11.81 ns (index=1181)
-  aVec[index++] = 4.151678e-02; // time = 11.82 ns (index=1182)
-  aVec[index++] = 4.149073e-02; // time = 11.83 ns (index=1183)
-  aVec[index++] = 4.146459e-02; // time = 11.84 ns (index=1184)
-  aVec[index++] = 4.143837e-02; // time = 11.85 ns (index=1185)
-  aVec[index++] = 4.141206e-02; // time = 11.86 ns (index=1186)
-  aVec[index++] = 4.138567e-02; // time = 11.87 ns (index=1187)
-  aVec[index++] = 4.135919e-02; // time = 11.88 ns (index=1188)
-  aVec[index++] = 4.133262e-02; // time = 11.89 ns (index=1189)
-  aVec[index++] = 4.130597e-02; // time = 11.90 ns (index=1190)
-  aVec[index++] = 4.127924e-02; // time = 11.91 ns (index=1191)
-  aVec[index++] = 4.125242e-02; // time = 11.92 ns (index=1192)
-  aVec[index++] = 4.122552e-02; // time = 11.93 ns (index=1193)
-  aVec[index++] = 4.119853e-02; // time = 11.94 ns (index=1194)
-  aVec[index++] = 4.117147e-02; // time = 11.95 ns (index=1195)
-  aVec[index++] = 4.114432e-02; // time = 11.96 ns (index=1196)
-  aVec[index++] = 4.111709e-02; // time = 11.97 ns (index=1197)
-  aVec[index++] = 4.108978e-02; // time = 11.98 ns (index=1198)
-  aVec[index++] = 4.106239e-02; // time = 11.99 ns (index=1199)
-  aVec[index++] = 4.103492e-02; // time = 12.00 ns (index=1200)
-  aVec[index++] = 4.100736e-02; // time = 12.01 ns (index=1201)
-  aVec[index++] = 4.097973e-02; // time = 12.02 ns (index=1202)
-  aVec[index++] = 4.095202e-02; // time = 12.03 ns (index=1203)
-  aVec[index++] = 4.092423e-02; // time = 12.04 ns (index=1204)
-  aVec[index++] = 4.089637e-02; // time = 12.05 ns (index=1205)
-  aVec[index++] = 4.086842e-02; // time = 12.06 ns (index=1206)
-  aVec[index++] = 4.084040e-02; // time = 12.07 ns (index=1207)
-  aVec[index++] = 4.081230e-02; // time = 12.08 ns (index=1208)
-  aVec[index++] = 4.078413e-02; // time = 12.09 ns (index=1209)
-  aVec[index++] = 4.075588e-02; // time = 12.10 ns (index=1210)
-  aVec[index++] = 4.072755e-02; // time = 12.11 ns (index=1211)
-  aVec[index++] = 4.069915e-02; // time = 12.12 ns (index=1212)
-  aVec[index++] = 4.067067e-02; // time = 12.13 ns (index=1213)
-  aVec[index++] = 4.064212e-02; // time = 12.14 ns (index=1214)
-  aVec[index++] = 4.061350e-02; // time = 12.15 ns (index=1215)
-  aVec[index++] = 4.058480e-02; // time = 12.16 ns (index=1216)
-  aVec[index++] = 4.055603e-02; // time = 12.17 ns (index=1217)
-  aVec[index++] = 4.052718e-02; // time = 12.18 ns (index=1218)
-  aVec[index++] = 4.049827e-02; // time = 12.19 ns (index=1219)
-  aVec[index++] = 4.046928e-02; // time = 12.20 ns (index=1220)
-  aVec[index++] = 4.044022e-02; // time = 12.21 ns (index=1221)
-  aVec[index++] = 4.041109e-02; // time = 12.22 ns (index=1222)
-  aVec[index++] = 4.038189e-02; // time = 12.23 ns (index=1223)
-  aVec[index++] = 4.035262e-02; // time = 12.24 ns (index=1224)
-  aVec[index++] = 4.032328e-02; // time = 12.25 ns (index=1225)
-  aVec[index++] = 4.029387e-02; // time = 12.26 ns (index=1226)
-  aVec[index++] = 4.026439e-02; // time = 12.27 ns (index=1227)
-  aVec[index++] = 4.023484e-02; // time = 12.28 ns (index=1228)
-  aVec[index++] = 4.020523e-02; // time = 12.29 ns (index=1229)
-  aVec[index++] = 4.017554e-02; // time = 12.30 ns (index=1230)
-  aVec[index++] = 4.014579e-02; // time = 12.31 ns (index=1231)
-  aVec[index++] = 4.011597e-02; // time = 12.32 ns (index=1232)
-  aVec[index++] = 4.008609e-02; // time = 12.33 ns (index=1233)
-  aVec[index++] = 4.005614e-02; // time = 12.34 ns (index=1234)
-  aVec[index++] = 4.002612e-02; // time = 12.35 ns (index=1235)
-  aVec[index++] = 3.999604e-02; // time = 12.36 ns (index=1236)
-  aVec[index++] = 3.996589e-02; // time = 12.37 ns (index=1237)
-  aVec[index++] = 3.993568e-02; // time = 12.38 ns (index=1238)
-  aVec[index++] = 3.990540e-02; // time = 12.39 ns (index=1239)
-  aVec[index++] = 3.987506e-02; // time = 12.40 ns (index=1240)
-  aVec[index++] = 3.984466e-02; // time = 12.41 ns (index=1241)
-  aVec[index++] = 3.981419e-02; // time = 12.42 ns (index=1242)
-  aVec[index++] = 3.978366e-02; // time = 12.43 ns (index=1243)
-  aVec[index++] = 3.975307e-02; // time = 12.44 ns (index=1244)
-  aVec[index++] = 3.972242e-02; // time = 12.45 ns (index=1245)
-  aVec[index++] = 3.969170e-02; // time = 12.46 ns (index=1246)
-  aVec[index++] = 3.966093e-02; // time = 12.47 ns (index=1247)
-  aVec[index++] = 3.963009e-02; // time = 12.48 ns (index=1248)
-  aVec[index++] = 3.959920e-02; // time = 12.49 ns (index=1249)
-  aVec[index++] = 3.956824e-02; // time = 12.50 ns (index=1250)
-  aVec[index++] = 3.953722e-02; // time = 12.51 ns (index=1251)
-  aVec[index++] = 3.950615e-02; // time = 12.52 ns (index=1252)
-  aVec[index++] = 3.947501e-02; // time = 12.53 ns (index=1253)
-  aVec[index++] = 3.944382e-02; // time = 12.54 ns (index=1254)
-  aVec[index++] = 3.941257e-02; // time = 12.55 ns (index=1255)
-  aVec[index++] = 3.938126e-02; // time = 12.56 ns (index=1256)
-  aVec[index++] = 3.934989e-02; // time = 12.57 ns (index=1257)
-  aVec[index++] = 3.931847e-02; // time = 12.58 ns (index=1258)
-  aVec[index++] = 3.928699e-02; // time = 12.59 ns (index=1259)
-  aVec[index++] = 3.925545e-02; // time = 12.60 ns (index=1260)
-  aVec[index++] = 3.922386e-02; // time = 12.61 ns (index=1261)
-  aVec[index++] = 3.919221e-02; // time = 12.62 ns (index=1262)
-  aVec[index++] = 3.916051e-02; // time = 12.63 ns (index=1263)
-  aVec[index++] = 3.912875e-02; // time = 12.64 ns (index=1264)
-  aVec[index++] = 3.909694e-02; // time = 12.65 ns (index=1265)
-  aVec[index++] = 3.906507e-02; // time = 12.66 ns (index=1266)
-  aVec[index++] = 3.903315e-02; // time = 12.67 ns (index=1267)
-  aVec[index++] = 3.900118e-02; // time = 12.68 ns (index=1268)
-  aVec[index++] = 3.896916e-02; // time = 12.69 ns (index=1269)
-  aVec[index++] = 3.893708e-02; // time = 12.70 ns (index=1270)
-  aVec[index++] = 3.890495e-02; // time = 12.71 ns (index=1271)
-  aVec[index++] = 3.887276e-02; // time = 12.72 ns (index=1272)
-  aVec[index++] = 3.884053e-02; // time = 12.73 ns (index=1273)
-  aVec[index++] = 3.880824e-02; // time = 12.74 ns (index=1274)
-  aVec[index++] = 3.877591e-02; // time = 12.75 ns (index=1275)
-  aVec[index++] = 3.874352e-02; // time = 12.76 ns (index=1276)
-  aVec[index++] = 3.871108e-02; // time = 12.77 ns (index=1277)
-  aVec[index++] = 3.867860e-02; // time = 12.78 ns (index=1278)
-  aVec[index++] = 3.864606e-02; // time = 12.79 ns (index=1279)
-  aVec[index++] = 3.861348e-02; // time = 12.80 ns (index=1280)
-  aVec[index++] = 3.858084e-02; // time = 12.81 ns (index=1281)
-  aVec[index++] = 3.854816e-02; // time = 12.82 ns (index=1282)
-  aVec[index++] = 3.851543e-02; // time = 12.83 ns (index=1283)
-  aVec[index++] = 3.848265e-02; // time = 12.84 ns (index=1284)
-  aVec[index++] = 3.844983e-02; // time = 12.85 ns (index=1285)
-  aVec[index++] = 3.841696e-02; // time = 12.86 ns (index=1286)
-  aVec[index++] = 3.838404e-02; // time = 12.87 ns (index=1287)
-  aVec[index++] = 3.835107e-02; // time = 12.88 ns (index=1288)
-  aVec[index++] = 3.831806e-02; // time = 12.89 ns (index=1289)
-  aVec[index++] = 3.828500e-02; // time = 12.90 ns (index=1290)
-  aVec[index++] = 3.825190e-02; // time = 12.91 ns (index=1291)
-  aVec[index++] = 3.821876e-02; // time = 12.92 ns (index=1292)
-  aVec[index++] = 3.818556e-02; // time = 12.93 ns (index=1293)
-  aVec[index++] = 3.815233e-02; // time = 12.94 ns (index=1294)
-  aVec[index++] = 3.811905e-02; // time = 12.95 ns (index=1295)
-  aVec[index++] = 3.808572e-02; // time = 12.96 ns (index=1296)
-  aVec[index++] = 3.805236e-02; // time = 12.97 ns (index=1297)
-  aVec[index++] = 3.801895e-02; // time = 12.98 ns (index=1298)
-  aVec[index++] = 3.798550e-02; // time = 12.99 ns (index=1299)
-  aVec[index++] = 3.795200e-02; // time = 13.00 ns (index=1300)
-  aVec[index++] = 3.791847e-02; // time = 13.01 ns (index=1301)
-  aVec[index++] = 3.788489e-02; // time = 13.02 ns (index=1302)
-  aVec[index++] = 3.785127e-02; // time = 13.03 ns (index=1303)
-  aVec[index++] = 3.781761e-02; // time = 13.04 ns (index=1304)
-  aVec[index++] = 3.778391e-02; // time = 13.05 ns (index=1305)
-  aVec[index++] = 3.775017e-02; // time = 13.06 ns (index=1306)
-  aVec[index++] = 3.771638e-02; // time = 13.07 ns (index=1307)
-  aVec[index++] = 3.768256e-02; // time = 13.08 ns (index=1308)
-  aVec[index++] = 3.764870e-02; // time = 13.09 ns (index=1309)
-  aVec[index++] = 3.761480e-02; // time = 13.10 ns (index=1310)
-  aVec[index++] = 3.758087e-02; // time = 13.11 ns (index=1311)
-  aVec[index++] = 3.754689e-02; // time = 13.12 ns (index=1312)
-  aVec[index++] = 3.751287e-02; // time = 13.13 ns (index=1313)
-  aVec[index++] = 3.747882e-02; // time = 13.14 ns (index=1314)
-  aVec[index++] = 3.744473e-02; // time = 13.15 ns (index=1315)
-  aVec[index++] = 3.741061e-02; // time = 13.16 ns (index=1316)
-  aVec[index++] = 3.737644e-02; // time = 13.17 ns (index=1317)
-  aVec[index++] = 3.734224e-02; // time = 13.18 ns (index=1318)
-  aVec[index++] = 3.730800e-02; // time = 13.19 ns (index=1319)
-  aVec[index++] = 3.727373e-02; // time = 13.20 ns (index=1320)
-  aVec[index++] = 3.723942e-02; // time = 13.21 ns (index=1321)
-  aVec[index++] = 3.720508e-02; // time = 13.22 ns (index=1322)
-  aVec[index++] = 3.717070e-02; // time = 13.23 ns (index=1323)
-  aVec[index++] = 3.713629e-02; // time = 13.24 ns (index=1324)
-  aVec[index++] = 3.710184e-02; // time = 13.25 ns (index=1325)
-  aVec[index++] = 3.706736e-02; // time = 13.26 ns (index=1326)
-  aVec[index++] = 3.703285e-02; // time = 13.27 ns (index=1327)
-  aVec[index++] = 3.699830e-02; // time = 13.28 ns (index=1328)
-  aVec[index++] = 3.696372e-02; // time = 13.29 ns (index=1329)
-  aVec[index++] = 3.692910e-02; // time = 13.30 ns (index=1330)
-  aVec[index++] = 3.689445e-02; // time = 13.31 ns (index=1331)
-  aVec[index++] = 3.685977e-02; // time = 13.32 ns (index=1332)
-  aVec[index++] = 3.682506e-02; // time = 13.33 ns (index=1333)
-  aVec[index++] = 3.679032e-02; // time = 13.34 ns (index=1334)
-  aVec[index++] = 3.675555e-02; // time = 13.35 ns (index=1335)
-  aVec[index++] = 3.672074e-02; // time = 13.36 ns (index=1336)
-  aVec[index++] = 3.668590e-02; // time = 13.37 ns (index=1337)
-  aVec[index++] = 3.665104e-02; // time = 13.38 ns (index=1338)
-  aVec[index++] = 3.661614e-02; // time = 13.39 ns (index=1339)
-  aVec[index++] = 3.658121e-02; // time = 13.40 ns (index=1340)
-  aVec[index++] = 3.654626e-02; // time = 13.41 ns (index=1341)
-  aVec[index++] = 3.651127e-02; // time = 13.42 ns (index=1342)
-  aVec[index++] = 3.647626e-02; // time = 13.43 ns (index=1343)
-  aVec[index++] = 3.644121e-02; // time = 13.44 ns (index=1344)
-  aVec[index++] = 3.640614e-02; // time = 13.45 ns (index=1345)
-  aVec[index++] = 3.637104e-02; // time = 13.46 ns (index=1346)
-  aVec[index++] = 3.633591e-02; // time = 13.47 ns (index=1347)
-  aVec[index++] = 3.630076e-02; // time = 13.48 ns (index=1348)
-  aVec[index++] = 3.626557e-02; // time = 13.49 ns (index=1349)
-  aVec[index++] = 3.623036e-02; // time = 13.50 ns (index=1350)
-  aVec[index++] = 3.619513e-02; // time = 13.51 ns (index=1351)
-  aVec[index++] = 3.615986e-02; // time = 13.52 ns (index=1352)
-  aVec[index++] = 3.612457e-02; // time = 13.53 ns (index=1353)
-  aVec[index++] = 3.608926e-02; // time = 13.54 ns (index=1354)
-  aVec[index++] = 3.605392e-02; // time = 13.55 ns (index=1355)
-  aVec[index++] = 3.601855e-02; // time = 13.56 ns (index=1356)
-  aVec[index++] = 3.598316e-02; // time = 13.57 ns (index=1357)
-  aVec[index++] = 3.594774e-02; // time = 13.58 ns (index=1358)
-  aVec[index++] = 3.591230e-02; // time = 13.59 ns (index=1359)
-  aVec[index++] = 3.587684e-02; // time = 13.60 ns (index=1360)
-  aVec[index++] = 3.584135e-02; // time = 13.61 ns (index=1361)
-  aVec[index++] = 3.580583e-02; // time = 13.62 ns (index=1362)
-  aVec[index++] = 3.577030e-02; // time = 13.63 ns (index=1363)
-  aVec[index++] = 3.573474e-02; // time = 13.64 ns (index=1364)
-  aVec[index++] = 3.569915e-02; // time = 13.65 ns (index=1365)
-  aVec[index++] = 3.566355e-02; // time = 13.66 ns (index=1366)
-  aVec[index++] = 3.562792e-02; // time = 13.67 ns (index=1367)
-  aVec[index++] = 3.559227e-02; // time = 13.68 ns (index=1368)
-  aVec[index++] = 3.555660e-02; // time = 13.69 ns (index=1369)
-  aVec[index++] = 3.552090e-02; // time = 13.70 ns (index=1370)
-  aVec[index++] = 3.548519e-02; // time = 13.71 ns (index=1371)
-  aVec[index++] = 3.544945e-02; // time = 13.72 ns (index=1372)
-  aVec[index++] = 3.541370e-02; // time = 13.73 ns (index=1373)
-  aVec[index++] = 3.537792e-02; // time = 13.74 ns (index=1374)
-  aVec[index++] = 3.534212e-02; // time = 13.75 ns (index=1375)
-  aVec[index++] = 3.530630e-02; // time = 13.76 ns (index=1376)
-  aVec[index++] = 3.527046e-02; // time = 13.77 ns (index=1377)
-  aVec[index++] = 3.523461e-02; // time = 13.78 ns (index=1378)
-  aVec[index++] = 3.519873e-02; // time = 13.79 ns (index=1379)
-  aVec[index++] = 3.516283e-02; // time = 13.80 ns (index=1380)
-  aVec[index++] = 3.512692e-02; // time = 13.81 ns (index=1381)
-  aVec[index++] = 3.509099e-02; // time = 13.82 ns (index=1382)
-  aVec[index++] = 3.505504e-02; // time = 13.83 ns (index=1383)
-  aVec[index++] = 3.501907e-02; // time = 13.84 ns (index=1384)
-  aVec[index++] = 3.498308e-02; // time = 13.85 ns (index=1385)
-  aVec[index++] = 3.494707e-02; // time = 13.86 ns (index=1386)
-  aVec[index++] = 3.491105e-02; // time = 13.87 ns (index=1387)
-  aVec[index++] = 3.487501e-02; // time = 13.88 ns (index=1388)
-  aVec[index++] = 3.483896e-02; // time = 13.89 ns (index=1389)
-  aVec[index++] = 3.480288e-02; // time = 13.90 ns (index=1390)
-  aVec[index++] = 3.476680e-02; // time = 13.91 ns (index=1391)
-  aVec[index++] = 3.473069e-02; // time = 13.92 ns (index=1392)
-  aVec[index++] = 3.469457e-02; // time = 13.93 ns (index=1393)
-  aVec[index++] = 3.465843e-02; // time = 13.94 ns (index=1394)
-  aVec[index++] = 3.462228e-02; // time = 13.95 ns (index=1395)
-  aVec[index++] = 3.458612e-02; // time = 13.96 ns (index=1396)
-  aVec[index++] = 3.454993e-02; // time = 13.97 ns (index=1397)
-  aVec[index++] = 3.451374e-02; // time = 13.98 ns (index=1398)
-  aVec[index++] = 3.447753e-02; // time = 13.99 ns (index=1399)
-  aVec[index++] = 3.444130e-02; // time = 14.00 ns (index=1400)
-  aVec[index++] = 3.440506e-02; // time = 14.01 ns (index=1401)
-  aVec[index++] = 3.436881e-02; // time = 14.02 ns (index=1402)
-  aVec[index++] = 3.433254e-02; // time = 14.03 ns (index=1403)
-  aVec[index++] = 3.429626e-02; // time = 14.04 ns (index=1404)
-  aVec[index++] = 3.425997e-02; // time = 14.05 ns (index=1405)
-  aVec[index++] = 3.422367e-02; // time = 14.06 ns (index=1406)
-  aVec[index++] = 3.418735e-02; // time = 14.07 ns (index=1407)
-  aVec[index++] = 3.415102e-02; // time = 14.08 ns (index=1408)
-  aVec[index++] = 3.411468e-02; // time = 14.09 ns (index=1409)
-  aVec[index++] = 3.407832e-02; // time = 14.10 ns (index=1410)
-  aVec[index++] = 3.404196e-02; // time = 14.11 ns (index=1411)
-  aVec[index++] = 3.400558e-02; // time = 14.12 ns (index=1412)
-  aVec[index++] = 3.396919e-02; // time = 14.13 ns (index=1413)
-  aVec[index++] = 3.393279e-02; // time = 14.14 ns (index=1414)
-  aVec[index++] = 3.389638e-02; // time = 14.15 ns (index=1415)
-  aVec[index++] = 3.385996e-02; // time = 14.16 ns (index=1416)
-  aVec[index++] = 3.382353e-02; // time = 14.17 ns (index=1417)
-  aVec[index++] = 3.378709e-02; // time = 14.18 ns (index=1418)
-  aVec[index++] = 3.375064e-02; // time = 14.19 ns (index=1419)
-  aVec[index++] = 3.371418e-02; // time = 14.20 ns (index=1420)
-  aVec[index++] = 3.367771e-02; // time = 14.21 ns (index=1421)
-  aVec[index++] = 3.364123e-02; // time = 14.22 ns (index=1422)
-  aVec[index++] = 3.360474e-02; // time = 14.23 ns (index=1423)
-  aVec[index++] = 3.356825e-02; // time = 14.24 ns (index=1424)
-  aVec[index++] = 3.353174e-02; // time = 14.25 ns (index=1425)
-  aVec[index++] = 3.349523e-02; // time = 14.26 ns (index=1426)
-  aVec[index++] = 3.345871e-02; // time = 14.27 ns (index=1427)
-  aVec[index++] = 3.342218e-02; // time = 14.28 ns (index=1428)
-  aVec[index++] = 3.338564e-02; // time = 14.29 ns (index=1429)
-  aVec[index++] = 3.334909e-02; // time = 14.30 ns (index=1430)
-  aVec[index++] = 3.331254e-02; // time = 14.31 ns (index=1431)
-  aVec[index++] = 3.327598e-02; // time = 14.32 ns (index=1432)
-  aVec[index++] = 3.323942e-02; // time = 14.33 ns (index=1433)
-  aVec[index++] = 3.320284e-02; // time = 14.34 ns (index=1434)
-  aVec[index++] = 3.316626e-02; // time = 14.35 ns (index=1435)
-  aVec[index++] = 3.312968e-02; // time = 14.36 ns (index=1436)
-  aVec[index++] = 3.309309e-02; // time = 14.37 ns (index=1437)
-  aVec[index++] = 3.305649e-02; // time = 14.38 ns (index=1438)
-  aVec[index++] = 3.301989e-02; // time = 14.39 ns (index=1439)
-  aVec[index++] = 3.298328e-02; // time = 14.40 ns (index=1440)
-  aVec[index++] = 3.294666e-02; // time = 14.41 ns (index=1441)
-  aVec[index++] = 3.291005e-02; // time = 14.42 ns (index=1442)
-  aVec[index++] = 3.287342e-02; // time = 14.43 ns (index=1443)
-  aVec[index++] = 3.283679e-02; // time = 14.44 ns (index=1444)
-  aVec[index++] = 3.280016e-02; // time = 14.45 ns (index=1445)
-  aVec[index++] = 3.276352e-02; // time = 14.46 ns (index=1446)
-  aVec[index++] = 3.272688e-02; // time = 14.47 ns (index=1447)
-  aVec[index++] = 3.269024e-02; // time = 14.48 ns (index=1448)
-  aVec[index++] = 3.265359e-02; // time = 14.49 ns (index=1449)
-  aVec[index++] = 3.261694e-02; // time = 14.50 ns (index=1450)
-  aVec[index++] = 3.258028e-02; // time = 14.51 ns (index=1451)
-  aVec[index++] = 3.254362e-02; // time = 14.52 ns (index=1452)
-  aVec[index++] = 3.250696e-02; // time = 14.53 ns (index=1453)
-  aVec[index++] = 3.247030e-02; // time = 14.54 ns (index=1454)
-  aVec[index++] = 3.243363e-02; // time = 14.55 ns (index=1455)
-  aVec[index++] = 3.239696e-02; // time = 14.56 ns (index=1456)
-  aVec[index++] = 3.236029e-02; // time = 14.57 ns (index=1457)
-  aVec[index++] = 3.232362e-02; // time = 14.58 ns (index=1458)
-  aVec[index++] = 3.228694e-02; // time = 14.59 ns (index=1459)
-  aVec[index++] = 3.225027e-02; // time = 14.60 ns (index=1460)
-  aVec[index++] = 3.221359e-02; // time = 14.61 ns (index=1461)
-  aVec[index++] = 3.217691e-02; // time = 14.62 ns (index=1462)
-  aVec[index++] = 3.214023e-02; // time = 14.63 ns (index=1463)
-  aVec[index++] = 3.210355e-02; // time = 14.64 ns (index=1464)
-  aVec[index++] = 3.206687e-02; // time = 14.65 ns (index=1465)
-  aVec[index++] = 3.203019e-02; // time = 14.66 ns (index=1466)
-  aVec[index++] = 3.199351e-02; // time = 14.67 ns (index=1467)
-  aVec[index++] = 3.195682e-02; // time = 14.68 ns (index=1468)
-  aVec[index++] = 3.192014e-02; // time = 14.69 ns (index=1469)
-  aVec[index++] = 3.188346e-02; // time = 14.70 ns (index=1470)
-  aVec[index++] = 3.184678e-02; // time = 14.71 ns (index=1471)
-  aVec[index++] = 3.181010e-02; // time = 14.72 ns (index=1472)
-  aVec[index++] = 3.177342e-02; // time = 14.73 ns (index=1473)
-  aVec[index++] = 3.173674e-02; // time = 14.74 ns (index=1474)
-  aVec[index++] = 3.170006e-02; // time = 14.75 ns (index=1475)
-  aVec[index++] = 3.166338e-02; // time = 14.76 ns (index=1476)
-  aVec[index++] = 3.162671e-02; // time = 14.77 ns (index=1477)
-  aVec[index++] = 3.159004e-02; // time = 14.78 ns (index=1478)
-  aVec[index++] = 3.155336e-02; // time = 14.79 ns (index=1479)
-  aVec[index++] = 3.151670e-02; // time = 14.80 ns (index=1480)
-  aVec[index++] = 3.148003e-02; // time = 14.81 ns (index=1481)
-  aVec[index++] = 3.144336e-02; // time = 14.82 ns (index=1482)
-  aVec[index++] = 3.140670e-02; // time = 14.83 ns (index=1483)
-  aVec[index++] = 3.137004e-02; // time = 14.84 ns (index=1484)
-  aVec[index++] = 3.133338e-02; // time = 14.85 ns (index=1485)
-  aVec[index++] = 3.129673e-02; // time = 14.86 ns (index=1486)
-  aVec[index++] = 3.126008e-02; // time = 14.87 ns (index=1487)
-  aVec[index++] = 3.122343e-02; // time = 14.88 ns (index=1488)
-  aVec[index++] = 3.118679e-02; // time = 14.89 ns (index=1489)
-  aVec[index++] = 3.115015e-02; // time = 14.90 ns (index=1490)
-  aVec[index++] = 3.111351e-02; // time = 14.91 ns (index=1491)
-  aVec[index++] = 3.107688e-02; // time = 14.92 ns (index=1492)
-  aVec[index++] = 3.104025e-02; // time = 14.93 ns (index=1493)
-  aVec[index++] = 3.100363e-02; // time = 14.94 ns (index=1494)
-  aVec[index++] = 3.096701e-02; // time = 14.95 ns (index=1495)
-  aVec[index++] = 3.093039e-02; // time = 14.96 ns (index=1496)
-  aVec[index++] = 3.089378e-02; // time = 14.97 ns (index=1497)
-  aVec[index++] = 3.085718e-02; // time = 14.98 ns (index=1498)
-  aVec[index++] = 3.082058e-02; // time = 14.99 ns (index=1499)
-  aVec[index++] = 3.078398e-02; // time = 15.00 ns (index=1500)
-  aVec[index++] = 3.074739e-02; // time = 15.01 ns (index=1501)
-  aVec[index++] = 3.071081e-02; // time = 15.02 ns (index=1502)
-  aVec[index++] = 3.067423e-02; // time = 15.03 ns (index=1503)
-  aVec[index++] = 3.063766e-02; // time = 15.04 ns (index=1504)
-  aVec[index++] = 3.060109e-02; // time = 15.05 ns (index=1505)
-  aVec[index++] = 3.056453e-02; // time = 15.06 ns (index=1506)
-  aVec[index++] = 3.052798e-02; // time = 15.07 ns (index=1507)
-  aVec[index++] = 3.049143e-02; // time = 15.08 ns (index=1508)
-  aVec[index++] = 3.045489e-02; // time = 15.09 ns (index=1509)
-  aVec[index++] = 3.041836e-02; // time = 15.10 ns (index=1510)
-  aVec[index++] = 3.038183e-02; // time = 15.11 ns (index=1511)
-  aVec[index++] = 3.034531e-02; // time = 15.12 ns (index=1512)
-  aVec[index++] = 3.030880e-02; // time = 15.13 ns (index=1513)
-  aVec[index++] = 3.027230e-02; // time = 15.14 ns (index=1514)
-  aVec[index++] = 3.023580e-02; // time = 15.15 ns (index=1515)
-  aVec[index++] = 3.019931e-02; // time = 15.16 ns (index=1516)
-  aVec[index++] = 3.016283e-02; // time = 15.17 ns (index=1517)
-  aVec[index++] = 3.012636e-02; // time = 15.18 ns (index=1518)
-  aVec[index++] = 3.008989e-02; // time = 15.19 ns (index=1519)
-  aVec[index++] = 3.005343e-02; // time = 15.20 ns (index=1520)
-  aVec[index++] = 3.001698e-02; // time = 15.21 ns (index=1521)
-  aVec[index++] = 2.998054e-02; // time = 15.22 ns (index=1522)
-  aVec[index++] = 2.994411e-02; // time = 15.23 ns (index=1523)
-  aVec[index++] = 2.990769e-02; // time = 15.24 ns (index=1524)
-  aVec[index++] = 2.987128e-02; // time = 15.25 ns (index=1525)
-  aVec[index++] = 2.983487e-02; // time = 15.26 ns (index=1526)
-  aVec[index++] = 2.979848e-02; // time = 15.27 ns (index=1527)
-  aVec[index++] = 2.976209e-02; // time = 15.28 ns (index=1528)
-  aVec[index++] = 2.972571e-02; // time = 15.29 ns (index=1529)
-  aVec[index++] = 2.968935e-02; // time = 15.30 ns (index=1530)
-  aVec[index++] = 2.965299e-02; // time = 15.31 ns (index=1531)
-  aVec[index++] = 2.961664e-02; // time = 15.32 ns (index=1532)
-  aVec[index++] = 2.958031e-02; // time = 15.33 ns (index=1533)
-  aVec[index++] = 2.954398e-02; // time = 15.34 ns (index=1534)
-  aVec[index++] = 2.950766e-02; // time = 15.35 ns (index=1535)
-  aVec[index++] = 2.947136e-02; // time = 15.36 ns (index=1536)
-  aVec[index++] = 2.943506e-02; // time = 15.37 ns (index=1537)
-  aVec[index++] = 2.939878e-02; // time = 15.38 ns (index=1538)
-  aVec[index++] = 2.936250e-02; // time = 15.39 ns (index=1539)
-  aVec[index++] = 2.932624e-02; // time = 15.40 ns (index=1540)
-  aVec[index++] = 2.928999e-02; // time = 15.41 ns (index=1541)
-  aVec[index++] = 2.925375e-02; // time = 15.42 ns (index=1542)
-  aVec[index++] = 2.921752e-02; // time = 15.43 ns (index=1543)
-  aVec[index++] = 2.918130e-02; // time = 15.44 ns (index=1544)
-  aVec[index++] = 2.914510e-02; // time = 15.45 ns (index=1545)
-  aVec[index++] = 2.910890e-02; // time = 15.46 ns (index=1546)
-  aVec[index++] = 2.907272e-02; // time = 15.47 ns (index=1547)
-  aVec[index++] = 2.903655e-02; // time = 15.48 ns (index=1548)
-  aVec[index++] = 2.900040e-02; // time = 15.49 ns (index=1549)
-  aVec[index++] = 2.896425e-02; // time = 15.50 ns (index=1550)
-  aVec[index++] = 2.892812e-02; // time = 15.51 ns (index=1551)
-  aVec[index++] = 2.889200e-02; // time = 15.52 ns (index=1552)
-  aVec[index++] = 2.885589e-02; // time = 15.53 ns (index=1553)
-  aVec[index++] = 2.881979e-02; // time = 15.54 ns (index=1554)
-  aVec[index++] = 2.878371e-02; // time = 15.55 ns (index=1555)
-  aVec[index++] = 2.874764e-02; // time = 15.56 ns (index=1556)
-  aVec[index++] = 2.871159e-02; // time = 15.57 ns (index=1557)
-  aVec[index++] = 2.867554e-02; // time = 15.58 ns (index=1558)
-  aVec[index++] = 2.863951e-02; // time = 15.59 ns (index=1559)
-  aVec[index++] = 2.860350e-02; // time = 15.60 ns (index=1560)
-  aVec[index++] = 2.856749e-02; // time = 15.61 ns (index=1561)
-  aVec[index++] = 2.853151e-02; // time = 15.62 ns (index=1562)
-  aVec[index++] = 2.849553e-02; // time = 15.63 ns (index=1563)
-  aVec[index++] = 2.845957e-02; // time = 15.64 ns (index=1564)
-  aVec[index++] = 2.842362e-02; // time = 15.65 ns (index=1565)
-  aVec[index++] = 2.838769e-02; // time = 15.66 ns (index=1566)
-  aVec[index++] = 2.835177e-02; // time = 15.67 ns (index=1567)
-  aVec[index++] = 2.831587e-02; // time = 15.68 ns (index=1568)
-  aVec[index++] = 2.827998e-02; // time = 15.69 ns (index=1569)
-  aVec[index++] = 2.824410e-02; // time = 15.70 ns (index=1570)
-  aVec[index++] = 2.820824e-02; // time = 15.71 ns (index=1571)
-  aVec[index++] = 2.817240e-02; // time = 15.72 ns (index=1572)
-  aVec[index++] = 2.813657e-02; // time = 15.73 ns (index=1573)
-  aVec[index++] = 2.810075e-02; // time = 15.74 ns (index=1574)
-  aVec[index++] = 2.806495e-02; // time = 15.75 ns (index=1575)
-  aVec[index++] = 2.802917e-02; // time = 15.76 ns (index=1576)
-  aVec[index++] = 2.799340e-02; // time = 15.77 ns (index=1577)
-  aVec[index++] = 2.795765e-02; // time = 15.78 ns (index=1578)
-  aVec[index++] = 2.792191e-02; // time = 15.79 ns (index=1579)
-  aVec[index++] = 2.788619e-02; // time = 15.80 ns (index=1580)
-  aVec[index++] = 2.785048e-02; // time = 15.81 ns (index=1581)
-  aVec[index++] = 2.781479e-02; // time = 15.82 ns (index=1582)
-  aVec[index++] = 2.777911e-02; // time = 15.83 ns (index=1583)
-  aVec[index++] = 2.774346e-02; // time = 15.84 ns (index=1584)
-  aVec[index++] = 2.770781e-02; // time = 15.85 ns (index=1585)
-  aVec[index++] = 2.767219e-02; // time = 15.86 ns (index=1586)
-  aVec[index++] = 2.763658e-02; // time = 15.87 ns (index=1587)
-  aVec[index++] = 2.760098e-02; // time = 15.88 ns (index=1588)
-  aVec[index++] = 2.756541e-02; // time = 15.89 ns (index=1589)
-  aVec[index++] = 2.752985e-02; // time = 15.90 ns (index=1590)
-  aVec[index++] = 2.749431e-02; // time = 15.91 ns (index=1591)
-  aVec[index++] = 2.745878e-02; // time = 15.92 ns (index=1592)
-  aVec[index++] = 2.742327e-02; // time = 15.93 ns (index=1593)
-  aVec[index++] = 2.738778e-02; // time = 15.94 ns (index=1594)
-  aVec[index++] = 2.735231e-02; // time = 15.95 ns (index=1595)
-  aVec[index++] = 2.731685e-02; // time = 15.96 ns (index=1596)
-  aVec[index++] = 2.728141e-02; // time = 15.97 ns (index=1597)
-  aVec[index++] = 2.724599e-02; // time = 15.98 ns (index=1598)
-  aVec[index++] = 2.721059e-02; // time = 15.99 ns (index=1599)
-  aVec[index++] = 2.717520e-02; // time = 16.00 ns (index=1600)
-  aVec[index++] = 2.713983e-02; // time = 16.01 ns (index=1601)
-  aVec[index++] = 2.710448e-02; // time = 16.02 ns (index=1602)
-  aVec[index++] = 2.706915e-02; // time = 16.03 ns (index=1603)
-  aVec[index++] = 2.703383e-02; // time = 16.04 ns (index=1604)
-  aVec[index++] = 2.699854e-02; // time = 16.05 ns (index=1605)
-  aVec[index++] = 2.696326e-02; // time = 16.06 ns (index=1606)
-  aVec[index++] = 2.692800e-02; // time = 16.07 ns (index=1607)
-  aVec[index++] = 2.689276e-02; // time = 16.08 ns (index=1608)
-  aVec[index++] = 2.685754e-02; // time = 16.09 ns (index=1609)
-  aVec[index++] = 2.682233e-02; // time = 16.10 ns (index=1610)
-  aVec[index++] = 2.678715e-02; // time = 16.11 ns (index=1611)
-  aVec[index++] = 2.675198e-02; // time = 16.12 ns (index=1612)
-  aVec[index++] = 2.671683e-02; // time = 16.13 ns (index=1613)
-  aVec[index++] = 2.668171e-02; // time = 16.14 ns (index=1614)
-  aVec[index++] = 2.664660e-02; // time = 16.15 ns (index=1615)
-  aVec[index++] = 2.661151e-02; // time = 16.16 ns (index=1616)
-  aVec[index++] = 2.657644e-02; // time = 16.17 ns (index=1617)
-  aVec[index++] = 2.654139e-02; // time = 16.18 ns (index=1618)
-  aVec[index++] = 2.650635e-02; // time = 16.19 ns (index=1619)
-  aVec[index++] = 2.647134e-02; // time = 16.20 ns (index=1620)
-  aVec[index++] = 2.643635e-02; // time = 16.21 ns (index=1621)
-  aVec[index++] = 2.640138e-02; // time = 16.22 ns (index=1622)
-  aVec[index++] = 2.636642e-02; // time = 16.23 ns (index=1623)
-  aVec[index++] = 2.633149e-02; // time = 16.24 ns (index=1624)
-  aVec[index++] = 2.629658e-02; // time = 16.25 ns (index=1625)
-  aVec[index++] = 2.626169e-02; // time = 16.26 ns (index=1626)
-  aVec[index++] = 2.622681e-02; // time = 16.27 ns (index=1627)
-  aVec[index++] = 2.619196e-02; // time = 16.28 ns (index=1628)
-  aVec[index++] = 2.615713e-02; // time = 16.29 ns (index=1629)
-  aVec[index++] = 2.612232e-02; // time = 16.30 ns (index=1630)
-  aVec[index++] = 2.608752e-02; // time = 16.31 ns (index=1631)
-  aVec[index++] = 2.605275e-02; // time = 16.32 ns (index=1632)
-  aVec[index++] = 2.601800e-02; // time = 16.33 ns (index=1633)
-  aVec[index++] = 2.598327e-02; // time = 16.34 ns (index=1634)
-  aVec[index++] = 2.594856e-02; // time = 16.35 ns (index=1635)
-  aVec[index++] = 2.591388e-02; // time = 16.36 ns (index=1636)
-  aVec[index++] = 2.587921e-02; // time = 16.37 ns (index=1637)
-  aVec[index++] = 2.584456e-02; // time = 16.38 ns (index=1638)
-  aVec[index++] = 2.580994e-02; // time = 16.39 ns (index=1639)
-  aVec[index++] = 2.577533e-02; // time = 16.40 ns (index=1640)
-  aVec[index++] = 2.574075e-02; // time = 16.41 ns (index=1641)
-  aVec[index++] = 2.570619e-02; // time = 16.42 ns (index=1642)
-  aVec[index++] = 2.567165e-02; // time = 16.43 ns (index=1643)
-  aVec[index++] = 2.563713e-02; // time = 16.44 ns (index=1644)
-  aVec[index++] = 2.560263e-02; // time = 16.45 ns (index=1645)
-  aVec[index++] = 2.556816e-02; // time = 16.46 ns (index=1646)
-  aVec[index++] = 2.553370e-02; // time = 16.47 ns (index=1647)
-  aVec[index++] = 2.549927e-02; // time = 16.48 ns (index=1648)
-  aVec[index++] = 2.546486e-02; // time = 16.49 ns (index=1649)
-  aVec[index++] = 2.543047e-02; // time = 16.50 ns (index=1650)
-  aVec[index++] = 2.539611e-02; // time = 16.51 ns (index=1651)
-  aVec[index++] = 2.536176e-02; // time = 16.52 ns (index=1652)
-  aVec[index++] = 2.532744e-02; // time = 16.53 ns (index=1653)
-  aVec[index++] = 2.529314e-02; // time = 16.54 ns (index=1654)
-  aVec[index++] = 2.525886e-02; // time = 16.55 ns (index=1655)
-  aVec[index++] = 2.522461e-02; // time = 16.56 ns (index=1656)
-  aVec[index++] = 2.519037e-02; // time = 16.57 ns (index=1657)
-  aVec[index++] = 2.515616e-02; // time = 16.58 ns (index=1658)
-  aVec[index++] = 2.512198e-02; // time = 16.59 ns (index=1659)
-  aVec[index++] = 2.508781e-02; // time = 16.60 ns (index=1660)
-  aVec[index++] = 2.505367e-02; // time = 16.61 ns (index=1661)
-  aVec[index++] = 2.501955e-02; // time = 16.62 ns (index=1662)
-  aVec[index++] = 2.498545e-02; // time = 16.63 ns (index=1663)
-  aVec[index++] = 2.495138e-02; // time = 16.64 ns (index=1664)
-  aVec[index++] = 2.491732e-02; // time = 16.65 ns (index=1665)
-  aVec[index++] = 2.488330e-02; // time = 16.66 ns (index=1666)
-  aVec[index++] = 2.484929e-02; // time = 16.67 ns (index=1667)
-  aVec[index++] = 2.481531e-02; // time = 16.68 ns (index=1668)
-  aVec[index++] = 2.478135e-02; // time = 16.69 ns (index=1669)
-  aVec[index++] = 2.474741e-02; // time = 16.70 ns (index=1670)
-  aVec[index++] = 2.471350e-02; // time = 16.71 ns (index=1671)
-  aVec[index++] = 2.467961e-02; // time = 16.72 ns (index=1672)
-  aVec[index++] = 2.464574e-02; // time = 16.73 ns (index=1673)
-  aVec[index++] = 2.461190e-02; // time = 16.74 ns (index=1674)
-  aVec[index++] = 2.457808e-02; // time = 16.75 ns (index=1675)
-  aVec[index++] = 2.454429e-02; // time = 16.76 ns (index=1676)
-  aVec[index++] = 2.451051e-02; // time = 16.77 ns (index=1677)
-  aVec[index++] = 2.447677e-02; // time = 16.78 ns (index=1678)
-  aVec[index++] = 2.444304e-02; // time = 16.79 ns (index=1679)
-  aVec[index++] = 2.440934e-02; // time = 16.80 ns (index=1680)
-  aVec[index++] = 2.437566e-02; // time = 16.81 ns (index=1681)
-  aVec[index++] = 2.434201e-02; // time = 16.82 ns (index=1682)
-  aVec[index++] = 2.430838e-02; // time = 16.83 ns (index=1683)
-  aVec[index++] = 2.427478e-02; // time = 16.84 ns (index=1684)
-  aVec[index++] = 2.424120e-02; // time = 16.85 ns (index=1685)
-  aVec[index++] = 2.420764e-02; // time = 16.86 ns (index=1686)
-  aVec[index++] = 2.417411e-02; // time = 16.87 ns (index=1687)
-  aVec[index++] = 2.414060e-02; // time = 16.88 ns (index=1688)
-  aVec[index++] = 2.410712e-02; // time = 16.89 ns (index=1689)
-  aVec[index++] = 2.407366e-02; // time = 16.90 ns (index=1690)
-  aVec[index++] = 2.404022e-02; // time = 16.91 ns (index=1691)
-  aVec[index++] = 2.400681e-02; // time = 16.92 ns (index=1692)
-  aVec[index++] = 2.397343e-02; // time = 16.93 ns (index=1693)
-  aVec[index++] = 2.394007e-02; // time = 16.94 ns (index=1694)
-  aVec[index++] = 2.390673e-02; // time = 16.95 ns (index=1695)
-  aVec[index++] = 2.387342e-02; // time = 16.96 ns (index=1696)
-  aVec[index++] = 2.384013e-02; // time = 16.97 ns (index=1697)
-  aVec[index++] = 2.380687e-02; // time = 16.98 ns (index=1698)
-  aVec[index++] = 2.377363e-02; // time = 16.99 ns (index=1699)
-  aVec[index++] = 2.374042e-02; // time = 17.00 ns (index=1700)
-  aVec[index++] = 2.370723e-02; // time = 17.01 ns (index=1701)
-  aVec[index++] = 2.367407e-02; // time = 17.02 ns (index=1702)
-  aVec[index++] = 2.364093e-02; // time = 17.03 ns (index=1703)
-  aVec[index++] = 2.360782e-02; // time = 17.04 ns (index=1704)
-  aVec[index++] = 2.357473e-02; // time = 17.05 ns (index=1705)
-  aVec[index++] = 2.354167e-02; // time = 17.06 ns (index=1706)
-  aVec[index++] = 2.350863e-02; // time = 17.07 ns (index=1707)
-  aVec[index++] = 2.347562e-02; // time = 17.08 ns (index=1708)
-  aVec[index++] = 2.344264e-02; // time = 17.09 ns (index=1709)
-  aVec[index++] = 2.340968e-02; // time = 17.10 ns (index=1710)
-  aVec[index++] = 2.337674e-02; // time = 17.11 ns (index=1711)
-  aVec[index++] = 2.334383e-02; // time = 17.12 ns (index=1712)
-  aVec[index++] = 2.331095e-02; // time = 17.13 ns (index=1713)
-  aVec[index++] = 2.327809e-02; // time = 17.14 ns (index=1714)
-  aVec[index++] = 2.324525e-02; // time = 17.15 ns (index=1715)
-  aVec[index++] = 2.321245e-02; // time = 17.16 ns (index=1716)
-  aVec[index++] = 2.317967e-02; // time = 17.17 ns (index=1717)
-  aVec[index++] = 2.314691e-02; // time = 17.18 ns (index=1718)
-  aVec[index++] = 2.311418e-02; // time = 17.19 ns (index=1719)
-  aVec[index++] = 2.308148e-02; // time = 17.20 ns (index=1720)
-  aVec[index++] = 2.304880e-02; // time = 17.21 ns (index=1721)
-  aVec[index++] = 2.301615e-02; // time = 17.22 ns (index=1722)
-  aVec[index++] = 2.298352e-02; // time = 17.23 ns (index=1723)
-  aVec[index++] = 2.295092e-02; // time = 17.24 ns (index=1724)
-  aVec[index++] = 2.291834e-02; // time = 17.25 ns (index=1725)
-  aVec[index++] = 2.288580e-02; // time = 17.26 ns (index=1726)
-  aVec[index++] = 2.285327e-02; // time = 17.27 ns (index=1727)
-  aVec[index++] = 2.282078e-02; // time = 17.28 ns (index=1728)
-  aVec[index++] = 2.278831e-02; // time = 17.29 ns (index=1729)
-  aVec[index++] = 2.275587e-02; // time = 17.30 ns (index=1730)
-  aVec[index++] = 2.272345e-02; // time = 17.31 ns (index=1731)
-  aVec[index++] = 2.269106e-02; // time = 17.32 ns (index=1732)
-  aVec[index++] = 2.265869e-02; // time = 17.33 ns (index=1733)
-  aVec[index++] = 2.262635e-02; // time = 17.34 ns (index=1734)
-  aVec[index++] = 2.259404e-02; // time = 17.35 ns (index=1735)
-  aVec[index++] = 2.256176e-02; // time = 17.36 ns (index=1736)
-  aVec[index++] = 2.252950e-02; // time = 17.37 ns (index=1737)
-  aVec[index++] = 2.249727e-02; // time = 17.38 ns (index=1738)
-  aVec[index++] = 2.246506e-02; // time = 17.39 ns (index=1739)
-  aVec[index++] = 2.243288e-02; // time = 17.40 ns (index=1740)
-  aVec[index++] = 2.240073e-02; // time = 17.41 ns (index=1741)
-  aVec[index++] = 2.236861e-02; // time = 17.42 ns (index=1742)
-  aVec[index++] = 2.233651e-02; // time = 17.43 ns (index=1743)
-  aVec[index++] = 2.230444e-02; // time = 17.44 ns (index=1744)
-  aVec[index++] = 2.227239e-02; // time = 17.45 ns (index=1745)
-  aVec[index++] = 2.224037e-02; // time = 17.46 ns (index=1746)
-  aVec[index++] = 2.220838e-02; // time = 17.47 ns (index=1747)
-  aVec[index++] = 2.217642e-02; // time = 17.48 ns (index=1748)
-  aVec[index++] = 2.214448e-02; // time = 17.49 ns (index=1749)
-  aVec[index++] = 2.211257e-02; // time = 17.50 ns (index=1750)
-  aVec[index++] = 2.208069e-02; // time = 17.51 ns (index=1751)
-  aVec[index++] = 2.204883e-02; // time = 17.52 ns (index=1752)
-  aVec[index++] = 2.201700e-02; // time = 17.53 ns (index=1753)
-  aVec[index++] = 2.198520e-02; // time = 17.54 ns (index=1754)
-  aVec[index++] = 2.195342e-02; // time = 17.55 ns (index=1755)
-  aVec[index++] = 2.192168e-02; // time = 17.56 ns (index=1756)
-  aVec[index++] = 2.188995e-02; // time = 17.57 ns (index=1757)
-  aVec[index++] = 2.185826e-02; // time = 17.58 ns (index=1758)
-  aVec[index++] = 2.182660e-02; // time = 17.59 ns (index=1759)
-  aVec[index++] = 2.179496e-02; // time = 17.60 ns (index=1760)
-  aVec[index++] = 2.176334e-02; // time = 17.61 ns (index=1761)
-  aVec[index++] = 2.173176e-02; // time = 17.62 ns (index=1762)
-  aVec[index++] = 2.170020e-02; // time = 17.63 ns (index=1763)
-  aVec[index++] = 2.166867e-02; // time = 17.64 ns (index=1764)
-  aVec[index++] = 2.163717e-02; // time = 17.65 ns (index=1765)
-  aVec[index++] = 2.160570e-02; // time = 17.66 ns (index=1766)
-  aVec[index++] = 2.157425e-02; // time = 17.67 ns (index=1767)
-  aVec[index++] = 2.154283e-02; // time = 17.68 ns (index=1768)
-  aVec[index++] = 2.151144e-02; // time = 17.69 ns (index=1769)
-  aVec[index++] = 2.148008e-02; // time = 17.70 ns (index=1770)
-  aVec[index++] = 2.144874e-02; // time = 17.71 ns (index=1771)
-  aVec[index++] = 2.141743e-02; // time = 17.72 ns (index=1772)
-  aVec[index++] = 2.138615e-02; // time = 17.73 ns (index=1773)
-  aVec[index++] = 2.135490e-02; // time = 17.74 ns (index=1774)
-  aVec[index++] = 2.132367e-02; // time = 17.75 ns (index=1775)
-  aVec[index++] = 2.129247e-02; // time = 17.76 ns (index=1776)
-  aVec[index++] = 2.126130e-02; // time = 17.77 ns (index=1777)
-  aVec[index++] = 2.123016e-02; // time = 17.78 ns (index=1778)
-  aVec[index++] = 2.119904e-02; // time = 17.79 ns (index=1779)
-  aVec[index++] = 2.116796e-02; // time = 17.80 ns (index=1780)
-  aVec[index++] = 2.113690e-02; // time = 17.81 ns (index=1781)
-  aVec[index++] = 2.110587e-02; // time = 17.82 ns (index=1782)
-  aVec[index++] = 2.107486e-02; // time = 17.83 ns (index=1783)
-  aVec[index++] = 2.104389e-02; // time = 17.84 ns (index=1784)
-  aVec[index++] = 2.101294e-02; // time = 17.85 ns (index=1785)
-  aVec[index++] = 2.098202e-02; // time = 17.86 ns (index=1786)
-  aVec[index++] = 2.095113e-02; // time = 17.87 ns (index=1787)
-  aVec[index++] = 2.092027e-02; // time = 17.88 ns (index=1788)
-  aVec[index++] = 2.088943e-02; // time = 17.89 ns (index=1789)
-  aVec[index++] = 2.085862e-02; // time = 17.90 ns (index=1790)
-  aVec[index++] = 2.082785e-02; // time = 17.91 ns (index=1791)
-  aVec[index++] = 2.079709e-02; // time = 17.92 ns (index=1792)
-  aVec[index++] = 2.076637e-02; // time = 17.93 ns (index=1793)
-  aVec[index++] = 2.073568e-02; // time = 17.94 ns (index=1794)
-  aVec[index++] = 2.070501e-02; // time = 17.95 ns (index=1795)
-  aVec[index++] = 2.067437e-02; // time = 17.96 ns (index=1796)
-  aVec[index++] = 2.064376e-02; // time = 17.97 ns (index=1797)
-  aVec[index++] = 2.061318e-02; // time = 17.98 ns (index=1798)
-  aVec[index++] = 2.058263e-02; // time = 17.99 ns (index=1799)
-  aVec[index++] = 2.055210e-02; // time = 18.00 ns (index=1800)
-  aVec[index++] = 2.052160e-02; // time = 18.01 ns (index=1801)
-  aVec[index++] = 2.049113e-02; // time = 18.02 ns (index=1802)
-  aVec[index++] = 2.046069e-02; // time = 18.03 ns (index=1803)
-  aVec[index++] = 2.043028e-02; // time = 18.04 ns (index=1804)
-  aVec[index++] = 2.039990e-02; // time = 18.05 ns (index=1805)
-  aVec[index++] = 2.036954e-02; // time = 18.06 ns (index=1806)
-  aVec[index++] = 2.033922e-02; // time = 18.07 ns (index=1807)
-  aVec[index++] = 2.030892e-02; // time = 18.08 ns (index=1808)
-  aVec[index++] = 2.027865e-02; // time = 18.09 ns (index=1809)
-  aVec[index++] = 2.024841e-02; // time = 18.10 ns (index=1810)
-  aVec[index++] = 2.021819e-02; // time = 18.11 ns (index=1811)
-  aVec[index++] = 2.018801e-02; // time = 18.12 ns (index=1812)
-  aVec[index++] = 2.015785e-02; // time = 18.13 ns (index=1813)
-  aVec[index++] = 2.012772e-02; // time = 18.14 ns (index=1814)
-  aVec[index++] = 2.009762e-02; // time = 18.15 ns (index=1815)
-  aVec[index++] = 2.006755e-02; // time = 18.16 ns (index=1816)
-  aVec[index++] = 2.003751e-02; // time = 18.17 ns (index=1817)
-  aVec[index++] = 2.000750e-02; // time = 18.18 ns (index=1818)
-  aVec[index++] = 1.997751e-02; // time = 18.19 ns (index=1819)
-  aVec[index++] = 1.994756e-02; // time = 18.20 ns (index=1820)
-  aVec[index++] = 1.991763e-02; // time = 18.21 ns (index=1821)
-  aVec[index++] = 1.988773e-02; // time = 18.22 ns (index=1822)
-  aVec[index++] = 1.985786e-02; // time = 18.23 ns (index=1823)
-  aVec[index++] = 1.982802e-02; // time = 18.24 ns (index=1824)
-  aVec[index++] = 1.979821e-02; // time = 18.25 ns (index=1825)
-  aVec[index++] = 1.976842e-02; // time = 18.26 ns (index=1826)
-  aVec[index++] = 1.973867e-02; // time = 18.27 ns (index=1827)
-  aVec[index++] = 1.970894e-02; // time = 18.28 ns (index=1828)
-  aVec[index++] = 1.967924e-02; // time = 18.29 ns (index=1829)
-  aVec[index++] = 1.964957e-02; // time = 18.30 ns (index=1830)
-  aVec[index++] = 1.961993e-02; // time = 18.31 ns (index=1831)
-  aVec[index++] = 1.959032e-02; // time = 18.32 ns (index=1832)
-  aVec[index++] = 1.956073e-02; // time = 18.33 ns (index=1833)
-  aVec[index++] = 1.953118e-02; // time = 18.34 ns (index=1834)
-  aVec[index++] = 1.950165e-02; // time = 18.35 ns (index=1835)
-  aVec[index++] = 1.947216e-02; // time = 18.36 ns (index=1836)
-  aVec[index++] = 1.944269e-02; // time = 18.37 ns (index=1837)
-  aVec[index++] = 1.941325e-02; // time = 18.38 ns (index=1838)
-  aVec[index++] = 1.938384e-02; // time = 18.39 ns (index=1839)
-  aVec[index++] = 1.935446e-02; // time = 18.40 ns (index=1840)
-  aVec[index++] = 1.932510e-02; // time = 18.41 ns (index=1841)
-  aVec[index++] = 1.929578e-02; // time = 18.42 ns (index=1842)
-  aVec[index++] = 1.926649e-02; // time = 18.43 ns (index=1843)
-  aVec[index++] = 1.923722e-02; // time = 18.44 ns (index=1844)
-  aVec[index++] = 1.920798e-02; // time = 18.45 ns (index=1845)
-  aVec[index++] = 1.917877e-02; // time = 18.46 ns (index=1846)
-  aVec[index++] = 1.914959e-02; // time = 18.47 ns (index=1847)
-  aVec[index++] = 1.912044e-02; // time = 18.48 ns (index=1848)
-  aVec[index++] = 1.909132e-02; // time = 18.49 ns (index=1849)
-  aVec[index++] = 1.906223e-02; // time = 18.50 ns (index=1850)
-  aVec[index++] = 1.903316e-02; // time = 18.51 ns (index=1851)
-  aVec[index++] = 1.900413e-02; // time = 18.52 ns (index=1852)
-  aVec[index++] = 1.897512e-02; // time = 18.53 ns (index=1853)
-  aVec[index++] = 1.894615e-02; // time = 18.54 ns (index=1854)
-  aVec[index++] = 1.891720e-02; // time = 18.55 ns (index=1855)
-  aVec[index++] = 1.888828e-02; // time = 18.56 ns (index=1856)
-  aVec[index++] = 1.885939e-02; // time = 18.57 ns (index=1857)
-  aVec[index++] = 1.883053e-02; // time = 18.58 ns (index=1858)
-  aVec[index++] = 1.880170e-02; // time = 18.59 ns (index=1859)
-  aVec[index++] = 1.877289e-02; // time = 18.60 ns (index=1860)
-  aVec[index++] = 1.874412e-02; // time = 18.61 ns (index=1861)
-  aVec[index++] = 1.871537e-02; // time = 18.62 ns (index=1862)
-  aVec[index++] = 1.868666e-02; // time = 18.63 ns (index=1863)
-  aVec[index++] = 1.865797e-02; // time = 18.64 ns (index=1864)
-  aVec[index++] = 1.862931e-02; // time = 18.65 ns (index=1865)
-  aVec[index++] = 1.860068e-02; // time = 18.66 ns (index=1866)
-  aVec[index++] = 1.857208e-02; // time = 18.67 ns (index=1867)
-  aVec[index++] = 1.854351e-02; // time = 18.68 ns (index=1868)
-  aVec[index++] = 1.851497e-02; // time = 18.69 ns (index=1869)
-  aVec[index++] = 1.848645e-02; // time = 18.70 ns (index=1870)
-  aVec[index++] = 1.845797e-02; // time = 18.71 ns (index=1871)
-  aVec[index++] = 1.842952e-02; // time = 18.72 ns (index=1872)
-  aVec[index++] = 1.840109e-02; // time = 18.73 ns (index=1873)
-  aVec[index++] = 1.837269e-02; // time = 18.74 ns (index=1874)
-  aVec[index++] = 1.834432e-02; // time = 18.75 ns (index=1875)
-  aVec[index++] = 1.831599e-02; // time = 18.76 ns (index=1876)
-  aVec[index++] = 1.828768e-02; // time = 18.77 ns (index=1877)
-  aVec[index++] = 1.825939e-02; // time = 18.78 ns (index=1878)
-  aVec[index++] = 1.823114e-02; // time = 18.79 ns (index=1879)
-  aVec[index++] = 1.820292e-02; // time = 18.80 ns (index=1880)
-  aVec[index++] = 1.817473e-02; // time = 18.81 ns (index=1881)
-  aVec[index++] = 1.814656e-02; // time = 18.82 ns (index=1882)
-  aVec[index++] = 1.811843e-02; // time = 18.83 ns (index=1883)
-  aVec[index++] = 1.809032e-02; // time = 18.84 ns (index=1884)
-  aVec[index++] = 1.806224e-02; // time = 18.85 ns (index=1885)
-  aVec[index++] = 1.803419e-02; // time = 18.86 ns (index=1886)
-  aVec[index++] = 1.800617e-02; // time = 18.87 ns (index=1887)
-  aVec[index++] = 1.797818e-02; // time = 18.88 ns (index=1888)
-  aVec[index++] = 1.795022e-02; // time = 18.89 ns (index=1889)
-  aVec[index++] = 1.792229e-02; // time = 18.90 ns (index=1890)
-  aVec[index++] = 1.789439e-02; // time = 18.91 ns (index=1891)
-  aVec[index++] = 1.786651e-02; // time = 18.92 ns (index=1892)
-  aVec[index++] = 1.783867e-02; // time = 18.93 ns (index=1893)
-  aVec[index++] = 1.781085e-02; // time = 18.94 ns (index=1894)
-  aVec[index++] = 1.778307e-02; // time = 18.95 ns (index=1895)
-  aVec[index++] = 1.775531e-02; // time = 18.96 ns (index=1896)
-  aVec[index++] = 1.772758e-02; // time = 18.97 ns (index=1897)
-  aVec[index++] = 1.769988e-02; // time = 18.98 ns (index=1898)
-  aVec[index++] = 1.767221e-02; // time = 18.99 ns (index=1899)
-  aVec[index++] = 1.764457e-02; // time = 19.00 ns (index=1900)
-  aVec[index++] = 1.761696e-02; // time = 19.01 ns (index=1901)
-  aVec[index++] = 1.758937e-02; // time = 19.02 ns (index=1902)
-  aVec[index++] = 1.756182e-02; // time = 19.03 ns (index=1903)
-  aVec[index++] = 1.753429e-02; // time = 19.04 ns (index=1904)
-  aVec[index++] = 1.750680e-02; // time = 19.05 ns (index=1905)
-  aVec[index++] = 1.747933e-02; // time = 19.06 ns (index=1906)
-  aVec[index++] = 1.745189e-02; // time = 19.07 ns (index=1907)
-  aVec[index++] = 1.742448e-02; // time = 19.08 ns (index=1908)
-  aVec[index++] = 1.739710e-02; // time = 19.09 ns (index=1909)
-  aVec[index++] = 1.736975e-02; // time = 19.10 ns (index=1910)
-  aVec[index++] = 1.734243e-02; // time = 19.11 ns (index=1911)
-  aVec[index++] = 1.731513e-02; // time = 19.12 ns (index=1912)
-  aVec[index++] = 1.728787e-02; // time = 19.13 ns (index=1913)
-  aVec[index++] = 1.726064e-02; // time = 19.14 ns (index=1914)
-  aVec[index++] = 1.723343e-02; // time = 19.15 ns (index=1915)
-  aVec[index++] = 1.720625e-02; // time = 19.16 ns (index=1916)
-  aVec[index++] = 1.717910e-02; // time = 19.17 ns (index=1917)
-  aVec[index++] = 1.715198e-02; // time = 19.18 ns (index=1918)
-  aVec[index++] = 1.712489e-02; // time = 19.19 ns (index=1919)
-  aVec[index++] = 1.709783e-02; // time = 19.20 ns (index=1920)
-  aVec[index++] = 1.707080e-02; // time = 19.21 ns (index=1921)
-  aVec[index++] = 1.704380e-02; // time = 19.22 ns (index=1922)
-  aVec[index++] = 1.701682e-02; // time = 19.23 ns (index=1923)
-  aVec[index++] = 1.698988e-02; // time = 19.24 ns (index=1924)
-  aVec[index++] = 1.696296e-02; // time = 19.25 ns (index=1925)
-  aVec[index++] = 1.693608e-02; // time = 19.26 ns (index=1926)
-  aVec[index++] = 1.690922e-02; // time = 19.27 ns (index=1927)
-  aVec[index++] = 1.688239e-02; // time = 19.28 ns (index=1928)
-  aVec[index++] = 1.685559e-02; // time = 19.29 ns (index=1929)
-  aVec[index++] = 1.682882e-02; // time = 19.30 ns (index=1930)
-  aVec[index++] = 1.680207e-02; // time = 19.31 ns (index=1931)
-  aVec[index++] = 1.677536e-02; // time = 19.32 ns (index=1932)
-  aVec[index++] = 1.674867e-02; // time = 19.33 ns (index=1933)
-  aVec[index++] = 1.672202e-02; // time = 19.34 ns (index=1934)
-  aVec[index++] = 1.669539e-02; // time = 19.35 ns (index=1935)
-  aVec[index++] = 1.666879e-02; // time = 19.36 ns (index=1936)
-  aVec[index++] = 1.664222e-02; // time = 19.37 ns (index=1937)
-  aVec[index++] = 1.661568e-02; // time = 19.38 ns (index=1938)
-  aVec[index++] = 1.658917e-02; // time = 19.39 ns (index=1939)
-  aVec[index++] = 1.656269e-02; // time = 19.40 ns (index=1940)
-  aVec[index++] = 1.653624e-02; // time = 19.41 ns (index=1941)
-  aVec[index++] = 1.650981e-02; // time = 19.42 ns (index=1942)
-  aVec[index++] = 1.648341e-02; // time = 19.43 ns (index=1943)
-  aVec[index++] = 1.645705e-02; // time = 19.44 ns (index=1944)
-  aVec[index++] = 1.643071e-02; // time = 19.45 ns (index=1945)
-  aVec[index++] = 1.640440e-02; // time = 19.46 ns (index=1946)
-  aVec[index++] = 1.637812e-02; // time = 19.47 ns (index=1947)
-  aVec[index++] = 1.635187e-02; // time = 19.48 ns (index=1948)
-  aVec[index++] = 1.632564e-02; // time = 19.49 ns (index=1949)
-  aVec[index++] = 1.629945e-02; // time = 19.50 ns (index=1950)
-  aVec[index++] = 1.627328e-02; // time = 19.51 ns (index=1951)
-  aVec[index++] = 1.624715e-02; // time = 19.52 ns (index=1952)
-  aVec[index++] = 1.622104e-02; // time = 19.53 ns (index=1953)
-  aVec[index++] = 1.619496e-02; // time = 19.54 ns (index=1954)
-  aVec[index++] = 1.616891e-02; // time = 19.55 ns (index=1955)
-  aVec[index++] = 1.614289e-02; // time = 19.56 ns (index=1956)
-  aVec[index++] = 1.611689e-02; // time = 19.57 ns (index=1957)
-  aVec[index++] = 1.609093e-02; // time = 19.58 ns (index=1958)
-  aVec[index++] = 1.606499e-02; // time = 19.59 ns (index=1959)
-  aVec[index++] = 1.603909e-02; // time = 19.60 ns (index=1960)
-  aVec[index++] = 1.601321e-02; // time = 19.61 ns (index=1961)
-  aVec[index++] = 1.598736e-02; // time = 19.62 ns (index=1962)
-  aVec[index++] = 1.596154e-02; // time = 19.63 ns (index=1963)
-  aVec[index++] = 1.593574e-02; // time = 19.64 ns (index=1964)
-  aVec[index++] = 1.590998e-02; // time = 19.65 ns (index=1965)
-  aVec[index++] = 1.588424e-02; // time = 19.66 ns (index=1966)
-  aVec[index++] = 1.585854e-02; // time = 19.67 ns (index=1967)
-  aVec[index++] = 1.583286e-02; // time = 19.68 ns (index=1968)
-  aVec[index++] = 1.580721e-02; // time = 19.69 ns (index=1969)
-  aVec[index++] = 1.578159e-02; // time = 19.70 ns (index=1970)
-  aVec[index++] = 1.575600e-02; // time = 19.71 ns (index=1971)
-  aVec[index++] = 1.573043e-02; // time = 19.72 ns (index=1972)
-  aVec[index++] = 1.570490e-02; // time = 19.73 ns (index=1973)
-  aVec[index++] = 1.567939e-02; // time = 19.74 ns (index=1974)
-  aVec[index++] = 1.565391e-02; // time = 19.75 ns (index=1975)
-  aVec[index++] = 1.562846e-02; // time = 19.76 ns (index=1976)
-  aVec[index++] = 1.560304e-02; // time = 19.77 ns (index=1977)
-  aVec[index++] = 1.557765e-02; // time = 19.78 ns (index=1978)
-  aVec[index++] = 1.555228e-02; // time = 19.79 ns (index=1979)
-  aVec[index++] = 1.552695e-02; // time = 19.80 ns (index=1980)
-  aVec[index++] = 1.550164e-02; // time = 19.81 ns (index=1981)
-  aVec[index++] = 1.547636e-02; // time = 19.82 ns (index=1982)
-  aVec[index++] = 1.545111e-02; // time = 19.83 ns (index=1983)
-  aVec[index++] = 1.542589e-02; // time = 19.84 ns (index=1984)
-  aVec[index++] = 1.540070e-02; // time = 19.85 ns (index=1985)
-  aVec[index++] = 1.537553e-02; // time = 19.86 ns (index=1986)
-  aVec[index++] = 1.535039e-02; // time = 19.87 ns (index=1987)
-  aVec[index++] = 1.532528e-02; // time = 19.88 ns (index=1988)
-  aVec[index++] = 1.530020e-02; // time = 19.89 ns (index=1989)
-  aVec[index++] = 1.527515e-02; // time = 19.90 ns (index=1990)
-  aVec[index++] = 1.525013e-02; // time = 19.91 ns (index=1991)
-  aVec[index++] = 1.522513e-02; // time = 19.92 ns (index=1992)
-  aVec[index++] = 1.520017e-02; // time = 19.93 ns (index=1993)
-  aVec[index++] = 1.517523e-02; // time = 19.94 ns (index=1994)
-  aVec[index++] = 1.515032e-02; // time = 19.95 ns (index=1995)
-  aVec[index++] = 1.512543e-02; // time = 19.96 ns (index=1996)
-  aVec[index++] = 1.510058e-02; // time = 19.97 ns (index=1997)
-  aVec[index++] = 1.507575e-02; // time = 19.98 ns (index=1998)
-  aVec[index++] = 1.505096e-02; // time = 19.99 ns (index=1999)
-  aVec[index++] = 1.501629e-02; // time = 20.00 ns (index=2000)
-  aVec[index++] = 1.499897e-02; // time = 20.01 ns (index=2001)
-  aVec[index++] = 1.497920e-02; // time = 20.02 ns (index=2002)
-  aVec[index++] = 1.495452e-02; // time = 20.03 ns (index=2003)
-  aVec[index++] = 1.492986e-02; // time = 20.04 ns (index=2004)
-  aVec[index++] = 1.490523e-02; // time = 20.05 ns (index=2005)
-  aVec[index++] = 1.488062e-02; // time = 20.06 ns (index=2006)
-  aVec[index++] = 1.485605e-02; // time = 20.07 ns (index=2007)
-  aVec[index++] = 1.483150e-02; // time = 20.08 ns (index=2008)
-  aVec[index++] = 1.480698e-02; // time = 20.09 ns (index=2009)
-  aVec[index++] = 1.477025e-02; // time = 20.10 ns (index=2010)
-  aVec[index++] = 1.474582e-02; // time = 20.11 ns (index=2011)
-  aVec[index++] = 1.472140e-02; // time = 20.12 ns (index=2012)
-  aVec[index++] = 1.469701e-02; // time = 20.13 ns (index=2013)
-  aVec[index++] = 1.467265e-02; // time = 20.14 ns (index=2014)
-  aVec[index++] = 1.464831e-02; // time = 20.15 ns (index=2015)
-  aVec[index++] = 1.462400e-02; // time = 20.16 ns (index=2016)
-  aVec[index++] = 1.459972e-02; // time = 20.17 ns (index=2017)
-  aVec[index++] = 1.457546e-02; // time = 20.18 ns (index=2018)
-  aVec[index++] = 1.455124e-02; // time = 20.19 ns (index=2019)
-  aVec[index++] = 1.452704e-02; // time = 20.20 ns (index=2020)
-  aVec[index++] = 1.450287e-02; // time = 20.21 ns (index=2021)
-  aVec[index++] = 1.447873e-02; // time = 20.22 ns (index=2022)
-  aVec[index++] = 1.445462e-02; // time = 20.23 ns (index=2023)
-  aVec[index++] = 1.443053e-02; // time = 20.24 ns (index=2024)
-  aVec[index++] = 1.440647e-02; // time = 20.25 ns (index=2025)
-  aVec[index++] = 1.438244e-02; // time = 20.26 ns (index=2026)
-  aVec[index++] = 1.435844e-02; // time = 20.27 ns (index=2027)
-  aVec[index++] = 1.433446e-02; // time = 20.28 ns (index=2028)
-  aVec[index++] = 1.431051e-02; // time = 20.29 ns (index=2029)
-  aVec[index++] = 1.428659e-02; // time = 20.30 ns (index=2030)
-  aVec[index++] = 1.426270e-02; // time = 20.31 ns (index=2031)
-  aVec[index++] = 1.423884e-02; // time = 20.32 ns (index=2032)
-  aVec[index++] = 1.421500e-02; // time = 20.33 ns (index=2033)
-  aVec[index++] = 1.419119e-02; // time = 20.34 ns (index=2034)
-  aVec[index++] = 1.416741e-02; // time = 20.35 ns (index=2035)
-  aVec[index++] = 1.414366e-02; // time = 20.36 ns (index=2036)
-  aVec[index++] = 1.411993e-02; // time = 20.37 ns (index=2037)
-  aVec[index++] = 1.409623e-02; // time = 20.38 ns (index=2038)
-  aVec[index++] = 1.407256e-02; // time = 20.39 ns (index=2039)
-  aVec[index++] = 1.404892e-02; // time = 20.40 ns (index=2040)
-  aVec[index++] = 1.402530e-02; // time = 20.41 ns (index=2041)
-  aVec[index++] = 1.400171e-02; // time = 20.42 ns (index=2042)
-  aVec[index++] = 1.397815e-02; // time = 20.43 ns (index=2043)
-  aVec[index++] = 1.395462e-02; // time = 20.44 ns (index=2044)
-  aVec[index++] = 1.393111e-02; // time = 20.45 ns (index=2045)
-  aVec[index++] = 1.390763e-02; // time = 20.46 ns (index=2046)
-  aVec[index++] = 1.388418e-02; // time = 20.47 ns (index=2047)
-  aVec[index++] = 1.386076e-02; // time = 20.48 ns (index=2048)
-  aVec[index++] = 1.383736e-02; // time = 20.49 ns (index=2049)
-  aVec[index++] = 1.381399e-02; // time = 20.50 ns (index=2050)
-  aVec[index++] = 1.379065e-02; // time = 20.51 ns (index=2051)
-  aVec[index++] = 1.376733e-02; // time = 20.52 ns (index=2052)
-  aVec[index++] = 1.374405e-02; // time = 20.53 ns (index=2053)
-  aVec[index++] = 1.372079e-02; // time = 20.54 ns (index=2054)
-  aVec[index++] = 1.369755e-02; // time = 20.55 ns (index=2055)
-  aVec[index++] = 1.367435e-02; // time = 20.56 ns (index=2056)
-  aVec[index++] = 1.365117e-02; // time = 20.57 ns (index=2057)
-  aVec[index++] = 1.362802e-02; // time = 20.58 ns (index=2058)
-  aVec[index++] = 1.360489e-02; // time = 20.59 ns (index=2059)
-  aVec[index++] = 1.358180e-02; // time = 20.60 ns (index=2060)
-  aVec[index++] = 1.355873e-02; // time = 20.61 ns (index=2061)
-  aVec[index++] = 1.353569e-02; // time = 20.62 ns (index=2062)
-  aVec[index++] = 1.351267e-02; // time = 20.63 ns (index=2063)
-  aVec[index++] = 1.348968e-02; // time = 20.64 ns (index=2064)
-  aVec[index++] = 1.346672e-02; // time = 20.65 ns (index=2065)
-  aVec[index++] = 1.344379e-02; // time = 20.66 ns (index=2066)
-  aVec[index++] = 1.342088e-02; // time = 20.67 ns (index=2067)
-  aVec[index++] = 1.339800e-02; // time = 20.68 ns (index=2068)
-  aVec[index++] = 1.337515e-02; // time = 20.69 ns (index=2069)
-  aVec[index++] = 1.335232e-02; // time = 20.70 ns (index=2070)
-  aVec[index++] = 1.332952e-02; // time = 20.71 ns (index=2071)
-  aVec[index++] = 1.330675e-02; // time = 20.72 ns (index=2072)
-  aVec[index++] = 1.328400e-02; // time = 20.73 ns (index=2073)
-  aVec[index++] = 1.326128e-02; // time = 20.74 ns (index=2074)
-  aVec[index++] = 1.323859e-02; // time = 20.75 ns (index=2075)
-  aVec[index++] = 1.321593e-02; // time = 20.76 ns (index=2076)
-  aVec[index++] = 1.319329e-02; // time = 20.77 ns (index=2077)
-  aVec[index++] = 1.317068e-02; // time = 20.78 ns (index=2078)
-  aVec[index++] = 1.314809e-02; // time = 20.79 ns (index=2079)
-  aVec[index++] = 1.312553e-02; // time = 20.80 ns (index=2080)
-  aVec[index++] = 1.310300e-02; // time = 20.81 ns (index=2081)
-  aVec[index++] = 1.308050e-02; // time = 20.82 ns (index=2082)
-  aVec[index++] = 1.305802e-02; // time = 20.83 ns (index=2083)
-  aVec[index++] = 1.303557e-02; // time = 20.84 ns (index=2084)
-  aVec[index++] = 1.301315e-02; // time = 20.85 ns (index=2085)
-  aVec[index++] = 1.299075e-02; // time = 20.86 ns (index=2086)
-  aVec[index++] = 1.296838e-02; // time = 20.87 ns (index=2087)
-  aVec[index++] = 1.294603e-02; // time = 20.88 ns (index=2088)
-  aVec[index++] = 1.292372e-02; // time = 20.89 ns (index=2089)
-  aVec[index++] = 1.290143e-02; // time = 20.90 ns (index=2090)
-  aVec[index++] = 1.287916e-02; // time = 20.91 ns (index=2091)
-  aVec[index++] = 1.285692e-02; // time = 20.92 ns (index=2092)
-  aVec[index++] = 1.283471e-02; // time = 20.93 ns (index=2093)
-  aVec[index++] = 1.281253e-02; // time = 20.94 ns (index=2094)
-  aVec[index++] = 1.279037e-02; // time = 20.95 ns (index=2095)
-  aVec[index++] = 1.276824e-02; // time = 20.96 ns (index=2096)
-  aVec[index++] = 1.274613e-02; // time = 20.97 ns (index=2097)
-  aVec[index++] = 1.272405e-02; // time = 20.98 ns (index=2098)
-  aVec[index++] = 1.270200e-02; // time = 20.99 ns (index=2099)
-  aVec[index++] = 1.267997e-02; // time = 21.00 ns (index=2100)
-  aVec[index++] = 1.265797e-02; // time = 21.01 ns (index=2101)
-  aVec[index++] = 1.263600e-02; // time = 21.02 ns (index=2102)
-  aVec[index++] = 1.261405e-02; // time = 21.03 ns (index=2103)
-  aVec[index++] = 1.259213e-02; // time = 21.04 ns (index=2104)
-  aVec[index++] = 1.257023e-02; // time = 21.05 ns (index=2105)
-  aVec[index++] = 1.254836e-02; // time = 21.06 ns (index=2106)
-  aVec[index++] = 1.252652e-02; // time = 21.07 ns (index=2107)
-  aVec[index++] = 1.250471e-02; // time = 21.08 ns (index=2108)
-  aVec[index++] = 1.248292e-02; // time = 21.09 ns (index=2109)
-  aVec[index++] = 1.246115e-02; // time = 21.10 ns (index=2110)
-  aVec[index++] = 1.243941e-02; // time = 21.11 ns (index=2111)
-  aVec[index++] = 1.241770e-02; // time = 21.12 ns (index=2112)
-  aVec[index++] = 1.239602e-02; // time = 21.13 ns (index=2113)
-  aVec[index++] = 1.237436e-02; // time = 21.14 ns (index=2114)
-  aVec[index++] = 1.235272e-02; // time = 21.15 ns (index=2115)
-  aVec[index++] = 1.233112e-02; // time = 21.16 ns (index=2116)
-  aVec[index++] = 1.230954e-02; // time = 21.17 ns (index=2117)
-  aVec[index++] = 1.228798e-02; // time = 21.18 ns (index=2118)
-  aVec[index++] = 1.226645e-02; // time = 21.19 ns (index=2119)
-  aVec[index++] = 1.224495e-02; // time = 21.20 ns (index=2120)
-  aVec[index++] = 1.222347e-02; // time = 21.21 ns (index=2121)
-  aVec[index++] = 1.220202e-02; // time = 21.22 ns (index=2122)
-  aVec[index++] = 1.218059e-02; // time = 21.23 ns (index=2123)
-  aVec[index++] = 1.215919e-02; // time = 21.24 ns (index=2124)
-  aVec[index++] = 1.213782e-02; // time = 21.25 ns (index=2125)
-  aVec[index++] = 1.211647e-02; // time = 21.26 ns (index=2126)
-  aVec[index++] = 1.209515e-02; // time = 21.27 ns (index=2127)
-  aVec[index++] = 1.207385e-02; // time = 21.28 ns (index=2128)
-  aVec[index++] = 1.205258e-02; // time = 21.29 ns (index=2129)
-  aVec[index++] = 1.203133e-02; // time = 21.30 ns (index=2130)
-  aVec[index++] = 1.201011e-02; // time = 21.31 ns (index=2131)
-  aVec[index++] = 1.198892e-02; // time = 21.32 ns (index=2132)
-  aVec[index++] = 1.196775e-02; // time = 21.33 ns (index=2133)
-  aVec[index++] = 1.194660e-02; // time = 21.34 ns (index=2134)
-  aVec[index++] = 1.192549e-02; // time = 21.35 ns (index=2135)
-  aVec[index++] = 1.190439e-02; // time = 21.36 ns (index=2136)
-  aVec[index++] = 1.188333e-02; // time = 21.37 ns (index=2137)
-  aVec[index++] = 1.186229e-02; // time = 21.38 ns (index=2138)
-  aVec[index++] = 1.184127e-02; // time = 21.39 ns (index=2139)
-  aVec[index++] = 1.182028e-02; // time = 21.40 ns (index=2140)
-  aVec[index++] = 1.179932e-02; // time = 21.41 ns (index=2141)
-  aVec[index++] = 1.177838e-02; // time = 21.42 ns (index=2142)
-  aVec[index++] = 1.175746e-02; // time = 21.43 ns (index=2143)
-  aVec[index++] = 1.173658e-02; // time = 21.44 ns (index=2144)
-  aVec[index++] = 1.171571e-02; // time = 21.45 ns (index=2145)
-  aVec[index++] = 1.169488e-02; // time = 21.46 ns (index=2146)
-  aVec[index++] = 1.167406e-02; // time = 21.47 ns (index=2147)
-  aVec[index++] = 1.165328e-02; // time = 21.48 ns (index=2148)
-  aVec[index++] = 1.163252e-02; // time = 21.49 ns (index=2149)
-  aVec[index++] = 1.161178e-02; // time = 21.50 ns (index=2150)
-  aVec[index++] = 1.159107e-02; // time = 21.51 ns (index=2151)
-  aVec[index++] = 1.157038e-02; // time = 21.52 ns (index=2152)
-  aVec[index++] = 1.154972e-02; // time = 21.53 ns (index=2153)
-  aVec[index++] = 1.152909e-02; // time = 21.54 ns (index=2154)
-  aVec[index++] = 1.150848e-02; // time = 21.55 ns (index=2155)
-  aVec[index++] = 1.148789e-02; // time = 21.56 ns (index=2156)
-  aVec[index++] = 1.146733e-02; // time = 21.57 ns (index=2157)
-  aVec[index++] = 1.144680e-02; // time = 21.58 ns (index=2158)
-  aVec[index++] = 1.142629e-02; // time = 21.59 ns (index=2159)
-  aVec[index++] = 1.140580e-02; // time = 21.60 ns (index=2160)
-  aVec[index++] = 1.138534e-02; // time = 21.61 ns (index=2161)
-  aVec[index++] = 1.136491e-02; // time = 21.62 ns (index=2162)
-  aVec[index++] = 1.134450e-02; // time = 21.63 ns (index=2163)
-  aVec[index++] = 1.132411e-02; // time = 21.64 ns (index=2164)
-  aVec[index++] = 1.130375e-02; // time = 21.65 ns (index=2165)
-  aVec[index++] = 1.128341e-02; // time = 21.66 ns (index=2166)
-  aVec[index++] = 1.126310e-02; // time = 21.67 ns (index=2167)
-  aVec[index++] = 1.124281e-02; // time = 21.68 ns (index=2168)
-  aVec[index++] = 1.122255e-02; // time = 21.69 ns (index=2169)
-  aVec[index++] = 1.120231e-02; // time = 21.70 ns (index=2170)
-  aVec[index++] = 1.118210e-02; // time = 21.71 ns (index=2171)
-  aVec[index++] = 1.116191e-02; // time = 21.72 ns (index=2172)
-  aVec[index++] = 1.114175e-02; // time = 21.73 ns (index=2173)
-  aVec[index++] = 1.112161e-02; // time = 21.74 ns (index=2174)
-  aVec[index++] = 1.110150e-02; // time = 21.75 ns (index=2175)
-  aVec[index++] = 1.108141e-02; // time = 21.76 ns (index=2176)
-  aVec[index++] = 1.106798e-02; // time = 21.77 ns (index=2177)
-  aVec[index++] = 1.104491e-02; // time = 21.78 ns (index=2178)
-  aVec[index++] = 1.102887e-02; // time = 21.79 ns (index=2179)
-  aVec[index++] = 1.100881e-02; // time = 21.80 ns (index=2180)
-  aVec[index++] = 1.098475e-02; // time = 21.81 ns (index=2181)
-  aVec[index++] = 1.096570e-02; // time = 21.82 ns (index=2182)
-  aVec[index++] = 1.094921e-02; // time = 21.83 ns (index=2183)
-  aVec[index++] = 1.092703e-02; // time = 21.84 ns (index=2184)
-  aVec[index++] = 1.090323e-02; // time = 21.85 ns (index=2185)
-  aVec[index++] = 1.088203e-02; // time = 21.86 ns (index=2186)
-  aVec[index++] = 1.087187e-02; // time = 21.87 ns (index=2187)
-  aVec[index++] = 1.084451e-02; // time = 21.88 ns (index=2188)
-  aVec[index++] = 1.082472e-02; // time = 21.89 ns (index=2189)
-  aVec[index++] = 1.080555e-02; // time = 21.90 ns (index=2190)
-  aVec[index++] = 1.078643e-02; // time = 21.91 ns (index=2191)
-  aVec[index++] = 1.076673e-02; // time = 21.92 ns (index=2192)
-  aVec[index++] = 1.074705e-02; // time = 21.93 ns (index=2193)
-  aVec[index++] = 1.072739e-02; // time = 21.94 ns (index=2194)
-  aVec[index++] = 1.070776e-02; // time = 21.95 ns (index=2195)
-  aVec[index++] = 1.068815e-02; // time = 21.96 ns (index=2196)
-  aVec[index++] = 1.066857e-02; // time = 21.97 ns (index=2197)
-  aVec[index++] = 1.064901e-02; // time = 21.98 ns (index=2198)
-  aVec[index++] = 1.062947e-02; // time = 21.99 ns (index=2199)
-  aVec[index++] = 1.060996e-02; // time = 22.00 ns (index=2200)
-  aVec[index++] = 1.059047e-02; // time = 22.01 ns (index=2201)
-  aVec[index++] = 1.057101e-02; // time = 22.02 ns (index=2202)
-  aVec[index++] = 1.055158e-02; // time = 22.03 ns (index=2203)
-  aVec[index++] = 1.053217e-02; // time = 22.04 ns (index=2204)
-  aVec[index++] = 1.051279e-02; // time = 22.05 ns (index=2205)
-  aVec[index++] = 1.049344e-02; // time = 22.06 ns (index=2206)
-  aVec[index++] = 1.047410e-02; // time = 22.07 ns (index=2207)
-  aVec[index++] = 1.045480e-02; // time = 22.08 ns (index=2208)
-  aVec[index++] = 1.043551e-02; // time = 22.09 ns (index=2209)
-  aVec[index++] = 1.041625e-02; // time = 22.10 ns (index=2210)
-  aVec[index++] = 1.039701e-02; // time = 22.11 ns (index=2211)
-  aVec[index++] = 1.037779e-02; // time = 22.12 ns (index=2212)
-  aVec[index++] = 1.035860e-02; // time = 22.13 ns (index=2213)
-  aVec[index++] = 1.033942e-02; // time = 22.14 ns (index=2214)
-  aVec[index++] = 1.032028e-02; // time = 22.15 ns (index=2215)
-  aVec[index++] = 1.030115e-02; // time = 22.16 ns (index=2216)
-  aVec[index++] = 1.028205e-02; // time = 22.17 ns (index=2217)
-  aVec[index++] = 1.026297e-02; // time = 22.18 ns (index=2218)
-  aVec[index++] = 1.024391e-02; // time = 22.19 ns (index=2219)
-  aVec[index++] = 1.022488e-02; // time = 22.20 ns (index=2220)
-  aVec[index++] = 1.020587e-02; // time = 22.21 ns (index=2221)
-  aVec[index++] = 1.018689e-02; // time = 22.22 ns (index=2222)
-  aVec[index++] = 1.016792e-02; // time = 22.23 ns (index=2223)
-  aVec[index++] = 1.014899e-02; // time = 22.24 ns (index=2224)
-  aVec[index++] = 1.013007e-02; // time = 22.25 ns (index=2225)
-  aVec[index++] = 1.011118e-02; // time = 22.26 ns (index=2226)
-  aVec[index++] = 1.009231e-02; // time = 22.27 ns (index=2227)
-  aVec[index++] = 1.007346e-02; // time = 22.28 ns (index=2228)
-  aVec[index++] = 1.005464e-02; // time = 22.29 ns (index=2229)
-  aVec[index++] = 1.003584e-02; // time = 22.30 ns (index=2230)
-  aVec[index++] = 1.001707e-02; // time = 22.31 ns (index=2231)
-  aVec[index++] = 9.998317e-03; // time = 22.32 ns (index=2232)
-  aVec[index++] = 9.979589e-03; // time = 22.33 ns (index=2233)
-  aVec[index++] = 9.960884e-03; // time = 22.34 ns (index=2234)
-  aVec[index++] = 9.942202e-03; // time = 22.35 ns (index=2235)
-  aVec[index++] = 9.923544e-03; // time = 22.36 ns (index=2236)
-  aVec[index++] = 9.904908e-03; // time = 22.37 ns (index=2237)
-  aVec[index++] = 9.886296e-03; // time = 22.38 ns (index=2238)
-  aVec[index++] = 9.867708e-03; // time = 22.39 ns (index=2239)
-  aVec[index++] = 9.849142e-03; // time = 22.40 ns (index=2240)
-  aVec[index++] = 9.830599e-03; // time = 22.41 ns (index=2241)
-  aVec[index++] = 9.812080e-03; // time = 22.42 ns (index=2242)
-  aVec[index++] = 9.793583e-03; // time = 22.43 ns (index=2243)
-  aVec[index++] = 9.775110e-03; // time = 22.44 ns (index=2244)
-  aVec[index++] = 9.756659e-03; // time = 22.45 ns (index=2245)
-  aVec[index++] = 9.738232e-03; // time = 22.46 ns (index=2246)
-  aVec[index++] = 9.719827e-03; // time = 22.47 ns (index=2247)
-  aVec[index++] = 9.701445e-03; // time = 22.48 ns (index=2248)
-  aVec[index++] = 9.683086e-03; // time = 22.49 ns (index=2249)
-  aVec[index++] = 9.664750e-03; // time = 22.50 ns (index=2250)
-  aVec[index++] = 9.646436e-03; // time = 22.51 ns (index=2251)
-  aVec[index++] = 9.628146e-03; // time = 22.52 ns (index=2252)
-  aVec[index++] = 9.609878e-03; // time = 22.53 ns (index=2253)
-  aVec[index++] = 9.591633e-03; // time = 22.54 ns (index=2254)
-  aVec[index++] = 9.573410e-03; // time = 22.55 ns (index=2255)
-  aVec[index++] = 9.555211e-03; // time = 22.56 ns (index=2256)
-  aVec[index++] = 9.537034e-03; // time = 22.57 ns (index=2257)
-  aVec[index++] = 9.518880e-03; // time = 22.58 ns (index=2258)
-  aVec[index++] = 9.500749e-03; // time = 22.59 ns (index=2259)
-  aVec[index++] = 9.482641e-03; // time = 22.60 ns (index=2260)
-  aVec[index++] = 9.464555e-03; // time = 22.61 ns (index=2261)
-  aVec[index++] = 9.446491e-03; // time = 22.62 ns (index=2262)
-  aVec[index++] = 9.428451e-03; // time = 22.63 ns (index=2263)
-  aVec[index++] = 9.410433e-03; // time = 22.64 ns (index=2264)
-  aVec[index++] = 9.392437e-03; // time = 22.65 ns (index=2265)
-  aVec[index++] = 9.374464e-03; // time = 22.66 ns (index=2266)
-  aVec[index++] = 9.356514e-03; // time = 22.67 ns (index=2267)
-  aVec[index++] = 9.338585e-03; // time = 22.68 ns (index=2268)
-  aVec[index++] = 9.320680e-03; // time = 22.69 ns (index=2269)
-  aVec[index++] = 9.302796e-03; // time = 22.70 ns (index=2270)
-  aVec[index++] = 9.284935e-03; // time = 22.71 ns (index=2271)
-  aVec[index++] = 9.267097e-03; // time = 22.72 ns (index=2272)
-  aVec[index++] = 9.249280e-03; // time = 22.73 ns (index=2273)
-  aVec[index++] = 9.231486e-03; // time = 22.74 ns (index=2274)
-  aVec[index++] = 9.213714e-03; // time = 22.75 ns (index=2275)
-  aVec[index++] = 9.195964e-03; // time = 22.76 ns (index=2276)
-  aVec[index++] = 9.178236e-03; // time = 22.77 ns (index=2277)
-  aVec[index++] = 9.160531e-03; // time = 22.78 ns (index=2278)
-  aVec[index++] = 9.142847e-03; // time = 22.79 ns (index=2279)
-  aVec[index++] = 9.125186e-03; // time = 22.80 ns (index=2280)
-  aVec[index++] = 9.107547e-03; // time = 22.81 ns (index=2281)
-  aVec[index++] = 9.089929e-03; // time = 22.82 ns (index=2282)
-  aVec[index++] = 9.072334e-03; // time = 22.83 ns (index=2283)
-  aVec[index++] = 9.054761e-03; // time = 22.84 ns (index=2284)
-  aVec[index++] = 9.037210e-03; // time = 22.85 ns (index=2285)
-  aVec[index++] = 9.019680e-03; // time = 22.86 ns (index=2286)
-  aVec[index++] = 9.002173e-03; // time = 22.87 ns (index=2287)
-  aVec[index++] = 8.984687e-03; // time = 22.88 ns (index=2288)
-  aVec[index++] = 8.967223e-03; // time = 22.89 ns (index=2289)
-  aVec[index++] = 8.949781e-03; // time = 22.90 ns (index=2290)
-  aVec[index++] = 8.932361e-03; // time = 22.91 ns (index=2291)
-  aVec[index++] = 8.914963e-03; // time = 22.92 ns (index=2292)
-  aVec[index++] = 8.897587e-03; // time = 22.93 ns (index=2293)
-  aVec[index++] = 8.880232e-03; // time = 22.94 ns (index=2294)
-  aVec[index++] = 8.862899e-03; // time = 22.95 ns (index=2295)
-  aVec[index++] = 8.845587e-03; // time = 22.96 ns (index=2296)
-  aVec[index++] = 8.828298e-03; // time = 22.97 ns (index=2297)
-  aVec[index++] = 8.811030e-03; // time = 22.98 ns (index=2298)
-  aVec[index++] = 8.793783e-03; // time = 22.99 ns (index=2299)
-  aVec[index++] = 8.776559e-03; // time = 23.00 ns (index=2300)
-  aVec[index++] = 8.759355e-03; // time = 23.01 ns (index=2301)
-  aVec[index++] = 8.742174e-03; // time = 23.02 ns (index=2302)
-  aVec[index++] = 8.725014e-03; // time = 23.03 ns (index=2303)
-  aVec[index++] = 8.707875e-03; // time = 23.04 ns (index=2304)
-  aVec[index++] = 8.690758e-03; // time = 23.05 ns (index=2305)
-  aVec[index++] = 8.673662e-03; // time = 23.06 ns (index=2306)
-  aVec[index++] = 8.656588e-03; // time = 23.07 ns (index=2307)
-  aVec[index++] = 8.639535e-03; // time = 23.08 ns (index=2308)
-  aVec[index++] = 8.622504e-03; // time = 23.09 ns (index=2309)
-  aVec[index++] = 8.605494e-03; // time = 23.10 ns (index=2310)
-  aVec[index++] = 8.588505e-03; // time = 23.11 ns (index=2311)
-  aVec[index++] = 8.571538e-03; // time = 23.12 ns (index=2312)
-  aVec[index++] = 8.554591e-03; // time = 23.13 ns (index=2313)
-  aVec[index++] = 8.537667e-03; // time = 23.14 ns (index=2314)
-  aVec[index++] = 8.520763e-03; // time = 23.15 ns (index=2315)
-  aVec[index++] = 8.503881e-03; // time = 23.16 ns (index=2316)
-  aVec[index++] = 8.487019e-03; // time = 23.17 ns (index=2317)
-  aVec[index++] = 8.470179e-03; // time = 23.18 ns (index=2318)
-  aVec[index++] = 8.453361e-03; // time = 23.19 ns (index=2319)
-  aVec[index++] = 8.436563e-03; // time = 23.20 ns (index=2320)
-  aVec[index++] = 8.419786e-03; // time = 23.21 ns (index=2321)
-  aVec[index++] = 8.403031e-03; // time = 23.22 ns (index=2322)
-  aVec[index++] = 8.386296e-03; // time = 23.23 ns (index=2323)
-  aVec[index++] = 8.369583e-03; // time = 23.24 ns (index=2324)
-  aVec[index++] = 8.352890e-03; // time = 23.25 ns (index=2325)
-  aVec[index++] = 8.336219e-03; // time = 23.26 ns (index=2326)
-  aVec[index++] = 8.319568e-03; // time = 23.27 ns (index=2327)
-  aVec[index++] = 8.302939e-03; // time = 23.28 ns (index=2328)
-  aVec[index++] = 8.286330e-03; // time = 23.29 ns (index=2329)
-  aVec[index++] = 8.269742e-03; // time = 23.30 ns (index=2330)
-  aVec[index++] = 8.253175e-03; // time = 23.31 ns (index=2331)
-  aVec[index++] = 8.236629e-03; // time = 23.32 ns (index=2332)
-  aVec[index++] = 8.220104e-03; // time = 23.33 ns (index=2333)
-  aVec[index++] = 8.203599e-03; // time = 23.34 ns (index=2334)
-  aVec[index++] = 8.187115e-03; // time = 23.35 ns (index=2335)
-  aVec[index++] = 8.170652e-03; // time = 23.36 ns (index=2336)
-  aVec[index++] = 8.154210e-03; // time = 23.37 ns (index=2337)
-  aVec[index++] = 8.137788e-03; // time = 23.38 ns (index=2338)
-  aVec[index++] = 8.121387e-03; // time = 23.39 ns (index=2339)
-  aVec[index++] = 8.105007e-03; // time = 23.40 ns (index=2340)
-  aVec[index++] = 8.088647e-03; // time = 23.41 ns (index=2341)
-  aVec[index++] = 8.072308e-03; // time = 23.42 ns (index=2342)
-  aVec[index++] = 8.055990e-03; // time = 23.43 ns (index=2343)
-  aVec[index++] = 8.039692e-03; // time = 23.44 ns (index=2344)
-  aVec[index++] = 8.023414e-03; // time = 23.45 ns (index=2345)
-  aVec[index++] = 8.007157e-03; // time = 23.46 ns (index=2346)
-  aVec[index++] = 7.990921e-03; // time = 23.47 ns (index=2347)
-  aVec[index++] = 7.974705e-03; // time = 23.48 ns (index=2348)
-  aVec[index++] = 7.958509e-03; // time = 23.49 ns (index=2349)
-  aVec[index++] = 7.942334e-03; // time = 23.50 ns (index=2350)
-  aVec[index++] = 7.926179e-03; // time = 23.51 ns (index=2351)
-  aVec[index++] = 7.910044e-03; // time = 23.52 ns (index=2352)
-  aVec[index++] = 7.893930e-03; // time = 23.53 ns (index=2353)
-  aVec[index++] = 7.877836e-03; // time = 23.54 ns (index=2354)
-  aVec[index++] = 7.861763e-03; // time = 23.55 ns (index=2355)
-  aVec[index++] = 7.845709e-03; // time = 23.56 ns (index=2356)
-  aVec[index++] = 7.829676e-03; // time = 23.57 ns (index=2357)
-  aVec[index++] = 7.813663e-03; // time = 23.58 ns (index=2358)
-  aVec[index++] = 7.797671e-03; // time = 23.59 ns (index=2359)
-  aVec[index++] = 7.781698e-03; // time = 23.60 ns (index=2360)
-  aVec[index++] = 7.765746e-03; // time = 23.61 ns (index=2361)
-  aVec[index++] = 7.749813e-03; // time = 23.62 ns (index=2362)
-  aVec[index++] = 7.733901e-03; // time = 23.63 ns (index=2363)
-  aVec[index++] = 7.718009e-03; // time = 23.64 ns (index=2364)
-  aVec[index++] = 7.702137e-03; // time = 23.65 ns (index=2365)
-  aVec[index++] = 7.686285e-03; // time = 23.66 ns (index=2366)
-  aVec[index++] = 7.670453e-03; // time = 23.67 ns (index=2367)
-  aVec[index++] = 7.654640e-03; // time = 23.68 ns (index=2368)
-  aVec[index++] = 7.638848e-03; // time = 23.69 ns (index=2369)
-  aVec[index++] = 7.623076e-03; // time = 23.70 ns (index=2370)
-  aVec[index++] = 7.607324e-03; // time = 23.71 ns (index=2371)
-  aVec[index++] = 7.591591e-03; // time = 23.72 ns (index=2372)
-  aVec[index++] = 7.575878e-03; // time = 23.73 ns (index=2373)
-  aVec[index++] = 7.560185e-03; // time = 23.74 ns (index=2374)
-  aVec[index++] = 7.544512e-03; // time = 23.75 ns (index=2375)
-  aVec[index++] = 7.528859e-03; // time = 23.76 ns (index=2376)
-  aVec[index++] = 7.513226e-03; // time = 23.77 ns (index=2377)
-  aVec[index++] = 7.497612e-03; // time = 23.78 ns (index=2378)
-  aVec[index++] = 7.482018e-03; // time = 23.79 ns (index=2379)
-  aVec[index++] = 7.466443e-03; // time = 23.80 ns (index=2380)
-  aVec[index++] = 7.450889e-03; // time = 23.81 ns (index=2381)
-  aVec[index++] = 7.435354e-03; // time = 23.82 ns (index=2382)
-  aVec[index++] = 7.419838e-03; // time = 23.83 ns (index=2383)
-  aVec[index++] = 7.404342e-03; // time = 23.84 ns (index=2384)
-  aVec[index++] = 7.388866e-03; // time = 23.85 ns (index=2385)
-  aVec[index++] = 7.373409e-03; // time = 23.86 ns (index=2386)
-  aVec[index++] = 7.357972e-03; // time = 23.87 ns (index=2387)
-  aVec[index++] = 7.342554e-03; // time = 23.88 ns (index=2388)
-  aVec[index++] = 7.327156e-03; // time = 23.89 ns (index=2389)
-  aVec[index++] = 7.311777e-03; // time = 23.90 ns (index=2390)
-  aVec[index++] = 7.296418e-03; // time = 23.91 ns (index=2391)
-  aVec[index++] = 7.281077e-03; // time = 23.92 ns (index=2392)
-  aVec[index++] = 7.265757e-03; // time = 23.93 ns (index=2393)
-  aVec[index++] = 7.250455e-03; // time = 23.94 ns (index=2394)
-  aVec[index++] = 7.235174e-03; // time = 23.95 ns (index=2395)
-  aVec[index++] = 7.219911e-03; // time = 23.96 ns (index=2396)
-  aVec[index++] = 7.204667e-03; // time = 23.97 ns (index=2397)
-  aVec[index++] = 7.189443e-03; // time = 23.98 ns (index=2398)
-  aVec[index++] = 7.174238e-03; // time = 23.99 ns (index=2399)
-  aVec[index++] = 7.159053e-03; // time = 24.00 ns (index=2400)
-  aVec[index++] = 7.143886e-03; // time = 24.01 ns (index=2401)
-  aVec[index++] = 7.128739e-03; // time = 24.02 ns (index=2402)
-  aVec[index++] = 7.113611e-03; // time = 24.03 ns (index=2403)
-  aVec[index++] = 7.098502e-03; // time = 24.04 ns (index=2404)
-  aVec[index++] = 7.083412e-03; // time = 24.05 ns (index=2405)
-  aVec[index++] = 7.068341e-03; // time = 24.06 ns (index=2406)
-  aVec[index++] = 7.053289e-03; // time = 24.07 ns (index=2407)
-  aVec[index++] = 7.038256e-03; // time = 24.08 ns (index=2408)
-  aVec[index++] = 7.023242e-03; // time = 24.09 ns (index=2409)
-  aVec[index++] = 7.008247e-03; // time = 24.10 ns (index=2410)
-  aVec[index++] = 6.993271e-03; // time = 24.11 ns (index=2411)
-  aVec[index++] = 6.978314e-03; // time = 24.12 ns (index=2412)
-  aVec[index++] = 6.963376e-03; // time = 24.13 ns (index=2413)
-  aVec[index++] = 6.948457e-03; // time = 24.14 ns (index=2414)
-  aVec[index++] = 6.933557e-03; // time = 24.15 ns (index=2415)
-  aVec[index++] = 6.918675e-03; // time = 24.16 ns (index=2416)
-  aVec[index++] = 6.903812e-03; // time = 24.17 ns (index=2417)
-  aVec[index++] = 6.888969e-03; // time = 24.18 ns (index=2418)
-  aVec[index++] = 6.874143e-03; // time = 24.19 ns (index=2419)
-  aVec[index++] = 6.859337e-03; // time = 24.20 ns (index=2420)
-  aVec[index++] = 6.844549e-03; // time = 24.21 ns (index=2421)
-  aVec[index++] = 6.829780e-03; // time = 24.22 ns (index=2422)
-  aVec[index++] = 6.815030e-03; // time = 24.23 ns (index=2423)
-  aVec[index++] = 6.800298e-03; // time = 24.24 ns (index=2424)
-  aVec[index++] = 6.785585e-03; // time = 24.25 ns (index=2425)
-  aVec[index++] = 6.770891e-03; // time = 24.26 ns (index=2426)
-  aVec[index++] = 6.756215e-03; // time = 24.27 ns (index=2427)
-  aVec[index++] = 6.741558e-03; // time = 24.28 ns (index=2428)
-  aVec[index++] = 6.726919e-03; // time = 24.29 ns (index=2429)
-  aVec[index++] = 6.712299e-03; // time = 24.30 ns (index=2430)
-  aVec[index++] = 6.697697e-03; // time = 24.31 ns (index=2431)
-  aVec[index++] = 6.683114e-03; // time = 24.32 ns (index=2432)
-  aVec[index++] = 6.668549e-03; // time = 24.33 ns (index=2433)
-  aVec[index++] = 6.654003e-03; // time = 24.34 ns (index=2434)
-  aVec[index++] = 6.639475e-03; // time = 24.35 ns (index=2435)
-  aVec[index++] = 6.624965e-03; // time = 24.36 ns (index=2436)
-  aVec[index++] = 6.610474e-03; // time = 24.37 ns (index=2437)
-  aVec[index++] = 6.596001e-03; // time = 24.38 ns (index=2438)
-  aVec[index++] = 6.581546e-03; // time = 24.39 ns (index=2439)
-  aVec[index++] = 6.567110e-03; // time = 24.40 ns (index=2440)
-  aVec[index++] = 6.552692e-03; // time = 24.41 ns (index=2441)
-  aVec[index++] = 6.538292e-03; // time = 24.42 ns (index=2442)
-  aVec[index++] = 6.523910e-03; // time = 24.43 ns (index=2443)
-  aVec[index++] = 6.509547e-03; // time = 24.44 ns (index=2444)
-  aVec[index++] = 6.495202e-03; // time = 24.45 ns (index=2445)
-  aVec[index++] = 6.480874e-03; // time = 24.46 ns (index=2446)
-  aVec[index++] = 6.466565e-03; // time = 24.47 ns (index=2447)
-  aVec[index++] = 6.452275e-03; // time = 24.48 ns (index=2448)
-  aVec[index++] = 6.438002e-03; // time = 24.49 ns (index=2449)
-  aVec[index++] = 6.423747e-03; // time = 24.50 ns (index=2450)
-  aVec[index++] = 6.409510e-03; // time = 24.51 ns (index=2451)
-  aVec[index++] = 6.395291e-03; // time = 24.52 ns (index=2452)
-  aVec[index++] = 6.381091e-03; // time = 24.53 ns (index=2453)
-  aVec[index++] = 6.366908e-03; // time = 24.54 ns (index=2454)
-  aVec[index++] = 6.352743e-03; // time = 24.55 ns (index=2455)
-  aVec[index++] = 6.338596e-03; // time = 24.56 ns (index=2456)
-  aVec[index++] = 6.324467e-03; // time = 24.57 ns (index=2457)
-  aVec[index++] = 6.310356e-03; // time = 24.58 ns (index=2458)
-  aVec[index++] = 6.296263e-03; // time = 24.59 ns (index=2459)
-  aVec[index++] = 6.282187e-03; // time = 24.60 ns (index=2460)
-  aVec[index++] = 6.268130e-03; // time = 24.61 ns (index=2461)
-  aVec[index++] = 6.254090e-03; // time = 24.62 ns (index=2462)
-  aVec[index++] = 6.240068e-03; // time = 24.63 ns (index=2463)
-  aVec[index++] = 6.226063e-03; // time = 24.64 ns (index=2464)
-  aVec[index++] = 6.212077e-03; // time = 24.65 ns (index=2465)
-  aVec[index++] = 6.198108e-03; // time = 24.66 ns (index=2466)
-  aVec[index++] = 6.184157e-03; // time = 24.67 ns (index=2467)
-  aVec[index++] = 6.170223e-03; // time = 24.68 ns (index=2468)
-  aVec[index++] = 6.156307e-03; // time = 24.69 ns (index=2469)
-  aVec[index++] = 6.142409e-03; // time = 24.70 ns (index=2470)
-  aVec[index++] = 6.128528e-03; // time = 24.71 ns (index=2471)
-  aVec[index++] = 6.114665e-03; // time = 24.72 ns (index=2472)
-  aVec[index++] = 6.100819e-03; // time = 24.73 ns (index=2473)
-  aVec[index++] = 6.086991e-03; // time = 24.74 ns (index=2474)
-  aVec[index++] = 6.073180e-03; // time = 24.75 ns (index=2475)
-  aVec[index++] = 6.059387e-03; // time = 24.76 ns (index=2476)
-  aVec[index++] = 6.045611e-03; // time = 24.77 ns (index=2477)
-  aVec[index++] = 6.031853e-03; // time = 24.78 ns (index=2478)
-  aVec[index++] = 6.018112e-03; // time = 24.79 ns (index=2479)
-  aVec[index++] = 6.004388e-03; // time = 24.80 ns (index=2480)
-  aVec[index++] = 5.990682e-03; // time = 24.81 ns (index=2481)
-  aVec[index++] = 5.976993e-03; // time = 24.82 ns (index=2482)
-  aVec[index++] = 5.963322e-03; // time = 24.83 ns (index=2483)
-  aVec[index++] = 5.949668e-03; // time = 24.84 ns (index=2484)
-  aVec[index++] = 5.936031e-03; // time = 24.85 ns (index=2485)
-  aVec[index++] = 5.922411e-03; // time = 24.86 ns (index=2486)
-  aVec[index++] = 5.908809e-03; // time = 24.87 ns (index=2487)
-  aVec[index++] = 5.895223e-03; // time = 24.88 ns (index=2488)
-  aVec[index++] = 5.881655e-03; // time = 24.89 ns (index=2489)
-  aVec[index++] = 5.868104e-03; // time = 24.90 ns (index=2490)
-  aVec[index++] = 5.854571e-03; // time = 24.91 ns (index=2491)
-  aVec[index++] = 5.841054e-03; // time = 24.92 ns (index=2492)
-  aVec[index++] = 5.827555e-03; // time = 24.93 ns (index=2493)
-  aVec[index++] = 5.814072e-03; // time = 24.94 ns (index=2494)
-  aVec[index++] = 5.800607e-03; // time = 24.95 ns (index=2495)
-  aVec[index++] = 5.787158e-03; // time = 24.96 ns (index=2496)
-  aVec[index++] = 5.773727e-03; // time = 24.97 ns (index=2497)
-  aVec[index++] = 5.760313e-03; // time = 24.98 ns (index=2498)
-  aVec[index++] = 5.746915e-03; // time = 24.99 ns (index=2499)
-  aVec[index++] = 5.733535e-03; // time = 25.00 ns (index=2500)
-  aVec[index++] = 5.720172e-03; // time = 25.01 ns (index=2501)
-  aVec[index++] = 5.706825e-03; // time = 25.02 ns (index=2502)
-  aVec[index++] = 5.693495e-03; // time = 25.03 ns (index=2503)
-  aVec[index++] = 5.680183e-03; // time = 25.04 ns (index=2504)
-  aVec[index++] = 5.666887e-03; // time = 25.05 ns (index=2505)
-  aVec[index++] = 5.653607e-03; // time = 25.06 ns (index=2506)
-  aVec[index++] = 5.640345e-03; // time = 25.07 ns (index=2507)
-  aVec[index++] = 5.627099e-03; // time = 25.08 ns (index=2508)
-  aVec[index++] = 5.613871e-03; // time = 25.09 ns (index=2509)
-  aVec[index++] = 5.600659e-03; // time = 25.10 ns (index=2510)
-  aVec[index++] = 5.587463e-03; // time = 25.11 ns (index=2511)
-  aVec[index++] = 5.574284e-03; // time = 25.12 ns (index=2512)
-  aVec[index++] = 5.561122e-03; // time = 25.13 ns (index=2513)
-  aVec[index++] = 5.547977e-03; // time = 25.14 ns (index=2514)
-  aVec[index++] = 5.534848e-03; // time = 25.15 ns (index=2515)
-  aVec[index++] = 5.521736e-03; // time = 25.16 ns (index=2516)
-  aVec[index++] = 5.508641e-03; // time = 25.17 ns (index=2517)
-  aVec[index++] = 5.495562e-03; // time = 25.18 ns (index=2518)
-  aVec[index++] = 5.482499e-03; // time = 25.19 ns (index=2519)
-  aVec[index++] = 5.469453e-03; // time = 25.20 ns (index=2520)
-  aVec[index++] = 5.456424e-03; // time = 25.21 ns (index=2521)
-  aVec[index++] = 5.443411e-03; // time = 25.22 ns (index=2522)
-  aVec[index++] = 5.430415e-03; // time = 25.23 ns (index=2523)
-  aVec[index++] = 5.417434e-03; // time = 25.24 ns (index=2524)
-  aVec[index++] = 5.404471e-03; // time = 25.25 ns (index=2525)
-  aVec[index++] = 5.391524e-03; // time = 25.26 ns (index=2526)
-  aVec[index++] = 5.378593e-03; // time = 25.27 ns (index=2527)
-  aVec[index++] = 5.365678e-03; // time = 25.28 ns (index=2528)
-  aVec[index++] = 5.352780e-03; // time = 25.29 ns (index=2529)
-  aVec[index++] = 5.339898e-03; // time = 25.30 ns (index=2530)
-  aVec[index++] = 5.327033e-03; // time = 25.31 ns (index=2531)
-  aVec[index++] = 5.314184e-03; // time = 25.32 ns (index=2532)
-  aVec[index++] = 5.301350e-03; // time = 25.33 ns (index=2533)
-  aVec[index++] = 5.288534e-03; // time = 25.34 ns (index=2534)
-  aVec[index++] = 5.275733e-03; // time = 25.35 ns (index=2535)
-  aVec[index++] = 5.262949e-03; // time = 25.36 ns (index=2536)
-  aVec[index++] = 5.250180e-03; // time = 25.37 ns (index=2537)
-  aVec[index++] = 5.237428e-03; // time = 25.38 ns (index=2538)
-  aVec[index++] = 5.224692e-03; // time = 25.39 ns (index=2539)
-  aVec[index++] = 5.211973e-03; // time = 25.40 ns (index=2540)
-  aVec[index++] = 5.199269e-03; // time = 25.41 ns (index=2541)
-  aVec[index++] = 5.186581e-03; // time = 25.42 ns (index=2542)
-  aVec[index++] = 5.173909e-03; // time = 25.43 ns (index=2543)
-  aVec[index++] = 5.161254e-03; // time = 25.44 ns (index=2544)
-  aVec[index++] = 5.148614e-03; // time = 25.45 ns (index=2545)
-  aVec[index++] = 5.135990e-03; // time = 25.46 ns (index=2546)
-  aVec[index++] = 5.123383e-03; // time = 25.47 ns (index=2547)
-  aVec[index++] = 5.110791e-03; // time = 25.48 ns (index=2548)
-  aVec[index++] = 5.098215e-03; // time = 25.49 ns (index=2549)
-  aVec[index++] = 5.085655e-03; // time = 25.50 ns (index=2550)
-  aVec[index++] = 5.073111e-03; // time = 25.51 ns (index=2551)
-  aVec[index++] = 5.060583e-03; // time = 25.52 ns (index=2552)
-  aVec[index++] = 5.048071e-03; // time = 25.53 ns (index=2553)
-  aVec[index++] = 5.035574e-03; // time = 25.54 ns (index=2554)
-  aVec[index++] = 5.023093e-03; // time = 25.55 ns (index=2555)
-  aVec[index++] = 5.010628e-03; // time = 25.56 ns (index=2556)
-  aVec[index++] = 4.998179e-03; // time = 25.57 ns (index=2557)
-  aVec[index++] = 4.985746e-03; // time = 25.58 ns (index=2558)
-  aVec[index++] = 4.973328e-03; // time = 25.59 ns (index=2559)
-  aVec[index++] = 4.960926e-03; // time = 25.60 ns (index=2560)
-  aVec[index++] = 4.948540e-03; // time = 25.61 ns (index=2561)
-  aVec[index++] = 4.936169e-03; // time = 25.62 ns (index=2562)
-  aVec[index++] = 4.923814e-03; // time = 25.63 ns (index=2563)
-  aVec[index++] = 4.911474e-03; // time = 25.64 ns (index=2564)
-  aVec[index++] = 4.899150e-03; // time = 25.65 ns (index=2565)
-  aVec[index++] = 4.886842e-03; // time = 25.66 ns (index=2566)
-  aVec[index++] = 4.874549e-03; // time = 25.67 ns (index=2567)
-  aVec[index++] = 4.862272e-03; // time = 25.68 ns (index=2568)
-  aVec[index++] = 4.850011e-03; // time = 25.69 ns (index=2569)
-  aVec[index++] = 4.837764e-03; // time = 25.70 ns (index=2570)
-  aVec[index++] = 4.825534e-03; // time = 25.71 ns (index=2571)
-  aVec[index++] = 4.813318e-03; // time = 25.72 ns (index=2572)
-  aVec[index++] = 4.801119e-03; // time = 25.73 ns (index=2573)
-  aVec[index++] = 4.788934e-03; // time = 25.74 ns (index=2574)
-  aVec[index++] = 4.776765e-03; // time = 25.75 ns (index=2575)
-  aVec[index++] = 4.764612e-03; // time = 25.76 ns (index=2576)
-  aVec[index++] = 4.752473e-03; // time = 25.77 ns (index=2577)
-  aVec[index++] = 4.740350e-03; // time = 25.78 ns (index=2578)
-  aVec[index++] = 4.728243e-03; // time = 25.79 ns (index=2579)
-  aVec[index++] = 4.716151e-03; // time = 25.80 ns (index=2580)
-  aVec[index++] = 4.704073e-03; // time = 25.81 ns (index=2581)
-  aVec[index++] = 4.692012e-03; // time = 25.82 ns (index=2582)
-  aVec[index++] = 4.679965e-03; // time = 25.83 ns (index=2583)
-  aVec[index++] = 4.667934e-03; // time = 25.84 ns (index=2584)
-  aVec[index++] = 4.655918e-03; // time = 25.85 ns (index=2585)
-  aVec[index++] = 4.643917e-03; // time = 25.86 ns (index=2586)
-  aVec[index++] = 4.631931e-03; // time = 25.87 ns (index=2587)
-  aVec[index++] = 4.619960e-03; // time = 25.88 ns (index=2588)
-  aVec[index++] = 4.608005e-03; // time = 25.89 ns (index=2589)
-  aVec[index++] = 4.596064e-03; // time = 25.90 ns (index=2590)
-  aVec[index++] = 4.584139e-03; // time = 25.91 ns (index=2591)
-  aVec[index++] = 4.572229e-03; // time = 25.92 ns (index=2592)
-  aVec[index++] = 4.560334e-03; // time = 25.93 ns (index=2593)
-  aVec[index++] = 4.548453e-03; // time = 25.94 ns (index=2594)
-  aVec[index++] = 4.536588e-03; // time = 25.95 ns (index=2595)
-  aVec[index++] = 4.524738e-03; // time = 25.96 ns (index=2596)
-  aVec[index++] = 4.512903e-03; // time = 25.97 ns (index=2597)
-  aVec[index++] = 4.501083e-03; // time = 25.98 ns (index=2598)
-  aVec[index++] = 4.489277e-03; // time = 25.99 ns (index=2599)
-  aVec[index++] = 4.477487e-03; // time = 26.00 ns (index=2600)
-  aVec[index++] = 4.465711e-03; // time = 26.01 ns (index=2601)
-  aVec[index++] = 4.453950e-03; // time = 26.02 ns (index=2602)
-  aVec[index++] = 4.442205e-03; // time = 26.03 ns (index=2603)
-  aVec[index++] = 4.430474e-03; // time = 26.04 ns (index=2604)
-  aVec[index++] = 4.418757e-03; // time = 26.05 ns (index=2605)
-  aVec[index++] = 4.407056e-03; // time = 26.06 ns (index=2606)
-  aVec[index++] = 4.395369e-03; // time = 26.07 ns (index=2607)
-  aVec[index++] = 4.383697e-03; // time = 26.08 ns (index=2608)
-  aVec[index++] = 4.372040e-03; // time = 26.09 ns (index=2609)
-  aVec[index++] = 4.360398e-03; // time = 26.10 ns (index=2610)
-  aVec[index++] = 4.348770e-03; // time = 26.11 ns (index=2611)
-  aVec[index++] = 4.337157e-03; // time = 26.12 ns (index=2612)
-  aVec[index++] = 4.325559e-03; // time = 26.13 ns (index=2613)
-  aVec[index++] = 4.313975e-03; // time = 26.14 ns (index=2614)
-  aVec[index++] = 4.302406e-03; // time = 26.15 ns (index=2615)
-  aVec[index++] = 4.290851e-03; // time = 26.16 ns (index=2616)
-  aVec[index++] = 4.279311e-03; // time = 26.17 ns (index=2617)
-  aVec[index++] = 4.267786e-03; // time = 26.18 ns (index=2618)
-  aVec[index++] = 4.256275e-03; // time = 26.19 ns (index=2619)
-  aVec[index++] = 4.244779e-03; // time = 26.20 ns (index=2620)
-  aVec[index++] = 4.233297e-03; // time = 26.21 ns (index=2621)
-  aVec[index++] = 4.221830e-03; // time = 26.22 ns (index=2622)
-  aVec[index++] = 4.210377e-03; // time = 26.23 ns (index=2623)
-  aVec[index++] = 4.198938e-03; // time = 26.24 ns (index=2624)
-  aVec[index++] = 4.187514e-03; // time = 26.25 ns (index=2625)
-  aVec[index++] = 4.176105e-03; // time = 26.26 ns (index=2626)
-  aVec[index++] = 4.164710e-03; // time = 26.27 ns (index=2627)
-  aVec[index++] = 4.153329e-03; // time = 26.28 ns (index=2628)
-  aVec[index++] = 4.141962e-03; // time = 26.29 ns (index=2629)
-  aVec[index++] = 4.130610e-03; // time = 26.30 ns (index=2630)
-  aVec[index++] = 4.119273e-03; // time = 26.31 ns (index=2631)
-  aVec[index++] = 4.107949e-03; // time = 26.32 ns (index=2632)
-  aVec[index++] = 4.096640e-03; // time = 26.33 ns (index=2633)
-  aVec[index++] = 4.085345e-03; // time = 26.34 ns (index=2634)
-  aVec[index++] = 4.074064e-03; // time = 26.35 ns (index=2635)
-  aVec[index++] = 4.062798e-03; // time = 26.36 ns (index=2636)
-  aVec[index++] = 4.051546e-03; // time = 26.37 ns (index=2637)
-  aVec[index++] = 4.040308e-03; // time = 26.38 ns (index=2638)
-  aVec[index++] = 4.029084e-03; // time = 26.39 ns (index=2639)
-  aVec[index++] = 4.017874e-03; // time = 26.40 ns (index=2640)
-  aVec[index++] = 4.006678e-03; // time = 26.41 ns (index=2641)
-  aVec[index++] = 3.995497e-03; // time = 26.42 ns (index=2642)
-  aVec[index++] = 3.984330e-03; // time = 26.43 ns (index=2643)
-  aVec[index++] = 3.973176e-03; // time = 26.44 ns (index=2644)
-  aVec[index++] = 3.962037e-03; // time = 26.45 ns (index=2645)
-  aVec[index++] = 3.950912e-03; // time = 26.46 ns (index=2646)
-  aVec[index++] = 3.939801e-03; // time = 26.47 ns (index=2647)
-  aVec[index++] = 3.928704e-03; // time = 26.48 ns (index=2648)
-  aVec[index++] = 3.917620e-03; // time = 26.49 ns (index=2649)
-  aVec[index++] = 3.906551e-03; // time = 26.50 ns (index=2650)
-  aVec[index++] = 3.895496e-03; // time = 26.51 ns (index=2651)
-  aVec[index++] = 3.884455e-03; // time = 26.52 ns (index=2652)
-  aVec[index++] = 3.873427e-03; // time = 26.53 ns (index=2653)
-  aVec[index++] = 3.862414e-03; // time = 26.54 ns (index=2654)
-  aVec[index++] = 3.851414e-03; // time = 26.55 ns (index=2655)
-  aVec[index++] = 3.840428e-03; // time = 26.56 ns (index=2656)
-  aVec[index++] = 3.829457e-03; // time = 26.57 ns (index=2657)
-  aVec[index++] = 3.818498e-03; // time = 26.58 ns (index=2658)
-  aVec[index++] = 3.807554e-03; // time = 26.59 ns (index=2659)
-  aVec[index++] = 3.796624e-03; // time = 26.60 ns (index=2660)
-  aVec[index++] = 3.785707e-03; // time = 26.61 ns (index=2661)
-  aVec[index++] = 3.774804e-03; // time = 26.62 ns (index=2662)
-  aVec[index++] = 3.763915e-03; // time = 26.63 ns (index=2663)
-  aVec[index++] = 3.753039e-03; // time = 26.64 ns (index=2664)
-  aVec[index++] = 3.742178e-03; // time = 26.65 ns (index=2665)
-  aVec[index++] = 3.731329e-03; // time = 26.66 ns (index=2666)
-  aVec[index++] = 3.720495e-03; // time = 26.67 ns (index=2667)
-  aVec[index++] = 3.709674e-03; // time = 26.68 ns (index=2668)
-  aVec[index++] = 3.698867e-03; // time = 26.69 ns (index=2669)
-  aVec[index++] = 3.688074e-03; // time = 26.70 ns (index=2670)
-  aVec[index++] = 3.677294e-03; // time = 26.71 ns (index=2671)
-  aVec[index++] = 3.666527e-03; // time = 26.72 ns (index=2672)
-  aVec[index++] = 3.655774e-03; // time = 26.73 ns (index=2673)
-  aVec[index++] = 3.645035e-03; // time = 26.74 ns (index=2674)
-  aVec[index++] = 3.634309e-03; // time = 26.75 ns (index=2675)
-  aVec[index++] = 3.623597e-03; // time = 26.76 ns (index=2676)
-  aVec[index++] = 3.612898e-03; // time = 26.77 ns (index=2677)
-  aVec[index++] = 3.602213e-03; // time = 26.78 ns (index=2678)
-  aVec[index++] = 3.591541e-03; // time = 26.79 ns (index=2679)
-  aVec[index++] = 3.580883e-03; // time = 26.80 ns (index=2680)
-  aVec[index++] = 3.570238e-03; // time = 26.81 ns (index=2681)
-  aVec[index++] = 3.559606e-03; // time = 26.82 ns (index=2682)
-  aVec[index++] = 3.548988e-03; // time = 26.83 ns (index=2683)
-  aVec[index++] = 3.538383e-03; // time = 26.84 ns (index=2684)
-  aVec[index++] = 3.527792e-03; // time = 26.85 ns (index=2685)
-  aVec[index++] = 3.517213e-03; // time = 26.86 ns (index=2686)
-  aVec[index++] = 3.506649e-03; // time = 26.87 ns (index=2687)
-  aVec[index++] = 3.496097e-03; // time = 26.88 ns (index=2688)
-  aVec[index++] = 3.485559e-03; // time = 26.89 ns (index=2689)
-  aVec[index++] = 3.475034e-03; // time = 26.90 ns (index=2690)
-  aVec[index++] = 3.464522e-03; // time = 26.91 ns (index=2691)
-  aVec[index++] = 3.454023e-03; // time = 26.92 ns (index=2692)
-  aVec[index++] = 3.443538e-03; // time = 26.93 ns (index=2693)
-  aVec[index++] = 3.433066e-03; // time = 26.94 ns (index=2694)
-  aVec[index++] = 3.422607e-03; // time = 26.95 ns (index=2695)
-  aVec[index++] = 3.412161e-03; // time = 26.96 ns (index=2696)
-  aVec[index++] = 3.401729e-03; // time = 26.97 ns (index=2697)
-  aVec[index++] = 3.391309e-03; // time = 26.98 ns (index=2698)
-  aVec[index++] = 3.380903e-03; // time = 26.99 ns (index=2699)
-  aVec[index++] = 3.370509e-03; // time = 27.00 ns (index=2700)
-  aVec[index++] = 3.360129e-03; // time = 27.01 ns (index=2701)
-  aVec[index++] = 3.349762e-03; // time = 27.02 ns (index=2702)
-  aVec[index++] = 3.339408e-03; // time = 27.03 ns (index=2703)
-  aVec[index++] = 3.329066e-03; // time = 27.04 ns (index=2704)
-  aVec[index++] = 3.318738e-03; // time = 27.05 ns (index=2705)
-  aVec[index++] = 3.308423e-03; // time = 27.06 ns (index=2706)
-  aVec[index++] = 3.298121e-03; // time = 27.07 ns (index=2707)
-  aVec[index++] = 3.287832e-03; // time = 27.08 ns (index=2708)
-  aVec[index++] = 3.277555e-03; // time = 27.09 ns (index=2709)
-  aVec[index++] = 3.267292e-03; // time = 27.10 ns (index=2710)
-  aVec[index++] = 3.257042e-03; // time = 27.11 ns (index=2711)
-  aVec[index++] = 3.246804e-03; // time = 27.12 ns (index=2712)
-  aVec[index++] = 3.236579e-03; // time = 27.13 ns (index=2713)
-  aVec[index++] = 3.226367e-03; // time = 27.14 ns (index=2714)
-  aVec[index++] = 3.216168e-03; // time = 27.15 ns (index=2715)
-  aVec[index++] = 3.205982e-03; // time = 27.16 ns (index=2716)
-  aVec[index++] = 3.195809e-03; // time = 27.17 ns (index=2717)
-  aVec[index++] = 3.185648e-03; // time = 27.18 ns (index=2718)
-  aVec[index++] = 3.175500e-03; // time = 27.19 ns (index=2719)
-  aVec[index++] = 3.165365e-03; // time = 27.20 ns (index=2720)
-  aVec[index++] = 3.155243e-03; // time = 27.21 ns (index=2721)
-  aVec[index++] = 3.145133e-03; // time = 27.22 ns (index=2722)
-  aVec[index++] = 3.135036e-03; // time = 27.23 ns (index=2723)
-  aVec[index++] = 3.124952e-03; // time = 27.24 ns (index=2724)
-  aVec[index++] = 3.114881e-03; // time = 27.25 ns (index=2725)
-  aVec[index++] = 3.104822e-03; // time = 27.26 ns (index=2726)
-  aVec[index++] = 3.094775e-03; // time = 27.27 ns (index=2727)
-  aVec[index++] = 3.084742e-03; // time = 27.28 ns (index=2728)
-  aVec[index++] = 3.074721e-03; // time = 27.29 ns (index=2729)
-  aVec[index++] = 3.064712e-03; // time = 27.30 ns (index=2730)
-  aVec[index++] = 3.054716e-03; // time = 27.31 ns (index=2731)
-  aVec[index++] = 3.044733e-03; // time = 27.32 ns (index=2732)
-  aVec[index++] = 3.034762e-03; // time = 27.33 ns (index=2733)
-  aVec[index++] = 3.024804e-03; // time = 27.34 ns (index=2734)
-  aVec[index++] = 3.014858e-03; // time = 27.35 ns (index=2735)
-  aVec[index++] = 3.004925e-03; // time = 27.36 ns (index=2736)
-  aVec[index++] = 2.995004e-03; // time = 27.37 ns (index=2737)
-  aVec[index++] = 2.985096e-03; // time = 27.38 ns (index=2738)
-  aVec[index++] = 2.975200e-03; // time = 27.39 ns (index=2739)
-  aVec[index++] = 2.965317e-03; // time = 27.40 ns (index=2740)
-  aVec[index++] = 2.955446e-03; // time = 27.41 ns (index=2741)
-  aVec[index++] = 2.945587e-03; // time = 27.42 ns (index=2742)
-  aVec[index++] = 2.935741e-03; // time = 27.43 ns (index=2743)
-  aVec[index++] = 2.925907e-03; // time = 27.44 ns (index=2744)
-  aVec[index++] = 2.916085e-03; // time = 27.45 ns (index=2745)
-  aVec[index++] = 2.906276e-03; // time = 27.46 ns (index=2746)
-  aVec[index++] = 2.896479e-03; // time = 27.47 ns (index=2747)
-  aVec[index++] = 2.886694e-03; // time = 27.48 ns (index=2748)
-  aVec[index++] = 2.876922e-03; // time = 27.49 ns (index=2749)
-  aVec[index++] = 2.867162e-03; // time = 27.50 ns (index=2750)
-  aVec[index++] = 2.857414e-03; // time = 27.51 ns (index=2751)
-  aVec[index++] = 2.847679e-03; // time = 27.52 ns (index=2752)
-  aVec[index++] = 2.837955e-03; // time = 27.53 ns (index=2753)
-  aVec[index++] = 2.828244e-03; // time = 27.54 ns (index=2754)
-  aVec[index++] = 2.818545e-03; // time = 27.55 ns (index=2755)
-  aVec[index++] = 2.808858e-03; // time = 27.56 ns (index=2756)
-  aVec[index++] = 2.799184e-03; // time = 27.57 ns (index=2757)
-  aVec[index++] = 2.789521e-03; // time = 27.58 ns (index=2758)
-  aVec[index++] = 2.779871e-03; // time = 27.59 ns (index=2759)
-  aVec[index++] = 2.770233e-03; // time = 27.60 ns (index=2760)
-  aVec[index++] = 2.760606e-03; // time = 27.61 ns (index=2761)
-  aVec[index++] = 2.750992e-03; // time = 27.62 ns (index=2762)
-  aVec[index++] = 2.741390e-03; // time = 27.63 ns (index=2763)
-  aVec[index++] = 2.731800e-03; // time = 27.64 ns (index=2764)
-  aVec[index++] = 2.722222e-03; // time = 27.65 ns (index=2765)
-  aVec[index++] = 2.712656e-03; // time = 27.66 ns (index=2766)
-  aVec[index++] = 2.703102e-03; // time = 27.67 ns (index=2767)
-  aVec[index++] = 2.693560e-03; // time = 27.68 ns (index=2768)
-  aVec[index++] = 2.684031e-03; // time = 27.69 ns (index=2769)
-  aVec[index++] = 2.674512e-03; // time = 27.70 ns (index=2770)
-  aVec[index++] = 2.665006e-03; // time = 27.71 ns (index=2771)
-  aVec[index++] = 2.655512e-03; // time = 27.72 ns (index=2772)
-  aVec[index++] = 2.646030e-03; // time = 27.73 ns (index=2773)
-  aVec[index++] = 2.636560e-03; // time = 27.74 ns (index=2774)
-  aVec[index++] = 2.627101e-03; // time = 27.75 ns (index=2775)
-  aVec[index++] = 2.617654e-03; // time = 27.76 ns (index=2776)
-  aVec[index++] = 2.608220e-03; // time = 27.77 ns (index=2777)
-  aVec[index++] = 2.598797e-03; // time = 27.78 ns (index=2778)
-  aVec[index++] = 2.589385e-03; // time = 27.79 ns (index=2779)
-  aVec[index++] = 2.579986e-03; // time = 27.80 ns (index=2780)
-  aVec[index++] = 2.570598e-03; // time = 27.81 ns (index=2781)
-  aVec[index++] = 2.561223e-03; // time = 27.82 ns (index=2782)
-  aVec[index++] = 2.551859e-03; // time = 27.83 ns (index=2783)
-  aVec[index++] = 2.542506e-03; // time = 27.84 ns (index=2784)
-  aVec[index++] = 2.533166e-03; // time = 27.85 ns (index=2785)
-  aVec[index++] = 2.523837e-03; // time = 27.86 ns (index=2786)
-  aVec[index++] = 2.514520e-03; // time = 27.87 ns (index=2787)
-  aVec[index++] = 2.505214e-03; // time = 27.88 ns (index=2788)
-  aVec[index++] = 2.495920e-03; // time = 27.89 ns (index=2789)
-  aVec[index++] = 2.486638e-03; // time = 27.90 ns (index=2790)
-  aVec[index++] = 2.477367e-03; // time = 27.91 ns (index=2791)
-  aVec[index++] = 2.468108e-03; // time = 27.92 ns (index=2792)
-  aVec[index++] = 2.458861e-03; // time = 27.93 ns (index=2793)
-  aVec[index++] = 2.449625e-03; // time = 27.94 ns (index=2794)
-  aVec[index++] = 2.440401e-03; // time = 27.95 ns (index=2795)
-  aVec[index++] = 2.431189e-03; // time = 27.96 ns (index=2796)
-  aVec[index++] = 2.421987e-03; // time = 27.97 ns (index=2797)
-  aVec[index++] = 2.412798e-03; // time = 27.98 ns (index=2798)
-  aVec[index++] = 2.403620e-03; // time = 27.99 ns (index=2799)
-  aVec[index++] = 2.394453e-03; // time = 28.00 ns (index=2800)
-  aVec[index++] = 2.385298e-03; // time = 28.01 ns (index=2801)
-  aVec[index++] = 2.376155e-03; // time = 28.02 ns (index=2802)
-  aVec[index++] = 2.367022e-03; // time = 28.03 ns (index=2803)
-  aVec[index++] = 2.357902e-03; // time = 28.04 ns (index=2804)
-  aVec[index++] = 2.348792e-03; // time = 28.05 ns (index=2805)
-  aVec[index++] = 2.339694e-03; // time = 28.06 ns (index=2806)
-  aVec[index++] = 2.330608e-03; // time = 28.07 ns (index=2807)
-  aVec[index++] = 2.321533e-03; // time = 28.08 ns (index=2808)
-  aVec[index++] = 2.312469e-03; // time = 28.09 ns (index=2809)
-  aVec[index++] = 2.303417e-03; // time = 28.10 ns (index=2810)
-  aVec[index++] = 2.294376e-03; // time = 28.11 ns (index=2811)
-  aVec[index++] = 2.285346e-03; // time = 28.12 ns (index=2812)
-  aVec[index++] = 2.276328e-03; // time = 28.13 ns (index=2813)
-  aVec[index++] = 2.267320e-03; // time = 28.14 ns (index=2814)
-  aVec[index++] = 2.258325e-03; // time = 28.15 ns (index=2815)
-  aVec[index++] = 2.249340e-03; // time = 28.16 ns (index=2816)
-  aVec[index++] = 2.240367e-03; // time = 28.17 ns (index=2817)
-  aVec[index++] = 2.231404e-03; // time = 28.18 ns (index=2818)
-  aVec[index++] = 2.222454e-03; // time = 28.19 ns (index=2819)
-  aVec[index++] = 2.213514e-03; // time = 28.20 ns (index=2820)
-  aVec[index++] = 2.204585e-03; // time = 28.21 ns (index=2821)
-  aVec[index++] = 2.195668e-03; // time = 28.22 ns (index=2822)
-  aVec[index++] = 2.186762e-03; // time = 28.23 ns (index=2823)
-  aVec[index++] = 2.177867e-03; // time = 28.24 ns (index=2824)
-  aVec[index++] = 2.168983e-03; // time = 28.25 ns (index=2825)
-  aVec[index++] = 2.160110e-03; // time = 28.26 ns (index=2826)
-  aVec[index++] = 2.151249e-03; // time = 28.27 ns (index=2827)
-  aVec[index++] = 2.142398e-03; // time = 28.28 ns (index=2828)
-  aVec[index++] = 2.133558e-03; // time = 28.29 ns (index=2829)
-  aVec[index++] = 2.124730e-03; // time = 28.30 ns (index=2830)
-  aVec[index++] = 2.115913e-03; // time = 28.31 ns (index=2831)
-  aVec[index++] = 2.107106e-03; // time = 28.32 ns (index=2832)
-  aVec[index++] = 2.098311e-03; // time = 28.33 ns (index=2833)
-  aVec[index++] = 2.089527e-03; // time = 28.34 ns (index=2834)
-  aVec[index++] = 2.080753e-03; // time = 28.35 ns (index=2835)
-  aVec[index++] = 2.071991e-03; // time = 28.36 ns (index=2836)
-  aVec[index++] = 2.063240e-03; // time = 28.37 ns (index=2837)
-  aVec[index++] = 2.054499e-03; // time = 28.38 ns (index=2838)
-  aVec[index++] = 2.045770e-03; // time = 28.39 ns (index=2839)
-  aVec[index++] = 2.037051e-03; // time = 28.40 ns (index=2840)
-  aVec[index++] = 2.028343e-03; // time = 28.41 ns (index=2841)
-  aVec[index++] = 2.019646e-03; // time = 28.42 ns (index=2842)
-  aVec[index++] = 2.010961e-03; // time = 28.43 ns (index=2843)
-  aVec[index++] = 2.002285e-03; // time = 28.44 ns (index=2844)
-  aVec[index++] = 1.993621e-03; // time = 28.45 ns (index=2845)
-  aVec[index++] = 1.984968e-03; // time = 28.46 ns (index=2846)
-  aVec[index++] = 1.976325e-03; // time = 28.47 ns (index=2847)
-  aVec[index++] = 1.967694e-03; // time = 28.48 ns (index=2848)
-  aVec[index++] = 1.959073e-03; // time = 28.49 ns (index=2849)
-  aVec[index++] = 1.950462e-03; // time = 28.50 ns (index=2850)
-  aVec[index++] = 1.941863e-03; // time = 28.51 ns (index=2851)
-  aVec[index++] = 1.933274e-03; // time = 28.52 ns (index=2852)
-  aVec[index++] = 1.924697e-03; // time = 28.53 ns (index=2853)
-  aVec[index++] = 1.916129e-03; // time = 28.54 ns (index=2854)
-  aVec[index++] = 1.907573e-03; // time = 28.55 ns (index=2855)
-  aVec[index++] = 1.899027e-03; // time = 28.56 ns (index=2856)
-  aVec[index++] = 1.890492e-03; // time = 28.57 ns (index=2857)
-  aVec[index++] = 1.881968e-03; // time = 28.58 ns (index=2858)
-  aVec[index++] = 1.873454e-03; // time = 28.59 ns (index=2859)
-  aVec[index++] = 1.864951e-03; // time = 28.60 ns (index=2860)
-  aVec[index++] = 1.856458e-03; // time = 28.61 ns (index=2861)
-  aVec[index++] = 1.847976e-03; // time = 28.62 ns (index=2862)
-  aVec[index++] = 1.839505e-03; // time = 28.63 ns (index=2863)
-  aVec[index++] = 1.831044e-03; // time = 28.64 ns (index=2864)
-  aVec[index++] = 1.822594e-03; // time = 28.65 ns (index=2865)
-  aVec[index++] = 1.814155e-03; // time = 28.66 ns (index=2866)
-  aVec[index++] = 1.805726e-03; // time = 28.67 ns (index=2867)
-  aVec[index++] = 1.797307e-03; // time = 28.68 ns (index=2868)
-  aVec[index++] = 1.788899e-03; // time = 28.69 ns (index=2869)
-  aVec[index++] = 1.780502e-03; // time = 28.70 ns (index=2870)
-  aVec[index++] = 1.772115e-03; // time = 28.71 ns (index=2871)
-  aVec[index++] = 1.763739e-03; // time = 28.72 ns (index=2872)
-  aVec[index++] = 1.755373e-03; // time = 28.73 ns (index=2873)
-  aVec[index++] = 1.747017e-03; // time = 28.74 ns (index=2874)
-  aVec[index++] = 1.738672e-03; // time = 28.75 ns (index=2875)
-  aVec[index++] = 1.730337e-03; // time = 28.76 ns (index=2876)
-  aVec[index++] = 1.722013e-03; // time = 28.77 ns (index=2877)
-  aVec[index++] = 1.713699e-03; // time = 28.78 ns (index=2878)
-  aVec[index++] = 1.705396e-03; // time = 28.79 ns (index=2879)
-  aVec[index++] = 1.697103e-03; // time = 28.80 ns (index=2880)
-  aVec[index++] = 1.688820e-03; // time = 28.81 ns (index=2881)
-  aVec[index++] = 1.680548e-03; // time = 28.82 ns (index=2882)
-  aVec[index++] = 1.672285e-03; // time = 28.83 ns (index=2883)
-  aVec[index++] = 1.664034e-03; // time = 28.84 ns (index=2884)
-  aVec[index++] = 1.655792e-03; // time = 28.85 ns (index=2885)
-  aVec[index++] = 1.647561e-03; // time = 28.86 ns (index=2886)
-  aVec[index++] = 1.639340e-03; // time = 28.87 ns (index=2887)
-  aVec[index++] = 1.631130e-03; // time = 28.88 ns (index=2888)
-  aVec[index++] = 1.622929e-03; // time = 28.89 ns (index=2889)
-  aVec[index++] = 1.614739e-03; // time = 28.90 ns (index=2890)
-  aVec[index++] = 1.606560e-03; // time = 28.91 ns (index=2891)
-  aVec[index++] = 1.598390e-03; // time = 28.92 ns (index=2892)
-  aVec[index++] = 1.590231e-03; // time = 28.93 ns (index=2893)
-  aVec[index++] = 1.582081e-03; // time = 28.94 ns (index=2894)
-  aVec[index++] = 1.573942e-03; // time = 28.95 ns (index=2895)
-  aVec[index++] = 1.565813e-03; // time = 28.96 ns (index=2896)
-  aVec[index++] = 1.557695e-03; // time = 28.97 ns (index=2897)
-  aVec[index++] = 1.549586e-03; // time = 28.98 ns (index=2898)
-  aVec[index++] = 1.541488e-03; // time = 28.99 ns (index=2899)
-  aVec[index++] = 1.533399e-03; // time = 29.00 ns (index=2900)
-  aVec[index++] = 1.525321e-03; // time = 29.01 ns (index=2901)
-  aVec[index++] = 1.517253e-03; // time = 29.02 ns (index=2902)
-  aVec[index++] = 1.509195e-03; // time = 29.03 ns (index=2903)
-  aVec[index++] = 1.501147e-03; // time = 29.04 ns (index=2904)
-  aVec[index++] = 1.493109e-03; // time = 29.05 ns (index=2905)
-  aVec[index++] = 1.485081e-03; // time = 29.06 ns (index=2906)
-  aVec[index++] = 1.477063e-03; // time = 29.07 ns (index=2907)
-  aVec[index++] = 1.469055e-03; // time = 29.08 ns (index=2908)
-  aVec[index++] = 1.461057e-03; // time = 29.09 ns (index=2909)
-  aVec[index++] = 1.453069e-03; // time = 29.10 ns (index=2910)
-  aVec[index++] = 1.445091e-03; // time = 29.11 ns (index=2911)
-  aVec[index++] = 1.437123e-03; // time = 29.12 ns (index=2912)
-  aVec[index++] = 1.429165e-03; // time = 29.13 ns (index=2913)
-  aVec[index++] = 1.421217e-03; // time = 29.14 ns (index=2914)
-  aVec[index++] = 1.413279e-03; // time = 29.15 ns (index=2915)
-  aVec[index++] = 1.405350e-03; // time = 29.16 ns (index=2916)
-  aVec[index++] = 1.397432e-03; // time = 29.17 ns (index=2917)
-  aVec[index++] = 1.389523e-03; // time = 29.18 ns (index=2918)
-  aVec[index++] = 1.381625e-03; // time = 29.19 ns (index=2919)
-  aVec[index++] = 1.373736e-03; // time = 29.20 ns (index=2920)
-  aVec[index++] = 1.365857e-03; // time = 29.21 ns (index=2921)
-  aVec[index++] = 1.357988e-03; // time = 29.22 ns (index=2922)
-  aVec[index++] = 1.350129e-03; // time = 29.23 ns (index=2923)
-  aVec[index++] = 1.342279e-03; // time = 29.24 ns (index=2924)
-  aVec[index++] = 1.334439e-03; // time = 29.25 ns (index=2925)
-  aVec[index++] = 1.326610e-03; // time = 29.26 ns (index=2926)
-  aVec[index++] = 1.318789e-03; // time = 29.27 ns (index=2927)
-  aVec[index++] = 1.310979e-03; // time = 29.28 ns (index=2928)
-  aVec[index++] = 1.303178e-03; // time = 29.29 ns (index=2929)
-  aVec[index++] = 1.295388e-03; // time = 29.30 ns (index=2930)
-  aVec[index++] = 1.287606e-03; // time = 29.31 ns (index=2931)
-  aVec[index++] = 1.279835e-03; // time = 29.32 ns (index=2932)
-  aVec[index++] = 1.272073e-03; // time = 29.33 ns (index=2933)
-  aVec[index++] = 1.264321e-03; // time = 29.34 ns (index=2934)
-  aVec[index++] = 1.256579e-03; // time = 29.35 ns (index=2935)
-  aVec[index++] = 1.248846e-03; // time = 29.36 ns (index=2936)
-  aVec[index++] = 1.241123e-03; // time = 29.37 ns (index=2937)
-  aVec[index++] = 1.233409e-03; // time = 29.38 ns (index=2938)
-  aVec[index++] = 1.225706e-03; // time = 29.39 ns (index=2939)
-  aVec[index++] = 1.218011e-03; // time = 29.40 ns (index=2940)
-  aVec[index++] = 1.210327e-03; // time = 29.41 ns (index=2941)
-  aVec[index++] = 1.202652e-03; // time = 29.42 ns (index=2942)
-  aVec[index++] = 1.194986e-03; // time = 29.43 ns (index=2943)
-  aVec[index++] = 1.187330e-03; // time = 29.44 ns (index=2944)
-  aVec[index++] = 1.179684e-03; // time = 29.45 ns (index=2945)
-  aVec[index++] = 1.172047e-03; // time = 29.46 ns (index=2946)
-  aVec[index++] = 1.164420e-03; // time = 29.47 ns (index=2947)
-  aVec[index++] = 1.156802e-03; // time = 29.48 ns (index=2948)
-  aVec[index++] = 1.149194e-03; // time = 29.49 ns (index=2949)
-  aVec[index++] = 1.141595e-03; // time = 29.50 ns (index=2950)
-  aVec[index++] = 1.134006e-03; // time = 29.51 ns (index=2951)
-  aVec[index++] = 1.126426e-03; // time = 29.52 ns (index=2952)
-  aVec[index++] = 1.118856e-03; // time = 29.53 ns (index=2953)
-  aVec[index++] = 1.111295e-03; // time = 29.54 ns (index=2954)
-  aVec[index++] = 1.103743e-03; // time = 29.55 ns (index=2955)
-  aVec[index++] = 1.096201e-03; // time = 29.56 ns (index=2956)
-  aVec[index++] = 1.088669e-03; // time = 29.57 ns (index=2957)
-  aVec[index++] = 1.081145e-03; // time = 29.58 ns (index=2958)
-  aVec[index++] = 1.073632e-03; // time = 29.59 ns (index=2959)
-  aVec[index++] = 1.066127e-03; // time = 29.60 ns (index=2960)
-  aVec[index++] = 1.058632e-03; // time = 29.61 ns (index=2961)
-  aVec[index++] = 1.051146e-03; // time = 29.62 ns (index=2962)
-  aVec[index++] = 1.043670e-03; // time = 29.63 ns (index=2963)
-  aVec[index++] = 1.036202e-03; // time = 29.64 ns (index=2964)
-  aVec[index++] = 1.028745e-03; // time = 29.65 ns (index=2965)
-  aVec[index++] = 1.021296e-03; // time = 29.66 ns (index=2966)
-  aVec[index++] = 1.013857e-03; // time = 29.67 ns (index=2967)
-  aVec[index++] = 1.006427e-03; // time = 29.68 ns (index=2968)
-  aVec[index++] = 9.990063e-04; // time = 29.69 ns (index=2969)
-  aVec[index++] = 9.915949e-04; // time = 29.70 ns (index=2970)
-  aVec[index++] = 9.841927e-04; // time = 29.71 ns (index=2971)
-  aVec[index++] = 9.767997e-04; // time = 29.72 ns (index=2972)
-  aVec[index++] = 9.694160e-04; // time = 29.73 ns (index=2973)
-  aVec[index++] = 9.620415e-04; // time = 29.74 ns (index=2974)
-  aVec[index++] = 9.546762e-04; // time = 29.75 ns (index=2975)
-  aVec[index++] = 9.473200e-04; // time = 29.76 ns (index=2976)
-  aVec[index++] = 9.399731e-04; // time = 29.77 ns (index=2977)
-  aVec[index++] = 9.326353e-04; // time = 29.78 ns (index=2978)
-  aVec[index++] = 9.253066e-04; // time = 29.79 ns (index=2979)
-  aVec[index++] = 9.179871e-04; // time = 29.80 ns (index=2980)
-  aVec[index++] = 9.106767e-04; // time = 29.81 ns (index=2981)
-  aVec[index++] = 9.033754e-04; // time = 29.82 ns (index=2982)
-  aVec[index++] = 8.960833e-04; // time = 29.83 ns (index=2983)
-  aVec[index++] = 8.888002e-04; // time = 29.84 ns (index=2984)
-  aVec[index++] = 8.815262e-04; // time = 29.85 ns (index=2985)
-  aVec[index++] = 8.742613e-04; // time = 29.86 ns (index=2986)
-  aVec[index++] = 8.670054e-04; // time = 29.87 ns (index=2987)
-  aVec[index++] = 8.597586e-04; // time = 29.88 ns (index=2988)
-  aVec[index++] = 8.525209e-04; // time = 29.89 ns (index=2989)
-  aVec[index++] = 8.452921e-04; // time = 29.90 ns (index=2990)
-  aVec[index++] = 8.380724e-04; // time = 29.91 ns (index=2991)
-  aVec[index++] = 8.308617e-04; // time = 29.92 ns (index=2992)
-  aVec[index++] = 8.236599e-04; // time = 29.93 ns (index=2993)
-  aVec[index++] = 8.164672e-04; // time = 29.94 ns (index=2994)
-  aVec[index++] = 8.092834e-04; // time = 29.95 ns (index=2995)
-  aVec[index++] = 8.021085e-04; // time = 29.96 ns (index=2996)
-  aVec[index++] = 7.949427e-04; // time = 29.97 ns (index=2997)
-  aVec[index++] = 7.877857e-04; // time = 29.98 ns (index=2998)
-  aVec[index++] = 7.806377e-04; // time = 29.99 ns (index=2999)
-  aVec[index++] = 7.715531e-04; // time = 30.00 ns (index=3000)
-  aVec[index++] = 7.665631e-04; // time = 30.01 ns (index=3001)
-  aVec[index++] = 7.608653e-04; // time = 30.02 ns (index=3002)
-  aVec[index++] = 7.537509e-04; // time = 30.03 ns (index=3003)
-  aVec[index++] = 7.466453e-04; // time = 30.04 ns (index=3004)
-  aVec[index++] = 7.395486e-04; // time = 30.05 ns (index=3005)
-  aVec[index++] = 7.324607e-04; // time = 30.06 ns (index=3006)
-  aVec[index++] = 7.253817e-04; // time = 30.07 ns (index=3007)
-  aVec[index++] = 7.183115e-04; // time = 30.08 ns (index=3008)
-  aVec[index++] = 7.112501e-04; // time = 30.09 ns (index=3009)
-  aVec[index++] = 7.041975e-04; // time = 30.10 ns (index=3010)
-  aVec[index++] = 6.971537e-04; // time = 30.11 ns (index=3011)
-  aVec[index++] = 6.901187e-04; // time = 30.12 ns (index=3012)
-  aVec[index++] = 6.830925e-04; // time = 30.13 ns (index=3013)
-  aVec[index++] = 6.760750e-04; // time = 30.14 ns (index=3014)
-  aVec[index++] = 6.690663e-04; // time = 30.15 ns (index=3015)
-  aVec[index++] = 6.620663e-04; // time = 30.16 ns (index=3016)
-  aVec[index++] = 6.550750e-04; // time = 30.17 ns (index=3017)
-  aVec[index++] = 6.480925e-04; // time = 30.18 ns (index=3018)
-  aVec[index++] = 6.411186e-04; // time = 30.19 ns (index=3019)
-  aVec[index++] = 6.341535e-04; // time = 30.20 ns (index=3020)
-  aVec[index++] = 6.271970e-04; // time = 30.21 ns (index=3021)
-  aVec[index++] = 6.202493e-04; // time = 30.22 ns (index=3022)
-  aVec[index++] = 6.133102e-04; // time = 30.23 ns (index=3023)
-  aVec[index++] = 6.063797e-04; // time = 30.24 ns (index=3024)
-  aVec[index++] = 5.994579e-04; // time = 30.25 ns (index=3025)
-  aVec[index++] = 5.925447e-04; // time = 30.26 ns (index=3026)
-  aVec[index++] = 5.856401e-04; // time = 30.27 ns (index=3027)
-  aVec[index++] = 5.787442e-04; // time = 30.28 ns (index=3028)
-  aVec[index++] = 5.718568e-04; // time = 30.29 ns (index=3029)
-  aVec[index++] = 5.649780e-04; // time = 30.30 ns (index=3030)
-  aVec[index++] = 5.581078e-04; // time = 30.31 ns (index=3031)
-  aVec[index++] = 5.512462e-04; // time = 30.32 ns (index=3032)
-  aVec[index++] = 5.443931e-04; // time = 30.33 ns (index=3033)
-  aVec[index++] = 5.375486e-04; // time = 30.34 ns (index=3034)
-  aVec[index++] = 5.307126e-04; // time = 30.35 ns (index=3035)
-  aVec[index++] = 5.238852e-04; // time = 30.36 ns (index=3036)
-  aVec[index++] = 5.170662e-04; // time = 30.37 ns (index=3037)
-  aVec[index++] = 5.102558e-04; // time = 30.38 ns (index=3038)
-  aVec[index++] = 5.034538e-04; // time = 30.39 ns (index=3039)
-  aVec[index++] = 4.966604e-04; // time = 30.40 ns (index=3040)
-  aVec[index++] = 4.898754e-04; // time = 30.41 ns (index=3041)
-  aVec[index++] = 4.830988e-04; // time = 30.42 ns (index=3042)
-  aVec[index++] = 4.763307e-04; // time = 30.43 ns (index=3043)
-  aVec[index++] = 4.695711e-04; // time = 30.44 ns (index=3044)
-  aVec[index++] = 4.628199e-04; // time = 30.45 ns (index=3045)
-  aVec[index++] = 4.560771e-04; // time = 30.46 ns (index=3046)
-  aVec[index++] = 4.493427e-04; // time = 30.47 ns (index=3047)
-  aVec[index++] = 4.426167e-04; // time = 30.48 ns (index=3048)
-  aVec[index++] = 4.358991e-04; // time = 30.49 ns (index=3049)
-  aVec[index++] = 4.291899e-04; // time = 30.50 ns (index=3050)
-  aVec[index++] = 4.224891e-04; // time = 30.51 ns (index=3051)
-  aVec[index++] = 4.157966e-04; // time = 30.52 ns (index=3052)
-  aVec[index++] = 4.091124e-04; // time = 30.53 ns (index=3053)
-  aVec[index++] = 4.024366e-04; // time = 30.54 ns (index=3054)
-  aVec[index++] = 3.957691e-04; // time = 30.55 ns (index=3055)
-  aVec[index++] = 3.891100e-04; // time = 30.56 ns (index=3056)
-  aVec[index++] = 3.824591e-04; // time = 30.57 ns (index=3057)
-  aVec[index++] = 3.758165e-04; // time = 30.58 ns (index=3058)
-  aVec[index++] = 3.691822e-04; // time = 30.59 ns (index=3059)
-  aVec[index++] = 3.625562e-04; // time = 30.60 ns (index=3060)
-  aVec[index++] = 3.559385e-04; // time = 30.61 ns (index=3061)
-  aVec[index++] = 3.493290e-04; // time = 30.62 ns (index=3062)
-  aVec[index++] = 3.427278e-04; // time = 30.63 ns (index=3063)
-  aVec[index++] = 3.361348e-04; // time = 30.64 ns (index=3064)
-  aVec[index++] = 3.295500e-04; // time = 30.65 ns (index=3065)
-  aVec[index++] = 3.229734e-04; // time = 30.66 ns (index=3066)
-  aVec[index++] = 3.164050e-04; // time = 30.67 ns (index=3067)
-  aVec[index++] = 3.098449e-04; // time = 30.68 ns (index=3068)
-  aVec[index++] = 3.032929e-04; // time = 30.69 ns (index=3069)
-  aVec[index++] = 2.967491e-04; // time = 30.70 ns (index=3070)
-  aVec[index++] = 2.902134e-04; // time = 30.71 ns (index=3071)
-  aVec[index++] = 2.836859e-04; // time = 30.72 ns (index=3072)
-  aVec[index++] = 2.771666e-04; // time = 30.73 ns (index=3073)
-  aVec[index++] = 2.706554e-04; // time = 30.74 ns (index=3074)
-  aVec[index++] = 2.641523e-04; // time = 30.75 ns (index=3075)
-  aVec[index++] = 2.576573e-04; // time = 30.76 ns (index=3076)
-  aVec[index++] = 2.511704e-04; // time = 30.77 ns (index=3077)
-  aVec[index++] = 2.446916e-04; // time = 30.78 ns (index=3078)
-  aVec[index++] = 2.382209e-04; // time = 30.79 ns (index=3079)
-  aVec[index++] = 2.317583e-04; // time = 30.80 ns (index=3080)
-  aVec[index++] = 2.253037e-04; // time = 30.81 ns (index=3081)
-  aVec[index++] = 2.188572e-04; // time = 30.82 ns (index=3082)
-  aVec[index++] = 2.124187e-04; // time = 30.83 ns (index=3083)
-  aVec[index++] = 2.059883e-04; // time = 30.84 ns (index=3084)
-  aVec[index++] = 1.995659e-04; // time = 30.85 ns (index=3085)
-  aVec[index++] = 1.931515e-04; // time = 30.86 ns (index=3086)
-  aVec[index++] = 1.867451e-04; // time = 30.87 ns (index=3087)
-  aVec[index++] = 1.803467e-04; // time = 30.88 ns (index=3088)
-  aVec[index++] = 1.739563e-04; // time = 30.89 ns (index=3089)
-  aVec[index++] = 1.675739e-04; // time = 30.90 ns (index=3090)
-  aVec[index++] = 1.611994e-04; // time = 30.91 ns (index=3091)
-  aVec[index++] = 1.548329e-04; // time = 30.92 ns (index=3092)
-  aVec[index++] = 1.484743e-04; // time = 30.93 ns (index=3093)
-  aVec[index++] = 1.421237e-04; // time = 30.94 ns (index=3094)
-  aVec[index++] = 1.357810e-04; // time = 30.95 ns (index=3095)
-  aVec[index++] = 1.294462e-04; // time = 30.96 ns (index=3096)
-  aVec[index++] = 1.231193e-04; // time = 30.97 ns (index=3097)
-  aVec[index++] = 1.168003e-04; // time = 30.98 ns (index=3098)
-  aVec[index++] = 1.104892e-04; // time = 30.99 ns (index=3099)
-  aVec[index++] = 1.041860e-04; // time = 31.00 ns (index=3100)
+  aVec[1]    = 1.099191e-08;  // time = 0.01 ns
+  aVec[2]    = 1.099733e-08;  // time = 0.02 ns
+  aVec[3]    = 1.100358e-08;  // time = 0.03 ns
+  aVec[4]    = 1.100999e-08;  // time = 0.04 ns
+  aVec[5]    = 1.101297e-08;  // time = 0.05 ns
+  aVec[6]    = 1.102126e-08;  // time = 0.06 ns
+  aVec[7]    = 1.102651e-08;  // time = 0.07 ns
+  aVec[8]    = 1.103147e-08;  // time = 0.08 ns
+  aVec[9]    = 1.103672e-08;  // time = 0.09 ns
+  aVec[10]   = 1.104167e-08;  // time = 0.10 ns
+  aVec[11]   = 1.104705e-08;  // time = 0.11 ns
+  aVec[12]   = 1.105182e-08;  // time = 0.12 ns
+  aVec[13]   = 1.105485e-08;  // time = 0.13 ns
+  aVec[14]   = 1.106160e-08;  // time = 0.14 ns
+  aVec[15]   = 1.106858e-08;  // time = 0.15 ns
+  aVec[16]   = 1.107218e-08;  // time = 0.16 ns
+  aVec[17]   = 1.107962e-08;  // time = 0.17 ns
+  aVec[18]   = 1.108506e-08;  // time = 0.18 ns
+  aVec[19]   = 1.108884e-08;  // time = 0.19 ns
+  aVec[20]   = 1.109397e-08;  // time = 0.20 ns
+  aVec[21]   = 1.109745e-08;  // time = 0.21 ns
+  aVec[22]   = 1.110102e-08;  // time = 0.22 ns
+  aVec[23]   = 1.110138e-08;  // time = 0.23 ns
+  aVec[24]   = 1.109704e-08;  // time = 0.24 ns
+  aVec[25]   = 1.108464e-08;  // time = 0.25 ns
+  aVec[26]   = 1.106658e-08;  // time = 0.26 ns
+  aVec[27]   = 1.102989e-08;  // time = 0.27 ns
+  aVec[28]   = 1.098267e-08;  // time = 0.28 ns
+  aVec[29]   = 1.089817e-08;  // time = 0.29 ns
+  aVec[30]   = 1.079356e-08;  // time = 0.30 ns
+  aVec[31]   = 1.062089e-08;  // time = 0.31 ns
+  aVec[32]   = 1.040988e-08;  // time = 0.32 ns
+  aVec[33]   = 1.008290e-08;  // time = 0.33 ns
+  aVec[34]   = 9.098334e-09;  // time = 0.34 ns
+  aVec[35]   = 8.380512e-09;  // time = 0.35 ns
+  aVec[36]   = 7.377135e-09;  // time = 0.36 ns
+  aVec[37]   = 6.136758e-09;  // time = 0.37 ns
+  aVec[38]   = 4.479834e-09;  // time = 0.38 ns
+  aVec[39]   = 2.408614e-09;  // time = 0.39 ns
+  aVec[40]   = -2.422733e-10; // time = 0.40 ns
+  aVec[41]   = -3.558343e-09; // time = 0.41 ns
+  aVec[42]   = -7.673352e-09; // time = 0.42 ns
+  aVec[43]   = -1.274178e-08; // time = 0.43 ns
+  aVec[44]   = -1.894088e-08; // time = 0.44 ns
+  aVec[45]   = -2.647295e-08; // time = 0.45 ns
+  aVec[46]   = -3.556766e-08; // time = 0.46 ns
+  aVec[47]   = -4.648447e-08; // time = 0.47 ns
+  aVec[48]   = -5.951521e-08; // time = 0.48 ns
+  aVec[49]   = -7.498661e-08; // time = 0.49 ns
+  aVec[50]   = -9.326302e-08; // time = 0.50 ns
+  aVec[51]   = -1.147491e-07; // time = 0.51 ns
+  aVec[52]   = -1.398924e-07; // time = 0.52 ns
+  aVec[53]   = -1.691866e-07; // time = 0.53 ns
+  aVec[54]   = -2.031737e-07; // time = 0.54 ns
+  aVec[55]   = -2.424473e-07; // time = 0.55 ns
+  aVec[56]   = -2.876553e-07; // time = 0.56 ns
+  aVec[57]   = -3.395024e-07; // time = 0.57 ns
+  aVec[58]   = -3.987533e-07; // time = 0.58 ns
+  aVec[59]   = -4.662352e-07; // time = 0.59 ns
+  aVec[60]   = -5.428403e-07; // time = 0.60 ns
+  aVec[61]   = -6.295287e-07; // time = 0.61 ns
+  aVec[62]   = -7.273310e-07; // time = 0.62 ns
+  aVec[63]   = -8.373503e-07; // time = 0.63 ns
+  aVec[64]   = -9.607649e-07; // time = 0.64 ns
+  aVec[65]   = -1.098831e-06; // time = 0.65 ns
+  aVec[66]   = -1.252882e-06; // time = 0.66 ns
+  aVec[67]   = -1.424337e-06; // time = 0.67 ns
+  aVec[68]   = -1.614695e-06; // time = 0.68 ns
+  aVec[69]   = -1.825540e-06; // time = 0.69 ns
+  aVec[70]   = -2.058545e-06; // time = 0.70 ns
+  aVec[71]   = -2.315470e-06; // time = 0.71 ns
+  aVec[72]   = -2.598163e-06; // time = 0.72 ns
+  aVec[73]   = -2.908564e-06; // time = 0.73 ns
+  aVec[74]   = -3.248702e-06; // time = 0.74 ns
+  aVec[75]   = -3.620701e-06; // time = 0.75 ns
+  aVec[76]   = -4.026774e-06; // time = 0.76 ns
+  aVec[77]   = -4.469230e-06; // time = 0.77 ns
+  aVec[78]   = -4.950467e-06; // time = 0.78 ns
+  aVec[79]   = -5.472978e-06; // time = 0.79 ns
+  aVec[80]   = -6.039346e-06; // time = 0.80 ns
+  aVec[81]   = -6.652249e-06; // time = 0.81 ns
+  aVec[82]   = -7.314453e-06; // time = 0.82 ns
+  aVec[83]   = -8.028815e-06; // time = 0.83 ns
+  aVec[84]   = -8.798279e-06; // time = 0.84 ns
+  aVec[85]   = -9.625877e-06; // time = 0.85 ns
+  aVec[86]   = -1.051473e-05; // time = 0.86 ns
+  aVec[87]   = -1.146803e-05; // time = 0.87 ns
+  aVec[88]   = -1.248907e-05; // time = 0.88 ns
+  aVec[89]   = -1.358121e-05; // time = 0.89 ns
+  aVec[90]   = -1.474789e-05; // time = 0.90 ns
+  aVec[91]   = -1.599261e-05; // time = 0.91 ns
+  aVec[92]   = -1.731897e-05; // time = 0.92 ns
+  aVec[93]   = -1.873061e-05; // time = 0.93 ns
+  aVec[94]   = -2.023124e-05; // time = 0.94 ns
+  aVec[95]   = -2.182465e-05; // time = 0.95 ns
+  aVec[96]   = -2.351467e-05; // time = 0.96 ns
+  aVec[97]   = -2.530518e-05; // time = 0.97 ns
+  aVec[98]   = -2.720012e-05; // time = 0.98 ns
+  aVec[99]   = -2.920347e-05; // time = 0.99 ns
+  aVec[100]  = -3.131924e-05; // time = 1.00 ns
+  aVec[101]  = -3.355150e-05; // time = 1.01 ns
+  aVec[102]  = -3.590432e-05; // time = 1.02 ns
+  aVec[103]  = -3.838183e-05; // time = 1.03 ns
+  aVec[104]  = -4.098815e-05; // time = 1.04 ns
+  aVec[105]  = -4.372743e-05; // time = 1.05 ns
+  aVec[106]  = -4.660383e-05; // time = 1.06 ns
+  aVec[107]  = -4.962151e-05; // time = 1.07 ns
+  aVec[108]  = -5.278463e-05; // time = 1.08 ns
+  aVec[109]  = -5.609735e-05; // time = 1.09 ns
+  aVec[110]  = -5.956381e-05; // time = 1.10 ns
+  aVec[111]  = -6.318813e-05; // time = 1.11 ns
+  aVec[112]  = -6.697441e-05; // time = 1.12 ns
+  aVec[113]  = -7.092672e-05; // time = 1.13 ns
+  aVec[114]  = -7.504910e-05; // time = 1.14 ns
+  aVec[115]  = -7.934553e-05; // time = 1.15 ns
+  aVec[116]  = -8.381996e-05; // time = 1.16 ns
+  aVec[117]  = -8.847626e-05; // time = 1.17 ns
+  aVec[118]  = -9.331826e-05; // time = 1.18 ns
+  aVec[119]  = -9.834972e-05; // time = 1.19 ns
+  aVec[120]  = -1.035743e-04; // time = 1.20 ns
+  aVec[121]  = -1.089956e-04; // time = 1.21 ns
+  aVec[122]  = -1.146172e-04; // time = 1.22 ns
+  aVec[123]  = -1.204425e-04; // time = 1.23 ns
+  aVec[124]  = -1.264747e-04; // time = 1.24 ns
+  aVec[125]  = -1.327172e-04; // time = 1.25 ns
+  aVec[126]  = -1.391730e-04; // time = 1.26 ns
+  aVec[127]  = -1.458450e-04; // time = 1.27 ns
+  aVec[128]  = -1.527363e-04; // time = 1.28 ns
+  aVec[129]  = -1.598495e-04; // time = 1.29 ns
+  aVec[130]  = -1.671872e-04; // time = 1.30 ns
+  aVec[131]  = -1.747519e-04; // time = 1.31 ns
+  aVec[132]  = -1.825459e-04; // time = 1.32 ns
+  aVec[133]  = -1.905714e-04; // time = 1.33 ns
+  aVec[134]  = -1.988303e-04; // time = 1.34 ns
+  aVec[135]  = -2.073246e-04; // time = 1.35 ns
+  aVec[136]  = -2.160560e-04; // time = 1.36 ns
+  aVec[137]  = -2.250259e-04; // time = 1.37 ns
+  aVec[138]  = -2.342356e-04; // time = 1.38 ns
+  aVec[139]  = -2.436864e-04; // time = 1.39 ns
+  aVec[140]  = -2.533791e-04; // time = 1.40 ns
+  aVec[141]  = -2.633147e-04; // time = 1.41 ns
+  aVec[142]  = -2.734936e-04; // time = 1.42 ns
+  aVec[143]  = -2.839163e-04; // time = 1.43 ns
+  aVec[144]  = -2.945829e-04; // time = 1.44 ns
+  aVec[145]  = -3.054934e-04; // time = 1.45 ns
+  aVec[146]  = -3.166476e-04; // time = 1.46 ns
+  aVec[147]  = -3.280451e-04; // time = 1.47 ns
+  aVec[148]  = -3.396851e-04; // time = 1.48 ns
+  aVec[149]  = -3.515669e-04; // time = 1.49 ns
+  aVec[150]  = -3.636893e-04; // time = 1.50 ns
+  aVec[151]  = -3.760511e-04; // time = 1.51 ns
+  aVec[152]  = -3.886506e-04; // time = 1.52 ns
+  aVec[153]  = -4.014861e-04; // time = 1.53 ns
+  aVec[154]  = -4.145556e-04; // time = 1.54 ns
+  aVec[155]  = -4.278569e-04; // time = 1.55 ns
+  aVec[156]  = -4.413875e-04; // time = 1.56 ns
+  aVec[157]  = -4.551447e-04; // time = 1.57 ns
+  aVec[158]  = -4.691257e-04; // time = 1.58 ns
+  aVec[159]  = -4.833273e-04; // time = 1.59 ns
+  aVec[160]  = -4.977460e-04; // time = 1.60 ns
+  aVec[161]  = -5.123782e-04; // time = 1.61 ns
+  aVec[162]  = -5.272202e-04; // time = 1.62 ns
+  aVec[163]  = -5.422677e-04; // time = 1.63 ns
+  aVec[164]  = -5.575165e-04; // time = 1.64 ns
+  aVec[165]  = -5.729621e-04; // time = 1.65 ns
+  aVec[166]  = -5.885996e-04; // time = 1.66 ns
+  aVec[167]  = -6.044239e-04; // time = 1.67 ns
+  aVec[168]  = -6.204300e-04; // time = 1.68 ns
+  aVec[169]  = -6.366123e-04; // time = 1.69 ns
+  aVec[170]  = -6.529651e-04; // time = 1.70 ns
+  aVec[171]  = -6.694824e-04; // time = 1.71 ns
+  aVec[172]  = -6.861583e-04; // time = 1.72 ns
+  aVec[173]  = -7.029862e-04; // time = 1.73 ns
+  aVec[174]  = -7.199596e-04; // time = 1.74 ns
+  aVec[175]  = -7.370718e-04; // time = 1.75 ns
+  aVec[176]  = -7.543158e-04; // time = 1.76 ns
+  aVec[177]  = -7.716843e-04; // time = 1.77 ns
+  aVec[178]  = -7.891700e-04; // time = 1.78 ns
+  aVec[179]  = -8.067653e-04; // time = 1.79 ns
+  aVec[180]  = -8.244623e-04; // time = 1.80 ns
+  aVec[181]  = -8.422532e-04; // time = 1.81 ns
+  aVec[182]  = -8.601297e-04; // time = 1.82 ns
+  aVec[183]  = -8.780835e-04; // time = 1.83 ns
+  aVec[184]  = -8.961062e-04; // time = 1.84 ns
+  aVec[185]  = -9.141889e-04; // time = 1.85 ns
+  aVec[186]  = -9.323228e-04; // time = 1.86 ns
+  aVec[187]  = -9.504990e-04; // time = 1.87 ns
+  aVec[188]  = -9.687082e-04; // time = 1.88 ns
+  aVec[189]  = -9.869412e-04; // time = 1.89 ns
+  aVec[190]  = -1.005188e-03; // time = 1.90 ns
+  aVec[191]  = -1.023440e-03; // time = 1.91 ns
+  aVec[192]  = -1.041687e-03; // time = 1.92 ns
+  aVec[193]  = -1.059918e-03; // time = 1.93 ns
+  aVec[194]  = -1.078125e-03; // time = 1.94 ns
+  aVec[195]  = -1.096297e-03; // time = 1.95 ns
+  aVec[196]  = -1.114423e-03; // time = 1.96 ns
+  aVec[197]  = -1.132494e-03; // time = 1.97 ns
+  aVec[198]  = -1.150498e-03; // time = 1.98 ns
+  aVec[199]  = -1.168426e-03; // time = 1.99 ns
+  aVec[200]  = -1.186267e-03; // time = 2.00 ns
+  aVec[201]  = -1.204009e-03; // time = 2.01 ns
+  aVec[202]  = -1.221643e-03; // time = 2.02 ns
+  aVec[203]  = -1.239158e-03; // time = 2.03 ns
+  aVec[204]  = -1.256542e-03; // time = 2.04 ns
+  aVec[205]  = -1.273785e-03; // time = 2.05 ns
+  aVec[206]  = -1.290876e-03; // time = 2.06 ns
+  aVec[207]  = -1.307803e-03; // time = 2.07 ns
+  aVec[208]  = -1.324557e-03; // time = 2.08 ns
+  aVec[209]  = -1.341124e-03; // time = 2.09 ns
+  aVec[210]  = -1.357496e-03; // time = 2.10 ns
+  aVec[211]  = -1.373659e-03; // time = 2.11 ns
+  aVec[212]  = -1.389604e-03; // time = 2.12 ns
+  aVec[213]  = -1.405319e-03; // time = 2.13 ns
+  aVec[214]  = -1.420793e-03; // time = 2.14 ns
+  aVec[215]  = -1.436015e-03; // time = 2.15 ns
+  aVec[216]  = -1.450974e-03; // time = 2.16 ns
+  aVec[217]  = -1.465659e-03; // time = 2.17 ns
+  aVec[218]  = -1.480058e-03; // time = 2.18 ns
+  aVec[219]  = -1.494162e-03; // time = 2.19 ns
+  aVec[220]  = -1.507958e-03; // time = 2.20 ns
+  aVec[221]  = -1.521436e-03; // time = 2.21 ns
+  aVec[222]  = -1.534585e-03; // time = 2.22 ns
+  aVec[223]  = -1.547395e-03; // time = 2.23 ns
+  aVec[224]  = -1.559855e-03; // time = 2.24 ns
+  aVec[225]  = -1.571953e-03; // time = 2.25 ns
+  aVec[226]  = -1.583680e-03; // time = 2.26 ns
+  aVec[227]  = -1.595025e-03; // time = 2.27 ns
+  aVec[228]  = -1.605978e-03; // time = 2.28 ns
+  aVec[229]  = -1.616528e-03; // time = 2.29 ns
+  aVec[230]  = -1.626666e-03; // time = 2.30 ns
+  aVec[231]  = -1.636380e-03; // time = 2.31 ns
+  aVec[232]  = -1.645662e-03; // time = 2.32 ns
+  aVec[233]  = -1.654501e-03; // time = 2.33 ns
+  aVec[234]  = -1.662887e-03; // time = 2.34 ns
+  aVec[235]  = -1.670812e-03; // time = 2.35 ns
+  aVec[236]  = -1.678265e-03; // time = 2.36 ns
+  aVec[237]  = -1.685238e-03; // time = 2.37 ns
+  aVec[238]  = -1.691720e-03; // time = 2.38 ns
+  aVec[239]  = -1.697704e-03; // time = 2.39 ns
+  aVec[240]  = -1.703179e-03; // time = 2.40 ns
+  aVec[241]  = -1.708138e-03; // time = 2.41 ns
+  aVec[242]  = -1.712572e-03; // time = 2.42 ns
+  aVec[243]  = -1.716471e-03; // time = 2.43 ns
+  aVec[244]  = -1.719829e-03; // time = 2.44 ns
+  aVec[245]  = -1.722637e-03; // time = 2.45 ns
+  aVec[246]  = -1.724886e-03; // time = 2.46 ns
+  aVec[247]  = -1.726570e-03; // time = 2.47 ns
+  aVec[248]  = -1.727680e-03; // time = 2.48 ns
+  aVec[249]  = -1.728209e-03; // time = 2.49 ns
+  aVec[250]  = -1.728150e-03; // time = 2.50 ns
+  aVec[251]  = -1.727495e-03; // time = 2.51 ns
+  aVec[252]  = -1.726238e-03; // time = 2.52 ns
+  aVec[253]  = -1.724373e-03; // time = 2.53 ns
+  aVec[254]  = -1.721892e-03; // time = 2.54 ns
+  aVec[255]  = -1.718789e-03; // time = 2.55 ns
+  aVec[256]  = -1.715058e-03; // time = 2.56 ns
+  aVec[257]  = -1.710693e-03; // time = 2.57 ns
+  aVec[258]  = -1.705688e-03; // time = 2.58 ns
+  aVec[259]  = -1.700038e-03; // time = 2.59 ns
+  aVec[260]  = -1.693738e-03; // time = 2.60 ns
+  aVec[261]  = -1.686781e-03; // time = 2.61 ns
+  aVec[262]  = -1.679164e-03; // time = 2.62 ns
+  aVec[263]  = -1.670881e-03; // time = 2.63 ns
+  aVec[264]  = -1.661928e-03; // time = 2.64 ns
+  aVec[265]  = -1.652300e-03; // time = 2.65 ns
+  aVec[266]  = -1.641993e-03; // time = 2.66 ns
+  aVec[267]  = -1.631003e-03; // time = 2.67 ns
+  aVec[268]  = -1.619326e-03; // time = 2.68 ns
+  aVec[269]  = -1.606958e-03; // time = 2.69 ns
+  aVec[270]  = -1.593897e-03; // time = 2.70 ns
+  aVec[271]  = -1.580139e-03; // time = 2.71 ns
+  aVec[272]  = -1.565680e-03; // time = 2.72 ns
+  aVec[273]  = -1.550519e-03; // time = 2.73 ns
+  aVec[274]  = -1.534651e-03; // time = 2.74 ns
+  aVec[275]  = -1.518076e-03; // time = 2.75 ns
+  aVec[276]  = -1.500790e-03; // time = 2.76 ns
+  aVec[277]  = -1.482791e-03; // time = 2.77 ns
+  aVec[278]  = -1.464078e-03; // time = 2.78 ns
+  aVec[279]  = -1.444649e-03; // time = 2.79 ns
+  aVec[280]  = -1.424502e-03; // time = 2.80 ns
+  aVec[281]  = -1.403635e-03; // time = 2.81 ns
+  aVec[282]  = -1.382049e-03; // time = 2.82 ns
+  aVec[283]  = -1.359741e-03; // time = 2.83 ns
+  aVec[284]  = -1.336710e-03; // time = 2.84 ns
+  aVec[285]  = -1.312957e-03; // time = 2.85 ns
+  aVec[286]  = -1.288481e-03; // time = 2.86 ns
+  aVec[287]  = -1.263281e-03; // time = 2.87 ns
+  aVec[288]  = -1.237357e-03; // time = 2.88 ns
+  aVec[289]  = -1.210710e-03; // time = 2.89 ns
+  aVec[290]  = -1.183339e-03; // time = 2.90 ns
+  aVec[291]  = -1.155244e-03; // time = 2.91 ns
+  aVec[292]  = -1.126427e-03; // time = 2.92 ns
+  aVec[293]  = -1.096888e-03; // time = 2.93 ns
+  aVec[294]  = -1.066628e-03; // time = 2.94 ns
+  aVec[295]  = -1.035647e-03; // time = 2.95 ns
+  aVec[296]  = -1.003946e-03; // time = 2.96 ns
+  aVec[297]  = -9.715283e-04; // time = 2.97 ns
+  aVec[298]  = -9.383934e-04; // time = 2.98 ns
+  aVec[299]  = -9.045434e-04; // time = 2.99 ns
+  aVec[300]  = -8.699800e-04; // time = 3.00 ns
+  aVec[301]  = -8.347048e-04; // time = 3.01 ns
+  aVec[302]  = -7.987198e-04; // time = 3.02 ns
+  aVec[303]  = -7.620271e-04; // time = 3.03 ns
+  aVec[304]  = -7.246287e-04; // time = 3.04 ns
+  aVec[305]  = -6.865270e-04; // time = 3.05 ns
+  aVec[306]  = -6.477244e-04; // time = 3.06 ns
+  aVec[307]  = -6.082233e-04; // time = 3.07 ns
+  aVec[308]  = -5.680264e-04; // time = 3.08 ns
+  aVec[309]  = -5.271364e-04; // time = 3.09 ns
+  aVec[310]  = -4.855562e-04; // time = 3.10 ns
+  aVec[311]  = -4.432885e-04; // time = 3.11 ns
+  aVec[312]  = -4.003365e-04; // time = 3.12 ns
+  aVec[313]  = -3.567033e-04; // time = 3.13 ns
+  aVec[314]  = -3.123921e-04; // time = 3.14 ns
+  aVec[315]  = -2.674061e-04; // time = 3.15 ns
+  aVec[316]  = -2.217487e-04; // time = 3.16 ns
+  aVec[317]  = -1.754234e-04; // time = 3.17 ns
+  aVec[318]  = -1.284337e-04; // time = 3.18 ns
+  aVec[319]  = -8.078328e-05; // time = 3.19 ns
+  aVec[320]  = -3.247572e-05; // time = 3.20 ns
+  aVec[321]  = 1.648520e-05;  // time = 3.21 ns
+  aVec[322]  = 6.609568e-05;  // time = 3.22 ns
+  aVec[323]  = 1.163518e-04;  // time = 3.23 ns
+  aVec[324]  = 1.672497e-04;  // time = 3.24 ns
+  aVec[325]  = 2.187854e-04;  // time = 3.25 ns
+  aVec[326]  = 2.709548e-04;  // time = 3.26 ns
+  aVec[327]  = 3.237539e-04;  // time = 3.27 ns
+  aVec[328]  = 3.771784e-04;  // time = 3.28 ns
+  aVec[329]  = 4.312243e-04;  // time = 3.29 ns
+  aVec[330]  = 4.858873e-04;  // time = 3.30 ns
+  aVec[331]  = 5.411631e-04;  // time = 3.31 ns
+  aVec[332]  = 5.970474e-04;  // time = 3.32 ns
+  aVec[333]  = 6.535360e-04;  // time = 3.33 ns
+  aVec[334]  = 7.106244e-04;  // time = 3.34 ns
+  aVec[335]  = 7.683082e-04;  // time = 3.35 ns
+  aVec[336]  = 8.265831e-04;  // time = 3.36 ns
+  aVec[337]  = 8.854446e-04;  // time = 3.37 ns
+  aVec[338]  = 9.448882e-04;  // time = 3.38 ns
+  aVec[339]  = 1.004909e-03;  // time = 3.39 ns
+  aVec[340]  = 1.065504e-03;  // time = 3.40 ns
+  aVec[341]  = 1.126667e-03;  // time = 3.41 ns
+  aVec[342]  = 1.188394e-03;  // time = 3.42 ns
+  aVec[343]  = 1.250681e-03;  // time = 3.43 ns
+  aVec[344]  = 1.313523e-03;  // time = 3.44 ns
+  aVec[345]  = 1.376916e-03;  // time = 3.45 ns
+  aVec[346]  = 1.440854e-03;  // time = 3.46 ns
+  aVec[347]  = 1.505334e-03;  // time = 3.47 ns
+  aVec[348]  = 1.570351e-03;  // time = 3.48 ns
+  aVec[349]  = 1.635901e-03;  // time = 3.49 ns
+  aVec[350]  = 1.701978e-03;  // time = 3.50 ns
+  aVec[351]  = 1.768578e-03;  // time = 3.51 ns
+  aVec[352]  = 1.835698e-03;  // time = 3.52 ns
+  aVec[353]  = 1.903331e-03;  // time = 3.53 ns
+  aVec[354]  = 1.971475e-03;  // time = 3.54 ns
+  aVec[355]  = 2.040124e-03;  // time = 3.55 ns
+  aVec[356]  = 2.109273e-03;  // time = 3.56 ns
+  aVec[357]  = 2.178919e-03;  // time = 3.57 ns
+  aVec[358]  = 2.249057e-03;  // time = 3.58 ns
+  aVec[359]  = 2.319683e-03;  // time = 3.59 ns
+  aVec[360]  = 2.390792e-03;  // time = 3.60 ns
+  aVec[361]  = 2.462379e-03;  // time = 3.61 ns
+  aVec[362]  = 2.534441e-03;  // time = 3.62 ns
+  aVec[363]  = 2.606973e-03;  // time = 3.63 ns
+  aVec[364]  = 2.679970e-03;  // time = 3.64 ns
+  aVec[365]  = 2.753429e-03;  // time = 3.65 ns
+  aVec[366]  = 2.827345e-03;  // time = 3.66 ns
+  aVec[367]  = 2.900494e-03;  // time = 3.67 ns
+  aVec[368]  = 2.975304e-03;  // time = 3.68 ns
+  aVec[369]  = 3.050559e-03;  // time = 3.69 ns
+  aVec[370]  = 3.126255e-03;  // time = 3.70 ns
+  aVec[371]  = 3.202387e-03;  // time = 3.71 ns
+  aVec[372]  = 3.278951e-03;  // time = 3.72 ns
+  aVec[373]  = 3.355943e-03;  // time = 3.73 ns
+  aVec[374]  = 3.433359e-03;  // time = 3.74 ns
+  aVec[375]  = 3.511195e-03;  // time = 3.75 ns
+  aVec[376]  = 3.589447e-03;  // time = 3.76 ns
+  aVec[377]  = 3.668111e-03;  // time = 3.77 ns
+  aVec[378]  = 3.747184e-03;  // time = 3.78 ns
+  aVec[379]  = 3.826660e-03;  // time = 3.79 ns
+  aVec[380]  = 3.906537e-03;  // time = 3.80 ns
+  aVec[381]  = 3.986811e-03;  // time = 3.81 ns
+  aVec[382]  = 4.067477e-03;  // time = 3.82 ns
+  aVec[383]  = 4.148533e-03;  // time = 3.83 ns
+  aVec[384]  = 4.229973e-03;  // time = 3.84 ns
+  aVec[385]  = 4.311796e-03;  // time = 3.85 ns
+  aVec[386]  = 4.393996e-03;  // time = 3.86 ns
+  aVec[387]  = 4.476570e-03;  // time = 3.87 ns
+  aVec[388]  = 4.559515e-03;  // time = 3.88 ns
+  aVec[389]  = 4.642827e-03;  // time = 3.89 ns
+  aVec[390]  = 4.716785e-03;  // time = 3.90 ns
+  aVec[391]  = 4.800779e-03;  // time = 3.91 ns
+  aVec[392]  = 4.860228e-03;  // time = 3.92 ns
+  aVec[393]  = 4.944828e-03;  // time = 3.93 ns
+  aVec[394]  = 5.029780e-03;  // time = 3.94 ns
+  aVec[395]  = 5.115078e-03;  // time = 3.95 ns
+  aVec[396]  = 5.200721e-03;  // time = 3.96 ns
+  aVec[397]  = 5.286705e-03;  // time = 3.97 ns
+  aVec[398]  = 5.373026e-03;  // time = 3.98 ns
+  aVec[399]  = 5.459681e-03;  // time = 3.99 ns
+  aVec[400]  = 5.546667e-03;  // time = 4.00 ns
+  aVec[401]  = 5.633980e-03;  // time = 4.01 ns
+  aVec[402]  = 5.721618e-03;  // time = 4.02 ns
+  aVec[403]  = 5.809577e-03;  // time = 4.03 ns
+  aVec[404]  = 5.897854e-03;  // time = 4.04 ns
+  aVec[405]  = 5.986446e-03;  // time = 4.05 ns
+  aVec[406]  = 6.075349e-03;  // time = 4.06 ns
+  aVec[407]  = 6.164562e-03;  // time = 4.07 ns
+  aVec[408]  = 6.254079e-03;  // time = 4.08 ns
+  aVec[409]  = 6.343899e-03;  // time = 4.09 ns
+  aVec[410]  = 6.434018e-03;  // time = 4.10 ns
+  aVec[411]  = 6.524434e-03;  // time = 4.11 ns
+  aVec[412]  = 6.615143e-03;  // time = 4.12 ns
+  aVec[413]  = 6.706143e-03;  // time = 4.13 ns
+  aVec[414]  = 6.797429e-03;  // time = 4.14 ns
+  aVec[415]  = 6.889000e-03;  // time = 4.15 ns
+  aVec[416]  = 6.980853e-03;  // time = 4.16 ns
+  aVec[417]  = 7.072984e-03;  // time = 4.17 ns
+  aVec[418]  = 7.165391e-03;  // time = 4.18 ns
+  aVec[419]  = 7.258071e-03;  // time = 4.19 ns
+  aVec[420]  = 7.344061e-03;  // time = 4.20 ns
+  aVec[421]  = 7.437257e-03;  // time = 4.21 ns
+  aVec[422]  = 7.507320e-03;  // time = 4.22 ns
+  aVec[423]  = 7.600977e-03;  // time = 4.23 ns
+  aVec[424]  = 7.764711e-03;  // time = 4.24 ns
+  aVec[425]  = 7.859072e-03;  // time = 4.25 ns
+  aVec[426]  = 7.948416e-03;  // time = 4.26 ns
+  aVec[427]  = 8.043264e-03;  // time = 4.27 ns
+  aVec[428]  = 8.113847e-03;  // time = 4.28 ns
+  aVec[429]  = 8.209122e-03;  // time = 4.29 ns
+  aVec[430]  = 8.268231e-03;  // time = 4.30 ns
+  aVec[431]  = 8.388249e-03;  // time = 4.31 ns
+  aVec[432]  = 8.448592e-03;  // time = 4.32 ns
+  aVec[433]  = 8.623842e-03;  // time = 4.33 ns
+  aVec[434]  = 8.699293e-03;  // time = 4.34 ns
+  aVec[435]  = 8.796001e-03;  // time = 4.35 ns
+  aVec[436]  = 8.887281e-03;  // time = 4.36 ns
+  aVec[437]  = 9.008743e-03;  // time = 4.37 ns
+  aVec[438]  = 9.033048e-03;  // time = 4.38 ns
+  aVec[439]  = 9.179162e-03;  // time = 4.39 ns
+  aVec[440]  = 9.239326e-03;  // time = 4.40 ns
+  aVec[441]  = 9.351253e-03;  // time = 4.41 ns
+  aVec[442]  = 9.430171e-03;  // time = 4.42 ns
+  aVec[443]  = 9.549081e-03;  // time = 4.43 ns
+  aVec[444]  = 9.618590e-03;  // time = 4.44 ns
+  aVec[445]  = 9.750111e-03;  // time = 4.45 ns
+  aVec[446]  = 9.831134e-03;  // time = 4.46 ns
+  aVec[447]  = 9.945375e-03;  // time = 4.47 ns
+  aVec[448]  = 1.003266e-02;  // time = 4.48 ns
+  aVec[449]  = 1.012995e-02;  // time = 4.49 ns
+  aVec[450]  = 1.023328e-02;  // time = 4.50 ns
+  aVec[451]  = 1.033005e-02;  // time = 4.51 ns
+  aVec[452]  = 1.042802e-02;  // time = 4.52 ns
+  aVec[453]  = 1.051933e-02;  // time = 4.53 ns
+  aVec[454]  = 1.066376e-02;  // time = 4.54 ns
+  aVec[455]  = 1.071341e-02;  // time = 4.55 ns
+  aVec[456]  = 1.082196e-02;  // time = 4.56 ns
+  aVec[457]  = 1.092823e-02;  // time = 4.57 ns
+  aVec[458]  = 1.104319e-02;  // time = 4.58 ns
+  aVec[459]  = 1.112455e-02;  // time = 4.59 ns
+  aVec[460]  = 1.124004e-02;  // time = 4.60 ns
+  aVec[461]  = 1.139491e-02;  // time = 4.61 ns
+  aVec[462]  = 1.144136e-02;  // time = 4.62 ns
+  aVec[463]  = 1.158306e-02;  // time = 4.63 ns
+  aVec[464]  = 1.166896e-02;  // time = 4.64 ns
+  aVec[465]  = 1.176264e-02;  // time = 4.65 ns
+  aVec[466]  = 1.189712e-02;  // time = 4.66 ns
+  aVec[467]  = 1.194938e-02;  // time = 4.67 ns
+  aVec[468]  = 1.206556e-02;  // time = 4.68 ns
+  aVec[469]  = 1.223572e-02;  // time = 4.69 ns
+  aVec[470]  = 1.231404e-02;  // time = 4.70 ns
+  aVec[471]  = 1.241710e-02;  // time = 4.71 ns
+  aVec[472]  = 1.252029e-02;  // time = 4.72 ns
+  aVec[473]  = 1.261829e-02;  // time = 4.73 ns
+  aVec[474]  = 1.272173e-02;  // time = 4.74 ns
+  aVec[475]  = 1.281226e-02;  // time = 4.75 ns
+  aVec[476]  = 1.291593e-02;  // time = 4.76 ns
+  aVec[477]  = 1.300011e-02;  // time = 4.77 ns
+  aVec[478]  = 1.310399e-02;  // time = 4.78 ns
+  aVec[479]  = 1.318632e-02;  // time = 4.79 ns
+  aVec[480]  = 1.329040e-02;  // time = 4.80 ns
+  aVec[481]  = 1.347657e-02;  // time = 4.81 ns
+  aVec[482]  = 1.355877e-02;  // time = 4.82 ns
+  aVec[483]  = 1.366324e-02;  // time = 4.83 ns
+  aVec[484]  = 1.374643e-02;  // time = 4.84 ns
+  aVec[485]  = 1.385108e-02;  // time = 4.85 ns
+  aVec[486]  = 1.393601e-02;  // time = 4.86 ns
+  aVec[487]  = 1.404084e-02;  // time = 4.87 ns
+  aVec[488]  = 1.412865e-02;  // time = 4.88 ns
+  aVec[489]  = 1.423364e-02;  // time = 4.89 ns
+  aVec[490]  = 1.432570e-02;  // time = 4.90 ns
+  aVec[491]  = 1.443084e-02;  // time = 4.91 ns
+  aVec[492]  = 1.463429e-02;  // time = 4.92 ns
+  aVec[493]  = 1.473964e-02;  // time = 4.93 ns
+  aVec[494]  = 1.484505e-02;  // time = 4.94 ns
+  aVec[495]  = 1.495052e-02;  // time = 4.95 ns
+  aVec[496]  = 1.505605e-02;  // time = 4.96 ns
+  aVec[497]  = 1.516164e-02;  // time = 4.97 ns
+  aVec[498]  = 1.526727e-02;  // time = 4.98 ns
+  aVec[499]  = 1.537295e-02;  // time = 4.99 ns
+  aVec[500]  = 1.547867e-02;  // time = 5.00 ns
+  aVec[501]  = 1.558443e-02;  // time = 5.01 ns
+  aVec[502]  = 1.569022e-02;  // time = 5.02 ns
+  aVec[503]  = 1.579604e-02;  // time = 5.03 ns
+  aVec[504]  = 1.590190e-02;  // time = 5.04 ns
+  aVec[505]  = 1.600778e-02;  // time = 5.05 ns
+  aVec[506]  = 1.611368e-02;  // time = 5.06 ns
+  aVec[507]  = 1.621960e-02;  // time = 5.07 ns
+  aVec[508]  = 1.632555e-02;  // time = 5.08 ns
+  aVec[509]  = 1.643150e-02;  // time = 5.09 ns
+  aVec[510]  = 1.653747e-02;  // time = 5.10 ns
+  aVec[511]  = 1.664344e-02;  // time = 5.11 ns
+  aVec[512]  = 1.674943e-02;  // time = 5.12 ns
+  aVec[513]  = 1.685541e-02;  // time = 5.13 ns
+  aVec[514]  = 1.696140e-02;  // time = 5.14 ns
+  aVec[515]  = 1.706739e-02;  // time = 5.15 ns
+  aVec[516]  = 1.717338e-02;  // time = 5.16 ns
+  aVec[517]  = 1.727936e-02;  // time = 5.17 ns
+  aVec[518]  = 1.738533e-02;  // time = 5.18 ns
+  aVec[519]  = 1.749129e-02;  // time = 5.19 ns
+  aVec[520]  = 1.759724e-02;  // time = 5.20 ns
+  aVec[521]  = 1.770317e-02;  // time = 5.21 ns
+  aVec[522]  = 1.780909e-02;  // time = 5.22 ns
+  aVec[523]  = 1.791499e-02;  // time = 5.23 ns
+  aVec[524]  = 1.802086e-02;  // time = 5.24 ns
+  aVec[525]  = 1.812671e-02;  // time = 5.25 ns
+  aVec[526]  = 1.823253e-02;  // time = 5.26 ns
+  aVec[527]  = 1.833832e-02;  // time = 5.27 ns
+  aVec[528]  = 1.844408e-02;  // time = 5.28 ns
+  aVec[529]  = 1.854981e-02;  // time = 5.29 ns
+  aVec[530]  = 1.865550e-02;  // time = 5.30 ns
+  aVec[531]  = 1.876115e-02;  // time = 5.31 ns
+  aVec[532]  = 1.886675e-02;  // time = 5.32 ns
+  aVec[533]  = 1.897231e-02;  // time = 5.33 ns
+  aVec[534]  = 1.907783e-02;  // time = 5.34 ns
+  aVec[535]  = 1.918329e-02;  // time = 5.35 ns
+  aVec[536]  = 1.928871e-02;  // time = 5.36 ns
+  aVec[537]  = 1.939406e-02;  // time = 5.37 ns
+  aVec[538]  = 1.949936e-02;  // time = 5.38 ns
+  aVec[539]  = 1.960460e-02;  // time = 5.39 ns
+  aVec[540]  = 1.970978e-02;  // time = 5.40 ns
+  aVec[541]  = 1.981489e-02;  // time = 5.41 ns
+  aVec[542]  = 1.991994e-02;  // time = 5.42 ns
+  aVec[543]  = 2.002491e-02;  // time = 5.43 ns
+  aVec[544]  = 2.012982e-02;  // time = 5.44 ns
+  aVec[545]  = 2.023465e-02;  // time = 5.45 ns
+  aVec[546]  = 2.033940e-02;  // time = 5.46 ns
+  aVec[547]  = 2.044407e-02;  // time = 5.47 ns
+  aVec[548]  = 2.054865e-02;  // time = 5.48 ns
+  aVec[549]  = 2.065316e-02;  // time = 5.49 ns
+  aVec[550]  = 2.075757e-02;  // time = 5.50 ns
+  aVec[551]  = 2.086190e-02;  // time = 5.51 ns
+  aVec[552]  = 2.096613e-02;  // time = 5.52 ns
+  aVec[553]  = 2.107027e-02;  // time = 5.53 ns
+  aVec[554]  = 2.117431e-02;  // time = 5.54 ns
+  aVec[555]  = 2.127826e-02;  // time = 5.55 ns
+  aVec[556]  = 2.138210e-02;  // time = 5.56 ns
+  aVec[557]  = 2.148583e-02;  // time = 5.57 ns
+  aVec[558]  = 2.158947e-02;  // time = 5.58 ns
+  aVec[559]  = 2.169299e-02;  // time = 5.59 ns
+  aVec[560]  = 2.179640e-02;  // time = 5.60 ns
+  aVec[561]  = 2.189970e-02;  // time = 5.61 ns
+  aVec[562]  = 2.200288e-02;  // time = 5.62 ns
+  aVec[563]  = 2.210594e-02;  // time = 5.63 ns
+  aVec[564]  = 2.220889e-02;  // time = 5.64 ns
+  aVec[565]  = 2.231171e-02;  // time = 5.65 ns
+  aVec[566]  = 2.241441e-02;  // time = 5.66 ns
+  aVec[567]  = 2.251698e-02;  // time = 5.67 ns
+  aVec[568]  = 2.261943e-02;  // time = 5.68 ns
+  aVec[569]  = 2.272174e-02;  // time = 5.69 ns
+  aVec[570]  = 2.282392e-02;  // time = 5.70 ns
+  aVec[571]  = 2.292597e-02;  // time = 5.71 ns
+  aVec[572]  = 2.302788e-02;  // time = 5.72 ns
+  aVec[573]  = 2.312965e-02;  // time = 5.73 ns
+  aVec[574]  = 2.323128e-02;  // time = 5.74 ns
+  aVec[575]  = 2.333277e-02;  // time = 5.75 ns
+  aVec[576]  = 2.343411e-02;  // time = 5.76 ns
+  aVec[577]  = 2.353531e-02;  // time = 5.77 ns
+  aVec[578]  = 2.363635e-02;  // time = 5.78 ns
+  aVec[579]  = 2.373725e-02;  // time = 5.79 ns
+  aVec[580]  = 2.383799e-02;  // time = 5.80 ns
+  aVec[581]  = 2.393858e-02;  // time = 5.81 ns
+  aVec[582]  = 2.403902e-02;  // time = 5.82 ns
+  aVec[583]  = 2.413930e-02;  // time = 5.83 ns
+  aVec[584]  = 2.423941e-02;  // time = 5.84 ns
+  aVec[585]  = 2.433937e-02;  // time = 5.85 ns
+  aVec[586]  = 2.443916e-02;  // time = 5.86 ns
+  aVec[587]  = 2.453879e-02;  // time = 5.87 ns
+  aVec[588]  = 2.463825e-02;  // time = 5.88 ns
+  aVec[589]  = 2.473754e-02;  // time = 5.89 ns
+  aVec[590]  = 2.483666e-02;  // time = 5.90 ns
+  aVec[591]  = 2.493561e-02;  // time = 5.91 ns
+  aVec[592]  = 2.503438e-02;  // time = 5.92 ns
+  aVec[593]  = 2.513298e-02;  // time = 5.93 ns
+  aVec[594]  = 2.523141e-02;  // time = 5.94 ns
+  aVec[595]  = 2.532965e-02;  // time = 5.95 ns
+  aVec[596]  = 2.542772e-02;  // time = 5.96 ns
+  aVec[597]  = 2.552560e-02;  // time = 5.97 ns
+  aVec[598]  = 2.562330e-02;  // time = 5.98 ns
+  aVec[599]  = 2.572081e-02;  // time = 5.99 ns
+  aVec[600]  = 2.581814e-02;  // time = 6.00 ns
+  aVec[601]  = 2.591528e-02;  // time = 6.01 ns
+  aVec[602]  = 2.601223e-02;  // time = 6.02 ns
+  aVec[603]  = 2.610899e-02;  // time = 6.03 ns
+  aVec[604]  = 2.620556e-02;  // time = 6.04 ns
+  aVec[605]  = 2.630194e-02;  // time = 6.05 ns
+  aVec[606]  = 2.639811e-02;  // time = 6.06 ns
+  aVec[607]  = 2.649410e-02;  // time = 6.07 ns
+  aVec[608]  = 2.658988e-02;  // time = 6.08 ns
+  aVec[609]  = 2.668547e-02;  // time = 6.09 ns
+  aVec[610]  = 2.678085e-02;  // time = 6.10 ns
+  aVec[611]  = 2.687603e-02;  // time = 6.11 ns
+  aVec[612]  = 2.697101e-02;  // time = 6.12 ns
+  aVec[613]  = 2.706578e-02;  // time = 6.13 ns
+  aVec[614]  = 2.716035e-02;  // time = 6.14 ns
+  aVec[615]  = 2.725471e-02;  // time = 6.15 ns
+  aVec[616]  = 2.734886e-02;  // time = 6.16 ns
+  aVec[617]  = 2.744280e-02;  // time = 6.17 ns
+  aVec[618]  = 2.753653e-02;  // time = 6.18 ns
+  aVec[619]  = 2.763004e-02;  // time = 6.19 ns
+  aVec[620]  = 2.772335e-02;  // time = 6.20 ns
+  aVec[621]  = 2.781643e-02;  // time = 6.21 ns
+  aVec[622]  = 2.790930e-02;  // time = 6.22 ns
+  aVec[623]  = 2.800196e-02;  // time = 6.23 ns
+  aVec[624]  = 2.809439e-02;  // time = 6.24 ns
+  aVec[625]  = 2.818661e-02;  // time = 6.25 ns
+  aVec[626]  = 2.827860e-02;  // time = 6.26 ns
+  aVec[627]  = 2.837038e-02;  // time = 6.27 ns
+  aVec[628]  = 2.846193e-02;  // time = 6.28 ns
+  aVec[629]  = 2.855325e-02;  // time = 6.29 ns
+  aVec[630]  = 2.864435e-02;  // time = 6.30 ns
+  aVec[631]  = 2.873522e-02;  // time = 6.31 ns
+  aVec[632]  = 2.882587e-02;  // time = 6.32 ns
+  aVec[633]  = 2.891629e-02;  // time = 6.33 ns
+  aVec[634]  = 2.900647e-02;  // time = 6.34 ns
+  aVec[635]  = 2.909643e-02;  // time = 6.35 ns
+  aVec[636]  = 2.918616e-02;  // time = 6.36 ns
+  aVec[637]  = 2.927565e-02;  // time = 6.37 ns
+  aVec[638]  = 2.936491e-02;  // time = 6.38 ns
+  aVec[639]  = 2.945393e-02;  // time = 6.39 ns
+  aVec[640]  = 2.954272e-02;  // time = 6.40 ns
+  aVec[641]  = 2.963127e-02;  // time = 6.41 ns
+  aVec[642]  = 2.971959e-02;  // time = 6.42 ns
+  aVec[643]  = 2.980766e-02;  // time = 6.43 ns
+  aVec[644]  = 2.989550e-02;  // time = 6.44 ns
+  aVec[645]  = 2.998310e-02;  // time = 6.45 ns
+  aVec[646]  = 3.007045e-02;  // time = 6.46 ns
+  aVec[647]  = 3.015757e-02;  // time = 6.47 ns
+  aVec[648]  = 3.024444e-02;  // time = 6.48 ns
+  aVec[649]  = 3.033106e-02;  // time = 6.49 ns
+  aVec[650]  = 3.041745e-02;  // time = 6.50 ns
+  aVec[651]  = 3.050358e-02;  // time = 6.51 ns
+  aVec[652]  = 3.058947e-02;  // time = 6.52 ns
+  aVec[653]  = 3.067512e-02;  // time = 6.53 ns
+  aVec[654]  = 3.076051e-02;  // time = 6.54 ns
+  aVec[655]  = 3.084566e-02;  // time = 6.55 ns
+  aVec[656]  = 3.093056e-02;  // time = 6.56 ns
+  aVec[657]  = 3.101521e-02;  // time = 6.57 ns
+  aVec[658]  = 3.109960e-02;  // time = 6.58 ns
+  aVec[659]  = 3.118375e-02;  // time = 6.59 ns
+  aVec[660]  = 3.126764e-02;  // time = 6.60 ns
+  aVec[661]  = 3.135128e-02;  // time = 6.61 ns
+  aVec[662]  = 3.143466e-02;  // time = 6.62 ns
+  aVec[663]  = 3.151779e-02;  // time = 6.63 ns
+  aVec[664]  = 3.160067e-02;  // time = 6.64 ns
+  aVec[665]  = 3.168329e-02;  // time = 6.65 ns
+  aVec[666]  = 3.176565e-02;  // time = 6.66 ns
+  aVec[667]  = 3.184775e-02;  // time = 6.67 ns
+  aVec[668]  = 3.192960e-02;  // time = 6.68 ns
+  aVec[669]  = 3.201119e-02;  // time = 6.69 ns
+  aVec[670]  = 3.209252e-02;  // time = 6.70 ns
+  aVec[671]  = 3.217359e-02;  // time = 6.71 ns
+  aVec[672]  = 3.225440e-02;  // time = 6.72 ns
+  aVec[673]  = 3.233494e-02;  // time = 6.73 ns
+  aVec[674]  = 3.241523e-02;  // time = 6.74 ns
+  aVec[675]  = 3.249525e-02;  // time = 6.75 ns
+  aVec[676]  = 3.257501e-02;  // time = 6.76 ns
+  aVec[677]  = 3.265451e-02;  // time = 6.77 ns
+  aVec[678]  = 3.273374e-02;  // time = 6.78 ns
+  aVec[679]  = 3.281270e-02;  // time = 6.79 ns
+  aVec[680]  = 3.289141e-02;  // time = 6.80 ns
+  aVec[681]  = 3.296984e-02;  // time = 6.81 ns
+  aVec[682]  = 3.304801e-02;  // time = 6.82 ns
+  aVec[683]  = 3.312592e-02;  // time = 6.83 ns
+  aVec[684]  = 3.320355e-02;  // time = 6.84 ns
+  aVec[685]  = 3.328092e-02;  // time = 6.85 ns
+  aVec[686]  = 3.335802e-02;  // time = 6.86 ns
+  aVec[687]  = 3.343485e-02;  // time = 6.87 ns
+  aVec[688]  = 3.351141e-02;  // time = 6.88 ns
+  aVec[689]  = 3.358770e-02;  // time = 6.89 ns
+  aVec[690]  = 3.366372e-02;  // time = 6.90 ns
+  aVec[691]  = 3.373947e-02;  // time = 6.91 ns
+  aVec[692]  = 3.381495e-02;  // time = 6.92 ns
+  aVec[693]  = 3.389016e-02;  // time = 6.93 ns
+  aVec[694]  = 3.396509e-02;  // time = 6.94 ns
+  aVec[695]  = 3.403976e-02;  // time = 6.95 ns
+  aVec[696]  = 3.411415e-02;  // time = 6.96 ns
+  aVec[697]  = 3.418826e-02;  // time = 6.97 ns
+  aVec[698]  = 3.426211e-02;  // time = 6.98 ns
+  aVec[699]  = 3.433568e-02;  // time = 6.99 ns
+  aVec[700]  = 3.440897e-02;  // time = 7.00 ns
+  aVec[701]  = 3.448199e-02;  // time = 7.01 ns
+  aVec[702]  = 3.455474e-02;  // time = 7.02 ns
+  aVec[703]  = 3.462721e-02;  // time = 7.03 ns
+  aVec[704]  = 3.469940e-02;  // time = 7.04 ns
+  aVec[705]  = 3.477132e-02;  // time = 7.05 ns
+  aVec[706]  = 3.484296e-02;  // time = 7.06 ns
+  aVec[707]  = 3.491432e-02;  // time = 7.07 ns
+  aVec[708]  = 3.498541e-02;  // time = 7.08 ns
+  aVec[709]  = 3.505622e-02;  // time = 7.09 ns
+  aVec[710]  = 3.512675e-02;  // time = 7.10 ns
+  aVec[711]  = 3.519700e-02;  // time = 7.11 ns
+  aVec[712]  = 3.526698e-02;  // time = 7.12 ns
+  aVec[713]  = 3.533668e-02;  // time = 7.13 ns
+  aVec[714]  = 3.540609e-02;  // time = 7.14 ns
+  aVec[715]  = 3.547523e-02;  // time = 7.15 ns
+  aVec[716]  = 3.554409e-02;  // time = 7.16 ns
+  aVec[717]  = 3.561267e-02;  // time = 7.17 ns
+  aVec[718]  = 3.568097e-02;  // time = 7.18 ns
+  aVec[719]  = 3.574899e-02;  // time = 7.19 ns
+  aVec[720]  = 3.581673e-02;  // time = 7.20 ns
+  aVec[721]  = 3.588419e-02;  // time = 7.21 ns
+  aVec[722]  = 3.595137e-02;  // time = 7.22 ns
+  aVec[723]  = 3.601826e-02;  // time = 7.23 ns
+  aVec[724]  = 3.608488e-02;  // time = 7.24 ns
+  aVec[725]  = 3.615122e-02;  // time = 7.25 ns
+  aVec[726]  = 3.621727e-02;  // time = 7.26 ns
+  aVec[727]  = 3.628304e-02;  // time = 7.27 ns
+  aVec[728]  = 3.634853e-02;  // time = 7.28 ns
+  aVec[729]  = 3.641374e-02;  // time = 7.29 ns
+  aVec[730]  = 3.647866e-02;  // time = 7.30 ns
+  aVec[731]  = 3.654331e-02;  // time = 7.31 ns
+  aVec[732]  = 3.660767e-02;  // time = 7.32 ns
+  aVec[733]  = 3.667175e-02;  // time = 7.33 ns
+  aVec[734]  = 3.673554e-02;  // time = 7.34 ns
+  aVec[735]  = 3.679905e-02;  // time = 7.35 ns
+  aVec[736]  = 3.686228e-02;  // time = 7.36 ns
+  aVec[737]  = 3.692523e-02;  // time = 7.37 ns
+  aVec[738]  = 3.698789e-02;  // time = 7.38 ns
+  aVec[739]  = 3.705027e-02;  // time = 7.39 ns
+  aVec[740]  = 3.711237e-02;  // time = 7.40 ns
+  aVec[741]  = 3.717419e-02;  // time = 7.41 ns
+  aVec[742]  = 3.723572e-02;  // time = 7.42 ns
+  aVec[743]  = 3.729696e-02;  // time = 7.43 ns
+  aVec[744]  = 3.735793e-02;  // time = 7.44 ns
+  aVec[745]  = 3.741861e-02;  // time = 7.45 ns
+  aVec[746]  = 3.747900e-02;  // time = 7.46 ns
+  aVec[747]  = 3.753912e-02;  // time = 7.47 ns
+  aVec[748]  = 3.759894e-02;  // time = 7.48 ns
+  aVec[749]  = 3.765849e-02;  // time = 7.49 ns
+  aVec[750]  = 3.771775e-02;  // time = 7.50 ns
+  aVec[751]  = 3.777673e-02;  // time = 7.51 ns
+  aVec[752]  = 3.783542e-02;  // time = 7.52 ns
+  aVec[753]  = 3.789383e-02;  // time = 7.53 ns
+  aVec[754]  = 3.795196e-02;  // time = 7.54 ns
+  aVec[755]  = 3.800980e-02;  // time = 7.55 ns
+  aVec[756]  = 3.806736e-02;  // time = 7.56 ns
+  aVec[757]  = 3.812464e-02;  // time = 7.57 ns
+  aVec[758]  = 3.818163e-02;  // time = 7.58 ns
+  aVec[759]  = 3.823834e-02;  // time = 7.59 ns
+  aVec[760]  = 3.829476e-02;  // time = 7.60 ns
+  aVec[761]  = 3.835090e-02;  // time = 7.61 ns
+  aVec[762]  = 3.840676e-02;  // time = 7.62 ns
+  aVec[763]  = 3.846233e-02;  // time = 7.63 ns
+  aVec[764]  = 3.851762e-02;  // time = 7.64 ns
+  aVec[765]  = 3.857263e-02;  // time = 7.65 ns
+  aVec[766]  = 3.862736e-02;  // time = 7.66 ns
+  aVec[767]  = 3.868180e-02;  // time = 7.67 ns
+  aVec[768]  = 3.873595e-02;  // time = 7.68 ns
+  aVec[769]  = 3.878983e-02;  // time = 7.69 ns
+  aVec[770]  = 3.884342e-02;  // time = 7.70 ns
+  aVec[771]  = 3.889673e-02;  // time = 7.71 ns
+  aVec[772]  = 3.894976e-02;  // time = 7.72 ns
+  aVec[773]  = 3.900250e-02;  // time = 7.73 ns
+  aVec[774]  = 3.905496e-02;  // time = 7.74 ns
+  aVec[775]  = 3.910714e-02;  // time = 7.75 ns
+  aVec[776]  = 3.915904e-02;  // time = 7.76 ns
+  aVec[777]  = 3.921065e-02;  // time = 7.77 ns
+  aVec[778]  = 3.926199e-02;  // time = 7.78 ns
+  aVec[779]  = 3.931304e-02;  // time = 7.79 ns
+  aVec[780]  = 3.936381e-02;  // time = 7.80 ns
+  aVec[781]  = 3.941430e-02;  // time = 7.81 ns
+  aVec[782]  = 3.946451e-02;  // time = 7.82 ns
+  aVec[783]  = 3.951443e-02;  // time = 7.83 ns
+  aVec[784]  = 3.956408e-02;  // time = 7.84 ns
+  aVec[785]  = 3.961344e-02;  // time = 7.85 ns
+  aVec[786]  = 3.966253e-02;  // time = 7.86 ns
+  aVec[787]  = 3.971133e-02;  // time = 7.87 ns
+  aVec[788]  = 3.975985e-02;  // time = 7.88 ns
+  aVec[789]  = 3.980810e-02;  // time = 7.89 ns
+  aVec[790]  = 3.985606e-02;  // time = 7.90 ns
+  aVec[791]  = 3.990374e-02;  // time = 7.91 ns
+  aVec[792]  = 3.995115e-02;  // time = 7.92 ns
+  aVec[793]  = 3.999827e-02;  // time = 7.93 ns
+  aVec[794]  = 4.004512e-02;  // time = 7.94 ns
+  aVec[795]  = 4.009169e-02;  // time = 7.95 ns
+  aVec[796]  = 4.013797e-02;  // time = 7.96 ns
+  aVec[797]  = 4.018398e-02;  // time = 7.97 ns
+  aVec[798]  = 4.022972e-02;  // time = 7.98 ns
+  aVec[799]  = 4.027517e-02;  // time = 7.99 ns
+  aVec[800]  = 4.032035e-02;  // time = 8.00 ns
+  aVec[801]  = 4.036525e-02;  // time = 8.01 ns
+  aVec[802]  = 4.040987e-02;  // time = 8.02 ns
+  aVec[803]  = 4.045422e-02;  // time = 8.03 ns
+  aVec[804]  = 4.049828e-02;  // time = 8.04 ns
+  aVec[805]  = 4.054208e-02;  // time = 8.05 ns
+  aVec[806]  = 4.058559e-02;  // time = 8.06 ns
+  aVec[807]  = 4.062883e-02;  // time = 8.07 ns
+  aVec[808]  = 4.067180e-02;  // time = 8.08 ns
+  aVec[809]  = 4.071449e-02;  // time = 8.09 ns
+  aVec[810]  = 4.075690e-02;  // time = 8.10 ns
+  aVec[811]  = 4.079904e-02;  // time = 8.11 ns
+  aVec[812]  = 4.084091e-02;  // time = 8.12 ns
+  aVec[813]  = 4.088250e-02;  // time = 8.13 ns
+  aVec[814]  = 4.092382e-02;  // time = 8.14 ns
+  aVec[815]  = 4.096486e-02;  // time = 8.15 ns
+  aVec[816]  = 4.100563e-02;  // time = 8.16 ns
+  aVec[817]  = 4.104613e-02;  // time = 8.17 ns
+  aVec[818]  = 4.108635e-02;  // time = 8.18 ns
+  aVec[819]  = 4.112631e-02;  // time = 8.19 ns
+  aVec[820]  = 4.116599e-02;  // time = 8.20 ns
+  aVec[821]  = 4.120540e-02;  // time = 8.21 ns
+  aVec[822]  = 4.124454e-02;  // time = 8.22 ns
+  aVec[823]  = 4.128340e-02;  // time = 8.23 ns
+  aVec[824]  = 4.132200e-02;  // time = 8.24 ns
+  aVec[825]  = 4.136032e-02;  // time = 8.25 ns
+  aVec[826]  = 4.139838e-02;  // time = 8.26 ns
+  aVec[827]  = 4.143617e-02;  // time = 8.27 ns
+  aVec[828]  = 4.147368e-02;  // time = 8.28 ns
+  aVec[829]  = 4.151093e-02;  // time = 8.29 ns
+  aVec[830]  = 4.154791e-02;  // time = 8.30 ns
+  aVec[831]  = 4.158462e-02;  // time = 8.31 ns
+  aVec[832]  = 4.162106e-02;  // time = 8.32 ns
+  aVec[833]  = 4.165724e-02;  // time = 8.33 ns
+  aVec[834]  = 4.169315e-02;  // time = 8.34 ns
+  aVec[835]  = 4.172879e-02;  // time = 8.35 ns
+  aVec[836]  = 4.176416e-02;  // time = 8.36 ns
+  aVec[837]  = 4.179927e-02;  // time = 8.37 ns
+  aVec[838]  = 4.183412e-02;  // time = 8.38 ns
+  aVec[839]  = 4.186869e-02;  // time = 8.39 ns
+  aVec[840]  = 4.190301e-02;  // time = 8.40 ns
+  aVec[841]  = 4.193705e-02;  // time = 8.41 ns
+  aVec[842]  = 4.197084e-02;  // time = 8.42 ns
+  aVec[843]  = 4.200436e-02;  // time = 8.43 ns
+  aVec[844]  = 4.203762e-02;  // time = 8.44 ns
+  aVec[845]  = 4.207061e-02;  // time = 8.45 ns
+  aVec[846]  = 4.210334e-02;  // time = 8.46 ns
+  aVec[847]  = 4.213581e-02;  // time = 8.47 ns
+  aVec[848]  = 4.216802e-02;  // time = 8.48 ns
+  aVec[849]  = 4.219996e-02;  // time = 8.49 ns
+  aVec[850]  = 4.223165e-02;  // time = 8.50 ns
+  aVec[851]  = 4.226307e-02;  // time = 8.51 ns
+  aVec[852]  = 4.229423e-02;  // time = 8.52 ns
+  aVec[853]  = 4.232514e-02;  // time = 8.53 ns
+  aVec[854]  = 4.235578e-02;  // time = 8.54 ns
+  aVec[855]  = 4.238617e-02;  // time = 8.55 ns
+  aVec[856]  = 4.241630e-02;  // time = 8.56 ns
+  aVec[857]  = 4.244616e-02;  // time = 8.57 ns
+  aVec[858]  = 4.247578e-02;  // time = 8.58 ns
+  aVec[859]  = 4.250513e-02;  // time = 8.59 ns
+  aVec[860]  = 4.253423e-02;  // time = 8.60 ns
+  aVec[861]  = 4.256307e-02;  // time = 8.61 ns
+  aVec[862]  = 4.259165e-02;  // time = 8.62 ns
+  aVec[863]  = 4.261998e-02;  // time = 8.63 ns
+  aVec[864]  = 4.264806e-02;  // time = 8.64 ns
+  aVec[865]  = 4.267588e-02;  // time = 8.65 ns
+  aVec[866]  = 4.270344e-02;  // time = 8.66 ns
+  aVec[867]  = 4.273076e-02;  // time = 8.67 ns
+  aVec[868]  = 4.275782e-02;  // time = 8.68 ns
+  aVec[869]  = 4.278462e-02;  // time = 8.69 ns
+  aVec[870]  = 4.281118e-02;  // time = 8.70 ns
+  aVec[871]  = 4.283748e-02;  // time = 8.71 ns
+  aVec[872]  = 4.286353e-02;  // time = 8.72 ns
+  aVec[873]  = 4.288933e-02;  // time = 8.73 ns
+  aVec[874]  = 4.291488e-02;  // time = 8.74 ns
+  aVec[875]  = 4.294018e-02;  // time = 8.75 ns
+  aVec[876]  = 4.296522e-02;  // time = 8.76 ns
+  aVec[877]  = 4.299003e-02;  // time = 8.77 ns
+  aVec[878]  = 4.301458e-02;  // time = 8.78 ns
+  aVec[879]  = 4.303888e-02;  // time = 8.79 ns
+  aVec[880]  = 4.306294e-02;  // time = 8.80 ns
+  aVec[881]  = 4.308675e-02;  // time = 8.81 ns
+  aVec[882]  = 4.311031e-02;  // time = 8.82 ns
+  aVec[883]  = 4.313362e-02;  // time = 8.83 ns
+  aVec[884]  = 4.315669e-02;  // time = 8.84 ns
+  aVec[885]  = 4.317952e-02;  // time = 8.85 ns
+  aVec[886]  = 4.320210e-02;  // time = 8.86 ns
+  aVec[887]  = 4.322443e-02;  // time = 8.87 ns
+  aVec[888]  = 4.324653e-02;  // time = 8.88 ns
+  aVec[889]  = 4.326837e-02;  // time = 8.89 ns
+  aVec[890]  = 4.328998e-02;  // time = 8.90 ns
+  aVec[891]  = 4.331134e-02;  // time = 8.91 ns
+  aVec[892]  = 4.333247e-02;  // time = 8.92 ns
+  aVec[893]  = 4.335335e-02;  // time = 8.93 ns
+  aVec[894]  = 4.337399e-02;  // time = 8.94 ns
+  aVec[895]  = 4.339438e-02;  // time = 8.95 ns
+  aVec[896]  = 4.341454e-02;  // time = 8.96 ns
+  aVec[897]  = 4.343446e-02;  // time = 8.97 ns
+  aVec[898]  = 4.345415e-02;  // time = 8.98 ns
+  aVec[899]  = 4.347359e-02;  // time = 8.99 ns
+  aVec[900]  = 4.349279e-02;  // time = 9.00 ns
+  aVec[901]  = 4.351176e-02;  // time = 9.01 ns
+  aVec[902]  = 4.353049e-02;  // time = 9.02 ns
+  aVec[903]  = 4.354899e-02;  // time = 9.03 ns
+  aVec[904]  = 4.356725e-02;  // time = 9.04 ns
+  aVec[905]  = 4.358527e-02;  // time = 9.05 ns
+  aVec[906]  = 4.360306e-02;  // time = 9.06 ns
+  aVec[907]  = 4.362062e-02;  // time = 9.07 ns
+  aVec[908]  = 4.363794e-02;  // time = 9.08 ns
+  aVec[909]  = 4.365503e-02;  // time = 9.09 ns
+  aVec[910]  = 4.367188e-02;  // time = 9.10 ns
+  aVec[911]  = 4.368851e-02;  // time = 9.11 ns
+  aVec[912]  = 4.370490e-02;  // time = 9.12 ns
+  aVec[913]  = 4.372106e-02;  // time = 9.13 ns
+  aVec[914]  = 4.373699e-02;  // time = 9.14 ns
+  aVec[915]  = 4.375269e-02;  // time = 9.15 ns
+  aVec[916]  = 4.376816e-02;  // time = 9.16 ns
+  aVec[917]  = 4.378340e-02;  // time = 9.17 ns
+  aVec[918]  = 4.379842e-02;  // time = 9.18 ns
+  aVec[919]  = 4.381320e-02;  // time = 9.19 ns
+  aVec[920]  = 4.382776e-02;  // time = 9.20 ns
+  aVec[921]  = 4.384209e-02;  // time = 9.21 ns
+  aVec[922]  = 4.385620e-02;  // time = 9.22 ns
+  aVec[923]  = 4.387008e-02;  // time = 9.23 ns
+  aVec[924]  = 4.388373e-02;  // time = 9.24 ns
+  aVec[925]  = 4.389716e-02;  // time = 9.25 ns
+  aVec[926]  = 4.391037e-02;  // time = 9.26 ns
+  aVec[927]  = 4.392335e-02;  // time = 9.27 ns
+  aVec[928]  = 4.393611e-02;  // time = 9.28 ns
+  aVec[929]  = 4.394865e-02;  // time = 9.29 ns
+  aVec[930]  = 4.396097e-02;  // time = 9.30 ns
+  aVec[931]  = 4.397306e-02;  // time = 9.31 ns
+  aVec[932]  = 4.398493e-02;  // time = 9.32 ns
+  aVec[933]  = 4.399659e-02;  // time = 9.33 ns
+  aVec[934]  = 4.400802e-02;  // time = 9.34 ns
+  aVec[935]  = 4.401923e-02;  // time = 9.35 ns
+  aVec[936]  = 4.403023e-02;  // time = 9.36 ns
+  aVec[937]  = 4.404101e-02;  // time = 9.37 ns
+  aVec[938]  = 4.405157e-02;  // time = 9.38 ns
+  aVec[939]  = 4.406191e-02;  // time = 9.39 ns
+  aVec[940]  = 4.407203e-02;  // time = 9.40 ns
+  aVec[941]  = 4.408195e-02;  // time = 9.41 ns
+  aVec[942]  = 4.409164e-02;  // time = 9.42 ns
+  aVec[943]  = 4.410112e-02;  // time = 9.43 ns
+  aVec[944]  = 4.411039e-02;  // time = 9.44 ns
+  aVec[945]  = 4.411944e-02;  // time = 9.45 ns
+  aVec[946]  = 4.412828e-02;  // time = 9.46 ns
+  aVec[947]  = 4.413691e-02;  // time = 9.47 ns
+  aVec[948]  = 4.414532e-02;  // time = 9.48 ns
+  aVec[949]  = 4.415353e-02;  // time = 9.49 ns
+  aVec[950]  = 4.416152e-02;  // time = 9.50 ns
+  aVec[951]  = 4.416930e-02;  // time = 9.51 ns
+  aVec[952]  = 4.417687e-02;  // time = 9.52 ns
+  aVec[953]  = 4.418424e-02;  // time = 9.53 ns
+  aVec[954]  = 4.419139e-02;  // time = 9.54 ns
+  aVec[955]  = 4.419834e-02;  // time = 9.55 ns
+  aVec[956]  = 4.420508e-02;  // time = 9.56 ns
+  aVec[957]  = 4.421161e-02;  // time = 9.57 ns
+  aVec[958]  = 4.421794e-02;  // time = 9.58 ns
+  aVec[959]  = 4.422406e-02;  // time = 9.59 ns
+  aVec[960]  = 4.422997e-02;  // time = 9.60 ns
+  aVec[961]  = 4.423568e-02;  // time = 9.61 ns
+  aVec[962]  = 4.424119e-02;  // time = 9.62 ns
+  aVec[963]  = 4.424649e-02;  // time = 9.63 ns
+  aVec[964]  = 4.425159e-02;  // time = 9.64 ns
+  aVec[965]  = 4.425649e-02;  // time = 9.65 ns
+  aVec[966]  = 4.426119e-02;  // time = 9.66 ns
+  aVec[967]  = 4.426568e-02;  // time = 9.67 ns
+  aVec[968]  = 4.426998e-02;  // time = 9.68 ns
+  aVec[969]  = 4.427407e-02;  // time = 9.69 ns
+  aVec[970]  = 4.427796e-02;  // time = 9.70 ns
+  aVec[971]  = 4.428166e-02;  // time = 9.71 ns
+  aVec[972]  = 4.428515e-02;  // time = 9.72 ns
+  aVec[973]  = 4.428845e-02;  // time = 9.73 ns
+  aVec[974]  = 4.429155e-02;  // time = 9.74 ns
+  aVec[975]  = 4.429446e-02;  // time = 9.75 ns
+  aVec[976]  = 4.429717e-02;  // time = 9.76 ns
+  aVec[977]  = 4.429968e-02;  // time = 9.77 ns
+  aVec[978]  = 4.430200e-02;  // time = 9.78 ns
+  aVec[979]  = 4.430412e-02;  // time = 9.79 ns
+  aVec[980]  = 4.430605e-02;  // time = 9.80 ns
+  aVec[981]  = 4.430779e-02;  // time = 9.81 ns
+  aVec[982]  = 4.430933e-02;  // time = 9.82 ns
+  aVec[983]  = 4.431068e-02;  // time = 9.83 ns
+  aVec[984]  = 4.431184e-02;  // time = 9.84 ns
+  aVec[985]  = 4.431281e-02;  // time = 9.85 ns
+  aVec[986]  = 4.431359e-02;  // time = 9.86 ns
+  aVec[987]  = 4.431417e-02;  // time = 9.87 ns
+  aVec[988]  = 4.431457e-02;  // time = 9.88 ns
+  aVec[989]  = 4.431478e-02;  // time = 9.89 ns
+  aVec[990]  = 4.431480e-02;  // time = 9.90 ns
+  aVec[991]  = 4.431464e-02;  // time = 9.91 ns
+  aVec[992]  = 4.431429e-02;  // time = 9.92 ns
+  aVec[993]  = 4.431375e-02;  // time = 9.93 ns
+  aVec[994]  = 4.431302e-02;  // time = 9.94 ns
+  aVec[995]  = 4.431211e-02;  // time = 9.95 ns
+  aVec[996]  = 4.431101e-02;  // time = 9.96 ns
+  aVec[997]  = 4.430973e-02;  // time = 9.97 ns
+  aVec[998]  = 4.430827e-02;  // time = 9.98 ns
+  aVec[999]  = 4.430694e-02;  // time = 9.99 ns
+  aVec[1000] = 4.430550e-02;  // time = 10.00 ns
+  aVec[1001] = 4.430415e-02;  // time = 10.01 ns
+  aVec[1002] = 4.430250e-02;  // time = 10.02 ns
+  aVec[1003] = 4.430029e-02;  // time = 10.03 ns
+  aVec[1004] = 4.429789e-02;  // time = 10.04 ns
+  aVec[1005] = 4.429531e-02;  // time = 10.05 ns
+  aVec[1006] = 4.429256e-02;  // time = 10.06 ns
+  aVec[1007] = 4.428962e-02;  // time = 10.07 ns
+  aVec[1008] = 4.428651e-02;  // time = 10.08 ns
+  aVec[1009] = 4.428322e-02;  // time = 10.09 ns
+  aVec[1010] = 4.427975e-02;  // time = 10.10 ns
+  aVec[1011] = 4.427610e-02;  // time = 10.11 ns
+  aVec[1012] = 4.427228e-02;  // time = 10.12 ns
+  aVec[1013] = 4.426828e-02;  // time = 10.13 ns
+  aVec[1014] = 4.426411e-02;  // time = 10.14 ns
+  aVec[1015] = 4.425976e-02;  // time = 10.15 ns
+  aVec[1016] = 4.425524e-02;  // time = 10.16 ns
+  aVec[1017] = 4.425054e-02;  // time = 10.17 ns
+  aVec[1018] = 4.424568e-02;  // time = 10.18 ns
+  aVec[1019] = 4.424064e-02;  // time = 10.19 ns
+  aVec[1020] = 4.423543e-02;  // time = 10.20 ns
+  aVec[1021] = 4.423004e-02;  // time = 10.21 ns
+  aVec[1022] = 4.422449e-02;  // time = 10.22 ns
+  aVec[1023] = 4.421877e-02;  // time = 10.23 ns
+  aVec[1024] = 4.421287e-02;  // time = 10.24 ns
+  aVec[1025] = 4.420681e-02;  // time = 10.25 ns
+  aVec[1026] = 4.420058e-02;  // time = 10.26 ns
+  aVec[1027] = 4.419418e-02;  // time = 10.27 ns
+  aVec[1028] = 4.418762e-02;  // time = 10.28 ns
+  aVec[1029] = 4.418089e-02;  // time = 10.29 ns
+  aVec[1030] = 4.417399e-02;  // time = 10.30 ns
+  aVec[1031] = 4.416692e-02;  // time = 10.31 ns
+  aVec[1032] = 4.415970e-02;  // time = 10.32 ns
+  aVec[1033] = 4.415230e-02;  // time = 10.33 ns
+  aVec[1034] = 4.414475e-02;  // time = 10.34 ns
+  aVec[1035] = 4.413703e-02;  // time = 10.35 ns
+  aVec[1036] = 4.412914e-02;  // time = 10.36 ns
+  aVec[1037] = 4.412110e-02;  // time = 10.37 ns
+  aVec[1038] = 4.411289e-02;  // time = 10.38 ns
+  aVec[1039] = 4.410453e-02;  // time = 10.39 ns
+  aVec[1040] = 4.409600e-02;  // time = 10.40 ns
+  aVec[1041] = 4.408731e-02;  // time = 10.41 ns
+  aVec[1042] = 4.407846e-02;  // time = 10.42 ns
+  aVec[1043] = 4.406946e-02;  // time = 10.43 ns
+  aVec[1044] = 4.406029e-02;  // time = 10.44 ns
+  aVec[1045] = 4.405097e-02;  // time = 10.45 ns
+  aVec[1046] = 4.404149e-02;  // time = 10.46 ns
+  aVec[1047] = 4.403185e-02;  // time = 10.47 ns
+  aVec[1048] = 4.402206e-02;  // time = 10.48 ns
+  aVec[1049] = 4.401212e-02;  // time = 10.49 ns
+  aVec[1050] = 4.400201e-02;  // time = 10.50 ns
+  aVec[1051] = 4.399176e-02;  // time = 10.51 ns
+  aVec[1052] = 4.398135e-02;  // time = 10.52 ns
+  aVec[1053] = 4.397078e-02;  // time = 10.53 ns
+  aVec[1054] = 4.396006e-02;  // time = 10.54 ns
+  aVec[1055] = 4.394920e-02;  // time = 10.55 ns
+  aVec[1056] = 4.393818e-02;  // time = 10.56 ns
+  aVec[1057] = 4.392700e-02;  // time = 10.57 ns
+  aVec[1058] = 4.391568e-02;  // time = 10.58 ns
+  aVec[1059] = 4.390421e-02;  // time = 10.59 ns
+  aVec[1060] = 4.389259e-02;  // time = 10.60 ns
+  aVec[1061] = 4.388082e-02;  // time = 10.61 ns
+  aVec[1062] = 4.386890e-02;  // time = 10.62 ns
+  aVec[1063] = 4.385683e-02;  // time = 10.63 ns
+  aVec[1064] = 4.384462e-02;  // time = 10.64 ns
+  aVec[1065] = 4.383226e-02;  // time = 10.65 ns
+  aVec[1066] = 4.381975e-02;  // time = 10.66 ns
+  aVec[1067] = 4.380710e-02;  // time = 10.67 ns
+  aVec[1068] = 4.379430e-02;  // time = 10.68 ns
+  aVec[1069] = 4.378136e-02;  // time = 10.69 ns
+  aVec[1070] = 4.376827e-02;  // time = 10.70 ns
+  aVec[1071] = 4.375504e-02;  // time = 10.71 ns
+  aVec[1072] = 4.374167e-02;  // time = 10.72 ns
+  aVec[1073] = 4.372815e-02;  // time = 10.73 ns
+  aVec[1074] = 4.371450e-02;  // time = 10.74 ns
+  aVec[1075] = 4.370070e-02;  // time = 10.75 ns
+  aVec[1076] = 4.368676e-02;  // time = 10.76 ns
+  aVec[1077] = 4.367268e-02;  // time = 10.77 ns
+  aVec[1078] = 4.365846e-02;  // time = 10.78 ns
+  aVec[1079] = 4.364410e-02;  // time = 10.79 ns
+  aVec[1080] = 4.362961e-02;  // time = 10.80 ns
+  aVec[1081] = 4.361497e-02;  // time = 10.81 ns
+  aVec[1082] = 4.360020e-02;  // time = 10.82 ns
+  aVec[1083] = 4.358529e-02;  // time = 10.83 ns
+  aVec[1084] = 4.357025e-02;  // time = 10.84 ns
+  aVec[1085] = 4.355506e-02;  // time = 10.85 ns
+  aVec[1086] = 4.353975e-02;  // time = 10.86 ns
+  aVec[1087] = 4.352429e-02;  // time = 10.87 ns
+  aVec[1088] = 4.350871e-02;  // time = 10.88 ns
+  aVec[1089] = 4.349299e-02;  // time = 10.89 ns
+  aVec[1090] = 4.347713e-02;  // time = 10.90 ns
+  aVec[1091] = 4.346115e-02;  // time = 10.91 ns
+  aVec[1092] = 4.344503e-02;  // time = 10.92 ns
+  aVec[1093] = 4.342878e-02;  // time = 10.93 ns
+  aVec[1094] = 4.341240e-02;  // time = 10.94 ns
+  aVec[1095] = 4.339589e-02;  // time = 10.95 ns
+  aVec[1096] = 4.337924e-02;  // time = 10.96 ns
+  aVec[1097] = 4.336247e-02;  // time = 10.97 ns
+  aVec[1098] = 4.334557e-02;  // time = 10.98 ns
+  aVec[1099] = 4.332854e-02;  // time = 10.99 ns
+  aVec[1100] = 4.331138e-02;  // time = 11.00 ns
+  aVec[1101] = 4.329410e-02;  // time = 11.01 ns
+  aVec[1102] = 4.327669e-02;  // time = 11.02 ns
+  aVec[1103] = 4.325915e-02;  // time = 11.03 ns
+  aVec[1104] = 4.324148e-02;  // time = 11.04 ns
+  aVec[1105] = 4.322369e-02;  // time = 11.05 ns
+  aVec[1106] = 4.320578e-02;  // time = 11.06 ns
+  aVec[1107] = 4.318774e-02;  // time = 11.07 ns
+  aVec[1108] = 4.316958e-02;  // time = 11.08 ns
+  aVec[1109] = 4.315129e-02;  // time = 11.09 ns
+  aVec[1110] = 4.313288e-02;  // time = 11.10 ns
+  aVec[1111] = 4.311435e-02;  // time = 11.11 ns
+  aVec[1112] = 4.309569e-02;  // time = 11.12 ns
+  aVec[1113] = 4.307692e-02;  // time = 11.13 ns
+  aVec[1114] = 4.305802e-02;  // time = 11.14 ns
+  aVec[1115] = 4.303901e-02;  // time = 11.15 ns
+  aVec[1116] = 4.301987e-02;  // time = 11.16 ns
+  aVec[1117] = 4.300062e-02;  // time = 11.17 ns
+  aVec[1118] = 4.298124e-02;  // time = 11.18 ns
+  aVec[1119] = 4.296175e-02;  // time = 11.19 ns
+  aVec[1120] = 4.294214e-02;  // time = 11.20 ns
+  aVec[1121] = 4.292241e-02;  // time = 11.21 ns
+  aVec[1122] = 4.290257e-02;  // time = 11.22 ns
+  aVec[1123] = 4.288261e-02;  // time = 11.23 ns
+  aVec[1124] = 4.286253e-02;  // time = 11.24 ns
+  aVec[1125] = 4.284234e-02;  // time = 11.25 ns
+  aVec[1126] = 4.282203e-02;  // time = 11.26 ns
+  aVec[1127] = 4.280161e-02;  // time = 11.27 ns
+  aVec[1128] = 4.278108e-02;  // time = 11.28 ns
+  aVec[1129] = 4.276043e-02;  // time = 11.29 ns
+  aVec[1130] = 4.273967e-02;  // time = 11.30 ns
+  aVec[1131] = 4.271880e-02;  // time = 11.31 ns
+  aVec[1132] = 4.269781e-02;  // time = 11.32 ns
+  aVec[1133] = 4.267672e-02;  // time = 11.33 ns
+  aVec[1134] = 4.265551e-02;  // time = 11.34 ns
+  aVec[1135] = 4.263419e-02;  // time = 11.35 ns
+  aVec[1136] = 4.261277e-02;  // time = 11.36 ns
+  aVec[1137] = 4.259123e-02;  // time = 11.37 ns
+  aVec[1138] = 4.256959e-02;  // time = 11.38 ns
+  aVec[1139] = 4.254783e-02;  // time = 11.39 ns
+  aVec[1140] = 4.252597e-02;  // time = 11.40 ns
+  aVec[1141] = 4.250400e-02;  // time = 11.41 ns
+  aVec[1142] = 4.248193e-02;  // time = 11.42 ns
+  aVec[1143] = 4.245975e-02;  // time = 11.43 ns
+  aVec[1144] = 4.243746e-02;  // time = 11.44 ns
+  aVec[1145] = 4.241507e-02;  // time = 11.45 ns
+  aVec[1146] = 4.239257e-02;  // time = 11.46 ns
+  aVec[1147] = 4.236997e-02;  // time = 11.47 ns
+  aVec[1148] = 4.234726e-02;  // time = 11.48 ns
+  aVec[1149] = 4.232445e-02;  // time = 11.49 ns
+  aVec[1150] = 4.230154e-02;  // time = 11.50 ns
+  aVec[1151] = 4.227853e-02;  // time = 11.51 ns
+  aVec[1152] = 4.225541e-02;  // time = 11.52 ns
+  aVec[1153] = 4.223219e-02;  // time = 11.53 ns
+  aVec[1154] = 4.220887e-02;  // time = 11.54 ns
+  aVec[1155] = 4.218545e-02;  // time = 11.55 ns
+  aVec[1156] = 4.216193e-02;  // time = 11.56 ns
+  aVec[1157] = 4.213831e-02;  // time = 11.57 ns
+  aVec[1158] = 4.211459e-02;  // time = 11.58 ns
+  aVec[1159] = 4.209077e-02;  // time = 11.59 ns
+  aVec[1160] = 4.206686e-02;  // time = 11.60 ns
+  aVec[1161] = 4.204284e-02;  // time = 11.61 ns
+  aVec[1162] = 4.201873e-02;  // time = 11.62 ns
+  aVec[1163] = 4.199452e-02;  // time = 11.63 ns
+  aVec[1164] = 4.197022e-02;  // time = 11.64 ns
+  aVec[1165] = 4.194582e-02;  // time = 11.65 ns
+  aVec[1166] = 4.192132e-02;  // time = 11.66 ns
+  aVec[1167] = 4.189673e-02;  // time = 11.67 ns
+  aVec[1168] = 4.187204e-02;  // time = 11.68 ns
+  aVec[1169] = 4.184726e-02;  // time = 11.69 ns
+  aVec[1170] = 4.182239e-02;  // time = 11.70 ns
+  aVec[1171] = 4.179743e-02;  // time = 11.71 ns
+  aVec[1172] = 4.177237e-02;  // time = 11.72 ns
+  aVec[1173] = 4.174721e-02;  // time = 11.73 ns
+  aVec[1174] = 4.172197e-02;  // time = 11.74 ns
+  aVec[1175] = 4.169664e-02;  // time = 11.75 ns
+  aVec[1176] = 4.167121e-02;  // time = 11.76 ns
+  aVec[1177] = 4.164570e-02;  // time = 11.77 ns
+  aVec[1178] = 4.162009e-02;  // time = 11.78 ns
+  aVec[1179] = 4.159440e-02;  // time = 11.79 ns
+  aVec[1180] = 4.156861e-02;  // time = 11.80 ns
+  aVec[1181] = 4.154274e-02;  // time = 11.81 ns
+  aVec[1182] = 4.151678e-02;  // time = 11.82 ns
+  aVec[1183] = 4.149073e-02;  // time = 11.83 ns
+  aVec[1184] = 4.146459e-02;  // time = 11.84 ns
+  aVec[1185] = 4.143837e-02;  // time = 11.85 ns
+  aVec[1186] = 4.141206e-02;  // time = 11.86 ns
+  aVec[1187] = 4.138567e-02;  // time = 11.87 ns
+  aVec[1188] = 4.135919e-02;  // time = 11.88 ns
+  aVec[1189] = 4.133262e-02;  // time = 11.89 ns
+  aVec[1190] = 4.130597e-02;  // time = 11.90 ns
+  aVec[1191] = 4.127924e-02;  // time = 11.91 ns
+  aVec[1192] = 4.125242e-02;  // time = 11.92 ns
+  aVec[1193] = 4.122552e-02;  // time = 11.93 ns
+  aVec[1194] = 4.119853e-02;  // time = 11.94 ns
+  aVec[1195] = 4.117147e-02;  // time = 11.95 ns
+  aVec[1196] = 4.114432e-02;  // time = 11.96 ns
+  aVec[1197] = 4.111709e-02;  // time = 11.97 ns
+  aVec[1198] = 4.108978e-02;  // time = 11.98 ns
+  aVec[1199] = 4.106239e-02;  // time = 11.99 ns
+  aVec[1200] = 4.103492e-02;  // time = 12.00 ns
+  aVec[1201] = 4.100736e-02;  // time = 12.01 ns
+  aVec[1202] = 4.097973e-02;  // time = 12.02 ns
+  aVec[1203] = 4.095202e-02;  // time = 12.03 ns
+  aVec[1204] = 4.092423e-02;  // time = 12.04 ns
+  aVec[1205] = 4.089637e-02;  // time = 12.05 ns
+  aVec[1206] = 4.086842e-02;  // time = 12.06 ns
+  aVec[1207] = 4.084040e-02;  // time = 12.07 ns
+  aVec[1208] = 4.081230e-02;  // time = 12.08 ns
+  aVec[1209] = 4.078413e-02;  // time = 12.09 ns
+  aVec[1210] = 4.075588e-02;  // time = 12.10 ns
+  aVec[1211] = 4.072755e-02;  // time = 12.11 ns
+  aVec[1212] = 4.069915e-02;  // time = 12.12 ns
+  aVec[1213] = 4.067067e-02;  // time = 12.13 ns
+  aVec[1214] = 4.064212e-02;  // time = 12.14 ns
+  aVec[1215] = 4.061350e-02;  // time = 12.15 ns
+  aVec[1216] = 4.058480e-02;  // time = 12.16 ns
+  aVec[1217] = 4.055603e-02;  // time = 12.17 ns
+  aVec[1218] = 4.052718e-02;  // time = 12.18 ns
+  aVec[1219] = 4.049827e-02;  // time = 12.19 ns
+  aVec[1220] = 4.046928e-02;  // time = 12.20 ns
+  aVec[1221] = 4.044022e-02;  // time = 12.21 ns
+  aVec[1222] = 4.041109e-02;  // time = 12.22 ns
+  aVec[1223] = 4.038189e-02;  // time = 12.23 ns
+  aVec[1224] = 4.035262e-02;  // time = 12.24 ns
+  aVec[1225] = 4.032328e-02;  // time = 12.25 ns
+  aVec[1226] = 4.029387e-02;  // time = 12.26 ns
+  aVec[1227] = 4.026439e-02;  // time = 12.27 ns
+  aVec[1228] = 4.023484e-02;  // time = 12.28 ns
+  aVec[1229] = 4.020523e-02;  // time = 12.29 ns
+  aVec[1230] = 4.017554e-02;  // time = 12.30 ns
+  aVec[1231] = 4.014579e-02;  // time = 12.31 ns
+  aVec[1232] = 4.011597e-02;  // time = 12.32 ns
+  aVec[1233] = 4.008609e-02;  // time = 12.33 ns
+  aVec[1234] = 4.005614e-02;  // time = 12.34 ns
+  aVec[1235] = 4.002612e-02;  // time = 12.35 ns
+  aVec[1236] = 3.999604e-02;  // time = 12.36 ns
+  aVec[1237] = 3.996589e-02;  // time = 12.37 ns
+  aVec[1238] = 3.993568e-02;  // time = 12.38 ns
+  aVec[1239] = 3.990540e-02;  // time = 12.39 ns
+  aVec[1240] = 3.987506e-02;  // time = 12.40 ns
+  aVec[1241] = 3.984466e-02;  // time = 12.41 ns
+  aVec[1242] = 3.981419e-02;  // time = 12.42 ns
+  aVec[1243] = 3.978366e-02;  // time = 12.43 ns
+  aVec[1244] = 3.975307e-02;  // time = 12.44 ns
+  aVec[1245] = 3.972242e-02;  // time = 12.45 ns
+  aVec[1246] = 3.969170e-02;  // time = 12.46 ns
+  aVec[1247] = 3.966093e-02;  // time = 12.47 ns
+  aVec[1248] = 3.963009e-02;  // time = 12.48 ns
+  aVec[1249] = 3.959920e-02;  // time = 12.49 ns
+  aVec[1250] = 3.956824e-02;  // time = 12.50 ns
+  aVec[1251] = 3.953722e-02;  // time = 12.51 ns
+  aVec[1252] = 3.950615e-02;  // time = 12.52 ns
+  aVec[1253] = 3.947501e-02;  // time = 12.53 ns
+  aVec[1254] = 3.944382e-02;  // time = 12.54 ns
+  aVec[1255] = 3.941257e-02;  // time = 12.55 ns
+  aVec[1256] = 3.938126e-02;  // time = 12.56 ns
+  aVec[1257] = 3.934989e-02;  // time = 12.57 ns
+  aVec[1258] = 3.931847e-02;  // time = 12.58 ns
+  aVec[1259] = 3.928699e-02;  // time = 12.59 ns
+  aVec[1260] = 3.925545e-02;  // time = 12.60 ns
+  aVec[1261] = 3.922386e-02;  // time = 12.61 ns
+  aVec[1262] = 3.919221e-02;  // time = 12.62 ns
+  aVec[1263] = 3.916051e-02;  // time = 12.63 ns
+  aVec[1264] = 3.912875e-02;  // time = 12.64 ns
+  aVec[1265] = 3.909694e-02;  // time = 12.65 ns
+  aVec[1266] = 3.906507e-02;  // time = 12.66 ns
+  aVec[1267] = 3.903315e-02;  // time = 12.67 ns
+  aVec[1268] = 3.900118e-02;  // time = 12.68 ns
+  aVec[1269] = 3.896916e-02;  // time = 12.69 ns
+  aVec[1270] = 3.893708e-02;  // time = 12.70 ns
+  aVec[1271] = 3.890495e-02;  // time = 12.71 ns
+  aVec[1272] = 3.887276e-02;  // time = 12.72 ns
+  aVec[1273] = 3.884053e-02;  // time = 12.73 ns
+  aVec[1274] = 3.880824e-02;  // time = 12.74 ns
+  aVec[1275] = 3.877591e-02;  // time = 12.75 ns
+  aVec[1276] = 3.874352e-02;  // time = 12.76 ns
+  aVec[1277] = 3.871108e-02;  // time = 12.77 ns
+  aVec[1278] = 3.867860e-02;  // time = 12.78 ns
+  aVec[1279] = 3.864606e-02;  // time = 12.79 ns
+  aVec[1280] = 3.861348e-02;  // time = 12.80 ns
+  aVec[1281] = 3.858084e-02;  // time = 12.81 ns
+  aVec[1282] = 3.854816e-02;  // time = 12.82 ns
+  aVec[1283] = 3.851543e-02;  // time = 12.83 ns
+  aVec[1284] = 3.848265e-02;  // time = 12.84 ns
+  aVec[1285] = 3.844983e-02;  // time = 12.85 ns
+  aVec[1286] = 3.841696e-02;  // time = 12.86 ns
+  aVec[1287] = 3.838404e-02;  // time = 12.87 ns
+  aVec[1288] = 3.835107e-02;  // time = 12.88 ns
+  aVec[1289] = 3.831806e-02;  // time = 12.89 ns
+  aVec[1290] = 3.828500e-02;  // time = 12.90 ns
+  aVec[1291] = 3.825190e-02;  // time = 12.91 ns
+  aVec[1292] = 3.821876e-02;  // time = 12.92 ns
+  aVec[1293] = 3.818556e-02;  // time = 12.93 ns
+  aVec[1294] = 3.815233e-02;  // time = 12.94 ns
+  aVec[1295] = 3.811905e-02;  // time = 12.95 ns
+  aVec[1296] = 3.808572e-02;  // time = 12.96 ns
+  aVec[1297] = 3.805236e-02;  // time = 12.97 ns
+  aVec[1298] = 3.801895e-02;  // time = 12.98 ns
+  aVec[1299] = 3.798550e-02;  // time = 12.99 ns
+  aVec[1300] = 3.795200e-02;  // time = 13.00 ns
+  aVec[1301] = 3.791847e-02;  // time = 13.01 ns
+  aVec[1302] = 3.788489e-02;  // time = 13.02 ns
+  aVec[1303] = 3.785127e-02;  // time = 13.03 ns
+  aVec[1304] = 3.781761e-02;  // time = 13.04 ns
+  aVec[1305] = 3.778391e-02;  // time = 13.05 ns
+  aVec[1306] = 3.775017e-02;  // time = 13.06 ns
+  aVec[1307] = 3.771638e-02;  // time = 13.07 ns
+  aVec[1308] = 3.768256e-02;  // time = 13.08 ns
+  aVec[1309] = 3.764870e-02;  // time = 13.09 ns
+  aVec[1310] = 3.761480e-02;  // time = 13.10 ns
+  aVec[1311] = 3.758087e-02;  // time = 13.11 ns
+  aVec[1312] = 3.754689e-02;  // time = 13.12 ns
+  aVec[1313] = 3.751287e-02;  // time = 13.13 ns
+  aVec[1314] = 3.747882e-02;  // time = 13.14 ns
+  aVec[1315] = 3.744473e-02;  // time = 13.15 ns
+  aVec[1316] = 3.741061e-02;  // time = 13.16 ns
+  aVec[1317] = 3.737644e-02;  // time = 13.17 ns
+  aVec[1318] = 3.734224e-02;  // time = 13.18 ns
+  aVec[1319] = 3.730800e-02;  // time = 13.19 ns
+  aVec[1320] = 3.727373e-02;  // time = 13.20 ns
+  aVec[1321] = 3.723942e-02;  // time = 13.21 ns
+  aVec[1322] = 3.720508e-02;  // time = 13.22 ns
+  aVec[1323] = 3.717070e-02;  // time = 13.23 ns
+  aVec[1324] = 3.713629e-02;  // time = 13.24 ns
+  aVec[1325] = 3.710184e-02;  // time = 13.25 ns
+  aVec[1326] = 3.706736e-02;  // time = 13.26 ns
+  aVec[1327] = 3.703285e-02;  // time = 13.27 ns
+  aVec[1328] = 3.699830e-02;  // time = 13.28 ns
+  aVec[1329] = 3.696372e-02;  // time = 13.29 ns
+  aVec[1330] = 3.692910e-02;  // time = 13.30 ns
+  aVec[1331] = 3.689445e-02;  // time = 13.31 ns
+  aVec[1332] = 3.685977e-02;  // time = 13.32 ns
+  aVec[1333] = 3.682506e-02;  // time = 13.33 ns
+  aVec[1334] = 3.679032e-02;  // time = 13.34 ns
+  aVec[1335] = 3.675555e-02;  // time = 13.35 ns
+  aVec[1336] = 3.672074e-02;  // time = 13.36 ns
+  aVec[1337] = 3.668590e-02;  // time = 13.37 ns
+  aVec[1338] = 3.665104e-02;  // time = 13.38 ns
+  aVec[1339] = 3.661614e-02;  // time = 13.39 ns
+  aVec[1340] = 3.658121e-02;  // time = 13.40 ns
+  aVec[1341] = 3.654626e-02;  // time = 13.41 ns
+  aVec[1342] = 3.651127e-02;  // time = 13.42 ns
+  aVec[1343] = 3.647626e-02;  // time = 13.43 ns
+  aVec[1344] = 3.644121e-02;  // time = 13.44 ns
+  aVec[1345] = 3.640614e-02;  // time = 13.45 ns
+  aVec[1346] = 3.637104e-02;  // time = 13.46 ns
+  aVec[1347] = 3.633591e-02;  // time = 13.47 ns
+  aVec[1348] = 3.630076e-02;  // time = 13.48 ns
+  aVec[1349] = 3.626557e-02;  // time = 13.49 ns
+  aVec[1350] = 3.623036e-02;  // time = 13.50 ns
+  aVec[1351] = 3.619513e-02;  // time = 13.51 ns
+  aVec[1352] = 3.615986e-02;  // time = 13.52 ns
+  aVec[1353] = 3.612457e-02;  // time = 13.53 ns
+  aVec[1354] = 3.608926e-02;  // time = 13.54 ns
+  aVec[1355] = 3.605392e-02;  // time = 13.55 ns
+  aVec[1356] = 3.601855e-02;  // time = 13.56 ns
+  aVec[1357] = 3.598316e-02;  // time = 13.57 ns
+  aVec[1358] = 3.594774e-02;  // time = 13.58 ns
+  aVec[1359] = 3.591230e-02;  // time = 13.59 ns
+  aVec[1360] = 3.587684e-02;  // time = 13.60 ns
+  aVec[1361] = 3.584135e-02;  // time = 13.61 ns
+  aVec[1362] = 3.580583e-02;  // time = 13.62 ns
+  aVec[1363] = 3.577030e-02;  // time = 13.63 ns
+  aVec[1364] = 3.573474e-02;  // time = 13.64 ns
+  aVec[1365] = 3.569915e-02;  // time = 13.65 ns
+  aVec[1366] = 3.566355e-02;  // time = 13.66 ns
+  aVec[1367] = 3.562792e-02;  // time = 13.67 ns
+  aVec[1368] = 3.559227e-02;  // time = 13.68 ns
+  aVec[1369] = 3.555660e-02;  // time = 13.69 ns
+  aVec[1370] = 3.552090e-02;  // time = 13.70 ns
+  aVec[1371] = 3.548519e-02;  // time = 13.71 ns
+  aVec[1372] = 3.544945e-02;  // time = 13.72 ns
+  aVec[1373] = 3.541370e-02;  // time = 13.73 ns
+  aVec[1374] = 3.537792e-02;  // time = 13.74 ns
+  aVec[1375] = 3.534212e-02;  // time = 13.75 ns
+  aVec[1376] = 3.530630e-02;  // time = 13.76 ns
+  aVec[1377] = 3.527046e-02;  // time = 13.77 ns
+  aVec[1378] = 3.523461e-02;  // time = 13.78 ns
+  aVec[1379] = 3.519873e-02;  // time = 13.79 ns
+  aVec[1380] = 3.516283e-02;  // time = 13.80 ns
+  aVec[1381] = 3.512692e-02;  // time = 13.81 ns
+  aVec[1382] = 3.509099e-02;  // time = 13.82 ns
+  aVec[1383] = 3.505504e-02;  // time = 13.83 ns
+  aVec[1384] = 3.501907e-02;  // time = 13.84 ns
+  aVec[1385] = 3.498308e-02;  // time = 13.85 ns
+  aVec[1386] = 3.494707e-02;  // time = 13.86 ns
+  aVec[1387] = 3.491105e-02;  // time = 13.87 ns
+  aVec[1388] = 3.487501e-02;  // time = 13.88 ns
+  aVec[1389] = 3.483896e-02;  // time = 13.89 ns
+  aVec[1390] = 3.480288e-02;  // time = 13.90 ns
+  aVec[1391] = 3.476680e-02;  // time = 13.91 ns
+  aVec[1392] = 3.473069e-02;  // time = 13.92 ns
+  aVec[1393] = 3.469457e-02;  // time = 13.93 ns
+  aVec[1394] = 3.465843e-02;  // time = 13.94 ns
+  aVec[1395] = 3.462228e-02;  // time = 13.95 ns
+  aVec[1396] = 3.458612e-02;  // time = 13.96 ns
+  aVec[1397] = 3.454993e-02;  // time = 13.97 ns
+  aVec[1398] = 3.451374e-02;  // time = 13.98 ns
+  aVec[1399] = 3.447753e-02;  // time = 13.99 ns
+  aVec[1400] = 3.444130e-02;  // time = 14.00 ns
+  aVec[1401] = 3.440506e-02;  // time = 14.01 ns
+  aVec[1402] = 3.436881e-02;  // time = 14.02 ns
+  aVec[1403] = 3.433254e-02;  // time = 14.03 ns
+  aVec[1404] = 3.429626e-02;  // time = 14.04 ns
+  aVec[1405] = 3.425997e-02;  // time = 14.05 ns
+  aVec[1406] = 3.422367e-02;  // time = 14.06 ns
+  aVec[1407] = 3.418735e-02;  // time = 14.07 ns
+  aVec[1408] = 3.415102e-02;  // time = 14.08 ns
+  aVec[1409] = 3.411468e-02;  // time = 14.09 ns
+  aVec[1410] = 3.407832e-02;  // time = 14.10 ns
+  aVec[1411] = 3.404196e-02;  // time = 14.11 ns
+  aVec[1412] = 3.400558e-02;  // time = 14.12 ns
+  aVec[1413] = 3.396919e-02;  // time = 14.13 ns
+  aVec[1414] = 3.393279e-02;  // time = 14.14 ns
+  aVec[1415] = 3.389638e-02;  // time = 14.15 ns
+  aVec[1416] = 3.385996e-02;  // time = 14.16 ns
+  aVec[1417] = 3.382353e-02;  // time = 14.17 ns
+  aVec[1418] = 3.378709e-02;  // time = 14.18 ns
+  aVec[1419] = 3.375064e-02;  // time = 14.19 ns
+  aVec[1420] = 3.371418e-02;  // time = 14.20 ns
+  aVec[1421] = 3.367771e-02;  // time = 14.21 ns
+  aVec[1422] = 3.364123e-02;  // time = 14.22 ns
+  aVec[1423] = 3.360474e-02;  // time = 14.23 ns
+  aVec[1424] = 3.356825e-02;  // time = 14.24 ns
+  aVec[1425] = 3.353174e-02;  // time = 14.25 ns
+  aVec[1426] = 3.349523e-02;  // time = 14.26 ns
+  aVec[1427] = 3.345871e-02;  // time = 14.27 ns
+  aVec[1428] = 3.342218e-02;  // time = 14.28 ns
+  aVec[1429] = 3.338564e-02;  // time = 14.29 ns
+  aVec[1430] = 3.334909e-02;  // time = 14.30 ns
+  aVec[1431] = 3.331254e-02;  // time = 14.31 ns
+  aVec[1432] = 3.327598e-02;  // time = 14.32 ns
+  aVec[1433] = 3.323942e-02;  // time = 14.33 ns
+  aVec[1434] = 3.320284e-02;  // time = 14.34 ns
+  aVec[1435] = 3.316626e-02;  // time = 14.35 ns
+  aVec[1436] = 3.312968e-02;  // time = 14.36 ns
+  aVec[1437] = 3.309309e-02;  // time = 14.37 ns
+  aVec[1438] = 3.305649e-02;  // time = 14.38 ns
+  aVec[1439] = 3.301989e-02;  // time = 14.39 ns
+  aVec[1440] = 3.298328e-02;  // time = 14.40 ns
+  aVec[1441] = 3.294666e-02;  // time = 14.41 ns
+  aVec[1442] = 3.291005e-02;  // time = 14.42 ns
+  aVec[1443] = 3.287342e-02;  // time = 14.43 ns
+  aVec[1444] = 3.283679e-02;  // time = 14.44 ns
+  aVec[1445] = 3.280016e-02;  // time = 14.45 ns
+  aVec[1446] = 3.276352e-02;  // time = 14.46 ns
+  aVec[1447] = 3.272688e-02;  // time = 14.47 ns
+  aVec[1448] = 3.269024e-02;  // time = 14.48 ns
+  aVec[1449] = 3.265359e-02;  // time = 14.49 ns
+  aVec[1450] = 3.261694e-02;  // time = 14.50 ns
+  aVec[1451] = 3.258028e-02;  // time = 14.51 ns
+  aVec[1452] = 3.254362e-02;  // time = 14.52 ns
+  aVec[1453] = 3.250696e-02;  // time = 14.53 ns
+  aVec[1454] = 3.247030e-02;  // time = 14.54 ns
+  aVec[1455] = 3.243363e-02;  // time = 14.55 ns
+  aVec[1456] = 3.239696e-02;  // time = 14.56 ns
+  aVec[1457] = 3.236029e-02;  // time = 14.57 ns
+  aVec[1458] = 3.232362e-02;  // time = 14.58 ns
+  aVec[1459] = 3.228694e-02;  // time = 14.59 ns
+  aVec[1460] = 3.225027e-02;  // time = 14.60 ns
+  aVec[1461] = 3.221359e-02;  // time = 14.61 ns
+  aVec[1462] = 3.217691e-02;  // time = 14.62 ns
+  aVec[1463] = 3.214023e-02;  // time = 14.63 ns
+  aVec[1464] = 3.210355e-02;  // time = 14.64 ns
+  aVec[1465] = 3.206687e-02;  // time = 14.65 ns
+  aVec[1466] = 3.203019e-02;  // time = 14.66 ns
+  aVec[1467] = 3.199351e-02;  // time = 14.67 ns
+  aVec[1468] = 3.195682e-02;  // time = 14.68 ns
+  aVec[1469] = 3.192014e-02;  // time = 14.69 ns
+  aVec[1470] = 3.188346e-02;  // time = 14.70 ns
+  aVec[1471] = 3.184678e-02;  // time = 14.71 ns
+  aVec[1472] = 3.181010e-02;  // time = 14.72 ns
+  aVec[1473] = 3.177342e-02;  // time = 14.73 ns
+  aVec[1474] = 3.173674e-02;  // time = 14.74 ns
+  aVec[1475] = 3.170006e-02;  // time = 14.75 ns
+  aVec[1476] = 3.166338e-02;  // time = 14.76 ns
+  aVec[1477] = 3.162671e-02;  // time = 14.77 ns
+  aVec[1478] = 3.159004e-02;  // time = 14.78 ns
+  aVec[1479] = 3.155336e-02;  // time = 14.79 ns
+  aVec[1480] = 3.151670e-02;  // time = 14.80 ns
+  aVec[1481] = 3.148003e-02;  // time = 14.81 ns
+  aVec[1482] = 3.144336e-02;  // time = 14.82 ns
+  aVec[1483] = 3.140670e-02;  // time = 14.83 ns
+  aVec[1484] = 3.137004e-02;  // time = 14.84 ns
+  aVec[1485] = 3.133338e-02;  // time = 14.85 ns
+  aVec[1486] = 3.129673e-02;  // time = 14.86 ns
+  aVec[1487] = 3.126008e-02;  // time = 14.87 ns
+  aVec[1488] = 3.122343e-02;  // time = 14.88 ns
+  aVec[1489] = 3.118679e-02;  // time = 14.89 ns
+  aVec[1490] = 3.115015e-02;  // time = 14.90 ns
+  aVec[1491] = 3.111351e-02;  // time = 14.91 ns
+  aVec[1492] = 3.107688e-02;  // time = 14.92 ns
+  aVec[1493] = 3.104025e-02;  // time = 14.93 ns
+  aVec[1494] = 3.100363e-02;  // time = 14.94 ns
+  aVec[1495] = 3.096701e-02;  // time = 14.95 ns
+  aVec[1496] = 3.093039e-02;  // time = 14.96 ns
+  aVec[1497] = 3.089378e-02;  // time = 14.97 ns
+  aVec[1498] = 3.085718e-02;  // time = 14.98 ns
+  aVec[1499] = 3.082058e-02;  // time = 14.99 ns
+  aVec[1500] = 3.078398e-02;  // time = 15.00 ns
+  aVec[1501] = 3.074739e-02;  // time = 15.01 ns
+  aVec[1502] = 3.071081e-02;  // time = 15.02 ns
+  aVec[1503] = 3.067423e-02;  // time = 15.03 ns
+  aVec[1504] = 3.063766e-02;  // time = 15.04 ns
+  aVec[1505] = 3.060109e-02;  // time = 15.05 ns
+  aVec[1506] = 3.056453e-02;  // time = 15.06 ns
+  aVec[1507] = 3.052798e-02;  // time = 15.07 ns
+  aVec[1508] = 3.049143e-02;  // time = 15.08 ns
+  aVec[1509] = 3.045489e-02;  // time = 15.09 ns
+  aVec[1510] = 3.041836e-02;  // time = 15.10 ns
+  aVec[1511] = 3.038183e-02;  // time = 15.11 ns
+  aVec[1512] = 3.034531e-02;  // time = 15.12 ns
+  aVec[1513] = 3.030880e-02;  // time = 15.13 ns
+  aVec[1514] = 3.027230e-02;  // time = 15.14 ns
+  aVec[1515] = 3.023580e-02;  // time = 15.15 ns
+  aVec[1516] = 3.019931e-02;  // time = 15.16 ns
+  aVec[1517] = 3.016283e-02;  // time = 15.17 ns
+  aVec[1518] = 3.012636e-02;  // time = 15.18 ns
+  aVec[1519] = 3.008989e-02;  // time = 15.19 ns
+  aVec[1520] = 3.005343e-02;  // time = 15.20 ns
+  aVec[1521] = 3.001698e-02;  // time = 15.21 ns
+  aVec[1522] = 2.998054e-02;  // time = 15.22 ns
+  aVec[1523] = 2.994411e-02;  // time = 15.23 ns
+  aVec[1524] = 2.990769e-02;  // time = 15.24 ns
+  aVec[1525] = 2.987128e-02;  // time = 15.25 ns
+  aVec[1526] = 2.983487e-02;  // time = 15.26 ns
+  aVec[1527] = 2.979848e-02;  // time = 15.27 ns
+  aVec[1528] = 2.976209e-02;  // time = 15.28 ns
+  aVec[1529] = 2.972571e-02;  // time = 15.29 ns
+  aVec[1530] = 2.968935e-02;  // time = 15.30 ns
+  aVec[1531] = 2.965299e-02;  // time = 15.31 ns
+  aVec[1532] = 2.961664e-02;  // time = 15.32 ns
+  aVec[1533] = 2.958031e-02;  // time = 15.33 ns
+  aVec[1534] = 2.954398e-02;  // time = 15.34 ns
+  aVec[1535] = 2.950766e-02;  // time = 15.35 ns
+  aVec[1536] = 2.947136e-02;  // time = 15.36 ns
+  aVec[1537] = 2.943506e-02;  // time = 15.37 ns
+  aVec[1538] = 2.939878e-02;  // time = 15.38 ns
+  aVec[1539] = 2.936250e-02;  // time = 15.39 ns
+  aVec[1540] = 2.932624e-02;  // time = 15.40 ns
+  aVec[1541] = 2.928999e-02;  // time = 15.41 ns
+  aVec[1542] = 2.925375e-02;  // time = 15.42 ns
+  aVec[1543] = 2.921752e-02;  // time = 15.43 ns
+  aVec[1544] = 2.918130e-02;  // time = 15.44 ns
+  aVec[1545] = 2.914510e-02;  // time = 15.45 ns
+  aVec[1546] = 2.910890e-02;  // time = 15.46 ns
+  aVec[1547] = 2.907272e-02;  // time = 15.47 ns
+  aVec[1548] = 2.903655e-02;  // time = 15.48 ns
+  aVec[1549] = 2.900040e-02;  // time = 15.49 ns
+  aVec[1550] = 2.896425e-02;  // time = 15.50 ns
+  aVec[1551] = 2.892812e-02;  // time = 15.51 ns
+  aVec[1552] = 2.889200e-02;  // time = 15.52 ns
+  aVec[1553] = 2.885589e-02;  // time = 15.53 ns
+  aVec[1554] = 2.881979e-02;  // time = 15.54 ns
+  aVec[1555] = 2.878371e-02;  // time = 15.55 ns
+  aVec[1556] = 2.874764e-02;  // time = 15.56 ns
+  aVec[1557] = 2.871159e-02;  // time = 15.57 ns
+  aVec[1558] = 2.867554e-02;  // time = 15.58 ns
+  aVec[1559] = 2.863951e-02;  // time = 15.59 ns
+  aVec[1560] = 2.860350e-02;  // time = 15.60 ns
+  aVec[1561] = 2.856749e-02;  // time = 15.61 ns
+  aVec[1562] = 2.853151e-02;  // time = 15.62 ns
+  aVec[1563] = 2.849553e-02;  // time = 15.63 ns
+  aVec[1564] = 2.845957e-02;  // time = 15.64 ns
+  aVec[1565] = 2.842362e-02;  // time = 15.65 ns
+  aVec[1566] = 2.838769e-02;  // time = 15.66 ns
+  aVec[1567] = 2.835177e-02;  // time = 15.67 ns
+  aVec[1568] = 2.831587e-02;  // time = 15.68 ns
+  aVec[1569] = 2.827998e-02;  // time = 15.69 ns
+  aVec[1570] = 2.824410e-02;  // time = 15.70 ns
+  aVec[1571] = 2.820824e-02;  // time = 15.71 ns
+  aVec[1572] = 2.817240e-02;  // time = 15.72 ns
+  aVec[1573] = 2.813657e-02;  // time = 15.73 ns
+  aVec[1574] = 2.810075e-02;  // time = 15.74 ns
+  aVec[1575] = 2.806495e-02;  // time = 15.75 ns
+  aVec[1576] = 2.802917e-02;  // time = 15.76 ns
+  aVec[1577] = 2.799340e-02;  // time = 15.77 ns
+  aVec[1578] = 2.795765e-02;  // time = 15.78 ns
+  aVec[1579] = 2.792191e-02;  // time = 15.79 ns
+  aVec[1580] = 2.788619e-02;  // time = 15.80 ns
+  aVec[1581] = 2.785048e-02;  // time = 15.81 ns
+  aVec[1582] = 2.781479e-02;  // time = 15.82 ns
+  aVec[1583] = 2.777911e-02;  // time = 15.83 ns
+  aVec[1584] = 2.774346e-02;  // time = 15.84 ns
+  aVec[1585] = 2.770781e-02;  // time = 15.85 ns
+  aVec[1586] = 2.767219e-02;  // time = 15.86 ns
+  aVec[1587] = 2.763658e-02;  // time = 15.87 ns
+  aVec[1588] = 2.760098e-02;  // time = 15.88 ns
+  aVec[1589] = 2.756541e-02;  // time = 15.89 ns
+  aVec[1590] = 2.752985e-02;  // time = 15.90 ns
+  aVec[1591] = 2.749431e-02;  // time = 15.91 ns
+  aVec[1592] = 2.745878e-02;  // time = 15.92 ns
+  aVec[1593] = 2.742327e-02;  // time = 15.93 ns
+  aVec[1594] = 2.738778e-02;  // time = 15.94 ns
+  aVec[1595] = 2.735231e-02;  // time = 15.95 ns
+  aVec[1596] = 2.731685e-02;  // time = 15.96 ns
+  aVec[1597] = 2.728141e-02;  // time = 15.97 ns
+  aVec[1598] = 2.724599e-02;  // time = 15.98 ns
+  aVec[1599] = 2.721059e-02;  // time = 15.99 ns
+  aVec[1600] = 2.717520e-02;  // time = 16.00 ns
+  aVec[1601] = 2.713983e-02;  // time = 16.01 ns
+  aVec[1602] = 2.710448e-02;  // time = 16.02 ns
+  aVec[1603] = 2.706915e-02;  // time = 16.03 ns
+  aVec[1604] = 2.703383e-02;  // time = 16.04 ns
+  aVec[1605] = 2.699854e-02;  // time = 16.05 ns
+  aVec[1606] = 2.696326e-02;  // time = 16.06 ns
+  aVec[1607] = 2.692800e-02;  // time = 16.07 ns
+  aVec[1608] = 2.689276e-02;  // time = 16.08 ns
+  aVec[1609] = 2.685754e-02;  // time = 16.09 ns
+  aVec[1610] = 2.682233e-02;  // time = 16.10 ns
+  aVec[1611] = 2.678715e-02;  // time = 16.11 ns
+  aVec[1612] = 2.675198e-02;  // time = 16.12 ns
+  aVec[1613] = 2.671683e-02;  // time = 16.13 ns
+  aVec[1614] = 2.668171e-02;  // time = 16.14 ns
+  aVec[1615] = 2.664660e-02;  // time = 16.15 ns
+  aVec[1616] = 2.661151e-02;  // time = 16.16 ns
+  aVec[1617] = 2.657644e-02;  // time = 16.17 ns
+  aVec[1618] = 2.654139e-02;  // time = 16.18 ns
+  aVec[1619] = 2.650635e-02;  // time = 16.19 ns
+  aVec[1620] = 2.647134e-02;  // time = 16.20 ns
+  aVec[1621] = 2.643635e-02;  // time = 16.21 ns
+  aVec[1622] = 2.640138e-02;  // time = 16.22 ns
+  aVec[1623] = 2.636642e-02;  // time = 16.23 ns
+  aVec[1624] = 2.633149e-02;  // time = 16.24 ns
+  aVec[1625] = 2.629658e-02;  // time = 16.25 ns
+  aVec[1626] = 2.626169e-02;  // time = 16.26 ns
+  aVec[1627] = 2.622681e-02;  // time = 16.27 ns
+  aVec[1628] = 2.619196e-02;  // time = 16.28 ns
+  aVec[1629] = 2.615713e-02;  // time = 16.29 ns
+  aVec[1630] = 2.612232e-02;  // time = 16.30 ns
+  aVec[1631] = 2.608752e-02;  // time = 16.31 ns
+  aVec[1632] = 2.605275e-02;  // time = 16.32 ns
+  aVec[1633] = 2.601800e-02;  // time = 16.33 ns
+  aVec[1634] = 2.598327e-02;  // time = 16.34 ns
+  aVec[1635] = 2.594856e-02;  // time = 16.35 ns
+  aVec[1636] = 2.591388e-02;  // time = 16.36 ns
+  aVec[1637] = 2.587921e-02;  // time = 16.37 ns
+  aVec[1638] = 2.584456e-02;  // time = 16.38 ns
+  aVec[1639] = 2.580994e-02;  // time = 16.39 ns
+  aVec[1640] = 2.577533e-02;  // time = 16.40 ns
+  aVec[1641] = 2.574075e-02;  // time = 16.41 ns
+  aVec[1642] = 2.570619e-02;  // time = 16.42 ns
+  aVec[1643] = 2.567165e-02;  // time = 16.43 ns
+  aVec[1644] = 2.563713e-02;  // time = 16.44 ns
+  aVec[1645] = 2.560263e-02;  // time = 16.45 ns
+  aVec[1646] = 2.556816e-02;  // time = 16.46 ns
+  aVec[1647] = 2.553370e-02;  // time = 16.47 ns
+  aVec[1648] = 2.549927e-02;  // time = 16.48 ns
+  aVec[1649] = 2.546486e-02;  // time = 16.49 ns
+  aVec[1650] = 2.543047e-02;  // time = 16.50 ns
+  aVec[1651] = 2.539611e-02;  // time = 16.51 ns
+  aVec[1652] = 2.536176e-02;  // time = 16.52 ns
+  aVec[1653] = 2.532744e-02;  // time = 16.53 ns
+  aVec[1654] = 2.529314e-02;  // time = 16.54 ns
+  aVec[1655] = 2.525886e-02;  // time = 16.55 ns
+  aVec[1656] = 2.522461e-02;  // time = 16.56 ns
+  aVec[1657] = 2.519037e-02;  // time = 16.57 ns
+  aVec[1658] = 2.515616e-02;  // time = 16.58 ns
+  aVec[1659] = 2.512198e-02;  // time = 16.59 ns
+  aVec[1660] = 2.508781e-02;  // time = 16.60 ns
+  aVec[1661] = 2.505367e-02;  // time = 16.61 ns
+  aVec[1662] = 2.501955e-02;  // time = 16.62 ns
+  aVec[1663] = 2.498545e-02;  // time = 16.63 ns
+  aVec[1664] = 2.495138e-02;  // time = 16.64 ns
+  aVec[1665] = 2.491732e-02;  // time = 16.65 ns
+  aVec[1666] = 2.488330e-02;  // time = 16.66 ns
+  aVec[1667] = 2.484929e-02;  // time = 16.67 ns
+  aVec[1668] = 2.481531e-02;  // time = 16.68 ns
+  aVec[1669] = 2.478135e-02;  // time = 16.69 ns
+  aVec[1670] = 2.474741e-02;  // time = 16.70 ns
+  aVec[1671] = 2.471350e-02;  // time = 16.71 ns
+  aVec[1672] = 2.467961e-02;  // time = 16.72 ns
+  aVec[1673] = 2.464574e-02;  // time = 16.73 ns
+  aVec[1674] = 2.461190e-02;  // time = 16.74 ns
+  aVec[1675] = 2.457808e-02;  // time = 16.75 ns
+  aVec[1676] = 2.454429e-02;  // time = 16.76 ns
+  aVec[1677] = 2.451051e-02;  // time = 16.77 ns
+  aVec[1678] = 2.447677e-02;  // time = 16.78 ns
+  aVec[1679] = 2.444304e-02;  // time = 16.79 ns
+  aVec[1680] = 2.440934e-02;  // time = 16.80 ns
+  aVec[1681] = 2.437566e-02;  // time = 16.81 ns
+  aVec[1682] = 2.434201e-02;  // time = 16.82 ns
+  aVec[1683] = 2.430838e-02;  // time = 16.83 ns
+  aVec[1684] = 2.427478e-02;  // time = 16.84 ns
+  aVec[1685] = 2.424120e-02;  // time = 16.85 ns
+  aVec[1686] = 2.420764e-02;  // time = 16.86 ns
+  aVec[1687] = 2.417411e-02;  // time = 16.87 ns
+  aVec[1688] = 2.414060e-02;  // time = 16.88 ns
+  aVec[1689] = 2.410712e-02;  // time = 16.89 ns
+  aVec[1690] = 2.407366e-02;  // time = 16.90 ns
+  aVec[1691] = 2.404022e-02;  // time = 16.91 ns
+  aVec[1692] = 2.400681e-02;  // time = 16.92 ns
+  aVec[1693] = 2.397343e-02;  // time = 16.93 ns
+  aVec[1694] = 2.394007e-02;  // time = 16.94 ns
+  aVec[1695] = 2.390673e-02;  // time = 16.95 ns
+  aVec[1696] = 2.387342e-02;  // time = 16.96 ns
+  aVec[1697] = 2.384013e-02;  // time = 16.97 ns
+  aVec[1698] = 2.380687e-02;  // time = 16.98 ns
+  aVec[1699] = 2.377363e-02;  // time = 16.99 ns
+  aVec[1700] = 2.374042e-02;  // time = 17.00 ns
+  aVec[1701] = 2.370723e-02;  // time = 17.01 ns
+  aVec[1702] = 2.367407e-02;  // time = 17.02 ns
+  aVec[1703] = 2.364093e-02;  // time = 17.03 ns
+  aVec[1704] = 2.360782e-02;  // time = 17.04 ns
+  aVec[1705] = 2.357473e-02;  // time = 17.05 ns
+  aVec[1706] = 2.354167e-02;  // time = 17.06 ns
+  aVec[1707] = 2.350863e-02;  // time = 17.07 ns
+  aVec[1708] = 2.347562e-02;  // time = 17.08 ns
+  aVec[1709] = 2.344264e-02;  // time = 17.09 ns
+  aVec[1710] = 2.340968e-02;  // time = 17.10 ns
+  aVec[1711] = 2.337674e-02;  // time = 17.11 ns
+  aVec[1712] = 2.334383e-02;  // time = 17.12 ns
+  aVec[1713] = 2.331095e-02;  // time = 17.13 ns
+  aVec[1714] = 2.327809e-02;  // time = 17.14 ns
+  aVec[1715] = 2.324525e-02;  // time = 17.15 ns
+  aVec[1716] = 2.321245e-02;  // time = 17.16 ns
+  aVec[1717] = 2.317967e-02;  // time = 17.17 ns
+  aVec[1718] = 2.314691e-02;  // time = 17.18 ns
+  aVec[1719] = 2.311418e-02;  // time = 17.19 ns
+  aVec[1720] = 2.308148e-02;  // time = 17.20 ns
+  aVec[1721] = 2.304880e-02;  // time = 17.21 ns
+  aVec[1722] = 2.301615e-02;  // time = 17.22 ns
+  aVec[1723] = 2.298352e-02;  // time = 17.23 ns
+  aVec[1724] = 2.295092e-02;  // time = 17.24 ns
+  aVec[1725] = 2.291834e-02;  // time = 17.25 ns
+  aVec[1726] = 2.288580e-02;  // time = 17.26 ns
+  aVec[1727] = 2.285327e-02;  // time = 17.27 ns
+  aVec[1728] = 2.282078e-02;  // time = 17.28 ns
+  aVec[1729] = 2.278831e-02;  // time = 17.29 ns
+  aVec[1730] = 2.275587e-02;  // time = 17.30 ns
+  aVec[1731] = 2.272345e-02;  // time = 17.31 ns
+  aVec[1732] = 2.269106e-02;  // time = 17.32 ns
+  aVec[1733] = 2.265869e-02;  // time = 17.33 ns
+  aVec[1734] = 2.262635e-02;  // time = 17.34 ns
+  aVec[1735] = 2.259404e-02;  // time = 17.35 ns
+  aVec[1736] = 2.256176e-02;  // time = 17.36 ns
+  aVec[1737] = 2.252950e-02;  // time = 17.37 ns
+  aVec[1738] = 2.249727e-02;  // time = 17.38 ns
+  aVec[1739] = 2.246506e-02;  // time = 17.39 ns
+  aVec[1740] = 2.243288e-02;  // time = 17.40 ns
+  aVec[1741] = 2.240073e-02;  // time = 17.41 ns
+  aVec[1742] = 2.236861e-02;  // time = 17.42 ns
+  aVec[1743] = 2.233651e-02;  // time = 17.43 ns
+  aVec[1744] = 2.230444e-02;  // time = 17.44 ns
+  aVec[1745] = 2.227239e-02;  // time = 17.45 ns
+  aVec[1746] = 2.224037e-02;  // time = 17.46 ns
+  aVec[1747] = 2.220838e-02;  // time = 17.47 ns
+  aVec[1748] = 2.217642e-02;  // time = 17.48 ns
+  aVec[1749] = 2.214448e-02;  // time = 17.49 ns
+  aVec[1750] = 2.211257e-02;  // time = 17.50 ns
+  aVec[1751] = 2.208069e-02;  // time = 17.51 ns
+  aVec[1752] = 2.204883e-02;  // time = 17.52 ns
+  aVec[1753] = 2.201700e-02;  // time = 17.53 ns
+  aVec[1754] = 2.198520e-02;  // time = 17.54 ns
+  aVec[1755] = 2.195342e-02;  // time = 17.55 ns
+  aVec[1756] = 2.192168e-02;  // time = 17.56 ns
+  aVec[1757] = 2.188995e-02;  // time = 17.57 ns
+  aVec[1758] = 2.185826e-02;  // time = 17.58 ns
+  aVec[1759] = 2.182660e-02;  // time = 17.59 ns
+  aVec[1760] = 2.179496e-02;  // time = 17.60 ns
+  aVec[1761] = 2.176334e-02;  // time = 17.61 ns
+  aVec[1762] = 2.173176e-02;  // time = 17.62 ns
+  aVec[1763] = 2.170020e-02;  // time = 17.63 ns
+  aVec[1764] = 2.166867e-02;  // time = 17.64 ns
+  aVec[1765] = 2.163717e-02;  // time = 17.65 ns
+  aVec[1766] = 2.160570e-02;  // time = 17.66 ns
+  aVec[1767] = 2.157425e-02;  // time = 17.67 ns
+  aVec[1768] = 2.154283e-02;  // time = 17.68 ns
+  aVec[1769] = 2.151144e-02;  // time = 17.69 ns
+  aVec[1770] = 2.148008e-02;  // time = 17.70 ns
+  aVec[1771] = 2.144874e-02;  // time = 17.71 ns
+  aVec[1772] = 2.141743e-02;  // time = 17.72 ns
+  aVec[1773] = 2.138615e-02;  // time = 17.73 ns
+  aVec[1774] = 2.135490e-02;  // time = 17.74 ns
+  aVec[1775] = 2.132367e-02;  // time = 17.75 ns
+  aVec[1776] = 2.129247e-02;  // time = 17.76 ns
+  aVec[1777] = 2.126130e-02;  // time = 17.77 ns
+  aVec[1778] = 2.123016e-02;  // time = 17.78 ns
+  aVec[1779] = 2.119904e-02;  // time = 17.79 ns
+  aVec[1780] = 2.116796e-02;  // time = 17.80 ns
+  aVec[1781] = 2.113690e-02;  // time = 17.81 ns
+  aVec[1782] = 2.110587e-02;  // time = 17.82 ns
+  aVec[1783] = 2.107486e-02;  // time = 17.83 ns
+  aVec[1784] = 2.104389e-02;  // time = 17.84 ns
+  aVec[1785] = 2.101294e-02;  // time = 17.85 ns
+  aVec[1786] = 2.098202e-02;  // time = 17.86 ns
+  aVec[1787] = 2.095113e-02;  // time = 17.87 ns
+  aVec[1788] = 2.092027e-02;  // time = 17.88 ns
+  aVec[1789] = 2.088943e-02;  // time = 17.89 ns
+  aVec[1790] = 2.085862e-02;  // time = 17.90 ns
+  aVec[1791] = 2.082785e-02;  // time = 17.91 ns
+  aVec[1792] = 2.079709e-02;  // time = 17.92 ns
+  aVec[1793] = 2.076637e-02;  // time = 17.93 ns
+  aVec[1794] = 2.073568e-02;  // time = 17.94 ns
+  aVec[1795] = 2.070501e-02;  // time = 17.95 ns
+  aVec[1796] = 2.067437e-02;  // time = 17.96 ns
+  aVec[1797] = 2.064376e-02;  // time = 17.97 ns
+  aVec[1798] = 2.061318e-02;  // time = 17.98 ns
+  aVec[1799] = 2.058263e-02;  // time = 17.99 ns
+  aVec[1800] = 2.055210e-02;  // time = 18.00 ns
+  aVec[1801] = 2.052160e-02;  // time = 18.01 ns
+  aVec[1802] = 2.049113e-02;  // time = 18.02 ns
+  aVec[1803] = 2.046069e-02;  // time = 18.03 ns
+  aVec[1804] = 2.043028e-02;  // time = 18.04 ns
+  aVec[1805] = 2.039990e-02;  // time = 18.05 ns
+  aVec[1806] = 2.036954e-02;  // time = 18.06 ns
+  aVec[1807] = 2.033922e-02;  // time = 18.07 ns
+  aVec[1808] = 2.030892e-02;  // time = 18.08 ns
+  aVec[1809] = 2.027865e-02;  // time = 18.09 ns
+  aVec[1810] = 2.024841e-02;  // time = 18.10 ns
+  aVec[1811] = 2.021819e-02;  // time = 18.11 ns
+  aVec[1812] = 2.018801e-02;  // time = 18.12 ns
+  aVec[1813] = 2.015785e-02;  // time = 18.13 ns
+  aVec[1814] = 2.012772e-02;  // time = 18.14 ns
+  aVec[1815] = 2.009762e-02;  // time = 18.15 ns
+  aVec[1816] = 2.006755e-02;  // time = 18.16 ns
+  aVec[1817] = 2.003751e-02;  // time = 18.17 ns
+  aVec[1818] = 2.000750e-02;  // time = 18.18 ns
+  aVec[1819] = 1.997751e-02;  // time = 18.19 ns
+  aVec[1820] = 1.994756e-02;  // time = 18.20 ns
+  aVec[1821] = 1.991763e-02;  // time = 18.21 ns
+  aVec[1822] = 1.988773e-02;  // time = 18.22 ns
+  aVec[1823] = 1.985786e-02;  // time = 18.23 ns
+  aVec[1824] = 1.982802e-02;  // time = 18.24 ns
+  aVec[1825] = 1.979821e-02;  // time = 18.25 ns
+  aVec[1826] = 1.976842e-02;  // time = 18.26 ns
+  aVec[1827] = 1.973867e-02;  // time = 18.27 ns
+  aVec[1828] = 1.970894e-02;  // time = 18.28 ns
+  aVec[1829] = 1.967924e-02;  // time = 18.29 ns
+  aVec[1830] = 1.964957e-02;  // time = 18.30 ns
+  aVec[1831] = 1.961993e-02;  // time = 18.31 ns
+  aVec[1832] = 1.959032e-02;  // time = 18.32 ns
+  aVec[1833] = 1.956073e-02;  // time = 18.33 ns
+  aVec[1834] = 1.953118e-02;  // time = 18.34 ns
+  aVec[1835] = 1.950165e-02;  // time = 18.35 ns
+  aVec[1836] = 1.947216e-02;  // time = 18.36 ns
+  aVec[1837] = 1.944269e-02;  // time = 18.37 ns
+  aVec[1838] = 1.941325e-02;  // time = 18.38 ns
+  aVec[1839] = 1.938384e-02;  // time = 18.39 ns
+  aVec[1840] = 1.935446e-02;  // time = 18.40 ns
+  aVec[1841] = 1.932510e-02;  // time = 18.41 ns
+  aVec[1842] = 1.929578e-02;  // time = 18.42 ns
+  aVec[1843] = 1.926649e-02;  // time = 18.43 ns
+  aVec[1844] = 1.923722e-02;  // time = 18.44 ns
+  aVec[1845] = 1.920798e-02;  // time = 18.45 ns
+  aVec[1846] = 1.917877e-02;  // time = 18.46 ns
+  aVec[1847] = 1.914959e-02;  // time = 18.47 ns
+  aVec[1848] = 1.912044e-02;  // time = 18.48 ns
+  aVec[1849] = 1.909132e-02;  // time = 18.49 ns
+  aVec[1850] = 1.906223e-02;  // time = 18.50 ns
+  aVec[1851] = 1.903316e-02;  // time = 18.51 ns
+  aVec[1852] = 1.900413e-02;  // time = 18.52 ns
+  aVec[1853] = 1.897512e-02;  // time = 18.53 ns
+  aVec[1854] = 1.894615e-02;  // time = 18.54 ns
+  aVec[1855] = 1.891720e-02;  // time = 18.55 ns
+  aVec[1856] = 1.888828e-02;  // time = 18.56 ns
+  aVec[1857] = 1.885939e-02;  // time = 18.57 ns
+  aVec[1858] = 1.883053e-02;  // time = 18.58 ns
+  aVec[1859] = 1.880170e-02;  // time = 18.59 ns
+  aVec[1860] = 1.877289e-02;  // time = 18.60 ns
+  aVec[1861] = 1.874412e-02;  // time = 18.61 ns
+  aVec[1862] = 1.871537e-02;  // time = 18.62 ns
+  aVec[1863] = 1.868666e-02;  // time = 18.63 ns
+  aVec[1864] = 1.865797e-02;  // time = 18.64 ns
+  aVec[1865] = 1.862931e-02;  // time = 18.65 ns
+  aVec[1866] = 1.860068e-02;  // time = 18.66 ns
+  aVec[1867] = 1.857208e-02;  // time = 18.67 ns
+  aVec[1868] = 1.854351e-02;  // time = 18.68 ns
+  aVec[1869] = 1.851497e-02;  // time = 18.69 ns
+  aVec[1870] = 1.848645e-02;  // time = 18.70 ns
+  aVec[1871] = 1.845797e-02;  // time = 18.71 ns
+  aVec[1872] = 1.842952e-02;  // time = 18.72 ns
+  aVec[1873] = 1.840109e-02;  // time = 18.73 ns
+  aVec[1874] = 1.837269e-02;  // time = 18.74 ns
+  aVec[1875] = 1.834432e-02;  // time = 18.75 ns
+  aVec[1876] = 1.831599e-02;  // time = 18.76 ns
+  aVec[1877] = 1.828768e-02;  // time = 18.77 ns
+  aVec[1878] = 1.825939e-02;  // time = 18.78 ns
+  aVec[1879] = 1.823114e-02;  // time = 18.79 ns
+  aVec[1880] = 1.820292e-02;  // time = 18.80 ns
+  aVec[1881] = 1.817473e-02;  // time = 18.81 ns
+  aVec[1882] = 1.814656e-02;  // time = 18.82 ns
+  aVec[1883] = 1.811843e-02;  // time = 18.83 ns
+  aVec[1884] = 1.809032e-02;  // time = 18.84 ns
+  aVec[1885] = 1.806224e-02;  // time = 18.85 ns
+  aVec[1886] = 1.803419e-02;  // time = 18.86 ns
+  aVec[1887] = 1.800617e-02;  // time = 18.87 ns
+  aVec[1888] = 1.797818e-02;  // time = 18.88 ns
+  aVec[1889] = 1.795022e-02;  // time = 18.89 ns
+  aVec[1890] = 1.792229e-02;  // time = 18.90 ns
+  aVec[1891] = 1.789439e-02;  // time = 18.91 ns
+  aVec[1892] = 1.786651e-02;  // time = 18.92 ns
+  aVec[1893] = 1.783867e-02;  // time = 18.93 ns
+  aVec[1894] = 1.781085e-02;  // time = 18.94 ns
+  aVec[1895] = 1.778307e-02;  // time = 18.95 ns
+  aVec[1896] = 1.775531e-02;  // time = 18.96 ns
+  aVec[1897] = 1.772758e-02;  // time = 18.97 ns
+  aVec[1898] = 1.769988e-02;  // time = 18.98 ns
+  aVec[1899] = 1.767221e-02;  // time = 18.99 ns
+  aVec[1900] = 1.764457e-02;  // time = 19.00 ns
+  aVec[1901] = 1.761696e-02;  // time = 19.01 ns
+  aVec[1902] = 1.758937e-02;  // time = 19.02 ns
+  aVec[1903] = 1.756182e-02;  // time = 19.03 ns
+  aVec[1904] = 1.753429e-02;  // time = 19.04 ns
+  aVec[1905] = 1.750680e-02;  // time = 19.05 ns
+  aVec[1906] = 1.747933e-02;  // time = 19.06 ns
+  aVec[1907] = 1.745189e-02;  // time = 19.07 ns
+  aVec[1908] = 1.742448e-02;  // time = 19.08 ns
+  aVec[1909] = 1.739710e-02;  // time = 19.09 ns
+  aVec[1910] = 1.736975e-02;  // time = 19.10 ns
+  aVec[1911] = 1.734243e-02;  // time = 19.11 ns
+  aVec[1912] = 1.731513e-02;  // time = 19.12 ns
+  aVec[1913] = 1.728787e-02;  // time = 19.13 ns
+  aVec[1914] = 1.726064e-02;  // time = 19.14 ns
+  aVec[1915] = 1.723343e-02;  // time = 19.15 ns
+  aVec[1916] = 1.720625e-02;  // time = 19.16 ns
+  aVec[1917] = 1.717910e-02;  // time = 19.17 ns
+  aVec[1918] = 1.715198e-02;  // time = 19.18 ns
+  aVec[1919] = 1.712489e-02;  // time = 19.19 ns
+  aVec[1920] = 1.709783e-02;  // time = 19.20 ns
+  aVec[1921] = 1.707080e-02;  // time = 19.21 ns
+  aVec[1922] = 1.704380e-02;  // time = 19.22 ns
+  aVec[1923] = 1.701682e-02;  // time = 19.23 ns
+  aVec[1924] = 1.698988e-02;  // time = 19.24 ns
+  aVec[1925] = 1.696296e-02;  // time = 19.25 ns
+  aVec[1926] = 1.693608e-02;  // time = 19.26 ns
+  aVec[1927] = 1.690922e-02;  // time = 19.27 ns
+  aVec[1928] = 1.688239e-02;  // time = 19.28 ns
+  aVec[1929] = 1.685559e-02;  // time = 19.29 ns
+  aVec[1930] = 1.682882e-02;  // time = 19.30 ns
+  aVec[1931] = 1.680207e-02;  // time = 19.31 ns
+  aVec[1932] = 1.677536e-02;  // time = 19.32 ns
+  aVec[1933] = 1.674867e-02;  // time = 19.33 ns
+  aVec[1934] = 1.672202e-02;  // time = 19.34 ns
+  aVec[1935] = 1.669539e-02;  // time = 19.35 ns
+  aVec[1936] = 1.666879e-02;  // time = 19.36 ns
+  aVec[1937] = 1.664222e-02;  // time = 19.37 ns
+  aVec[1938] = 1.661568e-02;  // time = 19.38 ns
+  aVec[1939] = 1.658917e-02;  // time = 19.39 ns
+  aVec[1940] = 1.656269e-02;  // time = 19.40 ns
+  aVec[1941] = 1.653624e-02;  // time = 19.41 ns
+  aVec[1942] = 1.650981e-02;  // time = 19.42 ns
+  aVec[1943] = 1.648341e-02;  // time = 19.43 ns
+  aVec[1944] = 1.645705e-02;  // time = 19.44 ns
+  aVec[1945] = 1.643071e-02;  // time = 19.45 ns
+  aVec[1946] = 1.640440e-02;  // time = 19.46 ns
+  aVec[1947] = 1.637812e-02;  // time = 19.47 ns
+  aVec[1948] = 1.635187e-02;  // time = 19.48 ns
+  aVec[1949] = 1.632564e-02;  // time = 19.49 ns
+  aVec[1950] = 1.629945e-02;  // time = 19.50 ns
+  aVec[1951] = 1.627328e-02;  // time = 19.51 ns
+  aVec[1952] = 1.624715e-02;  // time = 19.52 ns
+  aVec[1953] = 1.622104e-02;  // time = 19.53 ns
+  aVec[1954] = 1.619496e-02;  // time = 19.54 ns
+  aVec[1955] = 1.616891e-02;  // time = 19.55 ns
+  aVec[1956] = 1.614289e-02;  // time = 19.56 ns
+  aVec[1957] = 1.611689e-02;  // time = 19.57 ns
+  aVec[1958] = 1.609093e-02;  // time = 19.58 ns
+  aVec[1959] = 1.606499e-02;  // time = 19.59 ns
+  aVec[1960] = 1.603909e-02;  // time = 19.60 ns
+  aVec[1961] = 1.601321e-02;  // time = 19.61 ns
+  aVec[1962] = 1.598736e-02;  // time = 19.62 ns
+  aVec[1963] = 1.596154e-02;  // time = 19.63 ns
+  aVec[1964] = 1.593574e-02;  // time = 19.64 ns
+  aVec[1965] = 1.590998e-02;  // time = 19.65 ns
+  aVec[1966] = 1.588424e-02;  // time = 19.66 ns
+  aVec[1967] = 1.585854e-02;  // time = 19.67 ns
+  aVec[1968] = 1.583286e-02;  // time = 19.68 ns
+  aVec[1969] = 1.580721e-02;  // time = 19.69 ns
+  aVec[1970] = 1.578159e-02;  // time = 19.70 ns
+  aVec[1971] = 1.575600e-02;  // time = 19.71 ns
+  aVec[1972] = 1.573043e-02;  // time = 19.72 ns
+  aVec[1973] = 1.570490e-02;  // time = 19.73 ns
+  aVec[1974] = 1.567939e-02;  // time = 19.74 ns
+  aVec[1975] = 1.565391e-02;  // time = 19.75 ns
+  aVec[1976] = 1.562846e-02;  // time = 19.76 ns
+  aVec[1977] = 1.560304e-02;  // time = 19.77 ns
+  aVec[1978] = 1.557765e-02;  // time = 19.78 ns
+  aVec[1979] = 1.555228e-02;  // time = 19.79 ns
+  aVec[1980] = 1.552695e-02;  // time = 19.80 ns
+  aVec[1981] = 1.550164e-02;  // time = 19.81 ns
+  aVec[1982] = 1.547636e-02;  // time = 19.82 ns
+  aVec[1983] = 1.545111e-02;  // time = 19.83 ns
+  aVec[1984] = 1.542589e-02;  // time = 19.84 ns
+  aVec[1985] = 1.540070e-02;  // time = 19.85 ns
+  aVec[1986] = 1.537553e-02;  // time = 19.86 ns
+  aVec[1987] = 1.535039e-02;  // time = 19.87 ns
+  aVec[1988] = 1.532528e-02;  // time = 19.88 ns
+  aVec[1989] = 1.530020e-02;  // time = 19.89 ns
+  aVec[1990] = 1.527515e-02;  // time = 19.90 ns
+  aVec[1991] = 1.525013e-02;  // time = 19.91 ns
+  aVec[1992] = 1.522513e-02;  // time = 19.92 ns
+  aVec[1993] = 1.520017e-02;  // time = 19.93 ns
+  aVec[1994] = 1.517523e-02;  // time = 19.94 ns
+  aVec[1995] = 1.515032e-02;  // time = 19.95 ns
+  aVec[1996] = 1.512543e-02;  // time = 19.96 ns
+  aVec[1997] = 1.510058e-02;  // time = 19.97 ns
+  aVec[1998] = 1.507575e-02;  // time = 19.98 ns
+  aVec[1999] = 1.505096e-02;  // time = 19.99 ns
+  aVec[2000] = 1.501629e-02;  // time = 20.00 ns
+  aVec[2001] = 1.499897e-02;  // time = 20.01 ns
+  aVec[2002] = 1.497920e-02;  // time = 20.02 ns
+  aVec[2003] = 1.495452e-02;  // time = 20.03 ns
+  aVec[2004] = 1.492986e-02;  // time = 20.04 ns
+  aVec[2005] = 1.490523e-02;  // time = 20.05 ns
+  aVec[2006] = 1.488062e-02;  // time = 20.06 ns
+  aVec[2007] = 1.485605e-02;  // time = 20.07 ns
+  aVec[2008] = 1.483150e-02;  // time = 20.08 ns
+  aVec[2009] = 1.480698e-02;  // time = 20.09 ns
+  aVec[2010] = 1.477025e-02;  // time = 20.10 ns
+  aVec[2011] = 1.474582e-02;  // time = 20.11 ns
+  aVec[2012] = 1.472140e-02;  // time = 20.12 ns
+  aVec[2013] = 1.469701e-02;  // time = 20.13 ns
+  aVec[2014] = 1.467265e-02;  // time = 20.14 ns
+  aVec[2015] = 1.464831e-02;  // time = 20.15 ns
+  aVec[2016] = 1.462400e-02;  // time = 20.16 ns
+  aVec[2017] = 1.459972e-02;  // time = 20.17 ns
+  aVec[2018] = 1.457546e-02;  // time = 20.18 ns
+  aVec[2019] = 1.455124e-02;  // time = 20.19 ns
+  aVec[2020] = 1.452704e-02;  // time = 20.20 ns
+  aVec[2021] = 1.450287e-02;  // time = 20.21 ns
+  aVec[2022] = 1.447873e-02;  // time = 20.22 ns
+  aVec[2023] = 1.445462e-02;  // time = 20.23 ns
+  aVec[2024] = 1.443053e-02;  // time = 20.24 ns
+  aVec[2025] = 1.440647e-02;  // time = 20.25 ns
+  aVec[2026] = 1.438244e-02;  // time = 20.26 ns
+  aVec[2027] = 1.435844e-02;  // time = 20.27 ns
+  aVec[2028] = 1.433446e-02;  // time = 20.28 ns
+  aVec[2029] = 1.431051e-02;  // time = 20.29 ns
+  aVec[2030] = 1.428659e-02;  // time = 20.30 ns
+  aVec[2031] = 1.426270e-02;  // time = 20.31 ns
+  aVec[2032] = 1.423884e-02;  // time = 20.32 ns
+  aVec[2033] = 1.421500e-02;  // time = 20.33 ns
+  aVec[2034] = 1.419119e-02;  // time = 20.34 ns
+  aVec[2035] = 1.416741e-02;  // time = 20.35 ns
+  aVec[2036] = 1.414366e-02;  // time = 20.36 ns
+  aVec[2037] = 1.411993e-02;  // time = 20.37 ns
+  aVec[2038] = 1.409623e-02;  // time = 20.38 ns
+  aVec[2039] = 1.407256e-02;  // time = 20.39 ns
+  aVec[2040] = 1.404892e-02;  // time = 20.40 ns
+  aVec[2041] = 1.402530e-02;  // time = 20.41 ns
+  aVec[2042] = 1.400171e-02;  // time = 20.42 ns
+  aVec[2043] = 1.397815e-02;  // time = 20.43 ns
+  aVec[2044] = 1.395462e-02;  // time = 20.44 ns
+  aVec[2045] = 1.393111e-02;  // time = 20.45 ns
+  aVec[2046] = 1.390763e-02;  // time = 20.46 ns
+  aVec[2047] = 1.388418e-02;  // time = 20.47 ns
+  aVec[2048] = 1.386076e-02;  // time = 20.48 ns
+  aVec[2049] = 1.383736e-02;  // time = 20.49 ns
+  aVec[2050] = 1.381399e-02;  // time = 20.50 ns
+  aVec[2051] = 1.379065e-02;  // time = 20.51 ns
+  aVec[2052] = 1.376733e-02;  // time = 20.52 ns
+  aVec[2053] = 1.374405e-02;  // time = 20.53 ns
+  aVec[2054] = 1.372079e-02;  // time = 20.54 ns
+  aVec[2055] = 1.369755e-02;  // time = 20.55 ns
+  aVec[2056] = 1.367435e-02;  // time = 20.56 ns
+  aVec[2057] = 1.365117e-02;  // time = 20.57 ns
+  aVec[2058] = 1.362802e-02;  // time = 20.58 ns
+  aVec[2059] = 1.360489e-02;  // time = 20.59 ns
+  aVec[2060] = 1.358180e-02;  // time = 20.60 ns
+  aVec[2061] = 1.355873e-02;  // time = 20.61 ns
+  aVec[2062] = 1.353569e-02;  // time = 20.62 ns
+  aVec[2063] = 1.351267e-02;  // time = 20.63 ns
+  aVec[2064] = 1.348968e-02;  // time = 20.64 ns
+  aVec[2065] = 1.346672e-02;  // time = 20.65 ns
+  aVec[2066] = 1.344379e-02;  // time = 20.66 ns
+  aVec[2067] = 1.342088e-02;  // time = 20.67 ns
+  aVec[2068] = 1.339800e-02;  // time = 20.68 ns
+  aVec[2069] = 1.337515e-02;  // time = 20.69 ns
+  aVec[2070] = 1.335232e-02;  // time = 20.70 ns
+  aVec[2071] = 1.332952e-02;  // time = 20.71 ns
+  aVec[2072] = 1.330675e-02;  // time = 20.72 ns
+  aVec[2073] = 1.328400e-02;  // time = 20.73 ns
+  aVec[2074] = 1.326128e-02;  // time = 20.74 ns
+  aVec[2075] = 1.323859e-02;  // time = 20.75 ns
+  aVec[2076] = 1.321593e-02;  // time = 20.76 ns
+  aVec[2077] = 1.319329e-02;  // time = 20.77 ns
+  aVec[2078] = 1.317068e-02;  // time = 20.78 ns
+  aVec[2079] = 1.314809e-02;  // time = 20.79 ns
+  aVec[2080] = 1.312553e-02;  // time = 20.80 ns
+  aVec[2081] = 1.310300e-02;  // time = 20.81 ns
+  aVec[2082] = 1.308050e-02;  // time = 20.82 ns
+  aVec[2083] = 1.305802e-02;  // time = 20.83 ns
+  aVec[2084] = 1.303557e-02;  // time = 20.84 ns
+  aVec[2085] = 1.301315e-02;  // time = 20.85 ns
+  aVec[2086] = 1.299075e-02;  // time = 20.86 ns
+  aVec[2087] = 1.296838e-02;  // time = 20.87 ns
+  aVec[2088] = 1.294603e-02;  // time = 20.88 ns
+  aVec[2089] = 1.292372e-02;  // time = 20.89 ns
+  aVec[2090] = 1.290143e-02;  // time = 20.90 ns
+  aVec[2091] = 1.287916e-02;  // time = 20.91 ns
+  aVec[2092] = 1.285692e-02;  // time = 20.92 ns
+  aVec[2093] = 1.283471e-02;  // time = 20.93 ns
+  aVec[2094] = 1.281253e-02;  // time = 20.94 ns
+  aVec[2095] = 1.279037e-02;  // time = 20.95 ns
+  aVec[2096] = 1.276824e-02;  // time = 20.96 ns
+  aVec[2097] = 1.274613e-02;  // time = 20.97 ns
+  aVec[2098] = 1.272405e-02;  // time = 20.98 ns
+  aVec[2099] = 1.270200e-02;  // time = 20.99 ns
+  aVec[2100] = 1.267997e-02;  // time = 21.00 ns
+  aVec[2101] = 1.265797e-02;  // time = 21.01 ns
+  aVec[2102] = 1.263600e-02;  // time = 21.02 ns
+  aVec[2103] = 1.261405e-02;  // time = 21.03 ns
+  aVec[2104] = 1.259213e-02;  // time = 21.04 ns
+  aVec[2105] = 1.257023e-02;  // time = 21.05 ns
+  aVec[2106] = 1.254836e-02;  // time = 21.06 ns
+  aVec[2107] = 1.252652e-02;  // time = 21.07 ns
+  aVec[2108] = 1.250471e-02;  // time = 21.08 ns
+  aVec[2109] = 1.248292e-02;  // time = 21.09 ns
+  aVec[2110] = 1.246115e-02;  // time = 21.10 ns
+  aVec[2111] = 1.243941e-02;  // time = 21.11 ns
+  aVec[2112] = 1.241770e-02;  // time = 21.12 ns
+  aVec[2113] = 1.239602e-02;  // time = 21.13 ns
+  aVec[2114] = 1.237436e-02;  // time = 21.14 ns
+  aVec[2115] = 1.235272e-02;  // time = 21.15 ns
+  aVec[2116] = 1.233112e-02;  // time = 21.16 ns
+  aVec[2117] = 1.230954e-02;  // time = 21.17 ns
+  aVec[2118] = 1.228798e-02;  // time = 21.18 ns
+  aVec[2119] = 1.226645e-02;  // time = 21.19 ns
+  aVec[2120] = 1.224495e-02;  // time = 21.20 ns
+  aVec[2121] = 1.222347e-02;  // time = 21.21 ns
+  aVec[2122] = 1.220202e-02;  // time = 21.22 ns
+  aVec[2123] = 1.218059e-02;  // time = 21.23 ns
+  aVec[2124] = 1.215919e-02;  // time = 21.24 ns
+  aVec[2125] = 1.213782e-02;  // time = 21.25 ns
+  aVec[2126] = 1.211647e-02;  // time = 21.26 ns
+  aVec[2127] = 1.209515e-02;  // time = 21.27 ns
+  aVec[2128] = 1.207385e-02;  // time = 21.28 ns
+  aVec[2129] = 1.205258e-02;  // time = 21.29 ns
+  aVec[2130] = 1.203133e-02;  // time = 21.30 ns
+  aVec[2131] = 1.201011e-02;  // time = 21.31 ns
+  aVec[2132] = 1.198892e-02;  // time = 21.32 ns
+  aVec[2133] = 1.196775e-02;  // time = 21.33 ns
+  aVec[2134] = 1.194660e-02;  // time = 21.34 ns
+  aVec[2135] = 1.192549e-02;  // time = 21.35 ns
+  aVec[2136] = 1.190439e-02;  // time = 21.36 ns
+  aVec[2137] = 1.188333e-02;  // time = 21.37 ns
+  aVec[2138] = 1.186229e-02;  // time = 21.38 ns
+  aVec[2139] = 1.184127e-02;  // time = 21.39 ns
+  aVec[2140] = 1.182028e-02;  // time = 21.40 ns
+  aVec[2141] = 1.179932e-02;  // time = 21.41 ns
+  aVec[2142] = 1.177838e-02;  // time = 21.42 ns
+  aVec[2143] = 1.175746e-02;  // time = 21.43 ns
+  aVec[2144] = 1.173658e-02;  // time = 21.44 ns
+  aVec[2145] = 1.171571e-02;  // time = 21.45 ns
+  aVec[2146] = 1.169488e-02;  // time = 21.46 ns
+  aVec[2147] = 1.167406e-02;  // time = 21.47 ns
+  aVec[2148] = 1.165328e-02;  // time = 21.48 ns
+  aVec[2149] = 1.163252e-02;  // time = 21.49 ns
+  aVec[2150] = 1.161178e-02;  // time = 21.50 ns
+  aVec[2151] = 1.159107e-02;  // time = 21.51 ns
+  aVec[2152] = 1.157038e-02;  // time = 21.52 ns
+  aVec[2153] = 1.154972e-02;  // time = 21.53 ns
+  aVec[2154] = 1.152909e-02;  // time = 21.54 ns
+  aVec[2155] = 1.150848e-02;  // time = 21.55 ns
+  aVec[2156] = 1.148789e-02;  // time = 21.56 ns
+  aVec[2157] = 1.146733e-02;  // time = 21.57 ns
+  aVec[2158] = 1.144680e-02;  // time = 21.58 ns
+  aVec[2159] = 1.142629e-02;  // time = 21.59 ns
+  aVec[2160] = 1.140580e-02;  // time = 21.60 ns
+  aVec[2161] = 1.138534e-02;  // time = 21.61 ns
+  aVec[2162] = 1.136491e-02;  // time = 21.62 ns
+  aVec[2163] = 1.134450e-02;  // time = 21.63 ns
+  aVec[2164] = 1.132411e-02;  // time = 21.64 ns
+  aVec[2165] = 1.130375e-02;  // time = 21.65 ns
+  aVec[2166] = 1.128341e-02;  // time = 21.66 ns
+  aVec[2167] = 1.126310e-02;  // time = 21.67 ns
+  aVec[2168] = 1.124281e-02;  // time = 21.68 ns
+  aVec[2169] = 1.122255e-02;  // time = 21.69 ns
+  aVec[2170] = 1.120231e-02;  // time = 21.70 ns
+  aVec[2171] = 1.118210e-02;  // time = 21.71 ns
+  aVec[2172] = 1.116191e-02;  // time = 21.72 ns
+  aVec[2173] = 1.114175e-02;  // time = 21.73 ns
+  aVec[2174] = 1.112161e-02;  // time = 21.74 ns
+  aVec[2175] = 1.110150e-02;  // time = 21.75 ns
+  aVec[2176] = 1.108141e-02;  // time = 21.76 ns
+  aVec[2177] = 1.106798e-02;  // time = 21.77 ns
+  aVec[2178] = 1.104491e-02;  // time = 21.78 ns
+  aVec[2179] = 1.102887e-02;  // time = 21.79 ns
+  aVec[2180] = 1.100881e-02;  // time = 21.80 ns
+  aVec[2181] = 1.098475e-02;  // time = 21.81 ns
+  aVec[2182] = 1.096570e-02;  // time = 21.82 ns
+  aVec[2183] = 1.094921e-02;  // time = 21.83 ns
+  aVec[2184] = 1.092703e-02;  // time = 21.84 ns
+  aVec[2185] = 1.090323e-02;  // time = 21.85 ns
+  aVec[2186] = 1.088203e-02;  // time = 21.86 ns
+  aVec[2187] = 1.087187e-02;  // time = 21.87 ns
+  aVec[2188] = 1.084451e-02;  // time = 21.88 ns
+  aVec[2189] = 1.082472e-02;  // time = 21.89 ns
+  aVec[2190] = 1.080555e-02;  // time = 21.90 ns
+  aVec[2191] = 1.078643e-02;  // time = 21.91 ns
+  aVec[2192] = 1.076673e-02;  // time = 21.92 ns
+  aVec[2193] = 1.074705e-02;  // time = 21.93 ns
+  aVec[2194] = 1.072739e-02;  // time = 21.94 ns
+  aVec[2195] = 1.070776e-02;  // time = 21.95 ns
+  aVec[2196] = 1.068815e-02;  // time = 21.96 ns
+  aVec[2197] = 1.066857e-02;  // time = 21.97 ns
+  aVec[2198] = 1.064901e-02;  // time = 21.98 ns
+  aVec[2199] = 1.062947e-02;  // time = 21.99 ns
+  aVec[2200] = 1.060996e-02;  // time = 22.00 ns
+  aVec[2201] = 1.059047e-02;  // time = 22.01 ns
+  aVec[2202] = 1.057101e-02;  // time = 22.02 ns
+  aVec[2203] = 1.055158e-02;  // time = 22.03 ns
+  aVec[2204] = 1.053217e-02;  // time = 22.04 ns
+  aVec[2205] = 1.051279e-02;  // time = 22.05 ns
+  aVec[2206] = 1.049344e-02;  // time = 22.06 ns
+  aVec[2207] = 1.047410e-02;  // time = 22.07 ns
+  aVec[2208] = 1.045480e-02;  // time = 22.08 ns
+  aVec[2209] = 1.043551e-02;  // time = 22.09 ns
+  aVec[2210] = 1.041625e-02;  // time = 22.10 ns
+  aVec[2211] = 1.039701e-02;  // time = 22.11 ns
+  aVec[2212] = 1.037779e-02;  // time = 22.12 ns
+  aVec[2213] = 1.035860e-02;  // time = 22.13 ns
+  aVec[2214] = 1.033942e-02;  // time = 22.14 ns
+  aVec[2215] = 1.032028e-02;  // time = 22.15 ns
+  aVec[2216] = 1.030115e-02;  // time = 22.16 ns
+  aVec[2217] = 1.028205e-02;  // time = 22.17 ns
+  aVec[2218] = 1.026297e-02;  // time = 22.18 ns
+  aVec[2219] = 1.024391e-02;  // time = 22.19 ns
+  aVec[2220] = 1.022488e-02;  // time = 22.20 ns
+  aVec[2221] = 1.020587e-02;  // time = 22.21 ns
+  aVec[2222] = 1.018689e-02;  // time = 22.22 ns
+  aVec[2223] = 1.016792e-02;  // time = 22.23 ns
+  aVec[2224] = 1.014899e-02;  // time = 22.24 ns
+  aVec[2225] = 1.013007e-02;  // time = 22.25 ns
+  aVec[2226] = 1.011118e-02;  // time = 22.26 ns
+  aVec[2227] = 1.009231e-02;  // time = 22.27 ns
+  aVec[2228] = 1.007346e-02;  // time = 22.28 ns
+  aVec[2229] = 1.005464e-02;  // time = 22.29 ns
+  aVec[2230] = 1.003584e-02;  // time = 22.30 ns
+  aVec[2231] = 1.001707e-02;  // time = 22.31 ns
+  aVec[2232] = 9.998317e-03;  // time = 22.32 ns
+  aVec[2233] = 9.979589e-03;  // time = 22.33 ns
+  aVec[2234] = 9.960884e-03;  // time = 22.34 ns
+  aVec[2235] = 9.942202e-03;  // time = 22.35 ns
+  aVec[2236] = 9.923544e-03;  // time = 22.36 ns
+  aVec[2237] = 9.904908e-03;  // time = 22.37 ns
+  aVec[2238] = 9.886296e-03;  // time = 22.38 ns
+  aVec[2239] = 9.867708e-03;  // time = 22.39 ns
+  aVec[2240] = 9.849142e-03;  // time = 22.40 ns
+  aVec[2241] = 9.830599e-03;  // time = 22.41 ns
+  aVec[2242] = 9.812080e-03;  // time = 22.42 ns
+  aVec[2243] = 9.793583e-03;  // time = 22.43 ns
+  aVec[2244] = 9.775110e-03;  // time = 22.44 ns
+  aVec[2245] = 9.756659e-03;  // time = 22.45 ns
+  aVec[2246] = 9.738232e-03;  // time = 22.46 ns
+  aVec[2247] = 9.719827e-03;  // time = 22.47 ns
+  aVec[2248] = 9.701445e-03;  // time = 22.48 ns
+  aVec[2249] = 9.683086e-03;  // time = 22.49 ns
+  aVec[2250] = 9.664750e-03;  // time = 22.50 ns
+  aVec[2251] = 9.646436e-03;  // time = 22.51 ns
+  aVec[2252] = 9.628146e-03;  // time = 22.52 ns
+  aVec[2253] = 9.609878e-03;  // time = 22.53 ns
+  aVec[2254] = 9.591633e-03;  // time = 22.54 ns
+  aVec[2255] = 9.573410e-03;  // time = 22.55 ns
+  aVec[2256] = 9.555211e-03;  // time = 22.56 ns
+  aVec[2257] = 9.537034e-03;  // time = 22.57 ns
+  aVec[2258] = 9.518880e-03;  // time = 22.58 ns
+  aVec[2259] = 9.500749e-03;  // time = 22.59 ns
+  aVec[2260] = 9.482641e-03;  // time = 22.60 ns
+  aVec[2261] = 9.464555e-03;  // time = 22.61 ns
+  aVec[2262] = 9.446491e-03;  // time = 22.62 ns
+  aVec[2263] = 9.428451e-03;  // time = 22.63 ns
+  aVec[2264] = 9.410433e-03;  // time = 22.64 ns
+  aVec[2265] = 9.392437e-03;  // time = 22.65 ns
+  aVec[2266] = 9.374464e-03;  // time = 22.66 ns
+  aVec[2267] = 9.356514e-03;  // time = 22.67 ns
+  aVec[2268] = 9.338585e-03;  // time = 22.68 ns
+  aVec[2269] = 9.320680e-03;  // time = 22.69 ns
+  aVec[2270] = 9.302796e-03;  // time = 22.70 ns
+  aVec[2271] = 9.284935e-03;  // time = 22.71 ns
+  aVec[2272] = 9.267097e-03;  // time = 22.72 ns
+  aVec[2273] = 9.249280e-03;  // time = 22.73 ns
+  aVec[2274] = 9.231486e-03;  // time = 22.74 ns
+  aVec[2275] = 9.213714e-03;  // time = 22.75 ns
+  aVec[2276] = 9.195964e-03;  // time = 22.76 ns
+  aVec[2277] = 9.178236e-03;  // time = 22.77 ns
+  aVec[2278] = 9.160531e-03;  // time = 22.78 ns
+  aVec[2279] = 9.142847e-03;  // time = 22.79 ns
+  aVec[2280] = 9.125186e-03;  // time = 22.80 ns
+  aVec[2281] = 9.107547e-03;  // time = 22.81 ns
+  aVec[2282] = 9.089929e-03;  // time = 22.82 ns
+  aVec[2283] = 9.072334e-03;  // time = 22.83 ns
+  aVec[2284] = 9.054761e-03;  // time = 22.84 ns
+  aVec[2285] = 9.037210e-03;  // time = 22.85 ns
+  aVec[2286] = 9.019680e-03;  // time = 22.86 ns
+  aVec[2287] = 9.002173e-03;  // time = 22.87 ns
+  aVec[2288] = 8.984687e-03;  // time = 22.88 ns
+  aVec[2289] = 8.967223e-03;  // time = 22.89 ns
+  aVec[2290] = 8.949781e-03;  // time = 22.90 ns
+  aVec[2291] = 8.932361e-03;  // time = 22.91 ns
+  aVec[2292] = 8.914963e-03;  // time = 22.92 ns
+  aVec[2293] = 8.897587e-03;  // time = 22.93 ns
+  aVec[2294] = 8.880232e-03;  // time = 22.94 ns
+  aVec[2295] = 8.862899e-03;  // time = 22.95 ns
+  aVec[2296] = 8.845587e-03;  // time = 22.96 ns
+  aVec[2297] = 8.828298e-03;  // time = 22.97 ns
+  aVec[2298] = 8.811030e-03;  // time = 22.98 ns
+  aVec[2299] = 8.793783e-03;  // time = 22.99 ns
+  aVec[2300] = 8.776559e-03;  // time = 23.00 ns
+  aVec[2301] = 8.759355e-03;  // time = 23.01 ns
+  aVec[2302] = 8.742174e-03;  // time = 23.02 ns
+  aVec[2303] = 8.725014e-03;  // time = 23.03 ns
+  aVec[2304] = 8.707875e-03;  // time = 23.04 ns
+  aVec[2305] = 8.690758e-03;  // time = 23.05 ns
+  aVec[2306] = 8.673662e-03;  // time = 23.06 ns
+  aVec[2307] = 8.656588e-03;  // time = 23.07 ns
+  aVec[2308] = 8.639535e-03;  // time = 23.08 ns
+  aVec[2309] = 8.622504e-03;  // time = 23.09 ns
+  aVec[2310] = 8.605494e-03;  // time = 23.10 ns
+  aVec[2311] = 8.588505e-03;  // time = 23.11 ns
+  aVec[2312] = 8.571538e-03;  // time = 23.12 ns
+  aVec[2313] = 8.554591e-03;  // time = 23.13 ns
+  aVec[2314] = 8.537667e-03;  // time = 23.14 ns
+  aVec[2315] = 8.520763e-03;  // time = 23.15 ns
+  aVec[2316] = 8.503881e-03;  // time = 23.16 ns
+  aVec[2317] = 8.487019e-03;  // time = 23.17 ns
+  aVec[2318] = 8.470179e-03;  // time = 23.18 ns
+  aVec[2319] = 8.453361e-03;  // time = 23.19 ns
+  aVec[2320] = 8.436563e-03;  // time = 23.20 ns
+  aVec[2321] = 8.419786e-03;  // time = 23.21 ns
+  aVec[2322] = 8.403031e-03;  // time = 23.22 ns
+  aVec[2323] = 8.386296e-03;  // time = 23.23 ns
+  aVec[2324] = 8.369583e-03;  // time = 23.24 ns
+  aVec[2325] = 8.352890e-03;  // time = 23.25 ns
+  aVec[2326] = 8.336219e-03;  // time = 23.26 ns
+  aVec[2327] = 8.319568e-03;  // time = 23.27 ns
+  aVec[2328] = 8.302939e-03;  // time = 23.28 ns
+  aVec[2329] = 8.286330e-03;  // time = 23.29 ns
+  aVec[2330] = 8.269742e-03;  // time = 23.30 ns
+  aVec[2331] = 8.253175e-03;  // time = 23.31 ns
+  aVec[2332] = 8.236629e-03;  // time = 23.32 ns
+  aVec[2333] = 8.220104e-03;  // time = 23.33 ns
+  aVec[2334] = 8.203599e-03;  // time = 23.34 ns
+  aVec[2335] = 8.187115e-03;  // time = 23.35 ns
+  aVec[2336] = 8.170652e-03;  // time = 23.36 ns
+  aVec[2337] = 8.154210e-03;  // time = 23.37 ns
+  aVec[2338] = 8.137788e-03;  // time = 23.38 ns
+  aVec[2339] = 8.121387e-03;  // time = 23.39 ns
+  aVec[2340] = 8.105007e-03;  // time = 23.40 ns
+  aVec[2341] = 8.088647e-03;  // time = 23.41 ns
+  aVec[2342] = 8.072308e-03;  // time = 23.42 ns
+  aVec[2343] = 8.055990e-03;  // time = 23.43 ns
+  aVec[2344] = 8.039692e-03;  // time = 23.44 ns
+  aVec[2345] = 8.023414e-03;  // time = 23.45 ns
+  aVec[2346] = 8.007157e-03;  // time = 23.46 ns
+  aVec[2347] = 7.990921e-03;  // time = 23.47 ns
+  aVec[2348] = 7.974705e-03;  // time = 23.48 ns
+  aVec[2349] = 7.958509e-03;  // time = 23.49 ns
+  aVec[2350] = 7.942334e-03;  // time = 23.50 ns
+  aVec[2351] = 7.926179e-03;  // time = 23.51 ns
+  aVec[2352] = 7.910044e-03;  // time = 23.52 ns
+  aVec[2353] = 7.893930e-03;  // time = 23.53 ns
+  aVec[2354] = 7.877836e-03;  // time = 23.54 ns
+  aVec[2355] = 7.861763e-03;  // time = 23.55 ns
+  aVec[2356] = 7.845709e-03;  // time = 23.56 ns
+  aVec[2357] = 7.829676e-03;  // time = 23.57 ns
+  aVec[2358] = 7.813663e-03;  // time = 23.58 ns
+  aVec[2359] = 7.797671e-03;  // time = 23.59 ns
+  aVec[2360] = 7.781698e-03;  // time = 23.60 ns
+  aVec[2361] = 7.765746e-03;  // time = 23.61 ns
+  aVec[2362] = 7.749813e-03;  // time = 23.62 ns
+  aVec[2363] = 7.733901e-03;  // time = 23.63 ns
+  aVec[2364] = 7.718009e-03;  // time = 23.64 ns
+  aVec[2365] = 7.702137e-03;  // time = 23.65 ns
+  aVec[2366] = 7.686285e-03;  // time = 23.66 ns
+  aVec[2367] = 7.670453e-03;  // time = 23.67 ns
+  aVec[2368] = 7.654640e-03;  // time = 23.68 ns
+  aVec[2369] = 7.638848e-03;  // time = 23.69 ns
+  aVec[2370] = 7.623076e-03;  // time = 23.70 ns
+  aVec[2371] = 7.607324e-03;  // time = 23.71 ns
+  aVec[2372] = 7.591591e-03;  // time = 23.72 ns
+  aVec[2373] = 7.575878e-03;  // time = 23.73 ns
+  aVec[2374] = 7.560185e-03;  // time = 23.74 ns
+  aVec[2375] = 7.544512e-03;  // time = 23.75 ns
+  aVec[2376] = 7.528859e-03;  // time = 23.76 ns
+  aVec[2377] = 7.513226e-03;  // time = 23.77 ns
+  aVec[2378] = 7.497612e-03;  // time = 23.78 ns
+  aVec[2379] = 7.482018e-03;  // time = 23.79 ns
+  aVec[2380] = 7.466443e-03;  // time = 23.80 ns
+  aVec[2381] = 7.450889e-03;  // time = 23.81 ns
+  aVec[2382] = 7.435354e-03;  // time = 23.82 ns
+  aVec[2383] = 7.419838e-03;  // time = 23.83 ns
+  aVec[2384] = 7.404342e-03;  // time = 23.84 ns
+  aVec[2385] = 7.388866e-03;  // time = 23.85 ns
+  aVec[2386] = 7.373409e-03;  // time = 23.86 ns
+  aVec[2387] = 7.357972e-03;  // time = 23.87 ns
+  aVec[2388] = 7.342554e-03;  // time = 23.88 ns
+  aVec[2389] = 7.327156e-03;  // time = 23.89 ns
+  aVec[2390] = 7.311777e-03;  // time = 23.90 ns
+  aVec[2391] = 7.296418e-03;  // time = 23.91 ns
+  aVec[2392] = 7.281077e-03;  // time = 23.92 ns
+  aVec[2393] = 7.265757e-03;  // time = 23.93 ns
+  aVec[2394] = 7.250455e-03;  // time = 23.94 ns
+  aVec[2395] = 7.235174e-03;  // time = 23.95 ns
+  aVec[2396] = 7.219911e-03;  // time = 23.96 ns
+  aVec[2397] = 7.204667e-03;  // time = 23.97 ns
+  aVec[2398] = 7.189443e-03;  // time = 23.98 ns
+  aVec[2399] = 7.174238e-03;  // time = 23.99 ns
+  aVec[2400] = 7.159053e-03;  // time = 24.00 ns
+  aVec[2401] = 7.143886e-03;  // time = 24.01 ns
+  aVec[2402] = 7.128739e-03;  // time = 24.02 ns
+  aVec[2403] = 7.113611e-03;  // time = 24.03 ns
+  aVec[2404] = 7.098502e-03;  // time = 24.04 ns
+  aVec[2405] = 7.083412e-03;  // time = 24.05 ns
+  aVec[2406] = 7.068341e-03;  // time = 24.06 ns
+  aVec[2407] = 7.053289e-03;  // time = 24.07 ns
+  aVec[2408] = 7.038256e-03;  // time = 24.08 ns
+  aVec[2409] = 7.023242e-03;  // time = 24.09 ns
+  aVec[2410] = 7.008247e-03;  // time = 24.10 ns
+  aVec[2411] = 6.993271e-03;  // time = 24.11 ns
+  aVec[2412] = 6.978314e-03;  // time = 24.12 ns
+  aVec[2413] = 6.963376e-03;  // time = 24.13 ns
+  aVec[2414] = 6.948457e-03;  // time = 24.14 ns
+  aVec[2415] = 6.933557e-03;  // time = 24.15 ns
+  aVec[2416] = 6.918675e-03;  // time = 24.16 ns
+  aVec[2417] = 6.903812e-03;  // time = 24.17 ns
+  aVec[2418] = 6.888969e-03;  // time = 24.18 ns
+  aVec[2419] = 6.874143e-03;  // time = 24.19 ns
+  aVec[2420] = 6.859337e-03;  // time = 24.20 ns
+  aVec[2421] = 6.844549e-03;  // time = 24.21 ns
+  aVec[2422] = 6.829780e-03;  // time = 24.22 ns
+  aVec[2423] = 6.815030e-03;  // time = 24.23 ns
+  aVec[2424] = 6.800298e-03;  // time = 24.24 ns
+  aVec[2425] = 6.785585e-03;  // time = 24.25 ns
+  aVec[2426] = 6.770891e-03;  // time = 24.26 ns
+  aVec[2427] = 6.756215e-03;  // time = 24.27 ns
+  aVec[2428] = 6.741558e-03;  // time = 24.28 ns
+  aVec[2429] = 6.726919e-03;  // time = 24.29 ns
+  aVec[2430] = 6.712299e-03;  // time = 24.30 ns
+  aVec[2431] = 6.697697e-03;  // time = 24.31 ns
+  aVec[2432] = 6.683114e-03;  // time = 24.32 ns
+  aVec[2433] = 6.668549e-03;  // time = 24.33 ns
+  aVec[2434] = 6.654003e-03;  // time = 24.34 ns
+  aVec[2435] = 6.639475e-03;  // time = 24.35 ns
+  aVec[2436] = 6.624965e-03;  // time = 24.36 ns
+  aVec[2437] = 6.610474e-03;  // time = 24.37 ns
+  aVec[2438] = 6.596001e-03;  // time = 24.38 ns
+  aVec[2439] = 6.581546e-03;  // time = 24.39 ns
+  aVec[2440] = 6.567110e-03;  // time = 24.40 ns
+  aVec[2441] = 6.552692e-03;  // time = 24.41 ns
+  aVec[2442] = 6.538292e-03;  // time = 24.42 ns
+  aVec[2443] = 6.523910e-03;  // time = 24.43 ns
+  aVec[2444] = 6.509547e-03;  // time = 24.44 ns
+  aVec[2445] = 6.495202e-03;  // time = 24.45 ns
+  aVec[2446] = 6.480874e-03;  // time = 24.46 ns
+  aVec[2447] = 6.466565e-03;  // time = 24.47 ns
+  aVec[2448] = 6.452275e-03;  // time = 24.48 ns
+  aVec[2449] = 6.438002e-03;  // time = 24.49 ns
+  aVec[2450] = 6.423747e-03;  // time = 24.50 ns
+  aVec[2451] = 6.409510e-03;  // time = 24.51 ns
+  aVec[2452] = 6.395291e-03;  // time = 24.52 ns
+  aVec[2453] = 6.381091e-03;  // time = 24.53 ns
+  aVec[2454] = 6.366908e-03;  // time = 24.54 ns
+  aVec[2455] = 6.352743e-03;  // time = 24.55 ns
+  aVec[2456] = 6.338596e-03;  // time = 24.56 ns
+  aVec[2457] = 6.324467e-03;  // time = 24.57 ns
+  aVec[2458] = 6.310356e-03;  // time = 24.58 ns
+  aVec[2459] = 6.296263e-03;  // time = 24.59 ns
+  aVec[2460] = 6.282187e-03;  // time = 24.60 ns
+  aVec[2461] = 6.268130e-03;  // time = 24.61 ns
+  aVec[2462] = 6.254090e-03;  // time = 24.62 ns
+  aVec[2463] = 6.240068e-03;  // time = 24.63 ns
+  aVec[2464] = 6.226063e-03;  // time = 24.64 ns
+  aVec[2465] = 6.212077e-03;  // time = 24.65 ns
+  aVec[2466] = 6.198108e-03;  // time = 24.66 ns
+  aVec[2467] = 6.184157e-03;  // time = 24.67 ns
+  aVec[2468] = 6.170223e-03;  // time = 24.68 ns
+  aVec[2469] = 6.156307e-03;  // time = 24.69 ns
+  aVec[2470] = 6.142409e-03;  // time = 24.70 ns
+  aVec[2471] = 6.128528e-03;  // time = 24.71 ns
+  aVec[2472] = 6.114665e-03;  // time = 24.72 ns
+  aVec[2473] = 6.100819e-03;  // time = 24.73 ns
+  aVec[2474] = 6.086991e-03;  // time = 24.74 ns
+  aVec[2475] = 6.073180e-03;  // time = 24.75 ns
+  aVec[2476] = 6.059387e-03;  // time = 24.76 ns
+  aVec[2477] = 6.045611e-03;  // time = 24.77 ns
+  aVec[2478] = 6.031853e-03;  // time = 24.78 ns
+  aVec[2479] = 6.018112e-03;  // time = 24.79 ns
+  aVec[2480] = 6.004388e-03;  // time = 24.80 ns
+  aVec[2481] = 5.990682e-03;  // time = 24.81 ns
+  aVec[2482] = 5.976993e-03;  // time = 24.82 ns
+  aVec[2483] = 5.963322e-03;  // time = 24.83 ns
+  aVec[2484] = 5.949668e-03;  // time = 24.84 ns
+  aVec[2485] = 5.936031e-03;  // time = 24.85 ns
+  aVec[2486] = 5.922411e-03;  // time = 24.86 ns
+  aVec[2487] = 5.908809e-03;  // time = 24.87 ns
+  aVec[2488] = 5.895223e-03;  // time = 24.88 ns
+  aVec[2489] = 5.881655e-03;  // time = 24.89 ns
+  aVec[2490] = 5.868104e-03;  // time = 24.90 ns
+  aVec[2491] = 5.854571e-03;  // time = 24.91 ns
+  aVec[2492] = 5.841054e-03;  // time = 24.92 ns
+  aVec[2493] = 5.827555e-03;  // time = 24.93 ns
+  aVec[2494] = 5.814072e-03;  // time = 24.94 ns
+  aVec[2495] = 5.800607e-03;  // time = 24.95 ns
+  aVec[2496] = 5.787158e-03;  // time = 24.96 ns
+  aVec[2497] = 5.773727e-03;  // time = 24.97 ns
+  aVec[2498] = 5.760313e-03;  // time = 24.98 ns
+  aVec[2499] = 5.746915e-03;  // time = 24.99 ns
+  aVec[2500] = 5.733535e-03;  // time = 25.00 ns
+  aVec[2501] = 5.720172e-03;  // time = 25.01 ns
+  aVec[2502] = 5.706825e-03;  // time = 25.02 ns
+  aVec[2503] = 5.693495e-03;  // time = 25.03 ns
+  aVec[2504] = 5.680183e-03;  // time = 25.04 ns
+  aVec[2505] = 5.666887e-03;  // time = 25.05 ns
+  aVec[2506] = 5.653607e-03;  // time = 25.06 ns
+  aVec[2507] = 5.640345e-03;  // time = 25.07 ns
+  aVec[2508] = 5.627099e-03;  // time = 25.08 ns
+  aVec[2509] = 5.613871e-03;  // time = 25.09 ns
+  aVec[2510] = 5.600659e-03;  // time = 25.10 ns
+  aVec[2511] = 5.587463e-03;  // time = 25.11 ns
+  aVec[2512] = 5.574284e-03;  // time = 25.12 ns
+  aVec[2513] = 5.561122e-03;  // time = 25.13 ns
+  aVec[2514] = 5.547977e-03;  // time = 25.14 ns
+  aVec[2515] = 5.534848e-03;  // time = 25.15 ns
+  aVec[2516] = 5.521736e-03;  // time = 25.16 ns
+  aVec[2517] = 5.508641e-03;  // time = 25.17 ns
+  aVec[2518] = 5.495562e-03;  // time = 25.18 ns
+  aVec[2519] = 5.482499e-03;  // time = 25.19 ns
+  aVec[2520] = 5.469453e-03;  // time = 25.20 ns
+  aVec[2521] = 5.456424e-03;  // time = 25.21 ns
+  aVec[2522] = 5.443411e-03;  // time = 25.22 ns
+  aVec[2523] = 5.430415e-03;  // time = 25.23 ns
+  aVec[2524] = 5.417434e-03;  // time = 25.24 ns
+  aVec[2525] = 5.404471e-03;  // time = 25.25 ns
+  aVec[2526] = 5.391524e-03;  // time = 25.26 ns
+  aVec[2527] = 5.378593e-03;  // time = 25.27 ns
+  aVec[2528] = 5.365678e-03;  // time = 25.28 ns
+  aVec[2529] = 5.352780e-03;  // time = 25.29 ns
+  aVec[2530] = 5.339898e-03;  // time = 25.30 ns
+  aVec[2531] = 5.327033e-03;  // time = 25.31 ns
+  aVec[2532] = 5.314184e-03;  // time = 25.32 ns
+  aVec[2533] = 5.301350e-03;  // time = 25.33 ns
+  aVec[2534] = 5.288534e-03;  // time = 25.34 ns
+  aVec[2535] = 5.275733e-03;  // time = 25.35 ns
+  aVec[2536] = 5.262949e-03;  // time = 25.36 ns
+  aVec[2537] = 5.250180e-03;  // time = 25.37 ns
+  aVec[2538] = 5.237428e-03;  // time = 25.38 ns
+  aVec[2539] = 5.224692e-03;  // time = 25.39 ns
+  aVec[2540] = 5.211973e-03;  // time = 25.40 ns
+  aVec[2541] = 5.199269e-03;  // time = 25.41 ns
+  aVec[2542] = 5.186581e-03;  // time = 25.42 ns
+  aVec[2543] = 5.173909e-03;  // time = 25.43 ns
+  aVec[2544] = 5.161254e-03;  // time = 25.44 ns
+  aVec[2545] = 5.148614e-03;  // time = 25.45 ns
+  aVec[2546] = 5.135990e-03;  // time = 25.46 ns
+  aVec[2547] = 5.123383e-03;  // time = 25.47 ns
+  aVec[2548] = 5.110791e-03;  // time = 25.48 ns
+  aVec[2549] = 5.098215e-03;  // time = 25.49 ns
+  aVec[2550] = 5.085655e-03;  // time = 25.50 ns
+  aVec[2551] = 5.073111e-03;  // time = 25.51 ns
+  aVec[2552] = 5.060583e-03;  // time = 25.52 ns
+  aVec[2553] = 5.048071e-03;  // time = 25.53 ns
+  aVec[2554] = 5.035574e-03;  // time = 25.54 ns
+  aVec[2555] = 5.023093e-03;  // time = 25.55 ns
+  aVec[2556] = 5.010628e-03;  // time = 25.56 ns
+  aVec[2557] = 4.998179e-03;  // time = 25.57 ns
+  aVec[2558] = 4.985746e-03;  // time = 25.58 ns
+  aVec[2559] = 4.973328e-03;  // time = 25.59 ns
+  aVec[2560] = 4.960926e-03;  // time = 25.60 ns
+  aVec[2561] = 4.948540e-03;  // time = 25.61 ns
+  aVec[2562] = 4.936169e-03;  // time = 25.62 ns
+  aVec[2563] = 4.923814e-03;  // time = 25.63 ns
+  aVec[2564] = 4.911474e-03;  // time = 25.64 ns
+  aVec[2565] = 4.899150e-03;  // time = 25.65 ns
+  aVec[2566] = 4.886842e-03;  // time = 25.66 ns
+  aVec[2567] = 4.874549e-03;  // time = 25.67 ns
+  aVec[2568] = 4.862272e-03;  // time = 25.68 ns
+  aVec[2569] = 4.850011e-03;  // time = 25.69 ns
+  aVec[2570] = 4.837764e-03;  // time = 25.70 ns
+  aVec[2571] = 4.825534e-03;  // time = 25.71 ns
+  aVec[2572] = 4.813318e-03;  // time = 25.72 ns
+  aVec[2573] = 4.801119e-03;  // time = 25.73 ns
+  aVec[2574] = 4.788934e-03;  // time = 25.74 ns
+  aVec[2575] = 4.776765e-03;  // time = 25.75 ns
+  aVec[2576] = 4.764612e-03;  // time = 25.76 ns
+  aVec[2577] = 4.752473e-03;  // time = 25.77 ns
+  aVec[2578] = 4.740350e-03;  // time = 25.78 ns
+  aVec[2579] = 4.728243e-03;  // time = 25.79 ns
+  aVec[2580] = 4.716151e-03;  // time = 25.80 ns
+  aVec[2581] = 4.704073e-03;  // time = 25.81 ns
+  aVec[2582] = 4.692012e-03;  // time = 25.82 ns
+  aVec[2583] = 4.679965e-03;  // time = 25.83 ns
+  aVec[2584] = 4.667934e-03;  // time = 25.84 ns
+  aVec[2585] = 4.655918e-03;  // time = 25.85 ns
+  aVec[2586] = 4.643917e-03;  // time = 25.86 ns
+  aVec[2587] = 4.631931e-03;  // time = 25.87 ns
+  aVec[2588] = 4.619960e-03;  // time = 25.88 ns
+  aVec[2589] = 4.608005e-03;  // time = 25.89 ns
+  aVec[2590] = 4.596064e-03;  // time = 25.90 ns
+  aVec[2591] = 4.584139e-03;  // time = 25.91 ns
+  aVec[2592] = 4.572229e-03;  // time = 25.92 ns
+  aVec[2593] = 4.560334e-03;  // time = 25.93 ns
+  aVec[2594] = 4.548453e-03;  // time = 25.94 ns
+  aVec[2595] = 4.536588e-03;  // time = 25.95 ns
+  aVec[2596] = 4.524738e-03;  // time = 25.96 ns
+  aVec[2597] = 4.512903e-03;  // time = 25.97 ns
+  aVec[2598] = 4.501083e-03;  // time = 25.98 ns
+  aVec[2599] = 4.489277e-03;  // time = 25.99 ns
+  aVec[2600] = 4.477487e-03;  // time = 26.00 ns
+  aVec[2601] = 4.465711e-03;  // time = 26.01 ns
+  aVec[2602] = 4.453950e-03;  // time = 26.02 ns
+  aVec[2603] = 4.442205e-03;  // time = 26.03 ns
+  aVec[2604] = 4.430474e-03;  // time = 26.04 ns
+  aVec[2605] = 4.418757e-03;  // time = 26.05 ns
+  aVec[2606] = 4.407056e-03;  // time = 26.06 ns
+  aVec[2607] = 4.395369e-03;  // time = 26.07 ns
+  aVec[2608] = 4.383697e-03;  // time = 26.08 ns
+  aVec[2609] = 4.372040e-03;  // time = 26.09 ns
+  aVec[2610] = 4.360398e-03;  // time = 26.10 ns
+  aVec[2611] = 4.348770e-03;  // time = 26.11 ns
+  aVec[2612] = 4.337157e-03;  // time = 26.12 ns
+  aVec[2613] = 4.325559e-03;  // time = 26.13 ns
+  aVec[2614] = 4.313975e-03;  // time = 26.14 ns
+  aVec[2615] = 4.302406e-03;  // time = 26.15 ns
+  aVec[2616] = 4.290851e-03;  // time = 26.16 ns
+  aVec[2617] = 4.279311e-03;  // time = 26.17 ns
+  aVec[2618] = 4.267786e-03;  // time = 26.18 ns
+  aVec[2619] = 4.256275e-03;  // time = 26.19 ns
+  aVec[2620] = 4.244779e-03;  // time = 26.20 ns
+  aVec[2621] = 4.233297e-03;  // time = 26.21 ns
+  aVec[2622] = 4.221830e-03;  // time = 26.22 ns
+  aVec[2623] = 4.210377e-03;  // time = 26.23 ns
+  aVec[2624] = 4.198938e-03;  // time = 26.24 ns
+  aVec[2625] = 4.187514e-03;  // time = 26.25 ns
+  aVec[2626] = 4.176105e-03;  // time = 26.26 ns
+  aVec[2627] = 4.164710e-03;  // time = 26.27 ns
+  aVec[2628] = 4.153329e-03;  // time = 26.28 ns
+  aVec[2629] = 4.141962e-03;  // time = 26.29 ns
+  aVec[2630] = 4.130610e-03;  // time = 26.30 ns
+  aVec[2631] = 4.119273e-03;  // time = 26.31 ns
+  aVec[2632] = 4.107949e-03;  // time = 26.32 ns
+  aVec[2633] = 4.096640e-03;  // time = 26.33 ns
+  aVec[2634] = 4.085345e-03;  // time = 26.34 ns
+  aVec[2635] = 4.074064e-03;  // time = 26.35 ns
+  aVec[2636] = 4.062798e-03;  // time = 26.36 ns
+  aVec[2637] = 4.051546e-03;  // time = 26.37 ns
+  aVec[2638] = 4.040308e-03;  // time = 26.38 ns
+  aVec[2639] = 4.029084e-03;  // time = 26.39 ns
+  aVec[2640] = 4.017874e-03;  // time = 26.40 ns
+  aVec[2641] = 4.006678e-03;  // time = 26.41 ns
+  aVec[2642] = 3.995497e-03;  // time = 26.42 ns
+  aVec[2643] = 3.984330e-03;  // time = 26.43 ns
+  aVec[2644] = 3.973176e-03;  // time = 26.44 ns
+  aVec[2645] = 3.962037e-03;  // time = 26.45 ns
+  aVec[2646] = 3.950912e-03;  // time = 26.46 ns
+  aVec[2647] = 3.939801e-03;  // time = 26.47 ns
+  aVec[2648] = 3.928704e-03;  // time = 26.48 ns
+  aVec[2649] = 3.917620e-03;  // time = 26.49 ns
+  aVec[2650] = 3.906551e-03;  // time = 26.50 ns
+  aVec[2651] = 3.895496e-03;  // time = 26.51 ns
+  aVec[2652] = 3.884455e-03;  // time = 26.52 ns
+  aVec[2653] = 3.873427e-03;  // time = 26.53 ns
+  aVec[2654] = 3.862414e-03;  // time = 26.54 ns
+  aVec[2655] = 3.851414e-03;  // time = 26.55 ns
+  aVec[2656] = 3.840428e-03;  // time = 26.56 ns
+  aVec[2657] = 3.829457e-03;  // time = 26.57 ns
+  aVec[2658] = 3.818498e-03;  // time = 26.58 ns
+  aVec[2659] = 3.807554e-03;  // time = 26.59 ns
+  aVec[2660] = 3.796624e-03;  // time = 26.60 ns
+  aVec[2661] = 3.785707e-03;  // time = 26.61 ns
+  aVec[2662] = 3.774804e-03;  // time = 26.62 ns
+  aVec[2663] = 3.763915e-03;  // time = 26.63 ns
+  aVec[2664] = 3.753039e-03;  // time = 26.64 ns
+  aVec[2665] = 3.742178e-03;  // time = 26.65 ns
+  aVec[2666] = 3.731329e-03;  // time = 26.66 ns
+  aVec[2667] = 3.720495e-03;  // time = 26.67 ns
+  aVec[2668] = 3.709674e-03;  // time = 26.68 ns
+  aVec[2669] = 3.698867e-03;  // time = 26.69 ns
+  aVec[2670] = 3.688074e-03;  // time = 26.70 ns
+  aVec[2671] = 3.677294e-03;  // time = 26.71 ns
+  aVec[2672] = 3.666527e-03;  // time = 26.72 ns
+  aVec[2673] = 3.655774e-03;  // time = 26.73 ns
+  aVec[2674] = 3.645035e-03;  // time = 26.74 ns
+  aVec[2675] = 3.634309e-03;  // time = 26.75 ns
+  aVec[2676] = 3.623597e-03;  // time = 26.76 ns
+  aVec[2677] = 3.612898e-03;  // time = 26.77 ns
+  aVec[2678] = 3.602213e-03;  // time = 26.78 ns
+  aVec[2679] = 3.591541e-03;  // time = 26.79 ns
+  aVec[2680] = 3.580883e-03;  // time = 26.80 ns
+  aVec[2681] = 3.570238e-03;  // time = 26.81 ns
+  aVec[2682] = 3.559606e-03;  // time = 26.82 ns
+  aVec[2683] = 3.548988e-03;  // time = 26.83 ns
+  aVec[2684] = 3.538383e-03;  // time = 26.84 ns
+  aVec[2685] = 3.527792e-03;  // time = 26.85 ns
+  aVec[2686] = 3.517213e-03;  // time = 26.86 ns
+  aVec[2687] = 3.506649e-03;  // time = 26.87 ns
+  aVec[2688] = 3.496097e-03;  // time = 26.88 ns
+  aVec[2689] = 3.485559e-03;  // time = 26.89 ns
+  aVec[2690] = 3.475034e-03;  // time = 26.90 ns
+  aVec[2691] = 3.464522e-03;  // time = 26.91 ns
+  aVec[2692] = 3.454023e-03;  // time = 26.92 ns
+  aVec[2693] = 3.443538e-03;  // time = 26.93 ns
+  aVec[2694] = 3.433066e-03;  // time = 26.94 ns
+  aVec[2695] = 3.422607e-03;  // time = 26.95 ns
+  aVec[2696] = 3.412161e-03;  // time = 26.96 ns
+  aVec[2697] = 3.401729e-03;  // time = 26.97 ns
+  aVec[2698] = 3.391309e-03;  // time = 26.98 ns
+  aVec[2699] = 3.380903e-03;  // time = 26.99 ns
+  aVec[2700] = 3.370509e-03;  // time = 27.00 ns
+  aVec[2701] = 3.360129e-03;  // time = 27.01 ns
+  aVec[2702] = 3.349762e-03;  // time = 27.02 ns
+  aVec[2703] = 3.339408e-03;  // time = 27.03 ns
+  aVec[2704] = 3.329066e-03;  // time = 27.04 ns
+  aVec[2705] = 3.318738e-03;  // time = 27.05 ns
+  aVec[2706] = 3.308423e-03;  // time = 27.06 ns
+  aVec[2707] = 3.298121e-03;  // time = 27.07 ns
+  aVec[2708] = 3.287832e-03;  // time = 27.08 ns
+  aVec[2709] = 3.277555e-03;  // time = 27.09 ns
+  aVec[2710] = 3.267292e-03;  // time = 27.10 ns
+  aVec[2711] = 3.257042e-03;  // time = 27.11 ns
+  aVec[2712] = 3.246804e-03;  // time = 27.12 ns
+  aVec[2713] = 3.236579e-03;  // time = 27.13 ns
+  aVec[2714] = 3.226367e-03;  // time = 27.14 ns
+  aVec[2715] = 3.216168e-03;  // time = 27.15 ns
+  aVec[2716] = 3.205982e-03;  // time = 27.16 ns
+  aVec[2717] = 3.195809e-03;  // time = 27.17 ns
+  aVec[2718] = 3.185648e-03;  // time = 27.18 ns
+  aVec[2719] = 3.175500e-03;  // time = 27.19 ns
+  aVec[2720] = 3.165365e-03;  // time = 27.20 ns
+  aVec[2721] = 3.155243e-03;  // time = 27.21 ns
+  aVec[2722] = 3.145133e-03;  // time = 27.22 ns
+  aVec[2723] = 3.135036e-03;  // time = 27.23 ns
+  aVec[2724] = 3.124952e-03;  // time = 27.24 ns
+  aVec[2725] = 3.114881e-03;  // time = 27.25 ns
+  aVec[2726] = 3.104822e-03;  // time = 27.26 ns
+  aVec[2727] = 3.094775e-03;  // time = 27.27 ns
+  aVec[2728] = 3.084742e-03;  // time = 27.28 ns
+  aVec[2729] = 3.074721e-03;  // time = 27.29 ns
+  aVec[2730] = 3.064712e-03;  // time = 27.30 ns
+  aVec[2731] = 3.054716e-03;  // time = 27.31 ns
+  aVec[2732] = 3.044733e-03;  // time = 27.32 ns
+  aVec[2733] = 3.034762e-03;  // time = 27.33 ns
+  aVec[2734] = 3.024804e-03;  // time = 27.34 ns
+  aVec[2735] = 3.014858e-03;  // time = 27.35 ns
+  aVec[2736] = 3.004925e-03;  // time = 27.36 ns
+  aVec[2737] = 2.995004e-03;  // time = 27.37 ns
+  aVec[2738] = 2.985096e-03;  // time = 27.38 ns
+  aVec[2739] = 2.975200e-03;  // time = 27.39 ns
+  aVec[2740] = 2.965317e-03;  // time = 27.40 ns
+  aVec[2741] = 2.955446e-03;  // time = 27.41 ns
+  aVec[2742] = 2.945587e-03;  // time = 27.42 ns
+  aVec[2743] = 2.935741e-03;  // time = 27.43 ns
+  aVec[2744] = 2.925907e-03;  // time = 27.44 ns
+  aVec[2745] = 2.916085e-03;  // time = 27.45 ns
+  aVec[2746] = 2.906276e-03;  // time = 27.46 ns
+  aVec[2747] = 2.896479e-03;  // time = 27.47 ns
+  aVec[2748] = 2.886694e-03;  // time = 27.48 ns
+  aVec[2749] = 2.876922e-03;  // time = 27.49 ns
+  aVec[2750] = 2.867162e-03;  // time = 27.50 ns
+  aVec[2751] = 2.857414e-03;  // time = 27.51 ns
+  aVec[2752] = 2.847679e-03;  // time = 27.52 ns
+  aVec[2753] = 2.837955e-03;  // time = 27.53 ns
+  aVec[2754] = 2.828244e-03;  // time = 27.54 ns
+  aVec[2755] = 2.818545e-03;  // time = 27.55 ns
+  aVec[2756] = 2.808858e-03;  // time = 27.56 ns
+  aVec[2757] = 2.799184e-03;  // time = 27.57 ns
+  aVec[2758] = 2.789521e-03;  // time = 27.58 ns
+  aVec[2759] = 2.779871e-03;  // time = 27.59 ns
+  aVec[2760] = 2.770233e-03;  // time = 27.60 ns
+  aVec[2761] = 2.760606e-03;  // time = 27.61 ns
+  aVec[2762] = 2.750992e-03;  // time = 27.62 ns
+  aVec[2763] = 2.741390e-03;  // time = 27.63 ns
+  aVec[2764] = 2.731800e-03;  // time = 27.64 ns
+  aVec[2765] = 2.722222e-03;  // time = 27.65 ns
+  aVec[2766] = 2.712656e-03;  // time = 27.66 ns
+  aVec[2767] = 2.703102e-03;  // time = 27.67 ns
+  aVec[2768] = 2.693560e-03;  // time = 27.68 ns
+  aVec[2769] = 2.684031e-03;  // time = 27.69 ns
+  aVec[2770] = 2.674512e-03;  // time = 27.70 ns
+  aVec[2771] = 2.665006e-03;  // time = 27.71 ns
+  aVec[2772] = 2.655512e-03;  // time = 27.72 ns
+  aVec[2773] = 2.646030e-03;  // time = 27.73 ns
+  aVec[2774] = 2.636560e-03;  // time = 27.74 ns
+  aVec[2775] = 2.627101e-03;  // time = 27.75 ns
+  aVec[2776] = 2.617654e-03;  // time = 27.76 ns
+  aVec[2777] = 2.608220e-03;  // time = 27.77 ns
+  aVec[2778] = 2.598797e-03;  // time = 27.78 ns
+  aVec[2779] = 2.589385e-03;  // time = 27.79 ns
+  aVec[2780] = 2.579986e-03;  // time = 27.80 ns
+  aVec[2781] = 2.570598e-03;  // time = 27.81 ns
+  aVec[2782] = 2.561223e-03;  // time = 27.82 ns
+  aVec[2783] = 2.551859e-03;  // time = 27.83 ns
+  aVec[2784] = 2.542506e-03;  // time = 27.84 ns
+  aVec[2785] = 2.533166e-03;  // time = 27.85 ns
+  aVec[2786] = 2.523837e-03;  // time = 27.86 ns
+  aVec[2787] = 2.514520e-03;  // time = 27.87 ns
+  aVec[2788] = 2.505214e-03;  // time = 27.88 ns
+  aVec[2789] = 2.495920e-03;  // time = 27.89 ns
+  aVec[2790] = 2.486638e-03;  // time = 27.90 ns
+  aVec[2791] = 2.477367e-03;  // time = 27.91 ns
+  aVec[2792] = 2.468108e-03;  // time = 27.92 ns
+  aVec[2793] = 2.458861e-03;  // time = 27.93 ns
+  aVec[2794] = 2.449625e-03;  // time = 27.94 ns
+  aVec[2795] = 2.440401e-03;  // time = 27.95 ns
+  aVec[2796] = 2.431189e-03;  // time = 27.96 ns
+  aVec[2797] = 2.421987e-03;  // time = 27.97 ns
+  aVec[2798] = 2.412798e-03;  // time = 27.98 ns
+  aVec[2799] = 2.403620e-03;  // time = 27.99 ns
+  aVec[2800] = 2.394453e-03;  // time = 28.00 ns
+  aVec[2801] = 2.385298e-03;  // time = 28.01 ns
+  aVec[2802] = 2.376155e-03;  // time = 28.02 ns
+  aVec[2803] = 2.367022e-03;  // time = 28.03 ns
+  aVec[2804] = 2.357902e-03;  // time = 28.04 ns
+  aVec[2805] = 2.348792e-03;  // time = 28.05 ns
+  aVec[2806] = 2.339694e-03;  // time = 28.06 ns
+  aVec[2807] = 2.330608e-03;  // time = 28.07 ns
+  aVec[2808] = 2.321533e-03;  // time = 28.08 ns
+  aVec[2809] = 2.312469e-03;  // time = 28.09 ns
+  aVec[2810] = 2.303417e-03;  // time = 28.10 ns
+  aVec[2811] = 2.294376e-03;  // time = 28.11 ns
+  aVec[2812] = 2.285346e-03;  // time = 28.12 ns
+  aVec[2813] = 2.276328e-03;  // time = 28.13 ns
+  aVec[2814] = 2.267320e-03;  // time = 28.14 ns
+  aVec[2815] = 2.258325e-03;  // time = 28.15 ns
+  aVec[2816] = 2.249340e-03;  // time = 28.16 ns
+  aVec[2817] = 2.240367e-03;  // time = 28.17 ns
+  aVec[2818] = 2.231404e-03;  // time = 28.18 ns
+  aVec[2819] = 2.222454e-03;  // time = 28.19 ns
+  aVec[2820] = 2.213514e-03;  // time = 28.20 ns
+  aVec[2821] = 2.204585e-03;  // time = 28.21 ns
+  aVec[2822] = 2.195668e-03;  // time = 28.22 ns
+  aVec[2823] = 2.186762e-03;  // time = 28.23 ns
+  aVec[2824] = 2.177867e-03;  // time = 28.24 ns
+  aVec[2825] = 2.168983e-03;  // time = 28.25 ns
+  aVec[2826] = 2.160110e-03;  // time = 28.26 ns
+  aVec[2827] = 2.151249e-03;  // time = 28.27 ns
+  aVec[2828] = 2.142398e-03;  // time = 28.28 ns
+  aVec[2829] = 2.133558e-03;  // time = 28.29 ns
+  aVec[2830] = 2.124730e-03;  // time = 28.30 ns
+  aVec[2831] = 2.115913e-03;  // time = 28.31 ns
+  aVec[2832] = 2.107106e-03;  // time = 28.32 ns
+  aVec[2833] = 2.098311e-03;  // time = 28.33 ns
+  aVec[2834] = 2.089527e-03;  // time = 28.34 ns
+  aVec[2835] = 2.080753e-03;  // time = 28.35 ns
+  aVec[2836] = 2.071991e-03;  // time = 28.36 ns
+  aVec[2837] = 2.063240e-03;  // time = 28.37 ns
+  aVec[2838] = 2.054499e-03;  // time = 28.38 ns
+  aVec[2839] = 2.045770e-03;  // time = 28.39 ns
+  aVec[2840] = 2.037051e-03;  // time = 28.40 ns
+  aVec[2841] = 2.028343e-03;  // time = 28.41 ns
+  aVec[2842] = 2.019646e-03;  // time = 28.42 ns
+  aVec[2843] = 2.010961e-03;  // time = 28.43 ns
+  aVec[2844] = 2.002285e-03;  // time = 28.44 ns
+  aVec[2845] = 1.993621e-03;  // time = 28.45 ns
+  aVec[2846] = 1.984968e-03;  // time = 28.46 ns
+  aVec[2847] = 1.976325e-03;  // time = 28.47 ns
+  aVec[2848] = 1.967694e-03;  // time = 28.48 ns
+  aVec[2849] = 1.959073e-03;  // time = 28.49 ns
+  aVec[2850] = 1.950462e-03;  // time = 28.50 ns
+  aVec[2851] = 1.941863e-03;  // time = 28.51 ns
+  aVec[2852] = 1.933274e-03;  // time = 28.52 ns
+  aVec[2853] = 1.924697e-03;  // time = 28.53 ns
+  aVec[2854] = 1.916129e-03;  // time = 28.54 ns
+  aVec[2855] = 1.907573e-03;  // time = 28.55 ns
+  aVec[2856] = 1.899027e-03;  // time = 28.56 ns
+  aVec[2857] = 1.890492e-03;  // time = 28.57 ns
+  aVec[2858] = 1.881968e-03;  // time = 28.58 ns
+  aVec[2859] = 1.873454e-03;  // time = 28.59 ns
+  aVec[2860] = 1.864951e-03;  // time = 28.60 ns
+  aVec[2861] = 1.856458e-03;  // time = 28.61 ns
+  aVec[2862] = 1.847976e-03;  // time = 28.62 ns
+  aVec[2863] = 1.839505e-03;  // time = 28.63 ns
+  aVec[2864] = 1.831044e-03;  // time = 28.64 ns
+  aVec[2865] = 1.822594e-03;  // time = 28.65 ns
+  aVec[2866] = 1.814155e-03;  // time = 28.66 ns
+  aVec[2867] = 1.805726e-03;  // time = 28.67 ns
+  aVec[2868] = 1.797307e-03;  // time = 28.68 ns
+  aVec[2869] = 1.788899e-03;  // time = 28.69 ns
+  aVec[2870] = 1.780502e-03;  // time = 28.70 ns
+  aVec[2871] = 1.772115e-03;  // time = 28.71 ns
+  aVec[2872] = 1.763739e-03;  // time = 28.72 ns
+  aVec[2873] = 1.755373e-03;  // time = 28.73 ns
+  aVec[2874] = 1.747017e-03;  // time = 28.74 ns
+  aVec[2875] = 1.738672e-03;  // time = 28.75 ns
+  aVec[2876] = 1.730337e-03;  // time = 28.76 ns
+  aVec[2877] = 1.722013e-03;  // time = 28.77 ns
+  aVec[2878] = 1.713699e-03;  // time = 28.78 ns
+  aVec[2879] = 1.705396e-03;  // time = 28.79 ns
+  aVec[2880] = 1.697103e-03;  // time = 28.80 ns
+  aVec[2881] = 1.688820e-03;  // time = 28.81 ns
+  aVec[2882] = 1.680548e-03;  // time = 28.82 ns
+  aVec[2883] = 1.672285e-03;  // time = 28.83 ns
+  aVec[2884] = 1.664034e-03;  // time = 28.84 ns
+  aVec[2885] = 1.655792e-03;  // time = 28.85 ns
+  aVec[2886] = 1.647561e-03;  // time = 28.86 ns
+  aVec[2887] = 1.639340e-03;  // time = 28.87 ns
+  aVec[2888] = 1.631130e-03;  // time = 28.88 ns
+  aVec[2889] = 1.622929e-03;  // time = 28.89 ns
+  aVec[2890] = 1.614739e-03;  // time = 28.90 ns
+  aVec[2891] = 1.606560e-03;  // time = 28.91 ns
+  aVec[2892] = 1.598390e-03;  // time = 28.92 ns
+  aVec[2893] = 1.590231e-03;  // time = 28.93 ns
+  aVec[2894] = 1.582081e-03;  // time = 28.94 ns
+  aVec[2895] = 1.573942e-03;  // time = 28.95 ns
+  aVec[2896] = 1.565813e-03;  // time = 28.96 ns
+  aVec[2897] = 1.557695e-03;  // time = 28.97 ns
+  aVec[2898] = 1.549586e-03;  // time = 28.98 ns
+  aVec[2899] = 1.541488e-03;  // time = 28.99 ns
+  aVec[2900] = 1.533399e-03;  // time = 29.00 ns
+  aVec[2901] = 1.525321e-03;  // time = 29.01 ns
+  aVec[2902] = 1.517253e-03;  // time = 29.02 ns
+  aVec[2903] = 1.509195e-03;  // time = 29.03 ns
+  aVec[2904] = 1.501147e-03;  // time = 29.04 ns
+  aVec[2905] = 1.493109e-03;  // time = 29.05 ns
+  aVec[2906] = 1.485081e-03;  // time = 29.06 ns
+  aVec[2907] = 1.477063e-03;  // time = 29.07 ns
+  aVec[2908] = 1.469055e-03;  // time = 29.08 ns
+  aVec[2909] = 1.461057e-03;  // time = 29.09 ns
+  aVec[2910] = 1.453069e-03;  // time = 29.10 ns
+  aVec[2911] = 1.445091e-03;  // time = 29.11 ns
+  aVec[2912] = 1.437123e-03;  // time = 29.12 ns
+  aVec[2913] = 1.429165e-03;  // time = 29.13 ns
+  aVec[2914] = 1.421217e-03;  // time = 29.14 ns
+  aVec[2915] = 1.413279e-03;  // time = 29.15 ns
+  aVec[2916] = 1.405350e-03;  // time = 29.16 ns
+  aVec[2917] = 1.397432e-03;  // time = 29.17 ns
+  aVec[2918] = 1.389523e-03;  // time = 29.18 ns
+  aVec[2919] = 1.381625e-03;  // time = 29.19 ns
+  aVec[2920] = 1.373736e-03;  // time = 29.20 ns
+  aVec[2921] = 1.365857e-03;  // time = 29.21 ns
+  aVec[2922] = 1.357988e-03;  // time = 29.22 ns
+  aVec[2923] = 1.350129e-03;  // time = 29.23 ns
+  aVec[2924] = 1.342279e-03;  // time = 29.24 ns
+  aVec[2925] = 1.334439e-03;  // time = 29.25 ns
+  aVec[2926] = 1.326610e-03;  // time = 29.26 ns
+  aVec[2927] = 1.318789e-03;  // time = 29.27 ns
+  aVec[2928] = 1.310979e-03;  // time = 29.28 ns
+  aVec[2929] = 1.303178e-03;  // time = 29.29 ns
+  aVec[2930] = 1.295388e-03;  // time = 29.30 ns
+  aVec[2931] = 1.287606e-03;  // time = 29.31 ns
+  aVec[2932] = 1.279835e-03;  // time = 29.32 ns
+  aVec[2933] = 1.272073e-03;  // time = 29.33 ns
+  aVec[2934] = 1.264321e-03;  // time = 29.34 ns
+  aVec[2935] = 1.256579e-03;  // time = 29.35 ns
+  aVec[2936] = 1.248846e-03;  // time = 29.36 ns
+  aVec[2937] = 1.241123e-03;  // time = 29.37 ns
+  aVec[2938] = 1.233409e-03;  // time = 29.38 ns
+  aVec[2939] = 1.225706e-03;  // time = 29.39 ns
+  aVec[2940] = 1.218011e-03;  // time = 29.40 ns
+  aVec[2941] = 1.210327e-03;  // time = 29.41 ns
+  aVec[2942] = 1.202652e-03;  // time = 29.42 ns
+  aVec[2943] = 1.194986e-03;  // time = 29.43 ns
+  aVec[2944] = 1.187330e-03;  // time = 29.44 ns
+  aVec[2945] = 1.179684e-03;  // time = 29.45 ns
+  aVec[2946] = 1.172047e-03;  // time = 29.46 ns
+  aVec[2947] = 1.164420e-03;  // time = 29.47 ns
+  aVec[2948] = 1.156802e-03;  // time = 29.48 ns
+  aVec[2949] = 1.149194e-03;  // time = 29.49 ns
+  aVec[2950] = 1.141595e-03;  // time = 29.50 ns
+  aVec[2951] = 1.134006e-03;  // time = 29.51 ns
+  aVec[2952] = 1.126426e-03;  // time = 29.52 ns
+  aVec[2953] = 1.118856e-03;  // time = 29.53 ns
+  aVec[2954] = 1.111295e-03;  // time = 29.54 ns
+  aVec[2955] = 1.103743e-03;  // time = 29.55 ns
+  aVec[2956] = 1.096201e-03;  // time = 29.56 ns
+  aVec[2957] = 1.088669e-03;  // time = 29.57 ns
+  aVec[2958] = 1.081145e-03;  // time = 29.58 ns
+  aVec[2959] = 1.073632e-03;  // time = 29.59 ns
+  aVec[2960] = 1.066127e-03;  // time = 29.60 ns
+  aVec[2961] = 1.058632e-03;  // time = 29.61 ns
+  aVec[2962] = 1.051146e-03;  // time = 29.62 ns
+  aVec[2963] = 1.043670e-03;  // time = 29.63 ns
+  aVec[2964] = 1.036202e-03;  // time = 29.64 ns
+  aVec[2965] = 1.028745e-03;  // time = 29.65 ns
+  aVec[2966] = 1.021296e-03;  // time = 29.66 ns
+  aVec[2967] = 1.013857e-03;  // time = 29.67 ns
+  aVec[2968] = 1.006427e-03;  // time = 29.68 ns
+  aVec[2969] = 9.990063e-04;  // time = 29.69 ns
+  aVec[2970] = 9.915949e-04;  // time = 29.70 ns
+  aVec[2971] = 9.841927e-04;  // time = 29.71 ns
+  aVec[2972] = 9.767997e-04;  // time = 29.72 ns
+  aVec[2973] = 9.694160e-04;  // time = 29.73 ns
+  aVec[2974] = 9.620415e-04;  // time = 29.74 ns
+  aVec[2975] = 9.546762e-04;  // time = 29.75 ns
+  aVec[2976] = 9.473200e-04;  // time = 29.76 ns
+  aVec[2977] = 9.399731e-04;  // time = 29.77 ns
+  aVec[2978] = 9.326353e-04;  // time = 29.78 ns
+  aVec[2979] = 9.253066e-04;  // time = 29.79 ns
+  aVec[2980] = 9.179871e-04;  // time = 29.80 ns
+  aVec[2981] = 9.106767e-04;  // time = 29.81 ns
+  aVec[2982] = 9.033754e-04;  // time = 29.82 ns
+  aVec[2983] = 8.960833e-04;  // time = 29.83 ns
+  aVec[2984] = 8.888002e-04;  // time = 29.84 ns
+  aVec[2985] = 8.815262e-04;  // time = 29.85 ns
+  aVec[2986] = 8.742613e-04;  // time = 29.86 ns
+  aVec[2987] = 8.670054e-04;  // time = 29.87 ns
+  aVec[2988] = 8.597586e-04;  // time = 29.88 ns
+  aVec[2989] = 8.525209e-04;  // time = 29.89 ns
+  aVec[2990] = 8.452921e-04;  // time = 29.90 ns
+  aVec[2991] = 8.380724e-04;  // time = 29.91 ns
+  aVec[2992] = 8.308617e-04;  // time = 29.92 ns
+  aVec[2993] = 8.236599e-04;  // time = 29.93 ns
+  aVec[2994] = 8.164672e-04;  // time = 29.94 ns
+  aVec[2995] = 8.092834e-04;  // time = 29.95 ns
+  aVec[2996] = 8.021085e-04;  // time = 29.96 ns
+  aVec[2997] = 7.949427e-04;  // time = 29.97 ns
+  aVec[2998] = 7.877857e-04;  // time = 29.98 ns
+  aVec[2999] = 7.806377e-04;  // time = 29.99 ns
+  aVec[3000] = 7.715531e-04;  // time = 30.00 ns
+  aVec[3001] = 7.665631e-04;  // time = 30.01 ns
+  aVec[3002] = 7.608653e-04;  // time = 30.02 ns
+  aVec[3003] = 7.537509e-04;  // time = 30.03 ns
+  aVec[3004] = 7.466453e-04;  // time = 30.04 ns
+  aVec[3005] = 7.395486e-04;  // time = 30.05 ns
+  aVec[3006] = 7.324607e-04;  // time = 30.06 ns
+  aVec[3007] = 7.253817e-04;  // time = 30.07 ns
+  aVec[3008] = 7.183115e-04;  // time = 30.08 ns
+  aVec[3009] = 7.112501e-04;  // time = 30.09 ns
+  aVec[3010] = 7.041975e-04;  // time = 30.10 ns
+  aVec[3011] = 6.971537e-04;  // time = 30.11 ns
+  aVec[3012] = 6.901187e-04;  // time = 30.12 ns
+  aVec[3013] = 6.830925e-04;  // time = 30.13 ns
+  aVec[3014] = 6.760750e-04;  // time = 30.14 ns
+  aVec[3015] = 6.690663e-04;  // time = 30.15 ns
+  aVec[3016] = 6.620663e-04;  // time = 30.16 ns
+  aVec[3017] = 6.550750e-04;  // time = 30.17 ns
+  aVec[3018] = 6.480925e-04;  // time = 30.18 ns
+  aVec[3019] = 6.411186e-04;  // time = 30.19 ns
+  aVec[3020] = 6.341535e-04;  // time = 30.20 ns
+  aVec[3021] = 6.271970e-04;  // time = 30.21 ns
+  aVec[3022] = 6.202493e-04;  // time = 30.22 ns
+  aVec[3023] = 6.133102e-04;  // time = 30.23 ns
+  aVec[3024] = 6.063797e-04;  // time = 30.24 ns
+  aVec[3025] = 5.994579e-04;  // time = 30.25 ns
+  aVec[3026] = 5.925447e-04;  // time = 30.26 ns
+  aVec[3027] = 5.856401e-04;  // time = 30.27 ns
+  aVec[3028] = 5.787442e-04;  // time = 30.28 ns
+  aVec[3029] = 5.718568e-04;  // time = 30.29 ns
+  aVec[3030] = 5.649780e-04;  // time = 30.30 ns
+  aVec[3031] = 5.581078e-04;  // time = 30.31 ns
+  aVec[3032] = 5.512462e-04;  // time = 30.32 ns
+  aVec[3033] = 5.443931e-04;  // time = 30.33 ns
+  aVec[3034] = 5.375486e-04;  // time = 30.34 ns
+  aVec[3035] = 5.307126e-04;  // time = 30.35 ns
+  aVec[3036] = 5.238852e-04;  // time = 30.36 ns
+  aVec[3037] = 5.170662e-04;  // time = 30.37 ns
+  aVec[3038] = 5.102558e-04;  // time = 30.38 ns
+  aVec[3039] = 5.034538e-04;  // time = 30.39 ns
+  aVec[3040] = 4.966604e-04;  // time = 30.40 ns
+  aVec[3041] = 4.898754e-04;  // time = 30.41 ns
+  aVec[3042] = 4.830988e-04;  // time = 30.42 ns
+  aVec[3043] = 4.763307e-04;  // time = 30.43 ns
+  aVec[3044] = 4.695711e-04;  // time = 30.44 ns
+  aVec[3045] = 4.628199e-04;  // time = 30.45 ns
+  aVec[3046] = 4.560771e-04;  // time = 30.46 ns
+  aVec[3047] = 4.493427e-04;  // time = 30.47 ns
+  aVec[3048] = 4.426167e-04;  // time = 30.48 ns
+  aVec[3049] = 4.358991e-04;  // time = 30.49 ns
+  aVec[3050] = 4.291899e-04;  // time = 30.50 ns
+  aVec[3051] = 4.224891e-04;  // time = 30.51 ns
+  aVec[3052] = 4.157966e-04;  // time = 30.52 ns
+  aVec[3053] = 4.091124e-04;  // time = 30.53 ns
+  aVec[3054] = 4.024366e-04;  // time = 30.54 ns
+  aVec[3055] = 3.957691e-04;  // time = 30.55 ns
+  aVec[3056] = 3.891100e-04;  // time = 30.56 ns
+  aVec[3057] = 3.824591e-04;  // time = 30.57 ns
+  aVec[3058] = 3.758165e-04;  // time = 30.58 ns
+  aVec[3059] = 3.691822e-04;  // time = 30.59 ns
+  aVec[3060] = 3.625562e-04;  // time = 30.60 ns
+  aVec[3061] = 3.559385e-04;  // time = 30.61 ns
+  aVec[3062] = 3.493290e-04;  // time = 30.62 ns
+  aVec[3063] = 3.427278e-04;  // time = 30.63 ns
+  aVec[3064] = 3.361348e-04;  // time = 30.64 ns
+  aVec[3065] = 3.295500e-04;  // time = 30.65 ns
+  aVec[3066] = 3.229734e-04;  // time = 30.66 ns
+  aVec[3067] = 3.164050e-04;  // time = 30.67 ns
+  aVec[3068] = 3.098449e-04;  // time = 30.68 ns
+  aVec[3069] = 3.032929e-04;  // time = 30.69 ns
+  aVec[3070] = 2.967491e-04;  // time = 30.70 ns
+  aVec[3071] = 2.902134e-04;  // time = 30.71 ns
+  aVec[3072] = 2.836859e-04;  // time = 30.72 ns
+  aVec[3073] = 2.771666e-04;  // time = 30.73 ns
+  aVec[3074] = 2.706554e-04;  // time = 30.74 ns
+  aVec[3075] = 2.641523e-04;  // time = 30.75 ns
+  aVec[3076] = 2.576573e-04;  // time = 30.76 ns
+  aVec[3077] = 2.511704e-04;  // time = 30.77 ns
+  aVec[3078] = 2.446916e-04;  // time = 30.78 ns
+  aVec[3079] = 2.382209e-04;  // time = 30.79 ns
+  aVec[3080] = 2.317583e-04;  // time = 30.80 ns
+  aVec[3081] = 2.253037e-04;  // time = 30.81 ns
+  aVec[3082] = 2.188572e-04;  // time = 30.82 ns
+  aVec[3083] = 2.124187e-04;  // time = 30.83 ns
+  aVec[3084] = 2.059883e-04;  // time = 30.84 ns
+  aVec[3085] = 1.995659e-04;  // time = 30.85 ns
+  aVec[3086] = 1.931515e-04;  // time = 30.86 ns
+  aVec[3087] = 1.867451e-04;  // time = 30.87 ns
+  aVec[3088] = 1.803467e-04;  // time = 30.88 ns
+  aVec[3089] = 1.739563e-04;  // time = 30.89 ns
+  aVec[3090] = 1.675739e-04;  // time = 30.90 ns
+  aVec[3091] = 1.611994e-04;  // time = 30.91 ns
+  aVec[3092] = 1.548329e-04;  // time = 30.92 ns
+  aVec[3093] = 1.484743e-04;  // time = 30.93 ns
+  aVec[3094] = 1.421237e-04;  // time = 30.94 ns
+  aVec[3095] = 1.357810e-04;  // time = 30.95 ns
+  aVec[3096] = 1.294462e-04;  // time = 30.96 ns
+  aVec[3097] = 1.231193e-04;  // time = 30.97 ns
+  aVec[3098] = 1.168003e-04;  // time = 30.98 ns
+  aVec[3099] = 1.104892e-04;  // time = 30.99 ns
+  aVec[3100] = 1.041860e-04;  // time = 31.00 ns
 
 }

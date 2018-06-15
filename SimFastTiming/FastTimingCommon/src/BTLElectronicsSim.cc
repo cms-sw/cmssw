@@ -29,7 +29,12 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset) :
   adcSaturation_MIP_( pset.getParameter<double>("adcSaturation_MIP") ),
   adcLSB_MIP_( adcSaturation_MIP_/std::pow(2.,adcNbits_) ),
   adcThreshold_MIP_( pset.getParameter<double>("adcThreshold_MIP") ),
-  toaLSB_ns_( pset.getParameter<double>("toaLSB_ns")) {    
+  toaLSB_ns_( pset.getParameter<double>("toaLSB_ns") ),
+  ScintillatorDecayTime2_(ScintillatorDecayTime_*ScintillatorDecayTime_),
+  SPTR2_(SinglePhotonTimeResolution_*SinglePhotonTimeResolution_),
+  DCRxRiseTime_(DarkCountRate_*ScintillatorRiseTime_),
+  SigmaElectronicNoise2_(SigmaElectronicNoise_*SigmaElectronicNoise_),
+  SigmaClock2_(SigmaClock_*SigmaClock_) { 
 }
 
 
@@ -55,16 +60,15 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
 
       // --- Get the time of arrival and add a channel time offset
       float finalToA1 = (it->second).hit_info[1][i] + ChannelTimeOffset_;
-      float finalToA2 = (it->second).hit_info[1][i] + ChannelTimeOffset_;
       
       if (  smearChannelTimeOffset_ > 0. ){
 	float timeSmearing = CLHEP::RandGaussQ::shoot(hre, 0., smearChannelTimeOffset_);
 	finalToA1 += timeSmearing;
-	finalToA2 += timeSmearing;
       }
 
 
-      // --- Calculate and add the time walk
+      // --- Calculate and add the time walk: the time of arrival is read in correspondence
+      //                                      with two thresholds on the signal pulse
       std::array<float, 3> times = btlPulseShape_.timeAtThr(Npe/ReferencePulseNpe_,
 							    TimeThreshold1_*Npe_to_V_, 
 							    TimeThreshold2_*Npe_to_V_);
@@ -73,34 +77,26 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       // --- If the pulse amplitude is smaller than TimeThreshold2, the trigger does not fire
       if (times[1] == 0.) continue;
 
+      float finalToA2 = finalToA1 + times[1];
       finalToA1 += times[0];
-      finalToA2 += times[1];
 
 
       // --- Uncertainty due to the fluctuations of the n-th photon arrival time:
-      float sigma2_tot_thr1 = ScintillatorDecayTime_*ScintillatorDecayTime_*sigma2_pe(TimeThreshold1_,Npe);
-      float sigma2_tot_thr2 = ScintillatorDecayTime_*ScintillatorDecayTime_*sigma2_pe(TimeThreshold2_,Npe);
+      float sigma2_tot_thr1 = ScintillatorDecayTime2_*sigma2_pe(TimeThreshold1_,Npe);
+      float sigma2_tot_thr2 = ScintillatorDecayTime2_*sigma2_pe(TimeThreshold2_,Npe);
 
 
       // --- Add in quadrature the uncertainty due to the SiPM timing resolution:
-      sigma2_tot_thr1 += SinglePhotonTimeResolution_*SinglePhotonTimeResolution_/TimeThreshold1_;
-      sigma2_tot_thr2 += SinglePhotonTimeResolution_*SinglePhotonTimeResolution_/TimeThreshold2_;
+      sigma2_tot_thr1 += SPTR2_/TimeThreshold1_;
+      sigma2_tot_thr2 += SPTR2_/TimeThreshold2_;
 
 
-      // --- Add in quadrature the uncertainty due to the SiPM DCR:
-      float slew = ScintillatorDecayTime_/Npe;
-      sigma2_tot_thr1 += ScintillatorRiseTime_*DarkCountRate_*slew*slew;
-      sigma2_tot_thr2 += ScintillatorRiseTime_*DarkCountRate_*slew*slew;
+      // --- Add in quadrature the uncertainties due to the SiPM DCR, 
+      //     the electronic noise and the clock distribution:
+      float slew2 = ScintillatorDecayTime2_/Npe/Npe;
 
-
-      // --- Add in quadrature the uncertainty due to the electronic noise:
-      sigma2_tot_thr1 += SigmaElectronicNoise_*SigmaElectronicNoise_*slew*slew;
-      sigma2_tot_thr2 += SigmaElectronicNoise_*SigmaElectronicNoise_*slew*slew;
-
-
-      // --- Add in quadrature the uncertainty due to the clock distribution:
-      sigma2_tot_thr1 += SigmaClock_*SigmaClock_;
-      sigma2_tot_thr2 += SigmaClock_*SigmaClock_;
+      sigma2_tot_thr1 += ( (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_ );
+      sigma2_tot_thr2 += ( (DCRxRiseTime_ + SigmaElectronicNoise2_)*slew2 + SigmaClock2_ );
 
 
       // --- Smear the arrival times using the total uncertainty:
@@ -186,12 +182,13 @@ void BTLElectronicsSim::updateOutput(BTLDigiCollection &coll,
 
 float BTLElectronicsSim::sigma2_pe(const float& Q, const float& R) const {
   
-  float OneOverR = 1./R;
+  float OneOverR  = 1./R;
+  float OneOverR2 = OneOverR*OneOverR;
+
   // --- This is Eq. (17) from Nucl. Instr. Meth. A 564 (2006) 185
-  float sigma2 = Q*OneOverR*OneOverR + 
-                 2.*Q*(Q+1.)*OneOverR*OneOverR*OneOverR + 
-                 Q*(Q+1.)*(6.*Q+11)*OneOverR*OneOverR*OneOverR*OneOverR +
-                 Q*(Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR*OneOverR*OneOverR*OneOverR*OneOverR;
+  float sigma2 = Q * OneOverR2 * ( 1. + 2.*(Q+1.)*OneOverR + 
+				   (Q+1.)*(6.*Q+11)*OneOverR2 +
+				   (Q+1.)*(Q+2.)*(2.*Q+5.)*OneOverR2*OneOverR );
 
   return sigma2;
 
