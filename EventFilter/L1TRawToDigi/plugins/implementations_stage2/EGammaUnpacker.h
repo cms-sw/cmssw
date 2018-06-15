@@ -15,7 +15,6 @@ namespace l1t {
             inline void setEGammaCopy(const unsigned int copy) { EGammaCopy_ = copy; };
 
          private:
-            EGammaBxCollection* res_;
             unsigned int EGammaCopy_;
       };
    }

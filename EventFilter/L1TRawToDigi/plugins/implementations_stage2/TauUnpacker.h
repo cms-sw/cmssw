@@ -15,7 +15,6 @@ namespace l1t {
             inline void setTauCopy(const unsigned int copy) { TauCopy_ = copy; };
 
          private:
-            TauBxCollection* res_;
             unsigned int TauCopy_;
       };
    }

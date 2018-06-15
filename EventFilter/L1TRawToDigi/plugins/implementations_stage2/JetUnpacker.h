@@ -15,7 +15,6 @@ namespace l1t {
             inline void setJetCopy(const unsigned int copy) { JetCopy_ = copy; };
 
          private:
-            JetBxCollection* res_;
             unsigned int JetCopy_;
       };
    }

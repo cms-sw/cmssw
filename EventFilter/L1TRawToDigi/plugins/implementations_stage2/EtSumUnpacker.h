@@ -15,7 +15,6 @@ namespace l1t {
             inline void setEtSumCopy(const unsigned int copy) { EtSumCopy_ = copy; };
 
          private:
-            EtSumBxCollection* res_;
             unsigned int EtSumCopy_;
       };
    }

@@ -19,11 +19,6 @@ namespace l1t {
          public:
             GTCollections(edm::Event& e) :
                L1TObjectCollections(e),
-		       //muons_(),
-		       //egammas_(),
-		       //etsums_(),
-		       //jets_(),
-		       //taus_(),
 		       algBlk_(new GlobalAlgBlkBxCollection()),
 		       extBlk_(new GlobalExtBlkBxCollection())  
             {
