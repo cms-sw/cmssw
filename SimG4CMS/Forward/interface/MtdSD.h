@@ -101,7 +101,7 @@ private:
   G4ThreeVector                hitPointLocalExit;
 
   float                        Pabs, Tof;	
-  short                        ParticleType; 
+  int                          ParticleType; 
   float                        ThetaAtEntry, PhiAtEntry;
   
   int                          ParentId;

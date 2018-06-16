@@ -26,7 +26,7 @@
 
 #include "G4Step.hh"
 #include "G4LogicalVolume.hh"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 class CastorNumberingScheme {
 
@@ -48,7 +48,6 @@ public:
    */
   //  static uint32_t packIndex(int det, int z, int sector, int zmodule);
   //  static void   unpackIndex(const uint32_t& idx, int& det, int& z, int& sector, int& zmodule);
-
 
   static uint32_t packIndex(int z, int sector, int zmodule);
   static void   unpackIndex(const uint32_t& idx, int& z, int& sector, int& zmodule);

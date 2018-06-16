@@ -126,11 +126,11 @@ void MtdSD::GetStepInfo(const G4Step* aStep) {
   hitPointLocal = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   hitPointLocalExit = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPointExit);
 
-
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MtdSim") << "MtdSD :particleType =  " 
 	    << theTrack->GetDefinition()->GetParticleName();
 #endif
+  edeposit /= CLHEP::GeV;
   if ( G4TrackToParticleID::isGammaElectronPositron(theTrack) ) {
     edepositEM  = edeposit; edepositHAD = 0.f;
   } else {
@@ -189,22 +189,19 @@ G4bool MtdSD::HitExists() {
    
   G4bool found = false;
 
-  for (int j=0; j<theHC->entries()&&!found; j++) {
+  for (int j=0; j<theHC->entries(); ++j) {
     BscG4Hit* aPreviousHit = (*theHC)[j];
     if (aPreviousHit->getTrackID()     == primaryID &&
 	aPreviousHit->getTimeSliceID() == tSliceID  &&
 	aPreviousHit->getUnitID()      == unitID       ) {
       currentHit = aPreviousHit;
       found      = true;
+      break;
     }
   }          
 
-  if (found) {
-    UpdateHit();
-    return true;
-  } else {
-    return false;
-  }    
+  if (found) { UpdateHit(); }
+  return found;
 }
 
 void MtdSD::ResetForNewPrimary() {
