@@ -115,6 +115,7 @@ void FastTimerSD::GetStepInfo(G4Step* aStep) {
   edm::LogVerbatim("FastTimerSD") 
     << "FastTimerSD: particle " << theTrack->GetDefinition()->GetParticleName();
 #endif
+  edeposit /= CLHEP::GeV;
   if ( G4TrackToParticleID::isGammaElectronPositron(theTrack) ) {
     edepositEM  = edeposit; edepositHAD = 0.f;
   } else {
@@ -188,22 +189,19 @@ G4bool FastTimerSD::HitExists() {
    
   G4bool found = false;
 
-  for (int j=0; j<theHC->entries()&&!found; j++) {
+  for (int j=0; j<theHC->entries(); ++j) {
     BscG4Hit* aPreviousHit = (*theHC)[j];
     if (aPreviousHit->getTrackID()     == primaryID &&
 	aPreviousHit->getTimeSliceID() == tSliceID  &&
 	aPreviousHit->getUnitID()      == unitID       ) {
       currentHit = aPreviousHit;
       found      = true;
+      break;
     }
   }          
 
-  if (found) {
-    UpdateHit();
-    return true;
-  } else {
-    return false;
-  }    
+  if (found) { UpdateHit(); }
+  return found;
 }
 
 void FastTimerSD::ResetForNewPrimary() {

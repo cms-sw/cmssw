@@ -10,12 +10,9 @@
 #define BscG4Hit_h
 
 #include "G4VHit.hh"
-#include <CLHEP/Vector/ThreeVector.h>
-#include <boost/cstdint.hpp>
+#include "G4ThreeVector.hh"
+#include <cstdint>
 #include <iostream>
-
-#include "G4Step.hh"
-//#include "G4StepPoint.hh"
 
 class BscG4Hit : public G4VHit {
   
@@ -41,45 +38,45 @@ public:
   G4ThreeVector    getExitLocalP() const;
   void         setExitLocalP(const G4ThreeVector& xyz1);
 
-  double       getEM() const;
-  void         setEM (double e);
+  float        getEM() const;
+  void         setEM (float e);
   
-  double       getHadr() const;
-  void         setHadr (double e);
+  float        getHadr() const;
+  void         setHadr (float e);
   
-  double       getIncidentEnergy() const;
-  void         setIncidentEnergy (double e);
+  float        getIncidentEnergy() const;
+  void         setIncidentEnergy (float e);
   
-  G4int          getTrackID() const;
+  int          getTrackID() const;
   void         setTrackID (int i);
   
-  unsigned int getUnitID() const;
-  void         setUnitID (unsigned int i);
+  uint32_t     getUnitID() const;
+  void         setUnitID (uint32_t i);
   
   double       getTimeSlice() const;     
   void         setTimeSlice(double d);
   int          getTimeSliceID() const;     
   
-  void         addEnergyDeposit(double em, double hd);
+  void         addEnergyDeposit(float em, float hd);
   void         addEnergyDeposit(const BscG4Hit& aHit);
   
-  double       getEnergyDeposit() const;
+  float        getEnergyDeposit() const;
   
   float getPabs() const;
   float getTof() const;
   float getEnergyLoss() const;
   int getParticleType() const;
 
- void setPabs(float e)      ;
-  void setTof(float e)  ;
-  void setEnergyLoss(float e) ;
-  void setParticleType(short i) ;
+  void setPabs(float e);
+  void setTof(float e);
+  void setEnergyLoss(float e);
+  void setParticleType(int i);
 
   float getThetaAtEntry() const;   
-    float getPhiAtEntry() const;
+  float getPhiAtEntry() const;
 
-    void setThetaAtEntry(float t);
-    void setPhiAtEntry(float f) ;
+  void setThetaAtEntry(float t);
+  void setPhiAtEntry(float f) ;
 
     float getX() const;
     void setX(float t);
@@ -105,10 +102,10 @@ private:
     G4ThreeVector entry;             //Entry point
     G4ThreeVector entrylp;    //Entry  local point
     G4ThreeVector exitlp;    //Exit  local point
-  double       elem;              //EnergyDeposit of EM particles
-  double       hadr;              //EnergyDeposit of HD particles
-  double       theIncidentEnergy; //Energy of the primary particle
-  G4int          theTrackID;        //Identification number of the primary
+  float       elem;              //EnergyDeposit of EM particles
+  float       hadr;              //EnergyDeposit of HD particles
+  float       theIncidentEnergy; //Energy of the primary particle
+  int          theTrackID;        //Identification number of the primary
                                   //particle
   double       theTimeSlice;      //Time Slice Identification
 
@@ -130,8 +127,6 @@ private:
     float theVx;
     float theVy;
     float theVz;
-
-
 };
 
 std::ostream& operator<<(std::ostream&, const BscG4Hit&);
