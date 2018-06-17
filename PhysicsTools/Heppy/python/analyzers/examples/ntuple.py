@@ -71,11 +71,12 @@ def bookTau(tree, pName, discNames):
                                           disc=discName))
         
 def fillTau(tree, pName, tau):
+    import six
     if not tau: return 
     fillParticle(tree, pName, tau)
     fill(tree, '{pName}_nsigcharged'.format(pName=pName), len(tau.signalCharged()))
     fill(tree, '{pName}_isolation'.format(pName=pName), tau.isolation())
-    for discName, value in tau.discs.iteritems():
+    for discName, value in six.iteritems(tau.discs):
         fill(tree, '{pName}_{disc}'.format(pName=pName,
                                            disc=discName), value)
 
@@ -100,6 +101,7 @@ def bookJet( tree, pName ):
     for pdgid in pdgids:
         bookComponent(tree, '{pName}_{pdgid:d}'.format(pName=pName, pdgid=pdgid))
     # var(tree, '{pName}_npart'.format(pName=pName))
+
 
 def fillJet( tree, pName, jet ):
     if not jet: return

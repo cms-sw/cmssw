@@ -7,6 +7,7 @@ import optparse
 import re
 import copy
 import subprocess
+import six
 
 # define regex
 wrapperRE      = re.compile (r'edm::Wrapper<(.+)\s*>$')
@@ -113,7 +114,7 @@ class Branch (object):
         # that order here.
         order = ['type', 'module', 'label', 'process']
         for obj in branchList:
-            for key, twoList in lengthDict.iteritems():
+            for key, twoList in six.iteritems(lengthDict):
                 attribute = getattr (obj, key)
                 if len (attribute) + 2 > twoList[0]:
                     twoList[0] = len (attribute) + 2

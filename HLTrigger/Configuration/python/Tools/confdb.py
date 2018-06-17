@@ -7,6 +7,7 @@ import urllib, urllib2
 from pipe import pipe as _pipe
 from options import globalTag
 from itertools import islice
+import six
 
 def splitter(iterator, n):
   i = iterator.__iter__()
@@ -67,7 +68,7 @@ class HLTProcess(object):
     args = ['--configName', self.config.setup ]
     args.append('--noedsources')
     args.append('--nopaths')
-    for key, vals in self.options.iteritems():
+    for key, vals in six.iteritems(self.options):
       if vals:
         args.extend(('--'+key, ','.join(vals)))
     args.append('--cff')
@@ -85,7 +86,7 @@ class HLTProcess(object):
     else:
       args = ['--configName', self.config.menu.name ]
     args.append('--noedsources')
-    for key, vals in self.options.iteritems():
+    for key, vals in six.iteritems(self.options):
       if vals:
         args.extend(('--'+key, ','.join(vals)))
 

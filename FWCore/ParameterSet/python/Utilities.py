@@ -3,6 +3,7 @@ def ignoreAllFiltersOnPath(path):
   """
   import FWCore.ParameterSet.Config as cms
   from FWCore.ParameterSet.SequenceTypes import _MutatingSequenceVisitor, _UnarySequenceOperator
+import six
 
   class IgnoreFilters(object):
     def __init__(self):
@@ -106,7 +107,7 @@ def cleanUnscheduled(proc):
   # On each path we move EDProducers and EDFilters that
   # are ignored to Tasks
   producerList = list()
-  for pName, originalPath in pathsAndEndPaths.iteritems():
+  for pName, originalPath in six.iteritems(pathsAndEndPaths):
     producerList[:] = []
     qualified_names = []
     v = cms.DecoratedNodeNamePlusVisitor(qualified_names)
@@ -164,8 +165,8 @@ def moduleLabelsInSequences(* sequences):
 
 def createTaskWithAllProducersAndFilters(process):
   from FWCore.ParameterSet.Config import Task
-  l = [ p for p in process.producers.itervalues()]
-  l.extend( (f for f in process.filters.itervalues()) )
+  l = [ p for p in six.itervalues(process.producers)]
+  l.extend( (f for f in six.itervalues(process.filters)) )
   return Task(*l)
 
 def convertToSingleModuleEndPaths(process):
@@ -175,7 +176,7 @@ def convertToSingleModuleEndPaths(process):
     import FWCore.ParameterSet.Config as cms
     toRemove =[]
     added = []
-    for n,ep in process.endpaths_().iteritems():
+    for n,ep in process.endpaths_(six.iteritems()):
         tsks = []
         ep.visit(cms.TaskVisitor(tsks))
 

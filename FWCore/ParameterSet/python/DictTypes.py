@@ -19,7 +19,7 @@ class SortedKeysDict(dict):
         self.list = list(super(SortedKeysDict,self).iterkeys())
 
     def __repr__(self):
-        meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in self.iteritems() ])
+        meat = ', '.join([ '%s: %s' % (repr(key), repr(val)) for key,val in six.iteritems(self) ])
         return '{' + meat + '}'
     def __iter__(self):
         for key in self.list:
@@ -86,6 +86,7 @@ class FixedKeysDict(dict):
 
 
 if __name__=="__main__":
+import six
     import unittest
     class TestDictTypes(unittest.TestCase):
         def testFixedKeysDict(self):

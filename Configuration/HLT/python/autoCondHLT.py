@@ -67,10 +67,11 @@ hltGTs = {
 }
 
 def autoCondHLT(autoCond):
-    for key,val in hltGTs.iteritems():
+    for key,val in six.iteritems(hltGTs):
         if len(val)==1 :
            autoCond[key] = ( autoCond[val[0]] )
         else:
            autoCond[key] = ( autoCond[val[0]],) + val[1]
 
     return autoCond
+import six

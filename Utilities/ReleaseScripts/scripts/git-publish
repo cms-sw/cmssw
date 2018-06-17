@@ -9,6 +9,7 @@ import hashlib
 import os
 import re
 import atexit
+import six
 
 PACKAGE_MAPPING={}
 EDITOR = os.environ.get('EDITOR','vim') #that easy!
@@ -83,7 +84,7 @@ def main():
   stagedFiles = [x for x in log.split("\n") if not x.startswith("U ") and not x.startswith("??")]
   stagedPackages = set(re.sub("^..[ ./]*([^/]+/[^/]*).*", "\\1", x) for x in stagedFiles)
   involvedCategories = set([category for package in stagedPackages 
-                                     for (category, packages) in CMSSW_CATEGORIES.iteritems() 
+                                     for (category, packages) in six.iteritems(CMSSW_CATEGORIES) 
                                      if package in packages])
   stagedFilesTxt = ""
   if stagedFiles:
