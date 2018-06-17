@@ -15,7 +15,6 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -38,8 +37,7 @@ File elements.xml:
   Material(elem) Nitrogen
   Material(elem) Oxygen  
 */
-void regressionTest_setup() {
-   ClhepEvaluator & eval = DDI::Singleton<ClhepEvaluator>::instance();
+void regressionTest_setup(ClhepEvaluator& eval) {
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -112,7 +110,7 @@ void regressionTest_setup() {
   File: first.xml
   
 */ 
-void regressionTest_first( ) {
+void regressionTest_first(ClhepEvaluator& eval ) {
   ///load the new cpv
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
@@ -120,7 +118,6 @@ void regressionTest_first( ) {
   
   cout << "main::about to set configuration" << endl;
   
-  ClhepEvaluator & eval = DDI::Singleton<ClhepEvaluator>::instance();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),

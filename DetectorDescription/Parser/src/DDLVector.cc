@@ -10,64 +10,61 @@
 #include "DetectorDescription/Core/interface/ClhepEvaluator.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "boost/spirit/include/classic.hpp"
 
 class DDCompactView;
 
-namespace boost { namespace spirit { namespace classic { } } } using namespace boost::spirit::classic;
+namespace {
+template<typename F>
+void parse(char const* str, F&& f) {
 
-using namespace boost::spirit;
+  auto ptr = str;
 
-class VectorMakeDouble
-{
-public:
-  void operator() (char const* str, char const* end) const
-    {
-      ddlVector_->do_makeDouble(str, end);
+  while( *ptr != 0) {
+    //remove any leading spaces
+    while( std::isspace(*ptr) ) {
+      ++ptr;
     }
-  
-  VectorMakeDouble() {
-    ddlVector_ = std::static_pointer_cast<DDLVector>(DDLGlobalRegistry::instance().getElement("Vector"));
-  }
-private: 
-  std::shared_ptr<DDLVector> ddlVector_;
-};
+    char const* strt = ptr;
 
-class VectorMakeString
-{
-public:
-  void operator() (char const* str, char const* end) const
-    {
-      ddlVector_->do_makeString(str, end);
+    //find either the end of the char array
+    // or a comma. Spaces are allowed
+    // between characters.
+    while( (*ptr != 0) and
+           (*ptr !=',')) {++ptr;}
+    char const* end = ptr;
+    if(*ptr == ',') {++ptr;}
+
+    if(strt == end) {
+      break;
     }
-  
-  VectorMakeString() {
-    ddlVector_ = std::static_pointer_cast<DDLVector>(DDLGlobalRegistry::instance().getElement("Vector"));
+
+    //strip off any ending spaces
+    while(strt != end-1 and
+          std::isspace(*(end-1)) ) {
+      --end;
+    }
+    f(strt,end);
   }
-private:
-  std::shared_ptr<DDLVector> ddlVector_;
-};
+}
+}
+
 
 bool
-DDLVector::parse_numbers(char const* str) const
+DDLVector::parse_numbers(char const* str)
 {
-  static VectorMakeDouble makeDouble;
-  return parse(str,
-	       ((+(anychar_p - ','))[makeDouble] 
-		>> *(',' >> (+(anychar_p - ','))[makeDouble]))
-	       >> end_p
-	       , space_p).full;
+  parse(str, [this](char const* st, char const* end) {
+      do_makeDouble(st, end);
+    });
+  return true;
 }
 
 bool
-DDLVector::parse_strings(char const* str) const
+DDLVector::parse_strings(char const* str)
 {
-  static VectorMakeString makeString;
-  return parse(str,
-	       ((+(anychar_p - ','))[makeString] 
-		>> *(',' >> (+(anychar_p - ','))[makeString])) 
-	       >> end_p
-	       , space_p).full;
+  parse(str,[this](char const* st, char const* end) {
+      do_makeString(st,end);
+    });
+  return true;
 }
 
 DDLVector::DDLVector( DDLElementRegistry* myreg )
