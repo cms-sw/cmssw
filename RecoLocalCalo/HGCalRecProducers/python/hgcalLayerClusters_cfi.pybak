@@ -10,15 +10,13 @@ from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import fC_per_ele, hgch
 
 #energy corrector for corrected cluster producer
 hgcalLayerClusters =  cms.EDProducer(
-    "HGCalClusterProducer",
+    "HGCalLayerClusterProducer",
     detector = cms.string("all"),
     doSharing = cms.bool(False),
     deltac = cms.vdouble(2.,2.,5.),
     dependSensor = cms.bool(True),
     ecut = cms.double(3.),
     kappa = cms.double(9.),
-    multiclusterRadii = cms.vdouble(2.,5.,5.),
-    minClusters = cms.uint32(3),
     verbosity = cms.untracked.uint32(3),
     HGCEEInput = cms.InputTag('HGCalRecHit:HGCEERecHits'),
     HGCFHInput = cms.InputTag('HGCalRecHit:HGCHEFRecHits'),
