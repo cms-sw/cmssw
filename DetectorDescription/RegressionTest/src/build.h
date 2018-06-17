@@ -6,14 +6,16 @@
 // will define a small setup using not XML
 // but only DDCore-calls
 
+class ClhepEvaluator;
+
 // constants and world-volume
 /* world-volume is a box. It will be subdevided (conceptually) into
    8 corners. In each corner a test can be done. */   
 /* adding a global file name */
-void regressionTest_setup();
+void regressionTest_setup(ClhepEvaluator&);
 
 // s
-void regressionTest_first();
+void regressionTest_first(ClhepEvaluator&);
 void regressionTest_second();
 void regressionTest_third();
 void regressionTest_forth();

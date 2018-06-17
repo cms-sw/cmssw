@@ -368,7 +368,7 @@ void tutorial()
       
 	double dv = 0.;
 	try {
-	  dv = DDI::Singleton<ClhepEvaluator>::instance().eval("",v);
+	  dv = ClhepEvaluator().eval("",v);
 	}
 	catch (const cms::Exception & e) {
 	  dv = 0;

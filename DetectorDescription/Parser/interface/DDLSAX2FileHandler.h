@@ -13,6 +13,7 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 
 class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSAX2FileHandler is the SAX2 Handler for XML files found in the configuration file.
 /** @class DDLSAX2FileHandler
@@ -35,7 +36,7 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
 {
  public:
   
-  DDLSAX2FileHandler( DDCompactView& cpv );
+  DDLSAX2FileHandler( DDCompactView& cpv, DDLElementRegistry& );
   ~DDLSAX2FileHandler() override;
 
   void init() ;
@@ -50,18 +51,22 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
 		   const XMLCh* qname) override;
   void characters( const XMLCh* chars, XMLSize_t length) override;
   void comment( const XMLCh* chars, XMLSize_t length ) override;
-  
+
+  //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
+  void createDDConstants() const; 
+
+ protected:
+  DDLElementRegistry& registry() { return registry_; }
  private:
   virtual const std::string& parent() const;
   virtual const std::string& self() const;
   
  private:
-  //! creates all DDConstant from the evaluator which has been already 'filled' in the first scan of the documents
-  void createDDConstants() const; 
 
   std::vector< std::string > namesMap_;
   std::vector< size_t > names_;
   DDCompactView& cpv_;
+  DDLElementRegistry& registry_;
 };
 
 #endif
