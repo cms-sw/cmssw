@@ -30,7 +30,7 @@ class EcalShapeBase : public CaloVShape
   
       EcalShapeBase(bool) ;
 
-      ~EcalShapeBase() ;
+      ~EcalShapeBase() override ;
 
       double operator() ( double aTime ) const override ;
 

@@ -72,7 +72,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    
    Handle< EBDigiCollection > pEBDigis;
    const EBDigiCollection* EBdigis =nullptr;
-   if (EBdigiCollection_.label() != "" || EBdigiCollection_.instance() != "")
+   if (!EBdigiCollection_.label().empty() || !EBdigiCollection_.instance().empty())
      {
        //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
        evt.getByLabel( EBdigiCollection_, pEBDigis);
@@ -89,7 +89,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    Handle< EEDigiCollection > pEEDigis;
    const EEDigiCollection* EEdigis =nullptr;
 
-   if (EEdigiCollection_.label() != "" || EEdigiCollection_.instance() != "")
+   if (!EEdigiCollection_.label().empty() || !EEdigiCollection_.instance().empty())
      {
        //     evt.getByLabel( digiProducer_, EEdigiCollection_, pEEDigis);
        evt.getByLabel( EEdigiCollection_, pEEDigis);
