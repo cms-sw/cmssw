@@ -29,6 +29,8 @@ Monitoring source to measure the track efficiency
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 
 
@@ -46,8 +48,8 @@ class TrackEfficiencyMonitor : public DQMEDAnalyzer {
       typedef reco::TrackCollection TrackCollection;
       explicit TrackEfficiencyMonitor(const edm::ParameterSet&);
       ~TrackEfficiencyMonitor() override;
-      void beginJob(void) override;
-      void endJob(void) override;
+      virtual void beginJob(void);
+      virtual void endJob(void);
       void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -108,10 +110,14 @@ class TrackEfficiencyMonitor : public DQMEDAnalyzer {
   MonitorElement * deltaY    ;
   MonitorElement * signDeltaX;
   MonitorElement * signDeltaY;
-  
+  MonitorElement * GlobalMuonPtEtaPhiLowPt; 
+  MonitorElement * StandaloneMuonPtEtaPhiLowPt;
+  MonitorElement * GlobalMuonPtEtaPhiHighPt;
+  MonitorElement * StandaloneMuonPtEtaPhiHighPt;
   const DirectTrackerNavigation* theNavigation;  
   MuonServiceProxy *theMuonServiceProxy;
-  
+  //edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
   edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;  
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<Propagator> thePropagatorCyl;
