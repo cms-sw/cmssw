@@ -11,7 +11,19 @@
 #include "CalibTracker/SiPixelQuality/interface/SiPixelStatusManager.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 
-class SiPixelStatusHarvester : public edm::EDAnalyzer {
+// PixelDQM Framework
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
+
+class SiPixelStatusHarvester : public SiPixelPhase1Base {
+    enum {
+      BADROC,
+      PERMANENTBADROC,
+      FEDERRORROC,
+      STUCKTBMROC,
+      OTHERBADROC,
+      PROMPTBADROC
+    };
+
  public:
 
   // Constructor
@@ -23,15 +35,14 @@ class SiPixelStatusHarvester : public edm::EDAnalyzer {
   // Operations
   void beginJob            () override;
   void endJob              () override;  
-  void analyze             (const edm::Event&          , const edm::EventSetup&) override;
-  void beginRun            (const edm::Run&            , const edm::EventSetup&) override;
-  void endRun              (const edm::Run&            , const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  virtual void endRunProduce       (edm::Run&, const edm::EventSetup&) final;
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 
- protected:
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
+  virtual void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&) final;
 
  private:
+
   // Parameters
   std::string outputBase_;
   int aveDigiOcc_;
@@ -48,11 +59,20 @@ class SiPixelStatusHarvester : public edm::EDAnalyzer {
   // permanent known bad components
   const SiPixelQuality* badPixelInfo_;
 
+  // totoal number of lumi blocks with non-zero pixel DIGIs
+  int countLumi_;
   // last lumi section of the SiPixeDetectorStatus data
   edm::LuminosityBlockNumber_t endLumiBlock_;
 
   // "step function" for IOV
   edm::LuminosityBlockNumber_t stepIOV(edm::LuminosityBlockNumber_t pin, std::map<edm::LuminosityBlockNumber_t,edm::LuminosityBlockNumber_t> IOV);
+
+  const TrackerGeometry* trackerGeometry_ = nullptr;
+  const SiPixelFedCabling* cablingMap_ = nullptr;
+  std::map<int, int> sensorSize_;
+
+  // pixel online to offline pixel row/column 
+  std::map<int, std::map<int, std::pair<int,int> > > pixelO2O_;
 
 };
 
