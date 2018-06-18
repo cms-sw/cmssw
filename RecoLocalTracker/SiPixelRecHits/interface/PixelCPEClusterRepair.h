@@ -16,8 +16,8 @@
 //
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco2D.h"
-#include "CondFormats/SiPixelCommon/interface/SiPixelTemplate.h"
-#include "CondFormats/SiPixelCommon/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 
 #include <utility>

@@ -14,7 +14,7 @@
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "CondFormats/SiPixelCommon/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 #else
 #include "SiPixelTemplate.h"
 #endif

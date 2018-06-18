@@ -21,8 +21,8 @@
 #define SiPixelTemplateReco2D_h 1
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "CondFormats/SiPixelCommon/interface/SiPixelTemplateDefs.h"
-#include "CondFormats/SiPixelCommon/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #else
 #include "SiPixelTemplateDefs.h"
 #include "SiPixelTemplate2D.h"
