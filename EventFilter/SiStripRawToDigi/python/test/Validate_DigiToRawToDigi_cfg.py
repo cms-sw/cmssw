@@ -25,8 +25,7 @@ process.GlobalTag.globaltag = "MC_3XY_V21::All"
 
 # ---- DigiToRaw ----
 process.load("EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi")
-process.SiStripDigiToRaw.InputModuleLabel = 'simSiStripDigis'
-process.SiStripDigiToRaw.InputDigiLabel = 'ZeroSuppressed'
+process.SiStripDigiToRaw.InputDigis = cms.InputTag('simSiStripDigis', "ZeroSuppressed")
 
 # ---- RawToDigi ----
 from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
@@ -41,15 +40,18 @@ process.DigiValidator.TagCollection2 = "testSiStripDigis:ZeroSuppressed"
 # ----- FedReadoutMode -----
 if Mode == str("ZS") :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-    process.SiStripDigiToRaw.FedReadoutMode = 'ZERO_SUPPRESSED'
+    process.SiStripDigiToRaw.FedReadoutMode = cms.string('ZERO_SUPPRESSED')
+    process.SiStripDigiToRaw.PacketCode = cms.string('ZERO_SUPPRESSED')
 elif Mode == str("VR") :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-    process.SiStripDigiToRaw.FedReadoutMode = 'VIRGIN_RAW'
+    process.SiStripDigiToRaw.FedReadoutMode = cms.string('VIRGIN_RAW')
+    process.SiStripDigiToRaw.PacketCode = cms.string('VIRGIN_RAW')
     process.DigiValidator.TagCollection2 = "testSiStripDigis:VirginRaw"
     process.DigiValidator.RawCollection2 = True
 elif Mode == str("PR") :
     process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
-    process.SiStripDigiToRaw.FedReadoutMode = 'PROCESSED_RAW'
+    process.SiStripDigiToRaw.FedReadoutMode = cms.string('PROCESSED_RAW')
+    process.SiStripDigiToRaw.PacketCode = cms.string('PROCESSED_RAW')
     process.DigiValidator.TagCollection2 = "testSiStripDigis:ProcessedRaw"
     process.DigiValidator.RawCollection2 = True
 else :
