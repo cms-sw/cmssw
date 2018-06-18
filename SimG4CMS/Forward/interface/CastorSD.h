@@ -41,7 +41,6 @@ protected:
 
   double   getEnergyDeposit(const G4Step*) override;
   bool     getFromLibrary(const G4Step*) override;
-  void     initRun() override;
 
 private:
 

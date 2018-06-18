@@ -24,7 +24,6 @@
 // user include files
 
 #include "SimG4CMS/Forward/interface/TotemVDetectorOrganization.h"
-#include "globals.hh"
 
 class TotemT1Organization : public TotemVDetectorOrganization {
 
@@ -55,10 +54,9 @@ public:
 
   // ---------- Constructor and destructor -----------------
   TotemT1Organization();
-           ~TotemT1Organization() override;
+  ~TotemT1Organization() override;
 
   // ---------- member functions ---------------------------
-  uint32_t         GetUnitID(const G4Step* aStep);
   uint32_t         GetUnitID(const G4Step* aStep) const override;
   
   int              GetCurrentUnitID(void) const;
@@ -84,21 +82,22 @@ public:
   // ---------- Object Type --------------------------------
 
   ObjectType       GetCurrentObjectType(void) const;
-  inline void      SetCurrentObjectType(ObjectType currentObjectType);
+  void             SetCurrentObjectType(ObjectType currentObjectType);
 
   int              FromObjectTypeToInt(ObjectType objectType);
   int              FromObjectTypeToInt(ObjectType objectType, int layer);
 
-private:
   // ---------- Private methods ----------------------------
+
+private:
+  uint32_t         GetUnitID(const G4Step* aStep);
+
   void             _checkUnitIDUpdate(void) const;
   void             _checkDataUpdate(void) const;
 
   void             _FromUnitIDToData(void);
   void             _FromDataToUnitID(void);
 
-
-private:
   // ---------- Private data members -----------------------
   bool             _needUpdateUnitID;
   bool             _needUpdateData;

@@ -2,12 +2,11 @@
 #define SimG4CMS_ShowerLibraryProducer_HFWedgeSD_h
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "SimG4CMS/ShowerLibraryProducer/interface/HFShowerG4Hit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
- 
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 
@@ -44,7 +43,7 @@ protected:
 
 private:
 
-  const SimTrackManager*       m_trackManager;
+  const SimTrackManager* m_trackManager;
 
   int                          hcID;
   HFShowerG4HitsCollection*    theHC; 
