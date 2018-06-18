@@ -74,16 +74,16 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       // ----------member data ---------------------------
 
       // for AOD case
-      edm::EDGetToken src_;
-      edm::EDGetToken vertices_;
-      edm::EDGetToken pileup_;
-      edm::EDGetToken genParticles_;
+      const edm::EDGetToken src_;
+      const edm::EDGetToken vertices_;
+      const edm::EDGetToken pileup_;
+      const edm::EDGetToken genParticles_;
 
       // for miniAOD case
-      edm::EDGetToken srcMiniAOD_;
-      edm::EDGetToken verticesMiniAOD_;
-      edm::EDGetToken pileupMiniAOD_;
-      edm::EDGetToken genParticlesMiniAOD_;
+      const edm::EDGetToken srcMiniAOD_;
+      const edm::EDGetToken verticesMiniAOD_;
+      const edm::EDGetToken pileupMiniAOD_;
+      const edm::EDGetToken genParticlesMiniAOD_;
 
       // other
       TTree* tree_;

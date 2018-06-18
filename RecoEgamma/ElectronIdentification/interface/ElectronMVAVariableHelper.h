@@ -47,16 +47,16 @@ private:
             const std::string    & label) const ;
 
   // for AOD case
-  edm::EDGetTokenT<edm::View<ParticleType> > electronsToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-  edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  const edm::EDGetTokenT<edm::View<ParticleType> > electronsToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  const edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 
   // for miniAOD case
-  edm::EDGetTokenT<edm::View<ParticleType> > electronsTokenMiniAOD_;
-  edm::EDGetTokenT<reco::VertexCollection> vtxTokenMiniAOD_;
-  edm::EDGetTokenT<reco::ConversionCollection> conversionsTokenMiniAOD_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotTokenMiniAOD_;
+  const edm::EDGetTokenT<edm::View<ParticleType> > electronsTokenMiniAOD_;
+  const edm::EDGetTokenT<reco::VertexCollection> vtxTokenMiniAOD_;
+  const edm::EDGetTokenT<reco::ConversionCollection> conversionsTokenMiniAOD_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotTokenMiniAOD_;
 };
 
 template<class ParticleType>
