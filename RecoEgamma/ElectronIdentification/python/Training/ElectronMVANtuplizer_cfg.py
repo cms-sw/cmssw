@@ -59,7 +59,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         pileupMiniAOD        = cms.InputTag('slimmedAddPileupInfo'),
         genParticlesMiniAOD  = cms.InputTag('prunedGenParticles'),
         #
-        eleMVAs             = cms.vstring(
+        eleMVAs             = cms.untracked.vstring(
                                           "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp80",
                                           "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wpLoose",
                                           "egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp90",
@@ -74,7 +74,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp80",
                                           "egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wpLoose",
                                           ),
-        eleMVALabels        = cms.vstring(
+        eleMVALabels        = cms.untracked.vstring(
                                           "Fall17noIsoV2wp80",
                                           "Fall17noIsoV2wpLoose",
                                           "Fall17noIsoV2wp90",
@@ -89,7 +89,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                           "Fall17isoV1wp80",
                                           "Fall17isoV1wpLoose",
                                           ),
-        eleMVAValMaps        = cms.vstring(
+        eleMVAValMaps        = cms.untracked.vstring(
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2RawValues",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values",
@@ -97,7 +97,7 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values",
                                            ),
-        eleMVAValMapLabels   = cms.vstring(
+        eleMVAValMapLabels   = cms.untracked.vstring(
                                            "Fall17NoIsoV2Vals",
                                            "Fall17NoIsoV2RawVals",
                                            "Fall17IsoV2Vals",
@@ -105,10 +105,10 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
                                            "Fall17IsoV1Vals",
                                            "Fall17NoIsoV1Vals",
                                            ),
-        eleMVACats           = cms.vstring(
+        eleMVACats           = cms.untracked.vstring(
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Categories",
                                            ),
-        eleMVACatLabels      = cms.vstring(
+        eleMVACatLabels      = cms.untracked.vstring(
                                            "EleMVACats",
                                            ),
         #

@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
+# division between barrel and endcap
+ebeeSplit = 1.479
+
 # This MVA implementation class name
 mvaClassName = "PhotonMVAEstimator"
 
@@ -90,6 +93,7 @@ def configureFullVIDMVAPhoID(mvaTag, variablesFile, weightFiles, wpConfig, **add
         mvaTag              = cms.string(mvaTag),
         weightFileNames     = cms.vstring(*weightFiles),
         variableDefinition  = cms.string(variablesFile),
+        ebeeSplit           = cms.double(ebeeSplit),
         **addKwargsForValueProducer
         )
 
