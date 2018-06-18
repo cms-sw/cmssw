@@ -35,11 +35,11 @@ class SiPixelStatusHarvester : public SiPixelPhase1Base {
   // Operations
   void beginJob            () override;
   void endJob              () override;  
-  virtual void endRunProduce       (edm::Run&, const edm::EventSetup&) final;
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+  void endRunProduce       (edm::Run&, const edm::EventSetup&) final;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
-  virtual void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&) final;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final;
+  void endLuminosityBlock  (const edm::LuminosityBlock&, const edm::EventSetup&) final;
 
  private:
 
