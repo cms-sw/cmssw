@@ -35,13 +35,6 @@ switchOnVIDPhotonIdProducer(process, dataFormat)
 
 # define which IDs we want to produce
 my_id_modules = [
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V0_cff',
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2_cff',
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff',
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V0_cff',
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V1_cff',
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2_cff',
-        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2p1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff',
         'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff',
@@ -61,40 +54,27 @@ process.ntuplizer = cms.EDAnalyzer('PhotonMVANtuplizer',
         verticesMiniAOD      = cms.InputTag('offlineSlimmedPrimaryVertices'),
         pileupMiniAOD        = cms.InputTag('slimmedAddPileupInfo'),
         #
-        phoMVAs             = cms.vstring(
+        phoMVAs             = cms.untracked.vstring(
                                           ),
-        phoMVALabels        = cms.vstring(
+        phoMVALabels        = cms.untracked.vstring(
                                           ),
-        phoMVAValMaps        = cms.vstring(
-                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring15NonTrig25nsV0Values",
-                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring15NonTrig25nsV2Values",
-                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring15NonTrig25nsV2p1Values",
-                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring15NonTrig50nsV0Values",
-                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring15NonTrig50nsV1Values",
-                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring15NonTrig50nsV2Values",
-                                           "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring15NonTrig50nsV2p1Values",
+        phoMVAValMaps        = cms.untracked.vstring(
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values",
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Values",
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1p1Values",
                                            ),
-        phoMVAValMapLabels   = cms.vstring(
-                                           "Spring15NonTrig25nsV0",
-                                           "Spring15NonTrig25nsV2",
-                                           "Spring15NonTrig25nsV2p1",
-                                           "Spring15NonTrig50nsV0",
-                                           "Spring15NonTrig50nsV1",
-                                           "Spring15NonTrig50nsV2",
-                                           "Spring15NonTrig50nsV2p1",
+        phoMVAValMapLabels   = cms.untracked.vstring(
                                            "Spring16NonTrigV1",
                                            "Fall17v1",
                                            "Fall17v1p1",
                                            ),
-        phoMVACats           = cms.vstring(
+        phoMVACats           = cms.untracked.vstring(
                                            "photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Categories",
                                            ),
-        phoMVACatLabels      = cms.vstring(
+        phoMVACatLabels      = cms.untracked.vstring(
                                            "PhoMVACats",
                                            ),
+        isMC                 = cms.bool(True),
         )
 
 process.TFileService = cms.Service("TFileService",

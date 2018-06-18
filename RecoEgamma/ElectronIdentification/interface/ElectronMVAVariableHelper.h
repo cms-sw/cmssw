@@ -1,7 +1,7 @@
 #ifndef ELECTRONMVAVARIABLEHELPER_H
 #define ELECTRONMVAVARIABLEHELPER_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -26,12 +26,12 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
-#include "TMath.h"
+#include <TMath.h>
 
 typedef edm::View<reco::Candidate> CandView;
 
 template <class ParticleType>
-class ElectronMVAVariableHelper : public edm::EDProducer {
+class ElectronMVAVariableHelper : public edm::stream::EDProducer<> {
  public:
 
   explicit ElectronMVAVariableHelper(const edm::ParameterSet & iConfig);
@@ -101,21 +101,17 @@ void ElectronMVAVariableHelper<ParticleType>::produce(edm::Event & iEvent, const
   }
 
   if (isAOD) {
-      iEvent.getByToken(electronsToken_, electrons);
       iEvent.getByToken(vtxToken_, vtxH);
       iEvent.getByToken(conversionsToken_, conversions);
       iEvent.getByToken(beamSpotToken_, beamSpotHandle);
   } else {
-      iEvent.getByToken(electronsTokenMiniAOD_, electrons);
       iEvent.getByToken(vtxTokenMiniAOD_, vtxH);
       iEvent.getByToken(conversionsTokenMiniAOD_, conversions);
       iEvent.getByToken(beamSpotTokenMiniAOD_, beamSpotHandle);
   }
 
   // Make sure everything is retrieved successfully
-  if(! (beamSpotHandle.isValid()
-    && conversions.isValid() )
-     ) {
+  if(! (beamSpotHandle.isValid() && conversions.isValid() && vtxH.isValid() ) ) {
     throw cms::Exception("MVA failure: ")
       << "Failed to retrieve event content needed for this MVA"
       << std::endl

@@ -102,7 +102,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
       << " found a particle with a category larger than max configured " << std::endl;
 
   // Look up the MVA value for this particle
-  const double mvaValue = mvaValueMap_.isValid() ? val : pat->userFloat( val_name );
+  const float mvaValue = mvaValueMap_.isValid() ? val : pat->userFloat( val_name );
 
   // Apply the cut and return the result
   return mvaValue > cutFormula_[iCategory](*cand);
