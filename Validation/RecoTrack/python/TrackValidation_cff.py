@@ -21,6 +21,7 @@ from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+import six
 
 ### First define the stuff for the standard validation sequence
 ## Track selectors
@@ -174,7 +175,7 @@ def _sequenceForEachEra(function, args, names, sequence, modDict, plainArgs=[], 
         _era.toReplaceWith(defaultSequence, modDict[sequence+_postfix])
 def _setForEra(module, eraName, era, **kwargs):
     if eraName == "":
-        for key, value in kwargs.iteritems():
+        for key, value in six.iteritems(kwargs):
             setattr(module, key, value)
     else:
         era.toModify(module, **kwargs)
@@ -234,7 +235,7 @@ def _getMVASelectors(postfix):
     mvaSel = _utils.getMVASelectors(postfix)
 
     pset = cms.untracked.PSet()
-    for iteration, (trackProducer, classifiers) in mvaSel.iteritems():
+    for iteration, (trackProducer, classifiers) in six.iteritems(mvaSel):
         setattr(pset, trackProducer, cms.untracked.vstring(classifiers))
     return pset
 for _eraName, _postfix, _era in _relevantEras:
