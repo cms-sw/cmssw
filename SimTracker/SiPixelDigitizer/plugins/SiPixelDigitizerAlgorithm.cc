@@ -2273,7 +2273,10 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   if (UseReweighting == true){
     int ID1 = dbobject_num->getTemplateID(detID);
     int ID0 = dbobject_den->getTemplateID(detID);
-    //ierr = PixelTempRewgt2D(IDden, IDnum, pixrewgt);
+
+    if(ID0==ID1){
+      return false;
+    }
     ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
   }
   else{
