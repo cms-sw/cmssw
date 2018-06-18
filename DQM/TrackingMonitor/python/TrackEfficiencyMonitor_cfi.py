@@ -90,7 +90,6 @@ TrackEffMon = DQMEDAnalyzer('TrackEfficiencyMonitor',
     signDeltaYBin = cms.int32(50),
     signDeltaYMin = cms.double(-5),
     signDeltaYMax = cms.double(5),
-    SkipEvent = cms.untracked.vstring('ProductNotFound')
  
 )   
     
