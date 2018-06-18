@@ -265,9 +265,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
   // Add pixel radiation damage for upgrade studies
   AddPixelAging(conf.getParameter<bool>("DoPixelAging")),
-  UseReweighting(conf.exists("UseReweighting")?conf.getParameter<bool>("UseReweighting"):true),
-  PrintClusters(conf.exists("PrintClusters")?conf.getParameter<bool>("PrintClusters"):false),
-  PrintTemplates(conf.exists("PrintTemplates")?conf.getParameter<bool>("PrintTemplates"):false),
+  UseReweighting(conf.getParameter<bool>("UseReweighting")),
+  PrintClusters(conf.getParameter<bool>("PrintClusters")),
+  PrintTemplates(conf.getParameter<bool>("PrintTemplates")),
 
   // delta cutoff in MeV, has to be same as in OSCAR(0.030/cmsim=1.0 MeV
   //tMax(0.030), // In MeV.

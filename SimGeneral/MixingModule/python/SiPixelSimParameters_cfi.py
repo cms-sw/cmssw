@@ -39,6 +39,8 @@ def _modifyPixelDigitizerForPhase1Pixel( digitizer ) :
 
 SiPixelSimBlock = cms.PSet(
     UseReweighting = cms.bool(True),
+    PrintClusters = cms.bool(False),
+    PrintTemplates = cms.bool(False),
     DoPixelAging = cms.bool(False),
     ReadoutNoiseInElec = cms.double(350.0),
     deltaProductionCut = cms.double(0.03),
