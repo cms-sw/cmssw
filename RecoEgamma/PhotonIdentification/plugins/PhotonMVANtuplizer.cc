@@ -5,7 +5,7 @@
 //
 /**\class PhotonMVANtuplizer PhotonMVANtuplizer.cc RecoEgamma/PhotonIdentification/plugins/PhotonMVANtuplizer.cc
 
- Description: [one line class summary]
+ Description: Ntuplizer to use for testing photon MVA IDs.
 
  Implementation:
      [Notes on implementation]
@@ -17,15 +17,11 @@
 //
 
 
-// system include files
-#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -35,7 +31,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
 
 #include "RecoEgamma/EgammaTools/interface/MVAVariableManager.h"
 
@@ -43,13 +38,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include <DataFormats/METReco/interface/PFMET.h>
-#include <DataFormats/METReco/interface/PFMETCollection.h>
-#include <DataFormats/PatCandidates/interface/MET.h>
-
-#include "TTree.h"
-#include "TFile.h"
-#include "Math/VectorUtil.h"
+#include <TTree.h>
+#include <TFile.h>
+#include <Math/VectorUtil.h>
 
 //
 // class declaration
@@ -62,6 +53,7 @@
 //
 
 class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+
    public:
       explicit PhotonMVANtuplizer(const edm::ParameterSet&);
       ~PhotonMVANtuplizer() override;
@@ -73,8 +65,6 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       void beginJob() override;
       void analyze(const edm::Event&, const edm::EventSetup&) override;
       void endJob() override;
-
-      void findFirstNonElectronMother2(const reco::Candidate *particle, int &ancestorPID, int &ancestorStatus);
 
       template<class T, class V>
       int matchToTruth(const T &el, const V &genParticles, int &genIdx);
@@ -111,7 +101,7 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       const std::vector< std::string > phoMapTags_;
       std::vector< edm::EDGetTokenT< edm::ValueMap<bool> > > phoMapTokens_;
       const std::vector< std::string > phoMapBranchNames_;
-      const size_t nEleMaps_;
+      const size_t nPhoMaps_;
 
       // MVA values and categories (optional)
       const std::vector< std::string > valMapTags_;
@@ -123,18 +113,15 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > mvaCatTokens_;
       const std::vector< std::string > mvaCatBranchNames_;
       const size_t nCats_;
+
+      // config
+      const bool isMC_;
+      const double ptThreshold_;
 };
 
 //
 // constants, enums and typedefs
 //
-
-enum ElectronMatchType {
-                        UNMATCHED,
-                        TRUE_PROMPT_ELECTRON,
-                        TRUE_ELECTRON_FROM_TAU,
-                        TRUE_NON_PROMPT_ELECTRON,
-                       }; // The last does not include tau parents
 
 //
 // static data member definitions
@@ -151,18 +138,20 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
   srcMiniAOD_            (consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"))),
   verticesMiniAOD_       (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("verticesMiniAOD"))),
   pileupMiniAOD_         (consumes<std::vector< PileupSummaryInfo > >(iConfig.getParameter<edm::InputTag>("pileupMiniAOD"))),
-  phoMapTags_            (iConfig.getParameter<std::vector<std::string>>("phoMVAs")),
-  phoMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("phoMVALabels")),
-  nEleMaps_              (phoMapBranchNames_.size()),
-  valMapTags_            (iConfig.getParameter<std::vector<std::string>>("phoMVAValMaps")),
-  valMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("phoMVAValMapLabels")),
+  phoMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAs")),
+  phoMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVALabels")),
+  nPhoMaps_              (phoMapBranchNames_.size()),
+  valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMaps")),
+  valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVAValMapLabels")),
   nValMaps_              (valMapBranchNames_.size()),
-  mvaCatTags_            (iConfig.getParameter<std::vector<std::string>>("phoMVACats")),
-  mvaCatBranchNames_     (iConfig.getParameter<std::vector<std::string>>("phoMVACatLabels")),
-  nCats_                 (mvaCatBranchNames_.size())
+  mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACats")),
+  mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("phoMVACatLabels")),
+  nCats_                 (mvaCatBranchNames_.size()),
+  isMC_                  (iConfig.getParameter<bool>("isMC")),
+  ptThreshold_           (iConfig.getParameter<double>("ptThreshold"))
 {
     // phoMaps
-    for (size_t k = 0; k < nEleMaps_; ++k) {
+    for (size_t k = 0; k < nPhoMaps_; ++k) {
 
         phoMapTokens_.push_back(consumes<edm::ValueMap<bool> >(edm::InputTag(phoMapTags_[k])));
 
@@ -194,7 +183,7 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
    tree_->Branch("nEvent",  &nEvent_);
    tree_->Branch("nRun",    &nRun_);
    tree_->Branch("nLumi",   &nLumi_);
-   tree_->Branch("genNpu", &genNpu_);
+   if (isMC_) tree_->Branch("genNpu", &genNpu_);
    tree_->Branch("vtxN",   &vtxN_);
 
    // Has to be in two different loops
@@ -207,7 +196,7 @@ PhotonMVANtuplizer::PhotonMVANtuplizer(const edm::ParameterSet& iConfig)
        tree_->Branch(valMapBranchNames_[k].c_str() ,  &mvaValues_[k]);
    }
 
-   for (size_t k = 0; k < nEleMaps_; ++k) {
+   for (size_t k = 0; k < nPhoMaps_; ++k) {
        tree_->Branch(phoMapBranchNames_[k].c_str() ,  &mvaPasses_[k]);
    }
 
@@ -263,7 +252,7 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     // Fill with true number of pileup
-    if(true) {
+    if(isMC_) {
        for(const auto& pu : *pileup)
        {
            int bx = pu.getBunchCrossing();
@@ -274,7 +263,6 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            }
        }
     }
-
 
     edm::Handle<edm::View<reco::Photon> > src;
 
@@ -290,8 +278,8 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     // Get MVA decisions
-    edm::Handle<edm::ValueMap<bool> > decisions[nEleMaps_];
-    for (size_t k = 0; k < nEleMaps_; ++k) {
+    edm::Handle<edm::ValueMap<bool> > decisions[nPhoMaps_];
+    for (size_t k = 0; k < nPhoMaps_; ++k) {
         iEvent.getByToken(phoMapTokens_[k],decisions[k]);
     }
 
@@ -307,20 +295,20 @@ PhotonMVANtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         iEvent.getByToken(mvaCatTokens_[k],mvaCats[k]);
     }
 
-    int nEle = src->size();
+    int nPho = src->size();
 
-    for(int iPho = 0; iPho < nEle; ++iPho) {
+    for(int iPho = 0; iPho < nPho; ++iPho) {
 
         const auto pho =  src->ptrAt(iPho);
 
-        if (pho->pt() < 5) {
+        if (pho->pt() < ptThreshold_) {
             continue;
         }
 
         //
         // Look up and save the ID decisions
         //
-        for (size_t k = 0; k < nEleMaps_; ++k) {
+        for (size_t k = 0; k < nPhoMaps_; ++k) {
           mvaPasses_[k] = (int)(*decisions[k])[pho];
         }
 
@@ -353,17 +341,24 @@ PhotonMVANtuplizer::endJob()
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 PhotonMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
 
-  //Specify that only 'tracks' is allowed
-  //To use, remove the default given above and uncomment below
-  //ParameterSetDescription desc;
-  //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
-  //descriptions.addDefault(desc);
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src");
+    desc.add<edm::InputTag>("vertices");
+    desc.add<edm::InputTag>("pileup");
+    desc.add<edm::InputTag>("srcMiniAOD");
+    desc.add<edm::InputTag>("verticesMiniAOD");
+    desc.add<edm::InputTag>("pileupMiniAOD");
+    desc.addUntracked<std::vector<std::string>>("phoMVAs");
+    desc.addUntracked<std::vector<std::string>>("phoMVALabels");
+    desc.addUntracked<std::vector<std::string>>("phoMVAValMaps");
+    desc.addUntracked<std::vector<std::string>>("phoMVAValMapLabels");
+    desc.addUntracked<std::vector<std::string>>("phoMVACats");
+    desc.addUntracked<std::vector<std::string>>("phoMVACatLabels");
+    desc.add<bool>("isMC");
+    desc.add<double>("ptThreshold", 5.0);
+    descriptions.addDefault(desc);
+
 }
 
 //define this as a plug-in

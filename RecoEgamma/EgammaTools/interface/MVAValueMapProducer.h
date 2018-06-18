@@ -74,7 +74,7 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
   srcMiniAOD_ = mayConsume<edm::View<ParticleType> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
 
   // Loop over the list of MVA configurations passed here from python and
-  // construct all requested MVA esimtators.
+  // construct all requested MVA estimators.
   const auto& all_mvas = mva_cache->allMVAs();
   for( auto mvaItr = all_mvas.begin(); mvaItr != all_mvas.end(); ++mvaItr ) {
     // set the consumes
