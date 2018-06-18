@@ -18,6 +18,9 @@ simSiStripDigiSimLink = cms.EDProducer("DigiSimLinkProducer",
                                ChargeDistributionRMS   = cms.double(6.5e-10),
                                noDiffusion             = cms.bool(False),
                                #---SiTrivialInduceChargeOnStrips
+                               #switch to use different coupling constants set 
+                               CouplingConstantsRunIIDecB   = cms.bool(True),
+                               CouplingConstantsRunIIDecW   = cms.bool(True),
                                #TIB
                                CouplingConstantDecIB1  = cms.vdouble(0.7748, 0.0962,0.0165),                    
                                CouplingConstantDecIB2  = cms.vdouble(0.8300, 0.0756,0.0094),                    
@@ -50,6 +53,25 @@ simSiStripDigiSimLink = cms.EDProducer("DigiSimLinkProducer",
                                CouplingConstantPeakW5  = cms.vdouble(0.968, 0.016),
                                CouplingConstantPeakW6  = cms.vdouble(0.972, 0.014),
                                CouplingConstantPeakW7  = cms.vdouble(0.964, 0.018),
+			       #RunII (2018) deconvolution parameters 
+			       #TIB
+			       CouplingConstantRunIIDecIB1 = cms.vdouble(0.836, 0.0703, 0.0116),
+			       CouplingConstantRunIIDecIB2 = cms.vdouble(0.862, 0.0589, 0.0104),
+			       #TOB
+			       CouplingConstantRunIIDecOB2 = cms.vdouble(0.792, 0.0834, 0.0204),
+			       CouplingConstantRunIIDecOB1 = cms.vdouble(0.746, 0.0996, 0.0273), 
+			       #TID
+			       CouplingConstantRunIIDecW1a = cms.vdouble(0.857, 0.0608, 0.0107),
+			       CouplingConstantRunIIDecW2a = cms.vdouble(0.886, 0.049, 0.00792),
+			       CouplingConstantRunIIDecW3a = cms.vdouble(0.898, 0.0494, 0.00137),
+			       #TEC
+			       CouplingConstantRunIIDecW1b = cms.vdouble(0.883, 0.0518, 0.00685),
+			       CouplingConstantRunIIDecW2b = cms.vdouble(0.894, 0.0483, 0.00457),
+			       CouplingConstantRunIIDecW3b = cms.vdouble(0.861, 0.0573, 0.0122),
+			       CouplingConstantRunIIDecW4  = cms.vdouble(0.888, 0.0544, 0.00152),
+			       CouplingConstantRunIIDecW5  = cms.vdouble(0.8, 0.077, 0.0231),
+			       CouplingConstantRunIIDecW6  = cms.vdouble(0.807, 0.0769, 0.0198),
+			       CouplingConstantRunIIDecW7  = cms.vdouble(0.788, 0.0888, 0.017),
                                #-----SiStripDigitizer
                                DigiModeList = cms.PSet(SCDigi = cms.string('ScopeMode'),
                                                        ZSDigi = cms.string('ZeroSuppressed'),
