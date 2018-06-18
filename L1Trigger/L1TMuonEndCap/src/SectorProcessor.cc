@@ -13,15 +13,16 @@ void SectorProcessor::configure(
     const GeometryTranslator* tp_geom,
     const ConditionHelper* cond,
     const SectorProcessorLUT* lut,
-    PtAssignmentEngine** pt_assign_engine,
+    PtAssignmentEngine* pt_assign_engine,
     int verbose, int endcap, int sector,
     int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
+    std::string era,
     const std::vector<int>& zoneBoundaries, int zoneOverlap,
     bool includeNeighbor, bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
     const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-    int thetaWindow, int thetaWindowRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes,
+    int thetaWindow, int thetaWindowZone0, bool useRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX,
     int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
-    int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7
+    bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7, int modeQualVer
 ) {
   if (not(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP))
     { edm::LogError("L1T") << "emtf::MIN_ENDCAP = " << emtf::MIN_ENDCAP 
@@ -56,6 +57,8 @@ void SectorProcessor::configure(
   bxShiftRPC_  = bxShiftRPC;
   bxShiftGEM_  = bxShiftGEM;
 
+  era_ = era;
+
   zoneBoundaries_     = zoneBoundaries;
   zoneOverlap_        = zoneOverlap;
   includeNeighbor_    = includeNeighbor;
@@ -69,17 +72,19 @@ void SectorProcessor::configure(
   useSymPatterns_     = useSymPatterns;
 
   thetaWindow_        = thetaWindow;
-  thetaWindowRPC_     = thetaWindowRPC;
+  thetaWindowZone0_   = thetaWindowZone0;
+  useRPC_             = useRPC;
   useSingleHits_      = useSingleHits;
   bugSt2PhDiff_       = bugSt2PhDiff;
   bugME11Dupes_       = bugME11Dupes;
+  bugAmbigThetaWin_   = bugAmbigThetaWin;
+  twoStationSameBX_   = twoStationSameBX;
 
   maxRoadsPerZone_    = maxRoadsPerZone;
   maxTracks_          = maxTracks;
   useSecondEarliest_  = useSecondEarliest;
   bugSameSectorPt0_   = bugSameSectorPt0;
 
-  ptLUTVersion_       = ptLUTVersion;
   readPtLUTFile_      = readPtLUTFile;
   fixMode15HighPt_    = fixMode15HighPt;
   bug9BitDPhi_        = bug9BitDPhi;
@@ -87,31 +92,113 @@ void SectorProcessor::configure(
   bugNegPt_           = bugNegPt;
   bugGMTPhi_          = bugGMTPhi;
   promoteMode7_       = promoteMode7;
-}
-
-void SectorProcessor::set_pt_lut_version(unsigned pt_lut_version) {
-  ptLUTVersion_ = pt_lut_version;
-  // std::cout << "  * In endcap " << endcap_ << ", sector " << sector_ << ", set ptLUTVersion_ to " << ptLUTVersion_ << std::endl;
+  modeQualVer_        = modeQualVer;
 }
 
 // Refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
 void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
-
-  // std::cout << "Running configure_by_fw_version with version " << fw_version << std::endl;
-
+  if (verbose_ > 0) {
+    std::cout << "Configure SectorProcessor with fw_version: " << fw_version << std::endl;
+  }
+  
   if (fw_version == 0 || fw_version == 123456)  // fw_version '123456' is from the fake conditions
     return;
 
   // For now, no switches later than FW version 47864 (end-of-year 2016)
   // Beggining in late 2016, "fw_version" in O2O populated with timestamp, rather than FW version
-  // tm fw_time = gmtime(fw_version);  (See https://linux.die.net/man/3/gmtime)
+  // tm fw_time = gmtime(fw_version);  (See https://linux.die.net/man/3/gmtime, https://www.epochconverter.com)
 
-  // Settings for 2017 (by default just use settings in simEmtfDigis_cfi.py)
-  if (fw_version >= 50000) {
+  /////////////////////////////////////////////////////////////////////////////////
+  ///  Settings for 2018 (by default just use settings in simEmtfDigis_cfi.py)  ///
+  /////////////////////////////////////////////////////////////////////////////////
+  if (fw_version >= 1514764800) {  // January 1, 2018
+
+    // Settings for all of 2018 (following order in simEmtfDigis_cfi.py)
+    // BXWindow(2) and BugAmbigThetaWin(F) deployed sometime before stable beams on March 20, not quite sure when - AWB 26.04.18
+    // TwoStationSameBX(T), ThetaWindowZone0(4), and ModeQualVer(2) to be deployed sometime between May 17 and May 31 - AWB 14.05.18
+
+    // Global parameters
+    // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
+    // --------------------------------------------------------------------------------------------------------
+
+    // spTBParams16 : Sector processor track-building parameters
+    // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
+    //            DuplicateThteta(T), FixZonePhi(T), UseNewZones(F), FixME11Edges(T)
+    // ------------------------------------------------------------------------------
+
+    // spPRParams16 : Sector processor pattern-recognition parameters
+    // Defaults : PatternDefinitions(...), SymPatternDefinitions(...), UseSymmetricalPatterns(T)
+    // -----------------------------------------------------------------------------------------
+
+    // spTBParams16 : Sector processor track-building parameters
+    // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
+    //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
+    // ----------------------------------------------------------------------------------
+
+    // spGCParams16 : Sector processor ghost-cancellation parameters
+    // Defaults : MaxRoadsPerZone(3), MaxTracks(3), UseSecondEarliest(T), BugSameSectorPt0(F)
+    // --------------------------------------------------------------------------------------
+
+    // spPAParams16 : Sector processor pt-assignment parameters
+    // Defaults : ReadPtLUTFile(F), FixMode15HighPt(T), Bug9BitDPhi(F), BugMode7CLCT(F),
+    //            BugNegPt(F), BugGMTPhi(F), PromoteMode7(F), ModeQualVer(2)
+    // ---------------------------------------------------------------------------------
+
+
+    // ___________________________________________________________________________
+    // Versions in 2018 - no documentation
+    // As of the beginning of 2018 EMTF O2O is broken, not updating the database with online conditions
+    // Firmware version reported for runs as late as April 30 is 1504018578 (Aug. 29, 2017) even though
+    //   updates occured in February and March of 2018.  Hopefully will fix soon, may need to re-write
+    //   history in the database. - AWB 30.04.18
+
+    return;
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////
+  ///  Settings for 2017 (by default just use settings in simEmtfDigis_cfi.py)  ///
+  /////////////////////////////////////////////////////////////////////////////////
+  else if (fw_version >= 50000) {
+
+    // Settings for all of 2017 (following order in simEmtfDigis_cfi.py)
+
+    // Global parameters
+    // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
+    // --------------------------------------------------------------------------------------------------------
+    era_      = "Run2_2017";  // Era for CMSSW customization
+    bxWindow_ = 3;            // Number of BX whose primitives can be included in the same track
+
+    // spTBParams16 : Sector processor track-building parameters
+    // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
+    //            DuplicateThteta(T), FixZonePhi(T), UseNewZones(F), FixME11Edges(T)
+    // ------------------------------------------------------------------------------
+
+    // spPRParams16 : Sector processor pattern-recognition parameters
+    // Defaults : PatternDefinitions(...), SymPatternDefinitions(...), UseSymmetricalPatterns(T)
+    // -----------------------------------------------------------------------------------------
+
+    // spTBParams16 : Sector processor track-building parameters
+    // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
+    //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
+    // ----------------------------------------------------------------------------------
+    thetaWindow_      = 8;     // Maximum dTheta between primitives in the same track
+    thetaWindowZone0_ = 8;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+    bugAmbigThetaWin_ = true;  // Can allow dThetas outside window when there are 2 LCTs in the same chamber
+    twoStationSameBX_ = false; // Requires the hits in two-station tracks to have the same BX
+
+    // spGCParams16 : Sector processor ghost-cancellation parameters
+    // Defaults : MaxRoadsPerZone(3), MaxTracks(3), UseSecondEarliest(T), BugSameSectorPt0(F)
+    // --------------------------------------------------------------------------------------
+
+    // spPAParams16 : Sector processor pt-assignment parameters
+    // Defaults : ReadPtLUTFile(F), FixMode15HighPt(T), Bug9BitDPhi(F), BugMode7CLCT(F),
+    //            BugNegPt(F), BugGMTPhi(F), PromoteMode7(F)
+    // ---------------------------------------------------------------------------------
+    modeQualVer_ = 1; // Version 2 contains modified mode-quality mapping for 2018
 
     // ___________________________________________________________________________
     // Versions in 2017 - no full documentation, can refer to https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1KnownIssues
-    
+
     // Before July 9th (runs < 298653), all mode 7 tracks (station 2-3-4) assigned quality 11
     // July 9th - 29th (runs 298653 - 300087), mode 7 tracks with |eta| > 1.6 in sector -6 assigned quality 12
     // After July 29th (runs >= 300088), mode 7 track promotion applied in all sectors
@@ -120,51 +207,69 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     //   which is a month earlier than the first firmware update to apply this promotion.  So something's screwey.
     // Since July 18 is in the middle of the single-sector-fix period, would like to use a firmware version with
     //   roughly that date.  But this may require an intervention in the database. - AWB 04.08.17
-    if (fw_version < 1496792995)
-      promoteMode7_ = false;  // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
+    // Last firmware version in 2017 was 1504018578 (Aug. 29, 2017).
+    if (fw_version >= 1496792995)
+      promoteMode7_ = true;  // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
 
     return;
   }
 
-  // Settings for all of 2016 (following order in simEmtfDigis_cfi.py)
+  ///////////////////////////////////////////////////////////////////////////
+  ///  Settings for all of 2016 (following order in simEmtfDigis_cfi.py)  ///
+  ///////////////////////////////////////////////////////////////////////////
   else {
-    minBX_      = -3;  // Minimum BX considered
-    bxWindow_   =  3;  // Number of BX whose primitives can be included in the same track
-    bxShiftCSC_ = -6;  // Shift applied to input CSC LCT primitives, to center at BX = 0
 
-    zoneBoundaries_  = {0,41,49,87,127};  // Vertical boundaries of track-building zones, in integer theta
-    zoneOverlap_     =  2;                // Overlap between zones
-    includeNeighbor_ = true;              // Include primitives from neighbor chambers in track-building
-    duplicateTheta_  = true;              // Use up to 4 theta/phi positions for two LCTs in the same chamber
-    useNewZones_     = false;
-    fixME11Edges_    = false;
+    // Global parameters
+    // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
+    // --------------------------------------------------------------------------------------------------------
+    useRPC_   = false;        // Use clustered RPC hits from CPPF in track-building
+    era_      = "Run2_2016";  // Era for CMSSW customization
+    // maxBX_                 // Depends on FW version, see below
+    bxWindow_ = 3;            // Number of BX whose primitives can be included in the same track
 
-    pattDefinitions_    = { "4,15:15,7:7,7:7,7:7",
-			    "3,16:16,7:7,7:6,7:6",
-			    "3,14:14,7:7,8:7,8:7",
-			    "2,18:17,7:7,7:5,7:5",  // Should be 7:4 in ME3,4 (FW bug)
-			    "2,13:12,7:7,10:7,10:7",
-			    "1,22:19,7:7,7:0,7:0",
-			    "1,11:8,7:7,14:7,14:7",
-			    "0,30:23,7:7,7:0,7:0",
-			    "0,7:0,7:7,14:7,14:7" };
-    // Straightness, hits in ME1, hits in ME2, hits in ME3, hits in ME4
-    symPattDefinitions_ = { "4,15:15:15:15,7:7:7:7,7:7:7:7,7:7:7:7",
-			    "3,16:16:14:14,7:7:7:7,8:7:7:6,8:7:7:6",
-			    "2,18:17:13:12,7:7:7:7,10:7:7:4,10:7:7:4",
-			    "1,22:19:11:8,7:7:7:7,14:7:7:0,14:7:7:0",
-			    "0,30:23:7:0,7:7:7:7,14:7:7:0,14:7:7:0" };
+    // spTBParams16 : Sector processor track-building parameters
+    // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
+    //            DuplicateThteta(T), FixZonePhi(T), UseNewZones(F), FixME11Edges(T)
+    // ------------------------------------------------------------------------------
+    // primConvLUT_         // Should be 0 for 2016, set using get_pc_lut_version() from ConditionsHelper.cc
+    // fixZonePhi_          // Depends on FW version, see below
+    fixME11Edges_ = false;  // Improved small fraction of buggy LCT coordinate transformations
 
-    thetaWindow_   = 4;      // Maximum dTheta between primitives in the same track
-    useSingleHits_ = false;  // Build "tracks" from single LCTs in ME1/1
+    // spPRParams16 : Sector processor pattern-recognition parameters
+    // Defaults : PatternDefinitions(...), SymPatternDefinitions(...), UseSymmetricalPatterns(T)
+    // -----------------------------------------------------------------------------------------
+    // useSymPatterns_  // Depends on FW version, see below
 
-    maxRoadsPerZone_ = 3;  // Number of patterns that can be built per theta zone
-    maxTracks_       = 3;  // Number of tracks that can be sent from each sector
+    // spTBParams16 : Sector processor track-building parameters
+    // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
+    //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
+    // ----------------------------------------------------------------------------------
+    thetaWindow_      = 4;     // Maximum dTheta between primitives in the same track
+    thetaWindowZone0_ = 4;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+    // bugSt2PhDiff_           // Depends on FW version, see below
+    // bugME11Dupes_           // Depends on FW version, see below
+    bugAmbigThetaWin_ = true;  // Can allow dThetas outside window when there are 2 LCTs in the same chamber
+    twoStationSameBX_ = false; // Requires the hits in two-station tracks to have the same BX
 
-    bugGMTPhi_ = true;
-    promoteMode7_ = false;  // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
+    // spGCParams16 : Sector processor ghost-cancellation parameters
+    // Defaults : MaxRoadsPerZone(3), MaxTracks(3), UseSecondEarliest(T), BugSameSectorPt0(F)
+    // --------------------------------------------------------------------------------------
+    // useSecondEarliest_  // Depends on FW version, see below
+    // bugSameSectorPt0_   // Depends on FW version, see below
+
+    // spPAParams16 : Sector processor pt-assignment parameters
+    // Defaults : ReadPtLUTFile(F), FixMode15HighPt(T), Bug9BitDPhi(F), BugMode7CLCT(F),
+    //            BugNegPt(F), BugGMTPhi(F), PromoteMode7(F)
+    // ---------------------------------------------------------------------------------
+    // fixMode15HighPt_   // Depends on FW version, see below
+    // bug9BitDPhi_       // Depends on FW version, see below
+    // bugMode7CLCT_      // Depends on FW version, see below
+    // bugNegPt_          // Depends on FW version, see below
+    bugGMTPhi_   = true;  // Some drift in uGMT phi conversion, off by up to a few degrees
+    modeQualVer_ = 1;     // Version 2 contains modified mode-quality mapping for 2018
+
   } // End default settings for 2016
-			    
+
 
   // ___________________________________________________________________________
   // Versions in 2016 - refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
@@ -260,6 +365,11 @@ void SectorProcessor::process(
     EMTFTrackCollection& out_tracks
 ) const {
 
+  // if (endcap_ == 1 && sector_ == 1) {
+  //   std::cout << "\nConfigured with era " << era_ << ", thetaWindowZone0 = " << thetaWindowZone0_ << ", bugAmbigThetaWin = "
+  // 	      << bugAmbigThetaWin_ << ", twoStationSameBX = " << twoStationSameBX_ << ", promoteMode7_ = " << promoteMode7_ << std::endl;
+  // }
+
   // List of converted hits, extended from previous BXs
   // deque (double-ended queue) is similar to a vector, but allows insertion or deletion of elements at both beginning and end
   std::deque<EMTFHitCollection> extended_conv_hits;
@@ -352,8 +462,8 @@ void SectorProcessor::process_single_bx(
   angle_calc.configure(
       verbose_, endcap_, sector_, bx,
       bxWindow_,
-      thetaWindow_, thetaWindowRPC_,
-      bugME11Dupes_
+      thetaWindow_, thetaWindowZone0_,
+      bugME11Dupes_, bugAmbigThetaWin_, twoStationSameBX_
   );
 
   BestTrackSelection btrack_sel;
@@ -373,11 +483,11 @@ void SectorProcessor::process_single_bx(
 
   PtAssignment pt_assign;
   pt_assign.configure(
-      *pt_assign_engine_,
+      pt_assign_engine_,
       verbose_, endcap_, sector_, bx,
-      ptLUTVersion_, readPtLUTFile_, fixMode15HighPt_,
+      readPtLUTFile_, fixMode15HighPt_,
       bug9BitDPhi_, bugMode7CLCT_, bugNegPt_,
-      bugGMTPhi_, promoteMode7_
+      bugGMTPhi_, promoteMode7_, modeQualVer_
   );
 
   std::map<int, TriggerPrimitiveCollection> selected_csc_map;
@@ -403,7 +513,9 @@ void SectorProcessor::process_single_bx(
   // each input link.
   // From src/PrimitiveSelection.cc
   prim_sel.process(CSCTag(), muon_primitives, selected_csc_map);
-  prim_sel.process(RPCTag(), muon_primitives, selected_rpc_map);
+  if (useRPC_) {
+    prim_sel.process(RPCTag(), muon_primitives, selected_rpc_map);
+  }
   prim_sel.process(GEMTag(), muon_primitives, selected_gem_map);
   prim_sel.merge(selected_csc_map, selected_rpc_map, selected_gem_map, selected_prim_map);
 
@@ -418,6 +530,11 @@ void SectorProcessor::process_single_bx(
     // They include the extra ones that are not used in track building and the subsequent steps.
     prim_sel.merge_no_truncate(selected_csc_map, selected_rpc_map, selected_gem_map, inclusive_selected_prim_map);
     prim_conv.process(inclusive_selected_prim_map, inclusive_conv_hits);
+
+    // Clear the input maps to save memory
+    selected_csc_map.clear();
+    selected_rpc_map.clear();
+    selected_gem_map.clear();
   }
 
   // Detect patterns in all zones, find 3 best roads in each zone

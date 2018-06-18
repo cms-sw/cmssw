@@ -132,9 +132,9 @@ SiStripMonitorDigi = DQMEDAnalyzer('SiStripMonitorDigi',
     ),
 
     TProfNDigisFED = cms.PSet(
-        Nbinsx          = cms.int32(460),
-        xmax           = cms.double(460),
-        xmin           = cms.double(0),
+        Nbinsx          = cms.int32(440),
+        xmax           = cms.double(489.5),
+        xmin           = cms.double(49.5),
         Nbinsy = cms.int32(200),
         ymin = cms.double(-0.5),
         ymax = cms.double(199999.5),

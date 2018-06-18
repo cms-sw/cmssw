@@ -10,7 +10,6 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "Dead Channels",
   title = "Dead Channels",
   xlabel = "dead channels",
-  #range_min = 1199.5, range_max = 1338.5, range_nbins = 139,
   range_min = 0, range_max = 1000, range_nbins = 100,
   dimensions = 0,
   specs = VPSet(
@@ -27,7 +26,7 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
                    .groupBy("FED","EXTEND_X")
                    .groupBy("","EXTEND_Y")
                    .save(), #average dead channels per event and FED per LumiBlock 
-    Specification().groupBy("LumiBlock/Event")
+    Specification().groupBy("PXAll/Event")
                    .reduce("COUNT")
                    .groupBy("LumiBlock") #average number of dead channels per Lumisection
                    .reduce("MEAN")
@@ -83,7 +82,6 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "Dead Channels per ROC",
   title = "Dead Channels per ROC",
   xlabel = "dead channels per ROC",
-  #range_min = 1199.5, range_max = 1338.5, range_nbins = 139,
   range_min = 0, range_max = 1000, range_nbins = 100,
   dimensions = 0,
   specs = VPSet(

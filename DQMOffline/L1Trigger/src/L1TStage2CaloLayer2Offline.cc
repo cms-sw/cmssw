@@ -331,7 +331,6 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
     return;
   }
-
   if (pfJets->empty()) {
     LogDebug("L1TStage2CaloLayer2Offline") << "no PF jets found" << std::endl;
     return;

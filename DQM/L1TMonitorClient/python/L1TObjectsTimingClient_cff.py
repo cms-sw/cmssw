@@ -8,49 +8,48 @@ l1tobjectstimingDqmDir = 'L1T/L1TObjects/'
 l1tObjectsRatioPlots = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(l1tobjectstimingDqmDir),
     efficiency = cms.vstring(
-       "Ratio_L1TMuons_BX_minus2 'Ratio for L1TMuons for BX=-2' L1TMuon/timing/muons_eta_phi_bx_minus2 L1TMuon/timing/denominator_muons",
-       "Ratio_L1TMuons_BX_minus1 'Ratio for L1TMuons for BX=-1' L1TMuon/timing/muons_eta_phi_bx_minus1 L1TMuon/timing/denominator_muons",
-       "Ratio_L1TMuons_BX_0 'Ratio for L1TMuons for BX=0' L1TMuon/timing/muons_eta_phi_bx_0 L1TMuon/timing/denominator_muons",
-       "Ratio_L1TMuons_BX_plus1 'Ratio for L1TMuons for BX=+1' L1TMuon/timing/muons_eta_phi_bx_plus1 L1TMuon/timing/denominator_muons",
-       "Ratio_L1TMuons_BX_plus2 'Ratio for L1TMuons for BX=+2' L1TMuon/timing/muons_eta_phi_bx_plus2 L1TMuon/timing/denominator_muons",
-       "Ratio_L1TJet_BX_minus2 'Ratio for L1TJet for BX=-2' L1TJet/timing/jet_eta_phi_bx_minus2 L1TJet/timing/denominator_jet",
-       "Ratio_L1TJet_BX_minus1 'Ratio for L1TJet for BX=-1' L1TJet/timing/jet_eta_phi_bx_minus1 L1TJet/timing/denominator_jet",
-       "Ratio_L1TJet_BX_0 'Ratio for L1TJet for BX=0' L1TJet/timing/jet_eta_phi_bx_0 L1TJet/timing/denominator_jet",
-       "Ratio_L1TJet_BX_plus1 'Ratio for L1TJet for BX=+1' L1TJet/timing/jet_eta_phi_bx_plus1 L1TJet/timing/denominator_jet",
-       "Ratio_L1TJet_BX_plus2 'Ratio for L1TJet for BX=+2' L1TJet/timing/jet_eta_phi_bx_plus2 L1TJet/timing/denominator_jet",
-       "Ratio_L1TEGamma_BX_minus2 'Ratio for L1TEGamma for BX=-2' L1TEGamma/timing/egamma_eta_phi_bx_minus2 L1TEGamma/timing/denominator_egamma",
-       "Ratio_L1TEGamma_BX_minus1 'Ratio for L1TEGamma for BX=-1' L1TEGamma/timing/egamma_eta_phi_bx_minus1 L1TEGamma/timing/denominator_egamma",
-       "Ratio_L1TEGamma_BX_0 'Ratio for L1TEGamma for BX=0' L1TEGamma/timing/egamma_eta_phi_bx_0 L1TEGamma/timing/denominator_egamma",
-       "Ratio_L1TEGamma_BX_plus1 'Ratio for L1TEGamma for BX=+1' L1TEGamma/timing/egamma_eta_phi_bx_plus1 L1TEGamma/timing/denominator_egamma",
-       "Ratio_L1TEGamma_BX_plus2 'Ratio for L1TEGamma for BX=+2' L1TEGamma/timing/egamma_eta_phi_bx_plus2 L1TEGamma/timing/denominator_egamma",
-       "Ratio_L1TTau_BX_minus2 'Ratio for L1TTau for BX=-2' L1TTau/timing/tau_eta_phi_bx_minus2 L1TTau/timing/denominator_tau",
-       "Ratio_L1TTau_BX_minus1 'Ratio for L1TTau for BX=-1' L1TTau/timing/tau_eta_phi_bx_minus1 L1TTau/timing/denominator_tau",
-       "Ratio_L1TTau_BX_0 'Ratio for L1TTau for BX=0' L1TTau/timing/tau_eta_phi_bx_0 L1TTau/timing/denominator_tau",
-       "Ratio_L1TTau_BX_plus1 'Ratio for L1TTau for BX=+1' L1TTau/timing/tau_eta_phi_bx_plus1 L1TTau/timing/denominator_tau",
-       "Ratio_L1TTau_BX_plus2 'Ratio for L1TTau for BX=+2' L1TTau/timing/tau_eta_phi_bx_plus2 L1TTau/timing/denominator_tau",
-       "Ratio_L1TEtSum_BX_MET_minus2 'Ratio for L1TEtSum MET for BX=-2' L1TEtSum/timing/etsum_phi_bx_MET_minus2 L1TEtSum/timing/denominator_etsum_MET",
-       "Ratio_L1TEtSum_BX_MET_minus1 'Ratio for L1TEtSum MET for BX=-1' L1TEtSum/timing/etsum_phi_bx_MET_minus1 L1TEtSum/timing/denominator_etsum_MET",
-       "Ratio_L1TEtSum_BX_MET_0 'Ratio for L1TEtSum MET for BX=0' L1TEtSum/timing/etsum_phi_bx_MET_0 L1TEtSum/timing/denominator_etsum_MET",
-       "Ratio_L1TEtSum_BX_MET_plus1 'Ratio for L1TEtSum MET for BX=+1' L1TEtSum/timing/etsum_phi_bx_MET_plus1 L1TEtSum/timing/denominator_etsum_MET",
-       "Ratio_L1TEtSum_BX_MET_plus2 'Ratio for L1TEtSum MET for BX=+2' L1TEtSum/timing/etsum_phi_bx_MET_plus2 L1TEtSum/timing/denominator_etsum_MET",
-       "Ratio_L1TEtSum_BX_METHF_minus2 'Ratio for L1TEtSum METHF for BX=-2' L1TEtSum/timing/etsum_phi_bx_METHF_minus2 L1TEtSum/timing/denominator_etsum_METHF",
-       "Ratio_L1TEtSum_BX_METHF_minus1 'Ratio for L1TEtSum METHF for BX=-1' L1TEtSum/timing/etsum_phi_bx_METHF_minus1 L1TEtSum/timing/denominator_etsum_METHF",
-       "Ratio_L1TEtSum_BX_METHF_0 'Ratio for L1TEtSum METHF for BX=0' L1TEtSum/timing/etsum_phi_bx_METHF_0 L1TEtSum/timing/denominator_etsum_METHF",
-       "Ratio_L1TEtSum_BX_METHF_plus1 'Ratio for L1TEtSum METHF for BX=+1' L1TEtSum/timing/etsum_phi_bx_METHF_plus1 L1TEtSum/timing/denominator_etsum_METHF",
-       "Ratio_L1TEtSum_BX_METHF_plus2 'Ratio for L1TEtSum METHF for BX=+2' L1TEtSum/timing/etsum_phi_bx_METHF_plus2 L1TEtSum/timing/denominator_etsum_METHF",
-       "Ratio_L1TEtSum_BX_MHTHF_minus2 'Ratio for L1TEtSum MHTHF for BX=-2' L1TEtSum/timing/etsum_phi_bx_MHTHF_minus2 L1TEtSum/timing/denominator_etsum_MHTHF",
-       "Ratio_L1TEtSum_BX_MHTHF_minus1 'Ratio for L1TEtSum MHTHF for BX=-1' L1TEtSum/timing/etsum_phi_bx_MHTHF_minus1 L1TEtSum/timing/denominator_etsum_MHTHF",
-       "Ratio_L1TEtSum_BX_MHTHF_0 'Ratio for L1TEtSum MHTHF for BX=0' L1TEtSum/timing/etsum_phi_bx_MHTHF_0 L1TEtSum/timing/denominator_etsum_MHTHF",
-       "Ratio_L1TEtSum_BX_MHTHF_plus1 'Ratio for L1TEtSum MHTHF for BX=+1' L1TEtSum/timing/etsum_phi_bx_MHTHF_plus1 L1TEtSum/timing/denominator_etsum_MHTHF",
-       "Ratio_L1TEtSum_BX_MHTHF_plus2 'Ratio for L1TEtSum MHTHF for BX=+2' L1TEtSum/timing/etsum_phi_bx_MHTHF_plus2 L1TEtSum/timing/denominator_etsum_MHTHF",
-       "Ratio_L1TEtSum_BX_MHT_minus2 'Ratio for L1TEtSum MHT for BX=-2' L1TEtSum/timing/etsum_phi_bx_MHT_minus2 L1TEtSum/timing/denominator_etsum_MHT",
-       "Ratio_L1TEtSum_BX_MHT_minus1 'Ratio for L1TEtSum MHT for BX=-1' L1TEtSum/timing/etsum_phi_bx_MHT_minus1 L1TEtSum/timing/denominator_etsum_MHT",
-       "Ratio_L1TEtSum_BX_MHT_0 'Ratio for L1TEtSum MHT for BX=0' L1TEtSum/timing/etsum_phi_bx_MHT_0 L1TEtSum/timing/denominator_etsum_MHT",
-       "Ratio_L1TEtSum_BX_MHT_plus1 'Ratio for L1TEtSum MHT for BX=+1' L1TEtSum/timing/etsum_phi_bx_MHT_plus1 L1TEtSum/timing/denominator_etsum_MHT",
-       "Ratio_L1TEtSum_BX_MHT_plus2 'Ratio for L1TEtSum MHT for BX=+2' L1TEtSum/timing/etsum_phi_bx_MHT_plus2 L1TEtSum/timing/denominator_etsum_MHT",
+       "L1TMuon/timing/Ratio_L1TMuons_BX_minus2 'Ratio for L1TMuons for BX=-2' L1TMuon/timing/muons_eta_phi_bx_minus2 L1TMuon/timing/denominator_muons",
+       "L1TMuon/timing/Ratio_L1TMuons_BX_minus1 'Ratio for L1TMuons for BX=-1' L1TMuon/timing/muons_eta_phi_bx_minus1 L1TMuon/timing/denominator_muons",
+       "L1TMuon/timing/Ratio_L1TMuons_BX_0 'Ratio for L1TMuons for BX=0' L1TMuon/timing/muons_eta_phi_bx_0 L1TMuon/timing/denominator_muons",
+       "L1TMuon/timing/Ratio_L1TMuons_BX_plus1 'Ratio for L1TMuons for BX=+1' L1TMuon/timing/muons_eta_phi_bx_plus1 L1TMuon/timing/denominator_muons",
+       "L1TMuon/timing/Ratio_L1TMuons_BX_plus2 'Ratio for L1TMuons for BX=+2' L1TMuon/timing/muons_eta_phi_bx_plus2 L1TMuon/timing/denominator_muons",
+       "L1TJet/timing/Ratio_L1TJet_BX_minus2 'Ratio for L1TJet for BX=-2' L1TJet/timing/jet_eta_phi_bx_minus2 L1TJet/timing/denominator_jet",
+       "L1TJet/timing/Ratio_L1TJet_BX_minus1 'Ratio for L1TJet for BX=-1' L1TJet/timing/jet_eta_phi_bx_minus1 L1TJet/timing/denominator_jet",
+       "L1TJet/timing/Ratio_L1TJet_BX_0 'Ratio for L1TJet for BX=0' L1TJet/timing/jet_eta_phi_bx_0 L1TJet/timing/denominator_jet",
+       "L1TJet/timing/Ratio_L1TJet_BX_plus1 'Ratio for L1TJet for BX=+1' L1TJet/timing/jet_eta_phi_bx_plus1 L1TJet/timing/denominator_jet",
+       "L1TJet/timing/Ratio_L1TJet_BX_plus2 'Ratio for L1TJet for BX=+2' L1TJet/timing/jet_eta_phi_bx_plus2 L1TJet/timing/denominator_jet",
+       "L1TEGamma/timing/Ratio_L1TEGamma_BX_minus2 'Ratio for L1TEGamma for BX=-2' L1TEGamma/timing/egamma_eta_phi_bx_minus2 L1TEGamma/timing/denominator_egamma",
+       "L1TEGamma/timing/Ratio_L1TEGamma_BX_minus1 'Ratio for L1TEGamma for BX=-1' L1TEGamma/timing/egamma_eta_phi_bx_minus1 L1TEGamma/timing/denominator_egamma",
+       "L1TEGamma/timing/Ratio_L1TEGamma_BX_0 'Ratio for L1TEGamma for BX=0' L1TEGamma/timing/egamma_eta_phi_bx_0 L1TEGamma/timing/denominator_egamma",
+       "L1TEGamma/timing/Ratio_L1TEGamma_BX_plus1 'Ratio for L1TEGamma for BX=+1' L1TEGamma/timing/egamma_eta_phi_bx_plus1 L1TEGamma/timing/denominator_egamma",
+       "L1TEGamma/timing/Ratio_L1TEGamma_BX_plus2 'Ratio for L1TEGamma for BX=+2' L1TEGamma/timing/egamma_eta_phi_bx_plus2 L1TEGamma/timing/denominator_egamma",
+       "L1TTau/timing/Ratio_L1TTau_BX_minus2 'Ratio for L1TTau for BX=-2' L1TTau/timing/tau_eta_phi_bx_minus2 L1TTau/timing/denominator_tau",
+       "L1TTau/timing/Ratio_L1TTau_BX_minus1 'Ratio for L1TTau for BX=-1' L1TTau/timing/tau_eta_phi_bx_minus1 L1TTau/timing/denominator_tau",
+       "L1TTau/timing/Ratio_L1TTau_BX_0 'Ratio for L1TTau for BX=0' L1TTau/timing/tau_eta_phi_bx_0 L1TTau/timing/denominator_tau",
+       "L1TTau/timing/Ratio_L1TTau_BX_plus1 'Ratio for L1TTau for BX=+1' L1TTau/timing/tau_eta_phi_bx_plus1 L1TTau/timing/denominator_tau",
+       "L1TTau/timing/Ratio_L1TTau_BX_plus2 'Ratio for L1TTau for BX=+2' L1TTau/timing/tau_eta_phi_bx_plus2 L1TTau/timing/denominator_tau",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MET_minus2 'Ratio for L1TEtSum MET for BX=-2' L1TEtSum/timing/etsum_phi_bx_MET_minus2 L1TEtSum/timing/denominator_etsum_MET",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MET_minus1 'Ratio for L1TEtSum MET for BX=-1' L1TEtSum/timing/etsum_phi_bx_MET_minus1 L1TEtSum/timing/denominator_etsum_MET",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MET_0 'Ratio for L1TEtSum MET for BX=0' L1TEtSum/timing/etsum_phi_bx_MET_0 L1TEtSum/timing/denominator_etsum_MET",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MET_plus1 'Ratio for L1TEtSum MET for BX=+1' L1TEtSum/timing/etsum_phi_bx_MET_plus1 L1TEtSum/timing/denominator_etsum_MET",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MET_plus2 'Ratio for L1TEtSum MET for BX=+2' L1TEtSum/timing/etsum_phi_bx_MET_plus2 L1TEtSum/timing/denominator_etsum_MET",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_METHF_minus2 'Ratio for L1TEtSum METHF for BX=-2' L1TEtSum/timing/etsum_phi_bx_METHF_minus2 L1TEtSum/timing/denominator_etsum_METHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_METHF_minus1 'Ratio for L1TEtSum METHF for BX=-1' L1TEtSum/timing/etsum_phi_bx_METHF_minus1 L1TEtSum/timing/denominator_etsum_METHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_METHF_0 'Ratio for L1TEtSum METHF for BX=0' L1TEtSum/timing/etsum_phi_bx_METHF_0 L1TEtSum/timing/denominator_etsum_METHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_METHF_plus1 'Ratio for L1TEtSum METHF for BX=+1' L1TEtSum/timing/etsum_phi_bx_METHF_plus1 L1TEtSum/timing/denominator_etsum_METHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_METHF_plus2 'Ratio for L1TEtSum METHF for BX=+2' L1TEtSum/timing/etsum_phi_bx_METHF_plus2 L1TEtSum/timing/denominator_etsum_METHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHTHF_minus2 'Ratio for L1TEtSum MHTHF for BX=-2' L1TEtSum/timing/etsum_phi_bx_MHTHF_minus2 L1TEtSum/timing/denominator_etsum_MHTHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHTHF_minus1 'Ratio for L1TEtSum MHTHF for BX=-1' L1TEtSum/timing/etsum_phi_bx_MHTHF_minus1 L1TEtSum/timing/denominator_etsum_MHTHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHTHF_0 'Ratio for L1TEtSum MHTHF for BX=0' L1TEtSum/timing/etsum_phi_bx_MHTHF_0 L1TEtSum/timing/denominator_etsum_MHTHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHTHF_plus1 'Ratio for L1TEtSum MHTHF for BX=+1' L1TEtSum/timing/etsum_phi_bx_MHTHF_plus1 L1TEtSum/timing/denominator_etsum_MHTHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHTHF_plus2 'Ratio for L1TEtSum MHTHF for BX=+2' L1TEtSum/timing/etsum_phi_bx_MHTHF_plus2 L1TEtSum/timing/denominator_etsum_MHTHF",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHT_minus2 'Ratio for L1TEtSum MHT for BX=-2' L1TEtSum/timing/etsum_phi_bx_MHT_minus2 L1TEtSum/timing/denominator_etsum_MHT",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHT_minus1 'Ratio for L1TEtSum MHT for BX=-1' L1TEtSum/timing/etsum_phi_bx_MHT_minus1 L1TEtSum/timing/denominator_etsum_MHT",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHT_0 'Ratio for L1TEtSum MHT for BX=0' L1TEtSum/timing/etsum_phi_bx_MHT_0 L1TEtSum/timing/denominator_etsum_MHT",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHT_plus1 'Ratio for L1TEtSum MHT for BX=+1' L1TEtSum/timing/etsum_phi_bx_MHT_plus1 L1TEtSum/timing/denominator_etsum_MHT",
+       "L1TEtSum/timing/Ratio_L1TEtSum_BX_MHT_plus2 'Ratio for L1TEtSum MHT for BX=+2' L1TEtSum/timing/etsum_phi_bx_MHT_plus2 L1TEtSum/timing/denominator_etsum_MHT",
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -65,7 +64,6 @@ l1tMuonFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TMuons_BX_FirstBunch_0 'Ratio for L1TMuons first bunch for BX=0' muons_eta_phi_bx_firstbunch_0 denominator_muons_firstbunch"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -79,7 +77,6 @@ l1tMuonLastBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TMuons_BX_LastBunch_plus2 'Ratio for L1TMuons last bunch for BX=+2' muons_eta_phi_bx_lastbunch_plus2 denominator_muons_lastbunch"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -95,13 +92,11 @@ l1tMuonIsolatedBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TMuons_BX_Isolated_plus2 'Ratio for L1TMuons isolated bunch for BX=+2' muons_eta_phi_bx_isolated_plus2 denominator_muons_isolated"
        ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
 )
 
- 
 l1tJetFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(l1tobjectstimingDqmDir+'L1TJet/timing/First_bunch/'),
     efficiency = cms.vstring(
@@ -110,7 +105,6 @@ l1tJetFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TJet_BX_FirstBunch_0 'Ratio for L1TJet first bunch for BX=0' jet_eta_phi_bx_firstbunch_0 denominator_jet_firstbunch"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -124,7 +118,6 @@ l1tJetLastBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TJet_BX_LastBunch_plus2 'Ratio for L1TJet last bunch for BX=+2' jet_eta_phi_bx_lastbunch_plus2 denominator_jet_lastbunch"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -140,22 +133,25 @@ l1tJetIsolatedBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TJet_BX_Isolated_plus2 'Ratio for L1TJet isolated bunch for BX=+2' jet_eta_phi_bx_isolated_plus2 denominator_jet_isolated"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
 )
 
-
 l1tEGammaFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(l1tobjectstimingDqmDir+'L1TEGamma/timing/First_bunch/'),
     efficiency = cms.vstring(
-       "Ratio_L1TEGamma_BX_FirstBunch_minus2 'Ratio for L1TEGamma first bunch for BX=-2' egamma_eta_phi_bx_firstbunch_minus2 denominator_egamma_firstbunch",
-       "Ratio_L1TEGamma_BX_FirstBunch_minus1 'Ratio for L1TEGamma first bunch for BX=-1' egamma_eta_phi_bx_firstbunch_minus1 denominator_egamma_firstbunch",
-       "Ratio_L1TEGamma_BX_FirstBunch_0 'Ratio for L1TEGamma first bunch for BX=0' egamma_eta_phi_bx_firstbunch_0 denominator_egamma_firstbunch"
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_FirstBunch_minus2 'Ratio for L1TEGamma first bunch for BX=-2' ptmin_10p0_gev/egamma_eta_phi_bx_firstbunch_minus2 ptmin_10p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_FirstBunch_minus1 'Ratio for L1TEGamma first bunch for BX=-1' ptmin_10p0_gev/egamma_eta_phi_bx_firstbunch_minus1 ptmin_10p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_FirstBunch_0 'Ratio for L1TEGamma first bunch for BX=0' ptmin_10p0_gev/egamma_eta_phi_bx_firstbunch_0 ptmin_10p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_FirstBunch_minus2 'Ratio for L1TEGamma first bunch for BX=-2' ptmin_20p0_gev/egamma_eta_phi_bx_firstbunch_minus2 ptmin_20p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_FirstBunch_minus1 'Ratio for L1TEGamma first bunch for BX=-1' ptmin_20p0_gev/egamma_eta_phi_bx_firstbunch_minus1 ptmin_20p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_FirstBunch_0 'Ratio for L1TEGamma first bunch for BX=0' ptmin_20p0_gev/egamma_eta_phi_bx_firstbunch_0 ptmin_20p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_FirstBunch_minus2 'Ratio for L1TEGamma first bunch for BX=-2' ptmin_30p0_gev/egamma_eta_phi_bx_firstbunch_minus2 ptmin_30p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_FirstBunch_minus1 'Ratio for L1TEGamma first bunch for BX=-1' ptmin_30p0_gev/egamma_eta_phi_bx_firstbunch_minus1 ptmin_30p0_gev/denominator_egamma_firstbunch",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_FirstBunch_0 'Ratio for L1TEGamma first bunch for BX=0' ptmin_30p0_gev/egamma_eta_phi_bx_firstbunch_0 ptmin_30p0_gev/denominator_egamma_firstbunch",
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -164,12 +160,17 @@ l1tEGammaFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
 l1tEGammaLastBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(l1tobjectstimingDqmDir+'L1TEGamma/timing/Last_bunch/'),
     efficiency = cms.vstring(
-       "Ratio_L1TEGamma_BX_LastBunch_0 'Ratio for L1TEGamma last bunch for BX=0' egamma_eta_phi_bx_lastbunch_0 denominator_egamma_lastbunch",
-       "Ratio_L1TEGamma_BX_LastBunch_plus1 'Ratio for L1TEGamma last bunch for BX=+1' egamma_eta_phi_bx_lastbunch_plus1 denominator_egamma_lastbunch",
-       "Ratio_L1TEGamma_BX_LastBunch_plus2 'Ratio for L1TEGamma last bunch for BX=+2' egamma_eta_phi_bx_lastbunch_plus2 denominator_egamma_lastbunch"
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_LastBunch_0 'Ratio for L1TEGamma last bunch for BX=0' ptmin_10p0_gev/egamma_eta_phi_bx_lastbunch_0 ptmin_10p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_LastBunch_plus1 'Ratio for L1TEGamma last bunch for BX=+1' ptmin_10p0_gev/egamma_eta_phi_bx_lastbunch_plus1 ptmin_10p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_LastBunch_plus2 'Ratio for L1TEGamma last bunch for BX=+2' ptmin_10p0_gev/egamma_eta_phi_bx_lastbunch_plus2 ptmin_10p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_LastBunch_0 'Ratio for L1TEGamma last bunch for BX=0' ptmin_20p0_gev/egamma_eta_phi_bx_lastbunch_0 ptmin_20p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_LastBunch_plus1 'Ratio for L1TEGamma last bunch for BX=+1' ptmin_20p0_gev/egamma_eta_phi_bx_lastbunch_plus1 ptmin_20p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_LastBunch_plus2 'Ratio for L1TEGamma last bunch for BX=+2' ptmin_20p0_gev/egamma_eta_phi_bx_lastbunch_plus2 ptmin_20p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_LastBunch_0 'Ratio for L1TEGamma last bunch for BX=0' ptmin_30p0_gev/egamma_eta_phi_bx_lastbunch_0 ptmin_30p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_LastBunch_plus1 'Ratio for L1TEGamma last bunch for BX=+1' ptmin_30p0_gev/egamma_eta_phi_bx_lastbunch_plus1 ptmin_30p0_gev/denominator_egamma_lastbunch",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_LastBunch_plus2 'Ratio for L1TEGamma last bunch for BX=+2' ptmin_30p0_gev/egamma_eta_phi_bx_lastbunch_plus2 ptmin_30p0_gev/denominator_egamma_lastbunch"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -178,19 +179,27 @@ l1tEGammaLastBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
 l1tEGammaIsolatedBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(l1tobjectstimingDqmDir+'L1TEGamma/timing/Isolated_bunch/'),
     efficiency = cms.vstring( 
-      "Ratio_L1TEGamma_BX_Isolated_minus2 'Ratio for L1TEGamma isolated bunch for BX=-2' egamma_eta_phi_bx_isolated_minus2 denominator_egamma_isolated",
-       "Ratio_L1TEGamma_BX_Isolated_minus1 'Ratio for L1TEGamma isolated bunch for BX=-1' egamma_eta_phi_bx_isolated_minus1 denominator_egamma_isolated",
-       "Ratio_L1TEGamma_BX_Isolated_0 'Ratio for L1TEGamma isolated bunch for BX=0' egamma_eta_phi_bx_isolated_0 denominator_egamma_isolated",
-       "Ratio_L1TEGamma_BX_Isolated_plus1 'Ratio for L1TEGamma isolated bunch for BX=+1' egamma_eta_phi_bx_isolated_plus1 denominator_egamma_isolated",
-       "Ratio_L1TEGamma_BX_Isolated_plus2 'Ratio for L1TEGamma isolated bunch for BX=+2' egamma_eta_phi_bx_isolated_plus2 denominator_egamma_isolated"
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_Isolated_minus2 'Ratio for L1TEGamma isolated bunch for BX=-2' ptmin_10p0_gev/egamma_eta_phi_bx_isolated_minus2 ptmin_10p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_Isolated_minus1 'Ratio for L1TEGamma isolated bunch for BX=-1' ptmin_10p0_gev/egamma_eta_phi_bx_isolated_minus1 ptmin_10p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_Isolated_0 'Ratio for L1TEGamma isolated bunch for BX=0' ptmin_10p0_gev/egamma_eta_phi_bx_isolated_0 ptmin_10p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_Isolated_plus1 'Ratio for L1TEGamma isolated bunch for BX=+1' ptmin_10p0_gev/egamma_eta_phi_bx_isolated_plus1 ptmin_10p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_10p0_gev_BX_Isolated_plus2 'Ratio for L1TEGamma isolated bunch for BX=+2' ptmin_10p0_gev/egamma_eta_phi_bx_isolated_plus2 ptmin_10p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_Isolated_minus2 'Ratio for L1TEGamma isolated bunch for BX=-2' ptmin_20p0_gev/egamma_eta_phi_bx_isolated_minus2 ptmin_20p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_Isolated_minus1 'Ratio for L1TEGamma isolated bunch for BX=-1' ptmin_20p0_gev/egamma_eta_phi_bx_isolated_minus1 ptmin_20p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_Isolated_0 'Ratio for L1TEGamma isolated bunch for BX=0' ptmin_20p0_gev/egamma_eta_phi_bx_isolated_0 ptmin_20p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_Isolated_plus1 'Ratio for L1TEGamma isolated bunch for BX=+1' ptmin_20p0_gev/egamma_eta_phi_bx_isolated_plus1 ptmin_20p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_20p0_gev_BX_Isolated_plus2 'Ratio for L1TEGamma isolated bunch for BX=+2' ptmin_20p0_gev/egamma_eta_phi_bx_isolated_plus2 ptmin_20p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_Isolated_minus2 'Ratio for L1TEGamma isolated bunch for BX=-2' ptmin_30p0_gev/egamma_eta_phi_bx_isolated_minus2 ptmin_30p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_Isolated_minus1 'Ratio for L1TEGamma isolated bunch for BX=-1' ptmin_30p0_gev/egamma_eta_phi_bx_isolated_minus1 ptmin_30p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_Isolated_0 'Ratio for L1TEGamma isolated bunch for BX=0' ptmin_30p0_gev/egamma_eta_phi_bx_isolated_0 ptmin_30p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_Isolated_plus1 'Ratio for L1TEGamma isolated bunch for BX=+1' ptmin_30p0_gev/egamma_eta_phi_bx_isolated_plus1 ptmin_30p0_gev/denominator_egamma_isolated",
+       "Ratio_L1TEGamma_ptmin_30p0_gev_BX_Isolated_plus2 'Ratio for L1TEGamma isolated bunch for BX=+2' ptmin_30p0_gev/egamma_eta_phi_bx_isolated_plus2 ptmin_30p0_gev/denominator_egamma_isolated"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
 )
-
 
 l1tTauFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(l1tobjectstimingDqmDir+'L1TTau/timing/First_bunch/'),
@@ -200,7 +209,6 @@ l1tTauFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TTau_BX_FirstBunch_0 'Ratio for L1TTau first bunch for BX=0' tau_eta_phi_bx_firstbunch_0 denominator_tau_firstbunch"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -214,7 +222,6 @@ l1tTauLastBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TTau_BX_LastBunch_plus2 'Ratio for L1TTau last bunch for BX=+2' tau_eta_phi_bx_lastbunch_plus2 denominator_tau_lastbunch"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -230,12 +237,10 @@ l1tTauIsolatedBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TTau_BX_Isolated_plus2 'Ratio for L1TTau isolated bunch for BX=+2' tau_eta_phi_bx_isolated_plus2 denominator_tau_isolated"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
 )
-
 
 l1tEtSumFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring(l1tobjectstimingDqmDir+'L1TEtSum/timing/First_bunch/'),
@@ -254,7 +259,6 @@ l1tEtSumFirstBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TEtSum_BX_MHT_FirstBunch_0 'Ratio for L1TEtSum MHT first bunch for BX=0' etsum_phi_bx_MHT_firstbunch_0 denominator_etsum_firstbunch_MHT"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -277,7 +281,6 @@ l1tEtSumLastBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TEtSum_BX_MHT_LastBunch_plus2 'Ratio for L1TEtSum MHT last bunch for BX=+2' etsum_phi_bx_MHT_lastbunch_plus2 denominator_etsum_lastbunch_MHT"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -308,7 +311,6 @@ l1tEtSumIsolatedBunchRatioPlots = DQMEDHarvester("DQMGenericClient",
        "Ratio_L1TEtSum_BX_MHT_Isolated_plus2 'Ratio for L1TEtSum MHT isolated bunch for BX=+2' etsum_phi_bx_MHT_isolated_plus2 denominator_etsum_isolated_MHT"
     ),
     resolution = cms.vstring(),
-    outputFileName = cms.untracked.string("output.root"),
     verbose = cms.untracked.uint32(0),
     runOnEndLumi = cms.untracked.bool(True),
     makeGlobalEffienciesPlot = cms.untracked.bool(False)
@@ -332,5 +334,4 @@ l1tObjectsTimingClient = cms.Sequence(
 +  l1tEtSumFirstBunchRatioPlots
 +  l1tEtSumLastBunchRatioPlots
 +  l1tEtSumIsolatedBunchRatioPlots
-
 )

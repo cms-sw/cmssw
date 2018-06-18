@@ -74,6 +74,7 @@ hltBPHmonitoring.histoPSet.probPSet = cms.PSet(
 hltBPHmonitoring.tracks       = cms.InputTag("generalTracks") # tracks??
 hltBPHmonitoring.offlinePVs      = cms.InputTag("offlinePrimaryVertices") # PVs
 hltBPHmonitoring.beamSpot = cms.InputTag("offlineBeamSpot") # 
+
 hltBPHmonitoring.muons     = cms.InputTag("muons") # 
 hltBPHmonitoring.photons     = cms.InputTag("photons") # 
 hltBPHmonitoring.hltTriggerSummaryAOD   = cms.InputTag("hltTriggerSummaryAOD","","HLT")
@@ -81,10 +82,6 @@ hltBPHmonitoring.hltTriggerSummaryAOD   = cms.InputTag("hltTriggerSummaryAOD",""
 #hltBPHmonitoring.muoSelection_ref = cms.string("")
 #hltBPHmonitoring.muoSelection_ = cms.string("")
 
-hltBPHmonitoring.PrescaleTriggerEventPSet.prescaleWeightVerbosityLevel      = cms.uint32( 0 )
-hltBPHmonitoring.PrescaleTriggerEventPSet.prescaleWeightTriggerResults      = cms.InputTag( "TriggerResults::HLT" )
-hltBPHmonitoring.PrescaleTriggerEventPSet.prescaleWeightL1GtTriggerMenuLite = cms.InputTag( "l1GtTriggerMenuLite" )
-hltBPHmonitoring.PrescaleTriggerEventPSet.prescaleWeightHltPaths            = cms.vstring( "HLT_Dimuon0_Jpsi_L1_NoOS_v*" ) 
 
 
 hltBPHmonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )

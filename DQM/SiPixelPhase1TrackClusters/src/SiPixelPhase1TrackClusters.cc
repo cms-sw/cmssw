@@ -45,6 +45,7 @@ enum {
   ON_TRACK_POSITIONB,
   ON_TRACK_POSITIONF,
   DIGIS_HITMAP_ON_TRACK,
+  ON_TRACK_NDIGIS,
 
   NTRACKS,
   NTRACKS_INVOLUME,
@@ -246,6 +247,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       for (int i = 0; i < cluster.size(); i++){
           SiPixelCluster::Pixel const & vecipxl = cluster.pixel(i);
           histo[DIGIS_HITMAP_ON_TRACK].fill(id, &iEvent, vecipxl.y, vecipxl.x);
+	  histo[ON_TRACK_NDIGIS].fill(id, &iEvent);
       }
 
       histo[ON_TRACK_NCLUSTERS].fill(id, &iEvent);
@@ -287,6 +289,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
   }
 
   histo[ON_TRACK_NCLUSTERS].executePerEventHarvesting(&iEvent);
+  histo[ON_TRACK_NDIGIS].executePerEventHarvesting(&iEvent);
 }
 
 } // namespace

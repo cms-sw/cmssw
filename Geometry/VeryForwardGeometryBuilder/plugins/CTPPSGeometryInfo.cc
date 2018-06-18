@@ -1,9 +1,9 @@
 /****************************************************************************
-*
-* Authors:
-*  Jan Kašpar (jan.kaspar@gmail.com) 
-*    
-****************************************************************************/
+ *
+ * Authors:
+ *  Jan Kašpar (jan.kaspar@gmail.com)
+ *
+ ****************************************************************************/
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -21,6 +21,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 
@@ -37,7 +38,7 @@ class CTPPSGeometryInfo : public edm::one::EDAnalyzer<>
   public:
     explicit CTPPSGeometryInfo( const edm::ParameterSet& );
 
-  private: 
+  private:
     std::string geometryType_;
 
     bool printRPInfo_, printSensorInfo_;
@@ -59,8 +60,7 @@ CTPPSGeometryInfo::CTPPSGeometryInfo( const edm::ParameterSet& iConfig ) :
   geometryType_   ( iConfig.getUntrackedParameter<std::string>( "geometryType", "real" ) ),
   printRPInfo_    ( iConfig.getUntrackedParameter<bool>( "printRPInfo", true ) ),
   printSensorInfo_( iConfig.getUntrackedParameter<bool>( "printSensorInfo", true ) )
-{
-}
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ CTPPSGeometryInfo::formatDetId( const CTPPSDetId &id, bool printDetails )
     oss << ")";
   }
 
-  if ( id.subdetId() == CTPPSDetId::sdTrackingPixel ) {
+  else if ( id.subdetId() == CTPPSDetId::sdTrackingPixel ) {
     CTPPSPixelDetId fid( id );
     oss << " (pixel RP " << std::setw(3) << rpDecId;
     if ( printDetails )
@@ -122,9 +122,17 @@ CTPPSGeometryInfo::formatDetId( const CTPPSDetId &id, bool printDetails )
     oss << ")";
   }
 
-  if (id.subdetId() == CTPPSDetId::sdTimingDiamond) {
+  else if ( id.subdetId() == CTPPSDetId::sdTimingDiamond ) {
     CTPPSDiamondDetId fid( id );
     oss << " (diamd RP " << std::setw(3) << rpDecId;
+    if ( printDetails )
+      oss <<  ", plane " << fid.plane() << ", channel " << std::setw(2) << fid.channel();
+    oss << ")";
+  }
+
+  else if ( id.subdetId() == CTPPSDetId::sdTimingFastSilicon ) {
+    TotemTimingDetId fid( id );
+    oss << " (totim RP " << std::setw(3) << rpDecId;
     if ( printDetails )
       oss <<  ", plane " << fid.plane() << ", channel " << std::setw(2) << fid.channel();
     oss << ")";
@@ -153,7 +161,8 @@ CTPPSGeometryInfo::printGeometry( const CTPPSGeometry& geometry, const edm::Even
       const DDTranslation &t = it->second->translation();
 
       oss << formatDetId( CTPPSDetId( it->first ), false )
-        << std::fixed << std::setprecision( 3 ) << " | ce=(" << t.x() << ", " << t.y() << ", " << t.z() << ")\n";
+        << std::fixed << std::setprecision( 3 ) << std::showpos
+        << " | ce=(" << t.x() << ", " << t.y() << ", " << t.z() << ")\n";
     }
 
     edm::LogVerbatim("CTPPSGeometryInfo") << oss.str();

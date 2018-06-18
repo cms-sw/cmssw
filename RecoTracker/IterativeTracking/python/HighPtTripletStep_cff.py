@@ -74,6 +74,11 @@ for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
                 )
                                                                       )
 )
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(highPtTripletStepTrackingRegions,RegionPSet = dict(
+     ptMin = 0.05,
+     originRadius = 0.2
+))
 
 
 # seeding
@@ -103,6 +108,7 @@ highPtTripletStepHitTriplets = _caHitTripletEDProducer.clone(
     CAHardPtCut = 0.3,
 )
 trackingPhase2PU140.toModify(highPtTripletStepHitTriplets,CAThetaCut = 0.003,CAPhiCut = 0.06,CAHardPtCut = 0.5)
+highBetaStar_2018.toModify(highPtTripletStepHitTriplets,CAThetaCut = 0.008,CAPhiCut = 0.14,CAHardPtCut = 0)
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 highPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
@@ -123,6 +129,7 @@ trackingPhase2PU140.toReplaceWith(highPtTripletStepTrajectoryFilterBase, _highPt
 
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
     e.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.7)
+highBetaStar_2018.toModify(highPtTripletStepTrajectoryFilterBase, minPt=0.05)
 
 highPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('highPtTripletStepTrajectoryFilterBase'))]
@@ -140,7 +147,7 @@ highPtTripletStepTrajectoryFilterInOut = highPtTripletStepTrajectoryFilterBase.c
     strictSeedExtension = False, # allow inactive
     pixelSeedExtension = False,
 )
-
+highBetaStar_2018.toModify(highPtTripletStepTrajectoryFilterInOut, minPt=0.05)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 highPtTripletStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -216,7 +223,7 @@ highPtTripletStep = TrackMVAClassifierPrompt.clone(
     mva = dict(GBRForestLabel = 'MVASelectorHighPtTripletStep_Phase1'),
     qualityCuts	= [0.2,0.3,0.4],
 )
-
+highBetaStar_2018.toModify(highPtTripletStep,qualityCuts = [-0.2,0.3,0.4])
 
 # For Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

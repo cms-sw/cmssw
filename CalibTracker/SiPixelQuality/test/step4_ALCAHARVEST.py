@@ -94,8 +94,6 @@ process.ALCAHARVESTSiPixelQuality = cms.EDAnalyzer("SiPixelStatusHarvester",
     ),
     debug = cms.untracked.bool(True),
     recordName   = cms.untracked.string("SiPixelQualityFromDbRcd"),
-    dumpTxt            = cms.untracked.bool(False),
-    txtFileName        = cms.untracked.string("SiPixelBadComponent"),
 )
 
 process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)

@@ -470,7 +470,7 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow",20.0);
   desc.add<double>("momentumRangeHigh",40.0);
-  desc.add<int>("preScaleFactor",1);
+  desc.add<int>("preScaleFactor",2);
   descriptions.add("alcaIsoTracksFilter",desc);
 }
 

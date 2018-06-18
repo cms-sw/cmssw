@@ -4,16 +4,16 @@
 
 
 void PtAssignment::configure(
-    const PtAssignmentEngine* pt_assign_engine,
+    PtAssignmentEngine* pt_assign_engine,
     int verbose, int endcap, int sector, int bx,
-    int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt,
+    bool readPtLUTFile, bool fixMode15HighPt,
     bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt,
-    bool bugGMTPhi, bool promoteMode7
+    bool bugGMTPhi, bool promoteMode7, int modeQualVer
 ) {
   if (not(pt_assign_engine != nullptr))
     { edm::LogError("L1T") << "pt_assign_engine == nullptr "; return; }
 
-  pt_assign_engine_ = const_cast<PtAssignmentEngine*>(pt_assign_engine);
+  pt_assign_engine_ = pt_assign_engine;
 
   verbose_ = verbose;
   endcap_  = endcap;
@@ -22,12 +22,13 @@ void PtAssignment::configure(
 
   pt_assign_engine_->configure(
       verbose_,
-      ptLUTVersion, readPtLUTFile, fixMode15HighPt,
+      readPtLUTFile, fixMode15HighPt,
       bug9BitDPhi, bugMode7CLCT, bugNegPt
   );
 
-  bugGMTPhi_ = bugGMTPhi;
+  bugGMTPhi_    = bugGMTPhi;
   promoteMode7_ = promoteMode7;
+  modeQualVer_  = modeQualVer;
 }
 
 void PtAssignment::process(
@@ -73,9 +74,9 @@ void PtAssignment::process(
 
       // Check address packing / unpacking
       if (not( fabs(xmlpt - pt_assign_engine_->calculate_pt(track)) < 0.001 ) )
-	{ edm::LogWarning("L1T") << "EMTF pT assignment mismatch: xmlpt = " << xmlpt 
-				 << ", pt_assign_engine_->calculate_pt(track)) = " 
-				 << pt_assign_engine_->calculate_pt(track); }
+        { edm::LogWarning("L1T") << "EMTF pT assignment mismatch: xmlpt = " << xmlpt
+                                 << ", pt_assign_engine_->calculate_pt(track)) = "
+                                 << pt_assign_engine_->calculate_pt(track); }
 
       pt  = (xmlpt < 0.) ? 1. : xmlpt;  // Matt used fabs(-1) when mode is invalid
       pt *= pt_assign_engine_->scale_pt(pt, track.Mode());  // Multiply by some factor to achieve 90% efficiency at threshold
@@ -90,7 +91,7 @@ void PtAssignment::process(
 
     int gmt_quality = 0;
     if (track.Mode() != 1) {
-      gmt_quality = aux().getGMTQuality(track.Mode(), track.Theta_fp(), promoteMode7_);
+      gmt_quality = aux().getGMTQuality(track.Mode(), track.Theta_fp(), promoteMode7_, modeQualVer_);
     }
     else { // Special quality for single-hit tracks from ME1/1
       gmt_quality = track.Hits().front().Pattern() / 4;
@@ -132,6 +133,34 @@ void PtAssignment::process(
     track.set_gmt_quality      ( gmt_quality );
     track.set_gmt_charge       ( gmt_charge.first );
     track.set_gmt_charge_valid ( gmt_charge.second );
+  }
+
+  // Remove worst track if it addresses the same bank as one of two best tracks
+  bool disable_worst_track_in_same_bank = true;
+  if (disable_worst_track_in_same_bank) {
+    // FW macro for detecting same bank address
+    // bank and chip must match, and valid flags must be set
+    // a and b are indexes 0,1,2
+    // `define sb(a,b) (ptlut_addr[a][29:26] == ptlut_addr[b][29:26] && ptlut_addr[a][5:2] == ptlut_addr[b][5:2] && ptlut_addr_val[a] && ptlut_addr_val[b])
+    auto is_in_same_bank = [](const EMTFTrack& lhs, const EMTFTrack& rhs) {
+      unsigned lhs_addr = lhs.PtLUT().address;
+      unsigned rhs_addr = rhs.PtLUT().address;
+      unsigned lhs_addr_1 = (lhs_addr >> 26) & 0xF;
+      unsigned rhs_addr_1 = (rhs_addr >> 26) & 0xF;
+      unsigned lhs_addr_2 = (lhs_addr >> 2) & 0xF;
+      unsigned rhs_addr_2 = (rhs_addr >> 2) & 0xF;
+      return (lhs_addr_1 == rhs_addr_1) && (lhs_addr_2 == rhs_addr_2);
+    };
+
+    assert(best_tracks.size() <= 3);
+    if (best_tracks.size() == 3) {
+      bool same_bank = is_in_same_bank(best_tracks.at(0), best_tracks.at(2)) || is_in_same_bank(best_tracks.at(1), best_tracks.at(2));
+      if (same_bank) {
+        // Set worst track pT to zero
+        best_tracks.at(2).set_pt(0);
+        best_tracks.at(2).set_gmt_pt(0);
+      }
+    }
   }
 
   if (verbose_ > 0) {  // debug

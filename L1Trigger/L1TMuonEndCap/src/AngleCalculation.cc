@@ -14,18 +14,20 @@ namespace {
 void AngleCalculation::configure(
     int verbose, int endcap, int sector, int bx,
     int bxWindow,
-    int thetaWindow, int thetaWindowRPC,
-    bool bugME11Dupes
+    int thetaWindow, int thetaWindowZone0,
+    bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX
 ) {
   verbose_ = verbose;
   endcap_  = endcap;
   sector_  = sector;
   bx_      = bx;
 
-  bxWindow_        = bxWindow;
-  thetaWindow_     = thetaWindow;
-  thetaWindowRPC_  = thetaWindowRPC;
-  bugME11Dupes_    = bugME11Dupes;
+  bxWindow_         = bxWindow;
+  thetaWindow_      = thetaWindow;
+  thetaWindowZone0_ = thetaWindowZone0;
+  bugME11Dupes_     = bugME11Dupes;
+  bugAmbigThetaWin_ = bugAmbigThetaWin;
+  twoStationSameBX_ = twoStationSameBX;
 }
 
 void AngleCalculation::process(
@@ -40,11 +42,12 @@ void AngleCalculation::process(
 
     // Calculate deltas
     for (; tracks_it != tracks_end; ++tracks_it) {
-      calculate_angles(*tracks_it);
+      calculate_angles(*tracks_it, izone);
     }
 
     // Erase tracks with rank = 0
     // Erase hits that are not selected as the best phi and theta in each station
+    // Erase two-station tracks with hits in different BX (2018)
     erase_tracks(tracks);
 
     tracks_it  = tracks.begin();
@@ -79,7 +82,7 @@ void AngleCalculation::process(
 
 }
 
-void AngleCalculation::calculate_angles(EMTFTrack& track) const {
+void AngleCalculation::calculate_angles(EMTFTrack& track, const int izone) const {
   // Group track hits by station
   std::array<EMTFHitCollection, emtf::NUM_STATIONS> st_conv_hits;
 
@@ -91,14 +94,14 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
     }
 
     if (bugME11Dupes_) {
-      if (not (st_conv_hits.at(istation).size() <= 4)) // ambiguity in theta is max 4
+      if (not(st_conv_hits.at(istation).size() <= 4))  // ambiguity in theta is max 4
 	{ edm::LogError("L1T") << "st_conv_hits.at(istation).size() = " << st_conv_hits.at(istation).size(); return; }
     } else {
-      if (not (st_conv_hits.at(istation).size() <= 2))  // ambiguity in theta is max 2
+      if (not(st_conv_hits.at(istation).size() <= 2))  // ambiguity in theta is max 2
 	{ edm::LogError("L1T") << "st_conv_hits.at(istation).size() = " << st_conv_hits.at(istation).size(); return; }
     }
   }
-  if (not (st_conv_hits.size() == emtf::NUM_STATIONS))
+  if (not(st_conv_hits.size() == emtf::NUM_STATIONS))
     { edm::LogError("L1T") << "st_conv_hits.size() = " << st_conv_hits.size() << ", emtf::NUM_STATIONS = " << emtf::NUM_STATIONS; return; }
 
 
@@ -117,7 +120,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
 
   // Keep track of which pair is valid
   std::array<bool, emtf::NUM_STATION_PAIRS> best_dtheta_valid_arr;
-  std::array<bool, emtf::NUM_STATION_PAIRS> best_has_rpc_arr; // Not used - should remove (AWB 21.05.17)
+  // std::array<bool, emtf::NUM_STATION_PAIRS> best_has_rpc_arr;  // Not used currently
 
   // Initialize
   best_dtheta_arr      .fill(invalid_dtheta);
@@ -127,7 +130,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
   best_phi_arr         .fill(0);
   best_theta_arr       .fill(0);
   best_dtheta_valid_arr.fill(false);
-  best_has_rpc_arr     .fill(false);
+  // best_has_rpc_arr     .fill(false);
 
   auto abs_diff = [](int a, int b) { return std::abs(a-b); };
 
@@ -142,8 +145,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
       // More than 1 hit per station when hit has ambigous theta
       for (const auto& conv_hitA : conv_hitsA) {
         for (const auto& conv_hitB : conv_hitsB) {
-          // Has RPC?
-          //bool has_rpc = (conv_hitA.Subsystem() == TriggerPrimitive::kRPC || conv_hitB.Subsystem() == TriggerPrimitive::kRPC);
+          // bool has_rpc = (conv_hitA.Subsystem() == TriggerPrimitive::kRPC || conv_hitB.Subsystem() == TriggerPrimitive::kRPC);
 
           // Calculate theta deltas
           int thA = conv_hitA.Theta_fp();
@@ -159,7 +161,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
             best_dtheta_arr.at(ipair) = dth;
             best_dtheta_sign_arr.at(ipair) = dth_sign;
             best_dtheta_valid_arr.at(ipair) = true;
-            // best_has_rpc_arr.at(ipair) = has_rpc;  // FW doesn't check whether a segment is CSC or RPC, should remove - AWB 21.05.17
+            // best_has_rpc_arr.at(ipair) = has_rpc;  // FW doesn't currently check whether a segment is CSC or RPC
 
             // first 3 pairs, use station B
             // last 3 pairs, use station A
@@ -198,8 +200,8 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
   std::array<bool, emtf::NUM_STATION_PAIRS> best_dtheta_valid_arr_1;
 
   for (int ipair = 0; ipair < emtf::NUM_STATION_PAIRS; ++ipair) {
-    if (best_has_rpc_arr.at(ipair))
-      best_dtheta_valid_arr_1.at(ipair) = best_dtheta_valid_arr.at(ipair) && (best_dtheta_arr.at(ipair) <= thetaWindowRPC_);
+    if (izone == 0)  // Tighter theta window for Zone 0 (Ring 1), where there are no RPCs
+      best_dtheta_valid_arr_1.at(ipair) = best_dtheta_valid_arr.at(ipair) && (best_dtheta_arr.at(ipair) <= thetaWindowZone0_);
     else
       best_dtheta_valid_arr_1.at(ipair) = best_dtheta_valid_arr.at(ipair) && (best_dtheta_arr.at(ipair) <= thetaWindow_);
   }
@@ -242,6 +244,49 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
   if ((vstat & vmask3) != 0 || vstat == 0)
     vstat |= vmask3;
 
+
+  // Truth table to remove ambiguity in passing the dTheta window cut when there are
+  // two LCTs in the same station with the same phi value, but different theta values
+  static const int trk_bld[64] = {
+    0b1111, 0b0111, 0b0111, 0b0111, 0b1011, 0b0011, 0b1110, 0b0011,
+    0b0111, 0b0111, 0b0111, 0b0111, 0b1011, 0b0011, 0b0011, 0b0011,
+    0b1011, 0b1101, 0b0011, 0b0011, 0b1011, 0b0011, 0b0011, 0b0011,
+    0b1011, 0b0011, 0b0011, 0b0011, 0b1011, 0b0011, 0b0011, 0b0011,
+    0b1101, 0b1101, 0b1110, 0b0101, 0b1110, 0b1001, 0b1110, 0b0110,
+    0b0101, 0b0101, 0b0101, 0b0101, 0b1001, 0b1001, 0b0110, 0b0110,
+    0b1101, 0b1101, 0b0101, 0b0101, 0b1001, 0b1001, 0b1010, 0b1100,
+    0b0101, 0b0101, 0b0101, 0b0101, 0b1001, 0b1001, 0b1010, 0b0000
+  };
+
+  if (not bugAmbigThetaWin_) {  // Fixed at the beginning of 2018
+    // construct bad delta word
+    // dth_bad = {12,23,34,13,14,24}
+    unsigned dth_bad = 0b111111;  // "1" is bad. if valid, change to "0" (good)
+    if (best_dtheta_valid_arr_1.at(0)) {
+      dth_bad &= (~(1 << 5));  // 12
+    }
+    if (best_dtheta_valid_arr_1.at(1)) {
+      dth_bad &= (~(1 << 2));  // 13
+    }
+    if (best_dtheta_valid_arr_1.at(2)) {
+      dth_bad &= (~(1 << 1));  // 14
+    }
+    if (best_dtheta_valid_arr_1.at(3)) {
+      dth_bad &= (~(1 << 4));  // 23
+    }
+    if (best_dtheta_valid_arr_1.at(4)) {
+      dth_bad &= (~(1 << 0));  // 24
+    }
+    if (best_dtheta_valid_arr_1.at(5)) {
+      dth_bad &= (~(1 << 3));  // 34
+    }
+    assert(dth_bad < 64);
+
+    // extract station mask from LUT
+    vstat = trk_bld[dth_bad];
+  }
+
+
   // remove valid flag for station if hit does not pass the dTheta mask
   for (int istation = 0; istation < emtf::NUM_STATIONS; ++istation) {
     if ((vstat & (1 << istation)) == 0) {  // station bit not set
@@ -255,31 +300,49 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
   int best_pair = -1;
 
   if ((vstat & (1<<1)) != 0) {            // ME2 present
-    if (!best_has_rpc_arr.at(0) && best_dtheta_valid_arr.at(0))      // 12, no RPC
+    if (best_dtheta_valid_arr.at(0))      // 12
       best_pair = 0;
-    else if (!best_has_rpc_arr.at(3) && best_dtheta_valid_arr.at(3)) // 23, no RPC
+    else if (best_dtheta_valid_arr.at(3)) // 23
       best_pair = 3;
-    else if (!best_has_rpc_arr.at(4) && best_dtheta_valid_arr.at(4)) // 24, no RPC
-      best_pair = 4;
-    else if (best_dtheta_valid_arr.at(0)) // 12, has RPC
-      best_pair = 0;
-    else if (best_dtheta_valid_arr.at(3)) // 23, has RPC
-      best_pair = 3;
-    else if (best_dtheta_valid_arr.at(4)) // 24, has RPC
+    else if (best_dtheta_valid_arr.at(4)) // 24
       best_pair = 4;
   } else if ((vstat & (1<<2)) != 0) {     // ME3 present
-    if (!best_has_rpc_arr.at(1) && best_dtheta_valid_arr.at(1))      // 13, no RPC
+    if (best_dtheta_valid_arr.at(1))      // 13
       best_pair = 1;
-    else if (!best_has_rpc_arr.at(5) && best_dtheta_valid_arr.at(5)) // 34, no RPC
-      best_pair = 5;
-    else if (best_dtheta_valid_arr.at(1)) // 13, has RPC
-      best_pair = 1;
-    else if (best_dtheta_valid_arr.at(5)) // 34, has RPC
+    else if (best_dtheta_valid_arr.at(5)) // 34
       best_pair = 5;
   } else if ((vstat & (1<<3)) != 0) {     // ME4 present
     if (best_dtheta_valid_arr.at(2))      // 14
       best_pair = 2;
   }
+
+  // // Possible logic preferring CSC LCTs for the track theta and phi assignment
+  // if ((vstat & (1<<1)) != 0) {            // ME2 present
+  //   if (!best_has_rpc_arr.at(0) && best_dtheta_valid_arr.at(0))      // 12, no RPC
+  //     best_pair = 0;
+  //   else if (!best_has_rpc_arr.at(3) && best_dtheta_valid_arr.at(3)) // 23, no RPC
+  //     best_pair = 3;
+  //   else if (!best_has_rpc_arr.at(4) && best_dtheta_valid_arr.at(4)) // 24, no RPC
+  //     best_pair = 4;
+  //   else if (best_dtheta_valid_arr.at(0)) // 12, has RPC
+  //     best_pair = 0;
+  //   else if (best_dtheta_valid_arr.at(3)) // 23, has RPC
+  //     best_pair = 3;
+  //   else if (best_dtheta_valid_arr.at(4)) // 24, has RPC
+  //     best_pair = 4;
+  // } else if ((vstat & (1<<2)) != 0) {     // ME3 present
+  //   if (!best_has_rpc_arr.at(1) && best_dtheta_valid_arr.at(1))      // 13, no RPC
+  //     best_pair = 1;
+  //   else if (!best_has_rpc_arr.at(5) && best_dtheta_valid_arr.at(5)) // 34, no RPC
+  //     best_pair = 5;
+  //   else if (best_dtheta_valid_arr.at(1)) // 13, has RPC
+  //     best_pair = 1;
+  //   else if (best_dtheta_valid_arr.at(5)) // 34, has RPC
+  //     best_pair = 5;
+  // } else if ((vstat & (1<<3)) != 0) {     // ME4 present
+  //   if (best_dtheta_valid_arr.at(2))      // 14
+  //     best_pair = 2;
+  // }
 
   if (best_pair != -1) {
     phi_fp   = best_phi_arr.at(best_pair);
@@ -339,7 +402,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
     // if (subsystem == TriggerPrimitive::kRPC)
     //   return (station == 2);
 
-    // In EMTF firmware, RPC hits are treated as if they came from the corresponding 
+    // In EMTF firmware, RPC hits are treated as if they came from the corresponding
     // CSC chamber, so the FR bit assignment is the same as for CSCs - AWB 06.06.17
 
     // GEMs are in front of the CSCs
@@ -372,7 +435,7 @@ void AngleCalculation::calculate_angles(EMTFTrack& track) const {
     const auto& v = st_conv_hits.at(i);
     ptlut_data.cpattern[i] = v.empty() ? 0 : v.front().Pattern();  // Automatically set to 0 for RPCs
     ptlut_data.fr[i]       = v.empty() ? 0 : isFront(v.front().Station(), v.front().Ring(), v.front().Chamber(), v.front().Subsystem());
-    if (i == 0) 
+    if (i == 0)
       ptlut_data.st1_ring2 = v.empty() ? 0 : (v.front().Station() == 1 && (v.front().Ring() == 2 || v.front().Ring() == 3));
   }
 
@@ -463,7 +526,19 @@ void AngleCalculation::erase_tracks(EMTFTrackCollection& tracks) const {
     }
   } rank_zero_pred;
 
+  // Erase two-station tracks with hits in different BX
+  struct {
+    typedef EMTFTrack value_type;
+    bool operator()(const value_type& x) const {
+      return (x.NumHits() == 2 && x.Hits().at(0).BX() != x.Hits().at(1).BX());
+    }
+  } two_station_mistime;
+
   tracks.erase(std::remove_if(tracks.begin(), tracks.end(), rank_zero_pred), tracks.end());
+
+  if (twoStationSameBX_) { // Modified at the beginning of 2018
+    tracks.erase(std::remove_if(tracks.begin(), tracks.end(), two_station_mistime), tracks.end());
+  }
 
   for (const auto& track : tracks) {
     if (not(!track.Hits().empty()))

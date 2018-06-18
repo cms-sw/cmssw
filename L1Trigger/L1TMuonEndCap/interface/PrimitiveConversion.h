@@ -65,6 +65,8 @@ public:
 
   int get_bt_segment(const EMTFHit& conv_hit, int fw_station, int fw_cscid, int pc_segment) const;
 
+  bool is_valid_for_run2(const EMTFHit& conv_hit) const;
+
 
 private:
   const GeometryTranslator* tp_geom_;

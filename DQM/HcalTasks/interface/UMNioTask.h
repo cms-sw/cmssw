@@ -44,6 +44,9 @@ class UMNioTask : public hcaldqm::DQTask
 		//	funcs
 		void _process(edm::Event const&, edm::EventSetup const&) override;
 
+		// Get index of a particular OrbitGapType in the vector, which is used as the value for filling the histogram
+		int getOrbitGapIndex(uint8_t eventType, uint32_t laserType);
+
 		std::vector<uint32_t> _eventtypes;
 
 		//	tags and tokens
