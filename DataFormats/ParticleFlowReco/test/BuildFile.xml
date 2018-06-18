@@ -1,0 +1,6 @@
+<environment>
+  <bin file="test_catch2_*.cc" name="TestDataFormatsParticleFlowRecoCatch">
+    <use name="DataFormats/ParticleFlowReco"/>
+    <use name="catch2"/>
+  </bin>
+</environment>
