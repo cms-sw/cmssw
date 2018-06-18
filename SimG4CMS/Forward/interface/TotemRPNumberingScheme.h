@@ -33,8 +33,6 @@ public:
   TotemRPNumberingScheme(int i);
   ~TotemRPNumberingScheme() override;
 	 
-  //  virtual uint32_t GetUnitID(const G4Step* aStep) const ;
-
 };
 
 #endif

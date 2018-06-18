@@ -1,11 +1,11 @@
-#ifndef Application_SimTrackManager_h
-#define Application_SimTrackManager_h
+#ifndef Notification_SimTrackManager_h
+#define Notification_SimTrackManager_h
 // -*- C++ -*-
 //
-// Package:     Application
+// Package:     Notification
 // Class  :     SimTrackManager
 // 
-/**\class SimTrackManager SimTrackManager.h SimG4Core/Application/interface/SimTrackManager.h
+/**\class SimTrackManager SimTrackManager.h SimG4Core/Notification/interface/SimTrackManager.h
 
  Description: Holds tracking information used by the sensitive detectors
 
@@ -23,13 +23,14 @@
 #include <vector>
 
 // user include files
-#include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackContainer.h" 
 
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 // forward declarations
+
+class G4SimEvent;
 
 class SimTrackManager
 {

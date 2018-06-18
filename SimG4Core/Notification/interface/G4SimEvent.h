@@ -1,14 +1,13 @@
 #ifndef SimG4Core_G4SimEvent_H
 #define SimG4Core_G4SimEvent_H
 
-#include "SimG4Core/Application/interface/G4SimTrack.h"
-#include "SimG4Core/Application/interface/G4SimVertex.h"
+#include "SimG4Core/Notification/interface/G4SimTrack.h"
+#include "SimG4Core/Notification/interface/G4SimVertex.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "HepMC/GenEvent.h"
-// #include "CLHEP/Vector/LorentzVector.h"
 
 #include <vector>
 

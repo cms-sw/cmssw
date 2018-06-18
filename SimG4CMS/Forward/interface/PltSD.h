@@ -7,11 +7,8 @@
 
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
-#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/BeginOfTrack.h"
 
-#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
 #include "G4Step.hh"
@@ -25,12 +22,10 @@ class SimTrackManager;
 class TrackingSlaveSD;
 class UpdatablePSimHit;
 class G4ProcessTypeEnumerator;
-class G4TrackToParticleID;
+class G4ParticleDefinition;
 
 class PltSD : public SensitiveTkDetector,
-                             public Observer<const BeginOfEvent*>,
-                             public Observer<const BeginOfTrack*>,
-                             public Observer<const BeginOfJob*> {
+  public Observer<const BeginOfEvent*>{
 
 public:
 
@@ -49,32 +44,29 @@ public:
 private:
 
   virtual void   sendHit();
-  virtual void   updateHit(G4Step *);
-  virtual bool   newHit(G4Step *);
-  virtual bool   closeHit(G4Step *);
-  virtual void   createHit(G4Step *);
+  virtual void   updateHit(const G4Step *);
+  virtual bool   newHit(const G4Step *);
+  virtual bool   closeHit(const G4Step *);
+  virtual void   createHit(const G4Step *);
+
+protected:
+
   void           update(const BeginOfEvent *) override;
-  void           update(const BeginOfTrack *) override;
-  void           update(const BeginOfJob *) override;
-  TrackInformation* getOrCreateTrackInformation(const G4Track *);
 
 private:
 
-  TrackingSlaveSD*            slave;
+  TrackingSlaveSD* slave;
   G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
-  G4TrackToParticleID * myG4TrackToParticleID;
   UpdatablePSimHit * mySimHit;
-  float energyCut;
-  float energyHistoryCut;
+  double energyCut;
+  double energyHistoryCut;
 
   Local3DPoint globalEntryPoint;
   Local3DPoint globalExitPoint;
-  G4VPhysicalVolume * oldVolume;
+  const G4VPhysicalVolume * oldVolume;
   uint32_t lastId;
-  unsigned int lastTrack;
-  int eventno;
-  std::string pname;
-
+  int lastTrack;
+  const G4ParticleDefinition* particle;
 };
 
 #endif

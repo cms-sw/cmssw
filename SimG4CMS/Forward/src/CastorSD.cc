@@ -79,15 +79,6 @@ CastorSD::~CastorSD() {
 
 //=============================================================================================
 
-void CastorSD::initRun(){
-  if (useShowerLibrary) {
-    G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
-    showerLibrary->initParticleTable(theParticleTable);
-  }
-}
-
-//=============================================================================================
-
 double CastorSD::getEnergyDeposit(const G4Step * aStep) {
   
   double NCherPhot = 0.;
