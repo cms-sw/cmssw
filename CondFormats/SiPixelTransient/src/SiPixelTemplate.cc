@@ -104,8 +104,8 @@
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "CondFormats/SiPixelCommon/interface/SiPixelTemplate.h"
-#include "CondFormats/SiPixelCommon/interface/SimplePixel.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SimplePixel.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) LogError(x)
