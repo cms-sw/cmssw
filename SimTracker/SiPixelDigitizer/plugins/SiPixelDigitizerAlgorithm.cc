@@ -2295,10 +2295,15 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
     for(int col = 0; col < TYSIZE; ++col) {
       float charge = 0;
       charge = pixrewgt[row][col];
-      chargeAfter += charge;
-      if( (hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() && (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0)
+      if( (hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() && (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0){
+	chargeAfter += charge;
 	theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] += (makeDigiSimLinks_ ? Amplitude(charge , &hit, hitIndex, tofBin, charge) : Amplitude( charge, charge) )  ;
+      }
     }
+  }
+
+  if(chargeBefore!=0. && chargeAfter==0.){
+    return false;
   }
   
   if(PrintClusters){
