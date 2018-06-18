@@ -5,7 +5,7 @@ from  Configuration.PyReleaseValidation.relval_steps import *
 # here only define the workflows as a combination of the steps defined above:
 workflows = Matrix()
 
-# each workflow defines a name and a list of steps to be done. 
+# each workflow defines a name and a list of steps to be done.
 # if no explicit name/label given for the workflow (first arg),
 # the name of step1 will be used
 
@@ -28,13 +28,13 @@ for year in upgradeKeys:
             for stepType in upgradeSteps.keys():
                 stepList[stepType] = []
             hasHarvest = False
-            for step in upgradeProperties[year][key]['ScenToRun']:                    
+            for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step:
                     if 'HLBeamSpotFull' in step and '14TeV' in frag:
                         step = 'GenSimHLBeamSpotFull14'
                     stepMaker = makeStepNameSim
-                
+
                 if 'HARVEST' in step: hasHarvest = True
 
                 for stepType in upgradeSteps.keys():
@@ -74,7 +74,7 @@ for year in upgradeKeys:
             # special workflows for tracker
             if (upgradeDatasetFromFragment[frag]=="TTbar_13" or upgradeDatasetFromFragment[frag]=="TTbar_14TeV") and not 'PU' in key and hasHarvest:
                 # skip ALCA
-                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','pixelTrackingOnlyRiemannFit','pixelTrackingOnlyGPU']
+                trackingVariations = ['trackingOnly','trackingRun2','trackingOnlyRun2','trackingLowPU','pixelTrackingOnly','pixelTrackingOnlyRiemannFit','pixelTrackingOnlyRiemannFitGPU','pixelTrackingOnlyGPU']
                 for tv in trackingVariations:
                     stepList[tv] = filter(lambda s : "ALCA" not in s, stepList[tv])
                 workflows[numWF+upgradeSteps['trackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['trackingOnly']]

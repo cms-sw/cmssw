@@ -1,8 +1,9 @@
 #ifndef HeterogeneousCore_CUDAUtilities_cudaCheck_h
 #define HeterogeneousCore_CUDAUtilities_cudaCheck_h
 
-#include <cuda.h>
 #include <iostream>
+#include <cuda.h>
+#include <cuda_runtime.h>
 
 inline
 bool cudaCheck_(const char* file, int line, const char* cmd, CUresult result)

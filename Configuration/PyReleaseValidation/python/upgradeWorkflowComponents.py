@@ -162,6 +162,17 @@ upgradeSteps['pixelTrackingOnlyGPU'] = {
     'suffix' : '_pixelTrackingOnlyGPU',
     'offset' : 0.8,
 }
+upgradeSteps['pixelTrackingOnlyRiemannFitGPU'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_pixelTrackingOnlyRiemannFitGPU',
+    'offset' : 0.9,
+}
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],
@@ -387,7 +398,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'DoubleMuPt1000Extended_pythia8_cfi',
                   'TenMuE_0_200_pythia8_cfi',
                   'SinglePiE50HCAL_pythia8_cfi',
-                  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi', 
+                  'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi',
                   'TTbar_13TeV_TuneCUETP8M1_cfi',
                   'ZEE_13TeV_TuneCUETP8M1_cfi',
                   'QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi',
