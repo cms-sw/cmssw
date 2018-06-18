@@ -3,7 +3,7 @@
 #include "HLTrigger/Timer/interface/TimerService.h"
 #include "HLTrigger/Timer/interface/Timer.h"
 
-typedef edm::serviceregistry::AllArgsMaker<TimerService> maker_cputs;
+using maker_cputs = edm::serviceregistry::AllArgsMaker<TimerService>;
 
 DEFINE_FWK_MODULE(Timer);
 DEFINE_FWK_SERVICE_MAKER(TimerService,maker_cputs);

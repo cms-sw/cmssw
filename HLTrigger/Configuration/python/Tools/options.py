@@ -8,6 +8,7 @@ globalTag = {
   '2e34v22' : 'auto:run2_mc_2e34v22',
   '2e34v31' : 'auto:run2_mc_2e34v31',
   '2e34v40' : 'auto:run2_mc_2e34v40',
+  'XeXe' : 'auto:run2_mc_XeXe',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',

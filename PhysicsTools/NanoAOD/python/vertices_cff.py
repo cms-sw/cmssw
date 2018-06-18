@@ -6,10 +6,10 @@ from  PhysicsTools.NanoAOD.common_cff import *
 ##################### User floats producers, selectors ##########################
 
 
-
 ##################### Tables for final output and docs ##########################
 vertexTable = cms.EDProducer("VertexTableProducer",
     pvSrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    goodPvCut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"), 
     svSrc = cms.InputTag("slimmedSecondaryVertices"),
     svCut = cms.string(""),
     dlenMin = cms.double(0),

@@ -19,7 +19,6 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <cstdio>
-#include <sys/file.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/fstream.hpp>
 
@@ -32,17 +31,6 @@ namespace evf {
 
   //for enum MergeType
   const std::vector<std::string> EvFDaqDirector::MergeTypeNames_ = {"","DAT","PB","JSNDATA"};
-
-  namespace {
-    struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
-    {
-#ifdef __APPLE__
-      return {start, len, pid, type, whence};
-#else
-      return {type, whence, start, len, pid};
-#endif
-    }
-  }
 
   EvFDaqDirector::EvFDaqDirector(const edm::ParameterSet &pset,
 				 edm::ActivityRegistry& reg) :
@@ -62,7 +50,6 @@ namespace evf {
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
     fu_readwritelock_fd_(-1),
-    data_readwrite_fd_(-1),
     fulocal_rwlock_fd_(-1),
     fulocal_rwlock_fd2_(-1),
 
@@ -71,7 +58,6 @@ namespace evf {
     fu_rw_lock_stream(nullptr),
     //bu_w_monitor_stream(0),
     //bu_t_monitor_stream(0),
-    data_rw_stream(nullptr),
 
     dirManager_(base_dir_),
 
@@ -82,13 +68,7 @@ namespace evf {
     bu_w_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
     bu_r_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, 0 )),
     fu_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
-    //fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
-    //fulocal_rw_fulk2( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
@@ -820,27 +800,6 @@ namespace evf {
     fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
   }
 
-  //create if does not exist then lock the merge destination file
-  FILE *EvFDaqDirector::maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream) {
-    data_rw_stream = fopen(getMergedDatFilePath(ls,stream).c_str(), "a"); //open stream for appending
-    data_readwrite_fd_ = fileno(data_rw_stream);
-    if (data_readwrite_fd_ == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for datamerge "
-		<< strerror(errno);
-    else
-      LogDebug("EvFDaqDirector") << "creating filedesc for datamerge -: "
-		<< data_readwrite_fd_;
-    fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_flk);
-
-    return data_rw_stream;
-  }
-
-  void EvFDaqDirector::unlockAndCloseMergeStream() {
-    fflush(data_rw_stream);
-    fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_fulk);
-    fclose(data_rw_stream);
-  }
-
   void EvFDaqDirector::lockInitLock() {
     pthread_mutex_lock(&init_lock_);
   }
@@ -1036,4 +995,14 @@ namespace evf {
     close(proc_flag_fd);
   }
 
+  struct flock EvFDaqDirector::make_flock(short type, short whence, off_t start, off_t len, pid_t pid)
+  {
+#ifdef __APPLE__
+      return {start, len, pid, type, whence};
+#else
+      return {type, whence, start, len, pid};
+#endif
+  }
+
 }
+

@@ -21,7 +21,7 @@
 // Constructor
 HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
     _pset(pset),
-    _analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
+    _analysisnames(pset.getParameter<std::vector<std::string> >("analyses")),
     _collections(nullptr)
 {
 

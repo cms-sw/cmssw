@@ -28,7 +28,7 @@ ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig(con
     // when the vector clear() is called in the destructor
 
     edm::FileInPath weightFile( weightFileNames[i] );
-    _gbrForests.push_back( createSingleReader(i, weightFile ) );
+    _gbrForests.push_back( GBRForestTools::createGBRForest(weightFile ) );
 
   }
 
@@ -42,7 +42,7 @@ float ElectronMVAEstimatorRun2Phys14NonTrig::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& evt) const {
   
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, evt ) );  
+  const std::vector<float> vars = fillMVAVariables( particle, evt );
   const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
 
   constexpr bool debug = false;
@@ -131,64 +131,6 @@ isEndcapCategory(int category ) const {
   return isEndcap;
 }
 
-
-std::unique_ptr<const GBRForest>
-ElectronMVAEstimatorRun2Phys14NonTrig::
-createSingleReader(const int iCategory, const edm::FileInPath &weightFile) {
-
-  //
-  // Create the reader  
-  //
-  TMVA::Reader tmpTMVAReader( "!Color:Silent:Error" );
-
-  //
-  // Configure all variables and spectators. Note: the order and names
-  // must match what is found in the xml weights file!
-  //
-
-  tmpTMVAReader.AddVariable("ele_kfhits",           &_allMVAVars.kfhits);
-  
-  // Pure ECAL -> shower shapes
-  tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &_allMVAVars.see);
-  tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &_allMVAVars.spp);
-  tmpTMVAReader.AddVariable("ele_oldcircularity",   &_allMVAVars.OneMinusE1x5E5x5);
-  tmpTMVAReader.AddVariable("ele_oldr9",            &_allMVAVars.R9);
-  tmpTMVAReader.AddVariable("ele_scletawidth",      &_allMVAVars.etawidth);
-  tmpTMVAReader.AddVariable("ele_sclphiwidth",      &_allMVAVars.phiwidth);
-  tmpTMVAReader.AddVariable("ele_he",               &_allMVAVars.HoE);
-  // Endcap only variables
-  if( isEndcapCategory(iCategory) )
-    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &_allMVAVars.PreShowerOverRaw);
-  
-  //Pure tracking variables
-  tmpTMVAReader.AddVariable("ele_kfchi2",           &_allMVAVars.kfchi2);
-  tmpTMVAReader.AddVariable("ele_chi2_hits",        &_allMVAVars.gsfchi2);
-
-  // Energy matching
-  tmpTMVAReader.AddVariable("ele_fbrem",           &_allMVAVars.fbrem);
-  tmpTMVAReader.AddVariable("ele_ep",              &_allMVAVars.EoP);
-  tmpTMVAReader.AddVariable("ele_eelepout",        &_allMVAVars.eleEoPout);
-  tmpTMVAReader.AddVariable("ele_IoEmIop",         &_allMVAVars.IoEmIoP);
-  
-  // Geometrical matchings
-  tmpTMVAReader.AddVariable("ele_deltaetain",      &_allMVAVars.deta);
-  tmpTMVAReader.AddVariable("ele_deltaphiin",      &_allMVAVars.dphi);
-  tmpTMVAReader.AddVariable("ele_deltaetaseed",    &_allMVAVars.detacalo);
-  
-  // Spectator variables  
-  tmpTMVAReader.AddSpectator("ele_pT",             &_allMVAVars.pt);
-  tmpTMVAReader.AddSpectator("ele_isbarrel",       &_allMVAVars.isBarrel);
-  tmpTMVAReader.AddSpectator("ele_isendcap",       &_allMVAVars.isEndcap);
-  tmpTMVAReader.AddSpectator("scl_eta",            &_allMVAVars.SCeta);
-
-  //
-  // Book the method and set up the weights file
-  //
-  tmpTMVAReader.BookMVA(_MethodName , weightFile.fullPath());
-  
-  return std::make_unique<const GBRForest>(dynamic_cast<TMVA::MethodBDT*>(tmpTMVAReader.FindMVA(_MethodName) ) );
-}
-
 // A function that should work on both pat and reco objects
 std::vector<float> 
 ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
@@ -257,7 +199,7 @@ ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Can
   std::vector<float> vars;
 
   if( isEndcapCategory( findCategory(particle) ) ) {
-    vars = std::move( packMVAVariables( allMVAVars.kfhits,
+    vars = packMVAVariables( allMVAVars.kfhits,
                                         allMVAVars.see,
                                         allMVAVars.spp,
                                         allMVAVars.OneMinusE1x5E5x5,
@@ -278,10 +220,9 @@ ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Can
                                         allMVAVars.pt,
                                         allMVAVars.isBarrel,
                                         allMVAVars.isEndcap,
-                                        allMVAVars.SCeta )
-                      );
+                                        allMVAVars.SCeta );
   } else {
-    vars = std::move( packMVAVariables( allMVAVars.kfhits,
+    vars = packMVAVariables( allMVAVars.kfhits,
                                         allMVAVars.see,
                                         allMVAVars.spp,
                                         allMVAVars.OneMinusE1x5E5x5,
@@ -301,8 +242,7 @@ ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Can
                                         allMVAVars.pt,
                                         allMVAVars.isBarrel,
                                         allMVAVars.isEndcap,
-                                        allMVAVars.SCeta )
-                      );
+                                        allMVAVars.SCeta );
   }
 
   return vars;

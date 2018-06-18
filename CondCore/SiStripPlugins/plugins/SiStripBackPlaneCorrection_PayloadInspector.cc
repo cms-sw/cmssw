@@ -34,6 +34,35 @@
 namespace {
 
   /************************************************
+    1d histogram of SiStripBackPlaneCorrection of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripBackPlaneCorrectionValue : public cond::payloadInspector::Histogram1D<SiStripBackPlaneCorrection> {
+    
+  public:
+    SiStripBackPlaneCorrectionValue() : cond::payloadInspector::Histogram1D<SiStripBackPlaneCorrection>("SiStrip BackPlaneCorrection values",
+													"SiStrip BackPlaneCorrection values", 100,0.0,0.1){
+      Base::setSingleIov( true );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      for ( auto const & iov: iovs) {
+	std::shared_ptr<SiStripBackPlaneCorrection> payload = Base::fetchPayload( std::get<1>(iov) );
+	if( payload.get() ){
+	  
+	  std::map<uint32_t,float> BPMap_ = payload->getBackPlaneCorrections();
+      
+	  for(const auto &element : BPMap_){
+	    fillWithValue(element.second);
+	  }
+	}// payload
+      }// iovs
+      return true;
+    }// fill
+  };
+
+  /************************************************
     TrackerMap of SiStrip BackPlane Correction
   *************************************************/
   class SiStripBackPlaneCorrection_TrackerMap : public cond::payloadInspector::PlotImage<SiStripBackPlaneCorrection> {
@@ -139,6 +168,7 @@ namespace {
 	}
       }
 
+      h1->GetYaxis()->SetRangeUser(0.,h1->GetMaximum()*1.30);
       h1->SetMarkerStyle(20);
       h1->SetMarkerSize(1);
       h1->Draw("HIST");
@@ -175,6 +205,7 @@ namespace {
 }
 
 PAYLOAD_INSPECTOR_MODULE( SiStripBackPlaneCorrection ){
+  PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrectionValue );
   PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrection_TrackerMap );
   PAYLOAD_INSPECTOR_CLASS( SiStripBackPlaneCorrectionByPartition );
 }

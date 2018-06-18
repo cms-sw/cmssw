@@ -63,6 +63,20 @@ def customiseFor20429(process):
         del producer.GBRForestFileName
     return process
 
+
+# to be able to run HLT with new ECAL code and default values
+def customiseFor22967(process):
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+            for producer in module.producers: 
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(False)                        
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -74,5 +88,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customiseFor19989(process)
     process = customiseFor20422(process)
     process = customiseFor20429(process)
+    process = customiseFor22967(process)
 
     return process

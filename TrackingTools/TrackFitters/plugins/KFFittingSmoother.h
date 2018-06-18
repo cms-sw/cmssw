@@ -166,6 +166,7 @@ bool KFFittingSmoother::checkForNans(const Trajectory & theTraj)
     if (edm::isNotFinite(tm.estimate())) return false;
     auto const & v = tm.updatedState ().localParameters ().vector();
     for (int i=0;i<5;++i) if (edm::isNotFinite(v[i])) return false;
+    if (!tm.updatedState ().curvilinearError ().posDef()) return false;//not a NaN by itself, but will lead to one
     auto const & m = tm.updatedState ().curvilinearError ().matrix();
     for (int i=0;i<5;++i)
       for (int j=0;j<(i+1);++j) if (edm::isNotFinite(m(i,j))) return false;
@@ -224,7 +225,7 @@ if (smoothed.isValid()) {
 
     bool hasNaN = false;
     if ( !smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || ( smoothed.foundHits() < theMinNumberOfHits ) )  {
-      if(hasNaN) edm::LogWarning("TrackNaN")<<"Track has NaN";
+      if(hasNaN) edm::LogWarning("TrackNaN")<<"Track has NaN or the cov is not pos-definite";
       if ( smoothed.foundHits() < theMinNumberOfHits ) LogTrace("TrackFitters") << "smoothed.foundHits()<theMinNumberOfHits";
       DPRINT("TrackFitters") << "smoothed invalid => trajectory rejected with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
       if (rejectTracksFlag) {

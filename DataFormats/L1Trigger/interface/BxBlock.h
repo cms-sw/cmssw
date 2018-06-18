@@ -1,6 +1,7 @@
 #ifndef DataFormats_L1Trigger_BxBlock_h
 #define DataFormats_L1Trigger_BxBlock_h
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <cmath>
@@ -17,7 +18,7 @@ namespace l1t {
 
          bool operator<(const BxBlockHeader& o) const { return getBx() < o.getBx(); };
 
-         inline int getBx() const { return (int)id_ - (int)std::floor(totalBx_/2.); };
+         inline int getBx() const { return (int)id_ + std::min(0, 1 - (int)totalBx_%2 - (int)std::floor(totalBx_/2.)); }; // In case of an even totalBx_ the BX range should be like, e.g. -3 to +4
          inline unsigned int getId() const { return id_; };
          inline unsigned int getTotalBx() const { return totalBx_; };
          inline unsigned int getFlags() const { return flags_; };

@@ -43,3 +43,9 @@ phase2_timing.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputComm
 phase2_timing.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _phase2_timing_extraCommands )
 phase2_timing.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _phase2_timing_extraCommands )
 
+_pp_on_XeXe_extraCommands = ['keep CrossingFramePlaybackInfoNew_mix_*_*','keep *_heavyIon_*_*']
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+pp_on_XeXe_2017.toModify( SimGeneralRAW, outputCommands = SimGeneralRAW.outputCommands + _pp_on_XeXe_extraCommands )
+pp_on_XeXe_2017.toModify( SimGeneralFEVTDEBUG, outputCommands = SimGeneralFEVTDEBUG.outputCommands + _pp_on_XeXe_extraCommands )
+pp_on_XeXe_2017.toModify( SimGeneralRECO, outputCommands = SimGeneralRECO.outputCommands + _pp_on_XeXe_extraCommands )
+pp_on_XeXe_2017.toModify( SimGeneralAOD, outputCommands = SimGeneralAOD.outputCommands + _pp_on_XeXe_extraCommands )

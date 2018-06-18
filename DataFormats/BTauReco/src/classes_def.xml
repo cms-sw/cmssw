@@ -346,6 +346,8 @@
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoRef>" />
+  <class name="edm::reftobase::RefHolder<reco::DeepFlavourTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>" />
@@ -379,6 +381,8 @@
   <class name="edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::ShallowTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::DeepFlavourTagInfoFwdRef>" />
+  <class name="edm::reftobase::RefHolder<reco::DeepFlavourTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>" />
@@ -422,5 +426,32 @@
  <class name="edm::Wrapper<edm::Ref<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > >"/>
  <class name="edm::Wrapper<std::vector<edm::FwdRef<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > > >"/>
  <class name="edm::Wrapper<std::vector<edm::Ref<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo>>,reco::BaseTagInfo,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::BaseTagInfo, edm::ClonePolicy<reco::BaseTagInfo> >,reco::BaseTagInfo> > > >"/>
+
+  <class name="btagbtvdeep::JetFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="386672900"/>
+  </class>
+  <class name="btagbtvdeep::SecondaryVertexFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="3610780843"/>
+  </class>
+  <class name="btagbtvdeep::ShallowTagInfoFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="273372007"/>
+  </class>
+  <class name="btagbtvdeep::NeutralCandidateFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="938442516"/>
+  </class>
+  <class name="btagbtvdeep::ChargedCandidateFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="1302021141"/>
+  </class>
+  <class name="btagbtvdeep::DeepFlavourFeatures" ClassVersion="3">
+    <version ClassVersion="3" checksum="2487956635"/>
+  </class>
+
+  <class name="reco::DeepFlavourTagInfo"/>
+  <class name="reco::DeepFlavourTagInfoCollection"/>
+  <class name="reco::DeepFlavourTagInfoRef"/>
+  <class name="reco::DeepFlavourTagInfoFwdRef"/>
+  <class name="reco::DeepFlavourTagInfoRefProd"/>
+  <class name="reco::DeepFlavourTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::DeepFlavourTagInfoCollection>"/>
 
 </lcgdict>

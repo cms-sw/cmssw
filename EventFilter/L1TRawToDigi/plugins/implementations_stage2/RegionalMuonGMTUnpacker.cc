@@ -1,4 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
@@ -69,6 +70,11 @@ namespace l1t {
          // Get the BX blocks and unpack them
          auto bxBlocks = block.getBxBlocks(nWords_, bxZsEnabled);
          for (const auto& bxBlock : bxBlocks) {
+            // Throw an exception if finding a corrupt BX header with out of range BX numbers
+            const auto bx = bxBlock.header().getBx();
+            if (bx < firstBX || bx > lastBX) {
+               throw cms::Exception("CorruptData") << "Corrupt RAW data from AMC " << block.amc().getAMCNumber() << ". BX number " << bx << " in BX header is outside of the BX range [" << firstBX << "," << lastBX << "] defined in the block header.";
+            }
             // Check if there are enough words left in the BX block payload
             auto bxPayload = bxBlock.payload();
             if (nWords_ <= bxPayload.size()) {
@@ -83,7 +89,7 @@ namespace l1t {
                   }
                   // Detect and ignore comma events
                   if (raw_data_00_31 == 0x505050bc || raw_data_32_63 == 0x505050bc) {
-                     edm::LogWarning("L1T") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bxBlock.header().getBx() << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
+                     edm::LogWarning("L1T") << "Comma detected in raw data stream. Orbit number: " << block.amc().getOrbitNumber() << ", BX ID: " << block.amc().getBX() << ", BX: " << bx << ", linkId: " << linkId << ", Raw data: 0x" << hex << setw(8) << setfill('0') << raw_data_32_63 << setw(8) << setfill('0') << raw_data_00_31 << dec << ". Skip.";
                      continue;
                   }
  
@@ -93,11 +99,11 @@ namespace l1t {
 
                   LogDebug("L1T") << "Mu" << nWord/2 << ": eta " << mu.hwEta() << " phi " << mu.hwPhi() << " pT " << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid " << mu.hwSignValid();
 
-                  res->push_back(bxBlock.header().getBx(), mu);
+                  res->push_back(bx, mu);
                }
             } else {
                unsigned int nWords = nWords_; // This seems unnecessary but it prevents an 'undefined reference' linker error that occurs when using nWords_ directly with LogWarning.
-               edm::LogWarning("L1T") << "Only " << bxPayload.size() << " 32 bit words in this BX but " << nWords << " are required. Not unpacking the data for BX " << bxBlock.header().getBx() << ".";
+               edm::LogWarning("L1T") << "Only " << bxPayload.size() << " 32 bit words in this BX but " << nWords << " are required. Not unpacking the data for BX " << bx << ".";
             }
          }
          return true;

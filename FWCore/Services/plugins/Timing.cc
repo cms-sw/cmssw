@@ -40,7 +40,7 @@ namespace edm {
       
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       
-      void addToCPUTime(StreamID id, double iTime) override;
+      void addToCPUTime(double iTime) override;
       double getTotalCPU() const override;
       
     private:
@@ -78,6 +78,7 @@ namespace edm {
 
       double curr_job_time_;    // seconds
       double curr_job_cpu_;     // seconds
+      std::atomic<double> extra_job_cpu_; //seconds
                                 //use last run time for determining end of processing
       std::atomic<double> last_run_time_;
       std::atomic<double> last_run_cpu_;
@@ -167,6 +168,7 @@ namespace edm {
     Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry) :
         curr_job_time_(0.),
         curr_job_cpu_(0.),
+        extra_job_cpu_(0.0),
         last_run_time_(0.0),
         last_run_cpu_(0.0),
         curr_events_time_(),
@@ -261,9 +263,10 @@ namespace edm {
     Timing::~Timing() {
     }
     
-    void Timing::addToCPUTime(StreamID id, double iTime) {
+    void Timing::addToCPUTime(double iTime) {
       //For accounting purposes we effectively can say we started earlier
-      curr_job_cpu_ -= iTime;
+      double expected = extra_job_cpu_.load();
+      while( not extra_job_cpu_.compare_exchange_strong(expected,expected+iTime) ) {}
     }
 
     double Timing::getTotalCPU() const {
@@ -303,7 +306,7 @@ namespace edm {
       const double job_end_cpu =getCPU();
       double total_job_time = job_end_time - jobStartTime();
 
-      double total_job_cpu = job_end_cpu;
+      double total_job_cpu = job_end_cpu+extra_job_cpu_;
 
       const double total_initialization_time = curr_job_time_ - jobStartTime();
       const double total_initialization_cpu =  curr_job_cpu_;
@@ -311,7 +314,7 @@ namespace edm {
       if( 0.0 == jobStartTime()) {
         //did not capture beginning time
         total_job_time =job_end_time - curr_job_time_;
-        total_job_cpu =job_end_cpu - curr_job_cpu_;
+        total_job_cpu =job_end_cpu + extra_job_cpu_ - curr_job_cpu_ ;
       }
       
       double min_event_time = *(std::min_element(min_events_time_.begin(),
@@ -320,7 +323,7 @@ namespace edm {
                                                max_events_time_.end()));
 
       auto total_loop_time = last_run_time_ - curr_job_time_;
-      auto total_loop_cpu = last_run_cpu_ - curr_job_cpu_;
+      auto total_loop_cpu = last_run_cpu_ + extra_job_cpu_ - curr_job_cpu_;
 
       if(last_run_time_ == 0.0) {
         total_loop_time = 0.0;
@@ -355,7 +358,9 @@ namespace edm {
         << " CPU Summary: \n"
         << " - Total loop:  " << total_loop_cpu << "\n"
         << " - Total init:  " << total_initialization_cpu <<"\n"
+        << " - Total extra: " << extra_job_cpu_ << "\n"
         << " - Total job:   " << total_job_cpu << "\n";
+
 
       if(report_summary_) {
         Service<JobReport> reportSvc;

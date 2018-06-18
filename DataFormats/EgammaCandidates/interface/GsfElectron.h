@@ -187,7 +187,7 @@ class GsfElectron : public RecoCandidate
     float ctfGsfOverlap() const { return core()->ctfGsfOverlap() ; }
     bool ecalDrivenSeed() const { return core()->ecalDrivenSeed() ; }
     bool trackerDrivenSeed() const { return core()->trackerDrivenSeed() ; }
-    SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
+    virtual SuperClusterRef parentSuperCluster() const { return core()->parentSuperCluster() ; }
 
     // backward compatibility
     struct ClosestCtfTrack
@@ -198,8 +198,8 @@ class GsfElectron : public RecoCandidate
       ClosestCtfTrack( TrackRef track, float sh ) : ctfTrack(track), shFracInnerHits(sh) {}
      } ;
     float shFracInnerHits() const { return core()->ctfGsfOverlap() ; }
-    TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }
-    ClosestCtfTrack closestCtfTrack() const { return ClosestCtfTrack(core()->ctfTrack(),core()->ctfGsfOverlap()) ; }
+    virtual TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }
+    virtual ClosestCtfTrack closestCtfTrack() const { return ClosestCtfTrack(core()->ctfTrack(),core()->ctfGsfOverlap()) ; }
 
   private:
 

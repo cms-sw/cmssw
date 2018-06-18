@@ -384,7 +384,8 @@ public:
 
   PFRecHitQTestECALMultiThreshold(const edm::ParameterSet& iConfig):
     PFRecHitQTestBase(iConfig),
-    thresholds_(iConfig.getParameter<std::vector<double> >("thresholds"))
+    thresholds_(iConfig.getParameter<std::vector<double> >("thresholds")),
+    applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals"))
   {
     if (thresholds_.size() != EcalRingCalibrationTools::N_RING_TOTAL)
       throw edm::Exception(edm::errors::Configuration, "ValueError")
@@ -403,7 +404,8 @@ public:
   }
 
   bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
-    return fullReadOut or pass(hit);
+    if (applySelectionsToAllCrystals_) return pass(hit);
+    else return fullReadOut or pass(hit);
   }
   bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
     return true;
@@ -428,6 +430,9 @@ protected:
   const std::vector<double> thresholds_;
   bool endcapGeometrySet_;
 
+  // apply selections to all crystals
+  bool applySelectionsToAllCrystals_;
+  
   bool pass(const reco::PFRecHit& hit){
 
     DetId detId(hit.detId());

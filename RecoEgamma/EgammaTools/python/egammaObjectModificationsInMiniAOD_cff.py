@@ -6,9 +6,18 @@ import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_5
 
 import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff as ele_spring15_25_t
 
+import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff as ele_spring16_gp_v1
+import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff as ele_spring16_hzz_v1
+import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff as ele_fall17_iso_v1
+import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff as ele_fall17_noIso_v1
+
 #photon mva ids
 import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff as pho_spring15_25_nt
 import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2p1_cff as pho_spring15_50_nt
+import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff as pho_spring16_nt_v1
+import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff as pho_fall17_94X_v1
+import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff as pho_fall17_94X_v1p1
+
 
 ele_mva_prod_name = 'electronMVAValueMapProducer'
 pho_mva_prod_name = 'photonMVAValueMapProducer'
@@ -50,6 +59,26 @@ setup_mva(egamma_modifications[0].electron_config,
           ele_mva_prod_name,
           ele_spring15_25_t.mvaSpring15TrigClassName+ele_spring15_25_t.mvaTag)
 
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
+          ele_mva_prod_name,
+          ele_spring16_gp_v1.mvaSpring16ClassName+ele_spring16_gp_v1.mvaTag)
+
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
+          ele_mva_prod_name,
+          ele_spring16_hzz_v1.mvaSpring16ClassName+ele_spring16_hzz_v1.mvaTag)
+
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
+          ele_mva_prod_name,
+          ele_fall17_iso_v1.mvaFall17ClassName+ele_fall17_iso_v1.mvaTag)
+
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
+          ele_mva_prod_name,
+          ele_fall17_noIso_v1.mvaFall17ClassName+ele_fall17_noIso_v1.mvaTag)
+
 setup_mva(egamma_modifications[0].photon_config,
           egamma_modifications[1].photon_config,
           pho_mva_prod_name,
@@ -60,6 +89,21 @@ setup_mva(egamma_modifications[0].photon_config,
           pho_mva_prod_name,
           pho_spring15_50_nt.mvaSpring15NonTrigClassName+pho_spring15_50_nt.mvaTag)
 
+setup_mva(egamma_modifications[0].photon_config,
+          egamma_modifications[1].photon_config,
+          pho_mva_prod_name,
+          pho_spring16_nt_v1.mvaSpring16NonTrigClassName+pho_spring16_nt_v1.mvaTag)
+
+setup_mva(egamma_modifications[0].photon_config,
+          egamma_modifications[1].photon_config,
+          pho_mva_prod_name,
+          pho_fall17_94X_v1.mvaFall17v1ClassName+pho_fall17_94X_v1.mvaTag)
+
+setup_mva(egamma_modifications[0].photon_config,
+          egamma_modifications[1].photon_config,
+          pho_mva_prod_name,
+          pho_fall17_94X_v1p1.mvaFall17v1p1ClassName+pho_fall17_94X_v1p1.mvaTag)
+
 #############################################################
 # REGRESSION MODIFIERS
 #############################################################
@@ -67,3 +111,28 @@ setup_mva(egamma_modifications[0].photon_config,
 #from RecoEgamma.EgammaTools.regressionModifier_cfi import *
 
 #egamma_modifications.append( regressionModifier )
+
+#############################################################
+# Scale and Smearing Modifiers
+#############################################################
+reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
+    modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
+    electron_config = cms.PSet(),
+    photon_config   = cms.PSet()
+)
+from RecoEgamma.EgammaTools.calibratedEgammas_cff import prefixName
+import RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi.calibratedElectronProducerTRecoGsfElectron.valueMapsStored:
+    setattr(reducedEgammaEnergyScaleAndSmearingModifier.electron_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibEle",valueMapName)))
+
+import RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi.calibratedPhotonProducerTRecoPhoton.valueMapsStored:
+    setattr(reducedEgammaEnergyScaleAndSmearingModifier.photon_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibPho",valueMapName)))
+
+
+def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
+    modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
+   

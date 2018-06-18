@@ -5,7 +5,7 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
     histDirectory  = cms.string("HLT/SMP"),
-    analysis       = cms.vstring("SinglePhoton","SingleEle"),
+    analyses       = cms.vstring("SinglePhoton","SingleEle"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),

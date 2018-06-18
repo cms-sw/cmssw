@@ -46,3 +46,14 @@ cd $W_DIR;
     --db Prod \
     --test;
 
+######################
+# Test Bad components
+######################
+/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    --plugin pluginSiStripBadStrip_PayloadInspector \
+    --plot plot_SiStripBadStripQualityAnalysis \
+    --tag  SiStripBadComponents_startupMC_for2017_v1_mc\
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;

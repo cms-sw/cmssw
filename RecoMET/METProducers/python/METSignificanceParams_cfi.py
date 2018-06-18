@@ -4,7 +4,7 @@ METSignificanceParams = cms.PSet(
 
       # jet resolutions
       jetThreshold = cms.double(15),
-      
+
       #jet-lepton matching dR
       dRMatch = cms.double(0.4),
 
@@ -25,7 +25,7 @@ METSignificanceParams_Data=cms.PSet(
 
       # jet resolutions
       jetThreshold = cms.double(15),
-      
+
       #jet-lepton matching dR
       dRMatch = cms.double(0.4),
 
@@ -41,3 +41,16 @@ METSignificanceParams_Data=cms.PSet(
       jpar = cms.vdouble(1.26,1.14,1.13,1.13,1.06),
       pjpar = cms.vdouble(-3.3,0.5961),
       )
+
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+
+for mod in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
+    mod.toModify(METSignificanceParams, 
+                            jpar = [1.39,1.26,1.21,1.23,1.28],
+                            pjpar = [-0.2586,0.6173])
+    mod.toModify(METSignificanceParams_Data,
+                            jpar = [1.38,1.28,1.22,1.16,1.10],
+                            pjpar = [0.0033,0.5802])
+
+

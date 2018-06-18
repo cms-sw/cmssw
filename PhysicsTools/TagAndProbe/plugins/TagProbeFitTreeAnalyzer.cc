@@ -20,6 +20,7 @@ class TagProbeFitTreeAnalyzer : public edm::EDAnalyzer{
     void calculateEfficiency(string name, const edm::ParameterSet& pset);
   private:
     TagProbeFitter fitter;
+    unsigned int split_mode; // number of events to read per cycle (slower, but memory efficient)
 };
 
 TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
@@ -31,9 +32,11 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset):
           pset.existsAs<bool>("SaveWorkspace")?pset.getParameter<bool>("SaveWorkspace"):false,
 	  pset.existsAs<bool>("floatShapeParameters")?pset.getParameter<bool>("floatShapeParameters"):true,
 	  pset.existsAs<vector<string> >("fixVars")?pset.getParameter<vector<string> >("fixVars"):vector<string>()
-	  )
+	  ),
+  split_mode( pset.existsAs<unsigned int>("SplitMode")?pset.getParameter<unsigned int>("SplitMode"):0 )
 {
   fitter.setQuiet(pset.getUntrackedParameter("Quiet",false));
+  fitter.setSplitMode( split_mode );
 
   if (pset.existsAs<bool>("binnedFit")) {
     bool binned = pset.getParameter<bool>("binnedFit");

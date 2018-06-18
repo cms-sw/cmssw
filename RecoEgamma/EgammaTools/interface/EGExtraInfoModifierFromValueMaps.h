@@ -25,6 +25,13 @@ namespace {
 //This class allows an data of an arbitrary type in a ValueMap for pat::Electrons or pat::Photons
 //to be put in the pat::Electron/Photon as userData, userInt or userFloat
 //
+//IMPORTANT INFO:
+//by default the ValueMap is keyed to the object the pat::Electron/Photon was created from
+//if you want to use a ValueMap which is keyed to a different collection (ie perhaps the same 
+//as the electrons you are aring, you must set "electronSrc" and "photonSrc" inside the ele/pho configs
+//so if you are running over slimmedElectrons and want to read a ValueMap keyed to slimmedElectrons 
+//you need to set "electron_config.electronSrc = cms.InputTag("slimmedElectrons")"
+//
 //It assumes that the object can be added via pat::PATObject::userData, see pat::PATObject for the 
 //constraints here
 //
@@ -40,6 +47,9 @@ namespace {
 // rather than having to go to the bother of setting up userData hooks for them
 
 
+namespace egmodifier{
+  class EGID{};//dummy class to be used as a template arguement 
+}
 
 template<typename OutputType>
 class EGXtraModFromVMObjFiller {
@@ -53,9 +63,22 @@ public:
   addValueToObject(ObjType& obj,
 		   const edm::Ptr<reco::Candidate>& ptr,
 		   const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
-		   const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & val_map);
-};
-
+		   const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & val_map,
+		   bool overrideExistingValues);
+  
+  template<typename ObjType,typename MapType>
+  static void 
+  addValuesToObject(ObjType& obj,
+		    const edm::Ptr<reco::Candidate>& ptr,
+		    const std::unordered_map<std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & vmaps_token,		  
+		    const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
+		    bool overrideExistingValues){
+    for( auto itr = vmaps_token.begin(); itr != vmaps_token.end(); ++itr ) {
+      addValueToObject(obj,ptr,vmaps,*itr,overrideExistingValues);
+    }  
+  }
+};		    
+		    
 
 template<typename MapType,typename OutputType=MapType>
 class EGExtraInfoModifierFromValueMaps : public ModifyObjectValueBase {
@@ -74,7 +97,7 @@ public:
     edm::InputTag photon_src;
     edm::EDGetTokenT<edm::View<pat::Photon> > tok_photon_src;
     ValueMapsTags valuemaps;
-    ValueMaps tok_valuemaps;  
+    ValueMaps tok_valuemaps; 
   };
 
   EGExtraInfoModifierFromValueMaps(const edm::ParameterSet& conf);
@@ -95,6 +118,7 @@ private:
   std::unordered_map<unsigned,edm::Ptr<reco::Photon> > phos_by_oop;
   std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > > pho_vmaps;
   mutable unsigned ele_idx,pho_idx; // hack here until we figure out why some slimmedPhotons don't have original object ptrs
+  bool overrideExistingValues_;
 };
 
 
@@ -104,10 +128,11 @@ EGExtraInfoModifierFromValueMaps(const edm::ParameterSet& conf) :
   ModifyObjectValueBase(conf) {
   constexpr char electronSrc[] =  "electronSrc";
   constexpr char photonSrc[] =  "photonSrc";
-
+  overrideExistingValues_ = conf.exists("overrideExistingValues") ? conf.getParameter<bool>("overrideExistingValues") : false;
   if( conf.exists("electron_config") ) {
     const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
     if( electrons.exists(electronSrc) ) e_conf.electron_src = electrons.getParameter<edm::InputTag>(electronSrc);
+  
     const std::vector<std::string> parameters = electrons.getParameterNames();
     for( const std::string& name : parameters ) {
       if( std::string(electronSrc) == name ) continue;
@@ -233,12 +258,12 @@ modifyObject(pat::Electron& ele) const {
         << " not found in cache!";
     }
   }
-  //now we go through and modify the objects using the valuemaps we read in
-  for( auto itr = e_conf.tok_valuemaps.begin(); itr != e_conf.tok_valuemaps.end(); ++itr ) {
-    EGXtraModFromVMObjFiller<OutputType>::addValueToObject(ele,ptr,ele_vmaps,*itr);
-  }  
+  //now we go through and modify the objects using the valuemaps we read in 
+  EGXtraModFromVMObjFiller<OutputType>::addValuesToObject(ele,ptr,e_conf.tok_valuemaps,
+							  ele_vmaps,overrideExistingValues_);
   ++ele_idx;
 }
+
 
 template<typename MapType,typename OutputType>
 void EGExtraInfoModifierFromValueMaps<MapType,OutputType>::
@@ -257,9 +282,9 @@ modifyObject(pat::Photon& pho) const {
     }
   }
   //now we go through and modify the objects using the valuemaps we read in
-  for( auto itr = ph_conf.tok_valuemaps.begin(); itr != ph_conf.tok_valuemaps.end(); ++itr ) {
-    EGXtraModFromVMObjFiller<OutputType>::addValueToObject(pho,ptr,pho_vmaps,*itr);
-  }    
+  EGXtraModFromVMObjFiller<OutputType>::addValuesToObject(pho,ptr,ph_conf.tok_valuemaps,
+							  pho_vmaps,overrideExistingValues_);
+							  
   ++pho_idx;
 }
 
@@ -270,16 +295,17 @@ void EGXtraModFromVMObjFiller<OutputType>::
 addValueToObject(ObjType& obj,
 		 const edm::Ptr<reco::Candidate>& ptr,
 		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
-		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & val_map)
+		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > > & val_map,
+		 bool overrideExistingValues)
 {
   MapType value{};
   assignValue(ptr,val_map.second,vmaps,value);
-  if( !obj.hasUserData(val_map.first) ) {
-    obj.addUserData(val_map.first,value);
+  if( overrideExistingValues || !obj.hasUserData(val_map.first) ) {
+    obj.addUserData(val_map.first,value,true);
   } else {
     throw cms::Exception("ValueNameAlreadyExists")
       << "Trying to add new UserData = " << val_map.first
-      << " failed because it already exists!";
+      << " failed because it already exists and you didnt specify to override it (set in the config overrideExistingValues=cms.bool(True) )";
   }
 }  
 
@@ -289,16 +315,17 @@ void EGXtraModFromVMObjFiller<float>::
 addValueToObject(ObjType& obj,
 		 const edm::Ptr<reco::Candidate>& ptr,
 		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
-		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > >& val_map)
+		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > >& val_map,
+		 bool overrideExistingValues)
 {
   float value(0.0);
   assignValue(ptr,val_map.second,vmaps,value);
-  if( !obj.hasUserFloat(val_map.first) ) {
-    obj.addUserFloat(val_map.first,value);
+  if( overrideExistingValues || !obj.hasUserFloat(val_map.first) ) {
+    obj.addUserFloat(val_map.first,value,true);
   } else {
     throw cms::Exception("ValueNameAlreadyExists")
       << "Trying to add new UserFloat = " << val_map.first
-      << " failed because it already exists!";
+      << " failed because it already exists and you didnt specify to override it (set in the config overrideExistingValues=cms.bool(True) )";
   }
 }
 
@@ -308,19 +335,58 @@ void EGXtraModFromVMObjFiller<int>::
 addValueToObject(ObjType& obj,
 		 const edm::Ptr<reco::Candidate>& ptr,		 
 		 const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<MapType> > >& vmaps,
-		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > >& val_map)
+		 const std::pair<const std::string,edm::EDGetTokenT<edm::ValueMap<MapType> > >& val_map,
+		 bool overrideExistingValues)
 {
   int value(0);
   assignValue(ptr,val_map.second,vmaps,value);
-  if( !obj.hasUserInt(val_map.first) ) {
-    obj.addUserInt(val_map.first,value);
+  if( overrideExistingValues || !obj.hasUserInt(val_map.first) ) {
+    obj.addUserInt(val_map.first,value,true);
   } else {
     throw cms::Exception("ValueNameAlreadyExists")
       << "Trying to add new UserInt = " << val_map.first
-      << " failed because it already exists!";
+      << " failed because it already exists and you didnt specify to override it (set in the config overrideExistingValues=cms.bool(True) )";
   }
 }  
 
- 
+template<>
+template<>
+void EGXtraModFromVMObjFiller<egmodifier::EGID>::
+addValuesToObject(pat::Electron& obj,
+		  const edm::Ptr<reco::Candidate>& ptr,
+		  const std::unordered_map<std::string,edm::EDGetTokenT<edm::ValueMap<float> > > & vmaps_token,		  
+		  const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > >& vmaps,
+		  bool overrideExistingValues)
+{
+  std::vector<std::pair<std::string,float >> ids;
+  for( auto itr = vmaps_token.begin(); itr != vmaps_token.end(); ++itr ) {
+    float idVal(0);
+    assignValue(ptr,itr->second,vmaps,idVal);
+    ids.push_back({itr->first,idVal});
+  }   
+  std::sort(ids.begin(),ids.end(),[](auto& lhs,auto& rhs){return lhs.first<rhs.first;});
+  obj.setElectronIDs(ids);
+}
+
+template<>
+template<>
+void EGXtraModFromVMObjFiller<egmodifier::EGID>::
+addValuesToObject(pat::Photon& obj,
+		  const edm::Ptr<reco::Candidate>& ptr,
+		  const std::unordered_map<std::string,edm::EDGetTokenT<edm::ValueMap<float> > > & vmaps_token,		  
+		  const std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > >& vmaps,
+		  bool overrideExistingValues)
+{
+  //we do a float->bool conversion here to make things easier to be consistent with electrons
+  std::vector<std::pair<std::string,bool> > ids;
+  for( auto itr = vmaps_token.begin(); itr != vmaps_token.end(); ++itr ) {
+    float idVal(0);
+    assignValue(ptr,itr->second,vmaps,idVal);
+    ids.push_back({itr->first,idVal});
+  }  
+  std::sort(ids.begin(),ids.end(),[](auto& lhs,auto& rhs){return lhs.first<rhs.first;});
+  obj.setPhotonIDs(ids);
+}
+
 
 #endif

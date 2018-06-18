@@ -93,6 +93,7 @@ namespace edm {
                    std::string const& oldBranchName);
 
     bool next() {return ++entryNumber_ < entries_;}
+    bool nextWithCache();
     bool previous() {return --entryNumber_ >= 0;}
     bool current() const {return entryNumber_ < entries_ && entryNumber_ >= 0;}
     bool current(EntryNumber entry) const {return entry < entries_ && entry >= 0;}

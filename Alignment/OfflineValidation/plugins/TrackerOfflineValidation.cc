@@ -304,6 +304,9 @@ private:
   //sum hists are fit at the end using fitResiduals()
   std::vector<TH1*> toFit_;
 
+  unsigned long long nTracks_;
+  const unsigned long long maxTracks_;
+
   TrackerValidationVariables avalidator_;
 };
 
@@ -386,6 +389,8 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
     useOverflowForRMS_(parSet_.getParameter<bool>("useOverflowForRMS")),
     dqmMode_(parSet_.getParameter<bool>("useInDqmMode")),
     moduleDirectory_(parSet_.getParameter<std::string>("moduleDirectoryInOutput")),
+    nTracks_(0),
+    maxTracks_(parSet_.getParameter<unsigned long long>("maxTracks")),
     avalidator_(iConfig, consumesCollector())
 {
 }
@@ -1005,6 +1010,9 @@ TrackerOfflineValidation::getHistStructFromMap(const DetId& detid)
 void
 TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  if (maxTracks_ > 0 && nTracks_ >= maxTracks_) return;  //don't do anything after hitting the max number of tracks
+                                                         //(could just rely on break below, but this way saves fillTrackQuantities)
+
   if (useOverflowForRMS_)TH1::StatOverflows(kTRUE);
   this->checkBookHists(iSetup); // check whether hists are booked and do so if not yet done
 
@@ -1015,6 +1023,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
        itT != vTrackstruct.end();
        ++itT) {
     
+    if (maxTracks_ > 0 && nTracks_++ >= maxTracks_) break; //exit the loop after hitting the max number of tracks
     // Fill 1D track histos
     static const int etaindex = this->GetIndex(vTrackHistos_,"h_tracketa");
     vTrackHistos_[etaindex]->Fill(itT->eta);
