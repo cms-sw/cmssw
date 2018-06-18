@@ -23,9 +23,14 @@ __global__ void kernel(Matrix3d * m, Eigen::SelfAdjointEigenSolver<Matrix3d>::Re
   eigenValues(m, ret);
 }
 
-__global__ void kernelInverse(Matrix3d * in, Matrix3d * out) {
-//  (*out) = in->inverse();
+__global__ void kernelInverse3x3(Matrix3d * in, Matrix3d * out) {
+  (*out) = in->inverse();
 }
+
+__global__ void kernelInverse4x4(Matrix4d * in, Matrix4d * out) {
+  (*out) = in->inverse();
+}
+
 
 template<typename M1, typename M2, typename M3>
 __global__ void kernelMultiply(M1 * J,
@@ -82,9 +87,10 @@ void testMultiply() {
   assert(isEqualFuzzy(multiply_result, (*multiply_resultGPUret)));
 }
 
-void testInverse() {
-  std::cout << "TEST INVERSE" << std::endl;
+void testInverse3x3() {
+  std::cout << "TEST INVERSE 3x3" << std::endl;
   Matrix3d m = Matrix3d::Random();
+  Matrix3d m_inv = m.inverse();
   Matrix3d *mGPU = nullptr;
   Matrix3d *mGPUret = nullptr;
   Matrix3d *mCPUret = new Matrix3d();
@@ -97,12 +103,38 @@ void testInverse() {
   cudaMalloc((void **)&mGPUret, sizeof(Matrix3d));
   cudaMemcpy(mGPU, &m, sizeof(Matrix3d), cudaMemcpyHostToDevice);
 
-  kernelInverse<<<1,1>>>(mGPU, mGPUret);
+  kernelInverse3x3<<<1,1>>>(mGPU, mGPUret);
   cudaDeviceSynchronize();
 
   cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix3d), cudaMemcpyDeviceToHost);
   if (!NODEBUG)
     std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
+  assert(isEqualFuzzy(m_inv, *mCPUret));
+}
+
+void testInverse4x4() {
+  std::cout << "TEST INVERSE 4x4" << std::endl;
+  Matrix4d m = Matrix4d::Random();
+  Matrix4d m_inv = m.inverse();
+  Matrix4d *mGPU = nullptr;
+  Matrix4d *mGPUret = nullptr;
+  Matrix4d *mCPUret = new Matrix4d();
+
+  if (!NODEBUG) {
+    std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
+    std::cout << "Its inverse is:" << std::endl << m.inverse() << std::endl;
+  }
+  cudaMalloc((void **)&mGPU, sizeof(Matrix4d));
+  cudaMalloc((void **)&mGPUret, sizeof(Matrix4d));
+  cudaMemcpy(mGPU, &m, sizeof(Matrix4d), cudaMemcpyHostToDevice);
+
+  kernelInverse4x4<<<1,1>>>(mGPU, mGPUret);
+  cudaDeviceSynchronize();
+
+  cudaMemcpy(mCPUret, mGPUret, sizeof(Matrix4d), cudaMemcpyDeviceToHost);
+  if (!NODEBUG)
+    std::cout << "Its GPU inverse is:" << std::endl << (*mCPUret) << std::endl;
+  assert(isEqualFuzzy(m_inv, *mCPUret));
 }
 
 void testEigenvalues() {
@@ -142,7 +174,8 @@ void testEigenvalues() {
 int main (int argc, char * argv[]) {
 
   testEigenvalues();
-  testInverse();
+  testInverse3x3();
+  testInverse4x4();
   testMultiply<1, 2, 2, 1>();
   testMultiply<1, 2, 2, 2>();
   testMultiply<1, 2, 2, 3>();
