@@ -19,6 +19,7 @@
 
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh" 
+#include "globals.hh"
 
 //
 // constructors and destructor
@@ -44,7 +45,6 @@ TotemT1Organization :: ~TotemT1Organization() {
 uint32_t TotemT1Organization :: GetUnitID(const G4Step* aStep) const {
   return const_cast<TotemT1Organization *>(this)->GetUnitID(aStep);
 }
-
 
 uint32_t TotemT1Organization :: GetUnitID(const G4Step* aStep) {
 

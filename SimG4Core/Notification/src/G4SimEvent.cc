@@ -1,4 +1,4 @@
-#include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 #include "G4SystemOfUnits.hh"
@@ -10,7 +10,6 @@ public:
   }
 };
 
-
 G4SimEvent::G4SimEvent() : hepMCEvent(nullptr),
                            weight_(0),
                            collisionPoint_(math::XYZTLorentzVectorD(0.,0.,0.,0.)),
@@ -18,20 +17,6 @@ G4SimEvent::G4SimEvent() : hepMCEvent(nullptr),
 
 G4SimEvent::~G4SimEvent() 
 {
-
-/*
-   while ( !g4tracks.empty() )
-   {
-      delete g4tracks.back() ;
-      g4tracks.pop_back() ;
-   }
-   while ( !g4vertices.empty() )
-   {
-      delete g4vertices.back() ;
-      g4vertices.pop_back() ;
-   }
-*/
-
    // per suggestion by Chris Jones, it's faster 
    // that delete back() and pop_back() 
    //
