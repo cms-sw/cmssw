@@ -20,12 +20,12 @@ namespace sistrip {
   //fill Descriptions needed to define default parameters	
   void DigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::string>("InputModuleLabel", "simSiStripDigis");
-    desc.add<std::string>("InputDigiLabel", "ZeroSuppressed");
     desc.add<std::string>("FedReadoutMode", "ZERO_SUPPRESSED");
+    desc.add<std::string>("PacketCode", "ZERO_SUPPRESSED");
     desc.add<bool>("UseFedKey", false);
     desc.add<bool>("UseWrongDigiType", false);
     desc.add<bool>("CopyBufferHeader", false);
+    desc.add<edm::InputTag>("InputDigis", edm::InputTag("simSiStripDigis", "ZeroSuppressed"));
     desc.add<edm::InputTag>("RawDataTag", edm::InputTag("rawDataCollector"));
     descriptions.add("SiStripDigiToRawModule",desc);
   }
@@ -35,13 +35,13 @@ namespace sistrip {
       Creates instance of DigiToRaw converter, defines EDProduct type.
   */
   DigiToRawModule::DigiToRawModule( const edm::ParameterSet& pset ) :
-    inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
-    inputDigiLabel_( pset.getParameter<std::string>( "InputDigiLabel" ) ),
     copyBufferHeader_(pset.getParameter<bool>("CopyBufferHeader")),
     mode_( fedReadoutModeFromString(pset.getParameter<std::string>( "FedReadoutMode" ))),
+    packetCode_(packetCodeFromString(pset.getParameter<std::string>("PacketCode"), mode_)),
     rawdigi_( false ),
     digiToRaw_(nullptr),
     eventCounter_(0),
+    inputDigiTag_(pset.getParameter<edm::InputTag>("InputDigis")),
     rawDataTag_(pset.getParameter<edm::InputTag>("RawDataTag"))
   {
     if ( edm::isDebugEnabled() ) {
@@ -89,12 +89,12 @@ namespace sistrip {
     }
 
     // Create instance of DigiToRaw formatter
-    digiToRaw_ = new DigiToRaw( mode_, pset.getParameter<bool>("UseFedKey") );
+    digiToRaw_ = new DigiToRaw(mode_, packetCode_, pset.getParameter<bool>("UseFedKey"));
 
     if (rawdigi_) {
-      tokenRawDigi = consumes< edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, inputDigiLabel_));
+      tokenRawDigi = consumes< edm::DetSetVector<SiStripRawDigi> >(inputDigiTag_);
     } else {
-      tokenDigi = consumes< edm::DetSetVector<SiStripDigi> >(edm::InputTag(inputModuleLabel_, inputDigiLabel_));
+      tokenDigi = consumes< edm::DetSetVector<SiStripDigi> >(inputDigiTag_);
     }
     if (copyBufferHeader_){
       //CAMM input raw module label or same as digi ????
