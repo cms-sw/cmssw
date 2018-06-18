@@ -5,7 +5,7 @@
 //
 /**\class ElectronMVANtuplizer ElectronMVANtuplizer.cc RecoEgamma/ElectronIdentification/plugins/ElectronMVANtuplizer.cc
 
- Description: [one line class summary]
+ Description: Ntuplizer for training and testing electron MVA IDs.
 
  Implementation:
      [Notes on implementation]
@@ -17,15 +17,11 @@
 //
 
 
-// system include files
-#include <memory>
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -43,13 +39,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include <DataFormats/METReco/interface/PFMET.h>
-#include <DataFormats/METReco/interface/PFMETCollection.h>
-#include <DataFormats/PatCandidates/interface/MET.h>
-
-#include "TTree.h"
-#include "TFile.h"
-#include "Math/VectorUtil.h"
+#include <TTree.h>
+#include <TFile.h>
+#include <Math/VectorUtil.h>
 
 //
 // class declaration
@@ -129,7 +121,6 @@ class ElectronMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResourc
       // config
       const bool isMC_;
       const double deltaR_;
-      //const bool saveIDVariables_;
       const double ptThreshold_;
 
       // ID decisions objects
@@ -180,17 +171,16 @@ ElectronMVANtuplizer::ElectronMVANtuplizer(const edm::ParameterSet& iConfig)
   genParticlesMiniAOD_   (consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("genParticlesMiniAOD"))),
   mvaVarMngr_            (iConfig.getParameter<std::string>("variableDefinition")),
   isMC_                  (iConfig.getParameter<bool>("isMC")),
-  deltaR_                (iConfig.existsAs<double>("deltaR")          ? iConfig.getParameter<double>("deltaR"): 0.1),
-  //saveIDVariables_       (iConfig.existsAs<double>("saveIDVariables") ? iConfig.getParameter<double>("saveIDVariables"): true),
-  ptThreshold_           (iConfig.existsAs<double>("ptThreshold")     ? iConfig.getParameter<double>("ptThreshold"): 5),
-  eleMapTags_            (iConfig.getParameter<std::vector<std::string>>("eleMVAs")),
-  eleMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("eleMVALabels")),
+  deltaR_                (iConfig.getParameter<double>("deltaR")),
+  ptThreshold_           (iConfig.getParameter<double>("ptThreshold")),
+  eleMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAs")),
+  eleMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVALabels")),
   nEleMaps_              (eleMapBranchNames_.size()),
-  valMapTags_            (iConfig.getParameter<std::vector<std::string>>("eleMVAValMaps")),
-  valMapBranchNames_     (iConfig.getParameter<std::vector<std::string>>("eleMVAValMapLabels")),
+  valMapTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMaps")),
+  valMapBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVAValMapLabels")),
   nValMaps_              (valMapBranchNames_.size()),
-  mvaCatTags_            (iConfig.getParameter<std::vector<std::string>>("eleMVACats")),
-  mvaCatBranchNames_     (iConfig.getParameter<std::vector<std::string>>("eleMVACatLabels")),
+  mvaCatTags_            (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACats")),
+  mvaCatBranchNames_     (iConfig.getUntrackedParameter<std::vector<std::string>>("eleMVACatLabels")),
   nCats_                 (mvaCatBranchNames_.size())
 {
     // eleMaps
@@ -435,7 +425,7 @@ void ElectronMVANtuplizer::findFirstNonElectronMother2(const reco::Candidate *pa
                          int &ancestorPID, int &ancestorStatus){
 
   if( particle == nullptr ){
-    printf("ElectronNtupler: ERROR! null candidate pointer, this should never happen\n");
+    edm::LogError  ("ElectronNtuplizer") << "ElectronNtuplizer: ERROR! null candidate pointer, this should never happen";
     return;
   }
 
@@ -488,7 +478,7 @@ int ElectronMVANtuplizer::matchToTruth(const T &el, const V &prunedGenParticles,
   if( ancestorPID == -999 && ancestorStatus == -999 ){
     // No non-electron parent??? This should never happen.
     // Complain.
-    printf("ElectronNtupler: ERROR! Electron does not apper to have a non-electron parent\n");
+    edm::LogError  ("ElectronNtuplizer") << "ElectronNtuplizer: ERROR! null candidate pointer, this should never happen";
     return UNMATCHED;
   }
 
@@ -517,17 +507,28 @@ ElectronMVANtuplizer::endJob()
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 ElectronMVANtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
 
-  //Specify that only 'tracks' is allowed
-  //To use, remove the default given above and uncomment below
-  //ParameterSetDescription desc;
-  //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
-  //descriptions.addDefault(desc);
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src");
+    desc.add<edm::InputTag>("vertices");
+    desc.add<edm::InputTag>("pileup");
+    desc.add<edm::InputTag>("genParticles");
+    desc.add<edm::InputTag>("srcMiniAOD");
+    desc.add<edm::InputTag>("verticesMiniAOD");
+    desc.add<edm::InputTag>("pileupMiniAOD");
+    desc.add<edm::InputTag>("genParticlesMiniAOD");
+    desc.add<std::string>("variableDefinition");
+    desc.add<bool>("isMC");
+    desc.add<double>("deltaR", 0.1);
+    desc.add<double>("ptThreshold", 5.0);
+    desc.addUntracked<std::vector<std::string>>("eleMVAs");
+    desc.addUntracked<std::vector<std::string>>("eleMVALabels");
+    desc.addUntracked<std::vector<std::string>>("eleMVAValMaps");
+    desc.addUntracked<std::vector<std::string>>("eleMVAValMapLabels");
+    desc.addUntracked<std::vector<std::string>>("eleMVACats");
+    desc.addUntracked<std::vector<std::string>>("eleMVACatLabels");
+    descriptions.addDefault(desc);
+
 }
 
 //define this as a plug-in

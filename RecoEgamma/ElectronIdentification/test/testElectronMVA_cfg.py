@@ -37,9 +37,6 @@ switchOnVIDElectronIdProducer(process, dataFormat)
 
 # define which IDs we want to produce
 my_id_modules = [
-        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff',
-        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
-        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',
@@ -62,37 +59,31 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         pileupMiniAOD        = cms.InputTag('slimmedAddPileupInfo'),
         genParticlesMiniAOD  = cms.InputTag('prunedGenParticles'),
         #
-        eleMVAs             = cms.vstring(
+        eleMVAs             = cms.untracked.vstring(
                                           ),
-        eleMVALabels        = cms.vstring(
+        eleMVALabels        = cms.untracked.vstring(
                                           ),
-        eleMVAValMaps        = cms.vstring(
-                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values",
-                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig25nsV1Values",
-                                           "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring15Trig50nsV1Values",
+        eleMVAValMaps        = cms.untracked.vstring(
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values",
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values",
                                            ),
-        eleMVAValMapLabels   = cms.vstring(
-                                           "Spring15_25nsnonTrigVals",
-                                           "Spring15_25nsTrigVals",
-                                           "Spring15_50nsTrigVals",
+        eleMVAValMapLabels   = cms.untracked.vstring(
                                            "Spring16GPVals",
                                            "Spring16HZZVals",
                                            "Fall17IsoV1Vals",
                                            "Fall17NoIsoV1Vals",
                                            ),
-        eleMVACats           = cms.vstring(
+        eleMVACats           = cms.untracked.vstring(
                                            "electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Categories",
                                            ),
-        eleMVACatLabels      = cms.vstring(
+        eleMVACatLabels      = cms.untracked.vstring(
                                            "EleMVACats",
                                            ),
         #
         variableDefinition   = cms.string(mvaVariablesFile),
-        isMC                 = cms.bool(False),
+        isMC                 = cms.bool(True),
         deltaR               = cms.double(0.1),
         )
 

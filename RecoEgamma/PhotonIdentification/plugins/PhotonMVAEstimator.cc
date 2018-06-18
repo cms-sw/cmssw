@@ -1,4 +1,4 @@
-#include "RecoEgamma/PhotonIdentification/plugins/PhotonMVAEstimator.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonMVAEstimator.h"
 
 PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
@@ -6,6 +6,7 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf):
   tag_(conf.getParameter<std::string>("mvaTag")),
   methodName_("BDTG method"),
   mvaVarMngr_(conf.getParameter<std::string>("variableDefinition")),
+  ebeeSplit_ (conf.getParameter<double> ("ebeeSplit")),
   debug_(conf.getUntrackedParameter<bool>("debug", false))
 {
   //
@@ -112,12 +113,11 @@ int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Candidate>& particle)
   // Determine the category
   //
   int  iCategory = UNDEFINED;
-  const float ebeeSplit = 1.479; // division between barrel and endcap
 
-  if ( std::abs(eta) < ebeeSplit)
+  if ( std::abs(eta) < ebeeSplit_)
     iCategory = CAT_EB;
 
-  if (std::abs(eta) >= ebeeSplit)
+  else if (std::abs(eta) >= ebeeSplit_)
     iCategory = CAT_EE;
 
   return iCategory;
@@ -146,11 +146,8 @@ isEndcapCategory(int category) const {
 
   // For this specific MVA the function is trivial, but kept for possible
   // future evolution to an MVA with more categories in eta
-  bool isEndcap = false;
-  if( category == CAT_EE )
-    isEndcap = true;
+  return (category == CAT_EE);
 
-  return isEndcap;
 }
 
 DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
