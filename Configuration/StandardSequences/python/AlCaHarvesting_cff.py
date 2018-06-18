@@ -88,34 +88,6 @@ ALCAHARVESTBeamSpotHPByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObj
                                               timetype   = cms.untracked.string('lumiid')
                                               )
 
-
-# --------------------------------------------------------------------------------------
-# BeamSpot HP - Low PU - by Run
-ALCAHARVESTBeamSpotHPLowPUByRun = ALCAHARVESTBeamSpotHPByRun.clone()
-ALCAHARVESTBeamSpotHPLowPUByRun.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHPLowPU')
-
-# configuration of DropBox metadata and DB output
-ALCAHARVESTBeamSpotHPLowPUByRun_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdHPByRun'))
-
-ALCAHARVESTBeamSpotHPLowPUByRun_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdHPByRun'),
-                                                    tag = cms.string('BeamSpotObjectHP_ByRun'),
-                                                    timetype   = cms.untracked.string('runnumber')
-                                                    )
-
-# --------------------------------------------------------------------------------------
-# BeamSpot HP - Low PU - by Lumi
-ALCAHARVESTBeamSpotHPLowPUByLumi = ALCAHARVESTBeamSpotHPByLumi.clone()
-ALCAHARVESTBeamSpotHPLowPUByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHPLowPU')
-
-
-# configuration of DropBox metadata and DB output
-ALCAHARVESTBeamSpotHPLowPUByLumi_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdHPByLumi'))
-
-ALCAHARVESTBeamSpotHPLowPUByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdHPByLumi'),
-                                                     tag = cms.string('BeamSpotObjectHP_ByLumi'),
-                                                     timetype   = cms.untracked.string('lumiid')
-                                                     )
-
 # --------------------------------------------------------------------------------------
 # SiStrip Quality
 ALCAHARVESTSiStripQuality_metadata = cms.PSet(record = cms.untracked.string('SiStripBadStripRcd'))
@@ -217,15 +189,13 @@ BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
 BeamSpotByLumi = cms.Path(ALCAHARVESTBeamSpotByLumi)
 BeamSpotHPByRun  = cms.Path(ALCAHARVESTBeamSpotHPByRun)
 BeamSpotHPByLumi = cms.Path(ALCAHARVESTBeamSpotHPByLumi)
-BeamSpotHPLowPUByRun  = cms.Path(ALCAHARVESTBeamSpotHPLowPUByRun)
-BeamSpotHPLowPUByLumi = cms.Path(ALCAHARVESTBeamSpotHPLowPUByLumi)
 SiStripQuality = cms.Path(ALCAHARVESTSiStripQuality)
 SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
-SiPixelQuality = cms.Path(ALCAHARVESTSiPixelQuality)
+SiPixelQuality = cms.Path(ALCAHARVESTSiPixelQuality+siPixelPhase1DQMHarvester)
 
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 
