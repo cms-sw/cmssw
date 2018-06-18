@@ -72,7 +72,7 @@ mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) co
   }
 
   // Special case for Spring16!
-  if (tag_ == "Run2Spring16NonTrigV1" and isEndcapCategory(iCategory)) {
+  if (tag_ == "Run2Spring16NonTrigV1" and iCategory == CAT_EE) {
       // Raw value for EB only, because of loss of transparency in EE
       // for endcap MVA only in 2016
       double eA = effectiveAreas_->getEffectiveArea( std::abs(phoRecoPtr->superCluster()->eta()) );
@@ -132,22 +132,6 @@ void PhotonMVAEstimator::setConsumes(edm::ConsumesCollector&& cc) const {
   for (auto &tag : mvaVarMngr_.getGlobalInputTags()) {
       cc.consumes<double>(tag);
   }
-}
-
-// Dummy fonction just to make the template happy
-std::vector<float> PhotonMVAEstimator::
-fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
-  std::vector<float> vars;
-  return vars;
-}
-
-bool PhotonMVAEstimator::
-isEndcapCategory(int category) const {
-
-  // For this specific MVA the function is trivial, but kept for possible
-  // future evolution to an MVA with more categories in eta
-  return (category == CAT_EE);
-
 }
 
 DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,

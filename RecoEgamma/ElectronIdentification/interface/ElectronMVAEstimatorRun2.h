@@ -34,7 +34,6 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
 
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
   std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&, const int iCategory) const;
 
   template<class EventType>
@@ -49,16 +48,15 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
 
  private:
 
+  // MVA name. This is a unique name for this MVA implementation.
+  // It will be used as part of ValueMap names.
+  // For simplicity, keep it set to the class name.
+  const std::string name_;
+
   // MVA tag. This is an additional string variable to distinguish
   // instances of the estimator of this class configured with different
   // weight files.
   const std::string tag_;
-
-  // MVA name. This is a unique name for this MVA implementation.
-  // It will be used as part of ValueMap names.
-  // For simplicity, keep it set to the class name.
-
-  const std::string name_;
 
   // The number of categories and number of variables per category
   int nCategories_;
@@ -78,6 +76,7 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
   MVAVariableManager<reco::GsfElectron> mvaVarMngr_;
 
   bool debug_;
+
 };
 
 #endif

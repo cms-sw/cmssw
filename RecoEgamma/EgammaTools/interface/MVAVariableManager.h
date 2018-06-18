@@ -128,7 +128,15 @@ class MVAVariableManager {
         // *Rho* is the only global variable used ever, so its hardcoded...
         bool isGlobalVariable = formula.find("Rho") != std::string::npos;
 
-        functions_.push_back(!(fromVariableHelper || isGlobalVariable) ? StringObjectFunction<ParticleType>(formula) : StringObjectFunction<ParticleType>("pt"));
+        if ( !(fromVariableHelper || isGlobalVariable) ) {
+            functions_.push_back(StringObjectFunction<ParticleType>(formula));
+        } else {
+            // Push back a dummy function since we won't use the
+            // StringObjectFunction to evaluate a variable form the helper or a
+            // global variable
+            functions_.push_back(StringObjectFunction<ParticleType>("pt"));
+        }
+
         formulas_.push_back(formula);
         if (fromVariableHelper) {
             helperInputTags_.push_back(edm::InputTag(formula));
@@ -142,7 +150,8 @@ class MVAVariableManager {
             .lowerClipValue     = lowerClipValue,
             .upperClipValue     = upperClipValue,
             .fromVariableHelper = fromVariableHelper,
-            .isGlobalVariable   = isGlobalVariable};
+            .isGlobalVariable   = isGlobalVariable
+        };
         variableInfos_.push_back(varInfo);
         names_.push_back(name);
         indexMap_[name] = nVars_;
