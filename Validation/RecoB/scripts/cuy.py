@@ -11,6 +11,7 @@
 # Fermilab, 2008
 #
 # imported from UserCode/Yumiceva/cuy
+import six
 #
 # modified by Adrien Caudron to create TGraphErrors for b-tag performance plots
 # UCLouvain, 2012 
@@ -77,7 +78,7 @@ USAGE = re.compile(r'(?s)\s*usage: (.*?)(\n[ \t]*\n|$)')
 
 def nonzero(self): # will become the nonzero method of optparse.Values
     "True if options were given"
-    for v in self.__dict__.itervalues():
+    for v in six.itervalues(self.__dict__):
         if v is not None: return True
     return False
 

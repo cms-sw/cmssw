@@ -13,6 +13,7 @@ import random
 import sys
 import inspect
 import ROOT
+import six
 from functools import reduce
 ROOT.gROOT.SetBatch()
 
@@ -698,7 +699,7 @@ class GenObject (object):
         genObj = GenObject (objName)
         origObj = obj
         if debug: warn (objName, spaces = 9)
-        for genVar, ntDict in tofillObjDict.iteritems():
+        for genVar, ntDict in six.iteritems(tofillObjDict):
             if debug: warn (genVar, spaces = 12)
             # lets work our way down the list
             partsList = ntDict[0]
@@ -844,7 +845,7 @@ class GenObject (object):
     @staticmethod
     def _fillRootObjects (event):
         """Fills root objects from GenObject 'event'"""
-        for objName, obj in sorted (event.iteritems()):
+        for objName, obj in sorted (six.iteritems(event)):
             if GenObject.isSingleton (objName):
                 # Just one
                 GenObject._rootObjectCopy (obj,
@@ -950,13 +951,13 @@ class GenObject (object):
     def printEvent (event):
         """Prints out event dictionary.  Mostly for debugging"""
         # Print out all singletons first
-        for objName, obj in sorted (event.iteritems()):
+        for objName, obj in sorted (six.iteritems(event)):
             #obj = event[objName]
             # is this a singleton?
             if GenObject.isSingleton (objName):
                 print "%s: %s" % (objName, obj)
         # Now print out all vectors
-        for objName, obj in sorted (event.iteritems()):
+        for objName, obj in sorted (six.iteritems(event)):
             #obj = event[objName]
             # is this a singleton?
             if not GenObject.isSingleton (objName):
@@ -971,7 +972,7 @@ class GenObject (object):
     def setAliases (eventTree, tupleName):
         """runs SetAlias on all saved aliases"""
         aliases = GenObject._ntupleDict[tupleName].get('_alias', {})
-        for name, alias in aliases.iteritems():
+        for name, alias in six.iteritems(aliases):
             eventTree.SetAlias (name, alias)
 
 
@@ -1549,7 +1550,7 @@ class GenObject (object):
             raise RuntimeError("Failed to create GenObject object.")
         self._localObjsDict = GenObject._objsDict [objName]
         self._objName = objName;
-        for key, varDict in self._localObjsDict.iteritems():
+        for key, varDict in six.iteritems(self._localObjsDict):
             # if the key starts with an '_', then it is not a
             # variable, so don't treat it as one.
             if key.startswith ("_"):
@@ -1620,7 +1621,7 @@ class GenObject (object):
     def __str__ (self):
         """String representation"""
         retval = ""
-        for varName, value in sorted (self.__dict__.iteritems()):
+        for varName, value in sorted (six.iteritems(self.__dict__)):
             if varName.startswith ('_'): continue
             form = self.getVariableProperty (varName, "form")
             if form:
