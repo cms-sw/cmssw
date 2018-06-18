@@ -52,13 +52,12 @@ public:
     void initEvent(const edm::Event& ev, const edm::EventSetup& es);
 
     void hitNtuplets(const IntermediateHitDoublets& regionDoublets,
-                     std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
-                     const SeedingLayerSetsHits& layers, const cudaStream_t& stream);
+                     const SeedingLayerSetsHits& layers, cudaStream_t stream);
     void fillResults(const IntermediateHitDoublets& regionDoublets,
                      std::vector<OrderedHitSeeds>& result,
                      const edm::EventSetup& es,
-                     const SeedingLayerSetsHits& layers, const cudaStream_t& stream);
+                     const SeedingLayerSetsHits& layers, cudaStream_t stream);
 
     void allocateOnGPU();
     void deallocateOnGPU();
@@ -132,12 +131,10 @@ private:
         const bool enabled_;
     };
 
-
-
-    void  launchKernels(const TrackingRegion &, int);
-    std::vector<std::array<std::pair<int,int> ,3 > > fetchKernelResult(int );
+    void  launchKernels(const TrackingRegion &, int, cudaStream_t);
+    std::vector<std::array<std::pair<int,int> ,3>> fetchKernelResult(int, cudaStream_t);
     const float extraHitRPhitolerance;
-    std::vector<std::vector<const HitDoublets *> > hitDoublets;
+    std::vector<std::vector<const HitDoublets *>> hitDoublets;
 
     const QuantityDependsPt maxChi2;
     const bool fitFastCircle;
@@ -147,8 +144,6 @@ private:
     const float caThetaCut = 0.00125f;
     const float caPhiCut = 0.1f;
     const float caHardPtCut = 0.f;
-
-    cudaStream_t cudaStream_;
 
     static constexpr int maxNumberOfQuadruplets_ = 10000;
     static constexpr int maxCellsPerHit_ = 512;
@@ -163,7 +158,6 @@ private:
     unsigned int numberOfLayerPairs_ = 0;
     unsigned int numberOfLayers_ = 0;
 
-
     GPULayerDoublets* h_doublets_;
     GPULayerHits* h_layers_;
 
@@ -175,13 +169,10 @@ private:
     GPULayerDoublets* d_doublets_;
     unsigned int* d_indices_;
     unsigned int* h_rootLayerPairs_;
-    std::vector< GPU::SimpleVector<Quadruplet>* > h_foundNtupletsVec_;
-    std::vector< Quadruplet* > h_foundNtupletsData_;
-
+    std::vector<GPU::SimpleVector<Quadruplet>*> h_foundNtupletsVec_;
+    std::vector<Quadruplet*> h_foundNtupletsData_;
 
     std::vector<GPU::SimpleVector<Quadruplet>*> d_foundNtupletsVec_;
-    std::vector<GPU::SimpleVector<Quadruplet>*> tmp_foundNtupletsVec_;
-
     std::vector<Quadruplet*> d_foundNtupletsData_;
 
     GPUCACell* device_theCells_;
@@ -189,6 +180,6 @@ private:
 
     GPULayerHits* tmp_layers_;
     GPULayerDoublets* tmp_layerDoublets_;
-
 };
+
 #endif

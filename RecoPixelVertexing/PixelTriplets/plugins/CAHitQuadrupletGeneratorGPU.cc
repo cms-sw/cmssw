@@ -23,7 +23,8 @@
 
 namespace {
 
-template <typename T> T sqr(T x) { return x * x; }
+  template <typename T> T sqr(T x) { return x * x; }
+
 } // namespace
 
 using namespace std;
@@ -182,9 +183,8 @@ void fillGraph(const SeedingLayerSetsHits &layers,
 
 void CAHitQuadrupletGeneratorGPU::hitNtuplets(
     const IntermediateHitDoublets &regionDoublets,
-    std::vector<OrderedHitSeeds> &result, const edm::EventSetup &es,
-    const SeedingLayerSetsHits &layers, const cudaStream_t &cudaStream) {
-  cudaStream_ = cudaStream;
+    const edm::EventSetup &es,
+    const SeedingLayerSetsHits &layers, cudaStream_t cudaStream) {
   CAGraph g;
 
   hitDoublets.resize(regionDoublets.regionSize());
@@ -288,7 +288,7 @@ void CAHitQuadrupletGeneratorGPU::hitNtuplets(
       cudaMemcpyAsync(&d_indices_[j * maxNumberOfDoublets_ * 2],
                       &h_indices_[j * maxNumberOfDoublets_ * 2],
                       tmp_layerDoublets_[j].size * 2 * sizeof(int),
-                      cudaMemcpyHostToDevice, cudaStream_);
+                      cudaMemcpyHostToDevice, cudaStream);
     }
 
     for (unsigned int j = 0; j < numberOfLayers_; ++j) {
@@ -302,43 +302,43 @@ void CAHitQuadrupletGeneratorGPU::hitNtuplets(
 
       cudaMemcpyAsync(&d_x_[maxNumberOfHits_ * j], &h_x_[j * maxNumberOfHits_],
                       tmp_layers_[j].size * sizeof(float),
-                      cudaMemcpyHostToDevice, cudaStream_);
+                      cudaMemcpyHostToDevice, cudaStream);
 
       tmp_layers_[j].y = &d_y_[maxNumberOfHits_ * j];
       cudaMemcpyAsync(&d_y_[maxNumberOfHits_ * j], &h_y_[j * maxNumberOfHits_],
                       tmp_layers_[j].size * sizeof(float),
-                      cudaMemcpyHostToDevice, cudaStream_);
+                      cudaMemcpyHostToDevice, cudaStream);
 
       tmp_layers_[j].z = &d_z_[maxNumberOfHits_ * j];
 
       cudaMemcpyAsync(&d_z_[maxNumberOfHits_ * j], &h_z_[j * maxNumberOfHits_],
                       tmp_layers_[j].size * sizeof(float),
-                      cudaMemcpyHostToDevice, cudaStream_);
+                      cudaMemcpyHostToDevice, cudaStream);
     }
 
     cudaMemcpyAsync(d_rootLayerPairs_, h_rootLayerPairs_,
                     numberOfRootLayerPairs_ * sizeof(unsigned int),
-                    cudaMemcpyHostToDevice, cudaStream_);
+                    cudaMemcpyHostToDevice, cudaStream);
     cudaMemcpyAsync(d_doublets_, tmp_layerDoublets_,
                     numberOfLayerPairs_ * sizeof(GPULayerDoublets),
-                    cudaMemcpyHostToDevice, cudaStream_);
+                    cudaMemcpyHostToDevice, cudaStream);
     cudaMemcpyAsync(d_layers_, tmp_layers_, numberOfLayers_ * sizeof(GPULayerHits),
-                    cudaMemcpyHostToDevice, cudaStream_);
+                    cudaMemcpyHostToDevice, cudaStream);
 
-    launchKernels(region, index);
-}
+    launchKernels(region, index, cudaStream);
+  }
 }
 
 void CAHitQuadrupletGeneratorGPU::fillResults(
     const IntermediateHitDoublets &regionDoublets,
     std::vector<OrderedHitSeeds> &result, const edm::EventSetup &es,
-    const SeedingLayerSetsHits &layers, const cudaStream_t &cudaStream)
+    const SeedingLayerSetsHits &layers, cudaStream_t cudaStream)
 {
     int index = 0;
 
     for (const auto &regionLayerPairs : regionDoublets) {
       const TrackingRegion &region = regionLayerPairs.region();
-      auto foundQuads = fetchKernelResult(index);
+      auto foundQuads = fetchKernelResult(index, cudaStream);
       unsigned int numberOfFoundQuadruplets = foundQuads.size();
       const QuantityDependsPtEval maxChi2Eval = maxChi2.evaluator(es);
 
