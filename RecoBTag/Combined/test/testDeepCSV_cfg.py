@@ -25,24 +25,30 @@ updateJetCollection(
    btagDiscriminators = [
       'pfCombinedSecondaryVertexV2BJetTags',
 
-      'pfDeepCSVJetTags:probudsg', 
-      'pfDeepCSVJetTags:probb', 
-      'pfDeepCSVJetTags:probc', 
-      'pfDeepCSVJetTags:probbb', 
+      'pfDeepCSVJetTags:probudsg',
+      'pfDeepCSVJetTags:probb',
+      'pfDeepCSVJetTags:probc',
+      'pfDeepCSVJetTags:probbb',
       'pfDeepCSVJetTags:probcc',
-      
-      ## 'pfDeepCMVAJetTags:probudsg', 
-      ## 'pfDeepCMVAJetTags:probb', 
-      ## 'pfDeepCMVAJetTags:probc', 
-      ## 'pfDeepCMVAJetTags:probbb', 
+
+      ## 'pfDeepCMVAJetTags:probudsg',
+      ## 'pfDeepCMVAJetTags:probb',
+      ## 'pfDeepCMVAJetTags:probc',
+      ## 'pfDeepCMVAJetTags:probbb',
       ## 'pfDeepCMVAJetTags:probcc'
       ] ## to add discriminators
 )
 
 process.updatedPatJets.userData.userFloats.src += ['oldJetMass']
 
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
-process.source.fileNames = filesRelValTTbarPileUpMINIAODSIM
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpMINIAODSIM
+process.source = cms.Source("PoolSource",
+    # replace 'myfile.root' with the source file you want to use
+    fileNames = cms.untracked.vstring(
+        'file:./../../nanevents.root'
+    )
+)
+#) fileNames = filesRelValTTbarPileUpMINIAODSIM
 #                                         ##
 process.maxEvents.input = 100
 #                                         ##
