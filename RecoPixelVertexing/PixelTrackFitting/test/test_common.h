@@ -20,8 +20,7 @@ __host__ __device__ void printIt(C * m) {
 }
 
 template<class C>
-bool isEqualFuzzy(C a, C b) {
-  constexpr double epsilon = 1e-6;
+bool isEqualFuzzy(C a, C b, double epsilon = 1e-6) {
   for (unsigned int i = 0; i < a.rows(); ++i) {
     for (unsigned int j = 0; j < a.cols(); ++j) {
       assert(std::abs(a(i,j)-b(i,j))
@@ -31,8 +30,7 @@ bool isEqualFuzzy(C a, C b) {
   return true;
 }
 
-bool isEqualFuzzy(double a, double b) {
-  constexpr double epsilon = 1e-6;
+bool isEqualFuzzy(double a, double b, double epsilon=1e-6) {
   return std::abs(a-b) < std::min(std::abs(a), std::abs(b))*epsilon;
 }
 
