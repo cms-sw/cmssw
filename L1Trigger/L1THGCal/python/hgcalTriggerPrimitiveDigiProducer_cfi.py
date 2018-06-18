@@ -104,7 +104,7 @@ L1TTriggerTowerConfig_etaphi = cms.PSet(readMappingFile=cms.bool(False),
 
 
 L1TTriggerTowerConfig_hgcroc_etaphi = cms.PSet(readMappingFile=cms.bool(True),
-                                               L1TTriggerTowerMapping=cms.FileInPath("L1Trigger/L1THGCal/data/TCmapping_hgcroc_eta-phi_v0.txt"),
+                                               L1TTriggerTowerMapping=cms.FileInPath("L1Trigger/L1THGCal/data/tower_mapping_hgcroc_eta-phi_v0.txt"),
                                                minEta=cms.double(1.41),
                                                maxEta=cms.double(3.1),
                                                minPhi=cms.double(-1*math.pi),
