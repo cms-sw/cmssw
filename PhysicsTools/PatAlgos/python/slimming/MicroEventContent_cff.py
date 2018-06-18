@@ -80,7 +80,7 @@ MicroEventContent = cms.PSet(
         # CTPPS
         'keep CTPPSLocalTrackLites_ctppsLocalTrackLiteProducer_*_*',
 	# displacedStandAlone muon collection for EXO
-	'keep recoTracks_displacedStandAloneMuons_*_*',
+	'keep recoTracks_displacedStandAloneMuons__*',
     )
 )
 
