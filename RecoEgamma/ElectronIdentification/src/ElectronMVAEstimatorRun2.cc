@@ -2,8 +2,8 @@
 
 ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf),
-  tag_(conf.getParameter<std::string>("mvaTag")),
   name_(conf.getParameter<std::string>("mvaName")),
+  tag_(conf.getParameter<std::string>("mvaTag")),
   nCategories_            (conf.getParameter<int>("nCategories")),
   methodName_             ("BDTG method"),
   mvaVarMngr_(conf.getParameter<std::string>("variableDefinition")),
@@ -33,8 +33,8 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf
 ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(
         const std::string &mvaTag, const std::string &mvaName, const bool debug):
   AnyMVAEstimatorRun2Base( edm::ParameterSet() ),
-  tag_                    (mvaTag),
   name_                   (mvaName),
+  tag_                    (mvaTag),
   methodName_             ("BDTG method"),
   debug_                  (debug) {
   }
@@ -161,13 +161,6 @@ int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::GsfElectron>& e
       if (categoryFunctions_[i](*eleRecoPtr)) return i;
   }
   return -1;
-}
-
-// Dummy fonction just to make the template happy
-std::vector<float> ElectronMVAEstimatorRun2::
-fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
-  std::vector<float> vars;
-  return vars;
 }
 
 // A function that should work on both pat and reco objects

@@ -66,20 +66,17 @@ class PhotonMVANtuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources
       void analyze(const edm::Event&, const edm::EventSetup&) override;
       void endJob() override;
 
-      template<class T, class V>
-      int matchToTruth(const T &el, const V &genParticles, int &genIdx);
-
       // ----------member data ---------------------------
 
       // for AOD case
-      edm::EDGetToken src_;
-      edm::EDGetToken vertices_;
-      edm::EDGetToken pileup_;
+      const edm::EDGetToken src_;
+      const edm::EDGetToken vertices_;
+      const edm::EDGetToken pileup_;
 
       // for miniAOD case
-      edm::EDGetToken srcMiniAOD_;
-      edm::EDGetToken verticesMiniAOD_;
-      edm::EDGetToken pileupMiniAOD_;
+      const edm::EDGetToken srcMiniAOD_;
+      const edm::EDGetToken verticesMiniAOD_;
+      const edm::EDGetToken pileupMiniAOD_;
 
       // other
       TTree* tree_;
