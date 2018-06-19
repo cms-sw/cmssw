@@ -103,7 +103,6 @@ tobTecStepSeedsTripl = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduce
 #fastsim
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 _fastSim_tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = tobTecStepSeedLayersTripl.layerList.value(),
     trackingRegions = "tobTecStepTrackingRegionsTripl",
     hitMasks = cms.InputTag("tobTecStepMasks"),
 )
@@ -111,6 +110,7 @@ from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSe
 _fastSim_tobTecStepSeedsTripl.seedFinderSelector.MultiHitGeneratorFactory = _hitSetProducerToFactoryPSet(tobTecStepHitTripletsTripl)
 _fastSim_tobTecStepSeedsTripl.seedFinderSelector.MultiHitGeneratorFactory.SeedComparitorPSet=cms.PSet(  ComponentName = cms.string( "none" ) )
 _fastSim_tobTecStepSeedsTripl.seedFinderSelector.MultiHitGeneratorFactory.refitHits = False
+_fastSim_tobTecStepSeedsTripl.seedFinderSelector.layerList = tobTecStepSeedLayersTripl.layerList.value()
 fastSim.toReplaceWith(tobTecStepSeedsTripl,_fastSim_tobTecStepSeedsTripl)
 
 # PAIR SEEDING LAYERS
@@ -168,9 +168,9 @@ tobTecStepSeedsPair = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 fastSim.toReplaceWith(tobTecStepSeedsPair,
                       FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-        layerList = tobTecStepSeedLayersPair.layerList.value(),
         trackingRegions = "tobTecStepTrackingRegionsPair",
         hitMasks = cms.InputTag("tobTecStepMasks"),
+        seedFinderSelector = dict(layerList = tobTecStepSeedLayersPair.layerList.value())
         )
 )
 

@@ -1,4 +1,4 @@
-#include "CAHitQuadrupletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CAHitQuadrupletGenerator.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 
@@ -10,7 +10,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 
-
+#include "CAGraph.h"
 #include "CellularAutomaton.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"
