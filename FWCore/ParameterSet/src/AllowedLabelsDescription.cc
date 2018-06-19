@@ -41,6 +41,10 @@ namespace edm {
   {
   }
 
+  AllowedLabelsDescription<ParameterSetDescription>::~AllowedLabelsDescription()
+  {
+  }
+
   ParameterDescriptionNode*
   AllowedLabelsDescription<ParameterSetDescription>::
   clone() const {
@@ -133,6 +137,10 @@ namespace edm {
                            bool isTracked) :
     AllowedLabelsDescriptionBase(label, k_VPSet, isTracked),
     psetDesc_(new ParameterSetDescription(value))
+  {
+  }
+
+  AllowedLabelsDescription<std::vector<ParameterSet> >::~AllowedLabelsDescription()
   {
   }
 
