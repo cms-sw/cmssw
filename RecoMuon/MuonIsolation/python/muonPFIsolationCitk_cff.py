@@ -9,7 +9,7 @@ pfNoPileUpCandidates = pfAllChargedHadrons.clone()
 pfNoPileUpCandidates.pdgId.extend(pfAllNeutralHadronsAndPhotons.pdgId)
 
 muonIsolationTask = cms.Task(pfParticleSelectionTask,
-                             pfNoPileUpCandidates,
+                             cms.ignore(pfNoPileUpCandidates),
                              muonPFNoPileUpIsolation,
                              muonPFPileUpIsolation)
 muonIsolationSequence = cms.Sequence(muonIsolationTask)
