@@ -25,7 +25,7 @@ public:
         dFcPerADC_{0.f}, recoShape_{0}, nSamples_{0}, 
         soi_{0}, capid_{0}, hasTimeInfo_{false}, hasEffectivePedestals_{false},
         dropped_{true}, hasLinkError_{false}, hasCapidError_{false}
-    {clear();}
+    {}
 
     constexpr explicit HBHEChannelInfo(const bool hasTimeFromTDC, const bool hasEffectivePed)
       : id_(), rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
@@ -35,7 +35,7 @@ public:
         soi_{0}, capid_{0}, hasTimeInfo_(hasTimeFromTDC), 
         hasEffectivePedestals_(hasEffectivePed),
         dropped_{true}, hasLinkError_{false}, hasCapidError_{false}
-    {clear();}
+    {}
 
     constexpr void clear()
     {
