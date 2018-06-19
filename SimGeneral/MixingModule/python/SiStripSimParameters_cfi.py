@@ -19,8 +19,8 @@ SiStripSimBlock = cms.PSet(
     #switch to use different coupling constants set
     #if True RunII cross talk will be used
     #if False RunI cross talk will be used
-    CouplingConstantsRunIIDecB   = cms.bool(True), #for TIB and TOB
-    CouplingConstantsRunIIDecW   = cms.bool(True), #for TID and TEC
+    CouplingConstantsRunIIDecB   = cms.bool(False), #for TIB and TOB
+    CouplingConstantsRunIIDecW   = cms.bool(False), #for TID and TEC
     #TIB
     CouplingConstantDecIB1  = cms.vdouble(0.7748, 0.0962,0.0165),                    
     CouplingConstantDecIB2  = cms.vdouble(0.8300, 0.0756,0.0094),                    
