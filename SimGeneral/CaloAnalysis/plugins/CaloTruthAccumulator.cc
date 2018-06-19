@@ -206,6 +206,8 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   const HcalDDDRecConstants* hcddd_ = nullptr;
   OutputCollections output_;
   calo_particles m_caloParticles;
+  //geometry type (0 pre-TDR; 1 TDR)
+  int geometryType_;
 };
 
 /* Graph utility functions */
@@ -376,7 +378,8 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet& config,
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
       minEnergy_(config.getParameter<double>("MinEnergy")),
       maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
-      premixStage1_(config.getParameter<bool>("premixStage1"))
+      premixStage1_(config.getParameter<bool>("premixStage1")),
+      geometryType_(-1)
 {
   mixMod.produces<SimClusterCollection>("MergedCaloTruth");
   mixMod.produces<CaloParticleCollection>("MergedCaloTruth");
@@ -415,10 +418,12 @@ void CaloTruthAccumulator::beginLuminosityBlock(edm::LuminosityBlock const& iLum
   eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
   //check if it's the new geometry
   if(eegeom){
+    geometryType_ = 1;
     fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
     bhgeomnew = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::HGCalHSc,ForwardSubdetector::ForwardEmpty));
   }
   else {
+    geometryType_ = 0;
     eegeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCEE));
     fhgeom = static_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(DetId::Forward, HGCHEF));
     bhgeom = static_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
@@ -677,7 +682,11 @@ void CaloTruthAccumulator::fillSimHits(
     for (auto const& simHit : *hSimHits) {
       DetId id(0);
       const uint32_t simId = simHit.id();
-      if (isHcal) {
+      if (geometryType_==1) {
+        //no test numbering in new geometry
+        id = simId;
+      }
+      else if (isHcal) {
         HcalDetId hid = HcalHitRelabeller::relabel(simId, hcddd_);
         if (hid.subdet() == HcalEndcap) id = hid;
       } else {
