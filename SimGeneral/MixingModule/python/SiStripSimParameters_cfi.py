@@ -121,3 +121,9 @@ premix_stage1.toModify(SiStripSimBlock,
     PreMixingMode = True,
     FedAlgorithm = 5, # special ZS mode: accept adc>0
 )
+
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify(SiStripSimBlock,
+                     CouplingConstantsRunIIDecB = True, #for TIB and TOB
+                     CouplingConstantsRunIIDecW = True  #for TID and TEC
+                     )
