@@ -33,7 +33,7 @@ public:
   ~TotemT2OrganizationGem() override;
 
   // ---------- member functions ---------------------------
-  uint32_t         GetUnitID(const G4Step* aStep) const override;
+  uint32_t getUnitID(const G4Step* aStep) const override;
 
 };
 

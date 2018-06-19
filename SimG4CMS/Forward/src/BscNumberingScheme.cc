@@ -14,26 +14,20 @@ BscNumberingScheme::BscNumberingScheme() {
   LogDebug("BscSim") << " Creating BscNumberingScheme" ;
 }
 
-BscNumberingScheme::~BscNumberingScheme() {
-  LogDebug("BscSim") << " Deleting BscNumberingScheme" ;
-}
-
 int BscNumberingScheme::detectorLevel(const G4Step* aStep) const {
 
   //Find number of levels
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  int level = 0;
-  if (touch) level = ((touch->GetHistoryDepth())+1);
-  return level;
+  return (touch) ? ((touch->GetHistoryDepth())+1) : 0;
 }
 
 void BscNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
-                                        int* copyno, G4String* name) const {
+                                       int* copyno, G4String* name) const {
 
   //Get name and copy numbers
   if (level > 0) {
     const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-    for (int ii = 0; ii < level; ii++) {
+    for (int ii = 0; ii < level; ++ii) {
       int i      = level - ii - 1;
       name[ii]   = touch->GetVolume(i)->GetName();
       copyno[ii] = touch->GetReplicaNumber(i);
@@ -43,12 +37,11 @@ void BscNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
 
 unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
 
-  unsigned intindex=0;
+  unsigned int intindex=0;
   int level = detectorLevel(aStep);
 
   LogDebug("BscSim") << "BscNumberingScheme number of levels= " << level;
 
- //  unsigned int intIndex = 0;
   if (level > 0) {
     int*      copyno = new int[level];
     G4String* name   = new G4String[level];
@@ -78,13 +71,14 @@ unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
 			 << copyno[ich] << "name="  << name[ich];
 
     }
-    intindex = packBscIndex (zside,det,  station);
+    intindex = packBscIndex (zside, det, station);
     LogDebug("BscSim") << "BscNumberingScheme : det " << det << " zside " 
 		       << zside << " station " << station 
 		       << " UnitID 0x" << std::hex << intindex << std::dec;
 
     for (int ich = 0; ich < level; ich++)
       LogDebug("BscSim") <<" name = " << name[ich] <<" copy = " << copyno[ich];
+
     LogDebug("BscSim") << " packed index = 0x" << std::hex << intindex 
 		       << std::dec;
 
@@ -92,11 +86,10 @@ unsigned int BscNumberingScheme::getUnitID(const G4Step* aStep) const {
     delete[] name;
   }
 
-  return intindex;
-  
+  return intindex;  
 }
 
-unsigned BscNumberingScheme::packBscIndex(int zside,int det,  int station){
+unsigned int BscNumberingScheme::packBscIndex(int zside,int det,  int station){
   unsigned int idx = 6 << 28; // autre numero que les detecteurs existants 
   idx += (zside<<5)&32;       // vaut 0 ou 1 bit 5    
   idx += (det<<3)&24;         //bit 3-4    det:0-1-2    2 bits:0-1
