@@ -16,7 +16,7 @@ public:
 
   constexpr HBHERecHit()
     : CaloRecHit(),
-      timeFalling_(-1.0),
+      timeFalling_(0),
       chiSquared_(-1),
       rawEnergy_(-1.0e21),
       auxEnergy_(-1.0e21),
