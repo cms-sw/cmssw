@@ -12,6 +12,6 @@ egmPhotonIsolation = cms.EDProducer( "CITKPFIsolationSumProducer",
                                      )	
 
 egmPhotonIsolationAODTask = cms.Task(pfNoPileUpIsoTask,
-                                     cms.ignore(pfNoPileUpCandidates),
+                                     pfNoPileUpCandidates,
                                      egmPhotonIsolation)
 egmPhotonIsolationAODSequence = cms.Sequence(egmPhotonIsolationAODTask)
