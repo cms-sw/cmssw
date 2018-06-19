@@ -5,7 +5,6 @@
 #include <algorithm>
 
 #include <iostream>
-using namespace std;
 
 //const double EcalShapeBase::m_qNSecPerBin = 1./(1.*kNBinsPerNSec) ;
 
