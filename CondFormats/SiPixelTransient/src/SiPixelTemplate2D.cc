@@ -64,7 +64,6 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
    // Add template stored in external file numbered filenum to theTemplateStore
    
    // Local variables
-   char c;
    const int code_version={21};
    
    //  Create a filename for this run
@@ -101,9 +100,10 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
       SiPixelTemplateStore2D theCurrentTemp;
       
       // Read-in a header string first and print it
+      char c;
       for (int i=0; (c=in_file.get()) != '\n'; ++i) {
          if(i < 79) {theCurrentTemp.head.title[i] = c;}
-         if(i > 78) {theCurrentTemp.head.title[79] ='\0';}
+         else       {theCurrentTemp.head.title[79] ='\0';}
       }
       LOGINFO("SiPixelTemplate2D") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
       
