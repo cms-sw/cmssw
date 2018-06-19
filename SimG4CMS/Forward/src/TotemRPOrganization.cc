@@ -35,7 +35,7 @@ TotemRPOrganization :: ~TotemRPOrganization() {
 // member functions
 //
 
-uint32_t TotemRPOrganization :: GetUnitID(const G4Step* aStep) const {
+uint32_t TotemRPOrganization :: getUnitID(const G4Step* aStep) const {
 
   G4VPhysicalVolume* physVol;
   int32_t UNITA=0;
