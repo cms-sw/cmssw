@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <fstream>
-using namespace std;
 /**
    \class EcalShape
    \brief  shaper for Ecal
