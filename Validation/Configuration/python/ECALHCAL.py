@@ -84,6 +84,6 @@ def customise(process):
 
     process.schedule.append(process.endjob_step)
     #process.schedule.append(process.out_step)
-    process.schedule.append(getattr(six.iteritems(process,process.outputModules_()).next()[0]+"_step"))
+    process.schedule.append(getattr(process,six.iteritems(process.outputModules_()).next()[0]+"_step"))
 
     return(process)
