@@ -7,7 +7,7 @@ electronsWithPresel = cms.EDFilter("GsfElectronSelector",
                                    cut = cms.string("pt > 5 && ecalDrivenSeed && passingCutBasedPreselection"),
                                    )
 
-mvaElectrons = cms.EDFilter("ElectronIdMVABased",
+mvaElectrons = cms.EDProducer("ElectronIdMVABased",
                             vertexTag = cms.InputTag('offlinePrimaryVertices'),
                             electronTag = cms.InputTag('electronsWithPresel'),
                             HZZmvaWeightFile = cms.vstring(
