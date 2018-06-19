@@ -24,7 +24,7 @@
 class CaloRecHit {
 public:
   constexpr CaloRecHit() : energy_(0), time_(0), flags_(0), aux_(0) {}
-  constexpr CaloRecHit(const DetId& id, float energy, float time, 
+  constexpr explicit CaloRecHit(const DetId& id, float energy, float time, 
                                 uint32_t flags = 0, uint32_t aux=0)
 	: id_(id),energy_(energy), time_(time), flags_(flags), aux_(aux) {}
 
