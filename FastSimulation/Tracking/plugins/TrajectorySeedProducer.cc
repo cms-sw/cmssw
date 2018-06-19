@@ -102,7 +102,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf)
     }
 
     // read Layers
-    std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
+    std::vector<std::string> layerStringList = conf.getParameter<edm::ParameterSet>("seedFinderSelector").getParameter<std::vector<std::string>>("layerList");
     std::string layerBegin = *(layerStringList.cbegin());
     nHitsPerSeed_ = 0;
     for(auto it=layerStringList.cbegin(); it < layerStringList.cend(); ++it) 
