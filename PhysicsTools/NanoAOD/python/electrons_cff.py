@@ -43,10 +43,6 @@ _electron_id_modules_WorkingPoints = cms.PSet(
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff',
     ),
     WorkingPoints = cms.vstring(
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-veto",
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-loose",
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-medium",
-        "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V1-tight",
         "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-veto",
         "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-loose",
         "egmGsfElectronIDs:cutBasedElectronID-Fall17-94X-V2-medium",
