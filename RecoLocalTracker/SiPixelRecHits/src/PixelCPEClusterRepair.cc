@@ -333,8 +333,8 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
                        theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.probabilityY_,
                        theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.probabilityX_,
                        theClusterParam.qBin_,
-               speed_, deadpix, zeropix,
-               theClusterParam.probabilityQ_, nypix, nxpix
+                       speed_, deadpix, zeropix,
+                       theClusterParam.probabilityQ_, nypix, nxpix
                        );
    }
    // ******************************************************************
