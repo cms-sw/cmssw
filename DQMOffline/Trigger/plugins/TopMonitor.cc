@@ -583,7 +583,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   //ATHER                                                                                                                                                                                                                       
   edm::Handle<edm::ValueMap<bool> > eleIDHandle;
   iEvent.getByToken(elecIDToken_,  eleIDHandle);
-  if (!eleIDHandle.isValid()){
+  if (!eleIDHandle.isValid() && nelectrons_>0){
     edm::LogWarning("TopMonitor") << "Electron ID handle not valid \n";
     return;
   }
