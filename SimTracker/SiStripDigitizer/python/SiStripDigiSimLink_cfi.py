@@ -113,3 +113,9 @@ simSiStripDigiSimLink = cms.EDProducer("DigiSimLinkProducer",
                                TOFCutForPeak              = cms.double(100.0),
                                Inefficiency               = cms.double(0.0)
                               )
+
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify(simSiStripDigiSimLink,
+                     CouplingConstantsRunIIDecB   = cms.bool(True), #for TIB and TOB
+                     CouplingConstantsRunIIDecW   = cms.bool(True)  #for TID and TEC
+                     )
