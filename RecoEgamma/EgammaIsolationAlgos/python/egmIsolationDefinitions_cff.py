@@ -10,7 +10,7 @@ pfNoPileUpCandidates = pfAllChargedHadrons.clone()
 pfNoPileUpCandidates.pdgId.extend(pfAllNeutralHadronsAndPhotons.pdgId)
 
 egmIsolationTask = cms.Task( pfParticleSelectionTask,
-                             pfNoPileUpCandidates,
+                             cms.ignore(pfNoPileUpCandidates),
                              egmGedGsfElectronPFNoPileUpIsolation,
                              egmGedGsfElectronPFPileUpIsolation,
                              pfClusterIsolationTask

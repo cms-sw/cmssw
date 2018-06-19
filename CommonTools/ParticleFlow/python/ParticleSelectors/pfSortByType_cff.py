@@ -18,9 +18,9 @@ pfSortByTypeTask = cms.Task(
     pfAllChargedHadrons,
     pfAllPhotons,
     # charged hadrons + electrons + muons
-    pfAllChargedParticles,
+    cms.ignore(pfAllChargedParticles),
     # same, but from pile up
-    pfPileUpAllChargedParticles,
+    cms.ignore(pfPileUpAllChargedParticles),
     pfAllNeutralHadronsAndPhotons
 #    ,
 #    pfAllElectrons,
