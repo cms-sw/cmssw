@@ -15,8 +15,10 @@ __global__ void kernel_test_calo_rechit(CaloRecHit* other) {
 
 void test_calo_rechit() {
     auto check_error = [](auto code) {
-        if (code != cudaSuccess)
+        if (code != cudaSuccess) {
             std::cout << cudaGetErrorString(code) << std::endl;
+            assert(false);
+        }
     };
 
     CaloRecHit h_rh, h_rh_test{DetId(0), 10, 1, 0, 0};
