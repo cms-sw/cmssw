@@ -24,6 +24,10 @@ void BasicHepMCValidation::dqmBeginRun(const edm::Run& r, const edm::EventSetup&
   c.getData( fPDGTable );
 }
 
+// Set upper bound & lower bound for PDF & Scale related histograms
+double logPdfMax = 3.0; double logPdfMin = -3.0; int logPdfNbin = 150; double logPdfBinsize = (logPdfMax - logPdfMin)/(double)logPdfNbin;
+double logQScaleMax = 4.0; double logQScaleMin = -1.0; int logQScaleNbin = 500; double logQScaleBinsize = (logQScaleMax - logQScaleMin)/(double)logQScaleNbin;
+
 void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
   ///Setting the DQM top directories
   DQMHelper dqm(&i); i.setCurrentFolder("Generator/Particles");
@@ -126,15 +130,15 @@ void BasicHepMCValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &
   genPtclStatus = dqm.book1dHisto("genPtclStatus", "Status of genParticle", 200,0,200.,"","Number of Events");
   //
   Bjorken_x = dqm.book1dHisto("Bjorken_x", "Bjorken_x", 1000, 0.0, 1.0,"Bjorken_{x}","Number of Events");
-  pdf_u = dqm.book1dHisto("pdf_u", "Log10(PDF(u,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  pdf_ubar = dqm.book1dHisto("pdf_ubar", "Log10(PDF(ubar,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  pdf_d = dqm.book1dHisto("pdf_d", "Log10(PDF(d,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  pdf_dbar = dqm.book1dHisto("pdf_dbar", "Log10(PDF(dbar,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  pdf_ssbar = dqm.book1dHisto("pdf_ssbar", "Log10(PDF(ssbar,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  pdf_ccbar = dqm.book1dHisto("pdf_ccbar", "Log10(PDF(ccbar,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  pdf_bbbar = dqm.book1dHisto("pdf_bbbar", "Log10(PDF(bbbar,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  pdf_g = dqm.book1dHisto("pdf_g", "Log10(PDF(g,x,Q))", 150, -3.0, 3.0,"log_{10}(x*f(x))","Number of Events"); //Log
-  scalePDF = dqm.book1dHisto("scalePDF", "Log10(Q-scale(GeV))", 500, -1.0, 4.0,"log_{10}(Q-scale(GeV))","Number of Events");
+  pdf_u = dqm.book1dHisto("pdf_u", "Log10(PDF(u,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  pdf_ubar = dqm.book1dHisto("pdf_ubar", "Log10(PDF(ubar,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  pdf_d = dqm.book1dHisto("pdf_d", "Log10(PDF(d,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  pdf_dbar = dqm.book1dHisto("pdf_dbar", "Log10(PDF(dbar,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  pdf_ssbar = dqm.book1dHisto("pdf_ssbar", "Log10(PDF(ssbar,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  pdf_ccbar = dqm.book1dHisto("pdf_ccbar", "Log10(PDF(ccbar,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  pdf_bbbar = dqm.book1dHisto("pdf_bbbar", "Log10(PDF(bbbar,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  pdf_g = dqm.book1dHisto("pdf_g", "Log10(PDF(g,x,Q))", logPdfNbin, logPdfMin, logPdfMax,"log_{10}(x*f(x))","Number of Events"); //Log
+  scalePDF = dqm.book1dHisto("scalePDF", "Log10(Q-scale(GeV))", logQScaleNbin, logQScaleMin, logQScaleMax,"log_{10}(Q-scale(GeV))","Number of Events");
   parton1Id = dqm.book1dHisto("parton1Id", "ID of parton 1", 45, -14.5, 30.5,"ID","Number of Events");
   parton2Id = dqm.book1dHisto("parton2Id", "ID of parton 2", 45, -14.5, 30.5,"ID","Number of Events");
   //
@@ -189,14 +193,14 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   if(pdf){
     bjorken = ((pdf->x1())/((pdf->x1())+(pdf->x2())));
     logQScale = log10(pdf->scalePDF());
-    if(logQScale > 4.) logQScale = 3.995; // visualize overflow & underflow in the histograms
-    if(logQScale < -1.) logQScale = -0.995;
+    if(logQScale > logQScaleMax) logQScale = logQScaleMax - 0.5*logQScaleBinsize; // visualize overflow & underflow in the histograms
+    if(logQScale < logQScaleMin) logQScale = logQScaleMin + 0.5*logQScaleBinsize;
     logPdf1 = log10(pdf->pdf1());
-    if(logPdf1 > 3.) logPdf1 = 2.98;
-    if(logPdf1 < -3.) logPdf1 = -2.98;
+    if(logPdf1 > logPdfMax) logPdf1 = logPdfMax - 0.5*logPdfBinsize;
+    if(logPdf1 < logPdfMin) logPdf1 = logPdfMin + 0.5*logPdfBinsize;
     logPdf2 = log10(pdf->pdf2());
-    if(logPdf2 > 3.) logPdf2 = 2.98;
-    if(logPdf2 < -3.) logPdf2 = -2.98;
+    if(logPdf2 > logPdfMax) logPdf2 = logPdfMax - 0.5*logPdfBinsize;
+    if(logPdf2 < logPdfMin) logPdf2 = logPdfMin + 0.5*logPdfBinsize;
     Bjorken_x->Fill(bjorken,weight);
     scalePDF->Fill(logQScale,weight);
     parton1Id->Fill((double)pdf->id1(),weight);
