@@ -187,6 +187,9 @@ void testCutParser::checkAll() {
   check("quality('goodIterative')", true);
   check("quality('looseSetWithPV')", false);
   check("quality('highPuritySetWithPV')", false);
+  check("quality('highPuritySetWithPV' )", false);
+  check("quality( 'highPuritySetWithPV')", false);
+  check("quality( 'highPuritySetWithPV' )", false);
 
   // check handling of errors 
   //   first those who are the same in lazy and non lazy parsing
