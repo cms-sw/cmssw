@@ -44,6 +44,9 @@
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <vector>
 #include <memory>
@@ -77,7 +80,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
   computeSoftMuonMVA_(false),
   recomputeBasicSelectors_(false),
   mvaUseJec_(false),
-  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false)
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false),
+  era_(iConfig.exists("era") ? iConfig.getParameter<std::string>("era") : "")
 {
   // input source
   muonToken_ = consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>( "muonSource" ));
@@ -178,6 +182,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
 
   // MC info
   simInfo_        = consumes<edm::ValueMap<reco::MuonSimInfo> >(iConfig.getParameter<edm::InputTag>("muonSimInfo"));
+
+  triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(edm::InputTag("slimmedPatTrigger"));
 
   // produces vector of muons
   produces<std::vector<Muon> >();
@@ -523,7 +529,21 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (computeMuonMVA_) iEvent.getByToken(rho_,rho);
   const reco::Vertex* pv(nullptr);
   if (primaryVertexIsValid) pv = &primaryVertex;
+
+  edm::Handle<std::vector<pat::TriggerObjectStandAlone> > triggerObjects;
+  iEvent.getByToken(triggerObjects_, triggerObjects);
+
   for(auto& muon: *patMuons){
+    // trigger info
+    // std::vector<pat::TriggerObjectStandAloneRef> l1Refs;
+    for (unsigned int i=0; i<triggerObjects->size(); ++i){
+      if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerL1Mu)){
+	// WARNING: matching is not perfect - need to implement it right in reco
+	if (deltaR(triggerObjects->at(i).p4(),muon.p4())>0.3) continue;
+	muon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
+      }
+    }
+
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
