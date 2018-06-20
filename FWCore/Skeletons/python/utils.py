@@ -59,7 +59,7 @@ def functor(code, kwds, debug=0):
     """
     args  = []
     for key, val in kwds.items():
-        if  isinstance(val, basestring):
+        if  isinstance(val, str):
             arg = '%s="%s"' % (key, val)
         elif isinstance(val, list):
             arg = '%s=%s' % (key, val)
@@ -99,7 +99,7 @@ def user_info(ainput=None):
         return ainput
     pwdstr = pwd.getpwnam(os.getlogin())
     author = pwdstr.pw_gecos
-    if  author and isinstance(author, basestring):
+    if  author and isinstance(author, str):
         author = author.split(',')[0]
     return author
 

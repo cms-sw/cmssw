@@ -29,14 +29,14 @@ def allDaughters(particle, daughters, rank ):
 
 
 def bosonToX(particles, bosonType, xType):
-    bosons = filter(lambda x: x.status()==3 and x.pdgId()==bosonType, particles)
+    bosons = [x for x in particles if x.status()==3 and x.pdgId()==bosonType]
     daughters = []
     if len(bosons)==0:
         return [], False
     boson = bosons[0]
     daus = []
     allDaughters( boson, daus, 0)
-    xDaus = filter(lambda x: x.status()==3 and abs(x.pdgId())==xType, daus)
+    xDaus = [x for x in daus if x.status()==3 and abs(x.pdgId())==xType]
     # print printOut(xDaus)
     return xDaus, True 
 

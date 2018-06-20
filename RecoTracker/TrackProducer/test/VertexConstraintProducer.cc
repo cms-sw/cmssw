@@ -50,7 +50,12 @@ private:
   virtual void endJob() override ;
       
   // ----------member data ---------------------------
-  const edm::ParameterSet iConfig_;
+  const edm::InputTag srcTrkTag_;
+  edm::EDGetTokenT<reco::TrackCollection> trkToken_;
+
+  const edm::InputTag srcVtxTag_;
+  edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+
 };
 
 //
@@ -64,8 +69,14 @@ private:
 //
 // constructors and destructor
 //
-VertexConstraintProducer::VertexConstraintProducer(const edm::ParameterSet& iConfig) : iConfig_(iConfig)
+VertexConstraintProducer::VertexConstraintProducer(const edm::ParameterSet& iConfig) :
+srcTrkTag_(iConfig.getParameter<edm::InputTag>("srcTrk")),
+srcVtxTag_(iConfig.getParameter<edm::InputTag>("srcVtx"))
 {
+  //declare the consumes
+  trkToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTrkTag_));
+  vtxToken_ = consumes<reco::VertexCollection>(edm::InputTag(srcVtxTag_));
+
   //register your products
   produces<std::vector<VertexConstraint> >();
   produces<TrackVtxConstraintAssociationCollection>();
@@ -89,31 +100,36 @@ VertexConstraintProducer::~VertexConstraintProducer()
 void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  InputTag srcTag = iConfig_.getParameter<InputTag>("srcTrk");
-  Handle<reco::TrackCollection> theTCollection;
-  iEvent.getByLabel(srcTag,theTCollection);
 
-  std::unique_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
-  std::unique_ptr<TrackVtxConstraintAssociationCollection> output(new TrackVtxConstraintAssociationCollection);
+  Handle<reco::TrackCollection> theTCollection;
+  iEvent.getByToken(trkToken_, theTCollection);
+
+  Handle<reco::VertexCollection> theVertexHandle;
+  iEvent.getByToken(vtxToken_, theVertexHandle);
+
   edm::RefProd<std::vector<VertexConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<VertexConstraint> >();
+  std::unique_ptr<std::vector<VertexConstraint> > pairs(new std::vector<VertexConstraint>);
+  std::unique_ptr<TrackVtxConstraintAssociationCollection> output(new TrackVtxConstraintAssociationCollection(theTCollection, rPairs));
 
   int index = 0;
   
   //primary vertex extraction
 
-  InputTag srcTag2 = iConfig_.getParameter<InputTag>("srcVtx");
-  edm::Handle<reco::VertexCollection> primaryVertexHandle;
-  iEvent.getByLabel(srcTag2,primaryVertexHandle);
-  if(primaryVertexHandle->size()>0){
-  reco::Vertex pv;
-    pv = primaryVertexHandle->front();
+  if (theVertexHandle->size()>0){
+    const reco::Vertex& pv = theVertexHandle->front();
     for (reco::TrackCollection::const_iterator i=theTCollection->begin(); i!=theTCollection->end();i++) {
-      VertexConstraint tmp(GlobalPoint(pv.x(),pv.y(),pv.z()),GlobalError(pv.xError(),0,pv.yError(),0,0,pv.zError()));  
+      VertexConstraint tmp(
+        GlobalPoint(pv.x(), pv.y(), pv.z()),
+        GlobalError(
+        pv.covariance(0, 0),
+        pv.covariance(1, 0), pv.covariance(1, 1),
+        pv.covariance(2, 0), pv.covariance(2, 1), pv.covariance(2, 2)
+        )
+        );
       pairs->push_back(tmp);
       output->insert(reco::TrackRef(theTCollection,index), edm::Ref<std::vector<VertexConstraint> >(rPairs,index) );
       index++;
     }
-
   }
 
   iEvent.put(std::move(pairs));
@@ -121,8 +137,7 @@ void VertexConstraintProducer::produce(edm::Event& iEvent, const edm::EventSetup
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void VertexConstraintProducer::endJob() {
-}
+void VertexConstraintProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(VertexConstraintProducer);

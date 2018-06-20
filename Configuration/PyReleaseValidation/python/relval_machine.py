@@ -36,7 +36,7 @@ def convert_keys_to_string(dictionary):
         Utility to help deal with unicode keys in dictionaries created from json requests.
         In order to pass dict to function as **kwarg we should transform key/value to str.
     """
-    if isinstance(dictionary, basestring):
+    if isinstance(dictionary, str):
         return str(dictionary)
     elif isinstance(dictionary, collections.Mapping):
         return dict(map(convert_keys_to_string, dictionary.iteritems()))

@@ -113,9 +113,9 @@ pixelPairStepSeedsA = pixelPairStepSeeds.clone()
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 fastSim.toReplaceWith(pixelPairStepSeeds,
                       FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-        layerList = pixelPairStepSeedLayers.layerList.value(),
         trackingRegions = "pixelPairStepTrackingRegions",
         hitMasks = cms.InputTag("pixelPairStepMasks"),
+        seedFinderSelector = dict(layerList = pixelPairStepSeedLayers.layerList.value())
         )
 )
 
@@ -179,7 +179,7 @@ from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi import globalCombinedSe
 _pixelPairStepSeedsMerged = _globalCombinedSeeds.clone(
     seedCollections = ["pixelPairStepSeedsA", "pixelPairStepSeedsB"],
 )
-trackingPhase1.toReplaceWith(pixelPairStepSeeds, _pixelPairStepSeedsMerged)
+(trackingPhase1 & ~fastSim).toReplaceWith(pixelPairStepSeeds, _pixelPairStepSeedsMerged)
 
 
 # QUALITY CUTS DURING TRACK BUILDING

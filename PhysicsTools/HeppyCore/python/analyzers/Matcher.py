@@ -54,7 +54,7 @@ class Matcher(Analyzer):
     def beginLoop(self, setup):
         super(Matcher, self).beginLoop(setup)
         self.match_collections = []
-        if isinstance( self.cfg_ana.match_particles, basestring):
+        if isinstance( self.cfg_ana.match_particles, str):
             self.match_collections.append( (self.cfg_ana.match_particles, None) )
         else:
             self.match_collections = self.cfg_ana.match_particles

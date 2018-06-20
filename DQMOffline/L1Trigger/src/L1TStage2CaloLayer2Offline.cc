@@ -596,7 +596,7 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
   h_resolutionETMHFPhi_ = ibooker.book1D("resolutionETMHFPhi",
       "MET #phi resolution (HF); (L1 E_{T}^{miss} #phi - reco MET #phi) (HF); events", 200, -1, 1);
   h_resolutionPFMetNoMuPhi_ = ibooker.book1D("resolutionPFMetNoMuPhi",
-      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi); events", 200, -1, 1);
+      "MET #phi resolution (PFMetNoMu); (L1 E_{T}^{miss} #phi - reco MET #phi) (PFMetNoMu); events", 200, -1, 1);
   h_resolutionMHTPhi_ = ibooker.book1D("resolutionMHTPhi",
       "MET #phi resolution; (L1 MHT #phi - reco MHT #phi); events",  200, -1, 1);
 

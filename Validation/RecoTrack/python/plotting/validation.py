@@ -718,7 +718,7 @@ class Validation:
         filenames = [s.filename(self._newRelease) for s in self._fullsimSamples+self._fastsimSamples]
         if self._newFileModifier is not None:
             filenames = map(self._newFileModifier, filenames)
-        filenames = filter(lambda f: not os.path.exists(f), filenames)
+        filenames = [f for f in filenames if not os.path.exists(f)]
         if len(filenames) == 0:
             print "All files already downloaded"
             return

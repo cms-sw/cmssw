@@ -48,18 +48,17 @@ BscSD::BscSD(const std::string& name, const DDCompactView & cpv,
   SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr),
   hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
-  postStepPoint(nullptr), eventno(0){
+  postStepPoint(nullptr){
     
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
-  //int verbn = 1;
     
   SetVerboseLevel(verbn);
     
   slave  = new TrackingSlaveSD(name);
         
-  if      (name == "BSCHits") {
+  if(name == "BSCHits") {
     if (verbn > 0) {
       edm::LogInfo("BscSim") << "name = BSCHits and  new BscNumberingSchem";
     }
@@ -70,16 +69,8 @@ BscSD::BscSD(const std::string& name, const DDCompactView & cpv,
 }
 
 BscSD::~BscSD() { 
-  //AZ:
-  if (slave) delete slave; 
-
-  if (numberingScheme)
-    delete numberingScheme;
-
-}
-
-double BscSD::getEnergyDeposit(const G4Step* aStep) {
-  return aStep->GetTotalEnergyDeposit();
+  delete slave; 
+  delete numberingScheme;
 }
 
 void BscSD::Initialize(G4HCofThisEvent * HCE) { 
@@ -94,32 +85,22 @@ void BscSD::Initialize(G4HCofThisEvent * HCE) {
 
   tsID   = -2;
   primID = -2;
-
-  ////    slave->Initialize();
 }
 
 bool BscSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == nullptr) {
-    return true;
-  } else {
-    GetStepInfo(aStep);
-    //   LogDebug("BscSim") << edeposit <<std::endl;
-
-    //AZ
-#ifdef debug
-    LogDebug("BscSim") << "BscSD :  number of hits = " << theHC->entries() << std::endl;
-#endif
-
-    if (HitExists() == false && edeposit>0. ){ 
-      CreateNewHit();
-      return true;
+  edeposit = aStep->GetTotalEnergyDeposit();
+  if (edeposit>0.f){ 
+    getStepInfo(aStep);
+    LogDebug("BscSim") << "BscSD :  number of hits = " << theHC->entries();
+    if (!hitExists()){ 
+      createNewHit();
     }
   }
   return true;
 } 
 
-void BscSD::GetStepInfo(G4Step* aStep) {
+void BscSD::getStepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -131,29 +112,24 @@ void BscSD::GetStepInfo(G4Step* aStep) {
   hitPointLocal = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   hitPointLocalExit = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPointExit);
 
-
-  G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  LogDebug("BscSim") <<  "  BscSD :particleType =  " << theTrack->GetDefinition()->GetParticleName() <<std::endl;
-  if (particleCode == emPDG ||
-      particleCode == epPDG ||
-      particleCode == gammaPDG ) {
-    edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.;
+  particleCode = theTrack->GetDefinition()->GetPDGEncoding();
+  LogDebug("BscSim") << "BscSD:particleType =  " << theTrack->GetDefinition()->GetParticleName();
+  edeposit /= GeV;
+  if ( G4TrackToParticleID::isGammaElectronPositron(theTrack) ) {
+    edepositEM  = edeposit; edepositHAD = 0.f;
   } else {
-    edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
+    edepositEM  = 0.f; edepositHAD = edeposit;
   }
-  edeposit = aStep->GetTotalEnergyDeposit();
   tSlice    = (postStepPoint->GetGlobalTime() )/nanosecond;
   tSliceID  = (int) tSlice;
   unitID    = setDetUnitId(aStep);
 #ifdef debug
-  LogDebug("BscSim") << "unitID=" << unitID <<std::endl;
+  LogDebug("BscSim") << "unitID=" << unitID;
 #endif
   primaryID    = theTrack->GetTrackID();
   //  Position     = hitPoint;
   Pabs         = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   Tof          = aStep->GetPostStepPoint()->GetGlobalTime()/nanosecond;
-  Eloss        = aStep->GetTotalEnergyDeposit()/GeV;
-  ParticleType = theTrack->GetDefinition()->GetPDGEncoding();      
   ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta()/deg;
   PhiAtEntry   = aStep->GetPreStepPoint()->GetPosition().phi()/deg;
 
@@ -170,7 +146,7 @@ uint32_t BscSD::setDetUnitId(const G4Step * aStep) {
   return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
 
-G4bool BscSD::HitExists() {
+bool BscSD::hitExists() {
   if (primaryID<1) {
     edm::LogWarning("BscSim") << "***** BscSD error: primaryID = " 
 				  << primaryID
@@ -181,49 +157,44 @@ G4bool BscSD::HitExists() {
   //  if (primaryID == primID && tSliceID == tsID && unitID==previousUnitID) {
   if (tSliceID == tsID && unitID==previousUnitID) {
     //AZ:
-    UpdateHit();
+    updateHit();
     return true;
   }
   // Reset entry point for new primary
   if (primaryID != primID)
-    ResetForNewPrimary();
+    resetForNewPrimary();
    
   //look in the HitContainer whether a hit with the same primID, unitID,
   //tSliceID already exists:
    
-  G4bool found = false;
+  bool found = false;
 
-  //    LogDebug("BscSim") << "BscSD: HCollection=  " << theHC->entries()    <<std::endl;
+  //LogDebug("BscSim") << "BscSD: HCollection=  " << theHC->entries();
   
   for (int j=0; j<theHC->entries()&&!found; j++) {
     BscG4Hit* aPreviousHit = (*theHC)[j];
     if (aPreviousHit->getTrackID()     == primaryID &&
 	aPreviousHit->getTimeSliceID() == tSliceID  &&
 	aPreviousHit->getUnitID()      == unitID       ) {
-      //AZ:
       currentHit = aPreviousHit;
       found      = true;
+      break;
     }
   }          
 
-  if (found) {
-    //AZ:
-    UpdateHit();
-    return true;
-  } else {
-    return false;
-  }    
+  if (found) { updateHit(); }
+  return found;
 }
 
-void BscSD::ResetForNewPrimary() {
+void BscSD::resetForNewPrimary() {
   
-  entrancePoint  = SetToLocal(hitPoint);
-  exitPoint      = SetToLocalExit(hitPointExit);
+  entrancePoint  = setToLocal(hitPoint);
+  exitPoint      = setToLocalExit(hitPointExit);
   incidentEnergy = preStepPoint->GetKineticEnergy();
 
 }
 
-void BscSD::StoreHit(BscG4Hit* hit){
+void BscSD::storeHit(BscG4Hit* hit){
 
   if (primID<0) return;
   if (hit == nullptr ) {
@@ -234,7 +205,7 @@ void BscSD::StoreHit(BscG4Hit* hit){
   theHC->insert( hit );
 }
 
-void BscSD::CreateNewHit() {
+void BscSD::createNewHit() {
 
 #ifdef debug
   LogDebug("BscSim") << "BscSD CreateNewHit for"
@@ -268,8 +239,8 @@ void BscSD::CreateNewHit() {
 
   currentHit->setPabs(Pabs);
   currentHit->setTof(Tof);
-  currentHit->setEnergyLoss(Eloss);
-  currentHit->setParticleType(ParticleType);
+  currentHit->setEnergyLoss(edeposit);
+  currentHit->setParticleType(particleCode);
   currentHit->setThetaAtEntry(ThetaAtEntry);
   currentHit->setPhiAtEntry(PhiAtEntry);
 
@@ -287,24 +258,20 @@ void BscSD::CreateNewHit() {
   currentHit->setY(Y);
   currentHit->setZ(Z);
 
-  UpdateHit();
+  updateHit();
   
-  StoreHit(currentHit);
+  storeHit(currentHit);
 }	 
  
-void BscSD::UpdateHit() {
+void BscSD::updateHit() {
 
-  if (Eloss > 0.) {
-    currentHit->addEnergyDeposit(edepositEM,edepositHAD);
+  currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 
 #ifdef debug
-    LogDebug("BscSim") << "updateHit: add eloss " << Eloss <<std::endl;
-    LogDebug("BscSim") << "CurrentHit=" << currentHit
-		       << ", PostStepPoint=" << postStepPoint->GetPosition();
+  LogDebug("BscSim") << "updateHit: add eloss " << edeposit 
+		     << "CurrentHit=" << currentHit
+		     << ", PostStepPoint=" << postStepPoint->GetPosition();
 #endif
-    //AZ
-    currentHit->setEnergyLoss(Eloss);
-  }  
 
   // buffer for next steps:
   tsID           = tSliceID;
@@ -312,14 +279,14 @@ void BscSD::UpdateHit() {
   previousUnitID = unitID;
 }
 
-G4ThreeVector BscSD::SetToLocal(const G4ThreeVector& global){
+G4ThreeVector BscSD::setToLocal(const G4ThreeVector& global){
 
   const G4VTouchable* touch= preStepPoint->GetTouchable();
   theEntryPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
   return theEntryPoint;  
 }
      
-G4ThreeVector BscSD::SetToLocalExit(const G4ThreeVector& globalPoint){
+G4ThreeVector BscSD::setToLocalExit(const G4ThreeVector& globalPoint){
 
   const G4VTouchable* touch= postStepPoint->GetTouchable();
   theExitPoint = touch->GetHistory()->GetTopTransform().TransformPoint(globalPoint);
@@ -351,18 +318,8 @@ void BscSD::EndOfEvent(G4HCofThisEvent* ) {
 			       aHit->getThetaAtEntry(),
 			       aHit->getPhiAtEntry()));
   }
-  Summarize();
 }
      
-void BscSD::Summarize() {
-}
-
-void BscSD::clear() {
-} 
-
-void BscSD::DrawAll() {
-} 
-
 void BscSD::PrintAll() {
   LogDebug("BscSim") << "BscSD: Collection " << theHC->GetName() << "\n";
   theHC->PrintAllHits();
@@ -373,27 +330,10 @@ void BscSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
 }
 
 void BscSD::update (const BeginOfEvent * i) {
-  LogDebug("BscSim") << " Dispatched BeginOfEvent for " << GetName()
-                       << " !" ;
-   clearHits();
-   eventno = (*i)()->GetEventID();
-}
-
-void BscSD::update(const BeginOfRun *) {
-
-  G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
-  G4String particleName;
-  emPDG = theParticleTable->FindParticle(particleName="e-")->GetPDGEncoding();
-  epPDG = theParticleTable->FindParticle(particleName="e+")->GetPDGEncoding();
-  gammaPDG = theParticleTable->FindParticle(particleName="gamma")->GetPDGEncoding();
-
-} 
-
-void BscSD::update (const ::EndOfEvent*) {
+  LogDebug("BscSim") << " Dispatched BeginOfEvent for " << GetName();
+  clearHits();
 }
 
 void BscSD::clearHits(){
-  //AZ:
   slave->Initialize();
 }
-
