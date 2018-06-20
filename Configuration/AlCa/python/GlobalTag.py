@@ -104,7 +104,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
     # add any explicitly requested conditions, possibly overriding those from autoCond.py
     if conditions is not None:
         # TODO backward compatible code: to be removed after migrating ConfigBuilder.py and confdb.py to use a map for custom conditions
-        if isinstance(conditions, basestring): 
+        if isinstance(conditions, str): 
           if conditions:
             map = {}
             for entry in conditions.split('+'):

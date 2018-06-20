@@ -1,7 +1,7 @@
 #!/bin/tcsh
 
 # get working dir to set environment
-source /afs/cern.ch/cms/caf/setup.csh
+#source /afs/cern.ch/cms/caf/setup.csh
 set workdir = `cd ../../; pwd`
 
 set iter = $1                          # final iteration number

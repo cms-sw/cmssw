@@ -234,18 +234,16 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
   // ---- Prepare transient track list ----
 
-  set < TrackBaseRef, PFDisplacedVertexSeed::Compare > const& tracksToFit = displacedVertexSeed.elements();
+  auto const& tracksToFit = displacedVertexSeed.elements();
   const GlobalPoint& seedPoint = displacedVertexSeed.seedPoint();
 
   vector<TransientTrack> transTracks;
   vector<TransientTrack> transTracksRaw;
   vector<TrackBaseRef> transTracksRef;
-  vector<TrackBaseRef> transTracksRefRaw;
 
   transTracks.reserve(tracksToFit.size());
   transTracksRaw.reserve(tracksToFit.size());
   transTracksRef.reserve(tracksToFit.size());
-  transTracksRefRaw.reserve(tracksToFit.size());
 
 
 
@@ -278,7 +276,6 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
   for(auto const& ie : tracksToFit){
     TransientTrack tmpTk( *(ie.get()), magField_, globTkGeomHandle_);
     transTracksRaw.emplace_back( tmpTk );
-    transTracksRefRaw.push_back( ie );
     bool nonIt = PFTrackAlgoTools::nonIterative((ie)->algo());
     bool step45 = PFTrackAlgoTools::step45((ie)->algo());
     bool highQ = PFTrackAlgoTools::highQuality((ie)->algo());   
@@ -416,7 +413,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
     if (theVertexAdaptiveRaw.trackWeight(transTracksRaw[i]) > minAdaptWeight_){
 
-      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerTopo_, tkerGeom_, transTracksRefRaw[i], theVertexAdaptiveRaw);
+      PFTrackHitFullInfo pattern = hitPattern_.analyze(tkerTopo_, tkerGeom_, tracksToFit[i], theVertexAdaptiveRaw);
 
       PFDisplacedVertex::VertexTrackType vertexTrackType = getVertexTrackType(pattern);
 
@@ -426,7 +423,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
 
 	if (bGoodTrack){
 	  transTracks.push_back(transTracksRaw[i]);
-	  transTracksRef.push_back(transTracksRefRaw[i]);
+	  transTracksRef.push_back(tracksToFit[i]);
 	} else {
 	  if (debug_)
 	    cout << "Track rejected nChi2 = " << transTracksRaw[i].track().normalizedChi2()
@@ -528,7 +525,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
   // -----------------------------------------------//
   
 
-  displacedVertex = (PFDisplacedVertex) theRecoVtx;
+  displacedVertex = theRecoVtx;
   displacedVertex.removeTracks();
   
   for(unsigned i = 0; i < transTracks.size();i++) {

@@ -121,29 +121,29 @@ void         BscG4Hit::setEntryLocalP(const G4ThreeVector& xyz1)   { entrylp    
 G4ThreeVector     BscG4Hit::getExitLocalP() const           {return exitlp;}
 void         BscG4Hit::setExitLocalP(const G4ThreeVector& xyz1)   { exitlp    = xyz1; }
 
-double       BscG4Hit::getEM() const              {return elem; }
-void         BscG4Hit::setEM (double e)           { elem     = e; }
+float        BscG4Hit::getEM() const              {return elem; }
+void         BscG4Hit::setEM (float e)            { elem     = e; }
       
-double       BscG4Hit::getHadr() const            {return hadr; }
-void         BscG4Hit::setHadr (double e)         { hadr     = e; }
+float        BscG4Hit::getHadr() const            {return hadr; }
+void         BscG4Hit::setHadr (float e)          { hadr     = e; }
       
-double       BscG4Hit::getIncidentEnergy() const  {return theIncidentEnergy; }
-void         BscG4Hit::setIncidentEnergy (double e){theIncidentEnergy  = e; }
+float        BscG4Hit::getIncidentEnergy() const  {return theIncidentEnergy; }
+void         BscG4Hit::setIncidentEnergy (float e){theIncidentEnergy  = e; }
 
-G4int          BscG4Hit::getTrackID() const         {return theTrackID; }
+int          BscG4Hit::getTrackID() const         {return theTrackID; }
 void         BscG4Hit::setTrackID (int i)         { theTrackID = i; }
 
-unsigned int BscG4Hit::getUnitID() const          {return theUnitID; }
-void         BscG4Hit::setUnitID (unsigned int i) { theUnitID = i; }
+uint32_t     BscG4Hit::getUnitID() const          {return theUnitID; }
+void         BscG4Hit::setUnitID (uint32_t i)     { theUnitID = i; }
 
 double       BscG4Hit::getTimeSlice() const       {return theTimeSlice; }
 void         BscG4Hit::setTimeSlice (double d)    { theTimeSlice = d; }
 int          BscG4Hit::getTimeSliceID() const     {return (int)theTimeSlice;}
 
-void         BscG4Hit::addEnergyDeposit(double em, double hd)
-                                                   {elem  += em ; hadr += hd;}
+void         BscG4Hit::addEnergyDeposit(float em, float hd)
+{elem  += em; hadr += hd; theEnergyLoss += em + hd;}
 
-double       BscG4Hit::getEnergyDeposit() const   {return elem+hadr;}
+float        BscG4Hit::getEnergyDeposit() const   {return elem+hadr;}
 
 float BscG4Hit::getPabs() const {return thePabs;}
 float BscG4Hit::getTof() const {return theTof;}
@@ -153,7 +153,7 @@ int BscG4Hit::getParticleType() const {return theParticleType;}
 void BscG4Hit::setPabs(float e) {thePabs = e;}
 void BscG4Hit::setTof(float e) {theTof = e;}
 void BscG4Hit::setEnergyLoss(float e) {theEnergyLoss = e;}
-void BscG4Hit::setParticleType(short i) {theParticleType = i;}
+void BscG4Hit::setParticleType(int i) {theParticleType = i;}
 
 float BscG4Hit::getThetaAtEntry() const {return theThetaAtEntry;}   
 float BscG4Hit::getPhiAtEntry() const{ return thePhiAtEntry;}
@@ -181,10 +181,6 @@ void BscG4Hit::setVy(float t){theVy = t;}
 
 float BscG4Hit::getVz() const{ return theVz;}
 void BscG4Hit::setVz(float t){theVz = t;}
-
-
-
-
 
 std::ostream& operator<<(std::ostream& os, const BscG4Hit& hit) {
   os << " Data of this BscG4Hit are:" << std::endl

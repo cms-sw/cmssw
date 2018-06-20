@@ -18,7 +18,6 @@
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
@@ -33,6 +32,7 @@ class G4Step;
 class G4HCofThisEvent;
 class CaloSlaveSD;
 class G4GFlashSpot;
+class SimTrackManager;
 
 class CaloSD : public SensitiveCaloDetector, 
                public G4VGFlashSensitiveDetector,

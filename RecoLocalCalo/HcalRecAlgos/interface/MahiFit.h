@@ -21,6 +21,7 @@ struct MahiNnlsWorkspace {
   unsigned int tsOffset;
   unsigned int fullTSOffset;
   int bxOffset;
+  int maxoffset;
   double dt;
 
   //holds active bunch crossings
@@ -66,7 +67,6 @@ struct MahiNnlsWorkspace {
   unsigned int nP;
   PulseVector ampVec;
 
-  PulseVector errVec;
   PulseVector ampvecpermtest;
 
   SamplePulseMatrix invcovp;
@@ -75,8 +75,6 @@ struct MahiNnlsWorkspace {
   PulseVector updateWork; // w (vector)
 
   SampleDecompLLT covDecomp;
-  SampleMatrix covDecompLinv;
-  PulseMatrix topleft_work;
   PulseDecompLDLT pulseDecomp;
 
 };

@@ -44,6 +44,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 		MonitorElement *meD_eta = dbe->get("SiOuterTrackerV/Tracks/Efficiency/tp_eta");
 		MonitorElement *meN_pt = dbe->get("SiOuterTrackerV/Tracks/Efficiency/match_tp_pt");
 		MonitorElement *meD_pt = dbe->get("SiOuterTrackerV/Tracks/Efficiency/tp_pt");
+		MonitorElement *meN_pt_zoom = dbe->get("SiOuterTrackerV/Tracks/Efficiency/match_tp_pt_zoom");
+		MonitorElement *meD_pt_zoom = dbe->get("SiOuterTrackerV/Tracks/Efficiency/tp_pt_zoom");
 		MonitorElement *meN_d0 = dbe->get("SiOuterTrackerV/Tracks/Efficiency/match_tp_d0");
 		MonitorElement *meD_d0 = dbe->get("SiOuterTrackerV/Tracks/Efficiency/tp_d0");
 		MonitorElement *meN_VtxR = dbe->get("SiOuterTrackerV/Tracks/Efficiency/match_tp_VtxR");
@@ -151,6 +153,33 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 			me_effic_pt->getTH1F()->SetStats(false);
 		} //if ME found
 		else {edm::LogWarning("DataNotFound") << "Monitor elements for pT efficiency cannot be found!\n";}
+
+		if (meN_pt_zoom && meD_pt_zoom) {
+			// Get the numerator and denominator histograms
+			TH1F *numerator2_zoom = meN_pt_zoom->getTH1F();
+			numerator2_zoom->Sumw2();
+			TH1F *denominator2_zoom = meD_pt_zoom->getTH1F();
+			denominator2_zoom->Sumw2();
+
+			// Set the current directory
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalEfficiency");
+
+			// Book the new histogram to contain the results
+			MonitorElement *me_effic_pt_zoom =
+			ibooker.book1D("PtEfficiency_zoom","p_{T} efficiency",
+			numerator2_zoom->GetNbinsX(),
+			numerator2_zoom->GetXaxis()->GetXmin(),
+			numerator2_zoom->GetXaxis()->GetXmax());
+
+			// Calculate the efficiency
+			me_effic_pt_zoom->getTH1F()->Divide(numerator2_zoom, denominator2_zoom, 1., 1., "B");
+			me_effic_pt_zoom->getTH1F()->GetXaxis()->SetTitle("Tracking particle p_{T} [GeV]");
+			me_effic_pt_zoom->getTH1F()->GetYaxis()->SetTitle("Efficiency");
+			me_effic_pt_zoom->getTH1F()->SetMaximum(1.0);
+			me_effic_pt_zoom->getTH1F()->SetMinimum(0.0);
+			me_effic_pt_zoom->getTH1F()->SetStats(false);
+		} //if ME found
+		else {edm::LogWarning("DataNotFound") << "Monitor elements for zoom pT efficiency cannot be found!\n";}
 
 		if (meN_d0 && meD_d0) {
 			// Get the numerator and denominator histograms

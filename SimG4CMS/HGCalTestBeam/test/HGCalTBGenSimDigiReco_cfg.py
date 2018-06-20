@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('SimG4CMS.HGCalTestBeam.DigiHGCalTB160_cff')
-process.load('RecoLocalCalo.HGCalRecProducers.HGCalLocalRecoSequence_cff')
+process.load('RecoLocalCalo.HGCalRecProducers.HGCalLocalRecoTestBeamSequence_cff')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
@@ -99,7 +99,7 @@ process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.mix)
-process.reconstruction_step = cms.Path(process.HGCalLocalRecoSequence)
+process.reconstruction_step = cms.Path(process.HGCalLocalRecoTestBeamSequence)
 process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
@@ -114,4 +114,3 @@ for label, prod in process.producers_().iteritems():
         if prod.type_() == "OscarMTProducer":
             # ugly hack
             prod.__dict__['_TypedParameterizable__type'] = "OscarProducer"
-

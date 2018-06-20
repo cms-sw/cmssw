@@ -755,6 +755,41 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 }
 
 //============================================================================
+void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(const std::vector<PileupSummaryInfo> &ps, int bunchSpacing) {
+  int p = -1;
+  for(unsigned int i=0; i<ps.size(); i++)
+    if (ps[i].getBunchCrossing() == 0)
+      p=i;
+
+  if(p >= 0) {
+    for (size_t i=0, n = pixelEfficiencies_.thePUEfficiency.size(); i<n; i++) {
+      double instlumi = ps[p].getTrueNumInteractions()*pixelEfficiencies_.theInstLumiScaleFactor;
+      double instlumi_pow=1.;
+      pixelEfficiencies_.pu_scale[i] = 0;
+      for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency[i].size(); j++){
+	pixelEfficiencies_.pu_scale[i]+=instlumi_pow*pixelEfficiencies_.thePUEfficiency[i][j];
+	instlumi_pow*=instlumi;
+      }
+    }
+  }
+  else {
+    for (int i=0, n = pixelEfficiencies_.thePUEfficiency.size(); i<n; i++) {
+      pixelEfficiencies_.pu_scale[i] = 1.;
+    }
+  }
+}
+
+//============================================================================
+void SiPixelDigitizerAlgorithm::setSimAccumulator(const std::map<uint32_t, std::map<int, int> >& signalMap) {
+  for(const auto& det: signalMap) {
+    auto& theSignal = _signal[det.first];
+    for(const auto& chan: det.second) {
+      theSignal[chan.first].set(chan.second * theElectronPerADC); // will get divided again by theElectronPerAdc in digitize...
+    }
+  }
+}
+
+//============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
                                          std::vector<PixelDigiSimLink>& simlinks,
@@ -1366,7 +1401,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
     // Do only for pixels above threshold
 
-    if( signalInElectrons >= thePixelThresholdInE) { // check threshold
+    if( signalInElectrons >= thePixelThresholdInE && signalInElectrons > 0.) { // check threshold, always reject killed (0-charge) digis
 
       int chan =  (*i).first;  // channel number
       std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
@@ -2245,7 +2280,10 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
     ierr = PixelTempRewgt2D(IDden, IDden, pixrewgt);
   }
   if (ierr!=0){
-    LogInfo ("PixelDigitizer ") << "Cluster Charge Reweighting did not work properly.";
+#ifdef TP_DEBUG 
+    LogDebug ("PixelDigitizer ") << "Cluster Charge Reweighting did not work properly.";
+#endif
+    return false;
   }
   
   if(PrintClusters){
@@ -2336,7 +2374,10 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
 
   if(!templ2D.xytemp(id_in, cotalpha, cotbeta, xhit2D, yhit2D, ydouble, xdouble, xy_in)) {success = 1;}
   if(success != 0){
-    LogWarning ("Pixel Digitizer") << "No matching template found" << std::endl;
+#ifdef TP_DEBUG 
+    LogDebug("Pixel Digitizer") << "No matching template found" << std::endl;
+#endif
+    return 2;
   }
 
   if(PrintTemplates){

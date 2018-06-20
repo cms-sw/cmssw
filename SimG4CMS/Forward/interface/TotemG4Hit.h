@@ -33,7 +33,7 @@
 
 #include "G4VHit.hh"
 #include "DataFormats/Math/interface/Point3D.h"
-#include <boost/cstdint.hpp>
+#include <cstdint>
 #include <iostream>
 
 class TotemG4Hit : public G4VHit {

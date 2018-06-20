@@ -61,7 +61,6 @@ int main(int argc, char *argv[])
     DDErrorDetection ed(cpv);
     ed.report( cpv, std::cout);
 
-    DDConstant::createConstantsFromEvaluator();  // DDConstants are not being created by anyone... it confuses me!
     DDConstant::iterator<DDConstant> cit(DDConstant::begin()), ced(DDConstant::end());
     for(; cit != ced; ++cit) {
       cout << *cit << endl;

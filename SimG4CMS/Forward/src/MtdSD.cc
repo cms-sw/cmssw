@@ -28,9 +28,7 @@
 #include "G4Track.hh"
 #include "G4SDManager.hh"
 #include "G4VProcess.hh"
-#include "G4EventManager.hh"
 #include "G4Step.hh"
-#include "G4ParticleTable.hh"
 
 #include <string>
 #include <vector>
@@ -41,13 +39,13 @@
 //#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name, const DDCompactView & cpv,
-			 const SensitiveDetectorCatalog & clg, 
-			 edm::ParameterSet const & p, 
-			 const SimTrackManager* manager) :
+	     const SensitiveDetectorCatalog & clg, 
+	     edm::ParameterSet const & p, 
+	     const SimTrackManager* manager) :
   SensitiveTkDetector(name, cpv, clg, p), 
   hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
   currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
-  postStepPoint(nullptr), eventno(0), numberingScheme(nullptr) {
+  postStepPoint(nullptr), numberingScheme(nullptr) {
     
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MtdSD");
@@ -83,20 +81,16 @@ MtdSD::MtdSD(const std::string& name, const DDCompactView & cpv,
 }
 
 MtdSD::~MtdSD() { 
-  if (numberingScheme) delete numberingScheme;
-  if (slave)  delete slave; 
-}
-
-double MtdSD::getEnergyDeposit(const G4Step* aStep) {
-  return aStep->GetTotalEnergyDeposit();
+  delete numberingScheme;
+  delete slave; 
 }
 
 void MtdSD::Initialize(G4HCofThisEvent * HCE) { 
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("MtdSim") << "MtdSD : Initialize called for " << name;
+  edm::LogInfo("MtdSim") << "MtdSD : Initialize called for " << GetName();
 #endif
 
-  theHC = new BscG4HitCollection(name, collectionName[0]);
+  theHC = new BscG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -107,22 +101,20 @@ void MtdSD::Initialize(G4HCofThisEvent * HCE) {
 
 bool MtdSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == nullptr) {
-    return true;
-  } else {
+  edeposit = aStep->GetTotalEnergyDeposit();
+  if (edeposit>0.f){ 
     GetStepInfo(aStep);
 #ifdef EDM_ML_DEBUG
     edm::LogInfo("MtdSim") << "MtdSD :  number of hits = " << theHC->entries() <<"\n";
 #endif
-    if (HitExists() == false && edeposit>0. ){ 
+    if (!HitExists()){ 
       CreateNewHit();
-      return true;
     }
   }
   return true;
 } 
 
-void MtdSD::GetStepInfo(G4Step* aStep) {
+void MtdSD::GetStepInfo(const G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -134,17 +126,16 @@ void MtdSD::GetStepInfo(G4Step* aStep) {
   hitPointLocal = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
   hitPointLocalExit = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPointExit);
 
-
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MtdSim") << "MtdSD :particleType =  " 
 	    << theTrack->GetDefinition()->GetParticleName();
 #endif
+  edeposit /= CLHEP::GeV;
   if ( G4TrackToParticleID::isGammaElectronPositron(theTrack) ) {
-    edepositEM  = getEnergyDeposit(aStep); edepositHAD = 0.;
+    edepositEM  = edeposit; edepositHAD = 0.f;
   } else {
-    edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
+    edepositEM  = 0.f; edepositHAD = edeposit;
   }
-  edeposit = aStep->GetTotalEnergyDeposit();
   tSlice    = (100*postStepPoint->GetGlobalTime() )/CLHEP::nanosecond;
   tSliceID  = (int) tSlice;
   unitID    = setDetUnitId(aStep);
@@ -155,7 +146,6 @@ void MtdSD::GetStepInfo(G4Step* aStep) {
   //  Position     = hitPoint;
   Pabs         = aStep->GetPreStepPoint()->GetMomentum().mag()/CLHEP::GeV;
   Tof          = aStep->GetPostStepPoint()->GetGlobalTime()/CLHEP::nanosecond;
-  Eloss        = aStep->GetTotalEnergyDeposit()/CLHEP::GeV;
   ParticleType = theTrack->GetDefinition()->GetPDGEncoding();      
   ThetaAtEntry = aStep->GetPreStepPoint()->GetPosition().theta()/CLHEP::deg;
   PhiAtEntry   = aStep->GetPreStepPoint()->GetPosition().phi()/CLHEP::deg;
@@ -178,7 +168,6 @@ uint32_t MtdSD::setDetUnitId(const G4Step * aStep) {
   }
 }
 
-
 G4bool MtdSD::HitExists() {
   if (primaryID<1) {
     edm::LogWarning("MtdSim") << "***** MtdSD error: primaryID = " 
@@ -200,31 +189,26 @@ G4bool MtdSD::HitExists() {
    
   G4bool found = false;
 
-  for (int j=0; j<theHC->entries()&&!found; j++) {
+  for (int j=0; j<theHC->entries(); ++j) {
     BscG4Hit* aPreviousHit = (*theHC)[j];
     if (aPreviousHit->getTrackID()     == primaryID &&
 	aPreviousHit->getTimeSliceID() == tSliceID  &&
 	aPreviousHit->getUnitID()      == unitID       ) {
       currentHit = aPreviousHit;
       found      = true;
+      break;
     }
   }          
 
-  if (found) {
-    UpdateHit();
-    return true;
-  } else {
-    return false;
-  }    
+  if (found) { UpdateHit(); }
+  return found;
 }
-
 
 void MtdSD::ResetForNewPrimary() {
   entrancePoint  = SetToLocal(hitPoint);
   exitPoint      = SetToLocalExit(hitPointExit);
   incidentEnergy = preStepPoint->GetKineticEnergy();
 }
-
 
 void MtdSD::StoreHit(BscG4Hit* hit){
 
@@ -235,7 +219,6 @@ void MtdSD::StoreHit(BscG4Hit* hit){
     theHC->insert( hit );
   }
 }
-
 
 void MtdSD::CreateNewHit() {
 
@@ -269,7 +252,7 @@ void MtdSD::CreateNewHit() {
 
   currentHit->setPabs(Pabs);
   currentHit->setTof(Tof);
-  currentHit->setEnergyLoss(Eloss);
+  currentHit->setEnergyLoss(edeposit);
   currentHit->setParticleType(ParticleType);
   currentHit->setThetaAtEntry(ThetaAtEntry);
   currentHit->setPhiAtEntry(PhiAtEntry);
@@ -293,26 +276,21 @@ void MtdSD::CreateNewHit() {
   StoreHit(currentHit);
 }	 
  
-
 void MtdSD::UpdateHit() {
 
-  if (Eloss > 0.) {
-    currentHit->addEnergyDeposit(edepositEM,edepositHAD);
+  currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 
 #ifdef EDM_ML_DEBUG
-    edm::LogInfo("MtdSim") << "updateHit: add eloss " << Eloss ;
-    edm::LogInfo("MtdSim") << "CurrentHit="<< currentHit<< ", PostStepPoint = "
-	      << postStepPoint->GetPosition() ;
+  edm::LogInfo("MtdSim") << "updateHit: add eloss " << edeposit;
+  edm::LogInfo("MtdSim") << "CurrentHit="<< currentHit<< ", PostStepPoint = "
+			 << postStepPoint->GetPosition() ;
 #endif
-    currentHit->setEnergyLoss(Eloss);
-  }  
 
   // buffer for next steps:
   tsID           = tSliceID;
   primID         = primaryID;
   previousUnitID = unitID;
 }
-
 
 G4ThreeVector MtdSD::SetToLocal(const G4ThreeVector& global){
 
@@ -321,7 +299,6 @@ G4ThreeVector MtdSD::SetToLocal(const G4ThreeVector& global){
   return theEntryPoint;  
 }
      
-
 G4ThreeVector MtdSD::SetToLocalExit(const G4ThreeVector& globalPoint){
 
   const G4VTouchable* touch= postStepPoint->GetTouchable();
@@ -329,7 +306,6 @@ G4ThreeVector MtdSD::SetToLocalExit(const G4ThreeVector& globalPoint){
   return theExitPoint;  
 }
      
-
 void MtdSD::EndOfEvent(G4HCofThisEvent* ) {
 
   // here we loop over transient hits and make them persistent
@@ -355,15 +331,8 @@ void MtdSD::EndOfEvent(G4HCofThisEvent* ) {
 			       aHit->getThetaAtEntry(),
 			       aHit->getPhiAtEntry()));
   }
-  Summarize();
 }
      
-void MtdSD::Summarize() {}
-
-void MtdSD::clear() {} 
-
-void MtdSD::DrawAll() {} 
-
 void MtdSD::PrintAll() {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MtdSim") << "MtdSD: Collection " << theHC->GetName() ;
@@ -375,19 +344,12 @@ void MtdSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
   if (slave->name() == hname) { cc=slave->hits(); }
 }
 
-void MtdSD::update(const BeginOfJob * job) {}
-
 void MtdSD::update (const BeginOfEvent * i) {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("MtdSim") << "Dispatched BeginOfEvent for " << GetName() << " !\n" ;
 #endif
    clearHits();
-   eventno = (*i)()->GetEventID();
 }
-
-void MtdSD::update(const BeginOfRun *) {}
-
-void MtdSD::update (const ::EndOfEvent*) {}
 
 void MtdSD::clearHits(){
   slave->Initialize();

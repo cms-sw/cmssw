@@ -24,5 +24,4 @@ TotemRPNumberingScheme::TotemRPNumberingScheme(int i) {
 }
 
 TotemRPNumberingScheme::~TotemRPNumberingScheme() {
-  edm::LogInfo("ForwardSim") << " Deleting TotemRPNumberingScheme";
 }

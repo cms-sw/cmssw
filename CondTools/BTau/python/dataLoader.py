@@ -183,7 +183,7 @@ def get_data_csv(csv_data):
         for op in ops
         for fl in flavs
     )
-    lds = filter(lambda d: d.entries, lds)
+    lds = [d for d in lds if d.entries]
     return lds
 
 

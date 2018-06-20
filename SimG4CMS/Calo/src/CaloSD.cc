@@ -7,7 +7,7 @@
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "G4EventManager.hh"
 #include "G4SDManager.hh"
