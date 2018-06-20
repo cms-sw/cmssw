@@ -34,6 +34,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 namespace pat {
 
@@ -214,6 +215,11 @@ namespace pat {
 
     /// MC info
     edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
+    /// Era
+    std::string era_;
+
+    /// Trigger
+    edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
   };
 
 }
