@@ -83,18 +83,14 @@ public:
     // we are going to check all time slices. Otherwise only
     // the "sample of interest" time slice is checked.
     //
-    constexpr bool isDataframeOK(bool checkAllTimeSlices = false) const {
+    bool isDataframeOK(bool checkAllTimeSlices = false) const {
         bool hardwareOK = true;
         if (soi_ >= nRaw_ || checkAllTimeSlices)
             for (unsigned i=0; i<nRaw_ && hardwareOK; ++i) {
-                const QIE10DataFrame::Sample s(
-                    (edm::DataFrame::data_type)(raw_[i] & 0xffff), 
-                    (edm::DataFrame::data_type)((raw_[i]>>16) & 0xffff));
+                const QIE10DataFrame::Sample s(raw_[i]);
                 hardwareOK = s.ok();
             } else {
-                const QIE10DataFrame::Sample s(
-                    (edm::DataFrame::data_type)(raw_[soi_] & 0xffff),
-                    (edm::DataFrame::data_type)((raw_[soi_]>>16) & 0xffff));
+                const QIE10DataFrame::Sample s(raw_[soi_]);
                 hardwareOK = s.ok();
             }
         return hardwareOK;
