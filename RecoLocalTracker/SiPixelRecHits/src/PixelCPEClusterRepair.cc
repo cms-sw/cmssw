@@ -452,7 +452,7 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
    if(clusterPayload.mrow > 4){
        // The cluster is too big, the 2D reco will perform horribly.
        // Better to return immediately in error
-       theClusterParam.ierr = 8;
+       theClusterParam.ierr2 = 8;
 
    }
    else{
