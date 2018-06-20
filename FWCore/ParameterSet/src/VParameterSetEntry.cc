@@ -114,6 +114,10 @@ namespace edm {
     return theVPSet_->at(i);
   }
 
+  std::vector<ParameterSet>::size_type VParameterSetEntry::size() const {
+    return vpset().size();
+  }
+
   void VParameterSetEntry::registerPsetsAndUpdateIDs() {
     fillVPSet();
     theIDs_ = value_ptr<std::vector<ParameterSetID> >(new std::vector<ParameterSetID>);
