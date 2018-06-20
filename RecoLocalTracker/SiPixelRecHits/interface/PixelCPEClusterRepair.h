@@ -45,13 +45,8 @@ public:
       float templSigmaY_ ;
       // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
       // These can only be accessed if we change silicon pixel data formats and add them to the rechit
-      float templProbX_ ;
-      float templProbY_ ;
-      float templProbQ_;
-      int   templQbin_ ;
       int   ierr;
-
-
+      
       // 2D fit stuff.
       float templProbXY_ ;
       bool  recommended3D_ ;
