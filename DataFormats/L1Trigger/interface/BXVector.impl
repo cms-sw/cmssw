@@ -104,7 +104,7 @@ template < class T >
 typename BXVector<T>::const_iterator
 BXVector<T>::begin( int bx ) const
 {
-  assert(itrs_.size() > 0);
+  assert(!itrs_.empty());
   return data_.begin()+itrs_[indexFromBX(bx)];
 }
 
