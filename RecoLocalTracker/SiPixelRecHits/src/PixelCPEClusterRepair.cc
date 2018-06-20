@@ -318,25 +318,17 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
    std::vector<std::pair<int, int> > zeropix;
    int nypix =0, nxpix = 0;
    //
-   if(clusterPayload.mrow > 4){
-       // The cluster is too big, the 2D reco will perform horribly.
-       // Better to return immediately in error
-       theClusterParam.ierr = 8;
-
-   }
-   else{
-       theClusterParam.ierr =
-       PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
-                       locBz, locBx,
-                       clusterPayload,
-                       templ,
-                       theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.probabilityY_,
-                       theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.probabilityX_,
-                       theClusterParam.qBin_,
-                       speed_, deadpix, zeropix,
-                       theClusterParam.probabilityQ_, nypix, nxpix
-                       );
-   }
+   theClusterParam.ierr =
+   PixelTempReco2D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
+                   locBz, locBx,
+                   clusterPayload,
+                   templ,
+                   theClusterParam.templYrec_, theClusterParam.templSigmaY_, theClusterParam.probabilityY_,
+                   theClusterParam.templXrec_, theClusterParam.templSigmaX_, theClusterParam.probabilityX_,
+                   theClusterParam.qBin_,
+                   speed_, deadpix, zeropix,
+                   theClusterParam.probabilityQ_, nypix, nxpix
+                   );
    // ******************************************************************
    
    //--- Check exit status
@@ -344,6 +336,8 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
    {
       LogDebug("PixelCPEClusterRepair::localPosition") <<
       "reconstruction failed with error " << theClusterParam.ierr << "\n";
+       theClusterParam.templProbY_ = theClusterParam.templProbX_ = theClusterParam.templProbQ_ = 1.0f;
+       theClusterParam.templQbin_ = 0;
       
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
@@ -444,19 +438,27 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
    float deltay = 0;    // return param
    int npixels = 0;     // return param
 
-   theClusterParam.ierr2 =
-   PixelTempReco3D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
-                   locBz, locBx,
-		   edgeTypeY , theClusterParam.edgeTypeX_ ,
-                   clusterPayload,
-                   templ2d,
-                   theClusterParam.templYrec_, theClusterParam.templSigmaY_, 
-                   theClusterParam.templXrec_, theClusterParam.templSigmaX_, 
-		   theClusterParam.templProbXY_,
-         	   theClusterParam.probabilityQ_,
-		   theClusterParam.qBin_,
-		   deltay, npixels
-                   );
+   if(clusterPayload.mrow > 4){
+       // The cluster is too big, the 2D reco will perform horribly.
+       // Better to return immediately in error
+       theClusterParam.ierr = 8;
+
+   }
+   else{
+       theClusterParam.ierr2 =
+       PixelTempReco3D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
+                       locBz, locBx,
+                       edgeTypeY , theClusterParam.edgeTypeX_ ,
+                       clusterPayload,
+                       templ2d,
+                       theClusterParam.templYrec_, theClusterParam.templSigmaY_, 
+                       theClusterParam.templXrec_, theClusterParam.templSigmaX_, 
+                       theClusterParam.templProbXY_,
+                       theClusterParam.probabilityQ_,
+                       theClusterParam.qBin_,
+                       deltay, npixels
+                       );
+   }
    // ******************************************************************
    
    //--- Check exit status
@@ -465,6 +467,8 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
       LogDebug("PixelCPEClusterRepair::localPosition") <<
       "3D reconstruction failed with error " << theClusterParam.ierr2 << "\n";
       
+      theClusterParam.templProbY_ = theClusterParam.templProbX_ = theClusterParam.templProbQ_ = 0.;
+      theClusterParam.templQbin_ = 0;
       // GG: what do we do in this case?  For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
       float lorentz_drift = -999.9;
