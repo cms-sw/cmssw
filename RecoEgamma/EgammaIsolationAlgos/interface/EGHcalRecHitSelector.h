@@ -30,10 +30,14 @@ public:
 private:
   static int calDIPhi(int iPhi1,int iPhi2);
   static int calDIEta(int iEta1,int iEta2);
+  float getMinEnergyHCAL_(HcalDetId id)const;
 
   int maxDIEta_;
   int maxDIPhi_;
-  float minEnergyHCAL_;
+  float minEnergyHB_;
+  float minEnergyHEDepth1_;
+  float minEnergyHEDefault_;
+
   edm::ESHandle<CaloTowerConstituentsMap> towerMap_;
 
 };
@@ -46,6 +50,7 @@ addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHit
   DetId seedId = superClus.seed()->seed();
   if(seedId.det() != DetId::Ecal && seedId.det() != DetId::Forward) {
     edm::LogError("EgammaIsoHcalDetIdCollectionProducerError") << "Somehow the supercluster has a seed which is not ECAL, something is badly wrong";
+    return;
   }
   //so we are using CaloTowers to get the iEta/iPhi of the HCAL rec hit behind the seed cluster, this might go funny on tower 28 but shouldnt matter there
  
@@ -59,7 +64,7 @@ addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHit
     int dIEtaAbs = std::abs(calDIEta(seedHcalIEta,recHit.id().ieta()));
     int dIPhiAbs = std::abs(calDIPhi(seedHcalIPhi,recHit.id().iphi()));
   
-    if(dIEtaAbs<=maxDIEta_ && dIPhiAbs<=maxDIPhi_ && recHit.energy()>minEnergyHCAL_) detIdsToStore.insert(detIdsToStore.end(),recHit.id().rawId());
+    if(dIEtaAbs<=maxDIEta_ && dIPhiAbs<=maxDIPhi_ && recHit.energy()>getMinEnergyHCAL_(recHit.id())) detIdsToStore.insert(detIdsToStore.end(),recHit.id().rawId());
   }
 }
 
