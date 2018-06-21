@@ -1,11 +1,10 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="SimG4Core/SensitiveDetector"/>
 <use   name="SimG4Core/Notification"/>
+<use   name="SimG4Core/Physics"/>
 <use   name="Geometry/TrackerNumberingBuilder"/>
-<use   name="boost"/>
 <use   name="geant4core"/>
 <use   name="SimDataFormats/SimHitMaker"/>
-<use   name="SimG4Core/Application"/>
 <export>
   <lib   name="1"/>
 </export>

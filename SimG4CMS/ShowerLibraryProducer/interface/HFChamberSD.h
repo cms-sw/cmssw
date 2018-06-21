@@ -2,7 +2,7 @@
 #define SimG4CMS_ShowerLibraryProducer_HFChamberSD_h
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "SimG4CMS/ShowerLibraryProducer/interface/HFShowerG4Hit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

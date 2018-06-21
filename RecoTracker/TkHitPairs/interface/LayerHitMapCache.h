@@ -63,6 +63,13 @@ public:
   void extend(const LayerHitMapCache& other) {
     theCache.extend(other.theCache);
   }
+
+  // Mainly for FastSim, overrides old hits if exists
+  RecHitsSortedInPhi *add(const SeedingLayerSetsHits::SeedingLayer& layer, std::unique_ptr<RecHitsSortedInPhi> hits) {
+    RecHitsSortedInPhi *ptr = hits.get();
+    theCache.add(layer.index(), hits.release());
+    return ptr;
+  }
   
   const RecHitsSortedInPhi &
   operator()(const SeedingLayerSetsHits::SeedingLayer& layer, const TrackingRegion & region,
@@ -71,9 +78,8 @@ public:
     assert (key>=0);
     const RecHitsSortedInPhi * lhm = theCache.get(key);
     if (lhm==nullptr) {
-      auto tmp=new RecHitsSortedInPhi (region.hits(iSetup,layer), region.origin(), layer.detLayer());
+      auto tmp = add(layer, std::make_unique<RecHitsSortedInPhi>(region.hits(iSetup,layer), region.origin(), layer.detLayer()));
       tmp->theOrigin = region.origin();
-      theCache.add( key, tmp);
       lhm = tmp;
       LogDebug("LayerHitMapCache")<<" I got"<< lhm->all().second-lhm->all().first<<" hits in the cache for: "<<layer.detLayer();
     }

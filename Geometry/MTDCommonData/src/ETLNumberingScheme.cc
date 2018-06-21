@@ -74,7 +74,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
   }
   
   if( 1 > modCopy ||
-      148 < modCopy    )
+      176 < modCopy    )
     {
       edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                  << "****************** Bad module copy = " 
@@ -85,7 +85,7 @@ uint32_t ETLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     }
   
   if( 1 > ringCopy ||
-      9 < ringCopy    )
+      11 < ringCopy    )
     {
       edm::LogWarning("MTDGeom") << "ETLNumberingScheme::getUnitID(): "
                                  << "****************** Bad ring copy = " 

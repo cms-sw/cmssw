@@ -70,20 +70,26 @@ static std::string particleTypeToString( LHCInfo::ParticleTypeId const & particl
   return s_particleType;
 }
 
-LHCInfo::LHCInfo(): m_intParams( ISIZE )
-		  , m_floatParams( FSIZE )
-		  , m_timeParams( TSIZE )
-		  , m_stringParams( SSIZE )
-{
-	setFill(0, false);
+LHCInfo::LHCInfo(){
+  m_intParams.resize( ISIZE, std::vector<unsigned int>(1,0) );
+  m_floatParams.resize( FSIZE, std::vector<float>(1, 0.) );
+  m_floatParams[ LUMI_PER_B ] = std::vector<float>();
+  m_floatParams[ BEAM1_VC ] = std::vector<float>();
+  m_floatParams[ BEAM2_VC ] = std::vector<float>();
+  m_floatParams[ BEAM1_RF ] = std::vector<float>();
+  m_floatParams[ BEAM2_RF ] = std::vector<float>();
+  m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0ULL) );
+  m_stringParams.resize( SSIZE, std::vector<std::string>(1, "") );
+  m_stringParams[ INJECTION_SCHEME ].push_back( std::string("None") );
 }
 
-LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_intParams( ISIZE )
-									 , m_floatParams( FSIZE )
-									 , m_timeParams( TSIZE )
-									 , m_stringParams( SSIZE )
-{
-	setFill(lhcFill, fromData);
+LHCInfo::LHCInfo( const LHCInfo& rhs ):
+  m_intParams( rhs.m_intParams ),
+  m_floatParams( rhs.m_floatParams ),
+  m_timeParams( rhs.m_timeParams ),
+  m_stringParams( rhs.m_stringParams ),
+  m_bunchConfiguration1( rhs.m_bunchConfiguration1), 
+  m_bunchConfiguration2( rhs.m_bunchConfiguration2){
 }
 
 LHCInfo::~LHCInfo() {
@@ -95,28 +101,13 @@ LHCInfo* LHCInfo::cloneFill() const {
   if( !m_intParams[0].empty()){
     for(size_t i=0;i<LUMI_SECTION; i++) ret->m_intParams[i]=m_intParams[i];
     for(size_t i=0;i<DELIV_LUMI; i++) ret->m_floatParams[i]=m_floatParams[i];
-    for(size_t i=0;i<DIP_TIME; i++) ret->m_timeParams[i]=m_timeParams[i];
+    ret->m_floatParams[LUMI_PER_B] = m_floatParams[LUMI_PER_B];
+    for(size_t i=0;i<TSIZE; i++) ret->m_timeParams[i]=m_timeParams[i];
     for(size_t i=0;i<LHC_STATE; i++) ret->m_stringParams[i]=m_stringParams[i];
+    ret->m_bunchConfiguration1=m_bunchConfiguration1;
+    ret->m_bunchConfiguration2=m_bunchConfiguration2;
   }
   return ret;
-}
-
-//reset instance
-void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
-  m_isData = fromData;
-  m_intParams.resize( ISIZE, std::vector<unsigned int>(1,0) );
-  m_intParams[ LHC_FILL ] = std::vector<unsigned int>(1,lhcFill);
-  m_floatParams.resize( FSIZE, std::vector<float>(1,0.));
-  m_floatParams[ LUMI_PER_B ] = std::vector<float>(1, 0.);
-  m_floatParams[ BEAM1_VC ] = std::vector<float>(1, 0.);
-  m_floatParams[ BEAM2_VC ] = std::vector<float>(1, 0.);
-  m_floatParams[ BEAM1_RF ] = std::vector<float>(1, 0.);
-  m_floatParams[ BEAM2_RF ] = std::vector<float>(1, 0.);
-  m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0ULL) );
-  m_stringParams.resize( SSIZE, std::vector<std::string>(1, "") );
-  m_stringParams[ INJECTION_SCHEME ].push_back( std::string("None") );
-  m_bunchConfiguration1.reset();
-  m_bunchConfiguration2.reset();
 }
 
 namespace LHCInfoImpl {
@@ -125,10 +116,15 @@ namespace LHCInfoImpl {
     return params[index];
   }  
 
+  template <typename T> T& accessParams( std::vector<T>& params, size_t index ){
+    if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
+    return params[index];
+  }
+
   template <typename T> const T& getOneParam( const std::vector< std::vector<T> >& params, size_t index ){
     if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
     const std::vector<T>& inner = params[index];
-    if( inner.empty() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" has no value stored.");
+    if( inner.empty() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" type="+typeid(T).name()+" has no value stored.");
     return inner[ 0 ];
   }
 
@@ -147,10 +143,6 @@ namespace LHCInfoImpl {
 //getters
 unsigned short const LHCInfo::fillNumber() const {
   return LHCInfoImpl::getOneParam( m_intParams, LHC_FILL );
-}
-
-bool const LHCInfo::isData() const {
-  return m_isData;
 }
 
 unsigned short const LHCInfo::bunchesInBeam1() const {
@@ -269,6 +261,22 @@ std::vector<float> const & LHCInfo::beam2RF() const {
   return LHCInfoImpl::getParams(m_floatParams, BEAM2_RF );
 }
 
+std::vector<float>& LHCInfo::beam1VC(){
+  return LHCInfoImpl::accessParams(m_floatParams, BEAM1_VC );
+}
+
+std::vector<float>& LHCInfo::beam2VC(){
+  return LHCInfoImpl::accessParams(m_floatParams, BEAM2_VC );
+}
+
+std::vector<float>& LHCInfo::beam1RF(){
+  return LHCInfoImpl::accessParams(m_floatParams, BEAM1_RF );
+}
+
+std::vector<float>& LHCInfo::beam2RF(){
+  return LHCInfoImpl::accessParams(m_floatParams, BEAM2_RF );
+}
+
 //returns a boolean, true if the injection scheme has a leading 25ns
 //TODO: parse the circulating bunch configuration, instead of the string.
 bool LHCInfo::is25nsBunchSpacing() const {
@@ -296,6 +304,10 @@ std::vector<unsigned short> LHCInfo::bunchConfigurationForBeam1() const {
 
 std::vector<unsigned short> LHCInfo::bunchConfigurationForBeam2() const {
   return bitsetToVector( m_bunchConfiguration2 );
+}
+
+void LHCInfo::setFillNumber( unsigned short lhcFill ) {
+  LHCInfoImpl::setOneParam( m_intParams, LHC_FILL, static_cast<unsigned int>(lhcFill) );
 }
 
 //setters
@@ -505,7 +517,7 @@ void LHCInfo::print( std::stringstream & ss ) const {
      << "LHC State: " << this->lhcState() << std::endl
      << "LHC Comments: " << this->lhcComment() << std::endl
      << "CTPPS Status: " << this->ctppsStatus() << std::endl
-     << "Lumi sections: " << this->lumiSection() << std::endl;
+     << "Lumi section: " << this->lumiSection() << std::endl;
      
   ss << "Luminosity per bunch  (total " << this->lumiPerBX().size() << "): ";
   std::copy( this->lumiPerBX().begin(), this->lumiPerBX().end(), std::ostream_iterator<float>( ss, ", " ) );

@@ -1,6 +1,5 @@
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
-#include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
 #include "SimG4Core/Application/interface/EventAction.h"
@@ -20,6 +19,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
@@ -79,30 +79,23 @@ namespace {
                       int thisThreadID
                       )
   {
-    using namespace std;
-    using namespace edm;
     if(!iP.exists("Watchers")) { return; }
 
-    vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
-    
-    if(thisThreadID > 0) {
-      throw edm::Exception(edm::errors::Configuration) << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
-    }
+    std::vector<edm::ParameterSet> watchers = 
+      iP.getParameter<std::vector<edm::ParameterSet> >("Watchers");
 
-    for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
-        itWatcher != watchers.end();
-        ++itWatcher) {
+    for(auto & watcher : watchers) {
       std::unique_ptr<SimWatcherMakerBase> maker(
-        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type"))
+        SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type"))
       );
       if(maker.get()==nullptr) {
         throw edm::Exception(edm::errors::Configuration)
-	  << "Unable to find the requested Watcher";
+	  << "Unable to find the requested Watcher <"
+	  << watcher.getParameter<std::string>("type");
       }
-
       std::shared_ptr<SimWatcher> watcherTemp;
       std::shared_ptr<SimProducer> producerTemp;
-      maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
+      maker->make(watcher,iReg,watcherTemp,producerTemp);
       oWatchers.push_back(watcherTemp);
       if(producerTemp) {
         oProds.push_back(producerTemp);
