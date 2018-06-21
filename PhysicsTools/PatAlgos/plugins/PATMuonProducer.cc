@@ -187,6 +187,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
   simInfo_        = consumes<edm::ValueMap<reco::MuonSimInfo> >(iConfig.getParameter<edm::InputTag>("muonSimInfo"));
 
   triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(edm::InputTag("slimmedPatTrigger"));
+  if (iConfig.exists("hltCollectionNames"))
+    hltCollectionNames_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionNames");
 
   // produces vector of muons
   produces<std::vector<Muon> >();
@@ -244,11 +246,34 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
       // if (muonPosition) printf("global direction MB2/ME2: eta: %+5.3f phi: %+5.3f\n",double(muonPosition->eta()), double(muonPosition->phi()));
       // printf("L1 pt: %4.1f eta: %+5.3f phi: %+5.3f\n",triggerObjects->at(i).pt(), triggerObjects->at(i).eta(), triggerObjects->at(i).phi());
       aMuon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
+      break;
     }
   }
 
   if (muonPosition) delete muonPosition;
 }
+
+void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
+					  edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+					  const std::vector<std::string>& collection_names)
+{
+  unsigned int best_match_index = triggerObjects->size();
+  float best_match_dr = 999.;
+  for (auto collection: collection_names){
+    for (unsigned int i=0; i<triggerObjects->size(); ++i){
+      if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerMuon)){
+	if (collection != triggerObjects->at(i).collection()) continue;
+	float dr = deltaR(triggerObjects->at(i).p4(),muon);
+	if (dr>0.1 or dr>best_match_dr) continue;
+	best_match_dr = dr;
+	best_match_index = i;
+      }
+    }
+  }
+  if (best_match_index < triggerObjects->size())
+    muon.setHltObject(pat::TriggerObjectStandAloneRef(triggerObjects,best_match_index));
+}
+
 
 					       
 
@@ -600,6 +625,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   for(auto& muon: *patMuons){
     // trigger info
     fillL1TriggerInfo(muon,triggerObjects,geometry);
+    fillHltTriggerInfo(muon,triggerObjects,hltCollectionNames_);
 
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
