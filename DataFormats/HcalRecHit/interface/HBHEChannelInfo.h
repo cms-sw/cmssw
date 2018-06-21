@@ -18,18 +18,26 @@ public:
 
     static const unsigned MAXSAMPLES = 10;
 
-    inline HBHEChannelInfo()
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
-        gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-        dFcPerADC_{0.f}, hasTimeInfo_(false), hasEffectivePedestals_(false) {clear();}
+    constexpr HBHEChannelInfo()
+      : id_(), rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
+        gain_{0.}, gainWidth_{0.}, darkCurrent_{0}, fcByPE_{0}, lambda_{0},
+        riseTime_{0.f}, adc_{0},
+        dFcPerADC_{0.f}, recoShape_{0}, nSamples_{0}, 
+        soi_{0}, capid_{0}, hasTimeInfo_{false}, hasEffectivePedestals_{false},
+        dropped_{true}, hasLinkError_{false}, hasCapidError_{false}
+    {}
 
-    inline explicit HBHEChannelInfo(const bool hasTimeFromTDC, const bool hasEffectivePed)
-      : rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
-        gain_{0.}, gainWidth_{0.}, riseTime_{0.f}, adc_{0},
-        dFcPerADC_{0.f}, hasTimeInfo_(hasTimeFromTDC), 
-        hasEffectivePedestals_(hasEffectivePed) {clear();}
+    constexpr explicit HBHEChannelInfo(const bool hasTimeFromTDC, const bool hasEffectivePed)
+      : id_(), rawCharge_{0.}, pedestal_{0.}, pedestalWidth_{0.},
+        gain_{0.}, gainWidth_{0.}, darkCurrent_{0}, fcByPE_{0}, lambda_{0}, 
+        riseTime_{0.f}, adc_{0},
+        dFcPerADC_{0.f}, recoShape_{0}, nSamples_{0}, 
+        soi_{0}, capid_{0}, hasTimeInfo_(hasTimeFromTDC), 
+        hasEffectivePedestals_(hasEffectivePed),
+        dropped_{true}, hasLinkError_{false}, hasCapidError_{false}
+    {}
 
-    inline void clear()
+    constexpr void clear()
     {
         id_ = HcalDetId(0U);
         recoShape_ = 0;
@@ -44,7 +52,7 @@ public:
         hasCapidError_ = false;
     }
 
-    inline void setChannelInfo(const HcalDetId& detId, const int recoShape, const unsigned nSamp,
+    constexpr void setChannelInfo(const HcalDetId& detId, const int recoShape, const unsigned nSamp,
                                const unsigned iSoi, const int iCapid,
                                const double darkCurrent, const double fcByPE, const double lambda,
                                const bool linkError, const bool capidError,
@@ -63,11 +71,11 @@ public:
         hasCapidError_ = capidError;
     }
 
-    inline void tagAsDropped()
+    constexpr void tagAsDropped()
         {dropped_ = true;}
 
     // For speed, the "setSample" function does not perform bounds checking
-    inline void setSample(const unsigned ts, const uint8_t rawADC,
+    constexpr void setSample(const unsigned ts, const uint8_t rawADC,
                           const float differentialChargeGain, const double q,
                           const double ped, const double pedWidth,
                           const double g, const double gainWidth,
@@ -84,58 +92,58 @@ public:
     }
 
     // Inspectors
-    inline HcalDetId id() const {return id_;}
+    constexpr HcalDetId id() const {return id_;}
 
     // access the recoShape
-    inline int recoShape() const { return recoShape_;}
+    constexpr int recoShape() const { return recoShape_;}
 
-    inline unsigned nSamples() const {return nSamples_;}
-    inline unsigned soi() const {return soi_;}
-    inline int capid() const {return capid_;}
-    inline bool hasTimeInfo() const {return hasTimeInfo_;}
-    inline bool hasEffectivePedestals() const {return hasEffectivePedestals_;}
-    inline double darkCurrent() const {return darkCurrent_;}
-    inline double fcByPE() const {return fcByPE_;}
-    inline double lambda() const {return lambda_;}
-    inline bool isDropped() const {return dropped_;}
-    inline bool hasLinkError() const {return hasLinkError_;}
-    inline bool hasCapidError() const {return hasCapidError_;}
+    constexpr unsigned nSamples() const {return nSamples_;}
+    constexpr unsigned soi() const {return soi_;}
+    constexpr int capid() const {return capid_;}
+    constexpr bool hasTimeInfo() const {return hasTimeInfo_;}
+    constexpr bool hasEffectivePedestals() const {return hasEffectivePedestals_;}
+    constexpr double darkCurrent() const {return darkCurrent_;}
+    constexpr double fcByPE() const {return fcByPE_;}
+    constexpr double lambda() const {return lambda_;}
+    constexpr bool isDropped() const {return dropped_;}
+    constexpr bool hasLinkError() const {return hasLinkError_;}
+    constexpr bool hasCapidError() const {return hasCapidError_;}
 
     // Direct read-only access to time slice arrays
-    inline const double* rawCharge() const {return rawCharge_;}
-    inline const double* pedestal() const {return pedestal_;}
-    inline const double* pedestalWidth() const {return pedestalWidth_;}
-    inline const double* gain() const {return gain_;}
-    inline const double* gainWidth() const {return gainWidth_;}
-    inline const uint8_t* adc() const {return adc_;}
-    inline const float* dFcPerADC() const {return dFcPerADC_;}
-    inline const float* riseTime() const
-        {if (hasTimeInfo_) return riseTime_; else return nullptr;}
+    constexpr double const* rawCharge() const {return rawCharge_;}
+    constexpr double const* pedestal() const {return pedestal_;}
+    constexpr double const* pedestalWidth() const {return pedestalWidth_;}
+    constexpr double const* gain() const {return gain_;}
+    constexpr double const* gainWidth() const {return gainWidth_;}
+    constexpr uint8_t const* adc() const {return adc_;}
+    constexpr float const* dFcPerADC() const {return dFcPerADC_;}
+    constexpr float const* riseTime() const
+    {if (hasTimeInfo_) return riseTime_; else return nullptr;}
 
     // Indexed access to time slice quantities. No bounds checking.
-    inline double tsRawCharge(const unsigned ts) const {return rawCharge_[ts];}
-    inline double tsPedestal(const unsigned ts) const {return pedestal_[ts];}
-    inline double tsPedestalWidth(const unsigned ts) const {return pedestalWidth_[ts];}
-    inline double tsGain(const unsigned ts) const {return gain_[ts];}
-    inline double tsGainWidth(const unsigned ts) const {return gainWidth_[ts];}
-    inline double tsCharge(const unsigned ts) const
-        {return rawCharge_[ts] - pedestal_[ts];}
-    inline double tsEnergy(const unsigned ts) const
-        {return (rawCharge_[ts] - pedestal_[ts])*gain_[ts];}
-    inline uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
-    inline float tsDFcPerADC(const unsigned ts) const {return dFcPerADC_[ts];}
-    inline float tsRiseTime(const unsigned ts) const
-        {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
+    constexpr double tsRawCharge(const unsigned ts) const {return rawCharge_[ts];}
+    constexpr double tsPedestal(const unsigned ts) const {return pedestal_[ts];}
+    constexpr double tsPedestalWidth(const unsigned ts) const {return pedestalWidth_[ts];}
+    constexpr double tsGain(const unsigned ts) const {return gain_[ts];}
+    constexpr double tsGainWidth(const unsigned ts) const {return gainWidth_[ts];}
+    constexpr double tsCharge(const unsigned ts) const
+    {return rawCharge_[ts] - pedestal_[ts];}
+    constexpr double tsEnergy(const unsigned ts) const
+    {return (rawCharge_[ts] - pedestal_[ts])*gain_[ts];}
+    constexpr uint8_t tsAdc(const unsigned ts) const {return adc_[ts];}
+    constexpr float tsDFcPerADC(const unsigned ts) const {return dFcPerADC_[ts];}
+    constexpr float tsRiseTime(const unsigned ts) const
+    {return hasTimeInfo_ ? riseTime_[ts] : HcalSpecialTimes::UNKNOWN_T_NOTDC;}
 
     // Signal rise time measurement for the SOI, if available
-    inline float soiRiseTime() const
+    constexpr float soiRiseTime() const
     {
         return (hasTimeInfo_ && soi_ < nSamples_) ?
                 riseTime_[soi_] : HcalSpecialTimes::UNKNOWN_T_NOTDC;
     }
 
     // The TS with the "end" index is not included in the window
-    inline double chargeInWindow(const unsigned begin, const unsigned end) const
+    constexpr double chargeInWindow(const unsigned begin, const unsigned end) const
     {
         double sum = 0.0;
         const unsigned imax = end < nSamples_ ? end : nSamples_;
@@ -144,7 +152,7 @@ public:
         return sum;
     }
 
-    inline double energyInWindow(const unsigned begin, const unsigned end) const
+    constexpr double energyInWindow(const unsigned begin, const unsigned end) const
     {
         double sum = 0.0;
         const unsigned imax = end < nSamples_ ? end : nSamples_;
@@ -155,7 +163,7 @@ public:
 
     // The two following methods return MAXSAMPLES if the specified
     // window does not overlap with the samples stored
-    inline unsigned peakChargeTS(const unsigned begin, const unsigned end) const
+    constexpr unsigned peakChargeTS(const unsigned begin, const unsigned end) const
     {
         unsigned iPeak = MAXSAMPLES;
         double dmax = -DBL_MAX;
@@ -172,7 +180,7 @@ public:
         return iPeak;
     }
 
-    inline unsigned peakEnergyTS(const unsigned begin, const unsigned end) const
+    constexpr unsigned peakEnergyTS(const unsigned begin, const unsigned end) const
     {
         unsigned iPeak = MAXSAMPLES;
         double dmax = -DBL_MAX;
@@ -191,7 +199,7 @@ public:
 
     // The following function can be used, for example,
     // in a check for presence of saturated ADC values
-    inline uint8_t peakAdcValue(const unsigned begin, const unsigned end) const
+    constexpr uint8_t peakAdcValue(const unsigned begin, const unsigned end) const
     {
         uint8_t peak = 0;
         const unsigned imax = end < nSamples_ ? end : nSamples_;
