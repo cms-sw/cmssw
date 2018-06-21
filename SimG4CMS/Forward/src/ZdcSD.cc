@@ -147,10 +147,10 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
     float costheta = vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
                                        vert_mom.y()*vert_mom.y()+
                                        vert_mom.z()*vert_mom.z());
-    float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
-    float eta = -log(tan(theta/2));
+    float theta = std::acos(std::min(std::max(costheta,-1.f),1.f));
+    float eta = -std::log(std::tan(theta*0.5f));
     float phi = -100.;
-    if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
+    if (vert_mom.x() != 0) phi = std::atan2(vert_mom.y(),vert_mom.x()); 
     if (phi < 0.) phi += twopi;
 
     // Get the total energy deposit
@@ -204,10 +204,10 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
       float DelFibPart = std::abs(th - thFibDirRad);
 
       // define real distances:
-      float d = std::abs(tan(th)-tan(thFibDirRad));   
+      float d = std::abs(std::tan(th)-std::tan(thFibDirRad));   
 
-      float a = tan(thFibDirRad)+tan(fabs(thFibDirRad-thFullReflRad));   
-      float r = tan(th)+tan(fabs(th-thcher));   
+      float a = std::tan(thFibDirRad)+std::tan(std::abs(thFibDirRad-thFullReflRad));   
+      float r = std::tan(th)+std::tan(std::abs(th-thcher));   
       
       // define losses d_qz in cone of full reflection inside quartz direction
       float d_qz = -1;
@@ -232,13 +232,13 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep) {
             float tan_arcos = 2.*a*d;
             if (tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
             // std::cout.testOut << "  d_qz: " << r << "," << a << "," << d << " " << tan_arcos << " " << arg_arcos;
-            arg_arcos = fabs(arg_arcos);
+            arg_arcos = std::abs(arg_arcos);
             // std::cout.testOut << "," << arg_arcos;
             float th_arcos = acos(std::min(std::max(arg_arcos,-1.f),1.f));
             // std::cout.testOut << " " << th_arcos;
-            d_qz = th_arcos/pi/2.;
+            d_qz = th_arcos/twopi;
             // std::cout.testOut << " " << d_qz;
-            d_qz = fabs(d_qz);
+            d_qz = std::abs(d_qz);
             // std::cout.testOut << "," << d_qz;
           }
         }

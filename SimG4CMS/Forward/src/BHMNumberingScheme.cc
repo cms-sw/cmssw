@@ -7,17 +7,11 @@ BHMNumberingScheme::BHMNumberingScheme() {
   LogDebug("BHMSim") << " Creating BHMNumberingScheme" ;
 }
 
-BHMNumberingScheme::~BHMNumberingScheme() {
-  LogDebug("BHMSim") << " Deleting BHMNumberingScheme" ;
-}
-
 int BHMNumberingScheme::detectorLevel(const G4Step* aStep) const {
 
   //Find number of levels
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  int level = 0;
-  if (touch) level = ((touch->GetHistoryDepth())+1);
-  return level;
+  return (touch) ? ((touch->GetHistoryDepth())+1) : 0;
 }
 
 void BHMNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
@@ -26,7 +20,7 @@ void BHMNumberingScheme::detectorLevel(const G4Step* aStep, int& level,
   //Get name and copy numbers
   if (level > 0) {
     const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-    for (int ii = 0; ii < level; ii++) {
+    for (int ii = 0; ii < level; ++ii) {
       int i      = level - ii - 1;
       name[ii]   = touch->GetVolume(i)->GetName();
       copyno[ii] = touch->GetReplicaNumber(i);
@@ -63,7 +57,7 @@ unsigned int BHMNumberingScheme::getUnitID(const G4Step* aStep) const {
   
 }
 
-unsigned BHMNumberingScheme::packIndex(int subdet, int zside, int station) {
+unsigned int BHMNumberingScheme::packIndex(int subdet, int zside, int station) {
 
   unsigned int idx = ((6<<28)|(subdet&0x7)<<25); // Use 6 as the detector name
   idx |= ((zside&0x3)<<5) | (station&0x1F);   // bits 0-4:station 5-6:side

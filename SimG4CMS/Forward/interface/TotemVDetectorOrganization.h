@@ -13,7 +13,7 @@ class TotemVDetectorOrganization {
 public:
   TotemVDetectorOrganization(){};
   virtual ~TotemVDetectorOrganization(){};   
-  virtual uint32_t GetUnitID(const  G4Step* aStep) const =0;
+  virtual uint32_t getUnitID(const  G4Step* aStep) const =0;
 };      
 
 
