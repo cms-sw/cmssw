@@ -57,40 +57,40 @@ public:
   ~TotemT1Organization() override;
 
   // ---------- member functions ---------------------------
-  uint32_t         GetUnitID(const G4Step* aStep) const override;
+  uint32_t         getUnitID(const G4Step* aStep) const override;
   
-  int              GetCurrentUnitID(void) const;
-  void             SetCurrentUnitID(int currentUnitID);
+  int              getCurrentUnitID(void) const;
+  void             setCurrentUnitID(int currentUnitID);
 
   // ---------- Detector position --------------------------
 
-  int              GetCurrentDetectorPosition(void) const;
-  void             SetCurrentDetectorPosition(int currentDetectorPosition);
+  int              getCurrentDetectorPosition(void) const;
+  void             setCurrentDetectorPosition(int currentDetectorPosition);
 
   // ---------- Plane: between 0 and (nPlanes-1) (or -1 for Undefined)
-  int              GetCurrentPlane(void) const;
-  void             SetCurrentPlane(int currentPlane);
+  int              getCurrentPlane(void) const;
+  void             setCurrentPlane(int currentPlane);
 
   // ---------- CSC: between 0 and 5 (or -1 for Undefined)
-  int              GetCurrentCSC(void) const;
-  void             SetCurrentCSC(int currentCSC);
+  int              getCurrentCSC(void) const;
+  void             setCurrentCSC(int currentCSC);
 
   // ---------- Layer: between 0 and (nLayers-1) (or -1 for Undefined)
-  int              GetCurrentLayer(void) const;
-  void             SetCurrentLayer(int currentLayer);
+  int              getCurrentLayer(void) const;
+  void             setCurrentLayer(int currentLayer);
 
   // ---------- Object Type --------------------------------
 
-  ObjectType       GetCurrentObjectType(void) const;
-  void             SetCurrentObjectType(ObjectType currentObjectType);
+  ObjectType       getCurrentObjectType(void) const;
+  void             setCurrentObjectType(ObjectType currentObjectType);
 
-  int              FromObjectTypeToInt(ObjectType objectType);
-  int              FromObjectTypeToInt(ObjectType objectType, int layer);
+  int              fromObjectTypeToInt(ObjectType objectType);
+  int              fromObjectTypeToInt(ObjectType objectType, int layer);
 
   // ---------- Private methods ----------------------------
 
 private:
-  uint32_t         GetUnitID(const G4Step* aStep);
+  uint32_t         getUnitID(const G4Step* aStep);
 
   void             _checkUnitIDUpdate(void) const;
   void             _checkDataUpdate(void) const;
