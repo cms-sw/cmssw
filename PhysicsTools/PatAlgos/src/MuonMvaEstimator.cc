@@ -101,10 +101,19 @@ float MuonMvaEstimator::computeMva(const pat::Muon& muon,
   double jecL1L2L3Res = 1.;
   double jecL1 = 1.;
 
-  var[kJetPtRatio] = -99;
-  var[kJetPtRel]   = -99;
+  // Compute corrected isolation variables
+  double chIso  = muon.pfIsolationR04().sumChargedHadronPt;
+  double nIso   = muon.pfIsolationR04().sumNeutralHadronEt;
+  double phoIso = muon.pfIsolationR04().sumPhotonEt;
+  double puIso  = muon.pfIsolationR04().sumPUPt;
+  double dbCorrectedIsolation = chIso + std::max( nIso + phoIso - .5*puIso, 0. ) ;
+  double dbCorrectedRelIso = dbCorrectedIsolation/muon.pt();
+
+  var[kJetPtRatio] = 1./(1+dbCorrectedRelIso);
+  var[kJetPtRel]   = 0;
   var[kJetBTagCSV] = -999;
   var[kJetNDauCharged] = -1;
+
 
   for (const auto& tagI: bTags){
     // for each muon with the lepton 
