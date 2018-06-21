@@ -73,7 +73,9 @@ interestingGedEgammaIsoHCALDetId = RecoEgamma.EgammaIsolationAlgos.interestingGe
 interestingEgammaIsoHCALSel = cms.PSet(
   maxDIEta=cms.int32(5),
   maxDIPhi=cms.int32(5),
-  minEnergyHCAL = cms.double(0.8),
+  minEnergyHB = cms.double(0.8),
+  minEnergyHEDepth1 = cms.double(0.1),
+  minEnergyHEDefault = cms.double(0.2),
 )
 interestingGedEgammaIsoHCALDetId.recHitsLabel=cms.InputTag("hbhereco")
 interestingGedEgammaIsoHCALDetId.elesLabel=cms.InputTag("gedGsfElectrons")
