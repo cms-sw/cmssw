@@ -9,14 +9,15 @@ RootTree.h // used by ROOT input sources
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/SoATuple.h"
 
 #include "Rtypes.h"
 #include "TBranch.h"
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -60,7 +61,34 @@ namespace edm {
       mutable TClass* classCache_;
       mutable Int_t offsetToWrapperBase_;
     };
-    typedef std::map<BranchKey const, BranchInfo> BranchMap;
+    
+    class BranchMap {
+      enum {
+        kKeys,
+        kInfos,
+      };
+    public:
+      void reserve(size_t iSize) {
+        tuple_.reserve(iSize);
+      }
+      void insert(edm::BranchKey const& iKey, BranchInfo const& iInfo) {
+        tuple_.emplace_back(iKey,iInfo);
+      }
+      BranchInfo const* find(BranchKey const& iKey) const {
+        auto itFound = std::find(tuple_.begin<kKeys>(),tuple_.end<kKeys>(), iKey);
+        if(itFound == tuple_.end<kKeys>()) {return nullptr;}
+        return &tuple_.get<kInfos>( itFound - tuple_.begin<kKeys>() );
+      }
+      BranchInfo* find(BranchKey const& iKey) {
+        auto itFound = std::find(tuple_.begin<kKeys>(),tuple_.end<kKeys>(), iKey);
+        if(itFound == tuple_.end<kKeys>()) {return nullptr;}
+        return &tuple_.get<kInfos>( itFound - tuple_.begin<kKeys>() );
+      }
+
+    private:
+      SoATuple<BranchKey,BranchInfo> tuple_;
+    };
+
     Int_t getEntry(TBranch* branch, EntryNumber entryNumber);
     Int_t getEntry(TTree* tree, EntryNumber entryNumber);
     std::unique_ptr<TTreeCache> trainCache(TTree* tree, InputFile& file, unsigned int cacheSize, char const* branchNames);
@@ -84,6 +112,7 @@ namespace edm {
     RootTree& operator=(RootTree const&) = delete; // Disallow copying and moving
 
     bool isValid() const;
+    void numberOfBranchesToAdd(size_t iSize) { branches_.reserve(iSize);}
     void addBranch(BranchKey const& key,
                    BranchDescription const& prod,
                    std::string const& oldBranchName);
@@ -193,7 +222,7 @@ namespace edm {
     EntryNumber entryNumber_;
     std::unique_ptr<std::vector<EntryNumber> > entryNumberForIndex_;
     std::vector<std::string> branchNames_;
-    std::shared_ptr<BranchMap> branches_;
+    BranchMap branches_;
     bool trainNow_;
     EntryNumber switchOverEntry_;
     mutable EntryNumber rawTriggerSwitchOverEntry_;
