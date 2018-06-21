@@ -10,6 +10,10 @@
 
 namespace l1t {
 namespace stage2 {
+   EtSumUnpacker::EtSumUnpacker() : EtSumCopy_(0)
+   {
+   }
+
    bool
    EtSumUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
@@ -30,7 +34,7 @@ namespace stage2 {
        lastBX = ceil((double)nBX/2.)-1;
      }
 
-     auto res_ = static_cast<L1TObjectCollections*>(coll)->getEtSums();
+     auto res_ = static_cast<L1TObjectCollections*>(coll)->getEtSums(EtSumCopy_);
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
