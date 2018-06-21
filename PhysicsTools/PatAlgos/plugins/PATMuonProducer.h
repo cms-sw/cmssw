@@ -35,6 +35,9 @@
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+// #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+// #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 namespace pat {
 
@@ -110,6 +113,12 @@ namespace pat {
 			 bool beamspotIsValid );
     double relMiniIsoPUCorrected( const pat::Muon& aMuon,
 				  double rho);
+    GlobalPoint* getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+				   const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+				   const DetId& chamberId);
+    void fillL1TriggerInfo(pat::Muon& muon,
+			   edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			   const edm::ESHandle<GlobalTrackingGeometry>& geometry);
 
   private:
     /// input source
