@@ -48,6 +48,9 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
 #include <vector>
 #include <memory>
 
@@ -194,8 +197,69 @@ PATMuonProducer::~PATMuonProducer()
 {
 }
 
+GlobalPoint* PATMuonProducer::getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+						const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+						const DetId& chamberId)
+{
+  const GeomDet* chamberGeometry = geometry->idToDet( chamberId );
+  if (chamberGeometry){
+    LocalPoint localPosition(chamberMatch.x, chamberMatch.y, 0);
+    return new GlobalPoint(chamberGeometry->toGlobal(localPosition));
+  }
+  return nullptr;
+
+}
+
+
+void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
+					edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+					const edm::ESHandle<GlobalTrackingGeometry>& geometry)
+{
+  // L1 trigger object parameters are defined at MB2/ME2. Use the muon
+  // chamber matching information to get the local direction of the
+  // muon trajectory and convert it to a global direction to match the
+  // trigger objects
+
+  GlobalPoint* muonPosition(nullptr);
+  // loop over chambers
+  for ( const auto& chamberMatch: aMuon.matches() ) {
+    if ( chamberMatch.id.subdetId() == MuonSubdetId::DT) {
+      DTChamberId detId(chamberMatch.id.rawId());
+      if (abs(detId.station())!=2) continue;
+      muonPosition = getMuonDirection(chamberMatch, geometry, detId);
+      break;
+    }
+    if ( chamberMatch.id.subdetId() == MuonSubdetId::CSC) {
+      CSCDetId detId(chamberMatch.id.rawId());
+      if (abs(detId.station())!=2) continue;
+      muonPosition = getMuonDirection(chamberMatch, geometry, detId);
+      break;
+    }
+  }
+  if (not muonPosition) return;
+  for (unsigned int i=0; i<triggerObjects->size(); ++i){
+    if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerL1Mu)){
+      if (deltaR(triggerObjects->at(i).p4(),*muonPosition)>0.1) continue;
+      // printf("muon pt: %4.1f eta: %+5.3f phi: %+5.3f\n", aMuon.pt(), aMuon.eta(), aMuon.phi());
+      // if (muonPosition) printf("global direction MB2/ME2: eta: %+5.3f phi: %+5.3f\n",double(muonPosition->eta()), double(muonPosition->phi()));
+      // printf("L1 pt: %4.1f eta: %+5.3f phi: %+5.3f\n",triggerObjects->at(i).pt(), triggerObjects->at(i).eta(), triggerObjects->at(i).phi());
+      aMuon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
+    }
+  }
+
+  if (muonPosition) delete muonPosition;
+}
+
+					       
+
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
+   // get the tracking Geometry
+   edm::ESHandle<GlobalTrackingGeometry> geometry;
+   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry);
+   if ( ! geometry.isValid() )
+     throw cms::Exception("FatalError") << "Unable to find GlobalTrackingGeometryRecord in event!\n";
+
   // switch off embedding (in unschedules mode)
   if (iEvent.isRealData()){
     addGenMatch_   = false;
@@ -535,14 +599,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   for(auto& muon: *patMuons){
     // trigger info
-    // std::vector<pat::TriggerObjectStandAloneRef> l1Refs;
-    for (unsigned int i=0; i<triggerObjects->size(); ++i){
-      if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerL1Mu)){
-	// WARNING: matching is not perfect - need to implement it right in reco
-	if (deltaR(triggerObjects->at(i).p4(),muon.p4())>0.3) continue;
-	muon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
-      }
-    }
+    fillL1TriggerInfo(muon,triggerObjects,geometry);
 
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
