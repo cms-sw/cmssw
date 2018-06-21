@@ -15,7 +15,7 @@
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
-#include "SimG4Core/Application/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

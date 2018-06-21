@@ -180,13 +180,13 @@ trackingLowPU.toModify(pixelLessStepSeeds,
 #fastsim
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 _fastSim_pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    layerList = pixelLessStepSeedLayers.layerList.value(),
     trackingRegions = "pixelLessStepTrackingRegions",
     hitMasks = cms.InputTag("pixelLessStepMasks"),
 )
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet
 _fastSim_pixelLessStepSeeds.seedFinderSelector.MultiHitGeneratorFactory = _hitSetProducerToFactoryPSet(pixelLessStepHitTriplets)
 _fastSim_pixelLessStepSeeds.seedFinderSelector.MultiHitGeneratorFactory.refitHits = False
+_fastSim_pixelLessStepSeeds.seedFinderSelector.layerList = pixelLessStepSeedLayers.layerList.value()
 fastSim.toReplaceWith(pixelLessStepSeeds,_fastSim_pixelLessStepSeeds)
 
 # QUALITY CUTS DURING TRACK BUILDING

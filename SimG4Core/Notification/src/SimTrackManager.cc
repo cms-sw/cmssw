@@ -14,28 +14,17 @@
 #include <iostream>
 
 // user include files
-#include "SimG4Core/Application/interface/SimTrackManager.h"
-#include "SimG4Core/Application/interface/G4SimTrack.h"
-#include "SimG4Core/Application/interface/G4SimVertex.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/G4SimTrack.h"
+#include "SimG4Core/Notification/interface/G4SimVertex.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4VProcess.hh"
 
 //#define DebugLog
-//using namespace std;
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 SimTrackManager::SimTrackManager(bool iCollapsePrimaryVertices) :
   m_trksForThisEvent(nullptr),m_nVertices(0),
   m_collapsePrimaryVertices(iCollapsePrimaryVertices),

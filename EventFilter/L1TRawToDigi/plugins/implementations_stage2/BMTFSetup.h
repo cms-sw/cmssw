@@ -7,6 +7,7 @@
 
 #include "BMTFCollections.h"
 #include "BMTFTokens.h"
+#include "BMTFUnpackerOutput.h"
 
 namespace l1t {
    namespace stage2 {
