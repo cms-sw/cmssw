@@ -122,7 +122,7 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
    theEcalSeveritiesToBeUsedInBadTowers_ =  
      StringToEnumValue<EcalSeverityLevel::SeverityLevel>(conf.getParameter<std::vector<std::string> >("EcalSeveritiesToBeUsedInBadTowers") );
 
-  if (eScales_.instanceLabel=="") produces<CaloTowerCollection>();
+  if (eScales_.instanceLabel.empty()) produces<CaloTowerCollection>();
   else produces<CaloTowerCollection>(eScales_.instanceLabel);
 
   /*
@@ -291,7 +291,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   */
 
   // Step D: Put into the event
-  if (eScales_.instanceLabel=="") e.put(std::move(prod));
+  if (eScales_.instanceLabel.empty()) e.put(std::move(prod));
   else e.put(std::move(prod),eScales_.instanceLabel);
 
 
