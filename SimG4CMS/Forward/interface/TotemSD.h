@@ -65,15 +65,15 @@ protected:
 
 private:
 
-  G4ThreeVector  SetToLocal(const G4ThreeVector& globalPoint);
-  void           GetStepInfo(const G4Step* aStep);
-  bool           HitExists();
-  void           CreateNewHit();
-  void           CreateNewHitEvo();
-  G4ThreeVector  PosizioEvo(const G4ThreeVector&,double ,double ,double, double,int&);
-  void           UpdateHit();
-  void           StoreHit(TotemG4Hit*);
-  void           ResetForNewPrimary();
+  G4ThreeVector  setToLocal(const G4ThreeVector& globalPoint);
+  void           getStepInfo(const G4Step* aStep);
+  bool           hitExists();
+  void           createNewHit();
+  void           createNewHitEvo();
+  G4ThreeVector  posizioEvo(const G4ThreeVector&,double ,double ,double, double,int&);
+  void           updateHit();
+  void           storeHit(TotemG4Hit*);
+  void           resetForNewPrimary();
 
 private:
 

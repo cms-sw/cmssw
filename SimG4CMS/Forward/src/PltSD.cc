@@ -1,89 +1,33 @@
 #include "SimG4CMS/Forward/interface/PltSD.h"
 
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-
-#include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
-
-#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
-#include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
-
-#include "SimG4Core/Notification/interface/TrackInformation.h"
-
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "G4Step.hh"
+#include "G4StepPoint.hh"
 #include "G4Track.hh"
-#include "G4SDManager.hh"
-#include "G4VProcess.hh"
-#include "G4EventManager.hh"
-#include "G4Event.hh"
-#include "G4VProcess.hh"
+#include "G4ThreeVector.hh"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
-#include <vector>
 #include <iostream>
 
-
-PltSD::PltSD(const std::string& name,
-             const DDCompactView & cpv,
+PltSD::PltSD(const std::string& name, const DDCompactView & cpv,
              const SensitiveDetectorCatalog & clg,
-             edm::ParameterSet const & p,
-             const SimTrackManager* manager) :
-SensitiveTkDetector(name, cpv, clg, p), mySimHit(nullptr),
-oldVolume(nullptr), lastId(0), lastTrack(0), particle(nullptr) {
+             edm::ParameterSet const & p, const SimTrackManager* manager) 
+  : TimingSD(name, cpv, clg, p, manager) {
     
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("PltSD");
-  energyCut = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV")*GeV; //default must be 0.5 (?)
-  energyHistoryCut = m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV")*GeV;//default must be 0.05 (?)
+  energyCut = m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV")*CLHEP::GeV; //default must be 0.5
+  energyHistoryCut = m_TrackerSD.getParameter<double>("EnergyThresholdForHistoryInGeV")*CLHEP::GeV;//default must be 0.05 
     
-  edm::LogVerbatim("PltSD") <<"Criteria for Saving Tracker SimTracks: \n "
-			    <<" History: "<<energyHistoryCut<< " MeV; \n"
-			    <<" Persistency: "<< energyCut<<" MeV";
-    
-  slave  = new TrackingSlaveSD(name);
-  theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;
+  setCuts(energyCut, energyHistoryCut);
 }
 
 PltSD::~PltSD() {
-  delete slave;
-  delete theG4ProcessTypeEnumerator;
-}
-
-bool PltSD::ProcessHits(G4Step * aStep,  G4TouchableHistory *) {
-    
-  LogDebug("PltSD") 
-    << " Entering a new Step " << aStep->GetTotalEnergyDeposit() << " "
-    << aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName();
-        
-  if (aStep->GetTotalEnergyDeposit()>0.) {
-    const G4Track * gTrack  = aStep->GetTrack();
-    if (gTrack->GetTrackID() != lastTrack) {
-        
-      TrackInformation* info = nullptr;
-      if (gTrack->GetKineticEnergy() > energyCut){
-	info = cmsTrackInformation(gTrack);
-	info->storeTrack(true);
-      }
-      if (gTrack->GetKineticEnergy() > energyHistoryCut){
-	if(!info) { info = cmsTrackInformation(gTrack); }
-	info->putInHistory();
-      }
-    }
-    if (newHit(aStep)) {
-      sendHit();
-      createHit(aStep);
-    } else {
-      updateHit(aStep);
-    }
-  }
-  return true;
 }
 
 uint32_t PltSD::setDetUnitId(const G4Step * aStep ) {
@@ -175,133 +119,14 @@ uint32_t PltSD::setDetUnitId(const G4Step * aStep ) {
         //Define unique detId for each pixel.  See https://twiki.cern.ch/twiki/bin/viewauth/CMS/PLTSimulationGuide for more information
         detId = 10000000*pltNum+1000000*halfCarriageNum+100000*telNum+10000*sensorNum+100*rowNum+columnNum;
         //std::cout <<  "Hit Recorded at " << "plt:" << pltNum << " hc:" << halfCarriageNum << " tel:" << telNum << " plane:" << sensorNum << std::endl;
-    }
-    
+    }    
     return detId;
 }
 
-void PltSD::EndOfEvent(G4HCofThisEvent *) {
+bool PltSD::checkHit(const G4Step*, BscG4Hit* hit) {
     
-    LogDebug("PltSD")<< " Saving the last hit in a ROU " << GetName();
-    
-    if (mySimHit) { sendHit(); }
-}
-
-void PltSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname){
-  if (slave->name() == hname) { cc=slave->hits(); }
-}
-
-void PltSD::sendHit() {
-    if (mySimHit == nullptr) return;
-    LogDebug("PltSD") 
-      << " Storing PSimHit: " << particle->GetParticleName() 
-      << " " << mySimHit->detUnitId()
-      << " " << mySimHit->trackId() << " " << mySimHit->energyLoss()
-      << " " << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
-    
-    slave->processHits(*mySimHit);
-    
-    // clean up
-    delete mySimHit;
-    mySimHit = nullptr;
-    lastTrack = 0;
-    lastId = 0;
-}
-
-void PltSD::updateHit(const G4Step * aStep) {
-    
-    Local3DPoint theExitPoint = LocalPostStepPosition(aStep);
-    float theEnergyLoss = aStep->GetTotalEnergyDeposit()/GeV;
-    mySimHit->setExitPoint(theExitPoint);
-    mySimHit->addEnergyLoss(theEnergyLoss);
-    
-    LogDebug("PltSD") 
-      << " Updating: new exitpoint " 
-      << particle->GetParticleName() << " "
-      << theExitPoint << " delta energy loss " << theEnergyLoss
-      << "\n Updated PSimHit: " << mySimHit->detUnitId()
-      << " " << mySimHit->trackId()
-      << " " << mySimHit->energyLoss() << " "
-      << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
-}
-
-bool PltSD::newHit(const G4Step * aStep) {
-    
-    const G4Track * theTrack = aStep->GetTrack();
-    uint32_t theDetUnitId = setDetUnitId(aStep);
-    int theTrackID = theTrack->GetTrackID();
-    particle = theTrack->GetDefinition();
-    
-    LogDebug("PltSD") << " OLD (d,t) = (" << lastId << "," << lastTrack
-    << "), new = (" << theDetUnitId << "," << theTrackID << ") return "
-    << ((theTrackID == lastTrack) && (lastId == theDetUnitId));
-    return !(mySimHit && (theTrackID == lastTrack) && 
-	     (lastId == theDetUnitId) && closeHit(aStep));
-}
-
-bool PltSD::closeHit(const G4Step * aStep) {
-    
-    if (mySimHit == nullptr) return false;
-    const float tolerance = 0.05 * mm; // 50 micron are allowed between the exit
-    // point of the current hit and the entry point of the new hit
-    Local3DPoint theEntryPoint = LocalPreStepPosition(aStep);
-    LogDebug("PltSD")<< " closeHit: distance = " << (mySimHit->exitPoint()-theEntryPoint).mag();
-    
-    return ((mySimHit->exitPoint()-theEntryPoint).mag()<tolerance);
-}
-
-void PltSD::createHit(const G4Step * aStep) {
-    
-    if (mySimHit != nullptr) {
-        delete mySimHit;
-        mySimHit=nullptr;
-    }
-    
-    const G4Track * theTrack  = aStep->GetTrack();
-    const G4VPhysicalVolume* v= aStep->GetPreStepPoint()->GetPhysicalVolume();
-    
-    Local3DPoint theEntryPoint = LocalPreStepPosition(aStep);
-    Local3DPoint theExitPoint  = LocalPostStepPosition(aStep);
-    
-    float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
-    float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
-    float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
-    int theParticleType       = G4TrackToParticleID::particleID(theTrack);
-
-    uint32_t theDetUnitId     = setDetUnitId(aStep);
-    
-    unsigned int theTrackID = theTrack->GetTrackID();
-    
-    G4ThreeVector gmd  = aStep->GetPreStepPoint()->GetMomentumDirection();
-    // convert it to local frame
-    G4ThreeVector lmd = ((G4TouchableHistory *)(aStep->GetPreStepPoint()->GetTouchable()))->GetHistory()->GetTopTransform().TransformAxis(gmd);
-    Local3DPoint lnmd = ConvertToLocal3DPoint(lmd);
-    float theThetaAtEntry = lnmd.theta();
-    float thePhiAtEntry = lnmd.phi();
-    
-    mySimHit = new UpdatablePSimHit(theEntryPoint,theExitPoint,thePabs,theTof,
-                                    theEnergyLoss,theParticleType,theDetUnitId,
-                                    theTrackID,theThetaAtEntry,thePhiAtEntry,
-                                    theG4ProcessTypeEnumerator->processId(theTrack->GetCreatorProcess()));
-    
-    LogDebug("PltSD") 
-      << " Created PSimHit: "
-      << particle->GetParticleName() << " "
-      << mySimHit->detUnitId() << " " << mySimHit->trackId()
-      << " " << mySimHit->energyLoss() << " "
-      << mySimHit->entryPoint() << " " << mySimHit->exitPoint();
-
-    lastId = theDetUnitId;
-    lastTrack = theTrackID;
-    oldVolume = v;
-}
-
-void PltSD::update(const BeginOfEvent * i) {
-    
-    clearHits();
-    mySimHit = nullptr;
-}
-
-void PltSD::clearHits() {
-    slave->Initialize();
+  // 50 micron are allowed between the exit
+  // point of the current hit and the entry point of the new hit
+  static const float tolerance2 = (float)(0.0025 * CLHEP::mm * CLHEP::mm); 
+  return ((hit->getExitLocalP()-getLocalEntryPoint()).mag2()<tolerance2);
 }
