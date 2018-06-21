@@ -226,8 +226,6 @@ namespace pat {
 
     /// MC info
     edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
-    /// Era
-    std::string era_;
 
     /// Trigger
     edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;

@@ -83,8 +83,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
   computeSoftMuonMVA_(false),
   recomputeBasicSelectors_(false),
   mvaUseJec_(false),
-  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false),
-  era_(iConfig.exists("era") ? iConfig.getParameter<std::string>("era") : "")
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false)
 {
   // input source
   muonToken_ = consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>( "muonSource" ));
