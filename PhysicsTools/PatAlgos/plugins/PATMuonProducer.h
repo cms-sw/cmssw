@@ -119,7 +119,9 @@ namespace pat {
     void fillL1TriggerInfo(pat::Muon& muon,
 			   edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
 			   const edm::ESHandle<GlobalTrackingGeometry>& geometry);
-
+    void fillHltTriggerInfo(pat::Muon& muon,
+			    edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			    const std::vector<std::string>& collection_names);
   private:
     /// input source
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
@@ -229,6 +231,7 @@ namespace pat {
 
     /// Trigger
     edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
+    std::vector<std::string> hltCollectionNames_;
   };
 
 }
