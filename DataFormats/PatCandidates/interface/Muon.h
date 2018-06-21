@@ -312,8 +312,12 @@ namespace pat {
       void setSimEta(float eta){ simEta_ = eta;}
       void setSimPhi(float phi){ simPhi_ = phi;}
       
-      void setL1Object(const pat::TriggerObjectStandAloneRef& obj){ l1Muon_ = obj; }
-      const pat::TriggerObjectStandAloneRef& getL1Object() const { return l1Muon_; }
+      /// Trigger information
+      const pat::TriggerObjectStandAloneRef& getL1Object()  const { return l1Muon_; }
+      const pat::TriggerObjectStandAloneRef& getHltObject() const { return hltMuon_; }
+      void setL1Object(  const pat::TriggerObjectStandAloneRef& obj){ l1Muon_ = obj; }
+      void setHltObject( const pat::TriggerObjectStandAloneRef& obj){ hltMuon_ = obj; }
+
     protected:
 
       // ---- for content embedding ----
@@ -406,7 +410,7 @@ namespace pat {
       
       // trigger info
       pat::TriggerObjectStandAloneRef l1Muon_;
-      
+      pat::TriggerObjectStandAloneRef hltMuon_;
   };
 
 
