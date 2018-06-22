@@ -508,7 +508,7 @@ namespace edm {
     }
     for(auto const& product : prodList) {
       BranchDescription const& prod = product.second;
-      treePointers_[prod.branchType()]->addBranch(prod.branchID(), prod,
+      treePointers_[prod.branchType()]->addBranch(prod,
                                                   newBranchToOldBranch(prod.branchName()));
     }
 

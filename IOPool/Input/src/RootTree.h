@@ -113,8 +113,7 @@ namespace edm {
 
     bool isValid() const;
     void numberOfBranchesToAdd(size_t iSize) { branches_.reserve(iSize);}
-    void addBranch(BranchID const& key,
-                   BranchDescription const& prod,
+    void addBranch(BranchDescription const& prod,
                    std::string const& oldBranchName);
     void dropBranch(std::string const& oldBranchName);
     void getEntry(TBranch *branch, EntryNumber entry) const;
