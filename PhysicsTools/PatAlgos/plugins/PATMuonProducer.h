@@ -36,8 +36,6 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-// #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-// #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 namespace pat {
 

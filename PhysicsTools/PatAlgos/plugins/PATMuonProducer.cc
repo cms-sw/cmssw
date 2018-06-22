@@ -189,8 +189,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
   if ( addTriggerMatching_ ){
     triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(edm::InputTag("slimmedPatTrigger"));
   }
-  if (iConfig.exists("hltCollectionNames"))
-    hltCollectionNames_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionNames");
+  hltCollectionNames_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionNames");
 
   // produces vector of muons
   produces<std::vector<Muon> >();
@@ -244,9 +243,6 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
   for (unsigned int i=0; i<triggerObjects->size(); ++i){
     if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerL1Mu)){
       if (deltaR(triggerObjects->at(i).p4(),*muonPosition)>0.1) continue;
-      // printf("muon pt: %4.1f eta: %+5.3f phi: %+5.3f\n", aMuon.pt(), aMuon.eta(), aMuon.phi());
-      // if (muonPosition) printf("global direction MB2/ME2: eta: %+5.3f phi: %+5.3f\n",double(muonPosition->eta()), double(muonPosition->phi()));
-      // printf("L1 pt: %4.1f eta: %+5.3f phi: %+5.3f\n",triggerObjects->at(i).pt(), triggerObjects->at(i).eta(), triggerObjects->at(i).phi());
       aMuon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
       break;
     }
