@@ -29,8 +29,8 @@ MuonMvaEstimator::MuonMvaEstimator(const std::string& weightsfile, float dRmax):
   tmvaReader.AddVariable("LepGood_miniRelIsoCharged",     &miniRelIsoCharged_);
   tmvaReader.AddVariable("LepGood_miniRelIsoNeutral",     &miniRelIsoNeutral_);
   tmvaReader.AddVariable("LepGood_jetPtRelv2",            &jetPtRel_         );
-  tmvaReader.AddVariable("min(LepGood_jetPtRatiov2,1.5)", &jetPtRatio_       );
   tmvaReader.AddVariable("max(LepGood_jetBTagCSV,0)",     &jetBTagCSV_       );
+  tmvaReader.AddVariable("(LepGood_jetBTagCSV>-5)*min(LepGood_jetPtRatiov2,1.5)+(LepGood_jetBTagCSV<-5)/(1+LepGood_relIso04)", &jetPtRatio_       );
   tmvaReader.AddVariable("LepGood_sip3d",                 &sip_              );
   tmvaReader.AddVariable("log(abs(LepGood_dxy))",         &log_abs_dxyBS_    );
   tmvaReader.AddVariable("log(abs(LepGood_dz))",          &log_abs_dzPV_     );
