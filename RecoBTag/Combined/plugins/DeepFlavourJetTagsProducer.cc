@@ -250,7 +250,7 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 				//warn if the input is nan
 				if(std::isnan(inputs_[var.name])) {
 					edm::LogWarning("ValueError") 	<< "The required output, " 
-													<< var.name << ", encountered an nan value during TagInfo processing." << endl;
+									<< var.name << ", encountered an nan value during TagInfo processing";
 				}
 			}
 
@@ -265,7 +265,7 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 			//warn if the input is nan
 			for(auto entry : nnout) {
 				if(std::isnan(entry.second)) {
-					edm::LogWarning("ValueError") << "The NN output is nan for an event." << endl;
+					edm::LogWarning("ValueError") << "The NN output is nan for an event.";
 				}
 			}
 		}
