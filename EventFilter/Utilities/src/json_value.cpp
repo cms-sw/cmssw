@@ -703,7 +703,7 @@ Value::asString() const
    default:
       JSON_ASSERT_UNREACHABLE;
    }
-   return ""EventFilter/Utilities// unreachable
+   return ""; // unreachable
 }
 
 # ifdef JSON_USE_CPPTL
