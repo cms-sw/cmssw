@@ -1,4 +1,4 @@
-#include "../interface/OccupancyTask.h"
+#include "DQM/EcalMonitorTasks/interface/OccupancyTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"

@@ -1,6 +1,6 @@
-#include "../interface/EcalDQMonitorTask.h"
+#include "DQM/EcalMonitorTasks/interface/EcalDQMonitorTask.h"
 
-#include "../interface/DQWorkerTask.h"
+#include "DQM/EcalMonitorTasks/interface/DQWorkerTask.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"

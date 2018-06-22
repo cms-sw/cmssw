@@ -1,4 +1,4 @@
-#include "../interface/TimingTask.h"
+#include "DQM/EcalMonitorTasks/interface/TimingTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "FWCore/Framework/interface/EventSetup.h"

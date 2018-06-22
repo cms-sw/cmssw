@@ -1,4 +1,4 @@
-#include "../interface/CalibrationSummaryClient.h"
+#include "DQM/EcalMonitorClient/interface/CalibrationSummaryClient.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "DQM/EcalCommon/interface/MESetMulti.h"

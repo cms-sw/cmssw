@@ -1,4 +1,4 @@
-#include "../interface/EcalCondDBReader.h"
+#include "DQM/EcalMonitorDbModule/interface/EcalCondDBReader.h"
 
 #include "DQM/EcalCommon/interface/MESetUtils.h"
 #include "DQMServices/Core/interface/DQMStore.h"
