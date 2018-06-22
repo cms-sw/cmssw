@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonOverlap/interface/GhostBuster.h"
+#include "L1Trigger/L1TMuonOverlap/interface/GhostBusterPreferRefDt.h"
 
 #include <sstream>
 
@@ -9,12 +9,47 @@ namespace {
   int phiGMT(int phiAlgo) { return phiAlgo*437/pow(2,12); }
 }
 
-std::vector<AlgoMuon> GhostBuster::select(std::vector<AlgoMuon> refHitCands, int charge){
+std::vector<AlgoMuon> GhostBusterPreferRefDt::select(std::vector<AlgoMuon> refHitCands, int charge) {
+  auto customLess = [&](const AlgoMuon& a, const AlgoMuon& b)->bool {
+    int aRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[a.getRefLayer()];
+    int bRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[b.getRefLayer()];
+    if(a.getQ() > b.getQ())
+      return false;
+    else if(a.getQ()==b.getQ() && aRefLayerLogicNum < bRefLayerLogicNum) {
+      return false;
+    }
+    else if (a.getQ()==b.getQ() && aRefLayerLogicNum == bRefLayerLogicNum && a.getDisc() > b.getDisc() )
+      return false;
+    else if (a.getQ()==b.getQ() && aRefLayerLogicNum == bRefLayerLogicNum && a.getDisc() == b.getDisc() && a.getPatternNumber() > b.getPatternNumber() )
+      return false;
+    else if (a.getQ()==b.getQ() && aRefLayerLogicNum == bRefLayerLogicNum && a.getDisc() == b.getDisc() && a.getPatternNumber() == b.getPatternNumber() && a.getRefHitNumber() < b.getRefHitNumber())
+      return false;
+    else
+      return true;
+    //TODO check if the firmware really includes the pattern number and refHit number here
+  };
+
+/*  auto customLess = [&](const AlgoMuon& a, const AlgoMuon& b)->bool {
+    int aRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[a.getRefLayer()];
+    int bRefLayerLogicNum = omtfConfig->getRefToLogicNumber()[b.getRefLayer()];
+    if(a.getQ() > b.getQ())
+      return false;
+    else if(a.getQ()==b.getQ() && aRefLayerLogicNum < bRefLayerLogicNum) {
+      return false;
+    }
+    else if (a.getQ()==b.getQ() && aRefLayerLogicNum == bRefLayerLogicNum && a.getPatternNumber() > b.getPatternNumber() )
+      return false;
+    else if (a.getQ()==b.getQ() && aRefLayerLogicNum == bRefLayerLogicNum && a.getPatternNumber() == b.getPatternNumber() && a.getRefHitNumber() < b.getRefHitNumber())
+      return false;
+    else
+      return true;
+    //TODO check if the firmware really includes the pattern number and refHit number here
+  };*/
 
   std::vector<AlgoMuon> refHitCleanCands;
   // Sort candidates with decreased goodness,
   // where goodness definied in < operator of AlgoMuon
-  std::sort( refHitCands.rbegin(), refHitCands.rend() );
+  std::sort( refHitCands.rbegin(), refHitCands.rend(), customLess );
 
   for(std::vector<AlgoMuon>::iterator it1 = refHitCands.begin();
       it1 != refHitCands.end(); ++it1){
