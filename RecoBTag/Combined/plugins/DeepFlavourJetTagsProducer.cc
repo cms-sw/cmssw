@@ -221,11 +221,11 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 					inputs_[var.name] = vars.get(var.id, var.default_value);
 				}
 
-                //warn if the input is nan
-                if(std::isnan(inputs_[var.name])) {
-			        edm::LogWarning("ValueError") << "The required output, " 
-                                                  << var.name << ", encountered an nan value during TagInfo processing." << endl;
-                }
+				//warn if the input is nan
+				if(std::isnan(inputs_[var.name])) {
+					edm::LogWarning("ValueError") 	<< "The required output, " 
+									<< var.name << ", encountered an nan value during TagInfo processing.";
+				}
 			}
 
 			//compute NN output(s)
@@ -236,12 +236,12 @@ DeepFlavourJetTagsProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 				nnout[entry.second] += nnout[entry.first];
 			}
 
-            //warn if the input is nan
-            for(auto entry : nnout) {
-                if(std::isnan(entry.second)) {
-                    edm::LogWarning("ValueError") << "The NN output is nan for an event." << endl;
-                }
-            }
+			//warn if the input is nan
+			for(auto entry : nnout) {
+				if(std::isnan(entry.second)) {
+					edm::LogWarning("ValueError") << "The NN output is nan for an event.";
+				}
+			}
 		}
 
 		//ket the maps key
