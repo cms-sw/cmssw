@@ -134,13 +134,12 @@ namespace edm {
   }
 
   void
-  RootTree::addBranch(BranchID const& key,
-                      BranchDescription const& prod,
+  RootTree::addBranch(BranchDescription const& prod,
                       std::string const& oldBranchName) {
       assert(isValid());
       //use the translated branch name
       TBranch* branch = tree_->GetBranch(oldBranchName.c_str());
-      roottree::BranchInfo info = roottree::BranchInfo(BranchDescription(prod));
+      roottree::BranchInfo info = roottree::BranchInfo(prod);
       info.productBranch_ = nullptr;
       if (prod.present()) {
         info.productBranch_ = branch;
@@ -149,7 +148,7 @@ namespace edm {
       }
       TTree* provTree = (metaTree_ != nullptr ? metaTree_ : tree_);
       info.provenanceBranch_ = provTree->GetBranch(oldBranchName.c_str());
-      branches_.insert(key, info);
+      branches_.insert(prod.branchID(), info);
   }
 
   void
