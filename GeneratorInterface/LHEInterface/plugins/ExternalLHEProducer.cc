@@ -454,7 +454,8 @@ ExternalLHEProducer::executeScript()
   if(ts.isAvailable()) {
     struct rusage ru;
     getrusage(RUSAGE_CHILDREN,&ru);
-    double time = static_cast<double>(ru.ru_stime.tv_sec) + (static_cast<double>(ru.ru_stime.tv_usec) * 1E-6);
+    double time = static_cast<double>(ru.ru_stime.tv_sec) + (static_cast<double>(ru.ru_stime.tv_usec) * 1E-6) +
+                  static_cast<double>(ru.ru_utime.tv_sec) + (static_cast<double>(ru.ru_utime.tv_usec) * 1E-6);
     ts->addToCPUTime(time);
   }
   if (rc) {
