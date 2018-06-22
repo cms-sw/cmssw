@@ -228,6 +228,7 @@ namespace pat {
     edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
 
     /// Trigger
+    bool addTriggerMatching_;
     edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
     std::vector<std::string> hltCollectionNames_;
   };

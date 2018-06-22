@@ -185,7 +185,10 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
   // MC info
   simInfo_        = consumes<edm::ValueMap<reco::MuonSimInfo> >(iConfig.getParameter<edm::InputTag>("muonSimInfo"));
 
-  triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(edm::InputTag("slimmedPatTrigger"));
+  addTriggerMatching_ = iConfig.getParameter<bool>("addTriggerMatching");
+  if ( addTriggerMatching_ ){
+    triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(edm::InputTag("slimmedPatTrigger"));
+  }
   if (iConfig.exists("hltCollectionNames"))
     hltCollectionNames_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionNames");
 
@@ -619,12 +622,14 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (primaryVertexIsValid) pv = &primaryVertex;
 
   edm::Handle<std::vector<pat::TriggerObjectStandAlone> > triggerObjects;
-  iEvent.getByToken(triggerObjects_, triggerObjects);
+  if (addTriggerMatching_) iEvent.getByToken(triggerObjects_, triggerObjects);
 
   for(auto& muon: *patMuons){
     // trigger info
-    fillL1TriggerInfo(muon,triggerObjects,geometry);
-    fillHltTriggerInfo(muon,triggerObjects,hltCollectionNames_);
+    if (addTriggerMatching_){
+      fillL1TriggerInfo(muon,triggerObjects,geometry);
+      fillHltTriggerInfo(muon,triggerObjects,hltCollectionNames_);
+    }
 
     if (recomputeBasicSelectors_){
       muon.setSelectors(0);
@@ -843,6 +848,8 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   iDesc.add<bool>("computeMiniIso", false)->setComment("whether or not to compute and store electron mini-isolation");
   iDesc.add<edm::InputTag>("pfCandsForMiniIso", edm::InputTag("packedPFCandidates"))->setComment("collection to use to compute mini-iso");
   iDesc.add<std::vector<double> >("miniIsoParams", std::vector<double>())->setComment("mini-iso parameters to use for muons");
+
+  iDesc.add<bool>("addTriggerMatching", false)->setComment("add L1 and HLT matching to offline muon");
 
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 

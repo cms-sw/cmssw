@@ -121,9 +121,10 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # MC Info
     muonSimInfo = cms.InputTag("muonSimClassifier"),                 
 
+    # Trigger Info 
+    addTriggerMatching = cms.bool(True),                      
     hltCollectionNames = cms.vstring('hltIterL3MuonCandidates::HLT','hltIterL3FromL2MuonCandidates::HLT','hltGlbTrkMuonCands::HLT','hltTrk50Filter::HLT')
 )
-
 
 
 
