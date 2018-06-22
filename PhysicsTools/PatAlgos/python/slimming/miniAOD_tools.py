@@ -451,6 +451,7 @@ def miniAOD_customizeCommon(process):
     phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
 
 
+
 def miniAOD_customizeMC(process):
     task = getPatAlgosToolsTask(process)
     #GenJetFlavourInfos
@@ -528,4 +529,6 @@ def miniAOD_customizeAllMCFastSim(process):
     process = miniAOD_customizeMETFiltersFastSim(process)
     from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
     process = miniAOD_customizeIsolatedTracksFastSim(process)
+    process.patMuons.addTriggerMatching = cms.bool(False)
+
     return process
