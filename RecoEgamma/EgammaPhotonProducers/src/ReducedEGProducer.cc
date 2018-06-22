@@ -26,7 +26,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtra.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
-
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
@@ -54,6 +54,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   endcapEcalHits_(consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalHits"))),
   doPreshowerEcalHits_(!config.getParameter<edm::InputTag>("preshowerEcalHits").label().empty()),
   preshowerEcalHits_(doPreshowerEcalHits_ ? consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("preshowerEcalHits")) : edm::EDGetTokenT<EcalRecHitCollection>()),
+  hbheHits_(consumes<HBHERecHitCollection>(config.getParameter<edm::InputTag>("hbheHits"))),
   photonPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("photonsPFValMap"))),  
   gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
   //calibration flags
@@ -80,6 +81,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   outEBRecHits_("reducedEBRecHits"),
   outEERecHits_("reducedEERecHits"),
   outESRecHits_("reducedESRecHits"),
+  outHBHERecHits_("reducedHBHEHits"),
   outPhotonPfCandMap_("reducedPhotonPfCandMap"),
   outGsfElectronPfCandMap_("reducedGsfElectronPfCandMap"),
   outPhotonIds_(config.getParameter<std::vector<std::string> >("photonIDOutput")),
@@ -95,7 +97,8 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   relinkOOTPhotonSel_(config.getParameter<std::string>("relinkOOTPhotons")),
   keepGsfElectronSel_(config.getParameter<std::string>("keepGsfElectrons")),
   slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
-  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
+  relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons")),
+  hcalHitSel_(config.getParameter<edm::ParameterSet>("hcalHitSel"))
 {  
 
   const edm::InputTag& aTag = config.getParameter<edm::InputTag>("ootPhotons");
@@ -164,6 +167,7 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   produces< EcalRecHitCollection >(outEBRecHits_);
   produces< EcalRecHitCollection >(outEERecHits_);
   if (doPreshowerEcalHits_) produces< EcalRecHitCollection >(outESRecHits_);    
+  produces< HBHERecHitCollection >(outHBHERecHits_);
   produces< edm::ValueMap<std::vector<reco::PFCandidateRef> > >(outPhotonPfCandMap_);    
   produces< edm::ValueMap<std::vector<reco::PFCandidateRef> > >(outGsfElectronPfCandMap_);   
   for (const std::string &outid : outPhotonIds_) {
@@ -188,6 +192,12 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
 ReducedEGProducer::~ReducedEGProducer() 
 {
 }
+
+void ReducedEGProducer::beginRun (edm::Run const& run, const edm::EventSetup & iSetup)
+{
+  hcalHitSel_.setup(iSetup);
+}
+
 
 void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
@@ -220,6 +230,9 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   edm::Handle<EcalRecHitCollection> preshowerHitHandle;
   if (doPreshowerEcalHits_) theEvent.getByToken(preshowerEcalHits_, preshowerHitHandle);
   
+  edm::Handle<HBHERecHitCollection> hbheHitHandle;
+  theEvent.getByToken(hbheHits_, hbheHitHandle);
+
   edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonPfCandMapHandle;
   theEvent.getByToken(photonPfCandMapT_, photonPfCandMapHandle);  
 
@@ -299,6 +312,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   auto ebRecHits = std::make_unique<EcalRecHitCollection>();
   auto eeRecHits = std::make_unique<EcalRecHitCollection>();
   auto esRecHits = std::make_unique<EcalRecHitCollection>();
+  auto hbheRecHits = std::make_unique<HBHERecHitCollection>();
   auto photonPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
   auto gsfElectronPfCandMap = std::make_unique<edm::ValueMap<std::vector<reco::PFCandidateRef>>>();
 
@@ -316,6 +330,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::map<reco::CaloClusterPtr, unsigned int> ootEbeeClusterMap;
   std::map<reco::CaloClusterPtr, unsigned int> ootEsClusterMap;
   std::unordered_set<DetId> rechitMap;
+  std::unordered_set<DetId> hcalRechitMap;
   
   std::unordered_set<unsigned int> superClusterFullRelinkMap;
   std::unordered_set<unsigned int> ootSuperClusterFullRelinkMap;
@@ -390,6 +405,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     //explicitly references conversions
     const reco::ConversionRefVector &singleconvrefs = photon.conversionsOneLeg();
     linkConversions(singleconvrefs, *singleConversions, singleConversionMap);
+
+    //hcal hits
+    linkHcalHits(*photon.superCluster(),*hbheHitHandle,hcalRechitMap);
+
   }
 
   //loop over oot photons and fill maps
@@ -426,6 +445,9 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       
       const reco::SuperClusterRef &ootSuperCluster = ootPhoton.superCluster();
       linkSuperCluster(ootSuperCluster, ootSuperClusterMap, *ootSuperClusters, relink, ootSuperClusterFullRelinkMap);
+      //hcal hits
+      linkHcalHits(*ootPhoton.superCluster(),*hbheHitHandle,hcalRechitMap);
+
     }
   }
 
@@ -508,6 +530,10 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     
     //single leg conversions matched by trackrefs
     linkConversionsByTrackRef(singleConversionHandle, gsfElectron, *singleConversions, singleConversionMap);
+
+    //hcal hits
+    linkHcalHits(*gsfElectron.superCluster(),*hbheHitHandle,hcalRechitMap);
+
   }
 
   //loop over output SuperClusters and fill maps
@@ -584,6 +610,13 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     theEvent.put(std::move(esRecHits),outESRecHits_);  
   }
   
+  for (const HBHERecHit &rechit : *hbheHitHandle) {
+    if (hcalRechitMap.count(rechit.detid())) {
+      hbheRecHits->push_back(rechit);
+    }
+  }
+  theEvent.put(std::move(hbheRecHits),outHBHERecHits_);
+
   //CaloClusters
   //put calocluster output collections in event and get orphan handles to create ptrs
   const edm::OrphanHandle<reco::CaloClusterCollection> &outEBEEClusterHandle = theEvent.put(std::move(ebeeClusters),outEBEEClusters_);
@@ -886,6 +919,12 @@ void ReducedEGProducer::linkCaloClusters(const reco::SuperCluster& superCluster,
   }
 }
 
+void ReducedEGProducer::linkHcalHits(const reco::SuperCluster& superClus,
+				     const HBHERecHitCollection& recHits,
+				     std::unordered_set<DetId>& hcalDetIds)
+{
+  hcalHitSel_.addDetIds(superClus,recHits,hcalDetIds);
+}
 
 void ReducedEGProducer::relinkCaloClusters(reco::SuperCluster& superCluster, 
 					   const std::map<reco::CaloClusterPtr, unsigned int>& ebeeClusterMap, 
@@ -1010,6 +1049,7 @@ void ReducedEGProducer::relinkGsfElectronCore(reco::GsfElectron& gsfElectron,
     gsfElectron.setCore(coreref);
   }
 }
+
 
 void ReducedEGProducer::calibratePhoton(reco::Photon& photon, 
 					const reco::PhotonRef& oldPhoRef,
