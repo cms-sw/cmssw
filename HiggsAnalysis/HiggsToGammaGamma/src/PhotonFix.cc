@@ -2041,7 +2041,7 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
 // Get the geometry of cracks and gaps from file
 bool PhotonFix::initialiseGeometry(const std::string &s) {
 
-  std::ifstream fin("HiggsAnalysis/HiggsToGammaGamma/test/PhotonFix.dat");
+  std::ifstream fin("../test/PhotonFix.dat");
   assert(fin);
 
   std::cout << "Reading in here" << std::endl;
