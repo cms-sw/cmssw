@@ -33,7 +33,6 @@ namespace edm {
   public:
     typedef roottree::BranchInfo BranchInfo;
     typedef roottree::BranchMap BranchMap;
-    typedef roottree::BranchMap::const_iterator iterator;
     typedef roottree::EntryNumber EntryNumber;
     RootDelayedReader(
       RootTree const& tree,
@@ -65,9 +64,7 @@ namespace edm {
     std::pair<SharedResourcesAcquirer*, std::recursive_mutex*> sharedResources_() const override;
 
     BranchMap const& branches() const {return tree_.branches();}
-    iterator branchIter(BranchKey const& k) const {return branches().find(k);}
-    bool found(iterator const& iter) const {return iter != branches().end();}
-    BranchInfo const& getBranchInfo(iterator const& iter) const {return iter->second; }
+    BranchInfo const* getBranchInfo(BranchKey const& k) const {return branches().find(k);}
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the file containing the branch from being reclaimed.
     RootTree const& tree_;
