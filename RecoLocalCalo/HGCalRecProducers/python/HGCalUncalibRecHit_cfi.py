@@ -45,6 +45,7 @@ HGCalUncalibRecHit = cms.EDProducer(
         fCPerMIP      = cms.vdouble(1.0,1.0,1.0) #dummy values, it's scintillator
         ),
 
+    geometryType = cms.uint32(0),
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")
 )
 
@@ -54,3 +55,6 @@ premix_stage2.toModify(HGCalUncalibRecHit,
     HGCHEFdigiCollection = 'mixData:HGCDigisHEfront',
     HGCHEBdigiCollection = 'mixData:HGCDigisHEback',
 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify(HGCalUncalibRecHit, geometryType = cms.uint32(1))
