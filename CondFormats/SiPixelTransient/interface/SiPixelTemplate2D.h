@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate2D.h (v2.61a)
+//  SiPixelTemplate2D.h (v2.65)
 //
 //  Full 2-D templates for cluster splitting, simulated cluster reweighting, and improved cluster probability
 //
@@ -19,6 +19,7 @@
 // v2.52 - Improve cosmetics for increased style points from judges
 // v2.60 - Fix FPix multiframe lookup problem [takes +-cotalpha and +-cotbeta]
 // v2.61a - Code 2.60 fix correctly
+// v2.65 - change double pixel flags to work with new shifted reco code definition
 //
 
 // Build the template storage structure from several pieces
@@ -33,7 +34,7 @@
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateDefs.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplateDefs.h"
 #else
 #include "SiPixelTemplateDefs.h"
 #endif

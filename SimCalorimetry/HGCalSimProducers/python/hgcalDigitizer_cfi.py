@@ -221,4 +221,5 @@ phase2_hgcalV9.toModify( hgchefrontDigitizer,
 )
 phase2_hgcalV9.toModify( hgchebackDigitizer,
       geometryType      = cms.uint32(1),
+      hitCollection = cms.string("HGCHitsHEback"),
 )

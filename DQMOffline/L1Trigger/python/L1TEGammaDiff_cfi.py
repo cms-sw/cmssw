@@ -40,10 +40,15 @@ plots2D = [
     'L1EGammaEtavsPhotonEta',
 ]
 
+# remove photon variables (code to produce them is currently commented out)
+resolution_plots = [plot for plot in resolution_plots if 'Photon' not in plot]
+plots2D = [plot for plot in plots2D if 'Photon' not in plot]
+
 allPlots = []
 allPlots.extend(allEfficiencyPlots)
 allPlots.extend(resolution_plots)
 allPlots.extend(plots2D)
+
 
 from DQMOffline.L1Trigger.L1TDiffHarvesting_cfi import l1tDiffHarvesting
 l1tEGammaEmuDiff = l1tDiffHarvesting.clone(

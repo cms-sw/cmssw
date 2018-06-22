@@ -21,7 +21,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 // template object
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate.h"
 
 // Vectors
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
