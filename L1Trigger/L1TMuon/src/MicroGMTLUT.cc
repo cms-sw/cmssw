@@ -1,5 +1,5 @@
 
-#include "../interface/MicroGMTLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTLUT.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -48,7 +48,7 @@ l1t::MicroGMTLUT::initialize()
 {
   if (empty()) {
     std::stringstream stream;
-    stream <<"#<header> V1 "<<m_totalInWidth<<" "<<m_outWidth<<" </header> "<<std::endl;
+    stream <<"#<header> V1 "<<m_totalInWidth<<" "<<m_outWidth<<"L1Trigger/L1TMuon/header> "<<std::endl;
     for (int in = 0; in < (1 << m_totalInWidth); ++in) {
       int out = lookupPacked(in);
       stream << in << " " << out << std::endl;
