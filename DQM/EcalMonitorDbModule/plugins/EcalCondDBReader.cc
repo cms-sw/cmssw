@@ -64,7 +64,7 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
     db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(DBName, userName, password));
   }
   catch(std::runtime_error& re){
-    if(hostName != ""){
+    if(!hostName.empty()){
       try{
         db = std::auto_ptr<EcalCondDBInterface>(new EcalCondDBInterface(hostName, DBName, userName, password, hostPort));
       }
