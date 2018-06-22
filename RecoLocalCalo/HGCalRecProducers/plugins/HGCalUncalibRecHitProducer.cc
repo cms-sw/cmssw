@@ -12,11 +12,19 @@
 HGCalUncalibRecHitProducer::HGCalUncalibRecHitProducer(const edm::ParameterSet& ps) :
   eeDigiCollection_( consumes<HGCEEDigiCollection>( ps.getParameter<edm::InputTag>("HGCEEdigiCollection") ) ),
   hefDigiCollection_( consumes<HGCHEDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEFdigiCollection") ) ),
-  hebDigiCollection_( consumes<HGCBHDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEBdigiCollection") ) ),
   eeHitCollection_( ps.getParameter<std::string>("HGCEEhitCollection") ),
   hefHitCollection_( ps.getParameter<std::string>("HGCHEFhitCollection") ),
-  hebHitCollection_( ps.getParameter<std::string>("HGCHEBhitCollection") ) {
-  
+  hebHitCollection_( ps.getParameter<std::string>("HGCHEBhitCollection") ),
+  geometryType_( ps.getParameter<uint32_t>("geometryType") )
+{
+
+  if(geometryType_==0){
+    hebDigiCollectionOld_ = consumes<HGCBHDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEBdigiCollection") );
+  }
+  else {
+    hebDigiCollectionNew_ = consumes<HGCHEDigiCollection>( ps.getParameter<edm::InputTag>("HGCHEBdigiCollection") );
+  }
+
   produces< HGCeeUncalibratedRecHitCollection >(eeHitCollection_);
   produces< HGChefUncalibratedRecHitCollection >(hefHitCollection_);
   produces< HGChebUncalibratedRecHitCollection >(hebHitCollection_);
@@ -61,14 +69,26 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   for(auto itdg = hefDigis->begin(); itdg != hefDigis->end(); ++itdg) {
     worker_->run2(evt, itdg, *hefUncalibRechits);
   }
-  
-  edm::Handle< HGCBHDigiCollection > pHGCHEBDigis;
-  evt.getByToken( hebDigiCollection_, pHGCHEBDigis);
-  const HGCBHDigiCollection* hebDigis = 
-    pHGCHEBDigis.product(); // get a ptr to the product
-  hebUncalibRechits->reserve(hebDigis->size());
-  for(auto itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {
-    worker_->run3(evt, itdg, *hebUncalibRechits);
+
+  if(geometryType_==0) {
+    edm::Handle< HGCBHDigiCollection > pHGCHEBDigis;
+    evt.getByToken( hebDigiCollectionOld_, pHGCHEBDigis);
+    const HGCBHDigiCollection* hebDigis = 
+      pHGCHEBDigis.product(); // get a ptr to the product
+    hebUncalibRechits->reserve(hebDigis->size());
+    for(auto itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {
+      worker_->run3(evt, itdg, *hebUncalibRechits);
+    }
+  }
+  else {
+    edm::Handle< HGCHEDigiCollection > pHGCHEBDigis;
+    evt.getByToken( hebDigiCollectionNew_, pHGCHEBDigis);
+    const HGCHEDigiCollection* hebDigis = 
+      pHGCHEBDigis.product(); // get a ptr to the product
+    hebUncalibRechits->reserve(hebDigis->size());
+    for(auto itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {
+      worker_->run4(evt, itdg, *hebUncalibRechits);
+    }
   }
   
   // put the collection of recunstructed hits in the event

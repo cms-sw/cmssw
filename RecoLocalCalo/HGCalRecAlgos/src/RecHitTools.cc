@@ -83,27 +83,38 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
 
   geom_ = geom.product();
   unsigned int wmaxEE(0), wmaxFH(0);
-  if (mode_ == 0) {
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
-    fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
-    wmaxEE    = 1 + (geomEE->topology().dddConstants()).waferMax();
-    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
-    bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
-    wmaxFH    = 1 + (geomFH->topology().dddConstants()).waferMax();
-  } else {
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+  auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalEE,ForwardSubdetector::ForwardEmpty));
+  //check if it's the new geometry
+  if(geomEE) {
+    geometryType_ = 1;
     fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
     wmaxEE    = (geomEE->topology().dddConstants()).waferCount(0);
     auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::HGCalHSi,ForwardSubdetector::ForwardEmpty));
     bhOffset_ = fhOffset_;
     wmaxFH    = (geomFH->topology().dddConstants()).waferCount(0);
   }
+  else {
+    geometryType_ = 0;
+    geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+    fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
+    wmaxEE    = 1 + (geomEE->topology().dddConstants()).waferMax();
+    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+    bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
+    wmaxFH    = 1 + (geomFH->topology().dddConstants()).waferMax();
+  }
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE,wmaxFH);
 }
 
-GlobalPoint RecHitTools::getPosition(const DetId& id) const {
-  auto geom = geom_->getSubdetectorGeometry(id);
+const CaloSubdetectorGeometry* RecHitTools::getSubdetectorGeometry( const DetId& id ) const {
+  DetId::Detector det = id.det();
+  int subdet = (det == DetId::HGCalEE || det == DetId::HGCalHSi || det == DetId::HGCalHSc) ? ForwardSubdetector::ForwardEmpty : id.subdetId();
+  auto geom = geom_->getSubdetectorGeometry(det,subdet);
   check_geom(geom);
+  return geom;
+}
+
+GlobalPoint RecHitTools::getPosition(const DetId& id) const {
+  auto geom = getSubdetectorGeometry(id);
   GlobalPoint position;
   if (id.det() == DetId::Hcal) {
     position = geom->getGeometry(id)->getPosition();
@@ -114,6 +125,23 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   return position;
 }
 
+GlobalPoint RecHitTools::getPositionLayer(unsigned layer) const {
+  const int hgcal_default_wafer = 50;
+  const int hcal_default_ieta = 50;
+  const int hcal_default_iphi = 100;
+  DetId id(0);
+  if(geometryType_==0){
+    if (layer <= fhOffset_) id = HGCalDetId(ForwardSubdetector::HGCEE, 1, layer, 1, hgcal_default_wafer, 1);
+    else if (layer <= bhOffset_) id = HGCalDetId(ForwardSubdetector::HGCHEF, 1, layer - fhOffset_, 1, hgcal_default_wafer, 1);
+    else  id = HcalDetId(HcalSubdetector::HcalEndcap, hcal_default_ieta, hcal_default_iphi, layer - bhOffset_);
+  }
+  else {
+    if (layer <= fhOffset_) id = HGCSiliconDetId(DetId::HGCalEE, 1, 0, layer, 0, 0, 0, 0);
+    else if (layer <= bhOffset_) id = HGCSiliconDetId(DetId::HGCalHSi, 1, 0, layer - fhOffset_, 0, 0, 0, 0);
+    else  id = HGCScintillatorDetId(0, layer - bhOffset_, 1, 0);
+  }
+  return getPosition(id);
+}
 
 int RecHitTools::zside(const DetId& id) const {
   int zside = 0;
@@ -130,8 +158,7 @@ int RecHitTools::zside(const DetId& id) const {
 }
 
 std::float_t RecHitTools::getSiThickness(const DetId& id) const {
-  auto geom = geom_->getSubdetectorGeometry(id);
-  check_geom(geom);
+  auto geom = getSubdetectorGeometry(id);
   std::float_t thick(0.37);
   if (id.det() == DetId::Forward) {
     const HGCalDetId hid(id);
@@ -149,9 +176,26 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   return thick;
 }
 
+int RecHitTools::getSiThickIndex(const DetId& id) const {
+  int thickIndex = -1;
+  if (id.det() == DetId::Forward) {
+    float thickness = getSiThickness(id);
+    if (thickness > 99. && thickness < 101.)
+      thickIndex = 0;
+    else if (thickness > 199. && thickness < 201.)
+      thickIndex = 1;
+    else if (thickness > 299. && thickness < 301.)
+      thickIndex = 2;
+    else
+      assert(thickIndex > 0 && "ERROR - silicon thickness has a nonsensical value");
+  } else if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
+    thickIndex = HGCSiliconDetId(id).type();
+  }
+  return thickIndex;
+}
+
 std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
-  auto geom = geom_->getSubdetectorGeometry(id);
-  check_geom(geom);
+  auto geom = getSubdetectorGeometry(id);
   std::float_t size(std::numeric_limits<std::float_t>::max());
   if (id.det() == DetId::Forward) {
     const HGCalDetId hid(id);
@@ -260,39 +304,42 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
 }
 
 unsigned int RecHitTools::getWafer(const DetId& id) const {
-  if( id.det() != DetId::Forward ) {
+  unsigned int wafer = std::numeric_limits<unsigned int>::max();
+  if (id.det() == DetId::Forward) {
+    wafer = HGCalDetId(id).wafer();
+  }
+  else {
     edm::LogError("getWafer::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 
       << id.det() << " is not HGCal silicon!";
-    return std::numeric_limits<unsigned int>::max();
   }
-  const HGCalDetId hid(id);
-  unsigned int wafer = hid.wafer();
   return wafer;
 }
 
 unsigned int RecHitTools::getCell(const DetId& id) const {
-  if( id.det() != DetId::Forward ) {
+  unsigned int cell = std::numeric_limits<unsigned int>::max();
+  if (id.det() == DetId::Forward) {
+    cell = HGCalDetId(id).cell();
+  }
+  else {
     edm::LogError("getCell::InvalidSiliconDetid")
       << "det id: " << std::hex << id.rawId() << std::dec << ":" 
       << id.det() << " is not HGCal silicon!";
-    return std::numeric_limits<unsigned int>::max();
   }
-  const HGCalDetId hid(id);
-  unsigned int cell = hid.cell();
   return cell;
 }
 
 bool RecHitTools::isHalfCell(const DetId& id) const {
-  if( id.det() != DetId::Forward ) {
-    return false;
+  bool ishalf = false;
+  if (id.det() == DetId::Forward) {
+    HGCalDetId hid(id);
+    auto geom = getSubdetectorGeometry(hid);
+    auto ddd = get_ddd(geom,hid);
+    const int waferType = ddd->waferTypeT(hid.waferType());
+    return ddd->isHalfCell(waferType,hid.cell());
   }
-  auto geom = geom_->getSubdetectorGeometry(id);
-  check_geom(geom);
-  const HGCalDetId hid(id);
-  auto ddd = get_ddd(geom,hid);
-  const int waferType = ddd->waferTypeT(hid.waferType());
-  return ddd->isHalfCell(waferType,hid.cell());
+  //new geometry is always false
+  return ishalf;
 }
 
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
