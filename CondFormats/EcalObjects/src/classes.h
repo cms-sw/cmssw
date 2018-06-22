@@ -224,13 +224,5 @@ namespace CondFormats_EcalObjects {
     EcalCondObjectContainer<EcalPulseSymmCovariance> ecalSPCmap; //typedef EcalPulseSymmCovariance
 
     EcalSimPulseShape ecal_sim_pulse_shapes;
-    std::vector<double> v_barrel_shape;
-    std::vector<double> v_endcap_shape;
-    std::vector<double> v_apd_shape; 
-    double barrel_thresh;
-    double endcap_thresh;
-    double apd_thresh;
-    float time_interval; 
-
   };
 }
