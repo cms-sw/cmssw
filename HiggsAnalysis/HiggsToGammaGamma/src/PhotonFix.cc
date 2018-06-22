@@ -4,7 +4,7 @@
 #include <iomanip>
 
 // ensure that this include points to the appropriate location for PhotonFix.h
-#include "../interface/PhotonFix.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 
 PhotonFix::PhotonFix(double e, double eta, double phi, double r9) :
   _e(e), _eta(eta), _phi(phi), _r9(r9) {
@@ -2041,7 +2041,7 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
 // Get the geometry of cracks and gaps from file
 bool PhotonFix::initialiseGeometry(const std::string &s) {
 
-  std::ifstream fin("../test/PhotonFix.dat");
+  std::ifstream fin("HiggsAnalysis/HiggsToGammaGamma/test/PhotonFix.dat");
   assert(fin);
 
   std::cout << "Reading in here" << std::endl;
