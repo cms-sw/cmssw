@@ -1,4 +1,4 @@
-#include "../interface/LedClient.h"
+#include "DQM/EcalMonitorClient/interface/LedClient.h"
 
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 

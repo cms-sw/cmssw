@@ -13,7 +13,7 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "../interface/MonitorXMLParser.h"
+#include "DQM/EcalMonitorDbModule/interface/MonitorXMLParser.h"
 
 MonitorXMLParser::MonitorXMLParser( const std::string& fromFile ) {
 

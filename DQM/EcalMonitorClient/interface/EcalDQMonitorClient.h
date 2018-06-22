@@ -5,7 +5,7 @@
 #include "DQM/EcalCommon/interface/EcalDQMonitor.h"
 #include "DQM/EcalCommon/interface/StatusManager.h"
 
-#include "../interface/DQWorkerClient.h"
+#include "DQM/EcalMonitorClient/interface/DQWorkerClient.h"
 
 class EcalDQMonitorClient : public DQMEDHarvester, public ecaldqm::EcalDQMonitor {
  public:

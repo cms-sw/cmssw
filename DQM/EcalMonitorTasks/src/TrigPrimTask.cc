@@ -1,4 +1,4 @@
-#include "../interface/TrigPrimTask.h"
+#include "DQM/EcalMonitorTasks/interface/TrigPrimTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 #include "FWCore/Framework/interface/EventSetup.h"
