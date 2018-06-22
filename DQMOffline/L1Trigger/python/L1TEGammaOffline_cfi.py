@@ -51,6 +51,8 @@ l1tEGammaOfflineDQM = DQMEDAnalyzer(
 
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
+    maxDeltaRForL1Matching=cms.double(0.3),
+    maxDeltaRForHLTMatching=cms.double(0.3),
 
     histDefinitions=cms.PSet(
         nVertex=histDefinitions.nVertex.clone(),
