@@ -164,8 +164,6 @@ private:
 // last layer per subdetector
 static const unsigned int lastLayerEE = 28;
 static const unsigned int lastLayerFH = 40;
-// maximum number of wafers per Layer: 666 (V7), 794 (V8)
-static const unsigned int maxNumberOfWafersPerLayer = 796;
 
 // The two parameters used to identify clusters
 std::vector<double> vecDeltas;

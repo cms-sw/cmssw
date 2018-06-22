@@ -58,3 +58,12 @@ particleFlowRecHitHGC = cms.EDProducer("PFRecHitProducer",
            )
     )          
 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify(particleFlowRecHitHGC,
+    producers = {
+        0 : dict(name = "PFHGCalEERecHitCreator"),
+        1 : dict(name = "PFHGCalHSiRecHitCreator"),
+        2 : dict(name = "PFHGCalHScRecHitCreator"),
+    }
+)
