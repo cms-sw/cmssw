@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import interestingEgammaIsoHCALSel
+
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
   keepPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep in output
   slimRelinkPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
@@ -19,6 +21,7 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   barrelEcalHits = cms.InputTag("reducedEcalRecHitsEB"),
   endcapEcalHits = cms.InputTag("reducedEcalRecHitsEE"),
   preshowerEcalHits = cms.InputTag("reducedEcalRecHitsES"),
+  hbheHits= cms.InputTag("reducedHcalRecHits","hbhereco"),
   photonsPFValMap = cms.InputTag("particleBasedIsolation","gedPhotons"),
   gsfElectronsPFValMap = cms.InputTag("particleBasedIsolation","gedGsfElectrons"),
   photonIDSources = cms.VInputTag(),
@@ -40,7 +43,8 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   gsfElectronCalibEnergySource = cms.InputTag(""),
   gsfElectronCalibEnergyErrSource = cms.InputTag(""),
   gsfElectronCalibEcalEnergySource = cms.InputTag(""),
-  gsfElectronCalibEcalEnergyErrSource = cms.InputTag("")
+  gsfElectronCalibEcalEnergyErrSource = cms.InputTag(""),
+  hcalHitSel = interestingEgammaIsoHCALSel
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common

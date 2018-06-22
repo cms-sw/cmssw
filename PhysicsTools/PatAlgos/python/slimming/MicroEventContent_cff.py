@@ -32,7 +32,7 @@ MicroEventContent = cms.PSet(
         'keep recoCaloClusters_reducedEgamma_*_*',
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
         'keep recoGsfTracks_reducedEgamma_*_*',
-        
+        'keep HBHERecHitsSorted_reducedEgamma_*_*',
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
         'drop *_*_genJets_*',
