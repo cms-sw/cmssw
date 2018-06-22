@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate2D.cc  Version 2.61a
+//  SiPixelTemplate2D.cc  Version 2.65
 //
 //  Full 2-D templates for cluster splitting, simulated cluster reweighting, and improved cluster probability
 //
@@ -21,7 +21,7 @@
 // v2.52 - Improve cosmetics for increased style points from judges
 // v2.60 - Fix FPix multiframe lookup problem [takes +-cotalpha and +-cotbeta]
 // v2.61a - Code 2.60 fix correctly
-//
+// v2.65 - change double pixel flags to work with new shifted reco code definition
 //
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -38,7 +38,7 @@
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) LogError(x)
@@ -1031,7 +1031,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    //combine rows and columns to simulate double pixels
    
    for(int n=1; n<BYM3; ++n) {
-      if(ydouble[n-1]) {
+      if(ydouble[n]) {
          //  Combine the y-columns
          for(int m=1; m<BXM3; ++m) {
             xytemp_[m][n] += xytemp_[m][n+1];
@@ -1048,7 +1048,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
    //combine rows and columns to simulate double pixels
    
    for(int m=1; m<BXM3; ++m) {
-      if(xdouble[m-1]) {
+      if(xdouble[m]) {
          //  Combine the x-rows
          for(int n=1; n<BYM3; ++n) {
             xytemp_[m][n] += xytemp_[m+1][n];
@@ -1132,7 +1132,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int n=1; n<BYM3; ++n) {
-         if(ydouble[n-1]) {
+         if(ydouble[n]) {
             //  Combine the y-columns
             for(int m=1; m<BXM3; ++m) {
                dxytempdx[1][m][n] += dxytempdx[1][m][n+1];
@@ -1149,7 +1149,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int m=1; m<BXM3; ++m) {
-         if(xdouble[m-1]) {
+         if(xdouble[m]) {
             //  Combine the x-rows
             for(int n=1; n<BYM3; ++n) {
                dxytempdx[1][m][n] += dxytempdx[1][m+1][n];
@@ -1207,7 +1207,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int n=1; n<BYM3; ++n) {
-         if(ydouble[n-1]) {
+         if(ydouble[n]) {
             //  Combine the y-columns
             for(int m=1; m<BXM3; ++m) {
                dxytempdx[0][m][n] += dxytempdx[0][m][n+1];
@@ -1224,7 +1224,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int m=1; m<BXM3; ++m) {
-         if(xdouble[m-1]) {
+         if(xdouble[m]) {
             //  Combine the x-rows
             for(int n=1; n<BYM3; ++n) {
                dxytempdx[0][m][n] += dxytempdx[0][m+1][n];
@@ -1301,7 +1301,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int n=1; n<BYM3; ++n) {
-         if(ydouble[n-1]) {
+         if(ydouble[n]) {
             //  Combine the y-columns
             for(int m=1; m<BXM3; ++m) {
                dxytempdy[1][m][n] += dxytempdy[1][m][n+1];
@@ -1318,7 +1318,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int m=1; m<BXM3; ++m) {
-         if(xdouble[m-1]) {
+         if(xdouble[m]) {
             //  Combine the x-rows
             for(int n=1; n<BYM3; ++n) {
                dxytempdy[1][m][n] += dxytempdy[1][m+1][n];
@@ -1376,7 +1376,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int n=1; n<BYM3; ++n) {
-         if(ydouble[n-1]) {
+         if(ydouble[n]) {
             //  Combine the y-columns
             for(int m=1; m<BXM3; ++m) {
                dxytempdy[0][m][n] += dxytempdy[0][m][n+1];
@@ -1393,7 +1393,7 @@ bool SiPixelTemplate2D::xytemp(float xhit, float yhit, bool ydouble[BYM2], bool 
       //combine rows and columns to simulate double pixels
       
       for(int m=1; m<BXM3; ++m) {
-         if(xdouble[m-1]) {
+         if(xdouble[m]) {
             //  Combine the x-rows
             for(int n=1; n<BYM3; ++n) {
                dxytempdy[0][m][n] += dxytempdy[0][m+1][n];

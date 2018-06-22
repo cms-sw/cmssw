@@ -20,8 +20,10 @@ HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBas
       mixMod.produces<HGCEEDigiCollection>(theDigitizer_.digiCollection());
     if( theDigitizer_.producesHEfrontDigis() )
       mixMod.produces<HGCHEDigiCollection>(theDigitizer_.digiCollection());
-    if( theDigitizer_.producesHEbackDigis() )
+    if( theDigitizer_.producesHEbackDigis() and theDigitizer_.geometryType()==0 )
       mixMod.produces<HGCBHDigiCollection>(theDigitizer_.digiCollection());
+    if( theDigitizer_.producesHEbackDigis() and theDigitizer_.geometryType()==1 )
+      mixMod.produces<HGCHEDigiCollection>(theDigitizer_.digiCollection());
   }
 }
 
