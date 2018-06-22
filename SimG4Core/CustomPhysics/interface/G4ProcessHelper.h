@@ -1,3 +1,6 @@
+#ifndef SimG4Core_CustomPhysics_G4ProcessHelper_H
+#define SimG4Core_CustomPhysics_G4ProcessHelper_H
+
 #include"globals.hh"
 #include"G4ParticleDefinition.hh"
 #include"G4DynamicParticle.hh"
@@ -15,6 +18,7 @@ typedef std::vector<ReactionProduct > ReactionProductList;
 typedef std::map<G4int , ReactionProductList> ReactionMap;
 
 class G4ParticleTable;
+class CustomParticleFactory;
 class HistoHelper;
 class TProfile;
 class TH1D;
@@ -23,9 +27,9 @@ class G4ProcessHelper {
 
 public:
 
-  static G4ProcessHelper* Instance();
+  G4ProcessHelper(const edm::ParameterSet & p, CustomParticleFactory* ptr);
 
-  G4ProcessHelper(const edm::ParameterSet & p);
+  ~G4ProcessHelper();
  
   G4bool ApplicabilityTester(const G4ParticleDefinition& aPart);
 
@@ -35,14 +39,10 @@ public:
   //Make sure the element is known (for n/p-decision)
   ReactionProduct GetFinalState(const G4Track& aTrack,G4ParticleDefinition*& aTarget);
 
-protected:
-
-  G4ProcessHelper(const G4ProcessHelper&);
-  G4ProcessHelper& operator= (const G4ProcessHelper&);
-
 private:
 
-  //static G4ProcessHelper* pinstance;
+  G4ProcessHelper(const G4ProcessHelper&) = delete;
+  G4ProcessHelper& operator= (const G4ProcessHelper&) = delete;
 
   G4double Regge(const double boost);
   G4double Pom(const double boost);
@@ -94,6 +94,7 @@ private:
   //Neutron-scattering processes
   ReactionMap nReactionMap;
 
+  CustomParticleFactory* fParticleFactory;
   G4ParticleTable* particleTable;
   HistoHelper* theHistoHelper;
   TProfile* h_xsec_lab;
@@ -103,3 +104,4 @@ private:
   TProfile* h_q_gamma;
 
 };
+#endif
