@@ -125,7 +125,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     addTriggerMatching = cms.bool(True),                      
     triggerObjects = cms.InputTag("slimmedPatTrigger"),
     triggerResults = cms.InputTag("TriggerResults","","HLT"),
-    hltCollectionNames = cms.vstring('hltIterL3MuonCandidates::HLT','hltIterL3FromL2MuonCandidates::HLT','hltGlbTrkMuonCands::HLT','hltTrk50Filter::HLT')
+    hltCollectionFilters = cms.vstring('hltIterL3MuonCandidates::HLT','hltIterL3FromL2MuonCandidates::HLT','hltGlbTrkMuonCands::HLT','hltTrk50Filter::HLT')
 )
 
 
