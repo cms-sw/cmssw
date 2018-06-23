@@ -1,4 +1,4 @@
-#include "../interface/TestPulseTask.h"
+#include "DQM/EcalMonitorTasks/interface/TestPulseTask.h"
 
 #include <algorithm>
 #include <iomanip>
