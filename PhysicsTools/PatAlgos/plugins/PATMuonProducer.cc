@@ -187,7 +187,8 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
 
   addTriggerMatching_ = iConfig.getParameter<bool>("addTriggerMatching");
   if ( addTriggerMatching_ ){
-    triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(edm::InputTag("slimmedPatTrigger"));
+    triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(iConfig.getParameter<edm::InputTag>("triggerObjects"));
+    triggerResults_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"));
   }
   hltCollectionNames_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionNames");
 
@@ -216,6 +217,7 @@ GlobalPoint* PATMuonProducer::getMuonDirection(const reco::MuonChamberMatch& cha
 
 void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
 					edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+					const edm::TriggerNames & names,
 					const edm::ESHandle<GlobalTrackingGeometry>& geometry)
 {
   // L1 trigger object parameters are defined at MB2/ME2. Use the muon
@@ -244,7 +246,9 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
     if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerL1Mu)){
       if (deltaR(triggerObjects->at(i).p4(),*muonPosition)>0.1) continue;
       aMuon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
-      aMuon.addTriggerObjectMatch(triggerObjects->at(i));
+      pat::TriggerObjectStandAlone obj(triggerObjects->at(i));
+      obj.unpackPathNames(names);
+      aMuon.addTriggerObjectMatch(obj);
       break;
     }
   }
@@ -253,8 +257,9 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
 }
 
 void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
-					  edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
-					  const std::vector<std::string>& collection_names)
+					 edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+					 const edm::TriggerNames & names,
+					 const std::vector<std::string>& collection_names)
 {
   unsigned int best_match_index = triggerObjects->size();
   float best_match_dr = 999.;
@@ -262,8 +267,11 @@ void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
     for (unsigned int i=0; i<triggerObjects->size(); ++i){
       if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerMuon)){
 	float dr = deltaR(triggerObjects->at(i).p4(),muon);
-	if (dr<0.1)
-	  muon.addTriggerObjectMatch(triggerObjects->at(i));
+	if (dr<0.1){
+	  pat::TriggerObjectStandAlone obj(triggerObjects->at(i));
+	  obj.unpackPathNames(names);
+	  muon.addTriggerObjectMatch(obj);
+	}
 	if (collection != triggerObjects->at(i).collection()) continue;
 	if (dr>0.1 or dr>best_match_dr) continue;
 	best_match_dr = dr;
@@ -621,15 +629,20 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (primaryVertexIsValid) pv = &primaryVertex;
 
   edm::Handle<std::vector<pat::TriggerObjectStandAlone> > triggerObjects;
-  bool triggerInfoAvailable = false;
-  if (addTriggerMatching_) 
-    triggerInfoAvailable = iEvent.getByToken(triggerObjects_, triggerObjects);
-  
+  edm::Handle< edm::TriggerResults > triggerResults;
+  bool triggerObjectsAvailable = false;
+  bool triggerResultsAvailable = false;
+  if (addTriggerMatching_){
+    triggerObjectsAvailable = iEvent.getByToken(triggerObjects_, triggerObjects);
+    triggerResultsAvailable = iEvent.getByToken(triggerResults_, triggerResults);
+  }
+
   for(auto& muon: *patMuons){
     // trigger info
-    if (addTriggerMatching_ and triggerInfoAvailable){
-      fillL1TriggerInfo(muon,triggerObjects,geometry);
-      fillHltTriggerInfo(muon,triggerObjects,hltCollectionNames_);
+    if (addTriggerMatching_ and triggerObjectsAvailable and triggerResultsAvailable){
+      const edm::TriggerNames & triggerNames(iEvent.triggerNames( *triggerResults ));
+      fillL1TriggerInfo(muon,triggerObjects,triggerNames,geometry);
+      fillHltTriggerInfo(muon,triggerObjects,triggerNames,hltCollectionNames_);
     }
 
     if (recomputeBasicSelectors_){

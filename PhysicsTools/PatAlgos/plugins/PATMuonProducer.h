@@ -36,6 +36,7 @@
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace pat {
 
@@ -116,9 +117,11 @@ namespace pat {
 				   const DetId& chamberId);
     void fillL1TriggerInfo(pat::Muon& muon,
 			   edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			   const edm::TriggerNames & names,
 			   const edm::ESHandle<GlobalTrackingGeometry>& geometry);
     void fillHltTriggerInfo(pat::Muon& muon,
 			    edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
+			    const edm::TriggerNames & names,
 			    const std::vector<std::string>& collection_names);
   private:
     /// input source
@@ -228,6 +231,7 @@ namespace pat {
     /// Trigger
     bool addTriggerMatching_;
     edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
     std::vector<std::string> hltCollectionNames_;
   };
 
