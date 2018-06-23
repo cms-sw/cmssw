@@ -6,7 +6,7 @@
 // 
 // Original Author: Janos Karancsi
 
-#include "../interface/SiPixelCoordinates.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"

@@ -1,4 +1,4 @@
-#include "../interface/EcalDQMStatusWriter.h"
+#include "DQM/EcalMonitorDbModule/interface/EcalDQMStatusWriter.h"
 
 #include "DQM/EcalCommon/interface/StatusManager.h"
 
