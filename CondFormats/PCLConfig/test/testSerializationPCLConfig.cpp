@@ -1,6 +1,6 @@
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/PCLConfig/src/headers.h"
 
 int main()
 {
