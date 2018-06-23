@@ -99,10 +99,10 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
     }
   else
     {
-      result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
+      result=static_cast<const HcalGeometry*>(HcalGeometry_)->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()),true);
       HcalDetId myDetId(result);
 
-      // special patch for HF
+      // special patch for HF (this is already a part of HcalGeometry)
       if ( myDetId.subdetId() == HcalForward ) {
 	int mylayer;
 	if ( fabs(point.Z()) > 1132. ) {
@@ -112,12 +112,12 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
 	}
 	HcalDetId myDetId2((HcalSubdetector)myDetId.subdetId(),myDetId.ieta(),myDetId.iphi(),mylayer);
 	result = myDetId2;
-	return result;
+//      return result;
       }
 
-
+      // Special patch to correct the HCAL geometry (does not work)
+      /*
       if(result.subdetId()!=HcalEndcap) return result;
-      // Special patch to correct the HCAL geometry
       if(myDetId.depth()==3) return result;
 
       int ieta=myDetId.ietaAbs();
@@ -141,6 +141,7 @@ DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool 
           HcalDetId second(HcalEndcap,myDetId.ieta(),myDetId.iphi(),2);
 	  if(second!=HcalDetId()) result=second;
 	}
+      */
 #ifdef DEBUGGCC
       if(result.null()) 
 	{
