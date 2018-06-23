@@ -313,10 +313,15 @@ namespace pat {
       void setSimPhi(float phi){ simPhi_ = phi;}
       
       /// Trigger information
-      const pat::TriggerObjectStandAloneRef& getL1Object()  const { return l1Muon_; }
-      const pat::TriggerObjectStandAloneRef& getHltObject() const { return hltMuon_; }
-      void setL1Object(  const pat::TriggerObjectStandAloneRef& obj){ l1Muon_ = obj; }
-      void setHltObject( const pat::TriggerObjectStandAloneRef& obj){ hltMuon_ = obj; }
+      const pat::TriggerObjectStandAlone* l1Object(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerL1Mu,idx);
+      }
+      const pat::TriggerObjectStandAlone* hltObject(const size_t idx=0)  const { 
+	return triggerObjectMatchByType(trigger::TriggerMuon,idx);
+      }
+      bool triggered( const char * pathName ){
+	return triggerObjectMatchByPath(pathName,true,true)!=nullptr;
+      }
 
     protected:
 
@@ -407,10 +412,6 @@ namespace pat {
       float simPt_;
       float simEta_;
       float simPhi_;
-      
-      // trigger info
-      pat::TriggerObjectStandAloneRef l1Muon_;
-      pat::TriggerObjectStandAloneRef hltMuon_;
   };
 
 
