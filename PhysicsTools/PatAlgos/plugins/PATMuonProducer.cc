@@ -618,11 +618,13 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   if (primaryVertexIsValid) pv = &primaryVertex;
 
   edm::Handle<std::vector<pat::TriggerObjectStandAlone> > triggerObjects;
-  if (addTriggerMatching_) iEvent.getByToken(triggerObjects_, triggerObjects);
-
+  bool triggerInfoAvailable = false;
+  if (addTriggerMatching_) 
+    triggerInfoAvailable = iEvent.getByToken(triggerObjects_, triggerObjects);
+  
   for(auto& muon: *patMuons){
     // trigger info
-    if (addTriggerMatching_){
+    if (addTriggerMatching_ and triggerInfoAvailable){
       fillL1TriggerInfo(muon,triggerObjects,geometry);
       fillHltTriggerInfo(muon,triggerObjects,hltCollectionNames_);
     }
