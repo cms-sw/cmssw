@@ -232,7 +232,7 @@ namespace pat {
     bool addTriggerMatching_;
     edm::EDGetTokenT<std::vector<pat::TriggerObjectStandAlone>> triggerObjects_;
     edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-    std::vector<std::string> hltCollectionNames_;
+    std::vector<std::string> hltCollectionFilters_;
   };
 
 }

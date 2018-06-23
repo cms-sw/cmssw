@@ -190,7 +190,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig, PATMuonHeavy
     triggerObjects_ = consumes<std::vector<pat::TriggerObjectStandAlone>>(iConfig.getParameter<edm::InputTag>("triggerObjects"));
     triggerResults_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"));
   }
-  hltCollectionNames_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionNames");
+  hltCollectionFilters_ = iConfig.getParameter<std::vector<std::string>>("hltCollectionFilters");
 
   // produces vector of muons
   produces<std::vector<Muon> >();
@@ -242,49 +242,42 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
     }
   }
   if (not muonPosition) return;
-  for (unsigned int i=0; i<triggerObjects->size(); ++i){
-    if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerL1Mu)){
-      if (deltaR(triggerObjects->at(i).p4(),*muonPosition)>0.1) continue;
-      aMuon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
-      pat::TriggerObjectStandAlone obj(triggerObjects->at(i));
+  for (auto triggerObject: *triggerObjects){
+    if (triggerObject.hasTriggerObjectType(trigger::TriggerL1Mu)){
+      if (deltaR(triggerObject.p4(),*muonPosition)>0.1) continue;
+      pat::TriggerObjectStandAlone obj(triggerObject);
       obj.unpackPathNames(names);
       aMuon.addTriggerObjectMatch(obj);
-      break;
     }
   }
-
   if (muonPosition) delete muonPosition;
 }
 
 void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
 					 edm::Handle<std::vector<pat::TriggerObjectStandAlone> >& triggerObjects,
 					 const edm::TriggerNames & names,
-					 const std::vector<std::string>& collection_names)
+					 const std::vector<std::string>& collection_filter_names)
 {
-  unsigned int best_match_index = triggerObjects->size();
-  float best_match_dr = 999.;
-  for (auto collection: collection_names){
-    for (unsigned int i=0; i<triggerObjects->size(); ++i){
-      if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerMuon)){
-	float dr = deltaR(triggerObjects->at(i).p4(),muon);
-	if (dr<0.1){
-	  pat::TriggerObjectStandAlone obj(triggerObjects->at(i));
-	  obj.unpackPathNames(names);
-	  muon.addTriggerObjectMatch(obj);
+  // WARNING: in a case of close-by muons the dR matching may select both muons.
+  // It's better to select the best match for a given collection.
+  for (auto triggerObject: *triggerObjects){
+    if (triggerObject.hasTriggerObjectType(trigger::TriggerMuon)){
+      bool keepIt = false;
+      for (auto name: collection_filter_names){
+	if (triggerObject.hasCollection(name)){
+	  keepIt = true;
+	  break;
 	}
-	if (collection != triggerObjects->at(i).collection()) continue;
-	if (dr>0.1 or dr>best_match_dr) continue;
-	best_match_dr = dr;
-	best_match_index = i;
       }
+      if (not keepIt) continue;
+      if ( deltaR(triggerObject.p4(),muon)>0.1 ) continue;
+      pat::TriggerObjectStandAlone obj(triggerObject);
+      obj.unpackPathNames(names);
+      muon.addTriggerObjectMatch(obj);
     }
   }
-  if (best_match_index < triggerObjects->size())
-    muon.setHltObject(pat::TriggerObjectStandAloneRef(triggerObjects,best_match_index));
 }
 
-
-					       
 
 void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
@@ -642,7 +635,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     if (addTriggerMatching_ and triggerObjectsAvailable and triggerResultsAvailable){
       const edm::TriggerNames & triggerNames(iEvent.triggerNames( *triggerResults ));
       fillL1TriggerInfo(muon,triggerObjects,triggerNames,geometry);
-      fillHltTriggerInfo(muon,triggerObjects,triggerNames,hltCollectionNames_);
+      fillHltTriggerInfo(muon,triggerObjects,triggerNames,hltCollectionFilters_);
     }
 
     if (recomputeBasicSelectors_){
