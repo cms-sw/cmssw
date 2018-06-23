@@ -244,6 +244,7 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
     if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerL1Mu)){
       if (deltaR(triggerObjects->at(i).p4(),*muonPosition)>0.1) continue;
       aMuon.setL1Object(pat::TriggerObjectStandAloneRef(triggerObjects,i));
+      aMuon.addTriggerObjectMatch(triggerObjects->at(i));
       break;
     }
   }
@@ -260,8 +261,10 @@ void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
   for (auto collection: collection_names){
     for (unsigned int i=0; i<triggerObjects->size(); ++i){
       if (triggerObjects->at(i).hasTriggerObjectType(trigger::TriggerMuon)){
-	if (collection != triggerObjects->at(i).collection()) continue;
 	float dr = deltaR(triggerObjects->at(i).p4(),muon);
+	if (dr<0.1)
+	  muon.addTriggerObjectMatch(triggerObjects->at(i));
+	if (collection != triggerObjects->at(i).collection()) continue;
 	if (dr>0.1 or dr>best_match_dr) continue;
 	best_match_dr = dr;
 	best_match_index = i;
