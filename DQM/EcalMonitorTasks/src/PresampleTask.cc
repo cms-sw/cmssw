@@ -1,4 +1,4 @@
-#include "../interface/PresampleTask.h"
+#include "DQM/EcalMonitorTasks/interface/PresampleTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
