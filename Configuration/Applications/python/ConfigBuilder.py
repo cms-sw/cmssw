@@ -1649,6 +1649,7 @@ class ConfigBuilder(object):
 		     self._options.customise_commands = self._options.customise_commands + " \n"
 	     self._options.customise_commands = self._options.customise_commands + "process.patTrigger.processName = \""+self._options.hltProcess+"\"\n"
              self._options.customise_commands = self._options.customise_commands + "process.slimmedPatTrigger.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
+             self._options.customise_commands = self._options.customise_commands + "process.patMuons.triggerResults= cms.InputTag( 'TriggerResults::"+self._options.hltProcess+"' )\n"
 
 #            self.renameHLTprocessInSequence(sequence)
 
