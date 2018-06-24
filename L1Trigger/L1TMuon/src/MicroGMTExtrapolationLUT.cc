@@ -1,4 +1,4 @@
-#include "../interface/MicroGMTExtrapolationLUT.h"
+#include "L1Trigger/L1TMuon/interface/MicroGMTExtrapolationLUT.h"
 
 l1t::MicroGMTExtrapolationLUT::MicroGMTExtrapolationLUT (const std::string& fname, const int outWidth, const int etaRedInWidth, const int ptRedInWidth) : MicroGMTLUT(), m_etaRedInWidth(etaRedInWidth), m_ptRedInWidth(ptRedInWidth)
 {
