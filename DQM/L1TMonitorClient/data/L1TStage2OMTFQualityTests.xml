@@ -1,6 +1,105 @@
 <TESTSCONFIGURATION>
 
-  <!-- Placeholder for OMTF Quality Tests -->
+  <!-- OMTF Quality Tests -->
+
+  <!-- BX -->
+
+  <QTEST name="OMTF_bXPeakAtBX0">
+    <TYPE>ContentsXRange</TYPE>
+    <PARAM name="xmin">0</PARAM>
+    <PARAM name="xmax">0</PARAM>
+    <PARAM name="error">0.30</PARAM>
+    <PARAM name="warning">0.50</PARAM>
+  </QTEST>
+
+  <QTEST name="OMTF_bXMeanAtBX0">
+    <TYPE>MeanWithinExpected</TYPE>
+    <PARAM name="mean">0.0</PARAM>
+    <PARAM name="useRMS">0</PARAM>
+    <PARAM name="useSigma">0</PARAM>
+    <PARAM name="useRange">1</PARAM>
+    <PARAM name="xmin">-0.6</PARAM>
+    <PARAM name="xmax">0.6</PARAM>
+    <PARAM name="error">0.95</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+    <PARAM name="minEntries">1000</PARAM>
+  </QTEST>
+
+  <LINK name="*/L1TStage2OMTF/omtf_bx">
+      <TestName activate="true">OMTF_bXPeakAtBX0</TestName>
+      <TestName activate="true">OMTF_bXMeanAtBX0</TestName>
+  </LINK>
+
+  <!-- pT -->
+
+  <QTEST name="OMTF_hwPtRange">
+    <TYPE>ContentsXRange</TYPE>
+    <PARAM name="xmin">0</PARAM>
+    <PARAM name="xmax">511</PARAM>
+    <PARAM name="error">0.98</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+  </QTEST>
+
+  <LINK name="*/L1TStage2OMTF/omtf_hwPt">
+      <TestName activate="true">OMTF_hwPtRange</TestName>
+  </LINK>
+
+  <!-- eta -->
+
+  <QTEST name="OMTF_hwEtaRange">
+    <TYPE>ContentsXRange</TYPE>
+    <PARAM name="xmin">-130</PARAM>
+    <PARAM name="xmax">130</PARAM>
+    <PARAM name="error">0.98</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+  </QTEST>
+
+  <QTEST name="OMTF_hwEtaMeanAt0">
+    <TYPE>MeanWithinExpected</TYPE>
+    <PARAM name="mean">0.0</PARAM>
+    <PARAM name="useRMS">0</PARAM>
+    <PARAM name="useSigma">0</PARAM>
+    <PARAM name="useRange">1</PARAM>
+    <PARAM name="xmin">-30.0</PARAM>
+    <PARAM name="xmax">30.0</PARAM>
+    <PARAM name="error">0.95</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+    <PARAM name="minEntries">1000</PARAM>
+  </QTEST>
+
+  <LINK name="*/L1TStage2OMTF/omtf_hwEta">
+      <TestName activate="true">OMTF_hwEtaRange</TestName>
+      <TestName activate="true">OMTF_hwEtaMeanAt0</TestName>
+  </LINK>
+
+  <!-- phi -->
+
+  <QTEST name="OMTF_hwLocalPhiRange">
+    <TYPE>ContentsXRange</TYPE>
+    <PARAM name="xmin">-10</PARAM>
+    <PARAM name="xmax">110</PARAM>
+    <PARAM name="error">0.98</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+  </QTEST>
+
+  <LINK name="*/L1TStage2OMTF/omtf_hwLocalPhi">
+      <TestName activate="true">OMTF_hwLocalPhiRange</TestName>
+  </LINK>
+
+  <!-- quality -->
+
+  <QTEST name="OMTF_hwQualRange">
+    <TYPE>ContentsXRange</TYPE>
+    <PARAM name="xmin">0</PARAM>
+    <PARAM name="xmax">15</PARAM>
+    <PARAM name="error">0.98</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+  </QTEST>
+
+  <LINK name="*/L1TStage2OMTF/omtf_hwQual">
+      <TestName activate="true">OMTF_hwQualRange</TestName>
+  </LINK>
+
 
 
 </TESTSCONFIGURATION>
