@@ -1,8 +1,8 @@
-#include "../interface/writer.h"
+#include "EventFilter/Utilities/interface/writer.h"
 #include <utility>
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -111,7 +111,7 @@ std::string valueToString( bool value )
 std::string valueToQuotedString( const char *value )
 {
    // Not sure how to handle unicode...
-   if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL && !containsControlCharacter( value ))
+   if (strpbrk(value, "\"\\\b\f\n\r\t") == nullptr && !containsControlCharacter( value ))
       return std::string("\"") + value + "\"";
    // We have to walk value and escape any special characters.
    // Appending to std::string is not efficient, but this should be rare.
@@ -412,7 +412,7 @@ StyledWriter::isMultineArray( const Value &value )
       const Value &childValue = value[index];
       isMultiLine = isMultiLine  ||
                      ( (childValue.isArray()  ||  childValue.isObject())  &&  
-                        childValue.size() > 0 );
+                        !childValue.empty() );
    }
    if ( !isMultiLine ) // check if line length > max line length
    {
@@ -542,7 +542,7 @@ StyledWriter::normalizeEOL( const std::string &text )
 // //////////////////////////////////////////////////////////////////
 
 StyledStreamWriter::StyledStreamWriter( std::string indentation )
-   : document_(NULL)
+   : document_(nullptr)
    , rightMargin_( 74 )
    , indentation_( indentation )
 {
@@ -559,7 +559,7 @@ StyledStreamWriter::write( std::ostream &out, const Value &root )
    writeValue( root );
    writeCommentAfterValueOnSameLine( root );
    *document_ << "\n";
-   document_ = NULL; // Forget the stream, for safety.
+   document_ = nullptr; // Forget the stream, for safety.
 }
 
 
@@ -688,7 +688,7 @@ StyledStreamWriter::isMultineArray( const Value &value )
       const Value &childValue = value[index];
       isMultiLine = isMultiLine  ||
                      ( (childValue.isArray()  ||  childValue.isObject())  &&  
-                        childValue.size() > 0 );
+                        !childValue.empty() );
    }
    if ( !isMultiLine ) // check if line length > max line length
    {
