@@ -51,6 +51,7 @@ l1tEGammaOfflineDQM = DQMEDAnalyzer(
 
     photonEfficiencyThresholds=cms.vdouble(photonEfficiencyThresholds),
     photonEfficiencyBins=cms.vdouble(photonEfficiencyBins),
+    recoToL1TThresholdFactor=cms.double(1.25),
 
     histDefinitions=cms.PSet(
         nVertex=histDefinitions.nVertex.clone(),

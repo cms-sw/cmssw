@@ -100,6 +100,8 @@ private:
   std::vector<double> photonEfficiencyThresholds_;
   std::vector<double> photonEfficiencyBins_;
 
+  double recoToL1TThresholdFactor_;
+
   reco::GsfElectron tagElectron_;
   reco::GsfElectron probeElectron_;
   double tagAndProbleInvariantMass_;
