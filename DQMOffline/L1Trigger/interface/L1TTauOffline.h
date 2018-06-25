@@ -90,6 +90,7 @@ class L1TTauOffline : public DQMEDAnalyzer
     void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
     void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
     void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+    void endJob() override;
 
     const reco::Vertex getPrimaryVertex(edm::Handle<reco::VertexCollection> const& vertex,
                                         edm::Handle<reco::BeamSpot> const& beamSpot);
@@ -113,6 +114,8 @@ class L1TTauOffline : public DQMEDAnalyzer
     double Distance(const reco::Candidate& c1, const reco::Candidate& c2);
     double DistancePhi(const reco::Candidate& c1, const reco::Candidate& c2);
     double calcDeltaPhi(double phi1, double phi2);
+
+    void normalise2DHistogramsToBinArea();
 
     math::XYZPoint PVPoint_;
 

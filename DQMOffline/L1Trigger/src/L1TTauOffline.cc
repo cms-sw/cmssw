@@ -64,7 +64,47 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps)
       stage2CaloLayer2TauToken_(consumes<l1t::TauBxCollection>(ps.getUntrackedParameter<edm::InputTag>("l1tInputTag"))),
       tauEfficiencyThresholds_(ps.getParameter<std::vector<int>>("tauEfficiencyThresholds")),
       tauEfficiencyBins_(ps.getParameter<std::vector<double>>("tauEfficiencyBins")),
-      histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
+      histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
+      m_TightMuons(),
+      m_ProbeTaus(),
+      m_TauL1tPairs(),
+      m_RecoTaus(),
+      m_L1tTaus(),
+      m_RecoRecoTaus(),
+      m_L1tL1tTaus(),
+      m_L1tPtCuts(),
+      m_MaxTauEta(99999),
+      m_MaxL1tTauDR(99999),
+      m_MaxHltTauDR(99999),
+      m_trigIndices(),
+      h_nVertex_(),
+      h_tagAndProbeMass_(),
+      h_L1TauETvsTauET_EB_(),
+      h_L1TauETvsTauET_EE_(),
+      h_L1TauETvsTauET_EB_EE_(),
+      h_L1TauPhivsTauPhi_EB_(),
+      h_L1TauPhivsTauPhi_EE_(),
+      h_L1TauPhivsTauPhi_EB_EE_(),
+      h_L1TauEtavsTauEta_(),
+      h_resolutionTauET_EB_(),
+      h_resolutionTauET_EE_(),
+      h_resolutionTauET_EB_EE_(),
+      h_resolutionTauPhi_EB_(),
+      h_resolutionTauPhi_EE_(),
+      h_resolutionTauPhi_EB_EE_(),
+      h_resolutionTauEta_(),
+      h_efficiencyIsoTauET_EB_pass_(),
+      h_efficiencyIsoTauET_EE_pass_(),
+      h_efficiencyIsoTauET_EB_EE_pass_(),
+      h_efficiencyNonIsoTauET_EB_pass_(),
+      h_efficiencyNonIsoTauET_EE_pass_(),
+      h_efficiencyNonIsoTauET_EB_EE_pass_(),
+      h_efficiencyIsoTauET_EB_total_(),
+      h_efficiencyIsoTauET_EE_total_(),
+      h_efficiencyIsoTauET_EB_EE_total_(),
+      h_efficiencyNonIsoTauET_EB_total_(),
+      h_efficiencyNonIsoTauET_EE_total_(),
+      h_efficiencyNonIsoTauET_EB_EE_total_()
 {
     edm::LogInfo("L1TTauOffline") << "Constructor "
                                   << "L1TTauOffline::L1TTauOffline " << std::endl;
@@ -596,6 +636,23 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
         }
     }
 }
+void L1TTauOffline::endJob(){
+  normalise2DHistogramsToBinArea();
+}
 
+void L1TTauOffline::normalise2DHistogramsToBinArea() {
+  std::vector<MonitorElement*> monElementstoNormalize = {
+    h_L1TauETvsTauET_EB_,   h_L1TauETvsTauET_EE_,      h_L1TauETvsTauET_EB_EE_, h_L1TauPhivsTauPhi_EB_,
+    h_L1TauPhivsTauPhi_EE_, h_L1TauPhivsTauPhi_EB_EE_, h_L1TauEtavsTauEta_};
+
+  for (auto mon : monElementstoNormalize) {
+    if (mon != nullptr) {
+      auto h = mon->getTH2F();
+      if (h != nullptr) {
+        h->Scale(1, "width");
+      }
+    }
+  }
+}
 // define this as a plug-in
 DEFINE_FWK_MODULE(L1TTauOffline);
