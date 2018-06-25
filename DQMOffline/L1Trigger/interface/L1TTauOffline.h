@@ -92,6 +92,7 @@ class L1TTauOffline : public DQMEDAnalyzer
     void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
     void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
     void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+    void endJob() override;
 
     const reco::Vertex getPrimaryVertex(edm::Handle<reco::VertexCollection> const& vertex,
                                         edm::Handle<reco::BeamSpot> const& beamSpot);
@@ -115,6 +116,8 @@ class L1TTauOffline : public DQMEDAnalyzer
     double Distance(const reco::Candidate& c1, const reco::Candidate& c2);
     double DistancePhi(const reco::Candidate& c1, const reco::Candidate& c2);
     double calcDeltaPhi(double phi1, double phi2);
+
+    void normalise2DHistogramsToBinArea();
 
     math::XYZPoint PVPoint_;
 
@@ -208,5 +211,24 @@ class L1TTauOffline : public DQMEDAnalyzer
     std::map<double, MonitorElement*> h_efficiencyNonIsoTauET_EE_total_;
     std::map<double, MonitorElement*> h_efficiencyNonIsoTauET_EB_EE_total_;
 };
+
+void L1TTauOffline::endJob(){
+  normalise2DHistogramsToBinArea();
+}
+
+void L1TTauOffline::normalise2DHistogramsToBinArea() {
+  std::vector<MonitorElement*> monElementstoNormalize = {
+    h_L1TauETvsTauET_EB_,   h_L1TauETvsTauET_EE_,      h_L1TauETvsTauET_EB_EE_, h_L1TauPhivsTauPhi_EB_,
+    h_L1TauPhivsTauPhi_EE_, h_L1TauPhivsTauPhi_EB_EE_, h_L1TauEtavsTauEta_};
+
+  for (auto mon : monElementstoNormalize) {
+    if (mon != nullptr) {
+      auto h = mon->getTH2F();
+      if (h != nullptr) {
+        h->Scale(1, "width");
+      }
+    }
+  }
+}
 
 #endif
