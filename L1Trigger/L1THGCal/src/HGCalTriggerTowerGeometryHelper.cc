@@ -76,9 +76,7 @@ HGCalTriggerTowerGeometryHelper::HGCalTriggerTowerGeometryHelper(const edm::Para
           << " to TT iEta: " << iEta << " iPhi: " << iPhi
           << " when max #bins eta: "  << nBinsEta_ << " phi: " << nBinsPhi_ << std::endl;
       }
-      HGCalDetId detId(trigger_cell_id);
-      int zside = detId.zside();
-      l1t::HGCalTowerID towerId(zside, iEta, iPhi);
+      l1t::HGCalTowerID towerId(HGCalDetId(trigger_cell_id).zside(), iEta, iPhi);
       cells_to_trigger_towers_[trigger_cell_id] = towerId.rawId();
     }
     l1tTriggerTowerMappingStream.close();
@@ -129,6 +127,5 @@ unsigned short HGCalTriggerTowerGeometryHelper::getTriggerTowerFromTriggerCell(c
     bin_phi = bin_phi_l - binsPhi_.begin();
   }
   int zside = eta < 0 ?  -1 : 1;
-  // std::cout << "TC " << trigger_cell_id << " eta: " << eta << " phi: " << phi << " mapped to bin: (" << zside << ", " << bin_eta << ", " << bin_phi << ")" << std::endl;
   return l1t::HGCalTowerID(zside, bin_eta, bin_phi).rawId();
 }
