@@ -170,6 +170,7 @@ process.load('L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_4_cfi')
 process.caloStage2Params.towerEncoding    = cms.bool(True)
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Layer1Digis_cfi')
 process.load('L1Trigger.L1TCalorimeter.simCaloStage2Digis_cfi')
+process.simCaloStage2Digis.useStaticConfig = True
 process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag("ecalDigis:EcalTriggerPrimitives")
 process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("hcalDigis")
 
