@@ -20,15 +20,10 @@ namespace l1t {
 
     HGCalTowerMap(const std::vector<l1t::HGCalTowerCoord>& tower_ids, const int layer);
 
-    // ~HGCalTowerMap();
-
-    // const l1t::HGCalTower& tower(int iX, int iY) const;
-
     int layer() const { return layer_; }
 
     const HGCalTowerMap& operator+=(const HGCalTowerMap& map);
 
-    // bool addEt(short iX, short iY, float etEm, float etHad);
     bool addEt(short bin_id, float etEm, float etHad);
 
     unsigned nTowers() const { return towerMap_.size(); }

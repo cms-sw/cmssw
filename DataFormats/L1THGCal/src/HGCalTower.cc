@@ -49,7 +49,7 @@ const HGCalTower& HGCalTower::operator+=(const HGCalTower& tower){
       << "HGCalTower: adding to this tower with ID: " << id().rawId()
       << " one with different ID: " << tower.id().rawId()  << std::endl;
   }
-  this->setP4(PolarLorentzVector(this->pt()+tower.pt(), this->eta(), this->phi(), 0.));
+  addEt(tower.pt());
   etEm_+=tower.etEm();
   etHad_+=tower.etHad();
 
