@@ -227,7 +227,6 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
       minDeltaR = currentDeltaR;
       closestL1EGamma = *egamma;
       foundMatch = true;
-      break;
     }
 
   }
