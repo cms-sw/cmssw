@@ -529,6 +529,6 @@ def miniAOD_customizeAllMCFastSim(process):
     process = miniAOD_customizeMETFiltersFastSim(process)
     from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
     process = miniAOD_customizeIsolatedTracksFastSim(process)
-    process.patMuons.addTriggerMatching = cms.bool(False)
+    process.patMuons.addTriggerMatching = False
 
     return process

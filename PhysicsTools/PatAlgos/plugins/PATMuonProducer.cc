@@ -201,16 +201,16 @@ PATMuonProducer::~PATMuonProducer()
 {
 }
 
-GlobalPoint* PATMuonProducer::getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
-						const edm::ESHandle<GlobalTrackingGeometry>& geometry,
-						const DetId& chamberId)
+std::unique_ptr<GlobalPoint> PATMuonProducer::getMuonDirection(const reco::MuonChamberMatch& chamberMatch,
+							       const edm::ESHandle<GlobalTrackingGeometry>& geometry,
+							       const DetId& chamberId)
 {
   const GeomDet* chamberGeometry = geometry->idToDet( chamberId );
   if (chamberGeometry){
     LocalPoint localPosition(chamberMatch.x, chamberMatch.y, 0);
-    return new GlobalPoint(chamberGeometry->toGlobal(localPosition));
+    return std::unique_ptr<GlobalPoint>(new GlobalPoint(chamberGeometry->toGlobal(localPosition)));
   }
-  return nullptr;
+  return std::unique_ptr<GlobalPoint>();
 
 }
 
@@ -225,24 +225,24 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
   // muon trajectory and convert it to a global direction to match the
   // trigger objects
 
-  GlobalPoint* muonPosition(nullptr);
+  std::unique_ptr<GlobalPoint> muonPosition;
   // loop over chambers
   for ( const auto& chamberMatch: aMuon.matches() ) {
     if ( chamberMatch.id.subdetId() == MuonSubdetId::DT) {
       DTChamberId detId(chamberMatch.id.rawId());
       if (abs(detId.station())!=2) continue;
-      muonPosition = getMuonDirection(chamberMatch, geometry, detId);
+      muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
       break;
     }
     if ( chamberMatch.id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId detId(chamberMatch.id.rawId());
       if (abs(detId.station())!=2) continue;
-      muonPosition = getMuonDirection(chamberMatch, geometry, detId);
+      muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
       break;
     }
   }
   if (not muonPosition) return;
-  for (auto triggerObject: *triggerObjects){
+  for (const auto& triggerObject: *triggerObjects){
     if (triggerObject.hasTriggerObjectType(trigger::TriggerL1Mu)){
       if (deltaR(triggerObject.p4(),*muonPosition)>0.1) continue;
       pat::TriggerObjectStandAlone obj(triggerObject);
@@ -250,7 +250,6 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
       aMuon.addTriggerObjectMatch(obj);
     }
   }
-  if (muonPosition) delete muonPosition;
 }
 
 void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
@@ -260,10 +259,10 @@ void PATMuonProducer::fillHltTriggerInfo(pat::Muon& muon,
 {
   // WARNING: in a case of close-by muons the dR matching may select both muons.
   // It's better to select the best match for a given collection.
-  for (auto triggerObject: *triggerObjects){
+  for (const auto& triggerObject: *triggerObjects){
     if (triggerObject.hasTriggerObjectType(trigger::TriggerMuon)){
       bool keepIt = false;
-      for (auto name: collection_filter_names){
+      for (const auto& name: collection_filter_names){
 	if (triggerObject.hasCollection(name)){
 	  keepIt = true;
 	  break;
