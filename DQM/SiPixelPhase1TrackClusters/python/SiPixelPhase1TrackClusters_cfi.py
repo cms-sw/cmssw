@@ -299,8 +299,35 @@ SiPixelPhase1DigisHitmapOnTrack = DefaultHistoTrack.clone(
                             .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName/row", "EXTEND_X")
                             .groupBy("PXForward/HalfCylinder/PXRing/PXDisk/SignedBlade/PXModuleName", "EXTEND_Y")
                             .save(),
+    StandardSpecificationOccupancy,
   )
 )
+
+SiPixelPhase1DigisNdigisOnTrack = DefaultHistoTrack.clone(
+  name = "digis on-track", # 'Count of' added automatically
+  title = "Digis on-track",
+  xlabel = "digis (on-track)",
+  range_min = 0,
+  range_max = 300,
+  range_nbins = 50,
+  dimensions = 0, # this is a count
+
+  specs = VPSet(
+    StandardSpecificationTrend_Num,
+    StandardSpecification2DProfile_Num,
+	
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(nbins=100, xmin=0, xmax=40000),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
+                             .save(nbins=100, xmin=0, xmax=20000),
+  )
+)
+
+
 
 SiPixelPhase1TrackClustersNTracks = DefaultHistoTrack.clone(
   name = "ntracks",
@@ -469,6 +496,7 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackPositionB,
   SiPixelPhase1TrackClustersOnTrackPositionF,
   SiPixelPhase1DigisHitmapOnTrack,
+  SiPixelPhase1DigisNdigisOnTrack,
 
   SiPixelPhase1TrackClustersNTracks,
   SiPixelPhase1TrackClustersNTracksInVolume,

@@ -92,7 +92,7 @@ SiPixelPhase1ClustersSizeY = DefaultHistoDigiCluster.clone(
 SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
   name = "clusters",
   title = "Clusters",
-  range_min = 0, range_max = 30, range_nbins = 60,
+  range_min = 0, range_max = 100, range_nbins = 25,
   xlabel = "clusters",
   dimensions = 0,
 
@@ -226,7 +226,7 @@ SiPixelPhase1ClustersReadoutCharge = DefaultHistoReadout.clone(
 SiPixelPhase1ClustersReadoutNClusters = DefaultHistoReadout.clone(
   name = "clusters",
   title = "Clusters",
-  range_min = 0, range_max = 30, range_nbins = 30,
+  range_min = 0, range_max = 100, range_nbins = 25,
   xlabel = "clusters",
   dimensions = 0,
   specs = VPSet(

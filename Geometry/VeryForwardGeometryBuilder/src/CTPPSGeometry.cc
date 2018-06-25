@@ -1,12 +1,13 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
-*  Jan Kaspar (jan.kaspar@gmail.com) 
+* Authors:
+*  Jan Kaspar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
+#include <regex>
 
 //----------------------------------------------------------------------------------------------------
 
@@ -29,21 +30,21 @@ CTPPSGeometry::build( const DetGeomDesc* gD )
 
     // check if it is a sensor
     if ( d->name().name() == DDD_TOTEM_RP_SENSOR_NAME
+      || std::regex_match( d->name().name(), std::regex( DDD_TOTEM_TIMING_SENSOR_TMPL ) )
       || d->name().name() == DDD_CTPPS_DIAMONDS_SEGMENT_NAME
       || d->name().name() == DDD_CTPPS_UFSD_SEGMENT_NAME
-      || d->name().name() == DDD_CTPPS_PIXELS_SENSOR_NAME ) {
-	  addSensor(d->geographicalID(), d);
-    }
+      || d->name().name() == DDD_CTPPS_PIXELS_SENSOR_NAME )
+      addSensor( d->geographicalID(), d );
 
     // check if it is a RP
     if ( d->name().name() == DDD_TOTEM_RP_RP_NAME
+      || d->name().name() == DDD_TOTEM_TIMING_RP_NAME
       || d->name().name() == DDD_CTPPS_DIAMONDS_RP_NAME
-      || d->name().name() == DDD_CTPPS_PIXELS_RP_NAME ) {
+      || d->name().name() == DDD_CTPPS_PIXELS_RP_NAME )
       addRP( d->geographicalID(), d );
-    }
-    
-    for ( unsigned int i = 0; i < d->components().size(); i++ )
-      buffer.emplace_back( d->components()[i] );
+
+    for ( const auto& comp : d->components() )
+      buffer.emplace_back( comp );
   }
 
   // build sets

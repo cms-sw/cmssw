@@ -2,6 +2,7 @@
 
 namespace hcaldqm
 {
+	using namespace constants;
 	namespace quantity
 	{
 		int getValue_FED(HcalElectronicsId const& eid)
@@ -465,11 +466,10 @@ namespace hcaldqm
 		{
 			std::vector<std::string> labels;
 			char name[10];
-			for (int i=0; i<CRATE_TOTAL_NUM; i++)
-			{
-				HcalElectronicsId eid = getEid_Crate(i);
+			for (auto& it_crate : hcaldqm::constants::crateList) {
+				HcalElectronicsId eid = getEid_Crate(it_crate);
 				sprintf(name, "%d%c",
-					eid.crateId(), eid.isVMEid()?'v':'u');
+					it_crate, eid.isVMEid()?'v':'u');
 				labels.push_back(std::string(name));
 			}
 			return labels;
@@ -479,11 +479,8 @@ namespace hcaldqm
 		{
 			std::vector<std::string> labels;
 			char name[10];
-			for (int i=0; i<CRATE_VME_NUM; i++)
-			{
-				HcalElectronicsId eid = getEid_CrateVME(i);
-				sprintf(name, "%dv",
-					eid.crateId());
+			for (auto& it_crate : hcaldqm::constants::crateListVME) {
+				sprintf(name, "%dv", it_crate);
 				labels.push_back(std::string(name));
 			}
 			return labels;
@@ -493,11 +490,8 @@ namespace hcaldqm
 		{
 			std::vector<std::string> labels;
 			char name[10];
-			for (int i=0; i<CRATE_uTCA_NUM; i++)
-			{
-				HcalElectronicsId eid = getEid_CrateuTCA(i);
-				sprintf(name, "%du",
-					eid.crateId());
+			for (auto& it_crate : hcaldqm::constants::crateListuTCA) {
+				sprintf(name, "%du", it_crate);
 				labels.push_back(std::string(name));
 			}
 			return labels;

@@ -43,6 +43,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -62,7 +63,7 @@ class MuonGmtPair;
 
 class L1TMuonDQMOffline : public DQMEDAnalyzer {
     public:
-        enum Control {kCtrlTagPt, kCtrlTagEta, kCtrlTagPhi, kCtrlProbePt, kCtrlProbeEta, kCtrlProbePhi, kCtrlTagProbeDr, kCtrlMuonGmtDeltaR, kCtrlNTightVsAll, kCtrlNProbesVsTight};
+        enum Control {kCtrlTagPt, kCtrlTagEta, kCtrlTagPhi, kCtrlProbePt, kCtrlProbeEta, kCtrlProbePhi, kCtrlTagProbeDr, kCtrlTagHltDr, kCtrlMuonGmtDeltaR, kCtrlNTightVsAll, kCtrlNProbesVsTight};
         enum EffType {kEffPt, kEffPhi, kEffEta, kEffVtx};
         enum ResType {kResPt, kRes1OverPt, kResQOverPt, kResPhi, kResEta, kResCh};
         enum EtaRegion {kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf, kEtaRegionOut};
@@ -85,7 +86,7 @@ class L1TMuonDQMOffline : public DQMEDAnalyzer {
         // Helper Functions
         const unsigned int getNVertices(edm::Handle<reco::VertexCollection> & vertex);
         const reco::Vertex getPrimaryVertex(edm::Handle<reco::VertexCollection> & vertex,edm::Handle<reco::BeamSpot> & beamSpot);
-        bool matchHlt(edm::Handle<trigger::TriggerEvent>  & triggerEvent, const reco::Muon * mu);
+        double matchHlt(edm::Handle<trigger::TriggerEvent>  & triggerEvent, const reco::Muon * mu);
 
         // Cut and Matching
         void getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection> & gmtCands);

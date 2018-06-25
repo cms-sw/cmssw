@@ -16,11 +16,11 @@ EndCapParamsHelper *  EndCapParamsHelper::readAndWriteFromEventSetup(const L1TMu
 }
 
 EndCapParamsHelper::EndCapParamsHelper(L1TMuonEndCapParams * w) {
-  write_ = w; 
-  check_write(); 
+  write_ = w;
+  check_write();
   we_own_write_ = false;
-  //write_->m_version = VERSION; 
-  read_ = write_; 
+  //write_->m_version = VERSION;
+  read_ = write_;
 }
 
 EndCapParamsHelper::EndCapParamsHelper(const L1TMuonEndCapParams * es) {read_ = es; write_=nullptr;}

@@ -27,8 +27,8 @@ struct Event
     int Quality;
 
     static int sortingIndex;
-    int id;    
-    std::vector<double> data;         
+    int id;
+    std::vector<double> data;
 
     bool operator< (const Event &rhs) const
     {
@@ -45,9 +45,9 @@ struct Event
             std::cout << "x"<< i << "=" << data[i] << ", ";
         }
         std::cout << std::endl;
-     
+
     }
-  
+
     void resetPredictedValue(){ predictedValue = 0; }
 };
 

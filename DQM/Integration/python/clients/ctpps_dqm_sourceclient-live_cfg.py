@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("DQM")
+process = cms.Process('CTPPSDQM', eras.Run2_2018)
 
 test = False
 

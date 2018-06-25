@@ -79,7 +79,6 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.dtunpacker.fedbyType = cms.bool(False)
     process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
     process.dtunpacker.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")

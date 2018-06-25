@@ -25,8 +25,14 @@ private:
   edm::InputTag inputTag_;          // input tag identifying product containing pixel clusters
   unsigned int  min_clusters_;      // minimum number of clusters
   unsigned int  max_clusters_;      // maximum number of clusters
-  unsigned int  min_layers_;      // minimum number of clusters
-  unsigned int  max_layers_;      // maximum number of clusters
+  unsigned int  min_clustersBPix_;      // minimum number of clusters
+  unsigned int  max_clustersBPix_;      // maximum number of clusters
+  unsigned int  min_clustersFPix_;      // minimum number of clusters
+  unsigned int  max_clustersFPix_;      // maximum number of clusters
+  unsigned int  min_layersBPix_;      // minimum number of clusters
+  unsigned int  max_layersBPix_;      // maximum number of clusters
+  unsigned int  min_layersFPix_;      // minimum number of clusters
+  unsigned int  max_layersFPix_;      // maximum number of clusters
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > inputToken_;
 
 };
@@ -45,18 +51,29 @@ HLTPixelActivityFilter::HLTPixelActivityFilter(const edm::ParameterSet& config) 
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
   min_clusters_ (config.getParameter<unsigned int>("minClusters")),
   max_clusters_ (config.getParameter<unsigned int>("maxClusters")),
-  min_layers_ (config.getParameter<unsigned int>("minLayers")),
-  max_layers_ (config.getParameter<unsigned int>("maxLayers"))
+  min_clustersBPix_ (config.getParameter<unsigned int>("minClustersBPix")),
+  max_clustersBPix_ (config.getParameter<unsigned int>("maxClustersBPix")),
+  min_clustersFPix_ (config.getParameter<unsigned int>("minClustersFPix")),
+  max_clustersFPix_ (config.getParameter<unsigned int>("maxClustersFPix")),
+  min_layersBPix_ (config.getParameter<unsigned int>("minLayersBPix")),
+  max_layersBPix_ (config.getParameter<unsigned int>("maxLayersBPix")),
+  min_layersFPix_ (config.getParameter<unsigned int>("minLayersFPix")),
+  max_layersFPix_ (config.getParameter<unsigned int>("maxLayersFPix"))
 {
   inputToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(inputTag_);
   LogDebug("") << "Using the " << inputTag_ << " input collection";
   LogDebug("") << "Requesting at least " << min_clusters_ << " clusters";
   if(max_clusters_ > 0)
     LogDebug("") << "...but no more than " << max_clusters_ << " clusters";
-  if(min_layers_ > 0)
-    LogDebug("") << "Also requesting at least " << min_layers_ << " layers with clusters";
-  if(max_layers_ > 0)
-    LogDebug("") << "...but no more than " << max_layers_ << " layers with clusters";
+  if(min_layersBPix_ > 0)
+    LogDebug("") << "Also requesting at least " << min_layersBPix_ << " layers with clusters in BPix";
+  if(max_layersBPix_ > 0)
+    LogDebug("") << "...but no more than " << max_layersBPix_ << " layers with clusters in BPix";
+  if(min_layersFPix_ > 0)
+    LogDebug("") << "Also requesting at least " << min_layersFPix_ << " layers with clusters in FPix";
+  if(max_layersFPix_ > 0)
+    LogDebug("") << "...but no more than " << max_layersFPix_ << " layers with clusters in FPix";
+
 
 }
 
@@ -69,9 +86,16 @@ HLTPixelActivityFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltSiPixelClusters"));
   desc.add<unsigned int>("minClusters",3);
   desc.add<unsigned int>("maxClusters",0);
-  desc.add<unsigned int>("minLayers",0);
-  desc.add<unsigned int>("maxLayers",0);
+  desc.add<unsigned int>("minClustersBPix",0);
+  desc.add<unsigned int>("maxClustersBPix",0);
+  desc.add<unsigned int>("minClustersFPix",0);
+  desc.add<unsigned int>("maxClustersFPix",0);
+  desc.add<unsigned int>("minLayersBPix",0);
+  desc.add<unsigned int>("maxLayersBPix",0);
+  desc.add<unsigned int>("minLayersFPix",0);
+  desc.add<unsigned int>("maxLayersFPix",0);
   descriptions.add("hltPixelActivityFilter",desc);
+
 }
 
 //
@@ -96,13 +120,15 @@ bool HLTPixelActivityFilter::hltFilter(edm::Event& event, const edm::EventSetup&
   bool accept = (clusterSize >= min_clusters_);
   if(max_clusters_ > 0)
     accept &= (clusterSize <= max_clusters_);
-
-  if (min_layers_ > 0 || max_layers_ > 0){
+  if (min_layersBPix_ > 0 || max_layersBPix_ > 0 || min_layersFPix_ > 0 || max_layersFPix_ > 0 || min_clustersBPix_ > 0 || max_clustersBPix_ > 0 || min_clustersFPix_ > 0 || max_clustersFPix_ > 0){
 
 	  edm::ESHandle<TrackerTopology> tTopoHandle;
 	  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	  const TrackerTopology& tTopo = *tTopoHandle;
-	  unsigned int layerCount = 0;
+	  unsigned int layerCountBPix = 0;
+	  unsigned int layerCountFPix = 0;
+	  unsigned int clusterCountBPix = 0;
+	  unsigned int clusterCountFPix = 0;
 	  const edmNew::DetSetVector<SiPixelCluster>& clusters = *clusterColl;
 	    
 	  edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=clusters.begin();
@@ -118,8 +144,10 @@ bool HLTPixelActivityFilter::hltFilter(edm::Event& event, const edm::EventSetup&
 		const auto subdet = detIdObject.subdetId();
 		if (subdet == PixelSubdetector::PixelBarrel){
 			if(!(std::find(foundLayersB.begin(), foundLayersB.end(), tTopo.layer(detIdObject)) != foundLayersB.end()) && nCluster > 0) foundLayersB.push_back(tTopo.layer(detIdObject));
+			clusterCountBPix += nCluster;
 		}
 		else if (subdet ==PixelSubdetector::PixelEndcap){
+			clusterCountFPix += nCluster;
 			if (tTopo.side(detIdObject) == 2){
 				if(!(std::find(foundLayersEp.begin(), foundLayersEp.end(), tTopo.layer(detIdObject)) != foundLayersEp.end()) && nCluster > 0) foundLayersEp.push_back(tTopo.layer(detIdObject));
 			}
@@ -129,10 +157,16 @@ bool HLTPixelActivityFilter::hltFilter(edm::Event& event, const edm::EventSetup&
 
 		}
 	  }
-	  layerCount = foundLayersB.size()+foundLayersEp.size()+foundLayersEm.size();
-	  if (max_layers_ > 0) accept &= (layerCount <= max_layers_);
-	  if (min_layers_ > 0) accept &= (layerCount >= min_layers_);
-
+	  layerCountBPix = foundLayersB.size();
+	  layerCountFPix = foundLayersEp.size()+foundLayersEm.size();
+	  if (max_layersBPix_ > 0) accept &= (layerCountBPix <= max_layersBPix_);
+	  if (min_layersBPix_ > 0) accept &= (layerCountBPix >= min_layersBPix_);
+	  if (max_layersFPix_ > 0) accept &= (layerCountFPix <= max_layersFPix_);
+	  if (min_layersFPix_ > 0) accept &= (layerCountFPix >= min_layersFPix_);
+	  if (min_clustersBPix_ > 0) accept &= (clusterCountBPix >= min_clustersBPix_);
+	  if (max_clustersBPix_ > 0) accept &= (clusterCountBPix <= max_clustersBPix_);
+	  if (min_clustersFPix_ > 0) accept &= (clusterCountFPix >= min_clustersFPix_);
+	  if (max_clustersFPix_ > 0) accept &= (clusterCountFPix <= max_clustersFPix_);
 
   }
   // return with final filter decision

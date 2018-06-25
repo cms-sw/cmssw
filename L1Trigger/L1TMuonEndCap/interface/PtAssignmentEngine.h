@@ -21,14 +21,16 @@ public:
 
   typedef uint64_t address_t;
 
-  void read(const std::string& xml_dir);
-  void load(const L1TMuonEndCapForest *payload);
+  void read(int pt_lut_version, const std::string& xml_dir);
+  void load(int pt_lut_version, const L1TMuonEndCapForest *payload);
   const std::array<emtf::Forest, 16>& getForests(void) const { return forests_; }
   const std::vector<int>& getAllowedModes(void) const { return allowedModes_; }
 
+  int get_pt_lut_version() const { return ptLUTVersion_; }
+
   void configure(
       int verbose,
-      int ptLUTVersion, bool readPtLUTFile, bool fixMode15HighPt,
+      bool readPtLUTFile, bool fixMode15HighPt,
       bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt
   );
 
@@ -48,9 +50,6 @@ public:
   virtual float calculate_pt_xml(const address_t& address) const { return 0.; }
   virtual float calculate_pt_xml(const EMTFTrack& track) const { return 0.; }
 
-  inline int  readPtLUTFile() { return readPtLUTFile_; }
-  inline void set_ptLUTVersion( int ptLUTVersion ) { ptLUTVersion_ = ptLUTVersion; }
-
 protected:
   std::vector<int> allowedModes_;
   std::array<emtf::Forest, 16> forests_;
@@ -58,7 +57,7 @@ protected:
 
   int verbose_;
 
-  int ptLUTVersion_;
+  int ptLUTVersion_;  // init: 0xFFFFFFFF
   bool readPtLUTFile_, fixMode15HighPt_;
   bool bug9BitDPhi_, bugMode7CLCT_, bugNegPt_;
 };

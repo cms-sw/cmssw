@@ -72,6 +72,7 @@ l1tdeStage2uGMT = DQMEDAnalyzer(
     muonCollection2Title = cms.untracked.string("uGMT emulator"),
     summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT emulator muons"),
     verbose = cms.untracked.bool(False),
+    enable2DComp = cms.untracked.bool(True), # When true eta-phi comparison plots are also produced 
 )
 
 # compares the unpacked uGMT intermediate muon collection to the emulated uGMT intermediate muon collection

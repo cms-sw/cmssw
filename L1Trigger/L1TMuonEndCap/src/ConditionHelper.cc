@@ -17,7 +17,7 @@ ConditionHelper::ConditionHelper():
 ConditionHelper::~ConditionHelper() {
 }
 
-bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   bool new_params = false;
   bool new_forests = false;
@@ -48,12 +48,14 @@ bool ConditionHelper::checkAndUpdateConditions(const edm::Event& iEvent, const e
     new_forests = true;
   }
 
-  // // Debug
-  // std::cout << "Run number: " << iEvent.id().run() << " fw_version: " << get_fw_version()
-  //    << " pt_lut_version: " << get_pt_lut_version() << " pc_lut_version: " << get_pc_lut_version()
-  //    << std::endl;
+  bool new_conditions = (new_params || new_forests);
+  if (new_conditions) {
+    edm::LogInfo("L1T") << "EMTF updating conditions: pc_lut_ver: " << get_pc_lut_version() << " pt_lut_ver: " << get_pt_lut_version() << " fw_ver: " << get_fw_version();
+  }
 
-  return (new_params || new_forests);
+  // Debug
+  //edm::LogWarning("L1T") << "EMTF new conditions? Yes (1) or no (0)? -- " << new_conditions << std::endl;
+  //edm::LogWarning("L1T") << "EMTF updating conditions: pc_lut_ver: " << get_pc_lut_version() << " pt_lut_ver: " << get_pt_lut_version() << " fw_ver: " << get_fw_version();
 }
 
 unsigned int ConditionHelper::get_fw_version() const {
@@ -64,16 +66,20 @@ unsigned int ConditionHelper::get_fw_version() const {
 unsigned int ConditionHelper::get_pt_lut_version() const {
   // std::cout << "    - Getting pT LUT version from ConditionHelper: version = " << (params_->PtAssignVersion_ & 0xff);
   // std::cout << " (lowest bits of " << params_->PtAssignVersion_ << ")" << std::endl;
+  if (params_->firmwareVersion_ < 50000)  // for 2016
+    return 5;
   return (params_->PtAssignVersion_ & 0xff);  // Version indicated by first two bytes
 }
 
 unsigned int ConditionHelper::get_pc_lut_version() const {
   // "PhiMatchWindowSt1" arbitrarily re-mapped to Primitive conversion (PC LUT) version
   // because of rigid CondFormats naming conventions - AWB 02.06.17
-  // std::cout << "    - Getting PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
+  // std::cout << "    - Getting proper PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
   // return params_->PhiMatchWindowSt1_;
 
   // Hack until we figure out why the database is returning "0" for 2017 data - AWB 04.08.17
-  // std::cout << "    - Getting PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
-  return (params_->firmwareVersion_ >= 50000);
+  // std::cout << "    - Getting hacked PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
+  if (params_->firmwareVersion_ < 50000)  // for 2016
+    return 0;
+  return 1;
 }

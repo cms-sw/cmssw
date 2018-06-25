@@ -18,26 +18,24 @@
 
 namespace hcaldqm
 {
-	using namespace quantity;
-	using namespace mapper;
 	class ContainerProf1D : public Container1D
 	{
 		public:
 			ContainerProf1D();
 			ContainerProf1D(std::string const& folder, 
 				hashfunctions::HashType, 
-				Quantity *, Quantity*);
+				quantity::Quantity *, quantity::Quantity*);
 			~ContainerProf1D() override {}
 
 			void initialize(std::string const& folder, 
 				hashfunctions::HashType, 
-				Quantity*, Quantity*,
+				quantity::Quantity*, quantity::Quantity*,
 				int debug=0) override;
 
 			void initialize(std::string const& folder, 
 				std::string const& qname,
 				hashfunctions::HashType, 
-				Quantity*, Quantity*,
+				quantity::Quantity*, quantity::Quantity*,
 				int debug=0) override;
 
 			//	booking

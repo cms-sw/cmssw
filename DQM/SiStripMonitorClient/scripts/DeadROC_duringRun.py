@@ -168,8 +168,8 @@ def FPIX_list(inputFile):
 
                 pnl=0
 
-                if ((j-1)%4==0 or (j-1)%4==1): pnl=1
-                if ((j-1)%4==2 or (j-1)%4==3): pnl=2
+                if ((j-1)%4==0 or (j-1)%4==1): pnl=2
+                if ((j-1)%4==2 or (j-1)%4==3): pnl=1
 
                 if (disk < 0 and bld <0):
 

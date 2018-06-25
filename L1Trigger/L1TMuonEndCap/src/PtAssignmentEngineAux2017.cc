@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cmath>
 
-// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLutVarCalc.cc
+// From here down, exact copy of code used for training BDT: EMTFPtAssign2017/src/PtLUTVarCalc.cc
 
 
 // Arrays that map the integer dPhi --> dPhi-units. 1/60th of a degree per unit; 255 units --> 4.25 degrees, 511 --> 8.52 degrees
@@ -14,18 +14,18 @@
 static const int dPhiNLBMap_4bit_256Max[16] = {0, 1, 2, 3, 4, 6, 8, 10, 12, 16, 20, 25, 31, 46, 68, 136};
 
 // For use in dPhi23, dPhi24, and dPhi34 in 3- and 4-station modes (7, 11, 13, 14, 15), except for dPhi23 in mode 7 and dPhi34 in mode 15
-static const int dPhiNLBMap_5bit_256Max[32] = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 
-					       16, 17, 19, 20, 21, 23, 25, 28, 31, 34, 39, 46, 55, 68, 91, 136};
+static const int dPhiNLBMap_5bit_256Max[32] = { 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15,
+                                               16, 17, 19, 20, 21, 23, 25, 28, 31, 34, 39, 46, 55, 68, 91, 136};
 // 512 max units----
 // For use in all dPhiAB (where "A" and "B" are the first two stations in the track) in all modes
-static const int dPhiNLBMap_7bit_512Max[128] =  {  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15, 
-						  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31, 
-						  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47, 
-						  48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63, 
-						  64,  65,  66,  67,  68,  69,  71,  72,  73,  74,  75,  76,  77,  79,  80,  81, 
-						  83,  84,  86,  87,  89,  91,  92,  94,  96,  98, 100, 102, 105, 107, 110, 112, 
-						 115, 118, 121, 124, 127, 131, 135, 138, 143, 147, 152, 157, 162, 168, 174, 181, 
-						 188, 196, 204, 214, 224, 235, 247, 261, 276, 294, 313, 336, 361, 391, 427, 470};
+static const int dPhiNLBMap_7bit_512Max[128] =  {  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,
+                                                  16,  17,  18,  19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,
+                                                  32,  33,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
+                                                  48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  58,  59,  60,  61,  62,  63,
+                                                  64,  65,  66,  67,  68,  69,  71,  72,  73,  74,  75,  76,  77,  79,  80,  81,
+                                                  83,  84,  86,  87,  89,  91,  92,  94,  96,  98, 100, 102, 105, 107, 110, 112,
+                                                 115, 118, 121, 124, 127, 131, 135, 138, 143, 147, 152, 157, 162, 168, 174, 181,
+                                                 188, 196, 204, 214, 224, 235, 247, 261, 276, 294, 313, 336, 361, 391, 427, 470};
 
 
 int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
@@ -44,8 +44,8 @@ int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
     if (bits == 4) {
       dPhi_ = dPhiNLBMap_4bit_256Max[(1 << bits) - 1];
       for (int edge = 0; edge < (1 << bits) - 1; edge++) {
-        if (dPhiNLBMap_4bit_256Max[edge]  <= dPhi && 
-	    dPhiNLBMap_4bit_256Max[edge+1] > dPhi) {
+        if (dPhiNLBMap_4bit_256Max[edge]  <= dPhi &&
+            dPhiNLBMap_4bit_256Max[edge+1] > dPhi) {
           dPhi_ = dPhiNLBMap_4bit_256Max[edge];
           break;
         }
@@ -54,8 +54,8 @@ int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
     if (bits == 5) {
       dPhi_ = dPhiNLBMap_5bit_256Max[(1 << bits) - 1];
       for (int edge = 0; edge < (1 << bits) - 1; edge++) {
-        if (dPhiNLBMap_5bit_256Max[edge]  <= dPhi && 
-	    dPhiNLBMap_5bit_256Max[edge+1] > dPhi) {
+        if (dPhiNLBMap_5bit_256Max[edge]  <= dPhi &&
+            dPhiNLBMap_5bit_256Max[edge+1] > dPhi) {
           dPhi_ = dPhiNLBMap_5bit_256Max[edge];
           break;
         }
@@ -67,8 +67,8 @@ int PtAssignmentEngineAux2017::getNLBdPhi(int dPhi, int bits, int max) const {
     if (bits == 7) {
       dPhi_ = dPhiNLBMap_7bit_512Max[(1 << bits) - 1];
       for (int edge = 0; edge < (1 << bits) - 1; edge++) {
-        if (dPhiNLBMap_7bit_512Max[edge]  <= dPhi && 
-	    dPhiNLBMap_7bit_512Max[edge+1] > dPhi) {
+        if (dPhiNLBMap_7bit_512Max[edge]  <= dPhi &&
+            dPhiNLBMap_7bit_512Max[edge+1] > dPhi) {
           dPhi_ = dPhiNLBMap_7bit_512Max[edge];
           break;
         }
@@ -93,12 +93,12 @@ int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const 
   if (dPhi < 0)
     sign_ = -1;
   dPhi = sign_ * dPhi;
-  
+
   if (max == 256) {
     if (bits == 4) {
       for (int edge = 0; edge < (1 << bits) - 1; edge++) {
-        if (dPhiNLBMap_4bit_256Max[edge] <= dPhi && 
-	    dPhiNLBMap_4bit_256Max[edge+1] > dPhi) {
+        if (dPhiNLBMap_4bit_256Max[edge] <= dPhi &&
+            dPhiNLBMap_4bit_256Max[edge+1] > dPhi) {
           dPhiBin_ = edge;
           break;
         }
@@ -106,27 +106,27 @@ int PtAssignmentEngineAux2017::getNLBdPhiBin(int dPhi, int bits, int max) const 
     } // End conditional: if (bits == 4)
     if (bits == 5) {
       for (int edge = 0; edge < (1 << bits) - 1; edge++) {
-        if (dPhiNLBMap_5bit_256Max[edge]  <= dPhi && 
-	    dPhiNLBMap_5bit_256Max[edge+1] > dPhi) {
+        if (dPhiNLBMap_5bit_256Max[edge]  <= dPhi &&
+            dPhiNLBMap_5bit_256Max[edge+1] > dPhi) {
           dPhiBin_ = edge;
           break;
         }
       }
-    } // End conditional: if (bits == 5) 
+    } // End conditional: if (bits == 5)
   } // End conditional: if (max == 256)
 
   else if (max == 512) {
     if (bits == 7) {
       for (int edge = 0; edge < (1 << bits) - 1; edge++) {
-        if (dPhiNLBMap_7bit_512Max[edge]  <= dPhi && 
-	    dPhiNLBMap_7bit_512Max[edge+1] > dPhi) {
+        if (dPhiNLBMap_7bit_512Max[edge]  <= dPhi &&
+            dPhiNLBMap_7bit_512Max[edge+1] > dPhi) {
           dPhiBin_ = edge;
           break;
         }
       }
     } // End conditional: if (bits == 7)
   } // End conditional: else if (max == 512)
-  
+
   if (not(dPhiBin_ >= 0 && dPhiBin_ < pow(2, bits)))
     { edm::LogError("L1T") << "dPhiBin_ = " << dPhiBin_ << ", bits = " << bits; return 0; }
   return (dPhiBin_);
@@ -143,7 +143,7 @@ int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) co
 
   if (dPhiBin > (1 << bits) - 1)
     dPhiBin = (1 << bits) - 1;
-  
+
   if (max == 256) {
     if (bits == 4)
       dPhi_ = dPhiNLBMap_4bit_256Max[dPhiBin];
@@ -164,8 +164,8 @@ int PtAssignmentEngineAux2017::getdPhiFromBin(int dPhiBin, int bits, int max) co
 
 int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int bits) const {
 
-  // std::cout << "Inside getCLCT: clct = " << clct << ", endcap = " << endcap 
-  // 	    << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
+  // std::cout << "Inside getCLCT: clct = " << clct << ", endcap = " << endcap
+  //             << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
 
   if (not( clct >= 0 && clct <= 10 && abs(endcap) == 1 && 
 	   abs(dPhiSign) == 1 && (bits == 2 || bits == 3) ))
@@ -179,7 +179,7 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
   // CLCT pattern can be converted into |bend| x sign as follows:
   // |bend| = (10 + (pattern % 2) - pattern) / 2
   //   * 10 --> 0, 9/8 --> 1, 7/6 --> 2, 5/4 --> 3, 3/2 --> 4, 0 indicates RPC hit
-  //  sign  = ((pattern % 2) == 1 ? -1 : 1) * (endcap == 1 ? -1 : 1)   
+  //  sign  = ((pattern % 2) == 1 ? -1 : 1) * (endcap == 1 ? -1 : 1)
   //   * In ME+, even CLCTs have negative sign, odd CLCTs have positive
 
   // For use in all 3- and 4-station modes (7, 11, 13, 14, 15)
@@ -230,8 +230,8 @@ int PtAssignmentEngineAux2017::getCLCT(int clct, int endcap, int dPhiSign, int b
 
 int PtAssignmentEngineAux2017::unpackCLCT(int clct, int endcap, int dPhiSign, int bits) const {
 
-  // std::cout << "Inside unpackCLCT: clct = " << clct << ", endcap = " << endcap 
-  // 	    << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
+  // std::cout << "Inside unpackCLCT: clct = " << clct << ", endcap = " << endcap
+  //             << ", dPhiSign = " << dPhiSign << ", bits = " << bits << std::endl;
 
   if (not(bits == 2 || bits == 3))
   { edm::LogError("L1T") << "bits = " << bits; return 0; }
@@ -251,7 +251,7 @@ int PtAssignmentEngineAux2017::unpackCLCT(int clct, int endcap, int dPhiSign, in
     case 3: clct_ = (sign_ > 0 ? 4 : 5); break;
     case 0: clct_ =  0;                  break;
     default: break;
-    } 
+    }
   } else if (bits == 3) {
     switch (clct) {
     case 4: clct_ = 10;                  break;
@@ -344,7 +344,7 @@ int PtAssignmentEngineAux2017::unpackdTheta(int dTheta, int bits) const {
     default: break;
     }
   }
-  
+
   if (not(dTheta_ >= -4 && dTheta_ <= 3))
     { edm::LogError("L1T") << "dTheta_ = " << dTheta_; return 0; }
   return (dTheta_);
@@ -365,14 +365,14 @@ int PtAssignmentEngineAux2017::getTheta(int theta, int st1_ring2, int bits) cons
     if (st1_ring2 == 0) {
       // Should rarely fail ... should change to using ME1 for track theta - AWB 05.06.17
       if (theta > 52) {
-	// std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/1 LCT and track theta = " << theta << std::endl;
-      }     
+        // std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/1 LCT and track theta = " << theta << std::endl;
+      }
       theta_ = (std::min( std::max(theta, 5), 52) - 5) / 6;
     }
     else if (st1_ring2 == 1) {
       // Should rarely fail ... should change to using ME1 for track theta - AWB 05.06.17
       if (theta < 46 || theta > 87) {
-	// std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/2 LCT and track theta = " << theta << std::endl;
+        // std::cout << "\n\n*** Bizzare case of mode 15 track with ME1/2 LCT and track theta = " << theta << std::endl;
       }
       theta_ = ((std::min( std::max(theta, 46), 87) - 46) / 7) + 8;
     }
@@ -447,10 +447,10 @@ int PtAssignmentEngineAux2017::get2bRPC(int clctA, int clctB, int clctC) const {
 
   int rpc_2b = -99;
 
-  if      (clctA == 0) rpc_2b = 0; 
-  else if (clctC == 0) rpc_2b = 1; 
-  else if (clctB == 0) rpc_2b = 2; 
-  else                 rpc_2b = 3; 
+  if      (clctA == 0) rpc_2b = 0;
+  else if (clctC == 0) rpc_2b = 1;
+  else if (clctB == 0) rpc_2b = 2;
+  else                 rpc_2b = 3;
 
   if (not(rpc_2b >= 0 && rpc_2b < 4))
   { edm::LogError("L1T") << "rpc_2b = " << rpc_2b; return 0; }
@@ -473,10 +473,10 @@ void PtAssignmentEngineAux2017::unpack2bRPC(int rpc_2b, int& rpcA, int& rpcB, in
 
 
 int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap, int sPhiAB,
-					   int clctA, int clctB, int clctC, int clctD) const {
+                                           int clctA, int clctB, int clctC, int clctD) const {
 
-  // std::cout << "Inside get8bMode15, theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB 
-  // 	    << ", clctA = " << clctA << ", clctB = " << clctB << ", clctC = " << clctC << ", clctD = " << clctD << std::endl;
+  // std::cout << "Inside get8bMode15, theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB
+  //             << ", clctA = " << clctA << ", clctB = " << clctB << ", clctC = " << clctC << ", clctD = " << clctD << std::endl;
 
   if (st1_ring2) theta = (std::min( std::max(theta, 46), 87) - 46) / 7;
   else           theta = (std::min( std::max(theta,  5), 52) -  5) / 6;
@@ -484,28 +484,28 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
     { edm::LogError("L1T") << "theta = " << theta; return 0; }
   
   int clctA_2b = getCLCT(clctA, endcap, sPhiAB, 2);
-  
+
   int nRPC = (clctA == 0) + (clctB == 0) + (clctC == 0) + (clctD == 0);
   int rpc_word, rpc_clct, mode15_8b;
 
   if (st1_ring2) {
-    if      (nRPC >= 2 && clctA == 0 && clctB == 0) rpc_word =  0; 
-    else if (nRPC >= 2 && clctA == 0 && clctC == 0) rpc_word =  1; 
-    else if (nRPC >= 2 && clctA == 0 && clctD == 0) rpc_word =  2; 
-    else if (nRPC == 1 && clctA == 0              ) rpc_word =  3; 
-    else if (nRPC >= 2 && clctD == 0 && clctB == 0) rpc_word =  4; 
-    else if (nRPC >= 2 && clctD == 0 && clctC == 0) rpc_word =  8; 
-    else if (nRPC >= 2 && clctB == 0 && clctC == 0) rpc_word = 12; 
-    else if (nRPC == 1 && clctD == 0              ) rpc_word = 16; 
-    else if (nRPC == 1 && clctB == 0              ) rpc_word = 20; 
-    else if (nRPC == 1 && clctC == 0              ) rpc_word = 24; 
+    if      (nRPC >= 2 && clctA == 0 && clctB == 0) rpc_word =  0;
+    else if (nRPC >= 2 && clctA == 0 && clctC == 0) rpc_word =  1;
+    else if (nRPC >= 2 && clctA == 0 && clctD == 0) rpc_word =  2;
+    else if (nRPC == 1 && clctA == 0              ) rpc_word =  3;
+    else if (nRPC >= 2 && clctD == 0 && clctB == 0) rpc_word =  4;
+    else if (nRPC >= 2 && clctD == 0 && clctC == 0) rpc_word =  8;
+    else if (nRPC >= 2 && clctB == 0 && clctC == 0) rpc_word = 12;
+    else if (nRPC == 1 && clctD == 0              ) rpc_word = 16;
+    else if (nRPC == 1 && clctB == 0              ) rpc_word = 20;
+    else if (nRPC == 1 && clctC == 0              ) rpc_word = 24;
     else                                            rpc_word = 28;
     rpc_clct  = rpc_word + clctA_2b;
     mode15_8b = (theta*32) + rpc_clct + 64;
   } else {
-    if      (theta >= 4 && clctD == 0) rpc_word = 0; 
-    else if (theta >= 4 && clctC == 0) rpc_word = 1;             
-    else if (theta >= 4              ) rpc_word = 2;             
+    if      (theta >= 4 && clctD == 0) rpc_word = 0;
+    else if (theta >= 4 && clctC == 0) rpc_word = 1;
+    else if (theta >= 4              ) rpc_word = 2;
     else                               rpc_word = 3;
     rpc_clct  = rpc_word*4 + clctA_2b;
     mode15_8b = ((theta % 4)*16) + rpc_clct;
@@ -520,13 +520,13 @@ int PtAssignmentEngineAux2017::get8bMode15(int theta, int st1_ring2, int endcap,
 } // End function: int PtAssignmentEngineAux2017::get8bMode15()
 
 
-void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& st1_ring2, int endcap, int sPhiAB, 
-						int& clctA, int& rpcA, int& rpcB, int& rpcC, int& rpcD) const {
+void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& st1_ring2, int endcap, int sPhiAB,
+                                                int& clctA, int& rpcA, int& rpcB, int& rpcC, int& rpcD) const {
 
-  // std::cout << "Inside unpack8bMode15, mode15_8b = " << mode15_8b << ", theta = " << theta 
-  // 	    << ", st1_ring2 = " << st1_ring2  << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB << ", clctA = " << clctA 
-  // 	    << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
-  
+  // std::cout << "Inside unpack8bMode15, mode15_8b = " << mode15_8b << ", theta = " << theta
+  //             << ", st1_ring2 = " << st1_ring2  << ", endcap = " << endcap << ", sPhiAB = " << sPhiAB << ", clctA = " << clctA
+  //             << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
+
   if (not(mode15_8b >= 0 && mode15_8b < pow(2, 8)))
     { edm::LogError("L1T") << "mode15_8b = " << mode15_8b; return; }
   if (not(abs(endcap) == 1 && abs(sPhiAB) == 1))
@@ -542,7 +542,7 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
   if (st1_ring2) {
 
     rpc_clct = (mode15_8b % 32);
-    theta    = (mode15_8b - 64 - rpc_clct) / 32; 
+    theta    = (mode15_8b - 64 - rpc_clct) / 32;
     theta   += 8;
 
     if (rpc_clct < 4) clctA_2b = 0;
@@ -587,7 +587,7 @@ void PtAssignmentEngineAux2017::unpack8bMode15( int mode15_8b, int& theta, int& 
   }
 
   // std::cout << "  * Output theta = " << theta << ", st1_ring2 = " << st1_ring2 << ", clctA = " << clctA
-  // 	    << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
+  //             << ", rpcA = " << rpcA << ", rpcB = " << rpcB << ", rpcC = " << rpcC << ", rpcD = " << rpcD << std::endl;
 
   if (not(nRPC >= 0))
     { edm::LogError("L1T") << "nRPC = " << nRPC; return; }

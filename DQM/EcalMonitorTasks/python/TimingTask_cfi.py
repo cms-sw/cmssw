@@ -28,9 +28,11 @@ for i in range(50) :
 
 chi2ThresholdEE = 50.
 chi2ThresholdEB = 16.
-energyThresholdEE = 3.
-energyThresholdEB = 1.
-timingVsBXThreshold = 2.02
+energyThresholdEE = 4.6
+energyThresholdEEFwd = 6.7
+energyThresholdEB = 2.02
+timingVsBXThreshold = energyThresholdEB
+timeErrorThreshold = 3.
 timeWindow = 12.5
 summaryTimeWindow = 7.
 
@@ -41,8 +43,10 @@ ecalTimingTask = cms.untracked.PSet(
         chi2ThresholdEE = cms.untracked.double(chi2ThresholdEE),
         chi2ThresholdEB = cms.untracked.double(chi2ThresholdEB),
         energyThresholdEE = cms.untracked.double(energyThresholdEE),
+        energyThresholdEEFwd = cms.untracked.double(energyThresholdEEFwd),
         energyThresholdEB = cms.untracked.double(energyThresholdEB),
-        timingVsBXThreshold = cms.untracked.double(timingVsBXThreshold)
+        timingVsBXThreshold = cms.untracked.double(timingVsBXThreshold),
+        timeErrorThreshold = cms.untracked.double(timeErrorThreshold)
     ),
     MEs = cms.untracked.PSet(
         TimeMap = cms.untracked.PSet(
