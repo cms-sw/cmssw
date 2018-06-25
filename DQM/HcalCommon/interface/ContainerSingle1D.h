@@ -16,30 +16,29 @@
 
 namespace hcaldqm
 {
-	using namespace quantity;
 	class ContainerSingle1D : public Container
 	{
 		public:
 			ContainerSingle1D();
 			ContainerSingle1D(std::string const& folder, 
-				Quantity*,
-				Quantity *qy = new ValueQuantity(quantity::fN));
+				quantity::Quantity*,
+				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN));
 			ContainerSingle1D(std::string const& folder, 
 				std::string const&,
-				Quantity*,
-				Quantity *qy = new ValueQuantity(quantity::fN));
+				quantity::Quantity*,
+				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN));
 			ContainerSingle1D(ContainerSingle1D const&);
 			~ContainerSingle1D() override;
 			
 			virtual void initialize(std::string const& folder, 
-				Quantity*,
-				Quantity *qy = new ValueQuantity(quantity::fN),
+				quantity::Quantity*,
+				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN),
 				int debug=0);
 
 			virtual void initialize(std::string const& folder, 
 				std::string const&, 
-				Quantity*,
-				Quantity *qy = new ValueQuantity(quantity::fN),
+				quantity::Quantity*,
+				quantity::Quantity *qy = new quantity::ValueQuantity(quantity::fN),
 				int debug=0);
                         using Container::initialize;
 			//	booking
@@ -101,10 +100,13 @@ namespace hcaldqm
 
 			virtual void extendAxisRange(int);
 
+			virtual void showOverflowX(bool showOverflow);
+			virtual void showOverflowY(bool showOverflow);
+
 		protected:
 			MonitorElement				*_me;
-			Quantity					*_qx;
-			Quantity					*_qy;
+			quantity::Quantity					*_qx;
+			quantity::Quantity					*_qy;
 
 			virtual void customize();
 	};

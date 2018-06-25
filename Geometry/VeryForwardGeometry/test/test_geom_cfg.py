@@ -7,7 +7,7 @@ from FWCore.MessageLogger.MessageLogger_cfi import *
 process.load("Configuration.StandardSequences.GeometryExtended_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
-from Geometry.VeryForwardGeometry.geometryRP_cfi import XMLIdealGeometryESSource_CTPPS
+from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import XMLIdealGeometryESSource_CTPPS
 
 process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
 

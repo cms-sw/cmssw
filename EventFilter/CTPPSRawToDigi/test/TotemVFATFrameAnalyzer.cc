@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
@@ -80,7 +80,7 @@ void TotemVFATFrameAnalyzer::analyze(edm::StreamID, const edm::Event& event, con
   {
     const FEDRawData &data = rawData->FEDData(fedId);
     if (data.size() > 0)
-      rawDataUnpacker.Run(fedId, data, fedInfo, vfatCollection);
+      rawDataUnpacker.run(fedId, data, fedInfo, vfatCollection);
   }
 
   // print VFAT frames

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECODQM')
+from Configuration.StandardSequences.Eras import eras
+process = cms.Process('ctppsDQMfromRAW', eras.ctpps_2016)
 
 # minimum of logs
 process.MessageLogger = cms.Service("MessageLogger",
@@ -26,10 +27,13 @@ process.source = cms.Source("PoolSource",
     #'root://eostotem.cern.ch//eos/totem/user/j/jkaspar/04C8034A-9626-E611-9B6E-02163E011F93.root'
 
     # run 283877, fill 5442, 23 Oct 2016 (after TS2)
-    '/store/data/Run2016H/HLTPhysics/RAW/v1/000/283/877/00000/F28F8896-999B-E611-93D8-02163E013706.root',
+    #'/store/data/Run2016H/HLTPhysics/RAW/v1/000/283/877/00000/F28F8896-999B-E611-93D8-02163E013706.root',
 
     # test file for 2017 mapping (vertical RPs only)
     #'root://eostotem.cern.ch//eos/totem/data/ctpps/run290874.root'
+
+    # 900GeV test, 8 May 2018
+    '/store/data/Run2018A/Totem1/RAW/v1/000/315/956/00000/B2AB3BFA-8D53-E811-ACFA-FA163E63AE40.root'
   ),
   inputCommands = cms.untracked.vstring(
     'drop *',
@@ -41,11 +45,14 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(8000)
 )
 
+# global tag - conditions for P5 cluster
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
-process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
+process.load("RecoCTPPS.Configuration.recoCTPPS_DD_cff")
 
 # CTPPS DQM modules
 process.load("DQM.CTPPS.ctppsDQM_cff")

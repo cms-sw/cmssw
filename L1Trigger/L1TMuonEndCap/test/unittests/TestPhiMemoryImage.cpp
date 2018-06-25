@@ -110,7 +110,7 @@ void TestPhiMemoryImage::test_rotation()
       CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i-128)) | (word0 >> (192-i)));
     else
       CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0));
-    
+
     image.rotr(i);
 
     CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), word0);

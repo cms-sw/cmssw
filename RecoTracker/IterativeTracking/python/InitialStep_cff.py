@@ -29,6 +29,11 @@ initialStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSet 
 ))
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
 trackingPhase1.toModify(initialStepTrackingRegions, RegionPSet = dict(ptMin = 0.5))
+from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
+highBetaStar_2018.toModify(initialStepTrackingRegions,RegionPSet = dict(
+     ptMin = 0.05,
+     originRadius = 0.2
+))
 trackingPhase2PU140.toModify(initialStepTrackingRegions, RegionPSet = dict(ptMin = 0.6,originRadius = 0.03))
 
 # seeding
@@ -66,7 +71,12 @@ _initialStepCAHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     CAThetaCut = 0.0012,
     CAPhiCut = 0.2,
 )
+highBetaStar_2018.toModify(_initialStepCAHitQuadruplets,
+    CAThetaCut = 0.0024,
+    CAPhiCut = 0.4
+)
 initialStepHitQuadruplets = _initialStepCAHitQuadruplets.clone()
+
 trackingPhase1.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
 
 trackingPhase2PU140.toModify(initialStepHitDoublets, layerPairs = [0,1,2]) # layer pairs (0,1), (1,2), (2,3)
@@ -121,6 +131,7 @@ from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
     e.toModify(initialStepTrajectoryFilterBase, minPt=0.6)
+highBetaStar_2018.toModify(initialStepTrajectoryFilterBase, minPt = 0.05)
 
 initialStepTrajectoryFilterInOut = initialStepTrajectoryFilterBase.clone(
     minimumNumberOfHits = 4,

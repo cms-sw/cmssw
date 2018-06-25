@@ -13,6 +13,7 @@ ALCARECOSiStripCalMinBiasTrackingDQM = DQM.TrackingMonitor.TrackingMonitor_cfi.T
     AlgoName = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    MeasurementState = "default",
 # margins and settings
     TkSizeBin = 71,
     TkSizeMin = -0.5,

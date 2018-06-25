@@ -131,6 +131,7 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 ###############################################################
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdBeamSpotHP_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdBeamSpotHPLowPU_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_Output_cff import *

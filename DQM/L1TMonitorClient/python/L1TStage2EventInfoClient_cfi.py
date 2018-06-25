@@ -126,7 +126,43 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemLabel = cms.string("OMTF"),
                         HwValLabel = cms.string("Stage2OMTF"),
                         SystemDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet()
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string("OMTF_bXPeakAtBX0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2OMTF/omtf_bx"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("OMTF_bXMeanAtBX0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2OMTF/omtf_bx"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("OMTF_hwPtRange"),
+                                QualityTestHist = cms.string("L1T/L1TStage2OMTF/omtf_hwPt"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("OMTF_hwEtaRange"),
+                                QualityTestHist = cms.string("L1T/L1TStage2OMTF/omtf_hwEta"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("OMTF_hwEtaMeanAt0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2OMTF/omtf_hwEta"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("OMTF_hwLocalPhiRange"),
+                                QualityTestHist = cms.string("L1T/L1TStage2OMTF/omtf_hwLocalPhi"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("OMTF_hwQualRange"),
+                                QualityTestHist = cms.string("L1T/L1TStage2OMTF/omtf_hwQual"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            )
                         ),
                     cms.PSet(
                         SystemLabel = cms.string("EMTF"),
@@ -163,16 +199,6 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                             cms.PSet(
                                 QualityTestName = cms.string("uGMT_MuonBXMeanAtBX0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonBX"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
-                                ),
-                            cms.PSet(
-                                QualityTestName = cms.string("uGMT_MuonEtaMeanAt0"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonEta"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
-                                ),
-                            cms.PSet(
-                                QualityTestName = cms.string("uGMT_MuonPtRange"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPt"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             #cms.PSet(
@@ -407,8 +433,59 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                     cms.PSet(
                         ObjectLabel = cms.string("Mu"),
                         ObjectDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet()
-                        )
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_etaMeanAt0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonEta"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_etaSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonEta"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_etaMeanAt0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonEtaAtVtx"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_etaSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonEtaAtVtx"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_phiMeanAt0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhi"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_phiSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhi"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_phiMeanAt0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhiAtVtx"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_phiSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPhiAtVtx"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_PtRange"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPt"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("muon_PtSpectrum"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/ugmtMuonPt"),
+                                QualityTestSummaryEnabled = cms.uint32(0)
+                                ),
+                            ),
+                        ),
                     ),
     #
     # fast over-mask a system: if the name of the system is in the list, the system will be masked

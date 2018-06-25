@@ -58,30 +58,54 @@ int PtAssignmentEngineAux::getGMTEta(int theta, int endcap) const {  // [-1,+1]
   return eta;
 }
 
-int PtAssignmentEngineAux::getGMTQuality(int mode, int theta, bool promoteMode7) const {
+int PtAssignmentEngineAux::getGMTQuality(int mode, int theta, bool promoteMode7, int version) const {
   int quality = 0;
-  if (theta > 87) {  // if (eta < 1.2)
+
+  if (version == 2) { // 2018 mode <--> quality mapping
     switch (mode) {
-    case 15:  quality = 8;  break;
-    case 14:  quality = 4;  break;
-    case 13:  quality = 4;  break;
-    case 12:  quality = 4;  break;
-    case 11:  quality = 4;  break;
-    default:  quality = 4;  break;
-    }
-  } else {
-    switch (mode) {
-    case 15:  quality = 12; break;
-    case 14:  quality = 12; break;
-    case 13:  quality = 12; break;
-    case 12:  quality = 8;  break;
+    case 15:  quality = 15; break;
+    case 14:  quality = 14; break;
+    case 13:  quality = 13; break;
+    case 12:  quality =  7; break;
     case 11:  quality = 12; break;
-    case 10:  quality = 8;  break;
-    case 7:   quality = 8;  break;
-    default:  quality = 4;  break;
+    case 10:  quality = 10; break;
+    case  9:  quality =  9; break;
+    case  7:  quality = 11; break;
+    case  6:  quality =  6; break;
+    case  5:  quality =  5; break;
+    case  3:  quality =  4; break;
+    default:  quality =  0; break;
     }
-  }
-  quality |= (mode & 3);
+
+    if (theta > 88) {  // if (eta < 1.19)
+      quality /= 4;
+    }
+  } // End 2018 mode <--> quality mapping
+
+  else { // 2016 and 2017 mode <--> quality mapping
+    if (theta > 87) {  // if (eta < 1.2)
+      switch (mode) {
+      case 15:  quality = 8;  break;
+      case 14:  quality = 4;  break;
+      case 13:  quality = 4;  break;
+      case 12:  quality = 4;  break;
+      case 11:  quality = 4;  break;
+      default:  quality = 4;  break;
+      }
+    } else {
+      switch (mode) {
+      case 15:  quality = 12; break;
+      case 14:  quality = 12; break;
+      case 13:  quality = 12; break;
+      case 12:  quality =  8; break;
+      case 11:  quality = 12; break;
+      case 10:  quality =  8; break;
+      case  7:  quality =  8; break;
+      default:  quality =  4; break;
+      }
+    }
+    quality |= (mode & 3);
+  } // End 2016 and 2017 mode <--> quality mapping
 
   // Fix for missing CSC LCTs in ME1/1, including dead "water-leak" chambers ME1/1/34 and 35
   if (promoteMode7 && mode == 7 && theta <= 50)

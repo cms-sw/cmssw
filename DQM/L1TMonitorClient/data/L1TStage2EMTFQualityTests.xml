@@ -249,14 +249,6 @@
   
 
   	<!-- EMTF Track BX -->
-    	<QTEST name="EMTF_TrackBXSpectrum">
-    		<TYPE>Comp2RefChi2</TYPE>	
-    		<PARAM name="testparam">0</PARAM>
-    		<PARAM name="error">0.01</PARAM>
-    		<PARAM name="warning">0.30</PARAM>
-    		<PARAM name="minEntries">96</PARAM>
-    	</QTEST>
-
     	<QTEST name="EMTF_TrackBXNoisyTrack">
     		<TYPE>NoisyChannel</TYPE>	
     		<PARAM name="tolerance">10</PARAM>
@@ -353,7 +345,6 @@
     	<LINK name="*emtfTrackBX">
        		<TestName activate="true">ContentSigma_Noisy_TrackBX</TestName>
        		<TestName activate="true">ContentSigma_Dead_TrackBX</TestName>
-      		<TestName activate="true">EMTF_TrackBXSpectrum</TestName>
       		<TestName activate="true">EMTF_TrackBXNoisyTrack</TestName>
     	</LINK> 
 
