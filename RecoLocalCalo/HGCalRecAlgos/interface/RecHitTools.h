@@ -58,6 +58,7 @@ namespace hgcal {
     unsigned int lastLayerEE() const {return fhOffset_;}
     unsigned int lastLayerFH() const {return bhOffset_;}
     unsigned int maxNumberOfWafersPerLayer() const {return maxNumberOfWafersPerLayer_;}
+    inline int getGeometryType() const {return geometryType_;}
   private:
     const CaloGeometry* geom_;
     unsigned int        fhOffset_, bhOffset_, maxNumberOfWafersPerLayer_;
