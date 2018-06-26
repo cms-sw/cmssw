@@ -1,0 +1,43 @@
+#
+# File: ElectronMVAEstimatorRun2Fall17V1Variables.txt
+#
+# This file is to be read by the MVAVariableManager class. Lists all the
+# variables which appear in the xml files for the MVA based Electron IDs for Run2.
+# Variables are given line by line. The columns of each entry correspond to:
+#
+#     1. The name under which the variable appears in the weight files.
+#     2. How to get this variable from the electron with the cut parser (NO SPACES!)
+#        or if not available, how to get the variables elsewhere.
+#     3. The lower clip value for the variable to avoid crazy values. "None" if no clip.
+#     4. The upper clip value.
+#
+
+scl_eta                            superCluster.eta                                           None None
+ele_pt                             pt                                                         None None
+ele_oldsigmaietaieta               full5x5_sigmaIetaIeta                                      None None
+ele_oldsigmaiphiiphi               full5x5_sigmaIphiIphi                                      None None
+ele_oldcircularity                 1.-full5x5_e1x5/full5x5_e5x5                                 -1.  2.
+ele_oldr9                          full5x5_r9                                                 None   5.
+ele_scletawidth                    superCluster.etaWidth                                      None None
+ele_sclphiwidth                    superCluster.phiWidth                                      None None
+ele_he                             hadronicOverEm                                             None None
+ele_oldhe                          full5x5_hcalOverEcal                                       None None
+ele_kfhits                         electronMVAVariableHelper:kfhits                           None None
+ele_kfchi2                         electronMVAVariableHelper:kfchi2                           None  10.
+ele_gsfchi2                        gsfTrack.normalizedChi2                                    None 200.
+ele_chi2_hits                      gsfTrack.normalizedChi2                                    None 200.
+ele_fbrem                          fbrem                                                       -1. None
+ele_gsfhits                        gsfTrack.hitPattern.trackerLayersWithMeasurement           None None
+ele_expected_inner_hits            gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS') None None
+ele_conversionVertexFitProbability electronMVAVariableHelper:convVtxFitProb                   None None
+ele_ep                             eSuperClusterOverP                                         None  20.
+ele_eelepout                       eEleClusterOverPout                                        None  20.
+ele_IoEmIop                        1.0/ecalEnergy-1.0/trackMomentumAtVtx.R                    None None
+ele_deltaetain                     deltaEtaSuperClusterTrackAtVtx                            -0.06 0.06
+ele_deltaphiin                     deltaPhiSuperClusterTrackAtVtx                             -0.6  0.6
+ele_deltaetaseed                   deltaEtaSeedClusterTrackAtCalo                             -0.2  0.2
+ele_psEoverEraw                    superCluster.preshowerEnergy/superCluster.rawEnergy        None None
+ele_pfPhotonIso                    pfIsolationVariables.sumPhotonEt                           None None
+ele_pfChargedHadIso                pfIsolationVariables.sumChargedHadronPt                    None None
+ele_pfNeutralHadIso                pfIsolationVariables.sumNeutralHadronEt                    None None
+rho                                fixedGridRhoFastjetAll                                     None None
