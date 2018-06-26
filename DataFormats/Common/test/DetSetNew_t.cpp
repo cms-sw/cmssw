@@ -401,7 +401,7 @@ namespace {
         std::copy(test.sv.begin(),test.sv.begin()+n,ff.begin());
         if (ff.full()) { ff.abort(); aborted=true;}
         else { ntot+=n; }
-      } catch (edmNew::CapacityExaustedException) { 
+      } catch (edmNew::CapacityExaustedException const&) { 
          CPPUNIT_ASSERT("cannot be here"==0);
       }
     }
