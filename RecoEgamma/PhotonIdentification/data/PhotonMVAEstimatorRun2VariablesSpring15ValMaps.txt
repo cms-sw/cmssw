@@ -1,0 +1,31 @@
+#
+# File: PhotonMVAEstimatorRun2VariablesSpring15ValMaps.txt
+#
+# This file is to be read by the MVAVariableManager class. Lists all the
+# variables which appear in the xml files for the MVA based Photon IDs for Run2.
+# Variables are given line by line. The columns of each entry correspond to:
+#
+#     1. The name under which the variable appears in the weight files.
+#     2. How to get this variable from the photon with the cut parser (NO SPACES!)
+#        or if not available, how to get the variables elsewhere.
+#     3. The lower clip value for the variable to avoid crazy values. "None" if no clip.
+#     4. The upper clip value.
+#
+
+recoPhi                   phi                                                                 None None
+r9                        r9                                                                  None None
+sieieFull5x5              photonIDValueMapProducer:phoFull5x5SigmaIEtaIEta                    None None
+sieipFull5x5              photonIDValueMapProducer:phoFull5x5SigmaIEtaIPhi                    None None
+e1x3Full5x5/e5x5Full5x5   photonIDValueMapProducer:phoFull5x5E1x3byE5x5                       None None
+e2x2Full5x5/e5x5Full5x5   photonIDValueMapProducer:phoFull5x5E2x2byE5x5                       None None
+e2x5Full5x5/e5x5Full5x5   photonIDValueMapProducer:phoFull5x5E2x5byE5x5                       None None
+recoSCEta                 superCluster.eta                                                    None None
+rawE                      superCluster.rawEnergy                                              None None
+scEtaWidth                superCluster.etaWidth                                               None None
+scPhiWidth                superCluster.phiWidth                                               None None
+esEn/rawE                 superCluster.preshowerEnergy/superCluster.rawEnergy                 None None
+esRR                      photonIDValueMapProducer:phoESEffSigmaRR                            None None
+rho                       fixedGridRhoFastjetAll                                              None None
+phoIsoRaw                 photonIDValueMapProducer:phoPhotonIsolation                         None None
+chIsoRaw                  photonIDValueMapProducer:phoChargedIsolation                        None None
+chWorstRaw                photonIDValueMapProducer:phoWorstChargedIsolation                   None None
