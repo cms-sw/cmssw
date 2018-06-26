@@ -19,18 +19,22 @@ EndcapPiZeroDiscriminatorAlgo::EndcapPiZeroDiscriminatorAlgo(double stripEnergyC
 {   
    
      // Read all Weight files
-     const int Nfiles_EB = 5;
-     string file_pt[5] = {"20","30","40","50","60"};
-     string file_barrel_pt[5] = {"20","30","40","50","60"};   
+     constexpr std::array<char const*,Nfiles_EE> file_pt{ {"20","30","40","50","60"} };
+     constexpr std::array<char const*,5> file_barrel_pt { {"20","30","40","50","60"} };   
 
-     for(int j=0;j<Nfiles_EE;j++) {
-       string nn_paterns_file = "endcapPiZeroDiscriminatorWeights_et"+file_pt[j]+".wts";
+     for(auto ptName: file_pt) {
+       
+       string nn_paterns_file ="endcapPiZeroDiscriminatorWeights_et";
+       nn_paterns_file +=ptName;
+       nn_paterns_file +=".wts";
        edm::FileInPath WFile(path+nn_paterns_file);
        readWeightFile(WFile.fullPath().c_str(), EE_Layers, EE_Indim, EE_Hidden,EE_Outdim); // read the weights' file
      }
 
-     for(int k=0;k<Nfiles_EB;k++) {
-       string nn_paterns_file = "barrelPiZeroDiscriminatorWeights_et"+file_barrel_pt[k]+".wts";
+     for(auto ptName: file_barrel_pt) {
+       string nn_paterns_file = "barrelPiZeroDiscriminatorWeights_et";
+       nn_paterns_file +=ptName;
+       nn_paterns_file +=".wts";
        edm::FileInPath WFile(path+nn_paterns_file);
        readWeightFile(WFile.fullPath().c_str(), EB_Layers, EB_Indim, EB_Hidden, EB_Outdim); // read the weights' file
      }
