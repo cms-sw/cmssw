@@ -12,7 +12,6 @@ HGCalTowerMap::HGCalTowerMap(const std::vector<HGCalTowerCoord>& tower_ids,
   }
 }
 
-// HGCalTowerMap::~HGCalTowerMap() {}
 
 
 const HGCalTowerMap& HGCalTowerMap::operator+=(const HGCalTowerMap& map){
@@ -25,7 +24,7 @@ const HGCalTowerMap& HGCalTowerMap::operator+=(const HGCalTowerMap& map){
     auto this_tower = towerMap_.find(tower.first);
     if(this_tower == towerMap_.end()) {
       throw edm::Exception(edm::errors::StdException, "StdException")
-        << "HGCalTowerMap: Trying to add HGCalTowerMaps but cound not find bin: " << tower.first <<endl;
+        << "HGCalTowerMap: Trying to add HGCalTowerMaps but could not find bin: " << tower.first <<endl;
     } else {
       this_tower->second+=tower.second;
     }
