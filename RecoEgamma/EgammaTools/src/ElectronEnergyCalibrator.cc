@@ -148,8 +148,8 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   energyData[EGEnergySysIndex::kSmearUp]   = calCombinedMom(ele,corrUp,smearUp).first;
   energyData[EGEnergySysIndex::kSmearDown] = calCombinedMom(ele,corrDn,smearDn).first;
   
+  const std::pair<float, float> combinedMomentum = calCombinedMom(ele,corr,smear);
   setEcalEnergy(ele,corr,smear);
-  const std::pair<float, float> combinedMomentum = epCombinationTool_->combine(ele);
   const float energyCorr =  combinedMomentum.first / oldP4.t();
 
   const math::XYZTLorentzVector newP4(oldP4.x() * energyCorr,
@@ -189,7 +189,7 @@ std::pair<float,float> ElectronEnergyCalibrator::calCombinedMom(reco::GsfElectro
   const float oldTrkMomErr = ele.trackMomentumError();
  
   setEcalEnergy(ele,scale,smear);
-  const auto& combinedMomentum = epCombinationTool_->combine(ele);
+  const auto& combinedMomentum = epCombinationTool_->combine(ele,oldEcalEnergyErr*scale);
   
   ele.setCorrectedEcalEnergy(oldEcalEnergy);
   ele.setCorrectedEcalEnergyError(oldEcalEnergyErr);
