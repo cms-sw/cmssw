@@ -26,6 +26,7 @@ public:
 
   void setEventContent(const edm::EventSetup& iSetup);
   std::pair<float, float> combine(const reco::GsfElectron& electron) const;
+  std::pair<float, float> combine(const reco::GsfElectron& electron,float corrEcalEnergyErr) const;
 
 private:
   EgammaRegressionContainer ecalTrkEnergyRegress_;
