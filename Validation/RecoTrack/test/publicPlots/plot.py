@@ -741,6 +741,7 @@ def plotColoredEff(phase1file, prefix, pileup):
         "DetachedQuadStep",
         "DetachedTripletStep",
         "MixedTripletStep",
+        "PixelPairStep",
         "PixelLessStep",
         "TobTecStep",
         "JetCoreRegionalStep",
@@ -1393,7 +1394,8 @@ def drawPlot(name, plot, xmin=None, ymin=0, xmax=None, ymax=None, xlog=False, yl
         ymax = 1.1*plot.getYmax()
 
     bounds = (xmin, ymin, xmax, ymax)
-    args = {"nrows": 1}
+    args = {"nrows": 1,
+            "zmax": None}
     if xbinlabels is not None:
         args["xbinlabels"] = xbinlabels
         args["xbinlabelsize"] = xbinlabelsize
