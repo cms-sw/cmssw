@@ -54,7 +54,7 @@ PFTauQualityCuts = cms.PSet(
 )
 phase2_common.toModify(PFTauQualityCuts,
                        isolationQualityCuts = dict(
-                          maxDeltaZ = cms.double(0.15),
-                          maxTransverseImpactParameter = cms.double(0.05)
+                          maxDeltaZ = 0.15,
+                          maxTransverseImpactParameter = 0.05
                        ) )
                        
