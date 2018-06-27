@@ -8,6 +8,8 @@ totemRPDQMSource = DQMEDAnalyzer('TotemRPDQMSource',
     tagRecHit = cms.InputTag("totemRPRecHitProducer"),
     tagUVPattern = cms.InputTag("totemRPUVPatternFinder"),
     tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
+
+    tagHLTResults = cms.InputTag("TriggerResults", "", "HLT"),
   
     verbosity = cms.untracked.uint32(0),
 )

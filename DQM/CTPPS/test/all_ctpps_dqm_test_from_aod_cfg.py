@@ -25,19 +25,24 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_relval', '')
+process.GlobalTag.globaltag = '101X_dataRun2_HLT_v7'
 
 # raw data source
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
     # run 314255, alignment run April 2018
-    '/store/data/Commissioning2018/ZeroBias1/AOD/PromptReco-v1/000/314/255/00000/0098845D-D642-E811-8E30-FA163EE31D2A.root'
+    #'/store/data/Commissioning2018/ZeroBias1/AOD/PromptReco-v1/000/314/255/00000/0098845D-D642-E811-8E30-FA163EE31D2A.root'
+
+    # run 318551, 90m alignment run June 2018, TOTEM3 data stream
+    #"/store/data/Run2018B/TOTEM3/AOD/PromptReco-v2/000/318/551/00000/8663453A-E779-E811-80AC-FA163EBD0F4E.root"
+
+    # run 318551, 90m alignment run June 2018, TOTEM1x data stream
+    "/store/data/Run2018B/TOTEM10/AOD/PromptReco-v2/000/318/551/00000/66B01B4B-E779-E811-AE1F-FA163E8AE910.root"
   )
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(1000)
 )
 
 # geometry definition

@@ -14,6 +14,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -42,8 +46,11 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     ~TotemRPDQMSource() override;
 
   protected:
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+    virtual void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+
+    virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   private:
     unsigned int verbosity;
@@ -54,6 +61,10 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     edm::EDGetTokenT< edm::DetSetVector<TotemRPRecHit> > tokenRecHit;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPUVPattern> > tokenUVPattern;
     edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > tokenLocalTrack;
+
+    edm::EDGetTokenT<edm::TriggerResults> tokenHLTResults;
+
+    HLTPrescaleProvider hltPrescaleProvider;
 
     /// plots related to one RP
     struct PotPlots
@@ -67,6 +78,10 @@ class TotemRPDQMSource: public DQMEDAnalyzer
       MonitorElement *h_planes_fit_u=nullptr, *h_planes_fit_v=nullptr;
       MonitorElement *event_category=nullptr;
       MonitorElement *trackHitsCumulativeHist=nullptr;
+      MonitorElement *trackHitsCumulativeHist_totem_1=nullptr;
+      MonitorElement *trackHitsCumulativeHist_totem_2=nullptr;
+      MonitorElement *trackHitsCumulativeHist_totem_3=nullptr;
+      MonitorElement *trackHitsCumulativeHist_totem_4=nullptr;
       MonitorElement *track_u_profile=nullptr, *track_v_profile=nullptr;
       MonitorElement *triggerSectorUVCorrelation_all=nullptr, *triggerSectorUVCorrelation_mult2=nullptr, *triggerSectorUVCorrelation_track=nullptr;
 
@@ -90,6 +105,20 @@ class TotemRPDQMSource: public DQMEDAnalyzer
     };
 
     std::map<unsigned int, PlanePlots> planePlots;
+
+    bool checkLV1Bits(const vector<int> &bits) const
+    {
+      for (const auto bit : bits)
+      {
+        int inputBit = bit;
+        bool decision = false;
+        hltPrescaleProvider.l1tGlobalUtil().getFinalDecisionByBit(inputBit, decision);
+        if (decision)
+          return true;
+      }
+
+      return false;
+    }
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -138,6 +167,10 @@ TotemRPDQMSource::PotPlots::PotPlots(DQMStore::IBooker &ibooker, unsigned int id
   event_category_h->GetXaxis()->SetBinLabel(5, "shower");
 
   trackHitsCumulativeHist = ibooker.book2D("track XY profile", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
+  trackHitsCumulativeHist_totem_1 = ibooker.book2D("track XY profile with TOTEM1 on", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
+  trackHitsCumulativeHist_totem_2 = ibooker.book2D("track XY profile with TOTEM2 on", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
+  trackHitsCumulativeHist_totem_3 = ibooker.book2D("track XY profile with TOTEM3 on", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
+  trackHitsCumulativeHist_totem_4 = ibooker.book2D("track XY profile with TOTEM4 on", title+";x   (mm);y   (mm)", 100, -18., +18., 100, -18., +18.);
 
   track_u_profile = ibooker.book1D("track profile U", title+"; U   (mm)", 512, -256*66E-3, +256*66E-3);
   track_v_profile = ibooker.book1D("track profile V", title+"; V   (mm)", 512, -256*66E-3, +256*66E-3);
@@ -171,7 +204,9 @@ TotemRPDQMSource::PlanePlots::PlanePlots(DQMStore::IBooker &ibooker, unsigned in
 //----------------------------------------------------------------------------------------------------
 
 TotemRPDQMSource::TotemRPDQMSource(const edm::ParameterSet& ps) :
-  verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0))
+  verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
+  tokenHLTResults(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("tagHLTResults"))),
+  hltPrescaleProvider(ps, consumesCollector(), *this)
 {
   tokenStatus = consumes<DetSetVector<TotemVFATStatus>>(ps.getParameter<edm::InputTag>("tagStatus"));
 
@@ -220,6 +255,14 @@ void TotemRPDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
 
 //----------------------------------------------------------------------------------------------------
 
+void TotemRPDQMSource::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+{
+  bool changed = true;
+  hltPrescaleProvider.init(iRun, iSetup, "HLT", changed);
+}
+
+//----------------------------------------------------------------------------------------------------
+
 void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   // get event setup data
@@ -245,6 +288,9 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   Handle< DetSetVector<TotemRPLocalTrack> > tracks;
   event.getByToken(tokenLocalTrack, tracks);
 
+  Handle<edm::TriggerResults> hHLTResults;
+  event.getByToken(tokenHLTResults, hHLTResults);
+
   // check validity
   bool valid = true;
   valid &= status.isValid();
@@ -253,6 +299,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
   valid &= hits.isValid();
   valid &= patterns.isValid();
   valid &= tracks.isValid();
+  valid &= hHLTResults.isValid();
 
   if (!valid)
   {
@@ -265,11 +312,26 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         << "    digCluster.isValid = " << digCluster.isValid() << "\n"
         << "    hits.isValid = " << hits.isValid() << "\n"
         << "    patterns.isValid = " << patterns.isValid() << "\n"
-        << "    tracks.isValid = " << tracks.isValid();
+        << "    tracks.isValid = " << tracks.isValid() << "\n"
+        << "    hHLTResults.isValid = " << hHLTResults.isValid();
     }
 
     return;
   }
+
+  //------------------------------
+  // get LV1 trigger information
+
+  const edm::TriggerNames &trigNames = event.triggerNames(*hHLTResults);
+  for (unsigned int i = 0; i < trigNames.size(); ++i)
+  {
+    hltPrescaleProvider.prescaleValue(event, eventSetup, trigNames.triggerName(i));
+  }
+
+  const bool l1_totem_1 = checkLV1Bits({347, 370, 376});
+  const bool l1_totem_2 = checkLV1Bits({348, 371, 377});
+  const bool l1_totem_3 = checkLV1Bits({349});
+  const bool l1_totem_4 = checkLV1Bits({350, 372, 378});
 
   //------------------------------
   // Status Plots
@@ -609,6 +671,10 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       double y = ft.getY0() - rp_y;
 
       plots.trackHitsCumulativeHist->Fill(x, y);
+      if (l1_totem_1) plots.trackHitsCumulativeHist_totem_1->Fill(x, y);
+      if (l1_totem_2) plots.trackHitsCumulativeHist_totem_2->Fill(x, y);
+      if (l1_totem_3) plots.trackHitsCumulativeHist_totem_3->Fill(x, y);
+      if (l1_totem_4) plots.trackHitsCumulativeHist_totem_4->Fill(x, y);
 
       double U = x * rod_U.x() + y * rod_U.y();
       double V = x * rod_V.x() + y * rod_V.y();
