@@ -11,7 +11,7 @@ namespace {
     int found = 0;
     for (unsigned int i=0 ; i<nth ; ++i) {
         std::size_t pos = haystack.find(needle, found);
-        if (pos == std::string::npos) return -1;
+        if (pos == std::string::npos) return -1; 
         else found = pos+1;
     }
     return found;
@@ -27,15 +27,13 @@ namespace {
 
 };
 
-std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string &weightFile,
-                                                                 std::vector<std::string> &varNames){
+std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string &weightFile){
   edm::FileInPath weightFileEdm(weightFile);
-  return GBRForestTools::createGBRForest(weightFileEdm, varNames);
+  return GBRForestTools::createGBRForest(weightFileEdm);
 }
 
 // Creates a pointer to new GBRForest corresponding to a TMVA weights file
-std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::FileInPath &weightFile,
-                                                                 std::vector<std::string> &varNames){
+std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::FileInPath &weightFile){
 
   std::string method;
 
@@ -45,7 +43,7 @@ std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::File
   std::vector<float> dumbVars;
   std::vector<float> dumbSpecs;
 
-  varNames.clear();
+  std::vector<std::string> varNames;
   std::vector<std::string> specNames;
 
   std::string line;
@@ -136,14 +134,4 @@ std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::File
   delete mvaReader;
 
   return gbrForest;
-}
-
-std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const std::string &weightFile){
-  std::vector<std::string> varNames;
-  return GBRForestTools::createGBRForest(weightFile, varNames);
-}
-
-std::unique_ptr<const GBRForest> GBRForestTools::createGBRForest(const edm::FileInPath &weightFile){
-    std::vector<std::string> varNames;
-    return GBRForestTools::createGBRForest(weightFile, varNames);
 }
