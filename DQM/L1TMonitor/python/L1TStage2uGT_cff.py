@@ -7,6 +7,9 @@ from DQM.L1TMonitor.L1TStage2uGTTiming_cfi import *
 # Calo L2 output to uGT input comparison
 from DQM.L1TMonitor.L1TStage2uGTCaloLayer2Comp_cfi import *
 
+# uGT Board Comparison
+from DQM.L1TMonitor.L1TStage2uGTBoardComp_cff import *
+
 # compares the unpacked uGMT muon collection to the unpacked uGT muon collection
 # only muons that do not match are filled in the histograms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
@@ -28,4 +31,9 @@ l1tStage2uGTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGTTiming +
     l1tStage2uGTCaloLayer2Comp +
     l1tStage2uGMTOutVsuGTIn
+)
+
+# validation sequence
+l1tStage2uGTValidationEventOnlineDQMSeq = cms.Sequence(
+    l1tStage2uGTBoardCompSeq
 )
