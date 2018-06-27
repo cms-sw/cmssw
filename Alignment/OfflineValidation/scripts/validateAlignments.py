@@ -131,18 +131,18 @@ class ValidationJob:
             if len( firstAlignList ) > 1:
                 firstRun = firstAlignList[1]
             else:
-                firstRun = "1"
+                raise AllInOneError("Have to provide a run number for geometry comparison")
             firstAlign = Alignment( firstAlignName, self.__config, firstRun )
             firstAlignName = firstAlign.name
             secondAlignList = alignmentsList[1].split()
             secondAlignName = secondAlignList[0].strip()
-            if len( secondAlignList ) > 1:
-                secondRun = secondAlignList[1]
-            else:
-                secondRun = "1"
             if secondAlignName == "IDEAL":
                 secondAlign = secondAlignName
             else:
+                if len( secondAlignList ) > 1:
+                    secondRun = secondAlignList[1]
+                else:
+                    raise AllInOneError("Have to provide a run number for geometry comparison")
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
                 secondAlignName = secondAlign.name
