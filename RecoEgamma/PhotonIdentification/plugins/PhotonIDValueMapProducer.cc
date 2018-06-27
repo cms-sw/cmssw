@@ -114,10 +114,6 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   constexpr static char phoFull5x5E2x5Max_[] = "phoFull5x5E2x5Max";
   constexpr static char phoFull5x5E5x5_[] = "phoFull5x5E5x5";
   constexpr static char phoESEffSigmaRR_[] = "phoESEffSigmaRR";
-  // Cluster shape ratios
-  constexpr static char phoFull5x5E1x3byE5x5_[] = "phoFull5x5E1x3byE5x5";
-  constexpr static char phoFull5x5E2x2byE5x5_[] = "phoFull5x5E2x2byE5x5";
-  constexpr static char phoFull5x5E2x5byE5x5_[] = "phoFull5x5E2x5byE5x5";
   // Isolations
   constexpr static char phoChargedIsolation_[] = "phoChargedIsolation";
   constexpr static char phoNeutralHadronIsolation_[] = "phoNeutralHadronIsolation";
@@ -142,10 +138,6 @@ constexpr char PhotonIDValueMapProducer::phoFull5x5E2x2_[];
 constexpr char PhotonIDValueMapProducer::phoFull5x5E2x5Max_[];
 constexpr char PhotonIDValueMapProducer::phoFull5x5E5x5_[];
 constexpr char PhotonIDValueMapProducer::phoESEffSigmaRR_[];
-// Cluster shape ratios
-constexpr char PhotonIDValueMapProducer::phoFull5x5E1x3byE5x5_[];
-constexpr char PhotonIDValueMapProducer::phoFull5x5E2x2byE5x5_[];
-constexpr char PhotonIDValueMapProducer::phoFull5x5E2x5byE5x5_[];
 // Isolations
 constexpr char PhotonIDValueMapProducer::phoChargedIsolation_[];
 constexpr char PhotonIDValueMapProducer::phoNeutralHadronIsolation_[];
@@ -217,10 +209,6 @@ PhotonIDValueMapProducer::PhotonIDValueMapProducer(const edm::ParameterSet& iCon
   produces<edm::ValueMap<float> >(phoFull5x5E2x5Max_);  
   produces<edm::ValueMap<float> >(phoFull5x5E5x5_);  
   produces<edm::ValueMap<float> >(phoESEffSigmaRR_);  
-  // Cluster shape ratios
-  produces<edm::ValueMap<float> >(phoFull5x5E1x3byE5x5_);
-  produces<edm::ValueMap<float> >(phoFull5x5E2x2byE5x5_);
-  produces<edm::ValueMap<float> >(phoFull5x5E2x5byE5x5_);
   // Isolations
   produces<edm::ValueMap<float> >(phoChargedIsolation_);  
   produces<edm::ValueMap<float> >(phoNeutralHadronIsolation_);  
@@ -324,10 +312,6 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<float> phoFull5x5E2x5Max;
   std::vector<float> phoFull5x5E5x5;
   std::vector<float> phoESEffSigmaRR;
-  // Cluster shape ratios
-  std::vector<float> phoFull5x5E1x3byE5x5;
-  std::vector<float> phoFull5x5E2x2byE5x5;
-  std::vector<float> phoFull5x5E2x5byE5x5;
   // Isolations
   std::vector<float> phoChargedIsolation;
   std::vector<float> phoNeutralHadronIsolation;
@@ -366,10 +350,6 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     phoFull5x5E2x2   .push_back(lazyToolnoZS-> e2x2   (theseed) );
     phoFull5x5E2x5Max.push_back(lazyToolnoZS-> e2x5Max(theseed) );
     phoFull5x5E5x5   .push_back(lazyToolnoZS-> e5x5   (theseed) );
-
-    phoFull5x5E1x3byE5x5.push_back(phoFull5x5E1x3[idxpho]/phoFull5x5E5x5[idxpho]);
-    phoFull5x5E2x2byE5x5.push_back(phoFull5x5E2x2[idxpho]/phoFull5x5E5x5[idxpho]);
-    phoFull5x5E2x5byE5x5.push_back(phoFull5x5E2x5Max[idxpho]/phoFull5x5E5x5[idxpho]);
 
     phoESEffSigmaRR  .push_back(lazyToolnoZS->eseffsirir( *(iPho->superCluster()) ) );
 
@@ -521,10 +501,6 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
   writeValueMap(iEvent, src, phoFull5x5E2x5Max, phoFull5x5E2x5Max_);  
   writeValueMap(iEvent, src, phoFull5x5E5x5   , phoFull5x5E5x5_);  
   writeValueMap(iEvent, src, phoESEffSigmaRR  , phoESEffSigmaRR_);  
-  // Cluster shape ratios
-  writeValueMap(iEvent, src, phoFull5x5E1x3byE5x5   , phoFull5x5E1x3byE5x5_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x2byE5x5   , phoFull5x5E2x2byE5x5_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x5byE5x5   , phoFull5x5E2x5byE5x5_);  
   // Isolation
   writeValueMap(iEvent, src, phoChargedIsolation, phoChargedIsolation_);  
   writeValueMap(iEvent, src, phoNeutralHadronIsolation, phoNeutralHadronIsolation_);  

@@ -13,8 +13,6 @@ ids_to_test=(
     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff'
     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff'
     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff'
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff'
-    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff'
                     
 		    
 )
