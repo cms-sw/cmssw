@@ -44,18 +44,7 @@ PreMixingHGCalWorker::PreMixingHGCalWorker(const edm::ParameterSet& ps, edm::Pro
   pileInputTag_(ps.getParameter<edm::InputTag>("pileInputTag")),
   digitizer_(ps, iC)
 {
-  if(digitizer_.producesEEDigis()) {
-    producer.produces<HGCEEDigiCollection>(digitizer_.digiCollection());
-  }
-  if(digitizer_.producesHEfrontDigis()) {
-    producer.produces<HGCHEDigiCollection>(digitizer_.digiCollection());
-  }
-  if(digitizer_.producesHEbackDigis() and digitizer_.geometryType()==0) {
-    producer.produces<HGCBHDigiCollection>(digitizer_.digiCollection());
-  }
-  if(digitizer_.producesHEbackDigis() and digitizer_.geometryType()==1) {
-    producer.produces<HGCHEDigiCollection>(digitizer_.digiCollection());
-  }
+  producer.produces<HGCalDigiCollection>(digitizer_.digiCollection());
 }
 
 void PreMixingHGCalWorker::beginRun(const edm::Run& run, const edm::EventSetup& ES) {
