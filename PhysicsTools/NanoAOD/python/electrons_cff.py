@@ -25,6 +25,10 @@ electronMVAValueMapProducer.srcMiniAOD = cms.InputTag("slimmedElectrons")
 run2_miniAOD_80XLegacy.toModify(electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
 run2_nanoAOD_92X.toModify(electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
 
+electronMVAVariableHelper.srcMiniAOD = cms.InputTag("slimmedElectrons")
+run2_miniAOD_80XLegacy.toModify(electronMVAVariableHelper, srcMiniAOD = "slimmedElectronsUpdated")
+run2_nanoAOD_92X.toModify(electronMVAVariableHelper, srcMiniAOD = "slimmedElectronsUpdated")
+
 egmGsfElectronIDs.physicsObjectIDs = cms.VPSet()
 egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
 run2_miniAOD_80XLegacy.toModify(egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
