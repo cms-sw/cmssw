@@ -13,7 +13,8 @@ ElectronEnergyCalibrator::ElectronEnergyCalibrator(const EpCombinationTool &comb
   correctionRetriever_(correctionFile), 
   epCombinationTool_(&combinator), 
   rng_(nullptr),
-  minEt_(1.0)
+  minEt_(1.0),
+  useSmearCorrEcalEnergyErrInComb_(false)
 {
   
 }
@@ -189,7 +190,8 @@ std::pair<float,float> ElectronEnergyCalibrator::calCombinedMom(reco::GsfElectro
   const float oldTrkMomErr = ele.trackMomentumError();
  
   setEcalEnergy(ele,scale,smear);
-  const auto& combinedMomentum = epCombinationTool_->combine(ele,oldEcalEnergyErr*scale);
+  float ecalEnergyErrForComb = useSmearCorrEcalEnergyErrInComb_ ?  ele.correctedEcalEnergyError() : oldEcalEnergyErr*scale;
+  const auto& combinedMomentum = epCombinationTool_->combine(ele,ecalEnergyErrForComb);
   
   ele.setCorrectedEcalEnergy(oldEcalEnergy);
   ele.setCorrectedEcalEnergyError(oldEcalEnergyErr);

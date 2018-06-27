@@ -47,16 +47,26 @@ ecalTrkCombinationRegression = cms.PSet(
 )
 
 calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
-                                     calibratedEgammaSettings,                                   
+                                     calibratedEgammaSettings,
+                                     useSmearCorrEcalEnergyErrInComb = cms.bool(False),
                                      epCombConfig = ecalTrkCombinationRegression,
                                      src = cms.InputTag('gedGsfElectrons'),
                                      )
 
 calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
                                         calibratedEgammaPatSettings,
+                                        useSmearCorrEcalEnergyErrInComb = cms.bool(False),
                                         epCombConfig = ecalTrkCombinationRegression,
                                         src = cms.InputTag('slimmedElectrons'), 
                                        )
+#there was a bug in the 94X Fall17 reminiAOD, this bool set to True enables the bug as
+#this release must be able to reproduce the exact content of that miniAOD production
+#make no mistake, this is an incorrect configuration which will cause a scale shift at Et = 50 GeV
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+run2_miniAOD_94XFall17.toModify(calibratedElectrons,useSmearCorrEcalEnergyErrInComb = True)
+run2_miniAOD_94XFall17.toModify(calibratedPatElectrons,useSmearCorrEcalEnergyErrInComb = True)
+
+
 
 calibratedPhotons = cms.EDProducer("CalibratedPhotonProducer",
                                    calibratedEgammaSettings,
