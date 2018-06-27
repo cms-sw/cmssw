@@ -41,7 +41,7 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
 
 
 ####################--- Classes ---############################
-class ParallelMergeJob:
+class ParallelMergeJob(object):
     
     def __init__(self, _name, _path, _dependency):
         self.name=_name
@@ -68,7 +68,7 @@ class ParallelMergeJob:
             "-w %(conditions)s "
             "%(script)s"%repMap)
 
-class ValidationJob:
+class ValidationJob(object):
 
     # these count the jobs of different varieties that are being run
     crabCount = 0
@@ -372,7 +372,7 @@ def createMergeScript( path, validations, options ):
                 repMapTemp["RunValidationPlots"] = validationType.doRunPlots(validations)
                 
                 #create script file
-                fileName="TkAlMerge"+validation.alignmentToValidate.name
+                fileName="TkAlMergeOfflineValidation"+validation.name+validation.alignmentToValidate.name
                 filePath = os.path.join(path, fileName+".sh")
                 theFile = open( filePath, "w" )
                 theFile.write( replaceByMap( configTemplates.mergeParallelOfflineTemplate, repMapTemp ) )
