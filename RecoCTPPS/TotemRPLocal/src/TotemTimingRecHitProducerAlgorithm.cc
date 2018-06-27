@@ -35,12 +35,7 @@ void TotemTimingRecHitProducerAlgorithm::build(
           z_width = 0;
 
     // retrieve the geometry element associated to this DetID ( if present )
-    const DetGeomDesc *det = nullptr;
-    try { // no other efficient way to check presence
-      det = geom->getSensor(detid);
-    } catch (const cms::Exception &) {
-      det = nullptr;
-    }
+    const DetGeomDesc *det = geom->getSensorNoThrow(detid);
 
     if (det) {
       x_pos = det->translation().x(), y_pos = det->translation().y();
