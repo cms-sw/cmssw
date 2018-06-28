@@ -24,11 +24,11 @@ class HGCalVFEProcessorBase {
   
   void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}
 
-  virtual void runTriggCell(const HGCEEDigiCollection&,
-                            const HGCHEDigiCollection&,
-                            const HGCBHDigiCollection&,
-                            l1t::HGCalTriggerCellBxCollection& triggerCellColl,
-                            const edm::EventSetup& es) = 0;
+  virtual void run(const HGCEEDigiCollection&,
+                   const HGCHEDigiCollection&,
+                   const HGCBHDigiCollection&,
+                   l1t::HGCalTriggerCellBxCollection& triggerCellColl,
+                   const edm::EventSetup& es) = 0;
   
  protected:
   const HGCalTriggerGeometryBase* geometry_; 

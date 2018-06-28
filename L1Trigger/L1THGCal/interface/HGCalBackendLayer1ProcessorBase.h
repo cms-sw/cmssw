@@ -20,11 +20,11 @@ class HGCalBackendLayer1ProcessorBase {
 
   const std::string& name() const { return name_; }
   
-  virtual void setGeometry(const HGCalTriggerGeometryBase* const geom) {geometry_ = geom;}
+  void setGeometry(const HGCalTriggerGeometryBase* const geom) {geometry_ = geom;}
     
-  virtual void run2DClustering(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& coll, 
-                     const edm::EventSetup& es,
-                     l1t::HGCalClusterBxCollection& collCluster2D) = 0;
+  virtual void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggercells, 
+                   l1t::HGCalClusterBxCollection& clusters,
+		   const edm::EventSetup& es) = 0;
 
  protected:
   const HGCalTriggerGeometryBase* geometry_; 

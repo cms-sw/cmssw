@@ -29,9 +29,9 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
       }
     }
 
-    void run2DClustering(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle, 
-                         const edm::EventSetup & es,
-                         l1t::HGCalClusterBxCollection& collCluster2D) 
+    void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& collHandle,
+             l1t::HGCalClusterBxCollection& collCluster2D,
+             const edm::EventSetup& es) 
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       clustering_.eventSetup(es);
@@ -46,7 +46,7 @@ class HGCalBackendLayer1Processor2DClustering : public HGCalBackendLayer1Process
       /* call to C2d clustering */
       switch(clusteringAlgorithmType_){
         case dRC2d : 
-          clustering_.clusterizeDR( triggerCellsPtrs, collCluster2D);
+          clustering_.clusterizeDR(triggerCellsPtrs, collCluster2D);
           break;
         case NNC2d:
           clustering_.clusterizeNN( triggerCellsPtrs, collCluster2D, *triggerGeometry_ );

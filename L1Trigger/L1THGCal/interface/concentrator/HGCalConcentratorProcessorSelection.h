@@ -14,9 +14,7 @@ class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBas
   public:
     HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf);
   
-    void runTriggCell(const l1t::HGCalTriggerCellBxCollection& triggerCellCollInput, l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput, const edm::EventSetup& es);
-    
-    template<typename T> std::vector<T> collectionToVector(const BXVector<T>& coll);
+    void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput, const edm::EventSetup& es);
 
   private:
     std::string choice_;
@@ -24,10 +22,6 @@ class HGCalConcentratorProcessorSelection : public HGCalConcentratorProcessorBas
     HGCalConcentratorSelectionImpl concentratorProcImpl_;
      
     HGCalTriggerTools triggerTools_;
-    
-    /* Parameters for selection */ 
-    double triggercell_threshold_silicon_;
-    double triggercell_threshold_scintillator_;
 
 };
 

@@ -47,7 +47,7 @@ input_cell_(consumes<l1t::HGCalTriggerCellBxCollection>(conf.getParameter<edm::I
   HGCalBackendLayer1ProcessorBase* beProc = HGCalBackendLayer1Factory::get()->create(beProcessorName, beParamConfig);
   backendProcess_.reset(beProc);
 
-  produces<l1t::HGCalClusterBxCollection>("cluster2D");
+  produces<l1t::HGCalClusterBxCollection>(backendProcess_->name());
 }
 
 void HGCalBackendLayer1Producer::beginRun(const edm::Run& /*run*/, 
@@ -63,9 +63,12 @@ void HGCalBackendLayer1Producer::produce(edm::Event& e, const edm::EventSetup& e
     
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
+  
   e.getByToken(input_cell_, trigCellBxColl);
 
-  backendProcess_->run2DClustering(trigCellBxColl, es, *be_cluster_output);
+  const l1t::HGCalTriggerCellBxCollection inputTrigCellBxColl = *trigCellBxColl;
+ 
+  backendProcess_->run(trigCellBxColl, *be_cluster_output, es);
   
-  e.put(std::move(be_cluster_output), "cluster2D");
+  e.put(std::move(be_cluster_output), backendProcess_->name());
 }

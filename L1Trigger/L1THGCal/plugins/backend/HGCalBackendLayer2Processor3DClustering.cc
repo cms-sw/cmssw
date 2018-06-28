@@ -27,20 +27,17 @@ class HGCalBackendLayer2Processor3DClustering : public HGCalBackendLayer2Process
       }
     }
         
-    void run3DClustering(const edm::Handle<l1t::HGCalClusterBxCollection> handleColl, 
-                         const edm::EventSetup & es,
-                         l1t::HGCalMulticlusterBxCollection& collCluster3D) 
+    void run(const edm::Handle<l1t::HGCalClusterBxCollection>& collHandle,
+             l1t::HGCalMulticlusterBxCollection& collCluster3D,
+             const edm::EventSetup& es) 
     {
       es.get<CaloGeometryRecord>().get("", triggerGeometry_);
       multiclustering_.eventSetup(es);
 
-      /* orphan handles to the collections of trigger-cells, clusters and multiclusters */
-      edm::OrphanHandle<l1t::HGCalMulticlusterBxCollection> multiclustersHandle;
-
       /* create a persistent vector of pointers to the trigger-cells */
       std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
-      for( unsigned i = 0; i < handleColl->size(); ++i ) {
-      edm::Ptr<l1t::HGCalCluster> ptr(handleColl,i);
+      for( unsigned i = 0; i < collHandle->size(); ++i ) {
+      edm::Ptr<l1t::HGCalCluster> ptr(collHandle,i);
         clustersPtrs.push_back(ptr);
       }
 

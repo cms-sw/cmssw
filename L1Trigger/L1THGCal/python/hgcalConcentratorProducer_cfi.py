@@ -21,6 +21,6 @@ conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSele
 hgcalConcentratorProducer = cms.EDProducer(
     "HGCalConcentratorProducer",
     InputTriggerCells = cms.InputTag('hgcalVFEProducer:calibratedTriggerCells'),
-    InputTriggerSums = cms.InputTag('hgcalVFEProducer:calibratedTriggerCells'),
+    InputTriggerSums = cms.InputTag('hgcalVFEProducer:triggerSums'),
     ProcessorParameters = conc_proc.clone()
     )

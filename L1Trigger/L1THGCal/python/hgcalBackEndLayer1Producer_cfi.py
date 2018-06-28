@@ -22,7 +22,7 @@ be_proc = cms.PSet( ProcessorName  = cms.string('HGCalBackendLayer1Processor2DCl
 
 hgcalBackEndLayer1Producer = cms.EDProducer(
     "HGCalBackendLayer1Producer",
-    InputTriggerCells = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
-    InputTriggerSums = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'), 
+    InputTriggerCells = cms.InputTag('hgcalConcentratorProducer:TriggerCells'),
+    InputTriggerSums = cms.InputTag('hgcalConcentratorProducer:TriggerSums'), 
     ProcessorParameters = be_proc.clone()
     )

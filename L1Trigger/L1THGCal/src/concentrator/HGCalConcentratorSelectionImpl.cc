@@ -8,7 +8,9 @@ HGCalConcentratorSelectionImpl(const edm::ParameterSet& conf):
   adcsaturationBH_(conf.getParameter<double>("adcsaturationBH")),
   adcnBitsBH_(conf.getParameter<uint32_t>("adcnBitsBH")),
   TCThreshold_fC_(conf.getParameter<double>("TCThreshold_fC")),
-  TCThresholdBH_MIP_(conf.getParameter<double>("TCThresholdBH_MIP"))
+  TCThresholdBH_MIP_(conf.getParameter<double>("TCThresholdBH_MIP")),
+  triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
+  triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator"))
 {
   // Cannot have more selected cells than the max number of cells
   if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
@@ -19,20 +21,22 @@ HGCalConcentratorSelectionImpl(const edm::ParameterSet& conf):
 
 void 
 HGCalConcentratorSelectionImpl::
-thresholdSelectImpl(std::vector<l1t::HGCalTriggerCell>& trigCellVec)
+thresholdSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput)
 { 
-  for (size_t i = 0; i<trigCellVec.size();i++){
-    int threshold = (HGCalDetId(trigCellVec[i].detId()).subdetId()==ForwardSubdetector::HGCHEB ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
-    if (trigCellVec[i].hwPt() < threshold)  trigCellVec[i].setHwPt(0);
-  }      
+  for (size_t i = 0; i<trigCellVecInput.size();i++){
+    int threshold = (HGCalDetId(trigCellVecInput[i].detId()).subdetId()==ForwardSubdetector::HGCHEB ? TCThresholdBH_ADC_ : TCThreshold_ADC_);
+    double triggercell_threshold = (HGCalDetId(trigCellVecInput[i].detId()).subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
+    if ((trigCellVecInput[i].hwPt() >= threshold) && (trigCellVecInput[i].hwPt() >= triggercell_threshold))  trigCellVecOutput.push_back(trigCellVecInput[i]);
+  }
 }
 
 void 
 HGCalConcentratorSelectionImpl::
-bestChoiceSelectImpl(std::vector<l1t::HGCalTriggerCell>& trigCellVec)
-{   
+bestChoiceSelectImpl(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput, std::vector<l1t::HGCalTriggerCell>& trigCellVecOutput)
+{ 
+  trigCellVecOutput = trigCellVecInput;    
   // sort, reverse order
-  sort(trigCellVec.begin(), trigCellVec.end(),
+  sort(trigCellVecOutput.begin(), trigCellVecOutput.end(),
        [](const l1t::HGCalTriggerCell& a, 
           const  l1t::HGCalTriggerCell& b) -> bool
   { 
@@ -41,7 +45,7 @@ bestChoiceSelectImpl(std::vector<l1t::HGCalTriggerCell>& trigCellVec)
   );
 
   // keep only the first trigger cells
-  if(trigCellVec.size()>nData_) trigCellVec.resize(nData_);
+  if(trigCellVecOutput.size()>nData_) trigCellVecOutput.resize(nData_);
   
 }
 

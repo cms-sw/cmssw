@@ -16,12 +16,10 @@
 #include <array>
 #include <cmath>
 #include <vector>
+#include "DataFormats/L1Trigger/interface/BXVector.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-
-#include "DataFormats/L1Trigger/interface/BXVector.h"
-#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 class HGCalTriggerGeometryBase;
 class DetId;
@@ -64,14 +62,14 @@ class HGCalTriggerTools {
     float getLayerZ(const int& subdet, const unsigned& layer) const;
 
     template<typename T> 
-    std::vector<T> collectionToVector(const BXVector<T>& coll){    
-      std::vector<T> trigCellVec;     
+    std::vector<T> bxVectorToVector(const BXVector<T>& inputBXVector){    
+      std::vector<T> outputVector;     
       //loop over collection for a given bx and put the objects into a std::vector
-      for( typename std::vector<T>::const_iterator it = coll.begin(0) ; it != coll.end(0) ; ++it )
+      for( typename std::vector<T>::const_iterator it = inputBXVector.begin(0) ; it != inputBXVector.end(0) ; ++it )
       { 
-        trigCellVec.push_back(*it); 
+        outputVector.push_back(*it); 
       }
-      return trigCellVec;
+      return outputVector;
     }
 
   private:

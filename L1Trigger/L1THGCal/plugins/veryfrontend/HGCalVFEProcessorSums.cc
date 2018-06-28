@@ -18,16 +18,16 @@ HGCalVFEProcessorSums(const edm::ParameterSet& conf) : HGCalVFEProcessorBase(con
 }
 
 void
-HGCalVFEProcessorSums::runTriggCell(const HGCEEDigiCollection& ee,
-                                    const HGCHEDigiCollection& fh, 
-                                    const HGCBHDigiCollection& bh, 
-                                    l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
-                                    const edm::EventSetup& es) 
+HGCalVFEProcessorSums::run(const HGCEEDigiCollection& ee,
+                           const HGCHEDigiCollection& fh, 
+                           const HGCBHDigiCollection& bh, 
+                           l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
+                           const edm::EventSetup& es) 
 { 
   calibration_.eventSetup(es);
 
   std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
-  std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
+  std::vector<std::pair<DetId, uint32_t >> linearized_dataframes;
   std::map<HGCalDetId, uint32_t> payload;
 
   // convert ee and fh hit collections into the same object  
@@ -47,7 +47,7 @@ HGCalVFEProcessorSums::runTriggCell(const HGCEEDigiCollection& ee,
   else if(!fh.empty())
   {
     for(const auto& fhdata : fh)
-    {  
+    {
        uint32_t module = geometry_->getModuleFromCell(fhdata.id());
        if(geometry_->disconnectedModule(module)) continue;
        dataframes.emplace_back(fhdata.id());
@@ -92,7 +92,7 @@ HGCalVFEProcessorSums::runTriggCell(const HGCEEDigiCollection& ee,
       { 
         l1t::HGCalTriggerCell calibratedtriggercell( triggerCell );
         calibration_.calibrateInGeV( calibratedtriggercell);     
-	triggerCellColl.push_back(0, calibratedtriggercell);
+        triggerCellColl.push_back(0, calibratedtriggercell);
       }
     }
   }    

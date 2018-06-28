@@ -30,10 +30,10 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
       { 
         case ForwardSubdetector::HGCEE:
           thickness = geometry.eeTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
-	  break;
+          break;
         case ForwardSubdetector::HGCHEF:
           thickness = geometry.fhTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
-	  break;
+          break;
         default:
           break;
       };
@@ -45,5 +45,5 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,
     // sums energy for the same triggercellid
     payload[triggercellid] += value; // 32 bits integer should be largely enough 
   }
-            	
+
 }
