@@ -136,16 +136,16 @@ mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase & iEven
 
 int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::Candidate>& candPtr) const {
 
-  edm::Ptr<reco::GsfElectron> gsfPtr{ candPtr };
+  auto gsfEle = dynamic_cast<reco::GsfElectron const*>(candPtr.get());
 
-  if( gsfPtr.get() == nullptr ) {
+  if( gsfEle == nullptr ) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
   }
 
   for (int i = 0; i < nCategories_; ++i) {
-      if (categoryFunctions_[i](*gsfPtr)) return i;
+      if (categoryFunctions_[i](*gsfEle)) return i;
   }
 
   throw cms::Exception("MVA failure: ")
