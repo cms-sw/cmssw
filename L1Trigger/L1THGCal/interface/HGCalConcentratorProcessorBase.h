@@ -23,9 +23,9 @@ class HGCalConcentratorProcessorBase {
  
   void setGeometry(const HGCalTriggerGeometryBase* const geom) { geometry_ = geom;}
   
-  virtual void runTriggCell(const l1t::HGCalTriggerCellBxCollection& triggerCellCollInput,
-                            l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
-                            const edm::EventSetup& es) = 0;
+  virtual void run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput,
+                   l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
+                   const edm::EventSetup& es) = 0;
  
  protected:
   const HGCalTriggerGeometryBase* geometry_;

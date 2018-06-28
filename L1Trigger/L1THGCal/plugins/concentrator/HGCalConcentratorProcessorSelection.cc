@@ -10,54 +10,43 @@ DEFINE_EDM_PLUGIN(HGCalConcentratorFactory,
 HGCalConcentratorProcessorSelection::HGCalConcentratorProcessorSelection(const edm::ParameterSet& conf)  : 
   HGCalConcentratorProcessorBase(conf),
   choice_(conf.getParameter<std::string>("Method")),
-  concentratorProcImpl_(conf),
-  triggercell_threshold_silicon_( conf.getParameter<double>("triggercell_threshold_silicon") ),
-  triggercell_threshold_scintillator_( conf.getParameter<double>("triggercell_threshold_scintillator") )
+  concentratorProcImpl_(conf)
 { 
 }
 
-void HGCalConcentratorProcessorSelection::runTriggCell(const l1t::HGCalTriggerCellBxCollection& triggerCellCollInput, 
-                                                       l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
-                                                       const edm::EventSetup& es)
-{    
-  std::unordered_map<uint32_t, l1t::HGCalTriggerCellBxCollection> tc_modules;
-  for(const auto& trigCell : triggerCellCollInput) {
+void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTriggerCellBxCollection>& triggerCellCollInput, 
+                                              l1t::HGCalTriggerCellBxCollection& triggerCellCollOutput,
+                                              const edm::EventSetup& es)
+{
+  const l1t::HGCalTriggerCellBxCollection& collInput = *triggerCellCollInput;
+
+  std::unordered_map<uint32_t, std::vector<l1t::HGCalTriggerCell>> tc_modules;
+  for(const auto& trigCell : collInput) {
     uint32_t module = geometry_->getModuleFromTriggerCell(trigCell.detId());
-    auto itr_insert = tc_modules.emplace(module, l1t::HGCalTriggerCellBxCollection());
-    itr_insert.first->second.push_back(0,trigCell); //bx=0
+    auto itr_insert = tc_modules.emplace(module, std::vector<l1t::HGCalTriggerCell>());
+    itr_insert.first->second.push_back(trigCell); //bx=0
   }
 
   if (choice_ == "thresholdSelect")
   {
-    for( const auto& module_trigcell : tc_modules ) {
-    
-      // Convert vector to collection
-      std::vector<l1t::HGCalTriggerCell> trigCellVec;     
-      trigCellVec = triggerTools_.collectionToVector(module_trigcell.second);
-          
-      concentratorProcImpl_.thresholdSelectImpl(trigCellVec);
+    for( const auto& module_trigcell : tc_modules ) {      
+      std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;   
+      concentratorProcImpl_.thresholdSelectImpl(module_trigcell.second, trigCellVecOutput);
       
       // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
-      for( auto trigCell = trigCellVec.begin(); trigCell != trigCellVec.end(); ++trigCell){
-        double triggercell_threshold = (trigCell->subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
-        if(trigCell->mipPt()<triggercell_threshold) continue;
+      for( auto trigCell = trigCellVecOutput.begin(); trigCell != trigCellVecOutput.end(); ++trigCell){
         triggerCellCollOutput.push_back(0, *trigCell);     
       }
     }
   }
   else if (choice_ == "bestChoiceSelect"){
-    for( const auto& module_trigcell : tc_modules ) {
-          
+    for( const auto& module_trigcell : tc_modules ) {  
       // Convert vector to collection
-      std::vector<l1t::HGCalTriggerCell> trigCellVec;
-      trigCellVec = triggerTools_.collectionToVector(module_trigcell.second);
-
-      concentratorProcImpl_.bestChoiceSelectImpl(trigCellVec);
+      std::vector<l1t::HGCalTriggerCell> trigCellVecOutput;
+      concentratorProcImpl_.bestChoiceSelectImpl(module_trigcell.second, trigCellVecOutput);
       
       // Push trigger Cells for each module from std::vector<l1t::HGCalTriggerCell> into the final collection
-      for( auto trigCell = trigCellVec.begin(); trigCell != trigCellVec.end(); ++trigCell){
-        double triggercell_threshold = (trigCell->subdetId()==HGCHEB ? triggercell_threshold_scintillator_ : triggercell_threshold_silicon_);
-        if(trigCell->mipPt()<triggercell_threshold) continue;
+      for( auto trigCell = trigCellVecOutput.begin(); trigCell != trigCellVecOutput.end(); ++trigCell){
         triggerCellCollOutput.push_back(0, *trigCell);       
       }
     }

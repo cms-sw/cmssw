@@ -7,7 +7,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalTowerMap2DImpl.h"
+#include "L1Trigger/L1THGCal/interface/backend/HGCalTowerMap2DImpl.h"
 
 
 

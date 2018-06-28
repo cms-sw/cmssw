@@ -47,8 +47,8 @@ HGCalConcentratorProducer(const edm::ParameterSet& conf):
   HGCalConcentratorProcessorBase* concProc = HGCalConcentratorFactory::get()->create(concProcessorName, concParamConfig);
   concentratorProcess_.reset(concProc);
 
-  produces<l1t::HGCalTriggerCellBxCollection>("HGCalConcentratorProcessorSelection");
-  produces<l1t::HGCalTriggerSumsBxCollection>("HGCalConcentratorProcessorSelection");
+  produces<l1t::HGCalTriggerCellBxCollection>(concentratorProcess_->name());
+  produces<l1t::HGCalTriggerSumsBxCollection>(concentratorProcess_->name());
 
 }
 
@@ -68,20 +68,14 @@ void HGCalConcentratorProducer::produce(edm::Event& e, const edm::EventSetup& es
 
   // Input collections
   edm::Handle<l1t::HGCalTriggerCellBxCollection> trigCellBxColl;
-  edm::Handle<l1t::HGCalTriggerSumsBxCollection> trigSumsBxColl;
 
   e.getByToken(input_cell_,trigCellBxColl);
-  e.getByToken(input_sums_,trigSumsBxColl);
-
-  const l1t::HGCalTriggerCellBxCollection& trigCellColl = *trigCellBxColl;
-  // HGCalTriggerSumsBxCollection will be used later
-  //const l1t::HGCalTriggerSumsBxCollection& trigSums = *trigSumsBxColl;
   
-  concentratorProcess_->runTriggCell(trigCellColl, *cc_trigcell_output, es);
+  concentratorProcess_->run(trigCellBxColl, *cc_trigcell_output, es);
 
   // Put in the event
   // At the moment the HGCalTriggerSumsBxCollection is empty   
-  e.put(std::move(cc_trigcell_output), "HGCalConcentratorProcessorSelection");
-  e.put(std::move(cc_trigsums_output), "HGCalConcentratorProcessorSelection");
+  e.put(std::move(cc_trigcell_output), concentratorProcess_->name());
+  e.put(std::move(cc_trigsums_output), concentratorProcess_->name());
 
 }

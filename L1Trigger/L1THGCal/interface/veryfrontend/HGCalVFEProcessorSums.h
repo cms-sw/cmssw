@@ -22,7 +22,7 @@ class HGCalVFEProcessorSums : public HGCalVFEProcessorBase
     
     HGCalVFEProcessorSums(const edm::ParameterSet& conf);
     
-    void runTriggCell(const HGCEEDigiCollection& ee,
+    void run(const HGCEEDigiCollection& ee,
                       const HGCHEDigiCollection& fh,
                       const HGCBHDigiCollection& bh, 
                       l1t::HGCalTriggerCellBxCollection& triggerCellColl, 
@@ -33,8 +33,6 @@ class HGCalVFEProcessorSums : public HGCalVFEProcessorBase
     HGCalVFELinearizationImpl vfeLinearizationImpl_;
     HGCalVFESummationImpl vfeSummationImpl_; 
     HGCalTriggerCellCalibration calibration_;
-
-    std::vector<l1t::HGCalTriggerCell> vecTrigCell_;
 
 };    
     

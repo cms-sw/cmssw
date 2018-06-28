@@ -26,7 +26,7 @@ class HGCalVFEProducer : public edm::stream::EDProducer<>  {
                         const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
   
- private:
+  private:
   // inputs
   edm::EDGetToken inputee_, inputfh_, inputbh_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
@@ -48,8 +48,9 @@ HGCalVFEProducer(const edm::ParameterSet& conf):
   HGCalVFEProcessorBase* vfeProc = HGCalVFEProcessorBaseFactory::get()->create(vfeProcessorName, vfeParamConfig);
   vfeProcess_.reset(vfeProc);
   
-  produces<l1t::HGCalTriggerCellBxCollection>("calibratedTriggerCells");
-  produces<l1t::HGCalTriggerSumsBxCollection>("calibratedTriggerCells");
+  produces<l1t::HGCalTriggerCellBxCollection>(vfeProcess_->name());
+  produces<l1t::HGCalTriggerSumsBxCollection>(vfeProcess_->name());
+
 }
 
 void HGCalVFEProducer::beginRun(const edm::Run& /*run*/, 
@@ -78,13 +79,13 @@ void HGCalVFEProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   const HGCBHDigiCollection& bh_digis = *bh_digis_h;
   
   // Processing DigiCollections and putting the results into the HGCalTriggerCellBxCollection
-  vfeProcess_->runTriggCell(ee_digis, HGCHEDigiCollection(), HGCBHDigiCollection(), *vfe_trigcell_output, es);         
-  vfeProcess_->runTriggCell(HGCEEDigiCollection(), fh_digis, HGCBHDigiCollection(), *vfe_trigcell_output, es);   
-  vfeProcess_->runTriggCell(HGCEEDigiCollection(), HGCHEDigiCollection(), bh_digis, *vfe_trigcell_output, es);   
+  vfeProcess_->run(ee_digis, HGCHEDigiCollection(), HGCBHDigiCollection(), *vfe_trigcell_output, es);         
+  vfeProcess_->run(HGCEEDigiCollection(), fh_digis, HGCBHDigiCollection(), *vfe_trigcell_output, es);   
+  vfeProcess_->run(HGCEEDigiCollection(), HGCHEDigiCollection(), bh_digis, *vfe_trigcell_output, es);   
   
-  // Put in the event
-  // At the moment the HGCalTriggerSumsBxCollection is empty   
-  e.put(std::move(vfe_trigcell_output), "calibratedTriggerCells");
-  e.put(std::move(vfe_trigsums_output), "calibratedTriggerCells");
+  // Put in the event  
+  e.put(std::move(vfe_trigcell_output), vfeProcess_->name());
+  // At the moment the HGCalTriggerSumsBxCollection is empty 
+  e.put(std::move(vfe_trigsums_output), vfeProcess_->name());
 
 }

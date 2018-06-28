@@ -29,7 +29,7 @@ class HGCalBackendLayer2Producer : public edm::stream::EDProducer<> {
   
  private:
   // inputs
-  edm::EDGetToken input_cluster;
+  edm::EDGetToken input_clusters_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
   std::unique_ptr<HGCalBackendLayer2ProcessorBase> backendProcess_;
@@ -39,7 +39,7 @@ DEFINE_FWK_MODULE(HGCalBackendLayer2Producer);
 
 HGCalBackendLayer2Producer::
 HGCalBackendLayer2Producer(const edm::ParameterSet& conf): 
-input_cluster(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("InputCluster")))
+  input_clusters_(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::InputTag>("InputCluster")))
 {
   //setup Backend parameters
   const edm::ParameterSet& beParamConfig = conf.getParameterSet("ProcessorParameters");
@@ -47,7 +47,7 @@ input_cluster(consumes<l1t::HGCalClusterBxCollection>(conf.getParameter<edm::Inp
   HGCalBackendLayer2ProcessorBase* beProc = HGCalBackendLayer2Factory::get()->create(beProcessorName, beParamConfig);
   backendProcess_.reset(beProc);
 
-  produces<l1t::HGCalMulticlusterBxCollection>("cluster3D");
+  produces<l1t::HGCalMulticlusterBxCollection>(backendProcess_->name());
 }
 
 void HGCalBackendLayer2Producer::beginRun(const edm::Run& /*run*/, 
@@ -63,10 +63,13 @@ void HGCalBackendLayer2Producer::produce(edm::Event& e, const edm::EventSetup& e
   std::unique_ptr<l1t::HGCalMulticlusterBxCollection> be_multicluster_output( new l1t::HGCalMulticlusterBxCollection );
   
   // Input collections   
-  edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;  
-  e.getByToken(input_cluster, trigCluster2DBxColl);
-      
-  backendProcess_->run3DClustering(trigCluster2DBxColl, es, *be_multicluster_output);
+  edm::Handle<l1t::HGCalClusterBxCollection> trigCluster2DBxColl;
   
-  e.put(std::move(be_multicluster_output), "cluster3D");  
+  e.getByToken(input_clusters_, trigCluster2DBxColl);
+  
+  const l1t::HGCalClusterBxCollection inputTrigCluster2DBxColl = *trigCluster2DBxColl;
+    
+  backendProcess_->run(trigCluster2DBxColl, *be_multicluster_output, es);
+  
+  e.put(std::move(be_multicluster_output), backendProcess_->name());  
 }
