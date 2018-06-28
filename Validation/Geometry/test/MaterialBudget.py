@@ -84,7 +84,6 @@ def createPlots_(plot):
     IBs = ["InnerServices", "Phase2PixelBarrel", "TIB", "TIDF", "TIDB"]
     theDirname = "Figures"
 
-    hist_X0_detectors = OrderedDict()
     if plot not in plots.keys():
         print("Error: chosen plot name not known %s" % plot)
         return
@@ -420,7 +419,7 @@ def create2DPlots(detector, plot):
        Function that will plot the requested 2D-@plot for the
        specified @detector. The specified detector could either be a
        real detector or a compound one. The list of available plots
-       are the keys of plots dictionary (imported from plot_utils.
+       are the keys of plots dictionary (imported from plot_utils).
 
     """
 
@@ -440,6 +439,7 @@ def create2DPlots(detector, plot):
     # histos
     prof2d_X0_det_total.__class__ = TProfile2D
     hist_X0_total = prof2d_X0_det_total.ProjectionXY()
+    hist_X0_total.__class__ = TH2D
 
     # keep files live forever
     files = []
