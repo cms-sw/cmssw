@@ -2,6 +2,94 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
 
+hltSiPixelPhase1ClustersAnalyzerForHighBeta = hltSiPixelPhase1ClustersAnalyzer.clone()
+hltSiPixelPhase1ClustersAnalyzerForHighBeta.pixelSrc = cms.InputTag("hltSiPixelClustersForHighBeta")
+
+hltSiPixelPhase1ClustersNClustersForHighBeta = hltSiPixelPhase1ClustersNClusters.clone()
+hltSiPixelPhase1ClustersNClustersForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+hltSiPixelPhase1ClustersNClustersForHighBeta.range_max = 50
+hltSiPixelPhase1ClustersNClustersForHighBeta.range_nbins=50
+
+hltSiPixelPhase1ClustersNClustersInclusiveForHighBeta = hltSiPixelPhase1ClustersNClustersInclusive.clone()
+hltSiPixelPhase1ClustersNClustersInclusiveForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+hltSiPixelPhase1ClustersNClustersInclusiveForHighBeta.range_max = 50
+hltSiPixelPhase1ClustersNClustersInclusiveForHighBeta.range_nbins = 50
+
+hltSiPixelPhase1ClustersReadoutNClustersForHighBeta = hltSiPixelPhase1ClustersReadoutNClusters.clone()
+hltSiPixelPhase1ClustersReadoutNClustersForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+hltSiPixelPhase1ClustersReadoutNClustersForHighBeta.range_max = 50
+hltSiPixelPhase1ClustersReadoutNClustersForHighBeta.range_nbins = 50
+
+hltSiPixelPhase1ClustersChargeForHighBeta = hltSiPixelPhase1ClustersCharge.clone()
+hltSiPixelPhase1ClustersChargeForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersBigPixelChargeForHighBeta = hltSiPixelPhase1ClustersBigPixelCharge.clone()
+hltSiPixelPhase1ClustersBigPixelChargeForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersNotBigPixelChargeForHighBeta = hltSiPixelPhase1ClustersNotBigPixelCharge.clone()
+hltSiPixelPhase1ClustersNotBigPixelChargeForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersSizeForHighBeta = hltSiPixelPhase1ClustersSize.clone()
+hltSiPixelPhase1ClustersSizeForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersSizeXForHighBeta = hltSiPixelPhase1ClustersSizeX.clone()
+hltSiPixelPhase1ClustersSizeXForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersSizeYForHighBeta = hltSiPixelPhase1ClustersSizeY.clone()
+hltSiPixelPhase1ClustersSizeYForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersEventrateForHighBeta = hltSiPixelPhase1ClustersEventrate.clone()
+hltSiPixelPhase1ClustersEventrateForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersPositionBForHighBeta = hltSiPixelPhase1ClustersPositionB.clone()
+hltSiPixelPhase1ClustersPositionBForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersPositionFForHighBeta = hltSiPixelPhase1ClustersPositionF.clone()
+hltSiPixelPhase1ClustersPositionFForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersPositionXZForHighBeta = hltSiPixelPhase1ClustersPositionXZ.clone()
+hltSiPixelPhase1ClustersPositionXZForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersPositionYZForHighBeta = hltSiPixelPhase1ClustersPositionYZ.clone()
+hltSiPixelPhase1ClustersPositionYZForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersSizeVsEtaForHighBeta = hltSiPixelPhase1ClustersSizeVsEta.clone()
+hltSiPixelPhase1ClustersSizeVsEtaForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersReadoutChargeForHighBeta = hltSiPixelPhase1ClustersReadoutCharge.clone()
+hltSiPixelPhase1ClustersReadoutChargeForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersPixelToStripRatioForHighBeta = hltSiPixelPhase1ClustersPixelToStripRatio.clone()
+hltSiPixelPhase1ClustersPixelToStripRatioForHighBeta.topFolderName = cms.string("HLT/PixelForHighBeta")
+
+hltSiPixelPhase1ClustersConfForHighBeta = cms.VPSet(
+  hltSiPixelPhase1ClustersChargeForHighBeta,
+  hltSiPixelPhase1ClustersBigPixelChargeForHighBeta,
+  hltSiPixelPhase1ClustersNotBigPixelChargeForHighBeta,
+  hltSiPixelPhase1ClustersSizeForHighBeta,
+  hltSiPixelPhase1ClustersSizeXForHighBeta,
+  hltSiPixelPhase1ClustersSizeYForHighBeta,
+  hltSiPixelPhase1ClustersNClustersForHighBeta,
+  hltSiPixelPhase1ClustersNClustersInclusiveForHighBeta,
+  hltSiPixelPhase1ClustersEventrateForHighBeta,
+  hltSiPixelPhase1ClustersPositionBForHighBeta,
+  hltSiPixelPhase1ClustersPositionFForHighBeta,
+  hltSiPixelPhase1ClustersPositionXZForHighBeta,
+  hltSiPixelPhase1ClustersPositionYZForHighBeta,
+  hltSiPixelPhase1ClustersSizeVsEtaForHighBeta,
+  hltSiPixelPhase1ClustersReadoutChargeForHighBeta,
+  hltSiPixelPhase1ClustersReadoutNClustersForHighBeta,
+  hltSiPixelPhase1ClustersPixelToStripRatioForHighBeta
+)
+
+hltSiPixelPhase1ClustersAnalyzerForHighBeta.histograms = hltSiPixelPhase1ClustersConfForHighBeta
+
+sipixelMonitorHLTsequence = cms.Sequence(
+    hltSiPixelPhase1ClustersAnalyzer
+    + hltSiPixelPhase1TrackClustersAnalyzer
+    + hltSiPixelPhase1ClustersAnalyzerForHighBeta
+) 
+
 pixelOnlineMonitorHLTsequence = cms.Sequence(
     sipixelMonitorHLTsequence
 )
