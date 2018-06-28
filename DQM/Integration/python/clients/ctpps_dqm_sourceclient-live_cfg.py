@@ -1,9 +1,13 @@
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('CTPPSDQM', eras.Run2_2018)
+from Configuration.StandardSequences.Eras import eras
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+process = cms.Process('CTPPSDQM', eras.Run2_2018, stage2L1Trigger)
 
 test = False
+
+# global tag - conditions for P5 cluster
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # event source
 if not test:
@@ -11,15 +15,18 @@ if not test:
   process.load("DQM.Integration.config.inputsource_cfi")
 else:
   # for testing in lxplus
-  process.load("DQM.Integration.config.fileinputsource_cfi")
-  process.source.fileNames = cms.untracked.vstring(
-    #'root://eostotem.cern.ch//eos/totem/user/j/jkaspar/04C8034A-9626-E611-9B6E-02163E011F93.root'
-    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
+  process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+      # 2018, 90m alignment run, run 318551, TOTEM1x data stream
+      '/store/data/Run2018B/TOTEM10/RAW/v1/000/318/551/00000/6ABB0170-3878-E811-B0C2-FA163EB7360C.root'
+    )
   )
-  process.source.inputCommands = cms.untracked.vstring(
-    'drop *',
-    'keep FEDRawDataCollection_*_*_*'
-  )
+
+  from DQM.Integration.config.dqmPythonTypes import *
+  process.runType = RunType()
+  process.runType.setRunType("pp_run")
+
+  process.GlobalTag.globaltag = '101X_dataRun2_HLT_v7'
 
 # DQM environment
 process.load("DQM.Integration.config.environment_cfi")
@@ -37,11 +44,10 @@ process.MessageLogger = cms.Service("MessageLogger",
   cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
 )
 
-# global tag - conditions for P5 cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-
 # raw-to-digi conversion
 process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
+
+process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 
 # local RP reconstruction chain with standard settings
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
@@ -51,6 +57,7 @@ process.load("DQM.CTPPS.ctppsDQM_cff")
 
 # processing path
 process.recoStep = cms.Sequence(
+  process.L1TRawToDigi *
   process.ctppsRawToDigi *
   process.recoCTPPS
 )
