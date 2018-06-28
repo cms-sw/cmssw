@@ -2,6 +2,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryGenericMapping.h"
 #include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 
 #include <vector>
 #include <iostream>
