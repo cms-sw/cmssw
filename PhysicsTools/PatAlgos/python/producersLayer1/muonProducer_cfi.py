@@ -122,7 +122,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     muonSimInfo = cms.InputTag("muonSimClassifier"),                 
 
     # Trigger Info 
-    addTriggerMatching = cms.bool(True),                      
+    addTriggerMatching = cms.bool(False),                      
     triggerObjects = cms.InputTag("slimmedPatTrigger"),
     triggerResults = cms.InputTag("TriggerResults","","HLT"),
     hltCollectionFilters = cms.vstring('*')
