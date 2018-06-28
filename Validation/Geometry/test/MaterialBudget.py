@@ -439,7 +439,6 @@ def create2DPlots(detector, plot):
     # histos
     prof2d_X0_det_total.__class__ = TProfile2D
     hist_X0_total = prof2d_X0_det_total.ProjectionXY()
-    hist_X0_total.__class__ = TH2D
 
     # keep files live forever
     files = []
