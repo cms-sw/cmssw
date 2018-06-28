@@ -119,14 +119,10 @@ patMuons = cms.EDProducer("PATMuonProducer",
     softMvaTrainingFile = cms.string("RecoMuon/MuonIdentification/data/TMVA-muonid-bmm4-B-25.weights.xml"),
 
     # MC Info
-    muonSimInfo = cms.InputTag("muonSimClassifier"),                 
-
-    # Trigger Info 
-    addTriggerMatching = cms.bool(True),                      
-    triggerObjects = cms.InputTag("slimmedPatTrigger"),
-    triggerResults = cms.InputTag("TriggerResults","","HLT"),
-    hltCollectionFilters = cms.vstring('*')
+    muonSimInfo = cms.InputTag("muonSimClassifier")                 
+                          
 )
+
 
 
 
