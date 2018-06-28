@@ -103,18 +103,24 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   double r = aStep->GetPreStepPoint()->GetPosition().perp();
   double z = std::abs(aStep->GetPreStepPoint()->GetPosition().z());
 #ifdef EDM_ML_DEBUG
-  G4int parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4int    parCode = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
+  G4String parName = aStep->GetTrack()->GetDefinition()->GetParticleName();
   G4LogicalVolume* lv =
     aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume();
   edm::LogVerbatim("HGCSim") << "HGCalSD: Hit from standard path from "
 			     << lv->GetName() << " for Track " 
 			     << aStep->GetTrack()->GetTrackID() << " ("
-			     << aStep->GetTrack()->GetDefinition()->GetParticleName() 
-			     << ") R = " << r << " Z = "
-			     << z << " slope = " << r/z << ":" << slopeMin_;
+			     << parCode << ":" << parName << ") R = " << r 
+			     << " Z = " << z << " slope = " << r/z << ":" 
+			     << slopeMin_;
 #endif
   // Apply fiducial cut
-  if (r < z*slopeMin_) { return 0.0; }
+  if (r < z*slopeMin_) { 
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "HGCalSD: Fiducial Volume cut";
+#endif
+    return 0.0; 
+  }
 
   double wt1    = getResponseWt(aStep->GetTrack());
   double wt2    = aStep->GetTrack()->GetWeight();
@@ -123,10 +129,11 @@ double HGCalSD::getEnergyDeposit(const G4Step* aStep) {
   double destep = weight_*wt1*wt3*(aStep->GetTotalEnergyDeposit());
   if (wt2 > 0) destep *= wt2;
 #ifdef EDM_ML_DEBUG
-  edm::LogWarning("HGCalSim")  << "HGCalSD: weights= " << weight_ << ":" << wt1 << ":"
-			       << wt2 << ":" << wt3 << " Total weight "
-			       << weight_*wt1*wt2*wt3 << " deStep: "
-			       << aStep->GetTotalEnergyDeposit() << ":" <<destep;
+  edm::LogVerbatim("HGCalSim")  << "HGCalSD: weights= " << weight_ << ":" 
+				<< wt1 << ":" << wt2 << ":" << wt3 
+				<< " Total weight " << weight_*wt1*wt2*wt3 
+				<< " deStep: " <<aStep->GetTotalEnergyDeposit()
+				<< ":" <<destep;
 #endif
   return destep;
 }
@@ -148,7 +155,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
     module = -1;
     cell   = -1;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
+    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() 
+			       << ":" << levelT1_ << ":" << levelT2_
 			       << " name " << touch->GetVolume(0)->GetName() 
 			       << " layer:module:cell " << layer << ":" 
 			       << module << ":" << cell;
@@ -157,6 +165,12 @@ uint32_t HGCalSD::setDetUnitId(const G4Step * aStep) {
     layer  = touch->GetReplicaNumber(3);
     module = touch->GetReplicaNumber(2);
     cell   = touch->GetReplicaNumber(1);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "DepthsInside: " << touch->GetHistoryDepth() 
+			       << " name " << touch->GetVolume(0)->GetName() 
+			       << " layer:module:cell " << layer << ":" 
+			       << module << ":" << cell;
+#endif
   }
 #ifdef EDM_ML_DEBUG
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
@@ -211,11 +225,11 @@ void HGCalSD::update(const BeginOfJob * job) {
     double mouseBite = hgcons->mouseBite(false);
     mouseBiteCut_    = waferSize*tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ 
-			       << " Slope cut " << slopeMin_ << " top Level "
-			       << levelT1_ << ":" << levelT2_ << " isScint "
-			       << isScint_ << " wafer " << waferSize << ":"
-			       << mouseBite;
+    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " 
+			       << geom_mode_ << " Slope cut " << slopeMin_ 
+			       << " top Level " << levelT1_ << ":" << levelT2_ 
+			       << " isScint " << isScint_ << " wafer " 
+			       << waferSize << ":" << mouseBite;
 #endif
 
     numberingScheme_ = new HGCalNumberingScheme(*hgcons,mydet_,nameX_);
@@ -239,4 +253,3 @@ uint32_t HGCalSD::setDetUnitId (int layer, int module, int cell, int iz,
     numberingScheme_->getUnitID(layer, module, cell, iz, pos, weight_) : 0;
   return id;
 }
-
