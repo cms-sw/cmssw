@@ -20,27 +20,15 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base{
 
   void init(const std::vector<std::string> &weightFileNames);
 
-  // Calculation of the MVA value (VID accessor)
-  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
-  // Calculation of the MVA value (fwlite-compatible accessor)
-  float mvaValue( const edm::Ptr<reco::GsfElectron>& particle, const edm::EventBase & iEvent) const ;
-  // Calculation of the MVA value (bare version)
-  float mvaValue( const int iCategory, const std::vector<float> & vars) const ;
+  // Calculation of the MVA value
+  float mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent) const override;
 
   // Utility functions
   int getNCategories() const override { return nCategories_; }
   const std::string& getName() const final { return name_; }
   const std::string& getTag() const final { return tag_; }
 
-  // Functions that should work on both pat and reco electrons
-  // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&, const int iCategory) const;
-
-  template<class EventType>
-  std::vector<float> fillMVAVariables(const edm::Ptr<reco::GsfElectron>& eleRecoPtr, const EventType& iEvent, const int iCategory) const;
-
-  int findCategory( const edm::Ptr<reco::Candidate>& particle) const override;
-  int findCategory( const edm::Ptr<reco::GsfElectron>& particle) const ;
+  int findCategory( const edm::Ptr<reco::Candidate>& candPtr) const override;
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework

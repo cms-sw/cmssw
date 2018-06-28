@@ -81,8 +81,7 @@ class MVAVariableManager {
         return globalInputTags_;
     }
 
-    template <class EventType>
-    float getValue(int index, const edm::Ptr<ParticleType>& ptclPtr, const EventType& iEvent) const {
+    float getValue(int index, const edm::Ptr<ParticleType>& ptclPtr, const edm::EventBase& iEvent) const {
         float value;
         MVAVariableInfo varInfo = variableInfos_[index];
         if (varInfo.fromVariableHelper) {

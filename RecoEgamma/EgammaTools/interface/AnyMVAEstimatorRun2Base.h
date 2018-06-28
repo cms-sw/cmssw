@@ -19,7 +19,7 @@ class AnyMVAEstimatorRun2Base {
   // These function should work on electrons or photons
   // of the reco or pat type
 
-  virtual float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const = 0;
+  virtual float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::EventBase&) const = 0;
 
   // A specific implementation of MVA is expected to have one or more categories
   // defined with respect to eta, pt, etc.

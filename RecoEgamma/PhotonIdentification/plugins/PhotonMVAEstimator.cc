@@ -24,7 +24,7 @@ PhotonMVAEstimator::PhotonMVAEstimator(const edm::ParameterSet& conf):
   // Initialize GBRForests
   if( (int)(weightFileNames.size()) != nCategories_ )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of weightfiles" << std::endl;
+      << "wrong number of weightfiles in " << name_ << tag_ << std::endl;
 
   gbrForests_.clear();
   // Create a TMVA reader object for each category
@@ -61,7 +61,7 @@ PhotonMVAEstimator::
 }
 
 float PhotonMVAEstimator::
-mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
+mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::EventBase& iEvent) const {
 
   const int iCategory = findCategory( particle );
   const edm::Ptr<reco::Photon> phoRecoPtr = ( edm::Ptr<reco::Photon> )particle;
@@ -101,13 +101,14 @@ int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Candidate>& particle)
 
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
-  const edm::Ptr<reco::Photon> phoRecoPtr = ( edm::Ptr<reco::Photon> )particle;
-  if( phoRecoPtr.isNull() )
+  auto pho = dynamic_cast<reco::Photon const*>(particle.get());
+  if( pho == nullptr) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::Photon or pat::Photon," << std::endl
       << " but appears to be neither" << std::endl;
+  }
 
-  float eta = phoRecoPtr->superCluster()->eta();
+  float eta = pho->superCluster()->eta();
 
   //
   // Determine the category

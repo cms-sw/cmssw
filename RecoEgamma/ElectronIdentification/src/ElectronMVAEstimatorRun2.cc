@@ -18,7 +18,7 @@ ElectronMVAEstimatorRun2::ElectronMVAEstimatorRun2(const edm::ParameterSet& conf
 
   if( (int)(categoryCutStrings.size()) != nCategories_ )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of category cuts" << std::endl;
+      << "wrong number of category cuts in " << name_ << tag_ << std::endl;
 
   for (int i = 0; i < nCategories_; ++i) {
       StringCutObjectSelector<reco::GsfElectron> select(categoryCutStrings[i]);
@@ -48,7 +48,7 @@ void ElectronMVAEstimatorRun2::init(const std::vector<std::string> &weightFileNa
   // Initialize GBRForests
   if( (int)(weightFileNames.size()) != nCategories_ )
     throw cms::Exception("MVA config failure: ")
-      << "wrong number of weightfiles" << std::endl;
+      << "wrong number of weightfiles in " << name_ << tag_ << std::endl;
 
   gbrForests_.clear();
   // Create a TMVA reader object for each category
@@ -101,31 +101,22 @@ void ElectronMVAEstimatorRun2::setConsumes(edm::ConsumesCollector&& cc) const {
 }
 
 float ElectronMVAEstimatorRun2::
-mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
-  // Try to cast the particle into a reco particle.
-  // This should work for both reco and pat.
-  const edm::Ptr<reco::GsfElectron> eleRecoPtr = ( edm::Ptr<reco::GsfElectron> )particle;
-  if( eleRecoPtr.get() == nullptr ) {
+mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase & iEvent) const {
+
+  const int iCategory = findCategory( candPtr );
+  std::vector<float> vars;
+
+  edm::Ptr<reco::GsfElectron> gsfPtr{ candPtr };
+
+  if( gsfPtr.get() == nullptr ) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
   }
 
-  const int iCategory = findCategory( eleRecoPtr );
-  const std::vector<float> vars = fillMVAVariables( particle, iEvent, iCategory );
-  return mvaValue(iCategory, vars);
-}
-
-float ElectronMVAEstimatorRun2::
-mvaValue( const edm::Ptr<reco::GsfElectron>& particle, const edm::EventBase & iEvent) const {
-
-  const int iCategory = findCategory( particle );
-  const std::vector<float> vars = fillMVAVariables( particle, iEvent, iCategory );
-  return mvaValue(iCategory, vars);
-}
-
-float ElectronMVAEstimatorRun2::
-mvaValue( const int iCategory, const std::vector<float> & vars) const  {
+  for (int i = 0; i < nVariables_[iCategory]; ++i) {
+      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], gsfPtr, iEvent));
+  }
 
   if(debug_) {
     std::cout << " *** Inside " << name_ << tag_ << std::endl;
@@ -143,54 +134,21 @@ mvaValue( const int iCategory, const std::vector<float> & vars) const  {
   return response;
 }
 
-int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
+int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::Candidate>& candPtr) const {
 
-  // Try to cast the particle into a reco particle.
-  // This should work for both reco and pat.
-  const edm::Ptr<reco::GsfElectron> eleRecoPtr = ( edm::Ptr<reco::GsfElectron> )particle;
-  if( eleRecoPtr.get() == nullptr ) {
+  edm::Ptr<reco::GsfElectron> gsfPtr{ candPtr };
+
+  if( gsfPtr.get() == nullptr ) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
       << " but appears to be neither" << std::endl;
   }
-  return findCategory(eleRecoPtr);
-}
 
-int ElectronMVAEstimatorRun2::findCategory( const edm::Ptr<reco::GsfElectron>& eleRecoPtr ) const {
   for (int i = 0; i < nCategories_; ++i) {
-      if (categoryFunctions_[i](*eleRecoPtr)) return i;
-  }
-  return -1;
-}
-
-// A function that should work on both pat and reco objects
-std::vector<float> ElectronMVAEstimatorRun2::
-fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent, const int iCategory) const {
-
-  // Try to cast the particle into a reco particle.
-  // This should work for both reco and pat.
-  const edm::Ptr<reco::GsfElectron> eleRecoPtr = ( edm::Ptr<reco::GsfElectron> )particle;
-  if( eleRecoPtr.get() == nullptr ) {
-    throw cms::Exception("MVA failure: ")
-      << " given particle is expected to be reco::GsfElectron or pat::Electron," << std::endl
-      << " but appears to be neither" << std::endl;
+      if (categoryFunctions_[i](*gsfPtr)) return i;
   }
 
-  return fillMVAVariables(eleRecoPtr, iEvent, iCategory);
-}
-
-// A function that should work on both pat and reco objects
-// The EventType will be edm::Event for the VID accessor and edm::EventBase for for the fwlite accessor
-template<class EventType>
-std::vector<float> ElectronMVAEstimatorRun2::
-fillMVAVariables(const edm::Ptr<reco::GsfElectron>& eleRecoPtr, const EventType& iEvent, const int iCategory) const {
-
-  std::vector<float> vars;
-
-  for (int i = 0; i < nVariables_[iCategory]; ++i) {
-      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], eleRecoPtr, iEvent));
-  }
-
-  return vars;
+  throw cms::Exception("MVA failure: ")
+    << " category not defined for particle in " << name_ << tag_ << std::endl;
 
 }

@@ -37,7 +37,7 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
   ~PhotonMVAEstimator() override;
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
+  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::EventBase&) const override;
  
   // Utility functions
   std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
