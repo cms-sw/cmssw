@@ -85,6 +85,7 @@ looseIsoMuonsForZMuSkim = cms.EDFilter("PATGenericParticleSelector",
 tightMuonsCandidateForZMuSkim = patMuons.clone(
     src = cms.InputTag("muons"),
     embedHighLevelSelection = cms.bool(True), 
+    addTriggerMatching = cms.bool(False)
 )
 
 ##apply ~tight muon ID 
