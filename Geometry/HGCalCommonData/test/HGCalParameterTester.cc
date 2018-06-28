@@ -21,6 +21,8 @@ public:
 private:
   template<typename T> void myPrint(std::string const& s, 
 				    std::vector<T> const& obj, int n) const;
+  void myPrint(std::string const& s, std::vector<double> const& obj1,
+	       std::vector<double> const& obj2, int n) const;
   void myPrint(std::string const& s, HGCalParameters::wafer_map const& obj,
 	       int n) const;
   void printTrform(edm::ESHandle<HGCalParameters> const&) const;
@@ -81,13 +83,10 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("zLayerHex",         phgp->zLayerHex_,         10);  
     myPrint("rMinLayHex",        phgp->rMinLayHex_,        10);  
     myPrint("rMaxLayHex",        phgp->rMaxLayHex_,        10);  
-    myPrint("waferPosX",         phgp->waferPosX_,         10);  
-    myPrint("waferPosY",         phgp->waferPosY_,         10);
-    myPrint("cellFineX",         phgp->cellFineX_,         10);  
-    myPrint("cellFineY",         phgp->cellFineY_,         10);  
+    myPrint("waferPos",          phgp->waferPosX_,         phgp->waferPosY_,4);
+    myPrint("cellFine",          phgp->cellFineX_,         phgp->cellFineY_,4);
     myPrint("cellFineHalf",      phgp->cellFineHalf_,      10);  
-    myPrint("cellCoarseX",       phgp->cellCoarseX_,       10);  
-    myPrint("cellCoarseY",       phgp->cellCoarseY_,       10);  
+    myPrint("cellCoarse",        phgp->cellCoarseX_,       phgp->cellCoarseY_,4);  
     myPrint("cellCoarseHalf",    phgp->cellCoarseHalf_,    10);
     myPrint("boundR",            phgp->boundR_,            10);  
     myPrint("moduleLayS",        phgp->moduleLayS_,        10);  
@@ -160,14 +159,11 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent,
     myPrint("zLayerHex",         phgp->zLayerHex_,         10);  
     myPrint("rMinLayHex",        phgp->rMinLayHex_,        10);  
     myPrint("rMaxLayHex",        phgp->rMaxLayHex_,        10);  
-    myPrint("waferPosX",         phgp->waferPosX_,         10);  
-    myPrint("waferPosY",         phgp->waferPosY_,         10);
+    myPrint("waferPos",          phgp->waferPosX_,         phgp->waferPosY_,4);
     myPrint("cellFineIndex",     phgp->cellFineIndex_,     10);  
-    myPrint("cellFineX",         phgp->cellFineX_,         10);  
-    myPrint("cellFineY",         phgp->cellFineY_,         10);  
+    myPrint("cellFine",          phgp->cellFineX_,         phgp->cellFineY_,4);
     myPrint("cellCoarseIndex",   phgp->cellCoarseIndex_,   10);
-    myPrint("cellCoarseX",       phgp->cellCoarseX_,       10);
-    myPrint("cellCoarseY",       phgp->cellCoarseY_,       10);  
+    myPrint("cellCoarse" ,       phgp->cellCoarseX_,       phgp->cellCoarseY_,4);  
     myPrint("layer",             phgp->layer_,             18);  
     myPrint("layerIndex",        phgp->layerIndex_,        18);  
     myPrint("depth",             phgp->depth_,             18);
@@ -250,6 +246,19 @@ void HGCalParameterTester::myPrint(std::string const& s,
   std::cout << s << " with " << obj.size() << " elements\n";
   for (auto const& it : obj) {
     std::cout << it << ", "; ++k; 
+    if (k == n) { std::cout << "\n"; k = 0;}
+  }
+  if (k > 0) std::cout << "\n";
+}
+
+void HGCalParameterTester::myPrint(std::string const& s, 
+				   std::vector<double> const& obj1,
+				   std::vector<double> const& obj2,
+				   int n) const {
+  int k(0);
+  std::cout << s << " with " << obj1.size() << " elements\n";
+  for (unsigned int k1=0; k1<obj1.size(); ++k1) {
+    std::cout << "(" << obj1[k1] << ", " << obj2[k1] << ") "; ++k; 
     if (k == n) { std::cout << "\n"; k = 0;}
   }
   if (k > 0) std::cout << "\n";
