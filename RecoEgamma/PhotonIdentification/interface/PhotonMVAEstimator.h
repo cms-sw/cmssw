@@ -37,7 +37,7 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
   ~PhotonMVAEstimator() override;
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::EventBase&) const override;
+  float mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase&) const override;
  
   // Utility functions
   std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
@@ -46,7 +46,7 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
   const std::string& getName() const final { return name_; }
   const std::string& getTag() const final { return tag_; }
   
-  int findCategory( const edm::Ptr<reco::Candidate>& particle ) const override;
+  int findCategory( const edm::Ptr<reco::Candidate>& candPtr ) const override;
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework

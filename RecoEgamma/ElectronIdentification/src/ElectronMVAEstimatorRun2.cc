@@ -106,7 +106,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase & iEven
   const int iCategory = findCategory( candPtr );
   std::vector<float> vars;
 
-  edm::Ptr<reco::GsfElectron> gsfPtr{ candPtr };
+  const edm::Ptr<reco::GsfElectron> gsfPtr{ candPtr };
 
   if( gsfPtr.get() == nullptr ) {
     throw cms::Exception("MVA failure: ")
