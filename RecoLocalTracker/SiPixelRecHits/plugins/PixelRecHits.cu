@@ -71,10 +71,13 @@ namespace pixelgpudetails {
 
    cudaCheck(cudaMemcpyAsync(gpu_.bs_d, bs, 3*sizeof(float), cudaMemcpyDefault, stream.id()));
 
-    thrust::exclusive_scan(thrust::cuda::par.on(stream.id()),
+    // Set first the first element to 0
+    cudaCheck(cudaMemsetAsync(gpu_.hitsModuleStart_d, 0, sizeof(uint32_t), stream.id()));
+    // Then use inclusive_scan to get the partial sum to the rest
+    thrust::inclusive_scan(thrust::cuda::par.on(stream.id()),
                            input.clusInModule_d,
-                           input.clusInModule_d + gpuClustering::MaxNumModules + 1,
-                           gpu_.hitsModuleStart_d);
+                           input.clusInModule_d + gpuClustering::MaxNumModules,
+                           &gpu_.hitsModuleStart_d[1]);
   
     int threadsPerBlock = 256;
     int blocks = input.nModules; // active modules (with digis)
@@ -126,11 +129,11 @@ namespace pixelgpudetails {
     HitsOnCPU hoc(nhits);
     hoc.gpu_d = gpu_d;
     memcpy(hoc.hitsModuleStart, hitsModuleStart_, (gpuClustering::MaxNumModules+1) * sizeof(uint32_t));
-    cudaCheck(cudaMemcpyAsync(hoc.charge.data(), gpu_.charge_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(hoc.xl.data(), gpu_.xl_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(hoc.yl.data(), gpu_.yl_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(hoc.xe.data(), gpu_.xerr_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
-    cudaCheck(cudaMemcpyAsync(hoc.ye.data(), gpu_.yerr_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(hoc.charge.data(), gpu_.charge_d, nhits*sizeof(int32_t), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(hoc.xl.data(), gpu_.xl_d, nhits*sizeof(float), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(hoc.yl.data(), gpu_.yl_d, nhits*sizeof(float), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(hoc.xe.data(), gpu_.xerr_d, nhits*sizeof(float), cudaMemcpyDefault, stream.id()));
+    cudaCheck(cudaMemcpyAsync(hoc.ye.data(), gpu_.yerr_d, nhits*sizeof(float), cudaMemcpyDefault, stream.id()));
     cudaCheck(cudaMemcpyAsync(hoc.mr.data(), gpu_.mr_d, nhits*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
     cudaCheck(cudaMemcpyAsync(hoc.mc.data(), gpu_.mc_d, nhits*sizeof(uint16_t), cudaMemcpyDefault, stream.id()));
     cudaCheck(cudaStreamSynchronize(stream.id()));

@@ -439,6 +439,7 @@ void SiPixelRawToClusterHeterogeneous::acquireGPUCuda(const edm::HeterogeneousEv
   else if(recordWatcherUpdatedSinceLastTransfer_) {
     // If regions_ are disabled, it is enough to fill and transfer only if cablingMap has changed
     gpuModulesToUnpack_->fillAsync(*cablingMap_, std::set<unsigned int>(), cudaStream);
+    recordWatcherUpdatedSinceLastTransfer_ = false;
   }
 
   edm::ESHandle<SiPixelFedCablingMapGPUWrapper> hgpuMap;
