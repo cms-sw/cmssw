@@ -46,25 +46,26 @@ ecalTrkCombinationRegression = cms.PSet(
     
 )
 
+#a bug was found, the smear corrected ecal energy err was used in the E/p combination
+#as the campaign has already started, we can not change the default nor the behaviour for the 94X Fall17 reminiAOD
+#therefore we set useSmearCorrEcalEnergyErrInComb = cms.bool(True) when it should be set to false
+#make no mistake, this is an incorrect configuration which will cause a scale shift at Et = 50 GeV
 calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
                                      calibratedEgammaSettings,
-                                     useSmearCorrEcalEnergyErrInComb = cms.bool(False),
+                                     useSmearCorrEcalEnergyErrInComb = cms.bool(True),
                                      epCombConfig = ecalTrkCombinationRegression,
                                      src = cms.InputTag('gedGsfElectrons'),
                                      )
 
 calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
                                         calibratedEgammaPatSettings,
-                                        useSmearCorrEcalEnergyErrInComb = cms.bool(False),
+                                        useSmearCorrEcalEnergyErrInComb = cms.bool(True),
                                         epCombConfig = ecalTrkCombinationRegression,
                                         src = cms.InputTag('slimmedElectrons'), 
                                        )
-#there was a bug in the 94X Fall17 reminiAOD, this bool set to True enables the bug as
-#this release must be able to reproduce the exact content of that miniAOD production
-#make no mistake, this is an incorrect configuration which will cause a scale shift at Et = 50 GeV
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-run2_miniAOD_94XFall17.toModify(calibratedElectrons,useSmearCorrEcalEnergyErrInComb = True)
-run2_miniAOD_94XFall17.toModify(calibratedPatElectrons,useSmearCorrEcalEnergyErrInComb = True)
+#the 80XLegacy miniAOD had not started, hence we can fix it for that
+run2_miniAOD_80XLegacy.toModify(calibratedElectrons,useSmearCorrEcalEnergyErrInComb = False)
+run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons,useSmearCorrEcalEnergyErrInComb = False)
 
 
 
