@@ -71,7 +71,7 @@ process.slhccalo = cms.Path( process.RawToDigi + process.valHcalTriggerPrimitive
         # To produce L1EG objects corresponding
         # to the Run-1 L1EG algorithm, one just needs to run
         # L1Reco. The (Run-1) L1EG algorithm has already been
-        # run in the DIGI step of the production. 
+        # run in the DIGI step of the production.
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.L1Reco = cms.Path( process.l1extraParticles )
 
@@ -93,7 +93,7 @@ process.L1Reco = cms.Path( process.l1extraParticles )
 #process.pSasha = cms.Path( process.L1EGammaCrystalsProducer )
 
 
-	# needed because the calo stuff above clashes with the DTs 
+	# needed because the calo stuff above clashes with the DTs
 process.es_prefer_dt = cms.ESPrefer("DTConfigTrivialProducer","L1DTConfig")
 
 
@@ -103,10 +103,10 @@ process.es_prefer_dt = cms.ESPrefer("DTConfigTrivialProducer","L1DTConfig")
 # Now we produce L1TkEmParticles and L1TkElectrons
 
 # ----  "photons" isolated w.r.t. L1Tracks :
-        
+
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEmParticleProducer_cfi")
 process.pL1TkPhotons = cms.Path( process.L1TkPhotons )
-        
+
 # ---- "photons", tighter isolation working point  -  e.g. for SinglePhoton trigger
 process.pL1TkPhotonsTightIsol = cms.Path( process.L1TkPhotonsTightIsol )
 
@@ -168,7 +168,7 @@ process.pTaus = cms.Path( process.TkEmTauSequence )
 
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkCaloSequence_cff")
 
-# -- Produce L1TkJets, HT and MHT from the L1Jets :       
+# -- Produce L1TkJets, HT and MHT from the L1Jets :
 process.L1TkCaloL1Jets = cms.Path( process.L1TkCaloSequence )
 
 # -- Produce the HLT JI Jets and L1TkJets, HT and MHT from  these jets :
@@ -210,9 +210,9 @@ process.Out.outputCommands.append('keep *_L1TkIsoElectronsLoose_*_*')
 
         # the L1TkPrimaryVertex
 process.Out.outputCommands.append('keep *_L1TkPrimaryVertex_*_*')
-        # the TrkMET 
+        # the TrkMET
 process.Out.outputCommands.append('keep *_L1TkEtMiss*_*_*')
-        # the calo-based L1MET 
+        # the calo-based L1MET
 process.Out.outputCommands.append('keep *_l1extraParticles_MET_*')
 
 	# TkTaus
@@ -229,11 +229,11 @@ process.Out.outputCommands.append('keep *_L1CalibFilterTowerJetProducer_Calibrat
 process.Out.outputCommands.append('keep *_L1CalibFilterTowerJetProducer_UncalibratedTowerJets_*')       # L1Jets
 # Collections of HT and MHT variables :
         # -- made from the L1Jets :
-process.Out.outputCommands.append('keep *_L1TkHTMissCalo_*_*')          # from L1Jets, calo only
-process.Out.outputCommands.append('keep *_L1TkHTMissVtx_*_*')           # from L1Jets, with vertex constraint
+process.Out.outputCommands.append('keep *_L1TkMatchedHTMiss_*_*')          # from L1Jets, calo only
+process.Out.outputCommands.append('keep *_L1TkMatchedHTMissVtx_*_*')           # from L1Jets, with vertex constraint
         # -- made from the HLT HI jets:
-process.Out.outputCommands.append('keep *_L1TkHTMissCaloHI_*_*')        # from HLT HI jets, calo only
-process.Out.outputCommands.append('keep *_L1TkHTMissVtxHI_*_*')         # from HLT HI jets, with vertex constraint
+process.Out.outputCommands.append('keep *_L1TkMatchedHTMissHI_*_*')        # from HLT HI jets, calo only
+process.Out.outputCommands.append('keep *_L1TkMatchedHTMissVtxHI_*_*')         # from HLT HI jets, with vertex constraint
 
 	# keep the (rebuilt) tracks
 #process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_ALL')
@@ -264,10 +264,3 @@ process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigisLargerP
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)
-
-
-
-
-
-
-

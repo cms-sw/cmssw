@@ -31,17 +31,17 @@ Source_Files = cms.untracked.vstring(
 'file:/mnt/hadoop/store/user/rish/10000/6A7FF696-AD28-E811-932C-0CC47A4D7662.root')
 process.load("L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff")
 process.TTTracks = cms.Path(process.L1TrackletTracks)                         #run only the tracking (no MC truth associators)
-process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators) 
+process.TTTracksWithTruth = cms.Path(process.L1TrackletTracksWithAssociators)
 
 
 process.source = cms.Source("PoolSource", fileNames = Source_Files) #, inputCommands=cms.untracked.vstring('drop *EMTF_*_*_*'))
 process.load("L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi")
 process.pL1TkPrimaryVertex = cms.Path( process.L1TkPrimaryVertex )
 process.load("L1Trigger.L1TTrackMatch.L1TkFastJetProducer_cfi");
-process.pL1TkFastJets=cms.Path(process.L1TkFastJets)
+process.pL1TkJets=cms.Path(process.L1TkJets)
 process.out = cms.OutputModule( "PoolOutputModule",
                                 fastCloning = cms.untracked.bool( False ),
                                 fileName = cms.untracked.string("test.root" )
 		               )
 process.FEVToutput_step = cms.EndPath(process.out)
-process.schedule = cms.Schedule(process.TTTracks,process.TTTracksWithTruth,process.pL1TkPrimaryVertex,process.pL1TkFastJets,process.FEVToutput_step)
+process.schedule = cms.Schedule(process.TTTracks,process.TTTracksWithTruth,process.pL1TkPrimaryVertex,process.pL1TkJets,process.FEVToutput_step)
