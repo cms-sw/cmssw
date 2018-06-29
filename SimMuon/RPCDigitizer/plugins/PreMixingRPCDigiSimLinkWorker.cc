@@ -5,4 +5,4 @@
 
 using PreMixingRPCDigiSimLinkWorker = PreMixingDigiSimLinkWorker<edm::DetSetVector<RPCDigiSimLink> >;
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingRPCDigiSimLinkWorker , "PreMixingRPCDigiSimLinkWorker");
+DEFINE_PREMIXING_WORKER(PreMixingRPCDigiSimLinkWorker);
