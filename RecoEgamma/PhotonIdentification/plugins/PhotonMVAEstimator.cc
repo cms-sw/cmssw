@@ -61,22 +61,29 @@ PhotonMVAEstimator::
 }
 
 float PhotonMVAEstimator::
-mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::EventBase& iEvent) const {
+mvaValue(const edm::Ptr<reco::Candidate>& candPtr, const edm::EventBase& iEvent) const {
 
-  const int iCategory = findCategory( particle );
-  const edm::Ptr<reco::Photon> phoRecoPtr = ( edm::Ptr<reco::Photon> )particle;
+  const int iCategory = findCategory( candPtr );
+
+  const edm::Ptr<reco::Photon> phoPtr{ candPtr };
+  if( phoPtr.get() == nullptr) {
+    throw cms::Exception("MVA failure: ")
+      << " given particle is expected to be reco::Photon or pat::Photon," << std::endl
+      << " but appears to be neither" << std::endl;
+  }
+
   std::vector<float> vars;
 
   for (int i = 0; i < nVariables_[iCategory]; ++i) {
-      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], phoRecoPtr, iEvent));
+      vars.push_back(mvaVarMngr_.getValue(variables_[iCategory][i], phoPtr, iEvent));
   }
 
   // Special case for Spring16!
   if (tag_ == "Run2Spring16NonTrigV1" and iCategory == CAT_EE) {
       // Raw value for EB only, because of loss of transparency in EE
       // for endcap MVA only in 2016
-      double eA = effectiveAreas_->getEffectiveArea( std::abs(phoRecoPtr->superCluster()->eta()) );
-      double phoIsoCorr = vars[10] - eA*(double)vars[9] - phoIsoPtScalingCoeff_.at(1) * phoRecoPtr->pt();
+      double eA = effectiveAreas_->getEffectiveArea( std::abs(phoPtr->superCluster()->eta()) );
+      double phoIsoCorr = vars[10] - eA*(double)vars[9] - phoIsoPtScalingCoeff_.at(1) * phoPtr->pt();
       vars[10] = TMath::Max( phoIsoCorr, phoIsoCutoff_);
   }
 
@@ -97,11 +104,12 @@ mvaValue(const edm::Ptr<reco::Candidate>& particle, const edm::EventBase& iEvent
   return response;
 }
 
-int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Candidate>& particle) const {
+int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Candidate>& candPtr) const {
 
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
-  auto pho = dynamic_cast<reco::Photon const*>(particle.get());
+  auto pho = dynamic_cast<reco::Photon const*>(candPtr.get());
+
   if( pho == nullptr) {
     throw cms::Exception("MVA failure: ")
       << " given particle is expected to be reco::Photon or pat::Photon," << std::endl
