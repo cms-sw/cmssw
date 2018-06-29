@@ -7,5 +7,5 @@
 using PreMixingPixelDigiSimLinkWorker = PreMixingDigiSimLinkWorker<edm::DetSetVector<PixelDigiSimLink> >;
 using PreMixingStripDigiSimLinkWorker = PreMixingDigiSimLinkWorker<edm::DetSetVector<StripDigiSimLink> >;
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingPixelDigiSimLinkWorker , "PreMixingPixelDigiSimLinkWorker");
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingStripDigiSimLinkWorker , "PreMixingStripDigiSimLinkWorker");
+DEFINE_PREMIXING_WORKER(PreMixingPixelDigiSimLinkWorker);
+DEFINE_PREMIXING_WORKER(PreMixingStripDigiSimLinkWorker);

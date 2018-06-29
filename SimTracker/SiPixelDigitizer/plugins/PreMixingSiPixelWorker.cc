@@ -314,4 +314,4 @@ void PreMixingSiPixelWorker::put(edm::Event &e, edm::EventSetup const& iSetup, s
   SiHitStorage_.clear();
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingSiPixelWorker, "PreMixingSiPixelWorker");
+DEFINE_PREMIXING_WORKER(PreMixingSiPixelWorker);

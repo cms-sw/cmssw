@@ -83,4 +83,4 @@ void PreMixingHGCalWorker::put(edm::Event &e,const edm::EventSetup& ES, std::vec
   digitizer_.finalizeEvent(e, ES, &rng->getEngine(e.streamID()));
 }
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingHGCalWorker, "PreMixingHGCalWorker");
+DEFINE_PREMIXING_WORKER(PreMixingHGCalWorker);

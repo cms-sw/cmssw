@@ -6,5 +6,5 @@
 using PreMixingGEMWorker = PreMixingMuonWorker<GEMDigiCollection>;
 using PreMixingME0Worker = PreMixingMuonWorker<ME0DigiCollection>;
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingGEMWorker, "PreMixingGEMWorker");
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, PreMixingME0Worker, "PreMixingME0Worker");
+DEFINE_PREMIXING_WORKER(PreMixingGEMWorker);
+DEFINE_PREMIXING_WORKER(PreMixingME0Worker);
