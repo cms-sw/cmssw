@@ -360,7 +360,7 @@ void CAHitQuadrupletGeneratorGPU::deallocateOnGPU()
   cudaFreeHost(h_y_);
   cudaFreeHost(h_z_);
   cudaFreeHost(h_rootLayerPairs_);
-  for (int i = 0; i < maxNumberOfRegions_; ++i)
+  for (size_t i = 0; i < h_foundNtupletsVec_.size(); ++i)
   {
     cudaFreeHost(h_foundNtupletsVec_[i]);
     cudaFreeHost(h_foundNtupletsData_[i]);
@@ -373,6 +373,7 @@ void CAHitQuadrupletGeneratorGPU::deallocateOnGPU()
 
   cudaFree(d_indices_);
   cudaFree(d_doublets_);
+  cudaFree(d_layers_);
   cudaFree(d_x_);
   cudaFree(d_y_);
   cudaFree(d_z_);

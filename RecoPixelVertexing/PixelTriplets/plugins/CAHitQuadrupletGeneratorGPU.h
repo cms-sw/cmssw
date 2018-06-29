@@ -158,28 +158,28 @@ private:
     unsigned int numberOfLayerPairs_ = 0;
     unsigned int numberOfLayers_ = 0;
 
-    GPULayerDoublets* h_doublets_;
-    GPULayerHits* h_layers_;
+    GPULayerDoublets* h_doublets_ = nullptr;
+    GPULayerHits* h_layers_ = nullptr;
 
-    unsigned int* h_indices_;
-    float *h_x_, *h_y_, *h_z_;
-    float *d_x_, *d_y_, *d_z_;
-    unsigned int* d_rootLayerPairs_;
-    GPULayerHits* d_layers_;
-    GPULayerDoublets* d_doublets_;
-    unsigned int* d_indices_;
-    unsigned int* h_rootLayerPairs_;
+    unsigned int* h_indices_ = nullptr;
+    float *h_x_=nullptr, *h_y_=nullptr, *h_z_=nullptr;
+    float *d_x_=nullptr, *d_y_=nullptr, *d_z_=nullptr;
+    unsigned int* d_rootLayerPairs_ = nullptr;
+    GPULayerHits* d_layers_ = nullptr;
+    GPULayerDoublets* d_doublets_ = nullptr;
+    unsigned int* d_indices_ = nullptr;
+    unsigned int* h_rootLayerPairs_ = nullptr;
     std::vector<GPU::SimpleVector<Quadruplet>*> h_foundNtupletsVec_;
     std::vector<Quadruplet*> h_foundNtupletsData_;
 
     std::vector<GPU::SimpleVector<Quadruplet>*> d_foundNtupletsVec_;
     std::vector<Quadruplet*> d_foundNtupletsData_;
 
-    GPUCACell* device_theCells_;
-    GPU::VecArray< unsigned int, maxCellsPerHit_>* device_isOuterHitOfCell_;
+    GPUCACell* device_theCells_ = nullptr;
+    GPU::VecArray< unsigned int, maxCellsPerHit_>* device_isOuterHitOfCell_ = nullptr;
 
-    GPULayerHits* tmp_layers_;
-    GPULayerDoublets* tmp_layerDoublets_;
+    GPULayerHits* tmp_layers_ = nullptr;
+    GPULayerDoublets* tmp_layerDoublets_ = nullptr;
 };
 
 #endif
