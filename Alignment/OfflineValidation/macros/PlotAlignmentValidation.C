@@ -1923,3 +1923,92 @@ return 2*(1-ROOT::Math::tdistribution_cdf(abs(t),v));
 }
 
 const TString PlotAlignmentValidation::summaryfilename = "OfflineValidationSummary.txt";
+
+
+
+vector <TH1*>  PlotAlignmentValidation::findmodule (TFile* f, unsigned int moduleid){
+		
+		
+		//TFile *f = TFile::Open(filename, "READ");
+		TString histnamex;
+		TString histnamey;
+        //read necessary branch/folder
+        auto t = (TTree*)f->Get("TrackerOfflineValidationStandalone/TkOffVal");
+
+        TkOffTreeVariables *variables=0;
+        t->SetBranchAddress("TkOffTreeVariables", &variables);
+        unsigned int number_of_entries=t->GetEntries();
+        for (int i=0;i<number_of_entries;i++){
+                t->GetEntry(i);
+                 if (variables->moduleId==moduleid){
+                        histnamex=variables->histNameX;
+                        histnamey=variables->histNameY;
+						break;
+                        }
+        }
+		 
+	vector <TH1*> h;
+		
+        auto h1 = (TH1*)f->FindObjectAny(histnamex);
+	auto h2 = (TH1*)f->FindObjectAny(histnamey);
+        
+	h1->SetDirectory(0);
+	h2->SetDirectory(0);
+        
+	h.push_back(h1);
+	h.push_back(h2);
+		
+	return h;
+ }
+
+void PlotAlignmentValidation::residual_by_moduleID( unsigned int moduleid){
+	TString histname = "residual_module_";
+	histname.Append(to_string(moduleid));
+	TFile * f = new TFile (histname+".root","RECREATE");
+	TCanvas *cx = new TCanvas("h_x_residual");
+	TCanvas *cy = new TCanvas("h_y_residual");
+	
+    	
+	
+	
+	
+	for (auto it : sourceList) {
+		TFile* file = it->getFile();
+		int color = it->getLineColor();
+		int linestyle = it->getLineStyle();   //this you set by doing h->SetLineStyle(linestyle)
+		TString legendname = it->getName(); //this goes in the legend
+	    	vector<TH1*> hist = findmodule(file, moduleid);
+			
+		TString filenamex = legendname+" NEntries: "+to_string(int(hist[0]->GetEntries()));
+        	hist[0]->SetTitle(filenamex);
+        	hist[0]->SetStats(0);
+        	hist[0]->Rebin(50);
+        	hist[0]->SetBit(TH1::kNoTitle);
+        	hist[0]->SetLineColor(color);
+        	hist[0]->SetLineStyle(linestyle);
+        	cx->cd();
+		hist[0]->Draw("Same");
+			
+			
+		TString filenamey = legendname+" NEntries: "+to_string(int(hist[1]->GetEntries()));
+        	hist[1]->SetTitle(filenamey);
+        	hist[1]->SetStats(0);
+        	hist[1]->Rebin(50);
+        	hist[1]->SetBit(TH1::kNoTitle);
+        	hist[1]->SetLineColor(color);
+        	hist[1]->SetLineStyle(linestyle);
+        	cy->cd();
+			hist[1]->Draw("Same");
+	}
+	
+	cx->cd();
+	gPad->BuildLegend(0.6,0.6,0.9,0.9);
+	cy->cd();
+	gPad->BuildLegend(0.6,0.6,0.9,0.9);
+	
+    f->cd();
+    cx->Write();
+    cy->Write();
+    f->Close();
+	
+}
