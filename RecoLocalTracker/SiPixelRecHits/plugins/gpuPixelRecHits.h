@@ -6,9 +6,13 @@
 #include <cstdio>
 #include <limits>
 
+#include "DataFormats/Math/interface/approx_atan2.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 namespace gpuPixelRecHits {
+
+
+
 
   // to be moved in common namespace...
   constexpr uint16_t InvId=9999; // must be > MaxNumModules
@@ -20,6 +24,7 @@ namespace gpuPixelRecHits {
 
 
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const * cpeParams,
+                          float const * bs,
                           uint16_t const * id,
 			  uint16_t const * x,
 			  uint16_t const * y,
@@ -27,13 +32,15 @@ namespace gpuPixelRecHits {
 			  uint32_t const * digiModuleStart,
 			  uint32_t const * clusInModule,
 			  uint32_t const * moduleId,
-			  int32_t const * clus,
+			  int32_t  const * clus,
 			  int numElements,
 			  uint32_t const * hitsModuleStart,
                           int32_t * chargeh,
-			  float * xh, float * yh, float * zh,
-                          float * xe, float * ye, uint16_t * mr,
-			  bool local)   // if true fill just x & y in local coord
+                          uint16_t * detInd,
+			  float * xg, float * yg, float * zg, float * rg, int16_t * iph,
+                          float * xl, float * yl,
+                          float * xe, float * ye, 
+                          uint16_t * mr, uint16_t * mc)
   {
     // as usual one block per module
     __shared__ ClusParams clusParams;
@@ -108,16 +115,26 @@ namespace gpuPixelRecHits {
 
     chargeh[h] = clusParams.charge[ic];
 
-    if (local) {
-      xh[h] = clusParams.xpos[ic];
-      yh[h] = clusParams.ypos[ic];
-    } else {
-      cpeParams->detParams(me).frame.toGlobal(clusParams.xpos[ic], clusParams.ypos[ic],
-                                              xh[h], yh[h], zh[h] );
-    }
-    xe[h] = clusParams.xerr[ic];
-    ye[h] = clusParams.yerr[ic];
-    mr[h] = clusParams.minRow[ic];
+    detInd[h] = me;
+
+    xl[h]= clusParams.xpos[ic];   
+    yl[h]= clusParams.ypos[ic]; 
+
+    xe[h]= clusParams.xerr[ic];
+    ye[h]= clusParams.yerr[ic];
+    mr[h]= clusParams.minRow[ic];
+    mc[h]= clusParams.minCol[ic];
+  
+    // to global and compute phi... 
+    cpeParams->detParams(me).frame.toGlobal(xl[h],yl[h], xg[h],yg[h],zg[h]);
+    // here correct for the beamspot...
+    xg[h]-=bs[0];
+    yg[h]-=bs[1];
+    zg[h]-=bs[2];
+
+    rg[h] = std::sqrt(xg[h]*xg[h]+yg[h]*yg[h]);
+    iph[h] = unsafe_atan2s<7>(yg[h],xg[h]);
+    
   }
 
 }
