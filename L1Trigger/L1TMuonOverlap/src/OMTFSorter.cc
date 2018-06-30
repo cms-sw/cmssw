@@ -186,7 +186,34 @@ std::vector<l1t::RegionalMuonCand> OMTFSorter::candidates(unsigned int iProcesso
              || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000001100000000").to_ulong()
              || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000001010000000").to_ulong()
            )
-       ) quality =4;
+       ) quality = 4;
+    if( myOmtfConfig->fwVersion() >= 5 ) {
+      if (    static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000000010000000011").to_ulong() 
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000000100000000011").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000001000000000011").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000010000000000011").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000100000000000011").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("001000000000000011").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("010000000000000011").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000000000000011").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000000010000001100").to_ulong() 
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000000100000001100").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000001000000001100").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000010000000001100").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000100000000001100").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("001000000000001100").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("010000000000001100").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000000000001100").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000000010000110000").to_ulong() 
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000000100000110000").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000001000000110000").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000010000000110000").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("000100000000110000").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("001000000000110000").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("010000000000110000").to_ulong()
+           || static_cast<unsigned int>(myCand.getHits()) == std::bitset<18>("100000000000110000").to_ulong()
+         ) quality = 1;
+    }
 
 //  if (abs(myCand.getEta()) == 121) quality = 4;
     if (abs(myCand.getEta()) == 121) quality = 0; // changed on request from HI
