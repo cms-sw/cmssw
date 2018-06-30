@@ -12,10 +12,13 @@
 #include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
 #include "L1Trigger/L1TMuonOverlap/interface/GhostBuster.h"
 
+class OMTFConfiguration;
+
 class OMTFSorter{
 
  public:
 
+  void initialize(const OMTFConfiguration* cfg) { myOmtfConfig=cfg; }
   void setNphiBins(unsigned int phiBins) { nPhiBins = phiBins;}
 
   void sortRefHitResults(const std::vector<OMTFProcessor::resultsMap> & procResults,
@@ -55,6 +58,7 @@ class OMTFSorter{
 
 
   unsigned int nPhiBins;
+  const OMTFConfiguration   *myOmtfConfig; 
 };
 
 #endif
