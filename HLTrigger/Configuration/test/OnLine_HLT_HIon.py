@@ -1,13 +1,13 @@
 # hltGetConfiguration --full --data /dev/CMSSW_10_1_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run2_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_10_1_0/HIon/V41 (CMSSW_10_1_4)
+# /dev/CMSSW_10_1_0/HIon/V56 (CMSSW_10_1_7)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_1_0/HIon/V41')
+  tableName = cms.string('/dev/CMSSW_10_1_0/HIon/V56')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4143,7 +4143,9 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     EmulateBxInEvent = cms.int32( 1 ),
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     PrintL1Menu = cms.untracked.bool( False ),
+    PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
     Verbosity = cms.untracked.int32( 0 ),
+    AlgoBlkInputTag = cms.InputTag( "hltGtStage2Digis" ),
     EtSumInputTag = cms.InputTag( 'hltGtStage2Digis','EtSum' ),
     ProduceL1GtDaqRecord = cms.bool( True ),
     PrescaleSet = cms.uint32( 1 ),
@@ -4152,7 +4154,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     TriggerMenuLuminosity = cms.string( "startup" ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     AlternativeNrBxBoardDaq = cms.uint32( 0 ),
-    PrescaleCSVFile = cms.string( "prescale_L1TGlobal.csv" ),
+    GetPrescaleColumnFromData = cms.bool( False ),
     TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     BstLengthBytes = cms.int32( -1 ),
     MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' )
@@ -4281,8 +4283,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Random_v3',
   'HLT_ZeroBias_v6' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
-      'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
+      'keep *_hltDeepCombinedSecondaryVertexBJetTagsCalo_*_*',
+      'keep *_hltDeepCombinedSecondaryVertexBJetTagsPF_*_*',
       'keep *_hltEcalRecHit_*_*',
       'keep *_hltEgammaCandidates_*_*',
       'keep *_hltEgammaGsfElectrons_*_*',
@@ -4299,10 +4301,10 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltMergedTracks_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltPFJetForBtag_*_*',
-      'keep *_hltPixelTracksMerged_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVertices_*_*',
       'keep *_hltSelector8CentralJetsL1FastJet_*_*',
+      'keep *_hltSiPixelClustersCache_*_*',
       'keep *_hltSiPixelClusters_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
