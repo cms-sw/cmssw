@@ -42,7 +42,7 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Hcal Gains, IOV %i", run));
+      t1.DrawLatex(0.5, 0.96, Form("Hcal Gains, IOV %i", -1));
       std::string ImageName(m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
       return true;
@@ -67,7 +67,7 @@ namespace {
       t1.SetNDC();
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Ecal Gain Ratios, IOV %i - %i", run[1], run[0]));
+      t1.DrawLatex(0.5, 0.96, Form("Hcal Gain Ratios, IOV %i - %i", -1, -1));
 
       std::string ImageName(m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
@@ -79,5 +79,5 @@ namespace {
   // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(HcalGains){
   PAYLOAD_INSPECTOR_CLASS(HcalGainsPlot);
-  PAYLOAD_INSPECTOR_CLASS(EcalGainsDiff);
+  PAYLOAD_INSPECTOR_CLASS(HcalGainsDiff);
 }
