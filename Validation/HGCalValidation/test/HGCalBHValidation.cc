@@ -96,7 +96,7 @@ void HGCalBHValidation::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("ModuleLabel","g4SimHits");
   desc.addUntracked<std::string>("HitCollection","HcalHits");
-  desc.addUntracked<edm::InputTag>("DigiCollection",edm::InputTag("mix","HGCDigisHEback"));
+  desc.addUntracked<edm::InputTag>("DigiCollection",edm::InputTag("hgcalDigis","HEback"));
   desc.addUntracked<int>("Sample",5);
   desc.addUntracked<int>("GeometryType",0);
   desc.addUntracked<double>("Threshold",15.0);

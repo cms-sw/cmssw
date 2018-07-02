@@ -117,7 +117,7 @@ HGCalDigiValidation::HGCalDigiValidation(const edm::ParameterSet& iConfig) :
 void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("DetectorName","HGCalEESensitive");
-  desc.add<edm::InputTag>("DigiSource",edm::InputTag("mix","HGCDigisEE"));
+  desc.add<edm::InputTag>("DigiSource",edm::InputTag("hgcalDigis","EE"));
   desc.add<bool>("ifHCAL",false);
   desc.addUntracked<int>("Verbosity",0);
   desc.addUntracked<int>("SampleIndx",0);
