@@ -9,6 +9,7 @@
 #define OMTF_IGHOSTBUSTER_H_
 
 #include "L1Trigger/L1TMuonOverlap/interface/AlgoMuon.h"
+#include <vector>
 
 class IGhostBuster {
 public:
