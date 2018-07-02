@@ -441,15 +441,16 @@ void TotemTimingDQMSource::dqmBeginRun(const edm::Run &iRun,
   const CTPPSGeometry *geom = geometry_.product();
   const TotemTimingDetId detid_top(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_BOT_RP_ID, 0, 0 );
   const TotemTimingDetId detid_bot(0, TOTEM_TIMING_STATION_ID, TOTEM_TIMING_TOP_RP_ID, 0, 7 );
-  try
+  verticalShiftTop_ = 0;
+  verticalShiftBot_ = 0;
   {
-    const DetGeomDesc* det_top = geom->getSensor( detid_top );
-    verticalShiftTop_ = det_top->translation().y() + det_top->params().at( 1 );
-    const DetGeomDesc* det_bot = geom->getSensor( detid_bot );
-    verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at( 1 );
-  } catch (const cms::Exception &) {
-    verticalShiftTop_ = 0;
-    verticalShiftBot_ = 0;
+    const DetGeomDesc* det_top = geom->getSensorNoThrow( detid_top );
+    if(det_top) {
+      verticalShiftTop_ = det_top->translation().y() + det_top->params().at( 1 );
+    }
+    const DetGeomDesc* det_bot = geom->getSensorNoThrow( detid_bot );
+    if(det_bot)
+      verticalShiftBot_ = det_bot->translation().y() + det_bot->params().at( 1 );
   }
 }
 
