@@ -128,6 +128,10 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
       edm::LogVerbatim("HGCalGeom") << "Valid Id [0] " 
 				    << HGCScintillatorDetId(idc);
 #endif
+    } else {
+      edm::LogWarning("HGCalGeom") << "Check " << HGCScintillatorDetId(idc) 
+				   << " from " << HGCScintillatorDetId(detId)
+				   << " ERROR ???";
     }
   } else {
 #ifdef EDM_ML_DEBUG
