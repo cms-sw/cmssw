@@ -672,6 +672,13 @@ HLT_Mu8_IP6_part4_v*	#	CMSHLT-1886
 HLT_ZeroBias_Alignment_v*	#	CMSHLT-1892
 HLT_CDC_L2cosmic_5_er1p0_v*	#	CMSHLT-1896
 HLT_CDC_L2cosmic_5p5_er1p0_v*	#	CMSHLT-1896
+HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_NoL2Matched_v*	#	CMSHLT-1907
+HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_NoL2Matched_v*	#	CMSHLT-1907
+HLT_DoubleL2Mu23NoVtx_2Cha_NoL2Matched_v*	#	CMSHLT-1907
+HLT_DoubleL2Mu25NoVtx_2Cha_NoL2Matched_v*	#	CMSHLT-1907
+HLT_DoubleTrkMu_16_6_NoFiltersNoVtx_v*	#	CMSHLT-1919
+HLT_Ele28_WPTight_Gsf_v*	#	CMSHLT-1921
+HLT_Ele30_WPTight_Gsf_v*	#	CMSHLT-1921
 
 ## EndPath ##
 
