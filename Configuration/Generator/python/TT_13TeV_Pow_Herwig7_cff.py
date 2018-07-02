@@ -12,7 +12,7 @@ externalLHEProducer = cms.EDProducer("ExternalLHEProducer",
 
 generator = cms.EDFilter("Herwig7GeneratorFilter",
 
-     configFiles = cms.vstring('/nfs/dust/cms/user/gvonsem/cms/TOPMC/herwig7/powheg/hadronize/pretuning/CMSSW_10_0_0/src/LHE_custom.in'),
+    configFiles = cms.vstring(),
                                                                                                                                                              
    hw_nnpdf31 = cms.vstring(
             'cd /Herwig/Partons',
@@ -40,8 +40,65 @@ generator = cms.EDFilter("Herwig7GeneratorFilter",
         'set AlphaQCD:AlphaMZ 0.118',
         'cd /Herwig/DipoleShower',
         'set NLOAlphaS:input_alpha_s 0.118'
-    ),                                                                                                                                                                         
-    parameterSets = cms.vstring('hw_nnpdf31','hw_alphas'),
+    ),
+    hw_LHEsettings = cms.vstring(
+            'read snippets/PPCollider.in',
+
+            'cd /Herwig/Generators',
+            'set EventGenerator:NumberOfEvents 10000000',
+            #'set EventGenerator:RandomNumberGenerator:Seed 31122001'
+            'set EventGenerator:DebugLevel 0',
+            'set EventGenerator:PrintEvent 10',
+            'set EventGenerator:MaxErrors 10000',
+
+            'cd /Herwig/EventHandlers',
+            'library LesHouches.so',
+            'create ThePEG::LesHouchesEventHandler LesHouchesHandler',
+
+            'set LesHouchesHandler:PartonExtractor /Herwig/Partons/PPExtractor',
+            'set LesHouchesHandler:CascadeHandler /Herwig/Shower/ShowerHandler',
+            'set LesHouchesHandler:DecayHandler /Herwig/Decays/DecayHandler',
+            'set LesHouchesHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler',
+
+            'set LesHouchesHandler:WeightOption VarNegWeight',
+
+            'set /Herwig/Generators/EventGenerator:EventHandler /Herwig/EventHandlers/LesHouchesHandler',
+
+            'create ThePEG::Cuts /Herwig/Cuts/NoCuts',
+
+            'create ThePEG::LHAPDF /Herwig/Partons/LHAPDF ThePEGLHAPDF.so',
+            'set /Herwig/Partons/LHAPDF:PDFName NNPDF30_nlo_as_0118',
+            'set /Herwig/Partons/LHAPDF:RemnantHandler /Herwig/Partons/HadronRemnants',
+            'set /Herwig/Particles/p+:PDF /Herwig/Partons/LHAPDF',
+            'set /Herwig/Particles/pbar-:PDF /Herwig/Partons/LHAPDF',
+            'set /Herwig/Partons/PPExtractor:FirstPDF  /Herwig/Partons/LHAPDF',
+            'set /Herwig/Partons/PPExtractor:SecondPDF /Herwig/Partons/LHAPDF',
+
+            'create ThePEG::LesHouchesFileReader LesHouchesReader',
+            'set LesHouchesReader:FileName cmsgrid_final.lhe',
+            'set LesHouchesReader:AllowedToReOpen No',
+            'set LesHouchesReader:InitPDFs 0',
+            'set LesHouchesReader:Cuts /Herwig/Cuts/NoCuts',
+
+            'set LesHouchesReader:MomentumTreatment RescaleEnergy',
+            'set LesHouchesReader:PDFA /Herwig/Partons/LHAPDF',
+            'set LesHouchesReader:PDFB /Herwig/Partons/LHAPDF',
+
+            'insert LesHouchesHandler:LesHouchesReaders 0 LesHouchesReader',
+
+            'set /Herwig/Shower/ShowerHandler:MaxPtIsMuF Yes',
+            'set /Herwig/Shower/ShowerHandler:RestrictPhasespace Yes',
+
+
+            'set /Herwig/Shower/PartnerFinder:PartnerMethod Random',
+            'set /Herwig/Shower/PartnerFinder:ScaleChoice Partner',
+
+            'set /Herwig/Shower/GtoQQbarSplitFn:AngularOrdered Yes',
+            'set /Herwig/Shower/GammatoQQbarSplitFn:AngularOrdered Yes',
+            'set /Herwig/Particles/t:NominalMass 172.5',
+            'cd /Herwig/Generators',
+            'saverun LHE EventGenerator'),                                                                                                                                                                         
+    parameterSets = cms.vstring('hw_LHEsettings', 'hw_nnpdf31','hw_alphas'),
     crossSection = cms.untracked.double(-1),
     dataLocation = cms.string('${HERWIGPATH:-6}'),
     eventHandlers = cms.string('/Herwig/EventHandlers'),
