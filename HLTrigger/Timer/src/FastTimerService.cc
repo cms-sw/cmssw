@@ -153,16 +153,24 @@ FastTimerService::AtomicResources::operator+(AtomicResources const& other) const
 
 // ResourcesPerModule
 
+FastTimerService::ResourcesPerModule::ResourcesPerModule() noexcept :
+  total(),
+  events(0),
+  has_acquire(false)
+{ }
+
 void
-FastTimerService::ResourcesPerModule::reset() {
+FastTimerService::ResourcesPerModule::reset() noexcept {
   total.reset();
   events = 0;
+  has_acquire = false;
 }
 
 FastTimerService::ResourcesPerModule &
 FastTimerService::ResourcesPerModule::operator+=(ResourcesPerModule const& other) {
   total  += other.total;
   events += other.events;
+  has_acquire = has_acquire or other.has_acquire;
   return *this;
 }
 
@@ -299,12 +307,12 @@ FastTimerService::ResourcesPerJob::operator+(ResourcesPerJob const& other) const
 
 // Measurement
 
-FastTimerService::Measurement::Measurement() {
+FastTimerService::Measurement::Measurement() noexcept {
   measure();
 }
 
 void
-FastTimerService::Measurement::measure() {
+FastTimerService::Measurement::measure() noexcept {
   #ifdef DEBUG_THREAD_CONCURRENCY
   id = std::this_thread::get_id();
   #endif // DEBUG_THREAD_CONCURRENCY
@@ -315,7 +323,7 @@ FastTimerService::Measurement::measure() {
 }
 
 void
-FastTimerService::Measurement::measure_and_store(Resources & store) {
+FastTimerService::Measurement::measure_and_store(Resources & store) noexcept {
   #ifdef DEBUG_THREAD_CONCURRENCY
   assert(std::this_thread::get_id() == id);
   #endif // DEBUG_THREAD_CONCURRENCY
@@ -334,7 +342,26 @@ FastTimerService::Measurement::measure_and_store(Resources & store) {
 }
 
 void
-FastTimerService::Measurement::measure_and_accumulate(AtomicResources & store) {
+FastTimerService::Measurement::measure_and_accumulate(Resources & store) noexcept {
+  #ifdef DEBUG_THREAD_CONCURRENCY
+  assert(std::this_thread::get_id() == id);
+  #endif // DEBUG_THREAD_CONCURRENCY
+  auto new_time_thread = boost::chrono::thread_clock::now();
+  auto new_time_real   = boost::chrono::high_resolution_clock::now();
+  auto new_allocated   = memory_usage::allocated();
+  auto new_deallocated = memory_usage::deallocated();
+  store.time_thread += new_time_thread - time_thread;
+  store.time_real   += new_time_real   - time_real;
+  store.allocated   += new_allocated   - allocated;
+  store.deallocated += new_deallocated - deallocated;
+  time_thread = new_time_thread;
+  time_real   = new_time_real;
+  allocated   = new_allocated;
+  deallocated = new_deallocated;
+}
+
+void
+FastTimerService::Measurement::measure_and_accumulate(AtomicResources & store) noexcept {
   #ifdef DEBUG_THREAD_CONCURRENCY
   assert(std::this_thread::get_id() == id);
   #endif // DEBUG_THREAD_CONCURRENCY
@@ -946,6 +973,8 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
   registry.watchPostModuleStreamEndLumi(    this, & FastTimerService::postModuleStreamEndLumi );
 //registry.watchPreModuleEventPrefetching(  this, & FastTimerService::preModuleEventPrefetching );
 //registry.watchPostModuleEventPrefetching( this, & FastTimerService::postModuleEventPrefetching );
+  registry.watchPreModuleEventAcquire(      this, & FastTimerService::preModuleEventAcquire );
+  registry.watchPostModuleEventAcquire(     this, & FastTimerService::postModuleEventAcquire );
   registry.watchPreModuleEvent(             this, & FastTimerService::preModuleEvent );
   registry.watchPostModuleEvent(            this, & FastTimerService::postModuleEvent );
   registry.watchPreModuleEventDelayedGet(   this, & FastTimerService::preModuleEventDelayedGet );
@@ -1668,7 +1697,6 @@ FastTimerService::preSourceEvent(edm::StreamID sid)
   stream.event_measurement = measurement;
 }
 
-
 void
 FastTimerService::postSourceEvent(edm::StreamID sid)
 {
@@ -1679,7 +1707,6 @@ FastTimerService::postSourceEvent(edm::StreamID sid)
   thread().measure_and_store(stream.modules[id].total);
   ++stream.modules[id].events;
 }
-
 
 void
 FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext const & pc)
@@ -1692,7 +1719,6 @@ FastTimerService::prePathEvent(edm::StreamContext const& sc, edm::PathContext co
   data.status = false;
   data.last   = 0;
 }
-
 
 void
 FastTimerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext const & pc, edm::HLTPathStatus const & status)
@@ -1718,6 +1744,27 @@ FastTimerService::postPathEvent(edm::StreamContext const& sc, edm::PathContext c
 }
 
 void
+FastTimerService::preModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
+{
+  unsigned int sid = sc.streamID().value();
+  auto & stream = streams_[sid];
+  thread().measure_and_accumulate(stream.overhead);
+}
+
+void
+FastTimerService::postModuleEventAcquire(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
+{
+  edm::ModuleDescription const& md = * mcc.moduleDescription();
+  unsigned int id  = md.id();
+  unsigned int sid = sc.streamID().value();
+  auto & stream = streams_[sid];
+  auto & module = stream.modules[id];
+
+  module.has_acquire = true;
+  thread().measure_and_store(module.total);
+}
+
+void
 FastTimerService::preModuleEvent(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc)
 {
   unsigned int sid = sc.streamID().value();
@@ -1732,9 +1779,14 @@ FastTimerService::postModuleEvent(edm::StreamContext const& sc, edm::ModuleCalli
   unsigned int id  = md.id();
   unsigned int sid = sc.streamID().value();
   auto & stream = streams_[sid];
+  auto & module = stream.modules[id];
 
-  thread().measure_and_store(stream.modules[id].total);
-  ++stream.modules[id].events;
+  if (module.has_acquire) {
+    thread().measure_and_accumulate(module.total);
+  } else {
+    thread().measure_and_store(module.total);
+  }
+  ++module.events;
 }
 
 void
