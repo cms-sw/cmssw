@@ -1,35 +1,35 @@
 // C++ headers
 #include <cmath>
-#include <limits>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
+#include <limits>
 #include <mutex>
-#include <string>
 #include <sstream>
-#include <unordered_set>
+#include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 // boost headers
 #include <boost/format.hpp>
 #include <boost/range/irange.hpp>
 
 // CMSSW headers
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DataFormats/Common/interface/HLTPathStatus.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Scalers/interface/LumiScalers.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "HLTrigger/Timer/interface/FastTimerService.h"
+#include "FastTimerService.h"
 
 // local headers
 #include "memory_usage.h"
@@ -1878,3 +1878,8 @@ FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descriptions
 
   descriptions.add("FastTimerService", desc);
 }
+
+
+// declare FastTimerService as a framework Service
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+DEFINE_FWK_SERVICE(FastTimerService);
