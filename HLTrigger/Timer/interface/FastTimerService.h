@@ -52,7 +52,7 @@ class FastTimerService : public tbb::task_scheduler_observer
 {
 public:
   FastTimerService(const edm::ParameterSet &, edm::ActivityRegistry & );
-  ~FastTimerService() override;
+  ~FastTimerService() override = default;
 
 private:
   double queryModuleTime_(edm::StreamID, unsigned int id) const;
@@ -330,7 +330,7 @@ private:
   // plots associated to each module or other element (path, process, etc)
   class PlotsPerElement {
   public:
-    PlotsPerElement();
+    PlotsPerElement() = default;
     void book(DQMStore::ConcurrentBooker &, std::string const& name, std::string const& title, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(Resources const&, unsigned int lumisection);
     void fill(AtomicResources const&, unsigned int lumisection);
@@ -351,7 +351,7 @@ private:
   // plots associated to each path or endpath
   class PlotsPerPath {
   public:
-    PlotsPerPath();
+    PlotsPerPath() = default;
     void book(DQMStore::ConcurrentBooker &, std::string const &, ProcessCallGraph const&, ProcessCallGraph::PathType const&, PlotRanges const& ranges, unsigned int lumisections, bool byls);
     void fill(ProcessCallGraph::PathType const&, ResourcesPerJob const&, ResourcesPerPath const&, unsigned int lumisection);
 

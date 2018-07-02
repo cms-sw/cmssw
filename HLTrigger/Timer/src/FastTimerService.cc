@@ -381,9 +381,6 @@ FastTimerService::Measurement::measure_and_accumulate(AtomicResources & store) n
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FastTimerService::PlotsPerElement::PlotsPerElement()
-  = default;
-
 void
 FastTimerService::PlotsPerElement::book(
     DQMStore::ConcurrentBooker & booker,
@@ -576,9 +573,6 @@ FastTimerService::PlotsPerElement::fill_fraction(Resources const& data, Resource
     deallocated_byls_.fill(lumisection, total, fraction);
 }
 
-
-FastTimerService::PlotsPerPath::PlotsPerPath()
-  = default;
 
 void
 FastTimerService::PlotsPerPath::book(
@@ -982,8 +976,6 @@ FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::Activi
 //registry.watchPreEventReadFromSource(     this, & FastTimerService::preEventReadFromSource );
 //registry.watchPostEventReadFromSource(    this, & FastTimerService::postEventReadFromSource );
 }
-
-FastTimerService::~FastTimerService() = default;
 
 double
 FastTimerService::queryModuleTime_(edm::StreamID sid, unsigned int id) const
