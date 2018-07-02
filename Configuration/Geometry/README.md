@@ -12,7 +12,7 @@ Tracker:
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
 * C4  HGCal (v9) + Phase2 HCAL and EB
-* C5  HGCal (v9) + Phase2 HCAL and EB (without virtual wafers)
+* C5  HGCal (v9 without virtual wafers) + Phase2 HCAL and EB
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
