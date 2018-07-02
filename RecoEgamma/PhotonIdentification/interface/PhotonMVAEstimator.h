@@ -27,7 +27,6 @@ class PhotonMVAEstimator : public AnyMVAEstimatorRun2Base{
   // for this specific MVA
   const int nCategories_ = 2;
   enum mvaCategories {
-    UNDEFINED = -1,
     CAT_EB  = 0,
     CAT_EE  = 1
   };

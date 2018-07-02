@@ -121,15 +121,10 @@ int PhotonMVAEstimator::findCategory( const edm::Ptr<reco::Candidate>& candPtr) 
   //
   // Determine the category
   //
-  int  iCategory = UNDEFINED;
-
   if ( std::abs(eta) < ebeeSplit_)
-    iCategory = CAT_EB;
-
-  else if (std::abs(eta) >= ebeeSplit_)
-    iCategory = CAT_EE;
-
-  return iCategory;
+     return CAT_EB; 
+  else
+     return CAT_EE;
 }
 
 void PhotonMVAEstimator::setConsumes(edm::ConsumesCollector&& cc) const {
