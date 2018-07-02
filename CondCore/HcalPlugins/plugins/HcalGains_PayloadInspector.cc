@@ -24,7 +24,7 @@
 namespace {
 
   //TODO: Check these
-  enum{ HBmaxAbsEta = 19, maxPhi = 72 }
+  enum{ HBmaxAbsEta = 19, maxPhi = 72 };
 
   /******************************************
      2d plot of ECAL GainRatios of 1 IOV
@@ -42,7 +42,7 @@ namespace {
 
       auto iov = iovs.front();
       std::shared_ptr<HcalGains> payload = fetchPayload( std::get<1>(iov) );
-      unsigned int run = std::get<0>(iov);
+      //unsigned int run = std::get<0>(iov);
       
 
 
@@ -55,20 +55,20 @@ namespace {
       t1.SetTextAlign(26);
       t1.SetTextSize(0.05);
       if( payload.get() ){
-        for(int iEta = -1 * HBmaxAbsEta; iEta < HBmaxAbsEta +1; iEta++) {
-          for(int iPhi = 1; iPhi < maxPhi+1; iPhi++) {
-            HcalDetId detId = HcalDetId(HcalBarrel,iEta,iPhi,0);
-            uint32_t rawId = detId.rawId();
-           
-            hHB_d1->Fill(detId.ieta(), detId.iphi(), (*payload)[rawId].gain12Over6());
-          } 
+        std::vector<DetId> channels = (*payload).getAllChannels();
+        for( HcalDetId channelId : channels) {
+            if(channelId.subdetId()==HcalBarrel){
+              //TODO: Check what this value is
+              float gainVal = payload->getValues(channelId, true)->getValue(0);
+              hHB_d1->Fill(channelId.ieta(), channelId.iphi(), gainVal);
+            }
         }
           //canvas->cd()
           hHB_d1->Draw();
         }
-        else{
-          t1.DrawLatex(0.5, 0.96, Form("COULDN'T FIND PAYLOAD %i", -1));
-        } 
+      else{
+        //t1.DrawLatex(0.5, 0.96, Form("COULDN'T FIND PAYLOAD %i", -1));
+      } 
      
       std::string ImageName(m_imageFileName);
       canvas.SaveAs(ImageName.c_str());
