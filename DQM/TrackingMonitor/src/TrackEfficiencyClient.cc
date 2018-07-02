@@ -198,13 +198,6 @@ void TrackEfficiencyClient::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IG
  histName = "/muonCompatibleLayers_";
  MonitorElement* muonCompatibleLayers  = igetter_.get(FolderName_+histName+algoName_);
 
-  histName = "/StandaloneMuonPtEtaPhi_";
-  MonitorElement* StandAloneMuonPtEtaPhi  = igetter_.get(FolderName_+histName+algoName_);
-
-
-  histName = "/GlobalMuonPtEtaPhi_";
-  MonitorElement* GlobalMuonPtEtaPhi  = igetter_.get(FolderName_+histName+algoName_);
-
   histName = "/StandaloneMuonPtEtaPhi_LowPt_";
   MonitorElement* StandAloneMuonPtEtaPhiLowPt  = igetter_.get(FolderName_+histName+algoName_);
   histName = "/GlobalMuonPtEtaPhi_LowPt_";
