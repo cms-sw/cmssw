@@ -27,8 +27,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ### setup HGCal local reco
 # get uncalibrechits with weights method
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
-process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'mix:HGCDigisEE'
-process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'mix:HGCDigisHEfront'
+process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'hgcalDigis:EE'
+process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'hgcalDigis:HEfront'
 
 # get rechits e.g. from the weights
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
