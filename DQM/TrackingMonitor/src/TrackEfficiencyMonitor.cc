@@ -306,6 +306,7 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
 
   edm::Handle<edm::View<reco::Muon> > muons; 
   iEvent.getByToken(muonToken_,muons);
+  if (!muons.isValid()) return;
   for (edm::View<reco::Muon>::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
     if( (*muon).pt() < 5) continue;
     if( fabs((*muon).eta()) > 2.4) continue;
