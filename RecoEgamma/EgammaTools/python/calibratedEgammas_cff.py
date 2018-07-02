@@ -46,17 +46,28 @@ ecalTrkCombinationRegression = cms.PSet(
     
 )
 
+#a bug was found, the smear corrected ecal energy err was used in the E/p combination
+#as the campaign has already started, we can not change the default nor the behaviour for the 94X Fall17 reminiAOD
+#therefore we set useSmearCorrEcalEnergyErrInComb = cms.bool(True) when it should be set to false
+#make no mistake, this is an incorrect configuration which will cause a scale shift at Et = 50 GeV
 calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
-                                     calibratedEgammaSettings,                                   
+                                     calibratedEgammaSettings,
+                                     useSmearCorrEcalEnergyErrInComb = cms.bool(True),
                                      epCombConfig = ecalTrkCombinationRegression,
                                      src = cms.InputTag('gedGsfElectrons'),
                                      )
 
 calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
                                         calibratedEgammaPatSettings,
+                                        useSmearCorrEcalEnergyErrInComb = cms.bool(True),
                                         epCombConfig = ecalTrkCombinationRegression,
                                         src = cms.InputTag('slimmedElectrons'), 
                                        )
+#the 80XLegacy miniAOD had not started, hence we can fix it for that
+run2_miniAOD_80XLegacy.toModify(calibratedElectrons,useSmearCorrEcalEnergyErrInComb = False)
+run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons,useSmearCorrEcalEnergyErrInComb = False)
+
+
 
 calibratedPhotons = cms.EDProducer("CalibratedPhotonProducer",
                                    calibratedEgammaSettings,
