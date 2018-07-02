@@ -397,7 +397,7 @@ bool HGCalDDDConstants::isValidTrap(int layer, int ieta, int iphi) const {
 	  (ieta <= (hgpar_->iEtaMinBH_[indx.first]+
 		    hgpar_->lastModule_[indx.first]-
 		    hgpar_->firstModule_[indx.first])) &&
-	  (iphi > 0) && (iphi < hgpar_->nPhiBinBH_[indx.first]));
+	  (iphi > 0) && (iphi <= hgpar_->nPhiBinBH_[indx.first]));
 }
 
 unsigned int HGCalDDDConstants::layers(bool reco) const {
