@@ -39,17 +39,17 @@ simHGCalUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
         cms.PSet(
             type = cms.string("DetIdHGCSampleHGCDataFramesSorted"),
-            fromProductInstance = cms.string("HGCalDigisEE"),
+            fromProductInstance = cms.string("HGCDigisEE"),
             toProductInstance = cms.string("EE"),
         ),
         cms.PSet(
             type = cms.string("DetIdHGCSampleHGCDataFramesSorted"),
-            fromProductInstance = cms.string("HGCalDigisHEfront"),
+            fromProductInstance = cms.string("HGCDigisHEfront"),
             toProductInstance = cms.string("HEfront"),
         ),
         cms.PSet(
             type = cms.string("DetIdHGCSampleHGCDataFramesSorted"),
-            fromProductInstance = cms.string("HGCalDigisHEback"),
+            fromProductInstance = cms.string("HGCDigisHEback"),
             toProductInstance = cms.string("HEback"),
         ),
     )

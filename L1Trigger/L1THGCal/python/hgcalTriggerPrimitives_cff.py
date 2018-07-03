@@ -13,10 +13,6 @@ from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCal
 # because it's already an EDAlias elsewhere
 def _fakeHGCalDigiAlias(process):
 	from EventFilter.HGCalRawToDigi.HGCDigiConverter_cfi import HGCDigiConverter as _HGCDigiConverter
-	process.simHGCalUnsuppressedDigis = _HGCDigiConverter.clone(
-	    eeDigis = 'mix:HGCDigisEE',
-    	fhDigis = 'mix:HGCDigisHEfront',
-	    bhDigis = 'mix:HGCDigisHEback',
-	)
+	process.simHGCalUnsuppressedDigis = _HGCDigiConverter.clone()
 	process.hgcalTriggerPrimitives.insert(0,simHGCalUnsuppressedDigis)
 doFakeHGCalDigiAlias = convertHGCalDigisSim.makeProcessModifier(_fakeHGCalDigiAlias)

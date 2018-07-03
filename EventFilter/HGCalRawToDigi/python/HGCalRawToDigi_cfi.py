@@ -3,7 +3,7 @@ import EventFilter.HGCalRawToDigi.HGCalRawToDigiFake_cfi
 
 hgcalDigis = EventFilter.HGCalRawToDigi.HGCalRawToDigiFake_cfi.HGCalRawToDigiFake.clone()
 
-from Configuration.ProcessModifiers.convertHGCalDigis_cff import convertHGCalDigisReco
+from Configuration.ProcessModifiers.convertHGCalDigisReco_cff import convertHGCalDigisReco
 import EventFilter.HGCalRawToDigi.HGCDigiConverter_cfi
 _hgcalDigisConverted = EventFilter.HGCalRawToDigi.HGCDigiConverter_cfi.HGCDigiConverter.clone()
 convertHGCalDigisReco.toReplaceWith(hgcalDigis,_hgcalDigisConverted)
