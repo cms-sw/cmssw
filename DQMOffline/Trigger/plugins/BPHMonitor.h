@@ -96,7 +96,7 @@ protected:
   template <typename T>
   bool matchToTrigger(const std::string  &theTriggerName , T t);
 
-  int Prescale(const std::string  num, const std::string  den, edm::Event const& iEvent, edm::EventSetup const& iSetup,  HLTPrescaleProvider* hltPrescale_);
+  double Prescale(const std::string  num, const std::string  den, edm::Event const& iEvent, edm::EventSetup const& iSetup,  HLTPrescaleProvider* hltPrescale_);
 
 
 private:
