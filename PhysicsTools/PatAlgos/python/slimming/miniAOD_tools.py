@@ -28,7 +28,9 @@ def miniAOD_customizeCommon(process):
     process.patMuons.computeMiniIso = cms.bool(True)
     process.patMuons.computeMuonMVA = cms.bool(True)
     process.patMuons.computeSoftMuonMVA = cms.bool(True)
-    
+
+    process.patMuons.addTriggerMatching = True
+
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
     process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
@@ -450,7 +452,6 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
     process.load("RecoEgamma.EgammaTools.slimmedEgammaFromMultiCl_cff")
     phase2_hgcal.toModify(task, func=lambda t: t.add(process.slimmedEgammaFromMultiClTask))
-
 
 
 def miniAOD_customizeMC(process):
