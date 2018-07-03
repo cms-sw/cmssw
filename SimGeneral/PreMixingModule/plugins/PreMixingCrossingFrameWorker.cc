@@ -81,8 +81,6 @@ namespace edm {
 }
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-namespace edm {
-  using PreMixingCrossingFramePSimHitWorker = PreMixingCrossingFrameWorker<PSimHit>;
-}
+using PreMixingCrossingFramePSimHitWorker = edm::PreMixingCrossingFrameWorker<PSimHit>;
 
-DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, edm::PreMixingCrossingFramePSimHitWorker, "PreMixingCrossingFramePSimHitWorker");
+DEFINE_PREMIXING_WORKER(PreMixingCrossingFramePSimHitWorker);

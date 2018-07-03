@@ -12,4 +12,6 @@ namespace edm {
 
 using PreMixingWorkerFactory = edmplugin::PluginFactory< PreMixingWorker* (const edm::ParameterSet&, edm::ProducerBase&, edm::ConsumesCollector&& iC) >;
 
+#define DEFINE_PREMIXING_WORKER(TYPE) DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, TYPE, #TYPE)
+
 #endif
