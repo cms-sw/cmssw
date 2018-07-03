@@ -59,6 +59,8 @@ namespace {
         for( HcalDetId channelId : channels) {
             if(channelId.subdetId()==HcalBarrel){
               //TODO: Check what this value is
+              //HcalTopology hcalTopo;
+              //payload->setTopo(hcalTopo);
               float gainVal = payload->getValues(channelId, true)->getValue(0);
               hHB_d1->Fill(channelId.ieta(), channelId.iphi(), gainVal);
             }
