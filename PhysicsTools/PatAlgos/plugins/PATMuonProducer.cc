@@ -226,25 +226,34 @@ void PATMuonProducer::fillL1TriggerInfo(pat::Muon& aMuon,
   // trigger objects
 
   std::unique_ptr<GlobalPoint> muonPosition;
-  // loop over chambers
+  // Loop over chambers
+  // initialize muonPosition with any available match, just in case 
+  // the second station is missing - it's better folling back to 
+  // dR matching at IP
   for ( const auto& chamberMatch: aMuon.matches() ) {
     if ( chamberMatch.id.subdetId() == MuonSubdetId::DT) {
       DTChamberId detId(chamberMatch.id.rawId());
-      if (abs(detId.station())!=2) continue;
+      if (abs(detId.station())>3) continue; 
       muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
-      break;
+      if (abs(detId.station())==2) break;
     }
     if ( chamberMatch.id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId detId(chamberMatch.id.rawId());
-      if (abs(detId.station())!=2) continue;
+      if (abs(detId.station())>3) continue;
       muonPosition = std::move(getMuonDirection(chamberMatch, geometry, detId));
-      break;
+      if (abs(detId.station())==2) break;
     }
   }
   if (not muonPosition) return;
   for (const auto& triggerObject: *triggerObjects){
     if (triggerObject.hasTriggerObjectType(trigger::TriggerL1Mu)){
-      if (deltaR(triggerObject.p4(),*muonPosition)>0.1) continue;
+      if (fabs(triggerObject.eta())<0.001){
+	// L1 is defined in X-Y plain
+	if (deltaPhi(triggerObject.phi(),muonPosition->phi())>0.1) continue;
+      } else {
+	// 3D L1
+	if (deltaR(triggerObject.p4(),*muonPosition)>0.15) continue;
+      }
       pat::TriggerObjectStandAlone obj(triggerObject);
       obj.unpackPathNames(names);
       aMuon.addTriggerObjectMatch(obj);
