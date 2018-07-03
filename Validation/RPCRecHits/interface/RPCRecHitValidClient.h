@@ -1,5 +1,5 @@
 #ifndef Validation_RPCRecHits_RPCRecHitValidClient_h
-#define Validaiton_RPCRecHits_RPCRecHitValidClient_h
+#define Validation_RPCRecHits_RPCRecHitValidClient_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -19,12 +19,12 @@ class RPCRecHitValidClient : public DQMEDHarvester
 {
 public:
   RPCRecHitValidClient(const edm::ParameterSet& pset);
-  ~RPCRecHitValidClient() {};
+  ~RPCRecHitValidClient() override {};
 
-  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter);
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) override;
 
 private:
   std::string subDir_;
 };
 
-#endif
+#endif // Validation_RPCRecHits_RPCRecHitValidClient_h

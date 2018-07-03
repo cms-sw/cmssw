@@ -10,6 +10,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 
 #include <string>
 
@@ -21,14 +22,16 @@ class GEMDigiProducer : public edm::stream::EDProducer<>
 public:
 
   typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
+  
+  typedef edm::DetSetVector<GEMDigiSimLink> GEMDigiSimLinks;
 
   explicit GEMDigiProducer(const edm::ParameterSet& ps);
 
-  virtual ~GEMDigiProducer();
+  ~GEMDigiProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

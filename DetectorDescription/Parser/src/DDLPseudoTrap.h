@@ -1,13 +1,13 @@
 #ifndef DDL_PseudoTrap_H
 #define DDL_PseudoTrap_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLSolid.h"
-
 #include <string>
 #include <vector>
+
+#include "DDLSolid.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 /** @class DDLPseudoTrap
  * @author Michael Case
@@ -20,16 +20,13 @@
  * PseudoTrap processor processes PseudoTrap element.
  *
  */
-class DDLPseudoTrap : public DDLSolid
+class DDLPseudoTrap final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLPseudoTrap( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLPseudoTrap( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

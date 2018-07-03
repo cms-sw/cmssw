@@ -161,11 +161,11 @@ SiStripPedestals::allPeds  (std::vector<int>   & peds,  const Range& range) cons
     }
 }
 
-void SiStripPedestals::printSummary(std::stringstream& ss) const
+void SiStripPedestals::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const
 {
   std::vector<uint32_t> detid;
   getDetIds(detid);
-  SiStripDetSummary summary;
+  SiStripDetSummary summary{trackerTopo};
   for( size_t id = 0; id < detid.size(); ++id ) {
     SiStripPedestals::Range range = getRange(detid[id]);
     for( int it=0; it < (range.second-range.first)*8/10; ++it ){
@@ -177,7 +177,7 @@ void SiStripPedestals::printSummary(std::stringstream& ss) const
 }
 
 
-void SiStripPedestals::printDebug(std::stringstream& ss) const
+void SiStripPedestals::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const
 {
   std::vector<uint32_t> detid;
   getDetIds(detid);

@@ -22,7 +22,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 // user include files
@@ -52,10 +51,10 @@ class DTConfigDBProducer : public edm::ESProducer{
   DTConfigDBProducer(const edm::ParameterSet&);
 
   //! Destructor
-  ~DTConfigDBProducer();
+  ~DTConfigDBProducer() override;
   
   //! ES produce method
-  std::auto_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
+  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd&);
   
  private :
 

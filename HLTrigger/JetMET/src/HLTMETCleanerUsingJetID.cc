@@ -12,8 +12,7 @@
 
 // Constructor
 HLTMETCleanerUsingJetID::HLTMETCleanerUsingJetID(const edm::ParameterSet& iConfig)
-      : usePt_         (iConfig.getParameter<bool>("usePt")),
-        minPt_         (iConfig.getParameter<double>("minPt")),
+      : minPt_         (iConfig.getParameter<double>("minPt")),
         maxEta_        (iConfig.getParameter<double>("maxEta")),
         metLabel_      (iConfig.getParameter<edm::InputTag>("metLabel")),
         jetsLabel_     (iConfig.getParameter<edm::InputTag>("jetsLabel")),
@@ -27,12 +26,11 @@ HLTMETCleanerUsingJetID::HLTMETCleanerUsingJetID(const edm::ParameterSet& iConfi
 }
 
 // Destructor
-HLTMETCleanerUsingJetID::~HLTMETCleanerUsingJetID() {}
+HLTMETCleanerUsingJetID::~HLTMETCleanerUsingJetID() = default;
 
 // Fill descriptions
 void HLTMETCleanerUsingJetID::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<bool>("usePt", false);
     desc.add<double>("minPt", 20.);
     desc.add<double>("maxEta", 5.);
     desc.add<edm::InputTag>("metLabel", edm::InputTag("hltMet"));
@@ -45,7 +43,7 @@ void HLTMETCleanerUsingJetID::fillDescriptions(edm::ConfigurationDescriptions& d
 void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Create a pointer to the products
-    std::auto_ptr<reco::CaloMETCollection> result(new reco::CaloMETCollection);
+    std::unique_ptr<reco::CaloMETCollection> result(new reco::CaloMETCollection);
 
     edm::Handle<reco::CaloMETCollection> met;
     edm::Handle<reco::CaloJetCollection> jets;
@@ -58,13 +56,12 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
     double mex_jets = 0.;
     double mey_jets = 0.;
     double sumet_jets = 0.;
-    if (jets->size() > 0 ) {
-        for(reco::CaloJetCollection::const_iterator j = jets->begin(); j != jets->end(); ++j) {
-            double pt = usePt_ ? j->pt() : j->et();
-            double eta = j->eta();
-            double phi = j->phi();
-            double px = usePt_ ? j->px() : j->et() * cos(phi);
-            double py = usePt_ ? j->py() : j->et() * sin(phi);
+    if (!jets->empty() ) {
+        for(auto const & j : *jets) {
+            double pt =  j.pt() ;
+            double eta = j.eta();
+            double px =  j.px() ;
+            double py =  j.py() ;
 
             if (pt > minPt_ && std::abs(eta) < maxEta_) {
                 mex_jets -= px;
@@ -77,13 +74,12 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
     double mex_goodJets = 0.;
     double mey_goodJets = 0.;
     double sumet_goodJets = 0.;
-    if (goodJets->size() > 0) {
-        for(reco::CaloJetCollection::const_iterator j = goodJets->begin(); j != goodJets->end(); ++j) {
-            double pt = usePt_ ? j->pt() : j->et();
-            double eta = j->eta();
-            double phi = j->phi();
-            double px = usePt_ ? j->px() : j->pt() * cos(phi);
-            double py = usePt_ ? j->py() : j->pt() * sin(phi);
+    if (!goodJets->empty()) {
+        for(auto const & j : *goodJets) {
+            double pt =  j.pt() ;
+            double eta = j.eta();
+            double px =  j.px() ;
+            double py =  j.py() ;
 
             if (pt > minPt_ && std::abs(eta) < maxEta_) {
                 mex_goodJets -= px;
@@ -93,16 +89,16 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
         }
     }
 
-    if (met->size() > 0) {
+    if (!met->empty()) {
         double mex_diff = mex_goodJets - mex_jets;
         double mey_diff = mey_goodJets - mey_jets;
         //double sumet_diff = sumet_goodJets - sumet_jets;  // cannot set sumet...
-        reco::Candidate::LorentzVector p4_diff(mex_diff, mey_diff, 0, sqrt(mex_diff*mex_diff + mey_diff*mey_diff));
+        reco::Candidate::LorentzVector p4_clean(met->front().px()+mex_diff, mey_diff+met->front().py(), 0, sqrt((met->front().px()+mex_diff)*(met->front().px() +mex_diff)+(met->front().py()+mey_diff)*(met->front().py() +mey_diff)));
 
-        reco::CaloMET cleanmet = met->front();
-        cleanmet.setP4(cleanmet.p4() + p4_diff);
+        reco::CaloMET cleanmet = met->front() ; 
+        cleanmet.setP4(p4_clean);
         result->push_back(cleanmet);
     }
 
-    iEvent.put( result );
+    iEvent.put(std::move(result));
 }

@@ -52,8 +52,8 @@ class PFTauSecondaryVertexProducer : public edm::global::EDProducer<> {
   enum Alg{useInputPV=0, usePVwithMaxSumPt, useTauPV};
 
   explicit PFTauSecondaryVertexProducer(const edm::ParameterSet& iConfig);
-  ~PFTauSecondaryVertexProducer();
-  virtual void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
+  ~PFTauSecondaryVertexProducer() override;
+  void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
  private:
   const edm::InputTag PFTauTag_;
   const edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
@@ -80,8 +80,8 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
   iEvent.getByToken(PFTauToken_,Tau);
 
   // Set Association Map
-  auto_ptr<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > > > AVPFTauSV(new edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > >(PFTauRefProd(Tau)));
-  std::auto_ptr<VertexCollection>  VertexCollection_out= std::auto_ptr<VertexCollection>(new VertexCollection);
+  auto AVPFTauSV = std::make_unique<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef>>>>(PFTauRefProd(Tau));
+  auto VertexCollection_out = std::make_unique<VertexCollection>();
   reco::VertexRefProd VertexRefProd_out = iEvent.getRefBeforePut<reco::VertexCollection>("PFTauSecondaryVertices");
 
   // For each Tau Run Algorithim
@@ -103,11 +103,15 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
 	// Fit the secondary vertex
 	bool FitOk(true);
 	KalmanVertexFitter kvf(true);
-	try{
-	  transVtx = kvf.vertex(transTrk); //KalmanVertexFitter  
-	}catch(...){
-	  FitOk=false;
-	}
+        if(transTrk.size() > 1) {
+          try{
+            transVtx = kvf.vertex(transTrk); //KalmanVertexFitter  
+          }catch(...){
+            FitOk=false;
+          }
+        } else {
+          FitOk = false;
+        }
 	if(!transVtx.hasRefittedTracks()) FitOk=false;
 	if(transVtx.refittedTracks().size()!=transTrk.size()) FitOk=false;
 	if(FitOk){
@@ -118,8 +122,8 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
       AVPFTauSV->setValue(iPFTau, SV);
     }
   }
-  iEvent.put(VertexCollection_out,"PFTauSecondaryVertices");
-  iEvent.put(AVPFTauSV);
+  iEvent.put(std::move(VertexCollection_out),"PFTauSecondaryVertices");
+  iEvent.put(std::move(AVPFTauSV));
 }
 
 DEFINE_FWK_MODULE(PFTauSecondaryVertexProducer);

@@ -16,7 +16,7 @@ private:
 public:
   MaterialAccountingTrack(void) : 
     m_total(),
-    m_current_volume(0),
+    m_current_volume(nullptr),
     m_detector(),
     m_steps(), 
     m_detectors()
@@ -27,7 +27,7 @@ public:
 
   void reset(void) {
     m_total.clear();
-    m_current_volume = 0;
+    m_current_volume = nullptr;
     m_steps.clear();
     m_steps.reserve(kSteps);
     m_steps.push_back( m_total );

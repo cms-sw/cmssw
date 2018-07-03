@@ -1,0 +1,4 @@
+ModuleDependency 'OtherThing' depends on data products from module 'Thing'
+ModuleDependency 'output' depends on data products from module 'TriggerResults'
+ModuleDependency 'output' depends on data products from module 'OtherThing'
+ModuleDependency 'output' depends on data products from module 'Thing'

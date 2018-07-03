@@ -30,6 +30,10 @@ public:
     return principal_;
   }
 
+  edm::ModuleCallingContext const *moduleCallingContext() const {
+    return mcc_;
+  }
+
   int bunchCrossing() const {
     return bunchCrossing_;
   }

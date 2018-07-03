@@ -1,4 +1,4 @@
-#ifndef Validaiton_RPCRecHits_RPCPointVsRecHit_h
+#ifndef Validation_RPCRecHits_RPCPointVsRecHit_h
 #define Validation_RPCRecHits_RPCPointVsRecHit_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -20,9 +20,9 @@ class RPCPointVsRecHit : public DQMEDAnalyzer
 {
 public:
   RPCPointVsRecHit(const edm::ParameterSet& pset);
-  ~RPCPointVsRecHit() {};
+  ~RPCPointVsRecHit() override {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
@@ -32,4 +32,4 @@ private:
   RPCValidHistograms h_;
 };
 
-#endif
+#endif // Validation_RPCRecHits_RPCPointVsRecHit_h

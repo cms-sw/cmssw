@@ -36,9 +36,9 @@ class ReducedRecHitCollectionProducer : public edm::stream::EDProducer<> {
    public:
       //! ctor
       explicit ReducedRecHitCollectionProducer(const edm::ParameterSet&);
-      ~ReducedRecHitCollectionProducer();
+      ~ReducedRecHitCollectionProducer() override;
       //! producer
-      virtual void produce(edm::Event &, const edm::EventSetup&);
+      void produce(edm::Event &, const edm::EventSetup&) override;
 
    private:
       // ----------member data ---------------------------

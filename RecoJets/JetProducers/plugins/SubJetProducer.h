@@ -14,11 +14,11 @@ namespace cms
 
     SubJetProducer(const edm::ParameterSet& ps);
 
-    virtual ~SubJetProducer() {}
+    ~SubJetProducer() override {}
     
-    virtual void produce( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
     
-    virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
   private:
     SubJetAlgorithm        alg_;         /// The algorithm to do the work

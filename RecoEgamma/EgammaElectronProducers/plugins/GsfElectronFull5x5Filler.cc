@@ -72,7 +72,7 @@ GsfElectronFull5x5Filler::~GsfElectronFull5x5Filler()
 // ------------ method called to produce the data  ------------
 void GsfElectronFull5x5Filler::produce( edm::Event & event, const edm::EventSetup & setup )
  {
-   std::auto_ptr<reco::GsfElectronCollection> out(new reco::GsfElectronCollection);
+   auto out = std::make_unique<reco::GsfElectronCollection>();
    
    edm::Handle<reco::GsfElectronCollection> eles;
    event.getByToken(_source,eles);
@@ -88,7 +88,7 @@ void GsfElectronFull5x5Filler::produce( edm::Event & event, const edm::EventSetu
      out->push_back(temp);
    }
    
-   event.put(out);
+   event.put(std::move(out));
  }
 
 void GsfElectronFull5x5Filler::beginLuminosityBlock(edm::LuminosityBlock const& lb, 
@@ -108,7 +108,7 @@ void GsfElectronFull5x5Filler::calculateShowerShape_full5x5( const reco::SuperCl
   DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
   int detector = seedXtalId.subdetId() ;
   
-  const EcalRecHitCollection * recHits = 0 ;
+  const EcalRecHitCollection * recHits = nullptr ;
   if (detector==EcalBarrel)
    {
     recHits = _ebRecHits.product() ;

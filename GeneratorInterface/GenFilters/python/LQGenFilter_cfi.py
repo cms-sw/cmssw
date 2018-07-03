@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 eejjFilter = cms.EDFilter("LQGenFilter",
-    src        = cms.untracked.InputTag("generator"),
+    src        = cms.untracked.InputTag("generator","unsmeared"),
     eejj       = cms.bool(True),
     enuejj     = cms.bool(False),
     nuenuejj   = cms.bool(False),
@@ -11,7 +11,7 @@ eejjFilter = cms.EDFilter("LQGenFilter",
 )
 
 enuejjFilter = cms.EDFilter("LQGenFilter",
-    src        = cms.untracked.InputTag("generator"),
+    src        = cms.untracked.InputTag("generator","unsmeared"),
     eejj       = cms.bool(False),
     enuejj     = cms.bool(True),
     nuenuejj   = cms.bool(False),
@@ -21,7 +21,7 @@ enuejjFilter = cms.EDFilter("LQGenFilter",
 )
 
 mumujjFilter = cms.EDFilter("LQGenFilter",
-    src        = cms.untracked.InputTag("generator"),
+    src        = cms.untracked.InputTag("generator","unsmeared"),
     eejj       = cms.bool(False),
     enuejj     = cms.bool(False),
     nuenuejj   = cms.bool(False),
@@ -31,7 +31,7 @@ mumujjFilter = cms.EDFilter("LQGenFilter",
 )
 
 munumujjFilter = cms.EDFilter("LQGenFilter",
-    src        = cms.untracked.InputTag("generator"),
+    src        = cms.untracked.InputTag("generator","unsmeared"),
     eejj       = cms.bool(False),
     enuejj     = cms.bool(False),
     nuenuejj   = cms.bool(False),

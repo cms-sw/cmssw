@@ -48,7 +48,7 @@ class DTChambThSegm : public DTTrigData {
     DTChambThSegm(const DTChambThSegm& seg);
   
     /// Destructor 
-    ~DTChambThSegm();
+    ~DTChambThSegm() override;
 
     /// Assignment operator
     DTChambThSegm& operator=(const DTChambThSegm& seg);
@@ -60,10 +60,10 @@ class DTChambThSegm : public DTTrigData {
     inline int step() const { return m_step; }
 
     /// Identifier of the associated chamber
-    DTChamberId ChamberId() const { return m_chamberid; }
+    DTChamberId ChamberId() const override { return m_chamberid; }
 
     /// Print
-    void print() const;
+    void print() const override;
 
     /// Return the code for a given set of 7 BTI
     int code(const int i) const;

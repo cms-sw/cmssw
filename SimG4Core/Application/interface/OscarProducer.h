@@ -11,8 +11,6 @@
 #include "SimG4Core/Application/interface/RunManager.h"
 #include "SimG4Core/Application/interface/CustomUIsession.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
 #include <memory>
 
 class OscarProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns>
@@ -21,16 +19,15 @@ public:
   typedef std::vector<std::shared_ptr<SimProducer> > Producers;
 
   explicit OscarProducer(edm::ParameterSet const & p);
-  virtual ~OscarProducer();
-  virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
-  virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
-  virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
+  ~OscarProducer() override;
+  void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
+  void endRun(const edm::Run & r,const edm::EventSetup& c) override;
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
 private:
   std::unique_ptr<RunManager> m_runManager;
   Producers     m_producers;
   std::unique_ptr<CustomUIsession> m_UIsession;
-  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 };
 
 #endif

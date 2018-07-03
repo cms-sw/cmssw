@@ -7,12 +7,12 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimG4CMS/Calo/interface/HFGflash.h"
 
-#include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 
 class DDCompactView;
@@ -27,8 +27,8 @@ class HFShowerParam {
 
 public:    
 
-  HFShowerParam(std::string & name, const DDCompactView & cpv, 
-		edm::ParameterSet const & p);
+  HFShowerParam(const std::string & name, const DDCompactView & cpv, 
+                edm::ParameterSet const & p);
   virtual ~HFShowerParam();
 
 public:    
@@ -41,8 +41,8 @@ public:
     double              edep;
   };
 
-  void                  initRun(G4ParticleTable *);
-  std::vector<Hit>      getHits(G4Step * aStep, double weight);
+  void                  initRun(const HcalDDDSimConstants*);
+  std::vector<Hit>      getHits(const G4Step * aStep, double weight, bool& isKilled);
   
 private:    
 

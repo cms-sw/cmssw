@@ -25,6 +25,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 DEFINE_FWK_MODULE(PCCNTupler);
 
@@ -48,7 +49,10 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     saveType(iConfig.getUntrackedParameter<string>("saveType")),
     sampleType(iConfig.getUntrackedParameter<string>("sampleType")),
     includeVertexInformation(iConfig.getUntrackedParameter<bool>("includeVertexInformation",1)),
-    includePixels(iConfig.getUntrackedParameter<bool>("includePixels",1))
+    includePixels(iConfig.getUntrackedParameter<bool>("includePixels",1)),
+    includeJets(iConfig.getUntrackedParameter<bool>("includeJets",0)),
+    splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX",1)),
+    pixelPhase2Geometry(iConfig.getUntrackedParameter<bool>("pixelPhase2Geometry",0))
 {
     cout << "----------------------------------------------------------------------" << endl;
     cout << "--- PCCNTupler constructor" << endl;
@@ -100,19 +104,34 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
         //tree->Branch("nPixelClusters","map<int,int>",&nPixelClusters);
         //tree->Branch("nClusters","map<int,int>",&nClusters);
         tree->Branch("layers","map<int,int>",&layers);
-        // dead modules from Run 1
-        //deadModules[0] = 302125076; 
-        //deadModules[1] = 302125060;
-        //deadModules[2] = 302197516;
-        //deadModules[3] = 344019460;
-        //deadModules[4] = 344019464;
-        //deadModules[5] = 344019468;  
         pixelToken=consumes<edmNew::DetSetVector<SiPixelCluster> >(fPixelClusterLabel);
     }
 
     if(sampleType=="MC"){
         pileUpToken=consumes<std::vector< PileupSummaryInfo> >(fPileUpInfoLabel);
         tree->Branch("nPU",&nPU,"nPU/I");
+    }
+
+    if(includeJets){
+        hltjetsToken_=consumes<reco::CaloJetCollection >(edm::InputTag("ak4CaloJets"));
+        const int kMaxJetCal = 100;
+        jhcalpt = new float[kMaxJetCal];
+        jhcalphi = new float[kMaxJetCal];
+        jhcaleta = new float[kMaxJetCal];
+        jhcale = new float[kMaxJetCal];
+        jhcalemf = new float[kMaxJetCal]; 
+        jhcaln90 = new float[kMaxJetCal]; 
+        jhcaln90hits = new float[kMaxJetCal];
+
+        //ccla HLTJETS
+        tree->Branch("NohJetCal",&nhjetcal,"NohJetCal/I");
+        tree->Branch("ohJetCalPt",jhcalpt,"ohJetCalPt[NohJetCal]/F");
+        tree->Branch("ohJetCalPhi",jhcalphi,"ohJetCalPhi[NohJetCal]/F");
+        tree->Branch("ohJetCalEta",jhcaleta,"ohJetCalEta[NohJetCal]/F");
+        tree->Branch("ohJetCalE",jhcale,"ohJetCalE[NohJetCal]/F");
+        tree->Branch("ohJetCalEMF",jhcalemf,"ohJetCalEMF[NohJetCal]/F");
+        tree->Branch("ohJetCalN90",jhcaln90,"ohJetCalN90[NohJetCal]/F");
+        tree->Branch("ohJetCalN90hits",jhcaln90hits,"ohJetCalN90hits[NohJetCal]/F");
     }
 }
 
@@ -192,6 +211,9 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     //LN    = -99; // FIXME need the luminibble
     event = iEvent.id().event();
     bunchCrossing   = iEvent.bunchCrossing();
+    if(!splitByBX){ //if no splitting by BX then we can remove info.
+        bunchCrossing=-10;
+    }
     timeStamp_local = iEvent.time().unixTime();
     if(timeStamp_end  <timeStamp_local) timeStamp_end   =timeStamp_local;
     if(timeStamp_begin>timeStamp_local) timeStamp_begin =timeStamp_local;
@@ -225,9 +247,10 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         
    
         if(recVtxs.isValid()){
-            nVtx=recVtxs->size();
+            //nVtx=recVtxs->size();
             int ivtx=0;
             for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
+                if(v->isFake()) continue;
                 vtx_isGood[ivtx] = false;
                 vtx_nTrk[ivtx] = v->tracksSize();
                 vtx_ndof[ivtx] = (int)v->ndof();
@@ -252,68 +275,96 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
                 }
                 ivtx++;
             }
+            nVtx=ivtx;
         }
     }
 
+    if(includeJets){
+        edm::Handle< reco::CaloJetCollection > hltjets;
+        iEvent.getByToken(hltjetsToken_, hltjets);
+        bool valid = hltjets.isValid();
+        if (not valid) {
+            std::cout << "hltjets not valid "<<std::endl;
+            nhjetcal = -1;
+        } else {
+            reco::CaloJetCollection mycalojets;
+            mycalojets=*hltjets;
+            //std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
+            typedef reco::CaloJetCollection::const_iterator cjiter;
+            int jhcal=0;
+            for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
+                if (i->pt()>5 && i->energy()>0.){
+                    jhcalpt[jhcal] = i->pt();
+                    jhcalphi[jhcal] = i->phi();
+                    jhcaleta[jhcal] = i->eta();
+                    jhcale[jhcal] = i->energy();
+                    jhcalemf[jhcal] = i->emEnergyFraction();
+                    jhcaln90[jhcal] = i->n90();
+                    //jetID->calculate( iEvent, *i );
+                    //jhcaln90hits[jhcal] = jetID->n90Hits();
+                    jhcal++;
+                }
 
-    // -- Does this belong into beginJob()?
-    ESHandle<TrackerGeometry> TG;
-    iSetup.get<TrackerDigiGeometryRecord>().get(TG);
+            }
+            nhjetcal = jhcal;
+        }
+    }
 
+    int NumPixelBarrelLayers=3;
+    if(pixelPhase2Geometry){
+      NumPixelBarrelLayers=4;
+    }
     // -- Pixel cluster
     if(includePixels){
-        edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
-        iEvent.getByToken(pixelToken,hClusterColl);
+      edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
+      iEvent.getByToken(pixelToken,hClusterColl);
+      if (!hClusterColl.failedToGet()) {        
+	
         
-        const edmNew::DetSetVector<SiPixelCluster>& clustColl = *(hClusterColl.product());
-        
-        
-        // ----------------------------------------------------------------------
-        // -- Clusters without tracks
-
-        for (TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
-            //if (dynamic_cast<PixelGeomDetUnit*>((*it)) != 0){ 
-                DetId detId = (*it)->geographicalId();
-
-                bxModKey.second=detId();
-
-                // -- clusters on this det
-                edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.find(detId);
-                if (isearch != clustColl.end()) {  // Not an empty iterator
-                    edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-                    for (di = isearch->begin(); di != isearch->end(); ++di) {
-                        if(nPixelClusters.count(bxModKey)==0){
-                            nPixelClusters[bxModKey]=0;
-                        }
-                        nPixelClusters[bxModKey] = nPixelClusters[bxModKey]+1;
-                    }
-
-                    int nCluster = isearch->size();
-                    if(nClusters.count(bxModKey)==0){
-                        nClusters[bxModKey]=0;
-                    }
-                    nClusters[bxModKey] += nCluster;
-
-                    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
-                        PixelBarrelName detName = PixelBarrelName(detId);
-                        int layer = detName.layerName();
-                        if(layers.count(detId())==0){
-                            layers[detId()]=layer;
-                        }
-                    } else {
-                        assert(detId.subdetId() == PixelSubdetector::PixelEndcap);
-                        PixelEndcapName detName = PixelEndcapName(detId);
-                        int disk = detName.diskName();
-                        if(layers.count(detId())==0){
-                            layers[detId()]=disk+3;
-                        }
-                    }
-                }
-            //}
-        }
+	const edmNew::DetSetVector<SiPixelCluster>& clustColl = *hClusterColl;
+	// ----------------------------------------------------------------------
+	// -- Clusters without tracks
+	
+	for (edmNew::DetSetVector<SiPixelCluster>::const_iterator isearch = clustColl.begin();  isearch != clustColl.end(); ++isearch){
+	  // these are sorted by modules so we pick the current one
+	  edmNew::DetSet<SiPixelCluster>  mod = *isearch;
+	  if(mod.empty()) { continue; }// skip empty modules
+	  DetId detId = mod.id();
+	  
+	  bxModKey.second=detId();
+	  for (edmNew::DetSet<SiPixelCluster>::const_iterator di = mod.begin(); di != mod.end(); ++di){
+	    if(nPixelClusters.count(bxModKey)==0){
+	      nPixelClusters[bxModKey]=0;
+	    }
+	    nPixelClusters[bxModKey] = nPixelClusters[bxModKey]+1;
+	    
+	    
+	    int nCluster = isearch->size();
+	    if(nClusters.count(bxModKey)==0){
+	      nClusters[bxModKey]=0;
+	    }
+	    nClusters[bxModKey] += nCluster;
+	    
+	    if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
+	      PixelBarrelName detName = PixelBarrelName(detId);
+	      int layer = detName.layerName();
+	      if(layers.count(detId())==0){
+		layers[detId()]=layer;
+	      }
+	    } else {
+	      assert(detId.subdetId() == PixelSubdetector::PixelEndcap);
+	      PixelEndcapName detName = PixelEndcapName(detId);
+	      int disk = detName.diskName();
+	      if(layers.count(detId())==0){
+		layers[detId()]=disk+NumPixelBarrelLayers; 
+	      }
+	    }	    
+	    //}
+	  }
+	}
+      }
     }
-} 
-
+}
 
 void PCCNTupler::Reset() {
     nVtx = 0;

@@ -5,10 +5,7 @@
  *  Created by Chris Jones on 9/5/05.
  *
  */
-//NOTE: I need to open a 'back door' so I can test ServiceManager 'inheritance'
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#undef private
 
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -75,8 +72,7 @@ testServicesManager::putGetTest()
    }
    CPPUNIT_ASSERT(exceptionThrown);
    
-   std::auto_ptr< DummyService > pService(new DummyService);
-   auto ptrWrapper = std::make_shared<ServiceWrapper<DummyService> >(pService);
+   auto ptrWrapper = std::make_shared<ServiceWrapper<DummyService>>(std::make_unique<DummyService>());
 
    CPPUNIT_ASSERT(sm.put(ptrWrapper));
 

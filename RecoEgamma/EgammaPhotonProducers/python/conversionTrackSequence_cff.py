@@ -9,7 +9,8 @@ from RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
 
-ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
+ckfTracksFromConversionsTask = cms.Task(conversionTrackCandidates,ckfOutInTracksFromConversions,ckfInOutTracksFromConversions)
+ckfTracksFromConversions = cms.Sequence(ckfTracksFromConversionsTask)
 
 oldegConversionTrackCandidates = conversionTrackCandidates.clone()
 oldegConversionTrackCandidates.scHybridBarrelProducer = cms.InputTag("correctedHybridSuperClusters")
@@ -27,14 +28,29 @@ ckfInOutTracksFromOldEGConversions.src = cms.InputTag('oldegConversionTrackCandi
 ckfInOutTracksFromOldEGConversions.producer = cms.string('oldegConversionTrackCandidates')
 ckfInOutTracksFromOldEGConversions.ComponentName = cms.string('ckfInOutTracksFromOldEGConversions')
 
-ckfTracksFromOldEGConversions = cms.Sequence(oldegConversionTrackCandidates*ckfOutInTracksFromOldEGConversions*ckfInOutTracksFromOldEGConversions)
-
+ckfTracksFromOldEGConversionsTask = cms.Task(oldegConversionTrackCandidates,ckfOutInTracksFromOldEGConversions,ckfInOutTracksFromOldEGConversions)
+ckfTracksFromOldEGConversions = cms.Sequence(ckfTracksFromOldEGConversionsTask)
 #producer from general tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
 generalConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
     TrackProducer = cms.string('generalTracks'),
     setTrackerOnly = cms.bool(True),
     setArbitratedMergedEcalGeneral = cms.bool(True),
 )
+
+#fastSim
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+# the conversion producer depends on trajectories
+# so we feed it with the 'before mixing' track collection
+generalConversionTrackProducerTmp = generalConversionTrackProducer.clone(
+    TrackProducer = 'generalTracksBeforeMixing')
+
+# then we need to fix the track references, so that they point to the final track collection, after mixing
+import FastSimulation.Tracking.ConversionTrackRefFix_cfi
+_fastSim_conversionTrackRefFix = FastSimulation.Tracking.ConversionTrackRefFix_cfi.fixedConversionTracks.clone(
+                 src = cms.InputTag("generalConversionTrackProducerTmp"))
+fastSim.toReplaceWith(generalConversionTrackProducer,
+                      _fastSim_conversionTrackRefFix)
+
 
 #producer from conversionStep tracks collection, set tracker only, merged arbitrated, merged arbitrated ecal/general flags
 conversionStepConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
@@ -64,15 +80,16 @@ gsfConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackPro
     filterOnConvTrackHyp = cms.bool(False),
 )
 
-conversionTrackProducers = cms.Sequence(generalConversionTrackProducer*conversionStepConversionTrackProducer*inOutConversionTrackProducer*outInConversionTrackProducer*gsfConversionTrackProducer)
+conversionTrackProducersTask = cms.Task(generalConversionTrackProducer,conversionStepConversionTrackProducer,inOutConversionTrackProducer,outInConversionTrackProducer,gsfConversionTrackProducer)
+conversionTrackProducers = cms.Sequence(conversionTrackProducersTask)
 
 inOutOldEGConversionTrackProducer = inOutConversionTrackProducer.clone()
 inOutOldEGConversionTrackProducer.TrackProducer = cms.string('ckfInOutTracksFromOldEGConversions')
 outInOldEGConversionTrackProducer = outInConversionTrackProducer.clone()
 outInOldEGConversionTrackProducer.TrackProducer = cms.string('ckfOutInTracksFromOldEGConversions')
 
-oldegConversionTrackProducers = cms.Sequence(inOutOldEGConversionTrackProducer*outInOldEGConversionTrackProducer)
-
+oldegConversionTrackProducersTask = cms.Task(inOutOldEGConversionTrackProducer,outInOldEGConversionTrackProducer)
+oldegConversionTrackProducers = cms.Sequence(oldegConversionTrackProducersTask)
 #merge generalTracks and conversionStepTracks collections, with arbitration by nhits then chi^2/ndof for ecalseededarbitrated, mergedarbitratedecalgeneral and mergedarbitrated flags
 generalConversionStepConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
     TrackProducer1 = cms.InputTag('generalConversionTrackProducer'),
@@ -128,7 +145,8 @@ gsfGeneralInOutOutInConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.con
 #overlaps between the ecal seeded track collections and between ecal seeded and general tracks are arbitrated first by nhits then by chi^2/dof
 #(logic and much of the code is adapted from FinalTrackSelectors)
 
-conversionTrackMergers = cms.Sequence(inOutOutInConversionTrackMerger*generalConversionStepConversionTrackMerger*generalInOutOutInConversionTrackMerger*gsfGeneralInOutOutInConversionTrackMerger)
+conversionTrackMergersTask = cms.Task(inOutOutInConversionTrackMerger,generalConversionStepConversionTrackMerger,generalInOutOutInConversionTrackMerger,gsfGeneralInOutOutInConversionTrackMerger)
+conversionTrackMergers = cms.Sequence(conversionTrackMergersTask)
 
 inOutOutInOldEGConversionTrackMerger = inOutOutInConversionTrackMerger.clone()
 inOutOutInOldEGConversionTrackMerger.TrackProducer1 = cms.InputTag('inOutOldEGConversionTrackProducer')
@@ -140,10 +158,12 @@ generalInOutOutInOldEGConversionTrackMerger.TrackProducer1 = cms.InputTag('inOut
 gsfGeneralInOutOutInOldEGConversionTrackMerger = gsfGeneralInOutOutInConversionTrackMerger.clone()
 gsfGeneralInOutOutInOldEGConversionTrackMerger.TrackProducer1 = cms.InputTag('generalInOutOutInOldEGConversionTrackMerger')
 
-oldegConversionTrackMergers = cms.Sequence(inOutOutInOldEGConversionTrackMerger*generalInOutOutInOldEGConversionTrackMerger*gsfGeneralInOutOutInOldEGConversionTrackMerger)
+oldegConversionTrackMergersTask = cms.Task(inOutOutInOldEGConversionTrackMerger,generalInOutOutInOldEGConversionTrackMerger,gsfGeneralInOutOutInOldEGConversionTrackMerger)
+oldegConversionTrackMergers = cms.Sequence(oldegConversionTrackMergersTask)
 
-conversionTrackSequence = cms.Sequence(ckfTracksFromConversions*conversionTrackProducers*conversionTrackMergers)
 
+conversionTrackTask = cms.Task(ckfTracksFromConversionsTask,conversionTrackProducersTask,conversionTrackMergersTask)
+conversionTrackSequence = cms.Sequence(conversionTrackTask)
 #merge the general tracks with the collection from gsf tracks
 #arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks
 gsfGeneralConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
@@ -153,4 +173,9 @@ gsfGeneralConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTra
 )
 
 #special sequence for fastsim which skips the ecal-seeded and conversionStep tracks for now
-conversionTrackSequenceNoEcalSeeded = cms.Sequence(generalConversionTrackProducer*gsfConversionTrackProducer*gsfGeneralConversionTrackMerger)
+conversionTrackTaskNoEcalSeeded = cms.Task(generalConversionTrackProducer,gsfConversionTrackProducer,gsfGeneralConversionTrackMerger)
+conversionTrackSequenceNoEcalSeeded = cms.Sequence(conversionTrackTaskNoEcalSeeded)
+
+_fastSim_conversionTrackTaskNoEcalSeeded = conversionTrackTaskNoEcalSeeded.copy()
+_fastSim_conversionTrackTaskNoEcalSeeded.replace(generalConversionTrackProducer,cms.Task(generalConversionTrackProducerTmp,generalConversionTrackProducer))
+fastSim.toReplaceWith(conversionTrackTaskNoEcalSeeded,_fastSim_conversionTrackTaskNoEcalSeeded)

@@ -55,7 +55,7 @@ process.testEcalClusterSeverityAlgo = EDAnalyzer("testEcalClusterSeverityAlgo",
                                                  reducedEndcapRecHitCollection = InputTag("reducedEcalRecHitsEE"),
                                                  barrelClusterCollection = InputTag("correctedHybridSuperClusters"),
                                                  endcapClusterCollection = InputTag("correctedMulti5x5SuperClustersWithPreshower"),
-                                                 mcTruthCollection = cms.InputTag("generator"),
+                                                 mcTruthCollection = cms.InputTag("VtxSmeared"),
                                                  outputFile = cms.string('filteredSCtree.root')
                                                  )
 

@@ -26,13 +26,13 @@ class TauDiscriminationByStringCut :
       typedef std::vector<TauType> TauCollection;
       typedef edm::Ref<TauCollection> TauRef;
 
-      double discriminate(const TauRef& tau) const {
+      double discriminate(const TauRef& tau) const override {
         // StringCutObjectSelector::operator() returns true if tau passes cut
         return ( (*cut_)(*tau) ) ? cutPassValue_ : cutFailValue_;
       }
 
    private:
-      std::auto_ptr<StringCutObjectSelector<TauType> > cut_;
+      std::unique_ptr<StringCutObjectSelector<TauType> > cut_;
       double cutFailValue_;
       double cutPassValue_;
 };

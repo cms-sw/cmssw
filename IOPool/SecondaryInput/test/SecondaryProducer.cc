@@ -68,11 +68,13 @@ namespace edm {
   }
 
   void SecondaryProducer::beginJob() {
-    eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
+    // propagate_const<T> has no reset() function
+    eventPrincipal_ = std::make_unique<EventPrincipal>(
+                                             secInput_->productRegistry(),
                                              std::make_shared<BranchIDListHelper>(),
                                              std::make_shared<ThinnedAssociationsHelper>(),
                                              *processConfiguration_,
-                                             nullptr));
+                                             nullptr);
 
   }
 
@@ -139,7 +141,7 @@ namespace edm {
     WTC const* wtp = static_cast<WTC const*>(ep);
     assert(wtp);
     TC const* tp = wtp->product();
-    std::unique_ptr<TC> thing(new TC(*tp));
+    auto thing = std::make_unique<TC>(*tp);
 
     // Put output into event
     e.put(std::move(thing));
@@ -161,7 +163,7 @@ namespace edm {
   std::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
     ParameterSet const& sec_input = ps.getParameterSet("input");
     PreallocationConfiguration dummy;
-    VectorInputSourceDescription desc(productRegistry_, dummy);
+    VectorInputSourceDescription desc(productRegistry(), dummy);
     std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input, desc).release()));
     return input_;

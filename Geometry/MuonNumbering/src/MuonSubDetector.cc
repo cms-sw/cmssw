@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-MuonSubDetector::MuonSubDetector(std::string name) 
+MuonSubDetector::MuonSubDetector(const std::string& name) 
   : detectorName(name) {
   if (name=="MuonDTHits") {
     detector=barrel;

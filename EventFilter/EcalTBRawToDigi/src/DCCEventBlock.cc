@@ -14,14 +14,14 @@
 
 DCCTBEventBlock::DCCTBEventBlock(
 	DCCTBDataParser * parser, 
-	uint32_t * buffer, 
+	const uint32_t * buffer, 
 	uint32_t numbBytes, 
 	uint32_t wordsToEnd, 
 	uint32_t wordBufferOffset , 
 	uint32_t wordEventOffset 
 ) : 
 DCCTBBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
-,dccTrailerBlock_(0),srpBlock_(0),wordBufferOffset_(wordBufferOffset) {
+,dccTrailerBlock_(nullptr),srpBlock_(nullptr),wordBufferOffset_(wordBufferOffset) {
 	
 	
 	//Reset error counters ////
@@ -204,8 +204,8 @@ DCCTBEventBlock::~DCCTBEventBlock(){
 	for(it2=towerBlocks_.begin();it2!=towerBlocks_.end();it2++){ delete (*it2);}
 	towerBlocks_.clear();
 	
-	if(srpBlock_ !=        0 ) { delete srpBlock_;       }
-	if(dccTrailerBlock_ != 0 ) { delete dccTrailerBlock_;}
+	if(srpBlock_ !=        nullptr ) { delete srpBlock_;       }
+	if(dccTrailerBlock_ != nullptr ) { delete dccTrailerBlock_;}
 	
 }
 

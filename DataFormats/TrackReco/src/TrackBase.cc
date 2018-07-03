@@ -9,7 +9,7 @@ using namespace reco;
 std::string const TrackBase::algoNames[] = {
     "undefAlgorithm",
     "ctf",
-    "rs",
+    "duplicateMerge",
     "cosmics",
     "initialStep",
     "lowPtTripletStep",
@@ -29,11 +29,11 @@ std::string const TrackBase::algoNames[] = {
     "globalMuon",
     "cosmicStandAloneMuon",
     "cosmicGlobalMuon",
-    "iter1LargeD0",
-    "iter2LargeD0",
-    "iter3LargeD0",
-    "iter4LargeD0",
-    "iter5LargeD0",
+    "highPtTripletStep",
+    "lowPtQuadStep",
+    "detachedQuadStep",
+    "reservedForUpgrades1",
+    "reservedForUpgrades2",
     "bTagGhostTracks",
     "beamhalo" ,
     "gsf",
@@ -75,7 +75,8 @@ TrackBase::TrackBase() :
     algorithm_(undefAlgorithm),
     originalAlgorithm_(undefAlgorithm),
     quality_(0),
-    nLoops_(0)
+    nLoops_(0),
+    stopReason_(0)
 {
     algoMask_.set(algorithm_);
     index idx = 0;
@@ -88,7 +89,7 @@ TrackBase::TrackBase() :
 
 TrackBase::TrackBase(double chi2, double ndof, const Point &vertex, const Vector &momentum,
                      int charge, const CovarianceMatrix &cov, TrackAlgorithm algorithm,
-                     TrackQuality quality, signed char nloops):
+                     TrackQuality quality, signed char nloops, uint8_t stopReason):
     chi2_(chi2),
     vertex_(vertex),
     momentum_(momentum),
@@ -97,7 +98,8 @@ TrackBase::TrackBase(double chi2, double ndof, const Point &vertex, const Vector
     algorithm_(algorithm),
     originalAlgorithm_(algorithm),
     quality_(0),
-    nLoops_(nloops)
+    nLoops_(nloops),
+    stopReason_(stopReason)
 {
     algoMask_.set(algorithm_);
 

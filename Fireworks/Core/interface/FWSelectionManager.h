@@ -62,9 +62,9 @@ private:
    void selectItem(FWEventItem*);
    void unselectItem(FWEventItem*);
    
-   FWSelectionManager(const FWSelectionManager&);    // stop default
+   FWSelectionManager(const FWSelectionManager&) = delete;    // stop default
 
-   const FWSelectionManager& operator=(const FWSelectionManager&);    // stop default
+   const FWSelectionManager& operator=(const FWSelectionManager&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    FWModelChangeManager* m_changeManager;

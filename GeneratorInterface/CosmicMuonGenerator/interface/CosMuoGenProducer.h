@@ -15,21 +15,23 @@
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 
+#include <memory>
+
 namespace edm
 {
   class CosMuoGenProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks> {
   public:
     CosMuoGenProducer(const ParameterSet& );
-    virtual ~CosMuoGenProducer();
+    ~CosMuoGenProducer() override;
 
   private:
 
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
+    void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
 
-    virtual void produce(Event & e, const EventSetup& es) override;
+    void produce(Event & e, const EventSetup& es) override;
 
-    virtual void endRunProduce(Run & r, const EventSetup & es) override;
+    void endRunProduce(Run & r, const EventSetup & es) override;
 
     void clear();
     // define the configurable generator parameters
@@ -81,9 +83,8 @@ namespace edm
     double       extCrossSect;
     double       extFilterEff;
 
-    CosmicMuonGenerator* CosMuoGen;
+    std::unique_ptr<CosmicMuonGenerator> CosMuoGen;
     // the event format itself
-    HepMC::GenEvent* fEvt;
     bool cmVerbosity_;
 
     bool isInitialized_;

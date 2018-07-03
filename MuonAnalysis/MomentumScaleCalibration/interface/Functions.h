@@ -112,9 +112,9 @@ public:
     // scaleFunctionBase<T>::parNum_ = 0;
     this->parNum_ = 0;
   }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const { return pt; }
-  virtual void resetParameters(std::vector<double> * scaleVec) const {}
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) {}
+  double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const override { return pt; }
+  void resetParameters(std::vector<double> * scaleVec) const override {}
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) override {}
 };
 
 //
@@ -124,7 +124,7 @@ template <class T>
 class scaleFunctionType50 : public scaleFunctionBase<T> {
 public:
   scaleFunctionType50() { this->parNum_ = 27; }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {    
+  double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const override {    
     double ampl(0), phase(0), twist(0), ampl2(0), freq2(0), phase2(0);
 
 // very bwd bin
@@ -158,14 +158,14 @@ public:
     return 1./((double)chg*curv);
   }
   // Fill the scaleVec with neutral parameters
-  virtual void resetParameters(std::vector<double> * scaleVec) const {
+  void resetParameters(std::vector<double> * scaleVec) const override {
     //    scaleVec->push_back(1);
     for( int i=0; i<this->parNum_; ++i ) {
       scaleVec->push_back(0);
     }
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
-                             TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+                             TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) override {
 
     double thisStep[] = {0.000001, 
 			 0.000001, 0.01, 0.000001, 0.01,  
@@ -197,12 +197,12 @@ public:
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
 			     const T & parScale, const std::vector<int> & parScaleOrder,
 			     const std::vector<double> & parStep,
 			     const std::vector<double> & parMin,
 			     const std::vector<double> & parMax,
-			     const int muonType)
+			     const int muonType) override
   {
     if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
       std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
@@ -265,7 +265,7 @@ public:
   scaleFunctionType64() { 
     this->parNum_ = 50; 
   }
-  virtual double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const {    
+  double scale(const double & pt, const double & eta, const double & phi, const int chg, const T & parScale) const override {    
     double deltaK(0);
     double p0 = parScale[0];
             
@@ -341,14 +341,14 @@ public:
     return 1./((double)chg*(1+p0)*(curv+deltaK));
   }
   // Fill the scaleVec with neutral parameters
-  virtual void resetParameters(std::vector<double> * scaleVec) const {
+  void resetParameters(std::vector<double> * scaleVec) const override {
     //    scaleVec->push_back(1);
     for( int i=0; i<this->parNum_; ++i ) {
       scaleVec->push_back(0);
     }
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
-                             TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+                             TString* parname, const T & parScale, const std::vector<int> & parScaleOrder, const int muonType) override {
 
     double thisStep[] = {
       0.000001, 
@@ -406,12 +406,12 @@ public:
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
 			     const T & parScale, const std::vector<int> & parScaleOrder,
 			     const std::vector<double> & parStep,
 			     const std::vector<double> & parMin,
 			     const std::vector<double> & parMax,
-			     const int muonType)
+			     const int muonType) override
   {
     if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
       std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
@@ -524,13 +524,13 @@ inline smearFunctionBase::~smearFunctionBase() { }  // defined even though it's 
 // -----------
 class smearFunctionType0 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) { }
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override { }
 };
 // The 3 parameters of smearType1 are: pt dependence of pt smear, phi smear and
 // cotgtheta smear.
 class smearFunctionType1 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override {
     pt = pt*(1.0+y[0]*parSmear[0]*pt);
     phi = phi*(1.0+y[1]*parSmear[1]);
     double tmp = 2*atan(exp(-eta));
@@ -541,7 +541,7 @@ class smearFunctionType1 : public smearFunctionBase {
 
 class smearFunctionType2 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override {
     pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta));
     phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
@@ -552,7 +552,7 @@ class smearFunctionType2 : public smearFunctionBase {
 
 class smearFunctionType3 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override {
     pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta));
     phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
@@ -565,7 +565,7 @@ class smearFunctionType3 : public smearFunctionBase {
 // |eta| dep. of |eta| res., Pt^2 dep. of Pt res.
 class smearFunctionType4 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override {
     pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
     phi = phi*(1.0+y[2]*parSmear[2]);
     double tmp = 2*atan(exp(-eta));
@@ -576,7 +576,7 @@ class smearFunctionType4 : public smearFunctionBase {
 
 class smearFunctionType5 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override {
     pt = pt*(1.0+y[0]*parSmear[0]*pt+y[1]*parSmear[1]*std::fabs(eta)+y[5]*parSmear[5]*pow(pt,2));
     phi = phi*(1.0+y[2]*parSmear[2]+y[6]*parSmear[6]*pt);
     double tmp = 2*atan(exp(-eta));
@@ -588,7 +588,7 @@ class smearFunctionType5 : public smearFunctionBase {
 //Smearing for MC correction based on the resolution function Type 15 for misaligned MC
 class smearFunctionType6 : public smearFunctionBase {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) {
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override {
     double sigmaSmear = 0;
     double sigmaPtAl = 0;
     double sigmaPtMisal = 0;
@@ -643,7 +643,7 @@ class smearFunctionType6 : public smearFunctionBase {
 class smearFunctionType7 : public smearFunctionBase
 {
  public:
-  virtual void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear)
+  void smear(double & pt, double & eta, double & phi, const double * y, const std::vector<double> & parSmear) override
   {
     double sigmaSquared = sigmaPtDiff.squaredDiff(eta);
     TF1 G("G", "[0]*exp(-0.5*pow(x,2)/[1])", -5., 5.);
@@ -748,18 +748,18 @@ public:
     // One of the two is required. This follows from when templates are used by the compiler and the names lookup rules in c++.
     this->parNum_ = 0;
   }
-  virtual double sigmaPt(const double & pt, const double & eta, const T & parval) { return 0; }
-  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) { return 0; }
-  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) { return 0.; }
+  double sigmaPt(const double & pt, const double & eta, const T & parval) override { return 0; }
+  double sigmaCotgTh(const double & pt, const double & eta, const T & parval) override { return 0; }
+  double sigmaPhi(const double & pt, const double & eta, const T & parval) override { return 0.; }
   // derivatives ---------------
-  virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError) { return 0; }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) {}
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+  double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError) override { return 0; }
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const T & parResol, const std::vector<int> & parResolOrder, const int muonType) override {}
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
 			     const T & parResol, const std::vector<int> & parResolOrder,
 			     const std::vector<double> & parStep,
 			     const std::vector<double> & parMin,
 			     const std::vector<double> & parMax,
-			     const int muonType) {}
+			     const int muonType) override {}
 
 };
 
@@ -787,27 +787,27 @@ class resolutionFunctionType45 : public resolutionFunctionBase<T> {
    
   resolutionFunctionType45() { this->parNum_ = 13; }
 
-  virtual double sigmaPt(const double & pt, const double & eta, const T & parval)
+  double sigmaPt(const double & pt, const double & eta, const T & parval) override
   {
     return (parval[0]*pt + parval[etaBin(eta)]); 
   }
-  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+  double sigmaCotgTh(const double & pt, const double & eta, const T & parval) override {
     return 0;
   }
-  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+  double sigmaPhi(const double & pt, const double & eta, const T & parval) override {
     return 0.;
   }
 
   // derivatives ---------------
-  virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError)
+  double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError) override
   {
     // Use the etaBin function to select the right bin for the parameter
     return sqrt( pow(pt*parError[0], 2) + pow(parError[etaBin(eta)], 2));
   }
 
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
 			     TString* parname, const T & parResol, const std::vector<int> & parResolOrder,
-			     const int muonType)
+			     const int muonType) override
   {
     std::vector<ParameterSet> parSet(this->parNum_);
     // name, step, mini, maxi
@@ -829,12 +829,12 @@ class resolutionFunctionType45 : public resolutionFunctionBase<T> {
     this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
   }
 
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
 			     const T & parResol, const std::vector<int> & parResolOrder,
 			     const std::vector<double> & parStep,
 			     const std::vector<double> & parMin,
 			     const std::vector<double> & parMax,
-			     const int muonType)
+			     const int muonType) override
   {
     if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
       std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
@@ -895,28 +895,28 @@ class resolutionFunctionType46 : public resolutionFunctionBase<T> {
    
   resolutionFunctionType46() { this->parNum_ = 13; }
 
-  virtual double sigmaPt(const double & pt, const double & eta, const T & parval)
+  double sigmaPt(const double & pt, const double & eta, const T & parval) override
   {
     return sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2));
   }
-  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+  double sigmaCotgTh(const double & pt, const double & eta, const T & parval) override {
     return 0;
   }
-  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+  double sigmaPhi(const double & pt, const double & eta, const T & parval) override {
     return 0.;
   }
 
   // derivatives ---------------
-  virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError)
+  double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError) override
   {
     // Use the etaByBin function to select the right bin for the parameter
     double r = sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2));
     return sqrt( pow(pt*pt*parval[0]*parError[0],2) + pow(parval[etaBin(eta)]*parError[etaBin(eta)],2) )/r;
   }
 
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
 			     TString* parname, const T & parResol, const std::vector<int> & parResolOrder,
-			     const int muonType)
+			     const int muonType) override
   {
     std::vector<ParameterSet> parSet(this->parNum_);
     // name, step, mini, maxi
@@ -938,12 +938,12 @@ class resolutionFunctionType46 : public resolutionFunctionBase<T> {
     this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
   }
 
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
 			     const T & parResol, const std::vector<int> & parResolOrder,
 			     const std::vector<double> & parStep,
 			     const std::vector<double> & parMin,
 			     const std::vector<double> & parMax,
-			     const int muonType)
+			     const int muonType) override
   {
     if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
       std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
@@ -1003,33 +1003,33 @@ class resolutionFunctionType47 : public resolutionFunctionBase<T> {
   
   resolutionFunctionType47() { this->parNum_ = 14; }
 
-  virtual double sigmaPt(const double & pt, const double & eta, const T & parval)
+  double sigmaPt(const double & pt, const double & eta, const T & parval) override
   {
     return sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2) + pow(parval[13],2));
   }
-  virtual double sigmaCotgTh(const double & pt, const double & eta, const T & parval) {
+  double sigmaCotgTh(const double & pt, const double & eta, const T & parval) override {
     return 0;
   }
-  virtual double sigmaPhi(const double & pt, const double & eta, const T & parval) {
+  double sigmaPhi(const double & pt, const double & eta, const T & parval) override {
     return 0.;
   }
 
-  virtual double covPt1Pt2(const double & pt1, const double & eta1, const double & pt2, const double & eta2, const T & parval)
+  double covPt1Pt2(const double & pt1, const double & eta1, const double & pt2, const double & eta2, const T & parval) override
   {
     return parval[14];
   }
 
   // derivatives ---------------
-  virtual double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError)
+  double sigmaPtError(const double & pt, const double & eta, const T & parval, const T & parError) override
   {
     // Use the etaByBin function to select the right bin for the parameter
     double r = sqrt(pow(parval[0]*pt,2) + pow(parval[etaBin(eta)],2) + pow(parval[13],2));
     return sqrt( pow(pt*pt*parval[0]*parError[0],2) + pow(parval[etaBin(eta)]*parError[etaBin(eta)],2) + pow(parval[13]*parError[13],2) )/r;
   }
 
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind,
 			     TString* parname, const T & parResol, const std::vector<int> & parResolOrder,
-			     const int muonType)
+			     const int muonType) override
   {
     std::vector<ParameterSet> parSet(this->parNum_);
     // name, step, mini, maxi
@@ -1052,12 +1052,12 @@ class resolutionFunctionType47 : public resolutionFunctionBase<T> {
     this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
   }
 
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
 			     const T & parResol, const std::vector<int> & parResolOrder,
 			     const std::vector<double> & parStep,
 			     const std::vector<double> & parMin,
 			     const std::vector<double> & parMax,
-			     const int muonType)
+			     const int muonType) override
   {
     if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
       std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
@@ -1213,7 +1213,7 @@ class backgroundFunctionType1 : public backgroundFunctionBase
   backgroundFunctionType1(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
     { this->parNum_ = 2; }
-    virtual double operator()( const double * parval, const double & mass, const double & eta ) const
+    double operator()( const double * parval, const double & mass, const double & eta ) const override
   {
     double a = 1.;
     double b = parval[1];
@@ -1226,7 +1226,7 @@ class backgroundFunctionType1 : public backgroundFunctionBase
     if( mass < -a/b && norm != 0 ) return (a + b*mass)/norm;
     else return 0;
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Constant", "Linear"};
     if( muonType == 1 ) {
@@ -1252,14 +1252,14 @@ class backgroundFunctionType2 : public backgroundFunctionBase {
   backgroundFunctionType2(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
     { this->parNum_ = 2; }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override
   {
     double Bgrp2 = parval[1];
     double norm = -(exp(-Bgrp2*upperLimit_) - exp(-Bgrp2*lowerLimit_))/Bgrp2;
     if( norm != 0 ) return exp(-Bgrp2*mass)/norm;
     else return 0.;
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope"};
     if( muonType == 1 ) {
@@ -1358,14 +1358,14 @@ class backgroundFunctionType4 : public backgroundFunctionBase
   backgroundFunctionType4(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
     { this->parNum_ = 4; }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override
   {
     double Bgrp2 = parval[1] + parval[2]*eta*eta;
     double norm = -(exp(-Bgrp2*upperLimit_) - exp(-Bgrp2*lowerLimit_))/Bgrp2;
     if( norm != 0 ) return exp(-Bgrp2*mass)/norm;
     else return 0.;
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01, 0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope", "Bgr slope eta^2 dependence", "background fraction eta dependence"};
     if( muonType == 1 ) {
@@ -1396,7 +1396,7 @@ class backgroundFunctionType5 : public backgroundFunctionBase
   backgroundFunctionType5(const double & lowerLimit, const double & upperLimit) :
     backgroundFunctionBase(lowerLimit, upperLimit)
     { this->parNum_ = 3; }
-    virtual double operator()( const double * parval, const double & mass, const double & eta ) const
+    double operator()( const double * parval, const double & mass, const double & eta ) const override
   {
     double b = parval[1];
     // double c = parval[2];
@@ -1410,7 +1410,7 @@ class backgroundFunctionType5 : public backgroundFunctionBase
     if( mass < -a/b && norm != 0 ) return (a + b*mass)/norm;
     else return 0;
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Constant", "Linear"};
     if( muonType == 1 ) {
@@ -1435,8 +1435,8 @@ class backgroundFunctionType6 : public backgroundFunctionBase {
   {
     this->parNum_ = 2;
   }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const {return 0.;}
-  virtual double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override {return 0.;}
+  double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const override
   {
     double Bgrp2 = 0.;
     if( fabs(eta1) <= 1.3 && fabs(eta2) <= 1.3 ) {
@@ -1470,7 +1470,7 @@ class backgroundFunctionType6 : public backgroundFunctionBase {
     else return 0.;
 
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope"};
     if( muonType == 1 ) {
@@ -1484,7 +1484,7 @@ class backgroundFunctionType6 : public backgroundFunctionBase {
     }
   }
 
-  virtual double fracVsEta(const double * parval, const double & eta1, const double & eta2) const
+  double fracVsEta(const double * parval, const double & eta1, const double & eta2) const override
   {
     if( fabs(eta1) <= 1.3 && fabs(eta2) <= 1.3 ) {
       return (1.-0.910903);
@@ -1523,8 +1523,8 @@ class backgroundFunctionType7 : public backgroundFunctionBase {
   {
     this->parNum_ = 2;
   }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const {return 0.;}
-  virtual double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override {return 0.;}
+  double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const override
   {
     double Bgrp2 = 0.;
     if( (fabs(eta1) >= 0. && fabs(eta1) < 0.9) && (fabs(eta2) >= 0. && fabs(eta2) < 0.9) ) {
@@ -1708,7 +1708,7 @@ class backgroundFunctionType7 : public backgroundFunctionBase {
     else return 0.;
 
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope"};
     if( muonType == 1 ) {
@@ -1722,7 +1722,7 @@ class backgroundFunctionType7 : public backgroundFunctionBase {
     }
   }
 
-  virtual double fracVsEta(const double * parval, const double & eta1, const double & eta2) const
+  double fracVsEta(const double * parval, const double & eta1, const double & eta2) const override
   {
     if( (fabs(eta1) >= 0. && fabs(eta1) < 0.9) && (fabs(eta2) >= 0. && fabs(eta2) < 0.9) ) {
       return (1.-0.915365);
@@ -1909,8 +1909,8 @@ class backgroundFunctionType8 : public backgroundFunctionBase {
   {
     this->parNum_ = 2;
   }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const {return 0.;}
-  virtual double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override {return 0.;}
+  double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const override
   {
     double Bgrp2 = 0.;
 if( (fabs(eta1) >= 0. && fabs(eta1) < 0.85) && (fabs(eta2) >= 0. && fabs(eta2) < 0.85) ) {
@@ -1955,7 +1955,7 @@ else if( ((fabs(eta1) >= 1.25 && fabs(eta1) < 1.6) && (fabs(eta2) >= 1.6 && fabs
     else return 0.;
 
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope"};
     if( muonType == 1 ) {
@@ -1969,7 +1969,7 @@ else if( ((fabs(eta1) >= 1.25 && fabs(eta1) < 1.6) && (fabs(eta2) >= 1.6 && fabs
     }
   }
 
-  virtual double fracVsEta(const double * parval, const double & eta1, const double & eta2) const
+  double fracVsEta(const double * parval, const double & eta1, const double & eta2) const override
   {
 if( (fabs(eta1) >= 0. && fabs(eta1) < 0.85) && (fabs(eta2) >= 0. && fabs(eta2) < 0.85) ) {
   return (1.-0.907727);
@@ -2022,8 +2022,8 @@ class backgroundFunctionType9 : public backgroundFunctionBase {
   {
     this->parNum_ = 2;
   }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const {return 0.;}
-  virtual double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override {return 0.;}
+  double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const override
   {
     double Bgrp2 = 0.;
 
@@ -2073,7 +2073,7 @@ else if( ((fabs(eta1) >= 1.25 && fabs(eta1) < 1.6) && (fabs(eta2) >= 1.6 && fabs
     else return 0.;
 
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope"};
     if( muonType == 1 ) {
@@ -2087,7 +2087,7 @@ else if( ((fabs(eta1) >= 1.25 && fabs(eta1) < 1.6) && (fabs(eta2) >= 1.6 && fabs
     }
   }
 
-  virtual double fracVsEta(const double * parval, const double & eta1, const double & eta2) const
+  double fracVsEta(const double * parval, const double & eta1, const double & eta2) const override
 
  {
    // std::cout << "Eta1 " << eta1 << " eta2 = " << eta2 << std::endl;
@@ -2142,8 +2142,8 @@ class backgroundFunctionType10 : public backgroundFunctionBase {
   {
     this->parNum_ = 2;
   }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const {return 0.;}
-  virtual double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override {return 0.;}
+  double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const override
   {
     double Bgrp2 = 0.;
     if( (fabs(eta1) >= 0. && fabs(eta1) < 0.85) && (fabs(eta2) >= 0. && fabs(eta2) < 0.85) ) {
@@ -2232,7 +2232,7 @@ class backgroundFunctionType10 : public backgroundFunctionBase {
     if( norm != 0 ) return exp(-Bgrp2*mass)/norm;
     else return 0.;
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope"};
     if( muonType == 1 ) {
@@ -2246,7 +2246,7 @@ class backgroundFunctionType10 : public backgroundFunctionBase {
     }
   }
 
-  virtual double fracVsEta(const double * parval, const double & eta1, const double & eta2) const
+  double fracVsEta(const double * parval, const double & eta1, const double & eta2) const override
   {
     if( (fabs(eta1) >= 0. && fabs(eta1) < 0.85) && (fabs(eta2) >= 0. && fabs(eta2) < 0.85) ) {
       return (1.-0.893683);
@@ -2343,8 +2343,8 @@ class backgroundFunctionType11 : public backgroundFunctionBase {
   {
     this->parNum_ = 2;
   }
-  virtual double operator()( const double * parval, const double & mass, const double & eta ) const {return 0.;}
-  virtual double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const
+  double operator()( const double * parval, const double & mass, const double & eta ) const override {return 0.;}
+  double operator()( const double * parval, const double & mass, const double & eta1, const double & eta2 ) const override
   {
     double Bgrp2 = 0.;
     if( (eta1 >= -100. && eta1 < -0.8) && (eta2 >= -100. && eta2 < -0.8) ) {
@@ -2404,7 +2404,7 @@ class backgroundFunctionType11 : public backgroundFunctionBase {
     else return 0.;
 
   }
-  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) {
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double>::const_iterator & parBgrIt, const std::vector<int>::const_iterator & parBgrOrderIt, const int muonType) override {
     double thisStep[] = {0.01, 0.01};
     TString thisParName[] = {"Bgr fraction", "Bgr slope"};
     if( muonType == 1 ) {
@@ -2418,7 +2418,7 @@ class backgroundFunctionType11 : public backgroundFunctionBase {
     }
   }
 
-  virtual double fracVsEta(const double * parval, const double & eta1, const double & eta2) const
+  double fracVsEta(const double * parval, const double & eta1, const double & eta2) const override
   {
     if( (eta1 >= -100. && eta1 < -0.8) && (eta2 >= -100. && eta2 < -0.8) ) {
       return (1.-0.966316);

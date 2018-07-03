@@ -191,7 +191,7 @@ struct access<TYPE<T>> \
     static bool equal_(const TYPE<T> & first, const TYPE<T> & second) \
     { \
         return first.size() == second.size() && std::equal(first.cbegin(), first.cend(), second.cbegin(), \
-            [](decltype(*first.cbegin()) a, decltype(a) b) -> bool { \
+            [](decltype(*first.cbegin()) a, decltype(*first.cbegin()) b) -> bool { \
                 return equal(a, b); \
             } \
         ); \
@@ -234,7 +234,7 @@ struct access<TYPE<T, U>> \
     static bool equal_(const TYPE<T, U> & first, const TYPE<T, U> & second) \
     { \
         return first.size() == second.size() && std::equal(first.cbegin(), first.cend(), second.cbegin(), \
-            [](decltype(*first.cbegin()) a, decltype(a) b) -> bool { \
+            [](decltype(*first.cbegin()) a, decltype(*first.cbegin()) b) -> bool { \
                 return equal(a, b); \
             } \
         ); \

@@ -1,7 +1,6 @@
 <use   name="clhep"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/DTObjects"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="FWCore/Framework"/>
 <use   name="Geometry/Records"/>
 <use   name="CondFormats/DataRecord"/>
@@ -14,6 +13,5 @@
 </library>
 <library   file="validate/*.cc" name="CondToolsDTValidate">
   <use   name="CondCore/PopCon"/>
-  <use   name="CondCore/MetaDataService"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

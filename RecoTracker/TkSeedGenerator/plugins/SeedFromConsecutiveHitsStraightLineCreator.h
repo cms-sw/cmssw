@@ -5,18 +5,18 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 class FreeTrajectoryState;
 
-class dso_hidden SeedFromConsecutiveHitsStraightLineCreator GCC11_FINAL : public SeedFromConsecutiveHitsCreator {
+class dso_hidden SeedFromConsecutiveHitsStraightLineCreator final : public SeedFromConsecutiveHitsCreator {
 public:
 
   SeedFromConsecutiveHitsStraightLineCreator( const edm::ParameterSet & cfg):
     SeedFromConsecutiveHitsCreator(cfg) { }
 
-  virtual ~SeedFromConsecutiveHitsStraightLineCreator(){}
+  ~SeedFromConsecutiveHitsStraightLineCreator() override{}
 
 private:
 
-  virtual bool initialKinematic(GlobalTrajectoryParameters & kine,
-				const SeedingHitSet & hits) const;
+  bool initialKinematic(GlobalTrajectoryParameters & kine,
+				const SeedingHitSet & hits) const override;
 
 
 };

@@ -23,9 +23,9 @@ namespace edm {
 class L3MuonSumCaloPFIsolationProducer : public edm::global::EDProducer<> {
 public:
     explicit L3MuonSumCaloPFIsolationProducer(const edm::ParameterSet&);
-    ~L3MuonSumCaloPFIsolationProducer();
+    ~L3MuonSumCaloPFIsolationProducer() override;
     
-    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
 private:

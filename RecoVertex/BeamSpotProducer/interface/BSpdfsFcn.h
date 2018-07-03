@@ -33,8 +33,8 @@ class BSpdfsFcn : public ROOT::Minuit2::FCNBase {
 		fusepdfs = usepdfs;
 	}
 
-	virtual double operator() (const std::vector<double>&) const;
-	virtual double Up() const {return 1.;}
+	double operator() (const std::vector<double>&) const override;
+	double Up() const override {return 1.;}
 	
   private:
 

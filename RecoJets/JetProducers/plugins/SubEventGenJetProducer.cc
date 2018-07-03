@@ -104,7 +104,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
 
    ////////////////
 
-   std::auto_ptr<std::vector<GenJet> > jets(new std::vector<GenJet>() );
+   auto jets = std::make_unique<std::vector<GenJet>>();
    subJets_ = jets.get();
 
    LogDebug("VirtualJetProducer") << "Inputted towers\n";
@@ -122,7 +122,7 @@ void SubEventGenJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& i
    //Finalize
    LogDebug("SubEventJetProducer") << "Wrote jets\n";
 
-   iEvent.put(jets);  
+   iEvent.put(std::move(jets));  
    return;
 }
 

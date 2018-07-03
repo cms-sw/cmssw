@@ -61,7 +61,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   theService = new MuonServiceProxy(serviceParameters);
 
   MuonTrackLoader * trackLoader = new MuonTrackLoader(trackLoaderParameters,iC,theService);
-  MuonTrajectoryBuilder * trajectoryBuilder = 0;
+  MuonTrajectoryBuilder * trajectoryBuilder = nullptr;
   // instantiate the concrete trajectory builder in the Track Finder
   string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
   if(typeOfBuilder == "StandAloneMuonTrajectoryBuilder")

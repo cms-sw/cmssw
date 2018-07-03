@@ -21,16 +21,16 @@ public:
   MeasurementDistancemeter3dim( const ALIint measdim, ALIstring& type, ALIstring& name )
     : Measurement( measdim, type, name ), theFactor(1.), theFactorSigma(0.){ };
   MeasurementDistancemeter3dim(){ };   
-  ~MeasurementDistancemeter3dim(){ };
+  ~MeasurementDistancemeter3dim() override{ };
     
   // Get simulated value (called every time a parameter is displaced)
-  virtual void calculateSimulatedValue( ALIbool firstTime );
+  void calculateSimulatedValue( ALIbool firstTime ) override;
 
   //---------- Convert from V to rad
-  virtual void setConversionFactor( const std::vector<ALIstring>& wordlist );
+  void setConversionFactor( const std::vector<ALIstring>& wordlist ) override;
 
   //---------- Add any correction between the measurement data and the default format in COCOA
-  virtual void correctValueAndSigma();
+  void correctValueAndSigma() override;
 
  private:
   ALIdouble theFactor;

@@ -49,11 +49,11 @@ namespace pat {
     public:
 
       explicit PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig );
-      ~PATTriggerMatchEmbedder() {};
+      ~PATTriggerMatchEmbedder() override {};
 
     private:
 
-    virtual void produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    void produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
 
   };
 
@@ -83,7 +83,7 @@ PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::Pa
 template< class PATObjectType >
 void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const
 {
-  std::auto_ptr< std::vector< PATObjectType > > output( new std::vector< PATObjectType >() );
+  auto output = std::make_unique<std::vector<PATObjectType>>();
 
   edm::Handle< edm::View< PATObjectType > > candidates;
   iEvent.getByToken( srcToken_, candidates );
@@ -113,7 +113,7 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::StreamID, edm::Even
     output->push_back( cand );
   }
 
-  iEvent.put( output );
+  iEvent.put(std::move(output) );
 }
 
 

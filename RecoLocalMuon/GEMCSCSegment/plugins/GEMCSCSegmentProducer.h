@@ -25,9 +25,9 @@ public:
     /// Constructor
     explicit GEMCSCSegmentProducer(const edm::ParameterSet&);
     /// Destructor
-    ~GEMCSCSegmentProducer();
+    ~GEMCSCSegmentProducer() override;
     /// Produce the GEM-CSCSegment collection
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
     int iev; // events through

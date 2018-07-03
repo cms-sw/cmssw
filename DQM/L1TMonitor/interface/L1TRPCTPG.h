@@ -63,16 +63,15 @@ public:
  L1TRPCTPG(const edm::ParameterSet& ps);
 
 // Destructor
- virtual ~L1TRPCTPG();
+ ~L1TRPCTPG() override;
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginRun
- virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
- virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
- virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+ void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+ void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
@@ -83,9 +82,7 @@ private:
   MonitorElement* m_digiBxRPCEnd;
   MonitorElement* m_digiBxDT;
   MonitorElement* m_digiBxCSC;
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
-  
+ 
   std::map<uint32_t, std::map<std::string, MonitorElement*> >  rpctpgmeCollection;
 
   int nev_; // Number of events processed

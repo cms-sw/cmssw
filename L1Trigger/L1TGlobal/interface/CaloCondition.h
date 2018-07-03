@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_CaloCondition_h
-#define GlobalTrigger_CaloCondition_h
+#ifndef L1Trigger_L1TGlobal_CaloCondition_h
+#define L1Trigger_L1TGlobal_CaloCondition_h
 
 /**
  * \class CaloCondition
@@ -11,6 +11,7 @@
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete   - HEPHY Vienna 
+ *          Vladimir Rekovic - extend for indexing
  * 
  *
  */
@@ -24,14 +25,14 @@
 #include "L1Trigger/L1TGlobal/interface/ConditionEvaluation.h"
 
 // forward declarations
-class GtCondition;
+class GlobalCondition;
 class CaloTemplate;
 
 namespace l1t {
 
 class L1Candidate;
 
-class GtBoard;
+class GlobalBoard;
 
 // class declaration
 class CaloCondition : public ConditionEvaluation
@@ -44,7 +45,7 @@ public:
     CaloCondition();
 
     ///     from base template condition (from event setup usually)
-    CaloCondition(const GtCondition*, const GtBoard*,
+    CaloCondition(const GlobalCondition*, const GlobalBoard*,
             const int nrL1EG,
             const int nrL1Jet,
             const int nrL1Tau,
@@ -54,7 +55,7 @@ public:
     CaloCondition(const CaloCondition&);
 
     // destructor
-    virtual ~CaloCondition();
+    ~CaloCondition() override;
 
     // assign operator
     CaloCondition& operator=(const CaloCondition&);
@@ -62,10 +63,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition(const int bxEval) const;
+    const bool evaluateCondition(const int bxEval) const override;
 
     /// print condition
-     void print(std::ostream& myCout) const;
+     void print(std::ostream& myCout) const override;
 
 public:
 
@@ -76,12 +77,12 @@ public:
 
     void setGtCaloTemplate(const CaloTemplate*);
 
-    ///   get / set the pointer to uGt GtBoard
-    inline const GtBoard* getuGtB() const {
+    ///   get / set the pointer to uGt GlobalBoard
+    inline const GlobalBoard* getuGtB() const {
         return m_uGtB;
     }
 
-    void setuGtB(const GtBoard*);
+    void setuGtB(const GlobalBoard*);
 
 
     ///   get / set the number of bits for eta of calorimeter objects
@@ -108,15 +109,15 @@ private:
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const;
+    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand, const unsigned int index) const;
 
 private:
 
     /// pointer to a CaloTemplate
     const CaloTemplate* m_gtCaloTemplate;
 
-    /// pointer to uGt GtBoard, to be able to get the trigger objects
-    const GtBoard* m_uGtB;
+    /// pointer to uGt GlobalBoard, to be able to get the trigger objects
+    const GlobalBoard* m_uGtB;
 
     /// number of bits for eta of calorimeter objects
     int m_ifCaloEtaNumberBits;

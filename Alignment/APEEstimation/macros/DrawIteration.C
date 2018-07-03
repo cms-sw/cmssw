@@ -24,7 +24,7 @@
 
 
 DrawIteration::DrawIteration(unsigned int iterationNumber, const bool overlayMode):
-outpath_(0), file_(0), overlayMode_(overlayMode), yAxisFixed_(false), systematics_(false), cmsText_("")
+outpath_(nullptr), file_(nullptr), overlayMode_(overlayMode), yAxisFixed_(false), systematics_(false), cmsText_("")
 {
   if(!overlayMode_){
     std::stringstream ss_inpath;
@@ -112,13 +112,13 @@ DrawIteration::SectorValues DrawIteration::getSectorValues(TFile* file){
   SectorValues sectorValues;
   
   // Trees containing the iterative APE values and the sector names
-  TTree* nameTree(0);
+  TTree* nameTree(nullptr);
   file->GetObject("nameTree", nameTree);
   if(!nameTree)std::cout<<"\n\tTTree with names of sectors not found in file!\n";
-  TTree* treeX(0);
+  TTree* treeX(nullptr);
   file->GetObject("iterTreeX", treeX);
   if(!treeX)std::cout<<"\n\tTTree with iteration x values of APE not found in file!\n";
-  TTree* treeY(0);
+  TTree* treeY(nullptr);
   file->GetObject("iterTreeY", treeY);
   if(!treeY)std::cout<<"\n\tTTree with iteration y values of APE not found in file!\n";
   
@@ -130,11 +130,11 @@ DrawIteration::SectorValues DrawIteration::getSectorValues(TFile* file){
   for(unsigned int iSector(1); sectorBool; ++iSector){
     std::stringstream sectorName, fullSectorName;
     sectorName << "Ape_Sector_" << iSector;
-    TBranch* branchName(0);
+    TBranch* branchName(nullptr);
     branchName = nameTree->GetBranch(sectorName.str().c_str());
-    TBranch* branchX(0);
+    TBranch* branchX(nullptr);
     branchX = treeX->GetBranch(sectorName.str().c_str());
-    TBranch* branchY(0);
+    TBranch* branchY(nullptr);
     branchY = treeY->GetBranch(sectorName.str().c_str());
     //std::cout<<"\n\tHere we are: "<<sectorName.str().c_str()<<" "<<branchX<<"\n";
     
@@ -149,24 +149,21 @@ DrawIteration::SectorValues DrawIteration::getSectorValues(TFile* file){
   }
   
   for(std::map<unsigned int, TBranch*>::const_iterator i_branch = m_branchName.begin(); i_branch != m_branchName.end(); ++i_branch){
-    std::string* value(0);
-    i_branch->second->SetAddress(&value);
+    sectorValues.m_sectorName[i_branch->first] = nullptr;
+    i_branch->second->SetAddress( &( sectorValues.m_sectorName[i_branch->first]) );
     i_branch->second->GetEntry(0);
-    sectorValues.m_sectorName[i_branch->first] = value;
   }
   const unsigned int nIter(treeX->GetEntries());
   for(unsigned int iIter = 0; iIter < nIter; ++iIter){
     for(std::map<unsigned int, TBranch*>::const_iterator i_branch = m_branchX.begin(); i_branch != m_branchX.end(); ++i_branch){
-      double value(-999.);
-      (i_branch->second)->SetAddress(&value);
+      sectorValues.m_sectorValueX[i_branch->first].push_back(-999);
+      (i_branch->second)->SetAddress(&(sectorValues.m_sectorValueX[i_branch->first].back()));
       (i_branch->second)->GetEntry(iIter);
-      sectorValues.m_sectorValueX[i_branch->first].push_back(value);
     }
     for(std::map<unsigned int, TBranch*>::const_iterator i_branch = m_branchY.begin(); i_branch != m_branchY.end(); ++i_branch){
-      double value(-999.);
-      (i_branch->second)->SetAddress(&value);
+      sectorValues.m_sectorValueY[i_branch->first].push_back(-999);
+      (i_branch->second)->SetAddress(&(sectorValues.m_sectorValueY[i_branch->first].back()));
       (i_branch->second)->GetEntry(iIter);
-      sectorValues.m_sectorValueY[i_branch->first].push_back(value);
     }
   }
   return sectorValues;
@@ -178,9 +175,9 @@ DrawIteration::ExtremeValues DrawIteration::getGraphs(const std::string xOrY, un
   double minimumApe(999.), maximumApe(-999.);
   double maxAbsCorrection(-999.);
   
-  std::map<unsigned int, std::vector<double> >* m_sectorValue(0);
-  std::vector<TGraph*>* v_graphApe(0);
-  std::vector<TGraph*>* v_graphCorrection(0);
+  std::map<unsigned int, std::vector<double> >* m_sectorValue(nullptr);
+  std::vector<TGraph*>* v_graphApe(nullptr);
+  std::vector<TGraph*>* v_graphCorrection(nullptr);
   
   if(xOrY=="x"){
     m_sectorValue = &sectorValues_.m_sectorValueX;
@@ -198,8 +195,8 @@ DrawIteration::ExtremeValues DrawIteration::getGraphs(const std::string xOrY, un
   
   for(std::map<unsigned int, std::vector<double> >::const_iterator i_sectorValue = m_sectorValue->begin(); i_sectorValue != m_sectorValue->end(); ++i_sectorValue){
     if((*i_sectorValue).first >= iSectorLow && (*i_sectorValue).first<= iSectorHigh){
-      TGraph* graphApe(0);
-      TGraph* graphCorrection(0);
+      TGraph* graphApe(nullptr);
+      TGraph* graphCorrection(nullptr);
       graphApe = new TGraph(sectorValues_.m_sectorValueX[1].size());
       graphCorrection = new TGraph(sectorValues_.m_sectorValueX[1].size());
       double lastCorrection(0.);
@@ -207,23 +204,23 @@ DrawIteration::ExtremeValues DrawIteration::getGraphs(const std::string xOrY, un
       int iValue(0);
       for(std::vector<double>::const_iterator i_value = (*i_sectorValue).second.begin(); i_value != (*i_sectorValue).second.end(); ++i_value, ++iValue){
         double valueApe(std::sqrt(*i_value));
-	// Prevent method for non-analyzed sectors with default value sqrt(99.)
-	if(valueApe>9.){
-	  unregardedSector = true;
-	  break;
-	}
-	// Scale APE to have values in mum instead of cm
-	valueApe = valueApe*10000.;
-	if(valueApe<minimumApe)minimumApe = valueApe;
-	if(valueApe>maximumApe)maximumApe = valueApe;
-	graphApe->SetPoint(iValue,static_cast<double>(iValue),valueApe);
-	
-	const double correction(valueApe - lastCorrection);
-	//const double correction(correction2>0 ? std::sqrt(correction2) : -std::sqrt(-correction2));
-	if(std::fabs(correction)>maxAbsCorrection)maxAbsCorrection = correction;
-	graphCorrection->SetPoint(iValue,static_cast<double>(iValue),correction);
-	// For next iteration subtract value of this one
-	lastCorrection = valueApe;
+  // Prevent method for non-analyzed sectors with default value sqrt(99.)
+  if(valueApe>9.){
+    unregardedSector = true;
+    break;
+  }
+  // Scale APE to have values in mum instead of cm
+  valueApe = valueApe*10000.;
+  if(valueApe<minimumApe)minimumApe = valueApe;
+  if(valueApe>maximumApe)maximumApe = valueApe;
+  graphApe->SetPoint(iValue,static_cast<double>(iValue),valueApe);
+  
+  const double correction(valueApe - lastCorrection);
+  //const double correction(correction2>0 ? std::sqrt(correction2) : -std::sqrt(-correction2));
+  if(std::fabs(correction)>maxAbsCorrection)maxAbsCorrection = correction;
+  graphCorrection->SetPoint(iValue,static_cast<double>(iValue),correction);
+  // For next iteration subtract value of this one
+  lastCorrection = valueApe;
       }
       if(unregardedSector)continue;
       (*v_graphApe).push_back(graphApe);
@@ -238,8 +235,8 @@ DrawIteration::ExtremeValues DrawIteration::getGraphs(const std::string xOrY, un
 
 void DrawIteration::drawCorrections(const std::string& xOrY, const ExtremeValues& extremeValues, const std::string& sectorInterval){
   
-  std::vector<TGraph*>* v_graphApe(0);
-  std::vector<TGraph*>* v_graphCorrection(0);
+  std::vector<TGraph*>* v_graphApe(nullptr);
+  std::vector<TGraph*>* v_graphCorrection(nullptr);
   if(xOrY=="x"){
     v_graphApe = &v_graphApeX_;
     v_graphCorrection = &v_graphCorrectionX_;
@@ -254,7 +251,7 @@ void DrawIteration::drawCorrections(const std::string& xOrY, const ExtremeValues
   
   if(v_graphApe->size()==0 || v_graphCorrection->size()==0)return;
   
-  TCanvas* canvas(0);
+  TCanvas* canvas(nullptr);
   canvas = new TCanvas("canvas");
   bool firstGraph(true);
   for(std::vector<TGraph*>::const_iterator i_graph = v_graphApe->begin(); i_graph != v_graphApe->end(); ++i_graph){
@@ -390,11 +387,15 @@ std::vector<std::string> DrawIteration::pixelHist(){
   v_name.push_back("BpixLayer2In");
   v_name.push_back("BpixLayer3Out");
   v_name.push_back("BpixLayer3In");
+  v_name.push_back("BpixLayer4Out");
+  v_name.push_back("BpixLayer4In");
   
   v_name.push_back("FpixMinusLayer1");
   v_name.push_back("FpixMinusLayer2");
+  v_name.push_back("FpixMinusLayer3");
   v_name.push_back("FpixPlusLayer1");
   v_name.push_back("FpixPlusLayer2");
+  v_name.push_back("FpixPlusLayer3");
   
   return v_name;
 }
@@ -647,15 +648,15 @@ void DrawIteration::drawFinals(const std::string& xOrY){
   std::vector<std::vector<std::string> >::const_iterator i_resultHist;
   for(i_resultHist=v_resultHist_.begin(); i_resultHist!=v_resultHist_.end(); ++i_resultHist, ++iCanvas){
     //std::cout<<"New canvas\n";
-    TCanvas* canvas(0);
+    TCanvas* canvas(nullptr);
     canvas = new TCanvas("canvas","canvas",gStyle->GetCanvasDefW()*i_resultHist->size()/10.,gStyle->GetCanvasDefH());
     std::vector<std::pair<TH1*, TString> > v_hist;
     
-    SectorValues* sectorValues(0);
+    SectorValues* sectorValues(nullptr);
     if(!overlayMode_){
       unsigned int iInput(1);
       sectorValues = &sectorValues_;
-      TH1* hist(0);
+      TH1* hist(nullptr);
       bool hasEntry = this->createResultHist(hist, *i_resultHist, xOrY, *sectorValues, iInput);
       if(hasEntry)v_hist.push_back(std::make_pair(hist, ""));
       else hist->Delete();
@@ -665,8 +666,8 @@ void DrawIteration::drawFinals(const std::string& xOrY){
       std::vector<Input*>::const_iterator i_input;
       for(i_input = v_input_.begin(); i_input != v_input_.end(); ++i_input, ++iInput){
         sectorValues = &(*i_input)->sectorValues;
-	TH1* hist(0);
-	TString& legendEntry = (*i_input)->legendEntry;
+        TH1* hist(nullptr);
+        TString& legendEntry = (*i_input)->legendEntry;
         bool hasEntry = this->createResultHist(hist, *i_resultHist, xOrY, *sectorValues, iInput);
         if(hasEntry)v_hist.push_back(std::make_pair(hist, legendEntry));
         else hist->Delete();
@@ -678,78 +679,86 @@ void DrawIteration::drawFinals(const std::string& xOrY){
       std::vector<std::pair<TH1*, TString> >::iterator i_hist;
       unsigned int iHist(1);
       for(i_hist = v_hist.begin(); i_hist != v_hist.end(); ++i_hist, ++iHist){
-		  TH1* hist((*i_hist).first);
-		  if(iHist==1){
-			  hist->Draw("e0");
-		  }
-		  else{
-			  hist->SetLineColor(iHist);
-			  hist->SetMarkerColor(iHist);
-			  hist->Draw("e0same");
-		  }
-	  }
+      TH1* hist((*i_hist).first);
+      if(iHist==1){
+        hist->Draw("e0");
+      }
+      else{
+        hist->SetLineColor(iHist);
+        hist->SetMarkerColor(iHist);
+        hist->Draw("e0same");
+      }
+    }
       
-      TH1* systHist(0);
+      TH1* systHist(nullptr);
       if(systematics_){
-	const std::vector<std::string>& v_name(*i_resultHist);
-	
-	bool pixel(false);
-	bool tob(false);
+  const std::vector<std::string>& v_name(*i_resultHist);
+  
+  bool pixel(false);
+  bool tob(false);
         std::vector<std::string>::const_iterator i_name;
         for(i_name=v_name.begin(); i_name!=v_name.end(); ++i_name){
-	  const TString name((*i_name).c_str());
-	  if(name.BeginsWith("Bpix") || name.BeginsWith("Fpix")){
-	    pixel = true;
-	    break;
-	  }
-	  if(name.BeginsWith("Tob")){
-	    tob = true;
-	    break;
-	  }
-	}
-	if(pixel || tob)systHist = new TH1F("systematics", "sytematics", v_name.size(), 0, v_name.size());
-	if(pixel){
-	  if(xOrY=="x"){
-	    systHist->SetBinContent(1, 10.);
-	    systHist->SetBinContent(2, 10.);
-	    systHist->SetBinContent(3, 10.);
-	    systHist->SetBinContent(4, 10.);
-	    systHist->SetBinContent(5, 10.);
-	    systHist->SetBinContent(6, 10.);
-	    systHist->SetBinContent(9, 5.);
-	  }
-	  else if(xOrY=="y"){
-	    systHist->SetBinContent(1, 15.);
-	    systHist->SetBinContent(2, 15.);
-	    systHist->SetBinContent(3, 15.);
-	    systHist->SetBinContent(4, 20.);
-	    systHist->SetBinContent(5, 15.);
-	    systHist->SetBinContent(6, 15.);
-	    systHist->SetBinContent(9, 5.);
-	  }
-	}
-	if(tob){
-	  systHist->SetBinContent(1, 15.);
-	  systHist->SetBinContent(2, 15.);
-	  systHist->SetBinContent(3, 10.);
-	  systHist->SetBinContent(4, 10.);
-	  systHist->SetBinContent(5, 10.);
-	  systHist->SetBinContent(6, 10.);
-	  systHist->SetBinContent(7, 15.);
-	  systHist->SetBinContent(8, 10.);
-	}
+    const TString name((*i_name).c_str());
+    if(name.BeginsWith("Bpix") || name.BeginsWith("Fpix")){
+      pixel = true;
+      break;
+    }
+    if(name.BeginsWith("Tob")){
+      tob = true;
+      break;
+    }
+  }
+  if(pixel || tob)systHist = new TH1F("systematics", "sytematics", v_name.size(), 0, v_name.size());
+  if(pixel){
+    if(xOrY=="x"){
+      systHist->SetBinContent(1, 10.);
+      systHist->SetBinContent(2, 10.);
+      systHist->SetBinContent(3, 10.);
+      systHist->SetBinContent(4, 10.);
+      systHist->SetBinContent(5, 10.);
+      systHist->SetBinContent(6, 10.);
+      systHist->SetBinContent(7, 10.);
+      systHist->SetBinContent(8, 10.);
+      systHist->SetBinContent(9, 10.);
+      systHist->SetBinContent(10, 10.);
+      systHist->SetBinContent(13, 5.);
+    }
+    else if(xOrY=="y"){
+      systHist->SetBinContent(1, 15.);
+      systHist->SetBinContent(2, 15.);
+      systHist->SetBinContent(3, 15.);
+      systHist->SetBinContent(4, 20.);
+      systHist->SetBinContent(5, 15.);
+      systHist->SetBinContent(6, 15.);
+      systHist->SetBinContent(7, 15.);
+      systHist->SetBinContent(8, 15.);
+      systHist->SetBinContent(9, 15.);
+      systHist->SetBinContent(10, 15.);
+      systHist->SetBinContent(13, 5.);
+    }
+  }
+  if(tob){
+    systHist->SetBinContent(1, 15.);
+    systHist->SetBinContent(2, 15.);
+    systHist->SetBinContent(3, 10.);
+    systHist->SetBinContent(4, 10.);
+    systHist->SetBinContent(5, 10.);
+    systHist->SetBinContent(6, 10.);
+    systHist->SetBinContent(7, 15.);
+    systHist->SetBinContent(8, 10.);
+  }
       }
       
       if(systHist){
         systHist->SetFillColor(1);
-	systHist->SetFillStyle(3004);
-	systHist->Draw("same");
+  systHist->SetFillStyle(3004);
+  systHist->Draw("same");
       }
       
       canvas->Modified();
       canvas->Update();
       
-      TLegend* legend(0);
+      TLegend* legend(nullptr);
       legend = new TLegend(0.2,0.65,0.5,0.85);
       legend->SetFillColor(0);
       legend->SetFillStyle(0);
@@ -759,15 +768,15 @@ void DrawIteration::drawFinals(const std::string& xOrY){
       
       if(v_hist.size()>1){
         for(i_hist = v_hist.begin(), iHist = 1; i_hist != v_hist.end(); ++i_hist, ++iHist){
-	  legend->AddEntry((*i_hist).first, (*i_hist).second, "lp");
-	}
-	legend->Draw("same");
+    legend->AddEntry((*i_hist).first, (*i_hist).second, "lp");
+  }
+  legend->Draw("same");
       }
       
       canvas->Modified();
       canvas->Update();
       
-      TLatex* cmsText(0);
+      TLatex* cmsText(nullptr);
       if(cmsText_!=""){
         cmsText = new TLatex(0.55,0.96,cmsText_);
         cmsText->SetNDC();
@@ -806,7 +815,7 @@ bool DrawIteration::createResultHist(TH1*& hist, const std::vector<std::string>&
   const TString title("Results;;#sigma_{align,"+xOrY+"}  [#mum]");
   hist = new TH1F(ss_name.str().c_str(), title, v_name.size(), 0, v_name.size());
   
-  std::map<unsigned int, std::vector<double> >* m_sectorValue(0);
+  std::map<unsigned int, std::vector<double> >* m_sectorValue(nullptr);
   if(xOrY=="x"){
     m_sectorValue = &sectorValues.m_sectorValueX;
   }
@@ -874,12 +883,3 @@ void DrawIteration::outputDirectory(const TString& outpath){
   delete outpath_;
   outpath_ = new TString(outpath);
 }
-
-
-
-
-
-
-
-
-

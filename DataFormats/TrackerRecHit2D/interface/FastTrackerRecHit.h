@@ -11,7 +11,6 @@
 #define FastTrackerRecHit_H
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
-#include "stdint.h"
 
 namespace fastTrackerRecHitType {
     enum HitType {
@@ -49,7 +48,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     
     /// destructor
     ///
-    ~FastTrackerRecHit() {}
+    ~FastTrackerRecHit() override {}
     
     /// constructor
     /// requires a position with error in local detector coordinates,
@@ -61,19 +60,19 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 	, recHitCombinationIndex_(-1)
 	{store();}
 
-    virtual FastTrackerRecHit * clone() const {FastTrackerRecHit * p =  new FastTrackerRecHit( * this); p->load(); return p;}
+    FastTrackerRecHit * clone() const override {FastTrackerRecHit * p =  new FastTrackerRecHit( * this); p->load(); return p;}
 
     /// Steers behaviour of hit in track fit.
     /// Hit is interpreted as 1D or 2D depending on value of is2D_
-    void getKfComponents( KfComponentsHolder & holder ) const GCC11_OVERRIDE { if(is2D_) getKfComponents2D(holder); else getKfComponents1D(holder);}
+    void getKfComponents( KfComponentsHolder & holder ) const override { if(is2D_) getKfComponents2D(holder); else getKfComponents1D(holder);}
 
     /// Steers behaviour of hit in track fit.
     /// Hit is interpreted as 1D or 2D depending on value of is2D_
-    int dimension() const GCC11_OVERRIDE {return is2D_ ? 2 : 1;} ///< get the dimensions right
+    int dimension() const override {return is2D_ ? 2 : 1;} ///< get the dimensions right
 
     /// Steers behaviour of hit in track fit.
     /// FastSim hit smearing assumes
-    virtual bool canImproveWithTrack() const {return false;}
+    bool canImproveWithTrack() const override {return false;}
 
     /* getters */
 
@@ -87,7 +86,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     virtual int32_t              recHitCombinationIndex() const { return recHitCombinationIndex_;}
 
-    bool isPixel() const GCC11_OVERRIDE {return isPixel_;} ///< pixel or strip?
+    bool isPixel() const override {return isPixel_;} ///< pixel or strip?
 
     /* setters */
 
@@ -99,15 +98,15 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     /// bogus function : 
     /// implement purely virtual function of TrackingRecHit
-    virtual std::vector<const TrackingRecHit*> recHits() const { return std::vector<TrackingRecHit const*>();}
+    std::vector<const TrackingRecHit*> recHits() const override { return std::vector<TrackingRecHit const*>();}
 
     /// bogus function : 
     /// implement purely virtual function of TrackingRecHit
-    virtual std::vector<TrackingRecHit*> recHits()  { return std::vector<TrackingRecHit*>();}
+    std::vector<TrackingRecHit*> recHits() override { return std::vector<TrackingRecHit*>();}
  
     /// bogus function : 
     /// implement purely virutal function of BaseTrackerRecHit
-    OmniClusterRef const & firstClusterRef() const;
+    OmniClusterRef const & firstClusterRef() const override;
 
     /// fastsim's way to check whether 2 single hits share sim-information or not
     /// hits are considered to share sim-information if 
@@ -118,7 +117,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     // - FastSiStripMatchedRecHit::sharesInput
     // - FastProjectedSiStripRecHit2D::sharesInput
     inline bool sameId(const FastTrackerRecHit * other,size_t i=0,size_t j = 0) const {return id(i) == other->id(j) && eventId(i) == other->eventId(j);}
-    inline bool sharesInput(const TrackingRecHit * other,SharedInputType what) const {
+    inline bool sharesInput(const TrackingRecHit * other,SharedInputType what) const override {
 
 	// cast other hit
 	if(!trackerHitRTTI::isFast(*other) )
@@ -174,7 +173,7 @@ class FastTrackerRecHit : public BaseTrackerRecHit
 
     protected:
 
-    virtual FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+    FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const override {
 	return this->clone();
     }
   

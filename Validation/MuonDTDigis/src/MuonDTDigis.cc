@@ -28,11 +28,11 @@ MuonDTDigis::MuonDTDigis(const ParameterSet& pset){
   // the name of the Digi collection
   DigiToken_ = consumes<DTDigiCollection> (pset.getParameter<edm::InputTag>(("DigiLabel")));
 
-  hDigis_global = new hDigis("Global");
-  hDigis_W0 = new hDigis("Wheel0");
-  hDigis_W1 = new hDigis("Wheel1");
-  hDigis_W2 = new hDigis("Wheel2");
-  hAllHits = new hHits("AllHits");
+  hDigis_global = std::make_unique<hDigis>("Global");
+  hDigis_W0 = std::make_unique<hDigis>("Wheel0");
+  hDigis_W1 = std::make_unique<hDigis>("Wheel1");
+  hDigis_W2 = std::make_unique<hDigis>("Wheel2");
+  hAllHits = std::make_unique<hHits>("AllHits");
 }
 
 MuonDTDigis::~MuonDTDigis(){
@@ -42,28 +42,28 @@ MuonDTDigis::~MuonDTDigis(){
 
 void MuonDTDigis::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
 {
-  meDigiTimeBox_          = 0;
-  meDigiTimeBox_wheel2m_  = 0;
-  meDigiTimeBox_wheel1m_  = 0;
-  meDigiTimeBox_wheel0_   = 0;
-  meDigiTimeBox_wheel1p_  = 0;
-  meDigiTimeBox_wheel2p_  = 0;
-  meDigiEfficiency_       = 0;
-  meDigiEfficiencyMu_     = 0;
-  meDoubleDigi_           = 0;
-  meSimvsDigi_            = 0;
-  meWire_DoubleDigi_      = 0;
+  meDigiTimeBox_          = nullptr;
+  meDigiTimeBox_wheel2m_  = nullptr;
+  meDigiTimeBox_wheel1m_  = nullptr;
+  meDigiTimeBox_wheel0_   = nullptr;
+  meDigiTimeBox_wheel1p_  = nullptr;
+  meDigiTimeBox_wheel2p_  = nullptr;
+  meDigiEfficiency_       = nullptr;
+  meDigiEfficiencyMu_     = nullptr;
+  meDoubleDigi_           = nullptr;
+  meSimvsDigi_            = nullptr;
+  meWire_DoubleDigi_      = nullptr;
 
-  meMB1_sim_occup_        = 0;
-  meMB1_digi_occup_       = 0;
-  meMB2_sim_occup_        = 0;
-  meMB2_digi_occup_       = 0;
-  meMB3_sim_occup_        = 0;
-  meMB3_digi_occup_       = 0;
-  meMB4_sim_occup_        = 0;
-  meMB4_digi_occup_       = 0;
+  meMB1_sim_occup_        = nullptr;
+  meMB1_digi_occup_       = nullptr;
+  meMB2_sim_occup_        = nullptr;
+  meMB2_digi_occup_       = nullptr;
+  meMB3_sim_occup_        = nullptr;
+  meMB3_digi_occup_       = nullptr;
+  meMB4_sim_occup_        = nullptr;
+  meMB4_digi_occup_       = nullptr;
 
-  meDigiHisto_            = 0;
+  meDigiHisto_            = nullptr;
 
   // ----------------------
   // We go
@@ -318,13 +318,13 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 hDigis* MuonDTDigis::WheelHistos(int wheel){
   switch(abs(wheel)){
 
-    case 0: return  hDigis_W0;
+    case 0: return  hDigis_W0.get();
 
-    case 1: return  hDigis_W1;
+    case 1: return  hDigis_W1.get();
 
-    case 2: return  hDigis_W2;
+    case 2: return  hDigis_W2.get();
 
-    default: return NULL;
+    default: return nullptr;
   }
 }
 #include "FWCore/PluginManager/interface/ModuleDef.h"

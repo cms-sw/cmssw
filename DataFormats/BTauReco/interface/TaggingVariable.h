@@ -35,12 +35,17 @@ namespace reco {
       jetPt,                                    // jet transverse momentum
       trackJetPt,                               // track-based jet transverse momentum
       jetEta,                                   // jet pseudorapidity
+      jetAbsEta,                                // jet pseudorapidity
       jetPhi,                                   // jet polar angle
       jetNTracks,                               // tracks associated to jet
+      jetNSelectedTracks,                       // tracks associated to jet
+      jetNTracksEtaRel,                         // number of tracks for which etaRel is computed
 
       trackMomentum,                            // track momentum
       trackEta,                                 // track pseudorapidity
       trackPhi,                                 // track polar angle
+
+      trackCharge,                              // track charge
 
       trackPtRel,                               // track transverse momentum, relative to the jet axis
       trackPPar,                                // track parallel momentum, along the jet axis
@@ -49,7 +54,6 @@ namespace reco {
       trackPtRatio,                             // track transverse momentum, relative to the jet axis, normalized to its energy
       trackPParRatio,                           // track parallel momentum, along the jet axis, normalized to its energy
 
-      trackIp2dSig,                             // track 2D impact parameter signifncance
       trackSip2dVal,                            // track 2D signed impact parameter
       trackSip2dSig,                            // track 2D signed impact parameter significance
       trackSip3dVal,                            // track 3D signed impact parameter
@@ -77,7 +81,9 @@ namespace reco {
 
       vertexEnergyRatio,                        // ratio of energy at secondary vertex over total energy
       vertexJetDeltaR,                          // pseudoangular distance between jet axis and secondary vertex direction
-
+      
+      flightDistance1dVal,                      // Longitudinal distance along the z-axis between primary and secondary vertex
+      flightDistance1dSig,                      // Longitudinal distance significance along the z-axis between primary and secondary vertex
       flightDistance2dVal,                      // transverse distance between primary and secondary vertex
       flightDistance2dSig,                      // transverse distance significance between primary and secondary vertex
       flightDistance3dVal,                      // distance between primary and secondary vertex
@@ -123,6 +129,39 @@ namespace reco {
       leptonRatio,                              // momentum of the soft lepton over jet energy
       leptonRatioRel,                           // momentum of the soft lepton parallel to jet axis over jet energy
       electronMVA,                              // mva output from electron ID
+
+      // ### specific to boosted double-b tagger (see BTV-15-002 PAS for more details) ###
+      trackSip3dSig_0,                          // 1st largest track 3D signed impact parameter significance
+      trackSip3dSig_1,                          // 2nd largest track 3D signed impact parameter significance
+      trackSip3dSig_2,                          // 3rd largest track 3D signed impact parameter significance
+      trackSip3dSig_3,                          // 4th largest track 3D signed impact parameter significance
+      tau1_trackSip3dSig_0,                     // 1st largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis
+      tau1_trackSip3dSig_1,                     // 2nd largest track 3D signed impact parameter significance associated to the 1st N-subjettiness axis
+      tau2_trackSip3dSig_0,                     // 1st largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis
+      tau2_trackSip3dSig_1,                     // 2nd largest track 3D signed impact parameter significance associated to the 2nd N-subjettiness axis
+      trackSip2dSigAboveBottom_0,               // track 2D signed impact parameter significance of 1st track lifting mass above bottom
+      trackSip2dSigAboveBottom_1,               // track 2D signed impact parameter significance of 2nd track lifting mass above bottom
+      tau1_trackEtaRel_0,                       // 1st smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
+      tau1_trackEtaRel_1,                       // 2nd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
+      tau1_trackEtaRel_2,                       // 3rd smallest track pseudorapidity, relative to the jet axis, associated to the 1st N-subjettiness axis
+      tau2_trackEtaRel_0,                       // 1st smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
+      tau2_trackEtaRel_1,                       // 2nd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
+      tau2_trackEtaRel_2,                       // 3rd smallest track pseudorapidity, relative to the jet axis, associated to the 2nd N-subjettiness axis
+      tau1_vertexMass,                          // mass of track sum at secondary vertex associated to the 1st N-subjettiness axis
+      tau1_vertexEnergyRatio,                   // ratio of energy at secondary vertex over total energy associated to the 1st N-subjettiness axis
+      tau1_flightDistance2dSig,                 // transverse distance significance between primary and secondary vertex associated to the 1st N-subjettiness axis
+      tau1_vertexDeltaR,                        // pseudoangular distance between the 1st N-subjettiness axis and secondary vertex direction
+      tau2_vertexMass,                          // mass of track sum at secondary vertex associated to the 2nd N-subjettiness axis
+      tau2_vertexEnergyRatio,                   // ratio of energy at secondary vertex over total energy associated to the 2nd N-subjettiness axis
+      tau2_flightDistance2dSig,                 // transverse distance significance between primary and secondary vertex associated to the 2nd N-subjettiness axis
+      tau2_vertexDeltaR,                        // pseudoangular distance between the 2nd N-subjettiness axis and secondary vertex direction
+      z_ratio,                                  // z ratio
+	  
+      Jet_SoftMu,               								// discriminator output of SoftMuon Tagger, used as input to (Deep)CMVA
+      Jet_SoftEl,								                // discriminator output of SoftElectron Tagger, used as input to (Deep)CMVA
+      Jet_JBP,									                // discriminator output of JPB Tagger, used as input to (Deep)CMVA
+      Jet_JP,									                  // discriminator output of JP Tagger, used as input to (Deep)CMVA
+      // #################################################################################
 
       algoDiscriminator,                        // discriminator output of an algorithm
 

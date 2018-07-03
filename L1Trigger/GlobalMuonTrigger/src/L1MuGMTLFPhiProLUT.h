@@ -51,7 +51,7 @@ class L1MuGMTLFPhiProLUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTLFPhiProLUT() {};
+  ~L1MuGMTLFPhiProLUT() override {};
 
   /// specific lookup function for dphi
   unsigned SpecificLookup_dphi (int idx, unsigned eta, unsigned pt, unsigned charge) const {
@@ -75,7 +75,7 @@ class L1MuGMTLFPhiProLUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0] ,addr[1] ,addr[2]);
 

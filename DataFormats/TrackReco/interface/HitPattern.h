@@ -34,6 +34,7 @@
 // | mu = 0 |    CSC = 2    | 4*(stat-1)+(ring-1)       |                 | hit type = 0-3 |
 // | mu = 0 |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
 // | mu = 0 |    GEM = 4    | 2*(stat-1)+2*(layer-1)    |                 | hit type = 0-3 |
+// |mu = 0  |    ME0 = 5    | roll                      |                 | hit type = 0-3 |
 // +--------+---------------+---------------------------+-----------------+----------------+
 //
 //  hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
@@ -86,7 +87,7 @@
 //    const reco::HitPattern &p = track->hitPattern();
 //    
 //     // loop over the hits of the track. 
-//    for (int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++) {
+//    for (int i = 0; i < p.numberOfAllHits(HitPattern::TRACK_HITS); i++) {
 //        uint32_t hit = p.getHitPattern(HitPattern::TRACK_HITS, i);
 //    
 //        // if the hit is valid and in pixel barrel, print out the layer
@@ -123,6 +124,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 #include <utility>
 #include <algorithm>
@@ -131,6 +133,12 @@
 #include <memory>
 
 class TrackerTopology;
+
+namespace test {
+  namespace TestHitPattern {
+    int test();
+  }
+}
 
 namespace reco
 {
@@ -184,6 +192,7 @@ public:
     static bool muonCSCHitFilter(uint16_t pattern);
     static bool muonRPCHitFilter(uint16_t pattern);
     static bool muonGEMHitFilter(uint16_t pattern); 
+    static bool muonME0HitFilter(uint16_t pattern);
 
     static uint32_t getHitType(uint16_t pattern);
 
@@ -228,6 +237,7 @@ public:
     bool appendHit(const TrackingRecHit &hit, const TrackerTopology& ttopo);
     bool appendHit(const TrackingRecHitRef &ref, const TrackerTopology& ttopo);
     bool appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+    bool appendHit(const uint16_t pattern, TrackingRecHit::Type hitType);
 
     /**
      * This is meant to be used only in cases where the an
@@ -254,13 +264,13 @@ public:
     void printHitPattern(HitCategory category, int position, std::ostream &stream) const;
     void print(HitCategory category, std::ostream &stream = std::cout) const;
 
-    bool hasValidHitInFirstPixelBarrel() const; // has valid hit in PXB layer 1
-    bool hasValidHitInFirstPixelEndcap() const; // has valid hit in PXF layer 1
-
-    int numberOfHits(HitCategory category) const;                 // not-null
+    // has valid hit in PXB/PXF layer x 
+    bool hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector, uint16_t layer) const;
+    
+    int numberOfAllHits(HitCategory category) const;                 // not-null
     int numberOfValidHits() const;                                // not-null, valid
 
-    int numberOfTrackerHits(HitCategory category) const;          // not-null, tracker
+    int numberOfAllTrackerHits(HitCategory category) const;          // not-null, tracker
     int numberOfValidTrackerHits() const;                         // not-null, valid, tracker
     int numberOfValidPixelHits() const;                           // not-null, valid, pixel
     int numberOfValidPixelBarrelHits() const;                     // not-null, valid, pixel PXB
@@ -270,6 +280,7 @@ public:
     int numberOfValidStripTIDHits() const;                        // not-null, valid, strip TID
     int numberOfValidStripTOBHits() const;                        // not-null, valid, strip TOB
     int numberOfValidStripTECHits() const;                        // not-null, valid, strip TEC
+
 
     int numberOfLostHits(HitCategory category) const;             // not-null, not valid
     int numberOfLostTrackerHits(HitCategory category) const;      // not-null, not valid, tracker
@@ -288,17 +299,22 @@ public:
     int numberOfValidMuonCSCHits() const;     // not-null, valid, muon CSC
     int numberOfValidMuonRPCHits() const;     // not-null, valid, muon RPC
     int numberOfValidMuonGEMHits() const;     // not-null, valid, muon GEM
+    int numberOfValidMuonME0Hits() const;     // not-null, valid, muon ME0
+
     int numberOfLostMuonHits() const;         // not-null, not valid, muon
     int numberOfLostMuonDTHits() const;       // not-null, not valid, muon DT
     int numberOfLostMuonCSCHits() const;      // not-null, not valid, muon CSC
     int numberOfLostMuonRPCHits() const;      // not-null, not valid, muon RPC
     int numberOfLostMuonGEMHits() const;      // not-null, not valid, muon GEM
+    int numberOfLostMuonME0Hits() const;      // not-null, not valid, muon ME0
+
     int numberOfBadHits() const;              // not-null, bad (only used in Muon Ch.)
     int numberOfBadMuonHits() const;          // not-null, bad, muon
     int numberOfBadMuonDTHits() const;        // not-null, bad, muon DT
     int numberOfBadMuonCSCHits() const;       // not-null, bad, muon CSC
     int numberOfBadMuonRPCHits() const;       // not-null, bad, muon RPC
     int numberOfBadMuonGEMHits() const;       // not-null, bad, muon GEM
+    int numberOfBadMuonME0Hits() const;       // not-null, bad, muon ME0
 
     int numberOfInactiveHits() const;         // not-null, inactive
     int numberOfInactiveTrackerHits() const;  // not-null, inactive, tracker
@@ -337,15 +353,15 @@ public:
     int stripTOBLayersWithoutMeasurement(HitCategory category) const;    // case 1: strip TOB
     int stripTECLayersWithoutMeasurement(HitCategory category) const;    // case 1: strip TEC
 
-    int trackerLayersTotallyOffOrBad() const;        // case 2: tracker
-    int pixelLayersTotallyOffOrBad() const;          // case 2: pixel
-    int stripLayersTotallyOffOrBad() const;          // case 2: strip
-    int pixelBarrelLayersTotallyOffOrBad() const;    // case 2: pixel PXB
-    int pixelEndcapLayersTotallyOffOrBad() const;    // case 2: pixel PXF
-    int stripTIBLayersTotallyOffOrBad() const;       // case 2: strip TIB
-    int stripTIDLayersTotallyOffOrBad() const;       // case 2: strip TID
-    int stripTOBLayersTotallyOffOrBad() const;       // case 2: strip TOB
-    int stripTECLayersTotallyOffOrBad() const;       // case 2: strip TEC
+    int trackerLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;        // case 2: tracker
+    int pixelLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;          // case 2: pixel
+    int stripLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;          // case 2: strip
+    int pixelBarrelLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;    // case 2: pixel PXB
+    int pixelEndcapLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;    // case 2: pixel PXF
+    int stripTIBLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;       // case 2: strip TIB
+    int stripTIDLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;       // case 2: strip TID
+    int stripTOBLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;       // case 2: strip TOB
+    int stripTECLayersTotallyOffOrBad(HitCategory category=TRACK_HITS) const;       // case 2: strip TEC
 
     int trackerLayersNull() const;                   // case NULL_RETURN: tracker
     int pixelLayersNull() const;                     // case NULL_RETURN: pixel
@@ -379,6 +395,11 @@ public:
     int gemStationsWithValidHits() const ;
     int gemStationsWithBadHits() const ;
     int gemStationsWithAnyHits() const ;
+
+    int me0StationsWithValidHits() const ;
+    int me0StationsWithBadHits() const ;
+    int me0StationsWithAnyHits() const ;
+
 
     /// hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
     int innermostMuonStationWithHits(int hitType) const;
@@ -444,7 +465,6 @@ private:
     bool insertExpectedInnerHit(const uint16_t pattern);
     bool insertExpectedOuterHit(const uint16_t pattern);
     void insertHit(const uint16_t pattern);
-    bool appendHit(const uint16_t pattern, TrackingRecHit::Type hitType);
 
     uint16_t getHitPatternByAbsoluteIndex(int position) const;
 
@@ -459,6 +479,11 @@ private:
     uint8_t endInner;
     uint8_t beginOuter;
     uint8_t endOuter;
+
+  friend int ::test::TestHitPattern::test();
+
+  template<int N>
+  friend struct PatternSet;
 };
 
 inline std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory category) const
@@ -481,7 +506,7 @@ template<typename I>
 bool HitPattern::appendHits(const I &begin, const I &end, const TrackerTopology& ttopo)
 {
     for (I hit = begin; hit != end; hit++) {
-      if unlikely((!appendHit(*hit, ttopo))) {
+      if UNLIKELY((!appendHit(*hit, ttopo))) {
             return false;
         }
     }
@@ -491,7 +516,7 @@ bool HitPattern::appendHits(const I &begin, const I &end, const TrackerTopology&
 inline uint16_t HitPattern::getHitPattern(HitCategory category, int position) const
 {
     std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    if unlikely((position < 0 || (position + range.first) >= range.second)) {
+    if UNLIKELY((position < 0 || (position + range.first) >= range.second)) {
         return HitPattern::EMPTY_PATTERN;
     }
 
@@ -539,7 +564,7 @@ inline int HitPattern::countTypedHits(HitCategory category, filterType typeFilte
 
 inline bool HitPattern::pixelHitFilter(uint16_t pattern)
 {
-    if unlikely(!trackerHitFilter(pattern)) {
+    if UNLIKELY(!trackerHitFilter(pattern)) {
         return false;
     }
 
@@ -550,7 +575,7 @@ inline bool HitPattern::pixelHitFilter(uint16_t pattern)
 
 inline bool HitPattern::pixelBarrelHitFilter(uint16_t pattern)
 {
-    if unlikely(!trackerHitFilter(pattern)) {
+    if UNLIKELY(!trackerHitFilter(pattern)) {
         return false;
     }
 
@@ -560,7 +585,7 @@ inline bool HitPattern::pixelBarrelHitFilter(uint16_t pattern)
 
 inline bool HitPattern::pixelEndcapHitFilter(uint16_t pattern)
 {
-    if unlikely(!trackerHitFilter(pattern)) {
+    if UNLIKELY(!trackerHitFilter(pattern)) {
         return false;
     }
 
@@ -576,7 +601,7 @@ inline bool HitPattern::stripHitFilter(uint16_t pattern)
 
 inline bool HitPattern::stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure)
 {
-    if unlikely(!trackerHitFilter(pattern)) {
+    if UNLIKELY(!trackerHitFilter(pattern)) {
         return false;
     }
 
@@ -605,7 +630,7 @@ inline bool HitPattern::stripTECHitFilter(uint16_t pattern)
 
 inline bool HitPattern::muonDTHitFilter(uint16_t pattern)
 {
-    if unlikely(!muonHitFilter(pattern)) {
+    if UNLIKELY(!muonHitFilter(pattern)) {
         return false;
     }
 
@@ -615,7 +640,7 @@ inline bool HitPattern::muonDTHitFilter(uint16_t pattern)
 
 inline bool HitPattern::muonCSCHitFilter(uint16_t pattern)
 {
-    if unlikely(!muonHitFilter(pattern)) {
+    if UNLIKELY(!muonHitFilter(pattern)) {
         return false;
     }
 
@@ -625,7 +650,7 @@ inline bool HitPattern::muonCSCHitFilter(uint16_t pattern)
 
 inline bool HitPattern::muonRPCHitFilter(uint16_t pattern)
 {
-    if unlikely(!muonHitFilter(pattern)) {
+    if UNLIKELY(!muonHitFilter(pattern)) {
         return false;
     }
 
@@ -635,13 +660,20 @@ inline bool HitPattern::muonRPCHitFilter(uint16_t pattern)
 
 inline bool HitPattern::muonGEMHitFilter(uint16_t pattern)
 { 
-    if  unlikely(!muonHitFilter(pattern)) {
+    if  UNLIKELY(!muonHitFilter(pattern)) {
          return false;
     }
 
     uint32_t substructure = getSubStructure(pattern);
     return (substructure == (uint32_t) MuonSubdetId::GEM); 
 }
+
+inline bool HitPattern::muonME0HitFilter(uint16_t pattern) { 
+  if  UNLIKELY(!muonHitFilter(pattern)) return false;
+  uint16_t substructure = getSubStructure(pattern);
+  return (substructure == (uint16_t) MuonSubdetId::ME0);
+}
+
 
 inline bool HitPattern::trackerHitFilter(uint16_t pattern)
 {
@@ -650,7 +682,7 @@ inline bool HitPattern::trackerHitFilter(uint16_t pattern)
 
 inline bool HitPattern::muonHitFilter(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
+    if UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) {
         return false;
     }
 
@@ -659,7 +691,7 @@ inline bool HitPattern::muonHitFilter(uint16_t pattern)
 
 inline uint32_t HitPattern::getSubStructure(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
+    if UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) {
         return NULL_RETURN;
     }
 
@@ -673,7 +705,7 @@ inline uint32_t HitPattern::getLayer(uint16_t pattern)
 
 inline uint32_t HitPattern::getSubSubStructure(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
+    if UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) {
         return NULL_RETURN;
     }
 
@@ -682,7 +714,7 @@ inline uint32_t HitPattern::getSubSubStructure(uint16_t pattern)
 
 inline uint32_t HitPattern::getSubDetector(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
+    if UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) {
         return NULL_RETURN;
     }
 
@@ -692,7 +724,7 @@ inline uint32_t HitPattern::getSubDetector(uint16_t pattern)
 
 inline uint32_t HitPattern::getSide(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
+    if UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) {
         return NULL_RETURN;
     }
 
@@ -701,7 +733,7 @@ inline uint32_t HitPattern::getSide(uint16_t pattern)
 
 inline uint32_t HitPattern::getHitType(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
+    if UNLIKELY(pattern == HitPattern::EMPTY_PATTERN) {
         return NULL_RETURN;
     }
 
@@ -728,7 +760,7 @@ inline uint16_t HitPattern::getRPCLayer(uint16_t pattern)
     uint16_t subSubStructure = getSubSubStructure(pattern);
     uint16_t stat = subSubStructure >> 2;
 
-    if likely(stat <= 1) {
+    if LIKELY(stat <= 1) {
         return ((subSubStructure >> 1) & 1) + 1;
     }
 
@@ -742,10 +774,12 @@ inline uint16_t HitPattern::getRPCregion(uint16_t pattern)
 
 ////////////////////////////// GEM
 inline uint16_t HitPattern::getGEMStation(uint16_t pattern)
+
 {
     uint16_t sss = getSubSubStructure(pattern), stat = sss >> 1;
     return stat + 1;
 }
+
 inline uint16_t HitPattern::getGEMLayer(uint16_t pattern)
 {
     return (getSubSubStructure(pattern) & 1) + 1;
@@ -771,13 +805,13 @@ inline bool HitPattern::badHitFilter(uint16_t pattern)
     return getHitType(pattern) == HitPattern::BAD;
 }
 
-inline int HitPattern::numberOfHits(HitCategory category) const
+inline int HitPattern::numberOfAllHits(HitCategory category) const
 {
     std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
     return range.second - range.first;
 }
 
-inline int HitPattern::numberOfTrackerHits(HitCategory category) const
+inline int HitPattern::numberOfAllTrackerHits(HitCategory category) const
 {
     return countHits(category, trackerHitFilter);
 }
@@ -862,6 +896,10 @@ inline int HitPattern::numberOfValidMuonGEMHits() const
    return countTypedHits(TRACK_HITS, validHitFilter, muonGEMHitFilter);
 }
 
+inline int HitPattern::numberOfValidMuonME0Hits() const {
+  return countTypedHits(TRACK_HITS, validHitFilter, muonME0HitFilter);
+}
+
 inline int HitPattern::numberOfLostHits(HitCategory category) const
 {
     return countHits(category, missingHitFilter);
@@ -937,6 +975,10 @@ inline int HitPattern::numberOfLostMuonGEMHits() const
     return countTypedHits(TRACK_HITS, missingHitFilter, muonGEMHitFilter);
 }
 
+inline int HitPattern::numberOfLostMuonME0Hits() const {
+  return countTypedHits(TRACK_HITS, missingHitFilter, muonME0HitFilter);
+}
+
 inline int HitPattern::numberOfBadHits() const
 {
     return countHits(TRACK_HITS, badHitFilter);
@@ -965,6 +1007,10 @@ inline int HitPattern::numberOfBadMuonRPCHits() const
 inline int HitPattern::numberOfBadMuonGEMHits() const 
 {
    return countTypedHits(TRACK_HITS, inactiveHitFilter, muonGEMHitFilter);
+}
+
+inline int HitPattern::numberOfBadMuonME0Hits() const {
+  return countTypedHits(TRACK_HITS, inactiveHitFilter, muonME0HitFilter);
 }
 
 inline int HitPattern::numberOfInactiveHits() const
@@ -1013,24 +1059,24 @@ inline int HitPattern::stripLayersWithoutMeasurement(HitCategory category) const
            stripTECLayersWithoutMeasurement(category);
 }
 
-inline int HitPattern::trackerLayersTotallyOffOrBad() const
+inline int HitPattern::trackerLayersTotallyOffOrBad(HitCategory category) const
 {
-    return pixelLayersTotallyOffOrBad() +
-           stripLayersTotallyOffOrBad();
+    return pixelLayersTotallyOffOrBad(category) +
+           stripLayersTotallyOffOrBad(category);
 }
 
-inline int HitPattern::pixelLayersTotallyOffOrBad() const
+inline int HitPattern::pixelLayersTotallyOffOrBad(HitCategory category) const
 {
-    return pixelBarrelLayersTotallyOffOrBad() +
-           pixelEndcapLayersTotallyOffOrBad();
+    return pixelBarrelLayersTotallyOffOrBad(category) +
+           pixelEndcapLayersTotallyOffOrBad(category);
 }
 
-inline int HitPattern::stripLayersTotallyOffOrBad() const
+inline int HitPattern::stripLayersTotallyOffOrBad(HitCategory category) const
 {
-    return stripTIBLayersTotallyOffOrBad() +
-           stripTIDLayersTotallyOffOrBad() +
-           stripTOBLayersTotallyOffOrBad() +
-           stripTECLayersTotallyOffOrBad();
+    return stripTIBLayersTotallyOffOrBad(category) +
+           stripTIDLayersTotallyOffOrBad(category) +
+           stripTOBLayersTotallyOffOrBad(category) +
+           stripTECLayersTotallyOffOrBad(category);
 }
 
 inline int HitPattern::trackerLayersNull() const
@@ -1128,6 +1174,21 @@ inline int HitPattern::gemStationsWithAnyHits() const
    return muonStations(4,-1); 
 }
 
+inline int HitPattern::me0StationsWithValidHits()  const 
+{ 
+  return muonStations(5, 0); 
+}
+
+inline int HitPattern::me0StationsWithBadHits()    const 
+{
+  return muonStations(5, 3); 
+}
+
+inline int HitPattern::me0StationsWithAnyHits()    const 
+{ 
+  return muonStations(5,-1); 
+}
+
 inline int HitPattern::innermostMuonStationWithValidHits() const
 {
     return innermostMuonStationWithHits(0);
@@ -1158,7 +1219,6 @@ inline int HitPattern::outermostMuonStationWithAnyHits() const
     return outermostMuonStationWithHits(-1);
 }
 
-#ifndef CMS_NOCXX11 // cint....
 
 template<int N = HitPattern::MaxHits>
 struct PatternSet {
@@ -1235,7 +1295,6 @@ inline PatternSet<N> commonHits(PatternSet<N> const &p1, PatternSet<N> const &p2
     comm.nhit = std::set_intersection(p1.begin(), p1.end(), p2.begin(), p2.end(), comm.begin()) - comm.begin();
     return comm;
 }
-#endif // gcc11
 
 } // namespace reco
 

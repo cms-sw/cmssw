@@ -19,21 +19,23 @@
 
 namespace cond {
 
-  // to be removed after the transition to new DB
-  typedef enum { UNKNOWN_DB=0, COND_DB, ORA_DB } BackendType;
-  static constexpr BackendType DEFAULT_DB = COND_DB;
-  // for the validation of migrated data
-  typedef enum { ERROR=0, MIGRATED, VALIDATED } MigrationStatus;
-  static const std::vector<std::string> validationStatusText = { "Error",
-								 "Migrated",
-								 "Validated" };
+  struct UserLogInfo{
+    std::string provenance;
+    std::string usertext;
+  };
+
+
 
   typedef enum { 
-    SYNCHRONIZATION_UNKNOWN = -1,
-    OFFLINE=0, 
-    HLT, 
-    PROMPT, 
-    PCL 
+    SYNCH_ANY = 0,
+    SYNCH_VALIDATION,
+    SYNCH_OFFLINE,
+    SYNCH_MC,
+    SYNCH_RUNMC,
+    SYNCH_HLT, 
+    SYNCH_EXPRESS,
+    SYNCH_PROMPT, 
+    SYNCH_PCL 
   } SynchronizationType;
 
   std::string synchronizationTypeNames( SynchronizationType type );
@@ -45,7 +47,8 @@ namespace cond {
 
   // Basic element of the IOV sequence.
   struct Iov_t {
-    virtual ~Iov_t(){}
+    Iov_t(): since(time::MAX_VAL),till(time::MIN_VAL),payloadId(""){}
+    virtual ~Iov_t() = default;
     virtual void clear();
     bool isValid() const;
     bool isValidFor( Time_t target ) const;
@@ -55,6 +58,7 @@ namespace cond {
   };
 
   struct Tag_t {
+    virtual ~Tag_t() = default;
     virtual void clear();
     std::string tag;
     std::string payloadType;
@@ -134,10 +138,12 @@ namespace cond {
       return std::get<2>(m_data);
     }
     std::size_t hashvalue()const{
-      // taken from TagMetadata existing implementation. 
-      // Is it correct ordering by tag? Tags are not unique in a GT, while record+label are...
+      // Derived from CondDB v1 TagMetadata implementation. 
+      // Unique Keys constructed with Record and Labels - allowing for multiple references of the same Tag in a GT
       boost::hash<std::string> hasher;
-      std::size_t result=hasher(tagName());
+      std::string key = recordName();
+      if( !recordLabel().empty() ) key = key +"_"+recordLabel();
+      std::size_t result=hasher(key);
       return result;
     }
     bool operator<(const GTEntry_t& toCompare ) const {
@@ -148,6 +154,16 @@ namespace cond {
     std::tuple<std::string,std::string,std::string> m_data; 
   };
 
+  struct RunInfo_t {
+    RunInfo_t( const std::tuple<long long unsigned int, boost::posix_time::ptime,boost::posix_time::ptime>& data ):
+      run( std::get<0>(data) ),
+      start( std::get<1>(data) ),
+      end( std::get<2>(data) ){
+    }
+    Time_t run;
+    boost::posix_time::ptime start;
+    boost::posix_time::ptime end;
+  };
 
 }
 

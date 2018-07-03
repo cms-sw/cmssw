@@ -13,9 +13,9 @@ class HcalTTPDigiProducer : public edm::stream::EDProducer<>
 public:
 
   explicit HcalTTPDigiProducer(const edm::ParameterSet& ps);
-  ~HcalTTPDigiProducer() = default;
+  ~HcalTTPDigiProducer() override = default;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 

@@ -56,8 +56,8 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         Handle< EBRecHitCollection > pEBRecHits;
         Handle< EERecHitCollection > pEERecHits;
 
-        const EBRecHitCollection*  EBRecHits = 0;
-        const EERecHitCollection*  EERecHits = 0; 
+        const EBRecHitCollection*  EBRecHits = nullptr;
+        const EERecHitCollection*  EERecHits = nullptr; 
 
 	if (not EBRecHitCollection_.label().empty()) {
 	  evt.getByToken( EBRecHitToken_, pEBRecHits);
@@ -69,13 +69,13 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 	}
 
         // collection of rechits to put in the event
-        std::auto_ptr< EBRecHitCollection > EBRecalibRecHits( new EBRecHitCollection );
-        std::auto_ptr< EERecHitCollection > EERecalibRecHits( new EERecHitCollection );
+        auto EBRecalibRecHits = std::make_unique<EBRecHitCollection>();
+        auto EERecalibRecHits = std::make_unique<EERecHitCollection>();
 
         // now fetch all conditions we need to make rechits
         // ADC to GeV constant
         edm::ESHandle<EcalADCToGeVConstant> pAgc;
-        const EcalADCToGeVConstant *agc = 0;
+        const EcalADCToGeVConstant *agc = nullptr;
         float agc_eb = 1.;
         float agc_ee = 1.;
         if (doEnergyScale_) {
@@ -87,7 +87,7 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         }
         // Intercalib constants
         edm::ESHandle<EcalIntercalibConstants> pIcal;
-        const EcalIntercalibConstants *ical = 0;
+        const EcalIntercalibConstants *ical = nullptr;
         if (doIntercalib_) {
                 es.get<EcalIntercalibConstantsRcd>().get(pIcal);
                 ical = pIcal.product();
@@ -179,8 +179,8 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
         LogInfo("EcalRecalibRecHitInfo") << "total # EB re-calibrated rechits: " << EBRecalibRecHits->size();
         LogInfo("EcalRecalibRecHitInfo") << "total # EE re-calibrated rechits: " << EERecalibRecHits->size();
 
-        evt.put( EBRecalibRecHits, EBRecalibRecHitCollection_ );
-        evt.put( EERecalibRecHits, EERecalibRecHitCollection_ );
+        evt.put(std::move(EBRecalibRecHits), EBRecalibRecHitCollection_);
+        evt.put(std::move(EERecalibRecHits), EERecalibRecHitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

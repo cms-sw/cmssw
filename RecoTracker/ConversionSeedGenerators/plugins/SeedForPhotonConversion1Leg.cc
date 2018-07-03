@@ -31,7 +31,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::trajectorySeed(
     float cotTheta, std::stringstream& ss)
 {
   pss = &ss;
-  if ( hits.size() < 2) return 0;
+  if ( hits.size() < 2) return nullptr;
 
   GlobalTrajectoryParameters kine = initialKinematic(hits, vertex, es, cotTheta);
   float sinTheta = sin(kine.momentum().theta());
@@ -151,7 +151,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
   es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
   auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-  cloner = (*builder).cloner();
+  auto cloner = (*builder).cloner();
 
   // get updator
   KFUpdator  updator;
@@ -163,23 +163,23 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   TrajectoryStateOnSurface updatedState;
   edm::OwnVector<TrackingRecHit> seedHits;
   
-  const TrackingRecHit* hit = 0;
+  const TrackingRecHit* hit = nullptr;
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<1; iHit++) {
     hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ? 
       propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
-    if (!state.isValid()) return 0;
+    if (!state.isValid()) return nullptr;
     
     SeedingHitSet::ConstRecHitPointer tth = hits[iHit]; 
     
-    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state));
+    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state, cloner));
 
     
-    if (!checkHit(state,&*newtth,es)) return 0;
+    if (!checkHit(state,&*newtth,es)) return nullptr;
 
     updatedState =  updator.update(state, *newtth);
-    if (!updatedState.isValid()) return 0;
+    if (!updatedState.isValid()) return nullptr;
     
     seedHits.push_back(newtth.release());
 #ifdef mydebug_seed
@@ -202,7 +202,7 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
 
 SeedingHitSet::RecHitPointer SeedForPhotonConversion1Leg::refitHit(
       SeedingHitSet::ConstRecHitPointer hit, 
-      const TrajectoryStateOnSurface &state) const
+      const TrajectoryStateOnSurface &state, const TkClonerImpl& cloner) const
 {
   //const TransientTrackingRecHit* a= hit.get();
   //return const_cast<TransientTrackingRecHit*> (a);

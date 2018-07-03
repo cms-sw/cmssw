@@ -56,7 +56,7 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
    using namespace edm;
    using namespace std;
 
-   if (interestingDetIdCollections_.size() < 1)
+   if (interestingDetIdCollections_.empty())
      {
        edm::LogError("ReducedRecHitCollectionProducer") << "VInputTag collections empty" ;
        return;
@@ -100,7 +100,7 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
      }
    
    //Create empty output collections
-   std::auto_ptr< EcalRecHitCollection > miniRecHitCollection (new EcalRecHitCollection) ;
+   auto miniRecHitCollection  = std::make_unique<EcalRecHitCollection>();
    
    for (unsigned int iCry=0;iCry<xtalsToStore.size();iCry++)
      {
@@ -113,5 +113,5 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
 	std::unique(xtalsToStore.begin(), xtalsToStore.end());   
    
    //   std::cout << "New Collection " << reducedHitsCollection_ << " size is " << miniRecHitCollection->size() << " original is " << recHitsHandle->size() << std::endl;
-   iEvent.put( miniRecHitCollection,reducedHitsCollection_ );
+   iEvent.put(std::move(miniRecHitCollection),reducedHitsCollection_ );
 }

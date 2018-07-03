@@ -1,0 +1,180 @@
+#ifndef CondFormats_RPCObjects_RPCAMCLink_icc
+#define CondFormats_RPCObjects_RPCAMCLink_icc
+
+#include "CondFormats/RPCObjects/interface/RPCAMCLink.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+
+inline ::uint32_t RPCAMCLink::getId() const
+{
+    return id_;
+}
+
+inline RPCAMCLink::operator ::uint32_t() const
+{
+    return id_;
+}
+
+inline bool RPCAMCLink::matches(RPCAMCLink const & rhs) const
+{
+    return ((id_ & rhs.getMask()) == (getMask() & rhs.id_));
+}
+
+inline void RPCAMCLink::setId(::uint32_t const & id)
+{
+    id_ = id;
+}
+
+inline void RPCAMCLink::reset()
+{
+    id_ = 0x0;
+}
+
+// Field Getters
+inline int RPCAMCLink::getFED() const
+{
+    return bf_get(min_fed_, mask_fed_, pos_fed_);
+}
+
+inline int RPCAMCLink::getAMCNumber() const
+{
+    return bf_get(min_amcnumber_, mask_amcnumber_, pos_amcnumber_);
+}
+
+inline int RPCAMCLink::getAMCInput() const
+{
+    return bf_get(min_amcinput_, mask_amcinput_, pos_amcinput_);
+}
+
+// Field Setters
+inline RPCAMCLink & RPCAMCLink::setFED(int fed)
+{
+    return bf_set(min_fed_, max_fed_, mask_fed_, pos_fed_, fed);
+}
+
+inline RPCAMCLink & RPCAMCLink::setAMCNumber(int amcnumber)
+{
+    return bf_set(min_amcnumber_, max_amcnumber_, mask_amcnumber_, pos_amcnumber_, amcnumber);
+}
+
+inline RPCAMCLink & RPCAMCLink::setAMCInput(int amcinput)
+{
+    return bf_set(min_amcinput_, max_amcinput_, mask_amcinput_, pos_amcinput_, amcinput);
+}
+
+inline bool RPCAMCLink::operator<(RPCAMCLink const & rhs) const
+{
+    return (id_ < rhs.id_);
+}
+
+inline bool RPCAMCLink::operator==(RPCAMCLink const & rhs) const
+{
+    return (id_ == rhs.id_);
+}
+
+inline bool RPCAMCLink::operator!=(RPCAMCLink const & rhs) const
+{
+    return (id_ != rhs.id_);
+}
+
+inline bool RPCAMCLink::operator<(::uint32_t const & rhs) const
+{
+    return (id_ < rhs);
+}
+
+inline bool RPCAMCLink::operator==(::uint32_t const & rhs) const
+{
+    return (id_ == rhs);
+}
+
+inline bool RPCAMCLink::operator!=(::uint32_t const & rhs) const
+{
+    return (id_ != rhs);
+}
+
+inline RPCAMCLink & RPCAMCLink::operator++()
+{
+    int value(0);
+    if ((value = getAMCInput()) != wildcard_) {
+        if (value < max_amcinput_)
+            return setAMCInput(value + 1);
+        setAMCInput(min_amcinput_);
+    }
+    if ((value = getAMCNumber()) != wildcard_) {
+        if (value < max_amcnumber_)
+            return setAMCNumber(value + 1);
+        setAMCNumber(min_amcnumber_);
+    }
+    if ((value = getFED()) != wildcard_) {
+        if (value < max_fed_)
+            return setFED(value + 1);
+        setFED(min_fed_);
+    }
+    return *this;
+}
+
+inline RPCAMCLink RPCAMCLink::operator++(int)
+{
+    RPCAMCLink _value(*this);
+    ++(*this);
+    return _value;
+}
+
+inline RPCAMCLink & RPCAMCLink::operator--()
+{
+    int value(0);
+    if ((value = getAMCInput()) != wildcard_) {
+        if (value > min_amcinput_)
+            return setAMCInput(value - 1);
+        setAMCInput(max_amcinput_);
+    }
+    if ((value = getAMCNumber()) != wildcard_) {
+        if (value > min_amcnumber_)
+            return setAMCNumber(value - 1);
+        setAMCNumber(max_amcnumber_);
+    }
+    if ((value = getFED()) != wildcard_) {
+        if (value > min_fed_)
+            return setFED(value - 1);
+        setFED(max_fed_);
+    }
+    return *this;
+}
+
+inline RPCAMCLink RPCAMCLink::operator--(int)
+{
+    RPCAMCLink _value(*this);
+    --(*this);
+    return _value;
+}
+
+inline int RPCAMCLink::bf_get(int const min, ::uint32_t const mask, int const pos) const
+{
+    ::uint32_t value(id_ & mask);
+    if (value == 0)
+        return wildcard_;
+    return min + (int)(value >> pos) - 1;
+}
+
+inline RPCAMCLink & RPCAMCLink::bf_set(int const min, int const max, ::uint32_t const mask, int const pos, int const value)
+{
+    if (value >= min && value <= max) {
+        id_ &= ~mask;
+        id_ |= (((::uint32_t)(value - min + 1) << pos) & mask);
+    } else if (value == wildcard_)
+        id_ &= ~mask;
+    else
+        throw cms::Exception("OutOfRange")
+            << "Out-of-range input for RPCAMCLink::bf_set, position " << pos << ": " << value;
+    return *this;
+}
+
+inline std::ostream &  RPCAMCLink::bf_stream(std::ostream & ostream, int const min, ::uint32_t const mask, int const pos) const
+{
+    ::uint32_t value(id_ & mask);
+    if (value == 0)
+        return (ostream << '*');
+    return (ostream << (min + (int)(value >> pos) - 1));
+}
+
+#endif // CondFormats_RPCObjects_RPCAMCLink_icc

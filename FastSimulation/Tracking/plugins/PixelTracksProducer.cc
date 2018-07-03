@@ -19,10 +19,8 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
@@ -35,9 +33,7 @@
 using namespace pixeltrackfitting;
 
 PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : 
-  theFitter(0), 
-  theFilter(0), 
-  theRegionProducer(0)
+  theRegionProducer(nullptr)
 {  
 
   produces<reco::TrackCollection>();
@@ -49,17 +45,11 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) :
   theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,
 	regfactoryPSet, consumesCollector());
   
-  const edm::ParameterSet& fitterPSet = conf.getParameter<edm::ParameterSet>("FitterPSet");
-  std::string fitterName = fitterPSet.getParameter<std::string>("ComponentName");
-  theFitter = PixelFitterFactory::get()->create( fitterName, fitterPSet);
-  
-  edm::ConsumesCollector iC = consumesCollector();
-  const edm::ParameterSet& filterPSet = conf.getParameter<edm::ParameterSet>("FilterPSet");
-  std::string filterName = filterPSet.getParameter<std::string>("ComponentName");
-  theFilter = PixelTrackFilterFactory::get()->create( filterName, filterPSet, iC);
+  fitterToken = consumes<PixelFitter>(conf.getParameter<edm::InputTag>("Fitter"));
+  filterToken = consumes<PixelTrackFilter>(conf.getParameter<edm::InputTag>("Filter"));
   
   // The name of the seed producer
-  seedProducer = conf.getParameter<edm::InputTag>("SeedProducer");
+  auto seedProducer = conf.getParameter<edm::InputTag>("SeedProducer");
   seedProducerToken = consumes<TrajectorySeedCollection>(seedProducer);
 
 }
@@ -68,8 +58,6 @@ PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) :
 // Virtual destructor needed.
 PixelTracksProducer::~PixelTracksProducer() {
 
-  delete theFilter;
-  delete theFitter;
   delete theRegionProducer;
 
 } 
@@ -79,9 +67,9 @@ PixelTracksProducer::~PixelTracksProducer() {
 void 
 PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
   
-  std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);    
-  std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
+  std::unique_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);    
+  std::unique_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
+  std::unique_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
   typedef std::vector<const TrackingRecHit *> RecHits;
   
   TracksWithRecHits pixeltracks;
@@ -90,15 +78,23 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::ESHandle<TrackerTopology> httopo;
   es.get<TrackerTopologyRcd>().get(httopo);
   const TrackerTopology& ttopo = *httopo;
+
+  edm::Handle<PixelFitter> hfitter;
+  e.getByToken(fitterToken, hfitter);
+  const PixelFitter& fitter = *hfitter;
+
+  edm::Handle<PixelTrackFilter> hfilter;
+  e.getByToken(filterToken, hfilter);
+  const PixelTrackFilter& theFilter = *hfilter;
   
   edm::Handle<TrajectorySeedCollection> theSeeds;
   e.getByToken(seedProducerToken,theSeeds);
 
   // No seed -> output an empty track collection
-  if(theSeeds->size() == 0) {
-    e.put(tracks);
-    e.put(recHits);
-    e.put(trackExtras);
+  if(theSeeds->empty()) {
+    e.put(std::move(tracks));
+    e.put(std::move(recHits));
+    e.put(std::move(trackExtras));
     return;
   }
   
@@ -122,21 +118,20 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::OwnVector<TrackingRecHit>::const_iterator theLastSeedingRecHit = theSeedingRecHitRange.second;
 
       // Loop over the rechits
-      std::vector<const TrackingRecHit*> TripletHits(3,static_cast<const TrackingRecHit*>(0));
+      std::vector<const TrackingRecHit*> TripletHits(3,static_cast<const TrackingRecHit*>(nullptr));
       for ( unsigned i=0; aSeedingRecHit!=theLastSeedingRecHit; ++i,++aSeedingRecHit )  
 	TripletHits[i] = &(*aSeedingRecHit);
       
       // fitting the triplet
-      reco::Track* track = theFitter->run(es, TripletHits, region);
+      std::unique_ptr<reco::Track> track = fitter.run(TripletHits, region);
       
       // decide if track should be skipped according to filter 
-      if ( ! (*theFilter)(track) ) { 
-	delete track; 
+      if ( ! theFilter(track.get(), TripletHits) ) {
 	continue; 
       }
       
       // add tracks 
-      pixeltracks.push_back(TrackWithRecHits(track, TripletHits));
+      pixeltracks.push_back(TrackWithRecHits(track.release(), TripletHits));
       
     }
   }
@@ -159,7 +154,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
   }
   
-  edm::OrphanHandle <TrackingRecHitCollection> ohRH = e.put( recHits );
+  edm::OrphanHandle <TrackingRecHitCollection> ohRH = e.put(std::move(recHits ));
   edm::RefProd<TrackingRecHitCollection> ohRHProd(ohRH);
 
   for (int k = 0; k < nTracks; ++k) {
@@ -178,7 +173,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //delete theTrackExtra;
   }
   
-  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(trackExtras);
+  edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(std::move(trackExtras));
   
   for (int k = 0; k < nTracks; k++) {
 
@@ -187,7 +182,9 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   }
   
-  e.put(tracks);
+  e.put(std::move(tracks));
 
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PixelTracksProducer);

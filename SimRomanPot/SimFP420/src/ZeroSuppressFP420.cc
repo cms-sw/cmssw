@@ -75,7 +75,7 @@ ZSuppressFP420::DigitalMapType ZeroSuppressFP420::trkFEDclusterizer(const Digita
   const std::string s2("ZeroSuppressFP420::trkFEDclusterizer1");
   
   DigitalMapType selectedSignal;
-  register DigitalMapType::const_iterator i, iPrev, iNext, iPrev2, iNext2;
+  DigitalMapType::const_iterator i, iPrev, iNext, iPrev2, iNext2;
   
   if(vrb>0) {
     std::cout << "Before For loop" << std::endl;

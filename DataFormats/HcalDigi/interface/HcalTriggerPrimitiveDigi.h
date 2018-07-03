@@ -34,7 +34,7 @@ public:
   /// Full "Sample of Interest"
   const HcalTriggerPrimitiveSample& t0() const { return data_[presamples()]; }  
   /// Fine-grain bit for the "Sample of Interest"
-  bool SOI_fineGrain() const { return t0().fineGrain(); }
+  bool SOI_fineGrain(int i=0) const { return t0().fineGrain(i); }
   /// Compressed ET for the "Sample of Interest"
   int SOI_compressedEt() const { return t0().compressedEt(); }
 

@@ -30,6 +30,6 @@ TtGenEventReco::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   //add genEvt to the output stream
   TtGenEvent* genEvt = new TtGenEvent( cands, initParts );
-  std::auto_ptr<TtGenEvent> gen( genEvt );
-  evt.put( gen );
+  std::unique_ptr<TtGenEvent> gen( genEvt );
+  evt.put(std::move(gen));
 }

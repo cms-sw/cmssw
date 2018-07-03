@@ -14,7 +14,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/HT/HTErrorFlag">
+    <LINK name="*Stage1Layer2expert/HT/HTErrorFlag">
         <TestName activate="true">L1EmulatorHttGctErrorFlagQT</TestName>
     </LINK>
 

@@ -4,15 +4,15 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDHCalEndcapModuleAlgo : public DDAlgorithm {
  
 public:
   //Constructor and Destructor
   DDHCalEndcapModuleAlgo(); //const std::string & name);
-  virtual ~DDHCalEndcapModuleAlgo();
+  ~DDHCalEndcapModuleAlgo() override;
   
   struct HcalEndcapPar {
     double yh1, bl1, tl1, yh2, bl2, tl2, alp, theta, phi, xpos, ypos, zpos;
@@ -26,19 +26,19 @@ public:
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& cpv);
+		  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& cpv) override;
 
 protected:
 
-  void constructInsideModule0(DDLogicalPart module, DDCompactView& cpv);
-  void constructInsideModule (DDLogicalPart module, DDCompactView& cpv);
+  void constructInsideModule0(const DDLogicalPart& module, DDCompactView& cpv);
+  void constructInsideModule (const DDLogicalPart& module, DDCompactView& cpv);
   HcalEndcapPar parameterLayer0(unsigned int iphi);
   HcalEndcapPar parameterLayer(unsigned int iphi, double rinF, double routF, 
 			       double rinB, double routB, double zi,double zo);
-  void constructScintLayer(DDLogicalPart detector, double dz,
+  void constructScintLayer(const DDLogicalPart& detector, double dz,
 			   DDHCalEndcapModuleAlgo::HcalEndcapPar parm,
-			   std::string nm, int id, DDCompactView& cpv);
+			   const std::string& nm, int id, DDCompactView& cpv);
   double getTrim(unsigned int j) const;
   double getRout(double z) const;
 

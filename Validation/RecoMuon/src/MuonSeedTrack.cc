@@ -81,7 +81,7 @@ MuonSeedTrack::produce(edm::Event& event, const edm::EventSetup& eventSetup)
   theService->update(eventSetup);
 
   // the track collectios; they will be loaded in the event  
-  auto_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
+  unique_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
   // ... and its reference into the event
   reco::TrackRefProd trackCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>();
 
@@ -99,7 +99,7 @@ MuonSeedTrack::produce(edm::Event& event, const edm::EventSetup& eventSetup)
     trackCollection->push_back(track);
   }
   
-  event.put(trackCollection);
+  event.put(std::move(trackCollection));
 
 }
 

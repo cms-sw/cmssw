@@ -21,29 +21,29 @@ namespace edm {
       explicit Holder(REF const& iRef);
       Holder& operator= (Holder const& rhs);
       void swap(Holder& other);
-      virtual ~Holder();
-      virtual BaseHolder<T>* clone() const GCC11_OVERRIDE;
+      ~Holder() override;
+      BaseHolder<T>* clone() const override;
 
-      virtual T const* getPtr() const GCC11_OVERRIDE;
-      virtual ProductID id() const GCC11_OVERRIDE;
-      virtual size_t key() const GCC11_OVERRIDE;
-      virtual bool isEqualTo(BaseHolder<T> const& rhs) const GCC11_OVERRIDE;
+      T const* getPtr() const override;
+      ProductID id() const override;
+      size_t key() const override;
+      bool isEqualTo(BaseHolder<T> const& rhs) const override;
       REF const& getRef() const;
 
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const GCC11_OVERRIDE;
+      bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
+					  std::string& msg) const override;
 
-      virtual std::auto_ptr<RefHolderBase> holder() const GCC11_OVERRIDE {
-	return std::auto_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
+      std::unique_ptr<RefHolderBase> holder() const override {
+	return std::unique_ptr<RefHolderBase>( new RefHolder<REF>( ref_ ) );
       }
-      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const GCC11_OVERRIDE;
-      virtual EDProductGetter const* productGetter() const GCC11_OVERRIDE;
+      std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
+      EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const GCC11_OVERRIDE { return ref_.isAvailable(); }
+      bool isAvailable() const override { return ref_.isAvailable(); }
 
-      virtual bool isTransient() const GCC11_OVERRIDE { return ref_.isTransient(); }
+      bool isTransient() const override { return ref_.isTransient(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
@@ -152,7 +152,7 @@ namespace edm {
 					  std::string& msg) const
     {
       RefHolder<REF>* h = dynamic_cast<RefHolder<REF>*>(&fillme);
-      bool conversion_worked = (h != 0);
+      bool conversion_worked = (h != nullptr);
 
       if (conversion_worked)
  	h->setRef(ref_);
@@ -172,7 +172,7 @@ namespace edm {
   namespace reftobase {
 
     template <typename T, typename REF>
-    std::auto_ptr<BaseVectorHolder<T> > Holder<T,REF>::makeVectorHolder() const {
+    std::unique_ptr<BaseVectorHolder<T> > Holder<T,REF>::makeVectorHolder() const {
       typedef typename HolderToVectorTrait<T, REF>::type helper;
       return helper::makeVectorHolder();
     }

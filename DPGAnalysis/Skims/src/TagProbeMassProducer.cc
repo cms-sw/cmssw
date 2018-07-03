@@ -67,7 +67,7 @@ TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
    // We need the output Muon association collection to fill
-   std::auto_ptr<std::vector<float> > TPmass( new std::vector<float>);
+   std::unique_ptr<std::vector<float> > TPmass( new std::vector<float>);
 
    if ( !iEvent.getByLabel( tagCollection_, tags ) ) {
       edm::LogWarning("TagProbe") << "Could not extract tag muons with input tag "
@@ -126,7 +126,7 @@ TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 
    // Finally put the tag probe collection in the event
-   iEvent.put( TPmass,"TPmass" );
+   iEvent.put(std::move(TPmass),"TPmass");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

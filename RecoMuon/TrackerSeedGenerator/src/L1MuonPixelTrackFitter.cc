@@ -10,7 +10,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
-#include <math.h>
+#include <cmath>
 
 template <class T> T sqr( T t) {return t*t;}
 

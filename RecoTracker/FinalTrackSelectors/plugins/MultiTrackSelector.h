@@ -39,14 +39,14 @@
 	    explicit MultiTrackSelector();
             explicit MultiTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
-            virtual ~MultiTrackSelector() ;
+            ~MultiTrackSelector() override ;
 
            using MVACollection = std::vector<float>;
            using QualityMaskCollection = std::vector<unsigned char>;
 
 
         protected:
-            void beginStream(edm::StreamID) override final;
+            void beginStream(edm::StreamID) final;
  
             // void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const final {
             //  init();
@@ -56,7 +56,7 @@
 
             typedef math::XYZPoint Point;
             /// process one event
-            void produce(edm::Event& evt, const edm::EventSetup& es ) override final {
+            void produce(edm::Event& evt, const edm::EventSetup& es ) final {
                run(evt,es);
             }
             virtual void run( edm::Event& evt, const edm::EventSetup& es ) const;

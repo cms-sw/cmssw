@@ -42,10 +42,10 @@ namespace edm {
 class PythiaHLTSoupFilter : public edm::EDFilter {
    public:
       explicit PythiaHLTSoupFilter(const edm::ParameterSet&);
-      ~PythiaHLTSoupFilter();
+      ~PythiaHLTSoupFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       

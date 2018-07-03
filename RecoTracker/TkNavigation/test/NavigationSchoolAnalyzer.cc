@@ -53,15 +53,15 @@ public:
   
   
 private:
-  virtual void beginRun(edm::Run & run, const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   std::string theNavigationSchoolName;
   const TrackerTopology *tTopo;
   void print(std::ostream& os,const DetLayer* dl);
   void print(std::ostream&os, const NavigationSchool::StateType & layers);
   void print(std::ostream&os, const NavigationSchool *nav);
+  void printUsingGeom(std::ostream&os, const NavigationSchool & nav);
 
 };
 
@@ -75,13 +75,12 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
   unsigned int LorW=0;
   unsigned int side=0;
 
+  if(GeomDetEnumerators::isTracker(dl->subDetector())) {
+    LorW = tTopo->layer(tag->geographicalId());
+    side = tTopo->side(tag->geographicalId());
+  }
+  else {
   switch (dl->subDetector()){
-  case GeomDetEnumerators::PixelBarrel :
-    LorW = tTopo->pxbLayer(tag->geographicalId()); break;
-  case GeomDetEnumerators::TIB :
-    LorW = tTopo->tibLayer(tag->geographicalId()); break;
-  case GeomDetEnumerators::TOB :
-    LorW = tTopo->tobLayer(tag->geographicalId()); break;
   case GeomDetEnumerators::DT :
     LorW = DTChamberId(tag->geographicalId().rawId()).station(); break;
   case GeomDetEnumerators::RPCEndcap :
@@ -89,22 +88,15 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
   case GeomDetEnumerators::RPCBarrel :
     LorW = RPCDetId(tag->geographicalId().rawId()).station(); break;
 
-  case GeomDetEnumerators::PixelEndcap :    
-    LorW = tTopo->pxfDisk(tag->geographicalId());
-    side = tTopo->pxfSide(tag->geographicalId());break;
-  case GeomDetEnumerators::TID :
-    LorW = tTopo->tidWheel(tag->geographicalId());
-    side = tTopo->tidSide(tag->geographicalId());break;
-  case GeomDetEnumerators::TEC :
-    LorW = tTopo->tecWheel(tag->geographicalId());
-    side = tTopo->tecSide(tag->geographicalId()); break;
   case GeomDetEnumerators::CSC :
     LorW = CSCDetId(tag->geographicalId().rawId()).layer();
     side = CSCDetId(tag->geographicalId().rawId()).endcap(); break;
   case GeomDetEnumerators::invalidDet: // make gcc happy
-  default:
     // edm::LogError("InvalidDet") << "At " << __FILE__ << ", line " << __LINE__ << "\n";
     break;
+  default:
+    break;
+  }
   }
   
   switch (dl->location()){
@@ -163,20 +155,20 @@ void NavigationSchoolAnalyzer::print(std::ostream&os, const NavigationSchool *na
 
 
 
-void printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
+void NavigationSchoolAnalyzer::printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
   auto dls = nav.allLayersInSystem(); // ok let's' keep it for debug
   for ( auto dl : dls) {
      os<<"####################\n"	 
-	<< "Layer: \n"
-       << (dl);
-      
+       << "Layer: \n";
+     print(os,dl);
+
      auto displayThose=  nav.nextLayers(*dl,insideOut);
       if (displayThose.empty())
         {os<<"*** no INsideOUT connection ***\n";}
       else{
 	os<<"*** INsideOUT CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+          {print(os,*nl); os<<"-----------------\n";}}
 
       displayThose = nav.nextLayers(*dl,outsideIn);
       if (displayThose.empty())
@@ -184,7 +176,7 @@ void printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
       else{
 	os<<"*** OUTsideIN CONNECTED TO ***\n";
 	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {os<<(*nl)<<"-----------------\n";}}
+          {print(os,*nl); os<<"-----------------\n";}}
   }
   os<<"\n";
 
@@ -234,6 +226,11 @@ NavigationSchoolAnalyzer::~NavigationSchoolAnalyzer() {}
 
 
 void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+
   std::ostringstream byNav;
   std::ostringstream byGeom;
   std::ostringstream oldStyle;
@@ -245,7 +242,7 @@ void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
-  byNav <<nav.product();
+  print(byNav,nav.product());
   printUsingGeom(byGeom,*nav.product());
   printOldStyle(oldStyle,*nav.product());
 
@@ -266,7 +263,7 @@ void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
 }
 
-void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
+void NavigationSchoolAnalyzer::beginRun(edm::Run const & run, const edm::EventSetup& iSetup) {
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   tTopo = tTopoHandle.product();
@@ -278,8 +275,6 @@ void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& i
   edm::LogInfo("NavigationSchoolAnalyzer")<<"NavigationSchool display of: " <<theNavigationSchoolName<<"\n";
   print (std::cout,nav.product());
 }
-
-void NavigationSchoolAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(NavigationSchoolAnalyzer);

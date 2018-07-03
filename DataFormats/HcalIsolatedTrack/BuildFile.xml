@@ -3,6 +3,7 @@
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/L1Trigger"/>
 <use   name="FWCore/MessageLogger"/>
 
 <export>

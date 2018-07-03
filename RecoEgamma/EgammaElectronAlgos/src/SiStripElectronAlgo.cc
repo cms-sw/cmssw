@@ -386,30 +386,25 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
 	  continue ;
 	}
         std::string theDet = "null";
-        int theLayer = -999;
         bool isStereoDet = false ;
         if(tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
           theDet = "TIB" ;
-          theLayer = tTopo->tibLayer(id); 
           if(tTopo->tibStereo(id)==1) { isStereoDet = true ; }
         } else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB) { 
           theDet = "TOB" ;
-          theLayer = tTopo->tobLayer(id); 
           if(tTopo->tobStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TID) { 
           theDet = "TID" ;
-          theLayer = tTopo->tidWheel(id);  // or ring  ?
           if(tTopo->tidStereo(id)==1) { isStereoDet = true ; }
         }else if
           (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TEC) { 
           theDet = "TEC" ;
-          theLayer = tTopo->tecWheel(id);  // or ring or petal ?
           if(tTopo->tecStereo(id)==1) { isStereoDet = true ; }
         } else {
           LogDebug("") << " UHOH BIG PROBLEM - Unrecognized SI Layer" ;
-          LogDebug("") << " Det "<< theDet << " Lay " << theLayer ;
+          LogDebug("") << " Det "<< theDet ;
           assert(1!=1) ;
         }
 
@@ -901,9 +896,9 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 		debugstr5 << " Chi1 " << chi1 << " Chi2 " << chi2 <<"\n";
 #endif
 		if( chi1< chi2 ){
-		  uselist[j] = 0;
+		  uselist[j] = false;
 		}else{
-		  uselist[i] = 0;
+		  uselist[i] = false;
 		}
 
 	      } // end of Det check
@@ -935,7 +930,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 		  << " Chi2 " << (philist[i]-(rlist[i]-scr)*phiVsRSlope)*(philist[i]-(rlist[i]-scr)*phiVsRSlope)*w2list[i]
 		  << " \n" ;
 #endif
-	uselist[i]=0 ;
+	uselist[i]=false ;
       }
     }
   }
@@ -1098,7 +1093,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // Now we have intercept, slope, and chi2; uselist to tell us which hits are used, and hitlist for the hits
 
   // Identify the innermost hit
-  const SiStripRecHit2D* innerhit = (SiStripRecHit2D*)(0);
+  const SiStripRecHit2D* innerhit = (SiStripRecHit2D*)nullptr;
   double innerhitRadius = -1.;  // meaningless until innerhit is defined
 
   // Copy hits into an OwnVector, which we put in the TrackCandidate
@@ -1116,7 +1111,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       const SiStripRecHit2D* hit = hitlist[i];
 
       // Keep track of the innermost hit
-      if (innerhit == (SiStripRecHit2D*)(0)  ||  r < innerhitRadius) {
+      if (innerhit == (SiStripRecHit2D*)nullptr  ||  r < innerhitRadius) {
 	innerhit = hit;
 	innerhitRadius = r;
       }
@@ -1149,9 +1144,14 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   double reducedChi2 = (totalNumberOfHits > 2 ? chi2 / (totalNumberOfHits - 2) : 1e10);
 
   // Select this candidate if it passes minHits_ and maxReducedChi2_ cuts
-  if (totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
+  if (innerhit != nullptr && totalNumberOfHits >= minHits_  &&  reducedChi2 <= maxReducedChi2_) {
     // GlobalTrajectoryParameters evaluated at the position of the innerhit
-    GlobalPoint position = tracker_p_->idToDet(innerhit->geographicalId())->surface().toGlobal(innerhit->localPosition());
+    GlobalPoint position;
+    if( nullptr != tracker_p_ ) {
+      position = tracker_p_->idToDet(innerhit->geographicalId())->surface().toGlobal(innerhit->localPosition());
+    } else {
+      throw cms::Exception("projectPhiBand") << "Pointer to tracker product is null!";
+    }
 
     // Use our phi(r) linear fit to correct pT (pT is inversely proportional to slope)
     // (By applying a correction instead of going back to first

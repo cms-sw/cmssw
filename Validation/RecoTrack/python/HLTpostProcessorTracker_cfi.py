@@ -10,7 +10,7 @@ postProcessorHLTtrackingSummary = _PostProcessorTracker_cfi.postProcessorTrackSu
     subDirs = ["HLT/Tracking/ValidationWRTtp"]
 )
 
-postProcessorHLTtrackingSequence = (
+postProcessorHLTtrackingSequence = cms.Sequence(
     postProcessorHLTtracking +
     postProcessorHLTtrackingSummary
 )

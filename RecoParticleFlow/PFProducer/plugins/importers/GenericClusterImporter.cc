@@ -55,6 +55,9 @@ importToBlock( const edm::Event& e,
     case PFLayer::HF_HAD:
       type = reco::PFBlockElement::HFHAD;
       break;
+    case PFLayer::HGCAL:
+      type = reco::PFBlockElement::HGCAL;
+      break;
     default:
       throw cms::Exception("InvalidPFLayer")
 	<< "Layer given, " << clus->layer() << " is not a valid PFLayer!";

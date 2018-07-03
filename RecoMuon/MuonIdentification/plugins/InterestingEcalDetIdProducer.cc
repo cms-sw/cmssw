@@ -45,7 +45,7 @@ InterestingEcalDetIdProducer::produce (edm::Event& iEvent,
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(muonToken_,muons);
   
-  std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
+  auto interestingDetIdCollection = std::make_unique<DetIdCollection>();
 
   for(reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon){
     if (! muon->isEnergyValid() ) continue;
@@ -57,5 +57,5 @@ InterestingEcalDetIdProducer::produce (edm::Event& iEvent,
 	 == interestingDetIdCollection->end()) 
 	interestingDetIdCollection->push_back(*id);
   }
-  iEvent.put(interestingDetIdCollection);
+  iEvent.put(std::move(interestingDetIdCollection));
 }

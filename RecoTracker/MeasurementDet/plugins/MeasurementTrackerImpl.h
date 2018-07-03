@@ -8,6 +8,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -32,10 +33,13 @@
 
 class TkStripMeasurementDet;
 class TkPixelMeasurementDet;
+class TkPhase2OTMeasurementDet;
 class TkGluedMeasurementDet;
+class TkStackMeasurementDet;
 class GeometricSearchTracker;
 class SiStripRecHitMatcher;
 class GluedGeomDet;
+class StackGeomDet;
 class SiPixelFedCabling;
 
 class dso_hidden MeasurementTrackerImpl final : public MeasurementTracker {
@@ -48,6 +52,7 @@ public:
 		     const PixelClusterParameterEstimator* pixelCPE,
 		     const StripClusterParameterEstimator* stripCPE,
 		     const SiStripRecHitMatcher*  hitMatcher,
+		     const TrackerTopology*  trackerTopology,
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
                      const SiStripQuality *stripQuality,
@@ -56,9 +61,10 @@ public:
                      const SiPixelQuality *pixelQuality,
                      const SiPixelFedCabling *pixelCabling,
                      int   pixelQualityFlags,
-                     int   pixelQualityDebugFlags);
+                     int   pixelQualityDebugFlags,
+		     const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE = nullptr);
 
-  virtual ~MeasurementTrackerImpl();
+  ~MeasurementTrackerImpl() override;
  
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
@@ -66,7 +72,7 @@ public:
 
   /// MeasurementDetSystem interface  (won't be overloaded anymore)
   MeasurementDetWithData 
-  idToDet(const DetId& id, const MeasurementTrackerEvent &data) const {
+  idToDet(const DetId& id, const MeasurementTrackerEvent &data) const override {
     return MeasurementDetWithData(*idToDetBare(id, data), data);
   }
 
@@ -87,7 +93,7 @@ public:
       //throw exception;
     }
     
-    return 0; //to avoid compile warning
+    return nullptr; //to avoid compile warning
   }
 
   typedef std::unordered_map<unsigned int,MeasurementDet*>   DetContainer;
@@ -97,9 +103,11 @@ public:
   const std::vector<TkStripMeasurementDet>& stripDets() const {return theStripDets;}
   const std::vector<TkPixelMeasurementDet>& pixelDets() const {return thePixelDets;}
   const std::vector<TkGluedMeasurementDet>& gluedDets() const {return theGluedDets;}
+  const std::vector<TkStackMeasurementDet>& stackDets() const {return theStackDets;}
 
-  virtual const StMeasurementConditionSet & stripDetConditions() const { return theStDetConditions; }
-  virtual const PxMeasurementConditionSet & pixelDetConditions() const { return thePxDetConditions; }
+  const StMeasurementConditionSet & stripDetConditions() const override { return theStDetConditions; }
+  const PxMeasurementConditionSet & pixelDetConditions() const override { return thePxDetConditions; }
+  const Phase2OTMeasurementConditionSet & phase2DetConditions() const override { return thePhase2DetConditions; }
 
  protected:
   const edm::ParameterSet& pset_;
@@ -107,28 +115,37 @@ public:
 
   StMeasurementConditionSet theStDetConditions;
   PxMeasurementConditionSet thePxDetConditions;
+  Phase2OTMeasurementConditionSet thePhase2DetConditions;
 
   DetContainer                        theDetMap;
 
   std::vector<TkPixelMeasurementDet> thePixelDets;
   std::vector<TkStripMeasurementDet> theStripDets;
+  std::vector<TkPhase2OTMeasurementDet> thePhase2Dets;
   std::vector<TkGluedMeasurementDet> theGluedDets;
+  std::vector<TkStackMeasurementDet> theStackDets;
 
   const SiPixelFedCabling*              thePixelCabling;
 
-  void initialize();
+  void initialize(const TrackerTopology* trackerTopology);
   void initStMeasurementConditionSet(std::vector<TkStripMeasurementDet> & stripDets);
   void initPxMeasurementConditionSet(std::vector<TkPixelMeasurementDet> & pixelDets);
+  void initPhase2OTMeasurementConditionSet(std::vector<TkPhase2OTMeasurementDet> & phase2Dets);
 
   void addStripDet( const GeomDet* gd);
   void addPixelDet( const GeomDet* gd);
+  void addPhase2Det( const GeomDet* gd);
 
   void addGluedDet( const GluedGeomDet* gd);
-  void initGluedDet( TkGluedMeasurementDet & det);
+  void addStackDet( const StackGeomDet* gd);
 
-  void addPixelDets( const TrackingGeometry::DetContainer& dets);
+  void initGluedDet( TkGluedMeasurementDet & det, const TrackerTopology* trackerTopology);
+  void initStackDet( TkStackMeasurementDet & det);
 
-  void addStripDets( const TrackingGeometry::DetContainer& dets);
+  void addDets( const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT);
+
+  bool checkDets();
+
 
   void initializeStripStatus (const SiStripQuality *stripQuality, int qualityFlags, int qualityDebugFlags);
 

@@ -51,7 +51,7 @@ int FWEventItem::maxLayerValue()
 //
 FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
-                         boost::shared_ptr<FWItemAccessorBase> iAccessor,
+                         std::shared_ptr<FWItemAccessorBase> iAccessor,
                          const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbc) :
    m_context(iContext),
    m_id(iId),
@@ -64,12 +64,13 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_moduleLabel(iDesc.moduleLabel()),
    m_productInstanceLabel(iDesc.productInstanceLabel()),
    m_processName(iDesc.processName()),
-   m_event(0),
+   m_event(nullptr),
    m_interestingValueGetter(edm::TypeWithDict(*(m_accessor->modelType()->GetTypeInfo())), m_purpose),
    m_filter(iDesc.filterExpression(),""),
    m_printedErrorThisEvent(false),
    m_isSelected(false),
-   m_proxyBuilderConfig(0)
+   m_origColor(0),
+   m_proxyBuilderConfig(nullptr)
 {
    //assert(m_type->GetTypeInfo());
    //edm::TypeWithDict dataType(*(m_type->GetTypeInfo()));
@@ -90,6 +91,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    }
    m_filter.setClassName(modelType()->GetName());
    m_proxyBuilderConfig = new FWProxyBuilderConfiguration(pbc, this);
+   m_origColor = iDesc.displayProperties().color();
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
 // {
@@ -309,7 +311,7 @@ FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iProps)
 void
 FWEventItem::moveToFront()
 {
-   assert(0!=m_context->eventItemsManager());
+   assert(nullptr!=m_context->eventItemsManager());
    int largest = layer();
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
           itEnd = m_context->eventItemsManager()->end();
@@ -332,7 +334,7 @@ FWEventItem::moveToFront()
 void
 FWEventItem::moveToBack()
 {
-   assert(0!=m_context->eventItemsManager());
+   assert(nullptr!=m_context->eventItemsManager());
    int smallest = layer();
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
                                            itEnd = m_context->eventItemsManager()->end();
@@ -355,7 +357,7 @@ FWEventItem::moveToBack()
 void
 FWEventItem::moveToLayer(int layer)
 {
-   assert(0!=m_context->eventItemsManager());
+   assert(nullptr!=m_context->eventItemsManager());
 
    m_layer = std::max(std::min(layer, maxLayerValue()), minLayerValue());
 
@@ -420,7 +422,7 @@ FWEventItem::data(const std::type_info& iInfo) const
          m_errorMessage=s.str();
          m_printedErrorThisEvent = true;
       }
-      return 0;
+      return nullptr;
    }
    
    return m_accessor->data();
@@ -443,7 +445,7 @@ void
 FWEventItem::getPrimaryData() const
 {
    //if(0!=m_data) return;
-   if(0!=m_accessor->data()) return;
+   if(nullptr!=m_accessor->data()) return;
    this->data(*(m_type->GetTypeInfo()));
 }
 
@@ -462,7 +464,7 @@ FWEventItem::layer() const
 bool
 FWEventItem::isInFront() const
 {
-   assert(0!=m_context->eventItemsManager());
+   assert(nullptr!=m_context->eventItemsManager());
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
                                            itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
@@ -477,7 +479,7 @@ FWEventItem::isInFront() const
 bool
 FWEventItem::isInBack() const
 {
-   assert(0!=m_context->eventItemsManager());
+   assert(nullptr!=m_context->eventItemsManager());
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
                                            itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
@@ -680,6 +682,20 @@ FWEventItem::errorMessage() const
 const FWGeometry* 
 FWEventItem::getGeom() const {
    return m_context->getGeom();
+}
+
+void FWEventItem::resetColor()
+{ 
+   m_displayProperties.setColor(m_origColor);
+
+   FWChangeSentry sentry(*(this->changeManager()));
+   for(int index=0; index <static_cast<int>(size()); ++index) {
+      m_itemInfos.at(index).m_displayProperties.setColor(m_origColor);
+      FWModelId id(this,index);
+      changeManager()->changed(id);
+   }
+
+   defaultDisplayPropertiesChanged_(this);
 }
 //
 // static member functions

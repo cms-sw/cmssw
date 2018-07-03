@@ -2,10 +2,10 @@
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <math.h>
+#include <cmath>
 
 /// Compute likelihood for a jet using the QGLikelihoodObject information and a set of variables
-float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObject> &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars){
+float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObject> &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars) const{
   if(!isValidRange(pt, rho, eta, QGLParamsColl->qgValidRange)) return -1;
 
   float Q=1., G=1.;
@@ -31,7 +31,7 @@ float QGLikelihoodCalculator::computeQGLikelihood(edm::ESHandle<QGLikelihoodObje
 
 
 /// Find matching entry in vector for a given eta, pt, rho, qgIndex and varIndex
-const QGLikelihoodObject::Entry* QGLikelihoodCalculator::findEntry(std::vector<QGLikelihoodObject::Entry> const &data, float eta, float pt, float rho, int qgIndex, int varIndex){
+const QGLikelihoodObject::Entry* QGLikelihoodCalculator::findEntry(std::vector<QGLikelihoodObject::Entry> const &data, float eta, float pt, float rho, int qgIndex, int varIndex) const{
   QGLikelihoodParameters myParameters;
   myParameters.Rho = rho;
   myParameters.Pt = pt;
@@ -53,7 +53,7 @@ const QGLikelihoodObject::Entry* QGLikelihoodCalculator::findEntry(std::vector<Q
 
 
 /// Check the valid range of this qg tagger
-bool QGLikelihoodCalculator::isValidRange(float pt, float rho, float eta, const QGLikelihoodCategory &qgValidRange){
+bool QGLikelihoodCalculator::isValidRange(float pt, float rho, float eta, const QGLikelihoodCategory &qgValidRange) const{
   if(pt < qgValidRange.PtMin) return false;
   if(pt > qgValidRange.PtMax) return false;
   if(rho < qgValidRange.RhoMin) return false;
@@ -65,7 +65,7 @@ bool QGLikelihoodCalculator::isValidRange(float pt, float rho, float eta, const 
 
 
 /// Return the smeared qgLikelihood value, given input x0 and parameters a, b, min and max
-float QGLikelihoodCalculator::smearingFunction(float x0, float a ,float b,float min,float max){
+float QGLikelihoodCalculator::smearingFunction(float x0, float a ,float b,float min,float max) const{
   float x=(x0-min)/(max-min);
   if(x<0.) x=0.;
   if(x>1.) x=1.;
@@ -78,7 +78,7 @@ float QGLikelihoodCalculator::smearingFunction(float x0, float a ,float b,float 
 }
 
 // Get systematic smearing
-float QGLikelihoodCalculator::systematicSmearing(edm::ESHandle<QGLikelihoodSystematicsObject> &QGLSystematicsColl, float pt, float eta, float rho, float qgValue, int qgIndex){
+float QGLikelihoodCalculator::systematicSmearing(edm::ESHandle<QGLikelihoodSystematicsObject> &QGLSystematicsColl, float pt, float eta, float rho, float qgValue, int qgIndex) const{
   if(qgValue < 0 || qgValue > 1) return -1.;
 
   QGLikelihoodParameters myParameters;

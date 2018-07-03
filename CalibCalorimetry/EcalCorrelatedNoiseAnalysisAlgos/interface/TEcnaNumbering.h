@@ -91,7 +91,7 @@ public:
   TEcnaNumbering();
   TEcnaNumbering(TEcnaObject*, const TString&);
   TEcnaNumbering(const TString&, const TEcnaParEcal*);
-  ~TEcnaNumbering();
+  ~TEcnaNumbering() override;
 
   void SetEcalSubDetector(const TString&);
   void SetEcalSubDetector(const TString&, const TEcnaParEcal*);
@@ -231,6 +231,6 @@ public:
 
   Int_t MaxCrysInStinEcna(const Int_t&, const Int_t&, const TString&); // for not connected and incomplete SC's
 
-  ClassDef(TEcnaNumbering,1)  //Channel Numbering for CNA
+  ClassDefOverride(TEcnaNumbering,1)  //Channel Numbering for CNA
 };
 #endif

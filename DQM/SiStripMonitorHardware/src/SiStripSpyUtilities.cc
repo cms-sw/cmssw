@@ -19,22 +19,22 @@ using edm::LogInfo;
 
 namespace sistrip {
   SpyUtilities::SpyUtilities() :
-    cabling_(0),
+    cabling_(nullptr),
     cacheId_(0),
-    detCabling_(0),
+    detCabling_(nullptr),
     cacheIdDet_(0),
     pedsCacheId_(0),
-    pedsHandle_(0),
+    pedsHandle_(nullptr),
     noiseCacheId_(0),
-    noiseHandle_(0)
+    noiseHandle_(nullptr)
   {
     
   }
   
   SpyUtilities::~SpyUtilities()
   {
-    if ( cabling_ ) cabling_ = 0;
-    if ( detCabling_ ) detCabling_ = 0;
+    if ( cabling_ ) cabling_ = nullptr;
+    if ( detCabling_ ) detCabling_ = nullptr;
   }
 
   const SiStripFedCabling*  SpyUtilities::getCabling( const edm::EventSetup& setup )
@@ -153,18 +153,18 @@ namespace sistrip {
       lFrame.baseline += val;
     }
 
-    if (channelDigis.size()>0) lFrame.baseline = lFrame.baseline/channelDigis.size();
+    if (!channelDigis.empty()) lFrame.baseline = lFrame.baseline/channelDigis.size();
     lFrame.digitalLow = min;
     lFrame.digitalHigh = max;
 
     const uint16_t threshold = static_cast<uint16_t>( (2.0 * static_cast<double>(max-min)) / 3.0 );
 
     if (aPrintDebug){
-//       if ( edm::isDebugEnabled() ) {
-// 	LogDebug("SiStripSpyUtilities") << "Channel with key: " << lFrame.detId
-// 					<< " Min: " << min << " Max: " << max
-// 					<< " Range: " << (max-min) << " Threshold: " << threshold;
-//       }
+      if ( edm::isDebugEnabled() ) {
+	LogDebug("SiStripSpyUtilities") << "Channel with key: " << lFrame.detId
+					<< " Min: " << min << " Max: " << max
+					<< " Range: " << (max-min) << " Threshold: " << threshold;
+      }
       if (numzeroes>0 || numsats>0) {
 	edm::LogWarning("SiStripSpyUtilities") << "Channel with key: " << lFrame.detId << " has "
 					       << numzeroes << " zero and "

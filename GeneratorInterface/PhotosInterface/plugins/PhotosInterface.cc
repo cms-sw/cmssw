@@ -344,7 +344,7 @@ void PhotosInterface::attachParticles( HepMC::GenEvent* evt, HepMC::GenVertex* v
 	       
 	       secVtxStorage.push_back( endVtx->barcode() );
 	    
-	       HepMC::FourVector mom4 = prt->momentum();
+	       const HepMC::FourVector& mom4 = prt->momentum();
 	    
 	       // now rescale all descendants
 	       double bet1[3], bet2[3], gam1, gam2, pb;

@@ -13,10 +13,10 @@ class MonRunDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonRunDat();
-  ~MonRunDat();
+  ~MonRunDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_RUN_DAT"; }
+  inline std::string getTable() override { return "MON_RUN_DAT"; }
 
   inline void setNumEvents(int num) { m_numEvents = num; }
   inline int getNumEvents() const { return m_numEvents; }
@@ -35,13 +35,13 @@ class MonRunDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonRunDat* item, MonRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_numEvents;

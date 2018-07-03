@@ -21,7 +21,6 @@ namespace edm {
   class ProductID;
 
   namespace detail {
-#ifndef __GCCXML__
 
     template <class COLLECTION>
     void
@@ -44,14 +43,6 @@ namespace edm {
         helpers.emplace_back(id,key);
       }
     }
-#else
-    template <class COLLECTION>
-    void
-    reallyFillView(COLLECTION const& coll,
-                   ProductID const& id,
-                   std::vector<void const*>& ptrs,
-                   FillViewHelperVector& helpers);
-#endif
   }
   template <class T, class A>
   void

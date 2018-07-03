@@ -32,6 +32,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoParticleFlow/PFClusterTools/interface/LinkByRecHit.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "TMath.h"
 using namespace std;
@@ -112,12 +113,9 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
   //create the empty collections 
-  auto_ptr< GsfPFRecTrackCollection > 
-    gsfPFRecTrackCollection(new GsfPFRecTrackCollection);
-
+  auto gsfPFRecTrackCollection = std::make_unique<GsfPFRecTrackCollection>();
   
-  auto_ptr< GsfPFRecTrackCollection > 
-    gsfPFRecTrackCollectionSecondary(new GsfPFRecTrackCollection);
+  auto gsfPFRecTrackCollectionSecondary = std::make_unique<GsfPFRecTrackCollection>();
 
   //read collections of tracks
   Handle<GsfTrackCollection> gsftrackscoll;
@@ -171,6 +169,16 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   vector<reco::GsfPFRecTrack> primaryGsfPFRecTracks;
   std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >  GsfPFMap;
   
+  for( unsigned igsf = 0; igsf < gsftracks.size(); igsf++ ) {
+    GsfTrackRef trackRef(gsftrackscoll, igsf);
+    gsfInnerMomentumCache_.push_back(trackRef->pMode());
+    TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*trackRef));
+    GlobalVector i_innMom;
+    if(i_inTSOS.isValid()){
+      mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
+      gsfInnerMomentumCache_.back() = i_innMom.mag();
+    }
+  }
 
   for (unsigned int igsf=0; igsf<gsftracks.size();igsf++) {
     
@@ -186,16 +194,17 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
       // remove fifth step tracks
       if( useFifthStepForEcalDriven_ == false
 	  || useFifthStepForTrackDriven_ == false) {
-	bool isFifthStepTrack = isFifthStep(kf_ref);
+	
+	bool isFifthStepTrack = PFTrackAlgoTools::isFifthStep(kf_ref->trackRef()->algo());
 	bool isEcalDriven = true;
 	bool isTrackerDriven = true;
 	
-	if (&(*trackRef->seedRef())==0) {
+	if (&(*trackRef->seedRef())==nullptr) {
 	  isEcalDriven = false;
 	  isTrackerDriven = false;
 	}
 	else {
-	  auto const& SeedFromRef= dynamic_cast<ElectronSeed const&>(*(trackRef->extra()->seedRef()) );
+	  auto const& SeedFromRef= static_cast<ElectronSeed const&>(*(trackRef->extra()->seedRef()) );
 	  if(SeedFromRef.caloCluster().isNull())
 	    isEcalDriven = false;
 	  if(SeedFromRef.ctfTrack().isNull())
@@ -260,7 +269,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   
   unsigned int count_primary = 0;
-  if(selGsfPFRecTracks.size() > 0) {
+  if(!selGsfPFRecTracks.empty()) {
     for(unsigned int ipfgsf=0; ipfgsf<selGsfPFRecTracks.size();ipfgsf++) {
       
       vector<unsigned int> secondaries(0);
@@ -296,7 +305,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	// A MODIFICATION HERE IMPLIES A MODIFICATION IN PFBLOCKALGO.CC/H
 	unsigned int primGsfIndex = selGsfPFRecTracks[ipfgsf].trackId();
 	vector<reco::GsfPFRecTrack> trueGsfPFRecTracks;
-	if(secondaries.size() > 0) {
+	if(!secondaries.empty()) {
 	  // loop on secondaries gsf tracks (from converted brems)
 	  for(unsigned int isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
 	    
@@ -348,7 +357,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   
   
   const edm::OrphanHandle<GsfPFRecTrackCollection> gsfPfRefProd = 
-    iEvent.put(gsfPFRecTrackCollectionSecondary,"Secondary");
+    iEvent.put(std::move(gsfPFRecTrackCollectionSecondary),"Secondary");
   
   
   //now the secondary GsfPFRecTracks are in the event, the Ref can be created
@@ -357,11 +366,13 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   for(unsigned int iGSF = 0; iGSF<primaryGsfPFRecTracks.size();iGSF++){
     gsfPFRecTrackCollection->push_back(primaryGsfPFRecTracks[iGSF]);
   }
-  iEvent.put(gsfPFRecTrackCollection);
+  iEvent.put(std::move(gsfPFRecTrackCollection));
 
   selGsfPFRecTracks.clear();
   GsfPFMap.clear();
   primaryGsfPFRecTracks.clear();
+
+  std::vector<double>().swap(gsfInnerMomentumCache_);
 }
   
 // create the secondary GsfPFRecTracks Ref
@@ -390,8 +401,8 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
 			    bool otherColl){
 
 
-  if (&(*gsftk.seedRef())==0) return -1;
-  auto const &  ElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
+  if (&(*gsftk.seedRef())==nullptr) return -1;
+  auto const &  ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
   if (ElSeedFromRef.ctfTrack().isNull()){
     reco::PFRecTrackCollection::const_iterator pft=PfRTkColl.begin();
@@ -467,56 +478,17 @@ PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection  & PfRTkColl,
   }
   return -1;
 }
-bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
 
-  bool isFithStep = false;
-  
-
-  TrackRef kfref = pfKfTrack->trackRef();
-  unsigned int Algo = 0; 
-  switch (kfref->algo()) {
-  case TrackBase::undefAlgorithm:
-  case TrackBase::ctf:
-  case TrackBase::initialStep:
-  case TrackBase::lowPtTripletStep:
-  case TrackBase::pixelPairStep:
-  case TrackBase::jetCoreRegionalStep:
-  case TrackBase::muonSeededStepInOut:
-  case TrackBase::muonSeededStepOutIn:
-    Algo = 0;
-    break;
-  case TrackBase::detachedTripletStep:
-    Algo = 1;
-    break;
-  case TrackBase::mixedTripletStep:
-    Algo = 2;
-    break;
-  case TrackBase::pixelLessStep:
-    Algo = 3;
-    break;
-  case TrackBase::tobTecStep:
-    Algo = 4;
-    break;
-  default:
-    Algo = 5;
-    break;
-  }
-  if ( Algo >= 4 ) {
-    isFithStep = true;
-  }
-
-  return isFithStep;
-}
 // -- method to apply gsf electron selection to EcalDriven seeds
 bool 
 PFElecTkProducer::applySelection(const reco::GsfTrack& gsftk) {
-  if (&(*gsftk.seedRef())==0) return false;
-  auto const& ElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
+  if (&(*gsftk.seedRef())==nullptr) return false;
+  auto const& ElSeedFromRef=static_cast<ElectronSeed const&>( *(gsftk.extra()->seedRef()) );
 
   bool passCut = false;
   if (ElSeedFromRef.ctfTrack().isNull()){
     if(ElSeedFromRef.caloCluster().isNull()) return passCut;
-    auto const* scRef = dynamic_cast<SuperCluster const*>(ElSeedFromRef.caloCluster().get());
+    auto const* scRef = static_cast<SuperCluster const*>(ElSeedFromRef.caloCluster().get());
     //do this just to know if exist a SC? 
     if(scRef) {
       float caloEne = scRef->energy();
@@ -541,12 +513,12 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   bool debugCleaning = debugGsfCleaning_;
   bool n_keepGsf = true;
 
-  reco::GsfTrackRef nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
+  const reco::GsfTrackRef& nGsfTrack = GsfPFVec[ngsf].gsfTrackRef();
   
-  if (&(*nGsfTrack->seedRef())==0) return false;    
-  auto const& nElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(nGsfTrack->extra()->seedRef()) );
-
-
+  if (&(*nGsfTrack->seedRef())==nullptr) return false;    
+  auto const& nElSeedFromRef=static_cast<ElectronSeed const&>( *(nGsfTrack->extra()->seedRef()) );
+  
+  /* // now gotten from cache below
   TrajectoryStateOnSurface inTSOS = mtsTransform_.innerStateOnSurface((*nGsfTrack));
   GlobalVector ninnMom;
   float nPin =  nGsfTrack->pMode();
@@ -554,6 +526,8 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
     mtsMode_->momentumFromModeCartesian(inTSOS,ninnMom);
     nPin = ninnMom.mag();
   }
+  */
+  float nPin = gsfInnerMomentumCache_[nGsfTrack.key()];
 
   float neta = nGsfTrack->innerMomentum().eta();
   float nphi = nGsfTrack->innerMomentum().phi();
@@ -586,6 +560,7 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	if(debugCleaning)
 	  cout << " Entering angular superloose preselection " << endl;
 	
+        /* //now taken from cache below
 	TrajectoryStateOnSurface i_inTSOS = mtsTransform_.innerStateOnSurface((*iGsfTrack));
 	GlobalVector i_innMom;
 	float iPin = iGsfTrack->pMode();
@@ -593,9 +568,11 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 	  mtsMode_->momentumFromModeCartesian(i_inTSOS,i_innMom);  
 	  iPin = i_innMom.mag();
 	}
+        */
+        float iPin = gsfInnerMomentumCache_[iGsfTrack.key()];
 
-	if (&(*iGsfTrack->seedRef())==0) continue;   
-	auto const& iElSeedFromRef=dynamic_cast<ElectronSeed const&>( *(iGsfTrack->extra()->seedRef()) );
+	if (&(*iGsfTrack->seedRef())==nullptr) continue;   
+	auto const& iElSeedFromRef=static_cast<ElectronSeed const&>( *(iGsfTrack->extra()->seedRef()) );
 
 	float SCEnergy = -1.;
 	// Check if two tracks match the same SC     
@@ -856,8 +833,8 @@ PFElecTkProducer::isSameEgSC(const reco::ElectronSeed& nSeed,
   bool isSameSC = false;
 
   if(nSeed.caloCluster().isNonnull() && iSeed.caloCluster().isNonnull()) {
-    auto const* nscRef = dynamic_cast<SuperCluster const*>(nSeed.caloCluster().get());
-    auto const* iscRef = dynamic_cast<SuperCluster const*>(iSeed.caloCluster().get());
+    auto const* nscRef = static_cast<SuperCluster const*>(nSeed.caloCluster().get());
+    auto const* iscRef = static_cast<SuperCluster const*>(iSeed.caloCluster().get());
 
     if(nscRef && iscRef) {
       bothGsfEcalDriven = true;
@@ -890,14 +867,14 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
   GsfPFRecTrack gsfPfTrack;
 
   if(nSeed.caloCluster().isNonnull()) {
-    scRef = dynamic_cast<SuperCluster const*>(nSeed.caloCluster().get());
+    scRef = static_cast<SuperCluster const*>(nSeed.caloCluster().get());
     assert(scRef);
     nEnergy = scRef->energy();
     nEcalDriven = true;
     gsfPfTrack = iGsfPFRecTrack;
   }
   else if(iSeed.caloCluster().isNonnull()){
-    scRef = dynamic_cast<SuperCluster const*>(iSeed.caloCluster().get());
+    scRef = static_cast<SuperCluster const*>(iSeed.caloCluster().get());
     assert(scRef);
     iEnergy = scRef->energy();
     iEcalDriven = true;
@@ -926,7 +903,6 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // Angle preselection between the supercluster and pfclusters
       // this is needed just to save some cpu-time for this is hard-coded     
       if(deta < 0.5 && fabs(dphi) < 1.0) {
-	bool foundLink = false;
 	double distGsf = gsfPfTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 	  LinkByRecHit::testTrackAndClusterByRecHit(gsfPfTrack , clust ) : -1.;
 	// check if it touch the GsfTrack
@@ -936,10 +912,9 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	  else
 	    nEnergy += clust.energy();
 	  vecPFClusters.push_back(clust);
-	  foundLink = true;
 	}
 	// check if it touch the Brem-tangents
-	if(foundLink == false) {
+	else {
 	  vector<PFBrem> primPFBrem = gsfPfTrack.PFRecBrem();
 	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
@@ -952,13 +927,12 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	      else
 		nEnergy += clust.energy();
 	      vecPFClusters.push_back(clust);
-	      foundLink = true;
 	    }
 	  }	
 	}  
-      } // END if anble preselection
+      } // END if angle preselection
     } // PFClusters Loop
-    if(vecPFClusters.size() > 0 ) {
+    if(!vecPFClusters.empty() ) {
       for(unsigned int pf = 0; pf < vecPFClusters.size(); pf++) {
 	bool isCommon = ClusterClusterMapping::overlap(vecPFClusters[pf],*scRef);
 	if(isCommon) {
@@ -990,28 +964,24 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // Apply loose preselection with the track
       // just to save cpu time, for this hard-coded
       if(ndeta < 0.5 && fabs(ndphi) < 1.0) {
-	bool foundNLink = false;
 	
 	double distGsf = nGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 	  LinkByRecHit::testTrackAndClusterByRecHit(nGsfPFRecTrack , clust ) : -1.;
 	if(distGsf > 0.) {
 	  nPFCluster.push_back(clust);
 	  nEnergy += clust.energy();
-	  foundNLink = true;
 	}
-	if(foundNLink == false) {
+	else {
 	  const vector<PFBrem>& primPFBrem = nGsfPFRecTrack.PFRecBrem();
 	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
 	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
-	    if(foundNLink == false) {
-	      double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+	    double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 		LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true ) : -1.;
-	      if(dist > 0.) {
-		nPFCluster.push_back(clust);
-		nEnergy += clust.energy();
-		foundNLink = true;
-	      }
+	    if(dist > 0.) {
+	      nPFCluster.push_back(clust);
+	      nEnergy += clust.energy();
+	      break;
 	    }
 	  }
 	}
@@ -1023,26 +993,22 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // Apply loose preselection with the track
       // just to save cpu time, for this hard-coded
       if(ideta < 0.5 && fabs(idphi) < 1.0) {
-	bool foundILink = false;
 	double dist = iGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 	  LinkByRecHit::testTrackAndClusterByRecHit(iGsfPFRecTrack , clust ) : -1.;
 	if(dist > 0.) {
 	  iPFCluster.push_back(clust);
 	  iEnergy += clust.energy();
-	  foundILink = true;
 	}
-	if(foundILink == false) {
+	else {
 	  vector<PFBrem> primPFBrem = iGsfPFRecTrack.PFRecBrem();
 	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
 	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
-	    if(foundILink == false) {
-	      double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
-	      if(dist > 0.) {
-		iPFCluster.push_back(clust);
-		iEnergy += clust.energy();
-		foundILink = true;
-	      }
+	    double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
+	    if(dist > 0.) {
+	      iPFCluster.push_back(clust);
+	      iEnergy += clust.energy();
+	      break;
 	    }
 	  }
 	}
@@ -1050,7 +1016,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
     }
 
 
-    if(nPFCluster.size() > 0 && iPFCluster.size() > 0) {
+    if(!nPFCluster.empty() && !iPFCluster.empty()) {
       for(unsigned int npf = 0; npf < nPFCluster.size(); npf++) {
 	for(unsigned int ipf = 0; ipf < iPFCluster.size(); ipf++) {
 	  bool isCommon = ClusterClusterMapping::overlap(nPFCluster[npf],iPFCluster[ipf]);

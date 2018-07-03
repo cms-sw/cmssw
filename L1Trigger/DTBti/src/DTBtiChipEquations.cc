@@ -86,7 +86,7 @@ DTBtiChip::sum(const int s, const int a, const int b) {
   // s is the sum number (in the range [1,25])
   //
 
-  if( _thisStepUsedHit[a-1]!=0 && _thisStepUsedHit[b-1]!=0 ){
+  if( _thisStepUsedHit[a-1]!=nullptr && _thisStepUsedHit[b-1]!=nullptr ){
     _sums[s-1] = (float)(_thisStepUsedHit[a-1]->jtrig() +
                          _thisStepUsedHit[b-1]->jtrig()  );
     _difs[s-1] = (float)(_thisStepUsedHit[a-1]->jtrig() -
@@ -177,19 +177,19 @@ DTBtiChip::computeEqs(){
 
   float TshiftB = 0;
   float TshiftC = 0;
-  if(_thisStepUsedHit[3-1]==0){
-    if(_hits[3-1].size()==0 )
+  if(_thisStepUsedHit[3-1]==nullptr){
+    if(_hits[3-1].empty() )
       TshiftB = 0;
-    if(_hits[3-1].size()>0 && (*(_hits[3-1].begin()))->clockTime()<=-K0 )
+    if(!_hits[3-1].empty() && (*(_hits[3-1].begin()))->clockTime()<=-K0 )
       TshiftB = K0+1; 
   }
   else
    TshiftB = _thisStepUsedHit[3-1]->jtrig();  
 
-  if(_thisStepUsedHit[2-1]==0){
-    if(_hits[2-1].size()==0 )
+  if(_thisStepUsedHit[2-1]==nullptr){
+    if(_hits[2-1].empty() )
       TshiftC = 0;
-    if(_hits[2-1].size()>0 && (*(_hits[2-1].begin()))->clockTime()<=-K0 )
+    if(!_hits[2-1].empty() && (*(_hits[2-1].begin()))->clockTime()<=-K0 )
       TshiftC = K0+1; 
   }
   else

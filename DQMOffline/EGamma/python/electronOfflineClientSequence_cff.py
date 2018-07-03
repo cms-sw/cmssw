@@ -6,6 +6,10 @@ dqmElectronClientAllElectrons = dqmElectronOfflineClient.clone() ;
 dqmElectronClientAllElectrons.InputFolderName = cms.string("Egamma/Electrons/Ele2_All") ;
 dqmElectronClientAllElectrons.OutputFolderName = cms.string("Egamma/Electrons/Ele2_All") ;
 
+dqmElectronClientAllElectronsFromMultiCl = dqmElectronOfflineClient.clone() ;
+dqmElectronClientAllElectronsFromMultiCl.InputFolderName = cms.string("Egamma/Electrons/Ele2FromMultiCl_All") ;
+dqmElectronClientAllElectronsFromMultiCl.OutputFolderName = cms.string("Egamma/Electrons/Ele2FromMultiCl_All") ;
+
 dqmElectronClientSelectionEt = dqmElectronOfflineClient.clone() ;
 dqmElectronClientSelectionEt.InputFolderName = cms.string("Egamma/Electrons/Ele3_Et10") ;
 dqmElectronClientSelectionEt.OutputFolderName = cms.string("Egamma/Electrons/Ele3_Et10") ;
@@ -30,3 +34,11 @@ electronOfflineClientSequence = cms.Sequence(
 # * dqmElectronClientSelectionEtIsoElID
  * dqmElectronClientTagAndProbe
 )
+_electronOfflineClientSequenceFromMultiCl = electronOfflineClientSequence.copy()
+_electronOfflineClientSequenceFromMultiCl += dqmElectronClientAllElectronsFromMultiCl
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith(
+  electronOfflineClientSequence, _electronOfflineClientSequenceFromMultiCl
+)
+

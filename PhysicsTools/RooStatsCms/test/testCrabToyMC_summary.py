@@ -42,13 +42,13 @@ targz_files=[]
 
 # retrieve the targz files
 for directory in sys.argv[1:]:
-    for targzfile in filter(lambda name: ".tgz" in name, os.listdir(directory)):
+    for targzfile in [name for name in os.listdir(directory) if ".tgz" in name]:
         targz_files.append(directory+"/"+targzfile)
 
 # inspect them
 for targzfile in targz_files:
     f = tarfile.open(targzfile,"r:gz")
-    for txtfilename in filter(lambda name: ".txt" in name, f.getnames()):
+    for txtfilename in [name for name in f.getnames() if ".txt" in name]:
         print "Xtracting ",txtfilename
         txtfile = f.extractfile(txtfilename)
         for line in txtfile.readlines():

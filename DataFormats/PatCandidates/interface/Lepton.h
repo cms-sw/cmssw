@@ -21,6 +21,7 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
 
 
 namespace pat {
@@ -35,9 +36,9 @@ namespace pat {
       Lepton(const LeptonType & aLepton);
       Lepton(const edm::RefToBase<LeptonType> & aLeptonRef);
       Lepton(const edm::Ptr<LeptonType> & aLeptonRef);
-      virtual ~Lepton();
+      ~Lepton() override;
 
-      virtual Lepton<LeptonType> * clone() const { return new Lepton<LeptonType>(*this); }
+      Lepton<LeptonType> * clone() const override { return new Lepton<LeptonType>(*this); }
 
       const reco::GenParticle * genLepton() const { return PATObject<LeptonType>::genParticle(); }
 
@@ -168,7 +169,7 @@ namespace pat {
           {
               if (it->first == key) return & it->second;
           }
-          return 0;
+          return nullptr;
       } 
 
       /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
@@ -192,12 +193,16 @@ namespace pat {
       void hcalIsoDeposit(const IsoDeposit &dep)  { setIsoDeposit(pat::HcalIso, dep); }
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
+      const PFIsolation& miniPFIsolation() const { return miniPFIsolation_; }
+      void setMiniPFIsolation(PFIsolation const& iso)  { miniPFIsolation_ = iso; }
 
     protected:
       // --- Isolation and IsoDeposit related datamebers ---
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
+
+      PFIsolation miniPFIsolation_;
   };
 
 
@@ -209,6 +214,7 @@ namespace pat {
     this->setCharge(0);
     this->setP4(reco::Particle::LorentzVector(0, 0, 0, 0));
     this->setVertex(reco::Particle::Point(0, 0, 0));
+    this->setMiniPFIsolation(pat::PFIsolation());
   }
 
 
@@ -216,6 +222,7 @@ namespace pat {
   template <class LeptonType>
   Lepton<LeptonType>::Lepton(const LeptonType & aLepton) :
     PATObject<LeptonType>(aLepton) {
+    this->setMiniPFIsolation(pat::PFIsolation());
   }
 
 
@@ -223,6 +230,7 @@ namespace pat {
   template <class LeptonType>
   Lepton<LeptonType>::Lepton(const edm::RefToBase<LeptonType> & aLeptonRef) :
     PATObject<LeptonType>(aLeptonRef) {
+    this->setMiniPFIsolation(pat::PFIsolation());
   }
 
 
@@ -230,6 +238,7 @@ namespace pat {
   template <class LeptonType>
   Lepton<LeptonType>::Lepton(const edm::Ptr<LeptonType> & aLeptonRef) :
     PATObject<LeptonType>(aLeptonRef) {
+    this->setMiniPFIsolation(pat::PFIsolation());
   }
 
 

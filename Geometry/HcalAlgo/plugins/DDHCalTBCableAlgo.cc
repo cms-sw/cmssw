@@ -7,8 +7,8 @@
 #include <algorithm>
 
 namespace std{} using namespace std;
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -84,22 +84,22 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
   double rstep1 = rin + (zstep1-zstep0)/tan(theta[2]);
 
   vector<double> pgonZ;
-  pgonZ.push_back(zstep0); 
-  pgonZ.push_back(zstep1);
-  pgonZ.push_back(zstep2); 
-  pgonZ.push_back(zstep2+thick/cos(theta[2])); 
+  pgonZ.emplace_back(zstep0); 
+  pgonZ.emplace_back(zstep1);
+  pgonZ.emplace_back(zstep2); 
+  pgonZ.emplace_back(zstep2+thick/cos(theta[2])); 
 
   vector<double> pgonRmin;
-  pgonRmin.push_back(rin); 
-  pgonRmin.push_back(rin);
-  pgonRmin.push_back(rstep0); 
-  pgonRmin.push_back(rmax[2]); 
+  pgonRmin.emplace_back(rin); 
+  pgonRmin.emplace_back(rin);
+  pgonRmin.emplace_back(rstep0); 
+  pgonRmin.emplace_back(rmax[2]); 
 
   vector<double> pgonRmax;
-  pgonRmax.push_back(rin); 
-  pgonRmax.push_back(rstep1); 
-  pgonRmax.push_back(rmax[2]); 
-  pgonRmax.push_back(rmax[2]); 
+  pgonRmax.emplace_back(rin); 
+  pgonRmax.emplace_back(rstep1); 
+  pgonRmax.emplace_back(rmax[2]); 
+  pgonRmax.emplace_back(rmax[2]); 
 
   string name("Null");
   DDSolid solid;
@@ -161,7 +161,7 @@ void DDHCalTBCableAlgo::execute(DDCompactView& cpv) {
     if (phideg != 0) {
       rotstr = "R"; 
       if (phideg < 100)	rotstr = "R0"; 
-      rotstr = rotstr + dbl_to_string(phideg);
+      rotstr = rotstr + std::to_string(phideg);
       rotation = DDRotation(DDName(rotstr, rotns)); 
       if (!rotation) {
 	LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: Creating a new "

@@ -52,7 +52,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     if(MinP_CMS < 0) MinP_CMS = MinP;
 
     // set up the generator
-    CosMuoGen = new CosmicMuonGenerator();
+    CosMuoGen = std::make_unique<CosmicMuonGenerator>();
 // Begin JMM change
 //  CosMuoGen->setNumberOfEvents(numberEventsInRun());
     CosMuoGen->setNumberOfEvents(999999999);
@@ -91,15 +91,12 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     CosMuoGen->setMaxEnu(MaxEn);    
     CosMuoGen->setNuProdAlt(NuPrdAlt);
     CosMuoGen->setAcptAllMu(AllMu);
-    produces<HepMCProduct>();
+    produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    produces<GenRunInfoProduct, edm::InRun>();
+    produces<GenRunInfoProduct, edm::Transition::EndRun>();
   }
 
 edm::CosMuoGenProducer::~CosMuoGenProducer(){
-  //CosMuoGen->terminate();
-  delete CosMuoGen;
-  //  delete fEvt;
   clear();
 }
 
@@ -107,14 +104,14 @@ void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, E
 {
   if(!isInitialized_) {
     isInitialized_ = true;
-    RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, lumi.index());
+    RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen.get(), lumi.index());
     CosMuoGen->initialize(randomEngineSentry.randomEngine());
   }
 }
 
 void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
 {
-  std::auto_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
+  std::unique_ptr<GenRunInfoProduct> genRunInfo(new GenRunInfoProduct());
 
   double cs = CosMuoGen->getRate(); // flux in Hz, not s^-1m^-2
   if (MultiMuon) genRunInfo->setInternalXSec(0.);
@@ -122,7 +119,7 @@ void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
   genRunInfo->setExternalXSecLO(extCrossSect);
   genRunInfo->setFilterEfficiency(extFilterEff);
 
-  run.put(genRunInfo);
+  run.put(std::move(genRunInfo));
 
   CosMuoGen->terminate();
 }
@@ -131,7 +128,7 @@ void edm::CosMuoGenProducer::clear(){}
 
 void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 {  
-  RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, e.streamID());
+  RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen.get(), e.streamID());
 
   // generate event
   if (!MultiMuon) {
@@ -177,7 +174,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
   }
 
 
-  fEvt = new HepMC::GenEvent();
+  auto fEvt = std::make_unique<HepMC::GenEvent>();
   
   HepMC::GenVertex* Vtx_at = new  HepMC::GenVertex(HepMC::FourVector(CosMuoGen->Vx_at, //[mm]
   							     CosMuoGen->Vy_at, //[mm]
@@ -232,11 +229,11 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 
   if (cmVerbosity_) fEvt->print();
 
-  std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
-  CMProduct->addHepMCData( fEvt );
-  e.put(CMProduct);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt.get() ));
+  e.put(std::move(genEventInfo));
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
-  e.put(genEventInfo);
-
+  //This causes fEvt to be deleted
+  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  CMProduct->addHepMCData( fEvt.release() );
+  e.put(std::move(CMProduct), "unsmeared");
 }

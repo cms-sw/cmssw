@@ -28,7 +28,7 @@ public:
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-   virtual void produce(edm::Event&, const edm::EventSetup&) override;
+   void produce(edm::Event&, const edm::EventSetup&) override;
 
 
    void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
@@ -66,7 +66,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
      if(residualsFromTxt_) residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
      std::vector<edm::ParameterSet> algos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
      
-     jecCor_ = 0;
+     jecCor_ = nullptr;
  
      if( ! runMvas_ ) assert( algos.size() == 1 );
      
@@ -145,7 +145,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
          }
          
          bool applyJec = applyJec_ || !inputIsCorrected_;
-         reco::Jet * corrJet = 0;
+         reco::Jet * corrJet = nullptr;
          if( applyJec ) {
              float scale = jec;
                          corrJet = dynamic_cast<reco::Jet *>( jet.clone() );
@@ -181,27 +181,27 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
      if( runMvas_ ) {
          for(vector<pair<string,MVAJetPuId *> >::iterator ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
              vector<float> & mva = mvas[ialgo->first];
-             auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
+             auto mvaout = std::make_unique<ValueMap<float>>();
              ValueMap<float>::Filler mvafiller(*mvaout);
              mvafiller.insert(jetHandle,mva.begin(),mva.end());
              mvafiller.fill();
-             iEvent.put(mvaout,ialgo->first+"Discriminant");
+             iEvent.put(std::move(mvaout),ialgo->first+"Discriminant");
              
              vector<int> & idflag = idflags[ialgo->first];
-             auto_ptr<ValueMap<int> > idflagout(new ValueMap<int>());
+             auto idflagout = std::make_unique<ValueMap<int>>();
              ValueMap<int>::Filler idflagfiller(*idflagout);
              idflagfiller.insert(jetHandle,idflag.begin(),idflag.end());
              idflagfiller.fill();
-             iEvent.put(idflagout,ialgo->first+"Id");
+             iEvent.put(std::move(idflagout),ialgo->first+"Id");
          }
      }
      if( produceJetIds_ ) {
          assert( jetHandle->size() == ids.size() );
-         auto_ptr<ValueMap<StoredPileupJetIdentifier> > idsout(new ValueMap<StoredPileupJetIdentifier>());
+         auto idsout = std::make_unique<ValueMap<StoredPileupJetIdentifier>>();
          ValueMap<StoredPileupJetIdentifier>::Filler idsfiller(*idsout);
          idsfiller.insert(jetHandle,ids.begin(),ids.end());
          idsfiller.fill();
-         iEvent.put(idsout);
+         iEvent.put(std::move(idsout));
      }
  }
  
@@ -223,18 +223,18 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
     edm::ParameterSetDescription vpsd1;
     vpsd1.add<std::vector<std::string>>("tmvaVariables", {
       "rho",
-      "nTot",
-      "nCh",
-      "axisMajor",
-      "axisMinor",
-      "fRing0",
-      "fRing1",
-      "fRing2",
-      "fRing3",
+      "nParticles",
+      "nCharged",
+      "majW",
+      "minW",
+      "frac01",
+      "frac02",
+      "frac03",
+      "frac04",
       "ptD",
       "beta",
       "betaStar",
-      "DR_weighted",
+      "dR2Mean",
       "pull",
       "jetR",
       "jetRchg",

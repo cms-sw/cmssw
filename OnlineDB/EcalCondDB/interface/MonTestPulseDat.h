@@ -13,10 +13,10 @@ class MonTestPulseDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonTestPulseDat();
-  ~MonTestPulseDat();
+  ~MonTestPulseDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_TEST_PULSE_DAT"; }
+  inline std::string getTable() override { return "MON_TEST_PULSE_DAT"; }
 
   inline void setADCMeanG1(float mean) { m_adcMeanG1 = mean; }
   inline float getADCMeanG1() const { return m_adcMeanG1; }
@@ -41,17 +41,17 @@ class MonTestPulseDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonTestPulseDat* item, MonRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MonTestPulseDat >* data, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::map< EcalLogicID, MonTestPulseDat >* fillMap, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_adcMeanG1;

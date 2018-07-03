@@ -42,19 +42,19 @@ namespace edm {
   class PrintEventSetupContent : public one::EDAnalyzer<one::WatchRuns,one::WatchLuminosityBlocks> {
     public:
       explicit PrintEventSetupContent(ParameterSet const&);
-      ~PrintEventSetupContent();
+      ~PrintEventSetupContent() override;
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     private:
-      virtual void beginJob() override;
+      void beginJob() override;
 
-      virtual void analyze(Event const&, EventSetup const&) override;
-      virtual void endJob() override ;
-      virtual void beginRun(Run const&, EventSetup const&) override;
-      virtual void endRun(Run const&, EventSetup const&) override;
-      virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-      virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+      void analyze(Event const&, EventSetup const&) override;
+      void endJob() override ;
+      void beginRun(Run const&, EventSetup const&) override;
+      void endRun(Run const&, EventSetup const&) override;
+      void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+      void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
       void print(EventSetup const&);
 
@@ -129,9 +129,9 @@ namespace edm {
     for(Records::iterator itrecords = records.begin(), itrecordsend = records.end();
        itrecords != itrecordsend; ++itrecords ) {
 
-      eventsetup::EventSetupRecord const* rec = iSetup.find(*itrecords);
+      auto rec = iSetup.find(*itrecords);
 
-      if (0 != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
+      if (rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
         cacheIdentifiers_[*itrecords] = rec->cacheIdentifier();
         rec->fillRegisteredDataKeys(data);
         if (compact_) {

@@ -28,7 +28,7 @@ using namespace std;
 using namespace CLHEP;
 
 BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
-   fEvt(0)
+   fEvt(nullptr)
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
    Service<RandomNumberGenerator> rng;
@@ -75,7 +75,7 @@ BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
 
    fAddAntiParticle = pset.getParameter<bool>("AddAntiParticle") ;
 
-   produces<GenRunInfoProduct, InRun>();
+   produces<GenRunInfoProduct, Transition::EndRun>();
 }
 
 BaseFlatGunProducer::~BaseFlatGunProducer()
@@ -102,6 +102,6 @@ void BaseFlatGunProducer::endRunProduce(Run &run, const EventSetup& es )
    // just create an empty product
    // to keep the EventContent definitions happy
    // later on we might put the info into the run info that this is a PGun
-   auto_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
-   run.put( genRunInfo );
+   unique_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
+   run.put(std::move(genRunInfo));
 }

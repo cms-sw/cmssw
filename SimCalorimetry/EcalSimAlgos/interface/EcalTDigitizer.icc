@@ -13,7 +13,7 @@ EcalTDigitizer<Traits>::EcalTDigitizer( EcalHitResponse* hitResponse    ,
    m_hitResponse    ( hitResponse    ) ,
    m_electronicsSim ( electronicsSim ) ,
    m_addNoise       ( addNoise       ) ,
-   theNoiseSignalGenerator (0)
+   theNoiseSignalGenerator (nullptr)
 {
 }
 
@@ -55,7 +55,7 @@ EcalTDigitizer<Traits>::run( DigiCollection& output, CLHEP::HepRandomEngine* eng
 
    m_hitResponse->finalizeHits()  ;
 
-   if(theNoiseSignalGenerator != 0) {
+   if(theNoiseSignalGenerator != nullptr) {
 	addNoiseSignals();	
    }
 

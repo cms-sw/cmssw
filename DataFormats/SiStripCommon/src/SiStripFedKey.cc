@@ -82,15 +82,13 @@ SiStripFedKey::SiStripFedKey( const SiStripKey& input ) :
   fedApv_(sistrip::invalid_)
 {
   const SiStripFedKey& fed_key = dynamic_cast<const SiStripFedKey&>(input);
-  if ( (&fed_key) ) {
-    key(fed_key.key());
-    path(fed_key.path());
-    granularity(fed_key.granularity());
-    fedId_ = fed_key.fedId(); 
-    feUnit_ = fed_key.feUnit(); 
-    feChan_ = fed_key.feChan();
-    fedApv_ = fed_key.fedApv();
-  }
+  key(fed_key.key());
+  path(fed_key.path());
+  granularity(fed_key.granularity());
+  fedId_ = fed_key.fedId(); 
+  feUnit_ = fed_key.feUnit(); 
+  feChan_ = fed_key.feChan();
+  fedApv_ = fed_key.fedApv();
 }
 
 // -----------------------------------------------------------------------------
@@ -148,7 +146,6 @@ uint32_t SiStripFedKey::fedIndex( const uint16_t& fed_id,
 // 
 bool SiStripFedKey::isEqual( const SiStripKey& key ) const {
   const SiStripFedKey& input = dynamic_cast<const SiStripFedKey&>(key);
-  if ( !(&input) ) { return false; }
   if ( fedId_ == input.fedId() &&
        feUnit_ == input.feUnit() &&
        feChan_ == input.feChan() &&
@@ -161,7 +158,6 @@ bool SiStripFedKey::isEqual( const SiStripKey& key ) const {
 // 
 bool SiStripFedKey::isConsistent( const SiStripKey& key ) const {
   const SiStripFedKey& input = dynamic_cast<const SiStripFedKey&>(key);
-  if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return true; }
   else if ( ( fedId_ == 0 || input.fedId() == 0 ) &&
 	    ( feUnit_ == 0 || input.feUnit() == 0 ) &&
@@ -231,23 +227,17 @@ bool SiStripFedKey::isInvalid( const sistrip::Granularity& gran ) const {
 // 
 void SiStripFedKey::initFromValue() {
   
-  if ( fedId_ >= sistrip::FED_ID_MIN &&
-       fedId_ <= sistrip::FED_ID_MAX ) { 
-    fedId_ = fedId_; 
-  } else if ( fedId_ == 0 ) { 
-    fedId_ = fedId_; 
-  } else { 
+  if ( not ( (fedId_ >= sistrip::FED_ID_MIN &&
+              fedId_ <= sistrip::FED_ID_MAX ) ||
+             ( fedId_ == 0 ) ) ) { 
     fedId_ = sistrip::invalid_; 
   }
   
-  if ( feUnit_ <= sistrip::FEUNITS_PER_FED ) { feUnit_ = feUnit_; }
-  else { feUnit_ = sistrip::invalid_; }
+  if ( feUnit_ > sistrip::FEUNITS_PER_FED ) { feUnit_ = sistrip::invalid_; }
 
-  if ( feChan_ <= sistrip::FEDCH_PER_FEUNIT ) { feChan_ = feChan_; }
-  else { feChan_ = sistrip::invalid_; }
+  if ( feChan_ > sistrip::FEDCH_PER_FEUNIT ) { feChan_ = sistrip::invalid_; }
   
-  if ( fedApv_ <= sistrip::APVS_PER_FEDCH ) { fedApv_ = fedApv_; }
-  else { fedApv_ = sistrip::invalid_; }
+  if ( fedApv_ > sistrip::APVS_PER_FEDCH ) { fedApv_ = sistrip::invalid_; }
   
 }
 

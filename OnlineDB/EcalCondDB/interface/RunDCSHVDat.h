@@ -26,10 +26,10 @@ class RunDCSHVDat : public IDataItem {
 
   friend class EcalCondDBInterface;
   RunDCSHVDat();
-  ~RunDCSHVDat();
+  ~RunDCSHVDat() override;
 
   // User data methods
-  inline std::string getTable() { return ""; }
+  inline std::string getTable() override { return ""; }
   inline std::string getEBAccount() { return "CMS_ECAL_HV_PVSS_COND"; }
   inline std::string getEEAccount() { return "CMS_EE_HV_PVSS_COND"; }
   inline void setHV(float t) { m_hv = t; }
@@ -58,19 +58,19 @@ class RunDCSHVDat : public IDataItem {
 
 
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunDCSHVDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunDCSHVDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   void fetchLastData(std::map< EcalLogicID, RunDCSHVDat >* fillMap)
-     throw(std::runtime_error);
+     noexcept(false);
 
   void fetchHistoricalData(std::list< std::pair<Tm, std::map< EcalLogicID, RunDCSHVDat > > >* fillMap, const Tm& timeStart  )
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   // User data

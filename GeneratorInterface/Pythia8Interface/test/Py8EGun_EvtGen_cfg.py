@@ -15,7 +15,7 @@ process.generator = cms.EDFilter("Pythia8EGun",
     useEvtGenPlugin = cms.PSet(),
     #evtgenDecFile = cms.string("mydecfile"),
     #evtgenPdlFile = cms.string("mypdlfile"),
-
+    evtgenUserFile = cms.vstring('GeneratorInterface/Pythia8Interface/test/evtgen_userfile.dec'),
     PGunParameters = cms.PSet(
        ParticleID = cms.vint32(521),
        AddAntiParticle = cms.bool(False),

@@ -73,7 +73,7 @@ class CSCOfflineClient: public DQMEDHarvester, public cscdqm::MonitorObjectProvi
   public:
 
     CSCOfflineClient(const edm::ParameterSet& ps);
-    virtual ~CSCOfflineClient();
+    ~CSCOfflineClient() override;
 
   private:
 
@@ -89,8 +89,8 @@ class CSCOfflineClient: public DQMEDHarvester, public cscdqm::MonitorObjectProvi
 
   public:
 
-    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const { return false; }
-    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req);
+    bool getCSCDetId(const unsigned int crateId, const unsigned int dmbId, CSCDetId& detId) const override{ return false; }
+    cscdqm::MonitorObject *bookMonitorObject (const cscdqm::HistoBookRequest& p_req) override;
 
   /** 
    * EDAnalyzer Implementation

@@ -42,15 +42,15 @@ public:
 EcalEndcapDigisValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalEndcapDigisValidation();
+~EcalEndcapDigisValidation() override;
 
-virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
-virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
 
 /// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c);
+void analyze(edm::Event const & e, edm::EventSetup const & c) override;
 
 void checkCalibrations(edm::EventSetup const & c);
 

@@ -1,12 +1,16 @@
 #ifndef DDL_Division_H
 #define DDL_Division_H
 
-#include "DDXMLElement.h"
+#include <map>
+#include <string>
+
 #include "DDDividedGeometryObject.h"
+#include "DDXMLElement.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 
-#include <string>
-#include <map>
+class DDCompactView;
+class DDDividedGeometryObject;
+class DDLElementRegistry;
 
 /// DDLDivision processes Division elements.
 /** @class DDLDivision
@@ -20,22 +24,17 @@
  *
  */
 
-class DDLDivision : public DDXMLElement
+class DDLDivision final : public DDXMLElement
 {
-public:
+ public:
 
-  /// Constructor
   DDLDivision( DDLElementRegistry* myreg );
-
-  /// Destructor
-  ~DDLDivision( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
-
-private:
-
+  
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  
+ private:
+  
   DDDividedGeometryObject* makeDivider( const DDDivision& div, DDCompactView* cpv );
 };
 

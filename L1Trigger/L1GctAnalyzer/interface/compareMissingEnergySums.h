@@ -50,7 +50,7 @@ compareMissingEnergySums<T>::~compareMissingEnergySums() {
 template<class T>
 bool compareMissingEnergySums<T>::doCompare(TH1I *errorFlag_hist_) {
 
-  bool errorFlag=0;
+  bool errorFlag=false;
   
   for(unsigned int i=0; i < data_->size(); i++) {
     if(data_->at(i).bx() != mbxparams_.GCTTrigBx) continue;
@@ -76,18 +76,18 @@ bool compareMissingEnergySums<T>::doCompare(TH1I *errorFlag_hist_) {
       if(!data_->at(i).overFlow() && !emu_->at(j).overFlow() && data_->at(i).et() == emu_->at(j).et() && data_->at(i).phi() != emu_->at(j).phi()) {
 	//if the overflow bits are both off but only the mag agree = mag match
 	errorFlag_hist_->Fill(1);
-	return errorFlag=1;
+	return errorFlag=true;
       }
 
       if(!data_->at(i).overFlow() && !emu_->at(j).overFlow() && data_->at(i).et() != emu_->at(j).et() && data_->at(i).phi() == emu_->at(j).phi()) {
 	//if the overflow bits are both off but only the phi agree = phi match
 	errorFlag_hist_->Fill(2);
-	return errorFlag=1;
+	return errorFlag=true;
       }
 
       //otherwise it's a total unmatch
       errorFlag_hist_->Fill(3);
-      errorFlag=1;
+      errorFlag=true;
       return errorFlag;
     }  
   }

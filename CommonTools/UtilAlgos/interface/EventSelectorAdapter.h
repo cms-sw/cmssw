@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 template<typename T>
 class EventSelectorAdapter : public edm::global::EDFilter<>
@@ -28,7 +30,13 @@ class EventSelectorAdapter : public edm::global::EDFilter<>
   }
 
   // destructor
-  virtual ~EventSelectorAdapter() {}
+  ~EventSelectorAdapter() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    T::fillPSetDescription(desc);
+    descriptions.addWithDefaultLabel(desc);
+  }
 
  private:
   bool filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override { return eventSelector_(evt, es); }

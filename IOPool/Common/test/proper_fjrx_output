@@ -64,11 +64,11 @@
 
 <Runs>
 <Run ID="100">
-   <LumiSection ID="1"/>
+   <LumiSection ID="1" NEvents="10"/>
 </Run>
 
 <Run ID="200">
-   <LumiSection ID="1"/>
+   <LumiSection ID="1" NEvents="15"/>
 </Run>
 
 </Runs>

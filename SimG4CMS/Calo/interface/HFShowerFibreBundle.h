@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
@@ -20,11 +21,12 @@ class HFShowerFibreBundle {
 
 public:    
 
-  HFShowerFibreBundle(std::string & name, const DDCompactView & cpv, 
+  HFShowerFibreBundle(const std::string & name, const DDCompactView & cpv, 
 		      edm::ParameterSet const & p);
   virtual ~HFShowerFibreBundle();
-  double                getHits(G4Step * aStep, bool type);
+  double                getHits(const G4Step * aStep, bool type);
   double                getRadius();
+  void                  initRun(const HcalDDDSimConstants*);
 
 private:    
 

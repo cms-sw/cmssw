@@ -2,6 +2,7 @@
 # written by Mike Brown
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/148061
 import math,re
+from functools import reduce
 def wrap_always(text, width):
     """
     A simple word-wrap function that wraps text on exactly width characters.

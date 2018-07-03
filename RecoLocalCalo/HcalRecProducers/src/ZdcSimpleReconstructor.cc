@@ -20,7 +20,9 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
   det_(DetId::Hcal),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed"))
 {
-  tok_input_ = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+  tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelcastor"));
+  tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
+
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
   if (!strcasecmp(subd.c_str(),"ZDC")) {
@@ -35,6 +37,7 @@ ZdcSimpleReconstructor::ZdcSimpleReconstructor(edm::ParameterSet const& conf):
     std::cout << "ZdcSimpleReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
   
+  hcalTimeSlew_delay_ = nullptr;
 }
 
 ZdcSimpleReconstructor::~ZdcSimpleReconstructor() {
@@ -44,10 +47,14 @@ void ZdcSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & 
    edm::ESHandle<HcalLongRecoParams> p;
    es.get<HcalLongRecoParamsRcd>().get(p);
    myobject = new HcalLongRecoParams(*p.product());
+
+   edm::ESHandle<HcalTimeSlew> delay;
+   es.get<HcalTimeSlewRecord>().get("HBHE", delay);
+   hcalTimeSlew_delay_ = &*delay;
 }
 
 void ZdcSimpleReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject = 0;
+  delete myobject; myobject = nullptr;
 }
 void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
@@ -60,10 +67,16 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
   
   if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
     edm::Handle<ZDCDigiCollection> digi;
-    e.getByToken(tok_input_,digi);
+    e.getByToken(tok_input_hcal,digi);
+     
+     if(digi->empty()) {
+       e.getByToken(tok_input_castor,digi);
+       if(digi->empty()) 
+       	 edm::LogInfo("ZdcHitReconstructor") << "No ZDC info found in either castorDigis or hcalDigis." << std::endl;
+     }
     
     // create empty output
-    std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
+    auto rec = std::make_unique<ZDCRecHitCollection>();
     rec->reserve(digi->size());
     // run the algorithm
     unsigned int toaddMem = 0;
@@ -86,8 +99,8 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
 // signal TS, it may not work properly. Assume contiguous here....
         unsigned int toadd = mySignalTS.size();    
         if(toaddMem != toadd) {
-	  reco_.initPulseCorr(toadd);
-          toaddMem = toadd;
+	  reco_.initPulseCorr(toadd, hcalTimeSlew_delay_);
+	  toaddMem = toadd;
 	}   
       const HcalCalibrations& calibrations=conditions->getHcalCalibrations(cell);
       const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
@@ -96,6 +109,6 @@ void ZdcSimpleReconstructor::produce(edm::Event& e, const edm::EventSetup& event
       rec->push_back(reco_.reconstruct(*i,myNoiseTS,mySignalTS,coder,calibrations));
     }
     // return result
-    e.put(rec);     
+    e.put(std::move(rec));     
   }
 }

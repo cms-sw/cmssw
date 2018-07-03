@@ -16,6 +16,7 @@ thread_local TLS tls;
     if (foundHits < theMinHits ){ return true;}
 
     // check for momentum below limit
+    if (!tm.updatedState().isValid()) return	false;
     const FreeTrajectoryState& fts = *tm.updatedState().freeTrajectoryState();
 
     //avoid doing twice the check in TBC and QF

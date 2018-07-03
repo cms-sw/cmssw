@@ -25,7 +25,7 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
  
   // get hold of back-end interface
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();           
   if ( dbe_ ) {
     if ( verbose_ ) { dbe_->setVerbose(1); } 
@@ -36,31 +36,31 @@ EcalBarrelSimHitsValidation::EcalBarrelSimHitsValidation(const edm::ParameterSet
     if ( verbose_ ) dbe_->showDirStructure();
   }
  
-  menEBHits_       = 0;
-  menEBCrystals_   = 0;
-  meEBOccupancy_   = 0;
-  meEBLongitudinalShower_ = 0;
-  meEBhitEnergy_   = 0;
-  meEBhitLog10Energy_       = 0;
-  meEBhitLog10EnergyNorm_   = 0;
-  meEBhitLog10Energy25Norm_ = 0;
-  meEBhitEnergy2_   = 0;
-  meEBcrystalEnergy_   = 0;
-  meEBcrystalEnergy2_   = 0;
+  menEBHits_       = nullptr;
+  menEBCrystals_   = nullptr;
+  meEBOccupancy_   = nullptr;
+  meEBLongitudinalShower_ = nullptr;
+  meEBhitEnergy_   = nullptr;
+  meEBhitLog10Energy_       = nullptr;
+  meEBhitLog10EnergyNorm_   = nullptr;
+  meEBhitLog10Energy25Norm_ = nullptr;
+  meEBhitEnergy2_   = nullptr;
+  meEBcrystalEnergy_   = nullptr;
+  meEBcrystalEnergy2_   = nullptr;
 
-  meEBe1_  = 0;  
-  meEBe4_  = 0;  
-  meEBe9_  = 0;  
-  meEBe16_ = 0; 
-  meEBe25_ = 0; 
+  meEBe1_  = nullptr;  
+  meEBe4_  = nullptr;  
+  meEBe9_  = nullptr;  
+  meEBe16_ = nullptr; 
+  meEBe25_ = nullptr; 
 
-  meEBe1oe4_   = 0;  
-  meEBe1oe9_   = 0;  
-  meEBe4oe9_   = 0;  
-  meEBe9oe16_  = 0;
-  meEBe1oe25_  = 0;  
-  meEBe9oe25_  = 0; 
-  meEBe16oe25_ = 0;
+  meEBe1oe4_   = nullptr;  
+  meEBe1oe9_   = nullptr;  
+  meEBe4oe9_   = nullptr;  
+  meEBe9oe16_  = nullptr;
+  meEBe1oe25_  = nullptr;  
+  meEBe9oe25_  = nullptr; 
+  meEBe16oe25_ = nullptr;
 
   myEntries = 0;
   for (int myStep = 0; myStep<26; myStep++) { eRLength[myStep] = 0.0; }

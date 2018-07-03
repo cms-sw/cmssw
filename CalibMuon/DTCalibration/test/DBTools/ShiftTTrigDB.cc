@@ -83,7 +83,7 @@ void ShiftTTrigDB::endJob() {
     bool ttrigShifted = false;
     //Loop on the chambers with ttrig to be shifted
     for(vector<vector<int> >::const_iterator ch =chambers.begin();
-	ch != chambers.end(); ch++){
+	ch != chambers.end(); ++ch){
       //Check the chamber address format
       if((*ch).size()!=3){
 	cout<<"[ShiftTTrigDB]: Wrong configuration: use three integer to indicate each chamber. Aborting."<<endl;

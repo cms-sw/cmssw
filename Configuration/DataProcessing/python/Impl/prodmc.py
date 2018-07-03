@@ -13,6 +13,8 @@ from Configuration.DataProcessing.Scenario import *
 import FWCore.ParameterSet.Config as cms
 
 class prodmc(Scenario):
+    def __init__(self):
+        Scenario.__init__(self)
     """
     _prodmc_
 
@@ -40,7 +42,7 @@ class prodmc(Scenario):
         options.evt_type = ""
         options.filein = []
  
-        process = cms.Process("HARVESTING")
+        process = cms.Process("HARVESTING", self.eras)
         if args.get('newDQMIO', False):
             process.source = cms.Source("DQMRootSource")
         else:
@@ -55,7 +57,7 @@ class prodmc(Scenario):
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName
-        if args.has_key('referenceFile') and args.get('referenceFile', ''):
+        if 'referenceFile' in args and args.get('referenceFile', ''):
             process.DQMStore.referenceFileName = \
                                 cms.untracked.string(args['referenceFile'])
         

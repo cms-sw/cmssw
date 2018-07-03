@@ -1,16 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+# The following 2 imports are provided for backward compatibility reasons.
+# The functions used to be defined in this file.
+from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
+from FWCore.ParameterSet.MassReplace import massReplaceParameter as MassReplaceParameter
+
 def ProcessName(process):
 #   processname modifications
 
     if 'hltTrigReport' in process.__dict__:
         process.hltTrigReport.HLTriggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
-
-    if 'hltDQMHLTScalers' in process.__dict__:
-        process.hltDQMHLTScalers.triggerResults = cms.InputTag( 'TriggerResults','',process.name_() )
-
-    if 'hltDQML1SeedLogicScalers' in process.__dict__:
-        process.hltDQML1SeedLogicScalers.processname = process.name_()
 
     return(process)
 
@@ -19,19 +18,22 @@ def Base(process):
 #   default modifications
 
     process.options.wantSummary = cms.untracked.bool(True)
+    process.options.numberOfThreads = cms.untracked.uint32( 4 )
+    process.options.numberOfStreams = cms.untracked.uint32( 0 )
+    process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
 
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
+    process.MessageLogger.categories.append('L1TGlobalSummary')
     process.MessageLogger.categories.append('HLTrigReport')
 
-#
 # No longer override - instead use GT config as provided via cmsDriver
 ## override the GlobalTag, connection string and pfnPrefix
 #    if 'GlobalTag' in process.__dict__:
 #        process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 #        process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://Frontie#rProd/')
 #        
-    process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
+#   process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 
     process=ProcessName(process)
 
@@ -41,14 +43,25 @@ def Base(process):
 def L1T(process):
 #   modifications when running L1T only
 
-    process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
     labels = ['gtDigis','simGtDigis','newGtDigis','hltGtDigis']
     for label in labels:
         if label in process.__dict__:
+            process.load('L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi')
             process.l1GtTrigReport.L1GtRecordInputTag = cms.InputTag( label )
+            process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
+            process.schedule.append(process.L1AnalyzerEndpath)
 
-    process.L1AnalyzerEndpath = cms.EndPath( process.l1GtTrigReport )
-    process.schedule.append(process.L1AnalyzerEndpath)
+    labels = ['gtStage2Digis','simGtStage2Digis','newGtStage2Digis','hltGtStage2Digis']
+    for label in labels:
+        if label in process.__dict__:
+            process.load('L1Trigger.L1TGlobal.L1TGlobalSummary_cfi')
+            process.L1TGlobalSummary.AlgInputTag = cms.InputTag( label )
+            process.L1TGlobalSummary.ExtInputTag = cms.InputTag( label )
+            process.L1TAnalyzerEndpath = cms.EndPath(process.L1TGlobalSummary )
+            process.schedule.append(process.L1TAnalyzerEndpath)
+
+    if hasattr(process,'TriggerMenu'):
+        delattr(process,'TriggerMenu')
 
     process=Base(process)
 
@@ -59,12 +72,22 @@ def L1THLT(process):
 #   modifications when running L1T+HLT
 
     if not ('HLTAnalyzerEndpath' in process.__dict__) :
-        from HLTrigger.Configuration.HLT_FULL_cff import fragment
-        process.hltGtDigis = fragment.hltGtDigis
-        process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
-        process.hltTrigReport = fragment.hltTrigReport
-        process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
-        process.schedule.append(process.HLTAnalyzerEndpath)
+        if 'hltGtDigis' in process.__dict__:
+            from HLTrigger.Configuration.HLT_Fake_cff import fragment
+            process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
+            process.hltTrigReport = fragment.hltTrigReport
+            process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
+            process.schedule.append(process.HLTAnalyzerEndpath)
+
+        if 'hltGtStage2ObjectMap' in process.__dict__:
+            from HLTrigger.Configuration.HLT_FULL_cff import fragment
+            process.hltL1TGlobalSummary = fragment.hltL1TGlobalSummary
+            process.hltTrigReport = fragment.hltTrigReport
+            process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtStage2Digis + process.hltL1TGlobalSummary + process.hltTrigReport)
+            process.schedule.append(process.HLTAnalyzerEndpath)
+
+    if hasattr(process,'TriggerMenu'):
+        delattr(process,'TriggerMenu')
 
     process=Base(process)
 
@@ -85,37 +108,48 @@ def HLTDropPrevious(process):
     return(process)
 
 
-def MassReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker",verbose=False,moduleLabelOnly=False,skipLabelTest=False):
-#   replace InputTag values (adapted from Configuration/Applications/python/ConfigBuilder.py)
-    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
-    for s in process.paths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process,s),old,new,verbose,moduleLabelOnly,skipLabelTest)
-    for s in process.endpaths_().keys():
-        massSearchReplaceAnyInputTag(getattr(process,s),old,new,verbose,moduleLabelOnly,skipLabelTest)
-    return(process)
+def L1REPACK(process,sequence="Full"):
 
-def MassReplaceParameter(process,name="label",old="rawDataCollector",new="rawDataRepacker",verbose=False):
-#   replace values of named parameters
-    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
-    for s in process.paths_().keys():
-        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
-    for s in process.endpaths_().keys():
-        massSearchReplaceParam(getattr(process,s),name,old,new,verbose)
-    return(process)
+    from Configuration.StandardSequences.Eras import eras
 
-def L1REPACK(process):
-#   Replace only the L1 parts and keep the rest
-    if 'DigiToRaw' in process.__dict__:
-        process.DigiToRaw = cms.Sequence(process.l1tDigiToRawSeq + process.l1GtPack + process.l1GtEvmPack + process.rawDataCollector)
-    if 'rawDataCollector' in process.__dict__:
-        process.rawDataCollector.RawCollectionList = cms.VInputTag(
-            cms.InputTag('gctDigiToRaw'),
-            cms.InputTag('l1tDigiToRaw'),
-            cms.InputTag('l1GtPack'),
-            cms.InputTag('l1GtEvmPack'),
-            cms.InputTag('rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
-        )
+    l1repack = cms.Process('L1REPACK',eras.Run2_2018)
+    l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
-    process=L1T(process)
+    for module in l1repack.es_sources_():
+        if (not hasattr(process,module)):
+            setattr(process,module,getattr(l1repack,module))
+    for module in l1repack.es_producers_():
+        if (not hasattr(process,module)):
+            setattr(process,module,getattr(l1repack,module))
+
+    for module in l1repack.SimL1Emulator.expandAndClone().moduleNames():
+        setattr(process,module,getattr(l1repack,module))
+    for sequence in l1repack.sequences_():
+        setattr(process,sequence,getattr(l1repack,sequence))
+    process.SimL1Emulator = l1repack.SimL1Emulator
+
+    for path in process.paths_():
+        getattr(process,path).insert(0,process.SimL1Emulator)
+    for path in process.endpaths_():
+        getattr(process,path).insert(0,process.SimL1Emulator)
+
+    # special L1T cleanup
+    for obj in ('SimL1TCalorimeter','SimL1TMuonCommon','SimL1TMuon','SimL1TechnicalTriggers','SimL1EmulatorCore','ecalDigiSequence','hcalDigiSequence','calDigi','me0TriggerPseudoDigiSequence','hgcalTriggerGeometryESProducer'):
+        if hasattr(process,obj):
+            delattr(process,obj)
+
+    return process
+
+def L1XML(process,xmlFile=None):
+
+#   xmlFile="L1Menu_Collisions2016_dev_v3.xml"
+
+    if ((xmlFile is None) or (xmlFile=="")):
+        return process
+
+    process.L1TriggerMenu= cms.ESProducer("L1TUtmTriggerMenuESProducer",
+        L1TriggerMenuFile= cms.string(xmlFile)
+    )
+    process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","L1TriggerMenu")
 
     return process

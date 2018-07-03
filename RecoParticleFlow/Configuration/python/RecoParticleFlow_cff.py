@@ -19,15 +19,67 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import *
 from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 
 from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
+from RecoParticleFlow.PFProducer.chargedHadronPFTrackIsolation_cfi import *
+
+from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import *
+fixedGridRhoFastjetAllTmp = fixedGridRhoFastjetAll.clone(pfCandidatesTag = cms.InputTag("particleFlowTmp"))
+
+particleFlowTmpSeq = cms.Sequence(particleFlowTmp)
 
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
-#                                 pfGsfElectronCiCSelectionSequence*
+#                                pfGsfElectronCiCSelectionSequence*
                                  pfGsfElectronMVASelectionSequence*
                                  particleFlowBlock*
                                  particleFlowEGammaFull*
-                                 particleFlowTmp*
+                                 particleFlowTmpSeq*
+                                 fixedGridRhoFastjetAllTmp*
                                  particleFlowTmpPtrs*          
                                  particleFlowEGammaFinal*
                                  pfParticleSelectionSequence )
 
-particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*particleBasedIsolationSequence)
+particleFlowLinks = cms.Sequence( particleFlow*particleFlowPtrs*chargedHadronPFTrackIsolation*particleBasedIsolationSequence)
+
+from RecoParticleFlow.PFTracking.hgcalTrackCollection_cfi import *
+from RecoParticleFlow.PFProducer.simPFProducer_cfi import *
+from SimTracker.TrackerHitAssociation.tpClusterProducer_cfi import *
+from SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi import *
+particleFlowTmpBarrel = particleFlowTmp.clone()
+_phase2_hgcal_particleFlowTmp = cms.EDProducer(
+    "PFCandidateListMerger",
+    src = cms.VInputTag("particleFlowTmpBarrel",
+                        "simPFProducer")
+    
+)
+
+_phase2_hgcal_simPFSequence = cms.Sequence( pfTrack +
+                                            hgcalTrackCollection + 
+                                            tpClusterProducer +
+                                            quickTrackAssociatorByHits +
+                                            simPFProducer )
+_phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence * particleFlowReco.copy() )
+_phase2_hgcal_particleFlowReco.replace( particleFlowTmpSeq, cms.Sequence( particleFlowTmpBarrel * particleFlowTmp ) )
+
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
+phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )
+
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(particleFlowDisplacedVertexCandidate,
+               tracksSelectorParameters = dict(pt_min = 999999.0,
+                                               nChi2_max = 0.0,
+                                               pt_min_prim = 999999.0,
+                                               dxy = 999999.0)
+               )
+
+    e.toModify(particleFlowBlock, useNuclear = cms.bool(False))
+
+    e.toModify(pfNoPileUpIso, enable = cms.bool(False))
+    e.toModify(pfPileUpIso, enable = cms.bool(False))
+    e.toModify(pfNoPileUp, enable = cms.bool(False))
+    e.toModify(pfPileUp, enable = cms.bool(False))
+    
+
+

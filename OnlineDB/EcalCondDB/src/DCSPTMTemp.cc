@@ -12,7 +12,7 @@ using namespace oracle::occi;
 
 DCSPTMTemp::DCSPTMTemp()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
  
 
   m_runStart = Tm();

@@ -231,6 +231,7 @@ void PhotonAnalyzer::bookHistogramsInvMass(DQMStore::IBooker & iBooker)
   h_invMassAllPhotons_     = bookHisto(iBooker, "invMassAllIsolatedPhotons", "Two photon invariant mass: All isolated photons;M (GeV)",        etBin_, etMin_, etMax_);
   h_invMassPhotonsEBarrel_ = bookHisto(iBooker, "invMassIsoPhotonsEBarrel",  "Two photon invariant mass: isolated photons in barrel; M (GeV)", etBin_, etMin_, etMax_);
   h_invMassPhotonsEEndcap_ = bookHisto(iBooker, "invMassIsoPhotonsEEndcap",  "Two photon invariant mass: isolated photons in endcap; M (GeV)", etBin_, etMin_, etMax_);
+  h_invMassPhotonsEEndcapEBarrel_ = bookHisto(iBooker, "invMassIsoPhotonsEEndcapEBarrel",  "Two photon invariant mass: isolated photons in endcap-barrel; M (GeV)", etBin_, etMin_, etMax_);
   
   h_invMassZeroWithTracks_ = bookHisto(iBooker, "invMassZeroWithTracks",     "Two photon invariant mass: Neither has tracks;M (GeV)",          etBin_, etMin_, etMax_);
   h_invMassOneWithTracks_  = bookHisto(iBooker, "invMassOneWithTracks",      "Two photon invariant mass: Only one has tracks;M (GeV)",         etBin_, etMin_, etMax_);
@@ -615,45 +616,45 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   // Get the trigger results
   bool validTriggerEvent=true;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
-  trigger::TriggerEvent triggerEvent;
+  const trigger::TriggerEvent dummyTE;
   e.getByToken(triggerEvent_token_,triggerEventHandle);
   if(!triggerEventHandle.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: triggerEvent_" << endl;
     validTriggerEvent=false;
   }
-  if(validTriggerEvent) triggerEvent = *(triggerEventHandle.product());
+  const trigger::TriggerEvent& triggerEvent(validTriggerEvent? *(triggerEventHandle.product()) : dummyTE);
 
   // Get the reconstructed photons
   //  bool validPhotons=true;
   Handle<reco::PhotonCollection> photonHandle;
-  reco::PhotonCollection photonCollection;
   e.getByToken(photon_token_ , photonHandle);
   if ( !photonHandle.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: photon_token_" << endl;
     // validPhotons=false;
   }
-  //  if(validPhotons) photonCollection = *(photonHandle.product());
+  const reco::PhotonCollection& photonCollection(*(photonHandle.product()));
+
 
   // Get the PhotonId objects
-  bool validloosePhotonID=true;
+  //  bool validloosePhotonID=true;
   Handle<edm::ValueMap<bool> > loosePhotonFlag;
-  edm::ValueMap<bool> loosePhotonID;
   e.getByToken(PhotonIDLoose_token_, loosePhotonFlag);
   if ( !loosePhotonFlag.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: PhotonIDLoose_token_" << endl;
-    validloosePhotonID=false;
+    //    validloosePhotonID=false;
   }
-  if (validloosePhotonID) loosePhotonID = *(loosePhotonFlag.product());
+  //  edm::ValueMap<bool> dummyLPID;
+  //  const edm::ValueMap<bool>& loosePhotonID(validloosePhotonID? *(loosePhotonFlag.product()) : dummyLPID);
 
-  bool validtightPhotonID=true;
+  //  bool validtightPhotonID=true;
   Handle<edm::ValueMap<bool> > tightPhotonFlag;
-  edm::ValueMap<bool> tightPhotonID;
   e.getByToken(PhotonIDTight_token_, tightPhotonFlag);
   if ( !tightPhotonFlag.isValid()) {
     edm::LogInfo(fName_) << "Error! Can't get the product: PhotonIDTight_token_" << endl;
-    validtightPhotonID=false;
+    //    validtightPhotonID=false;
   }
-  if (validtightPhotonID) tightPhotonID = *(tightPhotonFlag.product());
+  //  edm::ValueMap<bool> dummyTPI;
+  //  const edm::ValueMap<bool>& tightPhotonID(validtightPhotonID ? *(tightPhotonFlag.product()) : dummyTPI);
 
 
   edm::Handle<reco::VertexCollection> vtxH;
@@ -714,7 +715,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
   /////////////////////////BEGIN LOOP OVER THE COLLECTION OF PHOTONS IN THE EVENT/////////////////////////
   for(unsigned int iPho=0; iPho < photonHandle->size(); iPho++) {
-    reco::PhotonRef aPho(reco::PhotonRef(photonHandle, iPho));
+    const reco::Photon* aPho = &photonCollection[iPho];
     //  for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
 
     //for HLT efficiency plots
@@ -764,6 +765,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
     bool isIsolated=false;
     if ( isolationStrength_ == 0)  isIsolated = isLoosePhoton;
     if ( isolationStrength_ == 1)  isIsolated = isTightPhoton;
+    if ( isolationStrength_ == 2)  isIsolated = photonSelectionSlimmed(aPho);
 
     int type=0;
     if ( isIsolated ) type=1;
@@ -1055,7 +1057,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	  DPhiTracksAtVtx = phiTk1-phiTk2;
 	  DPhiTracksAtVtx = phiNormalization( DPhiTracksAtVtx );
 
-	  if (aConv->bcMatchingWithTracks().size() > 0 && aConv->bcMatchingWithTracks()[0].isNonnull() && aConv->bcMatchingWithTracks()[1].isNonnull() ) {
+    if (!aConv->bcMatchingWithTracks().empty() && aConv->bcMatchingWithTracks()[0].isNonnull() && aConv->bcMatchingWithTracks()[1].isNonnull() ) {
 	    float recoPhi1 = aConv->ecalImpactPosition()[0].phi();
 	    float recoPhi2 = aConv->ecalImpactPosition()[1].phi();
 	    float recoEta1 = aConv->ecalImpactPosition()[0].eta();
@@ -1083,7 +1085,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
     if (isIsolated && aPho->et()>=invMassEtCut_){
       for(unsigned int iPho2=iPho+1; iPho2 < photonHandle->size(); iPho2++) {
-	reco::PhotonRef aPho2(reco::PhotonRef(photonHandle, iPho2));
+	const reco::Photon* aPho2 = &photonCollection[iPho2];
 
 	//      for (reco::PhotonCollection::const_iterator iPho2=iPho+1; iPho2!=photonCollection.end(); iPho2++){
 
@@ -1101,6 +1103,7 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 	bool isIsolated2=false;
 	if ( isolationStrength_ == 0)  isIsolated2 = isLoosePhoton2;
 	if ( isolationStrength_ == 1)  isIsolated2 = isTightPhoton2;
+        if ( isolationStrength_ == 2)  isIsolated2 = photonSelectionSlimmed(aPho2);
 
 	reco::ConversionRefVector conversions = aPho->conversions();
 	reco::ConversionRefVector conversions2 = aPho2->conversions();
@@ -1113,13 +1116,14 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	  h_invMassAllPhotons_ -> Fill(sqrt( gamgamMass2 ));
 	  if(aPho->isEB() && aPho2->isEB()){h_invMassPhotonsEBarrel_ -> Fill(sqrt( gamgamMass2 ));}
-	  if(aPho->isEE() || aPho2->isEE()){h_invMassPhotonsEEndcap_ -> Fill(sqrt( gamgamMass2 ));}      
+	  else if(aPho->isEE() && aPho2->isEE()){h_invMassPhotonsEEndcap_ -> Fill(sqrt( gamgamMass2 ));}
+	  else {h_invMassPhotonsEEndcapEBarrel_ -> Fill(sqrt( gamgamMass2 ));}
 	  
- 	  if(conversions.size()!=0 && conversions[0]->nTracks() >= 2){
-	    if(conversions2.size()!=0 && conversions2[0]->nTracks() >= 2) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+     if(!conversions.empty() && conversions[0]->nTracks() >= 2){
+      if(!conversions2.empty() && conversions2[0]->nTracks() >= 2) h_invMassTwoWithTracks_ -> Fill(sqrt( gamgamMass2 ));
 	    else h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
  	  }
-	  else if(conversions2.size()!=0 && conversions2[0]->nTracks() >= 2) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
+    else if(!conversions2.empty() && conversions2[0]->nTracks() >= 2) h_invMassOneWithTracks_ -> Fill(sqrt( gamgamMass2 ));
 	  else h_invMassZeroWithTracks_ -> Fill(sqrt( gamgamMass2 ));
  	}
       }
@@ -1178,7 +1182,7 @@ void PhotonAnalyzer::fill3DHistoVector(vector<vector<vector<MonitorElement*> > >
   histoVector[cut][type][part]->Fill(x,y);
 }
 
-bool PhotonAnalyzer::photonSelection(const reco::PhotonRef & pho)
+bool PhotonAnalyzer::photonSelection(const reco::Photon* pho)
 {
   bool result=true;
   if ( pho->pt() <  minPhoEtCut_ )          result=false;
@@ -1204,4 +1208,15 @@ bool PhotonAnalyzer::photonSelection(const reco::PhotonRef & pho)
     if ( pho->chargedHadronIso()  > 4 )  result=false;
   }
   return result;  
+}
+
+bool PhotonAnalyzer::photonSelectionSlimmed(const reco::Photon* pho)
+{
+  bool result=true;
+
+  if ( pho->pt() <  minPhoEtCut_ )          result=false;
+  if ( fabs(pho->eta())  > photonMaxEta_ )   result=false;
+  if ( pho->isEBEEGap() )       result=false;
+
+  return result;
 }

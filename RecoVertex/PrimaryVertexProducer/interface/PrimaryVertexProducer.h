@@ -34,6 +34,8 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFindingBase.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ_vect.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZT_vect.h"
+
 
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
@@ -46,17 +48,17 @@
 #include <algorithm>
 #include "RecoVertex/PrimaryVertexProducer/interface/VertexHigherPtSquared.h"
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
-
+#include "DataFormats/Common/interface/ValueMap.h"
 //
 // class declaration
 //
 
 class PrimaryVertexProducer : public edm::stream::EDProducer<> {
 public:
-  explicit PrimaryVertexProducer(const edm::ParameterSet&);
-  ~PrimaryVertexProducer();
+  PrimaryVertexProducer(const edm::ParameterSet&);
+  ~PrimaryVertexProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // access to config
   edm::ParameterSet config() const { return theConfig; }
@@ -79,7 +81,11 @@ private:
 
   edm::ParameterSet theConfig;
   bool fVerbose;
+
   edm::EDGetTokenT<reco::BeamSpot> bsToken;
   edm::EDGetTokenT<reco::TrackCollection> trkToken;
+  edm::EDGetTokenT<edm::ValueMap<float> > trkTimesToken;
+  edm::EDGetTokenT<edm::ValueMap<float> > trkTimeResosToken;
 
+  bool f4D;
 };

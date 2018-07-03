@@ -10,3 +10,9 @@ prunedGenParticles.src =  cms.InputTag("prunedGenParticlesWithStatusOne")
 packedGenParticles.inputCollection = cms.InputTag("prunedGenParticlesWithStatusOne")
 packedGenParticles.map = cms.InputTag("prunedGenParticles") # map with rekey association from prunedGenParticlesWithStatusOne to prunedGenParticles, used to relink our refs to prunedGen
 packedGenParticles.inputOriginal = cms.InputTag("genParticles")
+
+genParticlesTask = cms.Task(
+    prunedGenParticles,
+    packedGenParticles,
+    prunedGenParticlesWithStatusOne
+)

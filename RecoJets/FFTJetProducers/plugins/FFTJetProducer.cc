@@ -258,7 +258,7 @@ void FFTJetProducer::selectPreclusters(
 
     // Fill out the vector of preclusters using the tree node ids
     const unsigned nNodes = nodes.size();
-    const SparseTree::NodeId* pnodes = nNodes ? &nodes[0] : 0;
+    const SparseTree::NodeId* pnodes = nNodes ? &nodes[0] : nullptr;
     preclusters->reserve(nNodes);
     for (unsigned i=0; i<nNodes; ++i)
         preclusters->push_back(
@@ -266,7 +266,7 @@ void FFTJetProducer::selectPreclusters(
 
     // Remember the node id in the precluster and set
     // the status word to indicate the resolution scheme used
-    fftjet::Peak* clusters = nNodes ? &(*preclusters)[0] : 0;
+    fftjet::Peak* clusters = nNodes ? &(*preclusters)[0] : nullptr;
     for (unsigned i=0; i<nNodes; ++i)
     {
         clusters[i].setCode(pnodes[i]);
@@ -419,7 +419,7 @@ void FFTJetProducer::buildGridAlg()
     
     fftjet::DefaultRecombinationAlgFactory<
         Real,VectorLike,BgData,VBuilder> factory;
-    if (factory[recombinationAlgorithm] == NULL)
+    if (factory[recombinationAlgorithm] == nullptr)
         throw cms::Exception("FFTJetBadConfig")
             << "Invalid grid recombination algorithm \""
             << recombinationAlgorithm << "\"" << std::endl;
@@ -440,7 +440,7 @@ bool FFTJetProducer::loadEnergyFlow(
     iEvent.getByToken(input_energyflow_token_, input);
 
     // Make sure that the grid is compatible with the stored one
-    bool rebuildGrid = flow.get() == NULL;
+    bool rebuildGrid = flow.get() == nullptr;
     if (!rebuildGrid)
         rebuildGrid = 
             !(flow->nEta() == input->nEtaBins() &&
@@ -574,8 +574,8 @@ void FFTJetProducer::determineGriddedConstituents()
     const fftjet::Grid2d<Real>& g(*energyFlow);
 
     const unsigned nInputs = eventData.size();
-    const VectorLike* inp = nInputs ? &eventData[0] : 0;
-    const unsigned* candIdx = nInputs ? &candidateIndex[0] : 0;
+    const VectorLike* inp = nInputs ? &eventData[0] : nullptr;
+    const unsigned* candIdx = nInputs ? &candidateIndex[0] : nullptr;
     for (unsigned i=0; i<nInputs; ++i)
     {
         const VectorLike& item(inp[i]);
@@ -596,7 +596,7 @@ void FFTJetProducer::determineVectorConstituents()
     const unsigned maskLength = recoAlg->getLastNData();
     assert(maskLength == eventData.size());
 
-    const unsigned* candIdx = maskLength ? &candidateIndex[0] : 0;
+    const unsigned* candIdx = maskLength ? &candidateIndex[0] : nullptr;
     for (unsigned i=0; i<maskLength; ++i)
     {
         // In FFTJet, the mask value of 0 corresponds to unclustered
@@ -633,7 +633,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
                    pileupEnergyFlow->phiBinWidth();
 
     // allocate output jet collection
-    std::auto_ptr<OutputCollection> jets(new OutputCollection());
+    auto jets = std::make_unique<OutputCollection>();
     const unsigned nJets = recoJets.size();
     jets->reserve(nJets);
 
@@ -649,7 +649,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         {
             VectorLike sum(0.0, 0.0, 0.0, 0.0);
             const unsigned nCon = constituents[ijet+1].size();
-            const reco::CandidatePtr* cn = nCon ? &constituents[ijet+1][0] : 0;
+            const reco::CandidatePtr* cn = nCon ? &constituents[ijet+1][0] : nullptr;
             for (unsigned i=0; i<nCon; ++i)
                 sum += cn[i]->p4();
             jet4vec = sum;
@@ -705,7 +705,7 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
         std::sort(jets->begin(), jets->end(), LocalSortByPt());
 
     // put the collection into the event
-    iEvent.put(jets, outputLabel);
+    iEvent.put(std::move(jets), outputLabel);
 }
 
 
@@ -721,7 +721,7 @@ void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup,
     {
         VectorLike sum(0.0, 0.0, 0.0, 0.0);
         const unsigned nCon = constituents[0].size();
-        const reco::CandidatePtr* cn = nCon ? &constituents[0][0] : 0;
+        const reco::CandidatePtr* cn = nCon ? &constituents[0][0] : nullptr;
         for (unsigned i=0; i<nCon; ++i)
             sum += cn[i]->p4();
         unclusE = sum;
@@ -732,15 +732,13 @@ void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup,
     const double maxScale = maxLevel ? sparseTree.getScale(maxLevel) : 0.0;
     const double scaleUsed = usedLevel ? sparseTree.getScale(usedLevel) : 0.0;
 
-    std::auto_ptr<reco::FFTJetProducerSummary> summary(
-        new reco::FFTJetProducerSummary(
+    ev.put(std::make_unique<reco::FFTJetProducerSummary>(
             thresholds, occupancy, unclusE,
             constituents[0], unused,
             minScale, maxScale, scaleUsed,
             nPreclustersFound, iterationsPerformed,
             iterationsPerformed == 1U ||
-            iterationsPerformed <= maxIterations));
-    ev.put(summary, outputLabel);
+            iterationsPerformed <= maxIterations), outputLabel);
 }
 
 
@@ -986,7 +984,7 @@ void FFTJetProducer::beginJob()
     {
         fftjet::DefaultVectorRecombinationAlgFactory<
             VectorLike,BgData,VBuilder> factory;
-        if (factory[recombinationAlgorithm] == NULL)
+        if (factory[recombinationAlgorithm] == nullptr)
             throw cms::Exception("FFTJetBadConfig")
                 << "Invalid vector recombination algorithm \""
                 << recombinationAlgorithm << "\"" << std::endl;
@@ -1232,7 +1230,7 @@ void FFTJetProducer::determinePileup()
         fftjet::AbsMembershipFunction* m3d = 
             dynamic_cast<fftjet::AbsMembershipFunction*>(
                 peak.membershipFunction());
-        if (m3d == 0)
+        if (m3d == nullptr)
             m3d = dynamic_cast<fftjet::AbsMembershipFunction*>(
                 jetMembershipFunction.get());
         if (m3d)
@@ -1245,7 +1243,7 @@ void FFTJetProducer::determinePileup()
             fftjet::AbsKernel2d* m2d =
                 dynamic_cast<fftjet::AbsKernel2d*>(
                     peak.membershipFunction());
-            if (m2d == 0)
+            if (m2d == nullptr)
                 m2d = dynamic_cast<fftjet::AbsKernel2d*>(
                     jetMembershipFunction.get());
             assert(m2d);

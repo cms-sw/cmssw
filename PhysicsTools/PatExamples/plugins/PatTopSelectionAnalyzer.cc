@@ -21,20 +21,20 @@ public:
   /// default constructor
   explicit PatTopSelectionAnalyzer(const edm::ParameterSet&);
   /// default destructor
-  ~PatTopSelectionAnalyzer();
+  ~PatTopSelectionAnalyzer() override;
 
 private:
   /// everything that needs to be done before the event loop
-  virtual void beginJob() override ;
+  void beginJob() override ;
   /// everything that needs to be done during the event loop
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// everything that needs to be done after the event loop
-  virtual void endJob() override ;
+  void endJob() override ;
 
   /// check if histogram was booked
-  bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+  bool booked(const std::string histName) const { return hists_.find(histName)!=hists_.end(); };
   /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+  void fill(const std::string histName, double value) const { if(booked(histName)) hists_.find(histName)->second->Fill(value); };
 
   // simple map to contain all histograms;
   // histograms are booked in the beginJob()
@@ -100,7 +100,7 @@ PatTopSelectionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   // fill quantities for leading jets and jet multiplicity
   // jet pt is corrected up to L3Absolute
   fill("jetMult", jets->size());
-  if( jets->size()>0 ) fill("jet0Pt", (*jets)[0].pt());
+  if( !jets->empty() ) fill("jet0Pt", (*jets)[0].pt());
   if( jets->size()>1 ) fill("jet1Pt", (*jets)[1].pt());
   if( jets->size()>2 ) fill("jet2Pt", (*jets)[2].pt());
   if( jets->size()>3 ) fill("jet3Pt", (*jets)[3].pt());

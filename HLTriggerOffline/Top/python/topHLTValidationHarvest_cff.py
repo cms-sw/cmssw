@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-DiMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+DiMuonHLTValidationHarvest = DQMEDHarvester("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/TopHLTValidation/Top/DiMuon"),
         efficiency = cms.vstring(
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
@@ -12,7 +13,7 @@ DiMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
-DiElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+DiElectronHLTValidationHarvest = DQMEDHarvester("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/TopHLTValidation/Top/DiElectron"),
         efficiency = cms.vstring(
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
@@ -24,7 +25,7 @@ DiElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
-ElecMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+ElecMuonHLTValidationHarvest = DQMEDHarvester("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/TopHLTValidation/Top/ElecMuon"),
         efficiency = cms.vstring(
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
@@ -36,7 +37,7 @@ ElecMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
-topSingleMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+topSingleMuonHLTValidationHarvest = DQMEDHarvester("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/TopHLTValidation/Top/SemiMuonic"),
         efficiency = cms.vstring(
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
@@ -48,7 +49,7 @@ topSingleMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
-topSingleElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+topSingleElectronHLTValidationHarvest = DQMEDHarvester("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/TopHLTValidation/Top/SemiElectronic"),
         efficiency = cms.vstring(
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
@@ -60,7 +61,7 @@ topSingleElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
-SingleTopSingleMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+SingleTopSingleMuonHLTValidationHarvest = DQMEDHarvester("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/TopHLTValidation/SingleTop/SingleMuon"),
         efficiency = cms.vstring(
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",
@@ -72,7 +73,7 @@ SingleTopSingleMuonHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
         resolution = cms.vstring(""),
         )
 
-SingleTopSingleElectronHLTValidationHarvest = cms.EDAnalyzer("DQMGenericClient",
+SingleTopSingleElectronHLTValidationHarvest = DQMEDHarvester("DQMGenericClient",
         subDirs = cms.untracked.vstring("HLT/TopHLTValidation/SingleTop/SingleElectron"),
         efficiency = cms.vstring(
             "hEffLeptonEta 'Efficiency vs Eta Lepton ' EtaLeptonSel EtaLeptonAll ",

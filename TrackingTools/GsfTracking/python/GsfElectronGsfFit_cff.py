@@ -9,5 +9,16 @@ electronGsfTracks.src = 'electronCkfTrackCandidates'
 electronGsfTracks.Propagator = 'fwdGsfElectronPropagator'
 electronGsfTracks.Fitter = 'GsfElectronFittingSmoother'
 electronGsfTracks.TTRHBuilder = 'WithTrackAngle'
-electronGsfTracks.TrajectoryInEvent = True
+electronGsfTracks.TrajectoryInEvent = False
+
+# FastSim has no template fit on tracker hits
+# replace the ECAL driven electron track candidates with the FastSim emulated ones
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(electronGsfTracks,
+                 src = "fastElectronCkfTrackCandidates",
+                 TTRHBuilder = "WithoutRefit")
+
+electronGsfTracksFromMultiCl = electronGsfTracks.clone(
+  src = 'electronCkfTrackCandidatesFromMultiCl'
+)
 

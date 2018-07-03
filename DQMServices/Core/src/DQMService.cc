@@ -18,18 +18,18 @@ static std::recursive_mutex s_mutex;
 
 /// Acquire lock and access to the DQM core from a thread other than
 /// the "main" CMSSW processing thread, such as in extra XDAQ threads.
-DQMScope::DQMScope(void)
+DQMScope::DQMScope()
 { s_mutex.lock(); }
 
 /// Release access lock to the DQM core.
-DQMScope::~DQMScope(void)
+DQMScope::~DQMScope()
 { s_mutex.unlock(); }
 
 // -------------------------------------------------------------------
 DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   : store_(&*edm::Service<DQMStore>()),
-    net_(0),
-    filter_(0),
+    net_(nullptr),
+    filter_(nullptr),
     lastFlush_(0),
     publishFrequency_(5.0)
 {
@@ -71,7 +71,7 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   }
 }
 
-DQMService::~DQMService(void)
+DQMService::~DQMService()
 {
   shutdown();
 }
@@ -144,7 +144,7 @@ void DQMService::flushStandalone()
           if (me.reference_)
 	    buffer.WriteObject(me.reference_);
           else
-	    buffer.WriteObjectAny(0, 0);
+	    buffer.WriteObjectAny(nullptr, nullptr);
           o.rawdata.resize(buffer.Length());
           memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
           DQMNet::packQualityData(o.qdata, me.data_.qreports);
@@ -186,7 +186,7 @@ DQMService::flush(edm::StreamContext const & sc)
 
 // Disengage the network service.
 void
-DQMService::shutdown(void)
+DQMService::shutdown()
 {
   // If we have a network, let it go.
   if (net_)

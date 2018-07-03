@@ -18,9 +18,12 @@ for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 namespace edmtest {
 namespace global {
@@ -43,13 +46,16 @@ struct UnsafeCache {
   public:
     explicit StreamIntAnalyzer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions"))
-    {}
+    {
+      callWhenNewProductsRegistered([](edm::BranchDescription const& desc)
+        { std::cout << "global::StreamIntAnalyzer " << desc.moduleLabel() << std::endl; });
+    }
     const unsigned int trans_;
     mutable std::atomic<unsigned int> m_count{0};
     
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
       ++m_count;
-      std::unique_ptr<UnsafeCache> pCache(new UnsafeCache);
+      auto pCache = std::make_unique<UnsafeCache>();
       pCache->value = iID.value();
       return pCache;
     }
@@ -208,7 +214,7 @@ struct UnsafeCache {
 
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<UnsafeCache>(new UnsafeCache);
+      return std::make_unique<UnsafeCache>();
     }
 
     std::shared_ptr<UnsafeCache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
@@ -258,7 +264,7 @@ struct UnsafeCache {
 
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<UnsafeCache>(new UnsafeCache);
+      return std::make_unique<UnsafeCache>();
     }
 
     std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override {

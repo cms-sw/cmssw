@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
+#include "DataFormats/TestObjects/interface/MissingDictionaryTestObject.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -22,6 +23,8 @@
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
 #include "DataFormats/TestObjects/interface/StreamTestTmpl.h"
 
+#include "DataFormats/TestObjects/interface/TableTest.h"
+
 #include "DataFormats/TestObjects/interface/DeleteEarly.h"
 
 #include "DataFormats/Common/interface/Holder.h"
@@ -30,6 +33,9 @@
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+
+#include <list>
+#include <algorithm>
 
 namespace DataFormats_TestObjects {
 struct dictionary {
@@ -113,5 +119,8 @@ struct dictionary {
 
   edm::Wrapper<edm::EventID> wrapperEventID;
   edm::Wrapper<edm::ProductID> wrapperProductID;
+
+  //Test that the type did not change
+  static_assert(std::is_same<edmtest::TableTest,edm::soa::Table<edmtest::AnInt,edmtest::AFloat,edmtest::AString>>::value, "Definition of edmtest::TableTest changed");
 };
 }

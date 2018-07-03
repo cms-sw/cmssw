@@ -6,6 +6,7 @@ import commands
 from optparse import OptionParser
 
 
+import six
 # --
 # -- Usage :
 # -- Rate within a given PD :
@@ -94,7 +95,7 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 
 	lsmin=9999999
 	lsmax=-1
-	for (LS,file) in LSinFile.iteritems():
+	for (LS,file) in six.iteritems(LSinFile):
 		nls = NumberOfLSInFile[file]
 		RatePerLS[LS] = RatePerLS[LS] / nls
 		RatePerLS[LS] = RatePerLS[LS] / LS_Length
@@ -105,7 +106,7 @@ def RateInPD(Run,PrimaryDataset,lsMin,lsMax,printLS=False):
 	if printLS:
 		print "lsmin lsmax",lsmin,lsmax
 		for ls in range(lsmin,lsmax):
-			if not `ls` in RatePerLS.keys():
+			if not repr(ls) in RatePerLS.keys():
 				RatePerLS[LS] = 0
 				print "Missing LS ",ls
 
@@ -139,8 +140,8 @@ if __name__ == "__main__":
 		RateInPD(Run,PrimaryDataset,lsMin, lsMax, True)
 		RatesTmp = open("rates_tmp.txt","w")
 		#RatesTmpSort = open("rates_tmp_sort.txt","w")
-		for (LS, rate) in RatePerLS.iteritems():
-			RatesTmp.write(LS+"\t"+`rate`+"\n")
+		for (LS, rate) in six.iteritems(RatePerLS):
+			RatesTmp.write(LS+"\t"+repr(rate)+"\n")
 			#if int(LS) >=  lsMin and int(LS) <= lsMax:
 				#nLS_within_range =nLS_within_range +1
 				#average = average + rate
@@ -156,7 +157,7 @@ if __name__ == "__main__":
 		if options.saveplot:
 			TempFile.write("set term postscript eps enhanced \n")
 			TempFile.write("set output \"tmp.eps\" \n")
-		st_title = " \"Rates in PrimaryDataset " + PrimaryDataset+ " in Run " + `Run`+ "\" "
+		st_title = " \"Rates in PrimaryDataset " + PrimaryDataset+ " in Run " + repr(Run)+ "\" "
 		TempFile.write("set title " + st_title + "\n")
                 TempFile.write(" set pointsize 2. \n")
                 TempFile.write(" set nokey \n")

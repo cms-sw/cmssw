@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+  <ConstantsSection label="CTPPS_UFSD_Plane4.xml">
+    <Constant name="Strip1_dx" value="-[CTPPS_UFSD_Parameters:UFSD_dx]/2+[CTPPS_UFSD_Parameters:Strip1_dx]/2"/>
+    <Constant name="Strip2_dx" value="[Strip1_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip3_dx" value="[Strip2_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip12_dx" value="[Strip3_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip4_dx" value="[Strip12_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip11_dx" value="[Strip4_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip5_dx" value="[Strip11_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip10_dx" value="[Strip5_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip6_dx" value="[Strip10_dx]+[CTPPS_UFSD_Parameters:Strip1_dx]/2+[CTPPS_UFSD_Parameters:Strip2_dx]/2+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip7_dx" value="[Strip6_dx]+[CTPPS_UFSD_Parameters:Strip2_dx]+[CTPPS_UFSD_Parameters:Strip_gap]"/>
+    <Constant name="Strip8_dx" value="[Strip6_dx]"/>
+    <Constant name="Strip9_dx" value="[Strip7_dx]"/>
+    <Constant name="StripA_dy" value="1.46*mm"/>
+    <Constant name="StripB_dy" value="1.565*mm"/>
+  </ConstantsSection>
+
+  <SolidSection label="CTPPS_UFSD_Plane4.xml">
+    <Box name="Plane" dx="[CTPPS_UFSD_Parameters:Plane_dx]/2" dy="[CTPPS_UFSD_Parameters:Plane_dy]/2" dz="[CTPPS_UFSD_Parameters:Plane_dz]/2"/>
+  </SolidSection>
+
+  <LogicalPartSection label="CTPPS_UFSD_Plane4.xml">
+    <LogicalPart name="CTPPS_UFSD_Plane" category="unspecified">
+      <rSolid name="Plane"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+
+  <PosPartSection label="CTPPS_UFSD_Plane4.xml">
+
+    <!-- ******** Strip Pattern ********* -->
+    <PosPart copyNumber="300">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip1_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3001">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip1_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3002">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip1_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="301">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip2_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3011">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip2_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3012">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip2_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="302">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip3_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3021">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip3_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3022">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip3_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="311">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip12_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3111">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip12_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3112">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip12_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="303">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip4_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3031">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip4_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3032">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip4_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="310">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip11_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3101">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip11_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3102">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip11_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="304">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip5_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3041">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip5_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3042">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip5_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="309">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip10_dx]" y="0*mm" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3091">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip10_dx]" y="0*mm" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3092">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern1:Metalized_Layer"/>
+      <Translation x="[Strip10_dx]" y="0*mm" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="305">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentB:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip6_dx]" y="[StripB_dy]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3051">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentB:Metalized_Layer"/>
+      <Translation x="[Strip6_dx]" y="[StripB_dy]" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3052">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentB:Metalized_Layer"/>
+      <Translation x="[Strip6_dx]" y="[StripB_dy]" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="306">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentB:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip7_dx]" y="[StripB_dy]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3061">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentB:Metalized_Layer"/>
+      <Translation x="[Strip7_dx]" y="[StripB_dy]" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3062">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentB:Metalized_Layer"/>
+      <Translation x="[Strip7_dx]" y="[StripB_dy]" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="307">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentA:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip8_dx]" y="-[StripA_dy]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3071">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
+      <Translation x="[Strip8_dx]" y="-[StripA_dy]" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3072">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
+      <Translation x="[Strip8_dx]" y="-[StripA_dy]" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+    <PosPart copyNumber="308">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentA:CTPPS_UFSD_Segment"/>
+      <Translation x="[Strip9_dx]" y="-[StripA_dy]" z="0*mm"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3081">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
+      <Translation x="[Strip9_dx]" y="-[StripA_dy]" z="-([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+    <PosPart copyNumber="3082">
+      <rParent name="CTPPS_UFSD_Plane"/>
+      <rChild name="CTPPS_UFSD_Pattern2_SegmentA:Metalized_Layer"/>
+      <Translation x="[Strip9_dx]" y="-[StripA_dy]" z="([CTPPS_UFSD_Parameters:UFSD_dz]+[CTPPS_UFSD_Parameters:Metalized_thick])/2"/>
+      <rRotation name="rotations:000D"/>
+    </PosPart>
+
+  </PosPartSection>
+
+</DDDefinition>

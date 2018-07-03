@@ -58,6 +58,11 @@ void SiStripTrivialDigiAnalysis::print( stringstream& ss ) {
 SiStripDigiAnalyzer::SiStripDigiAnalyzer( const edm::ParameterSet& pset ) :
   inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) )
 {
+  consumes< edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "VirginRaw"));
+  consumes< edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "ProcessedRaw"));
+  consumes< edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "ScopeMode"));
+  consumes< edm::DetSetVector<SiStripDigi> >(edm::InputTag(inputModuleLabel_, "ZeroSuppressed"));
+  consumes< SiStripEventSummary >(inputModuleLabel_);
   LogDebug("SiStripDigiAnalyzer")
     << "[SiStripDigiAnalyzer::SiStripDigiAnalyzer]"
     << " Constructing object...";
@@ -207,5 +212,4 @@ void SiStripDigiAnalyzer::analyze( const edm::Event& event, const edm::EventSetu
       
     } // channel loop
   } // fed loop
-  
 }

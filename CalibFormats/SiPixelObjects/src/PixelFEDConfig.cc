@@ -9,7 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 
 using namespace pos;
@@ -87,7 +87,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
        {
        PixelFEDParameters tmp;
        unsigned int vme_base_address = 0 ;
-       vme_base_address = strtoul(tableMat[r][colM["VME_ADDR"]].c_str(), 0, 16);
+       vme_base_address = strtoul(tableMat[r][colM["VME_ADDR"]].c_str(), nullptr, 16);
 //        string hexVMEAddr = tableMat[r][colM["VME_ADDRS_HEX"]] ;
 //        sscanf(hexVMEAddr.c_str(), "%x", &vme_base_address) ;
        tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) , 
@@ -110,7 +110,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 	   {
 	     PixelFEDParameters tmp;
 	     tmp.setFEDParameters( fednum, (unsigned int)atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) , 
-				   (unsigned int)strtoul(tableMat[r][colM["VME_ADDR"]].c_str(), 0, 16));   
+				   (unsigned int)strtoul(tableMat[r][colM["VME_ADDR"]].c_str(), nullptr, 16));   
 	     fedconfig_.push_back(tmp); 
 	   }
        }//end else 

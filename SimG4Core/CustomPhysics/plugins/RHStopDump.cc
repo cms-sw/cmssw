@@ -1,4 +1,4 @@
-#include "RHStopDump.h"
+#include "SimG4Core/CustomPhysics/interface/RHStopDump.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

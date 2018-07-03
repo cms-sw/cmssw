@@ -13,10 +13,10 @@ class CaliGeneralDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   CaliGeneralDat();
-  ~CaliGeneralDat();
+  ~CaliGeneralDat() override;
   
   // User data methods
-  inline std::string getTable() { return "CALI_GENERAL_DAT"; }
+  inline std::string getTable() override { return "CALI_GENERAL_DAT"; }
 
   inline void setNumEvents(int n) { m_numEvents = n; }
   inline int getNumEvents() const { return m_numEvents; }
@@ -26,13 +26,13 @@ class CaliGeneralDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
   
   void writeDB(const EcalLogicID* ecid, const CaliGeneralDat* item, CaliIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
   
   void fetchData(std::map< EcalLogicID, CaliGeneralDat >* fillVec, CaliIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
   
   // User data
   int m_numEvents;

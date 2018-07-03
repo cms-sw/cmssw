@@ -1,11 +1,12 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
+#include "UnscheduledConfigurator.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 
 static const std::string kFilterType("EDFilter");
 static const std::string kProducerType("EDProducer");
@@ -17,7 +18,10 @@ namespace edm {
     workerReg_(areg),
     actionTable_(&actions),
     allWorkers_(),
-    unscheduled_(new UnscheduledCallProducer) {
+    unscheduled_(*areg),
+    lastSetupEventPrincipal_(nullptr)
+  {
+
   } // WorkerManager::WorkerManager
 
   WorkerManager::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
@@ -26,7 +30,9 @@ namespace edm {
   workerReg_(areg,modReg),
   actionTable_(&actions),
   allWorkers_(),
-  unscheduled_(new UnscheduledCallProducer) {
+  unscheduled_(*areg),
+  lastSetupEventPrincipal_(nullptr)
+  {
   } // WorkerManager::WorkerManager
 
   Worker* WorkerManager::getWorker(ParameterSet& pset,
@@ -53,7 +59,7 @@ namespace edm {
       Worker* newWorker = getWorker(pset, preg, prealloc, processConfiguration, label);
       assert(newWorker->moduleType() == Worker::kProducer || newWorker->moduleType() == Worker::kFilter);
       unscheduledLabels.insert(label);
-      unscheduled_->addWorker(newWorker);
+      unscheduled_.addWorker(newWorker);
       //add to list so it gets reset each new event
       addToAllWorkers(newWorker);
     } else {
@@ -95,14 +101,22 @@ namespace edm {
     auto const runLookup = iRegistry.productLookup(InRun);
     auto const lumiLookup = iRegistry.productLookup(InLumi);
     auto const eventLookup = iRegistry.productLookup(InEvent);
-    for(auto& worker : allWorkers_) {
-      worker->updateLookup(InRun,*runLookup);
-      worker->updateLookup(InLumi,*lumiLookup);
-      worker->updateLookup(InEvent,*eventLookup);
+    if(!allWorkers_.empty()) {
+      auto const& processName = allWorkers_[0]->description().processName();
+      auto runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+      auto lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+      auto eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+      for(auto& worker : allWorkers_) {
+        worker->updateLookup(InRun,*runLookup);
+        worker->updateLookup(InLumi,*lumiLookup);
+        worker->updateLookup(InEvent,*eventLookup);
+        worker->resolvePutIndicies(InRun,runModuleToIndicies);
+        worker->resolvePutIndicies(InLumi,lumiModuleToIndicies);
+        worker->resolvePutIndicies(InEvent,eventModuleToIndicies);
+      }
+      
+      for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
     }
-    
-    for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
-    loadMissingDictionaries();
   }
 
   void
@@ -132,10 +146,14 @@ namespace edm {
   }
 
   void
-  WorkerManager::setupOnDemandSystem(EventPrincipal& ep, EventSetup const& es) {
-    // NOTE: who owns the productdescrption?  Just copied by value
-    unscheduled_->setEventSetup(es);
-    ep.setUnscheduledHandler(unscheduled_);
+  WorkerManager::setupOnDemandSystem(Principal& ep, EventSetup const& es) {
+    this->resetAll();
+    unscheduled_.setEventSetup(es);
+    if(&ep != lastSetupEventPrincipal_) {
+      UnscheduledConfigurator config( allWorkers_.begin(), allWorkers_.end(), &(unscheduled_.auxiliary()));
+      ep.setupUnscheduled(config);
+      lastSetupEventPrincipal_ = &ep;
+    }
   }
   
 }

@@ -26,13 +26,14 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
-TGeoManager* FWGeometryTableViewManager::s_geoManager = 0;
+TGeoManager* FWGeometryTableViewManager::s_geoManager = nullptr;
 
 TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTableViewManager::getGeoMangeur(); }
 
-FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName):
-   FWViewManagerBase(),
-   m_fileName(fileName)
+FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName, std::string geoName)
+   : FWViewManagerBase(),
+     m_fileName(fileName),
+     m_TGeoName(geoName)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWGeometryTableViewManager::buildView, this, _1, _2);                
@@ -49,7 +50,7 @@ FWViewBase*
 FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const std::string& type)
 {
    if (!s_geoManager) setGeoManagerFromFile();
-   boost::shared_ptr<FWGeometryTableViewBase> view;
+   std::shared_ptr<FWGeometryTableViewBase> view;
 
    FWViewType::EType typeId = (type == FWViewType::sName[FWViewType::kGeometryTable]) ?  FWViewType::kGeometryTable : FWViewType::kOverlapTable;
    if (typeId == FWViewType::kGeometryTable)
@@ -58,7 +59,7 @@ FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const std::string
       view.reset( new FWOverlapTableView(iParent, &colorManager()));
 
    view->setBackgroundColor();
-   m_views.push_back(boost::shared_ptr<FWGeometryTableViewBase> (view));
+   m_views.push_back(std::shared_ptr<FWGeometryTableViewBase> (view));
    view->beingDestroyed_.connect(boost::bind(&FWGeometryTableViewManager::beingDestroyed, this,_1));
                                             
    return view.get();
@@ -68,7 +69,7 @@ FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const std::string
 void
 FWGeometryTableViewManager::beingDestroyed(const FWViewBase* iView)
 {
-   for(std::vector<boost::shared_ptr<FWGeometryTableViewBase> >::iterator it=m_views.begin(); it != m_views.end(); ++it) {
+   for(std::vector<std::shared_ptr<FWGeometryTableViewBase> >::iterator it=m_views.begin(); it != m_views.end(); ++it) {
       if(it->get() == iView) {
          m_views.erase(it);
          return;
@@ -79,7 +80,7 @@ FWGeometryTableViewManager::beingDestroyed(const FWViewBase* iView)
 void
 FWGeometryTableViewManager::colorsChanged()
 {
-  for(std::vector<boost::shared_ptr<FWGeometryTableViewBase> >::iterator it=m_views.begin(); it != m_views.end(); ++it)
+  for(std::vector<std::shared_ptr<FWGeometryTableViewBase> >::iterator it=m_views.begin(); it != m_views.end(); ++it)
       (*it)->setBackgroundColor();
 }
 
@@ -115,7 +116,7 @@ FWGeometryTableViewManager::setGeoManagerFromFile()
       
       file->ls();
       
-      s_geoManager = (TGeoManager*) file->Get("cmsGeo;1");      
+      s_geoManager = (TGeoManager*) file->Get( m_TGeoName.c_str());
       if ( ! s_geoManager)
          throw std::runtime_error("Can't find TGeoManager object in selected file.");
 

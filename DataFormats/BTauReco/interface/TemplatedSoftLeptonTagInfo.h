@@ -15,6 +15,8 @@ namespace reco {
 class SoftLeptonProperties {
 public:
     SoftLeptonProperties() :
+        sip2dsig(    std::numeric_limits<float>::quiet_NaN() ),
+        sip3dsig(    std::numeric_limits<float>::quiet_NaN() ),
         sip2d(    std::numeric_limits<float>::quiet_NaN() ),
         sip3d(    std::numeric_limits<float>::quiet_NaN() ),
         ptRel(    std::numeric_limits<float>::quiet_NaN() ),
@@ -23,9 +25,12 @@ public:
         deltaR(   std::numeric_limits<float>::quiet_NaN() ),
         ratio(    std::numeric_limits<float>::quiet_NaN() ),
         ratioRel( std::numeric_limits<float>::quiet_NaN() ),
-        elec_mva( std::numeric_limits<float>::quiet_NaN() )
+        elec_mva( std::numeric_limits<float>::quiet_NaN() ),
+        charge(   -10 )
     { }
 
+    float sip2dsig;                            // 2D signed impact parameter significance
+    float sip3dsig;                            // 3D signed impact parameter significance
     float sip2d;                            // 2D signed impact parameter
     float sip3d;                            // 3D signed impact parameter
     float ptRel;                            // transverse momentum wrt. the jet axis
@@ -37,6 +42,8 @@ public:
     float ratioRel;                         // momentum parallel to jet axis over jet energy
 
     float elec_mva;
+
+    int charge;
 
     struct Quality {
         static const float undef;
@@ -113,9 +120,9 @@ public:
     
     TemplatedSoftLeptonTagInfo(void) : m_leptons() {}
 
-    virtual ~TemplatedSoftLeptonTagInfo(void) {}
+    ~TemplatedSoftLeptonTagInfo(void) override {}
   
-    virtual TemplatedSoftLeptonTagInfo* clone(void) const { return new TemplatedSoftLeptonTagInfo(*this); }
+    TemplatedSoftLeptonTagInfo* clone(void) const override { return new TemplatedSoftLeptonTagInfo(*this); }
 
     unsigned int leptons(void) const { 
         return m_leptons.size(); 
@@ -134,7 +141,7 @@ public:
     }
 
     /// returns a description of the extended informations in a TaggingVariableList
-    virtual TaggingVariableList taggingVariables(void) const;
+    TaggingVariableList taggingVariables(void) const override;
 
     // Used by ROOT storage
     CMS_CLASS_VERSION(2)
@@ -163,14 +170,17 @@ TaggingVariableList TemplatedSoftLeptonTagInfo<REF>::taggingVariables(void) cons
     const SoftLeptonProperties & data = m_leptons[i].second;
     list.insert( TaggingVariable(btau::leptonQuality,  data.quality(SoftLeptonProperties::Quality::leptonId, false)), true );
     list.insert( TaggingVariable(btau::leptonQuality2, data.quality(SoftLeptonProperties::Quality::btagLeptonCands, false)), true );
-    list.insert( TaggingVariable(btau::trackSip2dSig,  data.sip2d),    true );
-    list.insert( TaggingVariable(btau::trackSip3dSig,  data.sip3d),    true );
+    list.insert( TaggingVariable(btau::trackSip2dVal,  data.sip2d),    true );
+    list.insert( TaggingVariable(btau::trackSip3dVal,  data.sip3d),    true );
+    list.insert( TaggingVariable(btau::trackSip2dSig,  data.sip2dsig),    true );
+    list.insert( TaggingVariable(btau::trackSip3dSig,  data.sip3dsig),    true );
     list.insert( TaggingVariable(btau::trackPtRel,     data.ptRel),    true );
     list.insert( TaggingVariable(btau::trackP0Par,     data.p0Par),    true );
     list.insert( TaggingVariable(btau::trackEtaRel,    data.etaRel),   true );
     list.insert( TaggingVariable(btau::trackDeltaR,    data.deltaR),   true );
     list.insert( TaggingVariable(btau::trackPParRatio, data.ratioRel), true );
     list.insert( TaggingVariable(btau::electronMVA,    data.elec_mva), true );
+    list.insert( TaggingVariable(btau::trackCharge,    data.charge),   true );
   }
 
   list.finalize();

@@ -45,9 +45,9 @@ namespace cscdqm {
         this->message = message;
       }
 
-      virtual ~Exception() throw() { }
+      ~Exception() throw() override { }
 
-      virtual const char* what() const throw() {
+      const char* what() const throw() override {
         return message.c_str();
       }
 
@@ -62,23 +62,23 @@ namespace cscdqm {
 
     public:
 
-      void warning(const XERCES_CPP_NAMESPACE::SAXParseException& exc) {
+      void warning(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
         char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
         LOG_WARN << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
         XERCES_CPP_NAMESPACE::XMLString::release(&message);
       }
 
-      void error(const XERCES_CPP_NAMESPACE::SAXParseException& exc) {
+      void error(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
         this->fatalError(exc);
       }
 
-      void fatalError(const XERCES_CPP_NAMESPACE::SAXParseException& exc) {
+      void fatalError(const XERCES_CPP_NAMESPACE::SAXParseException& exc) override {
         char* message = XERCES_CPP_NAMESPACE::XMLString::transcode(exc.getMessage());
         LOG_COUT << "File: " << message << ". line: " << exc.getLineNumber() << " col: " << exc.getColumnNumber();
         throw Exception(message);
       }
 
-      void resetErrors () { }
+      void resetErrors () override { }
 
   };
 

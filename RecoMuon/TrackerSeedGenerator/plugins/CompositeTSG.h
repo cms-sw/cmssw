@@ -25,15 +25,15 @@ public:
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
   CompositeTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& IC);
-  virtual ~CompositeTSG();
+  ~CompositeTSG() override;
 
   /// initialized the TSGs
-  void init(const MuonServiceProxy *service);
+  void init(const MuonServiceProxy *service) override;
   /// set the event to the TSGs
-  void setEvent(const edm::Event &event);
+  void setEvent(const edm::Event &event) override;
 
   /// provides the seeds from the TSGs: must be overloaded
-  virtual void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &) =0;
+  void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &) override =0;
 
  protected:
 

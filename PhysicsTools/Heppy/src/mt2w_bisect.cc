@@ -34,7 +34,7 @@
 *******************************************************************************/ 
               
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "PhysicsTools/Heppy/interface/mt2w_bisect.h"
 
 using namespace std;

@@ -57,18 +57,19 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
  public:
 
   explicit BuildTrackerMapPlugin(const edm::ParameterSet&);
-  ~BuildTrackerMapPlugin();
+  ~BuildTrackerMapPlugin() override {}
  private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   void read(bool aMechView,
 	    std::string aFile,
-	    std::vector<TkHistoMap*> & aTkMapVec,
+            const TkDetMap* tkDetMap,
+	    std::vector<std::unique_ptr<TkHistoMap>> & aTkMapVec,
 	    std::vector<bool> & aValidVec);
-  void subtractMap(TkHistoMap*& aResult,
-		   TkHistoMap*& aSubtr);
+  void subtractMap(TkHistoMap* aResult,
+		   const TkHistoMap* aSubtr);
 
 
 
@@ -84,9 +85,9 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   bool doDiff_;
   std::string fileNameDiff_;
 
-  std::vector<TkHistoMap*> tkHistoMapVec_;
-  std::vector<TkHistoMap*> tkHistoMapVecDiff_;
-  
+  std::vector<std::unique_ptr<TkHistoMap>> tkHistoMapVec_;
+  std::vector<std::unique_ptr<TkHistoMap>> tkHistoMapVecDiff_;
+
   //name of the tkHistoMap to extract
   std::vector<std::string> tkHistoMapNameVec_;
   std::vector<double> minVal_;
@@ -118,8 +119,6 @@ BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
     pset_(iConfig.getParameter<edm::ParameterSet>("TkmapParameters"))
 {
 
-  read(mechanicalView_,fileName_,tkHistoMapVec_,isValidMap_);
-  if (doDiff_) read(mechanicalView_,fileNameDiff_,tkHistoMapVecDiff_,isValidMapDiff_);
 
 
 //   for (unsigned int i(0); i<34; i++){
@@ -136,14 +135,6 @@ BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
   
 }
 
-BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
-{
-
-  tkHistoMapVec_.clear();
-  if (doDiff_) tkHistoMapVecDiff_.clear();
-}
-
-
 //
 // Member functions
 //
@@ -151,17 +142,17 @@ BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
 /*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are known)*/
 void BuildTrackerMapPlugin::read(bool aMechView,
 				 std::string aFile,
-				 std::vector<TkHistoMap*> & aTkMapVec,
-				 std::vector<bool> & aValidVec)
+                                 const TkDetMap* tkDetMap,
+				 std::vector<std::unique_ptr<TkHistoMap>>& aTkMapVec,
+				 std::vector<bool>& aValidVec)
 {
   
   DQMStore * lDqmStore = edm::Service<DQMStore>().operator->();
   lDqmStore->open(aFile);  
-  std::vector<TkHistoMap *> tkHistoMap;
 
   unsigned int nHists = tkHistoMapNameVec_.size();
-  tkHistoMap.resize(nHists,0);
-  aValidVec.resize(nHists,true);
+  aTkMapVec.reserve(nHists);
+  aValidVec.reserve(nHists);
 
   std::string dirName = folderName_;
   if (dirName == "") {
@@ -178,11 +169,11 @@ void BuildTrackerMapPlugin::read(bool aMechView,
   unsigned int nTotTot = 0;
   for (unsigned int i(0); i<nHists; i++){
 
-    tkHistoMap[i] = new TkHistoMap();
+    std::unique_ptr<TkHistoMap> tkHistoMap{new TkHistoMap(tkDetMap)};
 
-    tkHistoMap[i]->loadTkHistoMap(dirName,tkHistoMapNameVec_.at(i),aMechView);
+    tkHistoMap->loadTkHistoMap(dirName,tkHistoMapNameVec_.at(i),aMechView);
     
-    std::vector<MonitorElement*>& lMaps = tkHistoMap[i]->getAllMaps();
+    std::vector<MonitorElement*>& lMaps = tkHistoMap->getAllMaps();
 
     std::cout << " -- map " << i << ", nHistos = " << lMaps.size() << std::endl;
     unsigned int nFail=0;
@@ -199,7 +190,7 @@ void BuildTrackerMapPlugin::read(bool aMechView,
     }
 
     if (nFail == nTot) aValidVec[i] = false;
-    aTkMapVec.push_back(tkHistoMap[i]);
+    aTkMapVec.emplace_back(std::move(tkHistoMap));
   }
 
   if (nFailTot < nTotTot) std::cout << " - " << nTotTot-nFailTot << "/" << nTotTot 
@@ -321,6 +312,14 @@ BuildTrackerMapPlugin::analyze(const edm::Event& iEvent,
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
+  if ( tkHistoMapVec_.empty() && ( ! tkHistoMapNameVec_.empty() ) ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    const TkDetMap* tkDetMap = tkDetMapHandle.product();
+    read(mechanicalView_, fileName_, tkDetMap, tkHistoMapVec_, isValidMap_);
+    if (doDiff_) read(mechanicalView_, fileNameDiff_, tkDetMap, tkHistoMapVecDiff_, isValidMapDiff_);
+  }
+
   if (firstEvent) {
     for (unsigned int i(0); i<tkHistoMapNameVec_.size(); i++){
       tkmap_.push_back(new TrackerMap(pset_,&(*fedcabling),tTopo));
@@ -364,12 +363,12 @@ BuildTrackerMapPlugin::endJob()
       continue;
     }
 
-    subtractMap(tkHistoMapVec_.at(i),tkHistoMapVecDiff_.at(i));
+    subtractMap(tkHistoMapVec_.at(i).get(),tkHistoMapVecDiff_.at(i).get());
 
 
     //(pset_,pDD1); 
     lTkMap->setPalette(1);
-    lTkMap->showPalette(1);
+    lTkMap->showPalette(true);
     if (!tkHistoMapVec_.at(i) || !isValidMap_.at(i)) {
       std::cout << "Warning, tkHistoMap is invalid for element " << i << "... continuing ..." << std::endl;
       continue;
@@ -392,12 +391,11 @@ BuildTrackerMapPlugin::endJob()
 }
 
 
-void BuildTrackerMapPlugin::subtractMap(TkHistoMap *& aResult,
-					TkHistoMap *& aSubtr)
+void BuildTrackerMapPlugin::subtractMap(TkHistoMap* aResult, const TkHistoMap* aSubtr)
 {
   
   std::vector<MonitorElement*>& lMaps = aResult->getAllMaps();
-  std::vector<MonitorElement*>& lMapsDiff = aSubtr->getAllMaps();
+  const std::vector<MonitorElement*>& lMapsDiff = aSubtr->getAllMaps();
 
   assert(lMaps.size() == lMapsDiff.size());  
 

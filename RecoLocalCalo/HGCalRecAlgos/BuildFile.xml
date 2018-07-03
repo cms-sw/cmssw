@@ -1,0 +1,15 @@
+<use   name="clhep"/>
+<use   name="DataFormats/HGCRecHit"/>
+<use   name="root"/>
+<use   name="rootminuit"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="CondFormats/DataRecord"/>
+<use name="Geometry/HGCalGeometry"/>
+<use name="Geometry/HcalTowerAlgo"/>
+<use name="Geometry/Records"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<export>
+  <lib   name="1"/>
+</export>

@@ -34,7 +34,7 @@ class GsfPropagatorWithMaterial : public Propagator {
   GsfPropagatorWithMaterial(const GsfPropagatorAdapter& Propagator,
 			    const FullConvolutionWithMaterial& Convolutor);
 
-  ~GsfPropagatorWithMaterial() {}
+  ~GsfPropagatorWithMaterial() override {}
 
 
   using Propagator::propagate;
@@ -43,13 +43,13 @@ class GsfPropagatorWithMaterial : public Propagator {
 
   /** Propagation to plane with path length calculation.
    */
-  virtual std::pair<TrajectoryStateOnSurface,double>
+  std::pair<TrajectoryStateOnSurface,double>
   propagateWithPath (const TrajectoryStateOnSurface&,
 		     const Plane&) const override;
 
   /** Propagation to cylinder with path length calculation.
    */
-  virtual std::pair<TrajectoryStateOnSurface,double>
+  std::pair<TrajectoryStateOnSurface,double>
   propagateWithPath (const TrajectoryStateOnSurface&,
 		     const Cylinder&) const override;
 
@@ -57,21 +57,21 @@ class GsfPropagatorWithMaterial : public Propagator {
   /** Propagation to plane with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
 								   const Plane&) const override;
   /** Propagation to cylinder with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
-  virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
+  std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
 								   const Cylinder&) const override;
 
 
 
-  virtual bool setMaxDirectionChange( float phiMax) {
+  bool setMaxDirectionChange( float phiMax) override {
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);
   }
 
- virtual void setPropagationDirection (PropagationDirection dir) override;
+ void setPropagationDirection (PropagationDirection dir) override;
 
   enum MaterialLocation {atSource, atDestination, fromDirection};
   /** Choice of location for including material effects:
@@ -94,12 +94,12 @@ class GsfPropagatorWithMaterial : public Propagator {
     return *theConvolutor;
   }
 
-  virtual GsfPropagatorWithMaterial* clone() const
+  GsfPropagatorWithMaterial* clone() const override
   {
     return new GsfPropagatorWithMaterial(*theGeometricalPropagator,*theConvolutor);
   }
 
-  const MagneticField* magneticField() const {return theGeometricalPropagator->magneticField();}
+  const MagneticField* magneticField() const override {return theGeometricalPropagator->magneticField();}
 
 private:
 //   /// Definition of timers (temporary)

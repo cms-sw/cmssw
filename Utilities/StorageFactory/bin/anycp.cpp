@@ -228,20 +228,20 @@ int main (int argc, char **argv) try
   }
 
   std::shared_ptr<Storage>			is;
-  std::vector<std::shared_ptr<Storage> >	os(argc-2);
+  std::vector<std::unique_ptr<Storage> >	os(argc-2);
   std::vector<std::thread> threads;
   bool						readThreadActive = true;
   bool						writeThreadActive = true;
   IOOffset					size = -1;
 
-  StorageFactory::get ()->enableAccounting(true);
-  bool exists = StorageFactory::get ()->check(argv [1], &size);
+  StorageFactory::getToModify ()->enableAccounting(true);
+  bool exists = StorageFactory::getToModify ()->check(argv [1], &size);
   std::cerr << "input file exists = " << exists << ", size = " << size << "\n";
   if (! exists) return EXIT_SUCCESS;
 
   try
   {
-    is.reset(StorageFactory::get ()->open (argv [1]));
+    is = StorageFactory::getToModify ()->open (argv [1]);
     if (readThreadActive) 
       threads.emplace_back(&readThread,is.get());
   }
@@ -256,10 +256,10 @@ int main (int argc, char **argv) try
   for (int i=0; i < argc-2; i++)
     try
     {
-      os[i].reset(StorageFactory::get ()->open (argv[i+2],
+      os[i]= StorageFactory::getToModify ()->open (argv[i+2],
 						IOFlags::OpenWrite
 						| IOFlags::OpenCreate
-						| IOFlags::OpenTruncate));
+						| IOFlags::OpenTruncate);
     if (writeThreadActive) 
       threads.emplace_back(&writeThread,os[i].get());
   }
@@ -306,7 +306,7 @@ int main (int argc, char **argv) try
     }
   }
 
-  std::cout << StorageAccount::summaryXML () << std::endl;
+  std::cout << StorageAccount::summaryText(true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

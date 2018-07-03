@@ -18,7 +18,7 @@ hiFirstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
              maxZ = cms.double(15.0),
              maxRho = cms.double(2.0)
      ),
-     src=cms.InputTag('hiSelectedVertex')
+     src=cms.InputTag('hiSelectedPixelVertex')
 )
 
 # SEEDING LAYERS
@@ -51,6 +51,29 @@ hiJetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         HitProducer = cms.string('siPixelRecHits'),
     )
 )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiJetCoreRegionalStepSeedLayers, layerList = cms.vstring('BPix1+BPix2+BPix3',
+    'BPix2+BPix3+BPix4',
+    'BPix1+BPix3+BPix4',
+    'BPix1+BPix2+BPix4',
+    'BPix2+BPix3+FPix1_pos',
+    'BPix2+BPix3+FPix1_neg',
+    'BPix1+BPix2+FPix1_pos',
+    'BPix1+BPix2+FPix1_neg',
+    'BPix2+FPix1_pos+FPix2_pos',
+    'BPix2+FPix1_neg+FPix2_neg',
+    'BPix1+FPix1_pos+FPix2_pos',
+    'BPix1+FPix1_neg+FPix2_neg',
+    'FPix1_pos+FPix2_pos+FPix3_pos',
+    'FPix1_neg+FPix2_neg+FPix3_neg',#up to here, same as what is in RecoTracker/TkSeedingLayers/python/PixelLayerTriplets_cfi.py for phase 1
+    'BPix1+BPix2+TIB1',#use TIB1 to try to recover tracks w/ 2 hits missing in pix barrel
+    'BPix1+BPix3+TIB1',
+    'BPix1+BPix4+TIB1',
+    'BPix2+BPix3+TIB1',
+    'BPix2+BPix4+TIB1',
+    'BPix3+BPix4+TIB1',
+    )
+)
 
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
@@ -59,6 +82,8 @@ hiJetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
       ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),#not so nice to depend on RecoTau...
       RegionPSet = cms.PSet(
         precise = cms.bool( True ),
+        useMultipleScattering = cms.bool(False),
+        useFakeVertices       = cms.bool(False),
         originRadius = cms.double( 0.2 ),
         ptMin = cms.double( 15. ),
         originHalfLength = cms.double( 0.2 ),
@@ -84,8 +109,8 @@ hiJetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajec
     minPt = 10.0
 )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-hiJetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+hiJetCoreRegionalStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('hiJetCoreRegionalStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0)

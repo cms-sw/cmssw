@@ -18,7 +18,7 @@
 // system include files
 #include <iomanip>
 #include <bitset>
-#include <stdint.h>
+#include <cstdint>
 
 // user include files
 

@@ -67,7 +67,7 @@ class CSCMake2DRecHit
   // Cache pointer to conditions for current event
   const CSCRecoConditions* recoConditions_;
 
-  const std::auto_ptr<CSCFindPeakTime> peakTimeFinder_;
+  const std::unique_ptr<CSCFindPeakTime> peakTimeFinder_;
 
 
 };

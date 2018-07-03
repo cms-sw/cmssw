@@ -30,6 +30,7 @@ namespace test{
     DumpFEDRawDataProduct(const ParameterSet& pset){
       std::vector<int> ids;
       label_ = pset.getUntrackedParameter<std::string>("label","source");
+      consumes<FEDRawDataCollection>(label_);
       ids=pset.getUntrackedParameter<std::vector<int> >("feds",std::vector<int>());
       dumpPayload_=pset.getUntrackedParameter<bool>("dumpPayload",false);
       for (std::vector<int>::iterator i=ids.begin(); i!=ids.end(); i++) 

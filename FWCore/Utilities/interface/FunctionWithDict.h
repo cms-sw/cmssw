@@ -11,6 +11,7 @@ FunctionWithDict:  A holder for a class member function
 
 #include "TMethod.h"
 #include "TMethodArg.h"
+#include "TInterpreter.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -26,6 +27,8 @@ class TypeWithDict;
 class FunctionWithDict {
 private:
   TMethod* function_;
+  TInterpreter::CallFuncIFacePtr_t funcptr_;
+
 public:
   FunctionWithDict();
   explicit FunctionWithDict(TMethod*);

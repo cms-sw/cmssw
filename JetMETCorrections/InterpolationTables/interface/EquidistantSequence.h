@@ -27,7 +27,7 @@ namespace npstat {
         virtual ~EquidistantInLinearSpace() {}
 
     private:
-        EquidistantInLinearSpace();
+        EquidistantInLinearSpace() = delete;
     };
 
     /**
@@ -43,7 +43,7 @@ namespace npstat {
         virtual ~EquidistantInLogSpace() {}
 
     private:
-        EquidistantInLogSpace();
+        EquidistantInLogSpace() = delete;
     };
 }
 

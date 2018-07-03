@@ -1,17 +1,12 @@
-#include <Math/GenVector/VectorUtil.h>
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
 
 using namespace reco; 
-using namespace ROOT::Math;
 
 TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	minPixelHits(params.getParameter<unsigned int>("pixelHitsMin")),
@@ -67,20 +62,53 @@ TrackSelector::operator () (const Track &track,
   if (useVariableJTA_) {
     jtaPassed = TrackIPTagInfo::passVariableJTA( varJTApars,
 					jet.pt(),track.pt(),
-					VectorUtil::DeltaR(jet.momentum(),track.momentum()));
+					reco::deltaR(jet.momentum(),track.momentum()));
   }
   else  jtaPassed = true;
+
+  return track.pt() >= minPt &&
+    reco::deltaR2(jet.momentum(),
+		       track.momentum()) < maxJetDeltaR*maxJetDeltaR &&
+    jtaPassed &&
+    trackSelection(track, ipData, jet, pv);
+}
+
+bool
+TrackSelector::operator () (const CandidatePtr &track,
+                            const btag::TrackIPData &ipData,
+                            const Jet &jet,
+                            const GlobalPoint &pv) const
+{
+
+ 
+  bool jtaPassed = false;
+  if (useVariableJTA_) {
+    jtaPassed = TrackIPTagInfo::passVariableJTA( varJTApars,
+					jet.pt(),track->pt(),
+					reco::deltaR(jet.momentum(),track->momentum()));
+  }
+  else  jtaPassed = true;
+
+  return track->pt() >= minPt &&
+    reco::deltaR2(jet.momentum(),
+		       track->momentum()) < maxJetDeltaR*maxJetDeltaR &&
+    jtaPassed &&
+    trackSelection(*reco::btag::toTrack(track), ipData, jet, pv);
+}
+
+bool
+TrackSelector::trackSelection(const Track &track,
+                              const btag::TrackIPData &ipData,
+                              const Jet &jet,
+                              const GlobalPoint &pv) const
+{
 
   return (!selectQuality || track.quality(quality)) &&
     (minPixelHits <= 0 ||
      track.hitPattern().numberOfValidPixelHits() >= (int)minPixelHits) &&
     (minTotalHits <= 0 ||
      track.hitPattern().numberOfValidHits() >= (int)minTotalHits) &&
-    track.pt() >= minPt &&
     track.normalizedChi2() < maxNormChi2 &&
-    VectorUtil::DeltaR(jet.momentum(),
-		       track.momentum()) < maxJetDeltaR &&
-    jtaPassed &&
     std::abs(ipData.distanceToJetAxis.value()) <= maxDistToAxis &&
     (ipData.closestToJetAxis - pv).mag() <= maxDecayLen &&
     ipData.ip2d.value()        >= sip2dValMin &&

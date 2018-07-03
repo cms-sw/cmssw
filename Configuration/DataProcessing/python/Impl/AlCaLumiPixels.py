@@ -7,10 +7,13 @@ Scenario supporting proton collisions
 """
 
 from Configuration.DataProcessing.Impl.AlCa import AlCa
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
 
 class AlCaLumiPixels(AlCa):
     def __init__(self):
-        self.skims=['LumiPixels']
+        AlCa.__init__(self)
+        self.eras=Run2_2017
+        self.skims=['AlCaPCCZeroBias+AlCaPCCRandom']
     """
     _AlCaLumiPixels_
 

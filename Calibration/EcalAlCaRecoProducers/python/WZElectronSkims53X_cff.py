@@ -194,7 +194,7 @@ eleSC = cms.EDProducer('ConcreteEcalCandidateProducer',
 
 selectedCands = cms.EDFilter("AssociatedVariableMaxCutCandRefSelector",
                              src = cms.InputTag("eleSelectionProducers:loose"),
-                             max = cms.double("0.5")
+                             max = cms.double(0.5)
                              )
 
 eleSelSeq = cms.Sequence( selectedElectrons + PassingVeryLooseId + PassingTightId + 

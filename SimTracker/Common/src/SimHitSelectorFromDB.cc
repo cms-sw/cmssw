@@ -2,14 +2,14 @@
 
 SimHitSelectorFromDB::SimHitSelectorFromDB():theNewSimHitList(0){}
 
-//std::vector<PSimHit> SimHitSelectorFromDB::getSimHit(std::auto_ptr<MixCollection<PSimHit> >& simhit, 
-std::vector<std::pair<const PSimHit*,int> > SimHitSelectorFromDB::getSimHit(std::auto_ptr<MixCollection<PSimHit> >& simhit, 
+//std::vector<PSimHit> SimHitSelectorFromDB::getSimHit(std::unique_ptr<MixCollection<PSimHit> >& simhit, 
+std::vector<std::pair<const PSimHit*,int> > SimHitSelectorFromDB::getSimHit(std::unique_ptr<MixCollection<PSimHit> >& simhit, 
 						     std::map<uint32_t, std::vector<int> >& detId){
   theNewSimHitList.clear();
   int counter =0;
   for(MixCollection<PSimHit>::iterator it = simhit->begin(); it!= simhit->end();it++){
     counter++;
-    if(detId.size()!=0){
+    if(!detId.empty()){
       uint32_t tkid = (*it).detUnitId();
       if (detId.find(tkid) != detId.end()){
 	//	theNewSimHitList.push_back((*it));

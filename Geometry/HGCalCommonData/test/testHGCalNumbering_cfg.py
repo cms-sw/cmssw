@@ -2,23 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023D17XML_cfi")
+#process.load("Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi")
+#process.load("Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi")
+process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HGCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HGCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('HGCalGeom')
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -44,6 +37,31 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HGCalNumberingTester")
+process.prodEE = cms.EDAnalyzer("HGCalNumberingTester",
+                                NameSense     = cms.string("HGCalEESensitive"),
+                                NameDevice    = cms.string("HGCal EE"),
+                                LocalPositionX= cms.vdouble(500.0,350.0,800.0,1400.0),
+                                LocalPositionY= cms.vdouble(500.0,0.0,0.0,0.0),
+                                Increment     = cms.int32(19),
+#                               DetType       = cms.int32(1),
+                                DetType       = cms.int32(2),
+                                Reco          = cms.bool(False)
+)
 
-process.p1 = cms.Path(process.generator*process.prod)
+process.prodHEF = process.prodEE.clone(
+    NameSense  = "HGCalHESiliconSensitive",
+    NameDevice = "HGCal HE Front",
+    Increment  = 9
+)
+ 
+process.prodHEB = process.prodEE.clone(
+    NameSense  = "HGCalHEScintillatorSensitive",
+    NameDevice = "HGCal HE Back",
+    Increment  = 9,
+    LocalPositionX= [1000.0,1400.0,1500.0,1600.0],
+    LocalPositionY= [1000.0,0.0,0.0,0.0],
+    DetType    = 0
+)
+ 
+#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
+process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)

@@ -22,7 +22,6 @@ sed -i "s/THEHEADER/$3/g" ${cname}_test.cc
 
 echo "<bin file=${cname}_test.cc name=CondPayload_${cname}_testIO>" > bfile
 echo "<use name=CondFormats/$2>" >> bfile
-echo "<use name=CondCore/DBCommon>" >> bfile
 echo "</bin>" >> bfile
 
 mv bfile BuildFile

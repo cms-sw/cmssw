@@ -50,7 +50,7 @@ MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters,
 {
   if (matchParameters.existsAs<edm::InputTag>("RPChits")) {
      RPCHitTags_=matchParameters.getParameter<edm::InputTag>("RPChits");
-  } else RPCHitTags_=edm::InputTag("rpcRecHits");
+  } else RPCHitTags_=edm::InputTag("hltRpcRecHits");
 
   dtRecHitsToken = iC.consumes<DTRecSegment4DCollection>(DTSegmentTags_);
   allSegmentsCSCToken = iC.consumes<CSCSegmentCollection>(CSCSegmentTags_) ;
@@ -80,7 +80,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
     if (!(*hit)->isValid()) continue; 
     if ( (*hit)->geographicalId().det() != DetId::Muon ) continue; 
     if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue;
-    if ((*hit)->recHits().size()) 
+    if (!(*hit)->recHits().empty()) 
       if ((*(*hit)->recHits().begin())->recHits().size()>1) segments = true;
     dtHits.push_back(*hit);
   }

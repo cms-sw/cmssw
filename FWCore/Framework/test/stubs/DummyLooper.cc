@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/LooperFactory.h"
@@ -27,9 +26,7 @@
 
 #include "FWCore/Framework/test/DummyData.h"
 #include "FWCore/Framework/test/DummyRecord.h"
-
-
-
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 //
 // class decleration
@@ -41,7 +38,8 @@ class DummyLooper : public edm::ESProducerLooper {
       DummyLooper(const edm::ParameterSet&);
       ~DummyLooper();
 
-      typedef boost::shared_ptr<DummyData> ReturnType;
+      typedef std::shared_ptr<DummyData> ReturnType;
+      typedef std::shared_ptr<DummyData const> ConstReturnType;
 
       ReturnType produce(const DummyRecord&);
       
@@ -58,7 +56,10 @@ class DummyLooper : public edm::ESProducerLooper {
       }
    private:
       // ----------member data ---------------------------
-      ReturnType data_;
+      ConstReturnType data() const {return get_underlying_safe(data_);}
+      ReturnType& data() {return get_underlying_safe(data_);}
+
+      edm::propagate_const<ReturnType> data_;
       int counter_;
       bool issueStop_;
 };
@@ -103,7 +104,7 @@ DummyLooper::~DummyLooper()
 DummyLooper::ReturnType
 DummyLooper::produce(const DummyRecord&)
 {
-   return data_ ;
+   return data();
 }
 
 //define this as a plug-in

@@ -19,7 +19,7 @@ namespace reco { namespace tau {
 class RecoTauTagInfoWorkaroundModifer : public RecoTauModifierPlugin {
   public:
   explicit RecoTauTagInfoWorkaroundModifer(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC);
-    virtual ~RecoTauTagInfoWorkaroundModifer() {}
+    ~RecoTauTagInfoWorkaroundModifer() override {}
     void operator()(PFTau&) const override;
     // Called by base class
     void beginEvent() override;

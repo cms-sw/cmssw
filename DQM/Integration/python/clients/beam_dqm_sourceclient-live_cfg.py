@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamMonitor")
+process = cms.Process("BeamMonitor", eras.Run2_2018)
 
 #----------------------------------------------                                                                                                                                    
 # Switch to change between firstStep and Pixel
 #-----------------------------------------------
 
-runFirstStepTrk = True
+runFirstStepTrk = False
 
 #----------------------------
 # Common part for PP and H.I Running
@@ -53,30 +54,153 @@ process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
+  src = 'siPixelClustersPreSplitting'
+)
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+
 
 #---------------
 # Calibration
 #---------------
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-# Condition for lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+# Condition for lxplus: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # Change Beam Monitor variables
-if process.dqmRunConfig.type.value() is "playback":
-  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
-  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
-  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
-  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResults.txt'
-else:
+if process.dqmRunConfig.type.value() is "production":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = True
-  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
+  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResultsOld.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
-  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt'
-  #process.dqmBeamMonitor.BeamFitter.SaveFitResults = False
-  #process.dqmBeamMonitor.BeamFitter.OutputFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.root'
-  #process.dqmBeamMonitorBx.BeamFitter.WriteAscii = False
-  #process.dqmBeamMonitorBx.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults_Bx.txt'
+  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsOld.txt'
+else:
+  process.dqmBeamMonitor.BeamFitter.WriteAscii = False
+  process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResultsOld.txt'
+  process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
+  process.dqmBeamMonitor.BeamFitter.DIPFileName = '/nfshome0/dqmdev/BeamMonitorDQM/BeamFitResultsOld.txt'
+
+
+#----------------------------
+# TrackingMonitor
+#-----------------------------
+# first, tracks selection as in https://github.com/cms-sw/cmssw/blob/master/DQM/BeamMonitor/python/BeamMonitor_Pixel_cff.py
+# -MinimumPt = cms.untracked.double(1.0),
+# -MaximumEta = cms.untracked.double(2.4),
+# -MaximumImpactParameter = cms.untracked.double(1.0),
+# -MaximumZ = cms.untracked.double(60),
+# -MinimumTotalLayers = cms.untracked.int32(3),
+# -MinimumPixelLayers = cms.untracked.int32(3),
+# -MaximumNormChi2 = cms.untracked.double(30.0),
+
+#### while hitPattern().trackerLayersWithMeasurement() and hitPattern().pixelLayersWithMeasurement() !!!
+#### =>
+#### select tracks based on MaximumImpactParameter, MaximumZ, MinimumTotalLayers, MinimumPixelLayers and MaximumNormChi2
+process.pixelTracksCutClassifier = cms.EDProducer( "TrackCutClassifier",
+    src = cms.InputTag( "pixelTracks" ),
+    beamspot = cms.InputTag( "offlineBeamSpot" ),
+#    vertices = cms.InputTag( "pixelVertices" ),
+    vertices = cms.InputTag( "" ),
+    qualityCuts = cms.vdouble( -0.7, 0.1, 0.7 ),
+    mva = cms.PSet(
+      minPixelHits = cms.vint32( 0, 3, 3 ),
+      maxDzWrtBS = cms.vdouble( 3.40282346639E38, 3.40282346639E38, 60.0 ),
+      dr_par = cms.PSet(
+        d0err = cms.vdouble( 0.003, 0.003, 3.40282346639E38 ),
+        dr_par2 = cms.vdouble( 0.3, 0.3, 3.40282346639E38 ),
+        dr_par1 = cms.vdouble( 0.4, 0.4, 3.40282346639E38 ),
+        dr_exp = cms.vint32( 4, 4, 4 ),
+        d0err_par = cms.vdouble( 0.001, 0.001, 3.40282346639E38 )
+      ),
+      maxLostLayers = cms.vint32( 99, 99, 99 ),
+      min3DLayers = cms.vint32( 0, 2, 3 ),
+      dz_par = cms.PSet(
+        dz_par1 = cms.vdouble( 0.4, 0.4, 3.40282346639E38 ),
+        dz_par2 = cms.vdouble( 0.35, 0.35, 3.40282346639E38 ),
+        dz_exp = cms.vint32( 4, 4, 4 )
+      ),
+      minNVtxTrk = cms.int32( 3 ),
+      maxDz = cms.vdouble( 3.40282346639E38, 3.40282346639E38, 3.40282346639E38 ),
+      minNdof = cms.vdouble( 1.0E-5, 1.0E-5, 1.0E-5 ),
+      maxChi2 = cms.vdouble( 9999., 9999., 30.0 ),
+      maxDr = cms.vdouble( 99., 99., 1. ),
+      minLayers = cms.vint32( 0, 2, 3 )
+    ),
+    ignoreVertices = cms.bool( True ),
+)
+process.pixelTracksHP = cms.EDProducer( "TrackCollectionFilterCloner",
+    minQuality = cms.string( "highPurity" ),
+    copyExtras = cms.untracked.bool( True ),
+    copyTrajectories = cms.untracked.bool( False ),
+    originalSource = cms.InputTag( "pixelTracks" ),
+    originalQualVals = cms.InputTag( 'pixelTracksCutClassifier','QualityMasks' ),
+    originalMVAVals = cms.InputTag( 'pixelTracksCutClassifier','MVAValues' )
+)
+
+import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
+process.pixelTracksMonitor = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
+process.pixelTracksMonitor.FolderName                = 'BeamMonitor/Tracking/pixelTracks'
+if (runFirstStepTrk):
+  process.pixelTracksMonitor.TrackProducer             = 'initialStepTracksPreSplitting'
+  process.pixelTracksMonitor.allTrackProducer          = 'initialStepTracksPreSplitting'
+else:
+  process.pixelTracksMonitor.TrackProducer             = 'pixelTracks'
+  process.pixelTracksMonitor.allTrackProducer          = 'pixelTracks'
+process.pixelTracksMonitor.beamSpot                  = "offlineBeamSpot"
+process.pixelTracksMonitor.primaryVertex             = "pixelVertices"
+process.pixelTracksMonitor.doAllPlots                = cms.bool(False)
+process.pixelTracksMonitor.doLumiAnalysis            = cms.bool(False)
+process.pixelTracksMonitor.doProfilesVsLS            = cms.bool(True)
+process.pixelTracksMonitor.doDCAPlots                = cms.bool(True)
+process.pixelTracksMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
+process.pixelTracksMonitor.doEffFromHitPatternVsPU   = cms.bool(False)
+process.pixelTracksMonitor.doEffFromHitPatternVsBX   = cms.bool(True)
+process.pixelTracksMonitor.doEffFromHitPatternVsLUMI = cms.bool(False)
+process.pixelTracksMonitor.doPlotsVsGoodPVtx         = cms.bool(True)
+process.pixelTracksMonitor.doPlotsVsLUMI             = cms.bool(True)
+process.pixelTracksMonitor.doPlotsVsBX               = cms.bool(True)
+process.pixelTracksMonitor.AbsDxyMax  =   1.2
+process.pixelTracksMonitor.AbsDxyBin  =  12
+process.pixelTracksMonitor.DxyMin     =  -1.2
+process.pixelTracksMonitor.DxyMax     =   1.2
+process.pixelTracksMonitor.DxyBin     =  60
+process.pixelTracksMonitor.Chi2NDFMax =  35.
+process.pixelTracksMonitor.Chi2NDFMin =   0.
+process.pixelTracksMonitor.Chi2NDFBin =  70
+process.pixelTracksMonitor.VZBin      = 124
+process.pixelTracksMonitor.VZMin      = -62.
+process.pixelTracksMonitor.VZMax      =  62.
+process.pixelTracksMonitor.TrackPtMin =   0.
+process.pixelTracksMonitor.TrackPtMax =  50.
+process.pixelTracksMonitor.TrackPtBin = 250
+
+process.tracks2monitor = cms.EDFilter('TrackSelector',
+    src = cms.InputTag('pixelTracks'),
+    cut = cms.string("")
+)
+process.tracks2monitor.src = 'pixelTracksHP'
+process.tracks2monitor.cut = 'pt > 1 & abs(eta) < 2.4' # & normalizedChi2 < 30. abs(dxy) < 1. abs(dz) < 60.'
+
+
+process.selectedPixelTracksMonitor = process.pixelTracksMonitor.clone()
+process.selectedPixelTracksMonitor.FolderName                = 'BeamMonitor/Tracking/selectedPixelTracks'
+if (runFirstStepTrk):
+  process.selectedPixelTracksMonitor.TrackProducer             = 'initialStepTracksPreSplitting'
+  process.selectedPixelTracksMonitor.allTrackProducer          = 'initialStepTracksPreSplitting'
+else:
+  process.selectedPixelTracksMonitor.TrackProducer             = 'tracks2monitor'
+  process.selectedPixelTracksMonitor.allTrackProducer          = 'tracks2monitor'
+
+process.selectedPixelTracksMonitorSequence = cms.Sequence(
+  process.pixelTracksCutClassifier
+  + process.pixelTracksHP
+  + process.tracks2monitor
+  + process.selectedPixelTracksMonitor
+)
 
 
 ## TKStatus
@@ -90,15 +214,15 @@ process.dqmTKStatus = cms.EDAnalyzer("TKStatus",
 process.dqmcommon = cms.Sequence(process.dqmEnv
                                 *process.dqmSaver)
 
-process.monitor = cms.Sequence(process.dqmBeamMonitor)
+process.monitor = cms.Sequence(process.dqmBeamMonitor + process.selectedPixelTracksMonitorSequence)
 
 
 #------------------------------------------------------------
 # BeamSpotProblemMonitor Modules
 #-----------------------------------------------------------
 process.dqmBeamSpotProblemMonitor.monitorName       = "BeamMonitor/BeamSpotProblemMonitor"
-process.dqmBeamSpotProblemMonitor.AlarmONThreshold  = 10
-process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 12
+process.dqmBeamSpotProblemMonitor.AlarmONThreshold  = 15 # 10
+process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 17 # 12
 process.dqmBeamSpotProblemMonitor.nCosmicTrk        = 10
 process.dqmBeamSpotProblemMonitor.doTest            = False
 if (runFirstStepTrk):
@@ -146,7 +270,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
     process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
@@ -156,9 +279,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 
 
-    process.load("Configuration.StandardSequences.Reconstruction_cff")
-    # Offline Beam Spot
-    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+    process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
     process.dqmBeamMonitor.OnlineMode = True              
     process.dqmBeamMonitor.resetEveryNLumi = 5
@@ -184,7 +305,11 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.InitialStepPreSplitting.remove(process.siPixelRecHits)
         process.InitialStepPreSplitting.remove(process.MeasurementTrackerEvent)
         process.InitialStepPreSplitting.remove(process.siPixelClusterShapeCache)
-
+        # 2016-11-28 MK FIXME: I suppose I should migrate the lines below following the "new seeding framework"
+        #
+        # if z is very far due to bad fit
+        process.initialStepSeedsPreSplitting.RegionFactoryPSet.RegionPSet.originRadius = 1.5
+        process.initialStepSeedsPreSplitting.RegionFactoryPSet.RegionPSet.originHalfLength = cms.double(30.0)
         #Increase pT threashold at seeding stage (not so accurate)                                                                                      
         process.initialStepSeedsPreSplitting.RegionFactoryPSet.RegionPSet.ptMin = 0.9
 
@@ -206,22 +331,22 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                      )
     else: # pixel tracking
         print "[beam_dqm_sourceclient-live_cfg]:: pixelTracking"
-        process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
+
+
         #pixel  track/vertices reco
         process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-        process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
-        process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
+        process.pixelTracksTrackingRegions.RegionPSet.originRadius = 0.4
+        process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12
+        process.pixelTracksTrackingRegions.RegionPSet.originXPos = 0.08
+        process.pixelTracksTrackingRegions.RegionPSet.originYPos = -0.03
+        process.pixelTracksTrackingRegions.RegionPSet.originZPos = 0.
+        process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
 
-        process.dqmBeamMonitor.PVFitter.errorScale = 1.25 #keep checking this with new release expected close to 1.2
-     
-
-        from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-        process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-        process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-        from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
-        process.pixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
+        process.dqmBeamMonitor.PVFitter.errorScale = 1.22 #keep checking this with new release expected close to 1.2
  
         process.tracking_FirstStep  = cms.Sequence(process.siPixelDigis* 
+                                                   process.siStripDigis *
+                                                   process.striptrackerlocalreco *
                                                    process.offlineBeamSpot*
                                                    process.siPixelClustersPreSplitting*
                                                    process.siPixelRecHitsPreSplitting*
@@ -264,7 +389,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
     process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
@@ -280,59 +404,109 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.dqmBeamMonitor.OnlineMode = True                  ## in MC the LS are not ordered??
     process.dqmBeamMonitor.resetEveryNLumi = 10
     process.dqmBeamMonitor.resetPVEveryNLumi = 10
+
     process.dqmBeamMonitor.BeamFitter.MinimumTotalLayers = 3   ## using pixel triplets
-    process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
+    process.dqmBeamMonitor.BeamFitter.MinimumPixelLayers = 3
+    process.dqmBeamMonitor.BeamFitter.MaximumNormChi2    = 30.0
+
+    process.dqmBeamMonitor.PVFitter.minVertexNdf = 4
     process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
-    process.dqmBeamMonitor.PVFitter.errorScale = 1.25
+    process.dqmBeamMonitor.PVFitter.errorScale = 1.25       ## taken from 2012 pixel vtx studies
 
     process.dqmBeamMonitor.jetTrigger  = cms.untracked.vstring("HLT_HI")
-
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
+    process.dqmBeamSpotProblemMonitor.pixelTracks = 'hiPixel3PrimTracks'
 
+    # copy from online
+    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+    offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
     ## Load Heavy Ion Sequence
     process.load("Configuration.StandardSequences.ReconstructionHeavyIons_cff") ## HI sequences
-
+    process.load('RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff')
+    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+    from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+    siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
+       src = 'siPixelClustersPreSplitting'
+    )  
+       
     # Select events based on the pixel cluster multiplicity
     import  HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
-      inputTag  = cms.InputTag('siPixelClusters'),
+      inputTag  = cms.InputTag('siPixelClustersPreSplitting'),
       minClusters = cms.uint32(150),
-      maxClusters = cms.uint32(50000)
+      maxClusters = cms.uint32(10000) #80% efficiency in HI MC
       )
-
+       
     process.filter_step = cms.Sequence( process.siPixelDigis
-                                       *process.siPixelClusters
-                                       #*process.multFilter
+                                       *process.siPixelClustersPreSplitting
+                                       *process.multFilter
                                   )
+       
+    from RecoHI.HiTracking.HIPixelVerticesPreSplitting_cff import *
+       
+    process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
+    process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
 
+    process.hiPixel3PrimTracksFilter = process.hiFilter.clone(
+        VertexCollection = "hiSelectedVertexPreSplitting",
+        chi2 = 1000.0,
+        clusterShapeCacheSrc = "siPixelClusterShapeCachePreSplitting",
+        lipMax = 0.3,
+        nSigmaLipMaxTolerance = 0,
+        nSigmaTipMaxTolerance = 6.0,
+        ptMin = 0.9,
+        tipMax = 0,
+    )
+    process.hiPixel3PrimTracks.Filter = "hiPixel3PrimTracksFilter"
+      
+    process.hiPixel3PrimTracks.RegionFactoryPSet = cms.PSet(
+        ComponentName = cms.string('GlobalTrackingRegionWithVerticesProducer'),
+        RegionPSet = cms.PSet(
+            VertexCollection = cms.InputTag("hiSelectedVertexPreSplitting"),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            fixedError = cms.double(0.2),
+            nSigmaZ = cms.double(3.0),
+            originRadius = cms.double(0.1),
+            precise = cms.bool(True),
+            ptMin = cms.double(0.9),
+            sigmaZVertex = cms.double(3.0),
+            useFixedError = cms.bool(True),
+            useFoundVertices = cms.bool(True)
+        )
+        )
+    process.hiPixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
+    process.hiPixel3PrimTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.clusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCachePreSplitting')
+    ## From HI group     
     process.HIRecoForDQM = cms.Sequence( process.siPixelDigis
-                                    *process.siPixelClusters
-                                    *process.siPixelRecHits
-                                    *process.offlineBeamSpot
-                                    *process.hiPixelVertices
-                                    *process.hiPixel3PrimTracks
-                                   )
-
+                                        *process.siStripDigis
+                                        *process.offlineBeamSpot  #<-clone of onlineBS
+                                        *process.pixeltrackerlocalreco
+                                        *process.striptrackerlocalreco             
+                                        *process.MeasurementTrackerEventPreSplitting
+                                        *process.siPixelClusterShapeCachePreSplitting
+                                        *process.hiPixelVerticesPreSplitting
+                                        *process.PixelLayerTriplets 
+                                        *process.pixelFitterByHelixProjections
+                                        *process.hiPixel3PrimTracksFilter
+                                        *process.hiPixel3PrimTracks
+                                       )
+      
     # use HI pixel tracking and vertexing
     process.dqmBeamMonitor.BeamFitter.TrackCollection = cms.untracked.InputTag('hiPixel3PrimTracks')
-    process.dqmBeamMonitorBx.BeamFitter.TrackCollection = cms.untracked.InputTag('hiPixel3PrimTracks')
-    process.dqmBeamMonitor.primaryVertex = cms.untracked.InputTag('hiSelectedVertex')
-    process.dqmBeamMonitor.PVFitter.VertexCollection = cms.untracked.InputTag('hiSelectedVertex')
+    process.dqmBeamMonitor.primaryVertex = cms.untracked.InputTag('hiSelectedVertexPreSplitting')
+    process.dqmBeamMonitor.PVFitter.VertexCollection = cms.untracked.InputTag('hiSelectedVertexPreSplitting')
 
-
-    # make pixel vertexing less sensitive to incorrect beamspot
-    process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.originRadius = 0.2
-    process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.fixedError = 0.5
-    process.hiSelectedProtoTracks.maxD0Significance = 100
-    process.hiPixelAdaptiveVertex.TkFilterParameters.maxD0Significance = 100
-    process.hiPixelAdaptiveVertex.vertexCollections.useBeamConstraint = False
-    #not working due to wrong tag of reco
-    process.hiPixelAdaptiveVertex.vertexCollections.maxDistanceToBeam = 1.0
-
-
-
-    
+      
+    # make pixel VERTEXING less sensitive to incorrect beamspot
+    process.hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.originRadius = 0.2 #default 0.2
+    process.hiPixel3ProtoTracksPreSplitting.RegionFactoryPSet.RegionPSet.fixedError = 0.5   #default 3.0
+    process.hiSelectedProtoTracksPreSplitting.maxD0Significance = 100                       #default 5.0
+    process.hiPixelAdaptiveVertexPreSplitting.TkFilterParameters.maxD0Significance = 100    #default 3.0
+    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.useBeamConstraint = False  #default False
+    process.hiPixelAdaptiveVertexPreSplitting.vertexCollections.maxDistanceToBeam = 1.0    #default 0.1
+      
+      
     process.p = cms.Path(process.scalersRawToDigi
                         *process.dqmTKStatus
                         *process.hltTriggerTypeFilter
@@ -341,4 +515,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
                         *process.dqmcommon
                         *process.monitor
                         *process.BeamSpotProblemModule)
+                                                        
 

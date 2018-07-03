@@ -29,7 +29,7 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 //
@@ -39,7 +39,7 @@
 class HLTTrackClusterRemoverNew final : public edm::stream::EDProducer<> {
     public:
         HLTTrackClusterRemoverNew(const edm::ParameterSet& iConfig) ;
-        ~HLTTrackClusterRemoverNew() ;
+        ~HLTTrackClusterRemoverNew() override ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
@@ -85,7 +85,7 @@ class HLTTrackClusterRemoverNew final : public edm::stream::EDProducer<> {
 	inline void process(const OmniClusterRef & cluRef, uint32_t subdet);
 
         template<typename T> 
-        std::auto_ptr<edmNew::DetSetVector<T> >
+        std::unique_ptr<edmNew::DetSetVector<T> >
         cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
                     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
 
@@ -146,7 +146,7 @@ HLTTrackClusterRemoverNew::HLTTrackClusterRemoverNew(const ParameterSet& iConfig
   if (doPixelChargeCheck_)
     throw cms::Exception("Configuration Error") << "HLTTrackClusterRemoverNew: Pixel cluster charge check not yet implemented";
 
-    fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
+  fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
     if (doPixel_) {
         readPSet(iConfig, "Pixel" , 0,1);
@@ -203,13 +203,13 @@ void HLTTrackClusterRemoverNew::mergeOld(ClusterRemovalInfo::Indices &refs,
 
  
 template<typename T> 
-auto_ptr<edmNew::DetSetVector<T> >
+std::unique_ptr<edmNew::DetSetVector<T> >
 HLTTrackClusterRemoverNew::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
 			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
     typedef typename edmNew::DetSet<T>                   DS;
-    auto_ptr<DSV> output(new DSV());
+    auto output = std::make_unique<DSV>();
     output->reserve(oldClusters.size(), oldClusters.dataSize());
 
     unsigned int countOld=0;
@@ -240,7 +240,7 @@ HLTTrackClusterRemoverNew::cleanup(const edmNew::DetSetVector<T> &oldClusters, c
     }
     //    double fraction = countNew  / (double) countOld;
     //    std::cout<<"fraction: "<<fraction<<std::endl;
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    if (oldRefs != nullptr) mergeOld(refs, *oldRefs);
     return output;
 }
 
@@ -419,7 +419,7 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
 	
 	//	std::cout << " i: " << i << " --> detid: " << detid << " --> subdet: " << subdet << std::endl;
 	
-	for (auto i = item.offset; i<item.offset+int(item.size); ++i) {
+	for (int i = item.offset; i<item.offset+int(item.size); ++i) {
 	  int clusCharge=0;
 	  for ( auto cAmp : clusters[i].amplitudes() ) clusCharge+=cAmp;
 	  
@@ -432,16 +432,12 @@ HLTTrackClusterRemoverNew::produce(Event& iEvent, const EventSetup& iSetup)
     
     //    std::cout << " => collectedRegStrips_: " << collectedRegStrips_.size() << std::endl;
     //    std::cout << " total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true) << std::endl;
-    std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-							      new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedRegStrips_));
     LogDebug("TrackClusterRemover")<<"total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true);
     // std::cout << "TrackClusterRemover" <<" total strip to skip: "<<std::count(collectedRegStrips_.begin(),collectedRegStrips_.end(),true)<<std::endl;
-    iEvent.put( removedStripClusterMask );
+    iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedRegStrips_));
     
-    std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
-							      new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
     LogDebug("TrackClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
-    iEvent.put( removedPixelClusterMask );
+    iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
 
     collectedRegStrips_.clear();
     collectedPixels_.clear();

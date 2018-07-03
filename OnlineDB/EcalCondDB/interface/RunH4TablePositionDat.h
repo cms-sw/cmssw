@@ -12,10 +12,10 @@ class RunH4TablePositionDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   RunH4TablePositionDat();
-  ~RunH4TablePositionDat();
+  ~RunH4TablePositionDat() override;
 
   // User data methods
-  inline std::string getTable() { return "RUN_H4_TABLE_POSITION_DAT"; }
+  inline std::string getTable() override { return "RUN_H4_TABLE_POSITION_DAT"; }
 
   inline void setTableX(int num) { m_table_x = num; }
   inline int getTableX() const { return m_table_x; }
@@ -31,13 +31,13 @@ class RunH4TablePositionDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunH4TablePositionDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunH4TablePositionDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_table_x ;

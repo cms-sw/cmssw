@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 #include "Rtypes.h" 
@@ -24,6 +25,12 @@
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/MuonReco/interface/DYTInfo.h"
+#include <DataFormats/MuonReco/interface/EmulatedME0Segment.h>
+#include <DataFormats/MuonReco/interface/ME0Muon.h>
+
+#include <DataFormats/MuonReco/interface/EmulatedME0SegmentCollection.h>
+#include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
+#include "DataFormats/MuonReco/interface/MuonSimInfo.h"
 
 #include <vector>
 #include <map>
@@ -109,6 +116,7 @@ namespace DataFormats_MuonReco {
     edm::ValueMap<reco::MuonRef>::const_iterator rmref_vmci;
     edm::Wrapper<edm::ValueMap<reco::MuonRef> > rmref_wvm;
 
+    edm::Wrapper<edm::Association<reco::MuonCollection> > wrap_ass_mc;
 
     //shower block
     reco::MuonShower rms;
@@ -137,6 +145,28 @@ namespace DataFormats_MuonReco {
     edm::PtrVector<reco::Muon>                   pv_muon;
     edm::Wrapper<edm::PtrVector<reco::Muon> >    w_pv_muon;
 
+    //ME0 block
+    EmulatedME0Segment seg;
+    std::vector<EmulatedME0Segment> segs;
+    edm::Wrapper< std::vector<EmulatedME0Segment> > dwc1;
+    
+    reco::ME0Muon muon;
+    std::vector<reco::ME0Muon> muons;
+    edm::Wrapper< std::vector<reco::ME0Muon> > dwc2;
+
+    ME0MuonCollection muoncol;
+    edm::Wrapper<ME0MuonCollection> mcw1;
+    edm::Ref<ME0MuonCollection> mcr1;
+
+    EmulatedME0SegmentCollection segcol;
+    edm::Wrapper<EmulatedME0SegmentCollection> scw1;
+    edm::Ref<EmulatedME0SegmentCollection> scr1;    
+
+    reco::MuonSimInfo MSI;
+    std::vector<reco::MuonSimInfo> vMSI;
+    edm::Wrapper<std::vector<reco::MuonSimInfo> > wvMSI;
+    edm::ValueMap<reco::MuonSimInfo> vmMSI;
+    edm::Wrapper<edm::ValueMap<reco::MuonSimInfo> > wvmMSI;
   };
 }
 

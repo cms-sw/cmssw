@@ -40,7 +40,7 @@ namespace ecaldqm
     virtual MESet* clone(std::string const& = "") const;
 
     virtual void book(DQMStore::IBooker&) {}
-    virtual bool retrieve(DQMStore::IGetter&, std::string* = 0) const { return false; }
+    virtual bool retrieve(DQMStore::IGetter&, std::string* = nullptr) const { return false; }
     virtual void clear() const;
 
     virtual void fill(DetId const&, double = 1., double = 1., double = 1.) {}
@@ -95,8 +95,8 @@ namespace ecaldqm
     MonitorElement::Kind getKind() const { return kind_; }
     bool isActive() const { return active_; } // booked or retrieved
     virtual bool isVariableBinning() const { return false; }
-    virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : 0); }
-    virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : 0); }
+    virtual MonitorElement const* getME(unsigned _iME) const { return (_iME < mes_.size() ? mes_[_iME] : nullptr); }
+    virtual MonitorElement* getME(unsigned _iME) { return (_iME < mes_.size() ? mes_[_iME] : nullptr); }
     virtual void softReset();
     virtual void recoverStats();
 
@@ -148,13 +148,13 @@ namespace ecaldqm
       int iBin;
       binning::ObjectType otype;
 
-      ConstBin() : meSet_(0), iME(-1), iBin(-1), otype(binning::nObjType) {}
+      ConstBin() : meSet_(nullptr), iME(-1), iBin(-1), otype(binning::nObjType) {}
       ConstBin(MESet const&, unsigned = 0, int = 1);
       ConstBin(ConstBin const& _orig) : meSet_(_orig.meSet_), iME(_orig.iME), iBin(_orig.iBin), otype(_orig.otype) {}
       ConstBin& operator=(ConstBin const&);
       bool operator==(ConstBin const& _rhs) const
       {
-        return meSet_ != 0 && meSet_ == _rhs.meSet_ && iME == _rhs.iME && iBin == _rhs.iBin;
+        return meSet_ != nullptr && meSet_ == _rhs.meSet_ && iME == _rhs.iME && iBin == _rhs.iBin;
       }
       bool isChannel() const
       {
@@ -184,7 +184,7 @@ namespace ecaldqm
       MonitorElement const* getME() const
       {
         if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME);
-        else return 0;
+        else return nullptr;
       }
       void setMESet(MESet const& _meSet) { meSet_ = &_meSet; }
       MESet const* getMESet() const { return meSet_; }
@@ -195,12 +195,12 @@ namespace ecaldqm
       MESet* meSet_;
 
       public:
-      Bin() : ConstBin(), meSet_(0) {}
+      Bin() : ConstBin(), meSet_(nullptr) {}
       Bin(MESet& _set, unsigned _iME = 0, int _iBin = 1) : ConstBin(_set, _iME, _iBin), meSet_(&_set) {}
       Bin(Bin const& _orig) : ConstBin(_orig), meSet_(_orig.meSet_) {}
       ConstBin& operator=(Bin const& _rhs)
       {
-        bool wasNull(ConstBin::meSet_ == 0);
+        bool wasNull(ConstBin::meSet_ == nullptr);
         ConstBin::operator=(_rhs);
         if(wasNull) meSet_ = _rhs.meSet_;
         return *this;
@@ -228,7 +228,7 @@ namespace ecaldqm
       MonitorElement* getME() const
       {
         if(meSet_ && iME != unsigned(-1)) return meSet_->getME(iME);
-        else return 0;
+        else return nullptr;
       }
       void setMESet(MESet& _meSet) { ConstBin::meSet_ = &_meSet; meSet_ = &_meSet; }
       MESet* getMESet() const { return meSet_; }

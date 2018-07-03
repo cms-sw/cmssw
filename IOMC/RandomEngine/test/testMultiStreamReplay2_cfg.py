@@ -24,9 +24,9 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         engineName = cms.untracked.string('HepJamesRandom'),
         initialSeed = cms.untracked.uint32(7)
     ),
-    t5 = cms.PSet(
+    t6 = cms.PSet(
         initialSeed = cms.untracked.uint32(7),
-        engineName = cms.untracked.string('TRandom3')
+        engineName = cms.untracked.string('MixMaxRng')
     ),
     restoreFileName = cms.untracked.string('StashStateStream.data_2'),
     enableChecking = cms.untracked.bool(True)
@@ -80,6 +80,15 @@ process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
                             seedByLumi = cms.untracked.vuint32(0, 87, 87, 207, 207),
                             multiStreamReplay = cms.untracked.bool(True)
 )
+process.t6 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('MixMaxRng'),
+                            seeds = cms.untracked.vuint32(85),
+                            offset = cms.untracked.uint32(0),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1),
+                            seedByLumi = cms.untracked.vuint32(0, 88, 88, 208, 208),
+                            multiStreamReplay = cms.untracked.bool(True)
+)
 
 process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 
@@ -87,5 +96,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testMultiStreamReplay2.root')
 )
 
-process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.randomEngineStateProducer)
+process.p = cms.Path(process.t1+process.t2+process.t3+process.t4+process.t6+process.randomEngineStateProducer)
 process.o = cms.EndPath(process.out)

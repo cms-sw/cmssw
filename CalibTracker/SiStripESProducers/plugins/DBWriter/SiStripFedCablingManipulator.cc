@@ -19,7 +19,7 @@ void SiStripFedCablingManipulator::endRun(const edm::Run & run, const edm::Event
   es.get<SiStripFedCablingRcd>().get( esobj ); 
 
 
-  SiStripFedCabling *obj=0;
+  SiStripFedCabling *obj=nullptr;
   manipulate(esobj.product(),obj);
 
   cond::Time_t Time_ = 0;
@@ -28,7 +28,7 @@ void SiStripFedCablingManipulator::endRun(const edm::Run & run, const edm::Event
   edm::Service<cond::service::PoolDBOutputService> dbservice;
   if( dbservice.isAvailable() ){
 
-    if(obj==NULL){
+    if(obj==nullptr){
       edm::LogError("SiStripFedCablingManipulator")<<"null pointer obj. nothing will be written "<<std::endl;
       return;
     }

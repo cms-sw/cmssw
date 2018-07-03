@@ -60,7 +60,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
   if (SimVtx.isValid()) theSimVertexes.insert(theSimVertexes.end(),SimVtx->begin(),SimVtx->end());
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
-  const reco::SuperClusterCollection* BarrelSuperClusters = 0;
+  const reco::SuperClusterCollection* BarrelSuperClusters = nullptr;
   Handle<reco::SuperClusterCollection> pHybridBarrelSuperClusters;
   evt.getByToken(BarrelSuperClusterCollection_, pHybridBarrelSuperClusters);
   labelsForToken(BarrelSuperClusterCollection_, l);
@@ -68,7 +68,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
   if (pHybridBarrelSuperClusters.isValid()) { BarrelSuperClusters = pHybridBarrelSuperClusters.product(); } 
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
 
-  const reco::SuperClusterCollection* EndcapSuperClusters = 0;
+  const reco::SuperClusterCollection* EndcapSuperClusters = nullptr;
   Handle<reco::SuperClusterCollection> pMulti5x5EndcapSuperClusters;
   evt.getByToken(EndcapSuperClusterCollection_, pMulti5x5EndcapSuperClusters);
   labelsForToken(EndcapSuperClusterCollection_, l);
@@ -76,7 +76,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
   if (pMulti5x5EndcapSuperClusters.isValid()) EndcapSuperClusters = pMulti5x5EndcapSuperClusters.product();
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
-  const EcalRecHitCollection *ebRecHits = 0;
+  const EcalRecHitCollection *ebRecHits = nullptr;
   Handle< EcalRecHitCollection > pEBRecHits;
   evt.getByToken( reducedBarrelRecHitCollection_, pEBRecHits );
   labelsForToken(reducedBarrelRecHitCollection_, l);
@@ -84,7 +84,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
   if (pEBRecHits.isValid()) ebRecHits = pEBRecHits.product();
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
-  const EcalRecHitCollection *eeRecHits = 0;
+  const EcalRecHitCollection *eeRecHits = nullptr;
   Handle< EcalRecHitCollection > pEERecHits;
   evt.getByToken( reducedEndcapRecHitCollection_, pEERecHits );
   labelsForToken(reducedEndcapRecHitCollection_, l);
@@ -92,7 +92,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
   if (pEERecHits.isValid()) eeRecHits = pEERecHits.product();
   else {LogError("ContainmentCorrectionAnalyzer") << "Error! can't get collection with label " << l.module; }
   
-  const CaloTopology *topology = 0;
+  const CaloTopology *topology = nullptr;
   ESHandle<CaloTopology> pTopology;
   es.get<CaloTopologyRecord>().get(pTopology);
   if(pTopology.isValid()) topology = pTopology.product();
@@ -156,7 +156,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
       double etaCurrent; // , etaFound = 0; // UNUSED
       double phiCurrent;
       // double etCurrent,  etFound  = 0; // UNUSED
-      const reco::SuperCluster* nearSC = 0;
+      const reco::SuperCluster* nearSC = nullptr;
       
       double closestParticleDistance = 999;      
       for(reco::SuperClusterCollection::const_iterator aClus = BarrelSuperClusters->begin(); 
@@ -182,7 +182,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	superClusterEt[nRECOphotons-1]=nearSC->rawEnergy()/std::cosh(nearSC->position().eta());
 	iMC[nRECOphotons-1]=nMCphotons-1;
 
-	reco::CaloClusterPtr theSeed = nearSC->seed();
+	const reco::CaloClusterPtr& theSeed = nearSC->seed();
 	seedXtal[nRECOphotons-1] = EcalClusterTools::getMaximum(*theSeed, ebRecHits).first;
 	e1[nRECOphotons-1]       = EcalClusterTools::eMax(*theSeed, ebRecHits);
 	e9[nRECOphotons-1]       = EcalClusterTools::e3x3(*theSeed, ebRecHits, topology ); 
@@ -195,7 +195,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
       double etaCurrent; // , etaFound = 0; // UNUSED
       double phiCurrent;
       // double etCurrent,  etFound  = 0; // UNUSED
-      const reco::SuperCluster* nearSC = 0;
+      const reco::SuperCluster* nearSC = nullptr;
       
       double closestParticleDistance = 999; 
       for(reco::SuperClusterCollection::const_iterator aClus = EndcapSuperClusters->begin(); 
@@ -222,7 +222,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	superClusterEt[nRECOphotons-1]=(nearSC->rawEnergy() + psEnergy)/std::cosh(nearSC->position().eta());
 	iMC[nRECOphotons-1]=nMCphotons-1;
 
-	reco::CaloClusterPtr theSeed = nearSC->seed();
+	const reco::CaloClusterPtr& theSeed = nearSC->seed();
 	seedXtal[nRECOphotons-1] = EcalClusterTools::getMaximum(*theSeed, eeRecHits).first;
 	e1[nRECOphotons-1]       = EcalClusterTools::eMax(*theSeed, eeRecHits) + psEnergy;
 	e9[nRECOphotons-1]       = EcalClusterTools::e3x3(*theSeed, eeRecHits, topology ) + psEnergy; 
@@ -403,13 +403,13 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
 	} 	 
       } // loop over the SimTracks      
        
-      if ( trkFromConversion.size() > 0 ) {
+      if ( !trkFromConversion.empty() ) {
 	isAconversion=1;
 	nConv++;
 	convInd[iPho]=nConv;         
 	int convVtxId =  trkFromConversion[0]->vertIndex();
 	SimVertex convVtx = theSimVertices[convVtxId];
-	math::XYZTLorentzVectorD vtxPosition = convVtx.position();
+	const math::XYZTLorentzVectorD& vtxPosition = convVtx.position();
 	// math::XYZTLorentzVectorD momentum = (*iPhoTk)->momentum(); // UNUSED
 	if ( nConv <= 10) {         
 	  if ( trkFromConversion.size() > 1) {

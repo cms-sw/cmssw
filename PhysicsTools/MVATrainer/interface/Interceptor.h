@@ -16,7 +16,7 @@ namespace Calibration {
 
 class Interceptor : public VarProcessor {
     public:
-	virtual std::string getInstanceName() const { return "Interceptor"; }
+	std::string getInstanceName() const override { return "Interceptor"; }
 	virtual std::vector<PhysicsTools::Variable::Flags>
 		configure(const PhysicsTools::MVAComputer *computer,
 		          unsigned int n, const std::vector<

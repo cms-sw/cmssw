@@ -9,6 +9,7 @@
 #define MonitorXMLParser_h
 
 #include <string>
+#include <sstream>
 #include <vector>
 #include <map>
 #include <iostream>
@@ -99,7 +100,7 @@ public:
   }
 
 
-  ~TagNames() throw(){
+  ~TagNames() noexcept(false){
     
     try{
 
@@ -174,7 +175,7 @@ public:
 
   const std::vector< DB_ME > & getDB_ME( void ) const { return (DBMonitoringElements_ ); }
 
-  void load() throw( std::runtime_error ); 
+  void load() noexcept(false);
 
 }; // class MonitorXMLParser
 

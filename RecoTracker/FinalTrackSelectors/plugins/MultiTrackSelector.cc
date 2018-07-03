@@ -10,48 +10,7 @@
 #include <TMath.h>
 #include <TFile.h>
 
-namespace {
- // not a generic solution (wrong for N negative for instance)
- template<int N> 
- struct PowN {
-   template<typename T>
-   static T op(T t) { return PowN<N/2>::op(t)*PowN<(N+1)/2>::op(t);}
- };
- template<> 
- struct PowN<0> {
-   template<typename T>
-   static T op(T t) { return T(1);}
- };
- template<>
- struct PowN<1> {
-   template<typename T>
-   static T op(T t) { return t;}
- };
- template<>
- struct PowN<2> {
-   template<typename T>
-   static T op(T t) { return t*t;}
- };
-
- template<typename T>
- T powN(T t, int n) {
-  switch(n) {
-  case 4: return PowN<4>::op(t); // the only one that matters
-  case 3: return PowN<3>::op(t); // and this
-  case 8: return PowN<8>::op(t); // used in conversion????
-  case 2: return PowN<2>::op(t);
-  case 5: return PowN<5>::op(t);
-  case 6: return PowN<6>::op(t);
-  case 7: return PowN<7>::op(t);
-  case 0: return PowN<0>::op(t);
-  case 1: return PowN<1>::op(t);
-  default : return std::pow(t,T(n)); 
-  }
- }
-
-
-}
-
+#include "powN.h"
 
 using namespace reco;
 
@@ -132,7 +91,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     qualityToSet_.push_back( TrackBase::undefQuality );
     // parameters for vertex selection
     vtxNumber_.push_back( useVertices_ ? trkSelectors[i].getParameter<int32_t>("vtxNumber") : 0 );
-    vertexCut_.push_back( useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : 0);
+    vertexCut_.push_back( useVertices_ ? trkSelectors[i].getParameter<std::string>("vertexCut") : nullptr);
     //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_.push_back(trkSelectors[i].getParameter< std::vector<double> >("res_par") );
     chi2n_par_.push_back( trkSelectors[i].getParameter<double>("chi2n_par") );
@@ -297,7 +256,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
     std::vector<float> mvaVals_(srcTracks.size(),-99.f);
     processMVA(evt,es,vertexBeamSpot,*(hVtx.product()), i, mvaVals_, i == 0 ? true : false);
     std::vector<int> selTracks(trkSize,0);
-    auto_ptr<edm::ValueMap<int> > selTracksValueMap = auto_ptr<edm::ValueMap<int> >(new edm::ValueMap<int>);
+    auto selTracksValueMap = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler filler(*selTracksValueMap);
 
     if (useVertices_) selectVertices(i,*hVtx, points, vterr, vzerr);
@@ -363,8 +322,8 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
     filler.insert(hSrcTrack, selTracks.begin(),selTracks.end());
     filler.fill();
 
-    //    evt.put(selTracks,name_[i]);
-    evt.put(selTracksValueMap,name_[i]);
+    //    evt.put(std::move(selTracks),name_[i]);
+    evt.put(std::move(selTracksValueMap),name_[i]);
     for (auto & q : selTracks) q=std::max(q,0);
     auto quals = std::make_unique<QualityMaskCollection>(selTracks.begin(),selTracks.end());
     evt.put(std::move(quals),name_[i]);
@@ -571,7 +530,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   const TrackingRecHitCollection & srcHits(*hSrcHits);
   
   
-  auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
+  auto mvaValValueMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler mvaFiller(*mvaValValueMap);
 
 
@@ -579,7 +538,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     // mvaVals_ already initalized...
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
-    evt.put(mvaValValueMap,"MVAVals");
+    evt.put(std::move(mvaValValueMap),"MVAVals");
     auto mvas = std::make_unique<MVACollection>(mvaVals_.begin(),mvaVals_.end());
     evt.put(std::move(mvas),"MVAValues");
     return;
@@ -667,7 +626,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   if(writeIt){
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
-    evt.put(mvaValValueMap,"MVAVals");
+    evt.put(std::move(mvaValValueMap),"MVAVals");
     auto mvas = std::make_unique<MVACollection>(mvaVals_.begin(),mvaVals_.end());
     evt.put(std::move(mvas),"MVAValues");
   }
@@ -682,7 +641,7 @@ MultiTrackSelector::Point MultiTrackSelector::getBestVertex(TrackBaseRef track,V
   bool weightMatch = false;
   for(auto const & vertex : vertices){
     float w = vertex.trackWeight(track);
-    Point v_pos = vertex.position();
+    const Point& v_pos = vertex.position();
     if(w > bestWeight){
       p = v_pos;
       bestWeight = w;

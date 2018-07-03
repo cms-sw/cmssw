@@ -41,7 +41,6 @@ public edm::EDAnalyzer
 public:
 	typedef AlignTransform SurveyValue;
 	typedef Alignments SurveyValues;
-	typedef std::vector<Alignable*> Alignables;
 		
   /// Do nothing. Required by framework.
   MuonGeometryArrange(
@@ -49,12 +48,12 @@ public:
 		);
 	
   /// Read from DB and print survey info.
-	virtual void beginJob();
+	void beginJob() override;
 
-	virtual void analyze(
+	void analyze(
 		const edm::Event&,
 		const edm::EventSetup&
-		);
+		) override;
 //        virtual void endJob(void);
 	
 private:
@@ -76,9 +75,10 @@ private:
 	void fillTree(Alignable *refAli, const AlgebraicVector& diff);
 	//void createDBGeometry(const edm::EventSetup& iSetup);
 	void createROOTGeometry(const edm::EventSetup& iSetup);
-	void makeGraph(int sizeI, float smi, float sma, float minV,
-	  float maxV, TH2F* dxh, TGraph* grx, const char* name, const char* title,
-	  const char* titleg, const char* axis, float* xp, float* yp, int numEntries);
+        void makeGraph(int sizeI, float smi, float sma, float minV,
+                       float maxV, TH2F* dxh, TGraph* grx, const char* name,
+                       const char* title, const char* titleg, const char* axis,
+                       const float* xp, const float* yp, int numEntries);
 	
 	bool passIdCut( uint32_t );
 	bool checkChosen( Alignable* ali );	// Is ali one of wanted CSC?
@@ -97,6 +97,7 @@ private:
 	const SurveyErrors* theSurveyErrors;
 	
 	// configurables
+        const std::vector<std::string> _levelStrings;
 	std::string _inputFilename1;
 	std::string _inputFilename2;
 	std::string _inputTreename;

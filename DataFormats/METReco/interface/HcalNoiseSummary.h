@@ -134,6 +134,7 @@ class HcalNoiseSummary
   double GetRecHitEnergy15(void) const;
 
   double GetTotalCalibCharge(void) const;
+  double GetLaserMonitorCharge(void) const;
 
   bool HasBadRBXTS4TS5(void) const;
   bool HasBadRBXRechitR45Loose(void) const;
@@ -194,6 +195,7 @@ class HcalNoiseSummary
   double rechitEnergy_;
   double rechitEnergy15_;
   double calibCharge_;
+  double lasmonCharge_;
 
   bool hasBadRBXTS4TS5_;
   bool hasBadRBXRechitR45Loose_;

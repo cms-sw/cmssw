@@ -53,7 +53,7 @@ class ObjectViewMatcher : public edm::EDProducer
 public:
   // construction/destruction
   ObjectViewMatcher(const edm::ParameterSet& iConfig);
-  virtual ~ObjectViewMatcher();
+  ~ObjectViewMatcher() override;
 
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
@@ -111,7 +111,7 @@ ObjectViewMatcher<T1, T2>::~ObjectViewMatcher(){}
 template<typename T1, typename T2>
 void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<std::vector<T1> > cleanObjects(new std::vector<T1 >);
+  auto cleanObjects = std::make_unique<std::vector<T1>>();
 
   edm::Handle<edm::View<T1> > candidates;
   iEvent.getByToken(srcCandsToken_,candidates);
@@ -123,7 +123,7 @@ void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup
     edm::Handle<edm::View<T2> > objects;
     iEvent.getByToken(srcObjectsTokens_[iSrc],objects);
 
-    if(objects->size()==0) continue;
+    if(objects->empty()) continue;
 
     for (unsigned int iObject=0;iObject<candidates->size();iObject++) {
       const T1& candidate = candidates->at(iObject);
@@ -151,7 +151,7 @@ void ObjectViewMatcher<T1, T2>::produce(edm::Event& iEvent,const edm::EventSetup
   nObjectsMatch_+=cleanObjects->size();
 
   delete [] isMatch;
-  iEvent.put(cleanObjects);
+  iEvent.put(std::move(cleanObjects));
 }
 
 

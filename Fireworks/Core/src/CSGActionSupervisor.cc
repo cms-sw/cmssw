@@ -40,7 +40,7 @@ CSGActionSupervisor::getAction(const std::string& name)
          return *it_act;
    }
    fwLog(fwlog::kWarning) << "No action is found with name " <<  name.c_str() << std::endl;
-   return 0;
+   return nullptr;
 }
 
 void CSGActionSupervisor::addToActionMap(CSGAction *action) {

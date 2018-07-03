@@ -246,8 +246,7 @@ if __name__ == '__main__':
 		
 	tmpfile.close()
 
-    keys = sortedlist.keys()
-    keys.sort()
+    keys = sorted(sortedlist.keys())
 
     # write combined data file
     if not os.path.isdir(workflowdirArchive + "AllIOVs"):

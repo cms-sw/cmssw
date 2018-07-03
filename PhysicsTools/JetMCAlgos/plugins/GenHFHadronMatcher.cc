@@ -59,19 +59,12 @@ class GenHFHadronMatcher : public edm::EDProducer
 {
 public:
     explicit GenHFHadronMatcher ( const edm::ParameterSet& );
-    ~GenHFHadronMatcher();
+    ~GenHFHadronMatcher() override;
 
     static void fillDescriptions ( edm::ConfigurationDescriptions& descriptions );
 
 private:
-    virtual void beginJob() ;
-    virtual void produce( edm::Event&, const edm::EventSetup& );
-    virtual void endJob() ;
-
-    virtual void beginRun( edm::Run&, edm::EventSetup const& );
-    virtual void endRun( edm::Run&, edm::EventSetup const& );
-    virtual void beginLuminosityBlock( edm::LuminosityBlock&, edm::EventSetup const& );
-    virtual void endLuminosityBlock( edm::LuminosityBlock&, edm::EventSetup const& );
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
     std::vector<int> findHadronJets( const reco::GenParticleCollection* genParticles, const reco::JetFlavourInfoMatchingCollection* jetFlavourInfos,
                                      std::vector<int> &hadIndex, std::vector<reco::GenParticle> &hadMothersGenPart, 
@@ -207,63 +200,31 @@ void GenHFHadronMatcher::produce ( edm::Event& evt, const edm::EventSetup& setup
     evt.getByToken(jetFlavourInfosToken_, jetFlavourInfos);
     
     // Defining adron matching variables
-    std::auto_ptr<std::vector<reco::GenParticle> > hadMothers ( new std::vector<reco::GenParticle> );
-    std::auto_ptr<std::vector<std::vector<int> > > hadMothersIndices ( new std::vector<std::vector<int> > );
-    std::auto_ptr<std::vector<int> > hadIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadFlavour ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadJetIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadLeptonIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadLeptonHadIndex ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadLeptonViaTau( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadFromTopWeakDecay ( new std::vector<int> );
-    std::auto_ptr<std::vector<int> > hadBHadronId ( new std::vector<int> );
+    auto hadMothers = std::make_unique<std::vector<reco::GenParticle> >();
+    auto hadMothersIndices = std::make_unique<std::vector<std::vector<int> > >();
+    auto hadIndex = std::make_unique<std::vector<int> >();
+    auto hadFlavour = std::make_unique<std::vector<int> >();
+    auto hadJetIndex = std::make_unique<std::vector<int> >();
+    auto hadLeptonIndex = std::make_unique<std::vector<int> >();
+    auto hadLeptonHadIndex = std::make_unique<std::vector<int> >();
+    auto hadLeptonViaTau = std::make_unique<std::vector<int> >();
+    auto hadFromTopWeakDecay = std::make_unique<std::vector<int> >();
+    auto hadBHadronId = std::make_unique<std::vector<int> >();
     
     *hadJetIndex = findHadronJets (genParticles.product(), jetFlavourInfos.product(), *hadIndex, *hadMothers, *hadMothersIndices, *hadLeptonIndex, *hadLeptonHadIndex, *hadLeptonViaTau, *hadFlavour, *hadFromTopWeakDecay, *hadBHadronId );
 
     // Putting products to the event
-    evt.put ( hadMothers,         "gen"+flavourStr_+"HadPlusMothers" );
-    evt.put ( hadMothersIndices,  "gen"+flavourStr_+"HadPlusMothersIndices" );
-    evt.put ( hadIndex,           "gen"+flavourStr_+"HadIndex" );
-    evt.put ( hadFlavour,         "gen"+flavourStr_+"HadFlavour" );
-    evt.put ( hadJetIndex,        "gen"+flavourStr_+"HadJetIndex" );
-    evt.put ( hadLeptonIndex,     "gen"+flavourStr_+"HadLeptonIndex" );
-    evt.put ( hadLeptonHadIndex,  "gen"+flavourStr_+"HadLeptonHadronIndex" );
-    evt.put ( hadLeptonViaTau,    "gen"+flavourStr_+"HadLeptonViaTau" );
-    evt.put ( hadFromTopWeakDecay,"gen"+flavourStr_+"HadFromTopWeakDecay" );
-    evt.put ( hadBHadronId,       "gen"+flavourStr_+"HadBHadronId" );
+    evt.put(std::move(hadMothers),         "gen"+flavourStr_+"HadPlusMothers" );
+    evt.put(std::move(hadMothersIndices),  "gen"+flavourStr_+"HadPlusMothersIndices" );
+    evt.put(std::move(hadIndex),           "gen"+flavourStr_+"HadIndex" );
+    evt.put(std::move(hadFlavour),         "gen"+flavourStr_+"HadFlavour" );
+    evt.put(std::move(hadJetIndex),        "gen"+flavourStr_+"HadJetIndex" );
+    evt.put(std::move(hadLeptonIndex),     "gen"+flavourStr_+"HadLeptonIndex" );
+    evt.put(std::move(hadLeptonHadIndex),  "gen"+flavourStr_+"HadLeptonHadronIndex" );
+    evt.put(std::move(hadLeptonViaTau),    "gen"+flavourStr_+"HadLeptonViaTau" );
+    evt.put(std::move(hadFromTopWeakDecay),"gen"+flavourStr_+"HadFromTopWeakDecay" );
+    evt.put(std::move(hadBHadronId),       "gen"+flavourStr_+"HadBHadronId" );
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void GenHFHadronMatcher::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void GenHFHadronMatcher::endJob()
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void GenHFHadronMatcher::beginRun ( edm::Run&, edm::EventSetup const& )
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void
-GenHFHadronMatcher::endRun ( edm::Run&, edm::EventSetup const& )
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void GenHFHadronMatcher::beginLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void GenHFHadronMatcher::endLuminosityBlock ( edm::LuminosityBlock&, edm::EventSetup const& )
-{
-}
-
 
 
 /**
@@ -313,7 +274,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
             if(!isHadron ( flavour_, (&**hadron) )) continue;
             if(hasHadronDaughter ( flavour_, (reco::Candidate*)(&**hadron) )) continue;
             // Scanning the chain starting from the hadron
-            int hadronIndex = analyzeMothers ( (reco::Candidate*)(&**hadron), topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
+            int hadronIndex = analyzeMothers ( (reco::Candidate*)(&**hadron), topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, nullptr, -1 );
             // Storing the index of the hadron to the list
             hadIndex.push_back ( hadronIndex );
             hadJetIndex.push_back ( jetIndex );  // Putting jet index to the result list
@@ -329,7 +290,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
             if(std::find(hadMothersCand.begin(), hadMothersCand.end(), thisParticle) != hadMothersCand.end()) continue;
             
             // Scanning the chain starting from the hadron
-            int hadronIndex = analyzeMothers ( thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, 0, -1 );
+            int hadronIndex = analyzeMothers ( thisParticle, topDaughterQId, topBarDaughterQId, hadMothersCand, hadMothersIndices, nullptr, -1 );
             // Storing the index of the hadron to the list
             hadIndex.push_back ( hadronIndex );
             hadJetIndex.push_back ( -1 );  // Jet index undefined
@@ -353,7 +314,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
         if(!leptonMother) continue;
         // Taking next mother if direct mother is a tau
         if(std::abs(leptonMother->pdgId()) == 15) {
-            leptonViaTau = 1;
+            leptonViaTau = true;
             leptonMother = leptonMother->mother();
         }
         // Skipping this lepton if its mother is not a proper hadron
@@ -444,7 +405,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
 
         LastQuarkMotherIds.push_back ( LastQuarkMotherId );
 
-        if(LastQuarkMotherId.size()<1) {
+        if(LastQuarkMotherId.empty()) {
             hadronFlavour = 0;
         } else {
             int qIdx = LastQuarkId.at( lastQuarkIndices.at(hadNum) );
@@ -471,7 +432,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets ( const reco::GenParticleCol
         hadBHadronId.push_back(bHadronMotherId);
         
 
-        if(LastQuarkMotherId.size()>0) {
+        if(!LastQuarkMotherId.empty()) {
             std::set<int> checkedHadronIds;
             fixExtraSameFlavours(hadNum, hadIndex, hadMothers, hadMothersIndices, hadFromTopWeakDecay, LastQuarkIds, LastQuarkMotherIds, lastQuarkIndices, hadFlavour, checkedHadronIds, 0);
         }

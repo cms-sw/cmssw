@@ -27,7 +27,7 @@ public:
   HSMLinearizationPointFinder( const RecTracksDistanceMatrix * m,
       const signed int n_pairs = -1 );
 
-  virtual HSMLinearizationPointFinder * clone() const;
+  HSMLinearizationPointFinder * clone() const override;
 };
 
 #endif

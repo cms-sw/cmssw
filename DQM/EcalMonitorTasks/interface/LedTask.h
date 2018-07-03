@@ -33,7 +33,7 @@ namespace ecaldqm {
 
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   private:
-    void setParams(edm::ParameterSet const&);
+    void setParams(edm::ParameterSet const&) override;
 
     std::map<int, unsigned> wlToME_;
 

@@ -5,7 +5,7 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackReconstruction.h"
 
-namespace edm { class Event; class EventSetup; class ParameterSet; }
+namespace edm { class Event; class EventSetup; class ParameterSet; class ConfigurationDescriptions; }
 class TrackerTopology;
 
 class PixelTrackProducer :  public edm::stream::EDProducer<> {
@@ -13,11 +13,11 @@ class PixelTrackProducer :  public edm::stream::EDProducer<> {
 public:
   explicit PixelTrackProducer(const edm::ParameterSet& conf);
 
-  ~PixelTrackProducer();
+  ~PixelTrackProducer() override;
 
-  virtual void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
-  virtual void endRun(const edm::Run &run, const edm::EventSetup& es) override;
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
   void store(edm::Event& ev, const pixeltrackfitting::TracksWithTTRHs& selectedTracks, const TrackerTopology& ttopo);

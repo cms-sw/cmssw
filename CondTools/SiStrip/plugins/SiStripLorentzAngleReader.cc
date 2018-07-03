@@ -4,7 +4,7 @@
 #include "CondTools/SiStrip/plugins/SiStripLorentzAngleReader.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 

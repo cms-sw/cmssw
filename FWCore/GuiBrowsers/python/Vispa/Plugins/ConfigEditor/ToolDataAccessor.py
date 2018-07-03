@@ -104,9 +104,9 @@ class ToolDataAccessor(BasicDataAccessor):
             return directory+"."+object._label
 
     def _property(self,name,value,description,typ,allowedValues):
-        if typ in [bool] and type(value)!=typ:
+        if typ in [bool] and not isinstance(value, typ):
             value=False
-        if typ in [int, long, float] and type(value)!=typ:
+        if typ in [int, long, float] and not isinstance(value, typ):
             value=0
         if not allowedValues is None and typ in [int,long,float,str]:
             return ("DropDown", name, value,description, False, False, allowedValues)
@@ -155,11 +155,11 @@ class ToolDataAccessor(BasicDataAccessor):
             process=self.configDataAccessor().process()
             try:
                 process.disableRecording()
-                exec value
+                exec(value)
                 process.enableRecording()
                 process.resetModified()
                 process.resetModifiedObjects()
-            except Exception,e:
+            except Exception as e:
                 error="Error in python code (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Error in python code: "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
@@ -167,13 +167,13 @@ class ToolDataAccessor(BasicDataAccessor):
         elif isinstance(value,str):
             # for e.g. cms.InputTag
             try:
-                exec "value="+value
+                exec("value="+value)
             except:
                 pass
         if name!="comment":
             try:
                 object.setParameter(name,value)
-            except Exception, e:
+            except Exception as e:
                 error="Cannot set parameter "+name+" (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Cannot set parameter "+name+": "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
@@ -181,7 +181,7 @@ class ToolDataAccessor(BasicDataAccessor):
         elif name=="comment":
             try:
                 object.setComment(value)
-            except Exception, e:
+            except Exception as e:
                 error="Cannot set comment (see logfile for details):\n"+str(e)
                 logging.warning(__name__ + ": setProperty: Cannot set comment "+exception_traceback())
                 self._parameterErrors[str(id(object))+"."+name]=error
@@ -223,7 +223,7 @@ class ToolDataAccessor(BasicDataAccessor):
                     logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
                     QCoreApplication.instance().errorMessage("Could not apply tool: "+self.label(tool)+" (problem with enable recording flag)")
                     return False
-        except Exception,e:
+        except Exception as e:
             logging.error(__name__ + ": Could not apply tool: "+self.label(tool)+": "+exception_traceback())
             QCoreApplication.instance().errorMessage("Could not apply tool (see log file for details):\n"+str(e))
             return False

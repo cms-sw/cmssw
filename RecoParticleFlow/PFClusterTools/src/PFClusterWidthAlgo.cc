@@ -42,9 +42,9 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
         double energyHit = RefPFRecHit->energy()*it->fraction();
 
         sclusterE += energyHit;
-        posX += energyHit*RefPFRecHit->position().X();
-        posY += energyHit*RefPFRecHit->position().Y();
-        posZ += energyHit*RefPFRecHit->position().Z();
+        posX += energyHit*RefPFRecHit->position().x();
+        posY += energyHit*RefPFRecHit->position().y();
+        posZ += energyHit*RefPFRecHit->position().z();
       
       }
     } // end for ncluster    
@@ -66,9 +66,9 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
 
     //second loop, compute variances
     for(unsigned int icl=0; icl<nclust; ++icl) {
-      const std::vector< reco::PFRecHitFraction >& PFRecHits =  pfclust[icl]->recHitFractions();  
+      const auto & PFRecHits =  pfclust[icl]->recHitFractions();  
       
-      for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); 
+      for ( auto it = PFRecHits.begin(); 
 	    it != PFRecHits.end(); ++it) {
 	const PFRecHitRef& RefPFRecHit = it->recHitRef(); 
         //compute rechit energy taking into account fractions
@@ -83,30 +83,30 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster *
 	  }
 	}
 
-	double dPhi = reco::deltaPhi(RefPFRecHit->position().phi(),scPhi);
-	double dEta = RefPFRecHit->position().eta() - scEta;
+	double dPhi = reco::deltaPhi(RefPFRecHit->positionREP().phi(),scPhi);
+	double dEta = RefPFRecHit->positionREP().eta() - scEta;
 	numeratorEtaWidth += energyHit * dEta * dEta;
 	numeratorPhiWidth += energyHit * dPhi * dPhi;
       }
     } // end for ncluster
 
     //for the first cluster (from GSF) computed sigmaEtaEta
-    const std::vector< reco::PFRecHitFraction >& PFRecHits =  pfclust[0]->recHitFractions();
-    for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); 
+    const auto & PFRecHits =  pfclust[0]->recHitFractions();
+    for ( auto it = PFRecHits.begin(); 
 	  it != PFRecHits.end(); ++it) {
-      const PFRecHitRef& RefPFRecHit = it->recHitRef(); 
+      const auto & RefPFRecHit = it->recHitRef(); 
       if(!RefPFRecHit.isAvailable()) 
 	return;
       double energyHit = RefPFRecHit->energy();
       if (RefPFRecHit->detId() != SeedDetID) {
-	float diffEta =  RefPFRecHit->position().eta() - SeedEta;
+	float diffEta =  RefPFRecHit->positionREP().eta() - SeedEta;
 	sigmaEtaEta_ += (diffEta*diffEta) * (energyHit/SeedClusEnergy);
       }
     }
     if (sigmaEtaEta_ == 0.) sigmaEtaEta_ = 0.00000001;
 
-    etaWidth_ = sqrt(numeratorEtaWidth / denominator);
-    phiWidth_ = sqrt(numeratorPhiWidth / denominator);
+    etaWidth_ = std::sqrt(numeratorEtaWidth / denominator);
+    phiWidth_ = std::sqrt(numeratorPhiWidth / denominator);
     
 
   } // endif ncluster > 0

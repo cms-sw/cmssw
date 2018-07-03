@@ -23,12 +23,12 @@ public:
    HFCherenkov(edm::ParameterSet const & p);
    virtual ~HFCherenkov();
   
-   int                 computeNPE(G4Step* step, G4ParticleDefinition* pDef,
+   int                 computeNPE(const G4Step* step, const G4ParticleDefinition* pDef,
 				  double pBeta, double u, double v, double w, 
 				  double step_length, double zFiber, 
 				  double Dose, int Npe_Dose);
    
-   int                 computeNPEinPMT(G4ParticleDefinition* pDef,double pBeta,
+   int                 computeNPEinPMT(const G4ParticleDefinition* pDef,double pBeta,
                                        double u, double v, double w, 
                                        double step_length);
 

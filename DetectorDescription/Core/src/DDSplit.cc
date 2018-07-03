@@ -1,4 +1,3 @@
-
 #include "DetectorDescription/Core/interface/DDSplit.h"
 
 std::pair<std::string,std::string> DDSplit(const std::string & n) 
@@ -15,4 +14,3 @@ std::pair<std::string,std::string> DDSplit(const std::string & n)
   }    
   return std::make_pair(name,ns);
 }
-

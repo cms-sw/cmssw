@@ -56,26 +56,26 @@ void PhotonIDProducer::produce(edm::Event& e, const edm::EventSetup& c) {
   }
   
 
-  std::auto_ptr<edm::ValueMap<Bool_t> > outlooseEM(new edm::ValueMap<Bool_t>());
+  auto outlooseEM = std::make_unique<edm::ValueMap<Bool_t>>();
   edm::ValueMap<Bool_t>::Filler fillerlooseEM(*outlooseEM);
   fillerlooseEM.insert(photons, LooseEM.begin(), LooseEM.end());
   fillerlooseEM.fill();
   // and put it into the event
-  e.put(outlooseEM, photonCutBasedIDLooseEMLabel_);
+  e.put(std::move(outlooseEM), photonCutBasedIDLooseEMLabel_);
 
-  std::auto_ptr<edm::ValueMap<Bool_t> > outloose(new edm::ValueMap<Bool_t>());
+  auto outloose = std::make_unique<edm::ValueMap<Bool_t>>();
   edm::ValueMap<Bool_t>::Filler fillerloose(*outloose);
   fillerloose.insert(photons, Loose.begin(), Loose.end());
   fillerloose.fill();
   // and put it into the event
-  e.put(outloose, photonCutBasedIDLooseLabel_);
+  e.put(std::move(outloose), photonCutBasedIDLooseLabel_);
   
-  std::auto_ptr<edm::ValueMap<Bool_t> > outtight(new edm::ValueMap<Bool_t>());
+  auto outtight = std::make_unique<edm::ValueMap<Bool_t>>();
   edm::ValueMap<Bool_t>::Filler fillertight(*outtight);
   fillertight.insert(photons, Tight.begin(), Tight.end());
   fillertight.fill();
   // and put it into the event
-  e.put(outtight, photonCutBasedIDTightLabel_);
+  e.put(std::move(outtight), photonCutBasedIDTightLabel_);
   
   
 }

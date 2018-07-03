@@ -33,9 +33,9 @@
 
     explicit ConversionTrackMerger(const edm::ParameterSet& conf);
 
-    virtual ~ConversionTrackMerger();
+    ~ConversionTrackMerger() override;
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     edm::ParameterSet conf_;
@@ -43,7 +43,7 @@
     edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer1;
     edm::EDGetTokenT<reco::ConversionTrackCollection> trackProducer2;
 
-    std::auto_ptr<reco::ConversionTrackCollection> outputTrks;
+    std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
   };
 
 

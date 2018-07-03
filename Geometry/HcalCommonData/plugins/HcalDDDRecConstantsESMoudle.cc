@@ -20,7 +20,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 #include <FWCore/Framework/interface/ModuleFactory.h>
@@ -33,27 +32,25 @@
 #include <Geometry/HcalCommonData/interface/HcalDDDRecConstants.h>
 #include <Geometry/Records/interface/HcalRecNumberingRecord.h>
 
-#define DebugLog
+//#define EDM_ML_DEBUG
 
 class HcalDDDRecConstantsESModule : public edm::ESProducer {
 
 public:
   HcalDDDRecConstantsESModule(const edm::ParameterSet&);
-  ~HcalDDDRecConstantsESModule();
+  ~HcalDDDRecConstantsESModule() override;
 
-  typedef boost::shared_ptr<HcalDDDRecConstants> ReturnType;
+  typedef std::shared_ptr<HcalDDDRecConstants> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
 
   ReturnType produce(const HcalRecNumberingRecord&);
 
-private:
-  HcalDDDRecConstants* hcalDDDConst_;
 };
 
-HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(0) {
-#ifdef DebugLog
-  std::cout <<"constructing HcalDDDRecConstantsESModule" << std::endl;
+HcalDDDRecConstantsESModule::HcalDDDRecConstantsESModule(const edm::ParameterSet& iConfig) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalGeom") <<"constructing HcalDDDRecConstantsESModule";
 #endif
   setWhatProduced(this);
 }
@@ -68,17 +65,15 @@ void HcalDDDRecConstantsESModule::fillDescriptions( edm::ConfigurationDescriptio
 // ------------ method called to produce the data  ------------
 HcalDDDRecConstantsESModule::ReturnType
 HcalDDDRecConstantsESModule::produce(const HcalRecNumberingRecord& iRecord) {
-#ifdef DebugLog
-  std::cout << "in HcalDDDRecConstantsESModule::produce" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalGeom") << "in HcalDDDRecConstantsESModule::produce";
 #endif
-  if (hcalDDDConst_ == 0) {
-    edm::ESHandle<HcalParameters>         parHandle;
-    iRecord.getRecord<HcalParametersRcd>().get(parHandle);
-    edm::ESHandle<HcalDDDSimConstants>    hdc;
-    iRecord.getRecord<HcalSimNumberingRecord>().get(hdc);
-    hcalDDDConst_ = new HcalDDDRecConstants(&(*parHandle), *hdc);
-  }
-  return HcalDDDRecConstantsESModule::ReturnType(hcalDDDConst_) ;
+  edm::ESHandle<HcalParameters>         parHandle;
+  iRecord.getRecord<HcalParametersRcd>().get(parHandle);
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  iRecord.getRecord<HcalSimNumberingRecord>().get(hdc);
+
+  return HcalDDDRecConstantsESModule::ReturnType(new HcalDDDRecConstants(&(*parHandle), *hdc)) ;
 }
 
 //define this as a plug-in

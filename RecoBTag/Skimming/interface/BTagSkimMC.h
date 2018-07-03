@@ -6,8 +6,8 @@ class BTagSkimMC : public edm::EDFilter {
 public:
   /// constructor
   BTagSkimMC( const edm::ParameterSet & );
-  bool filter( edm::Event& evt, const edm::EventSetup& es );
-  void endJob();
+  bool filter( edm::Event& evt, const edm::EventSetup& es ) override;
+  void endJob() override;
 
 private:
   bool verbose;

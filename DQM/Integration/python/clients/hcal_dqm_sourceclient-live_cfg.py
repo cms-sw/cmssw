@@ -1,347 +1,219 @@
-import FWCore.ParameterSet.Config as cms
+#-------------------------------------
+#	Hcal DQM Application using New DQM Sources/Clients
+#-------------------------------------
 
+#-------------------------------------
+#	Standard Python Imports
+#-------------------------------------
 import os, sys, socket, string
-from DQM.HcalMonitorTasks.HcalMonitorTasks_cfi import SetTaskParams
 
+#-------------------------------------
+#	Standard CMSSW Imports/Definitions
+#-------------------------------------
+import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
+process      = cms.Process('HCALDQM', eras.Run2_2018)
+subsystem    = 'Hcal'
+cmssw        = os.getenv("CMSSW_VERSION").split("_")
+debugstr     = "### HcalDQM::cfg::DEBUG: "
+warnstr      = "### HcalDQM::cfg::WARN: "
+errorstr     = "### HcalDQM::cfg::ERROR:"
+useOfflineGT = False
+useFileInput = False
+useMap       = False
 
-process = cms.Process("HCALDQM")
-subsystem="Hcal" # specify subsystem name here
+#-------------------------------------
+#	Central DQM Stuff imports
+#-------------------------------------
+from DQM.Integration.config.online_customizations_cfi import *
+if useOfflineGT:
+	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
+	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
+else:
+	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
+if useFileInput:
+	process.load("DQM.Integration.config.fileinputsource_cfi")
+else:
+	process.load('DQM.Integration.config.inputsource_cfi')
+process.load('DQM.Integration.config.environment_cfi')
 
-#----------------------------
-# Event Source
-#-----------------------------
-# for live online DQM in P5
-process.load("DQM.Integration.config.inputsource_cfi")
-
-# for testing in lxplus
-#process.load("DQM.Integration.config.fileinputsource_cfi")
-
-#----------------------------
-# DQM Environment
-#-----------------------------
-process.load("DQM.Integration.config.environment_cfi")
+#-------------------------------------
+#	Central DQM Customization
+#-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
 process.dqmSaver.tag = subsystem
-process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
+referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
+process.DQMStore.referenceFileName = referenceFileName
+process = customise(process)
+process.DQMStore.verbose = 0
+process.source.minEventsPerLumi=100
 
-print "Running with run type = ", process.runType.getRunType()
-
-# Set this to True if running in Heavy Ion mode
-HEAVYION=False
-if process.runType.getRunType() == process.runType.hi_run:
-  HEAVYION=True
- 
-# Get Host information
-host = socket.gethostname().split('.')[0].lower()
-HcalPlaybackHost='dqm-c2d07-13'.lower()
-HcalCalibPlaybackHost='dqm-c2d07-16'.lower()
-# These are playback servers, not hosts...
-#HcalPlaybackHost='srv-c2d04-25'.lower()
-#HcalCalibPlaybackHost='srv-c2d04-28'.lower()
-
-playbackHCAL=False
-if (host==HcalPlaybackHost):
-    playbackHCAL=True
-
-#-----------------------------
-# Hcal Conditions: from Global Conditions Tag 
-#-----------------------------
-# DB Condition for online cluster
-process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-
-# DB condition for offline test
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
-
+#-------------------------------------
+#	CMSSW/Hcal non-DQM Related Module import
+#-------------------------------------
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-
-
-#-----------------------------
-# Hcal DQM Source, including Rec Hit Reconstructor
-#-----------------------------
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
-process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
+process.load('EventFilter.CastorRawToDigi.CastorRawToDigi_cff')
+process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
 
-# Only use this correction in CMSSW_3_9_1 and above, after hbhereco was renamed!
-#print process.hbheprereco
+#-------------------------------------
+#	CMSSW/Hcal non-DQM Related Module Settings
+#	-> runType
+#	-> Generic Input tag for the Raw Collection
+#	-> cmssw version
+#	-> Turn off default blocking of dead channels from rechit collection
+#	-> Drop Channel Status Bits (had benn 'HcalCellOff', "HcalCellDead")
+#	-> For Trigger Primitives Emulation
+#	-> L1 GT setting
+#	-> Rename the hbheprereco to hbhereco
+#-------------------------------------
+runType			= process.runType.getRunType()
+runTypeName		= process.runType.getRunTypeName()
+isCosmicRun		= runTypeName=="cosmic_run" or runTypeName=="cosmic_run_stage1"
+isHeavyIon		= runTypeName=="hi_run"
+cmssw			= os.getenv("CMSSW_VERSION").split("_")
+rawTag			= cms.InputTag("rawDataCollector")
+rawTagUntracked = cms.untracked.InputTag("rawDataCollector")
+if isHeavyIon:
+	rawTag = cms.InputTag("rawDataRepacker")
+	rawTagUntracked = cms.untracked.InputTag("rawDataRepacker")
+	process.castorDigis.InputLabel = rawTag
 
-version=os.getenv("CMSSW_VERSION").split("_")
-version1=string.atoi(version[1])
-version2=string.atoi(version[2])
-
-# Use prereco for all releases >= 3_9_X
-if (version1>3) or (version1==3 and version2>=9):
-    process.hbhereco = process.hbheprereco.clone()
-
-# Turn off default blocking of dead channels from rechit collection
-process.essourceSev =  cms.ESSource("EmptyESSource",
-                                    recordName = cms.string("HcalSeverityLevelComputerRcd"),
-                                    firstValid = cms.vuint32(1),
-                                    iovIsRunNotTime = cms.bool(True)
-                                    )
-process.hcalRecAlgos.DropChannelStatusBits = cms.vstring('') # Had been ('HcalCellOff','HcalCellDead')
-
-#----------------------------
-# Trigger Emulator
-#----------------------------
-process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
-process.valHcalTriggerPrimitiveDigis = process.simHcalTriggerPrimitiveDigis.clone()
-process.valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag('hcalDigis', 'hcalDigis')
-process.valHcalTriggerPrimitiveDigis.FrontEndFormatError = cms.bool(True)
-
-#configuration used in Heavy Ion runs only
-if (HEAVYION):
-    process.valHcalTriggerPrimitiveDigis.FrontEndFormatError = cms.bool(False) 
-    #process.hcalDeadCellMonitor.minDeadEventCount = 10
-
+process.emulTPDigis = \
+		process.simHcalTriggerPrimitiveDigis.clone()
+process.emulTPDigis.inputLabel = \
+		cms.VInputTag("hcalDigis", 'hcalDigis')
+process.emulTPDigis.FrontEndFormatError = \
+		cms.bool(True)
 process.HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
-process.valHcalTriggerPrimitiveDigis.FG_threshold = cms.uint32(2)
-process.valHcalTriggerPrimitiveDigis.InputTagFEDRaw = cms.InputTag("rawDataCollector")
+process.emulTPDigis.FG_threshold = cms.uint32(2)
+process.emulTPDigis.InputTagFEDRaw = rawTag
+process.emulTPDigis.upgradeHF = cms.bool(True)
+process.emulTPDigis.upgradeHE = cms.bool(True)
+process.emulTPDigis.inputLabel = cms.VInputTag("hcalDigis", "hcalDigis")
+process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
+# Enable ZS on emulated TPs, to match what is done in data
+process.emulTPDigis.RunZS = cms.bool(True)
+process.emulTPDigis.ZS_threshold = cms.uint32(0)
+process.hcalDigis.InputLabel = rawTag
+process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
+process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
+	ADCThresholdHF = cms.uint32(255),
+	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+)
 
-# -------------------------------
-# Hcal DQM Modules
-# -------------------------------
+# For sent-received comparison
+process.load("L1Trigger.Configuration.L1TRawToDigi_cff")
 
-process.load("DQM.HcalMonitorModule.HcalMonitorModule_cfi")
-#process.load("DQM.HcalMonitorModule.ZDCMonitorModule_cfi")
+# Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
+#from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+#run2_HCAL_2017.toModify(process.hcalDigis, FEDs=cms.untracked.vint32(724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123))
 
-process.load("DQM.HcalMonitorTasks.HcalMonitorTasks_cfi")
-# Set individual parameters for the tasks
-process.load("DQM.HcalMonitorTasks.HcalTasksOnline_cff")
-process.hcalBeamMonitor.lumiqualitydir="/nfshome0/hcaldqm/DQM_OUTPUT/lumi/"
-if playbackHCAL==True:
-    process.hcalBeamMonitor.lumiqualitydir="/nfshome0/hcaldqm/DQM_OUTPUT/lumi_playback/"
+#-------------------------------------
+#	Hcal DQM Tasks and Harvesters import
+#	New Style
+#-------------------------------------
+process.load("DQM.HcalTasks.DigiTask")
+process.load('DQM.HcalTasks.TPTask')
+process.load('DQM.HcalTasks.RawTask')
+process.load('DQM.HcalTasks.NoCQTask')
+#process.load('DQM.HcalTasks.ZDCTask')
+#process.load('DQM.HcalTasks.QIE11Task') # 2018: integrate QIE11Task into DigiTask
+process.load('DQM.HcalTasks.HcalOnlineHarvesting')
 
+#-------------------------------------
+#	To force using uTCA
+#	Will not be here for Online DQM
+#-------------------------------------
+if useMap:
+    process.GlobalTag.toGet.append(cms.PSet(
+		record = cms.string("HcalElectronicsMapRcd"),
+        tag = cms.string("HcalElectronicsMap_v7.05_hlt"),
+        )
+    )
 
-process.hcalBeamMonitor.hotrate=0.40
+#-------------------------------------
+#	For Debugginb
+#-------------------------------------
+#process.hcalDigiTask.moduleParameters.debug = 10
 
-process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
-#process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
+#-------------------------------------
+#	Some Settings before Finishing up
+#	New Style Modules
+#-------------------------------------
+oldsubsystem = subsystem
+process.rawTask.tagFEDs = rawTagUntracked
+process.digiTask.runkeyVal = runType
+process.digiTask.runkeyName = runTypeName
+process.nocqTask.runkeyVal = runType
+process.nocqTask.runkeyName = runTypeName
+process.rawTask.runkeyVal = runType
+process.rawTask.runkeyName = runTypeName
+process.tpTask.runkeyVal = runType
+process.tpTask.runkeyName = runTypeName
+#process.zdcTask.runkeyVal = runType
+#process.zdcTask.runkeyName = runTypeName
+#process.zdcTask.tagQIE10 = cms.untracked.InputTag("castorDigis")
+#process.qie11Task.runkeyVal = runType
+#process.qie11Task.runkeyName = runTypeName
+#process.qie11Task.tagQIE11 = cms.untracked.InputTag("hcalDigis")
 
-#-----------------------------
-#  Configure Hcal DQM
-#-----------------------------
-# Our subsystem values expected a '/' at end
-# Source code should catch when it's not there, but don't take the chance yet:
-if not subsystem.endswith("/"):
-    subsystem=subsystem+"/"
-process.hcalMonitor.subSystemFolder=subsystem
-SetTaskParams(process,"subSystemFolder",subsystem)
-process.hcalClient.subSystemFolder=subsystem
+#-------------------------------------
+#	Hcal DQM Tasks/Clients Sequences Definition
+#-------------------------------------
+process.tasksPath = cms.Path(
+		process.rawTask
+		+process.digiTask
+		+process.tpTask
+		+process.nocqTask
+		#+process.qie11Task
+		#ZDC to be removed for 2017 pp running
+		#+process.zdcTask
+)
 
-# special (hopefully temporary) parameter to fix crash in endJob of HcalDQM
-# 18 April 2011:  Only enable the next line if hcalClient is crashing:
-#process.hcalClient.online=True
+process.harvestingPath = cms.Path(
+	process.hcalOnlineHarvesting
+)
 
-#print "BITS = ",process.hcalRecHitMonitor.HcalHLTBits.value()
-if (HEAVYION):
-    process.hcalRecHitMonitor.HcalHLTBits=["HLT_HIActivityHF_Coincidence3",
-                                           "HLT_HIL1Tech_HCAL_HF"]
-    
-    process.hcalRecHitMonitor.MinBiasHLTBits=["HLT_HIMinBiasBSC",
-                                              "HLT_HIL1Tech_BSC_minBias"
-                                              ]
+#-------------------------------------
+#	Paths/Sequences Definitions
+#-------------------------------------
+process.preRecoPath = cms.Path(
+		process.hcalDigis
+		*process.castorDigis
+		*process.emulTPDigis
+		*process.emulTPDigisNoTDCCut
+		*process.L1TRawToDigi
+)
 
-else:
-    process.hcalRecHitMonitor.HcalHLTBits=["HLT_L1Tech_HCAL_HF",
-                                           "HLT_L1Tech_BSC_minBias_treshold1"]
-    
-    process.hcalRecHitMonitor.MinBiasHLTBits=["HLT_MinBiasPixel_SingleTrack",
-                                              "HLT_L1Tech_BSC_minBias",
-                                              "HLT_L1Tech_BSC_minBias_OR",
-                                              "HLT_L1Tech_BSC_minBias_threshold1",
-                                              "HLT_ZeroBias"
-                                              ]
-    
-    process.hcalDigiMonitor.MinBiasHLTBits=["HLT_MinBiasPixel_SingleTrack",
-                                            "HLT_L1Tech_BSC_minBias",
-                                            "HLT_L1Tech_BSC_minBias_OR",
-                                            "HLT_L1Tech_BSC_minBias_threshold1",
-                                            "HLT_ZeroBias"
-                                            ]
+process.dqmPath = cms.EndPath(
+		process.dqmEnv)
+process.dqmPath1 = cms.EndPath(
+		process.dqmSaver
+)
 
+process.schedule = cms.Schedule(
+	process.preRecoPath,
+	process.tasksPath,
+	process.harvestingPath,
+	process.dqmPath,
+	process.dqmPath1
+)
 
-#print "NEW BITS = ",process.hcalRecHitMonitor.HcalHLTBits.value()
-
-# hcalClient configurable values ------------------------
-# suppresses html output from HCalClient  
-process.hcalClient.baseHtmlDir = ''  # set to '' to prevent html output
-
-# Update once per hour, starting after 10 minutes
-process.hcalClient.databaseDir = '/nfshome0/hcaldqm/DQM_OUTPUT/ChannelStatus/' # set to empty to suppress channel status output
-
-if (playbackHCAL==True):
-    process.hcalClient.databaseDir = ''
-process.hcalClient.databaseFirstUpdate=10
-process.hcalClient.databaseUpdateTime=60
-
-# Set values higher at startup  (set back from 0.25 to 0.05 on 15 April 2010)
-process.hcalClient.DeadCell_minerrorrate=0.05
-process.hcalClient.HotCell_minerrorrate =cms.untracked.double(0.10)
-
-# Disable the HFLumi from affecting HF Summary Value
-process.hcalClient.Beam_minerrorrate=cms.untracked.double(2.0)
-
-process.hcalDigiMonitor.maxDigiSizeHF = cms.untracked.int32(10)
-# Increase hotcellmonitor thresholds for HI runs
-if (HEAVYION):
-    process.hcalHotCellMonitor.ETThreshold = cms.untracked.double(10.0)
-    process.hcalHotCellMonitor.ETThreshold_HF  = cms.untracked.double(10.0)
-    
-if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.hcalDetDiagTimingMonitor.CosmicsCorr=True
-
-
-# Don't create problem histograms for tasks that aren't run:
-process.hcalClient.enabledClients = ["DeadCellMonitor",
-                                     "HotCellMonitor",
-                                     "RecHitMonitor",
-                                     "DigiMonitor",
-                                     "RawDataMonitor",
-                                     "TrigPrimMonitor",
-                                     "NZSMonitor",
-                                     "BeamMonitor",
-#                                     "ZDCMonitor",
-                                     #"DetDiagPedestalMonitor",
-                                     #"DetDiagLaserMonitor",
-                                     #"DetDiagLEDMonitor",
-                                     #"DetDiagNoiseMonitor",
-                                     "CoarsePedestalMonitor",
-                                     "DetDiagTimingMonitor",
-                                     "Summary"
-                                     ]
-
-
-# Set expected idle BCN time to correct value
-#(6 for runs < 116401; 3560 for runs > c. 117900, 3563 for runs between)
-# (3559 starting on 7 December 2009)
-
-idle=3559
-process.hcalDigis.ExpectedOrbitMessageTime=cms.untracked.int32(idle)
-process.hcalDigiMonitor.ExpectedOrbitMessageTime = idle
-process.hcalDigiMonitor.shutOffOrbitTest=False
-
-# Turn off dead cell checks in HO ring 2
-process.hcalDeadCellMonitor.excludeHORing2 = False
-
-# Ignore ped-ref differences
-process.hcalCoarsePedestalMonitor.ADCDiffThresh = 2
-# block both hot and dead channels from CoarsePedestal Monitor
-process.hcalClient.CoarsePedestal_BadChannelStatusMask=cms.untracked.int32((1<<5) | (1<<6))
-
-# Allow even bad-quality digis
-#process.hcalDigis.FilterDataQuality=False
-
-# ----------------------
-# Trigger Unpacker Stuff
-# ----------------------
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-process.load("L1Trigger.Configuration.L1DummyConfig_cff")
-process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
-process.load('Configuration/StandardSequences/RawToDigi_Data_cff') #to unpack l1gtEvm
-process.gtEvmDigis.UnpackBxInEvent = cms.int32(1) #to unpack l1gtEvm
-process.l1GtUnpack.DaqGtInputTag = 'source'
-
-
-#-----------------------------
-# Scheduling
-#-----------------------------
+#-------------------------------------
+#	Scheduling and Process Customizations
+#-------------------------------------
 process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('ProductNotFound', 
-        'TooManyProducts', 
-        'TooFewProducts')
+		Rethrow = cms.untracked.vstring(
+			"ProductNotFound",
+			"TooManyProducts",
+			"TooFewProducts"
+		)
 )
+process.options.wantSummary = cms.untracked.bool(True)
 
-#-----------------------------
-# Quality Tester 
-# check Dead Cells VS LS for RBX losses
-#-----------------------------
-process.qTester = cms.EDAnalyzer("QualityTester",
-    prescaleFactor = cms.untracked.int32(1),
-    qtList = cms.untracked.FileInPath('DQM/HcalMonitorClient/data/hcal_qualitytest_config.xml'),
-    getQualityTestsFromFile = cms.untracked.bool(True),
-    qtestOnEndLumi = cms.untracked.bool(True),
-    qtestOnEndRun = cms.untracked.bool(True)
-)
-
-process.p = cms.Path(process.hcalDigis
-                     *process.valHcalTriggerPrimitiveDigis
-                     #*process.gtEvmDigis#to unpack l1gtEvm
-                     *process.l1GtUnpack
-                     *process.horeco
-                     *process.hfreco
-                     *process.hbhereco
-                     *process.zdcreco
-                     *process.hcalMonitor
-                     *process.hcalMonitorTasksOnlineSequence 
-                     *process.hcalClient
-                     *process.qTester
-                     #*process.hcalZDCMonitor
-                     *process.dqmEnv
-                     *process.dqmSaver)
-
-
-
-process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.csctfDigis.producer = cms.InputTag("rawDataCollector")
-process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataCollector")
-process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
-process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
-process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
-process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.l1GtUnpack.DaqGtInputTag = cms.InputTag("rawDataCollector")
-process.muonCSCDigis.InputObjects = cms.InputTag("rawDataCollector")
-process.muonDTDigis.inputLabel = cms.InputTag("rawDataCollector")
-process.muonRPCDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
-process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
-process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
-process.hcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalDetDiagNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalDetDiagPedestalMonitor.rawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalDetDiagTimingMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
-process.hcalMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
-process.hcalNZSMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
-#process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector")
-
-#--------------------------------------------------
-# Heavy Ion Specific Fed Raw Data Collection Label
-#--------------------------------------------------
-
-if (HEAVYION):
-    process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
-    process.dttfDigis.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
-    process.ecalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
-    process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
-    process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.l1GtUnpack.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.muonCSCDigis.InputObjects = cms.InputTag("rawDataRepacker")
-    process.muonDTDigis.inputLabel = cms.InputTag("rawDataRepacker")
-    process.muonRPCDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")
-    process.siPixelDigis.InputLabel = cms.InputTag("rawDataRepacker")
-    process.siStripDigis.ProductLabel = cms.InputTag("rawDataRepacker")
-    process.hcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalDetDiagNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalDetDiagPedestalMonitor.rawDataLabel = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalDetDiagTimingMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalNZSMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalNoiseMonitor.RawDataLabel = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalRawDataMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
-    process.hcalDigiMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
-#    process.zdcMonitor.FEDRawDataCollection = cms.untracked.InputTag("rawDataRepacker")
-
-
-### process customizations included here
-from DQM.Integration.config.online_customizations_cfi import *
+# tracer
+#process.Tracer = cms.Service("Tracer")
 process = customise(process)

@@ -36,11 +36,11 @@ Type1PFMET::~Type1PFMET() {}
   iEvent.getByToken( correctorToken, corrector );
   Handle<METCollection> inputUncorMet;                     //Define Inputs
   iEvent.getByToken( tokenUncorMet,  inputUncorMet );     //Get Inputs
-  std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
+  std::unique_ptr<METCollection> output( new METCollection() );  //Create empty output
   run( *(inputUncorMet.product()), *(corrector.product()), *(inputUncorJets.product()),
        jetPTthreshold, jetEMfracLimit, jetMufracLimit,
        &*output );                                         //Invoke the algorithm
-  iEvent.put( output );                                        //Put output into Event
+  iEvent.put(std::move(output));                                        //Put output into Event
 }
 
 void Type1PFMET::run(const METCollection& uncorMET,

@@ -6,6 +6,8 @@
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // Alignments
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -16,7 +18,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -65,7 +67,7 @@ TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & d
 }
 
 //__________________________________________________________________
-boost::shared_ptr<TrackerGeometry> 
+std::shared_ptr<TrackerGeometry> 
 TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
 { 
   //
@@ -74,11 +76,15 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
   edm::ESHandle<GeometricDet> gD;
   iRecord.getRecord<IdealGeometryRecord>().get( gD );
 
+  edm::ESHandle<TrackerTopology> tTopoHand;
+  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHand);
+  const TrackerTopology *tTopo=tTopoHand.product();
+
   edm::ESHandle<PTrackerParameters> ptp;
   iRecord.getRecord<PTrackerParametersRcd>().get( ptp );
   
   TrackerGeomBuilderFromGeometricDet builder;
-  _tracker  = boost::shared_ptr<TrackerGeometry>(builder.build(&(*gD), *ptp ));
+  _tracker  = std::shared_ptr<TrackerGeometry>(builder.build(&(*gD), *ptp, tTopo));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!

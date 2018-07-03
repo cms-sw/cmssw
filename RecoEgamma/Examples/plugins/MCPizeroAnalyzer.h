@@ -26,12 +26,12 @@ class MCPizeroAnalyzer : public edm::EDAnalyzer
 
       //
       explicit MCPizeroAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~MCPizeroAnalyzer();
+      ~MCPizeroAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
 

@@ -84,7 +84,6 @@ void L1GtUtilsHelper::operator()(
                 branchDescription.processName() };
 
         if (m_foundPreferredRecord) {
-
             // check if a preferred input tag was already found and compare it with the actual tag
             // if the instance or the process names are different, one has incompatible tags - set
             // the tag to empty input tag and indicate that multiple preferred input tags are found
@@ -95,9 +94,9 @@ void L1GtUtilsHelper::operator()(
                             != branchDescription.productInstanceName())
                             || (m_l1GtRecordInputTag.process()
                                     != branchDescription.processName()))) {
-
-                LogDebug("L1GtUtils")
-                        << "\nWARNING: Found multiple preferred input tags for L1GlobalTriggerRecord product, "
+	      
+	      LogDebug("L1GtUtils")
+	                << "\nWARNING: Found multiple preferred input tags for L1GlobalTriggerRecord product, "
                         << "\nwith different instaces or processes."
                         << "\nInput tag already found: "
                         << (m_l1GtRecordInputTag) << "\nActual tag: " << (tag)
@@ -107,8 +106,7 @@ void L1GtUtilsHelper::operator()(
                 m_l1GtRecordInputTag = edm::InputTag();
             }
         } else {
-            // no preferred input tag found yet, check now with the actual tag
-
+	  // no preferred input tag found yet, check now with the actual tag
             for (std::vector<edm::InputTag>::const_iterator itPrefTag =
                     preferredL1GtRecordInputTag.begin(), itPrefTagEnd =
                     preferredL1GtRecordInputTag.end();

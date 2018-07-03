@@ -82,10 +82,10 @@ namespace edm {
   // readEvent() is responsible for setting up the EventPrincipal.
   //
   //   1. fill an EventPrincipal with a unique EventID
-  //   2. For each entry in the provenance, put in one ProductHolder,
+  //   2. For each entry in the provenance, put in one ProductResolver,
   //      holding the Provenance for the corresponding EDProduct.
   //   3. set up the caches in the EventPrincipal to know about this
-  //      ProductHolder.
+  //      ProductResolver.
   //
   // We do *not* create the EDProduct instance (the equivalent of reading
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
@@ -112,7 +112,7 @@ namespace edm {
     if(!findFileForSpecifiedID_) {
       // We use a multimap because there may be hash collisions (Two different LFNs could have the same hash).
       // We map the hash of the LFN to the index into the list of files.
-      findFileForSpecifiedID_.reset(new std::unordered_multimap<size_t, size_t>);
+      findFileForSpecifiedID_ =  std::make_unique<std::unordered_multimap<size_t, size_t>>(); // propagate_const<T> has no reset() function
       auto hasher = std::hash<std::string>();
       for(auto fileIter = fileIterBegin_; fileIter != fileIterEnd_; ++fileIter) {
         findFileForSpecifiedID_->insert(std::make_pair(hasher(fileIter->logicalFileName()), fileIter - fileIterBegin_));
@@ -139,8 +139,7 @@ namespace edm {
   bool
   RootInputFileSequence::skipToItemInNewFile(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
     // Look for item in files not yet opened.  We do not have a valid hash of the logical file name.
-    typedef std::vector<std::shared_ptr<IndexIntoFile> >::const_iterator Iter;
-    for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
+    for(auto it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
       if(!*it) {
         // File not yet opened.
         setAtFileSequenceNumber(it - indexesIntoFiles_.begin());
@@ -166,8 +165,7 @@ namespace edm {
         return false;
       }
       // Look for item (run/lumi/event) in files previously opened without reopening unnecessary files.
-      typedef std::vector<std::shared_ptr<IndexIntoFile> >::const_iterator Iter;
-      for(Iter it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
+      for(auto it = indexesIntoFiles_.begin(), itEnd = indexesIntoFiles_.end(); it != itEnd; ++it) {
         if(*it && (*it)->containsItem(run, lumi, event)) {
           // We found it. Close the currently open file, and open the correct one.
           std::vector<FileCatalogItem>::const_iterator currentIter = fileIter_;
@@ -236,15 +234,18 @@ namespace edm {
     std::shared_ptr<InputFile> filePtr;
     std::list<std::string> originalInfo;
     try {
-      std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
-      filePtr = std::make_shared<InputFile>(gSystem->ExpandPathName(fileName().c_str()), "  Initiating request to open file ", inputType);
+      std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
+      std::unique_ptr<char[]> name(gSystem->ExpandPathName(fileName().c_str()));;
+      filePtr = std::make_shared<InputFile>(name.get(), "  Initiating request to open file ", inputType);
     }
     catch (cms::Exception const& e) {
       if(!skipBadFiles) {
         if(hasFallbackUrl) {
           std::ostringstream out;
           out << e.explainSelf();
-          std::string pfn(gSystem->ExpandPathName(fallbackFileName().c_str()));
+          
+          std::unique_ptr<char[]> name(gSystem->ExpandPathName(fallbackFileName().c_str()));
+          std::string pfn(name.get());
           InputFile::reportFallbackAttempt(pfn, logicalFileName(), out.str());
           originalInfo = e.additionalInfo();
         } else {
@@ -261,11 +262,9 @@ namespace edm {
     if(!filePtr && (hasFallbackUrl)) {
       try {
         usedFallback_ = true;
-        std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? new InputSource::FileOpenSentry(*input, lfn_, usedFallback_) : nullptr);
-        std::string fallbackFullName = gSystem->ExpandPathName(fallbackFileName().c_str());
-        StorageFactory *factory = StorageFactory::get();
-        if (factory) {factory->activateTimeout(fallbackFullName);}
-        filePtr.reset(new InputFile(fallbackFullName.c_str(), "  Fallback request to file ", inputType));
+        std::unique_ptr<InputSource::FileOpenSentry> sentry(input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, usedFallback_) : nullptr);
+        std::unique_ptr<char[]> fallbackFullName(gSystem->ExpandPathName(fallbackFileName().c_str()));
+        filePtr.reset(new InputFile(fallbackFullName.get(), "  Fallback request to file ", inputType));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
@@ -275,7 +274,7 @@ namespace edm {
           std::ostringstream out;
           out << "Input file " << fileName() << " could not be opened.\n";
           out << "Fallback Input file " << fallbackFileName() << " also could not be opened.";
-          if (originalInfo.size()) {
+          if (!originalInfo.empty()) {
             out << std::endl << "Original exception info is above; fallback exception info is below.";
             ex.addAdditionalInfo(out.str());
             for (auto const & s : originalInfo) {
@@ -291,6 +290,9 @@ namespace edm {
     if(filePtr) {
       size_t currentIndexIntoFile = fileIter_ - fileIterBegin_;
       rootFile_ = makeRootFile(filePtr);
+      if(input) {
+        rootFile_->setSignals(&(input->preEventReadFromSourceSignal_), &(input->postEventReadFromSourceSignal_));
+      }
       assert(rootFile_);
       fileIterLastOpened_ = fileIter_;
       setIndexIntoFile(currentIndexIntoFile);
@@ -304,8 +306,10 @@ namespace edm {
       LogWarning("") << "Input file: " << fileName() << " was not found or could not be opened, and will be skipped.\n";
     }
   }
+
   void
   RootInputFileSequence::setIndexIntoFile(size_t index) {
    indexesIntoFiles_[index] = rootFile()->indexIntoFileSharedPtr();
   }
+
 }

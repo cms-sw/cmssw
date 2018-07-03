@@ -28,20 +28,20 @@ void gen::upveto_(int *veto)
 
 // static FortranInstance members;
 
-gen::FortranInstance *gen::FortranInstance::currentInstance = 0;
+gen::FortranInstance *gen::FortranInstance::currentInstance = nullptr;
 
 const std::string gen::FortranInstance::kFortranInstance = "FortranInstance";
 
 // FortranInstance methods
 
-gen::FortranInstance::~FortranInstance()
+gen::FortranInstance::~FortranInstance() noexcept(false)
 {
 	if (currentInstance == this) {
 		edm::LogWarning("ReentrancyProblem")
 			<< edm::friendlyname::friendlyName(typeid(*this).name())
 			<< " destroyed while it was the "
 			   "current active instance." << std::endl;
-		currentInstance = 0;
+		currentInstance = nullptr;
 	}
 }
 
@@ -88,7 +88,7 @@ void gen::FortranInstance::leave()
 			   "nesting level of zero." << std::endl;
 
 	if (--instanceNesting == 0)
-		currentInstance = 0;
+		currentInstance = nullptr;
 }
 
 void gen::FortranInstance::throwMissingInstance()

@@ -20,7 +20,7 @@ class RPCSimSimple : public RPCSim
 {
  public:
   RPCSimSimple(const edm::ParameterSet& config);
-  ~RPCSimSimple();
+  ~RPCSimSimple() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,
@@ -29,7 +29,7 @@ class RPCSimSimple : public RPCSim
   void simulateNoise(const RPCRoll*, CLHEP::HepRandomEngine*) override;
 
  private:
-  void init(){};
+  void init() override{};
 
   RPCSynchronizer* _rpcSync;
   int N_hits;

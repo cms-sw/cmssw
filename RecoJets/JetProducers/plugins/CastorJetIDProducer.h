@@ -42,10 +42,10 @@ class CastorJetIDProducer : public edm::stream::EDProducer<> {
    public:
 
       explicit CastorJetIDProducer(const edm::ParameterSet&);
-      ~CastorJetIDProducer();
+      ~CastorJetIDProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       edm::InputTag                 src_;          // input jet source

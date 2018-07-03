@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,22 +54,22 @@ namespace gsfidhelper {
   };
 }
 
-class ElectronIdMVABased : public edm::stream::EDFilter< edm::GlobalCache<gsfidhelper::HeavyObjectCache> > {
+class ElectronIdMVABased : public edm::stream::EDProducer< edm::GlobalCache<gsfidhelper::HeavyObjectCache> > {
 public:
   explicit ElectronIdMVABased(const edm::ParameterSet&, const gsfidhelper::HeavyObjectCache*);
-  ~ElectronIdMVABased();
+  ~ElectronIdMVABased() override;
   
   
   static std::unique_ptr<gsfidhelper::HeavyObjectCache> 
   initializeGlobalCache( const edm::ParameterSet& conf ) {
-    return std::unique_ptr<gsfidhelper::HeavyObjectCache>(new gsfidhelper::HeavyObjectCache(conf));
+    return std::make_unique<gsfidhelper::HeavyObjectCache>(conf);
   }
   
   static void globalEndJob(gsfidhelper::HeavyObjectCache const* ) {
   }
   
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   
   // ----------member data ---------------------------
@@ -119,12 +119,12 @@ ElectronIdMVABased::~ElectronIdMVABased()
 //
 
 // ------------ method called on each new Event  ------------
-bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ElectronIdMVABased::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   constexpr double etaEBEE = 1.485;
   
-  std::auto_ptr<reco::GsfElectronCollection> mvaElectrons(new reco::GsfElectronCollection);
+  auto mvaElectrons = std::make_unique<reco::GsfElectronCollection>();
   
   Handle<reco::VertexCollection>  vertexCollection;
   iEvent.getByToken(vertexToken, vertexCollection);
@@ -151,9 +151,8 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
     
-  iEvent.put(mvaElectrons);
+  iEvent.put(std::move(mvaElectrons));
   
-  return true;
 }
 
 //define this as a plug-in

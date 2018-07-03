@@ -19,7 +19,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+  setSrc( consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>( "src" )), 
           consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
           consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
@@ -41,6 +41,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<std::vector<int> >() ;
   produces<TrajTrackAssociationCollection>();
 
 }
@@ -51,10 +52,11 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection>      outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
+  std::unique_ptr<reco::TrackCollection>      outputTColl(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::unique_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<std::vector<int> >           outputIndecesInputColl(new std::vector<int>);
 
   //
   //declare and get stuff to be retrieved from ES
@@ -78,7 +80,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   switch(constraint_){
   case none :
     {
-      edm::Handle<reco::TrackCollection> theTCollection;
+      edm::Handle<edm::View<reco::Track>> theTCollection;
       getFromEvt(theEvent,theTCollection,bs);
 
       LogDebug("TrackRefitter") << "TrackRefitter::produce(none):Number of Trajectories:" << (*theTCollection).size();
@@ -87,7 +89,9 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 	edm::LogError("TrackRefitter") << " BeamSpot is (0,0,0), it is probably because is not valid in the event"; break; }
 
       if (theTCollection.failedToGet()){
-	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection."; break;}
+        edm::EDConsumerBase::Labels labels;
+        labelsForToken(src_, labels);
+	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection." << labels.module; break;}
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
 
       try {
@@ -114,7 +118,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       try {
 	theAlgo.runWithMomentum(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 				theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
-      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithMomentum." << "\n" << e << "\n"; throw; }
       break;
     }
   case  vertex :
@@ -131,7 +135,8 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       try {
       theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 			    theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
-      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithVertex." << "\n" << e << "\n"; throw; }
+      break;
     }
   case trackParameters :
     {
@@ -148,14 +153,14 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       try {
       theAlgo.runWithTrackParameters(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 				     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
-      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrackParameters." << "\n" << e << "\n"; throw; }
     }
     //default... there cannot be any other possibility due to the check in the ctor
   }
 
   
   //put everything in th event
-  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults,theBuilder.product(), httopo.product());
+  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl,  outputIndecesInputColl, algoResults,theBuilder.product(), httopo.product());
   LogDebug("TrackRefitter") << "end" << "\n";
 }
 

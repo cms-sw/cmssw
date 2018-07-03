@@ -21,20 +21,20 @@ void L1MuonSeedsMerger::resolve(std::vector<TrackAndHits>& tracks) const
       switch ( compare( &(*it1), &(*it2) ) ) {
          case killFirst :
            delete it1->first;
-           it1->first = 0;
+           it1->first = nullptr;
            break;
          case killSecond :
            delete it2->first;
-           it2->first = 0;
+           it2->first = nullptr;
            break;
          case mergeTwo :
            *it2 = *(merge(&(*it1),&(*it2)));
-           it1->first = 0;
+           it1->first = nullptr;
            break;
          case goAhead : default: break;
       }
     }
-    if (0 == it1->first) tracks.erase(it1); else it1++;
+    if (nullptr == it1->first) tracks.erase(it1); else it1++;
   }
 }
 

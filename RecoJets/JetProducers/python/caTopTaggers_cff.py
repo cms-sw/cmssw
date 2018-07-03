@@ -6,7 +6,7 @@ from RecoJets.JetProducers.PFJetParameters_cfi import *
 # with adjacency 
 cmsTopTagPFJetsCHS = cms.EDProducer(
     "CATopJetProducer",
-    PFJetParameters.clone( src = cms.InputTag('pfNoPileUpJME'),
+    PFJetParameters.clone( src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"),
                            doAreaFastjet = cms.bool(True),
                            doRhoFastjet = cms.bool(False),
 			   jetPtMin = cms.double(100.0)
@@ -49,4 +49,12 @@ caTopTagInfos = cms.EDProducer("CATopJetTagger",
 
 hepTopTagInfos = caTopTagInfos.clone(
 	src = cms.InputTag("hepTopTagPFJetsCHS")
+)
+
+caTopTaggersTask = cms.Task(
+    cmsTopTagPFJetsCHS,
+    hepTopTagPFJetsCHS,
+    jhuTopTagPFJetsCHS,
+    caTopTagInfos,
+    hepTopTagInfos
 )

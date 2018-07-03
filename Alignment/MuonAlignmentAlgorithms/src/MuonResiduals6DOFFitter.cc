@@ -484,10 +484,10 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   name_dxdz_trackdydz += "_fit";
   name_dydz_trackdydz += "_fit";
 
-  TF1 *fit_x = NULL;
-  TF1 *fit_y = NULL;
-  TF1 *fit_dxdz = NULL;
-  TF1 *fit_dydz = NULL;
+  TF1 *fit_x = nullptr;
+  TF1 *fit_y = nullptr;
+  TF1 *fit_dxdz = nullptr;
+  TF1 *fit_dydz = nullptr;
   if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D) {
     fit_x = new TF1(name_x.c_str(), MuonResidualsFitter_pureGaussian_TF1, min_x, max_x, 3);
     fit_x->SetParameters(sum_of_weights * (max_x - min_x)/bins, 10.*value(kAlignX), 10.*value(kResidXSigma));
@@ -800,7 +800,7 @@ TTree * MuonResiduals6DOFFitter::readNtuple(std::string fname, unsigned int whee
 
   // Create  new temporary file
   TFile *tmpf = new TFile("small_tree_fit.root","recreate");
-  assert(tmpf!=0);
+  assert(tmpf!=nullptr);
 
   // filter the tree (temporarily lives in the new file)
   TTree *tt = t->CopyTree(Form("is_dt && ring_wheel==%d && station==%d && sector==%d && select==%d", wheel, station, sector, (bool)preselected));

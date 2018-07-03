@@ -24,17 +24,18 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
 
 //
 // class decleration
@@ -43,7 +44,7 @@
 class HITrackClusterRemover : public edm::stream::EDProducer<> {
     public:
         HITrackClusterRemover(const edm::ParameterSet& iConfig) ;
-        ~HITrackClusterRemover() ;
+        ~HITrackClusterRemover() override ;
         void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
     private:
         struct ParamBlock {
@@ -72,7 +73,7 @@ class HITrackClusterRemover : public edm::stream::EDProducer<> {
 	typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripMaskContainer;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusters_;
 	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClusters_;
-	edm::EDGetTokenT<TrajTrackAssociationCollection> trajectories_;
+	edm::EDGetTokenT<reco::TrackCollection> tracks_;
 	edm::EDGetTokenT<reco::ClusterRemovalInfo> oldRemovalInfo_;
 	edm::EDGetTokenT<PixelMaskContainer> oldPxlMaskToken_;
 	edm::EDGetTokenT<StripMaskContainer> oldStrMaskToken_;
@@ -87,12 +88,12 @@ class HITrackClusterRemover : public edm::stream::EDProducer<> {
         std::vector<uint8_t> pixels, strips;                // avoid unneed alloc/dealloc of this
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
-        inline void process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg);
+        inline void process(const TrackingRecHit *hit, unsigned char chi2, const TrackerGeometry* tg);
         inline void process(const OmniClusterRef & cluRef, SiStripDetId & detid, bool fromTrack);
 
 
         template<typename T> 
-        std::auto_ptr<edmNew::DetSetVector<T> >
+        std::unique_ptr<edmNew::DetSetVector<T> >
         cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
                     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs) ;
 
@@ -146,6 +147,7 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
     stripRecHits_(doStripChargeCheck_ ? iConfig.getParameter<std::string>("stripRecHits") : std::string("siStripMatchedRecHits")),
     pixelRecHits_(doPixelChargeCheck_ ? iConfig.getParameter<std::string>("pixelRecHits") : std::string("siPixelRecHits"))
 {
+  mergeOld_ = mergeOld_ && iConfig.getParameter<InputTag>("oldClusterRemovalInfo").label()!="";
   if (iConfig.exists("overrideTrkQuals"))
     overrideTrkQuals_.push_back(consumes<edm::ValueMap<int> >(iConfig.getParameter<InputTag>("overrideTrkQuals")));
   if (iConfig.exists("clusterLessSolution"))
@@ -158,6 +160,9 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
   if (doPixel_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiPixelCluster> >();
   if (doStrip_ && clusterWasteSolution_) produces< edmNew::DetSetVector<SiStripCluster> >();
   if (clusterWasteSolution_) produces< ClusterRemovalInfo >();
+
+  assert(!clusterWasteSolution_);
+
 
     fill(pblocks_, pblocks_+NumberOfParamBlocks, ParamBlock());
     readPSet(iConfig, "Common",-1);
@@ -197,7 +202,7 @@ HITrackClusterRemover::HITrackClusterRemover(const ParameterSet& iConfig):
 	iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 0;
     }
 
-    if (doTracks_) trajectories_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<InputTag>("trajectories"));
+    if (doTracks_) tracks_ = consumes<reco::TrackCollection>(iConfig.getParameter<InputTag>("trajectories"));
     if (doPixel_) pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<InputTag>("pixelClusters"));
     if (doStrip_) stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<InputTag>("stripClusters"));
     if (mergeOld_) {
@@ -229,13 +234,13 @@ void HITrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
 
 
 template<typename T> 
-auto_ptr<edmNew::DetSetVector<T> >
+std::unique_ptr<edmNew::DetSetVector<T> >
 HITrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
 			     reco::ClusterRemovalInfo::Indices &refs, const reco::ClusterRemovalInfo::Indices *oldRefs){
     typedef typename edmNew::DetSetVector<T>             DSV;
     typedef typename edmNew::DetSetVector<T>::FastFiller DSF;
     typedef typename edmNew::DetSet<T>                   DS;
-    auto_ptr<DSV> output(new DSV());
+    auto output = std::make_unique<DSV>();
     output->reserve(oldClusters.size(), oldClusters.dataSize());
 
     unsigned int countOld=0;
@@ -265,7 +270,7 @@ HITrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const
         if (outds.empty()) outds.abort(); // not write in an empty DSV
     }
 
-    if (oldRefs != 0) mergeOld(refs, *oldRefs);
+    if (oldRefs != nullptr) mergeOld(refs, *oldRefs);
     return output;
 }
 
@@ -308,14 +313,14 @@ void HITrackClusterRemover::process(OmniClusterRef const & ocluster, SiStripDetI
 }
 
 
-void HITrackClusterRemover::process(const TrackingRecHit *hit, float chi2, const TrackerGeometry* tg) {
+void HITrackClusterRemover::process(const TrackingRecHit *hit, unsigned char chi2, const TrackerGeometry* tg) {
     SiStripDetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
 
     assert ((subdet > 0) && (subdet <= NumberOfParamBlocks));
 
     // chi2 cut
-    if (chi2 > pblocks_[subdet-1].maxChi2_) return;
+    if (chi2 > Traj2TrackHits::toChi2x5(pblocks_[subdet-1].maxChi2_)) return;
 
     if(GeomDetEnumerators::isTrackerPixel(tg->geomDetSubDetector(subdet))) {
         if (!doPixel_) return;
@@ -398,11 +403,11 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
     }
 //DBG// std::cout << "HITrackClusterRemover: Read strip " << stripClusters_.encode() << " = ID " << stripSourceProdID << std::endl;
 
-    auto_ptr<ClusterRemovalInfo> cri;
+    std::unique_ptr<ClusterRemovalInfo> cri;
     if (clusterWasteSolution_){
-      if (doStrip_ && doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters, stripClusters));
-      else if (doStrip_) cri.reset(new ClusterRemovalInfo(stripClusters));
-      else if (doPixel_) cri.reset(new ClusterRemovalInfo(pixelClusters));
+      if (doStrip_ && doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters, stripClusters);
+      else if (doStrip_) cri = std::make_unique<ClusterRemovalInfo>(stripClusters);
+      else if (doPixel_) cri = std::make_unique<ClusterRemovalInfo>(pixelClusters);
     }
 
     Handle<ClusterRemovalInfo> oldRemovalInfo;
@@ -455,23 +460,20 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 
     if (doTracks_) {
 
-      Handle<TrajTrackAssociationCollection> trajectories_totrack; 
-      iEvent.getByToken(trajectories_,trajectories_totrack);
+      Handle<reco::TrackCollection> tracks; 
+      iEvent.getByToken(tracks_,tracks);
 
       std::vector<Handle<edm::ValueMap<int> > > quals;
-      if ( overrideTrkQuals_.size() > 0) {
+      if ( !overrideTrkQuals_.empty()) {
 	quals.resize(1);
 	iEvent.getByToken(overrideTrkQuals_[0],quals[0]);
       }
-
-      TrajTrackAssociationCollection::const_iterator asst=trajectories_totrack->begin();
-   
-      for ( ; asst!=trajectories_totrack->end();++asst){
-	const Track & track = *(asst->val);
+      int it=0;
+      for (const auto & track: *tracks) {
 	if (filterTracks_) {
 	  bool goodTk = true;
-	  if ( quals.size()!=0) {
-	    int qual=(*(quals[0]))[asst->val];
+	  if ( !quals.empty()) {
+	    int qual=(*(quals[0])). get(it++);
 	    if ( qual < 0 ) {goodTk=false;}
 	    //note that this does not work for some trackquals (goodIterative  or undefQuality)
 	    else
@@ -482,13 +484,13 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 	  if ( !goodTk) continue;
 	  if(track.hitPattern().trackerLayersWithMeasurement() < minNumberOfLayersWithMeasBeforeFiltering_) continue;
 	}
-	const Trajectory &tj = *(asst->key);
-	const vector<TrajectoryMeasurement> &tms = tj.measurements();
-	vector<TrajectoryMeasurement>::const_iterator itm, endtm;
-	for (itm = tms.begin(), endtm = tms.end(); itm != endtm; ++itm) {
-	  const TrackingRecHit *hit = itm->recHit()->hit();
-	  if (!hit->isValid()) continue; 
-	  process( hit, itm->estimate() , tgh.product());
+        auto const & chi2sX5 = track.extra()->chi2sX5();
+        assert(chi2sX5.size()==track.recHitsSize());
+        auto hb = track.recHitsBegin();
+        for(unsigned int h=0;h<track.recHitsSize();h++){
+          auto hit = *(hb+h);
+	  if (!hit->isValid()) continue;
+	  process( hit, chi2sX5[h], tgh.product());
 	}
       }
     }
@@ -518,16 +520,13 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
 //    }
 
     if (doPixel_ && clusterWasteSolution_) {
-        auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters = cleanup(*pixelClusters, pixels, 
-                    cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : 0);
-        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels = iEvent.put(newPixelClusters); 
+        OrphanHandle<edmNew::DetSetVector<SiPixelCluster> > newPixels =
+          iEvent.put(cleanup(*pixelClusters, pixels, cri->pixelIndices(), mergeOld_ ? &oldRemovalInfo->pixelIndices() : nullptr));
 //DBG// std::cout << "HITrackClusterRemover: Wrote pixel " << newPixels.id() << " from " << pixelSourceProdID << std::endl;
         cri->setNewPixelClusters(newPixels);
     }
     if (doStrip_ && clusterWasteSolution_) {
-        auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters = cleanup(*stripClusters, strips, 
-                    cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : 0);
-        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(newStripClusters); 
+        OrphanHandle<edmNew::DetSetVector<SiStripCluster> > newStrips = iEvent.put(cleanup(*stripClusters, strips, cri->stripIndices(), mergeOld_ ? &oldRemovalInfo->stripIndices() : nullptr));
 //DBG// std::cout << "HITrackClusterRemover: Wrote strip " << newStrips.id() << " from " << stripSourceProdID << std::endl;
         cri->setNewStripClusters(newStrips);
     }
@@ -537,7 +536,7 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       //      double fraction_pxl= cri->pixelIndices().size() / (double) pixels.size();
       //      double fraction_strp= cri->stripIndices().size() / (double) strips.size();
       //      edm::LogWarning("HITrackClusterRemover")<<" fraction: " << fraction_pxl <<" "<<fraction_strp;
-      iEvent.put(cri);
+      iEvent.put(std::move(cri));
     }
 
     pixels.clear(); strips.clear(); 
@@ -546,16 +545,12 @@ HITrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       //auto_ptr<edmNew::DetSetVector<SiPixelClusterRefNew> > removedPixelClsuterRefs(new edmNew::DetSetVector<SiPixelClusterRefNew>());
       //auto_ptr<edmNew::DetSetVector<SiStripRecHit1D::ClusterRef> > removedStripClsuterRefs(new edmNew::DetSetVector<SiStripRecHit1D::ClusterRef>());
       
-      std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-         new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
       LogDebug("HITrackClusterRemover")<<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true);
       // std::cout << "HITrackClusterRemover " <<"total strip to skip: "<<std::count(collectedStrips_.begin(),collectedStrips_.end(),true) <<std::endl;
-       iEvent.put( removedStripClusterMask );
+      iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips_));
 
-      std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
-         new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));      
       LogDebug("HITrackClusterRemover")<<"total pxl to skip: "<<std::count(collectedPixels_.begin(),collectedPixels_.end(),true);
-      iEvent.put( removedPixelClusterMask );
+      iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels_));
       
     }
     collectedStrips_.clear();

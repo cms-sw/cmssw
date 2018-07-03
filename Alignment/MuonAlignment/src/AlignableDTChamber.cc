@@ -4,7 +4,7 @@
  *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
- 
+
 #include "Alignment/MuonAlignment/interface/AlignableDTChamber.h"
 #include "Alignment/MuonAlignment/interface/AlignableDTSuperLayer.h"
 
@@ -28,7 +28,7 @@ AlignableDTChamber::AlignableDTChamber(const GeomDet *geomDet)
 
 /// Printout the DetUnits in the DT chamber
 std::ostream& operator<< (std::ostream &os, const AlignableDTChamber & r) {
-   std::vector<Alignable*> theDets = r.components();
+   const auto& theDets = r.components();
 
    os << "    This DTChamber contains " << theDets.size() << " units" << std::endl ;
    os << "    position = " << r.globalPosition() << std::endl;
@@ -38,8 +38,8 @@ std::ostream& operator<< (std::ostream &os, const AlignableDTChamber & r) {
    os << "    total displacement and rotation: " << r.displacement() << std::endl;
    os << r.rotation() << std::endl;
  
-   for (std::vector<Alignable*>::const_iterator idet = theDets.begin();  idet != theDets.end();  ++idet) {
-      const align::Alignables& comp = (*idet)->components();
+   for (const auto& idet: theDets) {
+      const auto& comp = idet->components();
 
       for (unsigned int i = 0; i < comp.size(); ++i) {
 	 os << "     Det position, phi, r: " 

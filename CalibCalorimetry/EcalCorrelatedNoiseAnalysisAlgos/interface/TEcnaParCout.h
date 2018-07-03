@@ -41,12 +41,12 @@ class TEcnaParCout : public TObject {
   //..... Methods
            TEcnaParCout();
            TEcnaParCout(TEcnaObject*);
-  virtual  ~TEcnaParCout();
+   ~TEcnaParCout() override;
 
   void     Init();
   Int_t    GetCodePrint(const TString&);
 
-ClassDef(TEcnaParCout,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
+ClassDefOverride(TEcnaParCout,1)// Parameter management for ECNA (Ecal Correlated Noises Analysis)
 };
 
 #endif   //    ZTR_TEcnaParCout

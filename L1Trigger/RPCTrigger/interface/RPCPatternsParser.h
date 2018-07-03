@@ -33,13 +33,13 @@ public:
   //};
 
   RPCPatternsParser();
-  ~RPCPatternsParser();
+  ~RPCPatternsParser() override;
 
   
   void startElement(const XMLCh* const uri, const XMLCh* const localname, 
-                    const XMLCh* const qname, const XERCES_CPP_NAMESPACE::Attributes& attrs);
+                    const XMLCh* const qname, const XERCES_CPP_NAMESPACE::Attributes& attrs) override;
   
-  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
+  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname) override;
 
   void parse(std::string fileName);
 

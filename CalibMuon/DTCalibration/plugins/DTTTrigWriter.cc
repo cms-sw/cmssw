@@ -130,10 +130,7 @@ void DTTTrigWriter::endJob() {
 
 // Compute the name of the time box histo
 string DTTTrigWriter::getTBoxName(const DTSuperLayerId& slId) const {
-  string histoName;
-  stringstream theStream;
-  theStream << "Ch_" << slId.wheel() << "_" << slId.station() << "_" << slId.sector()
-	    << "_SL" << slId.superlayer() << "_hTimeBox";
-  theStream >> histoName;
+  string histoName = "Ch_" + std::to_string(slId.wheel()) + "_" + std::to_string(slId.station())
+                     + "_" + std::to_string(slId.sector()) + "_SL" + std::to_string(slId.superlayer()) + "_hTimeBox";
   return histoName;
 }

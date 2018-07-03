@@ -1,6 +1,5 @@
-
 #ifndef RCTMonitor_RCTMonitor_H
-#define RCTMOnitor_RCTMonitor_H
+#define RCTMonitor_RCTMonitor_H
 
 // -*- C++ -*-
 //
@@ -75,10 +74,10 @@ struct rct_location {
 class RCTMonitor : public DQMEDAnalyzer {
  public:
   explicit RCTMonitor(const edm::ParameterSet&);
-  ~RCTMonitor();
+  ~RCTMonitor() override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&,
                       edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void FillRCT(const edm::Event&, const edm::EventSetup&);
 
  private:
@@ -154,4 +153,4 @@ class RCTMonitor : public DQMEDAnalyzer {
   edm::EDGetTokenT<L1CaloEmCollection> m_rctSourceToken_;
 };
 
-#endif
+#endif // RCTMonitor_RCTMonitor_H

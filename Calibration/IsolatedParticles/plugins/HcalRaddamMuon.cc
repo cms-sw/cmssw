@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,94 +47,25 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-class HcalDDDRecConstants {
-public:
-  HcalDDDRecConstants();
-  ~HcalDDDRecConstants();
-
-  struct HcalActiveLength {
-    int    ieta, depth;
-    double eta, thick;
-    HcalActiveLength(int ie=0, int d=0, double et=0, 
-                     double t=0) : ieta(ie), depth(d), eta(et), thick(t) {}
-  };
- 
-  std::vector<HcalActiveLength> getThickActive(const int type) const;
-
-private:
-  std::vector<HcalActiveLength> actHB, actHE;
-};
-
-HcalDDDRecConstants::HcalDDDRecConstants() {
-  int ietaHB[18]   = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
-		      11, 12, 13, 14, 15, 15, 16, 16};
-  int depthHB[18]  = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		      1, 1, 1, 1, 1, 2, 1, 2};
-  double etaHB[18] = {0.0435, 0.1305, 0.2175, 0.3045, 0.3915, 0.4785,
-		      0.5655, 0.6525, 0.7395, 0.8265, 0.9135, 1.0005,
-		      1.0875, 1.1745, 1.2615, 1.2615, 1.3485, 1.3485};
-  double actLHB[18]= {7.35696, 7.41268, 7.52454, 7.69339, 7.92051, 8.20761,
-		      8.55688, 8.97096, 9.45298, 10.0066, 10.6360, 11.3460,
-		      12.1419, 13.0297, 10.1832, 3.83301, 2.61066, 5.32410};
-  actHB.clear();
-  for (int i=0; i<18; ++i) {
-    HcalDDDRecConstants::HcalActiveLength act(ietaHB[i],depthHB[i],etaHB[i],actLHB[i]);
-    actHB.push_back(act);
-  }
-  
-  int ietaHE[28]   = {16, 17, 18, 18, 19, 19, 20, 20, 21, 21,
-		      22, 22, 23, 23, 24, 24, 25, 25, 26, 26,
-		      27, 27, 27, 28, 28, 28, 29, 29};
-  int depthHE[28]  = {3, 1, 1, 2, 1, 2, 1, 2, 1, 2,
-		      1, 2, 1, 2, 1, 2, 1, 2, 1, 2,
-		      1, 2, 3, 1, 2, 3, 1, 2};
-  double etaHE[28] = {1.3485, 1.4355, 1.5225, 1.5225, 1.6095, 1.6095, 1.6965,
-		      1.6965, 1.7850, 1.7850, 1.8800, 1.8800, 1.9865, 1.9865,
-		      2.1075, 2.1075, 2.2470, 2.2470, 2.4110, 2.4110, 2.5750,
-		      2.5750, 2.5750, 2.7590, 2.7590, 2.8250, 2.9340, 2.9340};
-  double actLHE[28]= {4.23487, 8.05342, 2.21090, 5.69774, 2.57831, 5.21078,
-		      2.54554, 5.14455, 2.51790, 5.08871, 2.49347, 5.03933,
-		      2.47129, 4.99449, 2.45137, 4.95424, 2.43380, 4.91873,
-		      2.41863, 4.88808, 1.65913, 0.74863, 4.86612, 1.65322,
-		      0.74596, 4.84396, 1.64930, 0.744198};
-  actHE.clear();
-  for (int i=0; i<28; ++i) {
-    HcalDDDRecConstants::HcalActiveLength act(ietaHE[i],depthHE[i],etaHE[i],actLHE[i]);
-    actHE.push_back(act);
-  }
-}
-
-HcalDDDRecConstants::~HcalDDDRecConstants() {
-  std::cout << "HcalDDDRecConstants::destructed!!!" << std::endl;
-}
-
-std::vector<HcalDDDRecConstants::HcalActiveLength>
-HcalDDDRecConstants::getThickActive(const int type) const {
-
-  if (type == 0) return actHB;
-  else           return actHE;
-}
-
-class HcalRaddamMuon : public edm::EDAnalyzer {
+class HcalRaddamMuon : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
   explicit HcalRaddamMuon(const edm::ParameterSet&);
-  ~HcalRaddamMuon();
+  ~HcalRaddamMuon() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
    
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  virtual void endJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void endJob() override ;
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   void   clearVectors();
   int    matchId(const HcalDetId&, const HcalDetId&);
   double activeLength(const DetId&);
@@ -167,10 +98,11 @@ private:
   int maxDepth_,type; 
   edm::Service<TFileService> fs;
   //////////////////////////////////////////////////////
-  HLTConfigProvider hltConfig_;
-  int               verbosity_;
-  bool              isAOD_, isSLHC_;
-  std::string       hltlabel_;
+  HLTConfigProvider   hltConfig_;
+  const edm::InputTag hlTriggerResults_, muonsrc_;
+  const int           verbosity_, useRaw_;
+  const bool          isAOD_;
+  std::string         hltlabel_;
   std::vector<std::string> all_triggers,all_triggers1,all_triggers2,all_triggers3,all_triggers4,all_triggers5;
   ////////////////////////////////////////////////////////////
 
@@ -185,14 +117,10 @@ private:
   std::vector<int>    v_RH_h3x3_iphi;
   std::vector<double> v_RH_h3x3_ene, PxGlob, PyGlob,PzGlob,Pthetha;
   std::vector<double>  PCharge,PChi2,PD0, PD0Error,dxyWithBS,dzWithBS,PdxyTrack, PdzTrack,PNormalizedChi2, PNDoF, PValidHits, PLostHits, NPvx, NPvy, NPvz, NQOverP, NQOverPError, NTrkMomentum, NRefPointX, NRefPointY, NRefPointZ;
-  std::vector<bool> NTrkQuality;
   double h3x3, h3x3Calo; 
   unsigned int RunNumber, EventNumber , LumiNumber, BXNumber;
   double _RecoMuon1TrackIsoSumPtMaxCutValue_03, _RecoMuon1TrackIsoSumPtMaxCutValue_04; 
   int           ntriggers;
-  edm::InputTag HLTriggerResults_;
-  std::string theTrackQuality;
-  edm::InputTag muonsrc_;
   std::vector <double> track_cosmic_xposition , track_cosmic_yposition, track_cosmic_zposition, track_cosmic_xmomentum,track_cosmic_ymomentum, track_cosmic_zmomentum, track_cosmic_rad, track_cosmic_detid;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
@@ -205,38 +133,32 @@ private:
   edm::EDGetTokenT<reco::MuonCollection>   tok_muon_;
 };
 
-HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) {
-  //now do what ever initialization is needed
-  HLTriggerResults_ = iConfig.getUntrackedParameter<edm::InputTag>("HLTriggerResults_");
-  muonsrc_          = iConfig.getUntrackedParameter<edm::InputTag>("MuonSource");
-  verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  isAOD_            = iConfig.getUntrackedParameter<bool>("IsAOD",false);
-  isSLHC_           = iConfig.getUntrackedParameter<bool>("IsSLHC",true);
-  maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
+HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) :
+  hlTriggerResults_(iConfig.getUntrackedParameter<edm::InputTag>("hlTriggerResults_")),
+  muonsrc_(iConfig.getUntrackedParameter<edm::InputTag>("muonSource")),
+  verbosity_(iConfig.getUntrackedParameter<int>("verbosity",0)),
+  useRaw_(iConfig.getUntrackedParameter<int>("UseRaw",0)),
+  isAOD_(iConfig.getUntrackedParameter<bool>("IsAOD",false)) {
 
+  usesResource(TFileService::kSharedResource);
+
+  //now do what ever initialization is needed
+  maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
   if (maxDepth_ > 7)      maxDepth_ = 7;
   else if (maxDepth_ < 1) maxDepth_ = 4;
 
   tok_hcal_    = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
-  tok_trigRes_ = consumes<edm::TriggerResults>(HLTriggerResults_);
+  tok_trigRes_ = consumes<edm::TriggerResults>(hlTriggerResults_);
   tok_recVtx_  = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
   tok_bs_      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
   if (isAOD_) {
     tok_EB_    = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     tok_EE_    = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
-    if (isSLHC_) {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits","hbheUpgradeReco"));
-    } else {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits", "hbhereco"));
-    }
+    tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits", "hbhereco"));
   } else {
     tok_EB_    = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
     tok_EE_    = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
-    if (isSLHC_) {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbheUpgradeReco"));
-    } else {
-      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
-    }
+    tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
   tok_muon_    = consumes<reco::MuonCollection>(muonsrc_);
 }
@@ -317,7 +239,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const CaloTopology *caloTopology = theCaloTopology.product();
   
   edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
 
   edm::Handle<reco::BeamSpot> bmspot;
@@ -340,7 +262,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
  
   math::XYZPoint bspot;
   bspot= (bmspot.isValid()) ? bmspot->position() : math::XYZPoint(0,0,0);
-  
+
   if (_Muon.isValid()) { 
     for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon!= _Muon->end(); ++RecMuon)  {
       muon_is_good.push_back(RecMuon->isPFMuon());
@@ -453,22 +375,28 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	
 	if (trackID.okHCAL) {
 	  const DetId closestCell(trackID.detIdHCAL);
-	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.);
+	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  
+	  int iphi    = ((HcalDetId)(closestCell)).iphi();
+	  int zside   = ((HcalDetId)(closestCell)).iphi();
+	  int depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	  //std::cout<<"eHcal"<<eHcal<<std::endl;
 	  std::vector<std::pair<double,int> > ehdepth;
-	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, (((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, depthHE, (((verbosity_/1000)%10)>0));
 	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	    eHcalDepth[ehdepth[i].second-1] = ehdepth[i].first;
 	    //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
 	  }
 
-	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, calosimhits,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.);
+	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, calosimhits,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  
 	  //std::cout<<"eHcal"<<eHcal<<std::endl;
 	  const DetId closestCellCalo(trackID.detIdHCAL);
+	  iphi    = ((HcalDetId)(closestCellCalo)).iphi();
+	  zside   = ((HcalDetId)(closestCellCalo)).iphi();
+	  depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	  std::vector<std::pair<double,int> > ehdepthCalo;
-	  spr::energyHCALCell((HcalDetId) closestCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, (((verbosity_/1000)%10)>0));
+	  spr::energyHCALCell((HcalDetId) closestCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, depthHE, (((verbosity_/1000)%10)>0));
 	  for (unsigned int i=0; i<ehdepthCalo.size(); ++i) {
 	    eHcalDepthCalo[ehdepthCalo[i].second-1] = ehdepthCalo[i].first;
 	    //std::cout<<eHcalDepth[ehdepth[i].second-1]<<std::endl;
@@ -479,17 +407,19 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  
 	  std::cout<<activeL<<std::endl;
 	  HcalDetId hotCell, hotCellCalo;
-	  h3x3 = spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, false);
-	  h3x3Calo = spr::eHCALmatrix(geo,theHBHETopology, closestCellCalo, calosimhits, 1,1, hotCellCalo, false, false);
+	  h3x3 = spr::eHCALmatrix(geo,theHBHETopology, closestCell, hbhe, 1,1, hotCell, false, useRaw_, false);
+	  h3x3Calo = spr::eHCALmatrix(geo,theHBHETopology, closestCellCalo, calosimhits, 1,1, hotCellCalo, false, useRaw_, false);
 
-	  isHot = matchId(closestCell,hotCell);
+	  isHot     = matchId(closestCell,hotCell);
 	  isHotCalo = matchId(closestCellCalo,hotCellCalo);
 
 	  // std::cout<<"hcal 3X3  < "<<h3x3<<">" << " ClosestCell <" << (HcalDetId)(closestCell) << "> hotCell id < " << hotCell << "> isHot" << isHot << std::endl;
 	  if (hotCell != HcalDetId()) {
+	    iphi    = ((HcalDetId)(hotCell)).iphi();
+	    zside   = ((HcalDetId)(hotCell)).iphi();
+	    depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	    std::vector<std::pair<double,int> > ehdepth;
-	    //   spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);//(((verbosity_/1000)%10)>0    ));
-	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);
+	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, depthHE, false);//(((verbosity_/1000)%10)>0));
 	    for (unsigned int i=0; i<ehdepth.size(); ++i) {
 	      eHcalDepthHot[ehdepth[i].second-1] = ehdepth[i].first;
 	      //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;
@@ -497,9 +427,12 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  }
 
 	  if (hotCellCalo != HcalDetId()) {
+	    iphi    = ((HcalDetId)(hotCellCalo)).iphi();
+	    zside   = ((HcalDetId)(hotCellCalo)).iphi();
+	    depthHE = theHBHETopology->dddConstants()->getMinDepth(1,16,iphi,zside);
 	    std::vector<std::pair<double,int> > ehdepthCalo;
 
-	    spr::energyHCALCell(hotCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, false);
+	    spr::energyHCALCell(hotCellCalo, calosimhits, ehdepthCalo, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, depthHE, false);
 	    for (unsigned int i=0; i<ehdepthCalo.size(); ++i) {
 	      eHcalDepthHotCalo[ehdepthCalo[i].second-1] = ehdepthCalo[i].first;
 	      //  std::cout<<eHcalDepthHot[ehdepth[i].second-1]<<std::endl;                                                                         
@@ -663,12 +596,10 @@ void HcalRaddamMuon::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
 void HcalRaddamMuon::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  /*   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-       iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-       const HcalDDDRecConstants & hdc = (*pHRNDC);
-  */
-  
-  HcalDDDRecConstants hdc;
+
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
+  const HcalDDDRecConstants & hdc = (*pHRNDC);
   actHB.clear();
   actHE.clear();
   actHB = hdc.getThickActive(0);
@@ -703,19 +634,15 @@ void HcalRaddamMuon::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetu
 // ------------ method called when ending the processing of a run  ------------
 void HcalRaddamMuon::endRun(edm::Run const&, edm::EventSetup const&) { }
 
-// ------------ method called when starting to processes a luminosity block  ------------
-void HcalRaddamMuon::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void HcalRaddamMuon::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) { }
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HcalRaddamMuon::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<edm::InputTag>("hlTriggerResults",edm::InputTag("TriggerResults","","HLT"));
+  desc.addUntracked<edm::InputTag>("muonSource",edm::InputTag("muons"));
+  desc.addUntracked<int>("verbosity",0);
+  desc.addUntracked<int>("useRaw",0);
+  desc.add<bool>("isAOD",false);
+  desc.addUntracked<int>("maxDepth",4);
+  descriptions.add("hcalRaddamMuon",desc);
 }
 
 void HcalRaddamMuon::clearVectors() {

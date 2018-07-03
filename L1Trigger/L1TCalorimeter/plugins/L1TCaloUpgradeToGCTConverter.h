@@ -12,7 +12,7 @@
 
 
 // system include files
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 
@@ -54,7 +54,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
+  void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   const edm::EDGetToken EGammaToken_;
   const edm::EDGetToken RlxTauToken_;

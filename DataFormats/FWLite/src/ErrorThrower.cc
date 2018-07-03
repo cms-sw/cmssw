@@ -32,10 +32,10 @@ namespace {
 
          edm::TypeID type(*type_);
          throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
-         <<"'\n  productInstance='"<<((0!=instance_)?instance_:"")<<"'\n  process='"<<((0!=process_)?process_:"")<<"'\n"
+         <<"'\n  productInstance='"<<((nullptr != instance_)?instance_:"")<<"'\n  process='"<<((nullptr != process_)?process_:"")<<"'\n"
          "but no data is available for this Event";
       }
-      virtual ErrorThrower* clone() const override {
+      ErrorThrower* clone() const override {
          return new NoProductErrorThrower(*this);
       }
 
@@ -55,10 +55,10 @@ namespace {
          
          edm::TypeID type(*type_);
          throw edm::Exception(edm::errors::ProductNotFound)<<"No branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<module_
-         <<"'\n  productInstance='"<<((0!=instance_)?instance_:"")<<"'\n  process='"<<((0!=process_)?process_:"")<<"'";
+         <<"'\n  productInstance='"<<((nullptr != instance_)?instance_:"")<<"'\n  process='"<<((nullptr != process_)?process_:"")<<"'";
       }
       
-      virtual ErrorThrower* clone() const override {
+      ErrorThrower* clone() const override {
          return new NoBranchErrorThrower(*this);
       }
       
@@ -74,7 +74,7 @@ namespace {
          throw cms::Exception("UnsetHandle")<<"The fwlite::Handle was never set";
       }
       
-      virtual ErrorThrower* clone() const override {
+      ErrorThrower* clone() const override {
          return new UnsetErrorThrower(*this);
       }
       

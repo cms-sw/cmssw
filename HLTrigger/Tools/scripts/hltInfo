@@ -1,0 +1,24 @@
+#! /bin/bash
+
+function usage() {
+  echo "Usage: hltInfo FILE"
+  echo
+  echo "Print the CMSSW process names, releases, global tags, and the HLT menu, used to collect or simulate FILE."
+}
+
+
+if ! [ "$1" ]; then
+  usage
+  exit 1
+fi
+
+if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+  usage
+  exit 0
+fi
+
+edmProvDump "$1" | awk 'BEGIN {keep=0} /Producers with data in file/ {keep=0} // { if (keep) print $1, gensub(/["'\'']/,"", "g", $3), gensub(/[()]/, "", "g", $4) } /^Processing History:/ {keep=1}' | while read P R H; do
+  echo "process $P (release $R)"
+  edmProvDump "$1" -i $H | grep 'tableName\|globaltag' | sed -e's/string \(un\)\?tracked  = //' -e's/tableName:/HLT menu:  /' -e's/globaltag:/global tag:/'
+  echo
+done

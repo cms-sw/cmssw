@@ -24,7 +24,7 @@
 // system include files
 #include <memory>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 // user include files
 
@@ -63,8 +63,6 @@
 
 
 
-
-
 class TransientInitialStateEstimator;
 
 //
@@ -73,21 +71,22 @@ class TransientInitialStateEstimator;
 
 class NuclearTrackCorrector :  public edm::EDProducer {
 
-   public:
-      typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
-      typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
-      typedef edm::Ref<TrackCandidateCollection> TrackCandidateRef;
-      typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
-      typedef TrackProducerAlgorithm<reco::Track>::AlgoProductCollection AlgoProductCollection;
+public:
+  typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
+  typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
+  typedef edm::Ref<TrackCandidateCollection> TrackCandidateRef;
+  typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
+
+  using AlgoProductCollection =  TrackProducerAlgorithm<reco::Track>::AlgoProductCollection;
 
    public:
 
       explicit NuclearTrackCorrector(const edm::ParameterSet&);
-      ~NuclearTrackCorrector();
+      ~NuclearTrackCorrector() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       /// check if the trajectory has to be refitted and get the new trajectory
       bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const reco::NuclearInteraction& ni);

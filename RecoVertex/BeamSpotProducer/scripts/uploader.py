@@ -29,8 +29,7 @@ def main():
                 file.close()
                 break
 
-    sortedKeys = finalList.keys()
-    sortedKeys.sort()
+    sortedKeys = sorted(finalList.keys())
 
     databaseTag = ''
     regExp = re.search('(\D+)(\d+)_(\d+)_(\w+)',listOfFiles[0])

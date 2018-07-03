@@ -38,12 +38,15 @@
 
 
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
-#include "RecoVertex/AdaptiveVertexFinder/interface/TrackVertexArbitratration.h"
+#include "RecoVertex/AdaptiveVertexFinder/interface/TrackVertexArbitration.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
 #include "RecoVertex/AdaptiveVertexFinder/interface/TTHelpers.h"
 
 //#define VTXDEBUG
+
+const unsigned int nTracks(const reco::Vertex & sv) {return sv.nTracks();}
+const unsigned int nTracks(const reco::VertexCompositePtrCandidate & sv) {return sv.numberOfSourceCandidatePtrs();}
 
 template <class InputContainer, class VTX>
 class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
@@ -51,6 +54,39 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
 	typedef std::vector<VTX> Product;
 	TemplatedVertexArbitrator(const edm::ParameterSet &params); 
 
+	static void fillDescriptions(edm::ConfigurationDescriptions & cdesc) {
+	  edm::ParameterSetDescription pdesc;
+	  pdesc.add<edm::InputTag>("beamSpot",edm::InputTag("offlineBeamSpot"));
+	  pdesc.add<edm::InputTag>("primaryVertices",edm::InputTag("offlinePrimaryVertices"));
+          if( std::is_same<VTX,reco::Vertex>::value ) {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+            pdesc.add<edm::InputTag>("secondaryVertices",edm::InputTag("vertexMerger"));
+          } else if (  std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("particleFlow"));
+            pdesc.add<edm::InputTag>("secondaryVertices",edm::InputTag("candidateVertexMerger"));
+          } else {
+            pdesc.add<edm::InputTag>("tracks",edm::InputTag("generalTracks"));
+            pdesc.add<edm::InputTag>("secondaryVertices",edm::InputTag("vertexMerger"));
+          }
+	  pdesc.add<double>("dLenFraction",0.333);
+	  pdesc.add<double>("dRCut",0.4);
+	  pdesc.add<double>("distCut",0.04);
+	  pdesc.add<double>("sigCut",5.0);
+	  pdesc.add<double>("fitterSigmacut",3.0);
+	  pdesc.add<double>("fitterTini",256);
+	  pdesc.add<double>("fitterRatio",0.25);
+	  pdesc.add<int>("trackMinLayers",4);
+	  pdesc.add<double>("trackMinPt",0.4);
+	  pdesc.add<int>("trackMinPixels",1);
+	  pdesc.add<double>("maxTimeSignificance",3.5);
+          if( std::is_same<VTX,reco::Vertex>::value ) {
+            cdesc.add("trackVertexArbitratorDefault",pdesc); 
+          } else if (  std::is_same<VTX,reco::VertexCompositePtrCandidate>::value ) {
+            cdesc.add("candidateVertexArbitratorDefault",pdesc); 
+          } else {
+            cdesc.addDefault(pdesc); 
+          }
+	}
 
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override ;
 
@@ -61,7 +97,7 @@ class TemplatedVertexArbitrator : public edm::stream::EDProducer<> {
 	edm::EDGetTokenT<Product> token_secondaryVertex;
 	edm::EDGetTokenT<InputContainer>	 token_tracks; 
 	edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
-	TrackVertexArbitration<VTX> * theArbitrator;
+	std::unique_ptr<TrackVertexArbitration<VTX> > theArbitrator;
 };
 
 
@@ -73,7 +109,7 @@ TemplatedVertexArbitrator<InputContainer,VTX>::TemplatedVertexArbitrator(const e
 	token_beamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpot"));
 	token_tracks = consumes<InputContainer>(params.getParameter<edm::InputTag>("tracks"));
 	produces<Product>();
-	theArbitrator = new TrackVertexArbitration<VTX>(params);
+	theArbitrator.reset( new TrackVertexArbitration<VTX>(params) );
 }
 
 template <class InputContainer, class VTX>
@@ -88,7 +124,7 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 	edm::Handle<VertexCollection> primaryVertices;
 	event.getByToken(token_primaryVertex, primaryVertices);
 
-	std::auto_ptr<Product> recoVertices(new Product);
+	auto recoVertices = std::make_unique<Product>();
 	if(primaryVertices->size()!=0){ 
 		const reco::Vertex &pv = (*primaryVertices)[0];
 
@@ -114,11 +150,12 @@ void TemplatedVertexArbitrator<InputContainer,VTX>::produce(edm::Event &event, c
 				theSecVertexColl);
 
 		for(unsigned int ivtx=0; ivtx < theRecoVertices.size(); ivtx++){
+			if ( !(nTracks(theRecoVertices[ivtx]) > 1) ) continue;
 			recoVertices->push_back(theRecoVertices[ivtx]);
 		}
 
 	}	
-	event.put(recoVertices);
+	event.put(std::move(recoVertices));
 
 
 

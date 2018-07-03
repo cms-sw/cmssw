@@ -32,18 +32,18 @@ class EcalSimHitsValidProducer : public SimProducer,
 
 public:
     EcalSimHitsValidProducer(const edm::ParameterSet&);
-    virtual ~EcalSimHitsValidProducer();
+    ~EcalSimHitsValidProducer() override;
 
-    void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
 
 private:
-   EcalSimHitsValidProducer(const EcalSimHitsValidProducer&); // stop default
-   const EcalSimHitsValidProducer& operator=(const EcalSimHitsValidProducer&); // stop default
+   EcalSimHitsValidProducer(const EcalSimHitsValidProducer&) = delete; // stop default
+   const EcalSimHitsValidProducer& operator=(const EcalSimHitsValidProducer&) = delete; // stop default
 
-   void update(const BeginOfEvent*);
-   void update(const G4Step*);
-   void update(const EndOfEvent*);
+   void update(const BeginOfEvent*) override;
+   void update(const G4Step*) override;
+   void update(const EndOfEvent*) override;
    
    void fillEventInfo(PEcalValidInfo&);
 

@@ -26,13 +26,11 @@
 
 using namespace std;
 
-SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* theInputTracker,
-					       const MagneticField* field) : 
-  theBarrelLength(0),theField(field), theTracker(theInputTracker)
+void SimpleNavigationSchool::init()
 {
 
-  theAllDetLayersInSystem=&theInputTracker->allLayers();
-  theAllNavigableLayer.resize(theInputTracker->allLayers().size(),nullptr);
+  theAllDetLayersInSystem=&theTracker->allLayers();
+  theAllNavigableLayer.resize(theTracker->allLayers().size(),nullptr);
 
 
   // Get barrel layers
@@ -126,6 +124,13 @@ void SimpleNavigationSchool::linkNextForwardLayer( const BarrelDetLayer* bl,
 	fli != theRightLayers.end(); fli++) {
     if ( length < (**fli).position().z() &&
 	 radius < (**fli).specificSurface().outerRadius()) {
+      //search if there are any sovrapposition between forward layers
+      for ( FDLI fliNext = fli; fliNext != theRightLayers.end(); fliNext++) {
+        if ( (**fliNext).position().z() < (**fli).position().z() && (**fliNext).specificSurface().innerRadius() < (**fli).specificSurface().outerRadius()) {
+          rightFL.push_back( *fliNext);
+          return;
+        }
+      }
       rightFL.push_back( *fli);
       return;
     }
@@ -307,8 +312,8 @@ SimpleNavigationSchool::splitForwardLayers()
   FDLI begin = myRightLayers.begin();
   FDLI end   = myRightLayers.end();
 
-  // sort according to inner radius
-  sort ( begin, end, DiskLessInnerRadius()); 
+  // sort according to inner radius, but keeping the ordering in z!
+  stable_sort ( begin, end, DiskLessInnerRadius());
 
   // partition in cylinders
   vector<FDLC> result;
@@ -316,19 +321,28 @@ SimpleNavigationSchool::splitForwardLayers()
   current.push_back( *begin);
   for ( FDLI i = begin+1; i != end; i++) {
 
+#ifdef EDM_ML_DEBUG
     LogDebug("TkNavigation") << "(**i).specificSurface().innerRadius()      = "
 			     << (**i).specificSurface().innerRadius() << endl
 			     << "(**(i-1)).specificSurface().outerRadius()) = "
 			     << (**(i-1)).specificSurface().outerRadius() ;
+    LogDebug("TkNavigation") << "(**i).specificSurface().position().z()      = "
+                            << (**i).specificSurface().position().z() << endl
+                            << "(**(i-1)).specificSurface().position().z() = "
+                            << (**(i-1)).specificSurface().position().z() ;
+#endif
 
     // if inner radius of i is larger than outer radius of i-1 then split!
-    if ( (**i).specificSurface().innerRadius() > 
-	 (**(i-1)).specificSurface().outerRadius()) {
+    // FIXME: The solution found for phase2 is a bit dirty, we can do better.
+    // For phase2 we compare the EXTENDED pixel with the TID to get the assignment right!
+    if ( (**i).specificSurface().innerRadius() > (**(i-1)).specificSurface().outerRadius() ||
+         (theTracker->posPixelForwardLayers().back()->specificSurface().position().z() > theTracker->posTidLayers().front()->specificSurface().position().z() &&
+          (**i).specificSurface().position().z() < (**(i-1)).specificSurface().position().z()) ){
 
       LogDebug("TkNavigation") << "found break between groups" ;
 
       // sort layers in group along Z
-      sort ( current.begin(), current.end(), DetLessZ());
+      stable_sort ( current.begin(), current.end(), DetLessZ());
 
       result.push_back(current);
       current.clear();
@@ -340,7 +354,7 @@ SimpleNavigationSchool::splitForwardLayers()
   // now sort subsets in Z
   for ( vector<FDLC>::iterator ivec = result.begin();
 	ivec != result.end(); ivec++) {
-    sort( ivec->begin(), ivec->end(), DetLessZ());
+    stable_sort( ivec->begin(), ivec->end(), DetLessZ());
   }
 
   return result;

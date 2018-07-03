@@ -1,12 +1,13 @@
 #ifndef DDName_h
 #define DDName_h
 
-#include <string>
+#include <iosfwd>
 #include <map>
+#include <string>
+#include <utility>
 #include <vector>
 
 class DDCurrentNamespace;
-class DDStreamer;
 
 //! DDName is used to identify DDD entities uniquely.
 /** A DDName consists of a \a name and a \a namespace. Both are represented as std::string.

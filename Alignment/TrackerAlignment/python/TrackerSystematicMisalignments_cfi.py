@@ -6,12 +6,12 @@ TrackerSystematicMisalignments = cms.EDAnalyzer("TrackerSystematicMisalignments"
     #epsilons
     radialEpsilon = cms.untracked.double(-999.0), # default 5e-4 ~ 600 um
     telescopeEpsilon = cms.untracked.double(-999.0), # default 5e-4 ~ 600 um
-    layerRotEpsilon = cms.untracked.double(-999.0), # 9.43e-6                   mm^-1
-    bowingEpsilon = cms.untracked.double(-999.0), #6.77e-9                      mm^-2
+    layerRotEpsilon = cms.untracked.double(-999.0), # 9.43e-6                   cm^-1
+    bowingEpsilon = cms.untracked.double(-999.0), #6.77e-9                      cm^-2
     zExpEpsilon = cms.untracked.double(-999.0), # 2.02e-4
-    twistEpsilon = cms.untracked.double(-999.0),# 2.04e-6                       mm^-1
+    twistEpsilon = cms.untracked.double(-999.0),# 2.04e-6                       cm^-1
     ellipticalEpsilon = cms.untracked.double(-999.0), # 5e-4
-    skewEpsilon = cms.untracked.double(-999.0), # 5.5e-2                        mm
+    skewEpsilon = cms.untracked.double(-999.0), # 5.5e-2                        cm
     sagittaEpsilon = cms.untracked.double(-999.0), #5.0e-4
 
     #misalignment phases

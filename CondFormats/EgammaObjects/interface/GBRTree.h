@@ -79,61 +79,18 @@
 
 //_______________________________________________________________________
 inline double GBRTree::GetResponse(const float* vector) const {
-  
-  int index = 0;
-  
-  unsigned char cutindex = fCutIndices[0];
-  float cutval = fCutVals[0];
-  
-  while (true) {
-     
-    if (vector[cutindex] > cutval) {
-      index = fRightIndices[index];
-    }
-    else {
-      index = fLeftIndices[index];
-    }
-    
-    if (index>0) {
-      cutindex = fCutIndices[index];
-      cutval = fCutVals[index];
-    }
-    else {
-      return fResponses[-index];
-    }
-    
-  }
-  
-
+  return fResponses[TerminalIndex(vector)];
 }
 
 //_______________________________________________________________________
 inline int GBRTree::TerminalIndex(const float* vector) const {
-  
-  int index = 0;
-  
-  unsigned char cutindex = fCutIndices[0];
-  float cutval = fCutVals[0];
-  
-  while (true) {
-    if (vector[cutindex] > cutval) {
-      index = fRightIndices[index];
-    }
-    else {
-      index = fLeftIndices[index];
-    }
-    
-    if (index>0) {
-      cutindex = fCutIndices[index];
-      cutval = fCutVals[index];
-    }
-    else {
-      return (-index);
-    }
-    
-  }
-  
-
+   int index = 0;
+  do {
+     auto r = fRightIndices[index];
+     auto l = fLeftIndices[index];  
+    index =  vector[fCutIndices[index]] > fCutVals[index] ? r : l;
+  } while (index>0);
+  return -index;
 }
-  
+
 #endif

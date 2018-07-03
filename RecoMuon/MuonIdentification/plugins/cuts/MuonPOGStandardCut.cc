@@ -8,13 +8,13 @@ class MuonPOGStandardCut : public CutApplicatorWithEventContentBase
 public:
   MuonPOGStandardCut(const edm::ParameterSet& c);
 
-  result_type operator()(const reco::MuonPtr&) const override final;
-  CandidateType candidateType() const override final { return MUON; }
+  result_type operator()(const reco::MuonPtr&) const final;
+  CandidateType candidateType() const final { return MUON; }
 
-  void setConsumes(edm::ConsumesCollector&) override final;
-  void getEventContent(const edm::EventBase&) override final;
+  void setConsumes(edm::ConsumesCollector&) final;
+  void getEventContent(const edm::EventBase&) final;
 
-  double value(const reco::CandidatePtr& cand) const override final;
+  double value(const reco::CandidatePtr& cand) const final;
 
 private:
   enum CutType {
@@ -102,7 +102,7 @@ double MuonPOGStandardCut::value(const reco::CandidatePtr& cand) const {
     return muon::isHighPtMuon(*mu, vtxs_->at(0));
     break;
   case NONE:
-    return false;
+    return 0.0;
     break;
   }
   return 1.0;

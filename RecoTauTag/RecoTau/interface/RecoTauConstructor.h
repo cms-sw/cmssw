@@ -55,7 +55,7 @@ class RecoTauConstructor {
     RecoTauConstructor(const PFJetRef& jetRef,
         const edm::Handle<PFCandidateCollection>& pfCands,
 	bool copyGammasFromPiZeros = false,
-	const StringObjectFunction<reco::PFTau>* signalConeSize = 0,
+	const StringObjectFunction<reco::PFTau>* signalConeSize = nullptr,
 	double minAbsPhotonSumPt_insideSignalCone = 2.5, double minRelPhotonSumPt_insideSignalCone = 0.,
 	double minAbsPhotonSumPt_outsideSignalCone = 1.e+9, double minRelPhotonSumPt_outsideSignalCone = 1.e+9);
 

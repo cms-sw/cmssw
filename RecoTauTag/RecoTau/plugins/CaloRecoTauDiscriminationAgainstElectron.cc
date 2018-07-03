@@ -24,7 +24,7 @@ class CaloRecoTauDiscriminationAgainstElectron final  : public  CaloTauDiscrimin
          maxleadTrackHCAL3x3hottesthitDEta_          = iConfig.getParameter<double>("maxleadTrackHCAL3x3hottesthitDEta");
          ApplyCut_leadTrackavoidsECALcrack_          = iConfig.getParameter<bool>("ApplyCut_leadTrackavoidsECALcrack");
       }
-      ~CaloRecoTauDiscriminationAgainstElectron(){} 
+      ~CaloRecoTauDiscriminationAgainstElectron() override{} 
       double discriminate(const CaloTauRef& theCaloTauRef) const override;
       void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
    private:  
@@ -81,7 +81,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const 
   iEvent.getByLabel(CaloTauProducer_,theCaloTauCollection);
 
   // fill the AssociationVector object
-  auto_ptr<CaloTauDiscriminator> theCaloTauDiscriminatorAgainstElectron(new CaloTauDiscriminator(CaloTauRefProd(theCaloTauCollection)));
+  auto theCaloTauDiscriminatorAgainstElectron = std::make_unique<CaloTauDiscriminator>(CaloTauRefProd(theCaloTauCollection));
 
   for(size_t iCaloTau=0;iCaloTau<theCaloTauCollection->size();++iCaloTau) {
     CaloTauRef theCaloTauRef(theCaloTauCollection,iCaloTau);
@@ -120,7 +120,7 @@ void CaloRecoTauDiscriminationAgainstElectron::produce(edm::Event& iEvent,const 
     }
   }
    
-  iEvent.put(theCaloTauDiscriminatorAgainstElectron);
+  iEvent.put(std::move(theCaloTauDiscriminatorAgainstElectron));
 }
 */
 

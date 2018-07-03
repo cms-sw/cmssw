@@ -36,11 +36,11 @@
 class L1RCTTPGProvider : public edm::EDProducer {
    public:
       explicit L1RCTTPGProvider(const edm::ParameterSet&);
-      ~L1RCTTPGProvider();
+      ~L1RCTTPGProvider() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
       edm::InputTag ecalTPG_;

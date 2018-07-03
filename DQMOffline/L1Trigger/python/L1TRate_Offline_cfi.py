@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.L1Trigger.L1TRateOfflineParams_cff import RateParams
 
-l1tRate_Offline = cms.EDAnalyzer("L1TRate_Offline",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tRate_Offline = DQMEDAnalyzer('L1TRate_Offline',
 
   #-------------------------------------------------------
   #-------------------- ATTENTION-------------------------
@@ -39,6 +40,8 @@ l1tRate_Offline = cms.EDAnalyzer("L1TRate_Offline",
       Mu     = cms.untracked.bool(True),
       EG     = cms.untracked.bool(True),
       IsoEG  = cms.untracked.bool(True),
+      Tau     = cms.untracked.bool(True),
+      IsoTau  = cms.untracked.bool(True),  
       Jet    = cms.untracked.bool(True),
       CenJet = cms.untracked.bool(False), # Currently there is no unmasked trigger in this category
       ForJet = cms.untracked.bool(False), # Currently there is no unmasked trigger in this category

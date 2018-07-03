@@ -19,18 +19,18 @@
 class CSCCrosstalkConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCCrosstalkConditions(const edm::ParameterSet&);
-  ~CSCCrosstalkConditions();
+  ~CSCCrosstalkConditions() override;
   
 
   static  CSCcrosstalk * prefillCrosstalk();
   
-  typedef const  CSCcrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCcrosstalk> ReturnType;
   
   ReturnType produceCrosstalk(const CSCcrosstalkRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCcrosstalk *cnCrosstalk ;
   
 };

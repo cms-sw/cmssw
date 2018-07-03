@@ -189,7 +189,7 @@ void SiStripPsuDetIdMap::getDetID(std::string PSUChannel,const bool debug,std::v
   //3-crosstalking_detids->the detids that are matching the PSU in question but exhibit the HV channel cross-talking behavior (they are ON as long as ANY of the 2 HV channels of the supply is ON, so they only go OFF when both channels are OFF)
   //The second and third vectors are only relevant for the HV case, when unmapped and cross-talking channels need further processing before being turned ON and OFF.
   
-  std::string PSUChannelFromQuery = PSUChannel;
+  const std::string& PSUChannelFromQuery = PSUChannel;
 
   //Get the channel to see if it is LV or HV, they will be treated differently
   std::string ChannelFromQuery=PSUChannelFromQuery.substr(PSUChannelFromQuery.size()-10);
@@ -461,7 +461,7 @@ void SiStripPsuDetIdMap::printControlMap() {
 }
 
 std::vector< std::pair<uint32_t, std::string> > SiStripPsuDetIdMap::getDcuPsuMap() {
-  if (pgMap.size() != 0) { return pgMap; }
+  if (!pgMap.empty()) { return pgMap; }
   std::vector< std::pair<uint32_t, std::string> > emptyVec;
   return emptyVec;
 }

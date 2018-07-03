@@ -20,7 +20,7 @@ from ROOT import TCanvas,gStyle,TH1F,TGaxis,gPad,kRed
 sys.argv=theargv
 
 import os
-if os.environ.has_key("RELMON_SA"):
+if "RELMON_SA" in os.environ:
   from dirstructure import Comparison,Directory
   from definitions import *
   from utils import unpickler
@@ -285,7 +285,7 @@ def get_comparisons(category,directory):
   tot_counter=1
   
   # get the right ones
-  comparisons= filter (lambda comp: comp.status == cat_states[category] , directory.comparisons) 
+  comparisons= [comp for comp in directory.comparisons if comp.status == cat_states[category]] 
   n_comparisons=len(comparisons)    
 
   is_reverse=True
@@ -541,7 +541,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
           total_ndirs+=1
           
           total_directory_successes+= float(nsucc)/weight
-          if present_subdirs.has_key(subdirname):
+          if subdirname in present_subdirs:
             this_dir_dict=present_subdirs[subdirname]
             this_dir_dict["nsucc"]+=nsucc
             this_dir_dict["weight"]+=weight
@@ -549,7 +549,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
             present_subdirs[subdirname]={"nsucc":nsucc,"weight":weight}
         # Make it usable also for subdirectories
         for subsubdirname,subsubdir in subdir.get_subdirs_dict().items():          
-          for pathname in filter(lambda name:"/" in name,subdir_list):           
+          for pathname in [name for name in subdir_list if "/" in name]:           
             selected_subdirname,selected_subsubdirname = pathname.split("/")
             if selected_subdirname == subdirname and selected_subsubdirname==subsubdirname:
               #print "Studying directory ",subsubdirname," in directory ",subdirname
@@ -560,7 +560,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
               total_ndirs+=1              
               total_directory_successes+= float(nsucc)/weight
               
-              if present_subdirs.has_key(subsubdirname):
+              if subsubdirname in present_subdirs:
                 this_dir_dict=present_subdirs[subsubdirname]
                 this_dir_dict["nsucc"]+=nsucc
                 this_dir_dict["weight"]+=weight
@@ -710,7 +710,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
   
   
   # Get the list of pickles
-  sample_pkls=filter(lambda name: name.endswith(".pkl"),listdir("./"))
+  sample_pkls=[name for name in listdir("./") if name.endswith(".pkl")]
   
   # Load directories, build a list of all first level subdirs  
   dir_unpicklers=[]
@@ -868,7 +868,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
     for sample in sorted_samples:
       subdirs_dict=directory.get_subdirs_dict()
       directory=dir_dict[sample]
-      dir_is_there=subdirs_dict.has_key(subdir_name)
+      dir_is_there=subdir_name in subdirs_dict
       if dir_is_there:
         row_summary.subdirs.append(subdirs_dict[subdir_name])
 
@@ -897,7 +897,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
         #print "   ## summary_page: %s"%(directory.name+subdir_name)
         #print "   ## summary_page hash: %s" %(hash_name(directory.name+subdir_name,hashing_flag))
         summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
-      dir_is_there=subdirs_dict.has_key(subdir_name)
+      dir_is_there=subdir_name in subdirs_dict
 
       img_link="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1"
       img_tooltip="N/A"

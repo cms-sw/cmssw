@@ -5,6 +5,8 @@
 // SVD Block Predictor
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <cstring>
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 

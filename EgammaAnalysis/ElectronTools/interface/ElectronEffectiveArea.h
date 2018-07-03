@@ -8,6 +8,8 @@
 // Authors: S.Xie, E. DiMarco
 //--------------------------------------------------------------------------------------------------
 
+#include <Rtypes.h>
+#include <cmath>
 
 /// --> NOTE if you want to use this class as standalone without the CMSSW part 
 ///  you need to uncomment the below line and compile normally with scramv1 b 
@@ -19,7 +21,6 @@
 
 #ifndef STANDALONE
 #endif
-
 
 class ElectronEffectiveArea{
  public:
@@ -64,7 +65,6 @@ class ElectronEffectiveArea{
     static Double_t GetElectronEffectiveArea(ElectronEffectiveAreaType type, Double_t SCEta, 
                                              ElectronEffectiveAreaTarget EffectiveAreaTarget = kEleEAData2011) {
       
-      using namespace std;
       Double_t EffectiveArea = 0;
 
 

@@ -10,7 +10,6 @@
 #include "G4ThreeVector.hh"
 #include "G4LogicalVolume.hh"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 class HFShowerG4Hit : public G4VHit {
@@ -19,7 +18,7 @@ public:
 
   HFShowerG4Hit();
   HFShowerG4Hit(G4int hitId, G4int tkID, double edep, double time);
-  virtual ~HFShowerG4Hit();
+  ~HFShowerG4Hit() override;
   HFShowerG4Hit(const HFShowerG4Hit &right);
   const HFShowerG4Hit& operator=(const HFShowerG4Hit &right);
   G4int operator==(const HFShowerG4Hit &right) const;

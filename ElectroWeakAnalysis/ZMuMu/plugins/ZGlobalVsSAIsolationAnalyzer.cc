@@ -35,8 +35,8 @@ public:
   typedef math::XYZVector Vector;
   ZGlobalVsSAIsolationAnalyzer(const edm::ParameterSet& cfg);
 private:
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
   EDGetTokenT<CandidateView> srcToken_;
   double dRVeto;
   double dRTrk, dREcal, dRHcal;
@@ -83,7 +83,7 @@ bool ZGlobalVsSAIsolationAnalyzer::isolated(const Direction & dir, const pat::Is
 
 void ZGlobalVsSAIsolationAnalyzer::evaluate(const reco::Candidate* dau) {
   const pat::Muon * mu = dynamic_cast<const pat::Muon *>(&*dau->masterClone());
-  if(mu == 0) throw Exception(errors::InvalidReference) << "Daughter is not a muon!\n";
+  if(mu == nullptr) throw Exception(errors::InvalidReference) << "Daughter is not a muon!\n";
   const pat::IsoDeposit * trkIsoDep = mu->isoDeposit(pat::TrackIso);
   const pat::IsoDeposit * ecalIsoDep = mu->isoDeposit(pat::EcalIso);
   const pat::IsoDeposit * hcalIsoDep = mu->isoDeposit(pat::HcalIso);

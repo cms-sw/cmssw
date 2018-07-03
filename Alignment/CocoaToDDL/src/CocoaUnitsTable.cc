@@ -3,7 +3,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iomanip>
-#include <math.h>
+#include <cmath>		// include floating-point std::abs functions
 
 CocoaUnitsTable      CocoaUnitDefinition::theUnitsTable;
 
@@ -85,7 +85,7 @@ CocoaUnitsTable& CocoaUnitDefinition::GetUnitsTable()
  
 ALIdouble CocoaUnitDefinition::GetValueOf(const ALIstring& str)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
@@ -105,7 +105,7 @@ ALIdouble CocoaUnitDefinition::GetValueOf(const ALIstring& str)
   
 ALIstring CocoaUnitDefinition::GetCategory(const ALIstring& str)
 {
-  if(theUnitsTable.size()==0) BuildUnitsTable();
+  if(theUnitsTable.empty()) BuildUnitsTable();
   ALIstring name,symbol;
   for (size_t i=0;i<theUnitsTable.size();i++)
      { CocoaUnitsContainer& units = theUnitsTable[i]->GetUnitsList();
@@ -322,7 +322,7 @@ CocoaBestUnit::CocoaBestUnit(ALIdouble value, const ALIstring& category)
 {
  // find the category
     CocoaUnitsTable& theUnitsTable = CocoaUnitDefinition::GetUnitsTable();
-    if( theUnitsTable.size() == 0 ) CocoaUnitDefinition::BuildUnitsTable(); //t should be done somewhere else
+    if( theUnitsTable.empty() ) CocoaUnitDefinition::BuildUnitsTable(); //t should be done somewhere else
     size_t nbCat = theUnitsTable.size();
     size_t i = 0;
     while
@@ -386,8 +386,8 @@ std::ostream& operator<<(std::ostream& flux, CocoaBestUnit a)
   ALIdouble rsup(ALI_DBL_MAX), rinf(0.);
 
   //for a ThreeVector, choose the best unit for the biggest value 
-  ALIdouble value = std::max(std::max(fabs(a.Value[0]),fabs(a.Value[1])),
-                              fabs(a.Value[2]));
+  ALIdouble value = std::max(std::max(std::abs(a.Value[0]),std::abs(a.Value[1])),
+                              std::abs(a.Value[2]));
 
   for (size_t k=0; k<List.size(); k++)
      {

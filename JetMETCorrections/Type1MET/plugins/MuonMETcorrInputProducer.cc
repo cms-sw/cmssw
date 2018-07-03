@@ -20,7 +20,7 @@ MuonMETcorrInputProducer::~MuonMETcorrInputProducer()
 
 void MuonMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  std::auto_ptr<CorrMETData> unclEnergySum(new CorrMETData());
+  std::unique_ptr<CorrMETData> unclEnergySum(new CorrMETData());
 
   edm::Handle<reco::MuonCollection> muons;
   evt.getByToken(token_, muons);
@@ -50,7 +50,7 @@ void MuonMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& e
   }
 
 //--- add sum of muon corrections to the event
-  evt.put(unclEnergySum);
+  evt.put(std::move(unclEnergySum));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

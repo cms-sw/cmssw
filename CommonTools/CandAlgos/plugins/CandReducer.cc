@@ -25,7 +25,7 @@ public:
   /// constructor from parameter set
   explicit CandReducer( const edm::ParameterSet& );
   /// destructor
-  ~CandReducer();
+  ~CandReducer() override;
 private:
   /// process one evevnt
   void produce( edm::Event& evt, const edm::EventSetup& ) override;
@@ -52,12 +52,12 @@ CandReducer::~CandReducer() {
 void CandReducer::produce( Event& evt, const EventSetup& ) {
   Handle<reco::CandidateView> cands;
   evt.getByToken( srcToken_, cands );
-  std::auto_ptr<CandidateCollection> comp( new CandidateCollection );
+  std::unique_ptr<CandidateCollection> comp( new CandidateCollection );
   for( reco::CandidateView::const_iterator c = cands->begin(); c != cands->end(); ++c ) {
-    std::auto_ptr<Candidate> cand( new LeafCandidate( * c ) );
+    std::unique_ptr<Candidate> cand( new LeafCandidate( * c ) );
     comp->push_back( cand.release() );
   }
-  evt.put( comp );
+  evt.put(std::move(comp));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

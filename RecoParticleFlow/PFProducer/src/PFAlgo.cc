@@ -5,6 +5,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"    
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackAlgoTools.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
@@ -44,7 +45,7 @@
 
 #include "boost/graph/adjacency_matrix.hpp" 
 #include "boost/graph/graph_utility.hpp" 
-
+#include <numeric>
 
 
 using namespace std;
@@ -61,9 +62,9 @@ PFAlgo::PFAlgo()
     nSigmaHCAL_(1),
     algo_(1),
     debug_(false),
-    pfele_(0),
-    pfpho_(0),
-    pfegamma_(0),
+    pfele_(nullptr),
+    pfpho_(nullptr),
+    pfegamma_(nullptr),
     useVertices_(false)
 {}
 
@@ -443,7 +444,7 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
   else
     pfCleanedCandidates_.reset( new reco::PFCandidateCollection );
   
-  // not a auto_ptr; shout not be deleted after transfer
+  // not a unique_ptr; should not be deleted after transfer
   pfElectronExtra_.clear();
   pfPhotonExtra_.clear();
   
@@ -803,7 +804,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    if(elements[iEle].trackRef()->quality(reco::TrackBase::highPurity))continue;
 	    const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[iEle]));
 	    if(!(trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)))continue;
-	    if(elements[iEle].convRefs().size())active[iEle]=false;
+	    if(!elements[iEle].convRefs().empty())active[iEle]=false;
 	  }
       }
     }
@@ -993,7 +994,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedHCAL,
 				  reco::PFBlockElement::HCAL,
 				  reco::PFBlock::LINKTEST_ALL );
-	if ( !sortedHCAL.size() ) continue;
+	if ( sortedHCAL.empty() ) continue;
 	//std::cout << "With an HCAL cluster " << sortedHCAL.begin()->first << std::endl;
 	ntt++;
 	
@@ -1012,7 +1013,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				reco::PFBlockElement::HCAL,
 				reco::PFBlock::LINKTEST_ALL );
 
-      if ( debug_ && hcalElems.size() ) 
+      if ( debug_ && !hcalElems.empty() ) 
 	std::cout << "Track linked back to HCAL due to ECAL sharing with other tracks" << std::endl;
     }
     
@@ -1136,9 +1137,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       if ( rejectTracks_Step45_ && ecalElems.empty() && 
 	   trackMomentum > 30. && Dpt > 0.5 && 
-	   ( trackRef->algo() == TrackBase::mixedTripletStep || 
-	     trackRef->algo() == TrackBase::pixelLessStep || 
-	     trackRef->algo() == TrackBase::tobTecStep ) ) {
+	   ( PFTrackAlgoTools::step45(trackRef->algo())) ) {  
 
 	double dptRel = Dpt/trackRef->pt()*100;
 	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
@@ -1390,7 +1389,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpe].setPs2Energy( ps2Ene[0] );
 	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, index );
 	  // Check that there is at least one track
-	  if(assTracks.size()) {
+	  if(!assTracks.empty()) {
 	    (*pfCandidates_)[tmpe].addElementInBlock( blockref, assTracks.begin()->second );
 	    
 	    // Assign the position of the track at the ECAL entrance
@@ -1475,7 +1474,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  // Skip muons
 	  if ( (*pfCandidates_)[tmpi[ic]].particleId() == reco::PFCandidate::mu ) continue; 
 
-	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
+	  double fraction = trackMomentum > 0 ? (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum : 0;
 	  double ecalCal = bNeutralProduced ? 
 	    (calibEcal-neutralEnergy*slopeEcal)*fraction : calibEcal*fraction;
 	  double ecalRaw = totalEcal*fraction;
@@ -1496,7 +1495,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       for (unsigned ic=0; ic<tmpi.size();++ic) { 
 	const PFCandidate& pfc = (*pfCandidates_)[tmpi[ic]];
 	const PFCandidate::ElementsInBlocks& eleInBlocks = pfc.elementsInBlocks();
-	if ( eleInBlocks.size() == 0 ) { 
+	if ( eleInBlocks.empty() ) { 
 	  if ( debug_ )std::cout << "Single track / Fill element in block! " << std::endl;
 	  (*pfCandidates_)[tmpi[ic]].addElementInBlock( blockref, kTrack[ic] );
 	}
@@ -1883,6 +1882,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	} else {
 	  (*pfCandidates_)[tmpi].setHcalEnergy(totalHcal, muonHcal);
 	}
+        setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
 
 	if(letMuonEatCaloEnergy){
 	  muonHCALEnergy += totalHcal;
@@ -1933,41 +1933,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       // ... blow up errors of 5th anf 4th iteration, to reject those
       // ... tracks first (in case it's needed)
       double Dpt = trackRef->ptError();
-      double blowError = 1.;
-      switch (trackRef->algo()) {
-      case TrackBase::ctf:
-      case TrackBase::initialStep:
-      case TrackBase::lowPtTripletStep:
-      case TrackBase::pixelPairStep:
-      case TrackBase::detachedTripletStep:
-      case TrackBase::mixedTripletStep:
-      case TrackBase::jetCoreRegionalStep:
-      case TrackBase::muonSeededStepInOut:
-      case TrackBase::muonSeededStepOutIn:
-	blowError = 1.;
-	break;
-      case TrackBase::pixelLessStep:
-	blowError = factors45_[0];
-	break;
-      case TrackBase::tobTecStep:
-	blowError = factors45_[1];
-	break;
-      case reco::TrackBase::hltIter0:
-      case reco::TrackBase::hltIter1:
-      case reco::TrackBase::hltIter2:
-      case reco::TrackBase::hltIter3:
-	blowError = 1.;
-	break;
-      case reco::TrackBase::hltIter4:
-	blowError = factors45_[0];
-	break;
-      case reco::TrackBase::hltIterX:
-	blowError = 1.;
-	break;
-      default:
-	blowError = 1E9;
-	break;
-      }
+      double blowError = PFTrackAlgoTools::errorScale(trackRef->algo(),factors45_);
       // except if it is from an interaction
       bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
 
@@ -2256,6 +2222,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    (*pfCandidates_)[tmpi].setHcalEnergy(max(totalHcal-totalHO,0.0),muonHcal);
 	    (*pfCandidates_)[tmpi].setHoEnergy(hoclusterref->energy(),muonHO);
 	  }
+          setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
 	  // Remove it from the block
 	  const ::math::XYZPointF& chargedPosition = 
 	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[it->second.first])->positionAtECALEntrance();	  
@@ -2395,19 +2362,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	if (isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
 
-	switch (trackref->algo()) {
-	case TrackBase::ctf:
-	case TrackBase::initialStep:
-	case TrackBase::lowPtTripletStep:
-	case TrackBase::pixelPairStep:
-	case TrackBase::detachedTripletStep:
-	case TrackBase::mixedTripletStep:
-	case TrackBase::jetCoreRegionalStep:
-	case TrackBase::muonSeededStepInOut:
-	case TrackBase::muonSeededStepOutIn:
-	  break;
-	case TrackBase::pixelLessStep:
-	case TrackBase::tobTecStep:
+	if (PFTrackAlgoTools::step5(trackref->algo())) {
 	  active[iTrack] = false;	
 	  totalChargedMomentum -= trackref->p();
 	  
@@ -2415,20 +2370,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    std::cout << "\tElement  " << elements[iTrack] 
 		      << " rejected (Dpt = " << -it->first 
 		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
-	  break;
-	case reco::TrackBase::hltIter0:
-	case reco::TrackBase::hltIter1:
-	case reco::TrackBase::hltIter2:
-	case reco::TrackBase::hltIter3:
-	case reco::TrackBase::hltIter4:
-	case reco::TrackBase::hltIterX:
-	  break;	  
-	default:
-	  break;
+
 	}
       }
-    }
 
+    }
+  
     // New determination of the calo and track resolution avec track deletion/rescaling.
     Caloresolution = neutralHadronEnergyResolution( totalChargedMomentum, hclusterref->positionREP().Eta());    
     Caloresolution *= totalChargedMomentum;
@@ -2447,6 +2394,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
       (*pfCandidates_)[tmpi].addElementInBlock( blockref, iHcal );
+      setHcalDepthInfo((*pfCandidates_)[tmpi], *hclusterref);
       std::pair<II,II> myEcals = associatedEcals.equal_range(iTrack);
       for (II ii=myEcals.first; ii!=myEcals.second; ++ii ) { 
 	unsigned iEcal = ii->second.second;
@@ -3166,9 +3114,9 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
   const reco::PFBlockElementTrack* eltTrack 
     = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
-  reco::TrackRef trackRef = eltTrack->trackRef();
+  const reco::TrackRef& trackRef = eltTrack->trackRef();
   const reco::Track& track = *trackRef;
-  reco::MuonRef muonRef = eltTrack->muonRef();
+  const reco::MuonRef& muonRef = eltTrack->muonRef();
   int charge = track.charge()>0 ? 1 : -1;
 
   // Assume this particle is a charged Hadron
@@ -3194,6 +3142,8 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
     pfCandidates_->back().setMuonRef( muonRef );
 
 
+  //Set time
+  if (elt.isTimeValid()) pfCandidates_->back().setTime( elt.time(), elt.timeError() );
 
   //OK Now try to reconstruct the particle as a muon
   bool isMuon=pfmu_->reconstructMuon(pfCandidates_->back(),muonRef,allowLoose);
@@ -3229,6 +3179,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
     pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
     pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(reco::PFBlockElement::T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
   }
+
   // returns index to the newly created PFCandidate
   return pfCandidates_->size()-1;
 }
@@ -3335,6 +3286,11 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   //Set the cnadidate Vertex
   pfCandidates_->back().setVertex(vertexPos);  
 
+  // depth info
+  setHcalDepthInfo(pfCandidates_->back(), cluster);
+
+  //*TODO* cluster time is not reliable at the moment, so only use track timing
+
   if(debug_) 
     cout<<"** candidate: "<<pfCandidates_->back()<<endl; 
 
@@ -3343,6 +3299,34 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 
 }
 
+void
+PFAlgo::setHcalDepthInfo(reco::PFCandidate & cand, const reco::PFCluster& cluster) const {
+    std::array<double,7> energyPerDepth; 
+    std::fill(energyPerDepth.begin(), energyPerDepth.end(), 0.0);
+    for (auto & hitRefAndFrac : cluster.recHitFractions()) {
+        const auto & hit = *hitRefAndFrac.recHitRef();
+        if (DetId(hit.detId()).det() == DetId::Hcal) {
+            if (hit.depth() == 0) {
+                edm::LogWarning("setHcalDepthInfo") << "Depth zero found";
+                continue;
+            }
+            if (hit.depth() < 1 || hit.depth() > 7) {
+                throw cms::Exception("CorruptData") << "Bogus depth " << hit.depth() << " at detid " << hit.detId() << "\n";
+            }
+            energyPerDepth[hit.depth()-1] += hitRefAndFrac.fraction()*hit.energy();
+        }
+    }
+    double sum = std::accumulate(energyPerDepth.begin(), energyPerDepth.end(), 0.);
+    std::array<float,7> depthFractions;
+    if (sum > 0) {
+        for (unsigned int i = 0; i < depthFractions.size(); ++i) {
+            depthFractions[i] = energyPerDepth[i]/sum;
+        }
+    } else {
+        std::fill(depthFractions.begin(), depthFractions.end(), 0.f);
+    }
+    cand.setHcalDepthEnergyFractions(depthFractions);
+}
 
 //GMA need the followign two for HO also
 
@@ -3384,8 +3368,7 @@ ostream& operator<<(ostream& out, const PFAlgo& algo) {
   out<<endl;
   out<<"reconstructed particles: "<<endl;
    
-  const std::auto_ptr< reco::PFCandidateCollection >& 
-    candidates = algo.pfCandidates(); 
+  const std::unique_ptr<reco::PFCandidateCollection>& candidates = algo.pfCandidates(); 
 
   if(!candidates.get() ) {
     out<<"candidates already transfered"<<endl;
@@ -3614,7 +3597,7 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
   
 
   // No hits to recover, leave.
-  if ( !cleanedHits.size() ) return;
+  if ( cleanedHits.empty() ) return;
 
   //Compute met and met significance (met/sqrt(SumEt))
   double metX = 0.;
@@ -3646,7 +3629,7 @@ PFAlgo::checkCleaning( const reco::PFRecHitCollection& cleanedHits ) {
     // Loop on the candidates
     for(unsigned i=0; i<cleanedHits.size(); ++i) {
       const PFRecHit& hit = cleanedHits[i];
-      double length = std::sqrt(hit.position().Mag2()); 
+      double length = std::sqrt(hit.position().mag2()); 
       double px = hit.energy() * hit.position().x()/length;
       double py = hit.energy() * hit.position().y()/length;
       double pt = std::sqrt(px*px + py*py);

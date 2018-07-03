@@ -47,7 +47,7 @@ HLTHcalLaserFilter::HLTHcalLaserFilter(const edm::ParameterSet& iConfig) :
 }
 
 
-HLTHcalLaserFilter::~HLTHcalLaserFilter(){}
+HLTHcalLaserFilter::~HLTHcalLaserFilter()= default;
 
 void
 HLTHcalLaserFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -105,33 +105,33 @@ bool HLTHcalLaserFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       // loop over calibration channels
       
       //for timing reasons, we abort within the loop if a field ever goes out of bounds
-      for(HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++)
+      for(auto const & digi : *hCalib)
 	{
-	  if(digi->id().hcalSubdet() == 0)
+	  if(digi.id().hcalSubdet() == 0)
 	    continue;
 	  
 
-	  HcalCalibDetId myid=(HcalCalibDetId)digi->id();
+	  HcalCalibDetId myid=(HcalCalibDetId)digi.id();
 	  if (myid.hcalSubdet()==HcalBarrel || myid.hcalSubdet()==HcalEndcap)
 	    {
 	      if ( myid.calibFlavor()==HcalCalibDetId::HOCrosstalk)
 		continue; // ignore HOCrosstalk channels
 	  
 	      // Add this digi to total calibration charge
-	      for(int i = 0; i < (int)digi->size(); i++)
-		totalCalibCharge = totalCalibCharge + adc2fC[digi->sample(i).adc()&0xff];
+	      for(int i = 0; i < (int)digi.size(); i++)
+		totalCalibCharge = totalCalibCharge + adc2fC[digi.sample(i).adc()&0xff];
 	      
 	      if(maxTotalCalibCharge_ >= 0 && totalCalibCharge > maxTotalCalibCharge_) return false;
 	      
 	      // Compute total charge found in the provided subset of timeslices
 	      double sumCharge=0;
 	      unsigned int NTS=timeSlices_.size();
-	      int digisize=(int)digi->size(); // gives value of largest time slice
+	      int digisize=(int)digi.size(); // gives value of largest time slice
 	      
 	      for (unsigned int ts=0;ts<NTS;++ts) // loop over provided timeslices
 		{
 		  if (timeSlices_[ts]<0 || timeSlices_[ts]>digisize) continue;
-		  sumCharge+=adc2fC[digi->sample(timeSlices_[ts]).adc()&0xff];
+		  sumCharge+=adc2fC[digi.sample(timeSlices_[ts]).adc()&0xff];
 		}
 	      
 	      // Check multiplicity and charge against filter settings for each charge threshold

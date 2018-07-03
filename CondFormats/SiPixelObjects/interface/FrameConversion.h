@@ -6,6 +6,7 @@
 
 class PixelEndcapName;
 class PixelBarrelName;
+class TrackerTopology;
 
 namespace sipixelobjects {
 
@@ -17,6 +18,10 @@ public:
   FrameConversion( int rowOffset, int rowSlopeSign, int colOffset, int colSlopeSign)
     : theRowConversion( LinearConversion(rowOffset,rowSlopeSign) ),
     theCollumnConversion( LinearConversion(colOffset, colSlopeSign) ) {}
+  // for phase1
+  FrameConversion(bool bpix, int side, int layer, int rocIdInDetUnit);
+  // Frame conversion compatible with CMSSW_9_0_X Monte Carlo samples
+  FrameConversion(bool bpix, int side, int rocIdInDetUnit);
 
   const sipixelobjects::LinearConversion & row() const { return theRowConversion; }
   const sipixelobjects::LinearConversion & collumn() const { return theCollumnConversion;}

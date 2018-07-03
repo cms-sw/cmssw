@@ -44,12 +44,16 @@ DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : 
 
   edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: Constructor" << endl;
   parameters = ps;
-  dcc_Token_  = consumes<L1MuDTChambPhContainer>(
-      parameters.getParameter<edm::InputTag>("DCCInputTag"));
-  ddu_Token_  = consumes<DTLocalTriggerCollection>(
-      parameters.getParameter<edm::InputTag>("DDUInputTag"));
+  tm_Token_  = consumes<L1MuDTChambPhContainer>(
+      parameters.getParameter<edm::InputTag>("TMInputTag"));
   seg_Token_  = consumes<DTRecSegment4DCollection>(
       parameters.getParameter<edm::InputTag>("SEGInputTag"));
+
+  processDDU = parameters.getUntrackedParameter<bool>("processDDU",false);
+
+  if (processDDU)
+    ddu_Token_  = consumes<DTLocalTriggerCollection>(
+         parameters.getParameter<edm::InputTag>("DDUInputTag"));
 
   bxTime        = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
   rangeInBX     = parameters.getParameter<bool>("rangeWithinBX");
@@ -102,22 +106,18 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
   nevents++;
 
-  InputTag inputTagDCC  = parameters.getParameter<edm::InputTag>("DCCInputTag");
-  InputTag inputTagDDU  = parameters.getParameter<edm::InputTag>("DDUInputTag");
-  InputTag inputTagSEG  = parameters.getParameter<edm::InputTag>("SEGInputTag");
-
   for (int i=0;i<5;++i){
     for (int j=0;j<6;++j){
       for (int k=0;k<13;++k){
-	phCodeBestDCC[j][i][k] = -1;
+	phCodeBestTM[j][i][k] = -1;
 	phCodeBestDDU[j][i][k] = -1;
       }
     }
   }
 
-  // Get best DCC triggers
+  // Get best TM triggers
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
-  event.getByToken(dcc_Token_, l1DTTPGPh);
+  event.getByToken(tm_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const*  phTrigs = l1DTTPGPh->getContainer();
 
   vector<L1MuDTChambPhDigi>::const_iterator iph  = phTrigs->begin();
@@ -129,33 +129,35 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
     int phst    = iph->stNum();
     int phcode  = iph->code();
 
-    if(phcode>phCodeBestDCC[phwheel+3][phst][phsec] && phcode<7) {
-      phCodeBestDCC[phwheel+3][phst][phsec]=phcode;
+    if(phcode>phCodeBestTM[phwheel+3][phst][phsec] && phcode<7) {
+      phCodeBestTM[phwheel+3][phst][phsec]=phcode;
     }
 
   }
 
   // Get best DDU triggers
-  Handle<DTLocalTriggerCollection> trigsDDU;
-  event.getByToken(ddu_Token_, trigsDDU);
-  DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
+  if (processDDU){
+    Handle<DTLocalTriggerCollection> trigsDDU;
+    event.getByToken(ddu_Token_, trigsDDU);
+    DTLocalTriggerCollection::DigiRangeIterator detUnitIt;
 
-  for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
+    for (detUnitIt=trigsDDU->begin();detUnitIt!=trigsDDU->end();++detUnitIt){
 
-    const DTChamberId& id = (*detUnitIt).first;
-    const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
+      const DTChamberId& id = (*detUnitIt).first;
+      const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
 
-    int wh = id.wheel();
-    int sec = id.sector();
-    int st = id.station();
+      int wh = id.wheel();
+      int sec = id.sector();
+      int st = id.station();
 
-    for (DTLocalTriggerCollection::const_iterator trigIt = range.first; trigIt!=range.second;++trigIt){
-
-      int quality = trigIt->quality();
-
-      if(quality>-1 && quality<7 &&
-	 quality>phCodeBestDDU[wh+3][st][sec]) {
-	phCodeBestDDU[wh+3][st][sec]=quality;
+      for (DTLocalTriggerCollection::const_iterator trigIt = range.first; trigIt!=range.second;++trigIt){
+	
+	int quality = trigIt->quality();
+	
+	if(quality>-1 && quality<7 &&
+	   quality>phCodeBestDDU[wh+wheelArrayShift][st][sec]) {
+	  phCodeBestDDU[wh+wheelArrayShift][st][sec]=quality;
+	}
       }
     }
   }
@@ -170,7 +172,7 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   for (chambIdIt = segments4D->id_begin(); chambIdIt != segments4D->id_end(); ++chambIdIt){
 
     DTRecSegment4DCollection::range  range = segments4D->get(*chambIdIt);
-    const DTRecSegment4D* best=0;
+    const DTRecSegment4D* best=nullptr;
     int hitsBest = 0;
     int hits = 0;
 
@@ -214,15 +216,15 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
       int station = chambId.station();
       int scsector = sector>12 ? sector==13 ? 4 : 10 : sector;
 
-      int qualDCC = phCodeBestDCC[wheel+3][station][scsector];
+      int qualTM = phCodeBestTM[wheel+3][station][scsector];
       int qualDDU = phCodeBestDDU[wheel+3][station][scsector];
 
       if (fabs(t0seg)>0.01) {
 	innerME.find("SEG_TrackCrossingTime")->second->Fill(htime);
-	if ( qualDCC>=0 ) innerME.find("DCC_TrackCrossingTimeAll")->second->Fill(htime);
-	if ( qualDCC==6 ) innerME.find("DCC_TrackCrossingTimeHH")->second->Fill(htime);
-	if ( qualDDU>=0 ) innerME.find("DDU_TrackCrossingTimeAll")->second->Fill(htime);
-	if ( qualDDU==6 ) innerME.find("DDU_TrackCrossingTimeHH")->second->Fill(htime);
+	if ( qualTM>=0 ) innerME.find("TM_TrackCrossingTimeAll")->second->Fill(htime);
+	if ( qualTM==6 ) innerME.find("TM_TrackCrossingTimeHH")->second->Fill(htime);
+	if ( processDDU && qualDDU>=0 ) innerME.find("DDU_TrackCrossingTimeAll")->second->Fill(htime);
+	if ( processDDU && qualDDU==6 ) innerME.find("DDU_TrackCrossingTimeHH")->second->Fill(htime);
       }
 
     }
@@ -239,22 +241,26 @@ void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker & ibooker, const DTCh
 
   ibooker.setCurrentFolder(baseDir() + "/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() );
 
+  std::vector<string> histoTags = { "SEG_TrackCrossingTime", "TM_TrackCrossingTimeAll", "TM_TrackCrossingTimeHH" };
 
-  string histoTag[5] = { "SEG_TrackCrossingTime", "DCC_TrackCrossingTimeAll", "DCC_TrackCrossingTimeHH", "DDU_TrackCrossingTimeAll", "DDU_TrackCrossingTimeHH" };
+  if (processDDU) {
+    histoTags.push_back("DDU_TrackCrossingTimeAll");
+    histoTags.push_back("DDU_TrackCrossingTimeHH");
+  }
 
   float min = rangeInBX ?      0 : nBXLow*bxTime;
   float max = rangeInBX ? bxTime : nBXHigh*bxTime;
   int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
-  for (int iHisto=0;iHisto<5;++iHisto) {
-    string histoName = histoTag[iHisto] + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+  for (const auto & histoTag : histoTags) {
+    string histoName = histoTag + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: booking "
 						 << baseDir() + "/Wheel" << wheel.str()
 					    << "/Sector" << sector.str()
 					    << "/Station"<< station.str()
 					    << "/" << histoName << endl;
 
-    triggerHistos[chRawId][histoTag[iHisto]] = ibooker.book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
+    triggerHistos[chRawId][histoTag] = ibooker.book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
   }
 
   string floatTag[2] = { "tTrig_SL1", "tTrig_SL3" };

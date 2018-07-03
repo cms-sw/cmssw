@@ -7,7 +7,7 @@ for file in $CMSSW_BASE/src/Alignment/APEEstimation/test/batch/workingArea/*.tcs
 
 do
 
-  bsub -J job${counter} -q cmscaf1nd -R "rusage[pool=3000]" "type=SLC5_64" tcsh $file
+  bsub -J job${counter} -e error${counter}.txt -o output${counter}.txt -q cmscaf1nd -R "rusage[pool=3000]" tcsh $file
   
   counter=$counter+1
   

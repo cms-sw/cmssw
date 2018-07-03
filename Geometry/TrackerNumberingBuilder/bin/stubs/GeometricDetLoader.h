@@ -15,7 +15,7 @@ class GeometricDetLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 
  public:
   explicit GeometricDetLoader( const edm::ParameterSet& iConfig );
-  ~GeometricDetLoader();
+  ~GeometricDetLoader() override;
 
   void beginJob() override {}
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;

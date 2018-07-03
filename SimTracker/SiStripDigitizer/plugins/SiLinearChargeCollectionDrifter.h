@@ -13,7 +13,7 @@ class SiLinearChargeCollectionDrifter : public SiChargeCollectionDrifter{
  public:
   SiLinearChargeCollectionDrifter(double,double,double,double);
   SiChargeCollectionDrifter::collection_type drift(const SiChargeCollectionDrifter::ionization_type&, 
-                                                   const LocalVector&,double,double);
+                                                   const LocalVector&,double,double) override;
  private:
   SignalPoint drift(const EnergyDepositUnit&, const LocalVector&,double,double);
  private:

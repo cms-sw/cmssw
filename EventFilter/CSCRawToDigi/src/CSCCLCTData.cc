@@ -17,7 +17,7 @@ std::atomic<bool> CSCCLCTData::debug {false};
 CSCCLCTData::CSCCLCTData(const CSCTMBHeader * tmbHeader)
     : ncfebs_(tmbHeader->NCFEBs()), ntbins_(tmbHeader->NTBins())
 {
-  if (tmbHeader != NULL)  theFirmwareVersion = tmbHeader->FirmwareVersion();
+  if (tmbHeader != nullptr)  theFirmwareVersion = tmbHeader->FirmwareVersion();
   else theFirmwareVersion = 2007;
   size_ = nlines();
   zero();

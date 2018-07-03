@@ -27,7 +27,7 @@ using namespace edm;
 
 DTDCSByLumiSummary::DTDCSByLumiSummary(const ParameterSet& pset) {
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -74,12 +74,12 @@ void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMS
   }
 
   }
-  bookingdone = 1; 
+  bookingdone = true; 
 
   // Get the by lumi product plot from the task
   int lumiNumber = lumi.id().luminosityBlock();
 
-  bool null_pointer_histo(0);
+  bool null_pointer_histo(false);
 
   std::vector<float> wh_activeFrac;
 

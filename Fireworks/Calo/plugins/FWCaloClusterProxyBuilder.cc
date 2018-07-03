@@ -9,16 +9,16 @@ class FWCaloClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Calo
 {
 public:
    FWCaloClusterProxyBuilder( void ) {}  
-   virtual ~FWCaloClusterProxyBuilder( void ) {}
+   ~FWCaloClusterProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCaloClusterProxyBuilder( const FWCaloClusterProxyBuilder& ); 			// stop default
-   const FWCaloClusterProxyBuilder& operator=( const FWCaloClusterProxyBuilder& ); 	// stop default
+   FWCaloClusterProxyBuilder( const FWCaloClusterProxyBuilder& ) = delete; 			// stop default
+   const FWCaloClusterProxyBuilder& operator=( const FWCaloClusterProxyBuilder& ) = delete; 	// stop default
 
    using FWSimpleProxyBuilderTemplate<reco::CaloCluster>::build;
-   void build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
+   void build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 
 void
@@ -29,13 +29,13 @@ FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int i
    TEveBoxSet* boxset = new TEveBoxSet();
    boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
    boxset->UseSingleColor();
-   boxset->SetPickable(1);
+   boxset->SetPickable(true);
 
    for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
         it != itEnd; ++it )
    {
       const float* corners = item()->getGeom()->getCorners( (*it).first );
-      if( corners == 0 ) {
+      if( corners == nullptr ) {
          continue;
       }
       std::vector<float> pnts(24);    

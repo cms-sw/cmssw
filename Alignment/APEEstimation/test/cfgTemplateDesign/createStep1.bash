@@ -42,12 +42,12 @@ export datasetName
 ## number of input files
 export nFiles
 ## Input file base
-cafDir="\/store\/caf\/user\/cschomak\/wlnu"
+cafDir="\/store\/caf\/user\/cschomak\/Skims\/MC\/PhaseI\/DY"
 export inputBase
 
-datasetName="wlnu"
+datasetName="MC_TkAlZMuMu_PhaseI_Fall16_81X_DY_"
 inputBase="${cafDir}\/${datasetName}"
-nFiles=9
+nFiles=1
 bash $createStep1 $datasetName $nFiles $iterationNumber $lastIteration $alignmentRcd $inputBase
 
 

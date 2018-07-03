@@ -11,10 +11,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -70,16 +70,6 @@ void DQMExample_Step1::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run con
   bookHistos(ibooker_);
 }
 //
-// -------------------------------------- beginLuminosityBlock --------------------------------------------
-//
-void DQMExample_Step1::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) 
-{
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginLuminosityBlock" << std::endl;
-}
-
-
-//
 // -------------------------------------- Analyze --------------------------------------------
 //
 void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
@@ -130,8 +120,8 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 
   float nEle=0;
   int posEle=0, negEle=0;
-  const reco::GsfElectron* ele1 = NULL;
-  const reco::GsfElectron* ele2 = NULL;
+  const reco::GsfElectron* ele1 = nullptr;
+  const reco::GsfElectron* ele2 = nullptr;
   for (reco::GsfElectronCollection::const_iterator recoElectron=electronCollection->begin(); recoElectron!=electronCollection->end(); ++recoElectron)
     {
       //decreasing pT
@@ -166,8 +156,8 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
     }
 
   int   nJet = 0;
-  const reco::CaloJet* jet1 = NULL;
-  const reco::CaloJet* jet2 = NULL;
+  const reco::CaloJet* jet1 = nullptr;
+  const reco::CaloJet* jet2 = nullptr;
   
   for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) 
     {
@@ -225,7 +215,7 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
     }
 
 
-  reco::Particle* ele1_HLT = NULL;
+  reco::Particle* ele1_HLT = nullptr;
   int nEle_HLT = 0;
 
   size_t filterIndex = triggerEvent->filterIndex( triggerFilter_ );
@@ -244,7 +234,7 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 	  ++nEle_HLT;
 	}
       
-      if( triggeredEle.size() >= 1 ) 
+      if( !triggeredEle.empty() ) 
 	ele1_HLT = &(triggeredEle.at(0));
     }
 
@@ -299,14 +289,6 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
       h_ePt_diff->Fill(ele1->pt()-ele1_HLT->pt());
     }
 }
-//
-// -------------------------------------- endLuminosityBlock --------------------------------------------
-//
-void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
-{
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
-}
-
 
 //
 // -------------------------------------- endRun --------------------------------------------
@@ -402,7 +384,7 @@ bool DQMExample_Step1::MediumEle (const edm::Event & iEvent, const edm::EventSet
   float HOverE        = electron.hadronicOverEm();
   float ooemoop       = (1.0/electron.ecalEnergy() - electron.eSuperClusterOverP()/electron.ecalEnergy());
   
-  int mishits             = electron.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+  int mishits             = electron.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
   int nAmbiguousGsfTracks = electron.ambiguousGsfTracksSize();
   
   reco::GsfTrackRef eleTrack  = electron.gsfTrack() ;

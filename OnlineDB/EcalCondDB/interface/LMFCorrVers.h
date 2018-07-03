@@ -22,7 +22,7 @@ class LMFCorrVers : public LMFPrimVers {
   LMFCorrVers(EcalDBConnection *c);
   LMFCorrVers(oracle::occi::Environment* env,
 	      oracle::occi::Connection* conn);
-  ~LMFCorrVers();
+  ~LMFCorrVers() override;
 
   // Operators
   inline bool operator==(const LMFCorrVers &t) const { 
@@ -34,11 +34,11 @@ class LMFCorrVers : public LMFPrimVers {
 
  private:
   // Methods from LMFUnique
-  std::string fetchIdSql(Statement *stmt);
-  std::string fetchAllSql(Statement *stmt) const;
-  std::string setByIDSql(Statement *stmt, int id);
-  void getParameters(ResultSet *rset);
-  LMFUnique *createObject() const;
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string fetchAllSql(Statement *stmt) const override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  void getParameters(ResultSet *rset) override;
+  LMFUnique *createObject() const override;
 };
 
 #endif

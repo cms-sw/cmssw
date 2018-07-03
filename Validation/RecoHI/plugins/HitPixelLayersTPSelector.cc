@@ -8,7 +8,7 @@ namespace reco
   {
     
     // define your producer name
-    typedef ObjectSelector<HitPixelLayersTPSelector> HitPixelLayersTPSelection;
+    typedef ObjectSelector<HitPixelLayersTPSelector, TrackingParticleRefVector> HitPixelLayersTPSelection;
     
     // declare the module as plugin
     DEFINE_FWK_MODULE( HitPixelLayersTPSelection );

@@ -38,8 +38,8 @@ namespace sistrip {
   {
   public:
     SpyDigiConverterModule( const edm::ParameterSet& );
-    ~SpyDigiConverterModule();
-    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+    ~SpyDigiConverterModule() override;
+    void produce( edm::Event&, const edm::EventSetup& ) override;
 
   private:
     const edm::InputTag productLabel_;
@@ -76,9 +76,9 @@ namespace sistrip {
 	<< " Constructing object...";
     }
     
-    if (storePayloadDigis_)   produces< edm::DetSetVector<SiStripRawDigi> >("Payload");
-    if (storeReorderedDigis_) produces< edm::DetSetVector<SiStripRawDigi> >("Reordered");
-    if (storeModuleDigis_)    produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
+    if (storePayloadDigis_)   produces< edm::DetSetVector<SiStripRawDigi> >("SpyPayload");
+    if (storeReorderedDigis_) produces< edm::DetSetVector<SiStripRawDigi> >("SpyReordered");
+    if (storeModuleDigis_)    produces< edm::DetSetVector<SiStripRawDigi> >("SpyVirginRaw");
         
     if (storeAPVAddress_) {
       produces< std::vector<uint32_t> >("APVAddress");
@@ -124,9 +124,9 @@ namespace sistrip {
     event.getByToken(productToken_, scopeDigisHandle);
     
     //32-bit to accomodate known CMSSW container
-    std::auto_ptr< std::vector<uint32_t> > pAPVAddresses(new std::vector<uint32_t>);
+    std::unique_ptr< std::vector<uint32_t> > pAPVAddresses(new std::vector<uint32_t>);
         
-    std::auto_ptr<sistrip::SpyDigiConverter::DSVRawDigis> payloadDigis, reorderedDigis, moduleDigis;
+    std::unique_ptr<sistrip::SpyDigiConverter::DSVRawDigis> payloadDigis, reorderedDigis, moduleDigis;
     
     //get the majority value for expected position of first header bit
     //from first event, compare to expected one, else output warning.
@@ -164,11 +164,11 @@ namespace sistrip {
     }
     
     //add to event
-    if (storePayloadDigis_) event.put(payloadDigis,"Payload");
-    if (storeReorderedDigis_) event.put(reorderedDigis,"Reordered");
-    if (storeModuleDigis_) event.put(moduleDigis,"VirginRaw");
+    if (storePayloadDigis_) event.put(std::move(payloadDigis),"SpyPayload");
+    if (storeReorderedDigis_) event.put(std::move(reorderedDigis),"SpyReordered");
+    if (storeModuleDigis_) event.put(std::move(moduleDigis),"SpyVirginRaw");
     if (storeAPVAddress_) {
-      event.put(pAPVAddresses, "APVAddress");
+      event.put(std::move(pAPVAddresses), "APVAddress");
     }
         
 

@@ -11,7 +11,7 @@ MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempMuon = status3Muon;
   //  bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopy();                      //  isLastCopy() likely not enough robust
   bool isPromptFinalState = ((reco::GenParticle*)tempMuon)->isPromptFinalState();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
-  while(tempMuon == 0 || tempMuon->numberOfDaughters()!=0){
+  while(tempMuon == nullptr || tempMuon->numberOfDaughters()!=0){
     if ( isPromptFinalState ) break;                                                     //  pre-CMSSW_74X code: if (status == 1) break;
     //std::vector<const reco::Candidate*> daughters;
     for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
@@ -30,7 +30,7 @@ const reco::Candidate*
 MuScleFitMuonSelector::getStatus3Muon(const reco::Candidate* status3Muon){
   const reco::Candidate* tempMuon = status3Muon;
   bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopyBeforeFSR();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
-  while(tempMuon == 0 || tempMuon->numberOfDaughters()!=0){
+  while(tempMuon == nullptr || tempMuon->numberOfDaughters()!=0){
     if ( lastCopy ) break;                                                      //  pre-CMSSW_74X code: if (status == 3) break;
     //std::vector<const reco::Candidate*> daughters;
     for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
@@ -63,8 +63,8 @@ bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
     p.pixelLayersWithMeasurement() > 1 &&
-    fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
-    fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
+    std::abs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
+    std::abs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );
 }
 
@@ -79,8 +79,8 @@ bool MuScleFitMuonSelector::selTrackerMuon(const pat::Muon* aMuon)
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
     p.pixelLayersWithMeasurement() > 1 &&
-    fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
-    fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
+    std::abs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
+    std::abs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );
 }
 
@@ -88,138 +88,138 @@ bool MuScleFitMuonSelector::selTrackerMuon(const pat::Muon* aMuon)
 // are removed from the tree (together with the gen and sim information) at a later stage.
 // It would be better to remove them directly at this point.
 void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<MuScleFitMuon> & muons,
-					std::vector<GenMuonPair> & genPair,
-					std::vector<std::pair<lorentzVector,lorentzVector> > & simPair,
-					MuScleFitPlotter * plotter)
+  std::vector<GenMuonPair> & genPair,
+  std::vector<std::pair<lorentzVector, lorentzVector> > & simPair,
+  MuScleFitPlotter * plotter)
 {
   edm::Handle<pat::CompositeCandidateCollection > collAll;
-  try {event.getByLabel("onia2MuMuPatTrkTrk",collAll);}
-  catch (...) {std::cout << "J/psi not present in event!" << std::endl;}
+  try { event.getByLabel("onia2MuMuPatTrkTrk", collAll); }
+  catch (...) { std::cout << "J/psi not present in event!" << std::endl; }
   std::vector<const pat::Muon*> collMuSel;
 
   //================onia cuts===========================/
 
-  if( muonType_ <= -1 && PATmuons_) {
+  if (muonType_ <= -1 && PATmuons_) {
     std::vector<const pat::CompositeCandidate*> collSelGG;
     std::vector<const pat::CompositeCandidate*> collSelGT;
     std::vector<const pat::CompositeCandidate*> collSelTT;
     if (collAll.isValid()) {
 
-      for(std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
-	  it!=collAll->end();++it) {
-      
-	const pat::CompositeCandidate* cand = &(*it);	
-	// cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
-	const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
-	const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
-      
-	if((muon1->charge() * muon2->charge())>0)
-	  continue;
-	// global + global?
-	if (muon1->isGlobalMuon() && muon2->isGlobalMuon() ) {
-	  if (selGlobalMuon(muon1) && selGlobalMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
-	    collSelGG.push_back(cand);
-	    continue;
-	  }
-	}
-	// global + tracker? (x2)    
-	if (muon1->isGlobalMuon() && muon2->isTrackerMuon() ) {
-	  if (selGlobalMuon(muon1) &&  selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001 ) {
-	    collSelGT.push_back(cand);
-	    continue;
-	  }
-	}
-	if (muon2->isGlobalMuon() && muon1->isTrackerMuon() ) {
-	  if (selGlobalMuon(muon2) && selTrackerMuon(muon1) && cand->userFloat("vProb") > 0.001) {
-	    collSelGT.push_back(cand);
-	    continue;
-	  }
-	}
-	// tracker + tracker?  
-	if (muon1->isTrackerMuon() && muon2->isTrackerMuon() ) {
-	  if (selTrackerMuon(muon1) && selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001) {
-	    collSelTT.push_back(cand);
-	    continue;
-	  }
-	}
+      for (std::vector<pat::CompositeCandidate>::const_iterator it=collAll->begin();
+        it!=collAll->end(); ++it) {
+
+        const pat::CompositeCandidate* cand = &(*it);
+        // cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
+        const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
+        const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(cand->daughter("muon2"));
+
+        if ((muon1->charge() * muon2->charge())>0)
+          continue;
+        // global + global?
+        if (muon1->isGlobalMuon() && muon2->isGlobalMuon()) {
+          if (selGlobalMuon(muon1) && selGlobalMuon(muon2) && cand->userFloat("vProb") > 0.001) {
+            collSelGG.push_back(cand);
+            continue;
+          }
+        }
+        // global + tracker? (x2)    
+        if (muon1->isGlobalMuon() && muon2->isTrackerMuon()) {
+          if (selGlobalMuon(muon1) &&  selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001) {
+            collSelGT.push_back(cand);
+            continue;
+          }
+        }
+        if (muon2->isGlobalMuon() && muon1->isTrackerMuon()) {
+          if (selGlobalMuon(muon2) && selTrackerMuon(muon1) && cand->userFloat("vProb") > 0.001) {
+            collSelGT.push_back(cand);
+            continue;
+          }
+        }
+        // tracker + tracker?  
+        if (muon1->isTrackerMuon() && muon2->isTrackerMuon()) {
+          if (selTrackerMuon(muon1) && selTrackerMuon(muon2) && cand->userFloat("vProb") > 0.001) {
+            collSelTT.push_back(cand);
+            continue;
+          }
+        }
       }
     }
     // Split them in independent collections if using muonType_ == -2, -3 or -4. Take them all if muonType_ == -1.
     std::vector<reco::Track> tracks;
-    if(collSelGG.size()){
+    if (!collSelGG.empty()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGG[0]->daughter("muon2"));
-      if( muonType_ == -1 || muonType_ == -2 ) {
-	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));  
-	collMuSel.push_back(muon1);
-	collMuSel.push_back(muon2);
+      if (muonType_ == -1 || muonType_ == -2) {
+        tracks.push_back(*(muon1->innerTrack()));
+        tracks.push_back(*(muon2->innerTrack()));
+        collMuSel.push_back(muon1);
+        collMuSel.push_back(muon2);
       }
     }
-    else if(!collSelGG.size() && collSelGT.size()){
+    else if (collSelGG.empty() && !collSelGT.empty()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelGT[0]->daughter("muon2"));
-      if( muonType_ == -1 || muonType_ == -3 ) {
-	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));   
- 	collMuSel.push_back(muon1);
-	collMuSel.push_back(muon2);
-     }
+      if (muonType_ == -1 || muonType_ == -3) {
+        tracks.push_back(*(muon1->innerTrack()));
+        tracks.push_back(*(muon2->innerTrack()));
+        collMuSel.push_back(muon1);
+        collMuSel.push_back(muon2);
+      }
     }
-    else if(!collSelGG.size() && !collSelGT.size() && collSelTT.size()){
+    else if (collSelGG.empty() && collSelGT.empty() && !collSelTT.empty()){
       //CHECK THAT THEY ARE ORDERED BY PT !!!!!!!!!!!!!!!!!!!!!!!
       const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon1"));
       const pat::Muon* muon2 = dynamic_cast<const pat::Muon*>(collSelTT[0]->daughter("muon2"));
-      if( muonType_ == -1 || muonType_ == -4 ) {
-	tracks.push_back(*(muon1->innerTrack()));
-	tracks.push_back(*(muon2->innerTrack()));   
-	collMuSel.push_back(muon1);
-	collMuSel.push_back(muon2);
+      if (muonType_ == -1 || muonType_ == -4) {
+        tracks.push_back(*(muon1->innerTrack()));
+        tracks.push_back(*(muon2->innerTrack()));
+        collMuSel.push_back(muon1);
+        collMuSel.push_back(muon2);
       }
     }
-    if (tracks.size() != 2 && tracks.size() != 0){
+    if (tracks.size() != 2 && !tracks.empty()){
       std::cout<<"ERROR strange number of muons selected by onia cuts!"<<std::endl;
       abort();
     }
-    muons = fillMuonCollection(tracks); 
+    muons = fillMuonCollection(tracks);
   }
-  else if( (muonType_<4 && muonType_>=0) || muonType_>=10 ) { // Muons (glb,sta,trk)
+  else if ((muonType_<4 && muonType_>=0) || muonType_>=10) { // Muons (glb,sta,trk)
     std::vector<reco::Track> tracks;
-    if( PATmuons_ == true ) {
+    if (PATmuons_ == true) {
       edm::Handle<pat::MuonCollection> allMuons;
-      event.getByLabel( muonLabel_, allMuons );
-      if( muonType_ == 0 ) {
-	// Take directly the muon
-	muons = fillMuonCollection(*allMuons);
+      event.getByLabel(muonLabel_, allMuons);
+      if (muonType_ == 0) {
+        // Take directly the muon
+        muons = fillMuonCollection(*allMuons);
       }
       else {
-	for( std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-	  //std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
-	  takeSelectedMuonType(muon, tracks);
-	}
-	muons = fillMuonCollection(tracks);
+        for (std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
+          //std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
+          takeSelectedMuonType(muon, tracks);
+        }
+        muons = fillMuonCollection(tracks);
       }
     }
     else {
       edm::Handle<reco::MuonCollection> allMuons;
-      event.getByLabel (muonLabel_, allMuons);
-      if( muonType_ == 0 ) {
-	// Take directly the muon
-	muons = fillMuonCollection(*allMuons);
+      event.getByLabel(muonLabel_, allMuons);
+      if (muonType_ == 0) {
+        // Take directly the muon
+        muons = fillMuonCollection(*allMuons);
       }
       else {
-	for( std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon ) {
-	  takeSelectedMuonType(muon, tracks);
-	}
-	muons = fillMuonCollection(tracks);
+        for (std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
+          takeSelectedMuonType(muon, tracks);
+        }
+        muons = fillMuonCollection(tracks);
       }
     }
   }
-  else if(muonType_==4){  //CaloMuons
+  else if (muonType_==4){  //CaloMuons
     edm::Handle<reco::CaloMuonCollection> caloMuons;
-    event.getByLabel (muonLabel_, caloMuons);
+    event.getByLabel(muonLabel_, caloMuons);
     std::vector<reco::Track> tracks;
     for (std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon){
       tracks.push_back(*(muon->track()));
@@ -229,15 +229,15 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event & event, std::vector<Mu
 
   else if (muonType_==5) { // Inner tracker tracks
     edm::Handle<reco::TrackCollection> tracks;
-    event.getByLabel (muonLabel_, tracks);
+    event.getByLabel(muonLabel_, tracks);
     muons = fillMuonCollection(*tracks);
   }
   plotter->fillRec(muons);
 
   // Generation and simulation part
-  if( speedup_ == false )
+  if (speedup_ == false)
   {
-    if( PATmuons_ ) {
+    if (PATmuons_) {
       // EM 2015.04.02 temporary fix to run on MINIAODSIM (which contains PAT muons) but not the "onia2MuMuPatTrkTrk" collection   
       // selectGeneratedMuons(collAll, collMuSel, genPair, plotter);
       selectGenSimMuons(event, genPair, simPair, plotter);
@@ -276,7 +276,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
       genPatParticles->push_back(*(const_cast<reco::GenParticle*>(genMu2.get())));
 
       unsigned int motherId = 0;
-      if( genMu1->mother() != 0 ) {
+      if( genMu1->mother() != nullptr ) {
 	 motherId = genMu1->mother()->pdgId();
       }
       if(genMu1->pdgId()==13)
@@ -379,7 +379,7 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const edm::HepMCProduct* ev
   //Loop on generated particles
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin();
        part!=Evt->particles_end(); part++) {
-    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
+    if (std::abs((*part)->pdg_id())==13 && (*part)->status()==1) {
       bool fromRes = false;
       unsigned int motherPdgId = 0;
       for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
@@ -423,8 +423,8 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
   //Loop on generated particles
   if( debug_>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
   for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (debug_>0) std::cout<<"genParticle has pdgId = "<<fabs(part->pdgId())<<" and status = "<<part->status()<<std::endl;
-    if (fabs(part->pdgId())==13){// && part->status()==3) {
+    if (debug_>0) std::cout<<"genParticle has pdgId = "<<std::abs(part->pdgId())<<" and status = "<<part->status()<<std::endl;
+    if (std::abs(part->pdgId())==13){// && part->status()==3) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
       if( debug_>0 ) {
@@ -472,11 +472,11 @@ std::pair<lorentzVector, lorentzVector> MuScleFitMuonSelector::findSimMuFromRes(
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
   for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
     //Chose muons
-    if (fabs((*simTrack).type())==13) {
+    if (std::abs((*simTrack).type())==13) {
       //If tracks from IP than find mother
       if ((*simTrack).genpartIndex()>0) {
 	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
-        if( gp != 0 ) {
+        if( gp != nullptr ) {
 
           for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
                mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {

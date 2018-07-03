@@ -5,15 +5,13 @@ DQMDaqInfo::DQMDaqInfo(const edm::ParameterSet& iConfig)
 {   
 }
 
-DQMDaqInfo::~DQMDaqInfo()
-{  
-}
+DQMDaqInfo::~DQMDaqInfo() = default;
 
 void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
   
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   
-  if( 0 != iSetup.find( recordKey ) ) {
+  if( nullptr != iSetup.find( recordKey ) ) {
     
     edm::ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
@@ -24,9 +22,7 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
 
     float  FedCount[9]={0., 0., 0., 0., 0., 0., 0., 0., 0.};
     
-    for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
-      int fedID=FedsInIds[fedItr];     
-
+    for(int fedID : FedsInIds) {
       if(fedID>=PixelRange.first             &&  fedID<=PixelRange.second)        ++FedCount[Pixel];
       if(fedID>=TrackerRange.first           &&  fedID<=TrackerRange.second)      ++FedCount[SiStrip];
       if(fedID>=CSCRange.first               &&  fedID<=CSCRange.second)          ++FedCount[CSC];
@@ -46,7 +42,7 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
 
   }else{    
   
-    for(int detIndex=0; detIndex<9; ++detIndex)  DaqFraction[detIndex]->Fill(-1);               
+    for(auto & detIndex : DaqFraction)  detIndex->Fill(-1);               
     return; 
   }
   
@@ -54,14 +50,12 @@ void DQMDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
 }
 
 
-void DQMDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){
-}
 
 
 void 
 DQMDaqInfo::beginJob()
 {
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
   
   std::string commonFolder = "/EventInfo/DAQContents";  
@@ -70,48 +64,48 @@ DQMDaqInfo::beginJob()
   
   subsystFolder="Pixel";  
   curentFolder= subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[Pixel]   = dbe_->bookFloat("PixelDaqFraction");
   
 
   subsystFolder="SiStrip";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[SiStrip]    = dbe_->bookFloat("SiStripDaqFraction");
   
   subsystFolder="RPC";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[RPC]        = dbe_->bookFloat("RPCDaqFraction");
   
   subsystFolder="CSC";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[CSC]       = dbe_->bookFloat("CSCDaqFraction");
 
   subsystFolder="DT";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[DT]         = dbe_->bookFloat("DTDaqFraction");
 
   subsystFolder="Hcal";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[Hcal]       = dbe_->bookFloat("HcalDaqFraction");
 
   subsystFolder="EcalBarrel";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[EcalBarrel]       = dbe_->bookFloat("EcalBarrDaqFraction");
 
   subsystFolder="EcalEndcap";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[EcalEndcap]       = dbe_->bookFloat("EcalEndDaqFraction");
 
   subsystFolder="L1T";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[L1T]       = dbe_->bookFloat("L1TDaqFraction");
 
 

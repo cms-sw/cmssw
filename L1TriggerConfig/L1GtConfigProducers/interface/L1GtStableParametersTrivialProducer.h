@@ -20,7 +20,6 @@
 
 #include <vector>
 
-#include "boost/shared_ptr.hpp"
 #include <boost/cstdint.hpp>
 
 // user include files
@@ -45,12 +44,12 @@ public:
     L1GtStableParametersTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtStableParametersTrivialProducer();
+    ~L1GtStableParametersTrivialProducer() override;
 
     /// public methods
 
     /// L1 GT parameters
-    boost::shared_ptr<L1GtStableParameters> produceGtStableParameters(
+    std::shared_ptr<L1GtStableParameters> produceGtStableParameters(
         const L1GtStableParametersRcd&);
 
 private:

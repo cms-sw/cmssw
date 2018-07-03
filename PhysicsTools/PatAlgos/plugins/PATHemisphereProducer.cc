@@ -159,7 +159,7 @@ PATHemisphereProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
   }
   
   // create product
-  std::auto_ptr< std::vector<Hemisphere> > hemispheres(new std::vector<Hemisphere>);;
+  auto hemispheres = std::make_unique<std::vector<Hemisphere>>();
   hemispheres->reserve(2);
   
   //calls HemiAlgorithm for seed method 3 (transv. inv. Mass) and association method 3 (Lund algo)
@@ -188,7 +188,7 @@ PATHemisphereProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
   }
   
   
-  iEvent.put(hemispheres);  
+  iEvent.put(std::move(hemispheres));  
 }
 
 //define this as a plug-in

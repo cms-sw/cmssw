@@ -5,13 +5,13 @@
  * Endcap Module name (as in PixelDatabase) for endcaps
  */
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include <string>
 #include <iostream>
 
 class DetId;
+class TrackerTopology;
 
 class PixelEndcapName : public PixelModuleName {
 public:
@@ -33,10 +33,10 @@ public:
   /// ctor from name string
   PixelEndcapName(std::string name, bool phase=false);
 
-  virtual ~PixelEndcapName() { }
+  ~PixelEndcapName() override { }
 
   /// from base class
-  virtual std::string name() const;
+  std::string name() const override;
 
   HalfCylinder halfCylinder() const { return thePart; } 
 
@@ -56,14 +56,14 @@ public:
   int ringName() const { return thePlaquette; }
 
   /// module Type
-   virtual PixelModuleName::ModuleType  moduleType() const;
+   PixelModuleName::ModuleType  moduleType() const override;
 
   /// return DetId
   PXFDetId getDetId(); 
   DetId getDetId(const TrackerTopology* tt); 
 
   /// check equality of modules from datamemebers
-  virtual bool operator== (const PixelModuleName &) const;
+  bool operator== (const PixelModuleName &) const override;
 
 
 private:

@@ -15,7 +15,7 @@ using namespace sistrip;
 // 
 FedTimingAlgorithm::FedTimingAlgorithm( const edm::ParameterSet & pset, FedTimingAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    histo_(0,"")
+    histo_(nullptr,"")
 {;}
 
 // ----------------------------------------------------------------------------

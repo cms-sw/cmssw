@@ -18,7 +18,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 #include <FWCore/Framework/interface/ModuleFactory.h>
@@ -29,15 +28,15 @@
 #include <Geometry/HcalCommonData/interface/HcalDDDSimConstants.h>
 #include <Geometry/Records/interface/HcalSimNumberingRecord.h>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 class HcalDDDSimConstantsESModule : public edm::ESProducer {
 
 public:
   HcalDDDSimConstantsESModule(const edm::ParameterSet&);
-  ~HcalDDDSimConstantsESModule();
+  ~HcalDDDSimConstantsESModule() override;
 
-  typedef boost::shared_ptr<HcalDDDSimConstants> ReturnType;
+  typedef std::shared_ptr<HcalDDDSimConstants> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
 
@@ -49,9 +48,9 @@ private:
   HcalDDDSimConstants* hcalDDDConst_;
 };
 
-HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(0) {
-#ifdef DebugLog
-  std::cout <<"constructing HcalDDDSimConstantsESModule" << std::endl;
+HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet& iConfig) : hcalDDDConst_(nullptr) {
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalGeom") <<"constructing HcalDDDSimConstantsESModule";
 #endif
   setWhatProduced(this, dependsOn(&HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants));
 }
@@ -66,10 +65,10 @@ void HcalDDDSimConstantsESModule::fillDescriptions( edm::ConfigurationDescriptio
 // ------------ method called to produce the data  ------------
 HcalDDDSimConstantsESModule::ReturnType
 HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
-#ifdef DebugLog
-  std::cout << "in HcalDDDSimConstantsESModule::produce" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalGeom") << "in HcalDDDSimConstantsESModule::produce";
 #endif
-  if (hcalDDDConst_ == 0) {
+  if (hcalDDDConst_ == nullptr) {
     edm::LogError("HCalGeom") << "HcalDDDSimConstantsESModule::produceHcalDDDSimConstants has NOT been initialized!";
     throw cms::Exception("DDException") << "HcalDDDSimConstantsESModule::Cannot produce HcalDDDSimConstnats";
   }
@@ -81,15 +80,13 @@ void HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants(const HcalParame
   std::string                   label_;
   edm::ESHandle<HcalParameters> parHandle;
   igr.get(label_, parHandle);
-#ifdef DebugLog
-  std::cout << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalGeom") << "in HcalDDDSimConstantsESModule::initializeHcalDDDSimConstants";
 #endif
-  if ( hcalDDDConst_ != 0 ) {
-    delete hcalDDDConst_;
-  }
   const HcalParameters* hpar = &(*parHandle);
-#ifdef DebugLog
-  std::cout << "about to make my new hcalDDDConst_ with " << hpar << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalGeom") << "about to make my new hcalDDDConst_ with " 
+			       << hpar;
 #endif
   hcalDDDConst_ = new HcalDDDSimConstants(hpar);
 }

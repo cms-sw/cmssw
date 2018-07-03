@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 EcalClusterCrackCorrectionBaseClass::EcalClusterCrackCorrectionBaseClass() :
-        params_(0)
+        params_(nullptr)
 {}
 
 EcalClusterCrackCorrectionBaseClass::~EcalClusterCrackCorrectionBaseClass()

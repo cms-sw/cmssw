@@ -98,8 +98,8 @@ void L1MuGMTMatcher::reset() {
   pairMatrix.init(false);
   
   for ( unsigned i = 0; i < MaxMatch; i++ ) {
-    first[i] = 0;
-    second[i] = 0;
+    first[i] = nullptr;
+    second[i] = nullptr;
   }  
 
 }
@@ -270,8 +270,8 @@ void L1MuGMTMatcher::match() {
 //
 int L1MuGMTMatcher::lookup_mq(int i, int j) {
 
-  bool empty1 = ( first[i] != 0 ) ? first[i]->empty() : true;
-  bool empty2 = ( second[j] != 0 ) ? second[j]->empty() : true;
+  bool empty1 = ( first[i] != nullptr ) ? first[i]->empty() : true;
+  bool empty2 = ( second[j] != nullptr ) ? second[j]->empty() : true;
   if ( empty1 || empty2) return 0; 
 
   //

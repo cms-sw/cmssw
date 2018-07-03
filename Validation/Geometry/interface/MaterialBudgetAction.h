@@ -21,8 +21,10 @@
 class BeginOfTrack;
 class BeginOfRun;
 class BeginOfEvent;
+class EndOfEvent;
 class G4Step;
 class EndOfTrack;
+class EndOfRun;
 class G4StepPoint;
 class G4VTouchable;
 
@@ -30,21 +32,23 @@ class MaterialBudgetAction : public SimWatcher,
                              public Observer<const BeginOfRun*>,
 			     public Observer<const BeginOfTrack*>,
 			     public Observer<const G4Step*>,
-			     public Observer<const EndOfTrack*>
+                             public Observer<const EndOfTrack*>,
+			     public Observer<const EndOfRun*>
 {
  public:
   MaterialBudgetAction(const edm::ParameterSet&);
-  virtual ~MaterialBudgetAction();
+  ~MaterialBudgetAction() override;
   
  private:
   MaterialBudgetAction(const MaterialBudgetAction&); // stop default
   
   const MaterialBudgetAction& operator=(const MaterialBudgetAction&); // stop default
   
-  void update(const BeginOfRun*);
-  void update(const BeginOfTrack*);
-  void update(const G4Step*);
-  void update(const EndOfTrack*);
+  void update(const BeginOfRun*) override;
+  void update(const BeginOfTrack*) override;
+  void update(const G4Step*) override;
+  void update(const EndOfTrack*) override;
+  void update(const EndOfRun*) override;
   
   bool CheckTouchableInSelectedVolumes( const G4VTouchable* touch );
   bool StopAfterProcess( const G4Step* aStep );

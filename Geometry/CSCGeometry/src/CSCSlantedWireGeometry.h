@@ -14,7 +14,7 @@
 
 class CSCSlantedWireGeometry : public CSCWireGeometry {
  public:
-  virtual ~CSCSlantedWireGeometry() {}
+  ~CSCSlantedWireGeometry() override {}
 
   /**
    * Constructor from wire spacing and wire angle
@@ -26,24 +26,24 @@ class CSCSlantedWireGeometry : public CSCWireGeometry {
   /**
    * The angle of the wires w.r.t local x axis (in radians)
    */
-  float wireAngle() const { return theWireAngle; }
+  float wireAngle() const override { return theWireAngle; }
 
   /**
    * The nearest (virtual) wire to a given LocalPoint.
    * Beware that this wire might not exist or be read out!
    */
-  int nearestWire(const LocalPoint& lp) const;
+  int nearestWire(const LocalPoint& lp) const override;
 
   /**
    * Local y of a given wire 'number' (float) at given x
    */
-  float yOfWire(float wire, float x=0.) const;
+  float yOfWire(float wire, float x=0.) const override;
 
   /**
    * Clone to handle correct copy of component objects referenced
    * by base class pointer.
    */
-  CSCWireGeometry* clone() const {
+  CSCWireGeometry* clone() const override {
     return new CSCSlantedWireGeometry(*this);
   }
 

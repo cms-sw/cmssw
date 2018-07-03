@@ -11,7 +11,7 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
@@ -25,14 +25,14 @@ class CSCLayer : public GeomDetUnit {
 
 public:
 
-  CSCLayer( const BoundPlane::BoundPlanePointer sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
+  CSCLayer( const BoundPlane::BoundPlanePointer& sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
   GeomDetUnit( sp ), theId( id ), theChamber( ch ), theGeometry( geo ) {
     setDetId(id);
 }
 
-  const GeomDetType& type() const { return chamber()->type(); }
+  const GeomDetType& type() const override { return chamber()->type(); }
 
-  const Topology& topology() const { return *(geometry()->topology()); }
+  const Topology& topology() const override { return *(geometry()->topology()); }
 
 
   /**

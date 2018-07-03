@@ -40,11 +40,11 @@ class DQMAnalyzer : public edm::EDAnalyzer
 
   explicit DQMAnalyzer( const edm::ParameterSet & conf ) ;
 
-  virtual ~DQMAnalyzer() ;
+  ~DQMAnalyzer() override ;
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void analyze( const edm::Event & e, const edm::EventSetup & c) ;
+  void beginJob() override ;
+  void endJob() override ;
+  void analyze( const edm::Event & e, const edm::EventSetup & c) override ;
 
  private:
 

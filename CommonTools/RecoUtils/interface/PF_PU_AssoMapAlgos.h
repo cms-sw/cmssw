@@ -87,6 +87,8 @@ class PF_PU_AssoMapAlgos{
    PF_PU_AssoMapAlgos(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
      PF_PU_AssoMapAlgos(iConfig, iC) {};
    PF_PU_AssoMapAlgos(const edm::ParameterSet&, edm::ConsumesCollector &);
+   // virtual destructor needed when virtual functions declared
+   virtual ~PF_PU_AssoMapAlgos() noexcept(false) {};
 
    //get all needed collections at the beginning
    virtual void GetInputCollections(edm::Event&, const edm::EventSetup&);
@@ -98,7 +100,7 @@ class PF_PU_AssoMapAlgos{
    std::auto_ptr<VertexToTrackAssMap> CreateVertexToTrackMap(edm::Handle<reco::TrackCollection>, const edm::EventSetup&);
 
    //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2
-   std::auto_ptr<TrackToVertexAssMap> SortAssociationMap(TrackToVertexAssMap*);
+   std::unique_ptr<TrackToVertexAssMap> SortAssociationMap(TrackToVertexAssMap*);
 
  protected:
   //protected functions

@@ -36,11 +36,11 @@ class ProcLikelihood : public VarProcessor {
 	ProcLikelihood(const char *name,
 	               const Calibration::ProcLikelihood *calib,
 	               const MVAComputer *computer);
-	virtual ~ProcLikelihood() {}
+	~ProcLikelihood() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:
@@ -63,8 +63,8 @@ class ProcLikelihood : public VarProcessor {
 			spline.set(values.size(), &values.front());
 		}
 
-		virtual double eval(double value) const override;
-		virtual double deriv(double value) const override;
+		double eval(double value) const override;
+		double deriv(double value) const override;
 
 		double		min, width;
 		Spline		spline;
@@ -74,8 +74,8 @@ class ProcLikelihood : public VarProcessor {
 		HistogramPDF(const Calibration::HistogramF *calib) :
 			histo(calib) {}
 
-		virtual double eval(double value) const override;
-		virtual double deriv(double value) const override;
+		double eval(double value) const override;
+		double deriv(double value) const override;
 
 		const Calibration::HistogramF	*histo;
 	};
@@ -118,7 +118,7 @@ class ProcLikelihood : public VarProcessor {
 	unsigned int		nCategories;
 };
 
-static ProcLikelihood::Registry registry("ProcLikelihood");
+ProcLikelihood::Registry registry("ProcLikelihood");
 
 double ProcLikelihood::SplinePDF::eval(double value) const
 {

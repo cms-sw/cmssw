@@ -6,6 +6,8 @@ from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
+from RecoEgamma.EgammaTools.regressionModifier_cfi import *
+
 #
 # producer for photons
 #
@@ -18,15 +20,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     energyRegressionWeightsDBLocation = cms.string('wgbrph'),
     # refined SC regression setup
     useRegression = cms.bool(True),
-    regressionConfig = cms.PSet(
-       regressionKeyEB = cms.string('gedphoton_EBCorrection_offline_v1'),
-       regressionKeyEE = cms.string('gedphoton_EECorrection_offline_v1'),
-       uncertaintyKeyEB = cms.string('gedphoton_EBUncertainty_offline_v1'),
-       uncertaintyKeyEE = cms.string('gedphoton_EEUncertainty_offline_v1'),
-       vertexCollection = cms.InputTag("offlinePrimaryVertices"),
-       ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
-       ),
+    regressionConfig = regressionModifier.clone(rhoCollection=cms.InputTag("fixedGridRhoFastjetAllTmp")),
     superClusterEnergyCorrFunction =  cms.string("EcalClusterEnergyCorrection"),                  
     superClusterEnergyErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
     superClusterCrackEnergyCorrFunction =  cms.string("EcalClusterCrackCorrection"),                                       
@@ -50,6 +44,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
+    preshowerHits = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     hcalTowers = cms.InputTag("towerMaker"),
     runMIPTagger = cms.bool(True),
     highEt  = cms.double(100.),                       

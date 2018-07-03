@@ -16,7 +16,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include <cassert>
 
-l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpHW::Stage1Layer2EtSumAlgorithmImpHW(CaloParamsHelper* params) : params_(params)
 {
   //now do what ever initialization is needed
   for(size_t i=0; i<cordicPhiValues.size(); ++i) {
@@ -56,12 +56,30 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
   int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
   std::vector<SimpleRegion> regionEtVect;
   std::vector<SimpleRegion> regionHtVect;
+
+  // check the un-subtracted regions for overflow
+  bool regionOverflowEt(false);
+  bool regionOverflowHt(false);
+  for (auto& region : regions) {
+    if(region.hwEta() >= etSumEtaMinEt && region.hwEta() <= etSumEtaMaxEt)
+    {
+      if(region.hwPt() >= 1023)
+      {
+        regionOverflowEt = true;
+      }
+    }
+    if ( region.hwEta() >= etSumEtaMinHt && region.hwEta() <= etSumEtaMaxHt)
+    {
+      if(region.hwPt() >= 1023)
+      {
+        regionOverflowHt = true;
+      }
+    }
+  }
 
   // hwPt() is the sum ET+HT in region, for stage 1 this will be
   // the region sum input to MET algorithm
@@ -98,25 +116,25 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   int sumHT, MHT, iPhiHT;
   std::tie(sumHT, MHT, iPhiHT) = doSumAndMET(regionHtVect, ETSumType::kHadronicSum);
 
-  //MHT is replaced with MHT/HT
-  uint16_t MHToHT=MHToverHT(MHT,sumHT);
-  //iPhiHt is replaced by the dPhi between two most energetic jets
-  iPhiHT = DiJetPhi(jets);
-
   // Set quality (i.e. overflow) bits appropriately
   int METqual = 0;
   int MHTqual = 0;
   int ETTqual = 0;
   int HTTqual = 0;
-  if(MET >= 0xfff) // MET 12 bits
+  if(MET > 0xfff || regionOverflowEt) // MET 12 bits
     METqual = 1;
-  if(MHT >= 0x7f)  // MHT 7 bits
+  if(MHT > 0x7f || regionOverflowHt)  // MHT 7 bits
     MHTqual = 1;
-  if(sumET >= 0xfff)
+  if(sumET > 0xfff || regionOverflowEt)
     ETTqual = 1;
-  if(sumHT >= 0xfff)
+  if(sumHT > 0xfff || regionOverflowHt)
     HTTqual = 1;
 
+  MHT &= 127; // limit MHT to 7 bits as the firmware does, but only after checking for overflow.
+  //MHT is replaced with MHT/HT
+  uint16_t MHToHT=MHToverHT(MHT,sumHT);
+  //iPhiHt is replaced by the dPhi between two most energetic jets
+  iPhiHT = DiJetPhi(jets);
 
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET&0xfff,0,iPhiET,METqual);
@@ -135,35 +153,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
 
   delete subRegions;
   delete preGtEtSums;
-
-  // Emulator - HDL simulation comparison printout
-  const bool verbose = false;
-  if(verbose)
-  {
-    for(std::vector<l1t::EtSum>::const_iterator itetsum = etsums->begin();
-	itetsum != etsums->end(); ++itetsum){
-      if(EtSum::EtSumType::kMissingEt == itetsum->getType())
-      {
-      	cout << "Missing Et" << endl;
-      	cout << bitset<7>(itetsum->hwPhi()).to_string() << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kMissingHt == itetsum->getType())
-      {
-      	cout << "Missing Ht" << endl;
-      	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<7>(itetsum->hwPt()).to_string() << bitset<5>(itetsum->hwPhi()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kTotalEt == itetsum->getType())
-      {
-	cout << "Total Et" << endl;
-	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-      if(EtSum::EtSumType::kTotalHt == itetsum->getType())
-      {
-	cout << "Total Ht" << endl;
-	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      }
-    }
-  }
 }
 
 std::tuple<int, int, int>
@@ -171,16 +160,12 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion
 {
   std::array<int, 18> sumEtaPos{};
   std::array<int, 18> sumEtaNeg{};
-  bool inputOverflow(false);
   for (const auto& r : regionEt)
   {
     if ( r.ieta < 11 )
       sumEtaNeg[r.iphi] += r.et;
     else
       sumEtaPos[r.iphi] += r.et;
-
-    if ( r.et >= (1<<10) )
-      inputOverflow = true;
   }
 
   std::array<int, 18> sumEta{};
@@ -191,8 +176,6 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion
     sumEta[i] = sumEtaPos[i] + sumEtaNeg[i];
     sumEt += sumEta[i];
   }
-  sumEt = (sumEt % (1<<12)) | ((sumEt >= (1<<12) || inputOverflow) ? (1<<12):0);
-  assert(sumEt>=0 && sumEt < (1<<13));
 
   // 0, 20, 40, 60, 80 degrees
   std::array<int, 5> sumsForCos{};
@@ -269,8 +252,6 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::cordicToMETPhi(int phase)
 
 int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
 
-  // cout << "Number of jets: " << jets->size() << endl;
-
   int dphi = 10; // initialize to negative physical dphi value
   if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
   if ((*jets).at(0).hwPt() == 0) return dphi;
@@ -299,7 +280,5 @@ uint16_t l1t::Stage1Layer2EtSumAlgorithmImpHW::MHToverHT(uint16_t num,uint16_t d
       result = numerator/denominator;
       result = result & 0x7f;
     }
-  // cout << "Result: " << result << endl;
-
   return result;
 }

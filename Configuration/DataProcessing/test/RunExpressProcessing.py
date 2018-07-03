@@ -9,6 +9,8 @@ it into cmsRun for testing with a few input files etc from the command line
 
 import sys
 import getopt
+import traceback
+import pickle
 
 from Configuration.DataProcessing.GetScenario import getScenario
 
@@ -31,21 +33,21 @@ class RunExpressProcessing:
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.globalTag == None:
             msg = "No --global-tag specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.inputLFN == None:
             msg = "No --lfn specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
         try:
             scenario = getScenario(self.scenario)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
@@ -90,13 +92,13 @@ class RunExpressProcessing:
 
             process = scenario.expressProcessing(self.globalTag, **kwds)
 
-        except NotImplementedError, ex:
+        except NotImplementedError as ex:
             print "This scenario does not support Express Processing:\n"
             return
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating Express Processing config:\n"
-            msg += str(ex)
-            raise RuntimeError, msg
+            msg += traceback.format_exc()
+            raise RuntimeError(msg)
 
         process.source.fileNames = [self.inputLFN]
 
@@ -104,9 +106,24 @@ class RunExpressProcessing:
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
+        pklFile = open("RunExpressProcessingCfg.pkl", "w")
         psetFile = open("RunExpressProcessingCfg.py", "w")
-        psetFile.write(process.dumpPython())
-        psetFile.close()
+        try:
+            pickle.dump(process, pklFile)
+            psetFile.write("import FWCore.ParameterSet.Config as cms\n")
+            psetFile.write("import pickle\n")
+            psetFile.write("handle = open('RunExpressProcessingCfg.pkl')\n")
+            psetFile.write("process = pickle.load(handle)\n")
+            psetFile.write("handle.close()\n")
+            psetFile.close()
+        except Exception as ex:
+            print("Error writing out PSet:")
+            print(traceback.format_exc())
+            raise ex
+        finally:
+            psetFile.close()
+            pklFile.close()
+
         cmsRun = "cmsRun -e RunExpressProcessingCfg.py"
         print "Now do:\n%s" % cmsRun
 
@@ -139,7 +156,7 @@ python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store
 """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)

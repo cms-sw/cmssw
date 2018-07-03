@@ -46,7 +46,7 @@ public:
     nMuMC =0; nMureco =0; nTrk=0; nSta=0; nNotMuMatching =0 ;
   }
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override
   {
 
     Handle<CandidateCollection> zMuMu;
@@ -116,7 +116,7 @@ public:
 	    for(i = MuonsMap->begin(); i != MuonsMap->end(); i++ )
 	      {
 		const Candidate/* & reco = * i -> key,*/ &  mc =  * i -> val;
-		if ((muCand1 == &mc) && (mc.pt()>ptcut_) && (abs(mc.eta()<etacut_)))
+		if ((muCand1 == &mc) && (mc.pt()>ptcut_) && (std::abs(mc.eta())<etacut_))
 		  {
 		    nMuMC++;
 		    nMureco++;
@@ -133,7 +133,7 @@ public:
 		for(l = TracksMap->begin(); l != TracksMap->end(); l++ )
 		  {
 		    const Candidate /* & Trkreco = * l -> key, */ &  Trkmc =  * l -> val;
-		    if (( muCand1 == & Trkmc) && (Trkmc.pt()>ptcut_) && (abs(Trkmc.eta()<etacut_)))
+		    if (( muCand1 == & Trkmc) && (Trkmc.pt()>ptcut_) && (std::abs(Trkmc.eta())<etacut_))
 		      {
 		        nMuMC++;
 			nTrk++;
@@ -145,7 +145,7 @@ public:
 		for(n = StandAloneMap->begin(); n != StandAloneMap->end(); n++ )
 		  {
 		    const Candidate & Stareco = * n -> key, &  Stamc =  * n -> val;
-		    if ((muCand1 == &Stamc ) && (Stamc.pt()>ptcut_) && (abs(Stamc.eta()<etacut_)))
+		    if ((muCand1 == &Stamc ) && (Stamc.pt()>ptcut_) && (std::abs(Stamc.eta())<etacut_))
 		      {
 			nMuMC++;
 			nSta++;
@@ -171,7 +171,7 @@ public:
   }
 
 
-  virtual void endJob() override
+  void endJob() override
   {
 
 

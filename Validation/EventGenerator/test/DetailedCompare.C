@@ -3,11 +3,7 @@
 // ROOT macro for graphical compariosn of Monitor Elements in a user
 // supplied directory between two files with the same histogram content
 
-#include <iostream>
-#include <sstream>
-
-std::vector<TString> histoList( TString currentfile, TString theDir );
-void DetailedComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString referencefile, TString theDir, TString theHisto );
+#include <iostream.h>
 
 class HistoCompare {
 
@@ -38,7 +34,6 @@ class HistoCompare {
   double printresy;
 };
 
-void
 HistoCompare::printRes(TString theName, Double_t thePV, TText * te)
 {
   myte->DrawTextNDC(0.1,printresy,theName );
@@ -47,7 +42,6 @@ HistoCompare::printRes(TString theName, Double_t thePV, TText * te)
 }
 
 
-void
 HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
 {
 
@@ -65,8 +59,8 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
   printRes(title, mypvchi, myte);
   Double_t mypvKS = myoldHisto1->KolmogorovTest(mynewHisto1,"");
   sprintf(str,"KS (prob): %f",mypvKS);
-  title = str;
-  std::basic_stringstream<char> buf;
+  TString title = str;
+  std::strstream buf;
   std::string value;
 
   printRes(title, mypvKS, myte);
@@ -75,7 +69,6 @@ HistoCompare::PVCompute(TH1 * oldHisto , TH1 * newHisto , TText * te )
 
 }
 
-void
 HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
 {
 
@@ -95,7 +88,6 @@ HistoCompare::PVCompute(TH2 * oldHisto , TH2 * newHisto , TText * te )
 }
 
 
-void
 HistoCompare::PVCompute(TProfile * oldHisto , TProfile * newHisto , TText * te )
 {
 
@@ -128,8 +120,8 @@ void DetailedCompare( TString currentfile = "new.root",
   std::vector<TString> theList =  histoList(currentfile, theDir);
   
   gROOT ->Reset();
-  const char*  rfilename = referencefile.Data();
-  const char*  sfilename = currentfile.Data();
+  char*  rfilename = referencefile ;
+  char*  sfilename = currentfile ;
   
   delete gROOT->GetListOfFiles()->FindObject(rfilename);
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -137,7 +129,7 @@ void DetailedCompare( TString currentfile = "new.root",
   TFile * rfile = new TFile(rfilename);
   TFile * sfile = new TFile(sfilename);
   
-  const char* baseDir=theDir.Data();
+  char* baseDir=theDir;
   
   rfile->cd(baseDir);
   gDirectory->ls();
@@ -168,6 +160,7 @@ void DetailedCompare( TString currentfile = "new.root",
 
     TH1* href_;
     rfile->GetObject(theName,href_);
+    href_;
     double nentries=href_->GetEntries();
     double integral=href_->Integral(0,href_->GetNbinsX()+1);
     if(integral!=0)href_->Scale(nentries/integral);
@@ -176,9 +169,10 @@ void DetailedCompare( TString currentfile = "new.root",
 
     TH1* hnew_;
     sfile->GetObject(theName,hnew_);
+    hnew_;
     // Set errors to sqrt(# entries)
-    nentries=hnew_->GetEntries();
-    integral=hnew_->Integral(0,hnew_->GetNbinsX()+1);
+    double nentries=hnew_->GetEntries();
+    double integral=hnew_->Integral(0,hnew_->GetNbinsX()+1);
     if(integral!=0)hnew_->Scale(nentries/integral);
     hnew_->Sumw2();
     cout << referencefile << " " << nentries << " " << integral << endl;    
@@ -218,11 +212,10 @@ void DetailedComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString 
  hnew_->SetMarkerSize(markerSize);
  hnew_->SetMarkerColor(scolor);    
 
- TCanvas *myPlot = 0;
  if ( href_ && hnew_ ) {
 
  
-   myPlot = new TCanvas("myPlot","Histogram comparison",200,10,700,900);
+   TCanvas *myPlot = new TCanvas("myPlot","Histogram comparison",200,10,700,900);
    TPad *pad0 = new TPad("pad0","The pad with the function ",0.0,0.9,0.0,1.0);
    TPad *pad1 = new TPad("pad1","The pad with the function ",0.0,0.6,0.5,0.9);
    TPad *pad2 = new TPad("pad2","The pad with the histogram",0.5,0.6,1.0,0.9);
@@ -272,11 +265,11 @@ void DetailedComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString 
 
    pad3->SetGridx();
    pad3->SetGridy();
-   TH1 *hnew_c=(TH1*)hnew_->Clone();
-   TH1 *href_c=(TH1*)href_->Clone();
+   TH1 *hnew_c=hnew_->Clone();
+   TH1 *href_c=href_->Clone();
    double integral=href_c->Integral(1,href_c->GetNbinsX());
    if(integral!=0)href_c->Scale(1/integral);
-   integral=hnew_c->Integral(1,href_c->GetNbinsX());
+   double integral=hnew_c->Integral(1,href_c->GetNbinsX());
    if(integral!=0)hnew_c->Scale(1/integral);
    href_c->SetYTitle("Comparison of A and B");
    href_c->DrawCopy("e1");
@@ -287,7 +280,7 @@ void DetailedComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString 
 
 
 
-   TH1 *ratio_=(TH1*)hnew_c->Clone();
+   TH1 *ratio_=hnew_c->Clone();
    ratio_->Divide(href_c);
    ratio_->SetYTitle("Ratio: B/A");
    pad4->cd();
@@ -295,7 +288,7 @@ void DetailedComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString 
    pad4->SetGridy();
    ratio_->DrawCopy("e1");
 
-   TH1 *diff_=(TH1*)hnew_c->Clone();
+   TH1 *diff_=hnew_c->Clone();
    diff_->Add(href_c,-1);
    diff_->SetYTitle("Difference: B-A");
    pad5->cd();
@@ -304,7 +297,7 @@ void DetailedComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString 
    diff_->DrawCopy("e1");
 
 
-   TH1 *sigma_=(TH1*)diff_->Clone();
+   TH1 *sigma_=diff_->Clone();
    for(unsigned int i=1; i<=sigma_->GetNbinsX(); i++ ){
      double v=sigma_->GetBinContent(i);
      double e=sigma_->GetBinError(i);
@@ -326,7 +319,7 @@ void DetailedComparePlot(TH1 * href_, TH1 * hnew_, TString currentfile, TString 
 
  }
  TString plotFile = theHisto+".eps";
- if(myPlot)myPlot->Print(plotFile); 
+ myPlot->Print(plotFile); 
  
  delete myPV;
  delete myPlot; 
@@ -337,13 +330,13 @@ std::vector<TString> histoList( TString currentfile, TString theDir )
 {
 
  gROOT ->Reset();
- const char*  sfilename = currentfile.Data();
+ char*  sfilename = currentfile ;
 
  delete gROOT->GetListOfFiles()->FindObject(sfilename);
 
  TFile * sfile = new TFile(sfilename);
 
- const char* baseDir=theDir.Data();
+ char* baseDir=theDir;
 
  sfile->cd(baseDir);
 

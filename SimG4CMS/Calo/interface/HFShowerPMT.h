@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
@@ -20,11 +21,12 @@ class HFShowerPMT {
 
 public:    
 
-  HFShowerPMT(std::string & name, const DDCompactView & cpv, 
+  HFShowerPMT(const std::string & name, const DDCompactView & cpv, 
 	      edm::ParameterSet const & p);
   virtual ~HFShowerPMT();
-  double                getHits(G4Step * aStep);
+  double                getHits(const G4Step * aStep);
   double                getRadius();
+  void                  initRun(const HcalDDDSimConstants*);
 
 private:    
 

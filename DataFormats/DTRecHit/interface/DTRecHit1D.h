@@ -53,29 +53,29 @@ class DTRecHit1D : public RecHit1D {
 
 
   /// Destructor
-  virtual ~DTRecHit1D();
+  ~DTRecHit1D() override;
 
 
   /// Return the 3-dimensional local position
-  virtual LocalPoint localPosition() const {
+  LocalPoint localPosition() const override {
     return theLocalPosition;
   }
 
 
   /// Return the 3-dimensional error on the local position
-  virtual LocalError localPositionError() const {
+  LocalError localPositionError() const override {
     return theLocalError;
   }
 
-  virtual  DTRecHit1D* clone() const;
+   DTRecHit1D* clone() const override;
 
   
   /// No components rechits: it returns a null vector
-  virtual std::vector<const TrackingRecHit*> recHits() const;
+  std::vector<const TrackingRecHit*> recHits() const override;
 
 
   /// No components rechits: it returns a null vector
-  virtual std::vector<TrackingRecHit*> recHits();
+  std::vector<TrackingRecHit*> recHits() override;
 
 
   /// The side of the cell

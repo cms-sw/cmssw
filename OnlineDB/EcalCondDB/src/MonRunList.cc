@@ -13,7 +13,7 @@ using namespace oracle::occi;
 
 MonRunList::MonRunList()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
 }
 
 MonRunList::~MonRunList()
@@ -50,7 +50,7 @@ std::vector<MonRunIOV> MonRunList::getRuns()
 
 
 void MonRunList::fetchRuns()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -140,14 +140,14 @@ void MonRunList::fetchRuns()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunIOV::fetchID:  ")+getOraMessage(&e)));
   }
 
 
 }
 
 void MonRunList::fetchRuns(int min_run, int max_run)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -250,14 +250,14 @@ void MonRunList::fetchRuns(int min_run, int max_run)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunIOV::fetchID:  ")+getOraMessage(&e)));
   }
 
 
 }
 
 void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   // fetch the last n_runs that come just before max_run (including max_run)
@@ -343,7 +343,7 @@ void MonRunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunList::fetchLastNRuns:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunList::fetchLastNRuns:  ")+getOraMessage(&e)));
   }
 
 

@@ -24,9 +24,9 @@ class CSCFakeDBCrosstalkPopCon: public edm::ESProducer, public edm::EventSetupRe
   float mean,min,minchi;
   int seed;long int M;
 
-  void prefillDBFakeCrosstalk();
+  CSCDBCrosstalk * prefillDBFakeCrosstalk();
   
-  typedef const  CSCDBCrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCDBCrosstalk> ReturnType;
   
   ReturnType produceDBCrosstalk(const CSCDBCrosstalkRcd&);
   

@@ -15,12 +15,12 @@ DDDWorld::DDDWorld(const DDCompactView* cpv,
 		   SensitiveDetectorCatalog & catalog,
 		   bool check) {
 
-  std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
+  std::unique_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
 
   DDGeometryReturnType ret = theBuilder->BuildGeometry();
   G4LogicalVolume *    world = ret.logicalVolume();
 
-  m_world = new G4PVPlacement(0,G4ThreeVector(),world,"DDDWorld",0,false,0);
+  m_world = new G4PVPlacement(nullptr,G4ThreeVector(),world,"DDDWorld",nullptr,false,0);
   SetAsWorld(m_world);
   map     = ret.lvToDDLPMap();
   catalog = ret.sdCatalog();

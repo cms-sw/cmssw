@@ -6,6 +6,7 @@
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
@@ -41,7 +42,7 @@ namespace edm
 
   private:
 
-    std::auto_ptr<StreamerOutputFile> stream_writer_;
+    edm::propagate_const<std::unique_ptr<StreamerOutputFile>> stream_writer_;
 
   };
 }

@@ -22,8 +22,8 @@ namespace cms
  class TECClusterFilter : public edm::EDFilter {
   public:
     TECClusterFilter(const edm::ParameterSet& ps);
-    virtual ~TECClusterFilter() {}
-    virtual bool filter(edm::Event & e, edm::EventSetup const& c);
+    ~TECClusterFilter() override {}
+    bool filter(edm::Event & e, edm::EventSetup const& c) override;
 
   private:
    std::string clusterProducer;

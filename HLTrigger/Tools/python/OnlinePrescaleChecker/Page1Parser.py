@@ -146,7 +146,7 @@ class Page1Parser(HTMLParser):
         req = urlopen(url)
         try:
             self.feed(req.read())
-        except Exception, inst:
+        except Exception as inst:
             print inst
 
     def handle_starttag(self,tag,attrs):

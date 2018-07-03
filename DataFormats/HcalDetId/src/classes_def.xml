@@ -5,9 +5,16 @@
   <class name="HcalFrontEndId" ClassVersion="10">
    <version ClassVersion="10" checksum="1241522245"/>
   </class>
-  <class name="HcalDetId" ClassVersion="11">
+  <class name="HcalDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="1604420376"/>
    <version ClassVersion="11" checksum="1604420376"/>
    <version ClassVersion="10" checksum="193306378"/>
+   <ioread sourceClass = "HcalDetId" version="[-11]" targetClass="HcalDetId" source="" target="">
+    <![CDATA[
+      HcalDetId tmp(HcalDetId::newForm(newObj->rawId()));
+      *newObj=tmp;
+    ]]>
+   </ioread>
   </class>
   <class name="HcalTrigTowerDetId" ClassVersion="11">
    <version ClassVersion="11" checksum="1583611399"/>

@@ -1,8 +1,0 @@
-<use   name="Alignment/CocoaUtilities"/>
-<use   name="Alignment/CocoaModel"/>
-<use   name="CLHEP"/>
-<use   name="rootcore"/>
-<use   name="meschach"/>
-<export>
-  <lib   name="1"/>
-</export>

@@ -7,8 +7,9 @@
 
 // -----
 SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
+                                   edm::RunNumber_t iRun,
                                    edm::ParameterSet const& hPSet,
-                                   edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){  
+                                   edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){  
   gainRenormalisation_ = hPSet_.getParameter<bool>("GainRenormalisation");
   simGainRenormalisation_ = hPSet_.getParameter<bool>("SimGainRenormalisation");
   if( gainRenormalisation_ && !simGainRenormalisation_){ eSetup.get<SiStripApvGainRcd>().get(gainHandle_);}
@@ -16,8 +17,11 @@ SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
 
 
   // Build the Histo_TkMap:
-  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","MeanNoise_TkMap",0.);
-
+  if ( HistoMaps_On_ ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map","MeanNoise_TkMap",0.);
+  }
 }
 // -----
 
@@ -60,7 +64,7 @@ void SiStripNoisesDQM::fillMEsForDet(const ModMEs& _selModME_, uint32_t selDetId
     else
       gainFactor=1;
 
-      stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
+    stripnoise=noiseHandle_->getNoise(istrip,noiseRange)/gainFactor;
     if( CondObj_fillId_ =="onlyProfile" || CondObj_fillId_ =="ProfileAndCumul"){
       selModME_.ProfileDistr->Fill(istrip+1,stripnoise);
     }

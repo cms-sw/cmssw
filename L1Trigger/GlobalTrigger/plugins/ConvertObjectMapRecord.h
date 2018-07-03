@@ -30,9 +30,9 @@ class ConvertObjectMapRecord : public edm::stream::EDProducer<> {
 
 public:
     explicit ConvertObjectMapRecord(const edm::ParameterSet& pset);
-    ~ConvertObjectMapRecord();
+    ~ConvertObjectMapRecord() override;
 
-    virtual void produce(edm::Event& event, const edm::EventSetup& es);
+    void produce(edm::Event& event, const edm::EventSetup& es) override;
 
 private:
     edm::EDGetTokenT<L1GlobalTriggerObjectMapRecord> m_l1GtObjectMapToken;

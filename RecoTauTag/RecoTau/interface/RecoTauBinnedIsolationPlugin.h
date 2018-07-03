@@ -24,9 +24,9 @@ namespace reco { namespace tau {
 class RecoTauDiscriminationBinnedIsolation : public RecoTauDiscriminantPlugin {
   public:
     RecoTauDiscriminationBinnedIsolation(const edm::ParameterSet& pset);
-    virtual ~RecoTauDiscriminationBinnedIsolation() {}
-    void beginEvent();
-    std::vector<double> operator()(const reco::PFTauRef& tau) const;
+    ~RecoTauDiscriminationBinnedIsolation() override {}
+    void beginEvent() override;
+    std::vector<double> operator()(const reco::PFTauRef& tau) const override;
     // Pure abstract function to extract objects to isolate with
     virtual std::vector<reco::PFCandidatePtr> extractIsoObjects(
         const reco::PFTauRef& tau) const = 0;

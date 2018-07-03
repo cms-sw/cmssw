@@ -46,11 +46,11 @@ public:
 L1TFED(const edm::ParameterSet& ps);
 
 // Destructor
-virtual ~L1TFED();
+~L1TFED() override;
 
 protected:
 // Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 // BeginRun
 void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

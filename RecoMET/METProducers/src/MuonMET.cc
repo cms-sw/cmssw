@@ -54,17 +54,17 @@ namespace cms
       {
 	edm::Handle<edm::View<reco::CaloMET> > inputUncorMet;
 	iEvent.getByToken(inputCaloMETToken_, inputUncorMet);
-	std::auto_ptr<reco::CaloMETCollection> output( new reco::CaloMETCollection() );
+	auto output = std::make_unique<reco::CaloMETCollection>();
 	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()), *(inputUncorMet.product()), &*output);
-	iEvent.put(output);
+	iEvent.put(std::move(output));
       }
     else
       {
 	edm::Handle<edm::View<reco::MET> > inputUncorMet;
 	iEvent.getByToken(inputMETToken_, inputUncorMet);
-	std::auto_ptr<reco::METCollection> output( new reco::METCollection() );
+	auto output = std::make_unique<reco::METCollection>();
 	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),*(inputUncorMet.product()), &*output);
-	iEvent.put(output);
+	iEvent.put(std::move(output));
       }
   }
 //____________________________________________________________________________||

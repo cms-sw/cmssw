@@ -40,13 +40,13 @@ class HotlineDQM: public DQMEDAnalyzer{
 
   public:
   HotlineDQM(const edm::ParameterSet& ps);
-  virtual ~HotlineDQM();
+  ~HotlineDQM() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   private:
   //variables from config file

@@ -148,7 +148,7 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
      trackExitMapIt++;
    }
 
-   if(crossedRecHits.size() > 0)
+   if(!crossedRecHits.empty())
    {
      setCalo = true;
      sort(crossedRecHits.begin(),crossedRecHits.end(),EcalRecHitLess());
@@ -186,7 +186,7 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
      }
    }
 
-   if(info.crossedHcalRecHits.size() > 0)
+   if(!info.crossedHcalRecHits.empty())
    {
      // HCAL (not ECAL) info
      result.hcalCrossedEnergy = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
@@ -248,8 +248,9 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>&
      EEDetId closestEndcapDetIdToProbe = ((theEndcapSubdetGeometry -> getClosestCell(probe_gp)).rawId());
 
      // check if the probe is inside the xtal
-     if( (closestEndcapDetIdToProbe) && (theGeometry->getSubdetectorGeometry(closestEndcapDetIdToProbe)->
-           getGeometry(closestEndcapDetIdToProbe)->inside(probe_gp)) )
+     if( (closestEndcapDetIdToProbe) && 
+	 (theGeometry->getSubdetectorGeometry(closestEndcapDetIdToProbe)->
+	  getGeometry(closestEndcapDetIdToProbe)->inside(probe_gp)) ) 
      {
        double step = ((*itr).position() - (*(itr-1)).position()).mag();
        GlobalPoint point = itr->position();
@@ -265,8 +266,9 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>&
        externalPointCurved = probe_gp ;
      }
 
-     if( (closestBarrelDetIdToProbe) && (theGeometry->getSubdetectorGeometry(closestBarrelDetIdToProbe)->
-           getGeometry(closestBarrelDetIdToProbe)->inside(probe_gp)) )
+     if( (closestBarrelDetIdToProbe) && 
+	 (theGeometry->getSubdetectorGeometry(closestBarrelDetIdToProbe)->
+	  getGeometry(closestBarrelDetIdToProbe)->inside(probe_gp)) )
      {
        double step = ((*itr).position() - (*(itr-1)).position()).mag();
        GlobalPoint point = itr->position();
@@ -321,8 +323,8 @@ void BetaCalculatorECAL::addStepToXtal(std::map<int,GlobalPoint>& trackExitPosit
     const CaloSubdetectorGeometry* theSubdetGeometry)
 {
 
-  const CaloCellGeometry *cell_p = theSubdetGeometry->getGeometry(aDetId);
-  GlobalPoint p = (dynamic_cast <const TruncatedPyramid *> (cell_p))->getPosition(23);
+  auto   cell_p = theSubdetGeometry->getGeometry(aDetId);
+  GlobalPoint p = cell_p->getPosition(23);
   GlobalPoint diff(point.x()-p.x(),point.y()-p.y(),point.z()-p.z());
 
   std::map<int,GlobalPoint>::iterator xtal = trackExitPositionMap.find(aDetId.rawId());

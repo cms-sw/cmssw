@@ -32,7 +32,7 @@ namespace {
 }
 
 TwoTrackMinimumDistanceHelixHelix::TwoTrackMinimumDistanceHelixHelix():
-theH(0), theG(0), pointsUpdated(false), themaxjump(20),thesingjacI(1./0.1), themaxiter(4)
+theH(nullptr), theG(nullptr), pointsUpdated(false), themaxjump(20),thesingjacI(1./0.1), themaxiter(4)
 { }
 
 TwoTrackMinimumDistanceHelixHelix::~TwoTrackMinimumDistanceHelixHelix() {}
@@ -99,7 +99,7 @@ bool TwoTrackMinimumDistanceHelixHelix::updateCoeffs(
   return false;
 }
 
-bool TwoTrackMinimumDistanceHelixHelix::oneIteration(double & dH, double & dG ) const {
+bool TwoTrackMinimumDistanceHelixHelix::oneIteration(double & dH, double & dG ) {
   thesinpH=sin(thepH);
   thecospH=cos(thepH);
   thesinpG=sin(thepG);
@@ -148,7 +148,10 @@ bool TwoTrackMinimumDistanceHelixHelix::calculate(
   theH= &H;
   bool retval=false;
   
-  if ( updateCoeffs ( theG->position(), theH->position() ) ) return true;
+  if ( updateCoeffs ( theG->position(), theH->position() ) ){
+    finalPoints();
+    return true;
+  }
   
   thepG = thepG0;
   thepH = thepH0;
@@ -162,11 +165,15 @@ bool TwoTrackMinimumDistanceHelixHelix::calculate(
   } while ( (!retval) && ( fabs(pG) > qual || fabs(pH) > qual ));
   if ( fabs ( theg * ( thepG - thepG0 ) ) > themaxjump ) retval=true;
   if ( fabs ( theh * ( thepH - thepH0 ) ) > themaxjump ) retval=true;
+
+  finalPoints();
+
   return retval;
 }
 
 
-void TwoTrackMinimumDistanceHelixHelix::finalPoints() const {
+void TwoTrackMinimumDistanceHelixHelix::finalPoints() {
+  if (pointsUpdated) return;
   GlobalVector tmpG( sin(thepG) - thesinpG0,
 		   - cos(thepG) + thecospG0,
 		   thetanlambdaG * ( thepG- thepG0 ) 

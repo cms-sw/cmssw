@@ -29,9 +29,9 @@ public:
     produces<edm::ValueMap<float> >("QjetsVolatility");
   }
   
-  virtual ~QjetsAdder() {}
+  ~QjetsAdder() override {}
   
-  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+  void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
 private:	
   edm::InputTag src_ ;

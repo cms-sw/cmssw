@@ -32,7 +32,7 @@ EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet){
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
   // DATA 
-  theMuonCollectionLabel_  = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
+  theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >  (parameters.getParameter<edm::InputTag>("MuonCollection"));
   theTrackCollectionLabel_ = consumes<reco::TrackCollection> (parameters.getParameter<edm::InputTag>("TrackCollection"));
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
   theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
@@ -57,6 +57,7 @@ EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet){
   vtxMax_ = parameters.getParameter<double>("vtxMax");
   
   ID_     = parameters.getParameter<string>("ID");
+  theFolder = parameters.getParameter<string>("folder");
 }
 
 EfficiencyAnalyzer::~EfficiencyAnalyzer() {
@@ -68,9 +69,12 @@ void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 					edm::EventSetup const & /* iSetup */){
   
   ibooker.cd();
-  ibooker.setCurrentFolder("Muons/EfficiencyAnalyzer/"+ID_);  
+  ibooker.setCurrentFolder(theFolder+ID_);  
 
   h_allProbes_pt     = ibooker.book1D("allProbes_pt","All Probes Pt",              ptBin_, ptMin_, ptMax_);
+  h_allProbes_inner_pt  = ibooker.book1D("allProbes_inner_pt","All Probes inner Pt",   ptBin_, ptMin_, ptMax_);
+  h_allProbes_inner_eta  = ibooker.book1D("allProbes_inner_eta","All Probes inner eta",   etaBin_, etaMin_, etaMax_);
+  h_allProbes_inner_phi  = ibooker.book1D("allProbes_inner_phi","All Probes inner phi",   phiBin_, phiMin_, phiMax_);
   h_allProbes_EB_pt  = ibooker.book1D("allProbes_EB_pt","Barrel: all Probes Pt",   ptBin_, ptMin_, ptMax_);
   h_allProbes_EE_pt  = ibooker.book1D("allProbes_EE_pt","Endcap: all Probes Pt",   ptBin_, ptMin_, ptMax_);
   h_allProbes_eta    = ibooker.book1D("allProbes_eta","All Probes Eta",            etaBin_, etaMin_, etaMax_);
@@ -85,6 +89,9 @@ void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   h_allProbes_EE_ID_nVtx = ibooker.book1D("allProbes_EE_ID_nVtx","Endcap: All Probes (ID) nVtx", vtxBin_, vtxMin_, vtxMax_);
 
   h_passProbes_ID_pt     = ibooker.book1D("passProbes_ID_pt","ID Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_ID_inner_pt  = ibooker.book1D("passProbes_ID_inner_pt","ID Passing Probes inner Pt",   ptBin_, ptMin_, ptMax_);
+  h_passProbes_ID_inner_eta  = ibooker.book1D("passProbes_ID_inner_eta","ID Passing Probes inner eta",   etaBin_, etaMin_, etaMax_);
+  h_passProbes_ID_inner_phi  = ibooker.book1D("passProbes_ID_inner_phi","ID Passing Probes inner phi",   phiBin_, phiMin_, phiMax_);
   h_passProbes_ID_EB_pt  = ibooker.book1D("passProbes_ID_EB_pt","Barrel: ID Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
   h_passProbes_ID_EE_pt  = ibooker.book1D("passProbes_ID_EE_pt","Endcap: ID Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
   h_passProbes_ID_eta    = ibooker.book1D("passProbes_ID_eta","ID Passing Probes #eta", etaBin_, etaMin_, etaMax_);
@@ -113,7 +120,7 @@ void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   h_passProbes_EB_pfIsodBID_pt = ibooker.book1D("passProbes_EB_pfIsodBID_pt","Barrel: pfIsoID Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
   h_passProbes_EE_pfIsodBID_pt = ibooker.book1D("passProbes_EE_pfIsodBID_pt","Endcap: pfIsoID Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
   h_passProbes_pfIsodBID_nVtx     = ibooker.book1D("passProbes_pfIsodBID_nVtx",    "pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
-h_passProbes_EB_pfIsodBID_nVtx  = ibooker.book1D("passProbes_EB_pfIsodBID_nVtx", "Barrel: pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EB_pfIsodBID_nVtx  = ibooker.book1D("passProbes_EB_pfIsodBID_nVtx", "Barrel: pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
   h_passProbes_EE_pfIsodBID_nVtx  = ibooker.book1D("passProbes_EE_pfIsodBID_nVtx", "Endcap: pfIsoID Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
 
 #ifdef DEBUG
@@ -128,7 +135,7 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
   // ==========================================================
   // BEGIN READ DATA:
   // Muon information
-  edm::Handle<reco::MuonCollection> muons;
+  edm::Handle<edm::View<reco::Muon> > muons; 
   iEvent.getByToken(theMuonCollectionLabel_, muons);
 
   // Tracks information
@@ -218,74 +225,83 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
   bool isMB = false;
   bool isME = false;
 
-  for (reco::MuonCollection::const_iterator recoMu1 = muons->begin(); recoMu1!=muons->end(); ++recoMu1) {
+  for (edm::View<reco::Muon>::const_iterator muon1 = muons->begin(); muon1 != muons->end(); ++muon1){
     LogTrace(metname)<<"[EfficiencyAnalyzer] loop over first muons" << endl;
     
     //--- Define combined isolation
-    reco::MuonIsolation Iso_muon = recoMu1->isolationR03();
+    reco::MuonIsolation Iso_muon = muon1->isolationR03();
     float combIso = (Iso_muon.emEt + Iso_muon.hadEt + Iso_muon.sumPt);  
     
     //--- Is Global Muon 
-    if (!recoMu1->isGlobalMuon()) continue;
+    if (!muon1->isGlobalMuon()) continue;
 
     // get the track combinig the information from both the Tracker and the Spectrometer
-    reco::TrackRef recoCombinedGlbTrack1 = recoMu1->combinedMuon();    
+    reco::TrackRef recoCombinedGlbTrack1 = muon1->combinedMuon();    
     float muPt1 = recoCombinedGlbTrack1->pt();
     Mu1.SetPxPyPzE(recoCombinedGlbTrack1->px(), recoCombinedGlbTrack1->py(),recoCombinedGlbTrack1->pz(), recoCombinedGlbTrack1->p());
     
 
     //--- Define if it is a tight muon
     // Change the Tight muon definition by using the implemented method in: MuonSelectors.cc
-    if (ID_ == "Loose"  && !muon::isLooseMuon(*recoMu1)) continue; 
-    if (ID_ == "Medium" && !muon::isMediumMuon(*recoMu1)) continue;
-    if (ID_ == "Tight"  && !muon::isTightMuon(*recoMu1, thePrimaryVertex)) continue;
+    if (ID_ == "Loose"  && !muon::isLooseMuon(*muon1)) continue; 
+    if (ID_ == "Medium" && !muon::isMediumMuon(*muon1)) continue;
+    if (ID_ == "Tight"  && !muon::isTightMuon(*muon1, thePrimaryVertex)) continue;
   
     //-- is isolated muon
     if (muPt1 <= 15)          continue;
     if (combIso/muPt1 > 0.1 ) continue;
     
-    for (reco::MuonCollection::const_iterator recoMu2 = muons->begin(); recoMu2!=muons->end(); ++recoMu2){ 
+  for (edm::View<reco::Muon>::const_iterator muon2 = muons->begin(); muon2 != muons->end(); ++muon2){
       LogTrace(metname)<<"[EfficiencyAnalyzer] loop over second muon" <<endl;
-      if (recoMu2 == recoMu1) continue;
+      if (muon2 == muon1) continue;
       
-      if (recoMu2->eta() < 1.479 )  isMB = true;
-      if (recoMu2->eta() >= 1.479 ) isME = true;
+      if (muon2->eta() < 1.479 )  isMB = true;
+      if (muon2->eta() >= 1.479 ) isME = true;
       
       //--> should we apply track quality cuts??? 
-      Mu2.SetPxPyPzE(recoMu2->px(), recoMu2->py(), recoMu2->pz(), recoMu2->p());
+      Mu2.SetPxPyPzE(muon2->px(), muon2->py(), muon2->pz(), muon2->p());
       
       float Minv = (Mu1+Mu2).M();
-      if (!recoMu2->isTrackerMuon())                     continue;
-      if ( recoMu2->pt() < 5 )                           continue;
-      if ( (recoMu1->charge())*(recoMu2->charge()) > 0 ) continue; 
+      if (!muon2->isTrackerMuon())                     continue;
+      if ( muon2->pt() < 5 )                           continue;
+      if ( (muon1->charge())*(muon2->charge()) > 0 ) continue; 
       if ( Minv < 70 ||  Minv > 110 )                    continue;
       
-      h_allProbes_pt->Fill(recoMu2->pt());
-      h_allProbes_eta->Fill(recoMu2->eta());
-      h_allProbes_phi->Fill(recoMu2->phi());
-      
-      if (isMB)               h_allProbes_EB_pt->Fill(recoMu2->pt());
-      if (isME)               h_allProbes_EE_pt->Fill(recoMu2->pt());
-      if(recoMu2->pt() > 20 ) h_allProbes_hp_eta->Fill(recoMu2->eta());
+      h_allProbes_pt->Fill(muon2->pt());
+      h_allProbes_eta->Fill(muon2->eta());
+      h_allProbes_phi->Fill(muon2->phi());
+      if(muon2->innerTrack()->extra().isAvailable()) {
+          h_allProbes_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
+          h_allProbes_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
+          h_allProbes_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
+      }
+      if (isMB)               h_allProbes_EB_pt->Fill(muon2->pt());
+      if (isME)               h_allProbes_EE_pt->Fill(muon2->pt());
+      if(muon2->pt() > 20 ) h_allProbes_hp_eta->Fill(muon2->eta());
 
             
       // Probes passing the tight muon criteria 
-      if (ID_ == "Loose"  && !muon::isLooseMuon(*recoMu2)) continue; 
-      if (ID_ == "Medium" && !muon::isMediumMuon(*recoMu2)) continue;
-      if (ID_ == "Tight"  && !muon::isTightMuon(*recoMu2, thePrimaryVertex)) continue;
+      if (ID_ == "Loose"  && !muon::isLooseMuon(*muon2)) continue; 
+      if (ID_ == "Medium" && !muon::isMediumMuon(*muon2)) continue;
+      if (ID_ == "Tight"  && !muon::isTightMuon(*muon2, thePrimaryVertex)) continue;
 
 
-      h_passProbes_ID_pt->Fill(recoMu2->pt());
-      h_passProbes_ID_eta->Fill(recoMu2->eta());
-      h_passProbes_ID_phi->Fill(recoMu2->phi());
+      h_passProbes_ID_pt->Fill(muon2->pt());
+      h_passProbes_ID_eta->Fill(muon2->eta());
+      h_passProbes_ID_phi->Fill(muon2->phi());
+      if(muon2->innerTrack()->extra().isAvailable()) {
+          h_passProbes_ID_inner_pt->Fill(muon2->innerTrack()->innerMomentum().Rho());
+          h_passProbes_ID_inner_eta->Fill(muon2->innerTrack()->innerPosition().Eta());
+          h_passProbes_ID_inner_phi->Fill(muon2->innerTrack()->innerPosition().Phi());
+      } 
       
-      if (isMB) h_passProbes_ID_EB_pt->Fill(recoMu2->pt());
-      if (isME) h_passProbes_ID_EE_pt->Fill(recoMu2->pt());
-      if( recoMu2->pt() > 20 ) h_passProbes_ID_hp_eta->Fill(recoMu2->eta());
+      if (isMB) h_passProbes_ID_EB_pt->Fill(muon2->pt());
+      if (isME) h_passProbes_ID_EE_pt->Fill(muon2->pt());
+      if( muon2->pt() > 20 ) h_passProbes_ID_hp_eta->Fill(muon2->eta());
       
-      h_allProbes_ID_pt->Fill(recoMu2->pt());
-      if (isMB) h_allProbes_EB_ID_pt->Fill(recoMu2->pt());
-      if (isME) h_allProbes_EE_ID_pt->Fill(recoMu2->pt());
+      h_allProbes_ID_pt->Fill(muon2->pt());
+      if (isMB) h_allProbes_EB_ID_pt->Fill(muon2->pt());
+      if (isME) h_allProbes_EE_ID_pt->Fill(muon2->pt());
       
       //------- For PU monitoring -------//
       if (bPrimaryVertex)         h_allProbes_ID_nVtx->Fill(_numPV);
@@ -293,15 +309,15 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       if (bPrimaryVertex && isME) h_allProbes_EE_ID_nVtx->Fill(_numPV);
       
       //-- Define det relative isolation
-      float tkIso = recoMu2->isolationR03().sumPt;
-      float emIso = recoMu2->isolationR03().emEt;
-      float hadIso = recoMu2->isolationR03().hadEt + recoMu2->isolationR03().hoEt;
-      float relDetIso = (tkIso + emIso + hadIso) /  (recoMu2->pt()); 
+      float tkIso = muon2->isolationR03().sumPt;
+      float emIso = muon2->isolationR03().emEt;
+      float hadIso = muon2->isolationR03().hadEt + muon2->isolationR03().hoEt;
+      float relDetIso = (tkIso + emIso + hadIso) /  (muon2->pt()); 
       
       if (relDetIso < 0.05 ) { 
-	h_passProbes_detIsoID_pt->Fill(recoMu2->pt());
-	if (isMB) h_passProbes_EB_detIsoID_pt->Fill(recoMu2->pt());
-	if (isME) h_passProbes_EE_detIsoID_pt->Fill(recoMu2->pt());
+	h_passProbes_detIsoID_pt->Fill(muon2->pt());
+	if (isMB) h_passProbes_EB_detIsoID_pt->Fill(muon2->pt());
+	if (isME) h_passProbes_EE_detIsoID_pt->Fill(muon2->pt());
 	
 	if (bPrimaryVertex)         h_passProbes_detIsoID_nVtx->Fill(_numPV);
 	if (bPrimaryVertex && isMB) h_passProbes_EB_detIsoID_nVtx->Fill(_numPV);
@@ -309,21 +325,21 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       }
       
       //-- Define PF relative isolation
-      float chargedIso = recoMu2->pfIsolationR04().sumChargedHadronPt;
-      float neutralIso = recoMu2->pfIsolationR04().sumNeutralHadronEt;
-      float photonIso = recoMu2->pfIsolationR04().sumPhotonEt;
-      float relPFIso = (chargedIso + neutralIso + photonIso) /  (recoMu2->pt()); 
+      float chargedIso = muon2->pfIsolationR04().sumChargedHadronPt;
+      float neutralIso = muon2->pfIsolationR04().sumNeutralHadronEt;
+      float photonIso = muon2->pfIsolationR04().sumPhotonEt;
+      float relPFIso = (chargedIso + neutralIso + photonIso) /  (muon2->pt()); 
       
-      float pu = recoMu2->pfIsolationR04().sumPUPt; 
+      float pu = muon2->pfIsolationR04().sumPUPt; 
       float neutralphotonPUCorrected = std::max(0.0 , (neutralIso + photonIso - 0.5*pu ) ); 
-      float relPFIsoPUCorrected = (chargedIso + neutralphotonPUCorrected) /  (recoMu2->pt()); 
+      float relPFIsoPUCorrected = (chargedIso + neutralphotonPUCorrected) /  (muon2->pt()); 
       
 	
       
       if (relPFIso < 0.12 ) { 
-	h_passProbes_pfIsoID_pt->Fill(recoMu2->pt());
-	if (isMB) h_passProbes_EB_pfIsoID_pt->Fill(recoMu2->pt());
-	if (isME) h_passProbes_EE_pfIsoID_pt->Fill(recoMu2->pt());
+	h_passProbes_pfIsoID_pt->Fill(muon2->pt());
+	if (isMB) h_passProbes_EB_pfIsoID_pt->Fill(muon2->pt());
+	if (isME) h_passProbes_EE_pfIsoID_pt->Fill(muon2->pt());
 	
 	if( bPrimaryVertex)         h_passProbes_pfIsoID_nVtx->Fill(_numPV);
 	if (bPrimaryVertex && isMB) h_passProbes_EB_pfIsoID_nVtx->Fill(_numPV);
@@ -332,9 +348,9 @@ void EfficiencyAnalyzer::analyze(const edm::Event & iEvent,const edm::EventSetup
       
       // Apply deltaBeta PU corrections to the PF isolation eficiencies.
       if ( relPFIsoPUCorrected < 0.12 ) { 
-	h_passProbes_pfIsodBID_pt->Fill(recoMu2->pt());
-	if (isMB) h_passProbes_EB_pfIsodBID_pt->Fill(recoMu2->pt());
-	if (isME) h_passProbes_EE_pfIsodBID_pt->Fill(recoMu2->pt());
+	h_passProbes_pfIsodBID_pt->Fill(muon2->pt());
+	if (isMB) h_passProbes_EB_pfIsodBID_pt->Fill(muon2->pt());
+	if (isME) h_passProbes_EE_pfIsodBID_pt->Fill(muon2->pt());
 	
 	if( bPrimaryVertex)         h_passProbes_pfIsodBID_nVtx->Fill(_numPV);
 	if (bPrimaryVertex && isMB) h_passProbes_EB_pfIsodBID_nVtx->Fill(_numPV);

@@ -96,7 +96,7 @@ public:
    }
    
    bool isValid() const {
-      return prod_ && 0!= prov_;
+      return prod_ && nullptr!= prov_;
    }
 
    bool failedToGet() const {
@@ -116,7 +116,7 @@ public:
    
    ProductID id() const {return prov_->productID();}
 
-   void clear() { prov_ = 0; whyFailedFactory_=nullptr;}
+   void clear() { prov_ = nullptr; whyFailedFactory_=nullptr;}
       
   void setWhyFailedFactory(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed) {
     whyFailedFactory_=iWhyFailed;

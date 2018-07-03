@@ -84,11 +84,9 @@ json_file = os.getenv("ALIGNMENT_JSON")
 if json_file is not None and json_file != '':
   jsonfile=file(json_file, 'r')
   jsondict = json.load(jsonfile)
-  runs = jsondict.keys()
-  runs.sort()
+  runs = sorted(jsondict.keys())
   for run in runs:
-    blocks = jsondict[run]
-    blocks.sort()
+    blocks = sorted(jsondict[run])
     prevblock = [-2,-2]
     for lsrange in blocks:
       if lsrange[0] == prevblock[1]+1:
@@ -101,6 +99,30 @@ if json_file is not None and json_file != '':
 
 
 process = cms.Process("GATHER")
+
+process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
+process.load("Geometry.DTGeometry.dtGeometry_cfi")
+process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
+process.load("Geometry.CSCGeometry.cscGeometry_cfi")
+process.load("Geometry.CommonDetUnit.bareGlobalTrackingGeometry_cfi")
+
+#add TrackDetectorAssociator lookup maps to the EventSetup
+process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff") 
+from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *  
+from TrackingTools.TrackAssociator.default_cfi import *       
+
+
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+process.MuonNumberingInitialization = cms.ESProducer("MuonNumberingInitialization")
+process.MuonNumberingRecord = cms.ESSource( "EmptyESSource",
+    recordName = cms.string( "MuonNumberingRecord" ),
+    iovIsRunNotTime = cms.bool( True ),
+    firstValid = cms.vuint32( 1 )
+)
+
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load('Configuration.StandardSequences.MagneticField_cff')
 
 if len(good_lumis)>0:
   process.source = cms.Source("PoolSource",
@@ -223,9 +245,9 @@ if iscosmics:
     else: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalCosmicRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalCosmicRefit:Refitted")
 else:
-    process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
-    #process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("globalMuons")
-    #process.MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("globalMuons")
+    #process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("ALCARECOMuAlCalIsolatedMu:GlobalMuon")
+    process.MuonAlignmentPreFilter.tracksTag = cms.InputTag("globalMuons")
+    process.MuonAlignmentFromReferenceGlobalMuonRefit.Tracks = cms.InputTag("globalMuons")
     if preFilter: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentPreFilter * process.MuonAlignmentFromReferenceGlobalMuonRefit)
     else: process.Path = cms.Path(process.offlineBeamSpot * process.MuonAlignmentFromReferenceGlobalMuonRefit)
     process.looper.tjTkAssociationMapTag = cms.InputTag("MuonAlignmentFromReferenceGlobalMuonRefit:Refitted")

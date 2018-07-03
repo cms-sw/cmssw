@@ -34,6 +34,5 @@ cosmicsVeto = cms.EDProducer("CosmicsMuonIdProducer"
 
     )
 
-cosmicsMuonIdSequence = cms.Sequence(cosmicsVetoSeeds*cosmicsVetoTrackCandidates*cosmicsVetoTracksRaw*cosmicsVetoTracks*cosmicsVeto)
-
-
+cosmicsMuonIdTask = cms.Task(cosmicsVetoSeeds,cosmicsVetoTrackCandidates,cosmicsVetoTracksRaw,cosmicsVetoTracks,cosmicsVeto)
+cosmicsMuonIdSequence = cms.Sequence(cosmicsMuonIdTask)

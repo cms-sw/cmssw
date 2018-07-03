@@ -12,9 +12,9 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
 //__________________________________________________________________________________________________
-MillePedeVariables::MillePedeVariables(unsigned int nParams, unsigned int label)
+MillePedeVariables::MillePedeVariables(unsigned int nParams, unsigned int label, const std::string& name)
   :  myIsValid(nParams), myDiffBefore(nParams), myGlobalCor(nParams), myPreSigma(nParams),
-     myParameter(nParams), mySigma(nParams), myHitsX(0), myHitsY(0), myLabel(label)
+     myParameter(nParams), mySigma(nParams), myHitsX(0), myHitsY(0), myLabel(label), myName(name)
 {
   for (unsigned int i = 0; i < nParams; ++i) {
     this->setAllDefault(i);

@@ -23,16 +23,16 @@ class ProcForeach : public TrainProcessor {
 
 	ProcForeach(const char *name, const AtomicId *id,
 	            MVATrainer *trainer);
-	virtual ~ProcForeach();
+	~ProcForeach() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	unsigned int	count;
 };
 
-static ProcForeach::Registry registry("ProcForeach");
+ProcForeach::Registry registry("ProcForeach");
 
 ProcForeach::ProcForeach(const char *name, const AtomicId *id,
                          MVATrainer *trainer) :

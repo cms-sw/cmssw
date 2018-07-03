@@ -18,7 +18,7 @@
 // system include files
 
 #include "FWCore/Framework/interface/HCTypeTag.h"
-#include "boost/type_traits/remove_const.hpp"
+#include <type_traits>
 // user include files
 
 namespace edm {
@@ -42,7 +42,7 @@ namespace edm {
       //  This allows the Storage to be composed of proxies instead of
       //  the 'Type' themselves
       template<class Key, class ItemType> struct type_from_itemtype {
-	typedef typename boost::remove_const<ItemType>::type Type;
+	typedef typename std::remove_const<ItemType>::type Type;
       };
 
       template<class Key, class ItemType, class Storage, class IdTag >

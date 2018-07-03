@@ -17,9 +17,9 @@ namespace tauImpactParameter {
 class ChiSquareFunctionUpdator : public ROOT::Minuit2::FCNBase {
  public:
   ChiSquareFunctionUpdator(TrackHelixVertexFitter* VF){ VF_ = VF; }
-  virtual ~ChiSquareFunctionUpdator() {};
+  ~ChiSquareFunctionUpdator() override {};
   
-  virtual double operator() (const std::vector<double>& x) const
+  double operator() (const std::vector<double>& x) const override
   {
     TVectorT<double> X(x.size());
     for ( unsigned int i = 0; i < x.size(); ++i ) {
@@ -27,7 +27,7 @@ class ChiSquareFunctionUpdator : public ROOT::Minuit2::FCNBase {
     }
     return VF_->updateChisquare(X);
   }
-  virtual double Up() const { return 1.0; }// Error definiton for Chi^2 (virtual function defined in ROOT::Minuit2::FCNBase base-class)
+  double Up() const override { return 1.0; }// Error definiton for Chi^2 (virtual function defined in ROOT::Minuit2::FCNBase base-class)
 
  private:
   TrackHelixVertexFitter* VF_; 

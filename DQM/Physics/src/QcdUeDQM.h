@@ -54,22 +54,22 @@ class PtSorter {
 class QcdUeDQM : public DQMEDAnalyzer {
  public:
   QcdUeDQM(const edm::ParameterSet &parameters);
-  virtual ~QcdUeDQM();
-  void dqmBeginRun(const edm::Run &, const edm::EventSetup &);
+  ~QcdUeDQM() override;
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &,
                       edm::EventSetup const &) override;
-  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
 
  private:
   bool isHltConfigSuccessful_;  // to prevent processing in case of problems
 
   void book1D(DQMStore::IBooker &, std::vector<MonitorElement *> &mes,
               const std::string &name, const std::string &title, int nx,
-              double x1, double x2, bool sumw2 = 1, bool sbox = 1);
+              double x1, double x2, bool sumw2 = true, bool sbox = true);
   void bookProfile(DQMStore::IBooker &, std::vector<MonitorElement *> &mes,
                    const std::string &name, const std::string &title, int nx,
-                   double x1, double x2, double y1, double y2, bool sumw2 = 1,
-                   bool sbox = 1);
+                   double x1, double x2, double y1, double y2, bool sumw2 = true,
+                   bool sbox = true);
   void fill1D(std::vector<TH1F *> &hs, double val, double w = 1.);
   void fill1D(std::vector<MonitorElement *> &mes, double val, double w = 1.);
   void fill2D(std::vector<TH2F *> &hs, double valx, double valy, double w = 1.);
@@ -428,7 +428,7 @@ inline bool QcdUeDQM::getProductSafe(const std::string name,
   // get just one
   // product with the given name. If not, we return false.
 
-  if (name.size() == 0) return false;
+  if (name.empty()) return false;
 
   try {
     event.getByLabel(edm::InputTag(name), prod);

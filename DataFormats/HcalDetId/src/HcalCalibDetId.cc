@@ -33,6 +33,18 @@ HcalCalibDetId::HcalCalibDetId(int ieta, int iphi) : HcalOtherDetId(HcalCalibrat
       |(((ieta > 0)?(1):(0))<<11); // z side, bit [11]
 }
 
+HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value) : HcalOtherDetId(HcalCalibration) {
+  id_|=(dt<<17);
+  id_|=value&0xFF;
+}
+
+HcalCalibDetId::HcalCalibDetId(CalibDetType dt, int value1, int value2, int value3)  : HcalOtherDetId(HcalCalibration) {
+  id_|=(dt<<17);
+  id_|=(value1&0x3F)<<10;
+  id_|=(value2&0x1F)<<5;
+  id_|=(value3&0x1F);
+}
+
 HcalCalibDetId::HcalCalibDetId(const DetId& gen) {
   if (!gen.null() && (gen.det()!=Hcal || gen.subdetId()!=HcalOther)) {
     throw cms::Exception("Invalid DetId") << "Cannot initialize HcalCalibDetId from " << std::hex << gen.rawId() << std::dec; 
@@ -55,7 +67,7 @@ HcalCalibDetId& HcalCalibDetId::operator=(const DetId& gen) {
 }
 
 int HcalCalibDetId::cboxChannel() const {
-  return (calibFlavor()==CalibrationBox)?(id_&0xF):(0);
+  return (calibFlavor()==CalibrationBox || calibFlavor() == LASERMON)?(id_&0xF):(0);
 }
 
 HcalSubdetector HcalCalibDetId::hcalSubdet() const {  
@@ -63,11 +75,11 @@ HcalSubdetector HcalCalibDetId::hcalSubdet() const {
 }
     
 int HcalCalibDetId::ieta() const {
-  return (calibFlavor()==CalibrationBox)?(((id_>>11)&0x7)-2):((calibFlavor()==HOCrosstalk)?(((id_>>7)&0xF)*zside()):(0));
+  return (calibFlavor()==CalibrationBox)?(((id_>>11)&0x7)-2):((calibFlavor()==HOCrosstalk)?(((id_>>7)&0xF)*zside()):(calibFlavor()==LASERMON?((id_>>10)&0x3F):(0)));
 }
 
 int HcalCalibDetId::iphi() const {
-  return (calibFlavor()==CalibrationBox)?((id_>>4)&0x7F):((calibFlavor()==HOCrosstalk)?(id_&0x7F):(0));
+  return (calibFlavor()==CalibrationBox)?((id_>>4)&0x7F):((calibFlavor()==HOCrosstalk)?(id_&0x7F):(calibFlavor()==LASERMON?((id_>>5)&0x1F):(0)));
 }
 
 int HcalCalibDetId::zside() const {
@@ -89,6 +101,13 @@ std::string HcalCalibDetId::cboxChannelString() const {
   }
 }
 
+int HcalCalibDetId::channel() const { return (calibFlavor()==uMNqie)?(id_&0xFF):(id_&0x1F); }
+
+int HcalCalibDetId::fiber() const { return (calibFlavor()==CastorRadFacility)?((id_>>5)&0x1F):(0); }
+
+int HcalCalibDetId::rm() const { return (calibFlavor()==CastorRadFacility)?((id_>>10)&0x3F):(0); }
+
+
 std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
   std::string sd;
   switch (id.hcalSubdet()) {
@@ -105,6 +124,12 @@ std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
   case(HcalCalibDetId::HOCrosstalk):
     return s << "(HOCrosstalk "  << id.ieta() << "," << id.iphi() 
 	     << ')';
+  case (HcalCalibDetId::uMNqie):
+    return s << "(uMNqie " << id.channel() << ')';
+  case (HcalCalibDetId::LASERMON):
+    return s << "(LASERMON" << id.channel() << ')';
+  case (HcalCalibDetId::CastorRadFacility):
+    return s << "(CastorRadFacility " << id.rm() << " / " << id.fiber() << " / " << id.channel() << ')';
   default: return s;
   };
 }

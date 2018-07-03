@@ -31,19 +31,19 @@
 
 Bounds * TrackerShapeToBounds::buildBounds(const DDSolidShape & _shape, const std::vector<double>& _par) const{
   switch(_shape){
-  case ddbox: return buildBox(_par);
+  case DDSolidShape::ddbox: return buildBox(_par);
     break;
-  case ddtrap: return buildTrap(_par);
+  case DDSolidShape::ddtrap: return buildTrap(_par);
     break;
-  case ddtubs: return buildOpen(_par);
+  case DDSolidShape::ddtubs: return buildOpen(_par);
     break;
-  case ddpolycone_rrz: return buildOpen(_par);
+  case DDSolidShape::ddpolycone_rrz: return buildOpen(_par);
     break;
-  case ddsubtraction: return buildOpen(_par);
+  case DDSolidShape::ddsubtraction: return buildOpen(_par);
     break;
   default:
-    std::cout<<"Wrong DDshape to build...."<<_shape<<std::endl; 
-    Bounds* bounds = 0;
+    std::cout<<"Wrong DDshape to build...."<<DDSolidShapesName::name(_shape)<<std::endl; 
+    Bounds* bounds = nullptr;
     return bounds;
   }
 }      
@@ -52,7 +52,7 @@ Bounds * TrackerShapeToBounds::buildBox(const std::vector<double>& paras ) const
   int indexX = 0;
   int indexY = 1; 
   int indexZ = 2;
-  Bounds* bounds = 0;
+  Bounds* bounds = nullptr;
   
   if(paras[1]<paras[0]&&paras[0]<paras[2]){
     indexX=0;
@@ -69,7 +69,7 @@ Bounds * TrackerShapeToBounds::buildBox(const std::vector<double>& paras ) const
 Bounds * TrackerShapeToBounds::buildTrap(const std::vector<double>& paras ) const{
 
 
-  Bounds* bounds = 0;
+  Bounds* bounds = nullptr;
   /*
     TrapezoidalPlaneBounds (float be, float te, float a, float t)
     constructed from:

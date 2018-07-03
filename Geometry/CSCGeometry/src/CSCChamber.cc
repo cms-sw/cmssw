@@ -37,7 +37,7 @@ void CSCChamber::addComponent( int n, const CSCLayer* gd ) {
 }
 
 const CSCLayer* CSCChamber::layer(CSCDetId iid) const {
-  if (iid.chamberId()!=id()) return 0; // not in this chamber
+  if (iid.chamberId()!=id()) return nullptr; // not in this chamber
   return layer(iid.layer());
 }
   
@@ -46,6 +46,6 @@ const CSCLayer* CSCChamber::layer(int ilay) const{
   if ((ilay>0) && (ilay<7)) 
     return theComponents[ilay-1];
   else {
-    return 0;
+    return nullptr;
   }
 }

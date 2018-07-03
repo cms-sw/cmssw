@@ -49,12 +49,12 @@ class HcalGainsCheck: public edm::EDAnalyzer
  public:
   HcalGainsCheck(edm::ParameterSet const& ps);
 
-  ~HcalGainsCheck() {}
+  ~HcalGainsCheck() override {}
 
-  virtual void beginJob() ;
-  virtual void endJob();
+  void beginJob() override ;
+  void endJob() override;
  
-  void analyze(const edm::Event& ev, const edm::EventSetup& es);
+  void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
 
  private:
   //  std::string front;

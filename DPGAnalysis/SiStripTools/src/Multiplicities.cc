@@ -1,18 +1,18 @@
 #include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity():
-  m_collection(),m_subdetenum(ClusterSummary::STRIP),m_varenum(ClusterSummary::NCLUSTERS),m_mult(0) { }
+  m_subdetenum(ClusterSummary::STRIP),m_varenum(ClusterSummary::NCLUSTERS),m_mult(0),m_collection() { }
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector&& iC):
-  m_collection(iC.consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection"))),
   m_subdetenum((ClusterSummary::CMSTracker)iConfig.getParameter<int>("subDetEnum")),m_varenum((ClusterSummary::VariablePlacement)iConfig.getParameter<int>("varEnum")),
-  m_mult(0)
+  m_mult(0),
+  m_collection(iC.consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection")))
 {}
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
-  m_collection(iC.consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection"))),
   m_subdetenum((ClusterSummary::CMSTracker)iConfig.getParameter<int>("subDetEnum")),m_varenum((ClusterSummary::VariablePlacement)iConfig.getParameter<int>("varEnum")),
-  m_mult(0)
+  m_mult(0),
+  m_collection(iC.consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection")))
 {}
 
 void ClusterSummarySingleMultiplicity::getEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

@@ -17,19 +17,35 @@
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
+
+namespace hist_helper {
+  struct no_deleter {
+    void operator() (void *) const {}
+  };
+  template<typename T>
+    std::shared_ptr<T> make_non_owning(T* iT) {
+    return std::shared_ptr<T>(iT, no_deleter());
+  }
+
+  template<typename T>
+    std::shared_ptr<T> make_non_owning_cast(TObject* iT) {
+    return std::shared_ptr<T>(dynamic_cast<T*>(iT), no_deleter());
+  }
+}
+
 class hDigis{
  public:
   hDigis(std::string name_){
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
-    hMuonDigis = new TH1F(N+"_hMuonDigis", "number of muon digis", 20, 0., 20.);
-    hMuonTimeDigis  = new TH1F(N+"_hMuonTimeDigis", "Muon digis time box", 2048, 0., 1600.);
-    //    control = new TH1F (N+"_control", "control", 2048, 0., 1600.);
+    hMuonDigis = std::make_shared<TH1F>(N+"_hMuonDigis", "number of muon digis", 20, 0., 20.);
+    hMuonTimeDigis  = std::make_shared<TH1F>(N+"_hMuonTimeDigis", "Muon digis time box", 2048, 0., 1600.);
+    //    control = std::make_shared<TH1F> (N+"_control", "control", 2048, 0., 1600.);
     //2D
-    hMuonTimeDigis_vs_theta= new TH2F(N+"_hMuonTimeDigis_vs_theta","Muon digis time box vs theta",120,-60,60,960,0.,1500.);
-    hMuonTimeDigis_vs_theta_RZ= new TH2F(N+"_hMuonTimeDigis_vs_theta_RZ","Muon digis time box vs theta only RZ SL",120,-60,60,960,0.,1500.); 
-    hMuonTimeDigis_vs_theta_RPhi= new TH2F(N+"_hMuonTimeDigis_vs_theta_RPhi","Muon digis time box vs theta only RPhi SL",120,-60,60,960,0.,1500.);
+    hMuonTimeDigis_vs_theta= std::make_shared<TH2F>(N+"_hMuonTimeDigis_vs_theta","Muon digis time box vs theta",120,-60,60,960,0.,1500.);
+    hMuonTimeDigis_vs_theta_RZ= std::make_shared<TH2F>(N+"_hMuonTimeDigis_vs_theta_RZ","Muon digis time box vs theta only RZ SL",120,-60,60,960,0.,1500.); 
+    hMuonTimeDigis_vs_theta_RPhi= std::make_shared<TH2F>(N+"_hMuonTimeDigis_vs_theta_RPhi","Muon digis time box vs theta only RPhi SL",120,-60,60,960,0.,1500.);
   }
 
   virtual ~hDigis(){
@@ -44,13 +60,13 @@ class hDigis{
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
-    hMuonDigis = (TH1F *) file->Get(name+"_MuonDigis"); 
-    hMuonTimeDigis  = (TH1F *) file->Get(name+"_MuonTimeDigis"); 
-    //  control = (TH1F *) file->Get(name+"_control"); 
+    hMuonDigis = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_MuonDigis")); 
+    hMuonTimeDigis  = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_MuonTimeDigis")); 
+    //  control = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_control")); 
     //2D
-    hMuonTimeDigis_vs_theta = (TH2F *) file->Get(name+"_MuonTimeDigis_vs_theta"); 
-    hMuonTimeDigis_vs_theta_RZ= (TH2F *) file->Get(name+"_MuonTimeDigis_vs_theta_RZ"); 
-    hMuonTimeDigis_vs_theta_RPhi= (TH2F *) file->Get(name+"_MuonTimeDigis_vs_theta_RPhi"); 
+    hMuonTimeDigis_vs_theta = hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_MuonTimeDigis_vs_theta")); 
+    hMuonTimeDigis_vs_theta_RZ= hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_MuonTimeDigis_vs_theta_RZ")); 
+    hMuonTimeDigis_vs_theta_RPhi= hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_MuonTimeDigis_vs_theta_RPhi")); 
   }
   
   void Write(){
@@ -77,9 +93,9 @@ class hDigis{
   }
 
   void Asymmetry(){
-    std::cout<<"["<<name<<"] theta asymmetry: "<<TH2asymmetry(hMuonTimeDigis_vs_theta)<<std::endl;
-    std::cout<<"["<<name<<"] theta_RZ asymmetry: "<<TH2asymmetry(hMuonTimeDigis_vs_theta_RZ)<<std::endl;
-    std::cout<<"["<<name<<"] theta_RPhi asymmetry: "<<TH2asymmetry(hMuonTimeDigis_vs_theta_RPhi)<<std::endl;
+    std::cout<<"["<<name<<"] theta asymmetry: "<<TH2asymmetry(hMuonTimeDigis_vs_theta.get())<<std::endl;
+    std::cout<<"["<<name<<"] theta_RZ asymmetry: "<<TH2asymmetry(hMuonTimeDigis_vs_theta_RZ.get())<<std::endl;
+    std::cout<<"["<<name<<"] theta_RPhi asymmetry: "<<TH2asymmetry(hMuonTimeDigis_vs_theta_RPhi.get())<<std::endl;
   }
   
  private:
@@ -95,12 +111,12 @@ class hDigis{
 
  public:
   //1D  
-  TH1F* hMuonDigis; 
-  TH1F* hMuonTimeDigis; 
+  std::shared_ptr<TH1F> hMuonDigis; 
+  std::shared_ptr<TH1F> hMuonTimeDigis; 
   //2D
-  TH2F *hMuonTimeDigis_vs_theta;
-  TH2F *hMuonTimeDigis_vs_theta_RZ;
-  TH2F *hMuonTimeDigis_vs_theta_RPhi;
+  std::shared_ptr<TH2F> hMuonTimeDigis_vs_theta;
+  std::shared_ptr<TH2F> hMuonTimeDigis_vs_theta_RZ;
+  std::shared_ptr<TH2F> hMuonTimeDigis_vs_theta_RPhi;
 
  private:
   TString name;
@@ -113,39 +129,39 @@ class hHits{
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
-    hHitType= new TH1F(N+"_HitType","Hit Type distribution for "+N,20,-5,15);
-    hDeltaZ = new TH1F(N+"_DeltaZ","z_{exit} - z_{entry} distribution for "+N,100,-1.2,1.2);
-    hDeltaY = new TH1F(N+"_DeltaY","y_{exit} - y_{entry} distribution for "+N,100,-1.2,1.2);
-    hDeltaX = new TH1F(N+"_DeltaX","x_{exit} - x_{entry} distribution for "+N,100,-1.2,1.2);
-    hZentry = new TH1F(N+"_Zentry","z_{entry} distribution for "+N,500,-0.6,0.6);
-    hZexit  = new TH1F(N+"_Zexit","z_{exit} distribution for "+N,500,-0.6,0.6);
-    hXentry = new TH1F(N+"_Xentry","x_{entry} distribution for "+N,500,-0.6,0.6);
-    hXexit  = new TH1F(N+"_Xexit","x_{exit} distribution for "+N,500,-0.6,0.6);
-    hYentry = new TH1F(N+"_Yentry","y_{entry} distribution for "+N,500,-0.6,0.6);
-    hYexit  = new TH1F(N+"_Yexit","y_{exit} distribution for "+N,500,-0.6,0.6);
-    hHitMomentum = new TH1F(N+"_HitMomentum","Momentum distribution for "+N,100,0,100);
-    hAbsZEntry   = new TH1F(N+"_AbsZEntry","|z| distribution for "+N+" entry points in the horizontal planes of the cell",100,0.57,0.58);
-    hAbsZExit    = new TH1F(N+"_AbsZExit","|z| distribution for "+N+" exit points in the horizontal planes of the cell",100,0.57,0.58);
-    hAbsXEntry   = new TH1F(N+"_AbsXEntry","|x| distribution for "+N+" entry points in the vertical planes of the cell",100,2.045,2.055);
-    hAbsXExit    = new TH1F(N+"_AbsXExit","|x| distribution for "+N+" exit points in the vertical planes of the cell",100,2.04,2.06);
-    hAbsYEntry   = new TH1F(N+"_AbsYEntry","|y| distribution for "+N+" entry points in the vertical planes of the cell",100,0,150);
-    hAbsYExit    = new TH1F(N+"_AbsYExit","|y| distribution for "+N+" exit points in the vertical planes of the cell",100,0,150);
-    hSagittaGeom = new TH1F(N+"_SagittaGeom","Geometric Sagitta distribution for "+N,100,0,.01);
-    hSagittaMag= new TH1F(N+"_SagittaMag","Sagitta from magnetic bendig distribution, for "+N,100,0,.06);
-    hSagittaPVSType= new TH2F(N+"_SagittaPVSType","Sagitta P VS hit type",14,0,14,100,0,.01);
-    hSagittaBVSType= new TH2F(N+"_SagittaBVSType","Sagitta B VS hit type",14,0,14,100,0,.06);
-    hPathVSType= new TH2F(N+"_PathVSType","Path VS hit type",14,0,14,840,0,4.2);
-    hPathXVSType= new TH2F(N+"_PathXVSType","X Path VS hit type",14,0,14,840,0,4.2);
-    hProcessType= new TH1F(N+"_ProcessType","Process Type",17,0,17);
-    hProcessVsHitType = new TH2F(N+"_ProcessVsHitType","Process Type Vs Hit Type",14,0,14,17,0,17);
-    hPathVsProcess = new TH2F(N+"_PathVsProcess","Path vs Process Type",14,0,14,840,0,4.2);
-    hPathXVsProcess = new TH2F(N+"_PathXVsProcess","Path along X vs Process Type",14,0,14,840,0,4.2);
+    hHitType= std::make_shared<TH1F>(N+"_HitType","Hit Type distribution for "+N,20,-5,15);
+    hDeltaZ = std::make_shared<TH1F>(N+"_DeltaZ","z_{exit} - z_{entry} distribution for "+N,100,-1.2,1.2);
+    hDeltaY = std::make_shared<TH1F>(N+"_DeltaY","y_{exit} - y_{entry} distribution for "+N,100,-1.2,1.2);
+    hDeltaX = std::make_shared<TH1F>(N+"_DeltaX","x_{exit} - x_{entry} distribution for "+N,100,-1.2,1.2);
+    hZentry = std::make_shared<TH1F>(N+"_Zentry","z_{entry} distribution for "+N,500,-0.6,0.6);
+    hZexit  = std::make_shared<TH1F>(N+"_Zexit","z_{exit} distribution for "+N,500,-0.6,0.6);
+    hXentry = std::make_shared<TH1F>(N+"_Xentry","x_{entry} distribution for "+N,500,-0.6,0.6);
+    hXexit  = std::make_shared<TH1F>(N+"_Xexit","x_{exit} distribution for "+N,500,-0.6,0.6);
+    hYentry = std::make_shared<TH1F>(N+"_Yentry","y_{entry} distribution for "+N,500,-0.6,0.6);
+    hYexit  = std::make_shared<TH1F>(N+"_Yexit","y_{exit} distribution for "+N,500,-0.6,0.6);
+    hHitMomentum = std::make_shared<TH1F>(N+"_HitMomentum","Momentum distribution for "+N,100,0,100);
+    hAbsZEntry   = std::make_shared<TH1F>(N+"_AbsZEntry","|z| distribution for "+N+" entry points in the horizontal planes of the cell",100,0.57,0.58);
+    hAbsZExit    = std::make_shared<TH1F>(N+"_AbsZExit","|z| distribution for "+N+" exit points in the horizontal planes of the cell",100,0.57,0.58);
+    hAbsXEntry   = std::make_shared<TH1F>(N+"_AbsXEntry","|x| distribution for "+N+" entry points in the vertical planes of the cell",100,2.045,2.055);
+    hAbsXExit    = std::make_shared<TH1F>(N+"_AbsXExit","|x| distribution for "+N+" exit points in the vertical planes of the cell",100,2.04,2.06);
+    hAbsYEntry   = std::make_shared<TH1F>(N+"_AbsYEntry","|y| distribution for "+N+" entry points in the vertical planes of the cell",100,0,150);
+    hAbsYExit    = std::make_shared<TH1F>(N+"_AbsYExit","|y| distribution for "+N+" exit points in the vertical planes of the cell",100,0,150);
+    hSagittaGeom = std::make_shared<TH1F>(N+"_SagittaGeom","Geometric Sagitta distribution for "+N,100,0,.01);
+    hSagittaMag= std::make_shared<TH1F>(N+"_SagittaMag","Sagitta from magnetic bendig distribution, for "+N,100,0,.06);
+    hSagittaPVSType= std::make_shared<TH2F>(N+"_SagittaPVSType","Sagitta P VS hit type",14,0,14,100,0,.01);
+    hSagittaBVSType= std::make_shared<TH2F>(N+"_SagittaBVSType","Sagitta B VS hit type",14,0,14,100,0,.06);
+    hPathVSType= std::make_shared<TH2F>(N+"_PathVSType","Path VS hit type",14,0,14,840,0,4.2);
+    hPathXVSType= std::make_shared<TH2F>(N+"_PathXVSType","X Path VS hit type",14,0,14,840,0,4.2);
+    hProcessType= std::make_shared<TH1F>(N+"_ProcessType","Process Type",17,0,17);
+    hProcessVsHitType = std::make_shared<TH2F>(N+"_ProcessVsHitType","Process Type Vs Hit Type",14,0,14,17,0,17);
+    hPathVsProcess = std::make_shared<TH2F>(N+"_PathVsProcess","Path vs Process Type",14,0,14,840,0,4.2);
+    hPathXVsProcess = std::make_shared<TH2F>(N+"_PathXVsProcess","Path along X vs Process Type",14,0,14,840,0,4.2);
 
-    h3DPathXVsProcessVsType = new TH3F(N+"_h3DPathXVsProcessVsType","Path along X vs Process Type and hit type",14,0,14,17,0,17,840,0,4.2);
-    h3DPathVsProcessVsType  = new TH3F(N+"_h3DPathVsProcessVsType","Path vs Process Type and hit type",14,0,14,17,0,17,840,0,4.2);
-    h3DXexitVsProcessVsType = new TH3F(N+"_h3DXexitVsProcessVsType","X exit vs Process Type and hit type",14,0,14,17,0,17,500,-0.6,0.6);
+    h3DPathXVsProcessVsType = std::make_shared<TH3F>(N+"_h3DPathXVsProcessVsType","Path along X vs Process Type and hit type",14,0,14,17,0,17,840,0,4.2);
+    h3DPathVsProcessVsType  = std::make_shared<TH3F>(N+"_h3DPathVsProcessVsType","Path vs Process Type and hit type",14,0,14,17,0,17,840,0,4.2);
+    h3DXexitVsProcessVsType = std::make_shared<TH3F>(N+"_h3DXexitVsProcessVsType","X exit vs Process Type and hit type",14,0,14,17,0,17,500,-0.6,0.6);
 
-    hHitTOF= new TH1F(N+"_HitTOF","Hit TOF distribution for "+N,1000,1e4,1e8);
+    hHitTOF= std::make_shared<TH1F>(N+"_HitTOF","Hit TOF distribution for "+N,1000,1e4,1e8);
 
   }
   
@@ -188,36 +204,36 @@ class hHits{
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
-    hHitType =     (TH1F *) file->Get(name+"_HitType"); 
-    hDeltaZ =      (TH1F *) file->Get(name+"_DeltaZ");
-    hDeltaY =      (TH1F *) file->Get(name+"_DeltaY");
-    hDeltaX =      (TH1F *) file->Get(name+"_DeltaX");
-    hZentry =      (TH1F *) file->Get(name+"_Zentry");
-    hZexit =       (TH1F *) file->Get(name+"_Zexit");
-    hXentry =      (TH1F *) file->Get(name+"_Xentry");
-    hXexit =       (TH1F *) file->Get(name+"_Xexit");
-    hYentry =      (TH1F *) file->Get(name+"_Yentry");
-    hYexit =       (TH1F *) file->Get(name+"_Yexit");
-    hHitMomentum = (TH1F *) file->Get(name+"_HitMomentum");
-    hAbsZEntry =   (TH1F *) file->Get(name+"_AbsZEntry");
-    hAbsZExit =    (TH1F *) file->Get(name+"_AbsZExit");
-    hAbsXEntry =   (TH1F *) file->Get(name+"_AbsXEntry");
-    hAbsXExit =    (TH1F *) file->Get(name+"_AbsXExit");
-    hAbsYEntry =   (TH1F *) file->Get(name+"_AbsYEntry");
-    hAbsYExit =    (TH1F *) file->Get(name+"_AbsYExit");
-    hSagittaGeom = (TH1F *) file->Get(name+"_SagittaGeom");
-    hSagittaMag  = (TH1F *) file->Get(name+"_SagittaMag");
-    hSagittaPVSType=(TH2F *) file->Get(name+"_SagittaPVSType");
-    hSagittaBVSType=(TH2F *) file->Get(name+"_SagittaBVSType");
-    hPathVSType    =(TH2F *) file->Get(name+"_PathVSType");
-    hPathXVSType   =(TH2F *) file->Get(name+"_PathXVSType");
-    hProcessType  = (TH1F *) file->Get(name+"_ProcessType");
-    hProcessVsHitType = (TH2F *) file->Get(name+"_ProcessVsHitType");
-    hPathVsProcess    = (TH2F *) file->Get(name+"_PathVsProcess");
-    hPathXVsProcess   = (TH2F *) file->Get(name+"_PathXVsProcess");
-    h3DPathXVsProcessVsType = (TH3F *) file->Get(name+"_h3DPathXVsProcessVsType");
-    h3DPathVsProcessVsType  = (TH3F *) file->Get(name+"_h3DPathVsProcessVsType");
-    h3DXexitVsProcessVsType = (TH3F *) file->Get(name+"_h3DXexitVsProcessVsType");
+    hHitType =     hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitType")); 
+    hDeltaZ =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_DeltaZ"));
+    hDeltaY =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_DeltaY"));
+    hDeltaX =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_DeltaX"));
+    hZentry =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Zentry"));
+    hZexit =       hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Zexit"));
+    hXentry =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Xentry"));
+    hXexit =       hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Xexit"));
+    hYentry =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Yentry"));
+    hYexit =       hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Yexit"));
+    hHitMomentum = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitMomentum"));
+    hAbsZEntry =   hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_AbsZEntry"));
+    hAbsZExit =    hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_AbsZExit"));
+    hAbsXEntry =   hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_AbsXEntry"));
+    hAbsXExit =    hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_AbsXExit"));
+    hAbsYEntry =   hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_AbsYEntry"));
+    hAbsYExit =    hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_AbsYExit"));
+    hSagittaGeom = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_SagittaGeom"));
+    hSagittaMag  = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_SagittaMag"));
+    hSagittaPVSType=hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_SagittaPVSType"));
+    hSagittaBVSType=hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_SagittaBVSType"));
+    hPathVSType    =hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_PathVSType"));
+    hPathXVSType   =hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_PathXVSType"));
+    hProcessType  = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_ProcessType"));
+    hProcessVsHitType = hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_ProcessVsHitType"));
+    hPathVsProcess    = hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_PathVsProcess"));
+    hPathXVsProcess   = hist_helper::make_non_owning_cast<TH2F>( file->Get(name+"_PathXVsProcess"));
+    h3DPathXVsProcessVsType = hist_helper::make_non_owning_cast<TH3F>( file->Get(name+"_h3DPathXVsProcessVsType"));
+    h3DPathVsProcessVsType  = hist_helper::make_non_owning_cast<TH3F>( file->Get(name+"_h3DPathVsProcessVsType"));
+    h3DXexitVsProcessVsType = hist_helper::make_non_owning_cast<TH3F>( file->Get(name+"_h3DXexitVsProcessVsType"));
 
   }
   
@@ -313,37 +329,37 @@ class hHits{
   }
 
  public:
-  TH1F *hHitType;
-  TH1F *hZentry;
-  TH1F *hZexit;
-  TH1F *hXentry;
-  TH1F *hXexit;
-  TH1F *hYentry;
-  TH1F *hYexit;
-  TH1F *hDeltaZ;
-  TH1F *hDeltaY;
-  TH1F *hDeltaX;
-  TH1F *hAbsZEntry;
-  TH1F *hAbsZExit;
-  TH1F *hAbsXEntry;
-  TH1F *hAbsXExit;
-  TH1F *hAbsYEntry;
-  TH1F *hAbsYExit;
-  TH1F *hHitMomentum;
-  TH1F *hSagittaGeom; 
-  TH1F *hSagittaMag;
-  TH2F *hSagittaPVSType;
-  TH2F *hSagittaBVSType;
-  TH2F *hPathVSType;
-  TH2F *hPathXVSType;
-  TH1F *hProcessType;
-  TH2F *hProcessVsHitType;
-  TH2F *hPathVsProcess;
-  TH2F *hPathXVsProcess;
-  TH3F *h3DPathXVsProcessVsType;
-  TH3F *h3DPathVsProcessVsType;
-  TH3F *h3DXexitVsProcessVsType;
-  TH1F *hHitTOF;
+  std::shared_ptr<TH1F> hHitType;
+  std::shared_ptr<TH1F> hZentry;
+  std::shared_ptr<TH1F> hZexit;
+  std::shared_ptr<TH1F> hXentry;
+  std::shared_ptr<TH1F> hXexit;
+  std::shared_ptr<TH1F> hYentry;
+  std::shared_ptr<TH1F> hYexit;
+  std::shared_ptr<TH1F> hDeltaZ;
+  std::shared_ptr<TH1F> hDeltaY;
+  std::shared_ptr<TH1F> hDeltaX;
+  std::shared_ptr<TH1F> hAbsZEntry;
+  std::shared_ptr<TH1F> hAbsZExit;
+  std::shared_ptr<TH1F> hAbsXEntry;
+  std::shared_ptr<TH1F> hAbsXExit;
+  std::shared_ptr<TH1F> hAbsYEntry;
+  std::shared_ptr<TH1F> hAbsYExit;
+  std::shared_ptr<TH1F> hHitMomentum;
+  std::shared_ptr<TH1F> hSagittaGeom; 
+  std::shared_ptr<TH1F> hSagittaMag;
+  std::shared_ptr<TH2F> hSagittaPVSType;
+  std::shared_ptr<TH2F> hSagittaBVSType;
+  std::shared_ptr<TH2F> hPathVSType;
+  std::shared_ptr<TH2F> hPathXVSType;
+  std::shared_ptr<TH1F> hProcessType;
+  std::shared_ptr<TH2F> hProcessVsHitType;
+  std::shared_ptr<TH2F> hPathVsProcess;
+  std::shared_ptr<TH2F> hPathXVsProcess;
+  std::shared_ptr<TH3F> h3DPathXVsProcessVsType;
+  std::shared_ptr<TH3F> h3DPathVsProcessVsType;
+  std::shared_ptr<TH3F> h3DXexitVsProcessVsType;
+  std::shared_ptr<TH1F> hHitTOF;
 
  private:
   TString name;
@@ -355,17 +371,17 @@ class hDeltaR{
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
-    hZentry = new TH1F(N+"_Zentry","z_{entry} distribution",120,-0.6,0.6);
-    hXentry = new TH1F(N+"_Xentry","x_{entry} distribution",120,-4.2,4.2);
-    hYentry = new TH1F(N+"_Yentry","y_{entry} distribution",120,-400,400);
-    hHitMomentum = new TH1F(N+"_HitMomentum","Momentum distribution",100,0,.2);
-    hHitEnergyLoss = new TH1F(N+"_HitEnergyLoss","Energy Loss distribution",75,0,100); //in keV--> x10^6
-    hSagittaMag= new TH1F(N+"_SagittaMag","Sagitta from magnetic bendig",120,0,.04);
-    hPath= new TH1F(N+"_Path","Path",200,0,4.2);
-    hPathX= new TH1F(N+"_PathX","X Path",200,0,4.2);
-    hZoomPath= new TH1F(N+"_ZoomPath","Path",200,0,.1);
-    hZoomPathX= new TH1F(N+"_ZoomPathX","X Path",200,0,.1);
-    hType = new TH1F(N+"_Type","Delta type 3-electron 2-positron",4,0,4);
+    hZentry = std::make_shared<TH1F>(N+"_Zentry","z_{entry} distribution",120,-0.6,0.6);
+    hXentry = std::make_shared<TH1F>(N+"_Xentry","x_{entry} distribution",120,-4.2,4.2);
+    hYentry = std::make_shared<TH1F>(N+"_Yentry","y_{entry} distribution",120,-400,400);
+    hHitMomentum = std::make_shared<TH1F>(N+"_HitMomentum","Momentum distribution",100,0,.2);
+    hHitEnergyLoss = std::make_shared<TH1F>(N+"_HitEnergyLoss","Energy Loss distribution",75,0,100); //in keV--> x10^6
+    hSagittaMag= std::make_shared<TH1F>(N+"_SagittaMag","Sagitta from magnetic bendig",120,0,.04);
+    hPath= std::make_shared<TH1F>(N+"_Path","Path",200,0,4.2);
+    hPathX= std::make_shared<TH1F>(N+"_PathX","X Path",200,0,4.2);
+    hZoomPath= std::make_shared<TH1F>(N+"_ZoomPath","Path",200,0,.1);
+    hZoomPathX= std::make_shared<TH1F>(N+"_ZoomPathX","X Path",200,0,.1);
+    hType = std::make_shared<TH1F>(N+"_Type","Delta type 3-electron 2-positron",4,0,4);
   }
    
   virtual ~hDeltaR(){
@@ -386,17 +402,17 @@ class hDeltaR{
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
-    hType =      (TH1F *) file->Get(name+"_Type");
-    hZentry =      (TH1F *) file->Get(name+"_Zentry");
-    hXentry =      (TH1F *) file->Get(name+"_Xentry");
-    hYentry =      (TH1F *) file->Get(name+"_Yentry");
-    hHitMomentum = (TH1F *) file->Get(name+"_HitMomentum");
-    hHitMomentum = (TH1F *) file->Get(name+"_HitEnergyLoss");
-    hSagittaMag  = (TH1F *) file->Get(name+"_SagittaMag");
-    hPath    =(TH1F *) file->Get(name+"_Path");
-    hPathX   =(TH1F *) file->Get(name+"_PathX");
-    hZoomPath    =(TH1F *) file->Get(name+"_ZoomPath");
-    hZoomPathX   =(TH1F *) file->Get(name+"_ZoomPathX");
+    hType =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Type"));
+    hZentry =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Zentry"));
+    hXentry =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Xentry"));
+    hYentry =      hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Yentry"));
+    hHitMomentum = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitMomentum"));
+    hHitMomentum = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitEnergyLoss"));
+    hSagittaMag  = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_SagittaMag"));
+    hPath    =hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_Path"));
+    hPathX   =hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_PathX"));
+    hZoomPath    =hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_ZoomPath"));
+    hZoomPathX   =hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_ZoomPathX"));
   }
   
   void Write(){
@@ -434,17 +450,17 @@ class hDeltaR{
   }
   
  public:
-  TH1F *hType;
-  TH1F *hZentry;
-  TH1F *hXentry;
-  TH1F *hYentry;
-  TH1F *hHitMomentum;		
-  TH1F *hHitEnergyLoss;
-  TH1F *hSagittaMag;
-  TH1F *hPath;
-  TH1F *hPathX;
-  TH1F *hZoomPath;
-  TH1F *hZoomPathX;
+  std::shared_ptr<TH1F> hType;
+  std::shared_ptr<TH1F> hZentry;
+  std::shared_ptr<TH1F> hXentry;
+  std::shared_ptr<TH1F> hYentry;
+  std::shared_ptr<TH1F> hHitMomentum;		
+  std::shared_ptr<TH1F> hHitEnergyLoss;
+  std::shared_ptr<TH1F> hSagittaMag;
+  std::shared_ptr<TH1F> hPath;
+  std::shared_ptr<TH1F> hPathX;
+  std::shared_ptr<TH1F> hZoomPath;
+  std::shared_ptr<TH1F> hZoomPathX;
 
   
  private:
@@ -458,10 +474,10 @@ class hParam{
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
-    HitParam_X = new TH1F(N+"_HitParam_X","Distribution of theta for parameterization cases in Rphi layers",100,-2.1,2.1);  
-    HitParam_Theta = new TH1F(N+"_HitParam_Theta","Distribution of theta for parameterization cases in Rphi layers",100,-180.,180.);  
-    HitParam_Bwire = new TH1F(N+"_HitParam_Bwire","Distribution of bwire for parameterization cases in Rz layers",100,-0.5,0.5);
-    HitParam_Bnorm = new TH1F(N+"_HitParam_Bnorm","Distribution of bnorm for parameterization cases in Rphi layers",100,-1,1);  
+    HitParam_X = std::make_shared<TH1F>(N+"_HitParam_X","Distribution of theta for parameterization cases in Rphi layers",100,-2.1,2.1);  
+    HitParam_Theta = std::make_shared<TH1F>(N+"_HitParam_Theta","Distribution of theta for parameterization cases in Rphi layers",100,-180.,180.);  
+    HitParam_Bwire = std::make_shared<TH1F>(N+"_HitParam_Bwire","Distribution of bwire for parameterization cases in Rz layers",100,-0.5,0.5);
+    HitParam_Bnorm = std::make_shared<TH1F>(N+"_HitParam_Bnorm","Distribution of bnorm for parameterization cases in Rphi layers",100,-1,1);  
   }
   
   virtual ~hParam(){
@@ -475,10 +491,10 @@ class hParam{
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
-    HitParam_X       = (TH1F *) file->Get(name+"_HitParam_X");
-    HitParam_Theta   = (TH1F *) file->Get(name+"_HitParam_Theta");
-    HitParam_Bwire   = (TH1F *) file->Get(name+"_HitParam_Bwire");
-    HitParam_Bnorm   = (TH1F *) file->Get(name+"_HitParam_Bnorm");
+    HitParam_X       = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitParam_X"));
+    HitParam_Theta   = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitParam_Theta"));
+    HitParam_Bwire   = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitParam_Bwire"));
+    HitParam_Bnorm   = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_HitParam_Bnorm"));
   }
 
   void Fill(double x,double theta,double Bwire,double Bnorm){
@@ -496,10 +512,10 @@ class hParam{
   }
   
  public:
-  TH1F *HitParam_X;
-  TH1F *HitParam_Theta;
-  TH1F *HitParam_Bwire;
-  TH1F *HitParam_Bnorm;
+  std::shared_ptr<TH1F> HitParam_X;
+  std::shared_ptr<TH1F> HitParam_Theta;
+  std::shared_ptr<TH1F> HitParam_Bwire;
+  std::shared_ptr<TH1F> HitParam_Bnorm;
 
  private:
   TString name;
@@ -512,18 +528,18 @@ class hMuonStat{
       TString N = name_.c_str();
       name=N;
       //booking degli istogrammi unidimensionali
-      hMuonNumber  = new TH1F ("hMuon"+N, "Muon hits ", 200, 0., 200.);
-      hMuonVsEta  = new TH1F ("hMuon"+N+"VsEta", "Muon "+N+" vs eta",100, -1.2, 1.2);
-      hMuonVsPhi  = new TH1F ("hMuon"+N+"VsPhi", "Muon "+N+" vs phi",100, -Geom::pi(), +Geom::pi());
+      hMuonNumber  = std::make_shared<TH1F> ("hMuon"+N, "Muon hits ", 200, 0., 200.);
+      hMuonVsEta  = std::make_shared<TH1F> ("hMuon"+N+"VsEta", "Muon "+N+" vs eta",100, -1.2, 1.2);
+      hMuonVsPhi  = std::make_shared<TH1F> ("hMuon"+N+"VsPhi", "Muon "+N+" vs phi",100, -Geom::pi(), +Geom::pi());
     }
         
     hMuonStat(std::string name_,TFile *file){
       name=name_.c_str();
       //per lettura da file degli istogrammi
       //1D
-      hMuonNumber  =  (TH1F *) file->Get("hMuon"+name);
-      hMuonVsEta =  (TH1F *) file->Get("hMuon"+name+"VsEta");
-      hMuonVsPhi  = (TH1F *) file->Get("hMuon"+name+"VsPhi");
+      hMuonNumber  =  hist_helper::make_non_owning_cast<TH1F>( file->Get("hMuon"+name));
+      hMuonVsEta =  hist_helper::make_non_owning_cast<TH1F>( file->Get("hMuon"+name+"VsEta"));
+      hMuonVsPhi  = hist_helper::make_non_owning_cast<TH1F>( file->Get("hMuon"+name+"VsPhi"));
     }
     
     ~hMuonStat(){
@@ -544,9 +560,9 @@ class hMuonStat{
     }
 
  public:
-    TH1F* hMuonNumber;
-    TH1F* hMuonVsEta;
-    TH1F* hMuonVsPhi;
+    std::shared_ptr<TH1F> hMuonNumber;
+    std::shared_ptr<TH1F> hMuonVsEta;
+    std::shared_ptr<TH1F> hMuonVsPhi;
     
  private:
   TString   name;
@@ -559,22 +575,22 @@ public:
   hTOF(std::string name){
     TString N = name.c_str();
 
-    hTOF_true =   new TH1F(N+"_TOF_true","TOF true",200,10.,35.);
-    hTOF_hitPos = new TH1F(N+"_TOF_hitPos","TOF assumed, hit pos",200,10.,35.);
-    hTOF_WC     = new TH1F(N+"_TOF_WC","TOF assumed, wire center",200,10.,35.);
+    hTOF_true =   std::make_shared<TH1F>(N+"_TOF_true","TOF true",200,10.,35.);
+    hTOF_hitPos = std::make_shared<TH1F>(N+"_TOF_hitPos","TOF assumed, hit pos",200,10.,35.);
+    hTOF_WC     = std::make_shared<TH1F>(N+"_TOF_WC","TOF assumed, wire center",200,10.,35.);
 
-    hDeltaTOF_hitPos = new TH1F(N+"_DeltaTOF_hitPos","TOF assumed, hit pos",200,-5.,5.);
-    hDeltaTOF_WC     = new TH1F(N+"_DelataTOF_WC","TOF assumed, wire center",200,-5.,5.);
+    hDeltaTOF_hitPos = std::make_shared<TH1F>(N+"_DeltaTOF_hitPos","TOF assumed, hit pos",200,-5.,5.);
+    hDeltaTOF_WC     = std::make_shared<TH1F>(N+"_DelataTOF_WC","TOF assumed, wire center",200,-5.,5.);
 
   }
   
   hTOF(std::string name_,TFile *file){
     name=name_.c_str();
-    hTOF_true =  (TH1F *) file->Get(name+"_TOF_true");
-    hTOF_hitPos=  (TH1F *) file->Get(name+"_TOF_hitPos");
-    hTOF_WC    =  (TH1F *) file->Get(name+"_TOF_WC");
-    hDeltaTOF_hitPos= (TH1F *) file->Get(name+"_DeltaTOF_hitPos");
-    hDeltaTOF_WC=     (TH1F *) file->Get(name+"_DeltaTOF_WC");
+    hTOF_true =  hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TOF_true"));
+    hTOF_hitPos=  hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TOF_hitPos"));
+    hTOF_WC    =  hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TOF_WC"));
+    hDeltaTOF_hitPos= hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_DeltaTOF_hitPos"));
+    hDeltaTOF_WC=     hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_DeltaTOF_WC"));
   }
 
 
@@ -605,11 +621,11 @@ public:
 
 
 public:
-  TH1F * hTOF_true;
-  TH1F * hTOF_hitPos;
-  TH1F * hTOF_WC;
-  TH1F * hDeltaTOF_hitPos;
-  TH1F * hDeltaTOF_WC;
+  std::shared_ptr<TH1F> hTOF_true;
+  std::shared_ptr<TH1F> hTOF_hitPos;
+  std::shared_ptr<TH1F> hTOF_WC;
+  std::shared_ptr<TH1F> hDeltaTOF_hitPos;
+  std::shared_ptr<TH1F> hDeltaTOF_WC;
 
  private:
   TString name;
@@ -621,28 +637,28 @@ public:
   hTDelay(std::string name){
     TString N = name.c_str();
     
-    hTDelay_true     = new TH1F(N+"_TDelay_true", "Delay (true)",
+    hTDelay_true     = std::make_shared<TH1F>(N+"_TDelay_true", "Delay (true)",
 			   100, 0., 15.);
-    hTDelay_WC  = new TH1F(N+"_TDelay_WC", "Delay (assumed, wire center)",
+    hTDelay_WC  = std::make_shared<TH1F>(N+"_TDelay_WC", "Delay (assumed, wire center)",
 			   100, 0., 15.);
 
-    hTDelay_hitpos  = new TH1F(N+"_TDelay_hitpos", "Delay (assumed, hit pos)",
+    hTDelay_hitpos  = std::make_shared<TH1F>(N+"_TDelay_hitpos", "Delay (assumed, hit pos)",
 			       100, 0., 15.);
     
-    hDeltaTDelay_WC = new TH1F(N+"_dTDelay_WC", "Delay true - WC",
+    hDeltaTDelay_WC = std::make_shared<TH1F>(N+"_dTDelay_WC", "Delay true - WC",
 			   150, -15, 15.);
-    hDeltaTDelay_hitpos = new TH1F(N+"_dTDelay_hitpos", "Delay true - hitpos",
+    hDeltaTDelay_hitpos = std::make_shared<TH1F>(N+"_dTDelay_hitpos", "Delay true - hitpos",
 			       150, -15, 15.);
 
   }
   
   hTDelay(std::string name_,TFile *file){
     name=name_.c_str();
-    hTDelay_true = (TH1F *) file->Get(name+"_TDelay_true");
-    hTDelay_WC  = (TH1F *) file->Get(name+"_TDelay_WC");
-    hTDelay_hitpos  = (TH1F *) file->Get(name+"_TDelay_hitpos");
-    hDeltaTDelay_WC = (TH1F *) file->Get(name+"_DeltaTDelay_WC");
-    hDeltaTDelay_hitpos = (TH1F *) file->Get(name+"_DeltaTDelay_hitpos");
+    hTDelay_true = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TDelay_true"));
+    hTDelay_WC  = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TDelay_WC"));
+    hTDelay_hitpos  = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TDelay_hitpos"));
+    hDeltaTDelay_WC = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_DeltaTDelay_WC"));
+    hDeltaTDelay_hitpos = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_DeltaTDelay_hitpos"));
   }
   ~hTDelay() {
 //     delete hTDelay_true;	
@@ -669,11 +685,11 @@ public:
   }  
 
 public:
-  TH1F * hTDelay_true;
-  TH1F * hTDelay_WC;
-  TH1F * hTDelay_hitpos;
-  TH1F * hDeltaTDelay_WC;
-  TH1F * hDeltaTDelay_hitpos;
+  std::shared_ptr<TH1F>  hTDelay_true;
+  std::shared_ptr<TH1F>  hTDelay_WC;
+  std::shared_ptr<TH1F>  hTDelay_hitpos;
+  std::shared_ptr<TH1F>  hDeltaTDelay_WC;
+  std::shared_ptr<TH1F>  hDeltaTDelay_hitpos;
  private:
   TString name;
 };
@@ -682,21 +698,21 @@ template<class hTime>
 class hTimes{
  public:
   hTimes(std::string name){
-    RZ = new hTime(name+"_RZ");
-    RPhi = new hTime(name+"_RPhi");
-    W0 = new hTime(name+"_Wheel0");
-    W1 = new hTime(name+"_Wheel1");
-    W2 = new hTime(name+"_Wheel2");  
+    RZ = std::make_shared<hTime>(name+"_RZ");
+    RPhi = std::make_shared<hTime>(name+"_RPhi");
+    W0 = std::make_shared<hTime>(name+"_Wheel0");
+    W1 = std::make_shared<hTime>(name+"_Wheel1");
+    W2 = std::make_shared<hTime>(name+"_Wheel2");  
   }
   
   hTimes(std::string name_,TFile *file){
     name=name_.c_str();
 
-    RZ =   (hTime *) file->Get(name+"_RZ");
-    RPhi = (hTime *) file->Get(name+"_RPhi");
-    W0 =   (hTime *) file->Get(name+"_Wheel0");
-    W1 =   (hTime *) file->Get(name+"_Wheel1");
-    W2 =   (hTime *) file->Get(name+"_Wheel2");
+    RZ =   hist_helper::make_non_owning_cast<hTime>( file->Get(name+"_RZ"));
+    RPhi = hist_helper::make_non_owning_cast<hTime>( file->Get(name+"_RPhi"));
+    W0 =   hist_helper::make_non_owning_cast<hTime>( file->Get(name+"_Wheel0"));
+    W1 =   hist_helper::make_non_owning_cast<hTime>( file->Get(name+"_Wheel1"));
+    W2 =   hist_helper::make_non_owning_cast<hTime>( file->Get(name+"_Wheel2"));
   }
 
  
@@ -736,11 +752,11 @@ class hTimes{
   }
 }
  private:
-  hTime *RZ;
-  hTime *RPhi;
-  hTime *W0;
-  hTime *W1;
-  hTime *W2;
+  std::shared_ptr<hTime> RZ;
+  std::shared_ptr<hTime> RPhi;
+  std::shared_ptr<hTime> W0;
+  std::shared_ptr<hTime> W1;
+  std::shared_ptr<hTime> W2;
  private:
   TString name;
 };

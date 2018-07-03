@@ -5,28 +5,36 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &handle, const edm::Event &iEvent) 
 {
     const edm::Provenance *prov = handle.provenance();
-    if (prov == 0) throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
-//    edm::ParameterSetID psid = prov->psetID();
-
-//    edm::pset::Registry *psregistry = edm::pset::Registry::instance();
+    if (prov == nullptr) throw cms::Exception("CorruptData") << "Vertex handle doesn't have provenance.";
     edm::ParameterSet psetFromProvenance = edm::parameterSet(*prov);
-//    if (!psregistry->getMapped(psid, psetFromProvenance)) 
-//        throw cms::Exception("CorruptData") << "Vertex handle parameter set ID id = " << psid;
 
-    if (edm::moduleName(*prov) != "RecoChargedRefCandidatePrimaryVertexSorter" )
-    //if (edm::moduleName(*prov) != "PrimaryVertexProducer")
-        throw cms::Exception("Configuration") << "Vertices to re-produce don't come from a PrimaryVertexProducer, but from a " 
-              << edm::moduleName(*prov) <<".\n";
+    bool is_primary_available = false;
+    const edm::Provenance *parent_prov = prov;
+    if (edm::moduleName(*prov) != "PrimaryVertexProducer") {
+        std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
+        for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
+           edm::Provenance parprov = iEvent.getProvenance(*it);
+           if (parprov.friendlyClassName() == "recoVertexs") {  // for AOD actually this the parent we should look for
+              parent_prov = &parprov;
+              psetFromProvenance = edm::parameterSet(parprov);
+              is_primary_available = true;
+              break;
+           }
+        }
+    } else is_primary_available = true;
+    if (is_primary_available) prov = parent_prov;
+    else throw cms::Exception("Configuration") << "Vertices to re-produce don't come from a PrimaryVertexProducer \n";
 
     configure(psetFromProvenance); 
 
     // Now we also dig out the ProcessName used for the reco::Tracks and reco::Vertices
-    std::vector<edm::BranchID> parents = prov->parents();
+    std::vector<edm::BranchID> parents = prov->productProvenance()->parentage().parents();
     bool foundTracks = false;
     bool foundBeamSpot = false;
     for (std::vector<edm::BranchID>::const_iterator it = parents.begin(), ed = parents.end(); it != ed; ++it) {
@@ -34,16 +42,19 @@ OniaVtxReProducer::OniaVtxReProducer(const edm::Handle<reco::VertexCollection> &
         if (parprov.friendlyClassName() == "recoTracks") {
             tracksTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(), parprov.processName());
             foundTracks = true;
+            if (parprov.moduleLabel() != "generalTracks") foundTracks = false;  // this is necessary since we are asking for that in onia2mumu
         } else if (parprov.friendlyClassName() == "recoBeamSpot") {
             beamSpotTag_ = edm::InputTag(parprov.moduleLabel(), parprov.productInstanceName(), parprov.processName());
             foundBeamSpot = true;
+            if (parprov.moduleLabel() != "offlineBeamSpot") foundBeamSpot = false;   // this is necessary since we are asking for that in onia2mumu
         }
     }
     if (!foundTracks || !foundBeamSpot) {
-        edm::LogWarning("OniaVtxReProducer_MissingParentage") << 
-            "Can't find parentage info for vertex collection inputs: " << 
-	    (foundTracks ? "" : "tracks ") << (foundBeamSpot ? "" : "beamSpot") << "\n";
+       //edm::LogWarning("OniaVtxReProducer_MissingParentage") <<
+       throw cms::Exception("Configuration") <<
+       "Can't find correct parentage info for vertex collection inputs: " <<  (foundTracks ? "" : "generalTracks ") << (foundBeamSpot ? "" : "offlineBeamSpot") << "\n";
     }
+
 }
 
 void
@@ -69,5 +80,5 @@ OniaVtxReProducer::makeVertices(const reco::TrackCollection &tracks,
         t_tks.back().setBeamSpot(bs);
     }
 
-    return algo_->vertices(t_tks, bs,"KalmanVertexFitter");
+    return algo_->vertices(t_tks, bs,"AdaptiveVertexFitter");
 }

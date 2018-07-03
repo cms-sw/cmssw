@@ -61,6 +61,9 @@
 
   <class name="std::vector<reco::RecoEcalCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::RecoEcalCandidate> >"/>
+
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::RecoEcalCandidate> > >"/>
+
   <class name="edm::Ref<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
   <class name="edm::RefProd<std::vector<reco::RecoEcalCandidate> >"/>
   <class name="edm::RefVector<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoEcalCandidate>,reco::RecoEcalCandidate> >"/>
@@ -82,8 +85,12 @@
   <class name="edm::Wrapper<reco::SimToRecoCollection>" />
   <class name="edm::Wrapper<reco::RecoToSimCollection>" />
 
-  <class name="reco::SimToRecoCollection" />
-  <class name="reco::RecoToSimCollection" />
+  <class name="reco::SimToRecoCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="reco::RecoToSimCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
 
 
   <class name="edm::ValueMap<reco::IsoDeposit>" />

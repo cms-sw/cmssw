@@ -9,7 +9,7 @@
  */
 
 #include <limits>
-#include <math.h>
+#include <cmath>
 #include "CLHEP/Vector/LorentzVector.h"
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -52,7 +52,7 @@ namespace reco {
       theECALEt_o_leadTkPt=NAN;
       theHCALEt_o_leadTkPt=NAN;
     }
-    virtual ~CombinedTauTagInfo() {};
+    ~CombinedTauTagInfo() override {};
     
     // float discriminator() returns 0.        if candidate did not pass tracker selection,   
     //                               1.        if candidate passed tracker selection and did not contain neutral ECAL clus.,   
@@ -89,7 +89,7 @@ namespace reco {
     const TrackRefVector& isolTks() const { return isol_Tks_; }
     void setisolTks(const TrackRefVector& x) { isol_Tks_=x; }
      
-    virtual CombinedTauTagInfo* clone() const{return new CombinedTauTagInfo(*this );}
+    CombinedTauTagInfo* clone() const override{return new CombinedTauTagInfo(*this );}
     
     bool passed_trackerselection()const{return(thecandidate_passed_trackerselection);}
     void setpassed_trackerselection(bool x){thecandidate_passed_trackerselection=x;}

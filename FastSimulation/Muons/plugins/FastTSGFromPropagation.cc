@@ -34,13 +34,12 @@
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-#include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
+#include "FastSimulation/Tracking/interface/FastTrackingUtilities.h"
 
 using namespace std;
 
@@ -93,7 +92,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++, ndesLayer++ ) {
-         if ( (*inl == 0) ) break;
+         if ( (*inl == nullptr) ) break;
 //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue; 
          alltm = findMeasurements_new(*inl, staState);
          if ( (!alltm.empty()) ) {
@@ -121,11 +120,10 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   double preY = seedState.globalPosition().y();
 
 	   // Check SimTrack
-	   TrackingRecHit* aTrackingRecHit;
 	   FreeTrajectoryState simtrack_trackerstate;
 	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
 	       const auto & recHitCombination = (*recHitCombinations)[icomb];
-	       if(recHitCombination.size() ==0)
+	       if(recHitCombination.empty())
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
 	       const SimTrack & simtrack = (*simTracks)[simTrackId];
@@ -142,7 +140,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	       unsigned int outerId = 0;
 	       for( const auto & recHitRef : recHitCombination) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -152,16 +150,16 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		   }
 	       }
 	       for( const auto & recHitRef : recHitCombination ) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   if( itm->recHit()->hit()->geographicalId().rawId() == theSeedHits.hit()->geographicalId().rawId() ) {
-		       aTrackingRecHit = theSeedHits.hit()->clone();
-	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
+	               auto aTrackingRecHit = std::unique_ptr<TrackingRecHit>(theSeedHits.hit()->clone());
+	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit.get());
 	               if( !recHit ) continue;
 	               TrajectoryStateOnSurface updatedTSOS = updator()->update(seedState, *(recHit));
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
-			   fastTrackingHelper::setRecHitCombinationIndex(container,icomb);
+			   fastTrackingUtilities::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
 			   const TrajectorySeed* aSeed = &ts;
@@ -189,7 +187,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
 	       const auto & recHitCombination = (*recHitCombinations)[icomb];
-	       if(recHitCombination.size() ==0)
+	       if(recHitCombination.empty())
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
 	       const SimTrack & simtrack = (*simTracks)[simTrackId];
@@ -206,7 +204,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 
 	       unsigned int outerId = 0;
 	       for( const auto & recHitRef : recHitCombination ) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   unsigned int id = theSeedHits.hit()->geographicalId().rawId();
 		   if( preY < 0 ) {
 		       if( id > outerId ) outerId = id;
@@ -216,7 +214,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 		   }
 	       }
 	       for( const auto & recHitRef : recHitCombination ) {
-		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(), theGeometry, tTopo);
+		   theSeedHits = TrajectorySeedHitCandidate(recHitRef.get(),tTopo);
 		   if( outerId == theSeedHits.hit()->geographicalId().rawId() ) {
 		       aTrackingRecHit = theSeedHits.hit()->clone();
 	               TransientTrackingRecHit::ConstRecHitPointer recHit = theTTRHBuilder->build(aTrackingRecHit);
@@ -225,7 +223,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
-			   fastTrackingHelper::setRecHitCombinationIndex(container,icomb);
+			   fastTrackingUtilities::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
 			   const TrajectorySeed* aSeed = &ts;
@@ -267,7 +265,7 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
      for (std::vector<const DetLayer*>::const_iterator inl = nls.begin();
          inl != nls.end(); inl++ ) {
 
-         if ( !result.empty() || *inl == 0 ) {
+         if ( !result.empty() || *inl == nullptr ) {
             break;
          }
          std::vector<DetLayer::DetWithState> compatDets = (*inl)->compatibleDets(staState, *propagator(), *estimator());

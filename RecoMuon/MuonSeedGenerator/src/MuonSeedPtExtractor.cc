@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "TMath.h"
 #include <sstream>
@@ -211,7 +212,8 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
     //eta = innerPoint.eta();
     GlobalVector gv = innerHit->globalDirection();
     double gvPerpPos = gv.x()*gv.x() + gv.y()*gv.y();
-    if (gvPerpPos < 1e-32) gvPerpPos = 1e-32; gvPerpPos=sqrt(gvPerpPos);
+    if (gvPerpPos < 1e-32) gvPerpPos = 1e-32;
+    gvPerpPos=sqrt(gvPerpPos);
     // Psi is angle between the segment origin and segment direction
     // Use dot product between two vectors to get Psi in global x-y plane
     double cosDpsi  = (gv.x()*innerPoint.x() + gv.y()*innerPoint.y());
@@ -248,6 +250,14 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
       int ring = cscId.ring();
       if(ring == 4) ring = 1;
       os << cscId.station() << ring;
+      combination = "SME_"+os.str();
+    }
+    else if(innerHit->isME0())
+    {
+      ME0DetId me0Id(detId_inner);
+      std::ostringstream os;
+      int ring = 1;//me0Id.ring(); me0 only in ring 1
+      os << me0Id.station() << ring;
       combination = "SME_"+os.str();
     }
     else
@@ -371,6 +381,9 @@ int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHi
     result = cscID.station();
     if(result == 1 && (1 == cscID.ring() ||  4 == cscID.ring()) )
        result = 0;
+  }
+  else if( hit->isME0() ){
+    result = 0;
   }
   else if(hit->isRPC()){
   }

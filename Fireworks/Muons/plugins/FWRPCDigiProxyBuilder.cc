@@ -25,21 +25,21 @@ class FWRPCDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
   FWRPCDigiProxyBuilder() {}
-  virtual ~FWRPCDigiProxyBuilder() {}
+  ~FWRPCDigiProxyBuilder() override {}
 
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
   using FWProxyBuilderBase::build;
-  virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWRPCDigiProxyBuilder(const FWRPCDigiProxyBuilder&);    
-  const FWRPCDigiProxyBuilder& operator=(const FWRPCDigiProxyBuilder&);
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
+  FWRPCDigiProxyBuilder(const FWRPCDigiProxyBuilder&) = delete;    
+  const FWRPCDigiProxyBuilder& operator=(const FWRPCDigiProxyBuilder&) = delete;
 };
 
 void
 FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-  const RPCDigiCollection* digis = 0;
+  const RPCDigiCollection* digis = nullptr;
  
   iItem->get(digis);
 

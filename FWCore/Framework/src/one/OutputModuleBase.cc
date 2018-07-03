@@ -22,8 +22,10 @@
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
@@ -33,7 +35,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 namespace edm {
   namespace one {
@@ -74,13 +76,15 @@ namespace edm {
       wantAllEvents_ = detail::configureEventSelector(selectEvents_,
                                                       process_name_,
                                                       getAllTriggerNames(),
-                                                      selectors_[0]);
+                                                      selectors_[0],
+                                                      consumesCollector());
 
     }
     
     void OutputModuleBase::configure(OutputModuleDescription const& desc) {
       remainingEvents_ = maxEvents_ = desc.maxEvents_;
       origBranchIDLists_ = desc.branchIDLists_;
+      subProcessParentageHelper_ = desc.subProcessParentageHelper_;
     }
     
     void OutputModuleBase::selectProducts(ProductRegistry const& preg,
@@ -139,6 +143,14 @@ namespace edm {
       ProductSelector::checkForDuplicateKeptBranch(desc,
                                                    trueBranchIDToKeptBranchDesc);
 
+      EDGetToken token;
+
+      std::vector<std::string> missingDictionaries;
+      if (!checkDictionary(missingDictionaries, desc.className(), desc.unwrappedType())) {
+        std::string context("Calling OutputModuleBase::keepThisBranch, checking dictionaries for kept types");
+        throwMissingDictionariesException(missingDictionaries, context);
+      }
+
       switch (desc.branchType()) {
       case InEvent:
         {
@@ -147,24 +159,24 @@ namespace edm {
           } else {
             keptProductsInEvent.insert(desc.branchID());
           }
-          consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                   InputTag{desc.moduleLabel(),
+          token = consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                       InputTag{desc.moduleLabel(),
                        desc.productInstanceName(),
                        desc.processName()});
           break;
         }
       case InLumi:
         {
-          consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                           InputTag(desc.moduleLabel(),
+          token = consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                    InputTag(desc.moduleLabel(),
                                     desc.productInstanceName(),
                                     desc.processName()));
           break;
         }
       case InRun:
         {
-          consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                          InputTag(desc.moduleLabel(),
+          token = consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                   InputTag(desc.moduleLabel(),
                                    desc.productInstanceName(),
                                    desc.processName()));
           break;
@@ -174,13 +186,14 @@ namespace edm {
         break;
       }
       // Now put it in the list of selected branches.
-      keptProducts_[desc.branchType()].push_back(&desc);
+      keptProducts_[desc.branchType()].push_back(std::make_pair(&desc, token));
     }
 
     OutputModuleBase::~OutputModuleBase() { }
     
     SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
+      return SharedResourcesAcquirer{
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
     
     void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
@@ -193,7 +206,8 @@ namespace edm {
           detail::configureEventSelector(selectEvents_,
                                          process_name_,
                                          getAllTriggerNames(),
-                                         s);
+                                         s,
+                                         consumesCollector());
         } else {
           seenFirst = true;
         }
@@ -209,10 +223,29 @@ namespace edm {
       endJob();
     }
     
-    bool OutputModuleBase::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
+    bool OutputModuleBase::needToRunSelection() const {
+      return !wantAllEvents_;
+    }
+
+    std::vector<ProductResolverIndexAndSkipBit>
+    OutputModuleBase::productsUsedBySelection() const {
+      std::vector<ProductResolverIndexAndSkipBit> returnValue;
+      auto const& s = selectors_[0];
+      auto const n = s.numberOfTokens();
+      returnValue.reserve(n);
       
+      for(unsigned int i=0; i< n;++i) {
+        returnValue.emplace_back(uncheckedIndexFrom(s.token(i)));
+      }
+      return returnValue;
+    }
+    
+    bool OutputModuleBase::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
+      if(wantAllEvents_) return true;
       auto& s = selectors_[id.value()];
-      return wantAllEvents_ or s.wantEvent(ep,mcc);
+      EventForOutput e(ep, moduleDescription_, mcc);
+      e.setConsumer(this);
+      return s.wantEvent(e);
     }
     
     bool
@@ -222,12 +255,10 @@ namespace edm {
                               ModuleCallingContext const* mcc) {
       
       {
-        std::lock_guard<std::mutex> guard(mutex_);
-        {
-          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
-          EventSignalsSentry sentry(act,mcc);
-          write(ep, mcc);
-        }
+        EventForOutput e(ep, moduleDescription_, mcc);
+        e.setConsumer(this);
+        EventSignalsSentry sentry(act,mcc);
+        write(e);
       }
       if(remainingEvents_ > 0) {
         --remainingEvents_;
@@ -239,7 +270,9 @@ namespace edm {
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
                                  EventSetup const&,
                                  ModuleCallingContext const* mcc) {
-      doBeginRun_(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc, false);
+      r.setConsumer(this);
+      doBeginRun_(r);
       return true;
     }
     
@@ -247,21 +280,27 @@ namespace edm {
     OutputModuleBase::doEndRun(RunPrincipal const& rp,
                                EventSetup const&,
                                ModuleCallingContext const* mcc) {
-      doEndRun_(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc, true);
+      r.setConsumer(this);
+      doEndRun_(r);
       return true;
     }
     
     void
     OutputModuleBase::doWriteRun(RunPrincipal const& rp,
                                  ModuleCallingContext const* mcc) {
-      writeRun(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc, true);
+      r.setConsumer(this);
+      writeRun(r);
     }
     
     bool
     OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                              EventSetup const&,
                                              ModuleCallingContext const* mcc) {
-      doBeginLuminosityBlock_(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, false);
+      lb.setConsumer(this);
+      doBeginLuminosityBlock_(lb);
       return true;
     }
     
@@ -269,13 +308,18 @@ namespace edm {
     OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                            EventSetup const&,
                                            ModuleCallingContext const* mcc) {
-      doEndLuminosityBlock_(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, true);
+      lb.setConsumer(this);
+      doEndLuminosityBlock_(lb);
+
       return true;
     }
     
     void OutputModuleBase::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                                   ModuleCallingContext const* mcc) {
-      writeLuminosityBlock(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc, true);
+      lb.setConsumer(this);
+      writeLuminosityBlock(lb);
     }
     
     void OutputModuleBase::doOpenFile(FileBlock const& fb) {
@@ -290,27 +334,6 @@ namespace edm {
       doRespondToCloseInputFile_(fb);
     }
     
-    void
-    OutputModuleBase::doPreForkReleaseResources() {
-      preForkReleaseResources();
-    }
-    
-    void
-    OutputModuleBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      postForkReacquireResources(iChildIndex, iNumberOfChildren);
-    }
-    
-    void
-    OutputModuleBase::preForkReleaseResources() {}
-    
-    void
-    OutputModuleBase::postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
-
-    
-    void OutputModuleBase::maybeOpenFile() {
-      if(!isFileOpen()) reallyOpenFile();
-    }
-    
     void OutputModuleBase::doCloseFile() {
       if(isFileOpen()) {
         reallyCloseFile();
@@ -321,7 +344,7 @@ namespace edm {
     }
     
     BranchIDLists const*
-    OutputModuleBase::branchIDLists() const {
+    OutputModuleBase::branchIDLists() {
       if(!droppedBranchIDToKeptBranchID_.empty()) {
         // Make a private copy of the BranchIDLists.
         *branchIDLists_ = *origBranchIDLists_;

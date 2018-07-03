@@ -1,0 +1,367 @@
+<TESTSCONFIGURATION>
+	<!-- Quality tests designed for 2018 EMTF DQM plots (Chad Freer) -->
+    	<QTEST name="XRange_Errors">
+		<TYPE>ContentsXRange</TYPE>	
+		<PARAM name="xmin">0</PARAM>
+		<PARAM name="xmax">0</PARAM>	
+		<PARAM name="error">1</PARAM>
+		<PARAM name="warning">1</PARAM>
+    	</QTEST>
+
+    	<!-- tests to iterate over entire histogram -->
+    	<QTEST name="ContentSigma_Noisy">
+		<TYPE>ContentSigma</TYPE>	
+		<PARAM name="toleranceNoisy">3</PARAM>
+		<PARAM name="toleranceDead">1</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">999</PARAM>
+		<PARAM name="neighboursX">10</PARAM>		
+		<PARAM name="neighboursY">10</PARAM>
+		<PARAM name="noisy">1</PARAM>
+		<PARAM name="dead">0</PARAM>
+		<PARAM name="error">0.94</PARAM>
+		<PARAM name="warning">0.97</PARAM> 
+		<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+		<PARAM name="xMax">0</PARAM>
+		<PARAM name="yMin">0</PARAM>
+		<PARAM name="yMax">0</PARAM> 
+    	</QTEST> 
+
+    	<QTEST name="ContentSigma_Dead">
+		<TYPE>ContentSigma</TYPE>	
+		<PARAM name="toleranceNoisy">1</PARAM>
+		<PARAM name="toleranceDead">3</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">999</PARAM>
+		<PARAM name="neighboursX">10</PARAM>
+		<PARAM name="neighboursY">10</PARAM>
+		<PARAM name="noisy">0</PARAM>
+		<PARAM name="dead">1</PARAM>
+		<PARAM name="error">0.94</PARAM>
+		<PARAM name="warning">0.97</PARAM>
+		<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+		<PARAM name="xMax">0</PARAM>
+		<PARAM name="yMin">0</PARAM>
+		<PARAM name="yMax">0</PARAM> 
+    	</QTEST>
+
+    	<!-- tests to iterate over entire histogram -->
+    	<QTEST name="CFEB3_Noisy">
+                <TYPE>ContentSigma</TYPE>
+                <PARAM name="toleranceNoisy">3</PARAM>
+                <PARAM name="toleranceDead">1</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">3</PARAM>
+                <PARAM name="neighboursX">5</PARAM>
+                <PARAM name="neighboursY">2</PARAM>
+                <PARAM name="noisy">1</PARAM>
+                <PARAM name="dead">0</PARAM>
+                <PARAM name="error">0.900</PARAM><!-- 11 failed 10 degree CFEBs-->
+                <PARAM name="warning">0.965</PARAM><!-- 5 failed 10 degree CFEBs-->
+                <PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+                <PARAM name="xMax">0</PARAM>
+                <PARAM name="yMin">0</PARAM>
+                <PARAM name="yMax">0</PARAM>
+    	</QTEST>
+
+    	<QTEST name="CFEB3_Dead">
+                <TYPE>ContentSigma</TYPE>
+                <PARAM name="toleranceNoisy">1</PARAM>
+                <PARAM name="toleranceDead">3</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">3</PARAM>
+                <PARAM name="neighboursX">5</PARAM>
+                <PARAM name="neighboursY">2</PARAM>
+                <PARAM name="noisy">0</PARAM>
+                <PARAM name="dead">1</PARAM>
+                <PARAM name="error">0.900</PARAM><!-- 11 failed 10 degree CFEBs-->
+                <PARAM name="warning">0.965</PARAM><!-- 5 failed 10 degree CFEBs-->
+                <PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+                <PARAM name="xMax">0</PARAM>
+                <PARAM name="yMin">0</PARAM>
+                <PARAM name="yMax">0</PARAM>
+    	</QTEST>
+    
+    	<!-- tests to iterate over entire histogram -->
+    	<QTEST name="CFEB4_Noisy">
+        	<TYPE>ContentSigma</TYPE>
+        	<PARAM name="toleranceNoisy">3</PARAM>
+        	<PARAM name="toleranceDead">1</PARAM>
+        	<PARAM name="Xblocks">999</PARAM>
+        	<PARAM name="Yblocks">4</PARAM>
+        	<PARAM name="neighboursX">5</PARAM>
+        	<PARAM name="neighboursY">2</PARAM>
+        	<PARAM name="noisy">1</PARAM>
+        	<PARAM name="dead">0</PARAM>
+                <PARAM name="error">0.930</PARAM><!-- 11 failed 10 degree CFEBs-->
+                <PARAM name="warning">0.970</PARAM><!--  5 failed 10 degree CFEBs-->
+        	<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+        	<PARAM name="xMax">0</PARAM>
+        	<PARAM name="yMin">0</PARAM>
+        	<PARAM name="yMax">0</PARAM>
+    	</QTEST>
+    
+    	<QTEST name="CFEB4_Dead">
+        	<TYPE>ContentSigma</TYPE>
+        	<PARAM name="toleranceNoisy">1</PARAM>
+        	<PARAM name="toleranceDead">3</PARAM>
+        	<PARAM name="Xblocks">999</PARAM>
+        	<PARAM name="Yblocks">4</PARAM>
+        	<PARAM name="neighboursX">5</PARAM>
+        	<PARAM name="neighboursY">2</PARAM>
+        	<PARAM name="noisy">0</PARAM>
+        	<PARAM name="dead">1</PARAM>
+        	<PARAM name="error">0.930</PARAM><!-- 11 failed 10 degree CFEBs-->
+        	<PARAM name="warning">0.970</PARAM><!--  5 failed 10 degree CFEBs-->
+        	<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+        	<PARAM name="xMax">0</PARAM>
+        	<PARAM name="yMin">0</PARAM>
+        	<PARAM name="yMax">0</PARAM>
+    	</QTEST>
+
+	<!-- tests to iterate over entire histogram -->
+	<QTEST name="CFEB5_Noisy">
+	    	<TYPE>ContentSigma</TYPE>
+	    	<PARAM name="toleranceNoisy">3</PARAM>
+		<PARAM name="toleranceDead">1</PARAM>
+    		<PARAM name="Xblocks">999</PARAM>
+    		<PARAM name="Yblocks">5</PARAM>
+    		<PARAM name="neighboursX">5</PARAM>
+   		<PARAM name="neighboursY">2</PARAM>
+    		<PARAM name="noisy">1</PARAM>
+    		<PARAM name="dead">0</PARAM>
+    		<PARAM name="error">0.940</PARAM><!-- 6 failed 20 degree CFEBs or 11 failed 10 degree CFEBs-->
+    		<PARAM name="warning">0.975</PARAM><!-- 3 failed 20 degree CFEBs or 5 failed 10 degree CFEBs-->
+    		<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+    		<PARAM name="xMax">0</PARAM>
+    		<PARAM name="yMin">0</PARAM>
+    		<PARAM name="yMax">0</PARAM>
+	</QTEST>
+
+	<QTEST name="CFEB5_Dead">
+    		<TYPE>ContentSigma</TYPE>
+    		<PARAM name="toleranceNoisy">1</PARAM>
+    		<PARAM name="toleranceDead">3</PARAM>
+    		<PARAM name="Xblocks">999</PARAM>
+		<PARAM name="Yblocks">5</PARAM>
+		<PARAM name="neighboursX">5</PARAM>
+		<PARAM name="neighboursY">2</PARAM>
+		<PARAM name="noisy">0</PARAM>
+		<PARAM name="dead">1</PARAM>
+		<PARAM name="error">0.940</PARAM><!-- 6 failed 20 degree CFEBs or 11 failed 10 degree CFEBs-->
+		<PARAM name="warning">0.975</PARAM><!-- 3 failed 20 degree CFEBs or 5 failed 10 degree CFEBs-->
+		<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+		<PARAM name="xMax">0</PARAM>
+		<PARAM name="yMin">0</PARAM>
+		<PARAM name="yMax">0</PARAM>
+	</QTEST>
+
+    	<!-- tests to iterate over entire histogram -->
+    	<QTEST name="Strip_Chamber_Noisy">
+                <TYPE>ContentSigma</TYPE>
+                <PARAM name="toleranceNoisy">5</PARAM>
+                <PARAM name="toleranceDead">1</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">1</PARAM>
+                <PARAM name="neighboursX">5</PARAM>
+                <PARAM name="neighboursY">999</PARAM>
+                <PARAM name="noisy">1</PARAM>
+                <PARAM name="dead">0</PARAM>
+                <PARAM name="error">0.915</PARAM><!-- 2 failed 20 degree Chambers or 4 failed 10 degree Chamberss-->
+                <PARAM name="warning">0.999</PARAM><!-- 1 failed 20 degree Chamber or 1 failed 10 degree Chamber-->
+                <PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+                <PARAM name="xMax">0</PARAM>
+                <PARAM name="yMin">0</PARAM>
+                <PARAM name="yMax">0</PARAM>
+    	</QTEST>
+
+    	<QTEST name="Strip_Chamber_Dead">
+                <TYPE>ContentSigma</TYPE>
+                <PARAM name="toleranceNoisy">1</PARAM>
+                <PARAM name="toleranceDead">5</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">1</PARAM>
+                <PARAM name="neighboursX">5</PARAM>
+                <PARAM name="neighboursY">999</PARAM>
+                <PARAM name="noisy">0</PARAM>
+                <PARAM name="dead">1</PARAM>
+                <PARAM name="error">0.915</PARAM><!-- 2 failed 20 degree Chambers or 4 failed 10 degree Chamberss-->
+                <PARAM name="warning">0.999</PARAM><!-- 1 failed 20 degree Chamber or 1 failed 10 degree Chamber-->
+                <PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+                <PARAM name="xMax">0</PARAM>
+                <PARAM name="yMin">0</PARAM>
+                <PARAM name="yMax">0</PARAM>
+    	</QTEST>
+
+    	<!-- tests to iterate over entire histogram TRACK BX -->
+    	<QTEST name="ContentSigma_Noisy_TrackBX">
+		<TYPE>ContentSigma</TYPE>	
+		<PARAM name="toleranceNoisy">3</PARAM>
+		<PARAM name="toleranceDead">1</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">999</PARAM>
+		<PARAM name="neighboursX">10</PARAM>		
+		<PARAM name="neighboursY">10</PARAM>
+		<PARAM name="noisy">1</PARAM>
+		<PARAM name="dead">0</PARAM>
+		<PARAM name="error">0.60</PARAM>
+		<PARAM name="warning">0.80</PARAM> 
+		<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+		<PARAM name="xMax">0</PARAM>
+		<PARAM name="yMin">4</PARAM>
+		<PARAM name="yMax">4</PARAM> 
+    	</QTEST> 
+
+    	<QTEST name="ContentSigma_Dead_TrackBX">
+		<TYPE>ContentSigma</TYPE>	
+		<PARAM name="toleranceNoisy">1</PARAM>
+		<PARAM name="toleranceDead">3</PARAM>
+                <PARAM name="Xblocks">999</PARAM>
+                <PARAM name="Yblocks">999</PARAM>
+		<PARAM name="neighboursX">10</PARAM>
+		<PARAM name="neighboursY">10</PARAM>
+		<PARAM name="noisy">0</PARAM>
+		<PARAM name="dead">1</PARAM>
+		<PARAM name="error">0.60</PARAM>
+		<PARAM name="warning">0.80</PARAM> 
+		<PARAM name="xMin">0</PARAM> <!-- specify area of histogram to be analyzed -->
+		<PARAM name="xMax">0</PARAM>
+		<PARAM name="yMin">4</PARAM>
+		<PARAM name="yMax">4</PARAM> 
+    	</QTEST>
+
+  	<!-- EMTF Hit Occupancy -->
+
+    	<QTEST name="EMTF_LCTOccupancyDeadChamber">
+    		<TYPE>DeadChannel</TYPE>	
+    		<PARAM name="threshold">0</PARAM>
+    		<PARAM name="error">0.60</PARAM>
+    		<PARAM name="warning">0.80</PARAM>
+    	</QTEST>
+
+    	<QTEST name="EMTF_LCTOccupancyNoisyChamber">
+    		<TYPE>NoisyChannel</TYPE>	
+    		<PARAM name="tolerance">20</PARAM>
+    		<PARAM name="neighbours">9</PARAM>
+    		<PARAM name="error">0.996</PARAM>
+    		<PARAM name="warning">0.999</PARAM>
+    	</QTEST>
+  
+
+  	<!-- EMTF Track BX -->
+    	<QTEST name="EMTF_TrackBXNoisyTrack">
+    		<TYPE>NoisyChannel</TYPE>	
+    		<PARAM name="tolerance">10</PARAM>
+    		<PARAM name="neighbours">1</PARAM>
+    		<PARAM name="error">0.996</PARAM>
+    		<PARAM name="warning">0.999</PARAM>
+    	</QTEST>
+
+
+
+    	<LINK name="*emtfErrors">
+		<TestName activate="true">XRange_Errors</TestName>
+    	</LINK> 
+
+    	<LINK name="*cscChamberStrip*">
+                <TestName activate="true">Strip_Chamber_Noisy</TestName>
+                <TestName activate="true">Strip_Chamber_Dead</TestName>
+    	</LINK>
+    
+	<!--check rings that have 3 CFEBs per chamber-->
+    	<LINK name="*cscChamberStripMENeg11a">
+        	<TestName activate="true">CFEB3_Noisy</TestName>
+        	<TestName activate="true">CFEB3_Dead</TestName>
+    	</LINK>
+    
+        <LINK name="*cscChamberStripMEPos11a">
+                <TestName activate="true">CFEB3_Noisy</TestName>
+                <TestName activate="true">CFEB3_Dead</TestName>
+        </LINK>
+
+        <!--check rings that have 4 CFEBs per chamber-->
+    	<LINK name="*cscChamberStripMENeg11b">
+        	<TestName activate="true">CFEB4_Noisy</TestName>
+        	<TestName activate="true">CFEB4_Dead</TestName>
+    	</LINK>
+
+        <LINK name="*cscChamberStripMEPos11b">
+                <TestName activate="true">CFEB4_Noisy</TestName>
+                <TestName activate="true">CFEB4_Dead</TestName>
+        </LINK>
+
+        <LINK name="*cscChamberStripMENeg13">
+                <TestName activate="true">CFEB4_Noisy</TestName>
+                <TestName activate="true">CFEB4_Dead</TestName>
+        </LINK>
+
+        <LINK name="*cscChamberStripMEPos13">
+                <TestName activate="true">CFEB4_Noisy</TestName>
+                <TestName activate="true">CFEB4_Dead</TestName>
+        </LINK>
+
+        <!--check rings that have 5 CFEBs per chamber-->
+        <LINK name="*cscChamberStripMENeg12">
+                <TestName activate="true">CFEB5_Noisy</TestName>
+                <TestName activate="true">CFEB5_Dead</TestName>
+        </LINK>
+
+        <LINK name="*cscChamberStripMEPos12">
+                <TestName activate="true">CFEB5_Noisy</TestName>
+                <TestName activate="true">CFEB5_Dead</TestName>
+        </LINK>
+
+    	<LINK name="*cscChamberStripMENeg2*">
+        	<TestName activate="true">CFEB5_Noisy</TestName>
+        	<TestName activate="true">CFEB5_Dead</TestName>
+    	</LINK>
+
+        <LINK name="*cscChamberStripMEPos2*">
+                <TestName activate="true">CFEB5_Noisy</TestName>
+                <TestName activate="true">CFEB5_Dead</TestName>
+        </LINK>
+
+        <LINK name="*cscChamberStripMENeg3*">
+                <TestName activate="true">CFEB5_Noisy</TestName>
+                <TestName activate="true">CFEB5_Dead</TestName>
+        </LINK>
+
+        <LINK name="*cscChamberStripMEPos3*">
+                <TestName activate="true">CFEB5_Noisy</TestName>
+                <TestName activate="true">CFEB5_Dead</TestName>
+        </LINK>
+
+        <LINK name="*cscChamberStripMENeg4*">
+                <TestName activate="true">CFEB5_Noisy</TestName>
+                <TestName activate="true">CFEB5_Dead</TestName>
+        </LINK>
+
+        <LINK name="*cscChamberStripMEPos4*">
+                <TestName activate="true">CFEB5_Noisy</TestName>
+                <TestName activate="true">CFEB5_Dead</TestName>
+        </LINK>
+
+
+    	<LINK name="*emtfTrackBX">
+       		<TestName activate="true">ContentSigma_Noisy_TrackBX</TestName>
+       		<TestName activate="true">ContentSigma_Dead_TrackBX</TestName>
+      		<TestName activate="true">EMTF_TrackBXNoisyTrack</TestName>
+    	</LINK> 
+
+    	<LINK name="*emtfTrackPhi">
+        	<TestName activate="true">ContentSigma_Noisy</TestName> 
+        	<TestName activate="true">ContentSigma_Dead</TestName>
+    	</LINK> 
+
+    	<LINK name="*cscChamberWire*">
+        	<TestName activate="true">Strip_Chamber_Noisy</TestName>
+        	<TestName activate="true">Strip_Chamber_Dead</TestName>
+    	</LINK>
+
+
+    	<LINK name="*/L1TStage2EMTF/cscLCTOccupancy">
+      		<TestName activate="true">EMTF_LCTOccupancyDeadChamber</TestName>
+      		<TestName activate="true">EMTF_LCTOccupancyNoisyChamber</TestName>
+    	</LINK>
+
+</TESTSCONFIGURATION>

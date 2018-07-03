@@ -36,20 +36,20 @@ public:
   DTTrigTest(const edm::ParameterSet& pset);
   
   //! Destructor
-  ~DTTrigTest();
+  ~DTTrigTest() override;
 
   //! Create tree and Branches
   //void beginJob(const edm::EventSetup & iEventSetup);
-  void beginJob();
+  void beginJob() override;
 
   //! Close Tree and write File
-  void endJob();
+  void endJob() override;
 
   //! Create DTTrig instance and TUs
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iEventSetup) override;
   
   //! Analyze function executed on all the events
-  void analyze(const edm::Event & iEvent, const edm::EventSetup& iEventSetup);
+  void analyze(const edm::Event & iEvent, const edm::EventSetup& iEventSetup) override;
   
 private:
 

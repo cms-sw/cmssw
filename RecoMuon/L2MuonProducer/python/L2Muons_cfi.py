@@ -39,6 +39,8 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             Propagator = cms.string('SteppingHelixPropagatorL2Any'),
             EnableGEMMeasurement = cms.bool(False),
             GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
+            EnableME0Measurement = cms.bool(False),
+            ME0RecSegmentLabel = cms.InputTag("me0Segments"),
             EnableCSCMeasurement = cms.bool(True)
         ),
         # a precise propagation direction can be choosen accordingly with the 
@@ -69,6 +71,8 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             Propagator = cms.string('SteppingHelixPropagatorL2Any'),
             EnableGEMMeasurement = cms.bool(False),
             GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
+            EnableME0Measurement = cms.bool(False),
+            ME0RecSegmentLabel = cms.InputTag("me0Segments"),
             EnableCSCMeasurement = cms.bool(True)
         ),
     )

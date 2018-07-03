@@ -39,13 +39,13 @@
 class DJpsiFilter : public edm::EDFilter {
    public:
       explicit DJpsiFilter(const edm::ParameterSet&);
-      ~DJpsiFilter();
+      ~DJpsiFilter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
     
@@ -71,7 +71,7 @@ class DJpsiFilter : public edm::EDFilter {
 // constructors and destructor
 //
 DJpsiFilter::DJpsiFilter(const edm::ParameterSet& iConfig):
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minPt(iConfig.getUntrackedParameter("MinPt", 0.)),
 maxY(iConfig.getUntrackedParameter("MaxY", 10.)),
 maxPt(iConfig.getUntrackedParameter("MaxPt", 1000.)),

@@ -13,48 +13,61 @@ class TH1;
     @author M. Wingham, R.Bainbridge
     @brief Histogram-based analysis for pedestal run.
 */
+
 class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
   
  public:
 
   PedsFullNoiseAlgorithm( const edm::ParameterSet & pset, PedsFullNoiseAnalysis* const );
 
-  virtual ~PedsFullNoiseAlgorithm() {;}
+  ~PedsFullNoiseAlgorithm() override {;}
 
   inline const Histo& hPeds() const;
-
   inline const Histo& hNoise() const;
+  inline const Histo& hNoise2D() const;
   
-  inline const Histo& hNoise1D() const;
 
  private:
 
   PedsFullNoiseAlgorithm() {;}
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& );
+  void extract( const std::vector<TH1*>& ) override;
 
   /** Performs histogram anaysis. */
-  void analyse();
+  void analyse() override;
+
+  /** reset vector */
+  void reset(PedsFullNoiseAnalysis*);     
 
  private:
 
   /** Pedestals and raw noise */
   Histo hPeds_;
-
-  /** Residuals and noise */
+  /** Noise and residuals */
   Histo hNoise_;
-  Histo hNoise1D_;
+  Histo hNoise2D_;
   
   /** Analysis parameters */
-  float deadStripMax_;
-  float noisyStripMin_;
-  std::string noiseDef_;
-  float ksProbCut_;
+  float maxDriftResidualCut_;
+  float minStripNoiseCut_;
+  float maxStripNoiseCut_;
+  float maxStripNoiseSignificanceCut_;
+  float adProbabCut_;
+  float ksProbabCut_;
+  bool  generateRandomHisto_;
+  float jbProbabCut_;
+  float chi2ProbabCut_;
+  float kurtosisCut_;
+  float integralTailCut_;
+  int   integralNsigma_;
+  float ashmanDistance_;
+  float amplitudeRatio_;
+
 };
 
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hPeds() const { return hPeds_; }
-
+const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hNoise2D() const { return hNoise2D_; }
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hNoise() const { return hNoise_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_PedsFullNoiseAlgorithm_H

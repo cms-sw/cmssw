@@ -81,7 +81,7 @@ class Pythia6ServiceWithCallback : public Pythia6Service {
       if ( !hepeup_.nup || Pythia6Hadronizer::getJetMatching()->isMatchingDone() )
          return true;
 
-      bool retValue = Pythia6Hadronizer::getJetMatching()->match( 0, 0 );
+      bool retValue = Pythia6Hadronizer::getJetMatching()->match( nullptr, nullptr );
       // below is old code and a note of it
       // NOTE: I'm passing NULL pointers, instead of HepMC::GenEvent, etc.
       //retValur = Pythia6Hadronizer::getJetMatching()->match(0, 0, true);
@@ -96,7 +96,7 @@ static struct {
 	double p[5][pyjets_maxn], v[5][pyjets_maxn];
 } pyjets_local;
 
-JetMatching* Pythia6Hadronizer::fJetMatching = 0;
+JetMatching* Pythia6Hadronizer::fJetMatching = nullptr;
 
 const std::vector<std::string> Pythia6Hadronizer::theSharedResources = { edm::SharedResourceNames::kPythia6,
                                                                          gen::FortranInstance::kFortranInstance };
@@ -250,8 +250,8 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
 
 Pythia6Hadronizer::~Pythia6Hadronizer()
 {
-   if ( fPy6Service != 0 ) delete fPy6Service;
-   if ( fJetMatching != 0 ) delete fJetMatching;
+   if ( fPy6Service != nullptr ) delete fPy6Service;
+   if ( fJetMatching != nullptr ) delete fJetMatching;
 }
 
 void Pythia6Hadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)
@@ -299,7 +299,7 @@ void Pythia6Hadronizer::fillTmpStorage()
 void Pythia6Hadronizer::finalizeEvent()
 {
 
-   bool lhe = lheEvent() != 0;
+   bool lhe = lheEvent() != nullptr;
 
    HepMC::PdfInfo pdf;
 

@@ -111,7 +111,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   Handle<reco::TrackCollection> glbMuons;
   event.getByToken(glbMuonsToken,glbMuons);
 
-  std::auto_ptr<DYTestimators> dytInfo(new DYTestimators);
+  auto dytInfo = std::make_unique<DYTestimators>();
   DYTestimators::Filler filler(*dytInfo);
   size_t GLBmuonSize = glbMuons->size();
   vector<DYTInfo> dytTmp(GLBmuonSize);
@@ -140,7 +140,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       if (theRefits[ww] == "dyt") dytTmp[glbCounter] = *theRefitter->getDYTInfo();
       glbCounter++;
 
-      if (refitted.size()>0) {
+      if (!refitted.empty()) {
         Trajectory *refit = new Trajectory(refitted.front());
 	LogDebug(metname)<<"TeVTrackLoader for Refit: " <<theRefits[ww];
 	trajectories.push_back(refit);
@@ -153,7 +153,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   filler.insert(glbMuons, dytTmp.begin(), dytTmp.end());
   filler.fill();
-  event.put(dytInfo, "dytInfo");
+  event.put(std::move(dytInfo), "dytInfo");
     
   LogTrace(metname) << "Done." << endl;    
 }

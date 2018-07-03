@@ -22,6 +22,12 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
 	conf.getParameter<int>("recoMethod"),
 	conf.getParameter<int>("lowGainOffset"),
 	conf.getParameter<double>("lowGainFrac")),
+  saturationFlagSetter_(nullptr),
+  HFTimingTrustFlagSetter_(nullptr),
+  hbheHSCPFlagSetter_(nullptr),
+  hbheTimingShapedFlagSetter_(nullptr),
+  hfrechitbit_(nullptr),
+  hfdigibit_(nullptr),
   det_(DetId::Hcal),
   correctTiming_(conf.getParameter<bool>("correctTiming")),
   setNoiseFlags_(conf.getParameter<bool>("setNoiseFlags")),
@@ -30,11 +36,12 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   setTimingTrustFlags_(conf.getParameter<bool>("setTimingTrustFlags")),
   dropZSmarkedPassed_(conf.getParameter<bool>("dropZSmarkedPassed")),
   AuxTSvec_(conf.getParameter<std::vector<int> >("AuxTSvec")),
-  myobject(0),
-  theTopology(0)
+  myobject(nullptr),
+  theTopology(nullptr)
   
 { 
-  tok_input_ = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabel"));
+  tok_input_hcal = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelhcal"));
+  tok_input_castor = consumes<ZDCDigiCollection>(conf.getParameter<edm::InputTag>("digiLabelcastor"));
 
   std::sort(AuxTSvec_.begin(),AuxTSvec_.end()); // sort vector in ascending TS order
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -58,8 +65,11 @@ ZdcHitReconstructor::ZdcHitReconstructor(edm::ParameterSet const& conf):
   
 }
 
-ZdcHitReconstructor::~ZdcHitReconstructor() {;
+ZdcHitReconstructor::~ZdcHitReconstructor()
+{
+    delete saturationFlagSetter_;
 }
+
 void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
 
    edm::ESHandle<HcalLongRecoParams> p;
@@ -67,15 +77,15 @@ void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
    myobject = new HcalLongRecoParams(*p.product());
 
    edm::ESHandle<HcalTopology> htopo;
-   es.get<IdealGeometryRecord>().get(htopo);
+   es.get<HcalRecNumberingRecord>().get(htopo);
    theTopology=new HcalTopology(*htopo);
    myobject->setTopo(theTopology);
 
 }
 
 void ZdcHitReconstructor::endRun(edm::Run const&r, edm::EventSetup const & es){
-  delete myobject; myobject=0;
-  delete theTopology; theTopology=0;
+  delete myobject; myobject=nullptr;
+  delete theTopology; theTopology=nullptr;
 }
 void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
@@ -97,10 +107,19 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
   
    if (det_==DetId::Calo && subdet_==HcalZDCDetId::SubdetectorId) {
      edm::Handle<ZDCDigiCollection> digi;
-     e.getByToken(tok_input_,digi);
+     e.getByToken(tok_input_hcal,digi);
      
+     if(digi->empty()) {
+       edm::Handle<ZDCDigiCollection> digi_castor;
+       e.getByToken(tok_input_castor,digi_castor);
+       if(!digi_castor.isValid() || digi_castor->empty()) 
+       	 edm::LogInfo("ZdcHitReconstructor") << "No ZDC info found in either castorDigis or hcalDigis." << std::endl;
+       if(digi_castor.isValid())
+         e.getByToken(tok_input_castor,digi);
+     }
+        
      // create empty output
-     std::auto_ptr<ZDCRecHitCollection> rec(new ZDCRecHitCollection);
+     auto rec = std::make_unique<ZDCRecHitCollection>();
      rec->reserve(digi->size());
      // run the algorithm
      ZDCDigiCollection::const_iterator i;
@@ -138,12 +157,12 @@ void ZdcHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSet
 	    auxflag+=(i->sample(AuxTSvec_[xx]).adc())<<(7*xx); // store the time slices in the first 28 bits of aux, a set of 4 7-bit a dc values
 	  }
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
-	if (AuxTSvec_.size()>0)
+	if (!AuxTSvec_.empty())
 	  auxflag+=((i->sample(AuxTSvec_[0]).capid())<<28);
 	(rec->back()).setAux(auxflag);
      }
      // return result
-     e.put(rec);     
+     e.put(std::move(rec));     
    } // else if (det_==DetId::Calo...)
 
 } // void HcalHitReconstructor::produce(...)

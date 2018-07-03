@@ -1,7 +1,7 @@
 #include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <cstdio>
 #include <cstdlib>
 #include "zlib.h"
@@ -21,7 +21,7 @@ bool reco::details::hasEnding(std::string const &fullString, std::string const &
 char* reco::details::readGzipFile(const std::string& weightFile)
 {
   FILE *f = fopen(weightFile.c_str(), "r");
-  if (f==NULL) {
+  if (f==nullptr) {
     throw cms::Exception("InvalidFileState")
       << "Failed to open MVA file = " << weightFile << " !!\n";
   }
@@ -82,11 +82,16 @@ TMVA::IMethod* reco::details::loadTMVAWeights(TMVA::Reader* reader, const std::s
     std::string weight_file_name(tmpFilename);
     weight_file_name += ".xml";
     FILE *theActualFile = fopen(weight_file_name.c_str(), "w");
-    // write xml
-    fputs(c, theActualFile);
-    fputs("\n", theActualFile);
-    fclose(theActualFile);
-    close(fdToUselessFile);
+    if (theActualFile != nullptr) {
+      // write xml
+      fputs(c, theActualFile);
+      fputs("\n", theActualFile);
+      fclose(theActualFile);
+      close(fdToUselessFile);
+    } else {
+      throw cms::Exception("CannotWriteFile")
+        << "Error while writing file = " << weight_file_name << " !!\n";
+    }
     if (verbose)
       std::cout << "Booking MvA" << std::endl;
     ptr = reader->BookMVA(method, weight_file_name);

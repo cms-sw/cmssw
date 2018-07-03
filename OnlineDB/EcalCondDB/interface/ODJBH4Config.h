@@ -10,10 +10,10 @@ class ODJBH4Config : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODJBH4Config();
-  ~ODJBH4Config();
+  ~ODJBH4Config() override;
 
   // User data methods
-  inline std::string getTable() { return "ECAL_JBH4_CONFIGURATION"; }
+  inline std::string getTable() override { return "ECAL_JBH4_CONFIGURATION"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -46,12 +46,12 @@ class ODJBH4Config : public IODConfig {
 
 
  private:
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+  void prepareWrite()  noexcept(false) override;
+  void writeDB()       noexcept(false);
   void clear();
-  void fetchData(ODJBH4Config * result)     throw(std::runtime_error);
-  int fetchID()  throw(std::runtime_error);
-  int fetchNextId() throw(std::runtime_error);
+  void fetchData(ODJBH4Config * result)     noexcept(false);
+  int fetchID()  noexcept(false);
+  int fetchNextId() noexcept(false);
 
 
   // User data

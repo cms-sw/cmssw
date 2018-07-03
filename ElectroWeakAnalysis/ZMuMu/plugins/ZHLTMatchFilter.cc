@@ -38,7 +38,7 @@ namespace modules {
       bool firstismuon = (dau0->isGlobalMuon() ? true : false);
       bool firstisStandAlone = (dau0->isStandAloneMuon() ? true : false);
       bool firstisTrackerMuon = (dau0->isTrackerMuon() ? true : false);
-      if(mu0 != 0 && (firstismuon ||firstisStandAlone||firstisTrackerMuon )){
+      if(mu0 != nullptr && (firstismuon ||firstisStandAlone||firstisTrackerMuon )){
 	// get the vector of trigger objects matched to the muon corresponding to hltPath_
 	const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	  mu0->triggerObjectMatchesByPath( hltPath_ );
@@ -54,7 +54,7 @@ namespace modules {
       bool secondisStandAlone = (dau1->isStandAloneMuon() ? true : false);
       bool secondisTrackerMuon = (dau1->isTrackerMuon() ? true : false);
       const pat::Muon * mu1 = dynamic_cast<const pat::Muon*>(m1);
-      if(mu1 != 0 && (secondismuon ||secondisStandAlone||secondisTrackerMuon ) ){
+      if(mu1 != nullptr && (secondismuon ||secondisStandAlone||secondisTrackerMuon ) ){
 	// get the vector of trigger objects matched to the muon corresponding to hltPath_
 	const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
 	  mu1->triggerObjectMatchesByPath( hltPath_ );

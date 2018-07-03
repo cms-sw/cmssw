@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelTrackResidualSource_Cosmics = cms.EDAnalyzer("SiPixelTrackResidualSource",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelTrackResidualSource_Cosmics = DQMEDAnalyzer('SiPixelTrackResidualSource',
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelTrackResiduals"),
     clustersrc = cms.InputTag("siPixelClusters"),
@@ -23,7 +24,7 @@ SiPixelTrackResidualSource_Cosmics = cms.EDAnalyzer("SiPixelTrackResidualSource"
     bladeOn = cms.untracked.bool(True),
     diskOn = cms.untracked.bool(True),
     PtMinRes = cms.untracked.double(4.0),
-                                                    
+    digisrc = cms.InputTag("siPixelDigis"),                                                    
 # (SK) keep rstracks commented out in case of resurrection
 #    trajectoryInput = cms.InputTag('rsWithMaterialTracksP5')              
     trajectoryInput = cms.InputTag('ctfWithMaterialTracksP5')              

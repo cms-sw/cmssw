@@ -50,9 +50,9 @@ class myTrackAnalyzer : public edm::EDAnalyzer {
 
   explicit myTrackAnalyzer(const edm::ParameterSet& conf);
   
-  virtual ~myTrackAnalyzer();
+  ~myTrackAnalyzer() override;
   
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   
  private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;

@@ -46,12 +46,12 @@ class TFile;
 class TestSuite : public edm::EDAnalyzer {
  public:
   explicit TestSuite(const edm::ParameterSet&);
-  ~TestSuite();
+  ~TestSuite() override;
 
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
  private:
   std::string filename_;

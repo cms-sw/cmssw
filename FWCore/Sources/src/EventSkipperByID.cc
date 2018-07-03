@@ -30,9 +30,9 @@ namespace edm {
 
   EventSkipperByID::~EventSkipperByID() {}
 
-  std::auto_ptr<EventSkipperByID>
+  std::unique_ptr<EventSkipperByID>
   EventSkipperByID::create(ParameterSet const& pset) {
-    std::auto_ptr<EventSkipperByID> evSkp(new EventSkipperByID(pset));
+    auto evSkp = std::make_unique<EventSkipperByID>(pset);
     if (!evSkp->somethingToSkip()) {
       evSkp.reset();
     }

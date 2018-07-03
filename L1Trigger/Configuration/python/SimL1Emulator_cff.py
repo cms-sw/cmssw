@@ -1,15 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
-# L1 Emulator sequence for simulation use-case
-#    subsystem emulators run on the results of previous (in the hardware chain) subsystem emulator
+# Defines the L1 Emulator sequence for simulation use-case subsystem emulators
+# run on the results of previous (in the hardware chain) subsystem emulator:
 #  
+#     SimL1Emulator = cms.Sequence(...)
+#
+# properly configured for the current Era (e.g. Run1, 2015, or 2016).  Also
+# configures event setup producers appropriate to the current Era, to handle
+# conditions which are not yet available in the GT.
+#
+# Author List
 # Jim Brooke, 24 April 2008
 # Vasile Mihai Ghete, 2009
+# Jim Brooke, Michael Mulhearn, 2015
+# Vladimir Rekovic 2016,2017
 
-
-# This object is used to make changes for different running scenarios. In
-# this case for Run 2
-from Configuration.StandardSequences.Eras import eras
+# Notes on Inputs:
 
 # ECAL TPG emulator and HCAL TPG run in the simulation sequence in order to be able 
 # to use unsuppressed digis produced by ECAL and HCAL simulation, respectively
@@ -19,160 +25,51 @@ from Configuration.StandardSequences.Eras import eras
 # SimCalorimetry.Configuration.ecalDigiSequence_cff
 # SimCalorimetry.Configuration.hcalDigiSequence_cff
 
-### calorimeter emulators
+#
+# At the moment, there is no emulator available for upgrade HF Trigger Primitives,
+# so these missing (required!) inputs are presently ignored by downstream modules.
+#
 
-# RCT (Regional Calorimeter Trigger) emulator
-import L1Trigger.RegionalCaloTrigger.rctDigis_cfi
-simRctDigis = L1Trigger.RegionalCaloTrigger.rctDigis_cfi.rctDigis.clone()
+from L1Trigger.Configuration.SimL1TechnicalTriggers_cff import *
 
-simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDigis' ) )
-simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) )
+from L1Trigger.L1TCalorimeter.simDigis_cff import *
+from L1Trigger.L1TMuon.simDigis_cff import *
+from L1Trigger.L1TGlobal.simDigis_cff import *
 
-# GCT (Global Calorimeter Trigger) emulator
-import L1Trigger.GlobalCaloTrigger.gctDigis_cfi
-simGctDigis = L1Trigger.GlobalCaloTrigger.gctDigis_cfi.gctDigis.clone()
-
-simGctDigis.inputLabel = 'simRctDigis'
-
-
-### muon emulators 
-#   Note: GMT requires input from calorimeter emulators, namely MipIsoData from GCT
-
-# DT TP emulator
-from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
-# import L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi // FIXME replace above "from" when DT TPG configured from global tag
-simDtTriggerPrimitiveDigis = L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi.dtTriggerPrimitiveDigis.clone()
-
-simDtTriggerPrimitiveDigis.digiTag = 'simMuonDTDigis'
-
-# CSC TP emulator
-from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
-import L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi
-simCscTriggerPrimitiveDigis = L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi.cscTriggerPrimitiveDigis.clone()
-
-simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi' )
-simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi' )
-
-# CSC Track Finder - digi track generation 
-# currently used also by DT TF to generate CSCTF stubs
-import L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi
-simCsctfTrackDigis = L1Trigger.CSCTrackFinder.csctfTrackDigis_cfi.csctfTrackDigis.clone()
-
-simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag( 'simCscTriggerPrimitiveDigis', 'MPCSORTED' )
-simCsctfTrackDigis.DTproducer = 'simDtTriggerPrimitiveDigis'
-
-# DT Track Finder emulator
-# currently generates CSCTF stubs by running CSCTF emulator
-import L1Trigger.DTTrackFinder.dttfDigis_cfi
-simDttfDigis = L1Trigger.DTTrackFinder.dttfDigis_cfi.dttfDigis.clone()
-
-simDttfDigis.DTDigi_Source  = 'simDtTriggerPrimitiveDigis'
-simDttfDigis.CSCStub_Source = 'simCsctfTrackDigis'
-
-# CSC Track Finder emulator 
-import L1Trigger.CSCTrackFinder.csctfDigis_cfi
-simCsctfDigis = L1Trigger.CSCTrackFinder.csctfDigis_cfi.csctfDigis.clone()
-
-simCsctfDigis.CSCTrackProducer = 'simCsctfTrackDigis'
-
-# RPC PAC Trigger emulator
-from L1Trigger.RPCTrigger.rpcTriggerDigis_cff import *
-simRpcTriggerDigis = L1Trigger.RPCTrigger.rpcTriggerDigis_cff.rpcTriggerDigis.clone()
-
-simRpcTriggerDigis.label = 'simMuonRPCDigis'
-
-# Global Muon Trigger emulator
-import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
-simGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
-
-simGmtDigis.DTCandidates   = cms.InputTag( 'simDttfDigis', 'DT' )
-simGmtDigis.CSCCandidates  = cms.InputTag( 'simCsctfDigis', 'CSC' )
-simGmtDigis.RPCbCandidates = cms.InputTag( 'simRpcTriggerDigis', 'RPCb' )
-simGmtDigis.RPCfCandidates = cms.InputTag( 'simRpcTriggerDigis', 'RPCf' )
-
-simGmtDigis.MipIsoData     = 'simRctDigis'
-
-
-### technical trigger emulators
-
-# BSC Technical Trigger
-import L1TriggerOffline.L1Analyzer.bscTrigger_cfi
-simBscDigis = L1TriggerOffline.L1Analyzer.bscTrigger_cfi.bscTrigger.clone()
-
-# RPC Technical Trigger
-import L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi
-simRpcTechTrigDigis = L1Trigger.RPCTechnicalTrigger.rpcTechnicalTrigger_cfi.rpcTechnicalTrigger.clone()
-
-simRpcTechTrigDigis.RPCDigiLabel = 'simMuonRPCDigis'
-
-# HCAL Technical Trigger
-import SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi
-simHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.simHcalTTPRecord.clone()
-
-# CASTOR Techical Trigger
-import SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi
-simCastorTechTrigDigis = SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi.simCastorTTRecord.clone()
-
-# Global Trigger emulator
-import L1Trigger.GlobalTrigger.gtDigis_cfi
-simGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
-
-simGtDigis.GmtInputTag = 'simGmtDigis'
-simGtDigis.GctInputTag = 'simGctDigis'
-simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
-    cms.InputTag( 'simBscDigis' ), 
-    cms.InputTag( 'simRpcTechTrigDigis' ),
-    cms.InputTag( 'simHcalTechTrigDigis' ),
-    cms.InputTag( 'simCastorTechTrigDigis' )
+# define a core which can be extented in customizations:
+SimL1EmulatorCore = cms.Sequence(
+    SimL1TCalorimeter +
+    SimL1TMuon +
+    SimL1TechnicalTriggers +
+    SimL1TGlobal
     )
+
+SimL1Emulator = cms.Sequence( SimL1EmulatorCore )
+
+# 
+# Emulators are configured from DB (GlobalTags)
 #
-# Make some changes if using the Stage 1 trigger
-#
-eras.stage1L1Trigger.toModify( simGtDigis, GctInputTag = 'simCaloStage1LegacyFormatDigis' )
-eras.stage1L1Trigger.toModify( simGtDigis, TechnicalTriggersInputTags = cms.VInputTag() )
 
-### L1 Trigger sequences
+from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
-SimL1MuTriggerPrimitives = cms.Sequence( 
-    simDtTriggerPrimitiveDigis + 
-    simCscTriggerPrimitiveDigis )
+# 2017 EMTF and TwinMux emulator use payloads from DB, not yet in GT,
+# soon to be removed when availble in GTs
+from L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff import *
 
-SimL1MuTrackFinders = cms.Sequence( 
-    simCsctfTrackDigis + 
-    simDttfDigis + 
-    simCsctfDigis )
+# Customisation for the phase2_hgcal era. Includes the HGCAL L1 trigger
+from  L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff import *
+_phase2_siml1emulator = SimL1Emulator.copy()
+_phase2_siml1emulator += hgcalTriggerPrimitives
 
-SimL1TechnicalTriggers = cms.Sequence( 
-    simBscDigis + 
-    simRpcTechTrigDigis + 
-    simHcalTechTrigDigis +
-    simCastorTechTrigDigis )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+(phase2_hgcal & ~phase2_hgcalV9).toReplaceWith( SimL1Emulator , _phase2_siml1emulator )
 
-SimL1Emulator = cms.Sequence(
-    simRctDigis + 
-    simGctDigis + 
-    SimL1MuTriggerPrimitives + 
-    SimL1MuTrackFinders + 
-    simRpcTriggerDigis + 
-    simGmtDigis + 
-    SimL1TechnicalTriggers + 
-    simGtDigis )
-##
-## Make changes for Run 2
-##
-def _extendForStage1Trigger( theProcess ) :
-    """
-    ProcessModifier that loads config fragments required for Run 2 into the process object.
-    Also switches the GCT digis for the Stage1 digis in the SimL1Emulator sequence
-    """
-    theProcess.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
-    theProcess.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-    # Note that this function is applied before the objects in this file are added
-    # to the process. So things declared in this file should be used "bare", i.e.
-    # not with "theProcess." in front of them. L1TCaloStage1 is an exception because
-    # it is not declared in this file but loaded into the process in one of the "load"
-    # statements above.
-    SimL1Emulator.replace( simGctDigis, theProcess.L1TCaloStage1 )
-
-# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
-modifyL1TriggerConfigurationSimL1EmulatorForRun2_ = eras.stage1L1Trigger.makeProcessModifier( _extendForStage1Trigger )
+# If PreMixing, don't run these modules during first step
+# TODO: Do we actually need anything from here run in stage1?
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
+    SimL1TCalorimeter,
+    SimL1TechnicalTriggers,
+    SimL1TGlobal
+]))

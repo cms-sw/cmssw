@@ -91,7 +91,7 @@
     if (!(enabled_ = pset.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
-    StorageFactory* f = StorageFactory::get();
+    StorageFactory* f = StorageFactory::getToModify();
     doStats_ = pset.getUntrackedParameter<bool> ("stats", doStats_);
 
     // values set in the site local config or in SiteLocalConfigService override
@@ -263,7 +263,7 @@
 TFileAdaptorUI::TFileAdaptorUI() {
   edm::ActivityRegistry ar;
   const edm::ParameterSet param;
-  me.reset(new TFileAdaptor(param, ar));
+  me = std::make_shared<TFileAdaptor>(param, ar); // propagate_const<T> has no reset() function
 }
 
 TFileAdaptorUI::~TFileAdaptorUI() {}

@@ -9,8 +9,8 @@
 //
 
 #include <string>
+#include <memory>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -23,12 +23,11 @@ namespace edm {
 class JetCorrectionESChain : public edm::ESProducer {
 public:
   JetCorrectionESChain(edm::ParameterSet const& fParameters);
-  ~JetCorrectionESChain();
+  ~JetCorrectionESChain() override;
 
-  boost::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& );
+  std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& );
 
 private:
   std::vector <std::string> mCorrectors;
-  boost::shared_ptr<JetCorrector> mChainCorrector;
 };
 #endif

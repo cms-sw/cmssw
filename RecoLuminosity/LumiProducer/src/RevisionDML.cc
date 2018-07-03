@@ -203,7 +203,7 @@ lumi::RevisionDML::currentHFDataTagId(coral::ISchema& schema){
     }
   }
   delete qHandle;
-  if(alltagids.size()>0){
+  if(!alltagids.empty()){
     std::vector<unsigned long long>::iterator currentdatatagidIt=std::max_element(alltagids.begin(),alltagids.end());
     currentdatatagid=*currentdatatagidIt;
   }

@@ -17,11 +17,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     PFClusters = cms.InputTag("particleFlowClusterECAL"),
     ESAssociation = cms.InputTag("particleFlowClusterECAL"),
     BeamSpot = cms.InputTag("offlineBeamSpot"),    
-    vertexCollection = cms.InputTag("offlinePrimaryVertices"),
-    #rechit collections for lazytools
-    ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-    ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
-                                              
+                                                  
     PFBasicClusterCollectionBarrel = cms.string("particleFlowBasicClusterECALBarrel"),                                       
     PFSuperClusterCollectionBarrel = cms.string("particleFlowSuperClusterECALBarrel"),
     PFBasicClusterCollectionEndcap = cms.string("particleFlowBasicClusterECALEndcap"),                                       
@@ -37,9 +33,16 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
 
     # regression setup
     useRegression = cms.bool(False), #regressions are mustache only
-    regressionKeyEB = cms.string('pfecalsc_EBCorrection'),
-    regressionKeyEE = cms.string('pfecalsc_EECorrection'),
-    
+    regressionConfig = cms.PSet(
+       regressionKeyEB = cms.string('pfscecal_EBCorrection_offline_v2'),
+       uncertaintyKeyEB = cms.string('pfscecal_EBUncertainty_offline_v2'),
+       regressionKeyEE = cms.string('pfscecal_EECorrection_offline_v2'),
+       uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
+       vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+       ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ),
+
     #threshold for final SuperCluster Et
     thresh_SCEt = cms.double(4.0),    
     
@@ -65,6 +68,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
     doSatelliteClusterMerge = cms.bool(False),
     satelliteClusterSeedThreshold = cms.double(50.0),
     satelliteMajorityFraction = cms.double(0.5),
+    dropUnseedable = cms.bool(False),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.),                                             
 
@@ -105,8 +109,10 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     # regression setup
     useRegression = cms.bool(True),
     regressionConfig = cms.PSet(
-       regressionKeyEB = cms.string('pfscecal_EBCorrection_offline_v1'),
-       regressionKeyEE = cms.string('pfscecal_EECorrection_offline_v1'),
+       regressionKeyEB = cms.string('pfscecal_EBCorrection_offline_v2'),
+       uncertaintyKeyEB = cms.string('pfscecal_EBUncertainty_offline_v2'),
+       regressionKeyEE = cms.string('pfscecal_EECorrection_offline_v2'),
+       uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
@@ -137,6 +143,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
     doSatelliteClusterMerge = cms.bool(False),
     satelliteClusterSeedThreshold = cms.double(50.0),
     satelliteMajorityFraction = cms.double(0.5),
+    dropUnseedable = cms.bool(False),
     #thresh_PFClusterMustacheOutBarrel = cms.double(0.),
     #thresh_PFClusterMustacheOutEndcap = cms.double(0.), 
 
@@ -147,3 +154,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
 
 #define the default clustering type
 particleFlowSuperClusterECAL = particleFlowSuperClusterECALMustache.clone()
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False)
+pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterBarrel = 0.20)
+pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterEndcap = 0.20)

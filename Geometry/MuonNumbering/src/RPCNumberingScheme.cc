@@ -69,7 +69,7 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   int roll_id=0;
   int eta_id=0;
   int rr12_id=0;
-  bool forward=0;
+  bool forward=false;
   
   int sector_copy=0;
 

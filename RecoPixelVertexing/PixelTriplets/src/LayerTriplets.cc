@@ -3,7 +3,7 @@
 namespace LayerTriplets {
 std::vector<LayerSetAndLayers> layers(const SeedingLayerSetsHits& sets) {
   std::vector<LayerSetAndLayers> result;
-  if(sets.numberOfLayersInSet() != 3)
+  if(sets.numberOfLayersInSet() < 3)
     return result;
 
   for(LayerSet set: sets) {
@@ -13,7 +13,10 @@ std::vector<LayerSetAndLayers> layers(const SeedingLayerSetsHits& sets) {
       const LayerSet & resSet = ir->first;
       if (resSet[0].index() == set[0].index() && resSet[1].index() == set[1].index()) {
         std::vector<Layer>& thirds = ir->second;
-        thirds.push_back( set[2] );
+        // 3rd layer can already be there if we are dealing with quadruplet layer sets
+        auto found = std::find_if(thirds.begin(), thirds.end(), [&](const Layer& l) { return l.index() == set[2].index(); });
+        if(found == thirds.end())
+          thirds.push_back( set[2] );
         added = true;
         break;
       }

@@ -33,7 +33,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // my includes
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -310,7 +310,7 @@ void PixelMixedSimHitsTest::analyze(const edm::Event& iEvent,
     edm::Handle<CrossingFrame> cf;
     iEvent.getByType(cf);
     
-    std::auto_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
+    std::unique_ptr<MixCollection<PSimHit> > allPixelTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
 
     //   for(vector<PSimHit>::const_iterator isim = PixelBarrelHitsLowTof->begin();
     //       isim != PixelBarrelHitsLowTof->end(); ++isim){

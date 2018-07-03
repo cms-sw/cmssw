@@ -22,8 +22,8 @@
 class L1HLTTauMatching: public edm::global::EDProducer<> {
  public:
   explicit L1HLTTauMatching(const edm::ParameterSet&);
-  ~L1HLTTauMatching();
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  ~L1HLTTauMatching() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:

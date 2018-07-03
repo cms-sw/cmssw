@@ -11,8 +11,8 @@ _content = _recoTrackSelectorPSet_cfi.recoTrackSelectorPSet.clone(
     maxRapidity = 9.0,
     quality = [],
     minLayer = 0,
-    minHit = 8,
-    minPixelHit = 2,
+    minHit = 0,
+    minPixelHit = 1,
     usePV = True,
 )
 

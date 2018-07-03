@@ -28,13 +28,13 @@ namespace edm {
     EventSetupsController::EventSetupsController() : mustFinishConfiguration_(true) {
     }
 
-    boost::shared_ptr<EventSetupProvider>
-    EventSetupsController::makeProvider(ParameterSet& iPSet) {
+    std::shared_ptr<EventSetupProvider>
+    EventSetupsController::makeProvider(ParameterSet& iPSet, ActivityRegistry* activityRegistry) {
 
       // Makes an EventSetupProvider
       // Also parses the prefer information from ParameterSets and puts
       // it in a map that is stored in the EventSetupProvider
-      boost::shared_ptr<EventSetupProvider> returnValue(makeEventSetupProvider(iPSet, providers_.size()) );
+      std::shared_ptr<EventSetupProvider> returnValue(makeEventSetupProvider(iPSet, providers_.size(), activityRegistry) );
 
       // Construct the ESProducers and ESSources
       // shared_ptrs to them are temporarily stored in this
@@ -49,7 +49,7 @@ namespace edm {
     EventSetupsController::eventSetupForInstance(IOVSyncValue const& syncValue) {
 
       if (mustFinishConfiguration_) {
-        std::for_each(providers_.begin(), providers_.end(), [](boost::shared_ptr<EventSetupProvider> const& esp) {
+        std::for_each(providers_.begin(), providers_.end(), [](std::shared_ptr<EventSetupProvider> const& esp) {
           esp->finishConfiguration();
         });
         // When the ESSources and ESProducers were constructed a first pass was
@@ -64,19 +64,29 @@ namespace edm {
         mustFinishConfiguration_ = false;
       }
 
-      std::for_each(providers_.begin(), providers_.end(), [&syncValue](boost::shared_ptr<EventSetupProvider> const& esp) {
+      std::for_each(providers_.begin(), providers_.end(), [&syncValue](std::shared_ptr<EventSetupProvider> const& esp) {
         esp->eventSetupForInstance(syncValue);
       });
     }
 
     void
     EventSetupsController::forceCacheClear() const {
-      std::for_each(providers_.begin(), providers_.end(), [](boost::shared_ptr<EventSetupProvider> const& esp) {
+      std::for_each(providers_.begin(), providers_.end(), [](std::shared_ptr<EventSetupProvider> const& esp) {
         esp->forceCacheClear();
       });
     }
 
-    boost::shared_ptr<DataProxyProvider>
+    bool
+    EventSetupsController::isWithinValidityInterval(IOVSyncValue const& syncValue) const {
+      for(auto const& provider: providers_) {
+        if( not provider->isWithinValidityInterval(syncValue)) {
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    std::shared_ptr<DataProxyProvider>
     EventSetupsController::getESProducerAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex) {
       // Try to find a DataProxyProvider with a matching ParameterSet
       auto elements = esproducers_.equal_range(pset.id());
@@ -90,18 +100,18 @@ namespace edm {
         }
       }
       // Could not find it
-      return boost::shared_ptr<DataProxyProvider>();
+      return std::shared_ptr<DataProxyProvider>();
     }
 
     void
-    EventSetupsController::putESProducer(ParameterSet const& pset, boost::shared_ptr<DataProxyProvider> const& component, unsigned subProcessIndex) {
+    EventSetupsController::putESProducer(ParameterSet const& pset, std::shared_ptr<DataProxyProvider> const& component, unsigned subProcessIndex) {
       auto newElement = esproducers_.insert(std::pair<ParameterSetID, ESProducerInfo>(pset.id(), 
                                                                                       ESProducerInfo(&pset, component)));
       // Register processes with an exact match
       newElement->second.subProcessIndexes().push_back(subProcessIndex);
     }
 
-    boost::shared_ptr<EventSetupRecordIntervalFinder>
+    std::shared_ptr<EventSetupRecordIntervalFinder>
     EventSetupsController::getESSourceAndRegisterProcess(ParameterSet const& pset, unsigned subProcessIndex) {
       // Try to find a EventSetupRecordIntervalFinder with a matching ParameterSet
       auto elements = essources_.equal_range(pset.id());
@@ -115,11 +125,11 @@ namespace edm {
         }
       }
       // Could not find it
-      return boost::shared_ptr<EventSetupRecordIntervalFinder>();
+      return std::shared_ptr<EventSetupRecordIntervalFinder>();
     }
 
     void
-    EventSetupsController::putESSource(ParameterSet const& pset, boost::shared_ptr<EventSetupRecordIntervalFinder> const& component, unsigned subProcessIndex) {
+    EventSetupsController::putESSource(ParameterSet const& pset, std::shared_ptr<EventSetupRecordIntervalFinder> const& component, unsigned subProcessIndex) {
       auto newElement = essources_.insert(std::pair<ParameterSetID, ESSourceInfo>(pset.id(), 
                                                                                   ESSourceInfo(&pset, component)));
       // Register processes with an exact match
@@ -303,7 +313,7 @@ namespace edm {
         << "EventSetupsController::getESProducerPSet\n"
         << "Subprocess index not found. This should never happen\n"
         << "Please report this to a Framework Developer\n";
-      return 0;
+      return nullptr;
     }
 
     void

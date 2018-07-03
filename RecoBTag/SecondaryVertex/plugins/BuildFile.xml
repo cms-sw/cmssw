@@ -8,13 +8,14 @@
 <use name="DataFormats/BTauReco"/>
 <use name="RecoBTag/SecondaryVertex"/>
 <use name="boost"/>
-<library file="TemplatedSecondaryVertexProducer.cc BVertexFilter.cc BtoCharmDecayVertexMerger.cc" name="RecoBTagSecondaryVertexProducer">
+<library file="TemplatedSecondaryVertexProducer.cc BVertexFilter.cc BtoCharmDecayVertexMerger.cc BoostedDoubleSVProducer.cc" name="RecoBTagSecondaryVertexProducer">
    <use name="DataFormats/BeamSpot"/>
    <use name="TrackingTools/Records"/>
    <use name="TrackingTools/TransientTrack"/>
    <use name="RecoVertex/ConfigurableVertexReco"/>
    <use name="RecoVertex/GhostTrackFitter"/>
    <use name="fastjet"/>
+   <use name="fastjet-contrib"/>
    <flags EDM_PLUGIN="1"/>
 </library>
 

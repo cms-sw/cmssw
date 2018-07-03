@@ -9,7 +9,7 @@
 namespace siStripClusterTools {
 
   // to be moved and optimized in TrackerCommon when TrackerTopology will support moduleGeometry
-  float sensorThicknessInverse (DetId detid)
+  inline float sensorThicknessInverse (DetId detid)
   {
     if (detid.subdetId()>=SiStripDetId::TIB) {
       SiStripDetId siStripDetId = detid(); 
@@ -22,24 +22,31 @@ namespace siStripClusterTools {
     else return 1.f/0.027f;
   }
 
+
   template<typename Iter>
-  float chargePerCM(DetId detid, Iter a, Iter b) {
+  inline float chargePerCM(DetId detid, Iter a, Iter b) {
     return float(std::accumulate(a,b,int(0)))*sensorThicknessInverse(detid);
   }
 
   template<typename Clus>
-  float chargePerCM(DetId detid, Clus const & cl) {
+  inline float chargePerCM(DetId detid, Clus const & cl) {
     return cl.charge()*sensorThicknessInverse(detid);
   }
 
 
   template<typename Clus>
-  float	chargePerCM(DetId detid, Clus const & cl, LocalTrajectoryParameters const & tp) {
+  inline float	chargePerCM(DetId detid, Clus const & cl, LocalTrajectoryParameters const & tp) {
     return chargePerCM(detid,cl)*tp.absdz();
   }
 
   template<typename Clus>
-  float chargePerCM(DetId detid, Clus const & cl, const LocalVector & ldir) {
+  inline float  chargePerCM(Clus const & cl, LocalTrajectoryParameters const & tp, float invThick) {
+    return  cl.charge()*invThick*tp.absdz();
+  }
+
+
+  template<typename Clus>
+  inline float chargePerCM(DetId detid, Clus const & cl, const LocalVector & ldir) {
     return chargePerCM(detid,cl)*std::abs(ldir.z())/ldir.mag();
   }
 

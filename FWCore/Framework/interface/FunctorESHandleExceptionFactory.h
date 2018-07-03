@@ -32,7 +32,7 @@ namespace edm {
   public:
     FunctorESHandleExceptionFactory(T&& iFunctor) : m_functor(std::move(iFunctor)) {}
 
-    std::exception_ptr make() const {
+    std::exception_ptr make() const override {
       return m_functor();
     }
   private:

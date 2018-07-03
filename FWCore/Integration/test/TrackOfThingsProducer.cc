@@ -54,7 +54,7 @@ namespace edmtest {
     edm::Handle<ThingCollection> inputCollection;
     event.getByToken(inputToken_, inputCollection);
 
-    std::auto_ptr<TrackOfThingsCollection> result(new TrackOfThingsCollection);
+    auto result = std::make_unique<TrackOfThingsCollection>();
 
     // Arbitrarily fabricate some fake data with TrackOfThings pointing to
     // Thing objects in products written to the event by a different module.
@@ -90,7 +90,7 @@ namespace edmtest {
       result->push_back(trackOfThings);
     }
 
-    event.put(result);
+    event.put(std::move(result));
   }
 }
 using edmtest::TrackOfThingsProducer;

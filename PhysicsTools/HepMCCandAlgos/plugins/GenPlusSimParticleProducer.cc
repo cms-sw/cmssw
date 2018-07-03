@@ -9,7 +9,7 @@ to the list including all ancestors and correct mother/daughter references
 
 Sample useage in cfg.py file:
 process.genParticlePlusGEANT = cms.EDProducer("GenPlusSimParticleProducer",
-        src           = cms.InputTag("g4SimHits"), # use "famosSimHits" for FAMOS
+        src           = cms.InputTag("g4SimHits"), # use "fastSimProducer" for FastSim
         setStatus     = cms.int32(8),             # set status = 8 for GEANT GPs
         particleTypes = cms.vstring("pi+"),       # also picks pi- (optional)
         filter        = cms.vstring("pt > 0.0"),  # just for testing
@@ -39,11 +39,11 @@ namespace pat {
 class GenPlusSimParticleProducer : public edm::EDProducer {
 public:
   explicit GenPlusSimParticleProducer(const edm::ParameterSet&);
-  ~GenPlusSimParticleProducer() {}
+  ~GenPlusSimParticleProducer() override {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override {}
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   bool firstEvent_;
   edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;
@@ -53,7 +53,7 @@ private:
   std::vector<PdtEntry> pdts_;   // these are needed before we get the EventSetup
 
   typedef StringCutObjectSelector<reco::GenParticle> StrFilter;
-  std::auto_ptr<StrFilter> filter_;
+  std::unique_ptr<StrFilter> filter_;
 
   /// Collection of GenParticles I need to make refs to. It must also have its associated vector<int> of barcodes, aligned with them.
   edm::EDGetTokenT<reco::GenParticleCollection> gensToken_;
@@ -113,7 +113,7 @@ GenPlusSimParticleProducer::GenPlusSimParticleProducer(const ParameterSet& cfg) 
   if (cfg.existsAs<string>("filter")) {
     string filter = cfg.getParameter<string>("filter");
     if (!filter.empty()) {
-      filter_ = auto_ptr<StrFilter>(new StrFilter(filter));
+      filter_ = std::make_unique<StrFilter>(filter);
     }
   }
   produces<GenParticleCollection>();
@@ -133,13 +133,13 @@ void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
   // Make the genParticle for stDau and add it to the new collection and update the parent-child relationship
   // Make up a GenParticleCandidate from the GEANT track info.
   int charge = static_cast<int>(stDau.charge());
-  Particle::LorentzVector p4 = stDau.momentum();
+  const Particle::LorentzVector& p4 = stDau.momentum();
   Particle::Point vtx; // = (0,0,0) by default
   if (!stDau.noVertex()) vtx = simvertices[stDau.vertIndex()].position();
   GenParticle genp(charge, p4, vtx, stDau.type(), setStatus_, true);
 
   // Maybe apply filter on the particle
-  if (filter_.get() != 0) {
+  if (filter_.get() != nullptr) {
     if (!(*filter_)(genp)) return;
   }
 
@@ -197,7 +197,7 @@ void GenPlusSimParticleProducer::produce(Event& event,
   event.getByToken(simtracksToken_, simtracks);
 
   // Need to check that SimTrackContainer is sorted; otherwise, copy and sort :-(
-  std::auto_ptr<SimTrackContainer> simtracksTmp;
+  std::unique_ptr<SimTrackContainer> simtracksTmp;
   const SimTrackContainer * simtracksSorted = &* simtracks;
   if (!__gnu_cxx::is_sorted(simtracks->begin(), simtracks->end(), LessById())) {
     simtracksTmp.reset(new SimTrackContainer(*simtracks));
@@ -218,7 +218,7 @@ void GenPlusSimParticleProducer::produce(Event& event,
   if (gens->size() != genBarcodes->size()) throw cms::Exception("Corrupt data") << "Barcodes not of the same size as GenParticles!\n";
 
   // make the output collection
-  auto_ptr<GenParticleCollection> candsPtr(new GenParticleCollection);
+  auto candsPtr = std::make_unique<GenParticleCollection>();
   GenParticleCollection & cands = * candsPtr;
 
   const GenParticleRefProd ref = event.getRefBeforePut<GenParticleCollection>();
@@ -230,7 +230,7 @@ void GenPlusSimParticleProducer::produce(Event& event,
   }
 
   // make new barcodes vector and fill it with the original list
-  auto_ptr<vector<int> > newGenBarcodes( new vector<int>() );
+  auto newGenBarcodes = std::make_unique<vector<int>>();
   for (unsigned int i = 0; i < genBarcodes->size(); ++i) {
     newGenBarcodes->push_back((*genBarcodes)[i]);
   }
@@ -300,8 +300,8 @@ void GenPlusSimParticleProducer::produce(Event& event,
     }
   }
 
-  event.put(candsPtr);
-  event.put(newGenBarcodes);
+  event.put(std::move(candsPtr));
+  event.put(std::move(newGenBarcodes));
 }
 
 DEFINE_FWK_MODULE(GenPlusSimParticleProducer);

@@ -17,7 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 int
 main(int argc, char* argv[])
@@ -29,8 +29,8 @@ main(int argc, char* argv[])
     }
 
     try {
-      std::auto_ptr<edm::SiteLocalConfig> slcptr(new edm::service::SiteLocalConfigService(edm::ParameterSet()));
-      auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(slcptr);
+      std::unique_ptr<edm::SiteLocalConfig> slcptr = std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
+      auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
       edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
       edm::ServiceRegistry::Operate operate(slcToken);
 

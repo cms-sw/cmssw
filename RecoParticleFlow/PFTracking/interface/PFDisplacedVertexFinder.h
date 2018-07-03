@@ -39,8 +39,6 @@ class PFDisplacedVertexFinder {
 
   /// -------- Useful Types -------- ///
 
-  typedef std::set< reco::TrackBaseRef >::iterator IEset;
-  typedef reco::PFDisplacedVertexCandidateCollection::iterator IDVC;
   typedef reco::PFDisplacedVertexSeedCollection::iterator IDVS;
   typedef reco::PFDisplacedVertexCollection::iterator IDV;
 
@@ -77,10 +75,12 @@ class PFDisplacedVertexFinder {
   /// Sets parameters for track extrapolation and hits study
   void setEdmParameters( const MagneticField* magField,
 			 edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle,
-			 edm::ESHandle<TrackerGeometry> tkerGeomHandle){ 
+			 const TrackerTopology* tkerTopo,
+			 const TrackerGeometry* tkerGeom){
     magField_ = magField; 
     globTkGeomHandle_ = globTkGeomHandle;
-    tkerGeomHandle_ = tkerGeomHandle; 
+    tkerTopo_ = tkerTopo;
+    tkerGeom_ = tkerGeom;
   }
 
   void setTracksSelector(const edm::ParameterSet& ps){
@@ -123,13 +123,13 @@ class PFDisplacedVertexFinder {
   /// -------- Different steps of the finder algorithm -------- ///
 
   /// Analyse a vertex candidate and select potential vertex point(s)
-  void findSeedsFromCandidate(reco::PFDisplacedVertexCandidate&, reco::PFDisplacedVertexSeedCollection&);
+  void findSeedsFromCandidate(const reco::PFDisplacedVertexCandidate&, reco::PFDisplacedVertexSeedCollection&);
 
   /// Sometimes two vertex candidates can be quite close and coming from the same vertex
   void mergeSeeds(reco::PFDisplacedVertexSeedCollection&, std::vector<bool>& bLocked);
 
   /// Fit one by one the vertex points with associated tracks to get displaced vertices
-  bool fitVertexFromSeed(reco::PFDisplacedVertexSeed&, reco::PFDisplacedVertex&);
+  bool fitVertexFromSeed(const reco::PFDisplacedVertexSeed&, reco::PFDisplacedVertex&);
 
   /// Remove potentially fakes displaced vertices
   void selectAndLabelVertices(reco::PFDisplacedVertexCollection&,  std::vector <bool>&);
@@ -140,9 +140,7 @@ class PFDisplacedVertexFinder {
 
   bool isCloseTo(const reco::PFDisplacedVertexSeed&, const reco::PFDisplacedVertexSeed&) const;
 
-  double getTransvDiff(const GlobalPoint&, const GlobalPoint&) const;
-  double getLongDiff(const GlobalPoint&, const GlobalPoint&) const;
-  double getLongProj(const GlobalPoint&, const GlobalVector&) const;
+  std::pair<float,float> getTransvLongDiff(const GlobalPoint&, const GlobalPoint&) const;
 
   reco::PFDisplacedVertex::VertexTrackType getVertexTrackType(PFTrackHitFullInfo&) const;
 
@@ -153,15 +151,15 @@ class PFDisplacedVertexFinder {
 
   /// -------- Members -------- ///
 
-  std::auto_ptr< reco::PFDisplacedVertexCandidateCollection >  displacedVertexCandidates_;
+  reco::PFDisplacedVertexCandidateCollection const*  displacedVertexCandidates_;
   std::auto_ptr< reco::PFDisplacedVertexCollection >    displacedVertices_;
 
   /// -------- Parameters -------- ///
 
   /// Algo parameters for the vertex finder
 
-  double transvSize_;
-  double longSize_;
+  float transvSize_;
+  float longSize_;
   double primaryVertexCut_;
   double tobCut_;
   double tecCut_;
@@ -183,7 +181,8 @@ class PFDisplacedVertexFinder {
   edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle_;
 
   /// doc? 
-  edm::ESHandle<TrackerGeometry> tkerGeomHandle_;
+  const TrackerTopology* tkerTopo_;
+  const TrackerGeometry* tkerGeom_;
 
   /// to be able to extrapolate tracks f
   const MagneticField* magField_;

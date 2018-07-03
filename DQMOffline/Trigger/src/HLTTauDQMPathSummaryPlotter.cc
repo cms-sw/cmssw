@@ -7,8 +7,7 @@ HLTTauDQMPathSummaryPlotter::HLTTauDQMPathSummaryPlotter(const edm::ParameterSet
   doRefAnalysis_(doRefAnalysis)
 {}
 
-HLTTauDQMPathSummaryPlotter::~HLTTauDQMPathSummaryPlotter() {
-}
+HLTTauDQMPathSummaryPlotter::~HLTTauDQMPathSummaryPlotter() = default;
 
 void HLTTauDQMPathSummaryPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
   if(!isValid() || pathObjects_.empty())

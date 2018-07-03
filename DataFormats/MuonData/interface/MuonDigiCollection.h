@@ -56,10 +56,10 @@ template <typename IndexType, typename DigiType>
     DigiContainerIterator &operator++ (void)
     { ++base_; return *this; }
 
-    bool operator== (const DigiContainerIterator &x)
+    bool operator== (const DigiContainerIterator &x) const
     { return x.base_ == base_; }
 
-    bool operator!= (const DigiContainerIterator &x)
+    bool operator!= (const DigiContainerIterator &x) const
     { return x.base_ != base_; }
 
     value_type operator* (void) const

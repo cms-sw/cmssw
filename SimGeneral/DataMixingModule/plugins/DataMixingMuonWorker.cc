@@ -378,11 +378,11 @@ namespace edm
   void DataMixingMuonWorker::putMuon(edm::Event &e) {
 
     // collections of digis to put in the event
-    std::auto_ptr< DTDigiCollection > DTDigiMerge( new DTDigiCollection );
-    std::auto_ptr< RPCDigiCollection > RPCDigiMerge( new RPCDigiCollection );
-    std::auto_ptr< CSCStripDigiCollection > CSCStripDigiMerge( new CSCStripDigiCollection );
-    std::auto_ptr< CSCWireDigiCollection > CSCWireDigiMerge( new CSCWireDigiCollection );
-    std::auto_ptr< CSCComparatorDigiCollection > CSCComparatorDigiMerge( new CSCComparatorDigiCollection );
+    std::unique_ptr< DTDigiCollection > DTDigiMerge( new DTDigiCollection );
+    std::unique_ptr< RPCDigiCollection > RPCDigiMerge( new RPCDigiCollection );
+    std::unique_ptr< CSCStripDigiCollection > CSCStripDigiMerge( new CSCStripDigiCollection );
+    std::unique_ptr< CSCWireDigiCollection > CSCWireDigiMerge( new CSCWireDigiCollection );
+    std::unique_ptr< CSCComparatorDigiCollection > CSCComparatorDigiMerge( new CSCComparatorDigiCollection );
 
     // Loop over DT digis, copying them from our own local storage
 
@@ -537,11 +537,11 @@ namespace edm
     //    LogDebug("DataMixingMuonWorker") << "total # CSCStrip Merged Digis: " << CSCStripDigiMerge->size() ;
     //    LogDebug("DataMixingMuonWorker") << "total # CSCWire Merged Digis: " << CSCWireDigiMerge->size() ;
 
-    e.put( DTDigiMerge );
-    e.put( RPCDigiMerge );
-    e.put( CSCStripDigiMerge, CSCStripDigiCollectionDM_ );
-    e.put( CSCWireDigiMerge, CSCWireDigiCollectionDM_ );
-    e.put( CSCComparatorDigiMerge, CSCComparatorDigiCollectionDM_ );
+    e.put(std::move(DTDigiMerge));
+    e.put(std::move(RPCDigiMerge));
+    e.put(std::move(CSCStripDigiMerge), CSCStripDigiCollectionDM_ );
+    e.put(std::move(CSCWireDigiMerge), CSCWireDigiCollectionDM_ );
+    e.put(std::move(CSCComparatorDigiMerge), CSCComparatorDigiCollectionDM_ );
 
     // clear local storage for this event
     delete OurDTDigis_;

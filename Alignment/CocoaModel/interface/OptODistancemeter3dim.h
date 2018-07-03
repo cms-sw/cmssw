@@ -23,19 +23,19 @@ public:
   OptODistancemeter3dim(){ };
   OptODistancemeter3dim(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptODistancemeter3dim(){ };
+  ~OptODistancemeter3dim() override{ };
 
   //---------- defaultBehaviour: make measurement 
-  virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
+  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
 
   //---------- Make measurement 
-  virtual void makeMeasurement( LightRay& lightray, Measurement& meas );
+  void makeMeasurement( LightRay& lightray, Measurement& meas ) override;
 
 #ifdef COCOA_VIS
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
-  void constructSolidShape();
+  void constructSolidShape() override;
 
 };
 

@@ -10,23 +10,20 @@ SiPixelAliMilleFileExtractor = cms.EDAnalyzer("MillePedeFileExtractor",
     outputBinaryFile = cms.string('pedeBinary%04d.dat'))
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
-from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer
+from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
 SiPixelAliPedeAlignmentProducer = copy.deepcopy(AlignmentProducer)
+
+from Alignment.MillePedeAlignmentAlgorithm.MillePedeDQMModule_cff import *
+
 
 SiPixelAliPedeAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        'TrackerTPBHalfBarrel,111111',
-        'TrackerTPEHalfCylinder,111111',
-
-        'TrackerTIBHalfBarrel,ffffff',
-        'TrackerTOBHalfBarrel,ffffff',
-        'TrackerTIDEndcap,ffffff',
-        'TrackerTECEndcap,ffffff'
+        "PixelHalfBarrels,111111",
+        "PXECHalfCylinders,111111",
         )
     )
 
 SiPixelAliPedeAlignmentProducer.doMisalignmentScenario = False #True
-
 
 SiPixelAliPedeAlignmentProducer.checkDbAlignmentValidity = False
 SiPixelAliPedeAlignmentProducer.applyDbAlignment = True
@@ -34,6 +31,7 @@ SiPixelAliPedeAlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
 
 SiPixelAliPedeAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliPedeAlignmentProducer.algoConfig.mode = 'pede'
+SiPixelAliPedeAlignmentProducer.algoConfig.runAtPCL = True
 SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles = [SiPixelAliMilleFileExtractor.outputBinaryFile.value()]
 SiPixelAliPedeAlignmentProducer.algoConfig.binaryFile = ''
 SiPixelAliPedeAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
@@ -53,7 +51,12 @@ SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
 SiPixelAliPedeAlignmentProducer.algoConfig.minNumHits = 10
 SiPixelAliPedeAlignmentProducer.saveToDB = True
 
-
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmEnvSiPixelAli = DQMEDAnalyzer('DQMEventInfo',
+                                  subSystemFolder = cms.untracked.string('AlCaReco'),  
+                                  )
 
 ALCAHARVESTSiPixelAli = cms.Sequence(SiPixelAliMilleFileExtractor*
-                                     SiPixelAliPedeAlignmentProducer)
+                                     SiPixelAliPedeAlignmentProducer*
+                                     SiPixelAliDQMModule*
+                                     dqmEnvSiPixelAli)

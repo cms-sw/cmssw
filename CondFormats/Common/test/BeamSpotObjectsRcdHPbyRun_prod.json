@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcon_prod/CMS_CONDITIONS",
+    "destinationTags": {
+        "BeamSpotObjectsHP_PCL_byRun_v0_prompt": {}
+    },
+    "inputTag": "BeamSpotObjectHP_ByRun",
+    "since": null,
+    "userText": "Tier0 PCL Upload for high performance BS byRun"
+}

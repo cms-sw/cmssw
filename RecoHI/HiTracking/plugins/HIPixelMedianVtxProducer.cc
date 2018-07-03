@@ -16,6 +16,7 @@
 #include "TROOT.h"
 #include "TH1F.h"
 #include "TF1.h"
+#include "TMinuitMinimizer.h"
 
 /*****************************************************************************/
 HIPixelMedianVtxProducer::HIPixelMedianVtxProducer(const edm::ParameterSet& ps) : 
@@ -29,6 +30,10 @@ HIPixelMedianVtxProducer::HIPixelMedianVtxProducer(const edm::ParameterSet& ps) 
   theFitBinning(ps.getParameter<int>("FitBinsPerCm"))
 {
   produces<reco::VertexCollection>();
+
+  //In order to make fitting ROOT histograms thread safe
+  // one must call this undocumented function
+  TMinuitMinimizer::UseStaticMinuit(false);
 }
 
 /*****************************************************************************/
@@ -54,11 +59,11 @@ void HIPixelMedianVtxProducer::produce
     << ") above pt = " << thePtMin; 
 	
   // Output vertex collection
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  auto vertices = std::make_unique<reco::VertexCollection>();
 
   // No tracks -> return empty collection
-  if(tracks.size() == 0) {
-      ev.put(vertices);
+  if(tracks.empty()) {
+      ev.put(std::move(vertices));
       return;
   }
 
@@ -106,7 +111,7 @@ void HIPixelMedianVtxProducer::produce
       reco::Vertex ver(reco::Vertex::Point(0,0,99999.),
                        err, 0, 0, 1);
       vertices->push_back(ver);
-      ev.put(vertices);
+      ev.put(std::move(vertices));
       return;
     }
 
@@ -145,7 +150,7 @@ void HIPixelMedianVtxProducer::produce
     reco::Vertex ver(reco::Vertex::Point(0,0,med),
 		     err, 0, 1, 1);
     vertices->push_back(ver);
-    ev.put(vertices);
+    ev.put(std::move(vertices));
     return;
   }
 
@@ -156,7 +161,7 @@ void HIPixelMedianVtxProducer::produce
   f1.SetParLimits(2,0.001,0.05);
   f1.SetParLimits(3,0.0,0.005*tracks.size());
     
-  histo.Fit(&f1,"QN");
+  histo.Fit(&f1,"QN SERIAL");
     
   LogTrace("MinBiasTracking")
     << "  [vertex position] fitted    = "
@@ -168,7 +173,7 @@ void HIPixelMedianVtxProducer::produce
 		   err, 0, 1, 1);
   vertices->push_back(ver);
   
-  ev.put(vertices);
+  ev.put(std::move(vertices));
   return;
 
 }

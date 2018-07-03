@@ -15,6 +15,7 @@
 #include <memory>
 #include <algorithm>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -38,6 +39,7 @@ public:
   TrackCollectionCloner(Producer & producer, const edm::ParameterSet & cfg, bool copyDefault ) :
     copyExtras_(cfg.template getUntrackedParameter<bool>("copyExtras", copyDefault)),
     copyTrajectories_(cfg.template getUntrackedParameter<bool>("copyTrajectories", copyDefault)) {
+    
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
     producer.template produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks" );
     if (copyExtras_) {
@@ -48,7 +50,10 @@ public:
       producer.template produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories" );
       producer.template produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations" );
     }
-  }
+
+    }
+
+   static void fill(edm::ParameterSetDescription& desc);
 
   struct Producer {
     Producer(edm::Event& ievt, TrackCollectionCloner const & cloner);

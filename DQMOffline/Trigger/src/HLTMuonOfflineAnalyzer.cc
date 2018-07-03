@@ -13,6 +13,7 @@
 #include <memory>
 #include <iostream>
 
+
 // user include files
 #include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlotContainer.h"
 
@@ -49,15 +50,13 @@ public:
 private:
 
   // Analyzer Methods
-  virtual void beginJob();
-  virtual void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;  
-  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
-  virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
-  virtual void endJob();
+  void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;  
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
 
   // Extra Methods
-  std::vector<std::string> moduleLabels(std::string);
+  std::vector<std::string> moduleLabels(const std::string&);
 
   // Input from Configuration File
   edm::ParameterSet pset_;
@@ -67,7 +66,7 @@ private:
   // Member Variables
   HLTMuonMatchAndPlotContainer plotterContainer_;
   HLTConfigProvider hltConfig_;
-
+  
 };
 
 
@@ -80,7 +79,7 @@ using namespace edm;
 using namespace reco;
 using namespace trigger;
 
-typedef vector<string> vstring;
+using vstring = vector<string>;
 
 
 
@@ -99,18 +98,29 @@ HLTMuonOfflineAnalyzer::HLTMuonOfflineAnalyzer(const ParameterSet& pset) :
 
 
 vector<string> 
-HLTMuonOfflineAnalyzer::moduleLabels(string path) 
+HLTMuonOfflineAnalyzer::moduleLabels(const string& path) 
 {
 
   vector<string> modules = hltConfig_.moduleLabels(path);
-  vector<string>::iterator iter = modules.begin();
-
-  while (iter != modules.end())
-    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)) 
+  auto iter = modules.begin();
+  while (iter != modules.end()){
+    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)){
       iter = modules.erase(iter);
-    else
-      ++iter;
+    }
+    else if (iter->find("L1Filtered0") != string::npos)
+      iter = modules.erase(iter);
+    else ++iter;
+  }
+//  iter = modules.begin();
+//  while (iter != modules.end()){
+//    if ((iter->find("Filtered0") == string::npos)){
+//      std::cout<< *iter << std::endl;
+//      iter = modules.erase(iter);
+//    }
+//    else ++iter;
+//  }
 
+  
   return modules;
   
 }
@@ -131,20 +141,24 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
 
   // Get the set of trigger paths we want to make plots for
   set<string> hltPaths;
-  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-    TPRegexp pattern(hltPathsToCheck_[i]);
-    for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
-      if (TString(hltConfig_.triggerNames()[j]).Contains(pattern))
-        hltPaths.insert(hltConfig_.triggerNames()[j]);
+  for (auto const & i : hltPathsToCheck_) {
+    for (auto const & j : hltConfig_.triggerNames()){
+      if (j.find(i) != std::string::npos){
+        hltPaths.insert(j);
+      }
+    }
   }
   
   // Initialize the plotters
   set<string>::iterator iPath;
+  vector<string>::const_iterator ilabel;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
     string path = * iPath;
     vector<string> labels = moduleLabels(path);
-    if (labels.size() > 0) {
-      plotterContainer_.addPlotter(pset_, path, moduleLabels(path));
+    bool isLastLabel = false;
+    for (ilabel = labels.begin(); ilabel != labels.end(); ilabel++) {
+      if (*ilabel == labels.back()) isLastLabel = true;
+      plotterContainer_.addPlotter(pset_, path, *ilabel,isLastLabel);
     }
   }
 
@@ -174,12 +188,6 @@ HLTMuonOfflineAnalyzer::analyze(const Event& iEvent,
 
 
 
-void 
-HLTMuonOfflineAnalyzer::beginJob()
-{
-  
-}
-
 
 
 void 
@@ -192,12 +200,6 @@ HLTMuonOfflineAnalyzer::endRun(const edm::Run & iRun,
 }
 
 
-
-void 
-HLTMuonOfflineAnalyzer::endJob()
-{
-  
-}
 
 
 

@@ -18,13 +18,13 @@
 //         Created:  Fri Jan 29 12:45:17 CST 2010
 //
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
 #include "DataFormats/FWLite/interface/InternalDataKey.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "Rtypes.h"
 
@@ -34,6 +34,7 @@
 #include <memory>
 #include <typeinfo>
 #include <vector>
+#include <functional>
 
 // forward declarations
 class TTreeCache;
@@ -57,7 +58,7 @@ namespace fwlite {
                              std::shared_ptr<HistoryGetterBase> historyGetter,
                              std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
                              std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
-                             bool useCache = false);
+                             bool useCache = false, std::function<void (TBranch const&)> baFunc = [](TBranch const&){});
             virtual ~DataGetterHelper();
 
             // ---------- const member functions ---------------------
@@ -80,23 +81,23 @@ namespace fwlite {
 
             // ---------- member functions ---------------------------
 
-            void setGetter(std::shared_ptr<edm::EDProductGetter> getter) {
+            void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) {
                 getter_ = getter;
             }
 
-            edm::EDProductGetter* getter() {
+            edm::EDProductGetter const* getter() const {
                return getter_.get();
             }
 
         private:
 
-            DataGetterHelper(const DataGetterHelper&); // stop default
-            const DataGetterHelper& operator=(const DataGetterHelper&); // stop default
+            DataGetterHelper(const DataGetterHelper&) = delete; // stop default
+            const DataGetterHelper& operator=(const DataGetterHelper&) = delete; // stop default
 
             typedef std::map<internal::DataKey, std::shared_ptr<internal::Data> > KeyToDataMap;
 
             internal::Data& getBranchDataFor(std::type_info const&, char const*, char const*, char const*) const;
-            void getBranchData(edm::EDProductGetter*, Long64_t, internal::Data&) const;
+            void getBranchData(edm::EDProductGetter const*, Long64_t, internal::Data&) const;
             bool getByBranchDescription(edm::BranchDescription const&, Long_t eventEntry, KeyToDataMap::iterator&) const;
             edm::WrapperBase const* getByBranchID(edm::BranchID const& bid, Long_t eventEntry) const;
             edm::WrapperBase const* wrapperBasePtr(edm::ObjectWithDict const&) const;
@@ -111,13 +112,16 @@ namespace fwlite {
 
             mutable std::map<std::pair<edm::ProductID, edm::BranchListIndex>,std::shared_ptr<internal::Data> > idToData_;
             mutable std::map<edm::BranchID, std::shared_ptr<internal::Data> > bidToData_;
-            std::shared_ptr<fwlite::HistoryGetterBase> historyGetter_;
-            std::shared_ptr<edm::EDProductGetter> getter_;
+            edm::propagate_const<std::shared_ptr<fwlite::HistoryGetterBase>> historyGetter_;
+            std::shared_ptr<edm::EDProductGetter const> getter_;
             mutable bool tcTrained_;
+            /// Use internal TTreeCache.
+            const   bool tcUse_;
+            /// Branch-access-function gets called whenever a branch data is accessed.
+            /// This can be used for management of TTreeCache on the user side.
+            std::function<void (TBranch const&)> branchAccessFunc_;
     };
 
 }
-
-#endif /*__CINT__ */
 
 #endif

@@ -24,11 +24,14 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1),
 )
 
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBaseDelayFakeESSource_cfi")
 process.load("CalibTracker.SiStripESProducers.DBWriter.SiStripBaseDelayDummyDBWriter_cfi")
 
-process.SiStripBaseDelayGenerator.CoarseDelay = 0
-process.SiStripBaseDelayGenerator.FineDelay = 0
+from CalibTracker.SiStripESProducers.fake.SiStripBaseDelayFakeESSource_cfi import siStripBaseDelayFakeESSource
+
+siStripBaseDelayFakeESSource.CoarseDelay = 0
+siStripBaseDelayFakeESSource.FineDelay = 0
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),

@@ -1,104 +1,192 @@
 import subprocess
 import json
 import netrc
-from os import rename
-from os import remove
-from os import path
+import sqlite3
+import os
+import sys
+import shutil
+import logging
+from datetime import datetime
 
-confFileName ='popcon2dropbox.json'
-fileNameForDropBox = 'input_for_dropbox'
-dbFileForDropBox = '%s.db' %fileNameForDropBox
-dbLogFile = '%s_log.db' %fileNameForDropBox
+errorInImportFileFolder = 'import_errors'
+dateformatForFolder = "%Y-%m-%d-%H-%M-%S"
+dateformatForLabel = "%Y-%m-%d %H:%M:%S"
 
-import upload_popcon
+auth_path_key = 'COND_AUTH_PATH'
 
-class CondMetaData(object):
-   def __init__( self ):
-      self.md = {}
-      with open(confFileName) as jf:
-         self.md = json.load(jf)
-         
-   def authPath( self ):
-      return self.md.get('authenticationPath')
+messageLevelEnvVar = 'POPCON_LOG_LEVEL'
+fmt_str = "[%(asctime)s] %(levelname)s: %(message)s"
+logLevel = logging.INFO
+if messageLevelEnvVar in os.environ:
+    levStr = os.environ[messageLevelEnvVar]
+    if levStr == 'DEBUG':
+        logLevel = logging.DEBUG
+logFormatter = logging.Formatter(fmt_str)
+logger = logging.getLogger()        
+logger.setLevel(logLevel)
+consoleHandler = logging.StreamHandler(sys.stdout) 
+consoleHandler.setFormatter(logFormatter)
+logger.addHandler(consoleHandler)
 
-   def authSys( self ):
-      return self.md.get('authenticationSystem')
+def checkFile( dbName ):
+    dbFileName = '%s.db' %dbName
+    # check if the expected input file is there... 
+    # exit code < 0 => error
+    # exit code = 0 => skip
+    # exit code = 1 => import                                                                                                                             
+    if not os.path.exists( dbFileName ):
+       logger.error('The file expected as an input %s has not been found.'%dbFileName )
+       return -1
 
-   def destinationDatabase( self ):
-      return self.md.get('destinationDatabase')
+    empty = True
+    try:
+       dbcon = sqlite3.connect( dbFileName )
+       dbcur = dbcon.cursor()
+       dbcur.execute('SELECT * FROM IOV')
+       rows = dbcur.fetchall()
+       for r in rows:
+          empty = False
+       dbcon.close()
+       if empty:
+           logger.warning('The file expected as an input %s contains no data. The import will be skipped.'%dbFileName )
+           return 0
+       return 1
+    except Exception as e:
+       logger.error('Check on input data failed: %s' %str(e))
+       return -2
 
-   def logDbFileName( self ):
-      return self.md.get('logDbFileName')
+def saveFileForImportErrors( datef, dbName, withMetadata=False ):
+    # save a copy of the files in case of upload failure...
+    leafFolderName = datef.strftime(dateformatForFolder)
+    fileFolder = os.path.join( errorInImportFileFolder, leafFolderName)
+    if not os.path.exists(fileFolder):
+        os.makedirs(fileFolder)
+    df= '%s.db' %dbName
+    dataDestFile = os.path.join( fileFolder, df)
+    if not os.path.exists(dataDestFile):
+        shutil.copy2(df, dataDestFile)
+    if withMetadata:
+        mf= '%s.txt' %dbName
+        metadataDestFile = os.path.join( fileFolder, mf )
+        if not os.path.exists(metadataDestFile):
+            shutil.copy2(df, metadataDestFile)
+    logger.error("Upload failed. Data file and metadata saved in folder '%s'" %os.path.abspath(fileFolder))
+    
+def upload( args, dbName ):
+    destDb = args.destDb
+    destTag = args.destTag
+    comment = args.comment
 
-   def synchronizeTo( self ):
-      return self.md.get('synchronizeTo')
+    datef = datetime.now()
 
-   def records( self ):
-      return self.md.get('records')
+    # first remove any existing metadata file...                                                                                                                                
+    if os.path.exists( '%s.txt' %dbName ):
+       logger.debug('Removing already existing file %s' %dbName)
+       os.remove( '%s.txt' %dbName )
+    
+    # dump Metadata for the Upload
+    uploadMd = {}
+    uploadMd['destinationDatabase'] = destDb
+    tags = {}
+    tagInfo = {}
+    tags[ destTag ] = tagInfo
+    uploadMd['destinationTags'] = tags
+    uploadMd['inputTag'] = destTag
+    uploadMd['since'] = None
+    datelabel = datef.strftime(dateformatForLabel)
+    commentStr = ''
+    if not comment is None:
+       commentStr = comment
+    uploadMd['userText'] = '%s : %s' %(datelabel,commentStr)
+    with open( '%s.txt' %dbName, 'wb') as jf:
+       jf.write( json.dumps( uploadMd, sort_keys=True, indent = 2 ) )
+       jf.write('\n')
 
-   def dumpMetadataForUpload( self, inputtag, desttag, comment ):
-      uploadMd = {}
-      uploadMd['destinationDatabase'] = self.destinationDatabase()
-      tags = {}
-      tagInfo = {}
-      tagInfo['dependencies'] = {}
-      tagInfo['synchronizeTo'] = self.synchronizeTo()
-      tags[ desttag ] = tagInfo
-      print tags
-      uploadMd['destinationTags'] = tags
-      uploadMd['inputTag'] = inputtag
-      uploadMd['since'] = None
-      uploadMd['userText'] = comment
-      with open( '%s.txt' %fileNameForDropBox, 'wb') as jf:
-         jf.write( json.dumps( uploadMd, sort_keys=True, indent = 2 ) )
-         jf.write('\n')
+    # run the upload
+    uploadCommand = 'uploadConditions.py %s' %dbName
+    ret = 0
+    try:
+       pipe = subprocess.Popen( uploadCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+       stdout = pipe.communicate()[0]
+       print stdout
+       retCode = pipe.returncode
+       if retCode != 0:
+           saveFileForImportErrors( datef, dbName, True )
+       ret |= retCode
+    except Exception as e:
+       ret |= 1
+       logger.error(str(e))
+    return ret
 
-def runO2O( cmsswdir, releasepath, release, arch, jobfilename, logfilename, *p ):
-    # first remove any existing metadata file...
-    if path.exists( '%s.db' %fileNameForDropBox ):
-       print "Removing files with name %s" %fileNameForDropBox
-       remove( '%s.db' %fileNameForDropBox )
-    if path.exists( '%s.txt' %fileNameForDropBox ):
-       remove( '%s.txt' %fileNameForDropBox )
-    command = 'export SCRAM_ARCH=%s;' %arch
-    command += 'CMSSWDIR=%s;' %cmsswdir
-    command += 'source ${CMSSWDIR}/cmsset_default.sh;'
-    command += 'cd %s/%s/src;' %(releasepath,release)
-    command += 'eval `scramv1 runtime -sh`;'
-    command += 'cd -;'
-    command += 'pwd;'
-    command += 'cmsRun %s ' %jobfilename
-    command += ' '.join(p)
+def copy( args, dbName ):
+    dbFileName = '%s.db' %dbName
+    destDb = args.destDb
+    destTag = args.destTag
+    comment = args.comment
+
+    datef = datetime.now()
+    destMap = { "oracle://cms_orcoff_prep/cms_conditions": "oradev", "oracle://cms_orcon_prod/cms_conditions": "onlineorapro"  }
+    if destDb.lower() in destMap.keys():
+        destDb = destMap[destDb.lower()]
+    else:
+        if destDb.startswith('sqlite'):
+            destDb = destDb.split(':')[1]
+        else:
+            logger.error( 'Destination connection %s is not supported.' %destDb )
+            return 
+    # run the copy
+    note = '"Importing data with O2O execution"'
+    commandOptions = '--force --yes --db %s copy %s %s --destdb %s --synchronize --note %s' %(dbFileName,destTag,destTag,destDb,note)
+    copyCommand = 'conddb %s' %commandOptions
+    logger.info( 'Executing command: %s' %copyCommand )
+    try:
+        pipe = subprocess.Popen( copyCommand, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+        stdout = pipe.communicate()[0]
+        print stdout
+        retCode = pipe.returncode
+        if retCode != 0:
+            saveFileForImportErrors( datef, dbName )
+        ret = retCode
+    except Exception as e:
+        ret = 1
+        logger.error( str(e) )
+    return ret
+
+def run( args ):
+    
+    dbName = datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S-%f')
+    dbFileName = '%s.db' %dbName
+
+    if args.auth is not None and not args.auth=='':
+        if auth_path_key in os.environ:
+            logger.warning("Cannot set authentication path to %s in the environment, since it is already set." %args.auth)
+        else:
+            logger.info("Setting the authentication path to %s in the environment." %args.auth)
+            os.environ[auth_path_key]=args.auth
+    if os.path.exists( '%s.db' %dbName ):
+       logger.info("Removing files with name %s" %dbName )
+       os.remove( '%s.db' %dbName )
+    if os.path.exists( '%s.txt' %dbName ):
+       os.remove( '%s.txt' %dbName )
+    command = 'cmsRun %s ' %args.job_file
+    command += ' targetFile=%s' %dbFileName
+    command += ' destinationDatabase=%s' %args.destDb
+    command += ' destinationTag=%s' %args.destTag
     command += ' 2>&1'
     pipe = subprocess.Popen( command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-    stdout_val = pipe.communicate()[0]
-    return stdout_val
+    stdout = pipe.communicate()[0]
+    retCode = pipe.returncode
+    print stdout
+    logger.info('PopCon Analyzer return code is: %s' %retCode )
+    if retCode!=0:
+       logger.error( 'O2O job failed. Skipping upload.' )
+       return retCode
 
-def upload_to_dropbox( backend ):
-    md = CondMetaData()
-    # first remove any existing metadata file...
-    if path.exists( '%s.txt' %fileNameForDropBox ):
-       remove( '%s.txt' %fileNameForDropBox )
-    try:
-       dropBox = upload_popcon.DropBox(upload_popcon.defaultHostname, upload_popcon.defaultUrlTemplate)
-       # Try to find the netrc entry
-       try:
-          (username, account, password) = netrc.netrc().authenticators(upload_popcon.defaultNetrcHost)
-       except Exception:
-          print 'Netrc entry "DropBox" not found.'
-          return
-       print 'signing in...'
-       dropBox.signIn(username, password)
-       print 'signed in'
-       for k,v in  md.records().items():
-          destTag = v.get("destinationTag")
-          inputTag = v.get("sqliteTag")
-          if inputTag == None:
-             inputTag = destTag
-          comment = v.get("comment")
-          md.dumpMetadataForUpload( inputTag, destTag, comment )
-          dropBox.uploadFile(dbFileForDropBox, backend, upload_popcon.defaultTemporaryFile)
-       dropBox.signOut()
-    except upload_popcon.HTTPError as e:
-       print e
-
+    ret = checkFile( dbName )
+    if ret > 0:
+        if args.copy:
+            ret = copy( args, dbName )
+        else:
+            ret = upload( args, dbName )
+    os.remove( '%s.db' %dbName )
+    return ret

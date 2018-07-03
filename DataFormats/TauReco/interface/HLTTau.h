@@ -16,25 +16,8 @@ namespace reco {
   class HLTTau {
   public:
     HLTTau() {
-      emIsolation_ = -1000.;
-      sumPtTracksL25_ = -1000.;
-      sumPtTracksL3_ = -1000.;
-      trackIsolationL25_ = -1;
-      nTrackIsolationL25_ = -1;
-      leadTrackPtL25_ = 0.;
-      trackIsolationL3_ = -1;
-      nTrackIsolationL3_ = -1;
-      leadTrackPtL3_ = 0.;
-      eta_ = 0.;
-      phi_ = 0.;
-      pt_ = -1.;
-      seedEcalHitEt_ = -1.;
       ecalClusterShape_.clear();
-      nEcalHits_ = -1;
-      hcalIsolEt_ =-1.;
-      seedHcalHitEt_ =-1.;
       hcalClusterShape_.clear();
-      nHcalHits_=-1;
     }
 
     HLTTau(float eta, float phi, float pt, float emIsolation, int trackIsolationL25, float leadTrackPtL25, int trackIsolationL3, float leadTrackPtL3) {
@@ -89,23 +72,23 @@ namespace reco {
 
 
   private:
-    float eta_, phi_, pt_;
-    float emIsolation_;
-    int   trackIsolationL25_;
-    float leadTrackPtL25_;
-    int nTrackIsolationL25_;
-    int   trackIsolationL3_;
-    int nTrackIsolationL3_;
-    float leadTrackPtL3_;
-    double seedEcalHitEt_;
+    float eta_=0., phi_= 0., pt_= -1.;
+    float emIsolation_= -1000.;
+    int   trackIsolationL25_= -1;
+    float leadTrackPtL25_= 0.;
+    int nTrackIsolationL25_= -1;
+    int   trackIsolationL3_= -1;
+    int nTrackIsolationL3_= -1;
+    float leadTrackPtL3_= 0.;
+    double seedEcalHitEt_= -1;
     std::vector<double> ecalClusterShape_;
-    int nEcalHits_;
-    double hcalIsolEt_;
-    double seedHcalHitEt_;
+    int nEcalHits_= -1;
+    double hcalIsolEt_= -1;
+    double seedHcalHitEt_= -1;
     std::vector<double> hcalClusterShape_;
-    int nHcalHits_;
-    double sumPtTracksL25_;
-    double sumPtTracksL3_;
+    int nHcalHits_= -1;
+    double sumPtTracksL25_= -1000.;
+    double sumPtTracksL3_= -1000.;
   };
   
 }

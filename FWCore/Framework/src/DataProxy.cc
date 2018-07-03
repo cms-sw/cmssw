@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 //
 // constants, enums and typedefs
@@ -74,7 +74,7 @@ DataProxy::~DataProxy()
 void DataProxy::clearCacheIsValid() {
    cacheIsValid_.store(false, std::memory_order_release);
    nonTransientAccessRequested_.store(false, std::memory_order_release);
-   cache_ = 0;
+   cache_ = nullptr;
 }
       
 void 
@@ -93,18 +93,51 @@ DataProxy::invalidateTransientCache() {
 // const member functions
 //
 namespace  {
-   void throwMakeException(const EventSetupRecord& iRecord,
+   void throwMakeException(const EventSetupRecordImpl& iRecord,
                            const DataKey& iKey)  {
       throw MakeDataException(iRecord.key(),iKey);
    }
+
+   class ESSignalSentry {
+   public:
+      ESSignalSentry(const EventSetupRecordImpl& iRecord,
+                     const DataKey& iKey,
+                     ComponentDescription const* componentDescription,
+                     ActivityRegistry* activityRegistry) :
+         eventSetupRecord_(iRecord),
+         dataKey_(iKey),
+         componentDescription_(componentDescription),
+         calledPostLock_(false),
+         activityRegistry_(activityRegistry) {
+
+         activityRegistry->preLockEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
+      }
+      void sendPostLockSignal() {
+         calledPostLock_ = true;
+         activityRegistry_->postLockEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
+      }
+      ~ESSignalSentry() noexcept(false) {
+         if (!calledPostLock_) {
+            activityRegistry_->postLockEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
+         }
+         activityRegistry_->postEventSetupGetSignal_(componentDescription_, eventSetupRecord_.key(), dataKey_);
+      }
+   private:
+      EventSetupRecordImpl const& eventSetupRecord_;
+      DataKey const& dataKey_;
+      ComponentDescription const* componentDescription_;
+      bool calledPostLock_;
+      ActivityRegistry* activityRegistry_;
+   };
 }
-      
-      
+
 const void* 
-DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const
+DataProxy::get(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry* activityRegistry) const
 {
    if(!cacheIsValid()) {
+      ESSignalSentry signalSentry(iRecord, iKey, providerDescription(), activityRegistry);
       std::lock_guard<std::recursive_mutex> guard(s_esGlobalMutex);
+      signalSentry.sendPostLockSignal();
       if(!cacheIsValid()) {
          cache_ = const_cast<DataProxy*>(this)->getImpl(iRecord, iKey);
          cacheIsValid_.store(true,std::memory_order_release);
@@ -117,14 +150,14 @@ DataProxy::get(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTrans
       nonTransientAccessRequested_.store(true, std::memory_order_release);
    }
 
-   if(0 == cache_) {
+   if(nullptr == cache_) {
       throwMakeException(iRecord, iKey);
    }
    return cache_;
 }
 
-void DataProxy::doGet(const EventSetupRecord& iRecord, const DataKey& iKey, bool iTransiently) const {
-   get(iRecord, iKey, iTransiently);
+void DataProxy::doGet(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently, ActivityRegistry* activityRegistry) const {
+   get(iRecord, iKey, iTransiently, activityRegistry);
 }
       
       

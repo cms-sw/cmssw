@@ -1,7 +1,6 @@
 #ifndef SimG4Core_CheckSecondary_TreatSecondary_H
 #define SimG4Core_CheckSecondary_TreatSecondary_H
 
-#include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -12,6 +11,7 @@
 
 class G4Step;
 class G4Track;
+class G4ProcessTypeEnumerator;
 
 class TreatSecondary {
 
@@ -27,8 +27,8 @@ public:
 					      std::vector<int> & charges);
 
 private:
-  TreatSecondary(const TreatSecondary&); // stop default
-  const TreatSecondary& operator=(const TreatSecondary&);
+  TreatSecondary(const TreatSecondary&) = delete; // stop default
+  const TreatSecondary& operator=(const TreatSecondary&) = delete;
 
 private:
   int                                  verbosity, minSec, killAfter;

@@ -52,15 +52,15 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
 { 
   LumiScalers();
 
-  struct ScalersEventRecordRaw_v1 * raw 
-    = (struct ScalersEventRecordRaw_v1 *)rawData;
+  struct ScalersEventRecordRaw_v1 const* raw 
+    = reinterpret_cast<struct ScalersEventRecordRaw_v1 const*>(rawData);
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
   sourceID_     = ( raw->header >>  8 ) & 0x00000FFFULL;
   bunchNumber_  = ( raw->header >> 20 ) &      0xFFFULL;
   version_      = raw->version;
 
-  struct LumiScalersRaw_v1 * lumi = NULL;
+  struct LumiScalersRaw_v1 const * lumi = nullptr;
 
   if ( version_ >= 1 )
   {
@@ -70,8 +70,8 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
     }
     else 
     {
-      struct ScalersEventRecordRaw_v3 * raw3 
-	= (struct ScalersEventRecordRaw_v3 *)rawData;
+      struct ScalersEventRecordRaw_v3 const* raw3 
+	= reinterpret_cast<struct ScalersEventRecordRaw_v3 const*>(rawData);
       lumi = & (raw3->lumi);
     }
     collectionTime_.set_tv_sec(static_cast<long>(lumi->collectionTime_sec));
@@ -109,9 +109,9 @@ LumiScalers::LumiScalers(const unsigned char * rawData)
 
     if ( version_ >= 7 )
     {
-      struct ScalersEventRecordRaw_v6 * raw6 
-	= (struct ScalersEventRecordRaw_v6 *)rawData;
-      float * fspare = (float *) raw6->spare;
+      struct ScalersEventRecordRaw_v6 const * raw6 
+	= (struct ScalersEventRecordRaw_v6 const *)rawData;
+      float const* fspare = reinterpret_cast<float const*>( raw6->spare);
       pileup_    = fspare[ScalersRaw::I_SPARE_PILEUP_v7];
       pileupRMS_ = fspare[ScalersRaw::I_SPARE_PILEUPRMS_v7];
       if ( version_ >= 8 )
@@ -142,7 +142,8 @@ LumiScalers::~LumiScalers() { }
 std::ostream& operator<<(std::ostream& s, const LumiScalers& c) 
 {
   char zeit[128];
-  char line[128];
+  constexpr size_t kLineBufferSize = 157;
+  char line[kLineBufferSize];
   struct tm * hora;
 
   s << "LumiScalers    Version: " << c.version() << 
@@ -151,48 +152,48 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
   timespec ts = c.collectionTime();
   hora = gmtime(&ts.tv_sec);
   strftime(zeit, sizeof(zeit), "%Y.%m.%d %H:%M:%S", hora);
-  sprintf(line, " CollectionTime: %s.%9.9d", zeit, 
+  snprintf(line, kLineBufferSize, " CollectionTime: %s.%9.9d", zeit, 
 	  (int)ts.tv_nsec);
   s << line << std::endl;
 
-  sprintf(line, " TrigType: %d   EventID: %d    BunchNumber: %d", 
+  snprintf(line, kLineBufferSize, " TrigType: %d   EventID: %d    BunchNumber: %d", 
 	  c.trigType(), c.eventID(), c.bunchNumber());
   s << line << std::endl;
 
-  sprintf(line," SectionNumber: %10d   StartOrbit: %10d  NumOrbits: %10d",
+  snprintf(line, kLineBufferSize," SectionNumber: %10d   StartOrbit: %10d  NumOrbits: %10d",
 	  c.sectionNumber(), c.startOrbit(), c.numOrbits());
   s << line << std::endl;
 
-  sprintf(line," Normalization: %e  DeadTimeNormalization: %e",
+  snprintf(line, kLineBufferSize," Normalization: %e  DeadTimeNormalization: %e",
 	  c.normalization(), c.deadTimeNormalization());
   s << line << std::endl;
 
   // Integrated Luminosity
 
-  sprintf(line," LumiFill:            %e   LumiRun:            %e", 
+  snprintf(line, kLineBufferSize," LumiFill:            %e   LumiRun:            %e", 
 	  c.lumiFill(), c.lumiRun());
   s << line << std::endl;
-  sprintf(line," LiveLumiFill:        %e   LiveLumiRun:        %e", 
+  snprintf(line, kLineBufferSize," LiveLumiFill:        %e   LiveLumiRun:        %e", 
 	  c.liveLumiFill(), c.liveLumiRun());
   s << line << std::endl;
 
-  sprintf(line," LumiETFill:          %e   LumiETRun:          %e", 
+  snprintf(line, kLineBufferSize," LumiETFill:          %e   LumiETRun:          %e", 
 	  c.lumiFill(), c.lumiRun());
   s << line << std::endl;
 
-  sprintf(line," LiveLumiETFill:      %e   LiveLumETiRun:      %e", 
+  snprintf(line, kLineBufferSize," LiveLumiETFill:      %e   LiveLumETiRun:      %e", 
 	  c.liveLumiETFill(), c.liveLumiETRun());
   s << line << std::endl;
 
   int length = c.instantOccLumi().size();
   for (int i=0; i<length; i++)
   {
-    sprintf(line,
+    snprintf(line, kLineBufferSize,
 	       " LumiOccFill[%d]:      %e   LumiOccRun[%d]:      %e", 
 	    i, c.lumiOccFill()[i], i, c.lumiOccRun()[i]);
     s << line << std::endl;
 
-    sprintf(line,
+    snprintf(line, kLineBufferSize,
 	       " LiveLumiOccFill[%d]:  %e   LiveLumiOccRun[%d]:  %e", 
 	    i, c.liveLumiOccFill()[i], i, c.liveLumiOccRun()[i]);
     s << line << std::endl;
@@ -200,29 +201,29 @@ std::ostream& operator<<(std::ostream& s, const LumiScalers& c)
 
   // Instantaneous Luminosity
 
-  sprintf(line," InstantLumi:       %e  Err: %e  Qlty: %d",
+  snprintf(line, kLineBufferSize," InstantLumi:       %e  Err: %e  Qlty: %d",
 	  c.instantLumi(), c.instantLumiErr(), c.instantLumiQlty());
   s << line << std::endl;
 
-  sprintf(line," InstantETLumi:     %e  Err: %e  Qlty: %d",
+  snprintf(line, kLineBufferSize," InstantETLumi:     %e  Err: %e  Qlty: %d",
 	  c.instantETLumi(), c.instantETLumiErr(), c.instantETLumiQlty());
   s << line << std::endl;
 
   for (int i=0; i<length; i++)
   {
-    sprintf(line," InstantOccLumi[%d]: %e  Err: %e  Qlty: %d",
+    snprintf(line, kLineBufferSize," InstantOccLumi[%d]: %e  Err: %e  Qlty: %d",
 	    i, c.instantOccLumi()[i], c.instantOccLumiErr()[i], 
 	    c.instantOccLumiQlty()[i]);
     s << line << std::endl;
-    sprintf(line,"      LumiNoise[%d]: %e", i, c.lumiNoise()[i]);
+    snprintf(line, kLineBufferSize,"      LumiNoise[%d]: %e", i, c.lumiNoise()[i]);
     s << line << std::endl;
   }
 
-  sprintf(line," Pileup: %f       PileupRMS: %f", 
+  snprintf(line, kLineBufferSize," Pileup: %f       PileupRMS: %f", 
 	  c.pileup(), c.pileupRMS());
   s << line << std::endl;
 
-  sprintf(line," BunchLumi: %f    Spare: %f", 
+  snprintf(line, kLineBufferSize," BunchLumi: %f    Spare: %f", 
 	   c.bunchLumi(), c.spare());
   s << line << std::endl;
 

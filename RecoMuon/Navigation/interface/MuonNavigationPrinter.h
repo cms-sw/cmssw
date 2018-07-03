@@ -14,6 +14,12 @@
  * Chang Liu:
  * The class prints nextLayers and compatibleLayers
  * Add new constructor for MuonTkNavigationSchool
+ *
+ * Cesare Calabria:
+ * GEMs implementation.
+
+ * David Nash:
+ * ME0s implementation
  */
 
 class DetLayer;
@@ -26,8 +32,8 @@ class MuonNavigationSchool;
 
 class MuonNavigationPrinter {
   public:
-  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true,
-                        bool enableCSC = true, bool enableGEM = false  );
+
+  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true, bool enableCSC = true, bool enableGEM = false, bool enableME0 = false );
   MuonNavigationPrinter(const MuonDetLayerGeometry *,MuonNavigationSchool const &, const GeometricSearchTracker *);
 
   private:

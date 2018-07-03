@@ -57,7 +57,7 @@ void
 FWViewEnergyScaleEditor::setEnabled(bool x)
 {
    m_enabled =x;
-   typedef  std::vector<boost::shared_ptr<FWParameterSetterBase> > sList;
+   typedef  std::vector<std::shared_ptr<FWParameterSetterBase> > sList;
    for (sList::iterator i = m_setters.begin(); i!=m_setters.end(); ++i)
    {
       (*i)->setEnabled(m_enabled);
@@ -75,7 +75,7 @@ FWViewEnergyScaleEditor::addParam(FWParameterBase* param, const char* title)
       leftPad *= 2;
    }
    
-   boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
+   std::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
    ptr->attach((FWParameterBase*)param, this);
    TGFrame* pframe = ptr->build(this);
    AddFrame(pframe, new TGLayoutHints(kLHintsLeft, leftPad, 0, 0, 0));

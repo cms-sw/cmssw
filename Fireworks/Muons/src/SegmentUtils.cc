@@ -3,7 +3,7 @@
 
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace fireworks
 {
@@ -16,7 +16,7 @@ namespace fireworks
 		      float* segmentInnerPoint, 
 		      float* segmentOuterPoint )
   {
-    if( detector == MuonSubdetId::CSC )
+    if( detector == MuonSubdetId::CSC || detector == MuonSubdetId::GEM || detector == MuonSubdetId::ME0 )
     {
       if( matchedSegment )
       {

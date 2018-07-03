@@ -27,13 +27,13 @@ public:
   L3MuonCombinedRelativeIsolationProducer(const edm::ParameterSet&);
 
   /// destructor
-  virtual ~L3MuonCombinedRelativeIsolationProducer();
+  ~L3MuonCombinedRelativeIsolationProducer() override;
 
   /// ParameterSet descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

@@ -25,7 +25,7 @@ class EgammaBasicClusters : public DQMEDAnalyzer
 {
  public:
   explicit EgammaBasicClusters( const edm::ParameterSet& );
-  ~EgammaBasicClusters();
+  ~EgammaBasicClusters() override;
 
   void analyze( const edm::Event&, const edm::EventSetup& ) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;

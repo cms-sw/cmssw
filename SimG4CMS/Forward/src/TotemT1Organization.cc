@@ -19,6 +19,7 @@
 
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh" 
+#include "globals.hh"
 
 //
 // constructors and destructor
@@ -41,12 +42,11 @@ TotemT1Organization :: ~TotemT1Organization() {
 // member functions
 //
 
-uint32_t TotemT1Organization :: GetUnitID(const G4Step* aStep) const {
-  return const_cast<TotemT1Organization *>(this)->GetUnitID(aStep);
+uint32_t TotemT1Organization :: getUnitID(const G4Step* aStep) const {
+  return const_cast<TotemT1Organization *>(this)->getUnitID(aStep);
 }
 
-
-uint32_t TotemT1Organization :: GetUnitID(const G4Step* aStep) {
+uint32_t TotemT1Organization :: getUnitID(const G4Step* aStep) {
 
   int currLAOT;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
@@ -85,20 +85,20 @@ uint32_t TotemT1Organization :: GetUnitID(const G4Step* aStep) {
 			 << "CURRENT PLANE "<<_currentPlane;
 #endif
   _needUpdateUnitID=true;
-  return GetCurrentUnitID();
+  return getCurrentUnitID();
 }
 
-int TotemT1Organization :: GetCurrentUnitID(void) const {
+int TotemT1Organization :: getCurrentUnitID(void) const {
 
   _checkUnitIDUpdate();
 #ifdef SCRIVI
- LogDebug("ForwardSim") << "GetCurrentUnitID()=" << _currentUnitID;
+ LogDebug("ForwardSim") << "getCurrentUnitID()=" << _currentUnitID;
                                              << endl;
 #endif
  return _currentUnitID;
 }
 
-void TotemT1Organization :: SetCurrentUnitID(int currentUnitID) {
+void TotemT1Organization :: setCurrentUnitID(int currentUnitID) {
 
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentUnitID=" << currentUnitID;
@@ -107,17 +107,17 @@ void TotemT1Organization :: SetCurrentUnitID(int currentUnitID) {
   _needUpdateData=true;
 }
 
-int  TotemT1Organization :: GetCurrentDetectorPosition(void) const {
+int  TotemT1Organization :: getCurrentDetectorPosition(void) const {
 
   _checkDataUpdate();
 #ifdef SCRIVI
-  LogDebug("ForwardSim") << "GetCurrentDetectorPosition()=" 
+  LogDebug("ForwardSim") << "getCurrentDetectorPosition()=" 
 			 << _currentDetectorPosition;
 #endif
  return _currentDetectorPosition;
 }
 
-void TotemT1Organization :: SetCurrentDetectorPosition(int currentDetectorPosition) {
+void TotemT1Organization :: setCurrentDetectorPosition(int currentDetectorPosition) {
 
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentDetectorPosition=" << currentDetectorPosition;
@@ -126,17 +126,17 @@ void TotemT1Organization :: SetCurrentDetectorPosition(int currentDetectorPositi
   _needUpdateUnitID=true;
 }
 
-int TotemT1Organization :: GetCurrentPlane(void) const {
+int TotemT1Organization :: getCurrentPlane(void) const {
 
   _checkDataUpdate();
 
 #ifdef SCRIVI
-  LogDebug("ForwardSim") << "GetCurrentPlane()=" << _currentPlane;
+  LogDebug("ForwardSim") << "getCurrentPlane()=" << _currentPlane;
 #endif
  return _currentPlane;
 }
 
-void TotemT1Organization :: SetCurrentPlane(int currentPlane) {
+void TotemT1Organization :: setCurrentPlane(int currentPlane) {
 
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentPlane=" << currentPlane;
@@ -145,16 +145,16 @@ void TotemT1Organization :: SetCurrentPlane(int currentPlane) {
   _needUpdateUnitID=true;
 }
 
-int TotemT1Organization :: GetCurrentCSC(void) const {
+int TotemT1Organization :: getCurrentCSC(void) const {
 
   _checkDataUpdate();
 #ifdef SCRIVI
-  LogDebug("ForwardSim") << "GetCurrentCSC()=" << _currentCSC;
+  LogDebug("ForwardSim") << "getCurrentCSC()=" << _currentCSC;
 #endif 
  return _currentCSC;
 }
 
-void TotemT1Organization :: SetCurrentCSC(int currentCSC) {
+void TotemT1Organization :: setCurrentCSC(int currentCSC) {
 
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentCSC=" << currentCSC;
@@ -163,16 +163,16 @@ void TotemT1Organization :: SetCurrentCSC(int currentCSC) {
   _needUpdateUnitID=true; 
 }
 
-int TotemT1Organization :: GetCurrentLayer(void) const {
+int TotemT1Organization :: getCurrentLayer(void) const {
 
   _checkDataUpdate();
 #ifdef SCRIVI
-  LogDebug("ForwardSim") << "GetCurrentLayer()=" << _currentLayer;
+  LogDebug("ForwardSim") << "getCurrentLayer()=" << _currentLayer;
 #endif
   return _currentLayer;
 }
 
-void TotemT1Organization :: SetCurrentLayer(int currentLayer) {
+void TotemT1Organization :: setCurrentLayer(int currentLayer) {
 
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentLayer=" << currentLayer;
@@ -181,16 +181,16 @@ void TotemT1Organization :: SetCurrentLayer(int currentLayer) {
   _needUpdateUnitID=true;
 }
 
-TotemT1Organization::ObjectType  TotemT1Organization :: GetCurrentObjectType(void) const {
+TotemT1Organization::ObjectType  TotemT1Organization :: getCurrentObjectType(void) const {
   
  _checkDataUpdate();
 #ifdef SCRIVI
- LogDebug("ForwardSim") << "GetCurrentObjectType()=" << _currentObjectType;
+ LogDebug("ForwardSim") << "getCurrentObjectType()=" << _currentObjectType;
 #endif
  return _currentObjectType;
 }
 
-void TotemT1Organization :: SetCurrentObjectType(ObjectType currentObjectType){
+void TotemT1Organization :: setCurrentObjectType(ObjectType currentObjectType){
 
 #ifdef SCRIVI
   LogDebug("ForwardSim") << "_currentObjectType=" << currentObjectType;
@@ -199,7 +199,7 @@ void TotemT1Organization :: SetCurrentObjectType(ObjectType currentObjectType){
   _needUpdateUnitID=true;
 }
 
-int TotemT1Organization :: FromObjectTypeToInt(ObjectType objectType) {
+int TotemT1Organization :: fromObjectTypeToInt(ObjectType objectType) {
 
   int result(static_cast<int>(objectType));
   if (result<0 || result>=MaxObjectTypes) {
@@ -210,8 +210,8 @@ int TotemT1Organization :: FromObjectTypeToInt(ObjectType objectType) {
   return result;
 }
 
-int TotemT1Organization :: FromObjectTypeToInt(ObjectType objectType, int layer) {
-  return FromObjectTypeToInt(objectType)+layer*MaxObjectTypes;
+int TotemT1Organization :: fromObjectTypeToInt(ObjectType objectType, int layer) {
+  return fromObjectTypeToInt(objectType)+layer*MaxObjectTypes;
 }
 
 
@@ -347,7 +347,7 @@ void TotemT1Organization :: _FromDataToUnitID(void) {
   }
   currLA=_currentLayer+1;
  
-  currOT=FromObjectTypeToInt(_currentObjectType);
+  currOT=fromObjectTypeToInt(_currentObjectType);
  
   // currDP:  0..2 (3)
   // currPL:  0..infty

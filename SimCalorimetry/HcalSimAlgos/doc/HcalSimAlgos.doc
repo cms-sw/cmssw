@@ -49,7 +49,7 @@ calculated using units: pe/fC = (pe/depositedGEV) * (depositedGeV/ inc GeV) * (G
 = photostat * sampling fraction * calibration gain
 This comes out to 0.33 fC/pe, or an amplification of 2000.
 
-The HcalHitCorrection does time slew at the moment, where each 
+The HcalTimeSlewSim does time slew at the moment, where each 
 SimHit is delayed according to its amplitude, according to the plots
 in the physics TDR.  Low-energy hits are delayed by 10 ns,
 while higher-energy hits are delayed by only 3 ns.

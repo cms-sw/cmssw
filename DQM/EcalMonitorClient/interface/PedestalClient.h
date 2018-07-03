@@ -21,7 +21,8 @@ namespace ecaldqm
     int minChannelEntries_;
     float expectedMean_;
     float toleranceMean_;
-    std::vector<float> toleranceRMS_;
+    std::vector<float> toleranceRMSEB_;
+    std::vector<float> toleranceRMSEE_;
     float expectedPNMean_;
     float tolerancePNMean_;
     std::vector<float> tolerancePNRMS_;

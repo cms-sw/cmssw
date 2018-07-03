@@ -5,13 +5,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ValidationIntoNTuples")
 
-# global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
+.oO[LoadGlobalTagTemplate]Oo.
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('detailedInfo', 
@@ -43,38 +41,50 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("validation")
 
-# global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
+.oO[LoadGlobalTagTemplate]Oo.
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('detailedInfo', 
         'cout')
 )
 
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+    firstRun=cms.untracked.uint32(.oO[runGeomComp]Oo.)
+    )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load("DQM.SiStripCommon.TkHistoMap_cfi")
+process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
+	cms.PSet(record = cms.string('SiStripDetCablingRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('RunInfoRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadChannelRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadFiberRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadModuleRcd'),
+            tag = cms.string('')), 
+        cms.PSet(record = cms.string('SiStripBadStripRcd'),
+            tag = cms.string(''))
+)
 
-process.DQMStore=cms.Service("DQMStore")
-
-process.load("DQMServices.Core.DQMStore_cfg") 
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
   # configuration of the Tracker Geometry Comparison Tool
   # Tracker Geometry Comparison
 process.load("Alignment.OfflineValidation.TrackerGeometryCompare_cfi")
   # the input "IDEAL" is special indicating to use the ideal geometry of the release
 
-process.TrackerGeometryCompare.inputROOTFile1 = '.oO[comparedGeometry]Oo.'
-process.TrackerGeometryCompare.inputROOTFile2 = '.oO[referenceGeometry]Oo.'
+process.TrackerGeometryCompare.inputROOTFile1 = '.oO[referenceGeometry]Oo.'
+process.TrackerGeometryCompare.inputROOTFile2 = '.oO[comparedGeometry]Oo.'
+process.TrackerGeometryCompare.moduleList = '.oO[moduleListBase]Oo.'
 process.TrackerGeometryCompare.outputFile = ".oO[name]Oo..Comparison_common.oO[common]Oo..root"
 
 process.load("CommonTools.UtilAlgos.TFileService_cfi")  
@@ -114,13 +124,13 @@ dbOutputTemplate= """
 ######################################################################
 ######################################################################
 visualizationTrackerTemplate= """
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/visualizationTracker.C"
-void TkAl3DVisualization_.oO[name]Oo.(){
+#include "Alignment/OfflineValidation/scripts/visualizationTracker.C"
+void TkAl3DVisualization_.oO[common]Oo._.oO[name]Oo.(){
             //------------------------------ONLY NEEDED INPUTS-------------------------------//
 //------Tree Read In--------
     TString inputFileName = ".oO[outputFile]Oo.";
     //output file name
-    string outputFileName = ".oO[name]Oo..Visualization";
+    string outputFileName = ".oO[common]Oo._.oO[name]Oo..Visualization";
     //title
     string line1 = ".oO[alignmentTitle]Oo.";
     string line2 = "vs. .oO[referenceTitle]Oo.";

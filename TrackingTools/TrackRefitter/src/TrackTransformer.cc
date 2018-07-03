@@ -26,24 +26,16 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-TrackTransformer::TrackTransformer(const ParameterSet& parameterSet){
-  
-  // Refit direction
-  string refitDirectionName = parameterSet.getParameter<string>("RefitDirection");
-  theRefitDirection = RefitDirection(refitDirectionName);
-  
-  theFitterName = parameterSet.getParameter<string>("Fitter");  
-  theSmootherName = parameterSet.getParameter<string>("Smoother");  
-  thePropagatorName = parameterSet.getParameter<string>("Propagator");
-
-  theTrackerRecHitBuilderName = parameterSet.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
-
-  theRPCInTheFit = parameterSet.getParameter<bool>("RefitRPCHits");
-  theDoPredictionsOnly = parameterSet.getParameter<bool>("DoPredictionsOnly");
-
-  theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
-}
+TrackTransformer::TrackTransformer(const ParameterSet& parameterSet):
+    theRPCInTheFit(parameterSet.getParameter<bool>("RefitRPCHits")),
+    theDoPredictionsOnly(parameterSet.getParameter<bool>("DoPredictionsOnly")),
+    theRefitDirection(parameterSet.getParameter<string>("RefitDirection")),
+    theFitterName(parameterSet.getParameter<string>("Fitter")),
+    theSmootherName(parameterSet.getParameter<string>("Smoother")),  
+    thePropagatorName(parameterSet.getParameter<string>("Propagator")),
+    theTrackerRecHitBuilderName(parameterSet.getParameter<string>("TrackerRecHitBuilder")),
+    theMuonRecHitBuilderName(parameterSet.getParameter<string>("MuonRecHitBuilder"))
+    {}
 
 /// Destructor
 TrackTransformer::~TrackTransformer(){}
@@ -111,7 +103,7 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
   auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product());
 
   
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       if ( (*hit)->geographicalId().det() == DetId::Tracker ) {
 	result.emplace_back((**hit).cloneForFit(*tkbuilder->geometry()->idToDet( (**hit).geographicalId() ) ) );
@@ -130,35 +122,21 @@ TrackTransformer::getTransientRecHits(const reco::TransientTrack& track) const {
 
 // FIXME: check this method!
 RefitDirection::GeometricalDirection
-TrackTransformer::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer& recHits) const {
+TrackTransformer::checkRecHitsOrdering(TransientTrackingRecHit::ConstRecHitContainer const & recHits) const {
   
   if (!recHits.empty()){
     GlobalPoint first = trackingGeometry()->idToDet(recHits.front()->geographicalId())->position();
     GlobalPoint last = trackingGeometry()->idToDet(recHits.back()->geographicalId())->position();
     
-    double rFirst = first.mag();
-    double rLast  = last.mag();
+    // maybe perp2?
+    auto rFirst = first.mag2();
+    auto rLast  = last.mag2();
     if(rFirst < rLast) return RefitDirection::insideOut;
-    else if(rFirst > rLast) return RefitDirection::outsideIn;
-    else{
-      LogDebug("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
-      return RefitDirection::undetermined;
-    }
+    if(rFirst > rLast) return RefitDirection::outsideIn;
   }
-  else{
-    LogDebug("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
-    return RefitDirection::undetermined;
-  }
+  LogDebug("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
+  return RefitDirection::undetermined;
 }
-
-// void reorder(TransientTrackingRecHit::ConstRecHitContainer& recHits, RefitDirection::GeometricalDirection recHitsOrder) const{
-
-//   if(theRefitDirection.geometricalDirection() != recHitsOrder) reverse(recHits.begin(),recHits.end());
-
-//   if(theRefitDirection.geometricalDirection() == RefitDirection::insideOut &&recHitsOrder){}
-//   else if(theRefitDirection.geometricalDirection() == RefitDirection::outsideIn){} 
-//   else LogWarning("Reco|TrackingTools|TrackTransformer") << "Impossible to determine the rechits order" <<endl;
-// }
 
 
 /// Convert Tracks into Trajectories
@@ -168,18 +146,15 @@ vector<Trajectory> TrackTransformer::transform(const reco::Track& newTrack) cons
   
   reco::TransientTrack track(newTrack,magneticField(),trackingGeometry());   
 
-  // Build the transient Rechits
-  TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit = getTransientRecHits(track);
-
+  auto recHitsForReFit = getTransientRecHits(track);
   return transform(track, recHitsForReFit);
 }
 
 
 /// Convert Tracks into Trajectories with a given set of hits
 vector<Trajectory> TrackTransformer::transform(const reco::TransientTrack& track,
-                                               const TransientTrackingRecHit::ConstRecHitContainer& _recHitsForReFit) const {
+                                               TransientTrackingRecHit::ConstRecHitContainer& recHitsForReFit) const {
   
-  TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit =  _recHitsForReFit;
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
 
   if(recHitsForReFit.size() < 2) return vector<Trajectory>();
@@ -283,29 +258,27 @@ vector<Trajectory> TrackTransformer::transform(const reco::TransientTrack& track
   if(theDoPredictionsOnly){
     Trajectory aTraj(seed,propagationDirection);
     TrajectoryStateOnSurface predTSOS = firstTSOS;
-    for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = recHitsForReFit.begin(); 
-	ihit != recHitsForReFit.end(); ++ihit ) {
-      predTSOS = propagator()->propagate(predTSOS, (*ihit)->det()->surface());
-      if (predTSOS.isValid()) aTraj.push(TrajectoryMeasurement(predTSOS, *ihit));
+    for(auto const & hit : recHitsForReFit) { 
+      predTSOS = propagator()->propagate(predTSOS, hit->det()->surface());
+      if (predTSOS.isValid()) aTraj.push(TrajectoryMeasurement(predTSOS, hit));
     }
     return vector<Trajectory>(1, aTraj);
   }
 
 
-  vector<Trajectory> trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
+  auto const &  trajectories = theFitter->fit(seed,recHitsForReFit,firstTSOS);
   
   if(trajectories.empty()){
     LogTrace(metname)<<"No Track refitted!"<<endl;
-    return vector<Trajectory>();
+    return trajectories;
   }
   
-  Trajectory trajectoryBW = trajectories.front();
+  auto const &  trajectoryBW = trajectories.front();
     
-  vector<Trajectory> trajectoriesSM = theSmoother->trajectories(trajectoryBW);
+  auto const & trajectoriesSM = theSmoother->trajectories(trajectoryBW);
 
   if(trajectoriesSM.empty()){
     LogTrace(metname)<<"No Track smoothed!"<<endl;
-    return vector<Trajectory>();
   }
   
   return trajectoriesSM;

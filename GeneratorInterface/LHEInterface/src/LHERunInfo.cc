@@ -311,19 +311,17 @@ void LHERunInfo::statistics() const
 	unsigned long nTried_neg = 0;
 	int idwtup = heprup.IDWTUP;
 
-	std::cout << std::endl;
-	std::cout << "Process and cross-section statistics" << std::endl;
-	std::cout << "------------------------------------" << std::endl;
-	std::cout << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match [pb]\t\t\taccepted [%]\t event_eff [%]"
-	          << std::endl;
+	LogDebug("LHERunInfo") << " statistics";
+	LogDebug("LHERunInfo") << "Process and cross-section statistics";
+	LogDebug("LHERunInfo") << "------------------------------------";
+	LogDebug("LHERunInfo") << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match [pb]\t\t\taccepted [%]\t event_eff [%]";
 
 	for(std::vector<Process>::const_iterator proc = processes.begin();
 	    proc != processes.end(); ++proc) {
 	  unsigned int idx = proc->heprupIndex();
 
 		if (!proc->selected().n()) {
-		  std::cout << proc->process() << "\t0\t0\tn/a\t\t\tn/a"
-			          << std::endl;
+		  LogDebug("LHERunInfo") << proc->process() << "\t0\t0\tn/a\t\t\tn/a";
 			continue;
 		}
 
@@ -405,7 +403,7 @@ void LHERunInfo::statistics() const
 		double event_eff_proc = ntotal_proc>0? (double)(proc->nPassPos()+ proc->nPassNeg())/ntotal_proc: -1;
 		double event_eff_err_proc = ntotal_proc>0? std::sqrt((1-event_eff_proc)*event_eff_proc/ntotal_proc): -1;
 
-		std::cout << proc->process() << "\t\t"
+		LogDebug("LHERunInfo") << proc->process() << "\t\t"
 			  << std::scientific << std::setprecision(3)
 			  << heprup.XSECUP[proc->heprupIndex()] << " +/- " 
 			  << heprup.XERRUP[proc->heprupIndex()] << "\t\t"
@@ -421,8 +419,7 @@ void LHERunInfo::statistics() const
 		          << std::fixed << std::setprecision(1)
 		          << (fracAcc * 100)  << " +/- " << ( std::sqrt(efferr2) * 100) << "\t"
 		          << std::fixed << std::setprecision(1)
-		          << (event_eff_proc * 100) << " +/- " << ( event_eff_err_proc * 100)
-			  << std::endl;
+			  << (event_eff_proc * 100) << " +/- " << ( event_eff_err_proc * 100);
 
 		nAccepted += proc->accepted().n();
 		nTried += proc->tried().n();
@@ -443,7 +440,7 @@ void LHERunInfo::statistics() const
 	double event_eff_all = ntotal_all>0? (double)(nAccepted_pos+nAccepted_neg)/ntotal_all: -1;
 	double event_eff_err_all = ntotal_all>0? std::sqrt((1-event_eff_all)*event_eff_all/ntotal_all): -1;
 
-	std::cout << "Total\t\t"
+	LogDebug("LHERunInfo") << "Total\t\t"
 	          << std::scientific << std::setprecision(3)
 		  << sigSelSum << " +/- " << std::sqrt(errSel2Sum) << "\t\t"
 	          << nAccepted << "\t"
@@ -458,27 +455,26 @@ void LHERunInfo::statistics() const
 	          << std::fixed << std::setprecision(1)
 	          << (sigSum / sigSelSum * 100)  << " +/- " << (std::sqrt(errMatch2Sum)/sigSelSum * 100) << "\t"
 	          << std::fixed << std::setprecision(1) 
-	          << (event_eff_all * 100) << " +/- " << (event_eff_err_all * 100)
-		  << std::endl;
+	          << (event_eff_all * 100) << " +/- " << (event_eff_err_all * 100);
 }
 
 LHERunInfo::Header::Header() :
-	xmlDoc(0)
+	xmlDoc(nullptr)
 {
 }
 
 LHERunInfo::Header::Header(const std::string &tag) :
-	LHERunInfoProduct::Header(tag), xmlDoc(0)
+	LHERunInfoProduct::Header(tag), xmlDoc(nullptr)
 {
 }
 
 LHERunInfo::Header::Header(const Header &orig) :
-	LHERunInfoProduct::Header(orig), xmlDoc(0)
+	LHERunInfoProduct::Header(orig), xmlDoc(nullptr)
 {
 }
 
 LHERunInfo::Header::Header(const LHERunInfoProduct::Header &orig) :
-	LHERunInfoProduct::Header(orig), xmlDoc(0)
+	LHERunInfoProduct::Header(orig), xmlDoc(nullptr)
 {
 }
 
@@ -491,7 +487,7 @@ LHERunInfo::Header::~Header()
 static void fillLines(std::vector<std::string> &lines, const char *data,
                       int len = -1)
 {
-	const char *end = len >= 0 ? (data + len) : 0;
+	const char *end = len >= 0 ? (data + len) : nullptr;
 	while(*data && (!end || data < end)) {
 		std::size_t len = std::strcspn(data, "\r\n");
 		if (end && data + len > end)
@@ -511,11 +507,13 @@ static std::vector<std::string> domToLines(const DOMNode *node)
 	DOMImplementation *impl =
 		DOMImplementationRegistry::getDOMImplementation(
 							XMLUniStr("Core"));
-	std::auto_ptr<DOMWriter> writer(
-		static_cast<DOMImplementationLS*>(impl)->createDOMWriter());
+	std::auto_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)(impl))->createLSSerializer());
 
-	writer->setEncoding(XMLUniStr("UTF-8"));
-	XMLSimpleStr buffer(writer->writeToString(*node));
+	std::auto_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+ 	assert(outputDesc.get());
+	outputDesc->setEncoding(XMLUniStr("UTF-8"));
+	
+	XMLSimpleStr buffer(writer->writeToString(node));
 
 	const char *p = std::strchr((const char*)buffer, '>') + 1;
 	const char *q = std::strrchr(p, '<');
@@ -526,7 +524,7 @@ static std::vector<std::string> domToLines(const DOMNode *node)
 
 std::vector<std::string> LHERunInfo::findHeader(const std::string &tag) const
 {
-	const LHERunInfo::Header *header = 0;
+	const LHERunInfo::Header *header = nullptr;
 	for(std::vector<Header>::const_iterator iter = headers.begin();
 	    iter != headers.end(); ++iter) {
 		if (iter->tag() == tag)
@@ -600,7 +598,7 @@ namespace {
 const DOMNode *LHERunInfo::Header::getXMLNode() const
 {
 	if (tag().empty())
-		return 0;
+		return nullptr;
 
 	if (!xmlDoc) {
 		XercesDOMParser parser;

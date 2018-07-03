@@ -1,20 +1,3 @@
-<library file="EvtGenLHC/*.cc,EvtGenLHC/*.cpp,EvtGenLHC/*.f,myEvtRandomEngine.cc" name="EvtGenLHCInterface">
-  <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="GeneratorInterface/EvtGenInterface"/>
-  <use name="GeneratorInterface/Pythia6Interface"/>
-  <use name="SimGeneral/HepPDTRecord"/>
-  <use name="heppdt"/>
-  <use name="clhep"/>
-  <use name="hepmc"/>
-  <use name="evtgenlhc"/>
-  <use name="photos"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-
-
 <library file="EvtGenUserModels/*.cpp,EvtGen/*.cc,myEvtRandomEngine.cc" name="EvtGenInterface">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>

@@ -44,13 +44,13 @@ class L1GctPrintLuts : public edm::EDAnalyzer {
   typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
 
   explicit L1GctPrintLuts(const edm::ParameterSet&);
-  ~L1GctPrintLuts();
+  ~L1GctPrintLuts() override;
 
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   int configureGct(const edm::EventSetup& c) ;
 

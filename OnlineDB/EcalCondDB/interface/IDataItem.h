@@ -17,8 +17,8 @@ class IDataItem : public IDBObject {
 
  public:
   IDataItem()
-  : m_writeStmt(0),
-    m_readStmt(0)
+  : m_writeStmt(nullptr),
+    m_readStmt(nullptr)
   {}
 
   virtual std::string getTable() =0;
@@ -28,18 +28,16 @@ class IDataItem : public IDBObject {
   oracle::occi::Statement* m_writeStmt;
   oracle::occi::Statement* m_readStmt;
 
-  inline void checkPrepare() 
-    throw(std::runtime_error) 
+  inline void checkPrepare() noexcept(false)
     {
-      if (m_writeStmt == NULL) {
+      if (m_writeStmt == nullptr) {
 	throw(std::runtime_error("Write statement not prepared"));
       }
     }
 
-  inline void terminateWriteStatement()
-    throw(std::runtime_error)
+  inline void terminateWriteStatement() noexcept(false)
   {
-    if (m_writeStmt != NULL) {
+    if (m_writeStmt != nullptr) {
       m_conn->terminateStatement(m_writeStmt);
     } else {
       std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
@@ -47,22 +45,19 @@ class IDataItem : public IDBObject {
   }
 
 
-  inline void createReadStatement()
-    throw(std::runtime_error)
+  inline void createReadStatement() noexcept(false)
   {
       m_readStmt=m_conn->createStatement();
   }
 
-  inline void setPrefetchRowCount(int ncount)
-    throw(std::runtime_error)
+  inline void setPrefetchRowCount(int ncount) noexcept(false)
   {
     m_readStmt->setPrefetchRowCount(ncount);
   }
 
-  inline void terminateReadStatement()
-    throw(std::runtime_error)
+  inline void terminateReadStatement() noexcept(false)
   {
-    if (m_readStmt != NULL) {
+    if (m_readStmt != nullptr) {
       m_conn->terminateStatement(m_readStmt);
     } else {
       std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
@@ -72,8 +67,7 @@ class IDataItem : public IDBObject {
 
 
   // Prepare a statement for writing operations
-  virtual void prepareWrite() 
-    throw(std::runtime_error) =0;
+  virtual void prepareWrite() noexcept(false) = 0;
 
 
 };

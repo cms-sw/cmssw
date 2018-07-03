@@ -12,7 +12,6 @@
 
 // system include files
 #include <string>
-#include "boost/static_assert.hpp"
 
 // user include files
 #include "DataFormats/FWLite/interface/format_type_name.h"
@@ -48,7 +47,7 @@ static const unsigned int s_symbolToMangledSize = sizeof(s_symbolDemangled)/size
 namespace fwlite {
 
   void staticAssert() {
-    BOOST_STATIC_ASSERT(sizeof(s_symbolMangled) == sizeof(s_symbolDemangled));
+    static_assert(sizeof(s_symbolMangled) == sizeof(s_symbolDemangled),"Arrays are not the same size.");
   }
 
   ///given a C++ class name returned a mangled name 

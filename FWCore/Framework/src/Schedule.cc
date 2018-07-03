@@ -1,10 +1,14 @@
 #include "FWCore/Framework/interface/Schedule.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
+#include "FWCore/Framework/interface/SubProcess.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/interface/TriggerTimingReport.h"
@@ -14,18 +18,19 @@
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/ModuleRegistry.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Framework/src/PathStatusInserter.h"
+#include "FWCore/Framework/src/EndPathStatusInserter.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
-
-#include "boost/graph/graph_traits.hpp"
-#include "boost/graph/adjacency_list.hpp"
-#include "boost/graph/depth_first_search.hpp"
-#include "boost/graph/visitors.hpp"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 
 #include <algorithm>
@@ -35,17 +40,21 @@
 #include <iomanip>
 #include <list>
 #include <map>
+#include <set>
 #include <exception>
 #include <sstream>
 
 namespace edm {
+
+  class Maker;
+
   namespace {
     using std::placeholders::_1;
 
     bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
       return std::binary_search(v.begin(), v.end(), s);
     }
-    
+
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
@@ -56,17 +65,17 @@ namespace edm {
                  ExceptionToActionTable const& actions,
                  std::shared_ptr<ActivityRegistry> areg,
                  std::shared_ptr<ProcessConfiguration> processConfiguration) {
-      
+
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
-      
+
       WorkerParams work_args(trig_pset, preg, &iPrealloc, processConfiguration, actions);
       ModuleDescription md(trig_pset->id(),
                            "TriggerResultInserter",
                            "TriggerResults",
                            processConfiguration.get(),
                            ModuleDescription::getUniqueID());
-      
+
       areg->preModuleConstructionSignal_(md);
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
@@ -93,7 +102,58 @@ namespace edm {
       return returnValue;
     }
 
-    
+    template <typename T>
+    void
+    makePathStatusInserters(std::vector<edm::propagate_const<std::shared_ptr<T>>>& pathStatusInserters,
+                            std::vector<std::string> const& pathNames,
+                            PreallocationConfiguration const& iPrealloc,
+                            ProductRegistry& preg,
+                            std::shared_ptr<ActivityRegistry> areg,
+                            std::shared_ptr<ProcessConfiguration> processConfiguration,
+                            std::string const& moduleTypeName) {
+
+      ParameterSet pset;
+      pset.addParameter<std::string>("@module_type", moduleTypeName);
+      pset.addParameter<std::string>("@module_edm_type", "EDProducer");
+      pset.registerIt();
+
+      pathStatusInserters.reserve(pathNames.size());
+
+      for (auto const& pathName : pathNames) {
+
+        ModuleDescription md(pset.id(),
+                             moduleTypeName,
+                             pathName,
+                             processConfiguration.get(),
+                             ModuleDescription::getUniqueID());
+
+        areg->preModuleConstructionSignal_(md);
+        bool postCalled = false;
+
+        try {
+          maker::ModuleHolderT<T> holder(std::make_shared<T>(iPrealloc.numberOfStreams()),
+                                         static_cast<Maker const*>(nullptr));
+          holder.setModuleDescription(md);
+          holder.registerProductsAndCallbacks(&preg);
+          pathStatusInserters.emplace_back(holder.module());
+          postCalled = true;
+          // if exception then post will be called in the catch block
+          areg->postModuleConstructionSignal_(md);
+        }
+        catch (...) {
+          if(!postCalled) {
+            try {
+              areg->postModuleConstructionSignal_(md);
+            }
+            catch (...) {
+              // If post throws an exception ignore it because we are already handling another exception
+            }
+          }
+          throw;
+        }
+      }
+    }
+
     void
     checkAndInsertAlias(std::string const& friendlyClassName,
                         std::string const& moduleLabel,
@@ -129,7 +189,7 @@ namespace edm {
       }
       auto iter = aliasKeys.find(aliasKey);
       if(iter != aliasKeys.end()) {
-        // The alias matches a previous one.  If the same alias is used for different product, throw. 
+        // The alias matches a previous one.  If the same alias is used for different product, throw.
         if(iter->second != key) {
           throw Exception(errors::Configuration, "EDAlias conflict\n")
             << "The module label alias '" << alias << "' and product instance alias '" << theInstanceAlias << "'\n"
@@ -178,7 +238,7 @@ namespace edm {
           VParameterSet vPSet = aliasPSet.getParameter<VParameterSet>(moduleLabel);
           for(ParameterSet& pset : vPSet) {
             desc.validate(pset);
-            std::string friendlyClassName = pset.getParameter<std::string>("type"); 
+            std::string friendlyClassName = pset.getParameter<std::string>("type");
             std::string productInstanceName = pset.getParameter<std::string>("fromProductInstance");
             std::string instanceAlias = pset.getParameter<std::string>("toProductInstance");
             if(productInstanceName == star) {
@@ -216,14 +276,14 @@ namespace edm {
       // Now add the new alias entries to the product registry.
       for(auto const& aliasEntry : aliasMap) {
         ProductRegistry::ProductList::const_iterator it = preg.productList().find(aliasEntry.first);
-        assert(it != preg.productList().end()); 
+        assert(it != preg.productList().end());
         preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
 
     }
 
     typedef std::vector<std::string> vstring;
-    
+
     void reduceParameterSet(ParameterSet& proc_pset,
                             vstring const& end_path_name_list,
                             vstring& modulesInConfig,
@@ -238,7 +298,7 @@ namespace edm {
       // ParameterSet: Remove that labels from @all_modules and from all the
       // end paths. If this makes any end paths empty, then remove the end path
       // name from @end_paths, and @paths.
-      
+
       // First make a list of labels to drop
       vstring outputModuleLabels;
       std::string edmType;
@@ -247,7 +307,7 @@ namespace edm {
       std::string const edAnalyzer("EDAnalyzer");
       std::string const edFilter("EDFilter");
       std::string const edProducer("EDProducer");
-      
+
       std::set<std::string> modulesInConfigSet(modulesInConfig.begin(), modulesInConfig.end());
 
       //need a list of all modules on paths in order to determine
@@ -277,14 +337,18 @@ namespace edm {
 
       const unsigned int sizeBeforeOutputModules = labelsToBeDropped.size();
       for (auto const& modLabel: usedModuleLabels) {
-        edmType = proc_pset.getParameterSet(modLabel).getParameter<std::string>(moduleEdmType);
-        if (edmType == outputModule) {
-          outputModuleLabels.push_back(modLabel);
-          labelsToBeDropped.push_back(modLabel);
-        }
-        if(edmType == edAnalyzer) {
-          if(modulesOnPaths.end()==modulesOnPaths.find(modLabel)) {
-            labelsToBeDropped.push_back(modLabel);            
+        // Do nothing for modules that do not have a ParameterSet. Modules of type
+        // PathStatusInserter and EndPathStatusInserter will not have a ParameterSet.
+        if (proc_pset.existsAs<ParameterSet>(modLabel)) {
+          edmType = proc_pset.getParameterSet(modLabel).getParameter<std::string>(moduleEdmType);
+          if (edmType == outputModule) {
+            outputModuleLabels.push_back(modLabel);
+            labelsToBeDropped.push_back(modLabel);
+          }
+          if(edmType == edAnalyzer) {
+            if(modulesOnPaths.end()==modulesOnPaths.find(modLabel)) {
+              labelsToBeDropped.push_back(modLabel);
+            }
           }
         }
       }
@@ -295,12 +359,12 @@ namespace edm {
 
       // drop the parameter sets used to configure the modules
       for_all(labelsToBeDropped, std::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, std::ref(proc_pset), _1));
-      
+
       // drop the labels from @all_modules
       vstring::iterator endAfterRemove = std::remove_if(modulesInConfig.begin(), modulesInConfig.end(), std::bind(binary_search_string, std::ref(labelsToBeDropped), _1));
       modulesInConfig.erase(endAfterRemove, modulesInConfig.end());
       proc_pset.addParameter<vstring>(std::string("@all_modules"), modulesInConfig);
-      
+
       // drop the labels from all end paths
       vstring endPathsToBeDropped;
       vstring labels;
@@ -310,7 +374,7 @@ namespace edm {
         labels = proc_pset.getParameter<vstring>(*iEndPath);
         vstring::iterator iSave = labels.begin();
         vstring::iterator iBegin = labels.begin();
-        
+
         for (vstring::iterator iLabel = labels.begin(), iEnd = labels.end();
              iLabel != iEnd; ++iLabel) {
           if (binary_search_string(labelsToBeDropped, *iLabel)) {
@@ -334,19 +398,32 @@ namespace edm {
         }
       }
       sort_all(endPathsToBeDropped);
-      
+
       // remove empty end paths from @paths
       endAfterRemove = std::remove_if(scheduledPaths.begin(), scheduledPaths.end(), std::bind(binary_search_string, std::ref(endPathsToBeDropped), _1));
       scheduledPaths.erase(endAfterRemove, scheduledPaths.end());
       proc_pset.addParameter<vstring>(std::string("@paths"), scheduledPaths);
-      
+
       // remove empty end paths from @end_paths
       vstring scheduledEndPaths = proc_pset.getParameter<vstring>("@end_paths");
       endAfterRemove = std::remove_if(scheduledEndPaths.begin(), scheduledEndPaths.end(), std::bind(binary_search_string, std::ref(endPathsToBeDropped), _1));
       scheduledEndPaths.erase(endAfterRemove, scheduledEndPaths.end());
       proc_pset.addParameter<vstring>(std::string("@end_paths"), scheduledEndPaths);
-      
+
     }
+
+    class RngEDConsumer : public EDConsumerBase {
+    public:
+      explicit RngEDConsumer(std::set<TypeID>& typesConsumed) {
+        Service<RandomNumberGenerator> rng;
+        if(rng.isAvailable()) {
+          rng->consumes(consumesCollector());
+          for (auto const& consumesInfo : this->consumesInfo()) {
+            typesConsumed.emplace(consumesInfo.type());
+          }
+        }
+      }
+    };
   }
   // -----------------------------
 
@@ -355,14 +432,15 @@ namespace edm {
   // -----------------------------
 
   Schedule::Schedule(ParameterSet& proc_pset,
-                     service::TriggerNamesService& tns,
+                     service::TriggerNamesService const& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
+                     SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
-                     const ParameterSet* subProcPSet,
+                     bool hasSubprocesses,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext) :
   //Only create a resultsInserter if there is a trigger path
@@ -370,15 +448,43 @@ namespace edm {
     moduleRegistry_(new ModuleRegistry()),
     all_output_communicators_(),
     preallocConfig_(prealloc),
+    pathNames_(&tns.getTrigPaths()),
+    endPathNames_(&tns.getEndPaths()),
     wantSummary_(tns.wantSummary()),
     endpathsAreActive_(true)
   {
+    makePathStatusInserters(pathStatusInserters_,
+                            *pathNames_,
+                            prealloc,
+                            preg,
+                            areg,
+                            processConfiguration,
+                            std::string("PathStatusInserter"));
+
+    makePathStatusInserters(endPathStatusInserters_,
+                            *endPathNames_,
+                            prealloc,
+                            preg,
+                            areg,
+                            processConfiguration,
+                            std::string("EndPathStatusInserter"));
+
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(resultsInserter_,moduleRegistry_,proc_pset,tns,prealloc,preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext));
+      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(
+        resultsInserter(),
+        pathStatusInserters_,
+        endPathStatusInserters_,
+        moduleRegistry(),
+        proc_pset,tns,prealloc,preg,
+        branchIDListHelper,actions,
+        areg,processConfiguration,
+        !hasSubprocesses,
+        StreamID{i},
+        processContext));
     }
-    
+
     //TriggerResults are injected automatically by StreamSchedules and are
     // unknown to the ModuleRegistry
     const std::string kTriggerResults("TriggerResults");
@@ -400,16 +506,21 @@ namespace edm {
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
       temp.swap(modulesToUse);
     }
-    globalSchedule_.reset( new GlobalSchedule{ resultsInserter_,
-      moduleRegistry_,
+
+    // propagate_const<T> has no reset() function
+    globalSchedule_ = std::make_unique<GlobalSchedule>(
+      resultsInserter(),
+      pathStatusInserters_,
+      endPathStatusInserters_,
+      moduleRegistry(),
       modulesToUse,
       proc_pset, preg, prealloc,
-      actions,areg,processConfiguration,processContext });
-    
+      actions,areg,processConfiguration,processContext);
+
     //TriggerResults is not in the top level ParameterSet so the call to
     // reduceParameterSet would fail to find it. Just remove it up front.
     std::set<std::string> usedModuleLabels;
-    for( auto const worker: allWorkers()) {
+    for(auto const& worker: allWorkers()) {
       if(worker->description().moduleLabel() != kTriggerResults) {
         usedModuleLabels.insert(worker->description().moduleLabel());
       }
@@ -431,12 +542,10 @@ namespace edm {
       auto comm = iHolder->createOutputModuleCommunicator();
       if (comm) {
         all_output_communicators_.emplace_back(std::shared_ptr<OutputModuleCommunicator>{comm.release()});
-      }      
+      }
     });
     // Now that the output workers are filled in, set any output limits or information.
-    limitOutput(proc_pset, branchIDListHelper.branchIDLists());
-
-    loadMissingDictionaries();
+    limitOutput(proc_pset, branchIDListHelper.branchIDLists(), subProcessParentageHelper);
 
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on the WorkerManager being full.
@@ -444,45 +553,78 @@ namespace edm {
 
     branchIDListHelper.updateFromRegistry(preg);
 
-    preg.setFrozen();
-
     for(auto const& worker : streamSchedules_[0]->allWorkers()) {
       worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
     }
     thinnedAssociationsHelper.sort();
 
-    for (auto c : all_output_communicators_) {
-      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+    // The output modules consume products in kept branches.
+    // So we must set this up before freezing.
+    for (auto& c : all_output_communicators_) {
       c->selectProducts(preg, thinnedAssociationsHelper);
     }
-    
+
+    {
+      // We now get a collection of types that may be consumed.
+      std::set<TypeID> productTypesConsumed;
+      std::set<TypeID> elementTypesConsumed;
+      // Loop over all modules
+      for (auto const& worker : allWorkers()) {
+        for (auto const& consumesInfo : worker->consumesInfo()) {
+          if (consumesInfo.kindOfType() == PRODUCT_TYPE) {
+            productTypesConsumed.emplace(consumesInfo.type());
+          } else {
+            elementTypesConsumed.emplace(consumesInfo.type());
+          }
+        }
+      }
+      // The SubProcess class is not a module, yet it may consume.
+      if(hasSubprocesses) {
+        productTypesConsumed.emplace(typeid(TriggerResults));
+      }
+      // The RandomNumberGeneratorService is not a module, yet it consumes.
+      {
+         RngEDConsumer rngConsumer = RngEDConsumer(productTypesConsumed);
+      }
+      preg.setFrozen(productTypesConsumed, elementTypesConsumed, processConfiguration->processName());
+    }
+
+    for (auto& c : all_output_communicators_) {
+      c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+    }
+
     if(wantSummary_) {
       std::vector<const ModuleDescription*> modDesc;
       const auto& workers = allWorkers();
       modDesc.reserve(workers.size());
-      
+
       std::transform(workers.begin(),workers.end(),
                      std::back_inserter(modDesc),
                      [](const Worker* iWorker) -> const ModuleDescription* {
                        return iWorker->descPtr();
                      });
-      
-      summaryTimeKeeper_.reset(new SystemTimeKeeper(prealloc.numberOfStreams(),
+
+      // propagate_const<T> has no reset() function
+      summaryTimeKeeper_ = std::make_unique<SystemTimeKeeper>(
+                                                    prealloc.numberOfStreams(),
                                                     modDesc,
-                                                    tns));
+                                                    tns,
+                                                    processContext);
       auto timeKeeperPtr = summaryTimeKeeper_.get();
-      
+
       areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
       areg->watchPostModuleEvent(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPreModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::restartModuleEvent);
+      areg->watchPostModuleEventAcquire(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
       areg->watchPreModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::pauseModuleEvent);
       areg->watchPostModuleEventDelayedGet(timeKeeperPtr,&SystemTimeKeeper::restartModuleEvent);
-      
+
       areg->watchPreSourceEvent(timeKeeperPtr, &SystemTimeKeeper::startEvent);
       areg->watchPostEvent(timeKeeperPtr, &SystemTimeKeeper::stopEvent);
-      
+
       areg->watchPrePathEvent(timeKeeperPtr, &SystemTimeKeeper::startPath);
       areg->watchPostPathEvent(timeKeeperPtr, &SystemTimeKeeper::stopPath);
-      
+
       areg->watchPostBeginJob(timeKeeperPtr, &SystemTimeKeeper::startProcessingLoop);
       areg->watchPreEndJob(timeKeeperPtr, &SystemTimeKeeper::stopProcessingLoop);
       //areg->preModuleEventSignal_.connect([timeKeeperPtr](StreamContext const& iContext, ModuleCallingContext const& iMod) {
@@ -492,15 +634,17 @@ namespace edm {
 
   } // Schedule::Schedule
 
-  
+
   void
-  Schedule::limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists) {
+  Schedule::limitOutput(ParameterSet const& proc_pset,
+                        BranchIDLists const& branchIDLists,
+                        SubProcessParentageHelper const* subProcessParentageHelper) {
     std::string const output("output");
 
-    ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
+    ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents");
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
-    ParameterSet const* vMaxEventsOut = 0;
+    ParameterSet const* vMaxEventsOut = nullptr;
     std::vector<std::string> intNamesE = maxEventsPSet.getParameterNamesForType<int>(false);
     if (search_all(intNamesE, output)) {
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
@@ -518,9 +662,9 @@ namespace edm {
         "\nAt most, one form of 'output' may appear in the 'maxEvents' parameter set";
     }
 
-    for (auto c : all_output_communicators_) {
-      OutputModuleDescription desc(branchIDLists, maxEventsOut);
-      if (vMaxEventsOut != 0 && !vMaxEventsOut->empty()) {
+    for (auto& c : all_output_communicators_) {
+      OutputModuleDescription desc(branchIDLists, maxEventsOut, subProcessParentageHelper);
+      if (vMaxEventsOut != nullptr && !vMaxEventsOut->empty()) {
         std::string const& moduleLabel = c->description().moduleLabel();
         try {
           desc.maxEvents_ = vMaxEventsOut->getUntrackedParameter<int>(moduleLabel);
@@ -537,7 +681,7 @@ namespace edm {
     if (all_output_communicators_.empty()) {
       return false;
     }
-    for (auto c : all_output_communicators_) {
+    for (auto& c : all_output_communicators_) {
       if (!c->limitReached()) {
         // Found an output module that has not reached output event count.
         return false;
@@ -559,10 +703,13 @@ namespace edm {
     {
       TriggerReport tr;
       getTriggerReport(tr);
-      
+
       // The trigger report (pass/fail etc.):
-      
+
       LogVerbatim("FwkSummary") << "";
+      if(streamSchedules_[0]->context().processContext()->isSubProcess()) {
+        LogVerbatim("FwkSummary") << "TrigReport Process: "<<streamSchedules_[0]->context().processContext()->processName();
+      }
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
       if(!tr.trigPathSummaries.empty()) {
         LogVerbatim("FwkSummary") << "TrigReport"
@@ -576,7 +723,7 @@ namespace edm {
         << " passed = " << tr.eventSummary.totalEvents
         << " failed = 0";
       }
-      
+
       LogVerbatim("FwkSummary") << "";
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Path   Summary ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
@@ -602,7 +749,7 @@ namespace edm {
       std::vector<int>::const_iterator epe = empty_trig_paths_.end();
       std::vector<std::string>::const_iterator  epn = empty_trig_path_names_.begin();
       for (; epi != epe; ++epi, ++epn) {
-        
+
         LogVerbatim("FwkSummary") << "TrigReport "
         << std::right << std::setw(5) << 1
         << std::right << std::setw(5) << *epi << " "
@@ -613,7 +760,7 @@ namespace edm {
         << *epn << "";
       }
        */
-      
+
       LogVerbatim("FwkSummary") << "";
       LogVerbatim("FwkSummary") << "TrigReport " << "-------End-Path   Summary ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
@@ -633,7 +780,7 @@ namespace edm {
         << std::right << std::setw(10) << p.timesExcept << " "
         << p.name << "";
       }
-      
+
       for (auto const& p: tr.trigPathSummaries) {
         LogVerbatim("FwkSummary") << "";
         LogVerbatim("FwkSummary") << "TrigReport " << "---------- Modules in Path: " << p.name << " ------------";
@@ -644,7 +791,7 @@ namespace edm {
         << std::right << std::setw(10) << "Failed" << " "
         << std::right << std::setw(10) << "Error" << " "
         << "Name" << "";
-        
+
         unsigned int bitpos = 0;
         for (auto const& mod: p.moduleInPathSummaries) {
           LogVerbatim("FwkSummary") << "TrigReport "
@@ -658,7 +805,7 @@ namespace edm {
           ++bitpos;
         }
       }
-      
+
       for (auto const& p: tr.endPathSummaries) {
         LogVerbatim("FwkSummary") << "";
         LogVerbatim("FwkSummary") << "TrigReport " << "------ Modules in End-Path: " << p.name << " ------------";
@@ -669,7 +816,7 @@ namespace edm {
         << std::right << std::setw(10) << "Failed" << " "
         << std::right << std::setw(10) << "Error" << " "
         << "Name" << "";
-        
+
         unsigned int bitpos=0;
         for (auto const& mod: p.moduleInPathSummaries) {
           LogVerbatim("FwkSummary") << "TrigReport "
@@ -683,7 +830,7 @@ namespace edm {
           ++bitpos;
         }
       }
-      
+
       LogVerbatim("FwkSummary") << "";
       LogVerbatim("FwkSummary") << "TrigReport " << "---------- Module Summary ------------";
       LogVerbatim("FwkSummary") << "TrigReport "
@@ -723,7 +870,7 @@ namespace edm {
     LogVerbatim("FwkSummary") << "TimeReport"
                               << std::setprecision(6) << std::fixed
                               << " efficiency CPU/Real/thread = " << tr.eventSummary.cpuTime/tr.eventSummary.realTime/preallocConfig_.numberOfThreads();
-    
+
     constexpr int kColumn1Size = 10;
     constexpr int kColumn2Size = 12;
     constexpr int kColumn3Size = 12;
@@ -839,24 +986,27 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
   }
 
-  void Schedule::openNewOutputFilesIfNeeded() {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openNewFileIfNeeded, _1));
-  }
-
   void Schedule::openOutputFiles(FileBlock& fb) {
     using std::placeholders::_1;
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
   }
 
-  void Schedule::writeRun(RunPrincipal const& rp, ProcessContext const* processContext) {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeRun, _1, std::cref(rp), processContext));
+  void Schedule::writeRunAsync(WaitingTaskHolder task,
+                               RunPrincipal const& rp,
+                               ProcessContext const* processContext,
+                               ActivityRegistry* activityRegistry) {
+    for(auto& c: all_output_communicators_) {
+      c->writeRunAsync(task, rp, processContext, activityRegistry);
+    }
   }
 
-  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeLumi, _1, std::cref(lbp), processContext));
+  void Schedule::writeLumiAsync(WaitingTaskHolder task,
+                                LuminosityBlockPrincipal const& lbp,
+                                ProcessContext const* processContext,
+                                ActivityRegistry* activityRegistry) {
+    for(auto& c: all_output_communicators_) {
+      c->writeLumiAsync(task, lbp, processContext, activityRegistry);
+    }
   }
 
   bool Schedule::shouldWeCloseOutput() const {
@@ -878,30 +1028,28 @@ namespace edm {
   }
 
   void Schedule::beginJob(ProductRegistry const& iRegistry) {
-    checkForCorrectness();
-    
     globalSchedule_->beginJob(iRegistry);
   }
-  
+
   void Schedule::beginStream(unsigned int iStreamID) {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->beginStream();
   }
-  
+
   void Schedule::endStream(unsigned int iStreamID) {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->endStream();
   }
-
-  void Schedule::preForkReleaseResources() {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::preForkReleaseResources, _1));
+  
+  void Schedule::processOneEventAsync(WaitingTaskHolder iTask,
+                                      unsigned int iStreamID,
+                                      EventPrincipal& ep,
+                                      EventSetup const& es,
+                                      ServiceToken const& token) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneEventAsync(std::move(iTask),ep,es,token,pathStatusInserters_);
   }
-  void Schedule::postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    using std::placeholders::_1;
-    for_all(allWorkers(), std::bind(&Worker::postForkReacquireResources, _1, iChildIndex, iNumberOfChildren));
-  }
-
+  
   bool Schedule::changeModule(std::string const& iLabel,
                               ParameterSet const& iPSet,
                               const ProductRegistry& iRegistry) {
@@ -915,15 +1063,15 @@ namespace edm {
     if (nullptr == found) {
       return false;
     }
-    
+
     auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet,preallocConfig_);
-    
+
     globalSchedule_->replaceModule(newMod,iLabel);
 
-    for(auto s: streamSchedules_) {
+    for(auto& s: streamSchedules_) {
       s->replaceModule(newMod,iLabel);
     }
-    
+
     {
       //Need to updateLookup in order to make getByToken work
       auto const runLookup = iRegistry.productLookup(InRun);
@@ -932,6 +1080,16 @@ namespace edm {
       found->updateLookup(InRun,*runLookup);
       found->updateLookup(InLumi,*lumiLookup);
       found->updateLookup(InEvent,*eventLookup);
+      
+      auto const& processName = newMod->moduleDescription().processName();
+      auto const& runModuleToIndicies = runLookup->indiciesForModulesInProcess(processName);
+      auto const& lumiModuleToIndicies = lumiLookup->indiciesForModulesInProcess(processName);
+      auto const& eventModuleToIndicies = eventLookup->indiciesForModulesInProcess(processName);
+      found->resolvePutIndicies(InRun,runModuleToIndicies);
+      found->resolvePutIndicies(InLumi,lumiModuleToIndicies);
+      found->resolvePutIndicies(InEvent,eventModuleToIndicies);
+
+
     }
 
     return true;
@@ -953,7 +1111,13 @@ namespace edm {
   Schedule::allWorkers() const {
     return globalSchedule_->allWorkers();
   }
-  
+
+  void Schedule::convertCurrentProcessAlias(std::string const& processName) {
+    for (auto const& worker : allWorkers()) {
+      worker->convertCurrentProcessAlias(processName);
+    }
+  }
+
   void
   Schedule::availablePaths(std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->availablePaths(oLabelsToFill);
@@ -961,12 +1125,13 @@ namespace edm {
 
   void
   Schedule::triggerPaths(std::vector<std::string>& oLabelsToFill) const {
-    streamSchedules_[0]->triggerPaths(oLabelsToFill);
+    oLabelsToFill = *pathNames_;
+
   }
 
   void
   Schedule::endPaths(std::vector<std::string>& oLabelsToFill) const {
-    streamSchedules_[0]->endPaths(oLabelsToFill);
+    oLabelsToFill = *endPathNames_;
   }
 
   void
@@ -1024,7 +1189,7 @@ namespace edm {
   void
   Schedule::enableEndPaths(bool active) {
     endpathsAreActive_ = active;
-    for(auto const &  s : streamSchedules_) {
+    for(auto& s : streamSchedules_) {
       s->enableEndPaths(active);
     }
   }
@@ -1033,7 +1198,7 @@ namespace edm {
   Schedule::endPathsEnabled() const {
     return endpathsAreActive_;
   }
-                          
+
   void
   Schedule::getTriggerReport(TriggerReport& rep) const {
     rep.eventSummary.totalEvents = 0;
@@ -1042,8 +1207,9 @@ namespace edm {
     for(auto& s: streamSchedules_) {
       s->getTriggerReport(rep);
     }
+    sort_all(rep.workerSummaries);
   }
-                          
+
   void
   Schedule::getTriggerTimingReport(TriggerTimingReport& rep) const {
     rep.eventSummary.totalEvents = 0;
@@ -1060,7 +1226,7 @@ namespace edm {
     }
     return returnValue;
   }
-  
+
   int
   Schedule::totalEventsPassed() const {
     int returnValue = 0;
@@ -1079,273 +1245,11 @@ namespace edm {
     return returnValue;
   }
 
-  
+
   void
   Schedule::clearCounters() {
-    for(auto const& s: streamSchedules_) {
+    for(auto& s: streamSchedules_) {
       s->clearCounters();
     }
-  }
-  
-  //====================================
-  // Schedule::checkForCorrectness algorithm
-  //
-  // The code creates a 'dependency' graph between all
-  // modules. A module depends on another module if
-  // 1) it 'consumes' data produced by that module
-  // 2) it appears directly after the module within a Path
-  //
-  // If there is a cycle in the 'dependency' graph then
-  // the schedule may be unrunnable. The schedule is still
-  // runnable if all cycles have at least two edges which
-  // connect modules only by Path dependencies (i.e. not
-  // linked by a data dependency).
-  //
-  //  Example 1:
-  //  C consumes data from B
-  //  Path 1: A + B + C
-  //  Path 2: B + C + A
-  //
-  //  Cycle: A after C [p2], C consumes B, B after A [p1]
-  //  Since this cycle has 2 path only edges it is OK since
-  //  A and (B+C) are independent so their run order doesn't matter
-  //
-  //  Example 2:
-  //  B consumes A
-  //  C consumes B
-  //  Path: C + A
-  //
-  //  Cycle: A after C [p], C consumes B, B consumes A
-  //  Since this cycle has 1 path only edge it is unrunnable.
-  //
-  //  Example 3:
-  //  A consumes B
-  //  B consumes C
-  //  C consumes A
-  //  (no Path since unscheduled execution)
-  //
-  //  Cycle: A consumes B, B consumes C, C consumes A
-  //  Since this cycle has 0 path only edges it is unrunnable.
-  //====================================
-  
-  namespace {
-    typedef std::pair<unsigned int, unsigned int> SimpleEdge;
-    typedef std::map<SimpleEdge, std::vector<unsigned int>> EdgeToPathMap;
-    
-    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS> Graph;
-
-    typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-    struct cycle_detector : public boost::dfs_visitor<> {
-      
-      cycle_detector(EdgeToPathMap const& iEdgeToPathMap,
-                     std::vector<std::string> const& iPathNames,
-                     std::map<std::string,unsigned int> const& iModuleNamesToIndex):
-      m_edgeToPathMap(iEdgeToPathMap),
-      m_pathNames(iPathNames),
-      m_namesToIndex(iModuleNamesToIndex){}
-      
-      void tree_edge(Edge iEdge, Graph const&) {
-        m_stack.push_back(iEdge);
-      }
-
-      void finish_edge(Edge iEdge, Graph const& iGraph) {
-        if(not m_stack.empty()) {
-          if (iEdge == m_stack.back()) {
-            m_stack.pop_back();
-          }
-        }
-      }
-
-      //Called if a cycle happens
-      void back_edge(Edge iEdge, Graph const& iGraph) {
-        //NOTE: If the path containing the cycle contains two or more
-        // path only edges then there is no problem
-        
-        typedef typename boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
-        IndexMap const& index = get(boost::vertex_index, iGraph);
-        
-        unsigned int vertex = index[target(iEdge,iGraph)];
-
-        //Find last edge which starts with this vertex
-        std::list<Edge>::iterator itFirst = m_stack.begin();
-        {
-          bool seenVertex = false;
-          while(itFirst != m_stack.end()) {
-            if(not seenVertex) {
-              if(index[source(*itFirst,iGraph)] == vertex) {
-                seenVertex = true;
-              }
-            } else
-            if (index[source(*itFirst,iGraph)] != vertex) {
-              break;
-            }
-            ++itFirst;
-          }
-          if(itFirst != m_stack.begin()) {
-            --itFirst;
-          }
-        }
-        //This edge has not been added to the stack yet
-        // making a copy allows us to add it in but not worry
-        // about removing it at the end of the routine
-        std::vector<Edge> tempStack;
-        tempStack.reserve(m_stack.size()+1);
-        tempStack.insert(tempStack.end(),itFirst,m_stack.end());
-        tempStack.emplace_back(iEdge);
-        
-        unsigned int nPathDependencyOnly =0;
-        for(auto const& edge: tempStack) {
-          unsigned int in =index[source(edge,iGraph)];
-          unsigned int out =index[target(edge,iGraph)];
-
-          auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
-          bool pathDependencyOnly = true;
-          for(auto dependency : iFound->second) {
-            if (dependency == std::numeric_limits<unsigned int>::max()) {
-              pathDependencyOnly = false;
-              break;
-            }
-          }
-          if (pathDependencyOnly) {
-            ++nPathDependencyOnly;
-          }
-        }
-        if(nPathDependencyOnly < 2) {
-          reportError(tempStack,index,iGraph);
-        }
-      }
-    private:
-      std::string const& pathName(unsigned int iIndex) const {
-        return m_pathNames[iIndex];
-      }
-      
-      std::string const& moduleName(unsigned int iIndex) const {
-        for(auto const& item : m_namesToIndex) {
-          if(item.second == iIndex) {
-            return item.first;
-          }
-        }
-        assert(false);
-      }
-      
-      void
-      reportError(std::vector<Edge>const& iEdges,
-                  boost::property_map<Graph, boost::vertex_index_t>::type const& iIndex,
-                  Graph const& iGraph) const {
-        std::stringstream oStream;
-        oStream <<"Module run order problem found: \n";
-        bool first_edge = true;
-        for(auto const& edge: iEdges) {
-          unsigned int in =iIndex[source(edge,iGraph)];
-          unsigned int out =iIndex[target(edge,iGraph)];
-          
-          if(first_edge) {
-            first_edge = false;
-          } else {
-            oStream<<", ";
-          }
-          oStream <<moduleName(in);
-          
-          auto iFound = m_edgeToPathMap.find(SimpleEdge(in,out));
-          bool pathDependencyOnly = true;
-          for(auto dependency : iFound->second) {
-            if (dependency == std::numeric_limits<unsigned int>::max()) {
-              pathDependencyOnly = false;
-              break;
-            }
-          }
-          if (pathDependencyOnly) {
-            oStream <<" after "<<moduleName(out)<<" [path "<<pathName(iFound->second[0])<<"]";
-          } else {
-            oStream <<" consumes "<<moduleName(out);
-          }
-        }
-        oStream<<"\n Running in the threaded framework would lead to indeterminate results."
-        "\n Please change order of modules in mentioned Path(s) to avoid inconsistent module ordering.";
-        
-        LogError("UnrunnableSchedule")<<oStream.str();
-      }
-      
-      EdgeToPathMap const& m_edgeToPathMap;
-      std::vector<std::string> const& m_pathNames;
-      std::map<std::string,unsigned int> m_namesToIndex;
-      
-      std::list<Edge> m_stack;
-    };
-  }
-  
-  void
-  Schedule::checkForCorrectness() const
-  {
-    //Need to lookup names to ids quickly
-    std::map<std::string,unsigned int> moduleNamesToIndex;
-    for(auto worker: allWorkers()) {
-      moduleNamesToIndex.insert( std::make_pair(worker->description().moduleLabel(),
-                                         worker->description().id()));
-    }
-    
-    //If a module to module dependency comes from a path, remember which path
-    EdgeToPathMap edgeToPathMap;
-
-    //determine the path dependencies
-    std::vector<std::string> pathNames;
-    {
-      streamSchedules_[0]->availablePaths(pathNames);
-      
-      std::vector<std::string> moduleNames;
-      std::vector<std::string> reducedModuleNames;
-      unsigned int pathIndex=0;
-      for(auto const& path: pathNames) {
-        moduleNames.clear();
-        reducedModuleNames.clear();
-        std::set<std::string> alreadySeenNames;
-        
-        streamSchedules_[0]->modulesInPath(path,moduleNames);
-        std::string lastModuleName;
-        unsigned int lastModuleIndex;
-        for(auto const& name: moduleNames) {
-          auto found = alreadySeenNames.insert(name);
-          if(found.second) {
-            //first time for this path
-            unsigned int moduleIndex = moduleNamesToIndex[name];
-            if(not lastModuleName.empty() ) {
-              edgeToPathMap[std::make_pair(moduleIndex,lastModuleIndex)].push_back(pathIndex);
-            }
-            lastModuleName = name;
-            lastModuleIndex = moduleIndex;
-          }
-        }
-        ++pathIndex;
-      }
-    }
-    {
-      std::vector<const char*> dependentModules;
-      //determine the data dependencies
-      for(auto const& worker: allWorkers()) {
-        dependentModules.clear();
-        //NOTE: what about aliases?
-        worker->modulesDependentUpon(dependentModules);
-        auto found = moduleNamesToIndex.find(worker->description().moduleLabel());
-        if (found == moduleNamesToIndex.end()) {
-          //The module was from a previous process
-          continue;
-        }
-        unsigned int moduleIndex = found->second;
-        for(auto name: dependentModules) {
-          edgeToPathMap[std::make_pair(moduleIndex, moduleNamesToIndex[name])].push_back(std::numeric_limits<unsigned int>::max());
-        }
-      }
-    }
-    //Now use boost graph library to find cycles in the dependencies
-    std::vector<SimpleEdge> outList;
-    outList.reserve(edgeToPathMap.size());
-    for(auto const& edgeInfo: edgeToPathMap) {
-      outList.push_back(edgeInfo.first);
-    }
-    
-    Graph g(outList.begin(),outList.end(), moduleNamesToIndex.size());
-    
-    cycle_detector detector(edgeToPathMap,pathNames,moduleNamesToIndex);
-    boost::depth_first_search(g,boost::visitor(detector));
   }
 }

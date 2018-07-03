@@ -1,22 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
-# empty input service, fire 10 events
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.load('Configuration.StandardSequences.GeometrySimDB_cff')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 process.source = cms.Source("EmptySource")
-
-#the following may not need the connect string if the global tag includes the extra.
-#process.GlobalTag.toGet = cms.VPSet(
-#    cms.PSet(record = cms.string("PGeometricDetExtraRcd"),
-#             tag = cms.string("TKExtra_Geometry_38YV0"),
-#             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_GEOMETRY")
-#             )
-#    )
 
 #this is always needed if users want access to the vector<GeometricDetExtra>
 process.TrackerGeometricDetExtraESModule = cms.ESProducer( "TrackerGeometricDetExtraESModule",

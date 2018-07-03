@@ -1,13 +1,13 @@
 #ifndef DDLTORUS_H
 #define DDLTORUS_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDLSolid.h"
-
 #include <string>
 #include <vector>
+
+#include "DDLSolid.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 /** @class DDLTorus
  * @author Michael Case
@@ -20,16 +20,13 @@
  * Torus, same as G4Torus
  *
  */
-class DDLTorus : public DDLSolid
+class DDLTorus final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLTorus( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLTorus( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )  override; 
 };
+
 #endif

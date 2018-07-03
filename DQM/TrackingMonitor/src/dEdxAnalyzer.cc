@@ -25,7 +25,7 @@ dEdxAnalyzer::dEdxAnalyzer(const edm::ParameterSet& iConfig)
   , conf_    (fullconf_.getParameter<edm::ParameterSet>("dEdxParameters") )
   , doAllPlots_  ( conf_.getParameter<bool>("doAllPlots") )
   , doDeDxPlots_ ( conf_.getParameter<bool>("doDeDxPlots") )    
-  , genTriggerEventFlag_( new GenericTriggerEventFlag(conf_,consumesCollector(), *this) )
+  , genTriggerEventFlag_( new GenericTriggerEventFlag(conf_.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this) )
 {
 
   trackInputTag_ = edm::InputTag(conf_.getParameter<std::string>("TracksForDeDx") );
@@ -153,10 +153,6 @@ void dEdxAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 }
 
-void dEdxAnalyzer::beginJob()
-{
-}
-
 
 double dEdxAnalyzer::mass(double P, double I){
    if(I-dEdxC<0)return -1;
@@ -214,18 +210,6 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
  
-
-void 
-dEdxAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-dEdxAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 dEdxAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

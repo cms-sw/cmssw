@@ -143,9 +143,9 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
 
   ProbsFile->cd();
   if( MuScleFitUtils::rapidityBinsForZ_ && MuScleFitUtils::resfind[0]) {
-    for ( int i=0; i<6; i++ ) {
+    for ( unsigned char i=0; i<6; i++ ) {
       char nameh[6];
-      sprintf (nameh,"GLZ%d",i);
+      sprintf (nameh,"GLZ%hhu",i);
       GLZ[i] = dynamic_cast<TH2D*>(ProbsFile->Get(nameh));
     }
   }

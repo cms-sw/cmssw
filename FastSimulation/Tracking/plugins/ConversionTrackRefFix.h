@@ -12,11 +12,11 @@ class ConversionTrackRefFix : public edm::stream::EDProducer<>
 {
  public:
   explicit ConversionTrackRefFix(const edm::ParameterSet&);
-  ~ConversionTrackRefFix();
+  ~ConversionTrackRefFix() override;
   
  private:
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<reco::ConversionTrackCollection > conversionTracksToken;
   edm::EDGetTokenT<reco::TrackCollection > newTracksToken;
 };

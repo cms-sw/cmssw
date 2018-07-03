@@ -30,11 +30,11 @@ def deltaPhi( p1, p2):
 def inConeCollection(pivot, particles, deltaRMax, deltaRMin=1e-5):
     '''Returns the list of particles that are less than deltaRMax away from pivot.'''
     dR2Max = deltaRMax ** 2
-    dR2Min = deltaRMin ** 2
+    dR2Min = deltaRMin ** 2 if deltaRMin  > 0 else -1
     results = []
     for ptc in particles:
         dR2 = deltaR2(pivot.eta(), pivot.phi(), ptc.eta(), ptc.phi()) 
-        if dR2Min < dR2 < dR2Max:
+        if dR2Min < dR2 and dR2 < dR2Max:
             results.append(ptc)
     return results
 
@@ -49,14 +49,13 @@ def matchObjectCollection3 ( objects, matchCollection, deltaRMax = 0.3, filter =
     if len(objects)==0:
             return pairs
     if len(matchCollection)==0:
-            return dict( zip(objects, [None]*len(objects)) )
+            return dict( list(zip(objects, [None]*len(objects))) )
     # build all possible combinations
 
     objectCoords = [ (o.eta(),o.phi(),o) for o in objects ]
     matchdCoords = [ (o.eta(),o.phi(),o) for o in matchCollection ]
-    allPairs = [(deltaR2 (oeta, ophi, meta, mphi), (object, match)) for (oeta,ophi,object) in objectCoords for (meta,mphi,match) in matchdCoords if abs(oeta-meta)<=deltaRMax and filter(object,match) ]
+    allPairs = sorted([(deltaR2 (oeta, ophi, meta, mphi), (object, match)) for (oeta,ophi,object) in objectCoords for (meta,mphi,match) in matchdCoords if abs(oeta-meta)<=deltaRMax and list(filter(object,match)) ])
     #allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection if filter(object,match) ]
-    allPairs.sort ()
     #
     # to flag already matched objects
     # FIXME this variable remains appended to the object, I do not like it
@@ -149,14 +148,14 @@ def bestMatch( object, matchCollection):
     return bm, deltaR2Min
 
 
-def matchObjectCollection( objects, matchCollection, deltaR2Max):
+def matchObjectCollection( objects, matchCollection, deltaR2Max, filter = lambda x,y : True):
     pairs = {}
     if len(objects)==0:
         return pairs
     if len(matchCollection)==0:
-        return dict( zip(objects, [None]*len(objects)) )
+        return dict( list(zip(objects, [None]*len(objects))) )
     for object in objects:
-        bm, dr2 = bestMatch( object, matchCollection )
+        bm, dr2 = bestMatch( object, [mob for mob in matchCollection if list(filter(object,mob))] )
         if dr2<deltaR2Max:
             pairs[object] = bm
         else:
@@ -174,10 +173,9 @@ def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
     if len(objects)==0:
             return pairs
     if len(matchCollection)==0:
-            return dict( zip(objects, [None]*len(objects)) )
+            return dict( list(zip(objects, [None]*len(objects))) )
     # build all possible combinations
-    allPairs = [(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection]
-    allPairs.sort ()
+    allPairs = sorted([(deltaR2 (object.eta(), object.phi(), match.eta(), match.phi()), (object, match)) for object in objects for match in matchCollection])
 
     # to flag already matched objects
     # FIXME this variable remains appended to the object, I do not like it
@@ -205,14 +203,3 @@ def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
 
 
 
-if __name__ == '__main__':
-
-    import sys
-    args = sys.argv[1:]
-    fargs = map( float, args )
-
-    print 'dR2 = ', deltaR2( *fargs )
-    print 'dR = ', deltaR( *fargs )
-    
-
-    

@@ -55,7 +55,7 @@ void SiStripSummaryCreator::setSummaryMENames(std::map<std::string, std::string>
 // -- Browse through the Folder Structure
 //
 void SiStripSummaryCreator::createSummary(DQMStore* dqm_store) {
-  if (summaryMEMap.size() == 0) return;
+  if (summaryMEMap.empty()) return;
   std::string currDir = dqm_store->pwd();
   std::vector<std::string> subdirs = dqm_store->getSubdirs();
   int nmod = 0;
@@ -83,7 +83,7 @@ void SiStripSummaryCreator::fillSummaryHistos(DQMStore* dqm_store) {
   std::string currDir = dqm_store->pwd();
   std::map<std::string, MonitorElement*> MEMap;
   std::vector<std::string> subdirs = dqm_store->getSubdirs();
-  if (subdirs.size() ==0) return;
+  if (subdirs.empty()) return;
   
 
   for (std::map<std::string,std::string>::const_iterator isum = summaryMEMap.begin();
@@ -132,7 +132,7 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
       (dir_name.find("MechanicalView") == 0) ||
       (dir_name.find("FU") == 0) ) return;
   std::vector<std::string> subdirs = dqm_store->getSubdirs();
-  if (subdirs.size() == 0) return;;
+  if (subdirs.empty()) return;;
   for (std::map<std::string,std::string>::const_iterator isum = summaryMEMap.begin();
        isum != summaryMEMap.end(); isum++) {
     std::string name, summary_name;
@@ -182,7 +182,7 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
 //
 MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store, 
                          std::string& name, std::string htype) {
-  MonitorElement* me = 0;
+  MonitorElement* me = nullptr;
   std::string currDir = dqm_store->pwd();
   std::string sum_name, tag_name;
  
@@ -300,14 +300,14 @@ void SiStripSummaryCreator::fillHistos(int ival, int istep, std::string htype,
   
   if (me->getTH1()) {
     //    TProfile* prof = 0;
-    TH1F* hist1 = 0;
-    TH2F* hist2 = 0;
+    TH1F* hist1 = nullptr;
+    TH2F* hist2 = nullptr;
     if (me->kind() == MonitorElement::DQM_KIND_TH1F)    hist1 = me->getTH1F();
     if (me->kind() == MonitorElement::DQM_KIND_TH2F)    hist2 = me->getTH2F();
     //    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) prof = me->getTProfile();
     
     int nbins = me_src->getNbinsX();
-    std::string name = me_src->getName();
+    const std::string& name = me_src->getName();
     if (htype == "mean" || htype == "Mean" ) {
       if (hist2 &&  name.find("NoisyStrips") != std::string::npos) {
 	float bad = 0.0;

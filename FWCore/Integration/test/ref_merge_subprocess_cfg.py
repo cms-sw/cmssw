@@ -7,7 +7,7 @@ process.source = cms.Source("PoolSource",
                             )
 
 testProcess = cms.Process("TEST")
-process.subProcess = cms.SubProcess(testProcess)
+process.addSubProcess(cms.SubProcess(testProcess))
 
 testProcess.a = cms.EDProducer("IntProducer",
                            ivalue = cms.int32(1))
@@ -24,7 +24,7 @@ testProcess.p = cms.Path(testProcess.a)
 testProcess.e = cms.EndPath(testProcess.tester*testProcess.out)
 
 testProcessA = cms.Process("TESTA")
-testProcess.subProcess = cms.SubProcess(testProcessA)
+testProcess.addSubProcess(cms.SubProcess(testProcessA))
 
 testProcessA.a = cms.EDProducer("IntProducer",
                            ivalue = cms.int32(1))

@@ -28,7 +28,7 @@
 
 
 STFilter::STFilter(const edm::ParameterSet& iConfig) :
-  hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")) {
+  hepMCProductTag_(iConfig.getUntrackedParameter<edm::InputTag>("hepMCProductTag",edm::InputTag("generator","unsmeared"))) {
 
   pTMax_ = iConfig.getParameter<double>("pTMax");
   edm::LogInfo("SingleTopMatchingFilter")<<"+++ maximum pt of associated-b  pTMax = "<<pTMax_;

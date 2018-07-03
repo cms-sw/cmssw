@@ -35,9 +35,9 @@
 class DumpGctDigis : public edm::EDAnalyzer {
 public:
   explicit DumpGctDigis(const edm::ParameterSet&);
-  ~DumpGctDigis();
+  ~DumpGctDigis() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   void doRctEM(const edm::Event&, const edm::InputTag& label);
   void doEM(const edm::Event&, const edm::InputTag& label);

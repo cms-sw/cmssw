@@ -22,7 +22,7 @@
 #include <map>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLDOMBlock.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include <stdint.h>
+#include <cstdint>
 
 class LutXml : public XMLDOMBlock
 {
@@ -39,15 +39,16 @@ class LutXml : public XMLDOMBlock
     std::string targetfirmware;
     int generalizedindex;
     std::vector<unsigned int> lut;
+    std::vector<uint64_t> mask;
   } Config;
   
   LutXml();
   LutXml( XERCES_CPP_NAMESPACE::InputSource & _source );
   LutXml( std::string filename );
-  virtual ~LutXml();
+  ~LutXml() override;
   
   void init( void );
-  void addLut( Config & _config, XMLDOMBlock * checksums_xml = 0 );
+  void addLut( Config & _config, XMLDOMBlock * checksums_xml = nullptr );
   std::string & getCurrentBrick( void );
   
   std::vector<unsigned int> * getLutFast( uint32_t det_id );
@@ -82,7 +83,9 @@ class LutXml : public XMLDOMBlock
   XMLCh * brick;
   XERCES_CPP_NAMESPACE::DOMElement * addParameter( std::string _name, std::string _type, std::string _value );
   XERCES_CPP_NAMESPACE::DOMElement * addParameter( std::string _name, std::string _type, int _value );
-  XERCES_CPP_NAMESPACE::DOMElement * addData( std::string _elements, std::string _encoding, const std::vector<unsigned int>& _lut );
+
+  template <typename T>
+  XERCES_CPP_NAMESPACE::DOMElement * addData( std::string _elements, std::string _encoding, const T& _lut );
 
   XERCES_CPP_NAMESPACE::DOMElement * add_checksum(XERCES_CPP_NAMESPACE::DOMDocument * parent, Config & config );
 

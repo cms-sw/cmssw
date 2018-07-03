@@ -18,21 +18,21 @@ class FWPCaloHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWPCaloHitProxyBuilder( void ) {} 
-   virtual ~FWPCaloHitProxyBuilder( void ) {}
+   ~FWPCaloHitProxyBuilder( void ) override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPCaloHitProxyBuilder( const FWPCaloHitProxyBuilder& );
-   const FWPCaloHitProxyBuilder& operator=( const FWPCaloHitProxyBuilder& );
+   FWPCaloHitProxyBuilder( const FWPCaloHitProxyBuilder& ) = delete;
+   const FWPCaloHitProxyBuilder& operator=( const FWPCaloHitProxyBuilder& ) = delete;
 
    using FWDigitSetProxyBuilder::build;
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
+   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 
 void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*)
 {
-   const edm::PCaloHitContainer *collection = 0;
+   const edm::PCaloHitContainer *collection = nullptr;
    iItem->get( collection );
    if (! collection)
       return;

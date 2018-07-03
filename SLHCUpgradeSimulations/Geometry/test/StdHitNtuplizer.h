@@ -20,7 +20,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 

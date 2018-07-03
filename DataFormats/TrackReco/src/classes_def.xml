@@ -1,13 +1,17 @@
 <lcgdict>
+
   <class name="reco::TrackBase::AlgoMask"/>
   <class name="reco::HitPattern" ClassVersion="12">
       <version ClassVersion="12" checksum="3922863495"/>
       <version ClassVersion="11" checksum="1621684703"/>
   </class>
-  <class name="reco::TrackResiduals" ClassVersion="10">
+  <class name="reco::TrackResiduals" ClassVersion="11">
+   <version ClassVersion="11" checksum="639174599"/>
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="17">
+  <class name="reco::TrackBase" ClassVersion="19">
+   <version ClassVersion="19" checksum="4090229239"/>
+   <version ClassVersion="18" checksum="1935215297"/>
    <version ClassVersion="17" checksum="1774167599"/>
    <version ClassVersion="16" checksum="3673246687"/>
    <version ClassVersion="15" checksum="1802760569"/>
@@ -27,7 +31,7 @@
       targetClass="reco::HitPattern"
       target="hitPattern"
       version="[-11]"
-      include="utility,DataFormats/SiPixelDetId/interface/PXBDetId.h,DataFormats/SiPixelDetId/interface/PXFDetId.h,DataFormats/SiStripDetId/interface/TIBDetId.h,DataFormats/SiStripDetId/interface/TIDDetId.h,DataFormats/SiStripDetId/interface/TOBDetId.h,DataFormats/SiStripDetId/interface/TECDetId.h,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h"
+      include="utility,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h"
       >
       <![CDATA[
             using namespace reco;
@@ -260,7 +264,7 @@
             };
 
             auto fillNewHitPatternFromNewHitPattern = [&](const HitPattern hitPattern, const HitPattern::HitCategory category) {
-                uint8_t hitCount = hitPattern.numberOfHits(HitPattern::TRACK_HITS);
+                uint8_t hitCount = hitPattern.numberOfAllHits(HitPattern::TRACK_HITS);
                 for (int i = 0; i < hitCount; i++) {
                     uint16_t pattern = hitPattern.getHitPattern(HitPattern::TRACK_HITS, i);
                     if(!appendNewHitPattern(pattern, category)) {
@@ -281,13 +285,10 @@
       ]]>
  </ioread>
 
-  <class name="reco::TrackResiduals" ClassVersion="10">
-   <version ClassVersion="10" checksum="2022291691"/>
-  </class>
-
-  <class name="reco::TrackExtraBase" ClassVersion="11">
+  <class name="reco::TrackExtraBase" ClassVersion="12">
    <version ClassVersion="10" checksum="3548207838"/>
    <version ClassVersion="11" checksum="3450798337"/>
+   <version ClassVersion="12" checksum="1846152141"/>
   </class>
   <ioread sourceClass = "reco::TrackExtraBase" version="[-10]" targetClass="reco::TrackExtraBase" source ="TrackingRecHitRefVector recHits_" target="m_hitCollection">
     <![CDATA[m_hitCollection=onfile.recHits_.refVector().refCore();]]>
@@ -300,7 +301,8 @@
   </ioread>
 
 
-  <class name="reco::TrackExtra" ClassVersion="13">
+  <class name="reco::TrackExtra" ClassVersion="14">
+   <version ClassVersion="14" checksum="388593738"/>
    <version ClassVersion="13" checksum="2526033150"/>
    <version ClassVersion="12" checksum="106004853"/>
    <version ClassVersion="11" checksum="2586227274"/>
@@ -316,7 +318,9 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="17">
+  <class name="reco::Track" ClassVersion="19">
+   <version ClassVersion="19" checksum="362503460"/>
+   <version ClassVersion="18" checksum="3235158110"/>
    <version ClassVersion="17" checksum="3387867292"/>
    <version ClassVersion="16" checksum="697987788"/>
    <version ClassVersion="15" checksum="3694119510"/>
@@ -402,6 +406,7 @@
      <class name="std::pair<edm::RefToBase<reco::Track>,double>" />
      <class name="std::vector<std::pair<edm::RefToBase<reco::Track>,double> >" />
 
+     <class name="edm::reftobase::BaseVectorHolder<reco::Track>" />
      <class name="reco::TrackBaseRefVector"/>
      <class name="edm::Wrapper<reco::TrackBaseRefVector>"/>
 
@@ -459,5 +464,9 @@
    <class name="edm::Wrapper<reco::DeDxHitInfo>"/>
    <class name="edm::Wrapper<reco::DeDxHitInfoCollection>"/>
    <class name="edm::Wrapper<reco::DeDxHitInfoAss>"/>
+
+   <class name="SeedStopInfo" persistent="false"/>
+   <class name="std::vector<SeedStopInfo>" persistent="false"/>
+   <class name="edm::Wrapper<std::vector<SeedStopInfo> >" persistent="false"/>
 
   </lcgdict>

@@ -28,18 +28,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// data format
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
-
 // helper files
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
-#include <assert.h>
-#include <stdint.h>
+#include <cassert>
+#include <cstdint>
 
 #include "TString.h"
 #include "TH1F.h"
@@ -54,24 +51,28 @@
 #include "TObjString.h"
 
 class MEtoEDMConverter : public edm::one::EDProducer<edm::one::WatchRuns,
+                                                     edm::one::WatchLuminosityBlocks,
                                                      edm::EndLuminosityBlockProducer,
-                                                     edm::EndRunProducer>
+                                                     edm::EndRunProducer,
+                                                     edm::one::SharedResources>
 {
 public:
   explicit MEtoEDMConverter(const edm::ParameterSet&);
-  virtual ~MEtoEDMConverter();
-  virtual void beginJob() override;
-  virtual void endJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(edm::Run const&, const edm::EventSetup&) override;
-  virtual void endRun(edm::Run const&, const edm::EventSetup&) override;
-  virtual void endRunProduce(edm::Run&, const edm::EventSetup&) override;
-  virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
+  ~MEtoEDMConverter() override;
+  void beginJob() override;
+  void endJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) override;
+  void endRun(edm::Run const&, const edm::EventSetup&) override;
+  void endRunProduce(edm::Run&, const edm::EventSetup&) override;
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
 
   template <class T>
-      void putData(T& iPutTo, bool iLumiOnly, uint32_t run, uint32_t lumi);
+  void putData(DQMStore::IGetter &g, T& iPutTo, bool iLumiOnly, uint32_t run, uint32_t lumi);
 
-  typedef std::vector<uint32_t> TagList;
+  using TagList = std::vector<uint32_t>;
 
 private:
   std::string fName;
@@ -80,8 +81,6 @@ private:
   bool deleteAfterCopy;
   bool enableMultiThread_;
   std::string path;
-
-  DQMStore* dbe;
 
   // private statistics information
   std::map<int,int> iCount;

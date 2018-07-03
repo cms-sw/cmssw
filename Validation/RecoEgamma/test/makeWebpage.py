@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 ## This script writes an index.html page
 ## displaying all plots contained in the 

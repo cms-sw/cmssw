@@ -58,8 +58,8 @@ void DTTrackFinder::produce(edm::Event& e, const edm::EventSetup& c) {
   if ( L1MuDTTFConfig::Debug(1) ) cout << "Number of muons found by the L1 DTBX TRIGGER : "
                                        << ndt << endl;
 
-  auto_ptr<L1MuDTTrackContainer> tra_product(new L1MuDTTrackContainer);
-  auto_ptr<vector<L1MuRegionalCand> >
+  unique_ptr<L1MuDTTrackContainer> tra_product(new L1MuDTTrackContainer);
+  unique_ptr<vector<L1MuRegionalCand> >
                                  vec_product(new vector<L1MuRegionalCand>);
 
   vector<L1MuDTTrackCand>&  dtTracks = dtbx->getcache0();
@@ -67,7 +67,7 @@ void DTTrackFinder::produce(edm::Event& e, const edm::EventSetup& c) {
   vector<L1MuRegionalCand>& DTTracks = dtbx->getcache();
   *vec_product = DTTracks;
 
-  e.put(tra_product,"DTTF");
-  e.put(vec_product,"DT");
+  e.put(std::move(tra_product),"DTTF");
+  e.put(std::move(vec_product),"DT");
 
 }

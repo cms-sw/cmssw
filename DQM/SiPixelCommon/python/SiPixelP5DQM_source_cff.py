@@ -39,6 +39,7 @@ SiPixelTrackResidualSource_Cosmics.trajectoryInput = cms.string('ctfWithMaterial
 from DQM.SiPixelMonitorTrack.SiPixelMonitorEfficiency_cfi import *
 SiPixelHitEfficiencySource.saveFile = False
 SiPixelHitEfficiencySource.trajectoryInput = cms.InputTag('generalTracks') 
+from DQM.TrackerMonitorTrack.SiPixelMonitorTrackResiduals_cfi import *
 
 ##online/offline
 #RawDataErrors
@@ -107,15 +108,18 @@ hiTracks = "hiGlobalPrimTracks"
 
 SiPixelTrackResidualSource_HeavyIons = SiPixelTrackResidualSource.clone(
     TrackCandidateProducer = 'hiPrimTrackCandidates',
-    trajectoryInput = hiTracks
+    trajectoryInput = hiTracks,
+    vtxsrc='hiSelectedVertex'
     )
 
 SiPixelHitEfficiencySource_HeavyIons = SiPixelHitEfficiencySource.clone(
-    trajectoryInput = hiTracks
+    trajectoryInput = hiTracks,
+    vtxsrc='hiSelectedVertex'
     )
 
 #DQM service
-dqmInfo = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfo = DQMEDAnalyzer('DQMEventInfo',
     subSystemFolder = cms.untracked.string('Pixel')
 )
 
@@ -123,7 +127,7 @@ dqmInfo = cms.EDAnalyzer("DQMEventInfo",
 from DQM.SiPixelMonitorRawData.SiPixelMonitorHLT_cfi import *
 SiPixelHLTSource.DirName = cms.untracked.string('Pixel/FEDIntegrity/')
 
-siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + SiPixelHitEfficiencySource + dqmInfo)
+siPixelP5DQM_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource + SiPixelHitEfficiencySource + SiPixelMonitorTrackResiduals + dqmInfo)
 
 siPixelP5DQM_cosmics_source = cms.Sequence(SiPixelRawDataErrorSource + SiPixelDigiSource + SiPixelRecHitSource + SiPixelClusterSource + SiPixelTrackResidualSource_Cosmics + dqmInfo)
 

@@ -4,7 +4,7 @@
   /**
    * Constructor for cscmap
    */
-  cscmap::cscmap () throw (oracle::occi::SQLException)
+  cscmap::cscmap () noexcept(false)
   {
     std::string db_user;
     std::string db_pass;
@@ -19,7 +19,7 @@
   /**
    * Destructor for cscmap.
    */
-  cscmap::~cscmap () throw (oracle::occi::SQLException)
+  cscmap::~cscmap () noexcept(false)
   {
     env->terminateConnection (con);
     oracle::occi::Environment::terminateEnvironment (env);
@@ -43,7 +43,7 @@
 
     stmt->execute(); //execute procedure
 
-    *chamber_id = stmt->getString(3);
+    *chamber_id = getOraString(stmt,3);
     *chamber_num = stmt->getInt(4);
     *chamber_index = stmt->getInt(5);
     *first_strip_index = stmt->getInt(6);
@@ -71,7 +71,7 @@
 
     stmt->execute(); //execute procedure
 
-    *chamber_id = stmt->getString(3);
+    *chamber_id = getOraString(stmt,3);
     *chamber_num = stmt->getInt(4);
     *chamber_index = stmt->getInt(5);
     *first_strip_index = stmt->getInt(6);

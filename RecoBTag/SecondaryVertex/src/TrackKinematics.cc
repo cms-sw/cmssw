@@ -34,6 +34,22 @@ TrackKinematics::TrackKinematics(const TrackRefVector &tracks) :
 		add(**iter);
 }
 
+TrackKinematics::TrackKinematics(const std::vector<CandidatePtr> &tracks) :
+	n(0), sumWeights(0)
+{
+	for(std::vector<CandidatePtr>::const_iterator iter = tracks.begin();
+	    iter != tracks.end(); iter++)
+		add(*iter);
+}
+
+TrackKinematics::TrackKinematics(const CandidatePtrVector &tracks) :
+	n(0), sumWeights(0)
+{
+	for(CandidatePtrVector::const_iterator iter = tracks.begin();
+	    iter != tracks.end(); iter++)
+		add(*iter);
+}
+
 TrackKinematics::TrackKinematics(const Vertex &vertex) :
 	n(0), sumWeights(0)
 {
@@ -71,4 +87,14 @@ void TrackKinematics::add(const Track &track, double weight)
 	sumWeights += weight;
 	sum += vec;
 	weightedSum += weight * vec;
+}
+
+void TrackKinematics::add(const CandidatePtr &track)
+{
+	double weight = 1.0;
+
+	n++;
+	sumWeights += weight;
+	sum += track->p4();
+	weightedSum += weight * track->p4();
 }

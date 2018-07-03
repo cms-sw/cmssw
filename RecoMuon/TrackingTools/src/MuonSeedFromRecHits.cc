@@ -31,7 +31,7 @@ using namespace std;
 template <class T> T sqr(const T& t) {return t*t;}
 
 MuonSeedFromRecHits::MuonSeedFromRecHits()
-: theField(0)
+: theField(nullptr)
 {
 }
 

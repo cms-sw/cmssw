@@ -138,7 +138,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandl
 
   L1RpcTBMuonsVec2 firstHalfTcsMuonsVec2;
 
-  if ( tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1].size()==0 || hsbConf->getHsbMask(0,0) == 3 ) {
+  if ( tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1].empty() || hsbConf->getHsbMask(0,0) == 3 ) {
     firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1]); //TC=11 (last one)
   } else {
     L1RpcTBMuonsVec newVec = tcsMuonsVec2[m_TrigCnfg->getTCsCnt()-1];
@@ -161,7 +161,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandl
     } // iter. over muons end
     ++secAddr; // Next trigger crate. Update the address
 
-    if ( tcsMuonsVec2[iTC].size()==0 || hsbConf->getHsbMask(0, iTC+1) == 3 ) {
+    if ( tcsMuonsVec2[iTC].empty() || hsbConf->getHsbMask(0, iTC+1) == 3 ) {
       firstHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
     } else {
       L1RpcTBMuonsVec newVec = tcsMuonsVec2[iTC];
@@ -188,7 +188,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandl
       }
     }
     ++secAddr;
-    if ( tcsMuonsVec2[iTC].size()==0 || hsbConf->getHsbMask(1, iTC-5) == 3 ) {
+    if ( tcsMuonsVec2[iTC].empty() || hsbConf->getHsbMask(1, iTC-5) == 3 ) {
       secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[iTC]);
     } else {
       L1RpcTBMuonsVec newVec = tcsMuonsVec2[iTC];
@@ -198,7 +198,7 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandl
   }
 
   //secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[0]);
-  if ( tcsMuonsVec2[0].size()==0 || hsbConf->getHsbMask(1 , 7) == 3 ) {
+  if ( tcsMuonsVec2[0].empty() || hsbConf->getHsbMask(1 , 7) == 3 ) {
     secondHalfTcsMuonsVec2.push_back(tcsMuonsVec2[0]);
   } else {
     L1RpcTBMuonsVec newVec = tcsMuonsVec2[0];

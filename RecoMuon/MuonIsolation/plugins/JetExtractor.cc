@@ -37,8 +37,8 @@ JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector && iC
   theDR_Veto(par.getParameter<double>("DR_Veto")),
   theDR_Max(par.getParameter<double>("DR_Max")),
   theExcludeMuonVeto(par.getParameter<bool>("ExcludeMuonVeto")),
-  theService(0),
-  theAssociator(0),
+  theService(nullptr),
+  theAssociator(nullptr),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");

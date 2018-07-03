@@ -138,7 +138,7 @@ double MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir, 
 
   double scale_factor = double(numResiduals()) * (100. - -100.)/100;   // (max - min)/nbins
 
-  TF1 *narrowed_fit = NULL;
+  TF1 *narrowed_fit = nullptr;
   if (residualsModel() == kPureGaussian) {
     narrowed_fit = new TF1(narrowed_name.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, -100., 100., 3);
     narrowed_fit->SetParameters(scale_factor, value(kPosition) * 10., value(kSigma) * 10.);

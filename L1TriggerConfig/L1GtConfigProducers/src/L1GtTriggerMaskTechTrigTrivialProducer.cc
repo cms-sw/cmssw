@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -58,11 +57,8 @@ L1GtTriggerMaskTechTrigTrivialProducer::~L1GtTriggerMaskTechTrigTrivialProducer(
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigTrivialProducer::produceTriggerMask(
+std::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigTrivialProducer::produceTriggerMask(
         const L1GtTriggerMaskTechTrigRcd& iRecord)
 {
-    boost::shared_ptr<L1GtTriggerMask> pL1GtTriggerMask = boost::shared_ptr<L1GtTriggerMask>(
-            new L1GtTriggerMask(m_triggerMask) );
-
-    return pL1GtTriggerMask ;
+    return std::make_shared<L1GtTriggerMask>(m_triggerMask);
 }

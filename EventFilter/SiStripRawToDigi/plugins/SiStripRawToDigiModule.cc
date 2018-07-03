@@ -18,8 +18,8 @@
 namespace sistrip {
 
   RawToDigiModule::RawToDigiModule( const edm::ParameterSet& pset ) :
-    rawToDigi_(0),
-    cabling_(0),
+    rawToDigi_(nullptr),
+    cabling_(nullptr),
     cacheId_(0),
     extractCm_(false),
     doFullCorruptBufferChecks_(false),
@@ -34,6 +34,7 @@ namespace sistrip {
     token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
     int16_t appended_bytes = pset.getParameter<int>("AppendedBytes");
     int16_t trigger_fed_id = pset.getParameter<int>("TriggerFedId");
+    bool legacy_unpacker = pset.getParameter<bool>("LegacyUnpacker");
     bool use_daq_register = pset.getParameter<bool>("UseDaqRegister");
     bool using_fed_key = pset.getParameter<bool>("UseFedKey");
     bool unpack_bad_channels = pset.getParameter<bool>("UnpackBadChannels");
@@ -49,6 +50,7 @@ namespace sistrip {
     uint32_t errorThreshold = pset.getParameter<unsigned int>("ErrorThreshold");
 
     rawToDigi_ = new sistrip::RawToDigiUnpacker( appended_bytes, fed_buffer_dump_freq, fed_event_dump_freq, trigger_fed_id, using_fed_key, unpack_bad_channels, mark_missing_feds, errorThreshold);
+    rawToDigi_->legacy(legacy_unpacker);
     rawToDigi_->quiet(quiet);
     rawToDigi_->useDaqRegister( use_daq_register ); 
     rawToDigi_->extractCm(extractCm_);
@@ -67,7 +69,7 @@ namespace sistrip {
 
   RawToDigiModule::~RawToDigiModule() {
     if ( rawToDigi_ ) { delete rawToDigi_; }
-    if ( cabling_ ) { cabling_ = 0; }
+    if ( cabling_ ) { cabling_ = nullptr; }
     if ( edm::isDebugEnabled() ) {
       LogTrace("SiStripRawToDigi")
 	<< "[sistrip::RawToDigiModule::" << __func__ << "]"
@@ -94,7 +96,7 @@ namespace sistrip {
     event.getByToken( token_, buffers ); 
 
     // Populate SiStripEventSummary object with "trigger FED" info
-    std::auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
+    auto summary = std::make_unique<SiStripEventSummary>();
     rawToDigi_->triggerFed( *buffers, *summary, event.id().event() ); 
 
     // Create containers for digis
@@ -108,22 +110,22 @@ namespace sistrip {
     // Create digis
     if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling_,*buffers,*summary,*sm,*vr,*pr,*zs,*ids,*cm ); }
   
-    // Create auto_ptr's of digi products
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv(sm);
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr_dsv(vr);
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr_dsv(pr);
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> > zs_dsv(zs);
-    std::auto_ptr< DetIdCollection > det_ids(ids);
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > cm_dsv(cm);
+    // Create unique_ptr's of digi products
+    std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv(sm);
+    std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > vr_dsv(vr);
+    std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > pr_dsv(pr);
+    std::unique_ptr< edm::DetSetVector<SiStripDigi> > zs_dsv(zs);
+    std::unique_ptr< DetIdCollection > det_ids(ids);
+    std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > cm_dsv(cm);
   
     // Add to event
-    event.put( summary );
-    event.put( sm_dsv, "ScopeMode" );
-    event.put( vr_dsv, "VirginRaw" );
-    event.put( pr_dsv, "ProcessedRaw" );
-    event.put( zs_dsv, "ZeroSuppressed" );
-    event.put( det_ids );
-    if ( extractCm_ ) event.put( cm_dsv, "CommonMode" );
+    event.put(std::move(summary));
+    event.put(std::move(sm_dsv), "ScopeMode");
+    event.put(std::move(vr_dsv), "VirginRaw");
+    event.put(std::move(pr_dsv), "ProcessedRaw");
+    event.put(std::move(zs_dsv), "ZeroSuppressed");
+    event.put(std::move(det_ids));
+    if ( extractCm_ ) event.put(std::move(cm_dsv), "CommonMode");
   
   }
 
@@ -152,12 +154,18 @@ namespace sistrip {
 	std::stringstream sss;
 	sss << "[sistrip::RawToDigiModule::" << __func__ << "]"
 	    << " Summary of FED cabling:" << std::endl;
-	cabling_->summary(sss);
+	edm::ESHandle<TrackerTopology> tTopo;
+	setup.get<TrackerTopologyRcd>().get(tTopo);
+	cabling_->summary(sss, tTopo.product());
 	LogTrace("SiStripRawToDigi") << sss.str();
       }
       cacheId_ = cache_id;
     }
   }
 
+  void RawToDigiModule::endStream()
+  {
+    rawToDigi_->printWarningSummary();
+  }
 }
 

@@ -67,11 +67,6 @@ void SUSY_HLT_MuEle_Hadronic::bookHistograms(DQMStore::IBooker & ibooker_, edm::
     bookHistos(ibooker_);
 }
 
-void SUSY_HLT_MuEle_Hadronic::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                                        edm::EventSetup const& context)
-{
-    edm::LogInfo("SUSY_HLT_MuEle_Hadronic") << "SUSY_HLT_MuEle_Hadronic::beginLuminosityBlock" << std::endl;
-}
 
 
 
@@ -178,7 +173,7 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
         
     }
 	
-	if (ptMuon.size()>=1 && ptElectron.size() >= 1) {
+	if (!ptMuon.empty() && !ptElectron.empty()) {
         math::PtEtaPhiMLorentzVectorD* mu1 = new math::PtEtaPhiMLorentzVectorD(ptMuon[0],etaMuon[0],phiMuon[0],0.106);
         math::PtEtaPhiMLorentzVectorD* ele2 = new math::PtEtaPhiMLorentzVectorD(ptElectron[0],etaElectron[0],phiElectron[0],0.0005);
         (*mu1)+=(*ele2);
@@ -244,7 +239,7 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
             caloHT += i_calojet->pt();
         }
         
-        if(hasFiredAuxiliaryForMuEleLeg && MuonCollection->size()>0 && ElectronCollection->size()>0) {
+        if(hasFiredAuxiliaryForMuEleLeg && !MuonCollection->empty() && !ElectronCollection->empty()) {
 		     if(hasFired && indexOfMatchedMuEle[1] >= 0 && indexOfMatchedMuEle[0] >= 0) { //check that ele is there too
 			    h_EleTurnOn_num-> Fill(ElectronCollection->at(indexOfMatchedMuEle[1]).pt());
                 h_MuTurnOn_num-> Fill(MuonCollection->at(indexOfMatchedMuEle[0]).pt());
@@ -263,10 +258,6 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
 }
 
 
-void SUSY_HLT_MuEle_Hadronic::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
-{
-    edm::LogInfo("SUSY_HLT_MuEle_Hadronic") << "SUSY_HLT_MuEle_Hadronic::endLuminosityBlock" << std::endl;
-}
 
 
 void SUSY_HLT_MuEle_Hadronic::endRun(edm::Run const& run, edm::EventSetup const& eSetup)

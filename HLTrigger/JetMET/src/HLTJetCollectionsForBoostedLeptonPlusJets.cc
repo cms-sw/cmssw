@@ -102,8 +102,8 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEvent, 
   
   typename JetCollection::const_iterator jet;
   
-  auto_ptr<JetCollection> allSelections(new JetCollection);
-  auto_ptr<JetCollectionVector> product(new JetCollectionVector);
+  unique_ptr<JetCollection> allSelections(new JetCollection);
+  unique_ptr<JetCollectionVector> product(new JetCollectionVector);
 
   std::vector<size_t> usedCands;
 
@@ -194,7 +194,7 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEvent, 
   NumericSafeGreaterByPt<jetType> compJets;  
   // reorder cleaned jets
   std::sort (allSelections->begin(), allSelections->end(), compJets);
-  edm::OrphanHandle<JetCollection> cleanedJetHandle = iEvent.put(allSelections);
+  edm::OrphanHandle<JetCollection> cleanedJetHandle = iEvent.put(std::move(allSelections));
 
   JetCollection const & jets = *cleanedJetHandle;
 
@@ -205,7 +205,7 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEvent, 
   }
 
   product->emplace_back(cleanedJetRefs);
-  iEvent.put(product);
+  iEvent.put(std::move(product));
 
   return;
   

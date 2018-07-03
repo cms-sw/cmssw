@@ -66,10 +66,10 @@
 // STDLIB
 #include <iostream>
 #include <iomanip>
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;
@@ -118,18 +118,18 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps) {
   semiMu_dphiHadCut_ = ps.getParameter<double>("semiMu_dphiHadCut");
   semiMu_dRMin_ = ps.getParameter<double>("semiMu_dRMin");
   semiMu_ptRel_ = ps.getParameter<double>("semiMu_ptRel");
-  muonSelect_ = std::shared_ptr<StringCutObjectSelector<reco::Muon> >(
-      new StringCutObjectSelector<reco::Muon>(
-          ps.getParameter<std::string>("muonSelect")));
+  muonSelect_ = std::make_shared<StringCutObjectSelector<reco::Muon> >(
+      
+          ps.getParameter<std::string>("muonSelect"));
 
   semiE_HadJetPtCut_ = ps.getParameter<double>("semiE_HadJetPtCut");
   semiE_LepJetPtCut_ = ps.getParameter<double>("semiE_LepJetPtCut");
   semiE_dphiHadCut_ = ps.getParameter<double>("semiE_dphiHadCut");
   semiE_dRMin_ = ps.getParameter<double>("semiE_dRMin");
   semiE_ptRel_ = ps.getParameter<double>("semiE_ptRel");
-  elecSelect_ = std::shared_ptr<StringCutObjectSelector<reco::GsfElectron> >(
-      new StringCutObjectSelector<reco::GsfElectron>(
-          ps.getParameter<std::string>("elecSelect")));
+  elecSelect_ = std::make_shared<StringCutObjectSelector<reco::GsfElectron> >(
+      
+          ps.getParameter<std::string>("elecSelect"));
 
   PFJetCorService_ = ps.getParameter<std::string>("PFJetCorService");
 
@@ -159,7 +159,7 @@ void B2GDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   for (unsigned int icoll = 0; icoll < jetLabels_.size(); ++icoll) {
     std::stringstream ss;
     ss << "Physics/B2G/" << jetLabels_[icoll].label();
-    bei.setCurrentFolder(ss.str().c_str());
+    bei.setCurrentFolder(ss.str());
     pfJet_pt.push_back(
         bei.book1D("pfJet_pt", "Pt of PFJet (GeV)", 50, 0.0, 1000));
     pfJet_y.push_back(
@@ -348,7 +348,7 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
       // to access the PFJet information
       reco::PFJet const* pfjet = dynamic_cast<reco::PFJet const*>(&*jet);
 
-      if (pfjet != 0) {
+      if (pfjet != nullptr) {
         pfJet_chef[icoll]->Fill(pfjet->chargedHadronEnergyFraction());
         pfJet_nhef[icoll]->Fill(pfjet->neutralHadronEnergyFraction());
         pfJet_cemf[icoll]->Fill(pfjet->chargedEmEnergyFraction());
@@ -360,7 +360,7 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
       reco::BasicJet const* basicjet =
           dynamic_cast<reco::BasicJet const*>(&*jet);
 
-      if (basicjet != 0) {
+      if (basicjet != nullptr) {
         boostedJet_subjetN[icoll]->Fill(jet->numberOfDaughters());
 
         for (unsigned int ida = 0; ida < jet->numberOfDaughters(); ++ida) {
@@ -462,7 +462,7 @@ void B2GDQM::analyzeSemiMu(const Event& iEvent, const edm::EventSetup& iSetup) {
   bool validMuons = iEvent.getByToken(muonToken_, muonCollection);
 
   if (!validMuons) return;
-  if (muonCollection->size() < 1) return;
+  if (muonCollection->empty()) return;
   reco::Muon const& muon = muonCollection->at(0);
   if (!(*muonSelect_)(muon)) return;
 
@@ -498,7 +498,7 @@ void B2GDQM::analyzeSemiMu(const Event& iEvent, const edm::EventSetup& iSetup) {
   if (hadJet.isAvailable() == false || lepJet.isAvailable() == false) return;
 
   auto lepJetP4 = lepJet->p4();
-  auto muonP4 = muon.p4();
+  const auto& muonP4 = muon.p4();
 
   double tot = lepJetP4.mag2();
   double ss = muonP4.Dot(lepJet->p4());
@@ -539,7 +539,7 @@ void B2GDQM::analyzeSemiE(const Event& iEvent, const edm::EventSetup& iSetup) {
   bool validElectrons = iEvent.getByToken(electronToken_, electronCollection);
 
   if (!validElectrons) return;
-  if (electronCollection->size() < 1) return;
+  if (electronCollection->empty()) return;
   reco::GsfElectron const& electron = electronCollection->at(0);
   if (!(*elecSelect_)(electron)) return;
 
@@ -575,7 +575,7 @@ void B2GDQM::analyzeSemiE(const Event& iEvent, const edm::EventSetup& iSetup) {
   if (hadJet.isAvailable() == false || lepJet.isAvailable() == false) return;
 
   auto lepJetP4 = lepJet->p4();
-  auto electronP4 = electron.p4();
+  const auto& electronP4 = electron.p4();
 
   double tot = lepJetP4.mag2();
   double ss = electronP4.Dot(lepJet->p4());

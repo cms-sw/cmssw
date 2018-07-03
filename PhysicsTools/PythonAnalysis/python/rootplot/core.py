@@ -1,6 +1,7 @@
 """
 An API and a CLI for quickly building complex figures.
 """
+from __future__ import absolute_import
 
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
@@ -53,8 +54,8 @@ from os.path import join as joined
 ##############################################################################
 ######## Import ROOT and rootplot libraries ##################################
 
-from utilities import RootFile, Hist, Hist2D, HistStack
-from utilities import find_num_processors, loadROOT
+from .utilities import RootFile, Hist, Hist2D, HistStack
+from .utilities import find_num_processors, loadROOT
 
 argstring = ' '.join(sys.argv)
 ## Use ROOT's batch mode, unless outputting to C macros, since there is
@@ -67,7 +68,7 @@ ROOT = loadROOT(batch=batch)
 ##############################################################################
 ######## Define globals ######################################################
 
-from version import __version__          # version number
+from .version import __version__          # version number
 prog = os.path.basename(sys.argv[0])     # rootplot or rootplotmpl
 use_mpl = False                          # set in plotmpl or rootplotmpl
 global_opts = ['filenames', 'targets', 'debug', 'path', 'processors', 
@@ -547,7 +548,7 @@ def cli_rootplot():
     else:
         try:
             rootplot(*options.arguments(), **optdiff)
-        except Exception, e:
+        except Exception as e:
             print "Error:", e
             print "For usage details, call '%s --help'" % prog
             sys.exit(1)
@@ -695,9 +696,9 @@ def rootplot(*args, **kwargs):
         for key, value in reduced_kwargs.items():
             if key in global_opts:
                 del reduced_kwargs[key]
-            elif type(value) is str:
+            elif isinstance(value, str):
                 reduced_kwargs[key] = "'%s'" % value
-        if kwargs.has_key('numbering'):
+        if 'numbering' in kwargs:
             reduced_kwargs['numbering'] = i + 1
         optstring = ', '.join(['%s=%s' % (key, value)
                                for key, value in reduced_kwargs.items()])
@@ -935,7 +936,7 @@ def plot_hists_root(hists, options):
         name = "%s_%i" % (options.plotpath, i)
         if isTGraph:
             roothist = hist.TGraph(name=name)
-        elif type(hist) is Hist:
+        elif isinstance(hist, Hist):
             roothist = hist.TH1F(name=name.replace('/', '__'))
         else:
             roothist = hist.TH2F(name=name)
@@ -947,15 +948,15 @@ def plot_hists_root(hists, options):
         roothist.SetMarkerStyle(options.marker_styles[i])
         roothist.SetMarkerSize(options.marker_sizes[i])
         roothists.append(roothist)
-        if (type(hist) is Hist and not isTGraph and 
+        if (isinstance(hist, Hist) and not isTGraph and 
             'stack' in options.draw_commands[i]):
             objects['stack'].Add(roothist)
-    if objects.has_key('stack') and objects['stack'].GetHists():
+    if 'stack' in objects and objects['stack'].GetHists():
         histmax = objects['stack'].GetMaximum()
     for roothist in roothists:
         histmax = max(histmax, roothist.GetMaximum())
     dimension = 1
-    if type(hist) == Hist2D:
+    if isinstance(hist, Hist2D):
         dimension = 2
     if options.gridx or options.grid:
         for pad in objects['pads']:
@@ -1040,7 +1041,7 @@ def plot_hists_mpl(hists, options):
     for i, hist in enumerate(hists):
         if hist and hist.entries:
             allempty = False
-        if type(hist) is Hist:
+        if isinstance(hist, Hist):
             # Avoid errors due to zero bins with log y axis
             if options.logy and options.plot_styles[i] != 'errorbar':
                 for j in range(hist.nbins):
@@ -1060,7 +1061,7 @@ def plot_hists_mpl(hists, options):
         histmax = max(histmax, max(hist))
     if allempty:
         fig.text(0.5, 0.5, "No Entries", ha='center', va='center')
-    elif type(refhist) is Hist:
+    elif isinstance(refhist, Hist):
         for i, hist in enumerate(hists):
             if hist:
                 if options.plot_styles[i] == "errorbar":
@@ -1169,7 +1170,7 @@ def plot_hists_mpl(hists, options):
             if options.legend_ncols:
                 kwargs['ncol'] = int(options.legend_ncols)
             objects['legend'] = axes.legend(numpoints=1, **kwargs)
-    elif type(refhist) is Hist2D:
+    elif isinstance(refhist, Hist2D):
         drawfunc = getattr(hist, options.draw2D)
         if 'col' in options.draw2D:
             if options.cmap:
@@ -1598,7 +1599,7 @@ def parse_legend_root(options):
     #### Return the corners to use for the legend based on options.
     legend_height = min(options.legend_entry_height * options.nhists + 0.02,
                         options.max_legend_height)
-    if type(options.legend_location) is int:
+    if isinstance(options.legend_location, int):
         options.legend_location = options.legend_codes[options.legend_location]
     elif options.legend_location.lower() == 'none':
         options.legend_location = None
@@ -1686,9 +1687,9 @@ def process_options(options):
     #### Refine options for this specific plot, based on plotname
     def comma_separator(obj, objtype, nhists):
         #### Split a comma-separated string into a list.
-        if type(obj) is list:
+        if isinstance(obj, list):
             return obj
-        if type(obj) is str and ',' in obj:
+        if isinstance(obj, str) and ',' in obj:
             try:
                 return [objtype(x) for x in obj.split(',')]
             except TypeError:
@@ -1820,20 +1821,20 @@ def parse_arguments(argv, scope='global'):
     def opt(**kwargs):
         return kwargs
     def addopt(group, *args, **kwargs):
-        if use_mpl and kwargs.has_key('mpl'):
+        if use_mpl and 'mpl' in kwargs:
             opts = kwargs['mpl']
             kwargs = dict(kwargs, **opts)
-        if not use_mpl and kwargs.has_key('root'):
+        if not use_mpl and 'root' in kwargs:
             opts = kwargs['root']
             kwargs = dict(kwargs, **opts)
-        if locals().has_key('opts'):
+        if 'opts' in locals():
             del kwargs['mpl']
             del kwargs['root']
-        if kwargs.has_key('metadefault'):
+        if 'metadefault' in kwargs:
             val = kwargs.pop('metadefault')
             kwargs['default'] = val
             kwargs['metavar'] = val
-        if kwargs.has_key('metavar') and ' ' in str(kwargs['metavar']):
+        if 'metavar' in kwargs and ' ' in str(kwargs['metavar']):
             kwargs['metavar']="'%s'" % kwargs['metavar']
         group.add_option(*args, **kwargs)
 

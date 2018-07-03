@@ -1,4 +1,3 @@
-<use   name="boost"/>
 <use   name="root"/>
 <use   name="clhep"/>
 <use   name="FWCore/Framework"/>

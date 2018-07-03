@@ -30,7 +30,7 @@ class DcsStatus
  public:
 
   static const int partitionList[];
-  static const char * partitionName[];
+  static const char * const partitionName[];
 
   enum
   {

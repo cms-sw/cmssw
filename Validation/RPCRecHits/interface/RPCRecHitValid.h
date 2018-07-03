@@ -1,5 +1,5 @@
 #ifndef Validation_RPCRecHits_RPCRecHitValid_h
-#define Validaiton_RPCRecHits_RPCRecHitValid_h
+#define Validation_RPCRecHits_RPCRecHitValid_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -25,9 +25,9 @@ class RPCRecHitValid : public DQMEDAnalyzer
 {
 public:
   RPCRecHitValid(const edm::ParameterSet& pset);
-  ~RPCRecHitValid() {};
+  ~RPCRecHitValid() override {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
@@ -73,6 +73,7 @@ private:
   MEP h_rollAreaEndcap_detId;
 
   std::map<int, int> detIdToIndexMapBarrel_, detIdToIndexMapEndcap_;
+
 };
 
-#endif
+#endif // Validation_RPCRecHits_RPCRecHitValid_h

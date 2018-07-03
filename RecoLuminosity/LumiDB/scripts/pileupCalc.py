@@ -6,6 +6,7 @@ from RecoLuminosity.LumiDB import pileupParser
 from RecoLuminosity.LumiDB import selectionParser
 from math import exp
 from math import sqrt
+import six
 
 def parseInputFile(inputfilename):
     '''
@@ -208,14 +209,14 @@ if __name__ == '__main__':
     # parse arguments
     try:
         (options, args) = parser.parse_args()
-    except Exception , e:
+    except Exception as e:
         print e
     if not args:
         parser.print_usage()
         sys.exit()
     if len (args) != 1:
         parser.print_usage()
-        raise RuntimeError, "Exactly one output file must be given"
+        raise RuntimeError("Exactly one output file must be given")
     output = args[0]
     
 #    options=parser.parse_args()
@@ -249,7 +250,7 @@ if __name__ == '__main__':
         # now, we have to find the information for the input runs and LumiSections 
         # in the Lumi/Pileup list. First, loop over inputs
 
-        for (run, lslist) in sorted (inputRange.iteritems() ):
+        for (run, lslist) in sorted (six.iteritems(inputRange)) ):
             # now, look for matching run, then match lumi sections
             # print "searching for run %d" % (run)
             if run in inputPileupRange.keys():
@@ -277,8 +278,7 @@ if __name__ == '__main__':
 
         histFile = ROOT.TFile.Open (output, 'recreate')
         if not histFile:
-            raise RuntimeError, \
-                 "Could not open '%s' as an output root file" % output
+            raise RuntimeError("Could not open '%s' as an output root file" % output)
         pileupHist.Write()
         #for hist in histList:
         #    hist.Write()

@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalHE.xml" eval="true">
+  <Constant name="rMinFine"   value="0.0*fm"/>
+  <Constant name="rMaxFine"   value="0.0*fm"/>
+  <Constant name="rMaxMiddle" value="0.0*fm"/>
+  <Constant name="rMaxCoarse" value="2000.0*cm"/>
+  <Constant name="rMin"       value="[hgcal:rminHE]"/>
+  <Constant name="rMax"       value="[hgcal:rmaxHE]"/>
+  <Constant name="absorbW"    value="1.5*[hgcal:WaferW]"/>
+  <Constant name="absorbH"    value="1.5*[hgcal:WaferW]"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalHE.xml">
+  <Algorithm name="hgcal:DDHGCalTBModule">
+    <rParent name="hgcal:HGCalHE"/>
+    <Vector name="WaferName" type="string" nEntries="2">
+      hgcalwafer:HGCalHEWaferFine, hgcalwafer:HGCalHEWaferCoarse</Vector>
+    <Vector name="CoverName" type="string" nEntries="3">
+      hgcal:HGCalHESiliconPCB, hgcal:HGCalHESiliconKapton, 
+      hgcal:HGCalHESiliconCu</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="8">
+      materials:StainlessSteel, materials:Air, materials:Air, 
+      materials:Copper, materials:Air, materials:Air, materials:Air,
+      materials:StainlessSteel</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="8">
+      HESteel40mm,        HESiliconPCB1,    HESiliconCu,     HECu, 
+      HESiliconSensitive, HESiliconKapton1, HESiliconAirGap, 
+      HESteel10mm</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="8">
+      40.0*mm, [hgcal:thPCB], [hgcal:thAbsHE], 6.0*mm, 0.1*mm, 
+      [hgcal:thKapton], 6.89*mm, 10.0*mm</Vector>
+    <Vector name="Layers" type="numeric" nEntries="13"> 
+      1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="13"> 
+      10.0*mm, 56.0*mm, 56.0*mm, 56.0*mm, 56.0*mm, 56.0*mm, 56.0*mm, 56.0*mm,
+      56.0*mm, 56.0*mm, 56.0*mm, 56.0*mm, 9.11*mm</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="107"> 
+      7, 
+      3, 2, 5, 4, 4, 4, 1, 6, 0,  3, 2, 5, 4, 4, 4, 1, 6, 0,  
+      3, 2, 5, 4, 4, 4, 1, 6, 0,  3, 2, 5, 4, 4, 4, 1, 6, 0,  
+      3, 2, 5, 4, 4, 4, 1, 6, 0,  3, 2, 5, 4, 4, 4, 1, 6, 0,  
+      3, 2, 5, 4, 4, 4, 1, 6, 0,  3, 2, 5, 4, 4, 4, 1, 6, 0,  
+      3, 2, 5, 4, 4, 4, 1, 6, 0,  3, 2, 5, 4, 4, 4, 1, 6, 0,  
+      3, 2, 5, 4, 4, 4, 1, 6, 0,  3, 2, 5, 4, 4, 4, 1  
+    </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="107">
+      0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2, 0, 0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2, 0, 0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2, 0, 0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2, 0, 0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2, 0, 0,
+      0, 4, 3, 1, 1, 1, 2, 0, 0,  0, 4, 3, 1, 1, 1, 2
+    </Vector>
+    <Numeric name="zMinBlock"   value="[hgcal:zminHE]"/>
+    <Numeric name="rMaxFine"    value="[rMaxFine]"/>
+    <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="1.0*mm"/>
+    <Numeric name="absorberW"   value="[hgcalHE:absorbW]"/>
+    <Numeric name="absorberH"   value="[hgcalHE:absorbH]"/>
+    <Numeric name="Sectors"     value="12"/>
+    <Vector name="SlopeBottom" type="numeric" nEntries="2">
+      0.0, 0.0</Vector>
+    <Vector name="SlopeTop" type="numeric" nEntries="2">
+      0, 0</Vector>
+    <Vector name="ZFront" type="numeric" nEntries="2">
+      [hgcal:zminHE], [hgcal:zmaxHE]</Vector>
+    <Vector name="RMaxFront" type="numeric" nEntries="2">
+      [hgcal:rmaxHE], [hgcal:rmaxHE]</Vector>
+    <String name="RotNameSpace" value="hgcalmodule"/>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalHE.xml" eval="true">
+  <SpecPar name="HGCalHE">
+    <PartSelector path="//HGCalHESiliconSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
+    <Parameter name="RadiusBound"  value="[rMinFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
+    <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+    <Parameter name="RadiusLimits" value="[rMin]"/>
+    <Parameter name="RadiusLimits" value="[rMax]"/>
+    <Parameter name="LevelTop"     value="99"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

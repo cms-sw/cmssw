@@ -20,8 +20,8 @@ std::atomic<bool> SiStripConfigDb::allowCalibUpload_{ false };
 // 
 SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
 				  const edm::ActivityRegistry& activity ) :
-  factory_(0), 
-  dbCache_(0), 
+  factory_(nullptr), 
+  dbCache_(nullptr), 
   dbParams_(),
   // Local cache
   connections_(), 
@@ -158,12 +158,12 @@ void SiStripConfigDb::closeDbConnection() {
   try { 
     if ( factory_ ) { delete factory_; }
   } catch (...) { handleException( __func__, "Attempting to delete DeviceFactory object..." ); }
-  factory_ = 0; 
+  factory_ = nullptr; 
 
   try { 
     if ( dbCache_ ) { delete dbCache_; }
   } catch (...) { handleException( __func__, "Attempting to delete DbClient object..." ); }
-  dbCache_ = 0; 
+  dbCache_ = nullptr; 
   
   LogTrace(mlConfigDb_) 
     << "[SiStripConfigDb::" << __func__ << "]"
@@ -195,14 +195,14 @@ void SiStripConfigDb::clearLocalCache() {
 DeviceFactory* const SiStripConfigDb::deviceFactory( std::string method_name ) const { 
   if ( factory_ ) { return factory_; }
   else { 
-    if ( method_name != "" ) { 
+    if ( !method_name.empty() ) { 
       stringstream ss;
       ss << "[SiStripConfigDb::" << __func__ << "]"
 	 << " NULL pointer to DeviceFactory requested by" 
 	 << " method SiStripConfigDb::" << method_name << "()!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -211,14 +211,14 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( std::string method_name ) c
 DbClient* const SiStripConfigDb::databaseCache( std::string method_name ) const { 
   if ( dbCache_ ) { return dbCache_; }
   else { 
-    if ( method_name != "" ) { 
+    if ( !method_name.empty() ) { 
       stringstream ss;
       ss << "[SiStripConfigDb::" << __func__ << "]"
 	 << " NULL pointer to DbClient requested by" 
 	 << " method SiStripConfigDb::" << method_name << "()!";
       edm::LogWarning(mlConfigDb_) << ss.str();
     }
-    return 0;
+    return nullptr;
   }
 }
 
@@ -231,7 +231,7 @@ void SiStripConfigDb::usingDatabase() {
   std::string passwd = "";
   std::string path = "";
   DbAccess::getDbConfiguration( user, passwd, path );
-  if ( user != "" && passwd != "" && path != "" ) {
+  if ( !user.empty() && !passwd.empty() && !path.empty() ) {
 
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -279,7 +279,7 @@ void SiStripConfigDb::usingDatabase() {
   // Check TNS_ADMIN environmental variable
   std::string pattern = "TNS_ADMIN";
   std::string tns_admin = "/afs/cern.ch/project/oracle/admin";
-  if ( getenv( pattern.c_str() ) != NULL ) { 
+  if ( getenv( pattern.c_str() ) != nullptr ) { 
     tns_admin = getenv( pattern.c_str() ); 
     edm::LogVerbatim(mlConfigDb_)
       << "[SiStripConfigDb::" << __func__ << "]"
@@ -399,7 +399,7 @@ void SiStripConfigDb::usingDatabase() {
   
   // Retrieve partition name from ENV_CMS_TK_PARTITION env. var. and override .cfg value
   std::string partition = "ENV_CMS_TK_PARTITION";
-  if ( getenv(partition.c_str()) != NULL ) { 
+  if ( getenv(partition.c_str()) != nullptr ) { 
     
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -559,7 +559,7 @@ void SiStripConfigDb::usingXmlFiles() {
   for ( ; ip != jp; ++ip ) {
     
     // Input module.xml file
-    if ( ip->second.inputModuleXml() == "" ) {
+    if ( ip->second.inputModuleXml().empty() ) {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
 	<< " NULL path to input 'module.xml' file!";
@@ -582,7 +582,7 @@ void SiStripConfigDb::usingXmlFiles() {
     }
   
     // Input dcuinfo.xml file
-    if ( ip->second.inputDcuInfoXml() == "" ) {
+    if ( ip->second.inputDcuInfoXml().empty() ) {
       edm::LogWarning(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
 	<< " NULL path to input 'dcuinfo.xml' file!";
@@ -612,7 +612,7 @@ void SiStripConfigDb::usingXmlFiles() {
     } else {
       std::vector<std::string>::iterator iter = ip->second.inputFecXml().begin();
       for ( ; iter != ip->second.inputFecXml().end(); iter++ ) {
-	if ( *iter == "" ) {
+	if ( (*iter).empty() ) {
 	  edm::LogWarning(mlConfigDb_)
 	    << "[SiStripConfigDb::" << __func__ << "]"
 	    << " NULL path to input 'fec.xml' file!";
@@ -642,7 +642,7 @@ void SiStripConfigDb::usingXmlFiles() {
     } else {
       std::vector<std::string>::iterator iter = ip->second.inputFedXml().begin();
       for ( ; iter != ip->second.inputFedXml().end(); iter++ ) {
-	if ( *iter == "" ) {
+	if ( (*iter).empty() ) {
 	  edm::LogWarning(mlConfigDb_) 
 	    << "[SiStripConfigDb::" << __func__ << "]"
 	    << " NULL path to input 'fed.xml' file!";
@@ -669,7 +669,7 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Output module.xml file
-  if ( dbParams_.outputModuleXml() == "" ) { 
+  if ( dbParams_.outputModuleXml().empty() ) { 
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'module.xml' file!"
@@ -685,7 +685,7 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Output dcuinfo.xml file
-  if ( dbParams_.outputDcuInfoXml() == "" ) { 
+  if ( dbParams_.outputDcuInfoXml().empty() ) { 
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'dcuinfo.xml' file!"
@@ -701,7 +701,7 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Output fec.xml file
-  if ( dbParams_.outputFecXml() == "" ) {
+  if ( dbParams_.outputFecXml().empty() ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'fec.xml' file!"
@@ -717,7 +717,7 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Output fed.xml file
-  if ( dbParams_.outputFedXml() == "" ) {
+  if ( dbParams_.outputFedXml().empty() ) {
     edm::LogWarning(mlConfigDb_) 
       << "[SiStripConfigDb::" << __func__ << "]"
       << " NULL path to output 'fed.xml' file!"
@@ -748,15 +748,15 @@ void SiStripConfigDb::handleException( const std::string& method_name,
     ss << " Caught cms::Exception in method "
        << method_name << " with message: " << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    if ( !extra_info.empty() ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw e; // rethrow cms::Exception
   }
   
-  catch ( const oracle::occi::SQLException& e ) { 
+  catch ( oracle::occi::SQLException& e ) {
     ss << " Caught oracle::occi::SQLException in method "
        << method_name << " with message: " << std::endl 
-       << e.getMessage();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+       << getOraMessage(&e);
+    if ( !extra_info.empty() ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
 
@@ -764,7 +764,7 @@ void SiStripConfigDb::handleException( const std::string& method_name,
     ss << " Caught FecExceptionHandler exception in method "
        << method_name << " with message: " << std::endl 
        << const_cast<FecExceptionHandler&>(e).what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    if ( !extra_info.empty() ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
 
@@ -780,7 +780,7 @@ void SiStripConfigDb::handleException( const std::string& method_name,
     ss << " Caught ICUtils::ICException in method "
        << method_name << " with message: " << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    if ( !extra_info.empty() ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
 
@@ -788,14 +788,14 @@ void SiStripConfigDb::handleException( const std::string& method_name,
     ss << " Caught std::exception in method "
        << method_name << " with message: " << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    if ( !extra_info.empty() ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
 
   catch (...) {
     ss << " Caught unknown exception in method "
        << method_name << " (No message) " << std::endl;
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info << std::endl; }
+    if ( !extra_info.empty() ) { ss << "Additional info: " << extra_info << std::endl; }
     //throw cms::Exception(mlConfigDb_) << ss.str() << std::endl;
   }
   
@@ -908,7 +908,7 @@ void SiStripConfigDb::runs( const SiStripConfigDb::Runs& in,
   Runs::const_iterator jj = in.end();
   for ( ; ii != jj; ++ii ) {
     // Check partition name
-    if ( ii->partition_ == optional_partition || optional_partition == "" ) { 
+    if ( ii->partition_ == optional_partition || optional_partition.empty() ) { 
       // Check run type
       if ( ii->type_ != sistrip::UNKNOWN_RUN_TYPE &&
 	   ii->type_ != sistrip::UNDEFINED_RUN_TYPE ) { 
@@ -964,7 +964,7 @@ void SiStripConfigDb::runs( const SiStripConfigDb::Runs& in,
   Runs::const_iterator jj = in.end();
   for ( ; ii != jj; ++ii ) {
     // Check partition name
-    if ( ii->partition_ != "" ) {
+    if ( !ii->partition_.empty() ) {
       // Check run type
       if ( ii->type_ == optional_type || optional_type == sistrip::UNDEFINED_RUN_TYPE ) { 
 	// Check run number

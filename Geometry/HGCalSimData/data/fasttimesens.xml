@@ -2,10 +2,17 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <SpecParSection label="fasttimesens.xml" eval="true">
-  <SpecPar name="fasttimesense">
+  <SpecPar name="fasttimesenseBarrel">
+    <PartSelector path="//FastTimeBarrel"/>
+    <Parameter name="SensitiveDetector" value="FastTimerSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="FastTimerHitsBarrel" eval="false"/>
+    <Parameter name="Type"        value="1"/>
+  </SpecPar>
+  <SpecPar name="fasttimesenseEndcap">
     <PartSelector path="//SFBX"/>
     <Parameter name="SensitiveDetector" value="FastTimerSensitiveDetector" eval="false"/>
-    <Parameter name="ReadOutName" value="FastTimerHits" eval="false"/>
+    <Parameter name="ReadOutName" value="FastTimerHitsEndcap" eval="false"/>
+    <Parameter name="Type"        value="2"/>
   </SpecPar>
 </SpecParSection>
 </DDDefinition>

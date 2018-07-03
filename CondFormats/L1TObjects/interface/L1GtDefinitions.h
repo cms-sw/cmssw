@@ -96,6 +96,7 @@ std::string l1GtPsbQuadEnumToString(const L1GtPsbQuad&);
 /// TypeHfRingEtSums : HfRingEtSums
 /// TypeBptx: BPTX (logical result only; definition in BPTX system)
 /// TypeExternal: external conditions (logical result only; definition in L1 GT external systems)
+/// Type2CorrWithOverlapRemoval: three particles, first two with spatial correlations among them, third used for removal if overlap
 enum L1GtConditionType {
     TypeNull,
     Type1s,
@@ -113,7 +114,8 @@ enum L1GtConditionType {
     TypeHfBitCounts,
     TypeHfRingEtSums,
     TypeBptx,
-    TypeExternal
+    TypeExternal,
+    Type2corWithOverlapRemoval
 };
 
 struct L1GtConditionTypeStringToEnum {
@@ -136,7 +138,8 @@ enum L1GtConditionCategory {
     CondHfBitCounts,
     CondHfRingEtSums,
     CondBptx,
-    CondExternal
+    CondExternal,
+    CondCorrelationWithOverlapRemoval
 };
 
 struct L1GtConditionCategoryStringToEnum {

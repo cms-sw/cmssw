@@ -32,7 +32,7 @@
 
 namespace btau_dummy {
 	struct Null {};
-	extern const char none[];
+	constexpr const char none[] = "";
 }
 
 // 4 named TagInfos
@@ -50,8 +50,8 @@ class GenericMVAJetTagComputerWrapper :
 	{ uses(0, ti1); uses(1, ti2); uses(2, ti3); uses(3, ti4); }
 
     protected:
-	virtual reco::TaggingVariableList
-	taggingVariables(const TagInfoHelper &info) const
+	reco::TaggingVariableList
+	taggingVariables(const TagInfoHelper &info) const override
 	{
 		return (static_cast<const Provider&>(*this))(info.get<TI1>(0),
 			info.get<TI2>(1), info.get<TI3>(2), info.get<TI4>(3));
@@ -73,8 +73,8 @@ class GenericMVAJetTagComputerWrapper<Provider, TI1, ti1, TI2, ti2, TI3, ti3,
 	{ uses(0, ti1); uses(1, ti2); uses(2, ti3); }
 
     protected:
-	virtual reco::TaggingVariableList
-	taggingVariables(const TagInfoHelper &info) const
+	reco::TaggingVariableList
+	taggingVariables(const TagInfoHelper &info) const override
 	{
 		return (static_cast<const Provider&>(*this))(info.get<TI1>(0),
 					info.get<TI2>(1), info.get<TI3>(2));
@@ -96,8 +96,8 @@ class GenericMVAJetTagComputerWrapper<Provider, TI1, ti1, TI2, ti2,
 	{ uses(0, ti1); uses(1, ti2); }
 
     protected:
-	virtual reco::TaggingVariableList
-	taggingVariables(const TagInfoHelper &info) const
+	reco::TaggingVariableList
+	taggingVariables(const TagInfoHelper &info) const override
 	{
 		return (static_cast<const Provider&>(*this))(info.get<TI1>(0),
 							info.get<TI2>(1));
@@ -119,8 +119,8 @@ class GenericMVAJetTagComputerWrapper<Provider, TI1, ti1,
 	{ uses(0, ti1); }
 
     protected:
-	virtual reco::TaggingVariableList
-	taggingVariables(const TagInfoHelper &info) const
+	reco::TaggingVariableList
+	taggingVariables(const TagInfoHelper &info) const override
 	{ return (static_cast<const Provider&>(*this))(info.get<TI1>(0)); }
 };
 
@@ -139,8 +139,8 @@ class GenericMVAJetTagComputerWrapper<Provider, TI1, btau_dummy::none,
 	{}
 
     protected:
-	virtual reco::TaggingVariableList
-	taggingVariables(const TagInfoHelper &info) const
+	reco::TaggingVariableList
+	taggingVariables(const TagInfoHelper &info) const override
 	{ return (static_cast<const Provider&>(*this))(info.get<TI1>(0)); }
 };
 

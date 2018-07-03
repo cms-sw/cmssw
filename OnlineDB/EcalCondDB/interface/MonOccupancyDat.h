@@ -13,10 +13,10 @@ class MonOccupancyDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonOccupancyDat();
-  ~MonOccupancyDat();
+  ~MonOccupancyDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_OCCUPANCY_DAT"; }
+  inline std::string getTable() override { return "MON_OCCUPANCY_DAT"; }
 
   void setEventsOverLowThreshold(int events) { m_eventsOverLowThreshold = events; }
   int getEventsOverLowThreshold() const { return m_eventsOverLowThreshold; }
@@ -29,17 +29,17 @@ class MonOccupancyDat : public IDataItem {
   
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonOccupancyDat* item, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MonOccupancyDat >* data, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillVec, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_eventsOverLowThreshold;

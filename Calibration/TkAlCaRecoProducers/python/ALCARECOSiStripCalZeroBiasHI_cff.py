@@ -52,10 +52,11 @@ from DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi import *
 from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
 
 # SiStripQuality (only to test the different data labels)#
-qualityStatistics = cms.EDAnalyzer("SiStripQualityStatistics",
-    TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('unbiased')
-)
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+qualityStatistics = DQMEDAnalyzer("SiStripQualityStatistics",
+                                  TkMapFileName = cms.untracked.string(''),
+                                  dataLabel = cms.untracked.string('unbiased')
+                                  )
 
 # Sequence #
 seqALCARECOSiStripCalZeroBias = cms.Sequence(ALCARECOSiStripCalZeroBiasHLT*HLTPixelActivityFilterForSiStripCalZeroBias*DCSStatusForSiStripCalZeroBias*calZeroBiasClusters*APVPhases*consecutiveHEs)

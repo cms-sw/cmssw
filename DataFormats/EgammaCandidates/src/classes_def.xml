@@ -9,7 +9,8 @@
   </ioread>
 
 
-  <class name="reco::Photon" ClassVersion="16">
+  <class name="reco::Photon" ClassVersion="17">
+   <version ClassVersion="17" checksum="4077732720"/>
    <version ClassVersion="16" checksum="3459546220"/>
    <version ClassVersion="15" checksum="577991108"/>
    <version ClassVersion="13" checksum="2963666409"/>
@@ -37,8 +38,12 @@
   <class name="reco::Photon::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2148735796"/>
   </class>
-  <class name="reco::Photon::ShowerShape" ClassVersion="11">
+  <class name="reco::Photon::ShowerShape" ClassVersion="12">
+   <version ClassVersion="12" checksum="1586705784"/>
    <version ClassVersion="11" checksum="2494542444"/>
+  </class>
+  <class name="reco::Photon::SaturationInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2679714023"/>
   </class>
   <class name="reco::Photon::MIPVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="1613378413"/>
@@ -47,19 +52,19 @@
    <version ClassVersion="10" checksum="3308689624"/>
    <version ClassVersion="11" checksum="3649971983"/>
   </class>
-  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="12">
+  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="13">
    <version ClassVersion="11" checksum="3200292660"/>
    <version ClassVersion="12" checksum="114160170"/>
+   <version ClassVersion="13" checksum="3959509359"/>
   </class>
-  <class name="reco::Photon::PflowIDVariables"  ClassVersion="-1">
-   <version ClassVersion="-1" checksum="2819734289"/>
+  <class name="reco::Photon::PflowIDVariables"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2819734289"/>
   </class>
   <class name="reco::Photon::EnergyCorrections"  ClassVersion="16">
    <version ClassVersion="16" checksum="1544393913"/>
    <version ClassVersion="15" checksum="2042715570"/>
   </class>
-
-
+  
   <class name="std::vector<reco::PhotonCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::PhotonCore>"/>
   <class name="edm::RefToBase<reco::PhotonCore>"/>
@@ -156,7 +161,9 @@
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
   </class>
-  <class name="reco::GsfElectron::ShowerShape" ClassVersion="11">
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="13">
+   <version ClassVersion="13" checksum="1955217576"/>
+   <version ClassVersion="12" checksum="1486422105"/>
    <version ClassVersion="11" checksum="3451347438"/>
    <version ClassVersion="10" checksum="3070677812"/>
   </class>
@@ -173,7 +180,8 @@
   <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1415326811"/>
   </class>
-  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="11">
+  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="12">
+   <version ClassVersion="12" checksum="2416379203"/>
    <version ClassVersion="11" checksum="2389048798"/>
    <version ClassVersion="10" checksum="4270399196"/>
   <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="float chargedHadronIso" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumChargedHadronPt">
@@ -219,7 +227,12 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="19">
+  <class name="reco::GsfElectron::SaturationInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="3868678681"/>
+  </class>
+
+  <class name="reco::GsfElectron" ClassVersion="20">
+   <version ClassVersion="20" checksum="2375747450"/>
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>
    <version ClassVersion="17" checksum="1861965703"/>

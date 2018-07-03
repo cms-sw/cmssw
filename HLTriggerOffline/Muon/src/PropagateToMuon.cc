@@ -54,7 +54,7 @@ PropagateToMuon::init(const edm::EventSetup & iSetup) {
     barrelCylinder_ = dynamic_cast<const BoundCylinder *>(&dt2->surface());
     endcapDiskPos_  = dynamic_cast<const BoundDisk *>(& csc2Pos->surface());
     endcapDiskNeg_  = dynamic_cast<const BoundDisk *>(& csc2Neg->surface());
-    if (barrelCylinder_==0 || endcapDiskPos_==0 || endcapDiskNeg_==0) throw cms::Exception("Geometry") << "Bad muon geometry!?";
+    if (barrelCylinder_==nullptr || endcapDiskPos_==nullptr || endcapDiskNeg_==nullptr) throw cms::Exception("Geometry") << "Bad muon geometry!?";
     barrelHalfLength_ = barrelCylinder_->bounds().length()/2;;
     endcapRadii_ = std::make_pair(endcapDiskPos_->innerRadius(), endcapDiskPos_->outerRadius());
     //std::cout << "L1MuonMatcher: barrel radius = " << barrelCylinder_->radius() << ", half length = " << barrelHalfLength_ <<
@@ -66,7 +66,7 @@ PropagateToMuon::startingState(const reco::Candidate &reco) const {
     FreeTrajectoryState ret;
     if (whichTrack_ != None) {
         const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
-        if (rc == 0) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
+        if (rc == nullptr) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
         reco::TrackRef tk;
         switch (whichTrack_) {
             case TrackerTk: tk = rc->track();          break; 

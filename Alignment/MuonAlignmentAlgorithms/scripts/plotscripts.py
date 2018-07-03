@@ -401,8 +401,7 @@ def philines(name, window, abscissa):
             philine_tlines[-1].Draw()
     if "st" in name: # DT labels
         philine_labels = []
-        edges = edges[:]
-        edges.sort()
+        edges = sorted(edges[:])
         if "st4" in name:
             labels = [" 7", " 8", " 9", "14", "10", "11", "12", " 1", " 2", " 3", "13", " 4", " 5", " 6"]
         else: 
@@ -417,8 +416,7 @@ def philines(name, window, abscissa):
         philine_labels[-1].Draw()
     if "CSC" in name: # DT labels
         philine_labels = []
-        edges = edges[:]
-        edges.sort()
+        edges = sorted(edges[:])
         labels = [" 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", "10", "11", "12", "13", "14", "15", "16", "17", "18",
                   "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "33", "34", "35", "36"]
         #else: 
@@ -507,7 +505,7 @@ def DBdiff(database1, database2, reports1, reports2,
     hphiz = ROOT.TH1F("%s_phiz" % name, "", bins, -wnd[5], wnd[5])
         
     for r1 in reports1:
-        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+        if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             if reports2 is None:
                 r2 = Report(r1.chamberId, r1.postal_address, r1.name)
                 r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 
@@ -725,7 +723,7 @@ def DBdiffVersus(quantity, versus, database1, database2, reports1, reports2, win
     errors = []
         
     for r1 in reports1:
-        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+        if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             if reports2 is None:
                 r2 = Report(r1.chamberId, r1.postal_address, r1.name)
                 r2.add_parameters(ValErr(0., 0., 0.), ValErr(0., 0., 0.), ValErr(0., 0., 0.), 
@@ -1031,7 +1029,7 @@ DQM_SEVERITY = [
 
 def addToTestResults(c,res):
   if len(res)>0:
-    if TEST_RESULTS.has_key(c): TEST_RESULTS[c].extend(res)
+    if c in TEST_RESULTS: TEST_RESULTS[c].extend(res)
     else: TEST_RESULTS[c] = res
 
 
@@ -1150,7 +1148,7 @@ def doTestsForMapPlots(cells):
       print "strange cell ID: ", c
       return None
     
-    if MAP_RESULTS_FITSIN.has_key(c):
+    if c in MAP_RESULTS_FITSIN:
       t = MAP_RESULTS_FITSIN[c]
       t_a = testZeroWithin5Sigma(t['a'])
       t_s = testZeroWithin5Sigma(t['sin'])
@@ -1159,7 +1157,7 @@ def doTestsForMapPlots(cells):
         descr = "map fitsin 5 sigma away from 0; pulls : a=%.2f sin=%.2f, cos=%.2f" % (t_a,t_s,t_c)
         res.append(testEntry("MAP_FITSIN",scope,descr,"SEVERE"))
     
-    if MAP_RESULTS_SAWTOOTH.has_key(c):
+    if c in MAP_RESULTS_SAWTOOTH:
       t = MAP_RESULTS_SAWTOOTH[c]
       
       t_a = testDeltaWithin5Sigma(t['a'],t['da'])
@@ -1295,10 +1293,10 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
         whichdxdz = "stdev10"
         whichdydz = "stdev25"
     else:
-        raise Exception, which + " not recognized"
+        raise Exception(which + " not recognized")
 
     for r1 in reports1:
-        if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+        if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
             found = False
             for r2 in reports2:
                 if r1.postal_address == r2.postal_address:
@@ -2067,7 +2065,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         if r.name == name:
             found = True
             break
-    if not found: raise Exception, "Not a valid name"
+    if not found: raise Exception("Not a valid name")
     if r.status == "FAIL":
         #raise Exception, "Fit failed"
         print "Fit failed"
@@ -2287,7 +2285,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         if r.name == name:
             found = True
             break
-    if not found: raise Exception, "Not a valid name"
+    if not found: raise Exception("Not a valid name")
 
     if r.status == "FAIL":
         #raise Exception, "Fit failed"
@@ -3603,7 +3601,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
     for r1 in reportsX:
       # skip ME1/a
       if r1.postal_address[0]=='CSC'  and  r1.postal_address[2]==1 and r1.postal_address[3]==4: continue
-      if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
+      if selection is None or (selection.__code__.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
         r2 = getReportByPostalAddress(r1.postal_address, reportsY)
         if r2 is None: 
           print "bad r2 in ",r1.postal_address
@@ -3628,7 +3626,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
   for addr in postal_addresses:
 
     # checks the selection function
-    if not (selection is None or (selection.func_code.co_argcount == len(addr) and selection(*addr)) ): continue
+    if not (selection is None or (selection.__code__.co_argcount == len(addr) and selection(*addr)) ): continue
 
     factors = [10. * signConventions[addr][0], 10. * signConventions[addr][1], 10. * signConventions[addr][2],
                1000., 1000., 1000. ]
@@ -3726,7 +3724,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
     
     if len(aaa[i]) == 0: continue
 
-    a1, a2 = map( lambda x: array.array('d',x),  zip(*aaa[i]) )
+    a1, a2 = map( lambda x: array.array('d',x),  list(zip(*aaa[i])) )
     g = ROOT.TGraph(len(a1), a1, a2)
     g.SetMarkerStyle(5)
     g.SetMarkerSize(0.3)

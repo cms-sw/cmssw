@@ -28,9 +28,9 @@ class TrackInfoProducer : public edm::EDProducer {
   //  TrackInfoProducer(){}
   explicit TrackInfoProducer(const edm::ParameterSet& iConfig);
 
-  virtual ~TrackInfoProducer(){};
+  ~TrackInfoProducer() override{};
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 
  private:

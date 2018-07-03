@@ -16,7 +16,7 @@ namespace hcal {
   class Pluggable {
   public:
     /// A virtual destructor is required to establish the inheritance tree
-    virtual ~Pluggable() {}
+    virtual ~Pluggable() = default;
   };
 
   /** \brief Class which is able to create instances of another class.
@@ -32,6 +32,7 @@ namespace hcal {
   */
   class AbstractPluginFactory {
   public:
+    virtual ~AbstractPluginFactory() = default;
     /** \brief Create a new instance of the class which this factory provides */
     virtual Pluggable* newInstance() = 0;
     /** \brief Get the name of the class which is considered the base for this factory's class.  
@@ -81,6 +82,7 @@ namespace hcal {
   class PluginFactoryTemplate : public AbstractPluginFactory {
   public:
     PluginFactoryTemplate(const char* bc, const char* dc) : m_baseClass(bc), m_derivedClass(dc) { PluginManager::registerFactory(bc,dc,this); }
+    virtual ~PluginFactoryTemplate() = default;
     virtual Pluggable* newInstance() { return new T; }
     virtual const char* getBaseClass() const { return m_baseClass; }
     virtual const char* getDerivedClass() const { return m_derivedClass; }

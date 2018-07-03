@@ -28,18 +28,18 @@ class ProcOptional : public VarProcessor {
 	ProcOptional(const char *name,
 	             const Calibration::ProcOptional *calib,
 	             const MVAComputer *computer);
-	virtual ~ProcOptional() {}
+	~ProcOptional() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:
 	std::vector<double>	neutralPos;
 };
 
-static ProcOptional::Registry registry("ProcOptional");
+ProcOptional::Registry registry("ProcOptional");
 
 ProcOptional::ProcOptional(const char *name,
                           const Calibration::ProcOptional *calib,

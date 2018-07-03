@@ -1,4 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
+
+#include <utility>
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -15,13 +17,9 @@ const GeometricDet*
 DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> detidShifts)
 {
   attribute = "TkDDDStructure"; // could come from .orcarc
-  std::string value = "any";
-  DDSpecificsFilter filter;
-  DDValue ddv( attribute, value, 0 );
-  filter.setCriteria( ddv, DDCompOp::not_equals );
+  DDSpecificsHasNamedValueFilter filter{ attribute };
   
-  DDFilteredView fv( *cpv ); 
-  fv.addFilter( filter );
+  DDFilteredView fv( *cpv, filter ); 
   if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
   {
     fv.firstChild();
@@ -36,7 +34,7 @@ DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> 
   CmsTrackerBuilder theCmsTrackerBuilder;
   theCmsTrackerBuilder.build( fv, tracker, attribute );
   
-  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( detidShifts );
+  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( std::move(detidShifts) );
   
   tracker = theCmsTrackerDetIdBuilder.buildId( tracker );
   fv.parent();

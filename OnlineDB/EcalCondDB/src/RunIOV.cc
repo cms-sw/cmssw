@@ -11,7 +11,7 @@ using namespace oracle::occi;
 
 RunIOV::RunIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_runNum = 0;
   m_runStart = Tm();
@@ -101,7 +101,7 @@ RunTag RunIOV::getRunTag() const
 
 
 int RunIOV::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -141,7 +141,7 @@ int RunIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunIOV::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -150,7 +150,7 @@ int RunIOV::fetchID()
 
 
 void RunIOV::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -181,14 +181,14 @@ void RunIOV::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("RunIOV::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("RunIOV::setByID:  ")+getOraMessage(&e)));
    }
 }
 
 
 
 int RunIOV::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -225,7 +225,7 @@ int RunIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunIOV::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -238,7 +238,7 @@ int RunIOV::writeDB()
 
 
 int RunIOV::updateEndTimeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -270,7 +270,7 @@ int RunIOV::updateEndTimeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunIOV::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -282,7 +282,7 @@ int RunIOV::updateEndTimeDB()
 }
 
 int RunIOV::fetchIDByRunAndTag()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -320,7 +320,7 @@ int RunIOV::fetchIDByRunAndTag()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunIOV::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -328,7 +328,7 @@ int RunIOV::fetchIDByRunAndTag()
 
 
 int RunIOV::updateStartTimeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -360,7 +360,7 @@ int RunIOV::updateStartTimeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunIOV::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -374,7 +374,7 @@ int RunIOV::updateStartTimeDB()
 
 
 void RunIOV::setByRun(RunTag* tag, run_t run) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -410,12 +410,12 @@ void RunIOV::setByRun(RunTag* tag, run_t run)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("RunIOV::setByRun:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("RunIOV::setByRun:  ")+getOraMessage(&e)));
    }
 }
 
 void RunIOV::setByTime(std::string location, const Tm &t) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
    
@@ -451,12 +451,12 @@ void RunIOV::setByTime(std::string location, const Tm &t)
 
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("RunIOV::setByTime(loc, run):  " + e.getMessage()));
+     throw(std::runtime_error(std::string("RunIOV::setByTime(loc, run):  ") + getOraMessage(&e)));
    }
 }
 
 void RunIOV::setByRun(std::string location, run_t run) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
    
@@ -488,13 +488,13 @@ void RunIOV::setByRun(std::string location, run_t run)
 
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("RunIOV::setByRun(loc, run):  "+e.getMessage()));
+     throw(std::runtime_error(std::string("RunIOV::setByRun(loc, run):  ")+getOraMessage(&e)));
    }
 }
 
 
 void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -534,7 +534,7 @@ void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("RunIOV::setByRecentData:  ")+getOraMessage(&e)));
    }
 }
 
@@ -544,7 +544,7 @@ void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run)
 
 
 void RunIOV::setByRecentData(std::string dataTable, std::string location, run_t run) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
    
@@ -576,7 +576,7 @@ void RunIOV::setByRecentData(std::string dataTable, std::string location, run_t 
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("RunIOV::setByRecentData:  ")+getOraMessage(&e)));
    }
 }
 

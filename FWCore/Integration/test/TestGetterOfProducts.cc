@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ProcessMatch.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <string>
@@ -22,7 +23,7 @@ namespace edm {
 
 namespace edmtest {
 
-  class TestGetterOfProducts : public edm::EDFilter {
+  class TestGetterOfProducts : public edm::stream::EDFilter<> {
   public:
 
     explicit TestGetterOfProducts(edm::ParameterSet const&);
@@ -70,10 +71,9 @@ namespace edmtest {
       edm::EDConsumerBase::Labels labels;
       labelsForToken(token,labels);
       if ( *iter != labels.module ) {
-        std::cerr << "Expected InputTag differs from actual InputTag.\n"
+          throw cms::Exception("Failed Test") << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::filter\n"
                   << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
-        abort();
       }
       ++iter;
     }
@@ -83,19 +83,17 @@ namespace edmtest {
     getterOfProducts_.fillHandles(event, handles);
 
     if (expectedLabelsAfterGet_.size() != handles.size()) {
-      std::cerr << "Expected number of products gotten differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of products gotten differs from actual number.\n"
                 << "In function TestGetterOfProducts::filter\n"
                 << "Expected value = " << expectedLabelsAfterGet_.size() << " actual value = " << handles.size() << std::endl;
-      abort();
     }
 
     iter = expectedLabelsAfterGet_.begin();
     for (auto const& handle : handles) {
       if (handle.provenance()->moduleLabel() != *iter) {
-        std::cerr << "Expected module label after get differs from actual module label.\n"
+        throw cms::Exception("Failed Test") << "Expected module label after get differs from actual module label.\n"
                   << "In function TestGetterOfProducts::filter\n"
                   << "Expected value = " << *iter << " actual value = " << handle.provenance()->moduleLabel() << std::endl;
-        abort();
         break;
       }
       ++iter;
@@ -171,10 +169,9 @@ namespace edmtest {
     auto const& tokens = getterOfProducts_.tokens();
 
     if (expectedInputTagLabels_.size() != tokens.size()) {
-      std::cerr << "Expected number of InputTag's differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of InputTag's differs from actual number.\n"
                 << "In function TestGetterOfProducts::filter\n"
                 << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << tokens.size() << std::endl;
-      abort();
     }
 
     std::vector<std::string>::const_iterator iter = expectedInputTagLabels_.begin();
@@ -182,10 +179,9 @@ namespace edmtest {
       edm::EDConsumerBase::Labels labels;
       labelsForToken(token,labels);
       if (*iter != labels.module) {
-        std::cerr << "Expected InputTag differs from actual InputTag.\n"
+        throw cms::Exception("Failed Test") << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::filter\n"
                   << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
-        abort();
       }
       ++iter;
     }
@@ -194,19 +190,17 @@ namespace edmtest {
     getterOfProducts_.fillHandles(event, handles);
 
     if (expectedLabelsAfterGet_.size() != handles.size()) {
-      std::cerr << "Expected number of products gotten differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of products gotten differs from actual number.\n"
                 << "In function TestGetterOfProducts::filter\n"
                 << "Expected value = " << expectedLabelsAfterGet_.size() << " actual value = " << handles.size() << std::endl;
-      abort();
     }
 
     iter = expectedLabelsAfterGet_.begin();
     for (auto const& handle : handles) {
       if (handle.provenance()->moduleLabel() != *iter) {
-        std::cerr << "Expected module label after get differs from actual module label.\n"
+        throw cms::Exception("Failed Test") << "Expected module label after get differs from actual module label.\n"
                   << "In function TestGetterOfProducts::filter\n"
                   << "Expected value = " << *iter << " actual value = " << handle.provenance()->moduleLabel() << std::endl;
-        abort();
         break;
       }
       ++iter;
@@ -215,19 +209,17 @@ namespace edmtest {
     getterUsingLabel_.fillHandles(event, handles);
 
     if (expectedNumberOfThingsWithLabelA_ != handles.size()) {
-      std::cerr << "Expected number of products with module label A gotten differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of products with module label A gotten differs from actual number.\n"
                 << "In function TestGetterOfProducts::filter\n"
                 << "Expected value = " << expectedNumberOfThingsWithLabelA_ << " actual value = " << handles.size() << std::endl;
-      abort();
     }
 
     iter = expectedLabelsAfterGet_.begin();
     for (auto const& handle : handles) {
       if (handle.provenance()->moduleLabel() != std::string("A")) {
-        std::cerr << "Expected module label after get differs from actual module label.\n"
+        throw cms::Exception("Failed Test") << "Expected module label after get differs from actual module label.\n"
                   << "In function TestGetterOfProducts::filter\n"
                   << "For this get a module label \"A\" is always expected "<< " actual value = " << handle.provenance()->moduleLabel() << std::endl;
-        abort();
         break;
       }
       ++iter;
@@ -242,10 +234,9 @@ namespace edmtest {
     auto const& tokens = getterOfProducts_.tokens();
 
     if (expectedInputTagLabels_.size() != tokens.size()) {
-      std::cerr << "Expected number of InputTag's differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of InputTag's differs from actual number.\n"
                 << "In function TestGetterOfProducts::endLuminosityBlock\n"
                 << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << tokens.size() << std::endl;
-      abort();
     }
 
     std::vector<std::string>::const_iterator iter = expectedInputTagLabels_.begin();
@@ -254,10 +245,9 @@ namespace edmtest {
       labelsForToken(token,labels);
 
       if (*iter != labels.module) {
-        std::cerr << "Expected InputTag differs from actual InputTag.\n"
+        throw cms::Exception("Failed Test") << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::endLuminosityBlock\n"
                   << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
-        abort();
       }
       ++iter;
     }
@@ -266,19 +256,17 @@ namespace edmtest {
     getterOfProducts_.fillHandles(lumi, handles);
 
     if (expectedLabelsAfterGet_.size() != handles.size()) {
-      std::cerr << "Expected number of products gotten differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of products gotten differs from actual number.\n"
                 << "In function TestGetterOfProducts::endLuminosityBlock\n"
                 << "Expected value = " << expectedLabelsAfterGet_.size() << " actual value = " << handles.size() << std::endl;
-      abort();
     }
 
     iter = expectedLabelsAfterGet_.begin();
     for (auto const& handle : handles) {
       if (handle.provenance()->moduleLabel() != *iter) {
-        std::cerr << "Expected module label after get differs from actual module label.\n"
+        throw cms::Exception("Failed Test") << "Expected module label after get differs from actual module label.\n"
                   << "In function TestGetterOfProducts::endLuminosityBlock\n"
                   << "Expected value = " << *iter << " actual value = " << handle.provenance()->moduleLabel() << std::endl;
-        abort();
         break;
       }
       ++iter;
@@ -287,19 +275,17 @@ namespace edmtest {
     getterUsingLabel_.fillHandles(lumi, handles);
 
     if (expectedNumberOfThingsWithLabelA_ != handles.size()) {
-      std::cerr << "Expected number of products with module label A gotten differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of products with module label A gotten differs from actual number.\n"
                 << "In function TestGetterOfProducts::endLuminosityBlock\n"
                 << "Expected value = " << expectedNumberOfThingsWithLabelA_ << " actual value = " << handles.size() << std::endl;
-      abort();
     }
 
     iter = expectedLabelsAfterGet_.begin();
     for (auto const& handle : handles) {
       if (handle.provenance()->moduleLabel() != std::string("A")) {
-        std::cerr << "Expected module label after get differs from actual module label.\n"
+        throw cms::Exception("Failed Test") << "Expected module label after get differs from actual module label.\n"
                   << "In function TestGetterOfProducts::endLuminosityBlock\n"
                   << "For this get a module label \"A\" is always expected "<< " actual value = " << handle.provenance()->moduleLabel() << std::endl;
-        abort();
         break;
       }
       ++iter;
@@ -314,10 +300,9 @@ namespace edmtest {
     auto const& tokens = getterOfProducts_.tokens();
 
     if (expectedInputTagLabels_.size() != tokens.size()) {
-      std::cerr << "Expected number of InputTag's differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of InputTag's differs from actual number.\n"
                 << "In function TestGetterOfProducts::endRun\n"
                 << "Expected value = " << expectedInputTagLabels_.size() << " actual value = " << tokens.size() << std::endl;
-      abort();
     }
 
     std::vector<std::string>::const_iterator iter = expectedInputTagLabels_.begin();
@@ -325,10 +310,9 @@ namespace edmtest {
       edm::EDConsumerBase::Labels labels;
       labelsForToken(token,labels);
       if (*iter != labels.module) {
-        std::cerr << "Expected InputTag differs from actual InputTag.\n"
+        throw cms::Exception("Failed Test") << "Expected InputTag differs from actual InputTag.\n"
                   << "In function TestGetterOfProducts::endRun\n"
                   << "Expected value = " << *iter << " actual value = " << labels.module << std::endl;
-        abort();
       }
       ++iter;
     }
@@ -337,20 +321,18 @@ namespace edmtest {
     getterOfProducts_.fillHandles(run, handles);
 
     if (expectedLabelsAfterGet_.size() != handles.size()) {
-      std::cerr << "Expected number of products gotten differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of products gotten differs from actual number.\n"
                 << "In function TestGetterOfProducts::endRun\n"
                 << "Expected value = " << expectedLabelsAfterGet_.size() << " actual value = " << handles.size() << std::endl;
-      abort();
 
     }
 
     iter = expectedLabelsAfterGet_.begin();
     for (auto const& handle : handles) {
       if (handle.provenance()->moduleLabel() != *iter) {
-        std::cerr << "Expected module label after get differs from actual module label.\n"
+        throw cms::Exception("Failed Test") << "Expected module label after get differs from actual module label.\n"
                   << "In function TestGetterOfProducts::endRun\n"
                   << "Expected value = " << *iter << " actual value = " << handle.provenance()->moduleLabel() << std::endl;
-        abort();
         break;
       }
       ++iter;
@@ -359,19 +341,17 @@ namespace edmtest {
     getterUsingLabel_.fillHandles(run, handles);
 
     if (expectedNumberOfThingsWithLabelA_ != handles.size()) {
-      std::cerr << "Expected number of products with module label A gotten differs from actual number.\n"
+      throw cms::Exception("Failed Test") << "Expected number of products with module label A gotten differs from actual number.\n"
                 << "In function TestGetterOfProducts::endRun\n"
                 << "Expected value = " << expectedNumberOfThingsWithLabelA_ << " actual value = " << handles.size() << std::endl;
-      abort();
     }
 
     iter = expectedLabelsAfterGet_.begin();
     for (auto const& handle : handles) {
       if (handle.provenance()->moduleLabel() != std::string("A")) {
-        std::cerr << "Expected module label after get differs from actual module label.\n"
+        throw cms::Exception("Failed Test") << "Expected module label after get differs from actual module label.\n"
                   << "In function TestGetterOfProducts::endRun\n"
                   << "For this get a module label \"A\" is always expected "<< " actual value = " << handle.provenance()->moduleLabel() << std::endl;
-        abort();
         break;
       }
       ++iter;

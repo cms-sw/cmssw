@@ -13,18 +13,18 @@ SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = True
 
 # APV shots monitoring
 SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
-SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
-SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+SiStripMonitorDigi.TkHistoMapNStripApvShots_On= False
+SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = False
 SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
-SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
-SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = False
+SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = False
+SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = False
 SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
 
 # removing some histograms
@@ -67,25 +67,21 @@ SiStripMonitorTrack_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
 SiStripMonitorTrack_cosmicTk.Mod_On        = False
 
 # Clone for CKF Tracks
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
 SiStripMonitorTrack_ckf.Mod_On             = False
 
 # Clone fir Road Search  Tracks
-#import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 #SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 #SiStripMonitorTrack_rs.TrackProducer       = 'rsWithMaterialTracksP5'
 #SiStripMonitorTrack_rs.Mod_On              = True
 
 # Clone for General Tracks (for Collision)
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_gentk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_gentk.TrackProducer    = 'generalTracks'
 SiStripMonitorTrack_gentk.Mod_On           = False
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_hi = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_hi.TrackProducer    = 'hiGeneralTracks'
 SiStripMonitorTrack_hi.Mod_On           = True
@@ -127,5 +123,4 @@ MonitorTrackResiduals_gentk.Mod_On                 = False
 #MonitorTrackResiduals_hi.Mod_On                 = False
 
 # Services needed for TkHistoMap
-TkDetMap = cms.Service("TkDetMap")
-SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
+from CalibTracker.SiStripCommon.TkDetMap_cff import *

@@ -1,14 +1,14 @@
-#ifndef DDL_SAX2ExpressionHandler_H
-#define DDL_SAX2ExpressionHandler_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_EXPRESSION_HANDLER_H
+#define DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_EXPRESSION_HANDLER_H
 
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
-// Parser parts.
-#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
-
-// Xerces dependencies
 #include <xercesc/sax2/Attributes.hpp>
+#include <string>
+
+#include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
+#include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSAX2ExpressionHandler is the first pass SAX2 Handler for XML files found in the configuration file.
 /** @class DDLSAX2ExpressionHandler
@@ -17,7 +17,6 @@
  *  DDLSAX2ExpressionHandler.h  -  description
  *  -------------------
  *  begin: Mon Feb 25, 2002
- *  email: case@ucdhep.ucdavis.edu
  * 
  *  This processes only ConstantsSection/Parameter elements so there is no need
  *  to make it as elaborate as the second pass parser.
@@ -25,28 +24,16 @@
  */
 class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler 
 {
-
  public:
 
-    // -----------------------------------------------------------------------
-    //  Constructor and Destructor
-    // -----------------------------------------------------------------------
+  DDLSAX2ExpressionHandler(DDCompactView& cpv, DDLElementRegistry&);
+  ~DDLSAX2ExpressionHandler() override;
 
-    DDLSAX2ExpressionHandler(DDCompactView& cpv);
-    ~DDLSAX2ExpressionHandler();
-
-    // -----------------------------------------------------------------------
-    //  Handlers for the SAX ContentHandler interface
-    // -----------------------------------------------------------------------
-
-    void startElement(const XMLCh* const uri, const XMLCh* const localname
-		      , const XMLCh* const qname, const Attributes& attrs);
-    void endElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname);
-
-   private: 
-    std::string pElementName;
-
+  void startElement( const XMLCh* uri, const XMLCh* localname,
+		     const XMLCh* qname, const Attributes& attrs) override;
+  
+  void endElement( const XMLCh* uri, const XMLCh* localname,
+		   const XMLCh* qname) override;
 };
 
 #endif

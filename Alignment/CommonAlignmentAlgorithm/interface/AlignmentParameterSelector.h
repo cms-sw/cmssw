@@ -26,8 +26,8 @@ namespace edm {
 class AlignmentParameterSelector {
  public:
   /// Constructor from tracker only or from tracker and muon
-  explicit AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon *aliMuon = 0,
-				      AlignableExtras *aliExtras = 0);
+  explicit AlignmentParameterSelector(AlignableTracker *aliTracker, AlignableMuon *aliMuon = nullptr,
+				      AlignableExtras *aliExtras = nullptr);
 
   /// Destructor
   virtual ~AlignmentParameterSelector() {}

@@ -31,12 +31,12 @@ class SiPixelEDAClient: public DQMEDHarvester{
 public:
 
   SiPixelEDAClient(const edm::ParameterSet& ps);
-  virtual ~SiPixelEDAClient();
+  ~SiPixelEDAClient() override;
 
 protected:
 
   void beginRun(edm::Run const& run, 
-                edm::EventSetup const& eSetup);
+                edm::EventSetup const& eSetup) override;
   void dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const& lumiSeg, 
                           edm::EventSetup const& c) override;
   void dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter) override;

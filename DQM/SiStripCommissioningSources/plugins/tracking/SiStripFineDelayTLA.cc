@@ -9,17 +9,17 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include <Geometry/CommonTopologies/interface/Topology.h>
-#include <Geometry/CommonTopologies/interface/StripTopology.h>
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include <TrackingTools/PatternTools/interface/Trajectory.h>
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 using namespace std;
@@ -43,7 +43,7 @@ SiStripFineDelayTLA::~SiStripFineDelayTLA()
 
 std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTLA::findtrackangle(const std::vector<Trajectory>& trajVec)
 {
-  if (trajVec.size()) {
+  if (!trajVec.empty()) {
   return findtrackangle(trajVec.front()); }
   std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > hitangleassociation;
   return hitangleassociation;

@@ -44,7 +44,7 @@ struct FindCorrectedSubjet {
 
   // Predicate operator to compare an input pat::Jet to. 
   bool operator()( pat::Jet const & subjet ) const {
-    edm::Ptr<reco::Candidate> subjetOrigRef = subjet.originalObjectRef();
+    const edm::Ptr<reco::Candidate>& subjetOrigRef = subjet.originalObjectRef();
     if ( da_ == subjetOrigRef ) {
       return true;
     }
@@ -57,10 +57,10 @@ struct FindCorrectedSubjet {
 class BoostedJetMerger : public edm::stream::EDProducer<> {
    public:
       explicit BoostedJetMerger(const edm::ParameterSet&);
-      ~BoostedJetMerger();
+      ~BoostedJetMerger() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
 

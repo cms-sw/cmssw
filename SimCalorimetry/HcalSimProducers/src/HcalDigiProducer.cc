@@ -1,20 +1,25 @@
 #include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod(),
   theDigitizer_(pset, iC) {
   mixMod.produces<HBHEDigiCollection>();
   mixMod.produces<HODigiCollection>();
   mixMod.produces<HFDigiCollection>();
   mixMod.produces<ZDCDigiCollection>();
-  mixMod.produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
-  mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
-
+  mixMod.produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+  mixMod.produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
+  if(pset.getParameter<bool>("debugCaloSamples")){
+    mixMod.produces<CaloSamplesCollection>("HcalSamples");
+  }
+  if(pset.getParameter<bool>("injectTestHits")){
+    mixMod.produces<edm::PCaloHitContainer>("HcalHits");
+  }
 }
 
 
@@ -26,33 +31,32 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::ConsumesC
 
 void
 HcalDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& es) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  randomEngine_ = &rng->getEngine(event.streamID());
   theDigitizer_.initializeEvent(event, es);
 }
 
 void
 HcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& es) {
-  theDigitizer_.finalizeEvent(event, es, randomEngine(event.streamID()));
+  theDigitizer_.finalizeEvent(event, es, randomEngine_);
+  randomEngine_ = nullptr; // to prevent access outside event
 }
 
 void
 HcalDigiProducer::accumulate(edm::Event const& event, edm::EventSetup const& es) {
-  theDigitizer_.accumulate(event, es, randomEngine(event.streamID()));
+  theDigitizer_.accumulate(event, es, randomEngine_);
 }
 
 void
 HcalDigiProducer::accumulate(PileUpEventPrincipal const& event, edm::EventSetup const& es, edm::StreamID const& streamID) {
-  theDigitizer_.accumulate(event, es, randomEngine(streamID));
+  theDigitizer_.accumulate(event, es, randomEngine_);
 }
 
 void
-HcalDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) {
-  theDigitizer_.beginRun(es);
-}
+HcalDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) {}
 
 void
-HcalDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) {
-  theDigitizer_.endRun();
-}
+HcalDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 void
 HcalDigiProducer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
@@ -74,18 +78,12 @@ HcalDigiProducer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGene
   theDigitizer_.setZDCNoiseSignalGenerator(noiseGenerator);
 }
 
+void
+HcalDigiProducer::setQIE10NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setQIE10NoiseSignalGenerator(noiseGenerator);
+}
 
-
-CLHEP::HepRandomEngine* HcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
-  unsigned int index = streamID.value();
-  if(index >= randomEngines_.size()) {
-    randomEngines_.resize(index + 1, nullptr);
-  }
-  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-  if(!ptr) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    ptr = &rng->getEngine(streamID);
-    randomEngines_[index] = ptr;
-  }
-  return ptr;
+void
+HcalDigiProducer::setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setQIE11NoiseSignalGenerator(noiseGenerator);
 }

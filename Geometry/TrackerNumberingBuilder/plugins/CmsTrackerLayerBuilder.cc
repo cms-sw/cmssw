@@ -65,27 +65,27 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     for(size_t i = 0; i< comp.size(); ++i) {
       auto component = det->component(i);
       if(component->translation().z()<0.){
-	neg.push_back(component);
+	neg.emplace_back(component);
       }else{
-	pos.push_back(component);
+	pos.emplace_back(component);
       }
     }
 
-    for(GeometricDet::GeometricDetContainer::iterator i=neg.begin();i!=neg.end();i++){
-      double rPos = (*i)->translation().Rho();
+    for(auto & i : neg){
+      double rPos = i->translation().Rho();
       if(rPos > layerRadius ){ 
-	extneg.push_back(*i);
+	extneg.emplace_back(i);
       }else{
-	intneg.push_back(*i);
+	intneg.emplace_back(i);
       }
     }
 
-    for(GeometricDet::GeometricDetContainer::iterator i=pos.begin();i!=pos.end();i++){
-      double rPos = (*i)->translation().Rho();
+    for(auto & po : pos){
+      double rPos = po->translation().Rho();
       if(rPos > layerRadius ){ 
-	extpos.push_back(*i);
+	extpos.emplace_back(po);
       }else{
-	intpos.push_back(*i);
+	intpos.emplace_back(po);
       }
     }
 
@@ -138,9 +138,9 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     for(size_t i=0; i<comp.size(); ++i) {
       auto component = det->component(i);
       if(component->translation().z()<0.){
-	neg.push_back(component);
+	neg.emplace_back(component);
       }else{
-	pos.push_back(component);
+	pos.emplace_back(component);
       }
     }
 

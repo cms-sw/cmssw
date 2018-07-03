@@ -18,6 +18,7 @@
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 
 using namespace std;
+using namespace edm;
 
 
 // Framework
@@ -28,15 +29,13 @@ DQMScalInfo::DQMScalInfo(const edm::ParameterSet& ps)
   parameters_ = ps;
 
   scalfolder_          = parameters_.getUntrackedParameter<std::string>("dqmScalFolder", "Scal") ;
-  gtCollection_        = consumes<L1GlobalTriggerReadoutRecord>(parameters_.getUntrackedParameter<std::string>("gtCollection","gtDigis"));
-  dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
-  l1tscollectionToken_ = consumes<Level1TriggerScalersCollection>(parameters_.getUntrackedParameter<std::string>("l1TSCollection", "scalersRawToDigi"));
-  lumicollectionToken_ = consumes<LumiScalersCollection>(parameters_.getUntrackedParameter<std::string>("lumiCollection", "scalersRawToDigi"));
-
+  gtCollection_        = consumes<L1GlobalTriggerReadoutRecord>(parameters_.getUntrackedParameter<edm::InputTag>("gtCollection", edm::InputTag("gtDigis")));
+  dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<edm::InputTag>("dcsStatusCollection", edm::InputTag("scalersRawToDigi")));
+  l1tscollectionToken_ = consumes<Level1TriggerScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>("l1TSCollection", edm::InputTag("scalersRawToDigi")));
+  lumicollectionToken_ = consumes<LumiScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
 }
 
-DQMScalInfo::~DQMScalInfo(){
-}
+DQMScalInfo::~DQMScalInfo() = default;
 
 void DQMScalInfo::bookHistograms(DQMStore::IBooker & ibooker,
                                 edm::Run const & /* iRun */,
@@ -78,9 +77,9 @@ DQMScalInfo::makeL1Scalars(const edm::Event& e)
   edm::Handle<LumiScalersCollection> lumiScalers;
   e.getByToken(lumicollectionToken_,lumiScalers);
 
-  Level1TriggerScalersCollection::const_iterator it = l1ts->begin();
+  auto it = l1ts->begin();
 
-  if(l1ts->size()==0) return;
+  if(l1ts->empty()) return;
   hlresync_->Fill((*l1ts)[0].lastResync());
   hlOC0_->Fill((*l1ts)[0].lastOrbitCounter0());
   hlTE_->Fill((*l1ts)[0].lastTestEnable());
@@ -102,9 +101,9 @@ DQMScalInfo::makeLumiScalars(const edm::Event& e)
   edm::Handle<LumiScalersCollection> lumiScalers;
   e.getByToken(lumicollectionToken_,lumiScalers);
 
-  LumiScalersCollection::const_iterator it = lumiScalers->begin();
+  auto it = lumiScalers->begin();
 
-  if(lumiScalers->size()){
+  if(!lumiScalers->empty()){
     unsigned int lumisection = it->sectionNumber();
     if(lumisection){
       hinstLumi_->setBinContent(lumisection + 1, it->instantLumi());

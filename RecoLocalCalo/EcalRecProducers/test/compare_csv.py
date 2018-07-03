@@ -11,7 +11,7 @@ def compare(fn1, fn2):
         for i, (k1, k2) in enumerate(zip(l1.strip().split(), l2.strip().split())):
             if k1 == k2: continue
 
-            if not diff_cols.has_key(i):
+            if i not in diff_cols:
                 diff_cols[i] = []
 
             diff = diff_cols[i]

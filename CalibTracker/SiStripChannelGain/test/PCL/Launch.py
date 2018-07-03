@@ -10,8 +10,7 @@ DATASET="/MinimumBias/Run2012C-SiStripCalMinBias-v2/ALCARECO"
 FIRSTRUN=0 #200190
 
 runs = []
-results = commands.getstatusoutput('dbs search --query="find run,sum(block.numevents) where dataset='+DATASET+' and run>='+str(FIRSTRUN)+'"')[1].splitlines()
-results.sort()
+results = sorted(commands.getstatusoutput('dbs search --query="find run,sum(block.numevents) where dataset='+DATASET+' and run>='+str(FIRSTRUN)+'"')[1].splitlines())
 for line in results:
    linesplit = line.split('   ')
    if(len(linesplit)<2):continue

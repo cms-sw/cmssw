@@ -15,13 +15,13 @@ class csvSelectionParser(object):
             field0=str(row[0]).strip()
             try:
                 field1=str(row[1]).strip()
-            except Exception,e:
+            except Exception as e:
                 field1='1' # for list with run number only, fake lsnum
             if not is_intstr(field0) or not  is_intstr(field1):
                 continue
             runnumber=int(field0)
             lsnumber=int(field1)
-            if self.__result.has_key(runnumber):
+            if runnumber in self.__result:
                 self.__result[runnumber].append(lsnumber)
             else:
                 self.__result[runnumber]=[lsnumber]            

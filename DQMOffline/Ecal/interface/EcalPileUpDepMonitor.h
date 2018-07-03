@@ -31,14 +31,13 @@ class EcalPileUpDepMonitor: public DQMEDAnalyzer{
   EcalPileUpDepMonitor(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~EcalPileUpDepMonitor();
+  ~EcalPileUpDepMonitor() override;
 
  protected:
 
   /// Analyze
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
 
  private:
 	

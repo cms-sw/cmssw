@@ -13,6 +13,9 @@
 
 namespace {
   struct Count {
+    Count() {}
+#ifdef SISTRIP_COUNT
+    // note: this code is not thread safe, counts will be inaccurate if run with multiple threads
     double ncall=0;
     double ndep=0, ndep2=0, maxdep=0;
     double nstr=0, nstr2=0;
@@ -23,16 +26,22 @@ namespace {
     void val(double d) { ncv++; nval+=d; nval2+=d*d; maxv=std::max(d,maxv);}
     void zero() { dzero++;}    
     ~Count() {
-#ifdef SISTRIP_COUNT
       std::cout << "deposits " << ncall << " " << maxdep << " " << ndep/ncall << " " << std::sqrt(ndep2*ncall -ndep*ndep)/ncall << std::endl;
       std::cout << "zeros " << dzero << std::endl;
       std::cout << "strips  " << nstr/ndep << " " << std::sqrt(nstr2*ndep -nstr*nstr)/ndep << std::endl;
       std::cout << "vaules  " << ncv << " " << maxv << " " << nval/ncv << " " << std::sqrt(nval2*ncv -nval*nval)/ncv << std::endl;
-#endif
     }
   };
-  
  Count count;
+#else
+    void dep(double) const {}
+    void str(double) const {}
+    void val(double) const {}
+    void zero() const {}    
+ };
+ const Count count;
+#endif
+  
 }
 
 
@@ -49,7 +58,14 @@ namespace {
     signalCoupling.reserve(nTypes);
     std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
     for(int i=0; i<nTypes; ++i) {
-      auto dc = conf.getParameter<std::vector<double> >("CouplingConstant"+mode+typeArray[i]);
+
+      std::string version = "";
+      if( typeArray[i].find("W") != std::string::npos && mode == "Dec" )
+        version =  conf.getParameter<bool>("CouplingConstantsRunIIDecW") ? "RunII" : "";
+      else if( typeArray[i].find("B") != std::string::npos  && mode == "Dec")
+        version =  conf.getParameter<bool>("CouplingConstantsRunIIDecB") ? "RunII" : "";
+
+      auto dc = conf.getParameter<std::vector<double> >("CouplingConstant"+version+mode+typeArray[i]);
       signalCoupling.emplace_back(dc.begin(),dc.end());
     }
     return signalCoupling;
@@ -283,7 +299,7 @@ induceOriginal(const SiChargeCollectionDrifter::collection_type& collection_poin
       size_t affectedFromStrip  = size_t(std::max( 0, int(strip - coupling.size() + 1)));
       size_t affectedUntilStrip = size_t(std::min( Nstrips, strip + coupling.size())   );  
       for (size_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
-	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - strip )) ;
+	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at((size_t)std::abs( (int)affectedStrip - (int)strip )) ;
       }
 
       if( affectedFromStrip  < recordMinAffectedStrip ) recordMinAffectedStrip = affectedFromStrip;

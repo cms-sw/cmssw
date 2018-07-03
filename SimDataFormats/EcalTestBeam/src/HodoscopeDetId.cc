@@ -3,12 +3,12 @@
 
 #include <iostream>
 HodoscopeDetId::HodoscopeDetId() : 
-   CaloTowerDetId() 
+   EBDetId() 
 {
 }
 
 HodoscopeDetId::HodoscopeDetId( uint32_t rawid ) : 
-   CaloTowerDetId( rawid ) 
+   EBDetId( rawid ) 
 {
 }
 
@@ -26,7 +26,7 @@ HodoscopeDetId::fibrId() const
 
 HodoscopeDetId::HodoscopeDetId( int iPlane ,
 				int iFibr    ) 
-   : CaloTowerDetId( iPlane, iFibr )
+   : EBDetId( iPlane, iFibr )
 {
    if( !validDetId( iPlane, iFibr ) )
    {
@@ -36,7 +36,7 @@ HodoscopeDetId::HodoscopeDetId( int iPlane ,
 }
   
 HodoscopeDetId::HodoscopeDetId( const DetId& gen ) :
-   CaloTowerDetId( gen )
+   EBDetId( gen )
 {
    if( !validDetId( planeId(), fibrId() ) )
    {

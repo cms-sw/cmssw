@@ -45,6 +45,7 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 // system include files
 #include "TBranch.h"
@@ -56,40 +57,49 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace edm {
   namespace root {
     class FWLiteDelayedReader : public DelayedReader {
      public:
-      FWLiteDelayedReader() : entry_(-1), eventTree_(nullptr), reg_() {}
+      FWLiteDelayedReader() : entry_(-1), eventTree_(nullptr) {}
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
-      void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
+      void set(std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>> iMap) { bidToDesc_ = std::move(iMap);}
      private:
-      std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
-      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
-      virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
-        return std::auto_ptr<EventEntryDescription>();
+      std::unique_ptr<WrapperBase> getTheProduct(BranchID const& k) const;
+      std::unique_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) override;
+      virtual std::unique_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
+        return std::unique_ptr<EventEntryDescription>();
       }
-      virtual void mergeReaders_(DelayedReader*) override {}
-      virtual void reset_() override {}
+      void mergeReaders_(DelayedReader*) override {}
+      void reset_() override {}
+      
+      signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal() const override {
+        return nullptr;
+      }
+      signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadFromSourceSignal() const override {
+        return nullptr;
+      };
+
       Long64_t entry_;
       TTree* eventTree_;
-      std::shared_ptr<ProductRegistry const>(reg_);
+      std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>> bidToDesc_;
     };
 
     std::unique_ptr<WrapperBase>
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
+    FWLiteDelayedReader::getProduct_(BranchID const& k, EDProductGetter const* /*ep*/) {
       return getTheProduct(k);
     }
 
     std::unique_ptr<WrapperBase>
-    FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
-      ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
-      if(itFind == reg_->productList().end()) {
+    FWLiteDelayedReader::getTheProduct(BranchID const& k) const {
+      auto itFind= bidToDesc_->find(k.id());
+      if(itFind == bidToDesc_->end()) {
         throw Exception(errors::ProductNotFound) << "could not find entry for product " << k;
       }
-      BranchDescription const& bDesc = itFind->second;
+      BranchDescription const& bDesc = *(itFind->second);
 
       TBranch* branch= eventTree_->GetBranch(bDesc.branchName().c_str());
       if(nullptr == branch) {
@@ -131,6 +141,7 @@ namespace edm {
       TFWLiteSelectorMembers() :
       tree_(nullptr),
       reg_(new ProductRegistry()),
+      bidToDesc_(std::make_shared<std::unordered_map<unsigned int, BranchDescription const*>>()),
       phreg_(new ProcessHistoryRegistry()),
       branchIDListHelper_(new BranchIDListHelper()),
       // Note that thinned collections are not supported yet, the next
@@ -145,26 +156,36 @@ namespace edm {
       prov_(),
       pointerToBranchBuffer_(),
       provRetriever_(new edm::ProductProvenanceRetriever(0)) {
-        reader_->set(reg_);
+        reader_->set(get_underlying_safe(bidToDesc_));
       }
       void setTree(TTree* iTree) {
         tree_ = iTree;
         reader_->setTree(iTree);
       }
-      TTree* tree_;
-      std::shared_ptr<ProductRegistry> reg_;
-      std::shared_ptr<ProcessHistoryRegistry> phreg_;
-      std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-      std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+
+      TTree const* tree() const {return get_underlying_safe(tree_);}
+      TTree*& tree() {return get_underlying_safe(tree_);}
+      std::shared_ptr<ProductRegistry const> reg() const {return get_underlying_safe(reg_);}
+      std::shared_ptr<ProductRegistry>& reg() {return get_underlying_safe(reg_);}
+      std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
+      std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
+      std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
+      std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
+
+      edm::propagate_const<TTree*> tree_;
+      edm::propagate_const<std::shared_ptr<ProductRegistry>> reg_;
+      edm::propagate_const<std::shared_ptr<std::unordered_map<unsigned int, BranchDescription const*>>> bidToDesc_;      edm::propagate_const<std::shared_ptr<ProcessHistoryRegistry>> phreg_;
+      edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+      edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
       ProcessHistory processNames_;
-      std::shared_ptr<FWLiteDelayedReader> reader_;
+      edm::propagate_const<std::shared_ptr<FWLiteDelayedReader>> reader_;
       std::vector<EventEntryDescription> prov_;
-      std::vector<EventEntryDescription*> pointerToBranchBuffer_;
+      std::vector<EventEntryDescription const*> pointerToBranchBuffer_;
       FileFormatVersion fileFormatVersion_;
 
-      std::shared_ptr<edm::ProductProvenanceRetriever> provRetriever_;
+      edm::propagate_const<std::shared_ptr<edm::ProductProvenanceRetriever>> provRetriever_;
       edm::ProcessConfiguration pc_;
-      std::shared_ptr<edm::EventPrincipal> ep_;
+      edm::propagate_const<std::shared_ptr<edm::EventPrincipal>> ep_;
       edm::ModuleDescription md_;
     };
   }
@@ -240,7 +261,7 @@ TFWLiteSelectorBasic::Notify() {
   TFile* file = m_->tree_->GetCurrentFile();
   if(nullptr == file) {
      //When in Rome, do as the Romans
-     TChain* chain = dynamic_cast<TChain*>(m_->tree_);
+     TChain* chain = dynamic_cast<TChain*>(m_->tree());
      if(nullptr == chain) {
         std::cout << "No file" << std::endl;
         return kFALSE;
@@ -270,7 +291,7 @@ Bool_t
 TFWLiteSelectorBasic::Process(Long64_t iEntry) {
    //std::cout << "Process start" << std::endl;
    if(everythingOK_) {
-      std::auto_ptr<edm::EventAuxiliary> eaux(new edm::EventAuxiliary());
+      std::unique_ptr<edm::EventAuxiliary> eaux = std::make_unique<edm::EventAuxiliary>();
       edm::EventAuxiliary& aux = *eaux;
       edm::EventAuxiliary* pAux= eaux.get();
       TBranch* branch = m_->tree_->GetBranch(edm::BranchTypeToAuxiliaryBranchName(edm::InEvent).c_str());
@@ -309,9 +330,9 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       try {
          m_->reader_->setEntry(iEntry);
          auto runAux = std::make_shared<edm::RunAuxiliary>(aux.run(), aux.time(), aux.time());
-         auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg_, m_->pc_, nullptr, 0);
-         auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, aux.time(), aux.time());
-         auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, m_->reg_, m_->pc_, nullptr, 0);
+         auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg(), m_->pc_, nullptr, 0);
+         auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(m_->reg(), m_->pc_, nullptr, 0);
+        lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
         m_->ep_->fillEventPrincipal(*eaux,
                                     *m_->phreg_,
                                     std::move(eventSelectionIDs),
@@ -319,7 +340,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                                     *(m_->provRetriever_),
                                     m_->reader_.get());
          lbp->setRunPrincipal(rp);
-         m_->ep_->setLuminosityBlockPrincipal(lbp);
+         m_->ep_->setLuminosityBlockPrincipal(lbp.get());
          m_->processNames_ = m_->ep_->processHistory();
 
          edm::Event event(*m_->ep_, m_->md_, nullptr);
@@ -429,7 +450,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
 
-  std::auto_ptr<edm::ProductRegistry> newReg(new edm::ProductRegistry());
+  std::unique_ptr<edm::ProductRegistry> newReg = std::make_unique<edm::ProductRegistry>();
 
   edm::ProductRegistry::ProductList& prodList = m_->reg_->productListUpdator();
   {
@@ -452,7 +473,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
          prod.init();
        }
 
-    m_->reg_.reset(newReg.release());
+    m_->reg().reset(newReg.release());
   }
 
   edm::ProductRegistry::ProductList& prodList2 = m_->reg_->productListUpdator();
@@ -479,7 +500,11 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   }
   m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
   m_->reg_->setFrozen();
-  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->thinnedAssociationsHelper_, m_->pc_, nullptr));
+  m_->bidToDesc_->clear();
+  for(auto const&p: m_->reg_->productList()) {
+    m_->bidToDesc_->emplace(p.second.branchID().id(),&p.second);
+  }
+  m_->ep_ = std::make_shared<edm::EventPrincipal>(m_->reg(), m_->branchIDListHelper(), m_->thinnedAssociationsHelper(), m_->pc_, nullptr);
   everythingOK_ = true;
 }
 

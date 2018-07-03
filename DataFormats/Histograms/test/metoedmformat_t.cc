@@ -16,6 +16,7 @@
 
 // user include files
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include "TAxis.h"
 
 class TestMEtoEDMFormat : public CppUnit::TestFixture
 {
@@ -283,15 +284,7 @@ TestMEtoEDMFormat::testMergeTString()
 }
 
 namespace {
-  struct Axis {
-    Axis() {}
-    float GetXmin() const { return 0;}
-    float GetXmax() const {return 1;}
-    
-    static const Axis dummy;
-  };
-
-  const Axis Axis::dummy;
+  const TAxis dummy(1.0, 0.0, 1.0);
 
   struct Dummy {
     Dummy(int i) : m_i(i) {}
@@ -308,9 +301,9 @@ namespace {
     int GetNbinsY() const {return 1;}
     int GetNbinsZ() const {return 1;}
 
-    const Axis* GetXaxis() const {return &Axis::dummy;}
-    const Axis* GetYaxis() const {return &Axis::dummy;}
-    const Axis* GetZaxis() const {return &Axis::dummy;}
+    const TAxis* GetXaxis() const {return &dummy;}
+    const TAxis* GetYaxis() const {return &dummy;}
+    const TAxis* GetZaxis() const {return &dummy;}
 
     bool CanExtendAllAxes() const{return false;}
     long long Merge(void *) {return -1;}

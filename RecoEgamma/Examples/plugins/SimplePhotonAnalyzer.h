@@ -38,12 +38,12 @@ class TFile;
 class SimplePhotonAnalyzer : public edm::EDAnalyzer {
    public:
       explicit SimplePhotonAnalyzer( const edm::ParameterSet& );
-      ~SimplePhotonAnalyzer();
+      ~SimplePhotonAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-      virtual void beginJob();
-      virtual void endJob();
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
+      void beginJob() override;
+      void endJob() override;
  private:
 
       float  etaTransformation( float a, float b);

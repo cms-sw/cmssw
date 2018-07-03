@@ -1,17 +1,21 @@
 <lcgdict>
   <class name="l1t::CaloEmCand" />
+  <class name="std::vector<l1t::CaloEmCand>" />
   <class name="l1t::CaloEmCandBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloEmCandBxCollection>"/>
 
   <class name="l1t::CaloRegion" />
+  <class name="std::vector<l1t::CaloRegion>" />
   <class name="l1t::CaloRegionBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloRegionBxCollection>"/>
 
   <class name="l1t::CaloTower" />
+  <class name="std::vector<l1t::CaloTower>" />
   <class name="l1t::CaloTowerBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloTowerBxCollection>"/>
 
   <class name="l1t::CaloCluster" />
+  <class name="std::vector<l1t::CaloCluster>" />
   <class name="l1t::CaloClusterBxCollection"/>
   <class name="edm::Wrapper<l1t::CaloClusterBxCollection>"/>
 

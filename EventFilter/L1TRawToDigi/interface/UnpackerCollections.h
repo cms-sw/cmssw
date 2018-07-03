@@ -1,5 +1,5 @@
-#ifndef UnpackerCollections_h
-#define UnpackerCollections_h
+#ifndef EventFilter_L1TRawToDigi_UnpackerCollections_h
+#define EventFilter_L1TRawToDigi_UnpackerCollections_h
 
 namespace edm {
    class Event;

@@ -14,8 +14,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/TrackerRecHit2D/interface/TrackingRecHitLessFromGlobalPosition.h"
-//#include "RecoTracker/TrackProducer/interface/HitSplitter.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -44,15 +42,13 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 {
   LogDebug("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
 
-  int cont = 0;
-  for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
+  int cont = 0; int ntc=0;
+  for (auto const  theTC : theTCCollection)
     {
-      
-      const TrackCandidate * theTC = &(*i);
 
-      PTrajectoryStateOnDet const & state = theTC->trajectoryStateOnDet();
-      const TrackCandidate::range & recHitVec=theTC->recHits();
-      const TrajectorySeed & seed = theTC->seed();
+      PTrajectoryStateOnDet const & state = theTC.trajectoryStateOnDet();
+      const TrackCandidate::range & recHitVec=theTC.recHits();
+      const TrajectorySeed & seed = theTC.seed();
 
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
   
@@ -68,20 +64,22 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       
       float ndof=0;     
       //  we assume are transient...
-      for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
-	   i!=recHitVec.second; i++){
+      for (auto  i = recHitVec.first; i!=recHitVec.second; ++i){
 	hits.push_back((*i).cloneSH());  // major waste, will be soon fitted and recloned...
       }      
-      
+
+      stopReason_ = theTC.stopReason();
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
       FitterCloner fc(theFitter,builder);   
       bool ok = buildTrack(fc.fitter.get(),thePropagator,algoResults, hits, theTSOS, seed, ndof, bs,
-      	      		    theTC->seedRef(),0,theTC->nLoops());
+      	      		    theTC.seedRef(),0,theTC.nLoops());
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
-      if(ok) cont++;
+      if(ok) { algoResults.back().indexInput=ntc; ++cont;  }
+      ++ntc;
     }
   LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  // std::cout << "VICkfProducer " << "Number of Tracks found: " << cont << std::endl;
 }
 
 
@@ -90,7 +88,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 template <class T> void
 TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 					const MagneticField * theMF,
-					const TrackCollection& theTCollection,
+					const TrackView& theTCollection,
 					const TrajectoryFitter * theFitter,
 					const Propagator * thePropagator,
 					const TransientTrackingRecHitBuilder* gbuilder,
@@ -101,7 +99,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
   const TkTransientTrackingRecHitBuilder * builder = dynamic_cast<TkTransientTrackingRecHitBuilder const *>(gbuilder);
   assert(builder);
   int cont = 0;
-  for (typename TrackCollection::const_iterator i=theTCollection.begin(); i!=theTCollection.end();i++)
+  for (auto i=theTCollection.begin(); i!=theTCollection.end();i++)
     {
       try{
 	const T * theT = &(*i);
@@ -124,8 +122,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 			    if (stripId.partnerDetId() == (*next)->geographicalId().rawId()){
 			      //yes they are parterns in a glued geometry.
 			      DetId gluedId = stripId.glued();
-			      const SiStripRecHit2D *mono=0;
-			      const SiStripRecHit2D *stereo=0;
+			      const SiStripRecHit2D *mono=nullptr;
+			      const SiStripRecHit2D *stereo=nullptr;
 			      if (stripId.stereo()==0){
 				mono=dynamic_cast<const SiStripRecHit2D *>(&**i);
 				stereo=dynamic_cast<const SiStripRecHit2D *>(&**next);
@@ -173,6 +171,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 	algo_=theT->algo();	
 	originalAlgo_ = theT->originalAlgo();
 	algoMask_ = theT->algoMask();
+
+        stopReason_ = theT->stopReason();
 
 	//=====  the hits are in the same order as they were in the track::extra.
         FitterCloner fc(theFitter,builder);        

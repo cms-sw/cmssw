@@ -141,7 +141,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent * evt) {
 	std::vector<HFShowerPhoton> LongFiberPhotons;
 	LongFiberPhotons.clear();
 	ShortFiberPhotons.clear();
-	if (idHC >= 0 && theHC> 0) {
+	if (idHC >= 0 && theHC != nullptr) {
 		std::cout << "FiberhitSize " << theHC->entries() << std::endl;
 		for (j = 0; j < theHC->entries(); j++) {
 			FiberG4Hit* aHit = (*theHC)[j];
@@ -179,7 +179,7 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent * evt) {
 	//	the chamber hit is for primary particle, but step size can be small
 	//	(in newer Geant4 versions) and as a result primary particle may have
 	//	multiple hits. We want to take last one which is close the HF absorber
-	if(idHC >= 0 && theChamberHC> 0) {
+	if(idHC >= 0 && theChamberHC != nullptr) {
 		LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() Chamber Hits size: " << theChamberHC->entries();
 		for(j = 0; j < theChamberHC->entries();++j) {
 			HFShowerG4Hit* aHit = (*theChamberHC)[j];

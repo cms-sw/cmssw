@@ -3,6 +3,8 @@
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
+#include "DataFormats/Math/interface/invertPosDefMatrix.h"
+#include "DataFormats/Math/interface/ProjectMatrix.h"
 
 #include <cfloat>
 
@@ -39,7 +41,6 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
 
   VecD r, rMeas; 
   SMatDD V(SMatrixNoInit{}), R(SMatrixNoInit{});
-  AlgebraicVector5 x;
   ProjectMatrix<double,5,D> p;
   //
   // calculate chi2 and determinant / component and find
@@ -49,7 +50,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   for ( unsigned int i=0; i<predictedComponents.size(); i++ ) {
 
     KfComponentsHolder holder; 
-    x = predictedComponents[i].localParameters().vector();
+    auto const & x = predictedComponents[i].localParameters().vector();
     holder.template setup<D>(&r, &V, &p, &rMeas, &R, 
 			     x, predictedComponents[i].localError().matrix());
     recHit.getKfComponents(holder);
@@ -64,21 +65,23 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
     }
     detRs.push_back(detR);
 
-    int ierr = ! R.Invert(); // if (ierr != 0) throw exception;
-    if ( ierr!=0 ) {
+     bool ok = invertPosDefMatrix(R);
+    if ( !ok ) {
       edm::LogError("PosteriorWeightsCalculator") 
-	<< "PosteriorWeightsCalculator: inversion failed, ierr = " << ierr;
+	<< "PosteriorWeightsCalculator: inversion failed";
       return std::vector<double>();
     }
     double chi2 = ROOT::Math::Similarity(r,R); 
     chi2s.push_back(chi2);
     if ( chi2<chi2Min )  chi2Min = chi2;
   }
+
   if ( detRs.size()!=predictedComponents.size() ||
        chi2s.size()!=predictedComponents.size() ) {
     edm::LogError("PosteriorWeightsCalculator") << "Problem in vector sizes";
     return std::vector<double>();
   }
+
   //
   // calculate weights (extracting a common factor
   //   exp(-0.5*chi2Min) to avoid numerical problems
@@ -96,16 +99,17 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
       // Calculation of (non-normalised) weight. Common factors exp(-chi2Norm/2.) and
       // 1./sqrt(2*pi*recHit.dimension()) have been omitted
       //
-      tempWeight = priorWeight * sqrt(1./detRs[i]) * exp(-0.5 * chi2); 
+      tempWeight = priorWeight * std::sqrt(1./detRs[i]) * std::exp(-0.5 * chi2); 
     }
-    //      else {
-    //        edm::LogInfo("PosteriorWeightsCalculator") << "PosteriorWeightsCalculator: detR < FLT_MIN !!";
-    //      }
+    else {
+       LogDebug("GsfTrackFitters") << "PosteriorWeightsCalculator: detR < FLT_MIN !!";
+    }
     weights.push_back(tempWeight);
     sumWeights += tempWeight;
   }
+
   if ( sumWeights<DBL_MIN ) {
-    edm::LogInfo("PosteriorWeightsCalculator") << "PosteriorWeightsCalculator: sumWeight < DBL_MIN";
+    LogDebug("GsfTrackFitters") << "PosteriorWeightsCalculator: sumWeight < DBL_MIN";
     edm::LogError("PosteriorWeightsCalculator") << "PosteriorWeightsCalculator: sumWeight < DBL_MIN";
     return std::vector<double>();
   }
@@ -114,10 +118,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
     edm::LogError("PosteriorWeightsCalculator") << "Problem in vector sizes (2)";
     return std::vector<double>();
   }
-  for (std::vector<double>::iterator iter = weights.begin();
-       iter != weights.end(); iter++) {
-    (*iter) /= sumWeights;
-  }
-
+  sumWeights = 1./sumWeights;
+  for (auto & w : weights) w *= sumWeights;
   return weights;
 }

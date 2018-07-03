@@ -396,7 +396,7 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     ele1_id_dphi        = (Float_t)( myElec1->deltaPhiSuperClusterTrackAtVtx() );
     ele1_id_hoe         = (Float_t)( myElec1->hadronicOverEm() );
 
-    ele1_cr_mhitsinner  = (Float_t)( myElec1->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    ele1_cr_mhitsinner  = (Float_t)( myElec1->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
     ele1_cr_dcot        = (Float_t)( myElec1->userFloat("Dcot") );
     ele1_cr_dist        = (Float_t)( myElec1->userFloat("Dist") );
 
@@ -433,7 +433,7 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     ele2_id_dphi        = (Float_t)( myElec2->deltaPhiSuperClusterTrackAtVtx() );
     ele2_id_hoe         = (Float_t)( myElec2->hadronicOverEm() );
 
-    ele2_cr_mhitsinner  = (Float_t)( myElec2->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    ele2_cr_mhitsinner  = (Float_t)( myElec2->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
     ele2_cr_dcot        = (Float_t)( myElec2->userFloat("Dcot") );
     ele2_cr_dist        = (Float_t)( myElec2->userFloat("Dist") );
 

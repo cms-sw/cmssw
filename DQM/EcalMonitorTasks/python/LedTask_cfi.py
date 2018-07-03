@@ -10,6 +10,24 @@ ecalLedTask = cms.untracked.PSet(
         ledWavelengths = ecaldqmLedWavelengths
     ),
     MEs = cms.untracked.PSet(
+        CalibStatus = cms.untracked.PSet(
+            path = cms.untracked.string('EcalCalibration/EventInfo/Calibration event rate'),
+            kind = cms.untracked.string('TProfile'),
+            otype = cms.untracked.string('None'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(5),
+                low = cms.untracked.double(-0.5),
+                high = cms.untracked.double(4.5),
+                labels = cms.untracked.vstring(['Green Laser','Blue Laser','IR Laser','LED1','LED2'])
+            ),
+            yaxis = cms.untracked.PSet(
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(1),
+                title = cms.untracked.string('event rate')
+            ),
+            description = cms.untracked.string('')
+        ),
         PNAmplitude = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedTask/Led%(wl)s/PN/Gain16/EELDT PNs amplitude %(sm)s G16 L%(wl)s'),
             otype = cms.untracked.string('EESMMEM'),

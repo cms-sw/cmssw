@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -12,35 +12,22 @@
 #include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 
-#include <iostream>
-
-using namespace std;
-
-class GEMRecoIdealDBLoader : public edm::EDAnalyzer
+class GEMRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
 public:
   
-  explicit GEMRecoIdealDBLoader( const edm::ParameterSet& );
-  ~GEMRecoIdealDBLoader( void );
+  GEMRecoIdealDBLoader( const edm::ParameterSet& ) {}
   
-  virtual void beginRun( const edm::Run&, edm::EventSetup const& );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) {}
-  virtual void endJob( void ) {};
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
 };
-
-GEMRecoIdealDBLoader::GEMRecoIdealDBLoader( const edm::ParameterSet& )
-{
-  std::cout << "GEMRecoIdealDBLoader::GEMRecoIdealDBLoader" << std::endl;
-}
-
-GEMRecoIdealDBLoader::~GEMRecoIdealDBLoader()
-{
-  std::cout << "GEMRecoIdealDBLoader::~GEMRecoIdealDBLoader" << std::endl;
-}
 
 void
 GEMRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es ) 
 {
+  edm::LogInfo("GEMRecoIdealDBLoader")<<"GEMRecoIdealDBLoader::beginRun";
+
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( !mydbservice.isAvailable())
   {

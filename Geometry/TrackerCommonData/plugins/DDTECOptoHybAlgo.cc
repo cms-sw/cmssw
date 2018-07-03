@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "Geometry/TrackerCommonData/plugins/DDTECOptoHybAlgo.h"
@@ -63,8 +62,8 @@ void DDTECOptoHybAlgo::execute(DDCompactView& cpv) {
   // given r positions are for the lower left corner
   rpos += optoHeight/2;
   int    copyNo = startCopyNo;
-  for (int i = 0; i < (int)(angles.size()); i++) {
-    double phix = -angles.at(i);
+  for (double angle : angles) {
+    double phix = -angle;
     // given phi positions are for the lower left corner
     phix += asin(optoWidth/2/rpos);
     double xpos = rpos * cos(phix);
@@ -75,7 +74,7 @@ void DDTECOptoHybAlgo::execute(DDCompactView& cpv) {
     double phiy = phix + 90.*CLHEP::deg;
     double phideg = phix/CLHEP::deg;
     if (phideg != 0) {
-      std::string rotstr= DDSplit(childName).first+dbl_to_string(phideg*1000.);
+      std::string rotstr= DDSplit(childName).first + std::to_string(phideg*1000.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
 	double theta = 90.*CLHEP::deg;

@@ -20,12 +20,12 @@
 class ISRWeightProducer : public edm::EDProducer {
    public:
       explicit ISRWeightProducer(const edm::ParameterSet&);
-      ~ISRWeightProducer();
+      ~ISRWeightProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
       std::vector<double> isrBinEdges_;
@@ -73,7 +73,7 @@ void ISRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       iEvent.getByToken(genToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set as default weight the asymptotic value at high pt (i.e. value of last bin)
       (*weight) = ptWeights_[ptWeights_.size()-1];
@@ -96,7 +96,7 @@ void ISRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
             break;
       }
 
-      iEvent.put(weight);
+      iEvent.put(std::move(weight));
 }
 
 DEFINE_FWK_MODULE(ISRWeightProducer);

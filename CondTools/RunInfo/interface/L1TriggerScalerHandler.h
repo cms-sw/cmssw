@@ -8,9 +8,9 @@
 
 class L1TriggerScalerHandler : public popcon::PopConSourceHandler<L1TriggerScaler>{
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~L1TriggerScalerHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~L1TriggerScalerHandler() override;
   L1TriggerScalerHandler(const edm::ParameterSet& pset); 
  private:
   std::string m_name;

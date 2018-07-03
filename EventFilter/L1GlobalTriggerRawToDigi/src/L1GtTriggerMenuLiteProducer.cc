@@ -63,7 +63,7 @@ L1GtTriggerMenuLiteProducer::L1GtTriggerMenuLiteProducer(
     m_physicsDaqPartition(0) {
 
     // EDM product in Run Data
-    produces<L1GtTriggerMenuLite, edm::InRun>();
+    produces<L1GtTriggerMenuLite, edm::Transition::BeginRun>();
 
 }
 
@@ -204,7 +204,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun,
     retrieveL1EventSetup(evSetup);
 
     // produce the L1GtTriggerMenuLite
-    std::auto_ptr<L1GtTriggerMenuLite> gtTriggerMenuLite(new L1GtTriggerMenuLite());
+    std::unique_ptr<L1GtTriggerMenuLite> gtTriggerMenuLite(new L1GtTriggerMenuLite());
 
     // lite L1 trigger menu
 
@@ -292,7 +292,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun,
     }
 
     // put records into event
-    iRun.put(gtTriggerMenuLite);
+    iRun.put(std::move(gtTriggerMenuLite));
 
 }
 

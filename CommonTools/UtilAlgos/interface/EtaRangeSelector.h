@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/Utils/interface/EtaRangeSelector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace reco {
   namespace modules {
@@ -13,6 +14,11 @@ namespace reco {
 	return
 	  EtaRangeSelector( cfg.getParameter<double>( "etaMin" ),
 			    cfg.getParameter<double>( "etaMax" ) );
+      }
+
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+        desc.add<double>("etaMin", 0.);
+        desc.add<double>("etaMax", 0.);
       }
     };
 

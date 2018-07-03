@@ -103,7 +103,7 @@ FWGeometryTableManagerBase::FWGeometryTableManagerBase()
    :   
    m_highlightIdx(-1),
    m_levelOffset(0),
-   m_editor(0),
+   m_editor(nullptr),
    m_editTransparencyIdx(-1)
 { 
    m_colorBoxRenderer.m_width  =  50;

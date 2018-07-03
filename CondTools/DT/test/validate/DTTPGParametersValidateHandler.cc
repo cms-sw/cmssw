@@ -103,8 +103,8 @@ void DTTPGParametersValidateHandler::addNewObject( int runNumber ) {
                               << sta << " "
                               << sec << " , status = "
                               << status << std::endl;
-        if ( ( fabs( ckclock - nClock ) > 0.0001 ) ||
-             ( fabs( ckphase - tPhase ) > 0.0001 ) )
+        if ( ( std::abs( ckclock - nClock ) > 0.0001 ) ||
+             ( std::abs( ckphase - tPhase ) > 0.0001 ) )
              logFile << "MISMATCH WHEN WRITING cell TPGParameters "
                      << whe << " "
                      << sta << " "

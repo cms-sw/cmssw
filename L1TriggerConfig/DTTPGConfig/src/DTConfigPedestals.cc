@@ -32,7 +32,7 @@
 //----------------
 
 DTConfigPedestals::DTConfigPedestals() : my_debug(false) , my_useT0(false) ,
-					 my_tpgParams(0) , my_t0i(0) {
+					 my_tpgParams(nullptr) , my_t0i(nullptr) {
 
   //my_tpgParams = 0;       // CB check that it could be done  outside this
   //my_t0i = 0;

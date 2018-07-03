@@ -71,10 +71,8 @@
  </class>
  <class name="edm::ProductProvenance" ClassVersion="11">
   <version ClassVersion="11" checksum="3594205707"/>
-  <field name="transient_" transient="true"/>
   <version ClassVersion="10" checksum="3685381930"/>
  </class>
- <class name="edm::ProductProvenance::Transients" ClassVersion="0"/>
  <class name="std::vector<edm::ProductProvenance>"/>
  <class name="edm::StoredProductProvenance" ClassVersion="3">
    <version ClassVersion="3" checksum="1175457242"/>
@@ -192,10 +190,6 @@
   <version ClassVersion="10" checksum="2903606143"/>
  </class>
 
- <class name="ROOT::TSchemaHelper" ClassVersion="10">
-  <version ClassVersion="10" checksum="3064700282"/>
- </class>
- <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
 
  <class name="edm::ThinnedAssociationBranches"/>
@@ -203,12 +197,6 @@
  <class name="edm::ThinnedAssociationsHelper" ClassVersion="10">
   <version ClassVersion="10" checksum="3444973106"/>
  </class>
-
- <ioread sourceClass="edm::ProductProvenance" targetClass="edm::ProductProvenance" version="[1-]" source="" target="transient_">
- <![CDATA[
-	newObj->initializeTransients();
- ]]>
- </ioread>
  <ioread sourceClass="edm::ProductRegistry" targetClass="edm::ProductRegistry" version="[1-]" source="" target="transient_">
  <![CDATA[
 	newObj->initializeTransients();

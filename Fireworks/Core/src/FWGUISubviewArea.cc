@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 #include <iostream>
 
@@ -39,7 +39,7 @@ namespace
       XXXButton(const TGWindow* p, const TGPicture* pic) :
          TGPictureButton(p, pic), fXState(kButtonUp) {}
 
-      virtual void SetState(EButtonState state, Bool_t emit=kFALSE) override
+      void SetState(EButtonState state, Bool_t emit=kFALSE) override
       {
          TGPictureButton::SetState(state, kFALSE);
          if ((fXState == kButtonUp && fState  == kButtonEngaged) ||
@@ -60,10 +60,10 @@ namespace
 FWGUISubviewArea::FWGUISubviewArea(TEveCompositeFrame* ef, TGCompositeFrame* parent, Int_t height) :
    TGHorizontalFrame(parent, 20, height),
    m_frame (ef),
-   m_swapButton(0),
-   m_undockButton(0), m_dockButton(0),
-   m_closeButton(0),
-   m_infoButton(0)
+   m_swapButton(nullptr),
+   m_undockButton(nullptr), m_dockButton(nullptr),
+   m_closeButton(nullptr),
+   m_infoButton(nullptr)
 {
    UInt_t lh = kLHintsNormal | kLHintsExpandX | kLHintsExpandY;
 
@@ -207,10 +207,10 @@ FWGUISubviewArea::getEveWindow()
 const TGPicture *
 FWGUISubviewArea::swapIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"moveup.png");
@@ -221,10 +221,10 @@ FWGUISubviewArea::swapIcon()
 const TGPicture *
 FWGUISubviewArea::swapDisabledIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"moveup-disabled.png");
@@ -235,10 +235,10 @@ FWGUISubviewArea::swapDisabledIcon()
 const TGPicture *
 FWGUISubviewArea::closeIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete.png");
@@ -249,10 +249,10 @@ FWGUISubviewArea::closeIcon()
 const TGPicture *
 FWGUISubviewArea::closeDisabledIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete-disabled.png");
@@ -264,10 +264,10 @@ FWGUISubviewArea::closeDisabledIcon()
 const TGPicture *
 FWGUISubviewArea::undockIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"expand.png");
@@ -278,10 +278,10 @@ FWGUISubviewArea::undockIcon()
 const TGPicture *
 FWGUISubviewArea::dockIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"dock.png");
@@ -292,10 +292,10 @@ FWGUISubviewArea::dockIcon()
 const TGPicture *
 FWGUISubviewArea::undockDisabledIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"expand-disabled.png");
@@ -306,10 +306,10 @@ FWGUISubviewArea::undockDisabledIcon()
 const TGPicture *
 FWGUISubviewArea::infoIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info.png");
@@ -320,10 +320,10 @@ FWGUISubviewArea::infoIcon()
 const TGPicture *
 FWGUISubviewArea::infoDisabledIcon()
 {
-   static const TGPicture* s_icon = 0;
-   if(0== s_icon) {
+   static const TGPicture* s_icon = nullptr;
+   if(nullptr== s_icon) {
       const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
+      if(nullptr == cmspath) {
          throw std::runtime_error("CMSSW_BASE environment variable not set");
       }
       s_icon = gClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"info-disabled.png");

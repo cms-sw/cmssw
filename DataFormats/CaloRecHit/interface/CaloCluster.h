@@ -25,11 +25,14 @@
 
 namespace reco {
 
+  class CaloCluster;
+  std::ostream& operator<<(std::ostream& out, 
+                           const CaloCluster& cluster);
 
   class CaloCluster {
   public:
     
-    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5,  undefined = 1000};
+    enum AlgoId { island = 0, hybrid = 1, fixedMatrix = 2, dynamicHybrid = 3, multi5x5 = 4, particleFlow = 5,  hgcal_em = 6, hgcal_had = 7, hgcal_mixed = 8, undefined = 1000};
 
     // super-cluster flags
     enum SCFlags { cleanOnly = 0, common = 100, uncleanOnly = 200 };
@@ -60,7 +63,7 @@ namespace reco {
      /// constructor from values 
      CaloCluster( double energy,  
  		 const math::XYZPoint& position ) : 
-       energy_ (energy), correctedEnergy_(-1.0), position_ (position),algoID_( undefined ), flags_(0) {} 
+    energy_ (energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position),algoID_( undefined ), flags_(0) {} 
 
 
     CaloCluster( double energy,
@@ -68,7 +71,7 @@ namespace reco {
 		 const CaloID& caloID,
                  const AlgoID& algoID,
                  uint32_t flags = 0) :
-      energy_ (energy), correctedEnergy_(-1.0), position_ (position), 
+    energy_ (energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position), 
       caloID_(caloID), algoID_(algoID) {
       flags_=flags&flagsMask_;
     }
@@ -80,7 +83,7 @@ namespace reco {
                  const AlgoId algoId,
 		 const DetId seedId = DetId(0),
                  uint32_t flags = 0) :
-      energy_ (energy), correctedEnergy_(-1.0), position_ (position), caloID_(caloID), 
+    energy_ (energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position), caloID_(caloID), 
       hitsAndFractions_(usedHitsAndFractions), algoID_(algoId),seedId_(seedId){
       flags_=flags&flagsMask_;
     }
@@ -93,7 +96,7 @@ namespace reco {
                  const std::vector<DetId > &usedHits,
                  const AlgoId algoId,
                  uint32_t flags = 0) :
-      energy_(energy), correctedEnergy_(-1.0), position_ (position),  algoID_(algoId)
+    energy_(energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position),  algoID_(algoId)
        {
           hitsAndFractions_.reserve(usedHits.size());
           for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.));

@@ -52,12 +52,12 @@ public:
   TrackTransformerForCosmicMuons(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~TrackTransformerForCosmicMuons();
+  ~TrackTransformerForCosmicMuons() override;
   
   // Operations
 
   /// Convert a reco::Track into Trajectory
-  virtual std::vector<Trajectory> transform(const reco::Track&) const;
+  std::vector<Trajectory> transform(const reco::Track&) const override;
 
   /// the magnetic field
   const MagneticField* magneticField() const {return &*theMGField;}
@@ -66,7 +66,7 @@ public:
   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
 
   /// set the services needed by the TrackTransformer
-  virtual void setServices(const edm::EventSetup&);
+  void setServices(const edm::EventSetup&) override;
 
   ///calculate the sum of slopes for the track
   bool SlopeSum(const TransientTrackingRecHit::ConstRecHitContainer&) const;

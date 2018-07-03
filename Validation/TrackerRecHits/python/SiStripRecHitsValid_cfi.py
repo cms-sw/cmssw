@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+stripRecHitsValid = DQMEDAnalyzer('SiStripRecHitsValid',
     TopFolderName = cms.string('SiStrip/RecHitsValidation/StiffTrackingRecHits'),
 
     TH1NumTotrphi = cms.PSet(
@@ -289,7 +290,13 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
     associateStrip = cms.bool(True),
     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
     RecHitProducer = cms.string('siStripMatchedRecHits'),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
     verbose = cms.untracked.bool(False)
 )
 
-
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(stripRecHitsValid,
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
+)

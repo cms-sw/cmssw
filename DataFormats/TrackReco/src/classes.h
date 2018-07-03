@@ -29,6 +29,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include <vector>
 
@@ -138,5 +139,8 @@ namespace DataFormats_TrackReco {
     reco::DeDxHitInfo::DeDxHitInfoContainer hitInfoContainerDEDX;
     reco::DeDxHitInfo::DeDxHitInfoContainerCollection hitInfoContainerDEDXc;
 
+    SeedStopInfo ssi;
+    std::vector<SeedStopInfo> vssi;
+    edm::Wrapper<std::vector<SeedStopInfo> > wvssi;
   };
 }

@@ -1,16 +1,11 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake 50ns_5e33_v1 25ns14e33_v1 50ns_5e33_v3 25ns14e33_v3 25ns14e33_v4"
-#TABLES="Fake 50ns_5e33_v1 25ns14e33_v1"
-# Do not update the frozen menus in 74X
-# TABLES="Fake Fake"
-HLT_Fake="/dev/CMSSW_7_4_0/Fake"
-HLT_25ns14e33_v4="/frozen/2015/25ns14e33/v4.1/HLT"
-HLT_50ns_5e33_v3="/frozen/2015/50ns_5e33/v3.0/HLT"
-HLT_25ns14e33_v3="/frozen/2015/25ns14e33/v3.3/HLT"
-HLT_50ns_5e33_v1="/frozen/2015/50ns_5e33/v1.2/HLT"
-HLT_25ns14e33_v1="/frozen/2015/25ns14e33/v1.2/HLT"
+TABLES="Fake Fake1 Fake2 2018v22"
+HLT_Fake="/dev/CMSSW_10_1_0/Fake"
+HLT_Fake1="/dev/CMSSW_10_1_0/Fake1"
+HLT_Fake2="/dev/CMSSW_10_1_0/Fake2"
+HLT_2018v22="/frozen/2018/2e34/v2.2/HLT"
 
 # print extra messages ?
 VERBOSE=false
@@ -30,7 +25,7 @@ function getConfigForCVS() {
   local NAME="$2"
   log "  dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
-  hltGetConfiguration --cff --offline --data  $CONFIG --type $NAME  > HLT_${NAME}_cff.py
+  hltGetConfiguration --cff --data $CONFIG --type $NAME  > HLT_${NAME}_cff.py
 }
 
 function getConfigForOnline() {
@@ -40,9 +35,9 @@ function getConfigForOnline() {
   # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
 
   if [ "$NAME" == "Fake" ]; then
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
   else
-    hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
+    hltGetConfiguration --full --data $CONFIG --type $NAME --unprescale --process "HLT${NAME}" --globaltag "auto:run2_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root" > OnLine_HLT_${NAME}.py
   fi
 }
 
@@ -52,9 +47,12 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
+echo "Extracting cff python dumps"
 FILES=$(eval echo HLT_{$TABLES_}_cff.py)
 rm -f $FILES
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))
   getConfigForCVS    $CONFIG $TABLE
 done
@@ -65,9 +63,12 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
+echo "Extracting full configuration dumps"
 FILES=$(eval echo OnLine_HLT_{$TABLES_}.py)
 rm -f $FILES
 for TABLE in $TABLES; do
+  log "$TABLE"
+  echo "$TABLE"
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))
   getConfigForOnline $CONFIG $TABLE
 done

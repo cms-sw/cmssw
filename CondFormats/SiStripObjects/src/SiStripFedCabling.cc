@@ -214,7 +214,7 @@ FedChannelConnection SiStripFedCabling::fedConnection( uint16_t fed_id,
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripFedCabling::printDebug( std::stringstream& ss ) const {
+void SiStripFedCabling::printDebug( std::stringstream& ss, const TrackerTopology* /*trackerTopo*/ ) const {
 
   uint16_t total = 0;
   uint16_t nfeds = 0;
@@ -342,7 +342,7 @@ void SiStripFedCabling::terse( std::stringstream& ss ) const {
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFedCabling::printSummary( std::stringstream& ss ) const {
+void SiStripFedCabling::printSummary( std::stringstream& ss, const TrackerTopology* /*trackerTopo*/ ) const {
 
   ss << "[SiStripFedCabling::" << __func__ << "]";
   
@@ -422,13 +422,4 @@ void SiStripFedCabling::printSummary( std::stringstream& ss ) const {
      << " " << percent
      << "% of FED channels are connected"  << std::endl;
   
-}
-
-// -----------------------------------------------------------------------------
-//
-std::ostream& operator<< ( std::ostream& os, const SiStripFedCabling& cabling ) {
-  std::stringstream ss;
-  cabling.print(ss);
-  os << ss.str();
-  return os;
 }

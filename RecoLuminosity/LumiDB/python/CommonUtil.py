@@ -5,7 +5,7 @@ def flatten(obj):
     '''Given nested lists or tuples, returns a single flattened list'''
     result = []
     for piece in obj:
-        if hasattr (piece, '__iter__') and not isinstance (piece, basestring):
+        if hasattr (piece, '__iter__') and not isinstance (piece, str):
             result.extend( flatten (piece) )
         else:
             result.append (piece)

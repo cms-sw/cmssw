@@ -12,7 +12,7 @@ class ZToMuMuFilter : public edm::EDFilter {
 public:
   ZToMuMuFilter(const edm::ParameterSet &);
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   edm::EDGetTokenT<reco::CandidateCollection>  zCandsToken_;
   edm::EDGetTokenT<reco::CandDoubleAssociations> muIso1Token_;
   edm::EDGetTokenT<reco::CandDoubleAssociations> muIso2Token_;

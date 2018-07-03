@@ -46,7 +46,7 @@ def launch(args):
             
             log("Received: %s, timer reset." % repr(ch))
 
-        except Timeout, t:
+        except Timeout as t:
             signal.alarm(0)
 
             log("Timeout reached, taking action.")

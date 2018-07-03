@@ -44,7 +44,7 @@ class CrystalCenterDump : public edm::one::EDAnalyzer<>
 {
 public:
   explicit CrystalCenterDump( const edm::ParameterSet& );
-  ~CrystalCenterDump();
+  ~CrystalCenterDump() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -88,23 +88,23 @@ CrystalCenterDump::~CrystalCenterDump()
 
 void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {
   std::fstream f(name,std::ios_base::out);
-  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
+  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
 
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
-  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
+  for (auto id : ids) {
     n++;
-    const CaloCellGeometry* cell=geom->getGeometry(*i);
+    auto cell=geom->getGeometry(id);
     if (det == DetId::Ecal)
       {
         if (subdetn == EcalBarrel) {
-          EBDetId ebid(i->rawId());
+          EBDetId ebid(id.rawId());
           if (ebid.ism() == 1) {
             
             float depth = (crystalDepth());
-            double crysX = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).x();
-            double crysY = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).y();
-            double crysZ = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).z();
+            double crysX = (cell)->getPosition(depth).x();
+            double crysY = (cell)->getPosition(depth).y();
+            double crysZ = (cell)->getPosition(depth).z();
 
             CLHEP::Hep3Vector crysPos(crysX,crysY,crysZ);
             double crysEta = crysPos.eta();

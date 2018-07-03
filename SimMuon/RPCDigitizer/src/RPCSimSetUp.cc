@@ -21,14 +21,14 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include <cmath>
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include<cstring>
-#include<string>
-#include<vector>
-#include<stdlib.h>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <cstdlib>
 #include <utility>
 #include <map>
 
@@ -208,7 +208,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     current_rpcId = RPCDetId(current_detId);
     // Test whether this roll (picked up from the conditions) is inside the RPC Geometry
     const RPCRoll* roll = theGeometry->roll(current_rpcId);
-    if(roll==0) {
+    if(roll==nullptr) {
       sslognoiseitem <<"Searching for first valid detid :: current_detId = "<<current_detId;
       sslognoiseitem <<" aka "<<current_rpcId<<" is not in current Geometry --> Skip "<<std::endl;
       continue;
@@ -232,7 +232,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
     this_rpcId = RPCDetId(this_detId);
     // Test whether this roll (picked up from the conditions) is inside the RPC Geometry
     const RPCRoll* roll = theGeometry->roll(this_rpcId);
-    if(roll==0) {
+    if(roll==nullptr) {
       sslognoiseitem <<"Inside Loop :: ["<<std::setw(6)<<count_all<<"]["<<std::setw(3)<<count_strips<<"] :: this_detId = "<<this_detId<<" aka "<<this_rpcId<<" which is not in current Geometry --> Skip "<<std::endl;
       continue;
     }
@@ -307,7 +307,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       // look for next different detId and rename it to the current_detId
       // at this point we skip all the conditions for the strips that are not in this roll
       // and we will go to the conditions for the first strip of the next roll
-      bool next_detId_found = 0;
+      bool next_detId_found = false;
       sslognoiseitem <<"look for next different detId"<<std::endl;
       while(next_detId_found==0 && it != vnoise.end()-1) {
         ++it;
@@ -324,7 +324,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
           // and update also the number of strips
           current_detId = this_detId;
           current_rpcId = RPCDetId(current_detId);
-          next_detId_found = 1;
+          next_detId_found = true;
           current_nStrips = (theGeometry->roll(current_rpcId))->nstrips();
           sslognoiseitem <<" with "<<current_nStrips<<" strips"<<std::endl;
           --it; // subtract one, because at the end of the loop the iterator will be increased with one

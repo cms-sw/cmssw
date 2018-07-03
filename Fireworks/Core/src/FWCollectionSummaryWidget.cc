@@ -57,7 +57,7 @@ struct FWCollectionSummaryWidgetConnectionHolder  {
 namespace {
    class BorderlessTextButton : public TGTextButton {
    public:
-      BorderlessTextButton(const TGWindow *p = 0, const char *s = 0, Int_t id = -1,
+      BorderlessTextButton(const TGWindow *p = nullptr, const char *s = nullptr, Int_t id = -1,
                            GContext_t norm = GetDefaultGC()(),
                            FontStruct_t font = GetDefaultFontStruct()):
       TGTextButton(p,s,id,norm,font,0){
@@ -255,11 +255,11 @@ m_collection(&iItem),
 m_hints(iHints),
 m_parent(iParent),
 m_collectionShown(false),
-m_tableContext(0),
+m_tableContext(nullptr),
 m_indexForColor(-1),
-m_colorPopup(0),
-m_tableManager(0),
-m_tableWidget(0),
+m_colorPopup(nullptr),
+m_tableManager(nullptr),
+m_tableWidget(nullptr),
 m_backgroundIsWhite(false),
 m_connectionHolder( new FWCollectionSummaryWidgetConnectionHolder)
 {
@@ -405,16 +405,16 @@ FWCollectionSummaryWidget::displayChanged()
 void
 FWCollectionSummaryWidget::itemChanged()
 {
-   const TGPicture* picture = 0;
-   const TGPicture* down = 0;
-   const TGPicture* disabled=0;
+   const TGPicture* picture = nullptr;
+   const TGPicture* down = nullptr;
+   const TGPicture* disabled=nullptr;
    if(m_collection->hasError()) {
       picture = alert(!m_backgroundIsWhite);
       down = alert_over(!m_backgroundIsWhite);
       disabled = alert_over(!m_backgroundIsWhite);
       m_stateButton->SetToolTipText(m_collection->errorMessage().c_str());
    } else {
-      if(m_collection->filterExpression().size()) {
+      if(!m_collection->filterExpression().empty()) {
          picture = filtered(!m_backgroundIsWhite);
          down = filtered_over(!m_backgroundIsWhite);
          disabled = filtered_over(!m_backgroundIsWhite);
@@ -456,8 +456,8 @@ FWCollectionSummaryWidget::toggleItemVisible()
 static
 TGGC* selectContext()
 {
-   static TGGC* s_context = 0;
-   if(0==s_context) {
+   static TGGC* s_context = nullptr;
+   if(nullptr==s_context) {
       GCValues_t hT = *(gClient->GetResourcePool()->GetSelectedGC()->GetAttributes());
       s_context = gClient->GetResourcePool()->GetGCPool()->GetGC(&hT,kTRUE);
       s_context->SetForeground(s_context->GetBackground());
@@ -469,9 +469,9 @@ TGGC* selectContext()
 void 
 FWCollectionSummaryWidget::toggleShowHide()
 {
-   const TGPicture* picture = 0;
-   const TGPicture* down = 0;
-   const TGPicture* disabled=0;
+   const TGPicture* picture = nullptr;
+   const TGPicture* down = nullptr;
+   const TGPicture* disabled=nullptr;
    
    if(m_collectionShown) {
       picture = arrow_right(!m_backgroundIsWhite);
@@ -486,7 +486,7 @@ FWCollectionSummaryWidget::toggleShowHide()
       disabled = arrow_down_disabled(!m_backgroundIsWhite);
       m_collectionShown = true;
       
-      if(0 == m_tableManager) {
+      if(nullptr == m_tableManager) {
          GCValues_t t = *(GetWhiteGC().GetAttributes());
          t.fFont = gClient->GetResourcePool()->GetIconFont()->GetFontHandle();
          m_tableContext = gClient->GetResourcePool()->GetGCPool()->GetGC(&t,kTRUE);
@@ -510,7 +510,7 @@ FWCollectionSummaryWidget::toggleShowHide()
       m_tableWidget->Resize(m_tableWidget->GetWidth(),m_tableWidget->GetHeight());
    }
    
-   if(0!=m_parent) {
+   if(nullptr!=m_parent) {
       m_parent->Layout();
    }
    m_showHideButton->swapIcons(picture,down,disabled);
@@ -521,7 +521,7 @@ FWCollectionSummaryWidget::toggleShowHide()
 void 
 FWCollectionSummaryWidget::createColorPopup()
 {
-   if (0==m_colorPopup)
+   if (nullptr==m_colorPopup)
    {
       std::vector<Color_t> colors;
       m_collection->colorManager()->fillLimitedColors(colors);
@@ -708,7 +708,7 @@ FWCollectionSummaryWidget::setBackgroundToWhite(bool iToWhite)
 void
 FWCollectionSummaryWidget::colorTable()
 {
-   if(0==m_tableWidget) {
+   if(nullptr==m_tableWidget) {
       return;
    }
    if(m_backgroundIsWhite) {

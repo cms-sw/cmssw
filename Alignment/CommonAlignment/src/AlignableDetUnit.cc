@@ -1,6 +1,6 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
@@ -14,9 +14,9 @@
 //__________________________________________________________________________________________________
 AlignableDetUnit::AlignableDetUnit(const GeomDetUnit *geomDetUnit) : // rely on non-NULL pointer!
   Alignable(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface()),
-  theAlignmentPositionError(0),
-  theSurfaceDeformation(0),
-  theCachedSurfaceDeformation(0)
+  theAlignmentPositionError(nullptr),
+  theSurfaceDeformation(nullptr),
+  theCachedSurfaceDeformation(nullptr)
 {
   if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
     // 2nd argument w/o effect:
@@ -38,6 +38,29 @@ AlignableDetUnit::~AlignableDetUnit()
   delete theAlignmentPositionError;
   delete theSurfaceDeformation;
   delete theCachedSurfaceDeformation;
+  for (auto surface: surfaceDeformationsCache_) delete surface.second;
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::update(const GeomDetUnit *geomDetUnit)
+{
+  if (!geomDetUnit) {
+    throw cms::Exception("Alignment")
+      << "@SUB=AlignableDetUnit::update\n"
+      << "Trying to update with GeomDetUnit* pointing to 'nullptr'.";
+  }
+
+  Alignable::update(geomDetUnit->geographicalId().rawId(), geomDetUnit->surface());
+
+  if (geomDetUnit->alignmentPositionError()) { // take over APE from geometry
+    // 2nd argument w/o effect:
+    this->setAlignmentPositionError(*(geomDetUnit->alignmentPositionError()), false);
+  }
+
+  if (geomDetUnit->surfaceDeformation()) { // take over surface modification
+    // 2nd argument w/o effect:
+    this->setSurfaceDeformation(geomDetUnit->surfaceDeformation(), false);
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -103,7 +126,7 @@ void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType&
 								     .5 * surface().length(),
 								     0.) );
 
-  LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+  const LocalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
@@ -130,7 +153,7 @@ void AlignableDetUnit::setSurfaceDeformation(const SurfaceDeformation *deformati
   if (deformation) {
     theSurfaceDeformation = deformation->clone();
   } else {
-    theSurfaceDeformation = 0;
+    theSurfaceDeformation = nullptr;
   }
 }
 
@@ -148,20 +171,29 @@ void AlignableDetUnit::addSurfaceDeformation(const SurfaceDeformation *deformati
 			       << " to type " << theSurfaceDeformation->type()
 			       << ", so erase deformation information.";
     delete theSurfaceDeformation;
-    theSurfaceDeformation = 0;
+    theSurfaceDeformation = nullptr;
   }
 }
 
 //__________________________________________________________________________________________________
 void AlignableDetUnit::dump() const
 {
+  std::ostringstream parameters;
+  if (theSurfaceDeformation) {
+    parameters << "    surface deformation parameters:";
+    for (const auto& param: theSurfaceDeformation->parameters()) {
+      parameters << " " << param;
+    }
+  } else {
+    parameters << "    no surface deformation parameters";
+  }
 
   edm::LogInfo("AlignableDump") 
     << " AlignableDetUnit has position = " << this->globalPosition() 
     << ", orientation:" << std::endl << this->globalRotation() << std::endl
     << " total displacement and rotation: " << this->displacement() << std::endl
-    << this->rotation();
-
+    << this->rotation() << "\n"
+    << parameters.str();
 }
 
 
@@ -229,11 +261,29 @@ void AlignableDetUnit::cacheTransformation()
 
   if (theCachedSurfaceDeformation) {
     delete theCachedSurfaceDeformation;
-    theCachedSurfaceDeformation = 0;
+    theCachedSurfaceDeformation = nullptr;
   }
 
   if (theSurfaceDeformation)
     theCachedSurfaceDeformation = theSurfaceDeformation->clone();
+}
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::cacheTransformation(const align::RunNumber& run)
+{
+  surfacesCache_[run] = theSurface;
+  displacementsCache_[run] = theDisplacement;
+  rotationsCache_[run] = theRotation;
+
+  auto existingCache = surfaceDeformationsCache_.find(run);
+  if (existingCache != surfaceDeformationsCache_.end()) {
+    delete existingCache->second;
+    existingCache->second = nullptr;
+  }
+
+  if (theSurfaceDeformation) {
+    surfaceDeformationsCache_[run] = theSurfaceDeformation->clone();
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -245,10 +295,37 @@ void AlignableDetUnit::restoreCachedTransformation()
 
   if (theSurfaceDeformation) {
     delete theSurfaceDeformation;
-    theSurfaceDeformation = 0;
+    theSurfaceDeformation = nullptr;
   }
 
   if (theCachedSurfaceDeformation) {
     this->setSurfaceDeformation(theCachedSurfaceDeformation, false);
   }
 }
+
+//__________________________________________________________________________________________________
+void AlignableDetUnit::restoreCachedTransformation(const align::RunNumber& run)
+{
+  if (surfacesCache_.find(run) == surfacesCache_.end()) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::restoreCachedTransformation\n"
+      << "Trying to restore cached transformation for a run (" << run
+      << ") that has not been cached.";
+  } else {
+    theSurface = surfacesCache_[run];
+    theDisplacement = displacementsCache_[run];
+    theRotation = rotationsCache_[run];
+
+    if (theSurfaceDeformation) {
+      delete theSurfaceDeformation;
+      theSurfaceDeformation = nullptr;
+    }
+
+    if (surfaceDeformationsCache_[run]) {
+      this->setSurfaceDeformation(surfaceDeformationsCache_[run], false);
+    }
+  }
+}
+
+//______________________________________________________________________________
+const align::Alignables AlignableDetUnit::emptyComponents_{};

@@ -40,7 +40,7 @@ BeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	
 	using namespace edm;
 
-	std::auto_ptr<reco::BeamSpot> result(new reco::BeamSpot);
+	auto result = std::make_unique<reco::BeamSpot>();
 
 	reco::BeamSpot aSpot;
 
@@ -90,7 +90,7 @@ BeamSpotProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 	*result = aSpot;
 	
-	iEvent.put(result);
+	iEvent.put(std::move(result));
 	
 }
 

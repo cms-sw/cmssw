@@ -1,107 +1,57 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DQMEDAnalyzer::DQMEDAnalyzer() {}
+DQMEDAnalyzer::DQMEDAnalyzer() {
+  lumiToken_ = produces<DQMToken,edm::Transition::EndLuminosityBlock>("endLumi");
+  runToken_ = produces<DQMToken,edm::Transition::EndRun>("endRun");
+}
 
-void DQMEDAnalyzer::beginStream(edm::StreamID id)
+void DQMEDAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& setup) 
 {
-  stream_id_ = id.value();
-}
-
-void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
-                             edm::EventSetup const &iSetup) {
-  dqmBeginRun(iRun, iSetup);
-  DQMStore * store = edm::Service<DQMStore>().operator->();
-  store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
-                           this->bookHistograms(b, iRun, iSetup);
-                         },
-                         iRun.run(),
-                         streamId(),
-                         iRun.moduleCallingContext()->moduleDescription()->id());
-}
-
-
-std::shared_ptr<dqmDetails::NoCache>
-DQMEDAnalyzer::globalBeginRunSummary(edm::Run const&,
-                                     edm::EventSetup const&,
-                                     RunContext const*)
-{
-  return nullptr;
-}
-
-void DQMEDAnalyzer::endLuminosityBlockSummary(edm::LuminosityBlock const &iLumi ,
-                                              edm::EventSetup const &iSetup,
-                                              dqmDetails::NoCache*) const {
-  DQMStore * store = edm::Service<DQMStore>().operator->();
-  assert(store);
-  LogDebug("DQMEDAnalyzer") << "Merging Lumi local MEs ("
-                            << iLumi.run() << ", "
-                            << iLumi.id().luminosityBlock() << ", "
-                            << stream_id_ << ", "
-                            << iLumi.moduleCallingContext()->moduleDescription()->id()
-                            << ") into the DQMStore@" << store << std::endl;
-  store->mergeAndResetMEsLuminositySummaryCache(iLumi.run(),
-                                                iLumi.id().luminosityBlock(),
-                                                stream_id_,
-                                                iLumi.moduleCallingContext()->moduleDescription()->id());
-}
-
-void DQMEDAnalyzer::endRunSummary(edm::Run const &iRun ,
-                                  edm::EventSetup const &iSetup,
-                                  dqmDetails::NoCache*) const {
-  DQMStore * store = edm::Service<DQMStore>().operator->();
-  assert(store);
-  LogDebug("DQMEDAnalyzer") << "Merging Run local MEs ("
-                            << iRun.run() << ", "
-                            << stream_id_ << ", "
-                            << iRun.moduleCallingContext()->moduleDescription()->id()
-                            << ") into the DQMStore@" << store << std::endl;
-  store->mergeAndResetMEsRunSummaryCache(iRun.run(),
-                                         stream_id_,
-                                         iRun.moduleCallingContext()->moduleDescription()->id());
-}
-
-void DQMEDAnalyzer::globalEndRunSummary(edm::Run const&,
-                                        edm::EventSetup const&,
-                                        RunContext const*,
-                                        dqmDetails::NoCache*)
-{}
-
-std::shared_ptr<dqmDetails::NoCache>
-DQMEDAnalyzer::globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                 edm::EventSetup const&,
-                                                 LuminosityBlockContext const*)
-{
-  return nullptr;
-}
-
-void DQMEDAnalyzer::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                    edm::EventSetup const&,
-                                                    LuminosityBlockContext const*,
-                                                    dqmDetails::NoCache*)
-{}
-
-
-
-//############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
-//here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
-
-thread_unsafe::DQMEDAnalyzer::DQMEDAnalyzer() {}
-
-void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
-					    edm::EventSetup const &iSetup) {
-  dqmBeginRun(iRun, iSetup);
-  DQMStore * store = edm::Service<DQMStore>().operator->();
-  store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
-      this->bookHistograms(b, iRun, iSetup);
+  dqmBeginRun(run, setup);
+  edm::Service<DQMStore>()->bookTransaction(
+    [this, &run, &setup](DQMStore::IBooker & booker)
+    {
+      booker.cd();
+      this->bookHistograms(booker, run, setup);
     },
-    iRun.run(),
-    0,
-    0);
+    run.run(),
+    run.moduleCallingContext()->moduleDescription()->id());
 }
+
+void DQMEDAnalyzer::endRun(edm::Run const& run, edm::EventSetup const& setup) 
+{ }
+
+void DQMEDAnalyzer::endRunProduce(edm::Run& run, edm::EventSetup const& setup) 
+{
+  edm::Service<DQMStore>()->cloneRunHistograms(
+      run.run(),
+      run.moduleCallingContext()->moduleDescription()->id());
+
+  run.put(runToken_, std::make_unique<DQMToken>());
+}
+
+void DQMEDAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) 
+{ }
+
+void DQMEDAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) 
+{ }
+
+void DQMEDAnalyzer::endLuminosityBlockProduce(edm::LuminosityBlock & lumi, edm::EventSetup const& setup) 
+{
+  edm::Service<DQMStore>()->cloneLumiHistograms(
+      lumi.run(),
+      lumi.luminosityBlock(),
+      lumi.moduleCallingContext()->moduleDescription()->id());
+
+  lumi.put(lumiToken_, std::make_unique<DQMToken>());
+}
+
+
+void DQMEDAnalyzer::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+
+void DQMEDAnalyzer::analyze(edm::Event const&, edm::EventSetup const&) {}
+void DQMEDAnalyzer::accumulate(edm::Event const& ev, edm::EventSetup const& es) 
+{
+  analyze(ev, es);
+}
+

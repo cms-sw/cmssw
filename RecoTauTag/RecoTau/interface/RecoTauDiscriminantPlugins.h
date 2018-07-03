@@ -28,8 +28,8 @@ class RecoTauDiscriminantPlugin : public RecoTauEventHolderPlugin {
   public:
     explicit RecoTauDiscriminantPlugin(const edm::ParameterSet& pset):
       RecoTauEventHolderPlugin(pset){}
-    virtual ~RecoTauDiscriminantPlugin() {}
-    virtual void beginEvent() {}
+    ~RecoTauDiscriminantPlugin() override {}
+    void beginEvent() override {}
     // Get an observable
     virtual std::vector<double> operator()(const reco::PFTauRef& pfTau) const=0;
 };
@@ -41,9 +41,9 @@ template<double Function(const reco::PFTau&)>
     explicit RecoTauDiscriminantFunctionPlugin(const edm::ParameterSet& pset):
       RecoTauDiscriminantPlugin(pset){}
 
-    virtual ~RecoTauDiscriminantFunctionPlugin(){}
+    ~RecoTauDiscriminantFunctionPlugin() override{}
 
-    virtual std::vector<double> operator()(const reco::PFTauRef& pfTau) const {
+    std::vector<double> operator()(const reco::PFTauRef& pfTau) const override {
       std::vector<double> output(1, Function(*pfTau));
       return output;
     }
@@ -57,9 +57,9 @@ template<std::vector<double> Function(const reco::PFTau&)>
     explicit RecoTauDiscriminantVectorFunctionPlugin(const edm::ParameterSet& pset):
       RecoTauDiscriminantPlugin(pset){}
 
-    virtual ~RecoTauDiscriminantVectorFunctionPlugin() {}
+    ~RecoTauDiscriminantVectorFunctionPlugin() override {}
 
-    virtual std::vector<double> operator()(const reco::PFTauRef& pfTau) const {
+    std::vector<double> operator()(const reco::PFTauRef& pfTau) const override {
       return Function(*pfTau);
     }
 };

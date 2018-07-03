@@ -1,19 +1,21 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include <cstdlib>
+
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-
+#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Specific.h"
 
-#include <iostream>
+class DDDivision;
 
 /** 
    Compact-views can be created only after an appropriate geometrical hierarchy
@@ -54,14 +56,15 @@ DDCompactView::~DDCompactView()
    by an instance of class Graph<DDLogicalPart, DDPosData*). 
    Graph provides methods for navigating its content.
 */      
-const DDCompactView::graph_type & DDCompactView::graph() const 
+const DDCompactView::Graph & DDCompactView::graph() const 
 { 
   return rep_->graph(); 
 }
 
-DDCompactView::graph_type & DDCompactView::writeableGraph() 
+DDCompactView::GraphWalker
+DDCompactView::walker() const
 {
-  return const_cast<graph_type&>(rep_->graph());
+  return rep_->walker();
 }
 
 const DDLogicalPart & DDCompactView::root() const
@@ -74,38 +77,9 @@ const DDPosData* DDCompactView::worldPosition() const
   return worldpos_.get();
 }
 
-DDCompactView::walker_type DDCompactView::walker() const
-{
-  return rep_->walker();
-}
-
-    
-/** 
-   Example:
-  
-      \code
-      // Fetch a compact-view
-      DDCompactView view;
-      
-      // Fetch the part you want to weigh
-      DDLogicalPart tracker(DDName("Tracker","tracker.xml"));
-      
-      // Weigh it
-      edm::LogInfo ("DDCompactView") << "Tracker weight = " 
-           << view.weight(tracker) / kg 
-	   << " kg" << std::endl;
-      \endcode
-      
-      The weight of all children is calculated as well.
-*/    
-double DDCompactView::weight(const DDLogicalPart & p) const
-{
-  return rep_->weight(p);
-}  
-
 void DDCompactView::position (const DDLogicalPart & self, 
 			      const DDLogicalPart & parent,
-			      std::string copyno,
+			      const std::string& copyno,
 			      const DDTranslation & trans,
 			      const DDRotation & rot,
 			      const DDDivision * div)

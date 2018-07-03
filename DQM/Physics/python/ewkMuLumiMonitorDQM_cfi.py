@@ -10,8 +10,8 @@ CombIsoCuts = cms.PSet(
     IsCombinedIso = cms.untracked.bool(True),
     IsoCut03 = cms.untracked.double(0.15),   
 #    deltaRTrk = cms.untracked.double(0.3),
-    ptThreshold = cms.untracked.double("0.0"), 
- #   deltaRVetoTrk = cms.untracked.double("0.015"), 
+    ptThreshold = cms.untracked.double(0.0), 
+ #   deltaRVetoTrk = cms.untracked.double(0.015), 
     )
 
 TrkIsoCuts = cms.PSet(
@@ -19,13 +19,14 @@ TrkIsoCuts = cms.PSet(
     IsCombinedIso = cms.untracked.bool(False),
     IsoCut03 = cms.untracked.double(3.0),   
 #    deltaRTrk = cms.untracked.double(0.3),
-    ptThreshold = cms.untracked.double("0.0"), 
- #   deltaRVetoTrk = cms.untracked.double("0.015"), 
+    ptThreshold = cms.untracked.double(0.0), 
+ #   deltaRVetoTrk = cms.untracked.double(0.015), 
     )
 
 
 
-ewkMuLumiMonitorDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ewkMuLumiMonitorDQM = DQMEDAnalyzer(
     "EwkMuLumiMonitorDQM",
     # isolation cuts
     TrkIsoCuts,

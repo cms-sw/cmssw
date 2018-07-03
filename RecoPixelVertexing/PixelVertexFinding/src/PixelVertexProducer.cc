@@ -41,7 +41,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
     track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");    
     if (track_pt_min != ptMin_) {
       if (track_pt_min < ptMin_)
-	edm::LogWarning("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") [PVcomparer considers tracks w/ lower threshold than PixelVertexProducer does] !!!";
+	edm::LogInfo("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") [PVcomparer considers tracks w/ lower threshold than PixelVertexProducer does] !!!";
       else
 	edm::LogInfo("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") !!!";
     }
@@ -87,7 +87,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (bsHandle.isValid()) myPoint = math::XYZPoint(bsHandle->x0(),bsHandle->y0(), 0. ); //FIXME: fix last coordinate with vertex.z() at same time
 
   // Third, ship these tracks off to be vertexed
-  std::auto_ptr<reco::VertexCollection> vertexes(new reco::VertexCollection);
+  auto vertexes = std::make_unique<reco::VertexCollection>();
   bool ok;
   if (method2) {
     ok = dvf_->findVertexesAlt(trks,       // input
@@ -131,7 +131,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
     } 
   
-  if(!vertexes->size() && bsHandle.isValid()){
+  if(vertexes->empty() && bsHandle.isValid()){
     
     const reco::BeamSpot & bs = *bsHandle;
       
@@ -161,12 +161,12 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       }
   }
       
-  else if(!vertexes->size() && !bsHandle.isValid())
+  else if(vertexes->empty() && !bsHandle.isValid())
     {
       edm::LogWarning("PixelVertexProducer") << "No beamspot and no vertex found. No vertex returned.";
     }
   
-  e.put(vertexes);
+  e.put(std::move(vertexes));
   
 }
 

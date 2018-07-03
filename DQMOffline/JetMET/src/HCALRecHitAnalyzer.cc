@@ -24,6 +24,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -251,11 +252,6 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   // Retrieve!
   // ==========================================================
 
-  const CaloSubdetectorGeometry* HBgeom;
-  const CaloSubdetectorGeometry* HEgeom;
-  const CaloSubdetectorGeometry* HOgeom;
-  const CaloSubdetectorGeometry* HFgeom;
-
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   
@@ -268,10 +264,10 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   
   const CaloGeometry cG = *pG;
   
-  HBgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
-  HEgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalEndcap);
-  HOgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalOuter);
-  HFgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalForward);
+  const HcalGeometry* HBgeom = dynamic_cast<const HcalGeometry*>(cG.getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+  const HcalGeometry* HEgeom = dynamic_cast<const HcalGeometry*>(cG.getSubdetectorGeometry(DetId::Hcal,HcalEndcap));
+  const CaloSubdetectorGeometry* HOgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalOuter);
+  const CaloSubdetectorGeometry* HFgeom = cG.getSubdetectorGeometry(DetId::Hcal,HcalForward);
     
   
   // ==========================================================
@@ -291,14 +287,12 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
     nHBdetid++;
 
-    const CaloCellGeometry* cell = HBgeom->getGeometry(*i);
-    HcalDetId HcalID(i->rawId());
-    //GlobalPoint p = cell->getPosition();
+    HcalDetId HcalID(*i);
 
     int Calo_ieta = 42 + HcalID.ieta();
     int Calo_iphi = HcalID.iphi();
-    double Calo_eta = cell->getPosition().eta();
-    double Calo_phi = cell->getPosition().phi();
+    double Calo_eta = HBgeom->getPosition(HcalID).eta();
+    double Calo_phi = HBgeom->getPosition(HcalID).phi();
 
     if (hHCAL_ieta_iphi_etaMap->getBinContent(Calo_ieta,Calo_iphi) == -999) {
 
@@ -325,14 +319,12 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
     nHEdetid++;
 
-    const CaloCellGeometry* cell = HEgeom->getGeometry(*i);
-    HcalDetId HcalID(i->rawId());
-    //GlobalPoint p = cell->getPosition();
+    HcalDetId HcalID(*i);
 
     int Calo_ieta = 42 + HcalID.ieta();
     int Calo_iphi = HcalID.iphi();
-    double Calo_eta = cell->getPosition().eta();
-    double Calo_phi = cell->getPosition().phi();
+    double Calo_eta = HEgeom->getPosition(HcalID).eta();
+    double Calo_phi = HEgeom->getPosition(HcalID).phi();
 
     // HCAL to HE eta, phi map comparison
     if (hHCAL_ieta_iphi_etaMap->getBinContent(Calo_ieta,Calo_iphi) == -999) {
@@ -358,7 +350,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
     nHFdetid++;
 
-    const CaloCellGeometry* cell = HFgeom->getGeometry(*i);
+    auto cell = HFgeom->getGeometry(*i);
     HcalDetId HcalID(i->rawId());
     //GlobalPoint p = cell->getPosition();
 
@@ -391,7 +383,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
     nHOdetid++;
 
-    const CaloCellGeometry* cell = HOgeom->getGeometry(*i);
+    auto cell = HOgeom->getGeometry(*i);
     HcalDetId HcalID(i->rawId());
     //GlobalPoint p = cell->getPosition();
 

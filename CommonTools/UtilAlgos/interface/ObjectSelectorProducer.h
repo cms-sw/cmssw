@@ -39,13 +39,12 @@ public:
     postProcessor_.init(* this);
    }
   /// destructor
-  virtual ~ObjectSelectorProducer() { }
+  ~ObjectSelectorProducer() override { }
 
 private:
   /// process one event
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
     Init::init(selector_, evt, es);
-    using namespace std;
     edm::Handle<typename Selector::collection> source;
     evt.getByToken(srcToken_, source);
     StoreManager manager(source);

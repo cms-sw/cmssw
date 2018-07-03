@@ -31,10 +31,10 @@ linkPrefilter( const reco::PFBlockElement* elem1,
   bool result = false;
   switch( elem1->type() ){ 
   case reco::PFBlockElement::TRACK:
-    result = (elem1->isMultilinksValide() && elem1->getMultilinks().size() > 0);
+    result = (elem1->isMultilinksValide() && !elem1->getMultilinks().empty());
     break;
   case reco::PFBlockElement::ECAL:
-    result = (elem2->isMultilinksValide() && elem2->getMultilinks().size() > 0);
+    result = (elem2->isMultilinksValide() && !elem2->getMultilinks().empty());
   default:
     break;
   } 
@@ -46,8 +46,8 @@ testLink( const reco::PFBlockElement* elem1,
 	  const reco::PFBlockElement* elem2 ) const {  
   constexpr reco::PFTrajectoryPoint::LayerType ECALShowerMax =
     reco::PFTrajectoryPoint::ECALShowerMax;
-  const reco::PFBlockElementCluster *ecalelem(NULL);
-  const reco::PFBlockElementTrack   *tkelem(NULL);
+  const reco::PFBlockElementCluster *ecalelem(nullptr);
+  const reco::PFBlockElementTrack   *tkelem(nullptr);
   double dist(-1.0);
   if( elem1->type() < elem2->type() ) {
     tkelem = static_cast<const reco::PFBlockElementTrack*>(elem1);

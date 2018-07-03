@@ -78,7 +78,7 @@ process.IsoTrigHE = process.IsoTrigHB.clone(
 process.load('Calibration.IsolatedParticles.isoTrackCalibration_cfi')
 process.IsoTrackCalibration.Triggers = ["HLT_IsoTrackHE_v16", "HLT_IsoTrackHB_v15"]
 process.IsoTrackCalibration.ProcessName = "HLTNew1"
-process.IsoTrackCalibration.L1Filter  = "hltL1sL1SingleJet"
+process.IsoTrackCalibration.L1Filter  = "hltL1sV0SingleJet"
 process.IsoTrackCalibration.L2Filter  = "hltIsolPixelTrackL2Filter"
 process.IsoTrackCalibration.L3Filter  = "L3Filter"
 process.IsoTrackCalibration.Verbosity = 0
@@ -91,7 +91,7 @@ process.GlobalTag.globaltag=autoCond['run2_mc']
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
 
 process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence + 
-                                      process.hltL1sL1SingleJet68 + 
+                                      process.hltL1sV0SingleJet60 + 
                                       process.hltPreIsoTrackHE +
                                       process.HLTDoLocalPixelSequence + 
                                       process.hltPixelLayerTriplets + 
@@ -113,7 +113,7 @@ process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence +
                                       )
 
 process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence + 
-                                      process.hltL1sL1SingleJet68 + 
+                                      process.hltL1sV0SingleJet60 + 
                                       process.hltPreIsoTrackHB +
                                       process.HLTDoLocalPixelSequence + 
                                       process.hltPixelLayerTriplets + 
@@ -144,37 +144,14 @@ if 'FastTimerService' in process.__dict__:
 process.load( "HLTrigger.Timer.FastTimerService_cfi" )
 process.load ("HLTrigger.Timer.fastTimerServiceClient_cfi" )
 
-# this is currently ignored in 7.x, and alway uses the real tim clock
-process.FastTimerService.useRealTimeClock         = False
-
-# enable specific features
-process.FastTimerService.enableTimingPaths        = True
-process.FastTimerService.enableTimingModules      = True
-process.FastTimerService.enableTimingExclusive    = True
-
 # print a text summary at the end of the job
-process.FastTimerService.enableTimingSummary      = True
-
-# skip the first path (useful for HLT timing studies to disregard the time spent loading event and conditions data)
-process.FastTimerService.skipFirstPath            = False
+process.FastTimerService.printJobSummary          = True
 
 # enable per-event DQM plots
 process.FastTimerService.enableDQM                = True
 
-# enable per-path DQM plots
-process.FastTimerService.enableDQMbyPathActive    = True
-process.FastTimerService.enableDQMbyPathTotal     = True
-process.FastTimerService.enableDQMbyPathOverhead  = True
-process.FastTimerService.enableDQMbyPathDetails   = True
-process.FastTimerService.enableDQMbyPathCounters  = True
-process.FastTimerService.enableDQMbyPathExclusive = True
-
 # enable per-module DQM plots
 process.FastTimerService.enableDQMbyModule        = True
-#process.FastTimerService.enableDQMbyModuleType    = True
-
-# enable per-event DQM sumary plots
-process.FastTimerService.enableDQMSummary         = True
 
 # enable per-event DQM plots by lumisection
 process.FastTimerService.enableDQMbyLumiSection   = True

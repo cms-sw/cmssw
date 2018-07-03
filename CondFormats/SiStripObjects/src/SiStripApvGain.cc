@@ -82,7 +82,7 @@ float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) {
 #endif
 
 
-void SiStripApvGain::printDebug(std::stringstream & ss) const
+void SiStripApvGain::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const
 {
   std::vector<unsigned int>::const_iterator detid = v_detids.begin();
   ss << "Number of detids " << v_detids.size() << std::endl;
@@ -99,9 +99,9 @@ void SiStripApvGain::printDebug(std::stringstream & ss) const
   }
 }
 
-void SiStripApvGain::printSummary(std::stringstream & ss) const
+void SiStripApvGain::printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
-  SiStripDetSummary summaryGain;
+  SiStripDetSummary summaryGain{trackerTopo};
 
   std::vector<uint32_t>::const_iterator detid = v_detids.begin();
   for( ; detid != v_detids.end(); ++detid ) {

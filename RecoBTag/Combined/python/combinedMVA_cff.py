@@ -1,22 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.Combined.combinedMVAComputer_cfi import *
-from RecoBTag.Combined.combinedMVABJetTags_cfi import *
-from RecoBTag.Combined.negativeCombinedMVAComputer_cfi import *
-from RecoBTag.Combined.negativeCombinedMVABJetTags_cfi import *
-from RecoBTag.Combined.positiveCombinedMVAComputer_cfi import *
-from RecoBTag.Combined.positiveCombinedMVABJetTags_cfi import *
+from RecoBTag.Combined.combinedMVA_EventSetup_cff import *
 
-# New candidate based fwk
-from RecoBTag.Combined.candidateCombinedMVAComputer_cfi import *
-from RecoBTag.Combined.pfCombinedMVABJetTags_cfi import *
-from RecoBTag.Combined.candidateNegativeCombinedMVAComputer_cfi import *
-from RecoBTag.Combined.pfNegativeCombinedMVABJetTags_cfi import *
-from RecoBTag.Combined.candidatePositiveCombinedMVAComputer_cfi import *
-from RecoBTag.Combined.pfPositiveCombinedMVABJetTags_cfi import *
-
-#combined MVA V2
-from RecoBTag.Combined.combinedMVAV2Computer_cfi import *
+# CombinedMVA V2
 from RecoBTag.Combined.combinedMVAV2BJetTags_cfi import *
-from RecoBTag.Combined.candidateCombinedMVAV2Computer_cfi import *
+from RecoBTag.Combined.negativeCombinedMVAV2BJetTags_cfi import *
+from RecoBTag.Combined.positiveCombinedMVAV2BJetTags_cfi import *
 from RecoBTag.Combined.pfCombinedMVAV2BJetTags_cfi import *
+from RecoBTag.Combined.pfNegativeCombinedMVAV2BJetTags_cfi import *
+from RecoBTag.Combined.pfPositiveCombinedMVAV2BJetTags_cfi import *
+
+# Charge tagger
+from RecoBTag.Combined.pfChargeBJetTags_cfi import *
+
+combinedMVATask = cms.Task(
+    combinedMVAV2BJetTags,
+    negativeCombinedMVAV2BJetTags,
+    positiveCombinedMVAV2BJetTags,
+    pfCombinedMVAV2BJetTags,
+    pfNegativeCombinedMVAV2BJetTags,
+    pfPositiveCombinedMVAV2BJetTags
+)

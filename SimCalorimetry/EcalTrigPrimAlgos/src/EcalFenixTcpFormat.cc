@@ -95,7 +95,7 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,const EcalTPGLutGroup *eca
 {
   // Get TP zeroing threshold - defaut to 1023 for old data (no record found or EE)
   spikeZeroThresh_ = 1023;
-  if(ecaltpgSpike != 0)
+  if(ecaltpgSpike != nullptr)
   {
     const EcalTPGSpike::EcalTPGSpikeMap &spikeMap = ecaltpgSpike->getMap();
     EcalTPGSpike:: EcalTPGSpikeMapIterator sit = spikeMap.find(towid);

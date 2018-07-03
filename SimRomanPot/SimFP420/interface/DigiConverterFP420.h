@@ -8,7 +8,7 @@ class DigiConverterFP420: public DConverterFP420{
 
   DigiConverterFP420(float in,int);
   
-  DigitalMapType convert(const signal_map_type&);
+  DigitalMapType convert(const signal_map_type&) override;
     
  private:
 

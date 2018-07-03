@@ -307,7 +307,7 @@ namespace spr{
         std::cout << " " << matchedId[it];
       std::cout << std::endl;
     }
-    if (matchedId.size() > 0) {
+    if (!matchedId.empty()) {
       typename T::const_iterator ihit;
       for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {
 
@@ -348,7 +348,7 @@ namespace spr{
         std::cout << " " << matchedId[it];
       std::cout << std::endl;
     }
-    if (matchedId.size() > 0) {
+    if (!matchedId.empty()) {
       typename T::const_iterator ihit;
       for (ihit=hitsEB->begin(); ihit!=hitsEB->end(); ihit++) {
 

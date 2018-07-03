@@ -17,19 +17,14 @@ class LowPtClusterShapeSeedComparitor : public SeedComparitor
 {
  public:
   LowPtClusterShapeSeedComparitor(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
-  virtual ~LowPtClusterShapeSeedComparitor(){}
-  virtual void init(const edm::Event& e, const edm::EventSetup& es) ;
-  virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const ;
-  virtual bool compatible(const TrajectorySeed &seed) const { return true; }
-  virtual bool compatible(const TrajectoryStateOnSurface &,  
-                          SeedingHitSet::ConstRecHitPointer hit) const { return true; }
-  virtual bool compatible(const SeedingHitSet  &hits, 
+  ~LowPtClusterShapeSeedComparitor() override{}
+  void init(const edm::Event& e, const edm::EventSetup& es) override ;
+  bool compatible(const SeedingHitSet  &hits) const override ;
+  bool compatible(const TrajectoryStateOnSurface &,  
+                          SeedingHitSet::ConstRecHitPointer hit) const override { return true; }
+  bool compatible(const SeedingHitSet  &hits, 
                           const GlobalTrajectoryParameters &helixStateAtVertex,
-                          const FastHelix                  &helix,
-                          const TrackingRegion & region) const { return true; }
-  virtual bool compatible(const SeedingHitSet  &hits, 
-                          const GlobalTrajectoryParameters &straightLineStateAtVertex,
-                          const TrackingRegion & region) const { return true; }
+                          const FastHelix                  &helix) const override { return true; }
 
  private:
    /// something
@@ -37,6 +32,7 @@ class LowPtClusterShapeSeedComparitor : public SeedComparitor
    edm::ESHandle<TrackerTopology> theTTopo;
    edm::EDGetTokenT<SiPixelClusterShapeCache> thePixelClusterShapeCacheToken;
    edm::Handle<SiPixelClusterShapeCache> thePixelClusterShapeCache;
+   std::string theShapeFilterLabel_;
 };
 
 #endif

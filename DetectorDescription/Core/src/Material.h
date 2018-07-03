@@ -29,7 +29,7 @@ namespace DDI {
     double& density(){ return density_; }
     
     int addMaterial(const DDMaterial & m, double fm)
-     { composites_.push_back(std::make_pair(m,fm));
+     { composites_.emplace_back(std::make_pair(m,fm));
        return noOfConstituents();
      }
     

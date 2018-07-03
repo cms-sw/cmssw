@@ -8,7 +8,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -35,22 +35,26 @@ using namespace std;
 /*****************************************************************************/
 ClusterShapeHitFilter::ClusterShapeHitFilter
   (const TrackerGeometry * theTracker_,
+   const TrackerTopology * theTkTopol_,
    const MagneticField          * theMagneticField_,
    const SiPixelLorentzAngle    * theSiPixelLorentzAngle_,
    const SiStripLorentzAngle    * theSiStripLorentzAngle_,
-   const std::string            * use_PixelShapeFile_)
+   const std::string            & pixelShapeFile_,
+   const std::string            & pixelShapeFileL1_)
    : theTracker(theTracker_),
+     theTkTopol(theTkTopol_), 
      theMagneticField(theMagneticField_),
      theSiPixelLorentzAngle(theSiPixelLorentzAngle_),
-     theSiStripLorentzAngle(theSiStripLorentzAngle_),
-     PixelShapeFile(use_PixelShapeFile_)
+     theSiStripLorentzAngle(theSiStripLorentzAngle_)
 {
   // Load pixel limits
-  loadPixelLimits();
+  loadPixelLimits(pixelShapeFile_,pixelLimits);
+  loadPixelLimits(pixelShapeFileL1_,pixelLimitsL1);
   fillPixelData();
 
   // Load strip limits
   loadStripLimits();
+  fillStripData();
   cutOnPixelCharge_ = cutOnStripCharge_ = false;
   cutOnPixelShape_ = cutOnStripShape_ = true;
 }
@@ -61,12 +65,9 @@ ClusterShapeHitFilter::~ClusterShapeHitFilter()
 }
 
 /*****************************************************************************/
-void ClusterShapeHitFilter::loadPixelLimits()
+void ClusterShapeHitFilter::loadPixelLimits(std::string const& file, PixelLimits *plim)
 {
-  edm::FileInPath
-  fileInPath(PixelShapeFile->c_str());
-  //fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par");
-  //fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par");
+  edm::FileInPath fileInPath(file.c_str());
   ifstream inFile(fileInPath.fullPath().c_str());
 
 
@@ -79,7 +80,7 @@ void ClusterShapeHitFilter::loadPixelLimits()
     inFile >> dy;   // 0 to 15 ...
 
     const PixelKeys key(part,dx,dy);
-    auto & pl = pixelLimits[key];
+    auto & pl = plim[key];
 
     for(int b = 0; b<2 ; b++) // branch
     for(int d = 0; d<2 ; d++) // direction
@@ -144,6 +145,7 @@ void ClusterShapeHitFilter::fillPixelData() {
     PixelData & pd = pixelData[pixelDet->geographicalId()];
     pd.det = pixelDet;
     pd.part=0;
+    pd.layer = theTkTopol->pxbLayer(pixelDet->geographicalId());
     pd.cotangent=getCotangent(pixelDet);
     pd.drift=getDrift(pixelDet);
   }
@@ -157,12 +159,40 @@ void ClusterShapeHitFilter::fillPixelData() {
     PixelData & pd = pixelData[pixelDet->geographicalId()];
     pd.det = pixelDet;
     pd.part=1;
+    pd.layer=0;
     pd.cotangent=getCotangent(pixelDet);
     pd.drift=getDrift(pixelDet);
   }
 
 }
 
+
+void ClusterShapeHitFilter::fillStripData() {
+  // copied from StripCPE (FIXME maybe we should move all this in LocalReco)
+  auto const & geom_ = *theTracker;
+  auto const & dus = geom_.detUnits();
+  auto offset=dus.size();
+  for(unsigned int i=1;i<7;++i) {
+    if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() && 
+       dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+      if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < offset) offset = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+    }
+  } 
+
+  for (auto i=offset; i!=dus.size();++i) {
+    const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(dus[i]);
+    assert(stripdet->index()==int(i));
+    assert(stripdet->type().isTrackerStrip()); // not pixel
+    auto const & bounds = stripdet->specificSurface().bounds();
+    auto detid = stripdet->geographicalId();
+    auto & p = stripData[detid];
+    p.det = stripdet;
+    p.topology=(StripTopology*)(&stripdet->topology());
+    p.drift = getDrift(stripdet);
+    p.thickness = bounds.thickness();
+    p.nstrips = p.topology->nstrips(); 
+  }
+}
 
 /*****************************************************************************/
 pair<float,float> ClusterShapeHitFilter::getCotangent
@@ -180,11 +210,10 @@ pair<float,float> ClusterShapeHitFilter::getCotangent
 
 /*****************************************************************************/
 float ClusterShapeHitFilter::getCotangent
-  (const StripGeomDetUnit * stripDet, const LocalPoint & pos) const
+  (const StripData & sd, const LocalPoint & pos) const
 {
   // FIXME may be problematic in case of RadialStriptolopgy
-  return stripDet->surface().bounds().thickness() /
-         stripDet->specificTopology().localPitch(pos);
+  return sd.thickness/sd.topology->localPitch(pos);
 }
 
 /*****************************************************************************/
@@ -312,13 +341,14 @@ bool ClusterShapeHitFilter::isCompatible
   ClusterData::ArrayType meas;
   pair<float,float> pred;
 
+  PixelLimits const * pl = pd.layer==1 ? pixelLimitsL1 : pixelLimits;
   if(getSizes(recHit, ldir, clusterShapeCache, part,meas, pred,&pd))
   {
     for(const auto& m: meas)
     {
       PixelKeys key(part, m.first, m.second);
       if (!key.isValid()) return true; // FIXME original logic
-      if (pixelLimits[key].isInside(pred)) return true;
+      if (pl[key].isInside(pred)) return true;
     }
     // none of the choices worked
     return false;
@@ -348,17 +378,16 @@ bool ClusterShapeHitFilter::getSizes
    int & meas, float & pred) const 
 {
   // Get detector
-  const StripGeomDetUnit* stripDet =
-    dynamic_cast<const StripGeomDetUnit*> (theTracker->idToDet(id));
+  auto const & p=getsd(id);
 
   // Measured width
   meas   = cluster.amplitudes().size();
 
   // Usable?
   int fs = cluster.firstStrip();
-  int ns = stripDet->specificTopology().nstrips();
+  int ns = p.nstrips;
   // bool usable = (fs > 1 && fs + meas - 1 < ns);
-  bool usable = (fs >= 1 && fs + meas - 1 <= ns);
+  bool usable = (fs >= 1) & (fs + meas <= ns+1);
 
   // Usable?
   //if(usable)
@@ -367,11 +396,11 @@ bool ClusterShapeHitFilter::getSizes
     pred = ldir.x() / ldir.z();
   
     // Take out drift
-    float drift = getDrift(stripDet);
+    float drift = p.drift;;
     pred += drift;
   
     // Apply cotangent
-    pred *= getCotangent(stripDet,lpos);
+    pred *= getCotangent(p,lpos);
   }
 
   return usable;
@@ -404,7 +433,7 @@ bool ClusterShapeHitFilter::isCompatible
 bool ClusterShapeHitFilter::isCompatible
   (DetId detId, const SiStripCluster & cluster, const GlobalPoint &gpos, const GlobalVector & gdir) const
 {
-  const GeomDet *det = theTracker->idToDet(detId);
+  const GeomDet *det = getsd(detId).det;
   LocalVector ldir = det->toLocal(gdir);
   LocalPoint  lpos = det->toLocal(gpos); 
   // now here we do the transformation 
@@ -414,7 +443,7 @@ bool ClusterShapeHitFilter::isCompatible
 bool ClusterShapeHitFilter::isCompatible
   (DetId detId, const SiStripCluster & cluster, const GlobalVector & gdir) const
 {
-  return isCompatible(detId, cluster, theTracker->idToDet(detId)->toLocal(gdir));
+  return isCompatible(detId, cluster, getsd(detId).det->toLocal(gdir));
 }
 
 

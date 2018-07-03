@@ -37,7 +37,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
     OrderedHitTriplets & result,
     const edm::Event & ev,
     const edm::EventSetup& es,
-    SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+    const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
     const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 {
 
@@ -49,7 +49,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
 //double errorXY = sqrt( sqr(bs.BeamWidthX()) + sqr(bs.BeamWidthY()) );
 //
 
-  GlobalPoint bsPoint = region.origin();
+  const GlobalPoint& bsPoint = region.origin();
   double errorXY = region.originRBound();
   GlobalVector shift =   bsPoint - GlobalPoint(0.,0.,0.);
 
@@ -57,13 +57,13 @@ void PixelTripletNoTipGenerator::hitTriplets(
   OrderedHitPairs::const_iterator ip;
   thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
 
-  if (pairs.size() ==0) return;
+  if (pairs.empty()) return;
 
   int size = thirdLayers.size();
 
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il=0; il <=size-1; il++) {
-     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
+     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
   }
 
   const DetLayer * firstLayer = thePairGenerator->innerLayer(pairLayers).detLayer();
@@ -170,4 +170,15 @@ void PixelTripletNoTipGenerator::hitTriplets(
     }
   }
   delete [] thirdHitMap;
+}
+void PixelTripletNoTipGenerator::hitTriplets(
+					     const TrackingRegion& region,
+					     OrderedHitTriplets & result,
+					     const edm::EventSetup & es,
+					     const HitDoublets & doublets,
+					     const RecHitsSortedInPhi ** thirdHitMap,
+					     const std::vector<const DetLayer *> & thirdLayerDetLayer,
+					     const int nThirdLayers)
+{
+  throw cms::Exception("Error")<<"PixelTripletNoTipGenerator::hitTriplets is not implemented \n";
 }

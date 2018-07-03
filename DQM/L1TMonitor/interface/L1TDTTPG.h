@@ -9,6 +9,7 @@
  */
 
 // system include files
+#include <fstream>
 #include <memory>
 #include <unistd.h>
 
@@ -44,16 +45,15 @@ class L1TDTTPG : public DQMEDAnalyzer {
   L1TDTTPG(const edm::ParameterSet& ps);
 
   // Destructor
-  virtual ~L1TDTTPG();
+  ~L1TDTTPG() override;
 
  protected:
   // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
   // BeginRun
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 
  private:
@@ -99,9 +99,6 @@ class L1TDTTPG : public DQMEDAnalyzer {
   MonitorElement *dttf_p_pt[3];
   MonitorElement *dttf_p_q[3];
   MonitorElement *dttf_p_qual[3];
-
-  MonitorElement *runId_;
-  MonitorElement *lumisecId_;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

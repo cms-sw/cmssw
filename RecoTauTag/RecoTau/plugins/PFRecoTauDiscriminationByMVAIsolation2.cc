@@ -68,9 +68,9 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
   explicit PFRecoTauDiscriminationByIsolationMVA2(const edm::ParameterSet& cfg)
     : PFTauDiscriminationProducerBase(cfg),
       moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      mvaReader_(0),
-      mvaInput_(0),
-      category_output_(0)
+      mvaReader_(nullptr),
+      mvaInput_(nullptr),
+      category_output_()
   {
     mvaName_ = cfg.getParameter<std::string>("mvaName");
     loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
@@ -103,13 +103,13 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
     produces<PFTauDiscriminator>("category");
   }
 
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const PFTauRef&) const;
+  double discriminate(const PFTauRef&) const override;
 
-  void endEvent(edm::Event&);
+  void endEvent(edm::Event&) override;
 
-  ~PFRecoTauDiscriminationByIsolationMVA2()
+  ~PFRecoTauDiscriminationByIsolationMVA2() override
   {
     if(!loadMVAfromDB_) delete mvaReader_;
     delete[] mvaInput_;
@@ -143,7 +143,7 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
   edm::Handle<reco::PFTauDiscriminator> puCorrPtSums_;
 
   edm::Handle<TauCollection> taus_;
-  std::auto_ptr<PFTauDiscriminator> category_output_;
+  std::unique_ptr<PFTauDiscriminator> category_output_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -237,7 +237,7 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
 void PFRecoTauDiscriminationByIsolationMVA2::endEvent(edm::Event& evt)
 {
   // add all category indices to event
-  evt.put(category_output_, "category");
+  evt.put(std::move(category_output_), "category");
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByIsolationMVA2);

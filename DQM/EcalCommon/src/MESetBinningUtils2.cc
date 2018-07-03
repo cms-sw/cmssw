@@ -95,6 +95,7 @@ namespace ecaldqm
           break;
         case kSuperCrystal:
         case kTriggerTower:
+        case kPseudoStrip:
           if(_axis == 1)
             specs.nbins = 72;
           else if(_axis == 2)
@@ -163,6 +164,7 @@ namespace ecaldqm
         switch(_btype){
         case kCrystal:
         case kTriggerTower:
+        case kPseudoStrip:
           if(_axis == 1)
             specs.nbins = _zside ? 100 : 200;
               if(_axis == 2)
@@ -211,15 +213,17 @@ namespace ecaldqm
           specs.title = "crystal";
           break;
         case kTriggerTower:
-          specs.nbins = isBarrel ? 68 : 80;
-          specs.low = 0.;
-          specs.high = specs.nbins;
+        case kPseudoStrip:
+          specs.nbins = isBarrel ? 68 : (2*nTTOuter + 2*nTTInner); // For EE: numbering of bins
+          // is in the order (inner1, inner2, outer1, outer2). ("inner"" := closer to the beam)
+          specs.low = 1.;
+          specs.high = specs.nbins + specs.low;
           specs.title = "tower";
           break;
         case kSuperCrystal:
           specs.nbins = isBarrel ? 68 : nSuperCrystals(iSM + 1);
-          specs.low = 0.;
-          specs.high = specs.nbins;
+          specs.low = 1.;
+          specs.high = specs.nbins + specs.low;
           specs.title = "tower";
           break;
         default:
@@ -240,6 +244,7 @@ namespace ecaldqm
             specs.nbins = isBarrel ? nEBSMPhi : nEEY;
               break;
         case kTriggerTower:
+        case kPseudoStrip:
           if(_axis == 1)
             specs.nbins = isBarrel ? nEBSMEta / 5 : nEEX;
           else if(_axis == 2)
@@ -348,6 +353,20 @@ namespace ecaldqm
             specs.nbins = 6;
             specs.low = 0.;
             specs.high = 6.;
+          }
+          break;
+        case kRCT:
+          if(_axis == 1){
+            specs.nbins = 64;
+            specs.low = -32.;
+            specs.high = 32.;
+            specs.title = "RCT iEta";
+          }
+          else if(_axis == 2){
+            specs.nbins = 72;
+            specs.low = 0.;
+            specs.high = 72.;
+            specs.title = "RCT Phi";
           }
           break;
         default:
@@ -486,6 +505,24 @@ namespace ecaldqm
     }
 
     int
+    findBinRCT_(ObjectType _otype, DetId const& _id)
+    {
+      int xbin(0);
+      int ybin(0);
+      int nbinsX(0);
+
+      EcalTrigTowerDetId ttid(_id);
+      int ieta(ttid.ieta());
+      int iphi((ttid.iphi() + 1) % 72 + 1);
+
+      xbin = ieta < 0? ieta + 33: ieta + 32;
+      ybin = iphi;
+      nbinsX = 64;
+
+      return (nbinsX + 2) * ybin + xbin;
+    }
+
+    int
     findBinTriggerTower_(ObjectType _otype, DetId const& _id)
     {
       int xbin(0);
@@ -512,9 +549,33 @@ namespace ecaldqm
           ybin = ieta < 0 ? (iphi - 1) % 4 + 1 : 4 - (iphi - 1) % 4;
           nbinsX = 17;
           break;
+        case kEcal:
+          xbin = ieta < 0? ieta + 33: ieta + 32;
+          ybin = iphi > 70? iphi-70: iphi+2;
+          nbinsX = 64;
         default:
           break;
         }
+      }
+      else if(subdet == EcalEndcap){
+        unsigned tccid(tccId(_id));
+        unsigned iSM(tccid <= 36 ? tccid % 18 / 2 : (tccid - 72) % 18 / 2);
+        return findBinCrystal_(_otype, _id, iSM);
+      }
+
+      return (nbinsX + 2) * ybin + xbin;
+    }
+
+    int 
+    findBinPseudoStrip_(ObjectType _otype, DetId const& _id){
+    
+      int xbin(0);
+      int ybin(0);
+      int nbinsX(0);
+      int subdet(_id.subdetId());
+
+      if((subdet == EcalTriggerTower && !isEndcapTTId(_id)) || subdet == EcalBarrel){
+        return findBinTriggerTower_(_otype, _id);
       }
       else if(subdet == EcalEndcap){
         unsigned tccid(tccId(_id));
@@ -665,11 +726,13 @@ namespace ecaldqm
         case kEB:
           xbin = 4 * ((iDCC - 9) % 18) + (isEBm ? towerid - 1 : 68 - towerid) % 4 + 1;
           ybin = (towerid - 1) / 4 * (isEBm ? -1 : 1) + (isEBm ? 18 : 17);
+          nbinsX = 72;
           break;
         case kSM:
         case kEBSM:
           xbin = (towerid - 1) / 4 + 1;
           ybin = (isEBm ? towerid - 1 : 68 - towerid) % 4 + 1;
+          nbinsX = 17;
           break;
         default:
           break;

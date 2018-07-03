@@ -1,10 +1,12 @@
 #ifndef DDStrVector_h
 #define DDStrVector_h
 
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include <vector>
-#include <iostream>
 
 class DDStrVector;
 

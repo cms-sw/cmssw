@@ -1,0 +1,22 @@
+<run-settings id="uGT">
+  <context id="uGtProcessor">
+    <!-- Initial prescale set -->
+    <param id="index" type="uint">2</param>
+    <!-- Prescales sets table -->
+    <param id="prescales" type="table">
+      <columns>algo/prescale-index, 0:0e00, 1:0e10, 2, 3, 4:emergency</columns>
+      <types>string, uint, uint, uint, uint, uint, uint</types>
+      <rows>
+      <!-- Algos must match with menu, thus no default row is needed -->
+        <row>L1_ZeroBias, 15923, 15923, 15923, 15923, 0</row>
+        <row>L1_BptxPlus_NotBptxMinus, 15923, 15923, 15923, 15923, 0</row>
+        <row>L1_BptxMinus_NotBptxPlus, 30000, 28000, 24000, 20000, 0</row>
+        <row>L1_MinimumBiasHF0_OR_BptxAND, 16000, 14000, 12000, 10000, 0</row>
+        <row>L1_MinimumBiasHF0_AND_BptxAND, 0, 0, 0, 0, 0</row>
+        <row>L1_MinimumBiasHF0_OR, 200, 170, 150, 120, 0</row>
+        <!-- ... -->
+      </rows>
+    </param>
+  </context>
+</run-settings>
+

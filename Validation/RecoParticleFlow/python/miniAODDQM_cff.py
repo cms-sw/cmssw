@@ -80,9 +80,10 @@ ElectronValidation1.MatchCollection = cms.InputTag('gedGsfElectrons')
 #ElectronValidation2.InputCollection = slimmedMuonValidation1.InputCollection
 #ElectronValidation2.MatchCollection = slimmedMuonValidation1.MatchCollection
 
-
+from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD
 
 miniAODDQMSequence = cms.Sequence(
+                                  type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD *
                                   JetValidation1 * JetValidation2 *
                                   JetResValidation1 * JetResValidation2 *
                                   METValidation1 * METValidation2 *

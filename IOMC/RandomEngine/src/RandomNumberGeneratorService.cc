@@ -14,7 +14,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Framework/interface/CurrentModuleOnThread.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -24,6 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterWildcard.h"
+#include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -40,6 +41,7 @@
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RanecuEngine.h"
+#include "CLHEP/Random/MixMaxRng.h"
 
 #include <algorithm>
 #include <cassert>
@@ -56,10 +58,6 @@ namespace edm {
     const std::uint32_t RandomNumberGeneratorService::maxSeedHepJames =  900000000U;
     const std::uint32_t RandomNumberGeneratorService::maxSeedTRandom3 = 4294967295U;
 
-    // This supports the mySeed function
-    // DELETE THIS WHEN/IF that functions is deleted.
-    thread_local std::string RandomNumberGeneratorService::moduleLabel_;
-
     RandomNumberGeneratorService::RandomNumberGeneratorService(ParameterSet const& pset,
                                                                ActivityRegistry& activityRegistry):
       nStreams_(0),
@@ -67,7 +65,6 @@ namespace edm {
       saveFileNameRecorded_(false),
       restoreFileName_(pset.getUntrackedParameter<std::string>("restoreFileName")),
       enableChecking_(pset.getUntrackedParameter<bool>("enableChecking")),
-      childIndex_(0U),
       eventSeedOffset_(pset.getUntrackedParameter<unsigned>("eventSeedOffset")),
       verbose_(pset.getUntrackedParameter<bool>("verbose")) {
 
@@ -144,7 +141,7 @@ namespace edm {
           if(initialSeedSet[0] > maxSeedRanecu ||
              initialSeedSet[1] > maxSeedRanecu) {  // They need to fit in a 31 bit integer
             throw Exception(errors::Configuration)
-              << "The RanecuEngine seeds should be in the range 0 to 2147483647.\n"
+              << "The RanecuEngine seeds should be in the range 0 to " << maxSeedRanecu << ".\n"
               << "The seeds passed to the RandomNumberGenerationService from the\n"
                  "configuration file were " << initialSeedSet[0] << " and " << initialSeedSet[1]
               << "\nThis was for the module with label \"" << label << "\".\n";
@@ -154,7 +151,7 @@ namespace edm {
         else {
           if(initialSeedSet.size() != 1U) {
             throw Exception(errors::Configuration)
-              << "Random engines of type \"HepJamesRandom\" and \"TRandom3\n"
+              << "Random engines of type \"HepJamesRandom\", \"TRandom3\" and \"MixMaxRng\" \n"
               << "require exactly 1 seed be specified in the configuration.\n"
               << "There were " << initialSeedSet.size() << " seeds set for the\n"
               << "module with label \"" << label << "\".\n" ;
@@ -162,12 +159,28 @@ namespace edm {
           if(engineName == "HepJamesRandom") {
             if(initialSeedSet[0] > maxSeedHepJames) {
               throw Exception(errors::Configuration)
-                << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to 900000000.\n"
+                << "The CLHEP::HepJamesRandom engine seed should be in the range 0 to " << maxSeedHepJames <<".\n"
                 << "The seed passed to the RandomNumberGenerationService from the\n"
                    "configuration file was " << initialSeedSet[0] << ".  This was for \n"
                 << "the module with label " << label << ".\n";
             }
-          } else if(engineName != "TRandom3") {
+          } else if(engineName == "MixMaxRng") {
+            if(initialSeedSet[0] > maxSeedTRandom3) {
+              throw Exception(errors::Configuration)
+                << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
+                << "The seed passed to the RandomNumberGenerationService from the\n"
+                   "configuration file was " << initialSeedSet[0] << ".  This was for \n"
+                << "the module with label " << label << ".\n";
+            }
+          } else if(engineName == "TRandom3") {
+            if(initialSeedSet[0] > maxSeedTRandom3) {
+              throw Exception(errors::Configuration)
+                << "The CLHEP::MixMaxRng engine seed should be in the range 0 to " << maxSeedTRandom3 << ".\n"
+                << "The seed passed to the RandomNumberGenerationService from the\n"
+                   "configuration file was " << initialSeedSet[0] << ".  This was for \n"
+                << "the module with label " << label << ".\n";
+            }
+          } else {
             throw Exception(errors::Configuration)
               << "The random engine name, \"" << engineName
               << "\", does not correspond to a supported engine.\n"
@@ -178,8 +191,6 @@ namespace edm {
       activityRegistry.watchPreModuleConstruction(this, &RandomNumberGeneratorService::preModuleConstruction);
 
       activityRegistry.watchPreallocate(this, &RandomNumberGeneratorService::preallocate);
-
-      activityRegistry.watchPostForkReacquireResources(this, &RandomNumberGeneratorService::postForkReacquireResources);
 
       if(enableChecking_) {
 
@@ -202,20 +213,19 @@ namespace edm {
         activityRegistry.watchPostModuleStreamEndLumi(this, &RandomNumberGeneratorService::postModuleStreamEndLumi);
       }
 
-      // The next 5 lines support the mySeed function
-      // DELETE THEM when/if that function is deleted.
-      activityRegistry.watchPostModuleConstruction(this, &RandomNumberGeneratorService::postModuleConstruction);
-      activityRegistry.watchPreModuleBeginJob(this, &RandomNumberGeneratorService::preModuleBeginJob);
-      activityRegistry.watchPostModuleBeginJob(this, &RandomNumberGeneratorService::postModuleBeginJob);
-      activityRegistry.watchPreModuleEndJob(this, &RandomNumberGeneratorService::preModuleEndJob);
-      activityRegistry.watchPostModuleEndJob(this, &RandomNumberGeneratorService::postModuleEndJob);
     }
 
     RandomNumberGeneratorService::~RandomNumberGeneratorService() {
     }
 
+    void
+    RandomNumberGeneratorService::consumes(ConsumesCollector&& iC) const {
+       iC.consumes<RandomEngineStates, InLumi>(restoreStateBeginLumiTag_);
+       iC.consumes<RandomEngineStates>(restoreStateTag_);
+    }
+
     CLHEP::HepRandomEngine&
-    RandomNumberGeneratorService::getEngine(StreamID const& streamID) const {
+    RandomNumberGeneratorService::getEngine(StreamID const& streamID) {
 
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
@@ -226,11 +236,11 @@ namespace edm {
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
-      std::vector<ModuleIDToEngine> const& moduleIDVector = streamModuleIDToEngine_.at(streamID.value());
+      std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(streamID.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                            moduleIDVector.end(),
-                                                                            target);
+      std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                      moduleIDVector.end(),
+                                                                      target);
       if(iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
           << "The module with label \""
@@ -252,7 +262,7 @@ namespace edm {
     }
 
     CLHEP::HepRandomEngine&
-    RandomNumberGeneratorService::getEngine(LuminosityBlockIndex const& lumiIndex) const {
+    RandomNumberGeneratorService::getEngine(LuminosityBlockIndex const& lumiIndex) {
 
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
@@ -263,11 +273,11 @@ namespace edm {
       }
       unsigned int moduleID = mcc->moduleDescription()->id();
 
-      std::vector<ModuleIDToEngine> const& moduleIDVector = lumiModuleIDToEngine_.at(lumiIndex.value());
+      std::vector<ModuleIDToEngine>& moduleIDVector = lumiModuleIDToEngine_.at(lumiIndex.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                            moduleIDVector.end(),
-                                                                            target);
+      std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                      moduleIDVector.end(),
+                                                                      target);
       if(iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
           << "The module with label \""
@@ -299,15 +309,10 @@ namespace edm {
       std::string label;
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
       if(mcc == nullptr) {
-        if(!moduleLabel_.empty()) {
-          label = moduleLabel_;
-        }
-        else {
-          throw Exception(errors::LogicError)
-            << "RandomNumberGeneratorService::getEngine()\n"
-               "Requested a random number engine from the RandomNumberGeneratorService\n"
-               "when no module was active. ModuleCallingContext is null\n";
-        }
+        throw Exception(errors::LogicError)
+          << "RandomNumberGeneratorService::getEngine()\n"
+          "Requested a random number engine from the RandomNumberGeneratorService\n"
+          "from an unallowed transition. ModuleCallingContext is null\n";
       } else {
         label = mcc->moduleDescription()->moduleLabel();
       }
@@ -366,36 +371,6 @@ namespace edm {
       if(iter != seedsAndNameMap_.end()) {
         iter->second.setModuleID(description.id());
       }
-      // The next line supports the mySeed function
-      // DELETE IT when/if that function is deleted.
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    // The next 5 functions support the mySeed function
-    // DELETE THEM when/if that function is deleted.
-    void
-    RandomNumberGeneratorService::postModuleConstruction(ModuleDescription const& description) {
-      moduleLabel_.clear();
-    }
-
-    void
-    RandomNumberGeneratorService::preModuleBeginJob(ModuleDescription const& description) {
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    void
-    RandomNumberGeneratorService::postModuleBeginJob(ModuleDescription const& description) {
-      moduleLabel_.clear();
-    }
-
-    void
-    RandomNumberGeneratorService::preModuleEndJob(ModuleDescription const& description) {
-      moduleLabel_ = description.moduleLabel();
-    }
-
-    void
-    RandomNumberGeneratorService::postModuleEndJob(ModuleDescription const& description) {
-      moduleLabel_.clear();
     }
 
     void
@@ -427,7 +402,7 @@ namespace edm {
         unsigned int seedOffset = iStream;
         createEnginesInVector(streamEngines_[iStream], seedOffset, eventSeedOffset_, streamModuleIDToEngine_[iStream]);
         if(!saveFileName_.empty())  {
-          outFiles_[iStream].reset(new std::ofstream);
+          outFiles_[iStream] = std::make_shared<std::ofstream>(); // propagate_const<T> has no reset() function
         }
       }
       for(unsigned int iLumi = 0; iLumi < nConcurrentLumis; ++iLumi) {
@@ -444,57 +419,6 @@ namespace edm {
         snapShot(streamEngines_[0], eventCache_[0]);
         readEventStatesFromTextFile(restoreFileName_, eventCache_[0]);
         restoreFromCache(eventCache_[0], streamEngines_[0]);
-      }
-      if(verbose_) {
-        print(std::cout);
-      }
-    }
-
-    void
-    RandomNumberGeneratorService::postForkReacquireResources(unsigned childIndex, unsigned kMaxChildren) {
-      assert(nStreams_ == 1);
-      childIndex_ = childIndex;
-
-      if(!restoreFileName_.empty()) {
-        throw Exception(errors::Configuration)
-          << "Configuration is illegal. The RandomNumberGeneratorService is configured\n"
-          << "to run replay using a text file to input the random engine states and\n"
-          << "the process is configured to fork multiple processes. No forking is\n"
-          << "is allowed with this type of replay\n";
-      }
-
-      if (childIndex_ != 0) {
-        std::vector<LabelAndEngine>& engines = streamEngines_[0];
-        for(auto& labelAndEngine : engines) {
-          std::map<std::string, SeedsAndName>::const_iterator seedsAndName = seedsAndNameMap_.find(labelAndEngine.label());
-          assert(seedsAndName != seedsAndNameMap_.end());
-          resetEngineSeeds(labelAndEngine,
-                           seedsAndName->second.engineName(),
-                           seedsAndName->second.seeds(),
-                           childIndex,
-                           eventSeedOffset_);
-        }
-      }
-      if (kMaxChildren != 0) {
-        for(unsigned int i = 0; i < lumiEngines_.size(); ++i) {
-          std::vector<LabelAndEngine>& engines = lumiEngines_.at(i);
-          for(auto& labelAndEngine : engines) {
-            std::map<std::string, SeedsAndName>::const_iterator seedsAndName = seedsAndNameMap_.find(labelAndEngine.label());
-            assert(seedsAndName != seedsAndNameMap_.end());
-            resetEngineSeeds(labelAndEngine,
-                             seedsAndName->second.engineName(),
-                             seedsAndName->second.seeds(),
-                             kMaxChildren,
-                             0);
-          }
-          snapShot(lumiEngines_[i], lumiCache_[i]);
-        }
-      }
-
-      if(!saveFileName_.empty()) {
-        std::ostringstream suffix;
-        suffix << "_" << childIndex;
-        saveFileName_ += suffix.str();
       }
       if(verbose_) {
         print(std::cout);
@@ -633,7 +557,6 @@ namespace edm {
       os << "    saveFileNameRecorded_ = " << saveFileNameRecorded_ << "\n";
       os << "    restoreFileName_ = " << restoreFileName_ << "\n";
       os << "    enableChecking_ = " << enableChecking_ << "\n";
-      os << "    childIndex_ = " << childIndex_ << "\n";
       os << "    eventSeedOffset_ = " << eventSeedOffset_ << "\n";
       os << "    verbose_ = " << verbose_ << "\n";
       os << "    restoreStateTag_ = " << restoreStateTag_ << "\n";
@@ -650,6 +573,8 @@ namespace edm {
           }
           os << " " << i.engine()->name();
           if(i.engine()->name() == std::string("HepJamesRandom")) {
+            os << "  " << i.engine()->getSeed();
+          } else if(i.engine()->name() == std::string("MixMaxRng")) {
             os << "  " << i.engine()->getSeed();
           } else {
             os << "  engine does not know seeds";
@@ -669,6 +594,8 @@ namespace edm {
           }
           os << " " << i.engine()->name();
           if(i.engine()->name() == std::string("HepJamesRandom")) {
+            os << "  " << i.engine()->getSeed();
+          } else if(i.engine()->name() == std::string("MixMaxRng")) {
             os << "  " << i.engine()->getSeed();
           } else {
             os << "  engine does not know seeds";
@@ -699,11 +626,11 @@ namespace edm {
     RandomNumberGeneratorService::postModuleStreamCheck(StreamContext const& sc, ModuleCallingContext const& mcc) {
       if(enableChecking_) {
         unsigned int moduleID = mcc.moduleDescription()->id();
-        std::vector<ModuleIDToEngine> const& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
+        std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
         ModuleIDToEngine target(nullptr, moduleID);
-        std::vector<ModuleIDToEngine>::const_iterator iter = std::lower_bound(moduleIDVector.begin(),
-                                                                              moduleIDVector.end(),
-                                                                              target);
+        std::vector<ModuleIDToEngine>::iterator iter = std::lower_bound(moduleIDVector.begin(),
+                                                                        moduleIDVector.end(),
+                                                                        target);
         if(iter != moduleIDVector.end() && iter->moduleID() == moduleID) {
           LabelAndEngine* labelAndEngine = iter->labelAndEngine();
           if(iter->engineState() != labelAndEngine->engine()->put()) {
@@ -848,6 +775,15 @@ namespace edm {
 
           labelAndEngine->setSeed(engineSeeds[0], 0);
           labelAndEngine->setSeed(engineSeeds[1], 1);
+        } else if(engineStateL[0] == CLHEP::engineIDulong<CLHEP::MixMaxRng>()) {
+
+          checkEngineType(engine->name(), std::string("MixMaxRng"), engineLabel);
+
+          // This line actually restores the engine state.
+          engine->setSeed(engineSeedsL[0], 0);
+          engine->get(engineStateL);
+
+          labelAndEngine->setSeed(engineSeeds[0], 0);
         } else if(engineStateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
 
           checkEngineType(engine->name(), std::string("TRandom3"), engineLabel);
@@ -935,17 +871,14 @@ namespace edm {
     void
     RandomNumberGeneratorService::writeStates(std::vector<RandomEngineState> const& v,
                                               std::ofstream& outFile) {
-      for(std::vector<RandomEngineState>::const_iterator iter = v.begin(),
-                                                          iEnd = v.end();
-        iter != iEnd; ++iter) {
-
-        std::vector<std::uint32_t> const& seedVector = iter->getSeed();
+      for(auto & state : v) {
+        std::vector<std::uint32_t> const& seedVector = state.getSeed();
         std::vector<std::uint32_t>::size_type seedVectorLength = seedVector.size();
 
-        std::vector<std::uint32_t> const& stateVector = iter->getState();
+        std::vector<std::uint32_t> const& stateVector = state.getState();
         std::vector<std::uint32_t>::size_type stateVectorLength = stateVector.size();
 
-        outFile << "<ModuleLabel>\n" << iter->getLabel() << "\n</ModuleLabel>\n";
+        outFile << "<ModuleLabel>\n" << state.getLabel() << "\n</ModuleLabel>\n";
 
         outFile << "<SeedLength>\n" << seedVectorLength << "\n</SeedLength>\n" ;
         outFile << "<InitialSeeds>\n";
@@ -1214,6 +1147,12 @@ namespace edm {
               if(seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
               }
+            } else if(name == "MixMaxRng") {
+              std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::MixMaxRng>(seedL);
+              engines.emplace_back(label, seeds, engine);
+              if(seedOffset != 0 || eventSeedOffset != 0) {
+                resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
+              }
             } else { // TRandom3, currently the only other possibility
 
               // There is a dangerous conversion from std::uint32_t to long
@@ -1263,7 +1202,7 @@ namespace edm {
       } else {
         assert(seeds.size() == 1U);
 
-        if(engineName == "HepJamesRandom") {
+        if(engineName == "HepJamesRandom" || engineName == "MixMaxRng") {
           // Wrap around if the offsets push the seed over the maximum allowed value
           std::uint32_t mod = maxSeedHepJames + 1U;
           offset1 %= mod;

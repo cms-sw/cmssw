@@ -9,7 +9,7 @@ EcalElectronicsMapper::EcalElectronicsMapper( unsigned int numbXtalTSamples, uns
 : pathToMapFile_(""),
 numbXtalTSamples_(numbXtalTSamples),
 numbTriggerTSamples_(numbTriggerTSamples),
-mappingBuilder_(0)
+mappingBuilder_(nullptr)
 {
   resetPointers();
   setupGhostMap();
@@ -25,13 +25,13 @@ void EcalElectronicsMapper::resetPointers(){
         for(unsigned int xtal=0; xtal<NUMB_XTAL;xtal++){
                     
              //Reset DFrames and xtalDetIds
-          xtalDetIds_[sm][fe][strip][xtal]=0;
+          xtalDetIds_[sm][fe][strip][xtal]=nullptr;
         }
       }
 
       //Reset SC Det Ids
       //scDetIds_[sm][fe]=0;
-      scEleIds_[sm][fe]=0;
+      scEleIds_[sm][fe]=nullptr;
       //srFlags_[sm][fe]=0;
     }
   }
@@ -40,9 +40,9 @@ void EcalElectronicsMapper::resetPointers(){
   //Reset TT det Ids
   for( unsigned int tccid=0; tccid < NUMB_TCC; tccid++){
     for(unsigned int tpg =0; tpg<NUMB_FE;tpg++){
-      ttDetIds_[tccid][tpg]=0;
-      ttTPIds_[tccid][tpg]=0;
-      ttEleIds_[tccid][tpg]=0;
+      ttDetIds_[tccid][tpg]=nullptr;
+      ttTPIds_[tccid][tpg]=nullptr;
+      ttEleIds_[tccid][tpg]=nullptr;
     }
   }
 
@@ -50,7 +50,7 @@ void EcalElectronicsMapper::resetPointers(){
   for (int tccid=0; tccid<NUMB_TCC; tccid++){
       for (int ttid=0; ttid<TCC_EB_NUMBTTS; ttid++){
           for (int ps=0; ps<NUMB_STRIP; ps++){
-              psInput_[tccid][ttid][ps]=0;
+              psInput_[tccid][ttid][ps]=nullptr;
           }}}
   
   // initialize TCC maps
@@ -282,7 +282,7 @@ bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpa
 
   // in case as non standard set of DCCId:FedId pairs was provided
   if ( orderedFedUnpackList.size() == orderedDCCIdList.size() &&
-       orderedFedUnpackList.size() > 0)
+       !orderedFedUnpackList.empty())
     {
       edm::LogInfo("EcalElectronicsMapper") << "DCCIdList/FedUnpackList lists given. Being loaded.";
       
@@ -318,7 +318,7 @@ std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_
   //print class information
   o << "---------------------------------------------------------";
 
-  if(aMapper_.pathToMapFile_.size() < 1){
+  if(aMapper_.pathToMapFile_.empty()){
     o << "No correct input for DCC map has been given yet...";
   }
   else{

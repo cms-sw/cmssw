@@ -6,7 +6,7 @@ class RecoTauDecayModeCutMultiplexer : public PFTauDiscriminationProducerBase {
   public:
     explicit RecoTauDecayModeCutMultiplexer(const edm::ParameterSet& pset);
 
-    ~RecoTauDecayModeCutMultiplexer() {}
+    ~RecoTauDecayModeCutMultiplexer() override {}
     double discriminate(const reco::PFTauRef&) const override;
     void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 

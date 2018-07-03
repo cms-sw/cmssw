@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.SiStripMonitorTrack.SiStripMonitorMuonHLT_cfi import *
-
 hltHighLevelSiStrip = cms.EDFilter("HLTHighLevel",
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
     HLTPaths = cms.vstring('HLT_L1Mu[^_]*$',
@@ -16,5 +14,5 @@ hltHighLevelSiStrip = cms.EDFilter("HLTHighLevel",
     throw = cms.bool(False)    # throw exception on unknown path names
 )
 
-hltLocalRecoSiStrip = cms.Path(hltHighLevelSiStrip*sistripMonitorMuonHLT)
+hltLocalRecoSiStrip = cms.Path(hltHighLevelSiStrip)
 

@@ -43,14 +43,14 @@ public:
 EcalEndcapRecHitsValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalEndcapRecHitsValidation();
+~EcalEndcapRecHitsValidation() override;
 
 protected:
 
 void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 

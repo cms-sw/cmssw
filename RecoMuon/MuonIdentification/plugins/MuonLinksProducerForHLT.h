@@ -26,9 +26,9 @@ class MuonLinksProducerForHLT : public edm::global::EDProducer<> {
  public:
    explicit MuonLinksProducerForHLT(const edm::ParameterSet&);
    
-   virtual ~MuonLinksProducerForHLT();
+   ~MuonLinksProducerForHLT() override;
    
-   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
    edm::InputTag theLinkCollectionInInput;

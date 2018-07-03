@@ -69,7 +69,7 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 {
 
   // Initialize the output product
-  std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
+  std::unique_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
   
   // Region builder
   theRegionBuilder->setEvent(ev);
@@ -164,7 +164,7 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   // if(h_nGoodSeedPerEvent) h_nGoodSeedPerEvent->Fill(result->size());
   
   //put in the event
-  ev.put(result);
+  ev.put(std::move(result));
 
 }
 

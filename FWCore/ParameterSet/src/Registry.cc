@@ -4,13 +4,14 @@
 #include <ostream>
 
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace edm {
   namespace pset {
 
     Registry*
     Registry::instance() {
-      [[cms::thread_safe]] static Registry s_reg;
+      CMS_THREAD_SAFE static Registry s_reg;
       return &s_reg;
     }
     
@@ -32,8 +33,12 @@ namespace edm {
     }
   
     bool
-    Registry::insertMapped(value_type const& v) {
-      return m_map.insert(std::make_pair(v.id(),v)).second;
+    Registry::insertMapped(value_type const& v, bool forceUpdate) {
+      auto wasAdded = m_map.insert(std::make_pair(v.id(),v));
+      if(forceUpdate and not wasAdded.second) {
+        wasAdded.first->second = v;
+      }
+      return wasAdded.second;
     }
     
     void

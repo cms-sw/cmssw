@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <map>
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
@@ -16,16 +16,15 @@ class  StripCPEESProducer: public edm::ESProducer {
  public:
 
   StripCPEESProducer(const edm::ParameterSet&);
-  boost::shared_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
+  std::unique_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
 
  private:
 
-  enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC, TEMPLATE};
+  enum CPE_t { SIMPLE, TRACKANGLE, GEOMETRIC };
   std::map<std::string,CPE_t> enumMap; 
 
   CPE_t cpeNum;
   edm::ParameterSet parametersPSet;
-  boost::shared_ptr<StripClusterParameterEstimator> cpe;
 
 };
 #endif

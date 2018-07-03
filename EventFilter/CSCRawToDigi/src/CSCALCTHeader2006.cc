@@ -67,7 +67,7 @@ std::vector<CSCALCTDigi> CSCALCTs2006::ALCTDigis() const
 void CSCALCTs2006::add(const std::vector<CSCALCTDigi> & digis)
 {
   //FIXME doesn't do any sorting
-  if(digis.size() > 0) addALCT0(digis[0]);
+  if(!digis.empty()) addALCT0(digis[0]);
   if(digis.size() > 1) addALCT1(digis[1]);
 }
 

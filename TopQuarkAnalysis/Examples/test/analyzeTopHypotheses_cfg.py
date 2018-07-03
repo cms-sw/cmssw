@@ -27,7 +27,6 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -38,17 +37,27 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 ## use genParticles to select only muon+jets events
 process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
+process.task.add(process.ttDecayChannelFiltersTask)
 process.ttSemiLeptonicFilter.allowedTopDecays.decayBranchA.electron = False
 
 ## sequences for ttGenEvent and TtSemiLeptonicEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
+
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff")
+process.task.add(process.makeTtSemiLepEventTask)
 ## enable additional per-event printout from the TtSemiLeptonicEvent
 process.ttSemiLepEvent.verbosity = 1
 
@@ -78,4 +87,4 @@ process.TFileService = cms.Service("TFileService",
 )
 
 ## end path
-process.path = cms.Path(process.analyzeHypotheses)
+process.path = cms.Path(process.analyzeHypotheses, process.task)

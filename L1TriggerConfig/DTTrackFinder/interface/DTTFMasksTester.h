@@ -26,9 +26,9 @@ class DTTFMasksTester : public edm::EDAnalyzer {
 
   DTTFMasksTester(const edm::ParameterSet& ps);
 
-  ~DTTFMasksTester();
+  ~DTTFMasksTester() override;
   
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
  private:
 

@@ -35,6 +35,10 @@
       {
          "name" : "LockCount",
          "operation" : "sum"
+      },
+      {
+         "name" : "Inputstate",
+         "operation" : "histo"
       }
 
    ]

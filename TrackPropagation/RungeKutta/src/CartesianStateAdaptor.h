@@ -1,10 +1,13 @@
 #ifndef CartesianStateAdaptor_H
 #define CartesianStateAdaptor_H
 
+#include "RKSmallVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+
 class dso_internal CartesianStateAdaptor {
 public:
 
-    typedef double                            Scalar;
+    typedef float                             Scalar;
     typedef Basic3DVector<Scalar>             Vector3D;
 
     CartesianStateAdaptor( const RKSmallVector<double,6>& rk) :

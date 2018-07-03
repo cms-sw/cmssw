@@ -2,14 +2,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 class TtGenEventReco : public edm::EDProducer {
 
  public:
 
   explicit TtGenEventReco(const edm::ParameterSet&);
-  ~TtGenEventReco();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~TtGenEventReco() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

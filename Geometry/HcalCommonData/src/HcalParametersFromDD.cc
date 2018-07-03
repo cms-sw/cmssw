@@ -5,28 +5,35 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 #include <iomanip>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 namespace {
-  double getTopologyMode( const char* s, const DDsvalues_type & sv ) {
+  int getTopologyMode(const char* s, const DDsvalues_type & sv, bool type) {
     DDValue val( s );
-    if( DDfetch( &sv, val )) {
+    if (DDfetch( &sv, val )) {
       const std::vector<std::string> & fvec = val.strings();
-      if( fvec.size() == 0 ) {
+      if (fvec.empty()) {
 	throw cms::Exception( "HcalParametersFromDD" ) << "Failed to get " << s << " tag.";
       }
 
-      StringToEnumParser<HcalTopologyMode::Mode> eparser;
-      HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) eparser.parseString( fvec[0] );
-
-      return double( mode );
+      int result(-1);
+      if (type) {
+	StringToEnumParser<HcalTopologyMode::Mode> eparser;
+	HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode) eparser.parseString(fvec[0]);
+	result = (int)(mode);
+      } else {
+	StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
+	HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode) eparser.parseString(fvec[0]);
+	result = (int)(mode);
+      }
+      return result;
     } else {
       throw cms::Exception( "HcalParametersFromDD" ) << "Failed to get "<< s << " tag.";
     }
@@ -38,15 +45,8 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
 
   //Special parameters at simulation level
   std::string attribute = "OnlyForHcalSimNumbering"; 
-  std::string value     = "any";
-  DDValue val1(attribute, value, 0.0);
-  DDSpecificsFilter filter1;
-  filter1.setCriteria(val1, DDCompOp::not_equals,
-		      DDLogOp::AND, true, // compare strings otherwise doubles
-		      true  // use merged-specifics or simple-specifics
-		      );
-  DDFilteredView fv1(*cpv);
-  fv1.addFilter(filter1);
+  DDSpecificsHasNamedValueFilter filter1{attribute};
+  DDFilteredView fv1(*cpv,filter1);
   bool ok = fv1.firstChild();
 
   const int nEtaMax=100;
@@ -72,7 +72,7 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
 	HcalParameters::LayerItem layerGroupEta;
 	layerGroupEta.layer = i;
 	layerGroupEta.layerGroup = dbl_to_int(DDVectorGetter::get(tempName));
-	php.layerGroupEtaSim.push_back(layerGroupEta);
+	php.layerGroupEtaSim.emplace_back(layerGroupEta);
       }
     }
     php.etaMin   = dbl_to_int( DDVectorGetter::get( "etaMin" ));
@@ -96,23 +96,18 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   }
   for( unsigned int i = 0; i < php.rTable.size(); ++i ) {
     unsigned int k = php.rTable.size() - i - 1;
-    php.etaTableHF.push_back( -log( tan( 0.5 * atan( php.rTable[k] / php.gparHF[4] ))));
+    php.etaTableHF.emplace_back( -log( tan( 0.5 * atan( php.rTable[k] / php.gparHF[4] ))));
   }
   //Special parameters at reconstruction level
   attribute = "OnlyForHcalRecNumbering"; 
-  DDValue val2( attribute, value, 0.0 );
-  DDSpecificsFilter filter2;
-  filter2.setCriteria(val2,
-		      DDCompOp::not_equals,
-		      DDLogOp::AND, true, // compare strings 
-		      true  // use merged-specifics or simple-specifics
-		      );
-  DDFilteredView fv2(*cpv);
-  fv2.addFilter(filter2);
+  DDSpecificsHasNamedValueFilter filter2{attribute};
+  DDFilteredView fv2(*cpv,filter2);
   ok = fv2.firstChild();
   if (ok) {
     DDsvalues_type sv(fv2.mergedSpecifics());
-    php.topologyMode = getTopologyMode("TopologyMode", sv);
+    int topoMode = getTopologyMode("TopologyMode", sv, true);
+    int trigMode = getTopologyMode("TriggerMode", sv, false);
+    php.topologyMode = ((trigMode&0xFF)<<8) | (topoMode&0xFF);
     php.etagroup = dbl_to_int( DDVectorGetter::get( "etagroup" ));
     php.phigroup = dbl_to_int( DDVectorGetter::get( "phigroup" ));
     for (unsigned int i = 1; i<=nEtaMax; ++i) {
@@ -123,14 +118,14 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
 	HcalParameters::LayerItem layerGroupEta;
 	layerGroupEta.layer = i;
 	layerGroupEta.layerGroup = dbl_to_int(DDVectorGetter::get(tempName));
-	php.layerGroupEtaRec.push_back(layerGroupEta);
+	php.layerGroupEtaRec.emplace_back(layerGroupEta);
       }
     }
   } else {			      
     throw cms::Exception( "HcalParametersFromDD" ) << "Not found "<< attribute.c_str() << " but needed.";
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   int i(0);
   std::cout << "HcalParametersFromDD: MaxDepth: ";
   for (const auto& it : php.maxDepth) std::cout << it << ", ";
@@ -222,7 +217,8 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
       std::cout << " " << ++i << ":" << (*kt);
     std::cout << std::endl;
   }
-  std::cout << "HcalParametersFromDD: topologyMode " << php.topologyMode << std::endl;
+  std::cout << "HcalParametersFromDD: (topology|trigger)Mode " << std::hex
+	    << php.topologyMode << std::dec << std::endl;
 #endif
 
   return true;

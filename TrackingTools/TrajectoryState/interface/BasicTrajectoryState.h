@@ -21,8 +21,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
-
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 /// vvv DEBUG
 // #include <iostream>
@@ -51,13 +50,8 @@ public:
   
   unsigned int references() const {return referenceCount_;}
 private :
-#ifdef CMS_NOCXX11
-  mutable unsigned int referenceCount_;
-  mutable unsigned int referenceMax_;
-#else
   mutable unsigned int referenceCount_=0;
   mutable unsigned int referenceMax_ =0;
-#endif
 };
 #endif
 
@@ -88,8 +82,6 @@ public:
 
   virtual pointer clone() const=0;
 
-#ifndef CMS_NOCXX11
-
   template<typename T, typename... Args>
   static std::shared_ptr<BTSOS> build(Args && ...args){ return std::make_shared<T>(std::forward<Args>(args)...);}
 
@@ -103,7 +95,30 @@ public:
    */
   BasicTrajectoryState( const FreeTrajectoryState& fts,
 			const SurfaceType& aSurface,
-			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface):
+    theFreeState(fts),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theSurfaceSide(side),
+    theSurfaceP( &aSurface),
+    theWeight(1.)
+    {}
+
+
+
+  /** Constructor from FTS: just a wrapper
+   */
+  explicit BasicTrajectoryState( const FreeTrajectoryState& fts):
+    theFreeState(fts),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theWeight(1.)
+    {}
+
 
 
 
@@ -136,7 +151,17 @@ public:
   BasicTrajectoryState( const GlobalTrajectoryParameters& par,
 			const CartesianTrajectoryError& err,
 			const SurfaceType& aSurface,
-			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface):
+    theFreeState(par, err),
+    theLocalError(InvalidError()),
+    theLocalParameters(),
+    theLocalParametersValid(false),
+    theValid(true),
+    theSurfaceSide(side),
+    theSurfaceP( &aSurface),
+    theWeight(1.)
+    {}
+
 
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
@@ -173,33 +198,6 @@ public:
   }
 
 
-#endif
-
-  /*
-  virtual void update( const GlobalTrajectoryParameters& par,
-		       const SurfaceType& aSurface,
-		       SurfaceSide side) GCC11_FINAL {
-    theFreeState = FreeTrajectoryState(par);
-    theLocalError = InvalidError();
-    theLocalParametersValid=false;
-    theValid=true;
-    theSurfaceSide=side;
-    theSurfaceP = &aSurface;
-    theWeight = 1.;
-  }
-  virtual void update( const GlobalTrajectoryParameters& par,
-		       const CurvilinearTrajectoryError& err,
-		       const SurfaceType& aSurface,
-		       SurfaceSide side) GCC11_FINAL {
-    theFreeState = FreeTrajectoryState(par,err);
-    theLocalError = InvalidError();
-    theLocalParametersValid=false;
-    theValid=true;
-    theSurfaceSide=side;
-    theSurfaceP = &aSurface;
-    theWeight = 1.;
-  }
-  */
 
   bool isValid() const { return theValid; }
 
@@ -228,14 +226,14 @@ public:
   }
 
   const CartesianTrajectoryError cartesianError() const {
-    if unlikely(!hasError()) {
+    if UNLIKELY(!hasError()) {
 	missingError(" accesing cartesian error.");
 	return CartesianTrajectoryError();
       }
     return freeTrajectoryState(true)->cartesianError();
   }
   const CurvilinearTrajectoryError& curvilinearError() const {
-    if unlikely(!hasError()) {
+    if UNLIKELY(!hasError()) {
 	missingError(" accesing curvilinearerror.");
 	static const CurvilinearTrajectoryError crap;
 	return crap;
@@ -246,7 +244,7 @@ public:
 
 
   FreeTrajectoryState const* freeTrajectoryState(bool withErrors=true) const {
-    if unlikely(!isValid()) notValid();
+    if UNLIKELY(!isValid()) notValid();
     if(withErrors && hasError()) { // this is the right thing
       checkCurvilinError();
     }
@@ -258,8 +256,8 @@ public:
 
 // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
-    if unlikely(!isValid()) notValid();
-    if unlikely(!theLocalParametersValid)
+    if UNLIKELY(!isValid()) notValid();
+    if UNLIKELY(!theLocalParametersValid)
       createLocalParameters();
     return theLocalParameters;
   }
@@ -274,11 +272,11 @@ public:
   }
 
   const LocalTrajectoryError& localError() const {
-    if unlikely(!hasError()) {
+    if UNLIKELY(!hasError()) {
 	missingError(" accessing local error.");
 	return theLocalError;
       }
-    if unlikely(theLocalError.invalid()) createLocalError();
+    if UNLIKELY(theLocalError.invalid()) createLocalError();
     return theLocalError;
   }
 
@@ -310,7 +308,7 @@ public:
                        const SurfaceSide side ) ;
 
   // update in place and in the very same place
-  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) GCC11_FINAL;
+  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) final;
                        
 
 
@@ -324,14 +322,16 @@ public:
   // update in place and in the very same place
  virtual void update( const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
-                       const SurfaceSide side) GCC11_FINAL;
+                       const SurfaceSide side) final;
 
  CurvilinearTrajectoryError & setCurvilinearError() {
     return theFreeState.setCurvilinearError();
  }
 
 public:
-  virtual std::vector<TrajectoryStateOnSurface> components() const =0;
+  using Components = std::vector<TrajectoryStateOnSurface>;
+  virtual Components const & components() const =0;
+  virtual bool singleState() const=0;
 
 private:
 
@@ -363,11 +363,7 @@ private:
   SurfaceSide theSurfaceSide;
   ConstReferenceCountingPointer<SurfaceType> theSurfaceP;
 
-#ifdef CMS_NOCXX11
-  double theWeight;
-#else
   double theWeight=0.;
-#endif
 };
 
 #endif

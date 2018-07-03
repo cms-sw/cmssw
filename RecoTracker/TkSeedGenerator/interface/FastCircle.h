@@ -54,6 +54,8 @@ public:
   double rho() const {return theRho;}
   
   bool isValid() const {return theValid;}
+
+  bool isLine() const {return theIsLine;}
   
   // parameters of the straight line 
   // (if circle is invalid only these are available) 
@@ -84,6 +86,7 @@ private:
   double theC;
   
   bool theValid;
+  bool theIsLine;
   
   void createCircleParameters() dso_hidden;
    

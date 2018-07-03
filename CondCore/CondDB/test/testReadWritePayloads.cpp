@@ -7,9 +7,6 @@
 //
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
 #include "MyTestData.h"
 // #include "ArrayPayload.h"
 // #include "SimplePayload.h"
@@ -34,7 +31,7 @@ int doWrite( const std::string& connectionString ){
     std::cout <<"> Connecting for writing with db in "<<connectionString<<std::endl;
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
 
     MyTestData d0( iVal0 );
@@ -111,7 +108,7 @@ int doRead( const std::string& connectionString ){
     std::cout <<"> Connecting for reading with db in "<<connectionString<<std::endl;
     ConnectionPool connPool;
     connPool.setMessageVerbosity( coral::Debug );
-    Session session = connPool.createSession( connectionString, true, cond::COND_DB );
+    Session session = connPool.createSession( connectionString, true );
     session.transaction().start( false );
 
     session.transaction().start();
@@ -125,7 +122,7 @@ int doRead( const std::string& connectionString ){
     } else {
       cond::Iov_t val = *iovIt;
       std::cout <<"#[0] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay0 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay0 = session.fetchPayload<MyTestData>( val.payloadId );
       pay0->print();
       if ( *pay0 != MyTestData(iVal0) ){
 	nFail++;
@@ -138,7 +135,7 @@ int doRead( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iovIt;
       std::cout <<"#[1] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay1 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay1 = session.fetchPayload<MyTestData>( val.payloadId );
       pay1->print();
       if ( *pay1 != MyTestData(iVal1) ){
 	nFail++;
@@ -151,7 +148,7 @@ int doRead( const std::string& connectionString ){
     } else {
       cond::Iov_t val = *iovIt;
       std::cout <<"#[2] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay2 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay2 = session.fetchPayload<MyTestData>( val.payloadId );
       pay2->print();
       if ( *pay2 != MyTestData(iVal1) ){
 	nFail++;
@@ -164,7 +161,7 @@ int doRead( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iovIt;
       std::cout <<"#[3] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<MyTestData> pay3 = session.fetchPayload<MyTestData>( val.payloadId );
+      std::shared_ptr<MyTestData> pay3 = session.fetchPayload<MyTestData>( val.payloadId );
       pay3->print();
       if ( *pay3 != MyTestData(iVal1) ){
 	nFail++;
@@ -179,7 +176,7 @@ int doRead( const std::string& connectionString ){
     } else {
       cond::Iov_t val =*iov2It;
       std::cout <<"#[4] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-      boost::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
+      std::shared_ptr<std::string> pay4 = session.fetchPayload<std::string>( val.payloadId );
       std::cout <<"#pay4="<<*pay4<<std::endl;
       if ( *pay4 != sVal ){
 	nFail++;
@@ -194,7 +191,7 @@ int doRead( const std::string& connectionString ){
 //     } else {
 //       cond::Iov_t val =*iov3It;
 //       std::cout <<"#[5] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-//       boost::shared_ptr<ArrayPayload> pay5 = session.fetchPayload<ArrayPayload>( val.payloadId );
+//       std::shared_ptr<ArrayPayload> pay5 = session.fetchPayload<ArrayPayload>( val.payloadId );
 //       // std::cout << "#pay5=" << (*pay5==arrayPl ? "OK" : "NOT OK") << std::endl;
 //     }
 // 
@@ -205,7 +202,7 @@ int doRead( const std::string& connectionString ){
 //     } else {
 //       cond::Iov_t val =*iov4It;
 //       std::cout <<"#[6] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-//       boost::shared_ptr<SimplePayload> pay5 = session.fetchPayload<SimplePayload>( val.payloadId );
+//       std::shared_ptr<SimplePayload> pay5 = session.fetchPayload<SimplePayload>( val.payloadId );
 //       // std::cout << "#pay6=" << (*pay6==simplePl ? "OK" : "NOT OK") << std::endl;
 //     }
 

@@ -61,7 +61,7 @@ class AlignmentMonitorBase
       void duringLoop(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks);
 
       /// Called at end of loop: don't reimplement
-      void endOfLoop(const edm::EventSetup &iSetup);
+      void endOfLoop();
 
       /// Called at end of processing: don't implement
       void endOfJob() {}
@@ -76,7 +76,7 @@ class AlignmentMonitorBase
 
       /// Called after updating AlignableTracker and AlignableMuon (by
       /// "endOfLoop()"): may be reimplemented
-      virtual void afterAlignment(const edm::EventSetup &iSetup) { }
+      virtual void afterAlignment() { }
 
    protected:
       /// Use this every time you book a histogram (so that
@@ -96,8 +96,8 @@ class AlignmentMonitorBase
       const edm::InputTag m_beamSpotTag;
 
    private:
-      AlignmentMonitorBase(const AlignmentMonitorBase&); // stop default
-      const AlignmentMonitorBase& operator=(const AlignmentMonitorBase&); // stop default
+      AlignmentMonitorBase(const AlignmentMonitorBase&) = delete; // stop default
+      const AlignmentMonitorBase& operator=(const AlignmentMonitorBase&) = delete; // stop default
 
       // ---------- member data --------------------------------
 
@@ -111,6 +111,6 @@ class AlignmentMonitorBase
 };
 
 /*** Global typedefs ***/
-typedef std::vector<AlignmentMonitorBase*> AlignmentMonitors;
+using AlignmentMonitors = std::vector<std::unique_ptr<AlignmentMonitorBase> >;
 
 #endif

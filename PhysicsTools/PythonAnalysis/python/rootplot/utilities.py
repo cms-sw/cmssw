@@ -398,7 +398,7 @@ class RootFile(object):
             object_name = os.path.basename(object_name)
         try:
             roothist = self.file.GetDirectory(path).Get(object_name)
-        except ReferenceError, e:
+        except ReferenceError as e:
             raise ReferenceError(e)
         try:
             return type2D(roothist)

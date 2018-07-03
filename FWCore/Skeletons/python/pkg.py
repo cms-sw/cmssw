@@ -48,7 +48,8 @@ class AbstractPkg(object):
         self.author = user_info(self.config.get('author', None))
         self.date   = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime())
         self.not_in_dir = self.config.get('not_in_dir', [])
-        
+        self.working_dir = self.config.get('working_dir')
+
     def tmpl_etags(self):
         "Scan template files and return example tags"
         keys = []
@@ -94,28 +95,27 @@ class AbstractPkg(object):
 
     def parse_etags(self, line):
         """
-        Determine either skip or keep given line based on class tags 
+        Determine either skip or keep given line based on class tags
         meta-strings
         """
         tmpl_etags = self.tmpl_etags()
         keep_etags = self.config.get('tmpl_etags', [])
         for tag in tmpl_etags:
-            if  keep_etags:
-                for valid_tag in keep_etags:
-                    if  line.find(valid_tag) != -1:
-                        line = line.replace(valid_tag, '')
-                        return line
-            else:
-                if  line.find(tag) != -1:
-                    line = line.replace(tag, '')
-                    line = ''
-                    return line
+            for valid_tag in keep_etags:
+              if  line.find(valid_tag) != -1:
+                line = line.replace(valid_tag, '')
+                return line
+            if  line.find(tag) != -1:
+              line = ''
+              return line
         return line
 
     def write(self, fname, tmpl_name, kwds):
         "Create new file from given template name and set of arguments"
         code = ""
         read_code = False
+        if os.path.exists(fname):
+            return
         with open(fname, 'w') as stream:
             for line in open(tmpl_name, 'r').readlines():
                 line = self.parse_etags(line)
@@ -135,7 +135,7 @@ class AbstractPkg(object):
                     continue
                 if  not read_code:
                     for key, val in kwds.items():
-                        if  isinstance(val, basestring):
+                        if  isinstance(val, str):
                             line = line.replace(key, val)
                     stream.write(line)
 
@@ -146,6 +146,7 @@ class AbstractPkg(object):
                  '__user__': os.getlogin(),
                  '__date__': self.date,
                  '__class__': self.pname,
+                 '__class_lowercase__': self.pname.lower(),
                  '__name__': self.pname,
                  '__subsys__': self.config.get('subsystem', 'Subsystem')}
         args = self.config.get('args', None)
@@ -227,6 +228,9 @@ class AbstractPkg(object):
                 fname, ext = os.path.splitext(src)
                 if  tmpl_files != ext:
                     continue
+                #also reject if this is the wrong directory
+                if self.working_dir and src.split('/')[-2] != self.working_dir:
+                    continue
                 src = src.split('/')[-1]
             if  self.debug:
                 print "Read", src
@@ -240,7 +244,9 @@ class AbstractPkg(object):
             else:
                 ftype = 'dir'
             name2gen  = src # new file we'll create
-            if  tname.split('.')[0] == self.tmpl: # need to substitute
+            if items[-1] == 'testBuildFile.xml':
+              name2gen = '/'.join(src.split('/')[:-1])+'/BuildFile.xml'
+            if  -1 !=tname.split('.')[0].find(self.tmpl): # need to substitute
                 name2gen  = name2gen.replace(self.tmpl, self.pname)
             name2gen  = os.path.join(os.getcwd(), name2gen)
             if  self.debug:

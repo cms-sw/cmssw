@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-import TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi
-LooperTrajectoryFitter = TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi.KFTrajectoryFitter.clone(
+import TrackingTools.TrackFitters.KFTrajectoryFitter_cfi
+LooperTrajectoryFitter = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFitter.clone(
     ComponentName = cms.string('LooperFitter'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers')
 )
 
-import TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi
-LooperTrajectorySmoother = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone(
+import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
+LooperTrajectorySmoother = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
     ComponentName = cms.string('LooperSmoother'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers'),
     errorRescaling = cms.double(10.0),
 )
 
-import TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi
-LooperFittingSmoother = TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi.KFFittingSmoother.clone(
+import TrackingTools.TrackFitters.KFFittingSmoother_cfi
+LooperFittingSmoother = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone(
     ComponentName = cms.string('LooperFittingSmoother'),
     Fitter = cms.string('LooperFitter'),
     Smoother = cms.string('LooperSmoother'),

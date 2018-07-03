@@ -19,6 +19,7 @@ DataCertificationJetMET::DataCertificationJetMET(const edm::ParameterSet& iConfi
 {
   // now do what ever initialization is needed
   inputMETLabelRECO_=iConfig.getParameter<edm::InputTag>("METTypeRECO");
+  inputMETLabelRECOUncleaned_=iConfig.getParameter<edm::InputTag>("METTypeRECOUncleaned");
   inputMETLabelMiniAOD_=iConfig.getParameter<edm::InputTag>("METTypeMiniAOD");
   inputJetLabelRECO_=iConfig.getParameter<edm::InputTag>("JetTypeRECO");
   inputJetLabelMiniAOD_=iConfig.getParameter<edm::InputTag>("JetTypeMiniAOD");
@@ -93,6 +94,89 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
     ibook_.setCurrentFolder(subDirVecMET[i]);  
     if((subDirVecMET[i]+"/Cleaned")==(RunDirMET+inputMETLabelRECO_.label()+"/Cleaned")){
       found_METreco_dir=true;
+    }
+    if( ((subDirVecMET[i]+"/Uncleaned")==(RunDirMET+inputMETLabelRECOUncleaned_.label()+"/Uncleaned")) || ((subDirVecMET[i]+"/Uncleaned")==(RunDirMET+inputMETLabelMiniAOD_.label()+"/Uncleaned"))){
+      //check filters in uncleaned directory
+      std::string rundirMET_reco="";
+      if((subDirVecMET[i]+"/Uncleaned")==(RunDirMET+inputMETLabelRECOUncleaned_.label()+"/Uncleaned")){
+	rundirMET_reco = RunDirMET+inputMETLabelRECOUncleaned_.label()+"/Uncleaned";
+      }else{
+	rundirMET_reco = RunDirMET+inputMETLabelMiniAOD_.label()+"/Uncleaned";
+      }
+      MonitorElement* mMET_Reco=iget_.get(rundirMET_reco+"/"+"MET");
+      MonitorElement* mMET_Reco_HBHENoiseFilter=iget_.get(rundirMET_reco+"/"+"MET_HBHENoiseFilter");
+      MonitorElement* mMET_Reco_CSCTightHaloFilter=iget_.get(rundirMET_reco+"/"+"MET_CSCTightHaloFilter");
+      MonitorElement* mMET_Reco_eeBadScFilter=iget_.get(rundirMET_reco+"/"+"MET_eeBadScFilter");
+      MonitorElement* mMET_Reco_HBHEIsoNoiseFilter=iget_.get(rundirMET_reco+"/"+"MET_HBHEIsoNoiseFilter");
+      MonitorElement* mMET_Reco_CSCTightHalo2015Filter=iget_.get(rundirMET_reco+"/"+"MET_CSCTightHalo2015Filter");
+      MonitorElement* mMET_Reco_EcalDeadCellTriggerFilter=iget_.get(rundirMET_reco+"/"+"MET_EcalDeadCellTriggerFilter");
+      MonitorElement* mMET_Reco_EcalDeadCellBoundaryFilter=iget_.get(rundirMET_reco+"/"+"MET_EcalDeadCellBoundaryFilter");
+      MonitorElement* mMET_Reco_HcalStripHaloFilter=iget_.get(rundirMET_reco+"/"+"MET_HcalStripHaloFilter");
+      ibook_.setCurrentFolder(rundirMET_reco);
+      mMET_EffHBHENoiseFilter=ibook_.book1D("MET_EffHBHENoiseFilter",(TH1F*)mMET_Reco_HBHENoiseFilter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffHBHENoiseFilter->setBinContent(i,mMET_Reco_HBHENoiseFilter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffHBHENoiseFilter->setBinContent(i,0);
+	}
+      }
+      mMET_EffCSCTightHaloFilter=ibook_.book1D("MET_EffCSCTightHaloFilter",(TH1F*)mMET_Reco_CSCTightHaloFilter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffCSCTightHaloFilter->setBinContent(i,mMET_Reco_CSCTightHaloFilter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffCSCTightHaloFilter->setBinContent(i,0);
+	}
+      }
+      mMET_EffeeBadScFilter=ibook_.book1D("MET_EffeeBadScFilter",(TH1F*)mMET_Reco_eeBadScFilter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffeeBadScFilter->setBinContent(i,mMET_Reco_eeBadScFilter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffeeBadScFilter->setBinContent(i,0);
+	}
+      }
+      mMET_EffHBHEIsoNoiseFilter=ibook_.book1D("MET_EffHBHEIsoNoiseFilter",(TH1F*)mMET_Reco_HBHEIsoNoiseFilter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffHBHEIsoNoiseFilter->setBinContent(i,mMET_Reco_HBHEIsoNoiseFilter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffHBHEIsoNoiseFilter->setBinContent(i,0);
+	}
+      }
+      mMET_EffCSCTightHalo2015Filter=ibook_.book1D("MET_EffCSCTightHalo2015Filter",(TH1F*)mMET_Reco_CSCTightHalo2015Filter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffCSCTightHalo2015Filter->setBinContent(i,mMET_Reco_CSCTightHalo2015Filter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffCSCTightHalo2015Filter->setBinContent(i,0);
+	}
+      }
+      mMET_EffEcalDeadCellTriggerFilter=ibook_.book1D("MET_EffEcalDeadCellTriggerFilter",(TH1F*)mMET_Reco_EcalDeadCellTriggerFilter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffEcalDeadCellTriggerFilter->setBinContent(i,mMET_Reco_EcalDeadCellTriggerFilter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffEcalDeadCellTriggerFilter->setBinContent(i,0);
+	}
+      }
+      mMET_EffEcalDeadCellBoundaryFilter=ibook_.book1D("MET_EffEcalDeadCellBoundaryFilter",(TH1F*)mMET_Reco_EcalDeadCellBoundaryFilter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffEcalDeadCellBoundaryFilter->setBinContent(i,mMET_Reco_EcalDeadCellBoundaryFilter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffEcalDeadCellBoundaryFilter->setBinContent(i,0);
+	}
+      }
+      mMET_EffHcalStripHaloFilter=ibook_.book1D("MET_EffHcalStripHaloFilter",(TH1F*)mMET_Reco_HcalStripHaloFilter->getRootObject());
+      for(int i=0;i<=(mMET_Reco->getNbinsX()+1);i++){
+	if(mMET_Reco->getBinContent(i)!=0){
+	  mMET_EffHcalStripHaloFilter->setBinContent(i,mMET_Reco_HcalStripHaloFilter->getBinContent(i)/mMET_Reco->getBinContent(i));
+	}else{
+	  mMET_EffHcalStripHaloFilter->setBinContent(i,0);
+	}
+      }
     }
     if((subDirVecMET[i]+"/Cleaned")==(RunDirMET+inputMETLabelMiniAOD_.label()+"/Cleaned")){
       found_METminiaod_dir=true;
@@ -572,12 +656,12 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   // Four types of jets {AK5 Barrel, AK5 EndCap, AK5 Forward, PF}, removed JPT which is 5th type of jets
   //----------------------------------------------------------------------------
   // Kolmogorov (KS) tests
-  const QReport* QReport_JetEta[4] = {0};
-  const QReport* QReport_JetPhi[4] = {0};
+  const QReport* QReport_JetEta[4] = {nullptr};
+  const QReport* QReport_JetPhi[4] = {nullptr};
   // Mean and KS tests for Calo and PF jets
-  const QReport* QReport_JetConstituents[4][2] = {{0}};
-  const QReport* QReport_JetEFrac[4][2]        = {{0}};
-  const QReport* QReport_JetPt[4][2]           = {{0}};
+  const QReport* QReport_JetConstituents[4][2] = {{nullptr}};
+  const QReport* QReport_JetEFrac[4][2]        = {{nullptr}};
+  const QReport* QReport_JetPt[4][2]           = {{nullptr}};
 
   // Mean and KS tests for JPT jets
   //const QReport* QReport_JetNTracks[2] = {0, 0};
@@ -826,11 +910,11 @@ DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter&
   // 2 types of MET {CaloMET, PfMET}  // It is 5 if CaloMETNoHF is included, 4 for MuonCorMET
   // removed 3rd type of TcMET
   // 2 types of tests Mean test/Kolmogorov test
-  const QReport * QReport_MExy[2][2][2]={{{0}}};
-  const QReport * QReport_MEt[2][2]={{0}};
-  const QReport * QReport_SumEt[2][2]={{0}};
+  const QReport * QReport_MExy[2][2][2]={{{nullptr}}};
+  const QReport * QReport_MEt[2][2]={{nullptr}};
+  const QReport * QReport_SumEt[2][2]={{nullptr}};
   //2 types of tests phiQTest and Kolmogorov test
-  const QReport * QReport_METPhi[2][2]={{0}};
+  const QReport * QReport_METPhi[2][2]={{nullptr}};
 
 
   float qr_MET_MExy[2][2][2] = {{{-999.}}};

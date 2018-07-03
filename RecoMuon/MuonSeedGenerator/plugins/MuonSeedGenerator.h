@@ -16,6 +16,9 @@
 class MuonSeedVFinder;
 class MuonSeedVPatternRecognition;
 class MuonSeedVCleaner;
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
 class MuonSeedGenerator: public edm::stream::EDProducer<> {
  public:
@@ -24,13 +27,15 @@ class MuonSeedGenerator: public edm::stream::EDProducer<> {
   MuonSeedGenerator(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~MuonSeedGenerator();
+  ~MuonSeedGenerator() override;
   
   // Operations
 
   /// reconstruct muon's seeds
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  
  protected:
 
   MuonSeedVPatternRecognition * thePatternRecognition;

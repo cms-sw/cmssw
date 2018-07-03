@@ -18,7 +18,4 @@
    <use  name="Alignment/Geners"/>
 </bin>
 
-<bin  file="GenersTestHelper_t.cc">
-   <use  name="FWCore/Utilities"/>
-   <flags   TEST_RUNNER_ARGS=" /bin/tcsh Alignment/Geners/test test_cdump.csh"/>
-</bin>
+<test name="GenersTestHelper_t" command="test_cdump.sh"/>

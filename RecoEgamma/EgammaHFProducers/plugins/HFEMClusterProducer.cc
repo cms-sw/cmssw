@@ -36,8 +36,8 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   iSetup.get<CaloGeometryRecord>().get(geometry);
   
   // create return data
-  std::auto_ptr<reco::HFEMClusterShapeCollection> retdata1(new HFEMClusterShapeCollection());
-  std::auto_ptr<reco::SuperClusterCollection> retdata2(new SuperClusterCollection());
+  auto retdata1 = std::make_unique<HFEMClusterShapeCollection>();
+  auto retdata2 = std::make_unique<SuperClusterCollection>();
 
   algo_.isMC(!e.isRealData());
  
@@ -47,17 +47,16 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   edm::OrphanHandle<reco::HFEMClusterShapeCollection> ShapeHandle;
 
   // put the results
-  ShapeHandle=e.put(retdata1);
-  SupHandle=e.put(retdata2);
+  ShapeHandle=e.put(std::move(retdata1));
+  SupHandle=e.put(std::move(retdata2));
 
-  std::auto_ptr<reco::HFEMClusterShapeAssociationCollection> retdata3(
-    new HFEMClusterShapeAssociationCollection(SupHandle, ShapeHandle));
+  auto retdata3 = std::make_unique<HFEMClusterShapeAssociationCollection>(SupHandle, ShapeHandle);
 
   for (unsigned int i=0; i < ShapeHandle->size();i++){
     retdata3->insert(edm::Ref<reco::SuperClusterCollection>(SupHandle,i),edm::Ref<reco::HFEMClusterShapeCollection>(ShapeHandle,i));
   }
 
 
-  e.put(retdata3);
+  e.put(std::move(retdata3));
 
 }

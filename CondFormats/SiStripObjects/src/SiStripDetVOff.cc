@@ -95,7 +95,7 @@ bool SiStripDetVOff::IsModuleHVOff(const uint32_t DetId) const
   return false;
 }
 
-void SiStripDetVOff::printDebug(std::stringstream & ss) const
+void SiStripDetVOff::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const
 {
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
@@ -112,44 +112,24 @@ void SiStripDetVOff::printDebug(std::stringstream & ss) const
 
 int SiStripDetVOff::getLVoffCounts() const
 {
-  SiStripDetSummary summaryLV;
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
-  constVoffIterator it = detIds.begin();
-  for( ; it!=detIds.end(); ++it ) {
-    if( IsModuleLVOff(*it)) summaryLV.add(*it);
-  }
-  int totalCount = 0;
-  std::map<unsigned int, SiStripDetSummary::Values> counts = summaryLV.getCounts();
-  std::map<unsigned int, SiStripDetSummary::Values>::const_iterator mapIt = counts.begin();
-  for( ; mapIt != counts.end(); ++mapIt ) {
-    totalCount += mapIt->second.count;
-  }
-  return totalCount;
+  return std::count_if(std::begin(detIds), std::end(detIds),
+      [this] ( uint32_t id ) -> bool { return IsModuleLVOff(id); });
 }
 
 int SiStripDetVOff::getHVoffCounts() const
 {
-  SiStripDetSummary summaryHV;
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
-  constVoffIterator it = detIds.begin();
-  for( ; it!=detIds.end(); ++it ) {
-    if( IsModuleHVOff(*it)) summaryHV.add(*it);
-  }
-  int totalCount = 0;
-  std::map<unsigned int, SiStripDetSummary::Values> counts = summaryHV.getCounts();
-  std::map<unsigned int, SiStripDetSummary::Values>::const_iterator mapIt = counts.begin();
-  for( ; mapIt != counts.end(); ++mapIt ) {
-    totalCount += mapIt->second.count;
-  }
-  return totalCount;
+  return std::count_if(std::begin(detIds), std::end(detIds),
+      [this] ( uint32_t id ) -> bool { return IsModuleHVOff(id); });
 }
 
-void SiStripDetVOff::printSummary(std::stringstream & ss) const
+void SiStripDetVOff::printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
-  SiStripDetSummary summaryHV;
-  SiStripDetSummary summaryLV;
+  SiStripDetSummary summaryHV{trackerTopo};
+  SiStripDetSummary summaryLV{trackerTopo};
   std::vector<uint32_t> detIds;
   getDetIds(detIds);
   constVoffIterator it = detIds.begin();

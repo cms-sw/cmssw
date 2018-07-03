@@ -12,7 +12,10 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
-
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 
 // ------------------------------------------------------------------------------------------
@@ -20,7 +23,7 @@ class PuppiProducer : public edm::stream::EDProducer<> {
 
 public:
 	explicit PuppiProducer(const edm::ParameterSet&);
-	~PuppiProducer();
+	~PuppiProducer() override;
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	typedef math::XYZTLorentzVector LorentzVector;
@@ -29,18 +32,14 @@ public:
 	typedef edm::View<reco::Candidate> CandidateView;
 	typedef std::vector< reco::PFCandidate >               PFInputCollection;
 	typedef std::vector< reco::PFCandidate >  PFOutputCollection;
+	typedef std::vector< pat::PackedCandidate >            PackedOutputCollection;
 	typedef edm::View<reco::PFCandidate>                   PFView;
 
 private:
 	virtual void beginJob() ;
-	virtual void produce(edm::Event&, const edm::EventSetup&);
+	void produce(edm::Event&, const edm::EventSetup&) override;
 	virtual void endJob() ;
       
-	virtual void beginRun(edm::Run&, edm::EventSetup const&);
-	virtual void endRun(edm::Run&, edm::EventSetup const&);
-	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
 	edm::EDGetTokenT< CandidateView > tokenPFCandidates_;
 	edm::EDGetTokenT< VertexCollection > tokenVertices_;
 	std::string     fPuppiName;
@@ -50,12 +49,15 @@ private:
 	bool 			fPuppiForLeptons;
 	bool            fUseDZ;
 	float           fDZCut;
+	float           fPtMax;
 	bool fUseExistingWeights;
 	bool fUseWeightsNoLep;
+	bool fClonePackedCands;
 	int fVtxNdofCut;
 	double fVtxZCut;
 	std::unique_ptr<PuppiContainer> fPuppiContainer;
 	std::vector<RecoObj> fRecoObjCollection;
-        std::auto_ptr< PFOutputCollection >          fPuppiCandidates;
+        std::unique_ptr< PFOutputCollection >          fPuppiCandidates;
+	std::unique_ptr< PackedOutputCollection >      fPackedPuppiCandidates;
 };
 #endif

@@ -11,11 +11,11 @@ class ConfigurableKalmanFitter : public AbstractConfFitter
 {
   public:
     ConfigurableKalmanFitter ();
-    void configure ( const edm::ParameterSet & );
+    void configure ( const edm::ParameterSet & ) override;
     ConfigurableKalmanFitter ( const ConfigurableKalmanFitter & o );
-    ~ConfigurableKalmanFitter();
-    ConfigurableKalmanFitter * clone () const;
-    edm::ParameterSet defaults() const;
+    ~ConfigurableKalmanFitter() override;
+    ConfigurableKalmanFitter * clone () const override;
+    edm::ParameterSet defaults() const override;
 
 };
 

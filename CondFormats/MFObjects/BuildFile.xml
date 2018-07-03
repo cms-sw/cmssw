@@ -2,7 +2,6 @@
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="CondFormats/Common"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="boost_serialization"/>
 
 <export>

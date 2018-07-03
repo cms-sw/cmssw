@@ -63,13 +63,17 @@ namespace sistrip {
 
     inline void doAPVEmulatorCheck( bool );
 
+    inline void legacy( bool );
+
+    void printWarningSummary() const { warnings_.printSummary(); }
+
   private:
     
     /// fill DetSetVectors using registries
     void update( RawDigis& scope_mode, RawDigis& virgin_raw, RawDigis& proc_raw, Digis& zero_suppr, RawDigis& common_mode );
     
     /// private default constructor
-    RawToDigiUnpacker();
+    RawToDigiUnpacker() = delete;
     
     /// sets the SiStripEventSummary -> not yet implemented for FEDBuffer class
     void updateEventSummary( const sistrip::FEDBuffer&, SiStripEventSummary& );
@@ -128,6 +132,7 @@ namespace sistrip {
     bool extractCm_;    
     bool doFullCorruptBufferChecks_;
     bool doAPVEmulatorCheck_;
+    bool legacy_;
     uint32_t errorThreshold_;
     
     /// registries
@@ -143,8 +148,26 @@ namespace sistrip {
     std::vector<SiStripRawDigi> scope_work_digis_; 
     std::vector<SiStripRawDigi> proc_work_digis_;
     std::vector<SiStripRawDigi> cm_work_digis_;
+
+    class WarningSummary {
+    public:
+      WarningSummary(const std::string& category, const std::string& name, bool debug=false)
+        : m_debug(debug)
+        , m_category(category)
+        , m_name(name)
+      {}
+
+      void add(const std::string& message, const std::string& details="");
+      void printSummary() const;
+
+    private:
+      bool m_debug;
+      std::string m_category;
+      std::string m_name;
+      std::vector<std::pair<std::string,std::size_t>> m_warnings;
+    };
+    WarningSummary warnings_;
   };
-  
 }
 
 void sistrip::RawToDigiUnpacker::readoutOrder( uint16_t& physical_order, uint16_t& readout_order ) 
@@ -167,13 +190,7 @@ sistrip::FedBufferFormat sistrip::RawToDigiUnpacker::fedBufferFormat( const uint
 
 sistrip::FedReadoutMode sistrip::RawToDigiUnpacker::fedReadoutMode( const uint16_t& register_value ) 
 {
-  if ( ((register_value>>1)&0x7) == 0x0 ) { return sistrip::FED_SCOPE_MODE; }
-  else if ( ((register_value>>1)&0x7) == 0x1 ) { return sistrip::FED_VIRGIN_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::FED_PROC_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::FED_ZERO_SUPPR; }
-  else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::FED_ZERO_SUPPR_LITE; }
-  else if ( ((register_value>>1)&0x7) == 0x7 ) { return sistrip::FED_PREMIX_RAW; } //new mode
-  else { return sistrip::UNKNOWN_FED_READOUT_MODE; }
+  return static_cast<sistrip::FedReadoutMode>(register_value&0xF);
 }
 
 void sistrip::RawToDigiUnpacker::quiet( bool quiet ) { quiet_ = quiet; }
@@ -185,6 +202,8 @@ void sistrip::RawToDigiUnpacker::extractCm( bool extract_cm ) { extractCm_ = ext
 void sistrip::RawToDigiUnpacker::doFullCorruptBufferChecks( bool do_full_corrupt_buffer_checks ) { doFullCorruptBufferChecks_ = do_full_corrupt_buffer_checks; }
 
 void sistrip::RawToDigiUnpacker::doAPVEmulatorCheck( bool do_APVEmulator_check) { doAPVEmulatorCheck_ = do_APVEmulator_check; }
+
+void sistrip::RawToDigiUnpacker::legacy( bool legacy ) { legacy_ = legacy; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 

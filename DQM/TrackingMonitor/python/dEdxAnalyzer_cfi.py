@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dEdxAnalyzer = DQMEDAnalyzer('dEdxAnalyzer',
     dEdxParameters = cms.PSet(
        doAllPlots          = cms.bool(False),
        doDeDxPlots         = cms.bool(True),
@@ -12,6 +13,8 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
 #       TracksForDeDx       = cms.string('RefitterForDedxDQMDeDx'),
        TracksForDeDx       = cms.string('generalTracks'),
        deDxProducers       = cms.vstring('dedxDQMHarm2SP', 'dedxDQMHarm2SO', 'dedxDQMHarm2PO'),
+
+       genericTriggerEventPSet = cms.PSet(),
 
        #cuts on number of hits
        TrackHitMin         = cms.double(8),
@@ -44,7 +47,7 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
 )
 
 
-dEdxHitAnalyzer = cms.EDAnalyzer("dEdxHitAnalyzer",
+dEdxHitAnalyzer = DQMEDAnalyzer('dEdxHitAnalyzer',
     dEdxParameters = cms.PSet(
        doAllPlots          = cms.bool(False),
        doDeDxPlots         = cms.bool(True),
@@ -55,6 +58,8 @@ dEdxHitAnalyzer = cms.EDAnalyzer("dEdxHitAnalyzer",
        #input collections
        TracksForDeDx       = cms.string('generalTracks'),
        deDxHitProducers       = cms.vstring('dedxHitInfo'),
+
+       genericTriggerEventPSet = cms.PSet(),
 
        #histograms definition
        dEdxNHitBin         = cms.int32(30),

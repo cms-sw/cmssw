@@ -271,7 +271,7 @@ public:
   /**
      Destructor.
    */
-  virtual ~Chisq_Constrainer () {}
+  ~Chisq_Constrainer () override {}
 
   // Do the fit.
   // Call the number of well-measured variables Nw, the number of
@@ -346,7 +346,7 @@ public:
      \f$\chi^{2}\f$ of the fit.  Should returns a negative value if the fit
      does not converge.
    */
-  virtual double fit (Constraint_Calculator& constraint_calculator,
+  double fit (Constraint_Calculator& constraint_calculator,
                       const Column_Vector& xm,
                       Column_Vector& x,
                       const Column_Vector& ym,
@@ -357,7 +357,7 @@ public:
                       Column_Vector& pully,
                       Matrix& Q,
                       Matrix& R,
-                      Matrix& S);
+                      Matrix& S) override;
 
   // Print out any internal state to S.
 /**
@@ -365,7 +365,7 @@ public:
 
      @param s The output stream to which the output is sent.
  */
-  virtual std::ostream& print (std::ostream& s) const;
+  std::ostream& print (std::ostream& s) const override;
 
 
 private:

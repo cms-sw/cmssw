@@ -23,7 +23,11 @@ DQMCertEcal = cms.Sequence(ecalDaqInfoTask * ecalPreshowerDaqInfoTask *
                            ecalDcsInfoTask * ecalPreshowerDcsInfoTask *
                            ecalCertification * ecalPreshowerDataCertificationTask)
 
-DQMCertHcal = cms.Sequence(hcalDAQInfo *
-                           hcalDataCertification)                           
-
 DQMCertJetMET = cms.Sequence(dataCertificationJetMETSequence)
+
+from DQM.SiPixelPhase1Config.SiPixelPhase1OfflineDQM_harvesting_cff import *
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+
+phase1Pixel.toReplaceWith(DQMCertCommon, DQMCertCommon.copyAndExclude([ # FIXME
+    sipixelCertification # segfaults when included
+]))

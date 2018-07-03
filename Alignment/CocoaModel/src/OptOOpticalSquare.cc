@@ -29,7 +29,7 @@ void OptOOpticalSquare::detailedDeviatesLightRay( LightRay& lightray )
 {
   if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED DEVIATION IN OPTICAL SQUARE " << name() << std::endl;
 
-  calculateFaces( 1 );
+  calculateFaces( true );
 
   //---------- Deviate in prism
   //---------- Refract after entering face 0, reflect in face 1, reflect in face 2, refract after face 3
@@ -66,7 +66,7 @@ void OptOOpticalSquare::detailedTraversesLightRay( LightRay& lightray )
 {
   if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSES OPTICAL SQUARE " << name() << std::endl;
 
-  calculateFaces( 1 );
+  calculateFaces( true );
   const ALIdouble refra_ind = findExtraEntryValueMustExist("refra_ind");
   const ALIdouble refra_ind0 = 1.; 
 
@@ -85,7 +85,7 @@ void OptOOpticalSquare::fastDeviatesLightRay( LightRay& lightray )
 {
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST DEVIATION IN OPTICAL SQUARE " << name() << std::endl;
   
-  calculateFaces( 0 );
+  calculateFaces( false );
   
   //---------- Deviate in prism
   lightray.reflect( ALIPlane(faceP[1],faceV[1] ));
@@ -130,7 +130,7 @@ void OptOOpticalSquare::fastTraversesLightRay( LightRay& lightray )
 {
   //  std::cerr << " WARNING  there should be an extra piece to make entering and exiting surfaces parallel (like in modified_rhomboid_prism) " << std::endl;
 
-  calculateFaces( 0 );
+  calculateFaces( false );
 
   lightray.intersect( ALIPlane(faceP[1],faceV[1] ));
   //---------- Shift and Deviate

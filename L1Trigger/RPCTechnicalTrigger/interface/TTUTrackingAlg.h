@@ -27,13 +27,13 @@ public:
   /// Standard constructor
   TTUTrackingAlg( ); 
   
-  virtual ~TTUTrackingAlg( ); ///< Destructor
+  ~TTUTrackingAlg( ) override; ///< Destructor
 
   //... from TTULogic interface:
   
-  bool process( const TTUInput & );
+  bool process( const TTUInput & ) override;
   
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
+  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
   
   //...
   

@@ -1,7 +1,7 @@
 #ifndef DataFormats_Phase2TrackerDigi_Phase2TrackerDigi_H
 #define DataFormats_Phase2TrackerDigi_Phase2TrackerDigi_H
 
-#include <stdint.h>
+#include <cstdint>
 #include <utility>
 #include <cassert> 
 
@@ -20,6 +20,11 @@ public:
     theChannel = pixelToChannel(row,col);
   }
 
+  Phase2TrackerDigi( unsigned int row, unsigned int col, bool ot_flag) {    
+    theChannel = pixelToChannel(row,col);
+    if (ot_flag) theChannel |= (1<< 15);
+  }
+  
   Phase2TrackerDigi() : theChannel(0)  {}
 
   // Access to digi information - pixel sensors
@@ -29,7 +34,9 @@ public:
   unsigned int strip()   const { return row(); }
   unsigned int edge()    const { return column(); } // CD: any better name for that? 
   // Access to the (raw) channel number
-  unsigned int channel() const { return theChannel; }
+  unsigned int channel() const { return 0x7FFF & theChannel; }
+  // Access Overthreshold bit
+  bool overThreshold() const { return (otBit(theChannel) ? true : false); }
 
   static std::pair<unsigned int,unsigned int> channelToPixel( unsigned int ch) {
     return std::pair<unsigned int, unsigned int>(channelToRow(ch),channelToColumn(ch));
@@ -43,14 +50,21 @@ public:
 
  private:
   PackedDigiType theChannel;
-  static unsigned int channelToRow( unsigned int ch) { return ch & 0x03FF; } // (theChannel & 0x03FF)>>0 
-  static unsigned int channelToColumn( unsigned int ch) { return ch >> 10; } // (theChannel & 0xFC00)>>10
+  static unsigned int channelToRow( unsigned int ch) { return ch & 0x03FF; } 
+  static unsigned int channelToColumn( unsigned int ch) { return ((ch >> 10) & 0x1F); } 
+  static unsigned int otBit( unsigned int ch) { return ((ch >> 15) & 0x1) ; } 
 };  
 
 // Comparison operators
 inline bool operator<( const Phase2TrackerDigi& one, const Phase2TrackerDigi& other) {
   return one.channel() < other.channel();
 }
+
+// distance operators
+inline int operator-( const Phase2TrackerDigi& one, const Phase2TrackerDigi& other) {
+  return int(one.channel()) - int(other.channel());
+}
+
 
 #include<iostream>
 inline std::ostream & operator<<(std::ostream & o, const Phase2TrackerDigi& digi) {

@@ -169,7 +169,7 @@ void SpaceManager::createCalibrators(const Calibrator& toClone,
 		const unsigned nEta, const double etaMin, const double etaMax,
 		const unsigned nPhi, const double phiMin, const double phiMax,
 		const unsigned nEnergy, const double energyMin, const double energyMax)
-		throw(PFToolsException&) {
+		noexcept(false) {
 	clear();
 
 	if (nEta == 0|| nPhi ==0|| nEnergy == 0) {
@@ -221,7 +221,7 @@ CalibratorPtr SpaceManager::createCalibrator(const Calibrator& toClone,
 	} else {
 		c = myAddressBook[s];
 	}
-	assert(c != 0);
+	assert(c != nullptr);
 	return c;
 
 }
@@ -344,7 +344,7 @@ double SpaceManager::interpolateCoefficient(DetectorElementPtr det,
 	if (diffEnergy > 0) {
 		//look to higher energy calibrators
 		CalibratorPtr adjC = findCalibrator(eta, phi, s->maxEnergy() + 0.1);
-		if (adjC != 0) {
+		if (adjC != nullptr) {
 			SpaceVoxelPtr adjS = inverseAddressBook_[adjC];
 			adjacentCoeff = calibrationCoeffs_[adjC][det];
 			adjacentEnergy = (adjS->minEnergy() + adjS->maxEnergy()) / 2.0;
@@ -352,7 +352,7 @@ double SpaceManager::interpolateCoefficient(DetectorElementPtr det,
 	} else {
 		//look to lower energy calibrations
 		CalibratorPtr adjC = findCalibrator(eta, phi, s->minEnergy() - 0.1);
-		if (adjC != 0) {
+		if (adjC != nullptr) {
 			SpaceVoxelPtr adjS = inverseAddressBook_[adjC];
 			adjacentCoeff = calibrationCoeffs_[adjC][det];
 			adjacentEnergy = (adjS->minEnergy() + adjS->maxEnergy()) / 2.0;

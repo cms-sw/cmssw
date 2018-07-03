@@ -45,17 +45,17 @@ class MCatNLOSource : public edm::ProducerSourceFromFiles,
 public:
   explicit MCatNLOSource(const edm::ParameterSet &params,
 		      const edm::InputSourceDescription &desc);
-  virtual ~MCatNLOSource();
+  ~MCatNLOSource() override;
   
 private:
-  virtual void endJob();
-  virtual void beginRun(edm::Run &run);
-  virtual bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&);
-  virtual void produce(edm::Event &event);
+  void endJob() override;
+  void beginRun(edm::Run &run) override;
+  bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
+  void produce(edm::Event &event) override;
   
   void nextEvent();
 
-  virtual bool hwwarn(const std::string &fn, int code);
+  bool hwwarn(const std::string &fn, int code) override;
 
   /// Name of the input file
   std::string                   fileName;

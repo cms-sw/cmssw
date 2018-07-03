@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="IntermediateHitDoublets" persistent="false"/>
+  <class name="edm::Wrapper<IntermediateHitDoublets>" persistent="false"/>
+  <class name="RegionsSeedingHitSets" persistent="false"/>
+  <class name="edm::Wrapper<RegionsSeedingHitSets>" persistent="false"/>
+</lcgdict>

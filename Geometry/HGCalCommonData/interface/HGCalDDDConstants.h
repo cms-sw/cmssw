@@ -11,84 +11,138 @@
  *
  */
 
-#include<string>
-#include<vector>
-#include<iostream>
-#include <CLHEP/Geometry/Transform3D.h>
-
+#include <string>
+#include <vector>
+#include <iostream>
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
-class DDCompactView;    
-class DDFilteredView;
+#include <unordered_map>
 
 class HGCalDDDConstants {
 
 public:
 
-  struct hgtrap {
-    hgtrap(int lay0, float bl0, float tl0, float h0, float dz0, float alpha0): 
-      lay(lay0),bl(bl0),tl(tl0),h(h0),dz(dz0),alpha(alpha0),cellSize(0) {}
-    int           lay;
-    float         bl, tl, h, dz, alpha, cellSize;
-  };
-  struct hgtrform {
-    hgtrform(int zp0, int lay0, int sec0, int subsec0): zp(zp0), lay(lay0), sec(sec0), subsec(subsec0),used(false) {}
-    int                zp, lay, sec, subsec;
-    bool               used;
-    CLHEP::Hep3Vector  h3v;
-    CLHEP::HepRotation hr;
-  };
-
-
-  HGCalDDDConstants(const DDCompactView& cpv, std::string & name);
+  HGCalDDDConstants(const HGCalParameters* hp, const std::string& name);
   ~HGCalDDDConstants();
 
   std::pair<int,int>  assignCell(float x, float y, int lay, int subSec,
 				 bool reco) const;
-  std::pair<int,int>  assignCell(float x, float y, float h, float bl, float tl,
-				 float alpha, float cellSize) const;
-  std::pair<int,int>  findCell(int cell, int lay, int subSec, bool reco) const;
-  std::pair<int,int>  findCell(int cell, float h, float bl, float tl, 
-			       float alpha, float cellSize) const;
-  bool                isValid(int lay, int mod, int cell, bool reco) const;
-  unsigned int        layers(bool reco) const {return (reco ? depthIndex.size() : layerIndex.size());}
-  std::pair<float,float> locateCell(int cell, int lay, int subSec,
+  std::array<int,5>   assignCellHex(float x, float y, int lay, 
 				    bool reco) const;
+  std::array<int,3>   assignCellTrap(float x, float y, float z, int lay, 
+				     bool reco) const;
+  double              cellSizeHex(int type) const;
+  double              cellThickness(int layer, int waferU, int waferV) const;
+  void                etaPhiFromPosition(const double x, const double y,
+					 const double z, const int layer,
+					 int& ieta, int& iphi, int& type,
+					 double& wt) const;
+  int                 firstLayer() const {return hgpar_->firstLayer_;}
+  HGCalGeometryMode::GeometryMode geomMode() const {return mode_;}
+  int                 getLayer(double z, bool reco) const;
+  HGCalParameters::hgtrap getModule(unsigned int k, bool hexType, bool reco) const;
+  std::vector<HGCalParameters::hgtrap> getModules() const; 
+  const HGCalParameters* getParameter() const {return hgpar_;}
+  HGCalParameters::hgtrform getTrForm(unsigned int k) const {return hgpar_->getTrForm(k);}
+  unsigned int        getTrFormN() const {return hgpar_->trformIndex_.size();}
+  std::vector<HGCalParameters::hgtrform> getTrForms() const ;
+  int                 getTypeTrap(int layer) const;
+  int                 getTypeHex(int layer, int waferU, int waferV) const;
+  bool                isHalfCell(int waferType, int cell) const;
+  bool                isValidHex(int lay, int mod, int cell, bool reco) const;
+  bool                isValidHex8(int lay, int modU, int modV, int cellU,
+				  int cellV) const;
+  bool                isValidTrap(int lay, int ieta, int iphi) const;
+  int                 layerIndex(int lay, bool reco) const;
+  unsigned int        layers(bool reco) const;
+  unsigned int        layersInit(bool reco) const;
+  std::pair<float,float> locateCell(int cell, int lay, int type, 
+				    bool reco) const;
+  std::pair<float,float> locateCell(int lay, int waferU, int waferV, int cellU,
+				    int cellV, bool reco, bool all) const;
+  std::pair<float,float> locateCellHex(int cell, int wafer, bool reco) const;
+  std::pair<float,float> locateCellTrap(int lay, int ieta, int iphi,
+					bool reco) const;
+  int                 levelTop(int ind=0) const {return hgpar_->levelT_[ind];}
+  int                 maxCellUV() const {
+    return ((mode_==HGCalGeometryMode::Trapezoid) ? hgpar_->nCellsFine_ :
+	    2*hgpar_->nCellsFine_);}
   int                 maxCells(bool reco) const;
   int                 maxCells(int lay, bool reco) const;
-  int                 maxCells(float h, float bl, float tl, float alpha,
-			       float cellSize) const;
+  int                 maxModules() const {return modHalf_;}
+  int                 maxMoudlesPerLayer() const {return maxWafersPerLayer_;}
   int                 maxRows(int lay, bool reco) const;
-  std::pair<int,int>  newCell(int cell, int layer, int sector, int subsector,
-			      int incrx, int incry, bool half) const;
-  std::pair<int,int>  newCell(int cell, int layer, int subsector, int incrz,
-			      bool half) const;
-  int                 newCell(int kx, int ky, int lay, int subSec) const;
+  double              minSlope() const {return hgpar_->slopeMin_;}
+  int                 modules(int lay, bool reco) const;
+  int                 modulesInit(int lay, bool reco) const;
+  double              mouseBite(bool reco) const;
+  int                 numberCells(bool reco) const;
   std::vector<int>    numberCells(int lay, bool reco) const;
-  std::vector<int>    numberCells(float h, float bl, float tl, float alpha,
-				  float cellSize) const;
-  int                 sectors() const {return nSectors;}
-  std::pair<int,int>  simToReco(int cell, int layer, bool half) const;
+  int                 numberCellsHexagon(int wafer) const;
+  int                 numberCellsHexagon(int lay, int waferU, int waferV,
+					 bool flag) const;
+  std::pair<int,int>  rowColumnWafer(const int wafer) const;
+  int                 scintType(const float dPhi) const 
+  { return ((dPhi < dPhiMin) ? 0 : 1); }
+  int                 sectors() const {return hgpar_->nSectors_;}
+  std::pair<int,int>  simToReco(int cell, int layer, int mod, bool half) const;
+  unsigned int        volumes() const {return hgpar_->moduleLayR_.size();}
+  int                 waferFromCopy(int copy) const;
+  void                waferFromPosition(const double x, const double y,
+					int& wafer, int& icell, 
+					int& celltyp) const;
+  void                waferFromPosition(const double x, const double y,
+					const int layer, int& waferU,
+					int& waferV, int& cellU, int& cellV,
+					int& celltype, double& wt) const;
+  bool                waferInLayer(int wafer, int lay, bool reco) const;
+  int                 waferCount(const int type) const {return ((type == 0) ? waferMax_[2] : waferMax_[3]);}
+  int                 waferMax() const {return waferMax_[1];}
+  int                 waferMin() const {return waferMax_[0];}
+  std::pair<double,double> waferPosition(int wafer, bool reco) const;
+  std::pair<double,double> waferPosition(int waferU, int waferV, bool reco) const;
+  double              waferSepar(bool reco) const {return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD*hgpar_->sensorSeparation_);}
+  double              waferSize(bool reco) const {return (reco ? hgpar_->waferSize_ : HGCalParameters::k_ScaleToDDD*hgpar_->waferSize_);}
+  int                 wafers() const;
+  int                 wafers(int layer, int type) const;
+  int                 waferToCopy(int wafer) const {return ((wafer>=0)&&(wafer< (int)(hgpar_->waferCopy_.size()))) ? hgpar_->waferCopy_[wafer] : (int)(hgpar_->waferCopy_.size());}
+  // wafer transverse thickness classification (2 = coarse, 1 = fine)
+  int                 waferTypeT(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeT_.size()))) ? hgpar_->waferTypeT_[wafer] : 0;}
+  // wafer longitudinal thickness classification (1 = 100um, 2 = 200um, 3=300um)
+  int                 waferTypeL(int wafer) const {return ((wafer>=0)&&(wafer<(int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;}
+  int                 waferType(DetId const& id) const;
+  int                 waferUVMax() const {return hgpar_->waferUVMax_;}
+  double              waferZ(int layer, bool reco) const;
 
-  std::vector<hgtrap>::const_iterator getFirstModule(bool reco=false) const { return (reco ? moduler_.begin() : modules_.begin()); }
-  std::vector<hgtrap>::const_iterator getLastModule(bool reco=false)  const { return (reco ? moduler_.end() : modules_.end()); }
-   std::vector<hgtrform>::const_iterator getFirstTrForm() const { return trform_.begin(); }
-  std::vector<hgtrform>::const_iterator getLastTrForm()  const { return trform_.end(); }
- 
 private:
-  void                initialize(const DDCompactView& cpv, std::string name);
-  void                loadGeometry(const DDFilteredView& fv, const std::string& tag);
-  void                loadSpecPars(const DDFilteredView& fv);
-  std::vector<double> getDDDArray(const std::string &, 
-                                  const DDsvalues_type &, int &) const;
-  std::pair<int,float> getIndex(int lay, bool reco) const;
+  int  cellHex(double xx, double yy, const double& cellR, 
+	       const std::vector<double>& posX,
+	       const std::vector<double>& posY) const;  
+  void cellHex(double xloc, double yloc, int cellType, int& cellU, 
+	       int& cellV) const;
+  std::pair<int,float>   getIndex(int lay, bool reco) const;
+  bool isValidCell(int layindex, int wafer, int cell) const;
+  bool waferInLayer(int wafer, int lay) const;
 
-  int                 nCells, nSectors, nLayers;
-  std::vector<double> cellSize_;
-  std::vector<hgtrap> modules_, moduler_;
-  std::vector<hgtrform> trform_;
-  std::vector<int>    layer_, layerIndex;
-  std::vector<int>    layerGroup_, cellFactor_, depth_, depthIndex;
+  const double k_horizontalShift = 1.0;
+  const float  dPhiMin           = 0.02;
+  typedef std::array<std::vector<int32_t>, 2> Simrecovecs;  
+  typedef std::array<int,3>                   HGCWaferParam;
+  const HGCalParameters*                      hgpar_;
+  constexpr static double                     tan30deg_ = 0.5773502693;
+  const double                                sqrt3_;
+  double                                      rmax_, hexside_;
+  HGCalGeometryMode::GeometryMode             mode_;
+  int32_t                                     tot_wafers_, modHalf_;
+  std::array<uint32_t,2>                      tot_layers_;
+  Simrecovecs                                 max_modules_layer_;
+  int32_t                                     maxWafersPerLayer_;
+  std::map<int,HGCWaferParam>                 waferLayer_;
+  std::array<int,4>                           waferMax_;
+  std::unordered_map<int32_t,bool>            waferIn_;
 };
 
 #endif

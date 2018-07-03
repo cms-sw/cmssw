@@ -60,12 +60,12 @@ ecalTestPulseClient = cms.untracked.PSet(
                 gain = ecaldqmMGPAGains
             ),
             kind = cms.untracked.string('TH2F'),
-            otype = cms.untracked.string('Ecal2P'),
+            otype = cms.untracked.string('SM'),
             zaxis = cms.untracked.PSet(
                 title = cms.untracked.string('rms (ADC counts)')
             ),
             btype = cms.untracked.string('Crystal'),
-            path = cms.untracked.string('%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse rms G%(gain)s'),
+            path = cms.untracked.string('%(subdet)s/%(prefix)sTestPulseClient/%(prefix)sTPT test pulse rms G%(gain)s %(sm)s'),
             description = cms.untracked.string('2D distribution of the amplitude RMS. Channels with entries less than ' + str(minChannelEntries) + ' are not considered.')
         )
     )

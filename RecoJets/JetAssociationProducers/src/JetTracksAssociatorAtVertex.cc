@@ -38,7 +38,7 @@ void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSe
   edm::Handle <reco::TrackCollection> tracks_h;
   fEvent.getByToken (mTracks, tracks_h);
   
-  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
+  auto jetTracks = std::make_unique<reco::JetTracksAssociation::Container>(reco::JetRefBaseProd(jets_h));
 
   // format inputs
   std::vector <edm::RefToBase<reco::Jet> > allJets;
@@ -61,5 +61,5 @@ void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSe
 
 
   // store output
-  fEvent.put (jetTracks);
+  fEvent.put(std::move(jetTracks));
 }

@@ -55,16 +55,16 @@ public:
  L1TdeRCT(const edm::ParameterSet& ps);
 
 // Destructor
- virtual ~L1TdeRCT();
+ ~L1TdeRCT() override;
 
 protected:
 // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 //For FED vector monitoring 
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void readFEDVector(MonitorElement*,const edm::EventSetup&); 
 
 private:
@@ -268,6 +268,8 @@ private:
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;
   edm::EDGetTokenT<L1CaloRegionCollection> rctSourceData_rgnData_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceData_emData_;
+  edm::EDGetTokenT<L1CaloRegionCollection> gctSourceData_rgnData_;
+  edm::EDGetTokenT<L1CaloEmCollection> gctSourceData_emData_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;
@@ -276,6 +278,9 @@ private:
 
   /// filter TriggerType
   int filterTriggerType_;
+  int selectBX_;
+
+  std::string dataInputTagName_;
 
 
   int trigCount,notrigCount;

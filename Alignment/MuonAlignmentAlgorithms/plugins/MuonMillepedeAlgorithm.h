@@ -26,21 +26,21 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
   MuonMillepedeAlgorithm(const edm::ParameterSet& cfg);
 
   /// Destructor
-  ~MuonMillepedeAlgorithm() {};
+  ~MuonMillepedeAlgorithm() override {};
 
   /// Call at beginning of job
   void initialize( const edm::EventSetup& setup, 
                    AlignableTracker* tracker, AlignableMuon* muon,
 		   AlignableExtras* extras,
-                   AlignmentParameterStore* store);
+                   AlignmentParameterStore* store) override;
 
   /// Call at end of job
-  void terminate(const edm::EventSetup& setup);
+  void terminate(const edm::EventSetup& setup) override;
 
 
 
   /// Run the algorithm
-  void run(const edm::EventSetup& setup, const EventInfo &eventInfo);
+  void run(const edm::EventSetup& setup, const EventInfo &eventInfo) override;
 
   void updateInfo(const AlgebraicMatrix&, const AlgebraicMatrix&, const AlgebraicMatrix&, std::string);
  
@@ -55,7 +55,7 @@ class MuonMillepedeAlgorithm : public AlignmentAlgorithmBase
   void printM(const AlgebraicMatrix& ); 
   
   AlignmentParameterStore* theAlignmentParameterStore;
-  std::vector<Alignable*> theAlignables;
+  align::Alignables theAlignables;
   AlignableNavigator* theAlignableDetAccessor;
 
   // verbosity flag

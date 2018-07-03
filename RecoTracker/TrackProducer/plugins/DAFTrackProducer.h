@@ -22,13 +22,14 @@ public:
   explicit DAFTrackProducer(const edm::ParameterSet& iConfig);
 
   // Implementation of produce method
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   DAFTrackProducerAlgorithm theAlgo;
+  using TrackProducerBase<reco::Track>::getFromEvt;
   void getFromEvt(edm::Event&, edm::Handle<TrajTrackAssociationCollection>&, reco::BeamSpot&);
   void putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollection & trajannResults,
-                std::auto_ptr<TrajAnnealingCollection>& selTrajAnn);
+                std::unique_ptr<TrajAnnealingCollection>& selTrajAnn);
 
   bool TrajAnnSaving_;
   edm::EDGetToken srcTT_;

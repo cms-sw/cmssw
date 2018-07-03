@@ -20,7 +20,7 @@ private:
     
 public:
     TCell() { _id=0; _e=0.0; }
-    ~TCell() {};
+    ~TCell() override {};
     TCell(UInt_t i, Float_t e) { _id=i; _e=e; }
     
     Float_t e()  { return _e; }
@@ -30,7 +30,7 @@ public:
     void SetId(UInt_t i) { _id=i; }
     
     
-    ClassDef(TCell, 1);
+    ClassDefOverride(TCell, 1);
 };
 
 #endif	/* _TCELL_H */

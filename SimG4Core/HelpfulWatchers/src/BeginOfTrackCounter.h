@@ -45,14 +45,14 @@ namespace simwatcher {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
-      BeginOfTrackCounter(const BeginOfTrackCounter&); // stop default
+      BeginOfTrackCounter(const BeginOfTrackCounter&) = delete; // stop default
 
-      const BeginOfTrackCounter& operator=(const BeginOfTrackCounter&); // stop default
+      const BeginOfTrackCounter& operator=(const BeginOfTrackCounter&) = delete; // stop default
 
-      void update(const BeginOfTrack*);
+      void update(const BeginOfTrack*) override;
       // ---------- member data --------------------------------
       int m_count;
       std::string m_label;

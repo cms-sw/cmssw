@@ -24,7 +24,7 @@ dEdxHitAnalyzer::dEdxHitAnalyzer(const edm::ParameterSet& iConfig)
   , conf_    (fullconf_.getParameter<edm::ParameterSet>("dEdxParameters") )
   , doAllPlots_  ( conf_.getParameter<bool>("doAllPlots") )
   , doDeDxPlots_ ( conf_.getParameter<bool>("doDeDxPlots") )    
-  , genTriggerEventFlag_( new GenericTriggerEventFlag(conf_,consumesCollector(), *this) )
+  , genTriggerEventFlag_( new GenericTriggerEventFlag(conf_.getParameter<edm::ParameterSet>("genericTriggerEventPSet"),consumesCollector(), *this) )
 {
 
   trackInputTag_ = edm::InputTag(conf_.getParameter<std::string>("TracksForDeDx") );
@@ -152,7 +152,7 @@ void dEdxHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             reco::TrackRef track = reco::TrackRef( trackCollectionHandle, t );
 
             if(track->quality(reco::TrackBase::highPurity) ) {
-               const reco::DeDxHitInfo* dedxHits = NULL;
+               const reco::DeDxHitInfo* dedxHits = nullptr;
                if(!track.isNull()) {
                   reco::DeDxHitInfoRef dedxHitsRef = (*dEdxObjectHandle)[track];
                   if(!dedxHitsRef.isNull())dedxHits = &(*dedxHitsRef);

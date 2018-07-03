@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     branchRefPrefix= argv[3];
     branchNewPrefix= argv[4];
   }
- if (argc == 3);
+ if (argc == 3) {};
  if ((argc != 3) && (argc != 5))
      // initialize plot comparison tool with 4 arguments
     {

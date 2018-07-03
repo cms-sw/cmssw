@@ -25,6 +25,9 @@ process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.tag = "DT"
 #-----------------------------
 
+#Enable HLT*Mu* filtering to monitor on Muon events
+#OR HLT_Physics* to monitor FEDs in commissioning runs
+process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*","HLT_*Physics*")
 
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
@@ -32,9 +35,9 @@ process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
-#---- for offline DB
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
-
+#---- for offline DB: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # message logger
 process.MessageLogger = cms.Service("MessageLogger",
@@ -48,7 +51,7 @@ process.dtDQMPathPhys = cms.Path(process.unpackers + process.dqmmodules + proces
 
 #process.dtDQMPathCalib = cms.Path(process.unpackers + process.dqmmodules + process.calibrationEventsFilter * process.dtDQMCalib)
 
-process.dttfunpacker.DTTF_FED_Source = cms.InputTag("rawDataCollector")
+process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataCollector")
 process.dtunpacker.inputLabel = cms.InputTag("rawDataCollector")
 process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
 process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataCollector")
@@ -76,8 +79,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 #----------------------------
 
 if (process.runType.getRunType() == process.runType.hi_run):
-    process.dtunpacker.fedbyType = cms.bool(False)
-    process.dttfunpacker.DTTF_FED_Source = cms.InputTag("rawDataRepacker")
+    process.twinMuxStage2Digis.DTTM7_FED_Source = cms.InputTag("rawDataRepacker")
     process.dtunpacker.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.scalersRawToDigi.scalersInputTag = cms.InputTag("rawDataRepacker")

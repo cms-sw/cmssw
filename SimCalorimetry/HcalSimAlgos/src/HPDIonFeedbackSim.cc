@@ -27,10 +27,10 @@ using namespace edm;
 using namespace std;
 
 // constants for simulation/parameterization
-double pe2Charge = 0.333333;    // fC/p.e.
+static const double pe2Charge = 0.333333;    // fC/p.e.
 
 HPDIonFeedbackSim::HPDIonFeedbackSim(const edm::ParameterSet & iConfig, const CaloShapes * shapes)
-: theDbService(0), theShapes(shapes)
+: theDbService(nullptr), theShapes(shapes)
 {
 }
 
@@ -130,15 +130,19 @@ void HPDIonFeedbackSim::addThermalNoise(CaloSamples & samples, CLHEP::HepRandomE
 
 double HPDIonFeedbackSim::fCtoGeV(const DetId & detId) const
 {
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(detId);
   const HcalGain* gains = theDbService->getGain(hcalGenDetId);
   const HcalGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);
+  double result = 0.0;
   if (!gains || !gwidths )
   {
     edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
+  } 
+  else 
+  {
+    // only one gain will be recorded per channel, so just use capID 0 for now
+    result = gains->getValue(0);
   }
-  // only one gain will be recorded per channel, so just use capID 0 for now
-  double result = gains->getValue(0);
   return result;
 }

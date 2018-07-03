@@ -170,7 +170,7 @@ TCanvas * DTTimeBoxPlotter::newCanvas(TString name, TString title,
 				    int xdiv, int ydiv, int form, int w){
   static int i = 1;
   if (name == "") {
-    name = TString("Canvas "+i);
+    name = TString("Canvas ") + TString(i);
     i++;
   }
   TCanvas *c = 0;

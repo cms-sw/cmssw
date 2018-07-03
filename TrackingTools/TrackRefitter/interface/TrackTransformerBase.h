@@ -15,10 +15,10 @@ namespace edm {class EventSetup;}
 class TrackTransformerBase {
 public:
   /// Constructor
-  TrackTransformerBase(){};
+  TrackTransformerBase(){}
 
   /// Destructor
-  virtual ~TrackTransformerBase(){};
+  virtual ~TrackTransformerBase(){}
 
   // Operations
 
@@ -27,10 +27,6 @@ public:
 
   /// set the services needed by the TrackTransformers
   virtual void setServices(const edm::EventSetup&) = 0;
-
-protected:
-
-private:
 
 };
 #endif

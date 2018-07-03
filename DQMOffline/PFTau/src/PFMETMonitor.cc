@@ -22,19 +22,19 @@ PFMETMonitor::PFMETMonitor( Benchmark::Mode mode) :
 
   setRange( 0.0, 10e10, -10.0, 10.0, -3.14, 3.14);
 
-  px_                        = 0;
-  sumEt_                     = 0;
-  delta_ex_                  = 0;
-  delta_ex_VS_set_           = 0;
-  delta_set_VS_set_          = 0;
-  delta_set_Over_set_VS_set_ = 0;
+  px_                        = nullptr;
+  sumEt_                     = nullptr;
+  delta_ex_                  = nullptr;
+  delta_ex_VS_set_           = nullptr;
+  delta_set_VS_set_          = nullptr;
+  delta_set_Over_set_VS_set_ = nullptr;
 
-  profile_delta_ex_VS_set_ = 0;
-  profile_delta_set_VS_set_ = 0;
-  profile_delta_set_Over_set_VS_set_ = 0;
-  profileRMS_delta_ex_VS_set_ = 0;
-  profileRMS_delta_set_VS_set_ = 0;
-  profileRMS_delta_set_Over_set_VS_set_ = 0;
+  profile_delta_ex_VS_set_ = nullptr;
+  profile_delta_set_VS_set_ = nullptr;
+  profile_delta_set_Over_set_VS_set_ = nullptr;
+  profileRMS_delta_ex_VS_set_ = nullptr;
+  profileRMS_delta_set_VS_set_ = nullptr;
+  profileRMS_delta_set_Over_set_VS_set_ = nullptr;
   
   createMETSpecificHistos_ = false;
   histogramBooked_ = false;

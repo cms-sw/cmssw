@@ -1,3 +1,4 @@
+<flags   CXXFLAGS="-Ofast"/>
 <use   name="TrackingTools/Records"/>
 <use   name="TrackingTools/GsfTools"/>
 <use   name="FWCore/Framework"/>

@@ -65,12 +65,12 @@
 class TrackCount : public edm::EDAnalyzer {
 public:
   explicit TrackCount(const edm::ParameterSet&);
-  ~TrackCount();
+  ~TrackCount() override;
   
   
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
@@ -351,7 +351,7 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    m_nhptrk->Fill(nhptrk);
 
-   const double hpfrac = tracks->size() > 0 ? double(nhptrk)/double(tracks->size()) : 0.;
+   const double hpfrac = !tracks->empty() ? double(nhptrk)/double(tracks->size()) : 0.;
    m_hhpfrac->Fill(hpfrac);
    m_hsqsumptsq->Fill(sqrt(sumptsq));
 

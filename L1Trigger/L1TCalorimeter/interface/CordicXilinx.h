@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <array>
-#include <stdint.h>
+#include <cstdint>
 
 class CordicXilinx
 {

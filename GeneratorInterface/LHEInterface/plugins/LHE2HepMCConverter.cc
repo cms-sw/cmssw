@@ -45,7 +45,7 @@
 class LHE2HepMCConverter : public edm::EDProducer {
    public:
       explicit LHE2HepMCConverter(const edm::ParameterSet&);
-      ~LHE2HepMCConverter();
+      ~LHE2HepMCConverter() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -55,8 +55,8 @@ class LHE2HepMCConverter : public edm::EDProducer {
 
    private:
 
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       edm::InputTag _lheEventSrcTag;
@@ -80,10 +80,10 @@ class LHE2HepMCConverter : public edm::EDProducer {
 // constructors and destructor
 //
 LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig):
-_lheRunSrc(0)
+_lheRunSrc(nullptr)
 {
    //register your products
-   produces<edm::HepMCProduct>();
+   produces<edm::HepMCProduct>("unsmeared");
 
    _lheEventSrcTag = iConfig.getParameter<edm::InputTag>("LHEEventProduct");
    _lheRunSrcTag   = iConfig.getParameter<edm::InputTag>("LHERunInfoProduct");
@@ -140,8 +140,8 @@ LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       v->add_particle_out(gp);
    } 
 
-   std::auto_ptr<HepMCProduct> pOut(new HepMCProduct(evt));
-   iEvent.put(pOut);
+   std::unique_ptr<HepMCProduct> pOut(new HepMCProduct(evt));
+   iEvent.put(std::move(pOut), "unsmeared");
 
 }
 

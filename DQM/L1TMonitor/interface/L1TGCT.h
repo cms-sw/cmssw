@@ -129,15 +129,14 @@ public:
   L1TGCT(const edm::ParameterSet& ps);
   
 // Destructor
- virtual ~L1TGCT();
+ ~L1TGCT() override;
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
 private:
   // ----------member data ---------------------------
@@ -210,8 +209,6 @@ private:
   MonitorElement* l1GctHFRingRatioNegEta_;
   MonitorElement* l1GctHFRingETSumOccBx_;
   MonitorElement* l1GctHFRingTowerCountOccBx_;
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput

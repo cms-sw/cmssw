@@ -70,11 +70,9 @@ void EgammaHLTR9IDProducer::produce(edm::StreamID sid, edm::Event& iEvent, const
     
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> R9Map(new reco::RecoEcalCandidateIsolationMap(r9Map));
-  iEvent.put(R9Map);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(r9Map));
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> R95x5Map(new reco::RecoEcalCandidateIsolationMap(r95x5Map));
-  iEvent.put(R95x5Map,"r95x5");
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(r95x5Map),"r95x5");
 }
 
 //define this as a plug-in

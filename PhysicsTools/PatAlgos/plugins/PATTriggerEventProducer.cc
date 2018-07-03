@@ -48,7 +48,7 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
 {
 
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
-  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance() ) ), this);
+  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), autoProcessName_ ? std::string(""): nameProcess_ ) ), this);
   if ( iConfig.exists( "triggerEvent" ) )       tagTriggerEvent_    = iConfig.getParameter< InputTag >( "triggerEvent" );
   if ( iConfig.exists( "patTriggerProducer" ) ) tagTriggerProducer_ = iConfig.getParameter< InputTag >( "patTriggerProducer" );
   triggerAlgorithmCollectionToken_ = mayConsume< TriggerAlgorithmCollection >( tagTriggerProducer_ );
@@ -68,7 +68,9 @@ PATTriggerEventProducer::PATTriggerEventProducer( const ParameterSet & iConfig )
   triggerMatcherTokens_ = vector_transform( tagsTriggerMatcher_, [this](InputTag const & tag) { return mayConsume< TriggerObjectStandAloneMatch >( tag ); } );
 
   callWhenNewProductsRegistered( [ this, &iConfig ]( BranchDescription const& bd ) {
-    triggerResultsGetter_( bd );
+    if(not ( this->autoProcessName_ and bd.processName()==this->moduleDescription().processName()) ) {
+      triggerResultsGetter_( bd );
+    }
   } );
 
   for ( size_t iMatch = 0; iMatch < tagsTriggerMatcher_.size(); ++iMatch ) {
@@ -212,7 +214,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   // produce trigger event
 
-  std::auto_ptr< TriggerEvent > triggerEvent( new TriggerEvent( handleL1GtTriggerMenu->gtTriggerMenuName(), std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error(), physDecl ) );
+  auto triggerEvent = std::make_unique<TriggerEvent>( handleL1GtTriggerMenu->gtTriggerMenuName(), std::string( hltConfig_.tableName() ), handleTriggerResults->wasrun(), handleTriggerResults->accept(), handleTriggerResults->error(), physDecl );
   // set product references to trigger collections
   if ( handleTriggerAlgorithms.isValid() ) {
     triggerEvent->setAlgorithms( handleTriggerAlgorithms );
@@ -282,13 +284,13 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
         indices.push_back( it->second.key() );
         ++it;
       }
-      std::auto_ptr< TriggerObjectMatch > triggerObjectMatch( new TriggerObjectMatch( handleTriggerObjects ) );
+      auto triggerObjectMatch = std::make_unique<TriggerObjectMatch>(handleTriggerObjects);
       TriggerObjectMatch::Filler matchFiller( *triggerObjectMatch );
       if ( handleCands.isValid() ) {
         matchFiller.insert( handleCands, indices.begin(), indices.end() );
       }
       matchFiller.fill();
-      OrphanHandle< TriggerObjectMatch > handleTriggerObjectMatch( iEvent.put( triggerObjectMatch, labelTriggerObjectMatcher ) );
+      OrphanHandle< TriggerObjectMatch > handleTriggerObjectMatch( iEvent.put(std::move(triggerObjectMatch), labelTriggerObjectMatcher ) );
       // set product reference to trigger match association
       if ( ! handleTriggerObjectMatch.isValid() ) {
         LogError( "triggerMatchValid" ) << "pat::TriggerObjectMatch product with InputTag '" << labelTriggerObjectMatcher << "' not in event";
@@ -300,7 +302,7 @@ void PATTriggerEventProducer::produce( Event& iEvent, const EventSetup& iSetup )
     }
   }
 
-  iEvent.put( triggerEvent );
+  iEvent.put(std::move(triggerEvent) );
 
 }
 

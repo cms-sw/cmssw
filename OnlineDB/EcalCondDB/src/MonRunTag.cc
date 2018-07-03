@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 MonRunTag::MonRunTag()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_genTag = "default";
   m_monVersionDef = MonVersionDef();
@@ -57,7 +57,7 @@ void MonRunTag::setMonVersionDef(const MonVersionDef& ver)
 
 
 int MonRunTag::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return tag from memory if available
   if (m_ID) {
@@ -89,7 +89,7 @@ int MonRunTag::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunTag::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunTag::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -98,7 +98,7 @@ int MonRunTag::fetchID()
 
 
 void MonRunTag::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -110,7 +110,7 @@ void MonRunTag::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_genTag = rset->getString(1);
+      m_genTag = getOraString(rset,1);
       int verID = rset->getInt(2);
       m_monVersionDef.setByID(verID);
       m_ID = id;
@@ -120,13 +120,13 @@ void MonRunTag::setByID(int id)
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("MonRunTag::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("MonRunTag::setByID:  ")+getOraMessage(&e)));
   }
 }
 
 
 int MonRunTag::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // see if this data is already in the DB
   if (this->fetchID()) { 
@@ -153,7 +153,7 @@ int MonRunTag::writeDB()
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("MonRunTag::writeDB:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("MonRunTag::writeDB:  ")+getOraMessage(&e)));
   }
 
   // now get the tag_id
@@ -167,7 +167,7 @@ int MonRunTag::writeDB()
 
 
 void MonRunTag::fetchAllTags( std::vector<MonRunTag>* fillVec)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   try {
@@ -183,14 +183,14 @@ void MonRunTag::fetchAllTags( std::vector<MonRunTag>* fillVec)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunTag::fetchAllTags:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunTag::fetchAllTags:  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void MonRunTag::fetchParentIDs(int* verID)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // get the monitoring version
   m_monVersionDef.setConnection(m_env, m_conn);

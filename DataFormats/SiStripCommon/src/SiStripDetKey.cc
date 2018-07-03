@@ -103,14 +103,12 @@ SiStripDetKey::SiStripDetKey( const SiStripKey& input ) :
   apvWithinPair_(sistrip::invalid_)
 {
   const SiStripDetKey& det_key = dynamic_cast<const SiStripDetKey&>(input);
-  if ( (&det_key) ) {
-    key(det_key.key());
-    path(det_key.path());
-    granularity(det_key.granularity());
-    partition_ = det_key.partition();
-    apvPairNumber_ = det_key.apvPairNumber();
-    apvWithinPair_ = det_key.apvWithinPair();
-  }
+  key(det_key.key());
+  path(det_key.path());
+  granularity(det_key.granularity());
+  partition_ = det_key.partition();
+  apvPairNumber_ = det_key.apvPairNumber();
+  apvWithinPair_ = det_key.apvWithinPair();
 }
 
 // -----------------------------------------------------------------------------
@@ -123,19 +121,14 @@ SiStripDetKey::SiStripDetKey( const SiStripKey& input,
   apvWithinPair_(0)
 {
   const SiStripDetKey& det_key = dynamic_cast<const SiStripDetKey&>(input);
-  if ( (&det_key) ) {
-
-    if ( gran == sistrip::PARTITION ) {
-      partition_ = det_key.partition(); 
-    }
-
-    initFromValue();
-    initFromKey();
-    initFromPath();
-    initGranularity();
-    
+  if ( gran == sistrip::PARTITION ) {
+    partition_ = det_key.partition(); 
   }
 
+  initFromValue();
+  initFromKey();
+  initFromPath();
+  initGranularity();
 }
 
 // -----------------------------------------------------------------------------
@@ -151,7 +144,6 @@ SiStripDetKey::SiStripDetKey() :
 // 
 bool SiStripDetKey::isEqual( const SiStripKey& key ) const {
   const SiStripDetKey& input = dynamic_cast<const SiStripDetKey&>(key);
-  if ( !(&input) ) { return false; }
   if ( partition_ == input.partition() &&
        apvPairNumber_ == input.apvPairNumber() &&
        apvWithinPair_ == input.apvWithinPair() ) {
@@ -163,7 +155,6 @@ bool SiStripDetKey::isEqual( const SiStripKey& key ) const {
 // 
 bool SiStripDetKey::isConsistent( const SiStripKey& key ) const {
   const SiStripDetKey& input = dynamic_cast<const SiStripDetKey&>(key);
-  if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return false; }
   else if ( ( partition_ == 0 || input.partition() == 0 ) &&
             ( apvPairNumber_ == 0 || input.apvPairNumber() == 0 ) &&
@@ -215,13 +206,9 @@ bool SiStripDetKey::isInvalid( const sistrip::Granularity& gran ) const {
 void SiStripDetKey::initFromValue() {
 
   // partition
-  if ( partition_ >= 1 && //sistrip::PARTITION_MIN &&
-       partition_ <= 4 ) { //sistrip::PARTITION_MAX ) {
-    partition_ = partition_;
-  } else if ( partition_ == 0 ) {
-    partition_ = 0;
-  } else { partition_ = sistrip::invalid_; }
-
+  if(partition_ > 4) {
+    partition_ = sistrip::invalid_;
+  }
 }
 
 // -----------------------------------------------------------------------------

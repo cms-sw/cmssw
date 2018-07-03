@@ -79,10 +79,6 @@ MuonTrackResidualAnalyzer::~MuonTrackResidualAnalyzer(){
   delete theService;
 }
 
-// Operations
-void MuonTrackResidualAnalyzer::beginJob(){
- 
-}
 
 void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
                                   edm::Run const & iRun,
@@ -95,17 +91,17 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.cd();
   InputTag algo = theMuonTrackLabel;
   string dirName=dirName_;
-  if (algo.process()!="")
+  if (!algo.process().empty())
     dirName+=algo.process()+"_";
-  if(algo.label()!="")
+  if(!algo.label().empty())
     dirName+=algo.label()+"_";
-  if(algo.instance()!="")
+  if(!algo.instance().empty())
     dirName+=algo.instance()+"";
   if (dirName.find("Tracks")<dirName.length()){
     dirName.replace(dirName.find("Tracks"),6,"");
   }
   std::replace(dirName.begin(), dirName.end(), ':', '_');
-  ibooker.setCurrentFolder(dirName.c_str());
+  ibooker.setCurrentFolder(dirName);
   
   
   hDPtRef = ibooker.book1D("DeltaPtRef","P^{in}_{t}-P^{in ref}",10000,-20,20);
@@ -122,8 +118,8 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   hDeltaPtVsEtaSim2 = ibooker.book2D("DeltaPtVsEtaSim2","#Delta P_{t} vs #eta gen, sim quantity",120,-3.,3.,500,-250.,250.);
 }
 
-void MuonTrackResidualAnalyzer::endRun(){
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+void MuonTrackResidualAnalyzer::endRun(edm::Run const&, edm::EventSetup const&){
+  if ( !out.empty() && dbe_ ) dbe_->save(out);
 }
 void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup){
   LogDebug("MuonTrackResidualAnalyzer")<<"Analyze";

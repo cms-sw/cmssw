@@ -43,10 +43,10 @@ namespace edm {
 class MCProcessFilter : public edm::EDFilter {
    public:
       explicit MCProcessFilter(const edm::ParameterSet&);
-      ~MCProcessFilter();
+      ~MCProcessFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       

@@ -66,7 +66,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -129,19 +129,19 @@
 // general info 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
 //#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 #include "TString.h"
 
@@ -158,10 +158,10 @@ class GlobalRecHitsProducer : public edm::EDProducer
   typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
 
   explicit GlobalRecHitsProducer(const edm::ParameterSet&);
-  virtual ~GlobalRecHitsProducer();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~GlobalRecHitsProducer() override;
+  void beginJob() override;
+  void endJob() override;  
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

@@ -47,6 +47,8 @@ class MatrixReader(object):
                              'relval_production': 'prod-'  ,
                              'relval_ged': 'ged-',
                              'relval_upgrade':'upg-',
+                             'relval_2017':'2017-',
+                             'relval_2023':'2023-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
                              'relval_unsch': 'unsch-',
@@ -61,6 +63,8 @@ class MatrixReader(object):
                       'relval_production',
                       'relval_ged',
                       'relval_upgrade',
+                      'relval_2017',
+                      'relval_2023',
                       'relval_identity',
                       'relval_machine',
                       'relval_unsch',
@@ -74,6 +78,8 @@ class MatrixReader(object):
                              'relval_production':True,
                              'relval_ged':True,
                              'relval_upgrade':False,
+                             'relval_2017':True,
+                             'relval_2023':True,
                              'relval_identity':False,
                              'relval_machine':True,
                              'relval_unsch':True,
@@ -121,7 +127,7 @@ class MatrixReader(object):
         try:
             _tmpMod = __import__( 'Configuration.PyReleaseValidation.'+fileNameIn )
             self.relvalModule = sys.modules['Configuration.PyReleaseValidation.'+fileNameIn]
-        except Exception, e:
+        except Exception as e:
             print "ERROR importing file ", fileNameIn, str(e)
             return
 
@@ -165,7 +171,7 @@ class MatrixReader(object):
                     return
                 self.relvalModule.changeRefRelease(
                     self.relvalModule.steps,
-                    zip(self.relvalModule.baseDataSetRelease,refRels)
+                    list(zip(self.relvalModule.baseDataSetRelease,refRels))
                     )
             else:
                 self.relvalModule.changeRefRelease(
@@ -186,7 +192,7 @@ class MatrixReader(object):
             addCom=None
             if len(wfInfo)>=3:
                 addCom=wfInfo[2]
-                if not type(addCom)==list:   addCom=[addCom]
+                if not isinstance(addCom, list):   addCom=[addCom]
                 #print 'added dict',addCom
                 if len(wfInfo)>=4:
                     addTo=wfInfo[3]
@@ -306,7 +312,7 @@ class MatrixReader(object):
 
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
 
@@ -316,8 +322,7 @@ class MatrixReader(object):
             outFile = open(dataFileName,'w')
 
             print "found ", len(self.workFlowSteps.keys()), ' workflows for ', dataFileName
-            ids = self.workFlowSteps.keys()
-            ids.sort()
+            ids = sorted(self.workFlowSteps.keys())
             indexAndSteps=[]
 
             writtenWF=0
@@ -483,13 +488,13 @@ class MatrixReader(object):
             
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
             
             try:
                 self.createWorkFlows(matrixFile)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR creating workflows :", str(e)
                 raise
             

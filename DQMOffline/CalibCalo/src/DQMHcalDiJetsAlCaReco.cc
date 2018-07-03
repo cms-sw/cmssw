@@ -118,13 +118,6 @@ void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 
 }
 
-
-//--------------------------------------------------------
-void DQMHcalDiJetsAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-     const EventSetup& context) {
-  
-}
-
 //-------------------------------------------------------------
 
 void DQMHcalDiJetsAlCaReco::analyze(const Event& iEvent, 

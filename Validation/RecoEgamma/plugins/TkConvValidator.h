@@ -55,15 +55,14 @@ class TkConvValidator : public DQMEDAnalyzer
 
   //
   explicit TkConvValidator( const edm::ParameterSet& ) ;
-  virtual ~TkConvValidator();
+  ~TkConvValidator() override;
 
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override ;
   void  bookHistograms( DQMStore::IBooker&, edm::Run const &, edm::EventSetup const &) override; 
-  virtual void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) ;
-  virtual void endRun (edm::Run& r, edm::EventSetup const & es);
-  virtual void endJob() ;
-
+  void dqmBeginRun( edm::Run const & r, edm::EventSetup const & theEventSetup) override ;
+  void endRun (edm::Run const& r, edm::EventSetup const & es) override;
+  void endJob() override;
  private:
   //
 
@@ -105,8 +104,8 @@ class TkConvValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> g4_simTk_Token_;
   edm::EDGetTokenT<edm::SimVertexContainer> g4_simVtx_Token_;
-  edm::EDGetTokenT<TrackingParticleCollection> tpSelForEff_Token_;
-  edm::EDGetTokenT<TrackingParticleCollection> tpSelForFake_Token_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpSelForEff_Token_;
+  edm::EDGetTokenT<TrackingParticleRefVector> tpSelForFake_Token_;
   edm::EDGetTokenT<edm::HepMCProduct> hepMC_Token_;
   edm::EDGetTokenT<reco::GenJetCollection> genjets_Token_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> trackAssociator_Token_;

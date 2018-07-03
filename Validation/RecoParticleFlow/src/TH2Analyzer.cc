@@ -218,7 +218,7 @@ void TH2Analyzer::ProcessSlices( const TH2D* histo) {
   
   //std::cout << "ProcessSlices!" << std::endl;
 
-  TH1::AddDirectory(0);
+  TH1::AddDirectory(false);
 
   for( int i=1; i<=histo->GetNbinsX(); ++i) {
     TH1D* proj =  histo->ProjectionY("toto", i, i);
@@ -243,7 +243,7 @@ void TH2Analyzer::ProcessSlices( const TH2D* histo) {
     delete proj;
   }
 
-  TH1::AddDirectory(1);
+  TH1::AddDirectory(true);
 } 
 
 

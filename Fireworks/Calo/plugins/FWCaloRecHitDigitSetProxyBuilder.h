@@ -10,13 +10,13 @@ class FWCaloRecHitDigitSetProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWCaloRecHitDigitSetProxyBuilder();
-   virtual ~FWCaloRecHitDigitSetProxyBuilder( void ) {}
+   ~FWCaloRecHitDigitSetProxyBuilder( void ) override {}
 
-   virtual void    setItem(const FWEventItem* iItem);
+   void    setItem(const FWEventItem* iItem) override;
 
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
-   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );
+   bool havePerViewProduct(FWViewType::EType) const override { return true; }
+   void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
+   void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
    
    virtual float scaleFactor(const FWViewContext* vc);
    virtual void  invertBox(bool x ) { m_invertBox = x ;}
@@ -24,8 +24,8 @@ public:
 
 private:
 
-   FWCaloRecHitDigitSetProxyBuilder( const FWCaloRecHitDigitSetProxyBuilder& );
-   const FWCaloRecHitDigitSetProxyBuilder& operator=( const FWCaloRecHitDigitSetProxyBuilder& );
+   FWCaloRecHitDigitSetProxyBuilder( const FWCaloRecHitDigitSetProxyBuilder& ) = delete;
+   const FWCaloRecHitDigitSetProxyBuilder& operator=( const FWCaloRecHitDigitSetProxyBuilder& ) = delete;
 
    bool m_invertBox;
    bool m_ignoreGeoShapeSize;

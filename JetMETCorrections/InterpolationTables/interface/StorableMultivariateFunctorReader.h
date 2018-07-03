@@ -25,7 +25,7 @@ namespace npstat {
     {
         typedef gs::DefaultReader<StorableMultivariateFunctor> Base;
         friend class gs::StaticReader<StorableMultivariateFunctorReader>;
-        StorableMultivariateFunctorReader();
+        StorableMultivariateFunctorReader(); //NOLINT
     };
         
     /** The reader factory for descendants of StorableMultivariateFunctor */

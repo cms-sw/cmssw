@@ -19,7 +19,8 @@ namespace ecaldqm
 
     int minChannelEntries_;
     std::vector<float> expectedAmplitude_;
-    float toleranceAmplitude_;
+    float toleranceAmplitudeLo_;
+    float toleranceAmplitudeHi_;
     float toleranceAmpRMSRatio_;
     std::vector<float> expectedTiming_;
     float toleranceTiming_;

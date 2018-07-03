@@ -7,6 +7,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -21,19 +22,22 @@
 
 #include <sstream>
 
-class SiStripQualityStatistics : public edm::EDAnalyzer {
+class SiStripQualityStatistics : public DQMEDAnalyzer {
 
  public:
   explicit SiStripQualityStatistics( const edm::ParameterSet& );
-  ~SiStripQualityStatistics(){};
+  ~SiStripQualityStatistics() override;
   
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob();
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override; 
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  
  
  private:
 
   void SetBadComponents(int,int,SiStripQuality::BadComponent&);
-
+  void EndJob();
+  
+  
   unsigned long long m_cacheID_;
   std::string dataLabel_;
   std::string TkMapFileName_;
@@ -49,6 +53,6 @@ class SiStripQualityStatistics : public edm::EDAnalyzer {
 
   TrackerMap * tkMap, *tkMapFullIOVs;
   SiStripDetInfoFileReader* reader;
-  TkHistoMap* tkhisto;
+  std::unique_ptr<TkHistoMap> tkhisto;
 };
 #endif

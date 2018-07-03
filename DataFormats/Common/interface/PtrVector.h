@@ -25,8 +25,7 @@
 #include "DataFormats/Common/interface/FillViewHelperVector.h"
 
 // system include files
-#include "boost/static_assert.hpp"
-#include "boost/type_traits/is_base_of.hpp"
+#include <type_traits>
 #include <typeinfo>
 #include <vector>
 
@@ -118,7 +117,7 @@ namespace edm {
 
     template <typename U>
     PtrVector(PtrVector<U> const& iOther): PtrVectorBase(iOther) {
-      BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
+      static_assert(std::is_base_of<T, U>::value, "PtrVector being copied is not of compatible type" );
     }
 
     // ---------- const member functions ---------------------
@@ -141,16 +140,16 @@ namespace edm {
     void push_back(Ptr<T> const& iPtr) {
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
-                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
+                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(nullptr));
     }
 
     template<typename U>
     void push_back(Ptr<U> const& iPtr) {
       //check that types are assignable
-      BOOST_STATIC_ASSERT( (boost::is_base_of<T, U>::value) );
+      static_assert( std::is_base_of<T, U>::value, "Ptr used in push_back can not be converted to type used by PtrVector." );
       this->push_back_base(iPtr.refCore(),
                            iPtr.key(),
-                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(0));
+                           iPtr.hasProductCache() ? iPtr.operator->() : static_cast<void const*>(nullptr));
     }
 
     void swap(PtrVector& other) {
@@ -172,7 +171,7 @@ namespace edm {
   private:
 
     //PtrVector const& operator=(PtrVector const&); // stop default
-    std::type_info const& typeInfo() const {return typeid(T);}
+    std::type_info const& typeInfo() const override {return typeid(T);}
 
     // ---------- member data --------------------------------
     Ptr<T> fromItr(std::vector<void const*>::const_iterator const& iItr) const {
@@ -188,7 +187,7 @@ namespace edm {
     pointers.reserve(this->size());
     for (const_iterator i = begin(), e = end(); i != e; ++i) {
       Ptr<T> ref = *i;
-      T const* address = ref.isNull() ? 0 : &*ref;
+      T const* address = ref.isNull() ? nullptr : &*ref;
       pointers.push_back(address);
       helpers.push_back(FillViewHelperVector::value_type(ref.id(),ref.key()));
     }

@@ -5,7 +5,9 @@
 
 #include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
-#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociationList.h"
+#include "SimTracker/TrackerHitAssociation/interface/ClusterTPAssociation.h"
+
+#include "FWCore/Utilities/interface/IndexSet.h"
 
 // Forward declarations
 class TrackerHitAssociator;
@@ -68,34 +70,29 @@ public:
 
   QuickTrackAssociatorByHitsImpl(edm::EDProductGetter const& productGetter,
                                  std::unique_ptr<const TrackerHitAssociator> hitAssoc,
-                                 const ClusterTPAssociationList *clusterToTPMap,
+                                 const ClusterTPAssociation *clusterToTPMap,
                                  bool absoluteNumberOfHits,
                                  double qualitySimToReco,
                                  double puritySimToReco,
                                  double cutRecoToSim,
+                                 double pixelHitWeight,
                                  bool threeHitTracksAreSpecial,
                                  SimToRecoDenomType simToRecoDenominator);
   
-  virtual
     reco::RecoToSimCollection associateRecoToSim( const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
                                                   const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const override;
-  virtual
     reco::SimToRecoCollection associateSimToReco( const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
                                                   const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const override;
-  virtual
     reco::RecoToSimCollection associateRecoToSim( const edm::RefToBaseVector<reco::Track>& trackCollection,
                                                   const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const override;
   
-  virtual
     reco::SimToRecoCollection associateSimToReco( const edm::RefToBaseVector<reco::Track>& trackCollection,
                                                   const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const override;
   
   //seed
-  virtual
     reco::RecoToSimCollectionSeed associateRecoToSim(const edm::Handle<edm::View<TrajectorySeed> >&,
                                                      const edm::Handle<TrackingParticleCollection>&) const override;
   
-  virtual
     reco::SimToRecoCollectionSeed associateSimToReco(const edm::Handle<edm::View<TrajectorySeed> >&,
                                                      const edm::Handle<TrackingParticleCollection>&) const override;
   
@@ -103,6 +100,8 @@ public:
  private:
   typedef std::pair<uint32_t,EncodedEventId> SimTrackIdentifiers; ///< @brief This is enough information to uniquely identify a sim track
   
+  typedef edm::IndexSet TrackingParticleRefKeySet; ///< @brief Set for TrackingParticleRef keys
+
   // - added by S. Sarkar
   static bool tpIntPairGreater(std::pair<edm::Ref<TrackingParticleCollection>,size_t> i, std::pair<edm::Ref<TrackingParticleCollection>,size_t> j) { return (i.first.key()>j.first.key()); }
   
@@ -113,7 +112,7 @@ public:
    * are delegated out to overloaded methods.
    */
   template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-    reco::RecoToSimCollection associateRecoToSimImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const;
+  reco::RecoToSimCollection associateRecoToSimImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, const TrackingParticleRefKeySet *trackingParticleKeys, T_hitOrClusterAssociator hitOrClusterAssociator ) const;
   
   /** @brief The method that does the work for both overloads of associateSimToReco.
    *
@@ -122,7 +121,7 @@ public:
    * are delegated out to overloaded methods.
    */
   template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-    reco::SimToRecoCollection associateSimToRecoImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const;
+  reco::SimToRecoCollection associateSimToRecoImplementation( const T_TrackCollection& trackCollection, const T_TrackingParticleCollection& trackingParticleCollection, const TrackingParticleRefKeySet *trackingParticleKeys, T_hitOrClusterAssociator hitOrClusterAssociator ) const;
   
   
   /** @brief Returns the TrackingParticle that has the most associated hits to the given track.
@@ -130,7 +129,7 @@ public:
    * Return value is a vector of pairs, where first is an edm::Ref to the associated TrackingParticle, and second is
    * the number of associated hits.
    */
-  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( const TrackerHitAssociator& hitAssociator, T_TPCollection trackingParticles, iter begin, iter end ) const;
+  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,double> > associateTrack( const TrackerHitAssociator& hitAssociator, const T_TPCollection& trackingParticles, const TrackingParticleRefKeySet *trackingParticleKeys, iter begin, iter end ) const;
   /** @brief Returns the TrackingParticle that has the most associated hits to the given track.
    *
    * See the notes for the other overload for the return type.
@@ -138,7 +137,7 @@ public:
    * Note that the trackingParticles parameter is not actually required since all the information is in clusterToTPMap,
    * but the method signature has to match the other overload because it is called from a templated method.
    */
-  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( const ClusterTPAssociationList& clusterToTPMap, T_TPCollection trackingParticles, iter begin, iter end ) const;
+  template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,double> > associateTrack( const ClusterTPAssociation& clusterToTPMap, const T_TPCollection& trackingParticles, const TrackingParticleRefKeySet *trackingParticleKeys, iter begin, iter end ) const;
   
   
   /** @brief Returns true if the supplied TrackingParticle has the supplied g4 track identifiers. */
@@ -148,10 +147,10 @@ public:
    *
    * Modified 01/May/2014 to take the TrackerHitAssociator as a parameter rather than using a member.
    */
-  template<typename iter> int getDoubleCount( const TrackerHitAssociator& hitAssociator, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
+  template<typename iter> double getDoubleCount( const TrackerHitAssociator& hitAssociator, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
   /** @brief Overload for when using cluster to TrackingParticle association list.
    */
-  template<typename iter> int getDoubleCount( const ClusterTPAssociationList& clusterToTPList, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
+  template<typename iter> double getDoubleCount( const ClusterTPAssociation& clusterToTPList, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
   
   /** @brief Returns a vector of pairs where first is a SimTrackIdentifiers (see typedef above) and second is the number of hits that came from that sim track.
    *
@@ -159,23 +158,22 @@ public:
    * E.g. If all the hits in the reco track come from the same sim track, then there will only be one entry with second as the number of hits in
    * the track.
    */
-  template<typename iter> std::vector< std::pair<SimTrackIdentifiers,size_t> > getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const;
+  template<typename iter> std::vector< std::pair<SimTrackIdentifiers,double> > getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const;
   
-  // Added by S. Sarkar
-  template<typename iter> std::vector< OmniClusterRef> getMatchedClusters( iter begin, iter end ) const;
-  
-  const TrackingRecHit* getHitFromIter(trackingRecHit_iterator iter) const {
-    return &(**iter);
-  }
-  
-  const TrackingRecHit* getHitFromIter(TrackingRecHitCollection::const_iterator iter) const {
-    return &(*iter);
-  }
-  
-  /** @brief creates either a ClusterTPAssociationList OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
+ 
+  // The last parameter is used to decide whether we cound hits or clusters
+  double weightedNumberOfTrackClusters(const reco::Track& track, const TrackerHitAssociator&) const;
+  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const TrackerHitAssociator&) const;
+  double weightedNumberOfTrackClusters(const reco::Track& track, const ClusterTPAssociation&) const;
+  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const ClusterTPAssociation&) const;
+
+  // called only by weightedNumberOfTrackClusters(..., ClusterTPAssociation)
+  template<typename iter> double weightedNumberOfTrackClusters(iter begin, iter end) const ;
+
+  /** @brief creates either a ClusterTPAssociation OR a TrackerHitAssociator and stores it in the provided unique_ptr. The other will be null.
    *
-   * A decision is made whether to create a ClusterTPAssociationList or a TrackerHitAssociator depending on how this
-   * track associator was configured. If the ClusterTPAssociationList couldn't be fetched from the event then it
+   * A decision is made whether to create a ClusterTPAssociation or a TrackerHitAssociator depending on how this
+   * track associator was configured. If the ClusterTPAssociation couldn't be fetched from the event then it
    * falls back to creating a TrackerHitAssociator.
    *
    * Only one type will be created, never both. The other unique_ptr reference will be null so check for that
@@ -185,14 +183,15 @@ public:
    * the cluster to TrackingParticle couldn't be retrieved from the event then pClusterToTPMap will be null but
    * useClusterTPAssociation_ is no longer changed to false.
    */
-  //void prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociationList>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const;
+  //void prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociation>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const;
 
   edm::EDProductGetter const* productGetter_;
   std::unique_ptr<const TrackerHitAssociator> hitAssociator_;
-  const ClusterTPAssociationList *clusterToTPMap_;
+  const ClusterTPAssociation *clusterToTPMap_;
   
   double qualitySimToReco_;
   double puritySimToReco_;
+  double pixelHitWeight_;
   double cutRecoToSim_;
   SimToRecoDenomType simToRecoDenominator_;
   bool threeHitTracksAreSpecial_;

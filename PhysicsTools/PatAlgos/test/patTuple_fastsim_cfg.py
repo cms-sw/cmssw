@@ -1,11 +1,15 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
@@ -14,8 +18,8 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarFastSimGENSIMDIGIRECO
-process.source.fileNames = filesRelValTTbarFastSimGENSIMDIGIRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpFastSimGENSIMDIGIRECO
+process.source.fileNames = filesRelValTTbarPileUpFastSimGENSIMDIGIRECO
 #                                         ##
 process.maxEvents.input = 100
 #                                         ##

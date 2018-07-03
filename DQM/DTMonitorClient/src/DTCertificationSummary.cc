@@ -76,7 +76,7 @@ void DTCertificationSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IG
   MonitorElement* segQualSummary = igetter.get("DT/02-Segments/segmentSummary");
 
   // check that all needed histos are there
-  if(effSummary == 0 || resSummary == 0 || segQualSummary == 0) {
+  if(effSummary == nullptr || resSummary == nullptr || segQualSummary == nullptr) {
     LogWarning("DQM|DTMonitorClient|DTCertificationSummary") << "*** Warning: not all needed summaries are present!" << endl;
     return;
   }

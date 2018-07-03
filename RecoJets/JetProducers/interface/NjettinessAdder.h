@@ -4,7 +4,7 @@
 #include <memory>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -12,13 +12,13 @@
 #include "fastjet/contrib/Njettiness.hh"
 
 
-class NjettinessAdder : public edm::one::EDProducer<> { 
+class NjettinessAdder : public edm::stream::EDProducer<> { 
  public:
 
     enum MeasureDefinition_t {
         NormalizedMeasure=0,       // (beta,R0) 
         UnnormalizedMeasure,       // (beta) 
-        GeometricMeasure,          // (beta) 
+        OriginalGeometricMeasure,  // (beta) 
         NormalizedCutoffMeasure,   // (beta,R0,Rcutoff) 
         UnnormalizedCutoffMeasure, // (beta,Rcutoff) 
         GeometricCutoffMeasure,    // (beta,Rcutoff) 
@@ -45,9 +45,9 @@ class NjettinessAdder : public edm::one::EDProducer<> {
 
     explicit NjettinessAdder(const edm::ParameterSet& iConfig);
     
-    virtual ~NjettinessAdder() {}
+    ~NjettinessAdder() override {}
     
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
     float getTau(unsigned num, const edm::Ptr<reco::Jet> & object) const;
     
  private:	

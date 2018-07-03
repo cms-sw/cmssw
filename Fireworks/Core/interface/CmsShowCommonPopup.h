@@ -2,7 +2,7 @@
 #define Fireworks_Core_CmsShowCommonPopup_h
 
 #ifndef __CINT__
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #endif
 #include "GuiTypes.h"
 #include "TGFrame.h"
@@ -13,6 +13,7 @@
 
 class TGHSlider;
 class TGLabel;
+class TGComboBox;
 class TGTextButton;
 class TGCheckButton;
 class CmsShowCommon;
@@ -25,27 +26,32 @@ class CmsShowCommonPopup : public TGTransientFrame,
                            public FWParameterSetterEditorBase
 {
 public:
-   CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = 0, UInt_t w = 1, UInt_t h = 1);
-   virtual ~CmsShowCommonPopup();
+   CmsShowCommonPopup( CmsShowCommon*, const TGWindow* p = nullptr, UInt_t w = 1, UInt_t h = 1);
+   ~CmsShowCommonPopup() override;
 
    // ---------- member functions ---------------------------
 
-   virtual void CloseWindow() { UnmapWindow(); }
+   void CloseWindow() override { UnmapWindow(); }
 
    void switchBackground();
+   void permuteColors();
+   void randomizeColors();
+
    void changeGeomColor(Color_t);
    void changeGeomTransparency2D(int);
    void changeGeomTransparency3D(int);
    void changeSelectionColorSet(Color_t);
    void colorSetChanged();
-   
-   ClassDef(CmsShowCommonPopup, 0);
+   void setPaletteGUI();
 
+   TGComboBox* getCombo() {return m_combo;}
+   ClassDefOverride(CmsShowCommonPopup, 0);
+ 
 private:
    CmsShowCommonPopup(const CmsShowCommonPopup&);
    const CmsShowCommonPopup& operator=(const CmsShowCommonPopup&);
 
-   void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
+   TGFrame* makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
    void getColorSetColors (int& hci, int& sci);
    // ---------- member data --------------------------------
 
@@ -54,14 +60,15 @@ private:
    TGTextButton   *m_backgroundButton;
    TGHSlider      *m_gammaSlider;
    TGTextButton   *m_gammaButton;
-
 #ifndef __CINT__
    FWColorSelect* m_colorSelectWidget[kFWGeomColorSize];
    FWColorSelect* m_colorRnrCtxHighlightWidget;   
    FWColorSelect* m_colorRnrCtxSelectWidget;
-   std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
+   std::vector<std::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
+   TGComboBox     *m_combo;  
 };
+
 
 
 #endif

@@ -23,10 +23,9 @@
 #include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
 
 // system include files
-#include "boost/shared_ptr.hpp"
 
-#include <memory>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -34,6 +33,7 @@
 
 // forward declarations
 namespace edm {
+   class ActivityRegistry;
    class EventSetupRecordIntervalFinder;
    class IOVSyncValue;
    class ParameterSet;
@@ -42,7 +42,7 @@ namespace edm {
       struct ComponentDescription;
       class DataKey;
       class DataProxyProvider;
-      class EventSetupRecord;
+      class EventSetupRecordImpl;
       class EventSetupRecordKey;
       class EventSetupRecordProvider;
       class EventSetupsController;
@@ -58,12 +58,13 @@ class EventSetupProvider {
       typedef std::multimap<RecordName, DataKeyInfo> RecordToDataMap;
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
-      EventSetupProvider(unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = 0);
+      EventSetupProvider(ActivityRegistry*, unsigned subProcessIndex = 0U, PreferredProviderInfo const* iInfo = nullptr);
       virtual ~EventSetupProvider();
 
       // ---------- const member functions ---------------------
       std::set<ComponentDescription> proxyProviderDescriptions() const;
-
+      bool isWithinValidityInterval(IOVSyncValue const& ) const;
+  
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -72,11 +73,11 @@ class EventSetupProvider {
       EventSetup const& eventSetup() const {return eventSetup_;}
 
       //called by specializations of EventSetupRecordProviders
-      void addRecordToEventSetup(EventSetupRecord& iRecord);
+      void addRecordToEventSetup(EventSetupRecordImpl& iRecord);
 
-      void add(boost::shared_ptr<DataProxyProvider>);
-      void replaceExisting(boost::shared_ptr<DataProxyProvider>);
-      void add(boost::shared_ptr<EventSetupRecordIntervalFinder>);
+      void add(std::shared_ptr<DataProxyProvider>);
+      void replaceExisting(std::shared_ptr<DataProxyProvider>);
+      void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
 
       void finishConfiguration();
 
@@ -108,25 +109,18 @@ class EventSetupProvider {
 
    protected:
 
-      template <typename T>
-         void insert(std::auto_ptr<T> iRecordProvider) {
-            std::auto_ptr<EventSetupRecordProvider> temp(iRecordProvider.release());
-            insert(eventsetup::heterocontainer::makeKey<
-                    typename T::RecordType,
-                       eventsetup::EventSetupRecordKey>(),
-                    temp);
-         }
+      void insert(std::unique_ptr<EventSetupRecordProvider> iRecordProvider);
 
    private:
-      EventSetupProvider(EventSetupProvider const&); // stop default
+      EventSetupProvider(EventSetupProvider const&) = delete; // stop default
 
-      EventSetupProvider const& operator=(EventSetupProvider const&); // stop default
+      EventSetupProvider const& operator=(EventSetupProvider const&) = delete; // stop default
 
-      void insert(EventSetupRecordKey const&, std::auto_ptr<EventSetupRecordProvider>);
+      void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 
       // ---------- member data --------------------------------
       EventSetup eventSetup_;
-      typedef std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> > Providers;
+      typedef std::map<EventSetupRecordKey, std::shared_ptr<EventSetupRecordProvider> > Providers;
       Providers providers_;
       std::unique_ptr<EventSetupKnownRecordsSupplier> knownRecordsSupplier_;
       bool mustFinishConfiguration_;
@@ -135,10 +129,10 @@ class EventSetupProvider {
       // The following are all used only during initialization and then cleared.
 
       std::unique_ptr<PreferredProviderInfo> preferredProviderInfo_;
-      std::unique_ptr<std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > finders_;
-      std::unique_ptr<std::vector<boost::shared_ptr<DataProxyProvider> > > dataProviders_;
+      std::unique_ptr<std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > finders_;
+      std::unique_ptr<std::vector<std::shared_ptr<DataProxyProvider> > > dataProviders_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription const*> > > referencedDataKeys_;
-      std::unique_ptr<std::map<EventSetupRecordKey, std::vector<boost::shared_ptr<EventSetupRecordIntervalFinder> > > > recordToFinders_;
+      std::unique_ptr<std::map<EventSetupRecordKey, std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> > > > recordToFinders_;
       std::unique_ptr<std::map<ParameterSetIDHolder, std::set<EventSetupRecordKey> > > psetIDToRecordKey_;
       std::unique_ptr<std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription> > > recordToPreferred_;
       std::unique_ptr<std::set<EventSetupRecordKey> > recordsWithALooperProxy_;

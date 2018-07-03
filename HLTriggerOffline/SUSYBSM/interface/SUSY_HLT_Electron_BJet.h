@@ -36,15 +36,13 @@ class SUSY_HLT_Electron_BJet: public DQMEDAnalyzer{
     
 public:
     SUSY_HLT_Electron_BJet(const edm::ParameterSet& ps);
-    virtual ~SUSY_HLT_Electron_BJet();
+    ~SUSY_HLT_Electron_BJet() override;
     
 protected:
     void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-    void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-    void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) ;
-    void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-    void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+    void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+    void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
     
 private:
     //histos booking function

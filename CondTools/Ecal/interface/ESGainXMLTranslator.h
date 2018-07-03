@@ -8,12 +8,8 @@
 #ifndef __ESGainXMLTranslator_h_
 #define __ESGainXMLTranslator_h_
 
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-
-
 
 class ESGain;
 
@@ -24,7 +20,8 @@ public:
   static int writeXML (const std::string& filename,
 		       const EcalCondHeader& header,
 		       const ESGain& record);
-
+ private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const ESGain& record);
 };

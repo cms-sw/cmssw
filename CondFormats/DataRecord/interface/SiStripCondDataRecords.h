@@ -2,6 +2,7 @@
 #define CondFormats_SiStripCondDataRecords_h
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /*Recod associated to SiStripApvGain Object: the SimRcd is used in simulation only*/
 class SiStripApvGainRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripApvGainRcd> {};
@@ -12,19 +13,17 @@ class SiStripApvGainSimRcd : public edm::eventsetup::EventSetupRecordImplementat
 /*Record associated to SiStripBadStrip Object*/
 class SiStripBadChannelRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadChannelRcd> {};
 class SiStripBadFiberRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadFiberRcd> {};
-class SiStripBadModuleRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadModuleRcd> {};
+class SiStripBadModuleRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBadModuleRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
 class SiStripBadStripRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBadStripRcd> {};
 class SiStripDCSStatusRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDCSStatusRcd> {};
 
 class SiStripFedCablingRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripFedCablingRcd> {};
 
 /*Recod associated to SiStripLorenzaAngle Object: the SimRcd is used in simulation only*/
-class SiStripLorentzAngleRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleRcd> {};
+class SiStripLorentzAngleRcd : public edm::eventsetup::DependentRecordImplementation<SiStripLorentzAngleRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
 class SiStripLorentzAngleSimRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripLorentzAngleSimRcd> {};
 
-class SiStripBackPlaneCorrectionRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBackPlaneCorrectionRcd> {};
-
-
+class SiStripBackPlaneCorrectionRcd : public edm::eventsetup::DependentRecordImplementation<SiStripBackPlaneCorrectionRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
 
 class SiStripDetVOffRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripDetVOffRcd> {};
 
@@ -32,7 +31,7 @@ class SiStripLatencyRcd : public edm::eventsetup::EventSetupRecordImplementation
 
 class SiStripBaseDelayRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripBaseDelayRcd> {};
 
-class SiStripNoisesRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripNoisesRcd> {};
+class SiStripNoisesRcd : public edm::eventsetup::DependentRecordImplementation<SiStripNoisesRcd, boost::mpl::vector<TrackerTopologyRcd> > {};
 
 class SiStripPedestalsRcd : public edm::eventsetup::EventSetupRecordImplementation<SiStripPedestalsRcd> {};
 

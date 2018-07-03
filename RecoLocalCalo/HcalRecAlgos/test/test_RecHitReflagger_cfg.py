@@ -82,14 +82,14 @@ for i in range(len(process.hcalRecAlgos.SeverityLevels)):  # loop over each seve
     severitylevels.append(process.hcalRecAlgos.SeverityLevels[i].Level.value())  # store severity value
     flagvec=process.hcalRecAlgos.SeverityLevels[i].RecHitFlags.value()  # Get vector of rechit flags for this severity level
     flaglevel=process.hcalRecAlgos.SeverityLevels[i].Level.value()
-    if "UserDefinedBit0" in flagvec and flaglevel<>10:  # remove HFLongShort from its default position
+    if "UserDefinedBit0" in flagvec and flaglevel!=10:  # remove HFLongShort from its default position
         flagvec.remove("UserDefinedBit0")
         process.hcalRecAlgos.SeverityLevels[i].RecHitFlags=flagvec
         print "Removed 'UserDefinedBit0' from severity level %i"%(process.hcalRecAlgos.SeverityLevels[i].Level.value())
     if (flaglevel==NewSevLevel):  # Set UserDefinedBit0 severity to 10, which will exclude such rechits from CaloTower
         print "FOUND LEVEL %i!"%NewSevLevel
         if "UserDefinedBit0" not in flagvec:
-            if (flagvec<>['']):
+            if (flagvec!=['']):
                 flagvec.append("UserDefinedBit0")
             else:
                 flagvec=["UserDefinedBit0"]

@@ -91,12 +91,12 @@
 class ErsatzMEt : public edm::EDAnalyzer {
    public:
       explicit ErsatzMEt(const edm::ParameterSet&);
-      ~ErsatzMEt();
+      ~ErsatzMEt() override;
 
 
    private:
-      	virtual void beginJob() ;
-      	virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      	void beginJob() override ;
+      	void analyze(const edm::Event&, const edm::EventSetup&) override;
 //	std::map<reco::GsfElectronRef, reco::SuperClusterRef> probeFinder(const std::vector<reco::GsfElectronRef>&,
 //							const edm::Handle<reco::SuperClusterCollection>&,
 //							const edm::Handle<reco::SuperClusterCollection>&);
@@ -110,7 +110,7 @@ class ErsatzMEt : public edm::EDAnalyzer {
 	bool isInEndCap(double);
 	bool isInFiducial(double);
 
-      	virtual void endJob();
+      	void endJob() override;
 
       	// ----------member data ---------------------------
 	edm::EDGetTokenT<reco::GenParticleCollection> MCTruthCollection_;

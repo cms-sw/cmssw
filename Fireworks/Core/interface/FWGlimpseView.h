@@ -36,18 +36,18 @@ class FWGlimpseView : public FWEveView
 {
 public:
    FWGlimpseView(TEveWindowSlot*, FWViewType::EType);
-   virtual ~FWGlimpseView();
+   ~FWGlimpseView() override;
 
    // ---------- const member functions ---------------------
 
-   virtual void addTo(FWConfiguration&) const;
-   virtual void setFrom(const FWConfiguration&);
+   void addTo(FWConfiguration&) const override;
+   void setFrom(const FWConfiguration&) override;
 
    // ---------- static member functions --------------------
 
 private:
-   FWGlimpseView(const FWGlimpseView&);    // stop default
-   const FWGlimpseView& operator=(const FWGlimpseView&);    // stop default
+   FWGlimpseView(const FWGlimpseView&) = delete;    // stop default
+   const FWGlimpseView& operator=(const FWGlimpseView&) = delete;    // stop default
 
    void createAxis();
    void showAxes( );

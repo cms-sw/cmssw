@@ -21,10 +21,10 @@
 //
 LaserAlignmentProducer::LaserAlignmentProducer(const edm::ParameterSet&) :
   EDProducer(),
-  theEvent(0)
+  theEvent(nullptr)
 {
   //register your products
-  produces<edm::HepMCProduct>();
+  produces<edm::HepMCProduct>("unsmeared");
 
   //now do what ever other initialization is needed
 }
@@ -59,11 +59,11 @@ void LaserAlignmentProducer::produce(edm::Event& iEvent, const edm::EventSetup&)
   theEvent->set_signal_process_id(20);
 
   // create an empty output collection
-  std::auto_ptr<edm::HepMCProduct> theOutput(new edm::HepMCProduct());
+  auto theOutput = std::make_unique<edm::HepMCProduct>();
   theOutput->addHepMCData(theEvent);
    
   // put the output to the event
-  iEvent.put(theOutput);
+  iEvent.put(std::move(theOutput));
 }
 
 //define this as a plug-in

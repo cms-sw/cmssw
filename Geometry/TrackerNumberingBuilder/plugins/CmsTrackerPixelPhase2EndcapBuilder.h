@@ -6,7 +6,7 @@
 # include <string>
 
 /**
- * Class which builds the pixel phase 1 endcap
+ * Class which builds the pixel phase 2 endcap
  */
 class CmsTrackerPixelPhase2EndcapBuilder : public CmsTrackerLevelBuilder
 {
@@ -14,8 +14,8 @@ public:
   CmsTrackerPixelPhase2EndcapBuilder();
   
 private:
-  virtual void sortNS( DDFilteredView& , GeometricDet* );
-  virtual void buildComponent( DDFilteredView& , GeometricDet*, std::string );
+  void sortNS( DDFilteredView& , GeometricDet* ) override;
+  void buildComponent( DDFilteredView& , GeometricDet*, std::string ) override;
 };
 
 #endif

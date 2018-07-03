@@ -57,24 +57,22 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
                               *(rotStart+3), *(rotStart+4), *(rotStart+5),
                               *(rotStart+6), *(rotStart+7), *(rotStart+8));
     
-    Bounds* bounds = 0;
+    Bounds* bounds = nullptr;
     float be = *(shapeStart+0)/cm;
     float te = *(shapeStart+1)/cm;
     float ap = *(shapeStart+2)/cm;
     float ti = *(shapeStart+3)/cm;
-    //    float nstrip = *(shapeStart+4);
-    //float npad = *(shapeStart+5);
-    //  TrapezoidalPlaneBounds* 
+    float nstrip = *(shapeStart+4);
+    float npad = *(shapeStart+5);
+    //  TrapezoidalPlaneBounds*
     bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
 
     std::vector<float> pars;
-    pars.push_back(be); //b/2;
-    pars.push_back(te); //B/2;
-    pars.push_back(ap); //h/2;
-    float nstrip = -999.;
-    float npad = -999.;
-    pars.push_back(nstrip);
-    pars.push_back(npad);
+    pars.emplace_back(be); //b/2;
+    pars.emplace_back(te); //B/2;
+    pars.emplace_back(ap); //h/2;
+    pars.emplace_back(nstrip);
+    pars.emplace_back(npad);
     
     ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
       

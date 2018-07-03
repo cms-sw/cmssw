@@ -1,8 +1,14 @@
 #include "DetectorDescription/Core/interface/DDStrVector.h"
 
-DDStrVector::DDStrVector() : DDBase<DDName,std::vector<std::string>*>() { }
+#include <utility>
 
-DDStrVector::DDStrVector(const DDName & name) : DDBase<DDName,std::vector<std::string>*>() 
+#include "DetectorDescription/Core/interface/Store.h"
+
+DDStrVector::DDStrVector()
+  : DDBase<DDName,std::vector<std::string>*>() { }
+
+DDStrVector::DDStrVector(const DDName & name)
+  : DDBase<DDName,std::vector<std::string>*>() 
 {
   prep_ = StoreT::instance().create(name);
 }

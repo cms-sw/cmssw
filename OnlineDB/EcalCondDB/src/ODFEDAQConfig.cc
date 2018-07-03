@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/ODFEDAQConfig.h"
@@ -20,10 +20,10 @@ int getInt(ResultSet * rset, int ipar )
 
 ODFEDAQConfig::ODFEDAQConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
    m_ID=0;
    clear();   
@@ -52,7 +52,7 @@ ODFEDAQConfig::~ODFEDAQConfig()
 
 
 
-int ODFEDAQConfig::fetchNextId()  throw(std::runtime_error) {
+int ODFEDAQConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -68,13 +68,13 @@ int ODFEDAQConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEDAQConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
 
 void ODFEDAQConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -89,7 +89,7 @@ void ODFEDAQConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEDAQConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -119,7 +119,7 @@ void ODFEDAQConfig::setParameters(const std::map<string,string>& my_keys_map){
 }
 
 void ODFEDAQConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -143,7 +143,7 @@ void ODFEDAQConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEDAQConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -155,16 +155,16 @@ void ODFEDAQConfig::writeDB()
 
 
 void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODFEDAQConfig::fetchData(): no Id defined for this ODFEDAQConfig "));
   }
 
   m_readStmt = m_conn->createStatement(); 
-  if(result->getConfigTag()!="" && result->getVersion() ==0  ){
+  if(!result->getConfigTag().empty() && result->getVersion() ==0  ){
     int new_version=0;
     std::cout<< "using new method : retrieving last version for this tag "<<endl;
     try {
@@ -184,7 +184,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
       result->setVersion(new_version);
       
     } catch (SQLException &e) {
-      throw(std::runtime_error("ODFEDAQConfig::fetchData():  "+e.getMessage()));
+      throw(std::runtime_error(std::string("ODFEDAQConfig::fetchData():  ")+getOraMessage(&e)));
     }
     
     
@@ -205,7 +205,7 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
     result->setPedestalId(       getInt(rset,4) );
@@ -215,14 +215,14 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
     result->setBadTTId(          getInt(rset,8) );
     result->setTriggerBadXtId(   getInt(rset,9) );
     result->setTriggerBadTTId(   getInt(rset,10) );
-    result->setComment(          rset->getString(11) );
+    result->setComment(          getOraString(rset,11) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEDAQConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
-int ODFEDAQConfig::fetchID()    throw(std::runtime_error)
+int ODFEDAQConfig::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -248,7 +248,7 @@ int ODFEDAQConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEDAQConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEDAQConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

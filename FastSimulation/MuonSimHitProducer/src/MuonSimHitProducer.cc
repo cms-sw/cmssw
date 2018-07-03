@@ -79,7 +79,7 @@
 //
 MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   theEstimator(iConfig.getParameter<double>("Chi2EstimatorCut")),
-  propagatorWithoutMaterial(0)
+  propagatorWithoutMaterial(nullptr)
  {
 
   // Read relevant parameters
@@ -502,32 +502,32 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   }
   }
 
-  std::auto_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
   int n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theCSCHits.begin();
         i != theCSCHits.end(); i++ ) {
     pcsc->push_back(*i);
     n += 1;
   }
-  iEvent.put(pcsc,"MuonCSCHits");
+  iEvent.put(std::move(pcsc),"MuonCSCHits");
 
-  std::auto_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
   n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theDTHits.begin();
         i != theDTHits.end(); i++ ) {
     pdt->push_back(*i);
     n += 1;
   }
-  iEvent.put(pdt,"MuonDTHits");
+  iEvent.put(std::move(pdt),"MuonDTHits");
 
-  std::auto_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
   n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theRPCHits.begin();
         i != theRPCHits.end(); i++ ) {
     prpc->push_back(*i);
     n += 1;
   }
-  iEvent.put(prpc,"MuonRPCHits");
+  iEvent.put(std::move(prpc),"MuonRPCHits");
 
 }
 
@@ -560,7 +560,7 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
   //    std::cout << " The FAST tracking option is turned ON" << std::endl;
 
   // Material Effects
-  theMaterialEffects = 0;
+  theMaterialEffects = nullptr;
   if ( matEff.getParameter<bool>("PairProduction") || 
        matEff.getParameter<bool>("Bremsstrahlung") ||
        matEff.getParameter<bool>("MuonBremsstrahlung") ||
@@ -596,7 +596,7 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
   XYZTLorentzVector position(gPos.x(),gPos.y(),gPos.z(),0.);
   XYZTLorentzVector momentum(gMom.x(),gMom.y(),gMom.z(),en);
   float charge = (float)(tsos.charge());
-  ParticlePropagator theMuon(momentum,position,charge,0);
+  ParticlePropagator theMuon(momentum,position,charge,nullptr);
   theMuon.setID(-(int)charge*13);
 
   // Recompute the energy loss to get the fluctuations

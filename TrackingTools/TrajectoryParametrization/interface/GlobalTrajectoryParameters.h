@@ -16,7 +16,7 @@ class GlobalTrajectoryParameters {
 public:
 // construct
   GlobalTrajectoryParameters() :
-    theField(0), 
+    theField(nullptr), 
     theX(), theP(), 
     theCharge(0)
   {}  // we must initialize cache to non-NAN to avoid FPE
@@ -24,16 +24,27 @@ public:
   /** Constructing class from global position, global momentum and charge.
    */
 
-  GlobalTrajectoryParameters(const GlobalPoint& aX,
-                             const GlobalVector& aP,
-                             TrackCharge aCharge, 
-			     const MagneticField* fieldProvider);
+  GlobalTrajectoryParameters(
+                            const GlobalPoint& aX,
+                            const GlobalVector& aP,
+                            TrackCharge aCharge,
+                            const MagneticField* fieldProvider) :
+    theField(fieldProvider),
+    theX(aX), theP(aP),
+    theCharge(aCharge)
+    {setCache();}
 
   GlobalTrajectoryParameters(const GlobalPoint& aX,
                              const GlobalVector& aP,
                              TrackCharge aCharge,
                              const MagneticField* fieldProvider,
-                             GlobalVector fieldValue);
+                             GlobalVector fieldValue):
+    theField(fieldProvider),
+    theX(aX), theP(aP),
+    cachedMagneticField(fieldValue),
+    theCharge(aCharge)
+    {}
+
 
 
   /** Constructing class from global position, direction (unit length) 
@@ -107,13 +118,6 @@ public:
    */
 
   AlgebraicVector6 vector() const {
-    //AlgebraicVector6 v;
-    //v[0] = theX.x();
-    //v[1] = theX.y();
-    //v[2] = theX.z();
-    //v[3] = theP.x();
-    //v[4] = theP.y();
-    //v[5] = theP.z();
     return AlgebraicVector6(theX.x(),theX.y(),theX.z(),theP.x(),theP.y(),theP.z());
   }
 
@@ -129,6 +133,8 @@ public:
 
   const MagneticField& magneticField() const {return *theField;}
 
+private:
+  void setCache();
 
 private:
   const MagneticField* theField;

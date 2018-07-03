@@ -19,18 +19,29 @@ public:
                                       double absZ,
                                       double sigmaZ,
                                       double maxRecoZ,
+				      double absT,
+				      double sigmaT,
+				      double maxRecoT,
                                       double sharedTrackFraction,
                                       const reco::RecoToSimCollection *trackRecoToSimAssociation,
                                       const reco::SimToRecoCollection *trackSimToRecoAssociation);
 
-  virtual ~VertexAssociatorByPositionAndTracks();
+  VertexAssociatorByPositionAndTracks(const edm::EDProductGetter *productGetter,
+                                      double absZ,
+                                      double sigmaZ,
+                                      double maxRecoZ,
+                                      double sharedTrackFraction,
+                                      const reco::RecoToSimCollection *trackRecoToSimAssociation,
+                                      const reco::SimToRecoCollection *trackSimToRecoAssociation);
+
+  ~VertexAssociatorByPositionAndTracks() override;
 
   /* Associate TrackingVertex to RecoVertex By Hits */
-  virtual reco::VertexRecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<reco::Vertex> >& vCH, 
-                                                             const edm::Handle<TrackingVertexCollection>& tVCH) const;
+  reco::VertexRecoToSimCollection associateRecoToSim(const edm::Handle<edm::View<reco::Vertex> >& vCH, 
+                                                             const edm::Handle<TrackingVertexCollection>& tVCH) const override;
 
-  virtual reco::VertexSimToRecoCollection associateSimToReco(const edm::Handle<edm::View<reco::Vertex> >& vCH, 
-                                                             const edm::Handle<TrackingVertexCollection>& tVCH) const;
+  reco::VertexSimToRecoCollection associateSimToReco(const edm::Handle<edm::View<reco::Vertex> >& vCH, 
+                                                             const edm::Handle<TrackingVertexCollection>& tVCH) const override;
 
 private:
   // ----- member data
@@ -39,6 +50,9 @@ private:
   const double absZ_;
   const double sigmaZ_;
   const double maxRecoZ_;
+  const double absT_;
+  const double sigmaT_;
+  const double maxRecoT_;
   const double sharedTrackFraction_;
 
   const reco::RecoToSimCollection *trackRecoToSimAssociation_;

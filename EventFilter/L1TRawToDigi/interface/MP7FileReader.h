@@ -5,14 +5,14 @@
  * Created on August 22, 2014, 10:30 AM
  */
 
-#ifndef MP7FileReader_h
-#define	MP7FileReader_h
+#ifndef EventFilter_L1TRawToDigi_MP7FileReader_h
+#define EventFilter_L1TRawToDigi_MP7FileReader_h
 
 // C++ Headers
 #include <string>
 #include <fstream>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 // Boost Headers

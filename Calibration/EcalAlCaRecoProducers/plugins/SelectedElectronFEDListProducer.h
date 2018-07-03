@@ -1,5 +1,5 @@
 #ifndef SelectedElectronFEDListProducer_h
-#define SelectedFEDListProducer_h
+#define SelectedElectronFEDListProducer_h
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 // egamma objects
@@ -80,7 +80,7 @@ template<typename TEle, typename TCand>
  public:
 
    explicit SelectedElectronFEDListProducer( const edm::ParameterSet &);
-   virtual ~SelectedElectronFEDListProducer();
+   ~SelectedElectronFEDListProducer() override;
 
    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -89,7 +89,7 @@ template<typename TEle, typename TCand>
 
   virtual void beginJob() ;
   virtual void endJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 
  private:
@@ -167,4 +167,4 @@ template<typename TEle, typename TCand>
 
 };
 
-#endif
+#endif // SelectedElectronFEDListProducer_h

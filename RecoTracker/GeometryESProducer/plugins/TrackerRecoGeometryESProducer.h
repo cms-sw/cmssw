@@ -6,15 +6,14 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  TrackerRecoGeometryESProducer: public edm::ESProducer{
  public:
   TrackerRecoGeometryESProducer(const edm::ParameterSet & p);
-  virtual ~TrackerRecoGeometryESProducer(); 
-  boost::shared_ptr<GeometricSearchTracker> produce(const TrackerRecoGeometryRecord &);
+  ~TrackerRecoGeometryESProducer() override; 
+  std::unique_ptr<GeometricSearchTracker> produce(const TrackerRecoGeometryRecord &);
  private:
- boost::shared_ptr<GeometricSearchTracker> _tracker;
  std::string geoLabel;
 };
 

@@ -21,7 +21,7 @@ GsfTrackRefitter::GsfTrackRefitter(const edm::ParameterSet& iConfig):
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( consumes<reco::GsfTrackCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
+  setSrc( consumes<edm::View<reco::GsfTrack>>(iConfig.getParameter<edm::InputTag>( "src" )), 
           consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
           consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
@@ -53,11 +53,11 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::GsfTrackCollection>      outputTColl(new reco::GsfTrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
+  std::unique_ptr<reco::GsfTrackCollection>      outputTColl(new reco::GsfTrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::unique_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
+  std::unique_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
 
   //
   //declare and get stuff to be retrieved from ES
@@ -82,7 +82,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   switch(constraint_){
   case none :
     {
-      edm::Handle<reco::GsfTrackCollection> theTCollection;
+      edm::Handle<edm::View<reco::GsfTrack>> theTCollection;
       getFromEvt(theEvent,theTCollection,bs);
       if (theTCollection.failedToGet()){
 	edm::LogError("GsfTrackRefitter")<<"could not get the reco::GsfTrackCollection."; return;}

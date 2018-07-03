@@ -25,9 +25,9 @@ class HLTFatJetMassFilter : public HLTFilter {
 
    public:
       explicit HLTFatJetMassFilter(const edm::ParameterSet&);
-      ~HLTFatJetMassFilter();
+      ~HLTFatJetMassFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::EDGetTokenT<std::vector<jetType>> m_theJetToken;

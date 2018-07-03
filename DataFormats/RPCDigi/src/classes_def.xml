@@ -1,6 +1,6 @@
 <lcgdict>
-<class name="RPCDigi" ClassVersion="10">
- <version ClassVersion="10" checksum="3371330358"/>
+<class name="RPCDigi" ClassVersion="13">
+ <version ClassVersion="13" checksum="3650334651"/>
 </class>
 <class name="std::vector<RPCDigi>"/>
 <class name="std::map<RPCDetId,std::vector<RPCDigi> >"/>
@@ -27,4 +27,13 @@
  </class>
  <class name="std::vector<RPCDigiL1Link>"/>
  <class name="edm::Wrapper< std::vector<RPCDigiL1Link > >"/>
+
+<!-- StdDictionaries: class name="std::pair<unsigned int, ::uint32_t>" / -->
+<class name="std::pair<std::pair<unsigned int, ::uint32_t>, unsigned int>" />
+<class name="std::map<std::pair<unsigned int, ::uint32_t>, unsigned int>" />
+<class name="RPCAMCLinkCounters" ClassVersion="3">
+ <version ClassVersion="3" checksum="1674895127" />
+</class>
+<class name="edm::Wrapper<RPCAMCLinkCounters>" />
+
 </lcgdict>

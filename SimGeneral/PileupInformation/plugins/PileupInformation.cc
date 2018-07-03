@@ -40,6 +40,8 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
       
       trackingTruthT_          = mayConsume<TrackingParticleCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
       trackingTruthV_          = mayConsume<TrackingVertexCollection>(config.getParameter<edm::InputTag>("TrackingParticlesLabel"));
+
+      saveVtxTimes_ = config.getParameter<bool>("saveVtxTimes");
       
       MessageCategory_        = "PileupInformation";
       
@@ -57,6 +59,7 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 
     produces< std::vector<PileupSummaryInfo> >();
     produces<int>("bunchSpacing");
+
     //produces<PileupSummaryInfo>();
 }
 
@@ -64,7 +67,7 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup)
 {
 
-  std::auto_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
+  std::unique_ptr<std::vector<PileupSummaryInfo> > PSIVector(new std::vector<PileupSummaryInfo>);
 
   if ( isPreMixed_ ) {
     edm::Handle< std::vector<PileupSummaryInfo> > psiInput;  
@@ -82,11 +85,11 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
     event.getByToken(bunchSpacingToken_,bsInput);
     int bunchSpacing=*(bsInput.product());
 
-    event.put(PSIVector);
+    event.put(std::move(PSIVector));
     
     //add bunch spacing to the event as a seperate integer for use by downstream modules
-    std::auto_ptr<int> bunchSpacingP(new int(bunchSpacing));
-    event.put(bunchSpacingP,"bunchSpacing");
+    std::unique_ptr<int> bunchSpacingP(new int(bunchSpacing));
+    event.put(std::move(bunchSpacingP),"bunchSpacing");
     
     return;
   }
@@ -105,9 +108,9 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   if(MixInfo) {  // extract information - way easier than counting vertices
 
-    const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
-    const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
-    const std::vector<float> TrueInteractions = MixInfo->getMix_TrueInteractions();
+    const std::vector<int>& bunchCrossing = MixInfo->getMix_bunchCrossing();
+    const std::vector<int>& interactions = MixInfo->getMix_Ninteractions();
+    const std::vector<float>& TrueInteractions = MixInfo->getMix_TrueInteractions();
     const std::vector<edm::EventID> eventInfoList= MixInfo->getMix_eventInfo();
 
     bunchSpacing = MixInfo->getMix_bunchSpacing();
@@ -146,6 +149,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   std::vector< std::vector<float> > ptHatList_Xing;
   std::vector< std::vector<float> > zPosList_Xing;
+  std::vector< std::vector<float> > tPosList_Xing;
 
   bool Have_pThats = false;
 
@@ -154,11 +158,12 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
     Have_pThats = true;
 
-    const std::vector<int> bunchCrossing = MixInfo->getMix_bunchCrossing();
-    const std::vector<int> interactions = MixInfo->getMix_Ninteractions();
+    const std::vector<int>& bunchCrossing = MixInfo->getMix_bunchCrossing();
+    const std::vector<int>& interactions = MixInfo->getMix_Ninteractions();
 
-    const std::vector<float> PtHatInput = MixVtxInfo->getMix_pT_hats();
-    const std::vector<float> ZposInput = MixVtxInfo->getMix_z_Vtxs();
+    const std::vector<float>& PtHatInput = MixVtxInfo->getMix_pT_hats();
+    const std::vector<float>& ZposInput = MixVtxInfo->getMix_z_Vtxs();
+    const std::vector<float>& TposInput = MixVtxInfo->getMix_t_Vtxs();
 
     // store information from pileup vertices, if it's in the event:
 
@@ -167,16 +172,19 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
     for(int ib=0; ib<(int)bunchCrossing.size(); ++ib){
       //      std::cout << " bcr, nint " << bunchCrossing[ib] << " " << interactions[ib] << std::endl;
       
-      std::vector<float> zposBX;
+      std::vector<float> zposBX, tposBX;
       std::vector<float> pthatBX;
       zposBX.reserve( interactions[ib] );
+      if (saveVtxTimes_) tposBX.reserve( interactions[ib] );
       pthatBX.reserve( interactions[ib] );
       for ( int pu=0; pu< interactions[ib]; pu++) {
 	zposBX.push_back(ZposInput[totalIntPU+pu]);
+	if (saveVtxTimes_) tposBX.push_back(TposInput[totalIntPU+pu]);
 	pthatBX.push_back(PtHatInput[totalIntPU+pu]);
       }
       totalIntPU+=(interactions[ib]);
       zPosList_Xing.push_back(zposBX);
+      tPosList_Xing.push_back(tposBX);
       ptHatList_Xing.push_back(pthatBX);
       
     }
@@ -228,10 +236,12 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
   std::vector< std::vector<edm::EventID> >::iterator TEventInfoIter = eventInfoList_Xing.begin();
 
   std::vector< std::vector<float> >::iterator zPosIter;
+  std::vector< std::vector<float> >::iterator tPosIter;
   std::vector< std::vector<float> >::iterator pThatIter;
 
   if(Have_pThats) {
     zPosIter = zPosList_Xing.begin();
+    tPosIter = tPosList_Xing.begin();
     pThatIter = ptHatList_Xing.begin();
   }
 
@@ -341,6 +351,7 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       PileupSummaryInfo	PSI_bunch = PileupSummaryInfo(
 						      (*InteractionsIter),
 						      (*zPosIter),
+						      (*tPosIter),
 						      sumpT_lowpT,
 						      sumpT_highpT,
 						      ntrks_lowpT,
@@ -354,16 +365,19 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
       PSIVector->push_back(PSI_bunch);
 
       zPosIter++;
+      tPosIter++;
       pThatIter++;
     }
     else{
 
       std::vector<float> zposZeros( (*TEventInfoIter).size(), 0);
+      std::vector<float> tposZeros( (*TEventInfoIter).size(), 0);
       std::vector<float> pThatZeros( (*TEventInfoIter).size(), 0);
 
       PileupSummaryInfo	PSI_bunch = PileupSummaryInfo(
 						      (*InteractionsIter),
 						      zposZeros,
+						      tposZeros,
 						      sumpT_lowpT,
 						      sumpT_highpT,
 						      ntrks_lowpT,
@@ -408,11 +422,11 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   // put our vector of PileupSummaryInfo objects into the event.
 
-  event.put(PSIVector);
+  event.put(std::move(PSIVector));
 
   //add bunch spacing to the event as a seperate integer for use by downstream modules
-  std::auto_ptr<int> bunchSpacingP(new int(bunchSpacing));
-  event.put(bunchSpacingP,"bunchSpacing");
+  std::unique_ptr<int> bunchSpacingP(new int(bunchSpacing));
+  event.put(std::move(bunchSpacingP),"bunchSpacing");
 
 }
 

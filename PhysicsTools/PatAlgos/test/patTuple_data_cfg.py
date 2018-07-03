@@ -2,10 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PAT")
 
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+patAlgosToolsTask = configtools.getPatAlgosToolsTask(process)
+
 ## Options
 process.options = cms.untracked.PSet(
   wantSummary      = cms.untracked.bool( True )
-, allowUnscheduled = cms.untracked.bool( True )
 )
 
 ## Messaging
@@ -40,12 +42,18 @@ process.out = cms.OutputModule(
 )
 process.out.outputCommands += [ 'drop recoGenJets_*_*_*' ]
 process.outpath = cms.EndPath(
-  process.out
+  process.out, patAlgosToolsTask
 )
 
 ## Processing
 process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
+patAlgosToolsTask.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
+
 process.load( "PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff" )
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
+
 # for data:
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData
 runOnData( process )

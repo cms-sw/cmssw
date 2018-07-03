@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <sstream>
-#include <limits.h>
+#include <climits>
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
@@ -179,7 +179,7 @@ std::string LMFSeqDat::writeDBSql(Statement *stmt)
 }
 
 void LMFSeqDat::fetchParentIDs()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // get the RunIOV
   m_runIOV.setConnection(m_env, m_conn);
@@ -194,7 +194,7 @@ void LMFSeqDat::fetchParentIDs()
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::string sql,
 						  std::string method)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::vector<std::string> pars;
   return fetchByRunIOV(pars, sql, method);
@@ -203,7 +203,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::string sql,
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, 
 						  std::string sql,
 						  std::string method)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::vector<std::string> pars;
   std::stringstream ss;
@@ -215,7 +215,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par,
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(const std::vector<std::string>& pars, 
 						  std::string sql,
 						  std::string method)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::map<int, LMFSeqDat> l;
   this->checkConnection();
@@ -243,7 +243,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(const std::vector<std::string>
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
     throw(std::runtime_error(m_className + "::" + method + ": " + 
-			     e.getMessage()));
+			     getOraMessage(&e)));
   }
   return l;
 }
@@ -255,7 +255,7 @@ LMFSeqDat LMFSeqDat::fetchLast() {
 		  "WHERE SEQ_ID = "
 		  "(SELECT MAX(SEQ_ID) FROM CMS_ECAL_LASER_COND.LMF_SEQ_DAT)",
 		  "fetchLast");
-  if (m.size() > 0) {
+  if (!m.empty()) {
     ret = m.begin()->second;
   }
   return ret;

@@ -32,10 +32,12 @@ standAloneMuons = cms.EDProducer(
             DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
             EnableCSCMeasurement = cms.bool(True),
             CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-            EnableGEMMeasurement = cms.bool(False),
-            GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
             EnableRPCMeasurement = cms.bool(True),
             RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
+            EnableGEMMeasurement = cms.bool(False),
+            GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
+            EnableME0Measurement = cms.bool(False),
+            ME0RecSegmentLabel = cms.InputTag("me0Segments"),
             NumberOfSigma = cms.double(3.0),
             MaxChi2 = cms.double(1000.0),
             Propagator = cms.string('SteppingHelixPropagatorAny'),
@@ -56,10 +58,12 @@ standAloneMuons = cms.EDProducer(
             DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
             EnableCSCMeasurement = cms.bool(True),
             CSCRecSegmentLabel = cms.InputTag("cscSegments"),
-            EnableGEMMeasurement = cms.bool(False),
-            GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
             EnableRPCMeasurement = cms.bool(True),
             RPCRecSegmentLabel = cms.InputTag("rpcRecHits"),
+            EnableGEMMeasurement = cms.bool(False),
+            GEMRecSegmentLabel = cms.InputTag("gemRecHits"),
+            EnableME0Measurement = cms.bool(False),
+            ME0RecSegmentLabel = cms.InputTag("me0Segments"),
             NumberOfSigma = cms.double(3.0),
             MaxChi2 = cms.double(100.0),
             Propagator = cms.string('SteppingHelixPropagatorAny'),
@@ -104,4 +108,14 @@ standAloneSETMuons = cms.EDProducer("StandAloneMuonProducer",
     )
                                     )
 
+_enableGEMMeasurement = dict( EnableGEMMeasurement = cms.bool(True) )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableGEMMeasurement, 
+    BWFilterParameters = _enableGEMMeasurement ) )
 
+_enableME0Measurement = dict( EnableME0Measurement = cms.bool(True) )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( standAloneMuons, STATrajBuilderParameters = dict(
+    FilterParameters = _enableME0Measurement,
+    BWFilterParameters = _enableME0Measurement ) )

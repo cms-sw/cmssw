@@ -16,7 +16,7 @@
 class PhotonConversionTrajectorySeedProducerFromQuadruplets : public edm::stream::EDProducer<> {
 public:
   PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& );
-  ~PhotonConversionTrajectorySeedProducerFromQuadruplets(){}
+  ~PhotonConversionTrajectorySeedProducerFromQuadruplets() override{}
   void produce(edm::Event& , const edm::EventSetup& ) override;
 
 private:
@@ -37,10 +37,10 @@ PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& c
 
 void PhotonConversionTrajectorySeedProducerFromQuadruplets::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> result( new TrajectorySeedCollection() );  
+  auto result = std::make_unique<TrajectorySeedCollection>();  
   try{
     _theFinder->analyze(ev,es);
-    if(_theFinder->getTrajectorySeedCollection()->size())
+    if(!_theFinder->getTrajectorySeedCollection()->empty())
       result->insert(result->end(),
 		     _theFinder->getTrajectorySeedCollection()->begin(),
 		     _theFinder->getTrajectorySeedCollection()->end());
@@ -52,7 +52,7 @@ void PhotonConversionTrajectorySeedProducerFromQuadruplets::produce(edm::Event& 
 
   
   edm::LogInfo("debugTrajSeedFromQuadruplets") << " TrajectorySeedCollection size " << result->size();
-  ev.put(result, _newSeedCandidates);  
+  ev.put(std::move(result), _newSeedCandidates);  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

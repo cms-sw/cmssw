@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.METProducers.METSignificanceParams_cfi import METSignificanceParams
 
+
 patMETs = cms.EDProducer("PATMETProducer",
     # input
     metSource  = cms.InputTag("pfMetT1"),
@@ -49,10 +50,12 @@ patMETs = cms.EDProducer("PATMETProducer",
     computeMETSignificance  = cms.bool(False),
     # significance computation parameters, not used
     # if the significance is not computed
-    srcJets = cms.InputTag("selectedPatJets"),
-    srcPFCands =  cms.InputTag("packedPFCandidates"),
+    srcJets = cms.InputTag("cleanedPatJets"),
+    srcPFCands =  cms.InputTag("particleFlow"),
     srcLeptons = cms.VInputTag("selectedPatElectrons", "selectedPatMuons", "selectedPatPhotons"),
+    srcJetSF = cms.string('AK4PFchs'),
+    srcJetResPt = cms.string('AK4PFchs_pt'),
+    srcJetResPhi = cms.string('AK4PFchs_phi'),
+    srcRho = cms.InputTag('fixedGridRhoAll'),
     parameters = METSignificanceParams
 )
-
-

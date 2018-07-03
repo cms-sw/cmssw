@@ -1,11 +1,15 @@
 #ifndef SimpleElectron_H
 #define SimpleElectron_H
+ 
+#ifndef SimpleElectron_STANDALONE
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"        
+#endif
 
 class SimpleElectron
 {
 	public:
 	    SimpleElectron(){}
-	    SimpleElectron( double run, 
+	    SimpleElectron( unsigned int run, 
                         double eClass, 
                         double r9, 
                         double scEnergy, 
@@ -36,32 +40,40 @@ class SimpleElectron
                         isMC_(isMC), 
                         isEcalDriven_(isEcalDriven), 
                         isTrackerDriven_(isTrackerDriven), 
+                        newEnergy_(regEnergy_), 
+                        newEnergyError_(regEnergyError_),
                         combinedMomentum_(combinedMomentum), 
-                        combinedMomentumError_(combinedMomentumError) 
+                        combinedMomentumError_(combinedMomentumError),
+                        scale_(1.0), smearing_(0.0)
         {}
 	    ~SimpleElectron(){}	
 
+#ifndef SimpleElectron_STANDALONE
+        explicit SimpleElectron(const reco::GsfElectron &in, unsigned int runNumber, bool isMC) ;
+        void writeTo(reco::GsfElectron & out) const ;
+#endif
+
     	//accessors
-    	double getNewEnergy(){return newEnergy_;}
-    	double getNewEnergyError(){return newEnergyError_;}
-    	double getCombinedMomentum(){return combinedMomentum_;}
-    	double getCombinedMomentumError(){return combinedMomentumError_;}
-    	double getScale(){return scale_;}
-    	double getSmearing(){return smearing_;}
-    	double getSCEnergy(){return scEnergy_;}
-    	double getSCEnergyError(){return scEnergyError_;}
-    	double getRegEnergy(){return regEnergy_;}
-    	double getRegEnergyError(){return regEnergyError_;}
-    	double getTrackerMomentum(){return trackMomentum_;}
-    	double getTrackerMomentumError(){return trackMomentumError_;}
-    	double getEta(){return eta_;}
-    	float getR9(){return r9_;}
-    	int getElClass(){return eClass_;}
-    	int getRunNumber(){return run_;}
-    	bool isEB(){return isEB_;}
-    	bool isMC(){return isMC_;}
-    	bool isEcalDriven(){return isEcalDriven_;}
-    	bool isTrackerDriven(){return isTrackerDriven_;}
+    	double getNewEnergy() const {return newEnergy_;}
+    	double getNewEnergyError() const {return newEnergyError_;}
+    	double getCombinedMomentum() const {return combinedMomentum_;}
+    	double getCombinedMomentumError() const {return combinedMomentumError_;}
+    	double getScale() const {return scale_;}
+    	double getSmearing() const {return smearing_;}
+    	double getSCEnergy() const {return scEnergy_;}
+    	double getSCEnergyError() const {return scEnergyError_;}
+    	double getRegEnergy() const {return regEnergy_;}
+    	double getRegEnergyError() const {return regEnergyError_;}
+    	double getTrackerMomentum() const {return trackMomentum_;}
+    	double getTrackerMomentumError() const {return trackMomentumError_;}
+    	double getEta() const {return eta_;}
+    	float getR9() const {return r9_;}
+    	int getElClass() const {return eClass_;}
+    	unsigned int getRunNumber() const {return run_;}
+    	bool isEB() const {return isEB_;}
+    	bool isMC() const {return isMC_;}
+    	bool isEcalDriven() const {return isEcalDriven_;}
+    	bool isTrackerDriven() const {return isTrackerDriven_;}
     
     	//setters
     	void setCombinedMomentum(double combinedMomentum){combinedMomentum_ = combinedMomentum;}
@@ -70,7 +82,7 @@ class SimpleElectron
     	void setNewEnergyError(double newEnergyError){newEnergyError_ = newEnergyError;}
 
 	private:
-    	double run_; 
+    	unsigned int run_; 
         double eClass_;
     	double r9_;
     	double scEnergy_; 

@@ -43,7 +43,7 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
 #include "TList.h"
 #include "TString.h"
-#include <time.h>
+#include <ctime>
 #include <cstdlib>
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
@@ -63,10 +63,10 @@ using std::vector;
 class HiEvtPlaneFlatProducer : public edm::stream::EDProducer<> {
 public:
   explicit HiEvtPlaneFlatProducer(const edm::ParameterSet&);
-  ~HiEvtPlaneFlatProducer();
+  ~HiEvtPlaneFlatProducer() override;
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
 
@@ -217,7 +217,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     edm::ESHandle<RPFlatParams> flatparmsDB_;
     iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
     LoadEPDB db(flatparmsDB_,flat);
-    if(db.IsSuccess()) return;
+    if(!db.IsSuccess()) return;
   }
   //
   //Get Centrality
@@ -263,10 +263,10 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     return ;
   }
 
-  std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
+  auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
   EvtPlane * ep[NumEPNames];
   for(int i = 0; i<NumEPNames; i++) {
-    ep[i]=0;
+    ep[i]=nullptr;
   }
   int indx = 0;
   for (EvtPlaneCollection::const_iterator rp = evtPlanes_->begin();rp !=evtPlanes_->end(); rp++) {
@@ -280,7 +280,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(useOffsetPsi_) {
 		soff = flat[indx]->getSoffset(s, vzr_sell, bin);
 		coff = flat[indx]->getCoffset(c, vzr_sell, bin);
-		psiOffset = flat[indx]->getOffsetPsi(s, c);
+		psiOffset = flat[indx]->getOffsetPsi(soff, coff);
 	}
 	double psiFlat = flat[indx]->getFlatPsi(psiOffset,vzr_sell,bin);
 	ep[indx]= new EvtPlane(indx, 2, psiFlat, soff, coff,rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
@@ -291,10 +291,10 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   
   for(int i = 0; i< NumEPNames; i++) {
-    if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
+    if(ep[i]!=nullptr) evtplaneOutput->push_back(*ep[i]);
     
   }
-  iEvent.put(evtplaneOutput);
+  iEvent.put(std::move(evtplaneOutput));
   for(int i = 0; i<indx; i++) delete ep[i];
 }
 

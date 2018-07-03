@@ -1,0 +1,16 @@
+<lcgdict>
+<!-- fastsim objects -->
+  <class name="CTPPSFastTrack" ClassVersion="3">
+    <version ClassVersion="3" checksum="4107658808"/>
+  </class>
+  <class name="std::vector<CTPPSFastTrack>"/>
+  <class name="edm::Wrapper<std::vector<CTPPSFastTrack> > "/>
+  <class name="std::vector<const CTPPSFastTrack*>"/>
+
+  <class name="CTPPSFastRecHit" ClassVersion="3">
+     <version ClassVersion="3" checksum="2897018556"/>
+  </class>
+  <class name="std::vector<CTPPSFastRecHit>"/>
+  <class name="edm::Wrapper<std::vector<CTPPSFastRecHit> > "/>
+  <class name="std::vector<const CTPPSFastRecHit*>"/>
+</lcgdict>

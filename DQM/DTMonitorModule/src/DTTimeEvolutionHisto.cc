@@ -64,7 +64,7 @@ DTTimeEvolutionHisto::DTTimeEvolutionHisto(DQMStore::IBooker & ibooker, const st
       } else {
 	label << "LS " << ((bin-1)*theLSPrescale)+theFirstLS;
       }
-      histo->setBinLabel(bin, label.str(),1);
+      if (bin%(2*(int)theLSPrescale)==0) histo->setBinLabel(bin, label.str(),1); //JF to allow easy reading of x-axis
     }
   }
 }
@@ -100,7 +100,7 @@ void DTTimeEvolutionHisto::setTimeSlotValue(float value, int timeSlot) {
       } else if(bin != nBookedBins) {
 	histo->setBinContent(bin, histo->getBinContent(bin+1));
 	histo->setBinError(bin, histo->getBinError(bin+1));
-	histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1);
+	histo->setBinLabel(bin, histo->getTH1F()->GetXaxis()->GetBinLabel(bin+1),1); 
       }
     }
     histo->setBinContent(nBookedBins, value);
@@ -127,7 +127,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
     }
 
 
-    if(nEventsInLastTimeSlot.size() > 0 && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
+    if(!nEventsInLastTimeSlot.empty() && nEventsInLastTimeSlot.size()%theLSPrescale==0) { // update the value of the slot and reset the counters
       int firstLSinTimeSlot = nEventsInLastTimeSlot.begin()->first;
       int lastLSinTimeSlot  = nEventsInLastTimeSlot.rbegin()->first;
 
@@ -170,7 +170,8 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
       if(nEventsInLastTimeSlot.size() > 1)
 	binLabel << "-" << lastLSinTimeSlot;
 
-      histo->setBinLabel(nBookedBins,binLabel.str(),1);
+      //if(lastLSinTimeSlot%(3*(int)theLSPrescale)==0)
+	histo->setBinLabel(nBookedBins,binLabel.str(),1);
 
       // reset the counters for the time slot
       nEventsInLastTimeSlot.clear();
@@ -200,7 +201,7 @@ void DTTimeEvolutionHisto::updateTimeSlot(int ls, int nEventsInLS) {
 
 
 void DTTimeEvolutionHisto::normalizeTo(const MonitorElement *histForNorm) {
-  if(histo == 0) {
+  if(histo == nullptr) {
     LogWarning("DTDQM|DTMonitorModule|DTMonitorClient|DTTimeEvolutionHisto")
       << "[DTTimeEvolutionHisto]***Error: pointer to ME is NULL" << endl;
     return;

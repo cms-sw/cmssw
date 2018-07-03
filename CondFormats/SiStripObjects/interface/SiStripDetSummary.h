@@ -1,11 +1,8 @@
 #ifndef SiStripDetSummary_h
 #define SiStripDetSummary_h
 
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/DetId/interface/DetId.h"
+class TrackerTopology;
 
 #include <sstream>
 #include <map>
@@ -31,7 +28,7 @@
 class SiStripDetSummary
 {
 public:
-  SiStripDetSummary() : computeMean_(true)
+  explicit SiStripDetSummary(const TrackerTopology* tTopo) : computeMean_(true), trackerTopo_(tTopo)
   {
     // Initialize valueMap_ with zeros
     // WARNING: this initialization is strongly connected with how the map is filled in the add method
@@ -52,9 +49,9 @@ public:
   }
 
   /// Used to compute the mean value of the value variable divided by subdetector, layer and mono/stereo
-  void add(const DetId & detid, const float & value);
+  void add(DetId detid, float value);
   /// Used to compute the number of entries divided by subdetector, layer and mono/stereo
-  inline void add(const DetId & detid)
+  inline void add(DetId detid)
   {
     computeMean_ = false;
     add( detid, 0 );
@@ -81,6 +78,8 @@ protected:
   // Maps to store the value and the counts
   std::map<unsigned int, Values> valueMap_;
   bool computeMean_;
+private:
+  const TrackerTopology* trackerTopo_;
 };
 
 #endif

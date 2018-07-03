@@ -1,11 +1,11 @@
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <memory>
 #include <string>
 #include <cstdio>
-#include <stdio.h>
+#include <cstdio>
 #include <ext/stdio_filebuf.h>
 
 #include "FWCore/Concurrency/interface/Xerces.h"
@@ -14,7 +14,7 @@
 #include <xercesc/util/BinInputStream.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/InputSource.hpp>
@@ -45,15 +45,15 @@ namespace { // anonymous
 	    public:
 		typedef typename T::Stream_t Stream_t;
 
-		XMLInputSourceWrapper(std::auto_ptr<Stream_t> &obj) : obj(obj) {}
-		virtual ~XMLInputSourceWrapper() {}
+		XMLInputSourceWrapper(std::unique_ptr<Stream_t>& obj) : obj(obj) {}
+		~XMLInputSourceWrapper() override {}
 
-		virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
+		XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream*
 							makeStream() const override
 		{ return new T(*obj); }
 
 	    private:
-		std::auto_ptr<Stream_t>	obj;
+		std::unique_ptr<Stream_t>&	obj;
 	};
 
 	class STLInputStream :
@@ -62,12 +62,14 @@ namespace { // anonymous
 	        typedef std::istream Stream_t;
 
 	        STLInputStream(std::istream &in) : in(in) {}
-	        virtual ~STLInputStream() {}
+	        ~STLInputStream() override {}
 
-	        virtual unsigned int curPos() const override { return pos; }
+	        XMLFilePos curPos() const override { return pos; }
 
-	        virtual unsigned int readBytes(XMLByte *const buf,
-	                                       const unsigned int size) override;
+	        XMLSize_t readBytes(XMLByte *const buf,
+					    const XMLSize_t size) override;
+	  
+	        const XMLCh* getContentType() const override { return nullptr; }
 
 	    private:
 	        std::istream    &in;
@@ -84,7 +86,7 @@ namespace { // anonymous
 			file_(file), filebuf_(file, std::ios_base::in)
 		{ this->init(&filebuf_); }
 
-		~stdio_istream()
+		~stdio_istream() override
 		{ close(file_); }
 
 		__filebuf_type *rdbuf() const
@@ -98,8 +100,8 @@ namespace { // anonymous
 	typedef XMLInputSourceWrapper<STLInputStream> STLInputSource;
 } // anonymous namespace
 
-unsigned int STLInputStream::readBytes(XMLByte* const buf,
-                                       const unsigned int size)
+XMLSize_t STLInputStream::readBytes(XMLByte* const buf,
+				    const XMLSize_t size)
 {
 	char *rawBuf = reinterpret_cast<char*>(buf);
 	unsigned int bytes = size * sizeof(XMLByte);
@@ -142,12 +144,12 @@ XMLDocument::XercesPlatform::~XercesPlatform()
 
 XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 	platform(new XercesPlatform()), fileName(fileName),
-	write(write), impl(0), doc(0), rootNode(0)
+	write(write), impl(nullptr), doc(nullptr), rootNode(nullptr)
 {
 	if (write)
 		openForWrite(fileName);
 	else {
-		std::auto_ptr<std::istream> inputStream(
+		std::unique_ptr<std::istream> inputStream(
 					new std::ifstream(fileName.c_str()));
 		if (!inputStream->good())
 			throw cms::Exception("XMLDocument")
@@ -161,7 +163,7 @@ XMLDocument::XMLDocument(const std::string &fileName, bool write) :
 XMLDocument::XMLDocument(const std::string &fileName,
                          const std::string &command) :
 	platform(new XercesPlatform()), fileName(fileName),
-	write(false), impl(0), doc(0), rootNode(0)
+	write(false), impl(nullptr), doc(nullptr), rootNode(nullptr)
 {
 	FILE *file = popen(command.c_str(), "r");
 	if (!file)
@@ -170,7 +172,7 @@ XMLDocument::XMLDocument(const std::string &fileName,
 			   " command \"" << command << "\"."
 			<< std::endl;
 
-	std::auto_ptr<std::istream> inputStream(
+	std::unique_ptr<std::istream> inputStream(
 					new stdio_istream<pclose>(file));
 	if (!inputStream->good())
 		throw cms::Exception("XMLDocument")
@@ -186,37 +188,37 @@ XMLDocument::~XMLDocument()
 	if (!write)
 		return;
 
-	std::auto_ptr<DocReleaser> docReleaser(new DocReleaser(doc));
+	std::unique_ptr<DocReleaser> docReleaser(new DocReleaser(doc));
 
-	std::auto_ptr<DOMWriter> writer(static_cast<DOMImplementationLS*>(
-						impl)->createDOMWriter());
+	std::unique_ptr<DOMLSSerializer> writer(((DOMImplementationLS*)impl)->createLSSerializer());
 	assert(writer.get());
 
-	writer->setEncoding(XMLUniStr("UTF-8"));
-        if (writer->canSetFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true))
-		writer->setFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true);
-	if (writer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-		writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+	if( writer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true))
+	  writer->getDomConfig()->setParameter(XMLUni::fgDOMWRTDiscardDefaultContent,true);
+	if( writer->getDomConfig()->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+	  writer->getDomConfig()->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
 
+	std::unique_ptr<DOMLSOutput> outputDesc(((DOMImplementationLS*)impl)->createLSOutput());
+ 	assert(outputDesc.get());
+	outputDesc->setEncoding(XMLUniStr("UTF-8"));
+	
 	try {
-		std::auto_ptr<XMLFormatTarget> target(
+		std::unique_ptr<XMLFormatTarget> target(
 				new LocalFileFormatTarget(fileName.c_str()));
-
-		writer->writeNode(target.get(), *doc);
+		outputDesc->setByteStream(target.get());
+		writer->write( doc, outputDesc.get());
 	} catch(...) {
 		std::remove(fileName.c_str());
-		throw;
 	}
 }
 
-void XMLDocument::openForRead(std::auto_ptr<std::istream> &stream)
+void XMLDocument::openForRead(std::unique_ptr<std::istream> &stream)
 {
 	parser.reset(new XercesDOMParser());
 	parser->setValidationScheme(XercesDOMParser::Val_Auto);
 	parser->setDoNamespaces(false);
 	parser->setDoSchema(false);
 	parser->setValidationSchemaFullChecking(false);
-
 	errHandler.reset(new HandlerBase());
 	parser->setErrorHandler(errHandler.get());
 	parser->setCreateEntityReferenceNodes(false);
@@ -270,7 +272,7 @@ DOMDocument *XMLDocument::createDocument(const std::string &root)
 			<< "Document already exists in createDocument."
 			<< std::endl;
 
-	doc = impl->createDocument(0, XMLUniStr(root.c_str()), 0);
+	doc = impl->createDocument(nullptr, XMLUniStr(root.c_str()), nullptr);
 	rootNode = doc->getDocumentElement();
 
 	return doc;

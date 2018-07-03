@@ -15,22 +15,22 @@
 #include "CondFormats.h"
 
 //
+#include <memory>
 #include <sstream>
 
 namespace cond {
 
   namespace persistency {
 
-    std::pair<std::string,boost::shared_ptr<void> > fetchIfExists( const cond::Hash& payloadId, Session& session, bool& exists ){
-      boost::shared_ptr<void> payloadPtr;
+    std::pair<std::string,std::shared_ptr<void> > fetchIfExists( const cond::Hash& payloadId, Session& session, bool& exists ){
+      std::shared_ptr<void> payloadPtr;
       cond::Binary data;
       cond::Binary streamerInfo;
       std::string payloadTypeName;
       exists = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( exists ) {
-	bool isOra = session.isOraSession();
-	return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr, isOra);
-      } else return std::make_pair( std::string(""), boost::shared_ptr<void>() );
+	return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr );
+      } else return std::make_pair( std::string(""), std::shared_ptr<void>() );
     }
 
     cond::Hash import( Session& source, const cond::Hash& sourcePayloadId, const std::string& inputTypeName, const void* inputPtr, Session& destination ){
@@ -45,6 +45,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( AlignmentErrorsExtended )
       IMPORT_PAYLOAD_CASE( AlignmentSurfaceDeformations )
       IMPORT_PAYLOAD_CASE( Alignments )
+      IMPORT_PAYLOAD_CASE( AlignPCLThresholds )
       IMPORT_PAYLOAD_CASE( BeamSpotObjects )
       IMPORT_PAYLOAD_CASE( CSCBadChambers )
       IMPORT_PAYLOAD_CASE( CSCBadStrips )
@@ -63,6 +64,9 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( CSCDDUMap )
       IMPORT_PAYLOAD_CASE( CSCL1TPParameters )
       IMPORT_PAYLOAD_CASE( CSCRecoDigiParameters )
+      IMPORT_PAYLOAD_CASE( CTPPSPixelDAQMapping )
+      IMPORT_PAYLOAD_CASE( CTPPSPixelAnalysisMask )
+      IMPORT_PAYLOAD_CASE( CTPPSPixelGainCalibrations  )
       IMPORT_PAYLOAD_CASE( CastorChannelQuality )
       IMPORT_PAYLOAD_CASE( CastorElectronicsMap )
       IMPORT_PAYLOAD_CASE( CastorGainWidths )
@@ -151,12 +155,13 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( FileBlob )
       IMPORT_PAYLOAD_CASE( GBRForest )
       IMPORT_PAYLOAD_CASE( GBRForestD )
-      IMPORT_PAYLOAD_CASE( HBHENegativeEFilter )	
+      IMPORT_PAYLOAD_CASE( HBHENegativeEFilter )
+      IMPORT_PAYLOAD_CASE( HFPhase1PMTParams )
       IMPORT_PAYLOAD_CASE( HcalChannelQuality )
-      IMPORT_PAYLOAD_CASE( HcalCholeskyMatrices )
       IMPORT_PAYLOAD_CASE( HcalDcsValues )
       IMPORT_PAYLOAD_CASE( HcalElectronicsMap )
       IMPORT_PAYLOAD_CASE( HcalFlagHFDigiTimeParams )
+      IMPORT_PAYLOAD_CASE( HcalFrontEndMap )
       IMPORT_PAYLOAD_CASE( HcalGains )
       IMPORT_PAYLOAD_CASE( HcalGainWidths )
       IMPORT_PAYLOAD_CASE( HcalL1TriggerObjects )
@@ -171,11 +176,17 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( HcalQIEData )
       IMPORT_PAYLOAD_CASE( HcalRecoParams )
       IMPORT_PAYLOAD_CASE( HcalRespCorrs )
+      IMPORT_PAYLOAD_CASE( HcalSiPMCharacteristics )
+      IMPORT_PAYLOAD_CASE( HcalSiPMParameters )
       IMPORT_PAYLOAD_CASE( HcalTimeCorrs )
+      IMPORT_PAYLOAD_CASE( HcalTPChannelParameters )
+      IMPORT_PAYLOAD_CASE( HcalTPParameters )
       IMPORT_PAYLOAD_CASE( HcalZSThresholds )
       IMPORT_PAYLOAD_CASE( HcalInterpolatedPulseColl )
       IMPORT_PAYLOAD_CASE( JetCorrectorParametersCollection )
+      IMPORT_PAYLOAD_CASE( JME::JetResolutionObject )
       IMPORT_PAYLOAD_CASE( METCorrectorParametersCollection )
+      IMPORT_PAYLOAD_CASE( MEtXYcorrectParametersCollection )
       IMPORT_PAYLOAD_CASE( L1CaloEcalScale )
       IMPORT_PAYLOAD_CASE( L1CaloEtScale )
       IMPORT_PAYLOAD_CASE( L1CaloGeometry )
@@ -214,41 +225,23 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( L1RPCHwConfig )
       IMPORT_PAYLOAD_CASE( l1t::CaloParams )
       IMPORT_PAYLOAD_CASE( l1t::CaloConfig )
+      IMPORT_PAYLOAD_CASE( L1TMuonBarrelParams )
+      IMPORT_PAYLOAD_CASE( L1TMuonGlobalParams )
+      IMPORT_PAYLOAD_CASE( L1TMuonOverlapParams )
+      IMPORT_PAYLOAD_CASE( L1TUtmAlgorithm )
+      IMPORT_PAYLOAD_CASE( L1TUtmBin )
+      IMPORT_PAYLOAD_CASE( L1TUtmCondition )
+      IMPORT_PAYLOAD_CASE( L1TUtmCut )
+      IMPORT_PAYLOAD_CASE( L1TUtmCutValue )
+      IMPORT_PAYLOAD_CASE( L1TUtmObject )
+      IMPORT_PAYLOAD_CASE( L1TUtmScale )
+      IMPORT_PAYLOAD_CASE( L1TUtmTriggerMenu )
+      IMPORT_PAYLOAD_CASE( L1TGlobalParameters )
       IMPORT_PAYLOAD_CASE( L1TriggerKey )
       IMPORT_PAYLOAD_CASE( MagFieldConfig )
       if( inputTypeName == "L1TriggerKeyList" ){ 
 	match = true;
-	const L1TriggerKeyList& obj = *static_cast<const L1TriggerKeyList*>( inputPtr );
-        L1TriggerKeyList converted;
-	for( const auto& kitem : obj.tscKeyToTokenMap() ){
-	  std::string pid("0");
-	  std::string sourcePid = source.parsePoolToken( kitem.second );
-	  if( !destination.lookupMigratedPayload( source.connectionString(), sourcePid, pid ) ){
-	    std::cout <<"WARNING: L1Trigger key stored on "<<sourcePid<<" has not been migrated (yet?). Attemping to do the export..."<<std::endl;
-	    bool exists = false;
-            std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
-	    if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
-	    std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
-	    if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
-	  }
-          converted.addKey( kitem.first, pid );
-	}
-	for( const auto& ritem : obj.recordTypeToKeyToTokenMap() ){
-	  for( const auto& kitem : ritem.second ){
-	    std::string pid("0");
-	    std::string sourcePid = source.parsePoolToken( kitem.second );
-	    if( !destination.lookupMigratedPayload( source.connectionString(), sourcePid, pid ) ){
-	      std::cout <<"WARNING: L1Trigger key stored on "<<sourcePid<<" has not been migrated (yet?). Attemping to do the export..."<<std::endl;
-	      bool exists = false;
-	      std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
-	      if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
-	      std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
-	      if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
-	    }
-	    converted.addKey( ritem.first, kitem.first, pid );
-	  }
-	}
-	payloadId = destination.storePayload( converted, boost::posix_time::microsec_clock::universal_time() );
+	throwException( "Import of \"L1TriggerKeyList\" type payloads is not supported.","import" );
       }
       //IMPORT_PAYLOAD_CASE( L1TriggerKeyList )
       IMPORT_PAYLOAD_CASE( lumi::LumiSectionData )
@@ -260,11 +253,11 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( StorableDoubleMap<AbsOOTPileupCorrection> )
       IMPORT_PAYLOAD_CASE( PhysicsTools::Calibration::MVAComputerContainer )
       IMPORT_PAYLOAD_CASE( PCaloGeometry )
-      IMPORT_PAYLOAD_CASE( PHcalParameters )
       IMPORT_PAYLOAD_CASE( HcalParameters )
       IMPORT_PAYLOAD_CASE( PGeometricDet )
       IMPORT_PAYLOAD_CASE( PGeometricDetExtra )
       IMPORT_PAYLOAD_CASE( PTrackerParameters )
+      IMPORT_PAYLOAD_CASE( PHGCalParameters )
 	//IMPORT_PAYLOAD_CASE( PerformancePayload )
       IMPORT_PAYLOAD_CASE( PerformancePayloadFromTable )
       IMPORT_PAYLOAD_CASE( PerformancePayloadFromTFormula )
@@ -288,6 +281,9 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( RPCObTemp )
       IMPORT_PAYLOAD_CASE( RPCObUXC )
       IMPORT_PAYLOAD_CASE( RPCObVmon )
+      IMPORT_PAYLOAD_CASE( RPCLBLinkMap )
+      IMPORT_PAYLOAD_CASE( RPCDCCLinkMap )
+      IMPORT_PAYLOAD_CASE( RPCAMCLinkMap )
       IMPORT_PAYLOAD_CASE( RPFlatParams )
       IMPORT_PAYLOAD_CASE( RecoIdealGeometry )
       IMPORT_PAYLOAD_CASE( RunInfo )
@@ -323,6 +319,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalTPGPedestal> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<float> )
+      IMPORT_PAYLOAD_CASE( L1TGlobalPrescalesVetos )
       if( inputTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){
 	match = true;
 	const PhysicsTools::Calibration::Histogram3D<double,double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram3D<double,double,double,double>*>( inputPtr ); 

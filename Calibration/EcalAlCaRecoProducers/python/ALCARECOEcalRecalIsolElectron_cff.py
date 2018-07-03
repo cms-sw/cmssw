@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+import HLTrigger.HLTfilters.hltHighLevel_cfi
+ALCARECOEcalRecalElectronHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
+    andOr = True, # choose logical OR between Triggerbits
+    eventSetupPathsKey = 'EcalRecalElectron',
+    throw = False # tolerate triggers stated above, but not available
+)
+
 from Configuration.StandardSequences.Reconstruction_Data_cff import ecalLocalRecoSequence, pfClusteringPS, pfClusteringECAL, ecalClusters
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_cff import *
 
@@ -22,6 +29,6 @@ rerecoECALSeq = cms.Sequence(recoECALSeq * rerecoPFClusteringSeq * ecalClusterin
 ############################################### FINAL SEQUENCES
 # sequences used in AlCaRecoStreams_cff.py
 #redo the preselection of electrons with selectorProducerSeq for recHit reducers: they use the selected objects as input
-seqALCARECOEcalRecalElectron = cms.Sequence( rerecoECALSeq * selectorProducerSeq * ALCARECOEcalCalElectronECALSeq)
+seqALCARECOEcalRecalElectron = cms.Sequence(ALCARECOEcalRecalElectronHLT * rerecoECALSeq * selectorProducerSeq * ALCARECOEcalCalElectronECALSeq)
 
 

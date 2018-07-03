@@ -29,10 +29,10 @@ class TtFullHadEvtPartons : public TtEventPartons {
   /// default constructor
   TtFullHadEvtPartons(const std::vector<std::string>& partonsToIgnore = std::vector<std::string>());
   /// default destructor
-  ~TtFullHadEvtPartons(){};
+  ~TtFullHadEvtPartons() override{};
 
   /// return vector of partons in the order defined in the corresponding enum
-  std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt);
+  std::vector<const reco::Candidate*> vec(const TtGenEvent& genEvt) override;
 
 };
 

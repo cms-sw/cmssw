@@ -23,8 +23,13 @@ Description: Provide access to the collected elements contained by any WrapperBa
 
 #include <vector>
 #include <memory>
+#include <algorithm>
+#include <iterator>
+#include <utility>
+#include <cassert>
 
 namespace edm {
+  class EDProductGetter;
 
   //------------------------------------------------------------------
   // Class ViewBase
@@ -38,17 +43,13 @@ namespace edm {
   class ViewBase {
   public:
     virtual ~ViewBase();
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     std::unique_ptr<ViewBase> clone() const;
-#endif
 
   protected:
     ViewBase();
     ViewBase(ViewBase const&);
     ViewBase& operator=(ViewBase const&);
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     virtual std::unique_ptr<ViewBase> doClone() const = 0;
-#endif
     void swap(ViewBase&) {} // Nothing to swap
   };
 
@@ -102,7 +103,7 @@ namespace edm {
          FillViewHelperVector const& helpers,
          EDProductGetter const* getter);
 
-    virtual ~View();
+    ~View() override;
 
     void swap(View& other);
 
@@ -140,9 +141,7 @@ namespace edm {
   private:
     seq_t items_;
     std::vector<Ptr<value_type> > vPtrs_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     std::unique_ptr<ViewBase> doClone() const override;
-#endif
   };
 
   // Associated free functions (same as for std::vector)
@@ -164,7 +163,6 @@ namespace edm {
     vPtrs_() {
   }
 
-#ifndef __GCCXML__
   template<typename T>
   View<T>::View(std::vector<void const*> const& pointers,
                 FillViewHelperVector const& helpers,
@@ -184,7 +182,7 @@ namespace edm {
       void const* p = pointers[i];
       auto const& h = helpers[i];
       items_.push_back(static_cast<pointer>(p));
-      if(0!=p) {
+      if(nullptr!=p) {
          vPtrs_.push_back(Ptr<T>(h.first, static_cast<T const*>(p), h.second));
       } else if(getter != nullptr) {
          vPtrs_.push_back(Ptr<T>(h.first, h.second, getter));
@@ -193,7 +191,6 @@ namespace edm {
       }
     }
   }
-#endif
 
   template<typename T>
   View<T>::~View() {
@@ -278,7 +275,6 @@ namespace edm {
     return *items_[pos];
   }
 
-#ifndef __GCCXML__
   template<typename T>
   inline
   RefToBase<T>
@@ -295,7 +291,6 @@ namespace edm {
                           }
                         } );
   }
-#endif
   
   template<typename T>
   inline
@@ -336,13 +331,11 @@ namespace edm {
       output.items_[i] = first;
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   template<typename T>
   std::unique_ptr<ViewBase>
   View<T>::doClone() const {
     return std::unique_ptr<ViewBase>{new View(*this)};
   }
-#endif
   
   template<typename T>
   inline

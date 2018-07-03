@@ -57,15 +57,15 @@ namespace l1t {
 class MP7BufferDumpToRaw : public edm::EDProducer {
 public:
   explicit MP7BufferDumpToRaw(const edm::ParameterSet&);
-  ~MP7BufferDumpToRaw();
+  ~MP7BufferDumpToRaw() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   std::vector<Block> getBlocks(int iAmc);
 
@@ -134,8 +134,8 @@ private:
   MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig) :
     rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
     txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
-    rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt"), 1, 0),
-    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), iConfig.getUntrackedParameter<int>("nHeaderFrames", 0), 0),
+    rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt"), iConfig.getUntrackedParameter<int>("rxHeaderFrames", 1), 0, iConfig.getUntrackedParameter<int>("rxKeyLink", 0)),
+    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), iConfig.getUntrackedParameter<int>("txHeaderFrames", 1), 0, iConfig.getUntrackedParameter<int>("txKeyLink", 0)),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     iBoard_(iConfig.getUntrackedParameter<int>("boardOffset", 0)),
@@ -258,7 +258,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("L1T") << "AMC13 size " << amc13.size();  
 
   // prepare the raw data collection
-  std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+  std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
   FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
   formatRaw(iEvent, amc13, fed_data);
@@ -266,7 +266,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("L1T") << "Packing FED ID " << fedId_ << " size " << fed_data.size();
   
   // put the collection in the event
-  iEvent.put(raw_coll);  
+  iEvent.put(std::move(raw_coll));  
 
   //advance to next AMC for next event, if required...
   if (mux_) {
@@ -395,6 +395,8 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
   // TODO this is an empty word to be replaced with a proper MP7
   // header containing at least the firmware version
   load32.push_back(0);
+  load32.push_back(fwVer_);
+
   for (const auto& block: blocks) {
     LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
     auto load = block.payload();

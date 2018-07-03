@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # required parameters
     (options, args) = parser.parse_args()
     if len (args) != 1:
-        raise RuntimeError, "Must provide exactly one input file"
+        raise RuntimeError("Must provide exactly one input file")
 
     alphaList = LumiList (filename = args[0])  # Read in first  JSON file
     if options.range:

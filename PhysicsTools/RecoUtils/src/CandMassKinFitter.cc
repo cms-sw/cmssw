@@ -14,12 +14,12 @@ FitQuality CandMassKinFitter::set( Candidate & c ) const {
   size_t daus = c.numberOfDaughters();
   vector<TMatrixD> errors(daus, TMatrix(3,3));
   vector<TVector3> momenta(daus);
-  vector<TFitParticleMCCart *> particles(daus, 0);
+  vector<TFitParticleMCCart *> particles(daus, nullptr);
   TFitConstraintM constraint( "MassConstraint", 
-			      "MassConstraint", 0, 0 , mass_);
+			      "MassConstraint", nullptr, nullptr , mass_);
   for ( size_t i = 0; i < daus; ++ i ) {
     const Candidate & dau = * c.daughter( i );
-    Particle::LorentzVector p4 = dau.p4();
+    const Particle::LorentzVector& p4 = dau.p4();
     TMatrixD & err = errors[i];
     TVector3 & mom = momenta[i];
     mom = TVector3( p4.px(), p4.py(), p4.pz() );

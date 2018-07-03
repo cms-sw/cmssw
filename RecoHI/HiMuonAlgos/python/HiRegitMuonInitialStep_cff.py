@@ -3,13 +3,25 @@ import FWCore.ParameterSet.Config as cms
 # pp iterative tracking modified for hiOffline reco (the vertex is the one reconstructed in HI)
 ################################### 0st step:pixel-triplet seeding, high-pT;
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollection = cms.InputTag("hiSelectedVertex")
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons","UpdatedAtVtx")
-
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed     = True 
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed     = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaPhi      = 0.3
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaEta      = 0.2
+# Are the following values set to the same in every iteration? If yes,
+# why not making the change in HITrackingRegionProducer_cfi directly
+# once for all?
+hiRegitMuInitialStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDProducer.clone(
+    MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
+    MuonTrackingRegionBuilder = dict(
+        vertexCollection = "hiSelectedPixelVertex",
+        UseVertex     = True,
+        Phi_fixed     = True,
+        Eta_fixed     = True,
+        DeltaPhi      = 0.3,
+        DeltaEta      = 0.2,
+        # Ok, the following ones are specific to InitialStep
+        Pt_min          = 3.0,
+        DeltaR          = 1, # default = 0.2
+        DeltaZ          = 1, # this give you the length
+        Rescale_Dz      = 4., # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+    )
+)
 
 ###################################  
 from RecoTracker.IterativeTracking.InitialStep_cff import *
@@ -18,14 +30,20 @@ from RecoTracker.IterativeTracking.InitialStep_cff import *
 hiRegitMuInitialStepSeedLayers =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.clone()
 
 # seeding
-hiRegitMuInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone()
-hiRegitMuInitialStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
-hiRegitMuInitialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = cms.InputTag("hiRegitMuInitialStepSeedLayers")
-hiRegitMuInitialStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 3.0
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 1 # default = 0.2
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 1 # this give you the length 
-hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+hiRegitMuInitialStepHitDoublets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitDoublets.clone(
+    seedingLayers = "hiRegitMuInitialStepSeedLayers",
+    trackingRegions = "hiRegitMuInitialStepTrackingRegions",
+    clusterCheck = "hiRegitMuClusterCheck"
+)
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuInitialStepHitDoublets, layerPairs = [0])
+
+hiRegitMuInitialStepHitTriplets = RecoTracker.IterativeTracking.InitialStep_cff.initialStepHitTriplets.clone(
+    doublets = "hiRegitMuInitialStepHitDoublets"
+)
+hiRegitMuInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone(
+    seedingHitSets = "hiRegitMuInitialStepHitTriplets"
+)
 
 
 # building: feed the new-named seeds
@@ -64,7 +82,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuInitialStepTracks',
-    vertices            = cms.InputTag("hiSelectedVertex"),
+    vertices            = cms.InputTag("hiSelectedPixelVertex"),
     useAnyMVA = cms.bool(True),
     GBRForestLabel = cms.string('HIMVASelectorIter4'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
@@ -89,8 +107,34 @@ hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
             ),
         ) #end of vpset
     )
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuInitialStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuInitialStepSelector, trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuInitialStepLoose',
+           min_nhits = cms.uint32(8)
+            ), #end of pset
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiRegitMuInitialStepTight',
+            preFilterName = 'hiRegitMuInitialStepLoose',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.38)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiRegitMuInitialStep',
+            preFilterName = 'hiRegitMuInitialStepTight',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.77)
+            ),
+        )
+)
 
 hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeedLayers*
+                                      hiRegitMuInitialStepTrackingRegions*
+                                      hiRegitMuInitialStepHitDoublets*
+                                      hiRegitMuInitialStepHitTriplets*
                                       hiRegitMuInitialStepSeeds*
                                       hiRegitMuInitialStepTrackCandidates*
                                       hiRegitMuInitialStepTracks*

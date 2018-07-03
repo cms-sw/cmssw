@@ -22,7 +22,7 @@ void PFchsMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::Handle<reco::VertexCollection> recVtxs;
   evt.getByToken(token_, recVtxs);
 
-  std::auto_ptr<CorrMETData> chsSum(new CorrMETData());
+  std::unique_ptr<CorrMETData> chsSum(new CorrMETData());
 
   for (unsigned i = 1; i < recVtxs->size(); ++i)
     {
@@ -42,7 +42,7 @@ void PFchsMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& 
 	}
     }
 
-  evt.put(chsSum, "type0");
+  evt.put(std::move(chsSum), "type0");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

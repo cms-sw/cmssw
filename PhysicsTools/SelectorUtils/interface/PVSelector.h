@@ -35,13 +35,13 @@ public:
   }
 #endif
 
-  bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {
+  bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) override {
     ret.set(false);
     event.getByLabel(pvSrc_, h_primVtx);
 
     // check if there is a good primary vertex
 
-    if ( h_primVtx->size() < 1 ) return false;
+    if ( h_primVtx->empty() ) return false;
 
     // Loop over PV's and count those that pass
     int npv = 0;

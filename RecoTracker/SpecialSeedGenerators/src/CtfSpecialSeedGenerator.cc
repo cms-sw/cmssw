@@ -25,8 +25,8 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
   	useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
   	edm::LogVerbatim("CtfSpecialSeedGenerator") << "Constructing CtfSpecialSeedGenerator";
   	produces<TrajectorySeedCollection>();
-	theSeedBuilder =0; 
-	theRegionProducer =0;
+	theSeedBuilder =nullptr; 
+	theRegionProducer =nullptr;
 
 	edm::ParameterSet regfactoryPSet = conf_.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
@@ -42,11 +42,11 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
 }
 
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
-    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
+    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = nullptr; }
 }
 
 void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&){
-    if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = 0; }
+    if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = nullptr; }
 }
 
 void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& iSetup){
@@ -124,7 +124,7 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSetup)
 {
   // get Inputs
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   //check on the number of clusters
   if ( !requireBOFF || (theMagfield->inTesla(GlobalPoint(0,0,0)).mag() == 0.00) ) {
@@ -137,7 +137,7 @@ void CtfSpecialSeedGenerator::produce(edm::Event& e, const edm::EventSetup& iSet
   
   
   edm::LogVerbatim("CtfSpecialSeedGenerator") << " number of seeds = "<< output->size();
-  e.put(output);
+  e.put(std::move(output));
 }
 
 bool CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,

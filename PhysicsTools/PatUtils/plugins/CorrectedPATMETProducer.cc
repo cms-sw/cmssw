@@ -15,6 +15,7 @@
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
 #include "JetMETCorrections/Type1MET/interface/AddCorrectionsToGenericMET.h"
+#include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
 #include <vector>
 
@@ -39,7 +40,7 @@ public:
     produces<METCollection>("");
   }
 
-  ~CorrectedPATMETProducer() { }
+  ~CorrectedPATMETProducer() override { }
 
 private:
 
@@ -49,7 +50,6 @@ private:
 
   edm::EDGetTokenT<METCollection> token_;
  
-
   void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     edm::Handle<METCollection> srcMETCollection;
@@ -61,9 +61,17 @@ private:
     reco::MET corrMET = corrector.getCorrectedMET(srcMET, evt, es);
     pat::MET outMET(corrMET, srcMET);
   
-    std::auto_ptr<METCollection> product(new METCollection);
+    auto product = std::make_unique<METCollection>();
+
+    reco::METCovMatrix cov=srcMET.getSignificanceMatrix();
+    if( !(cov(0,0)==0 && cov(0,1)==0 && cov(1,0)==0 && cov(1,1)==0) ) {
+      outMET.setSignificanceMatrix(cov);
+      double metSig=metsig::METSignificance::getSignificance(cov, outMET);
+      outMET.setMETSignificance(metSig);
+    }  
+
     product->push_back(outMET);
-    evt.put(product);
+    evt.put(std::move(product));
   }
 
 };

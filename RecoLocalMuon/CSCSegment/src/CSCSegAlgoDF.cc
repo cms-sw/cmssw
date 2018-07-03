@@ -33,7 +33,7 @@
  *
  */
 CSCSegAlgoDF::CSCSegAlgoDF(const edm::ParameterSet& ps) 
-  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoDF"), sfit_(0) {
+  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoDF"), sfit_(nullptr) {
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCSegmentDebug");
   minLayersApart         = ps.getParameter<int>("minLayersApart");
@@ -257,7 +257,7 @@ std::vector<CSCSegment> CSCSegAlgoDF::buildSegments(const ChamberHitContainer& _
                               sfit_->covarianceMatrix(), sfit_->chi2());
 	//	std::cout << "[CSCSegAlgoDF::buildSegments] about to delete sfit= = " << sfit_ << std::endl;
 	delete sfit_;
-        sfit_ = 0; // avoid possibility of attempting a second delete later
+        sfit_ = nullptr; // avoid possibility of attempting a second delete later
 
         segmentInChamber.push_back(temp); 
 	if (debug) dumpSegment( temp );
@@ -499,7 +499,7 @@ void CSCSegAlgoDF::compareProtoSegment(const CSCRecHit2D* h, int layer) {
 
   bool ok = addHit(h, layer);
 
-  CSCSegFit* newfit = 0;
+  CSCSegFit* newfit = nullptr;
   if ( ok ) {
     newfit = new CSCSegFit( theChamber, protoSegment );
     //    std::cout << "[CSCSegAlgoDF::compareProtoSegment] newfit = " << newfit << std::endl;
@@ -537,7 +537,7 @@ void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
   // Don't reject hits marked as "nearby" for now.
   // So this is bypassed at all times for now !!!
   // Perhaps add back to speed up algorithm some more
-  if (closeHits.size() > 0) return;  
+  if (!closeHits.empty()) return;  
   for ( hi = closeHits.begin(); hi != closeHits.end(); ++hi ) {
     for ( iu = ib; iu != rechitsInChamber.end(); ++iu ) {
       if (*hi == *iu) usedHits[iu-ib] = true;

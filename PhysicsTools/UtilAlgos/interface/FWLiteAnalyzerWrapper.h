@@ -144,7 +144,7 @@ namespace fwlite {
     }
     else{
       // create a directory in the file if directory string is non empty
-      TFileDirectory dir = fileService_.mkdir(directory.c_str());
+      TFileDirectory dir = fileService_.mkdir(directory);
       analyzer_ = boost::shared_ptr<T>( new T( ana, dir ) );  
     }
   }

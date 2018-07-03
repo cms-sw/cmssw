@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/BaseHolder.h"
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <memory>
 
@@ -24,37 +23,35 @@ namespace edm {
     template <typename T>
     class IndirectHolder : public BaseHolder<T> {
     public:
-      // It may be better to use auto_ptr<RefHolderBase> in
+      // It may be better to use unique_ptr<RefHolderBase> in
       // this constructor, so that the cloning can be avoided. I'm not
-      // sure if use of auto_ptr here causes any troubles elsewhere.
-      IndirectHolder() : BaseHolder<T>(), helper_( 0 ) { }
+      // sure if use of unique_ptr here causes any troubles elsewhere.
+      IndirectHolder() : BaseHolder<T>(), helper_( nullptr ) { }
       IndirectHolder(std::shared_ptr<RefHolderBase> p);
-#ifndef __GCCXML__
       template< typename U>
       IndirectHolder(std::unique_ptr<U> p): helper_(p.release()) {}
-#endif
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
       void swap(IndirectHolder& other);
-      virtual ~IndirectHolder();
+      ~IndirectHolder() override;
       
-      virtual BaseHolder<T>* clone() const GCC11_OVERRIDE;
-      virtual T const* getPtr() const GCC11_OVERRIDE;
-      virtual ProductID id() const GCC11_OVERRIDE;
-      virtual size_t key() const GCC11_OVERRIDE;
-      virtual bool isEqualTo(BaseHolder<T> const& rhs) const GCC11_OVERRIDE;
+      BaseHolder<T>* clone() const override;
+      T const* getPtr() const override;
+      ProductID id() const override;
+      size_t key() const override;
+      bool isEqualTo(BaseHolder<T> const& rhs) const override;
 
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
-					  std::string& msg) const GCC11_OVERRIDE;
-      virtual std::auto_ptr<RefHolderBase> holder() const GCC11_OVERRIDE;
-      virtual std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() const GCC11_OVERRIDE;
-      virtual EDProductGetter const* productGetter() const GCC11_OVERRIDE;
+      bool fillRefIfMyTypeMatches(RefHolderBase& fillme,
+					  std::string& msg) const override;
+      std::unique_ptr<RefHolderBase> holder() const override;
+      std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const override;
+      EDProductGetter const* productGetter() const override;
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const GCC11_OVERRIDE { return helper_->isAvailable(); }
+      bool isAvailable() const override { return helper_->isAvailable(); }
 
-      virtual bool isTransient() const GCC11_OVERRIDE { return helper_->isTransient(); }
+      bool isTransient() const override { return helper_->isTransient(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
@@ -155,8 +152,8 @@ namespace edm {
     }
 
     template <typename T>
-    std::auto_ptr<RefHolderBase> IndirectHolder<T>::holder() const { 
-      return std::auto_ptr<RefHolderBase>( helper_->clone() ); 
+    std::unique_ptr<RefHolderBase> IndirectHolder<T>::holder() const { 
+      return std::unique_ptr<RefHolderBase>( helper_->clone() ); 
     }
 
     // Free swap function
@@ -176,10 +173,10 @@ namespace edm {
 namespace edm {
   namespace reftobase {
     template <typename T>
-    std::auto_ptr<BaseVectorHolder<T> > IndirectHolder<T>::makeVectorHolder() const {
-      std::auto_ptr<RefVectorHolderBase> p = helper_->makeVectorHolder();
+    std::unique_ptr<BaseVectorHolder<T> > IndirectHolder<T>::makeVectorHolder() const {
+      std::unique_ptr<RefVectorHolderBase> p = helper_->makeVectorHolder();
       std::shared_ptr<RefVectorHolderBase> sp( p.release() );
-      return std::auto_ptr<BaseVectorHolder<T> >( new IndirectVectorHolder<T>( sp ) );
+      return std::unique_ptr<BaseVectorHolder<T> >( new IndirectVectorHolder<T>( sp ) );
     }
   }
 }

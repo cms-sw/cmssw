@@ -25,9 +25,9 @@ class SiStripBadComponentsDQMServiceReader : public edm::EDAnalyzer {
 
  public:
   explicit SiStripBadComponentsDQMServiceReader( const edm::ParameterSet& );
-  ~SiStripBadComponentsDQMServiceReader();
+  ~SiStripBadComponentsDQMServiceReader() override;
 
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
   void printError( std::stringstream & ss, const bool error, const std::string & errorText );
 

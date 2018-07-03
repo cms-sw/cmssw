@@ -2,6 +2,7 @@
 //-ap #include "Configuration/CSA06Skimming/interface/MCParticlePairFilter.h"
 
 #include "GeneratorInterface/GenFilters/interface/MCParticlePairFilter.h"
+#include "GeneratorInterface/GenFilters/interface/MCFilterZboostHelper.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include <iostream>
@@ -11,14 +12,15 @@ using namespace std;
 
 
 MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 particleCharge(iConfig.getUntrackedParameter("ParticleCharge",0)),
 minInvMass(iConfig.getUntrackedParameter("MinInvMass", 0.)),
 maxInvMass(iConfig.getUntrackedParameter("MaxInvMass", 14000.)),
 minDeltaPhi(iConfig.getUntrackedParameter("MinDeltaPhi", 0.)),
 maxDeltaPhi(iConfig.getUntrackedParameter("MaxDeltaPhi", 6.3)),
 minDeltaR(iConfig.getUntrackedParameter("MinDeltaR",0.)),
-maxDeltaR(iConfig.getUntrackedParameter("MaxDeltaR",10000.))
+maxDeltaR(iConfig.getUntrackedParameter("MaxDeltaR",10000.)),
+betaBoost(iConfig.getUntrackedParameter("BetaBoost",0.))
 {
    //here do whatever other initialization is needed
    vector<int> defpid1;
@@ -98,7 +100,7 @@ MCParticlePairFilter::~MCParticlePairFilter()
 
 
 // ------------ method called to skim the data  ------------
-bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool MCParticlePairFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    using namespace edm;
    bool accepted = false;
@@ -125,16 +127,17 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
        }
      }
      if(gottypeAID) {
-       if ( (*p)->momentum().perp() > ptMin[0] && (*p)->momentum().rho() > pMin[0] && (*p)->momentum().eta() > etaMin[0] 
-	    && (*p)->momentum().eta() < etaMax[0] && ((*p)->status() == status[0] || status[0] == 0)) { 
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+       if ( mom.perp() > ptMin[0] && mom.rho() > pMin[0] && mom.eta() > etaMin[0] 
+	    && mom.eta() < etaMax[0] && ((*p)->status() == status[0] || status[0] == 0)) { 
 	 // passed A type conditions ...
 	 // ... now check pair-conditions with B type passed particles
 	 unsigned int i=0;
 	 double deltaphi;
-	 double phi1 = (*p)->momentum().phi();
+	 double phi1 = mom.phi();
 	 double phi2;
 	 double deltaeta;
-	 double eta1 = (*p)->momentum().eta();
+	 double eta1 = mom.eta();
 	 double eta2;
 	 double deltaR;
 	 //HepLorentzVector momentum1 = (*p)->momentum();
@@ -147,25 +150,26 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	 int charge1 = 0;
 	 int combcharge = 0;
 	 while(!accepted && i<typeBpassed.size()) {
-	   tot_x=(*p)->momentum().px();
-	   tot_y=(*p)->momentum().py();
-	   tot_z=(*p)->momentum().pz();
-	   tot_e=(*p)->momentum().e();
+	   tot_x=mom.px();
+	   tot_y=mom.py();
+	   tot_z=mom.pz();
+	   tot_e=mom.e();
 	   charge1 = charge((*p)->pdg_id());
 	   //totmomentum = momentum1 + typeBpassed[i]->momentum();
 	   //invmass = totmomentum.m();
-	   tot_x += typeBpassed[i]->momentum().px();
-	   tot_y += typeBpassed[i]->momentum().py();
-	   tot_z += typeBpassed[i]->momentum().pz();
-	   tot_e += typeBpassed[i]->momentum().e();
+      HepMC::FourVector mom_i = MCFilterZboostHelper::zboost(typeBpassed[i]->momentum(),betaBoost);
+	   tot_x += mom_i.px();
+	   tot_y += mom_i.py();
+	   tot_z += mom_i.pz();
+	   tot_e += mom_i.e();
 	   invmass=sqrt(tot_e*tot_e-tot_x*tot_x-tot_y*tot_y-tot_z*tot_z);
 	   combcharge = charge1 * charge(typeBpassed[i]->pdg_id());
 	   if(invmass > minInvMass && invmass < maxInvMass) {
-	     phi2 = typeBpassed[i]->momentum().phi();
+	     phi2 = mom_i.phi();
 	     deltaphi = fabs(phi1-phi2);
 	      if(deltaphi > pi) deltaphi = 2.*pi-deltaphi;
 	      if(deltaphi > minDeltaPhi && deltaphi < maxDeltaPhi) {
-		eta2 = typeBpassed[i]->momentum().eta();
+		eta2 = mom_i.eta();
 		deltaeta=fabs(eta1-eta2);
 		deltaR = sqrt(deltaeta*deltaeta+deltaphi*deltaphi);
 		if(deltaR > minDeltaR && deltaR < maxDeltaR) {
@@ -195,16 +199,17 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
        }
      }
      if(gottypeBID) {
-       if ( (*p)->momentum().perp() > ptMin[1] && (*p)->momentum().rho() > pMin[1] && (*p)->momentum().eta() > etaMin[1] 
-	    && (*p)->momentum().eta() < etaMax[1] && ((*p)->status() == status[1] || status[1] == 0)) { 
+       HepMC::FourVector mom = MCFilterZboostHelper::zboost((*p)->momentum(),betaBoost);
+       if ( mom.perp() > ptMin[1] && mom.rho() > pMin[1] && mom.eta() > etaMin[1] 
+	    && mom.eta() < etaMax[1] && ((*p)->status() == status[1] || status[1] == 0)) { 
 	 // passed B type conditions ...
 	 // ... now check pair-conditions with A type passed particles vector
 	 unsigned int i=0;
 	 double deltaphi;
-	 double phi1 = (*p)->momentum().phi();
+	 double phi1 = mom.phi();
 	 double phi2;
 	 double deltaeta;
-	 double eta1 = (*p)->momentum().eta();
+	 double eta1 = mom.eta();
 	 double eta2;
 	 double deltaR;
 	 //HepLorentzVector momentum1 = (*p)->momentum();
@@ -218,25 +223,26 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	 int combcharge = 0;
 	 while(!accepted && i<typeApassed.size()) {
 	   if((*p) != typeApassed[i]) {
-	     tot_x=(*p)->momentum().px();
-	     tot_y=(*p)->momentum().py();
-	     tot_z=(*p)->momentum().pz();
-	     tot_e=(*p)->momentum().e();
+	     tot_x=mom.px();
+	     tot_y=mom.py();
+	     tot_z=mom.pz();
+	     tot_e=mom.e();
 	     charge1 = charge((*p)->pdg_id());
 	     //totmomentum = momentum1 + typeApassed[i]->momentum();
-	     //invmass = totmomentum.m();
-	     tot_x += typeApassed[i]->momentum().px();
-	     tot_y += typeApassed[i]->momentum().py();
-	     tot_z += typeApassed[i]->momentum().pz();
-	     tot_e += typeApassed[i]->momentum().e();
+        //invmass = totmomentum.m();
+        HepMC::FourVector mom_i = MCFilterZboostHelper::zboost(mom_i,betaBoost);
+	     tot_x += mom_i.px();
+	     tot_y += mom_i.py();
+	     tot_z += mom_i.pz();
+	     tot_e += mom_i.e();
 	     invmass=sqrt(tot_e*tot_e-tot_x*tot_x-tot_y*tot_y-tot_z*tot_z);
 	     combcharge = charge1 * charge(typeApassed[i]->pdg_id());
 	     if(invmass > minInvMass && invmass < maxInvMass) {
-	       phi2 = typeApassed[i]->momentum().phi();
+	       phi2 = mom_i.phi();
 	       deltaphi = fabs(phi1-phi2);
 	       if(deltaphi > pi) deltaphi = 2.*pi-deltaphi;
 	       if(deltaphi > minDeltaPhi && deltaphi < maxDeltaPhi) {
-		 eta2 = typeApassed[i]->momentum().eta();
+		 eta2 = mom_i.eta();
 		 deltaeta=fabs(eta1-eta2);
 		 deltaR = sqrt(deltaeta*deltaeta+deltaphi*deltaphi);
 		 if(deltaR > minDeltaR && deltaR < maxDeltaR) {
@@ -262,7 +268,7 @@ bool MCParticlePairFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     
 }
 
-int MCParticlePairFilter::charge(const int& Id){
+int MCParticlePairFilter::charge(int Id) const {
 
   
   //...Purpose: to give three times the charge for a particle/parton.
@@ -274,7 +280,7 @@ int MCParticlePairFilter::charge(const int& Id){
   int hepchg;
 
 
-  int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
+  constexpr const int ichg[109]={-1,2,-1,2,-1,2,-1,2,0,0,-3,0,-3,0,-3,0,
 -3,0,0,0,0,0,0,3,0,0,0,0,0,0,3,0,3,6,0,0,3,6,0,0,-1,2,-1,2,-1,2,0,0,0,0,
 -3,0,-3,0,-3,0,0,0,0,0,-1,2,-1,2,-1,2,0,0,0,0,
 -3,0,-3,0,-3,0,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};

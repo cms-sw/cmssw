@@ -3,7 +3,7 @@
 
 tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC) :
   srcToken_(iC.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("tagProbePairs"))),
-  randGen_(0)
+  randGen_(nullptr)
 {
   std::string arbitration = iConfig.getParameter<std::string>("arbitration");
   if (arbitration == "None") {
@@ -20,6 +20,8 @@ tnp::TagProbePairMaker::TagProbePairMaker(const edm::ParameterSet &iConfig, edm:
   } else if (arbitration == "Random2") {
     arbitration_ = Random2;
     randGen_ = new TRandom2(7777);
+  } else if (arbitration == "HighestPt") {
+    arbitration_ = HighestPt;
   } else throw cms::Exception("Configuration") << "TagProbePairMakerOnTheFly: the only currently "
 					       << "allowed values for 'arbitration' are "
 					       << "'None', 'OneProbe', 'BestMass', 'Random2'\n";
@@ -57,7 +59,7 @@ tnp::TagProbePairMaker::run(const edm::Event &iEvent) const
     arbitrate(pairs);
   }
 
-  if (phiCutForTwoLeg_ && pairs.size() > 0) {
+  if (phiCutForTwoLeg_ && !pairs.empty()) {
     int eventNum = iEvent.id().event();
     std::cout << "Calling phiCutByEventNumber on eventNum=" << eventNum << std::endl;
     phiCutByEventNumber(pairs,eventNum);
@@ -118,6 +120,7 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 
     bool TTpair=false;
     for (TagProbePairs::iterator it2 = pairs.begin(); it2 != ed; ++it2) {   // first check for Tag-Tag pairs
+      if (it2->tag.isNull()) continue; // skip already invalidated pairs                  
       if(it!=it2 && it->probe==it2->tag && it->tag==it2->probe){
 	//std::cout << "----------> probe is tag!!!!" << std::endl;
 	TTpair=true;
@@ -147,7 +150,14 @@ tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const
 	  }
 	  // and invalidate it2
 	  it2->tag = reco::CandidateBaseRef(); --nclean;
-	} else if (arbitration_ == Random2) {
+	} else if (arbitration_ == HighestPt) {
+          // but the best one in the first  iterator
+          if ( it2->probe->pt() > it->probe->pt()  ) {
+            std::swap(*it, *it2);
+          }
+          // and invalidate it2
+          it2->tag = reco::CandidateBaseRef(); --nclean;
+        } else if (arbitration_ == Random2) {
 	  numberOfProbes++;
 	  if (numberOfProbes>1) {
 	    //std::cout << "more than 2 probes!" << std::endl;

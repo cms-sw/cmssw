@@ -43,31 +43,31 @@ class ESTrivialConditionRetriever : public edm::ESProducer,
 
 public:
   ESTrivialConditionRetriever(const edm::ParameterSet&  pset);
-  virtual ~ESTrivialConditionRetriever();
+  ~ESTrivialConditionRetriever() override;
 
   // ---------- member functions ---------------------------
-  virtual std::auto_ptr<ESPedestals> produceESPedestals( const ESPedestalsRcd& );
-  virtual std::auto_ptr<ESWeightStripGroups> produceESWeightStripGroups( const ESWeightStripGroupsRcd& );
-  virtual std::auto_ptr<ESIntercalibConstants> produceESIntercalibConstants( const ESIntercalibConstantsRcd& );
+  virtual std::unique_ptr<ESPedestals> produceESPedestals( const ESPedestalsRcd& );
+  virtual std::unique_ptr<ESWeightStripGroups> produceESWeightStripGroups( const ESWeightStripGroupsRcd& );
+  virtual std::unique_ptr<ESIntercalibConstants> produceESIntercalibConstants( const ESIntercalibConstantsRcd& );
 
-  //  virtual std::auto_ptr<ESIntercalibErrors> produceESIntercalibErrors( const ESIntercalibErrorsRcd& );
-  //  virtual std::auto_ptr<ESIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const ESIntercalibErrorsRcd& ) ;
+  //  virtual std::unique_ptr<ESIntercalibErrors> produceESIntercalibErrors( const ESIntercalibErrorsRcd& );
+  //  virtual std::unique_ptr<ESIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const ESIntercalibErrorsRcd& ) ;
 
-  virtual std::auto_ptr<ESADCToGeVConstant> produceESADCToGeVConstant( const ESADCToGeVConstantRcd& );
-  virtual std::auto_ptr<ESTBWeights> produceESTBWeights( const ESTBWeightsRcd& );
-  //  virtual std::auto_ptr<ESIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const ESIntercalibConstantsRcd& ) ;
+  virtual std::unique_ptr<ESADCToGeVConstant> produceESADCToGeVConstant( const ESADCToGeVConstantRcd& );
+  virtual std::unique_ptr<ESTBWeights> produceESTBWeights( const ESTBWeightsRcd& );
+  //  virtual std::unique_ptr<ESIntercalibConstants>  getIntercalibConstantsFromConfiguration ( const ESIntercalibConstantsRcd& ) ;
 
-  virtual std::auto_ptr<ESChannelStatus> produceESChannelStatus( const ESChannelStatusRcd& );
-  virtual std::auto_ptr<ESChannelStatus> getChannelStatusFromConfiguration( const ESChannelStatusRcd& );
+  virtual std::unique_ptr<ESChannelStatus> produceESChannelStatus( const ESChannelStatusRcd& );
+  virtual std::unique_ptr<ESChannelStatus> getChannelStatusFromConfiguration( const ESChannelStatusRcd& );
 
 protected:
   //overriding from ContextRecordIntervalFinder
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
                                const edm::IOVSyncValue& ,
-                               edm::ValidityInterval& ) ;
+                               edm::ValidityInterval& ) override ;
 private:
-  ESTrivialConditionRetriever( const ESTrivialConditionRetriever& ); // stop default
-  const  ESTrivialConditionRetriever& operator=( const ESTrivialConditionRetriever& ); // stop default
+  ESTrivialConditionRetriever( const ESTrivialConditionRetriever& ) = delete; // stop default
+  const  ESTrivialConditionRetriever& operator=( const ESTrivialConditionRetriever& ) = delete; // stop default
 
   void getWeightsFromConfiguration(const edm::ParameterSet& ps);
 

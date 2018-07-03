@@ -11,7 +11,7 @@
 
 OOTSummary* ComputeOOTFractionvsFill(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm) {
 
-  if(ootsumm==0) {
+  if(ootsumm==nullptr) {
     ootsumm = new OOTSummary; 
   }    
   
@@ -42,7 +42,7 @@ OOTSummary* ComputeOOTFractionvsFill(TFile* ff, const char* itmodule, const char
 }
 OOTSummary* ComputeOOTFractionvsRun(TFile* ff, const char* itmodule, const char* ootmodule, const char* etmodule, const char* hname, OOTSummary* ootsumm) {
 
-  if(ootsumm==0) {
+  if(ootsumm==nullptr) {
     ootsumm =new OOTSummary;
   }
 
@@ -101,8 +101,8 @@ OOTResult* ComputeOOTFraction(TFile* ff, const char* itmodule, const char* ootmo
 							 << run << " " << filledbx.size() << " " << filledbxtest.size() << std::endl;
   }
 
-  TProfile* itmult = 0;
-  TProfile* ootmult = 0;
+  TProfile* itmult = nullptr;
+  TProfile* ootmult = nullptr;
   res->hratio = new TH1F("ratio","ratio",200,0.,2.);
   
   float rclzb=0;
@@ -170,7 +170,7 @@ OOTResult* ComputeOOTFraction(TFile* ff, const char* itmodule, const char* ootmo
 
 std::vector<int> FillingScheme(TFile* ff, const char* path, const float thr) {
 
-  TH1F* bx=0;
+  TH1F* bx=nullptr;
   std::vector<int> filledbx;
   if(ff) {
     if(ff->cd(path)) {
@@ -180,7 +180,7 @@ std::vector<int> FillingScheme(TFile* ff, const char* path, const float thr) {
 	std::cout << "Number of entries " << bx->GetEntries() << " threshold " << thr/3564.*bx->GetEntries() << std::endl;
 	for(int i=1;i<bx->GetNbinsX()+1;++i) {
 	  if(bx->GetBinContent(i)>thr/3564.*bx->GetEntries()) {
-	    if(filledbx.size() && i == filledbx[filledbx.size()-1]+1) {
+	    if(!filledbx.empty() && i == filledbx[filledbx.size()-1]+1) {
 	      std::cout << "This is not a 50ns run ! " << std::endl;
 	      filledbx.clear();
 	      return filledbx;
@@ -201,7 +201,7 @@ std::vector<int> FillingScheme(TFile* ff, const char* path, const float thr) {
 }
 std::vector<int> FillingSchemeFromProfile(TFile* ff, const char* path, const char* hname, const float thr) {
 
-  TProfile* bx=0;
+  TProfile* bx=nullptr;
   std::vector<int> filledbx;
   if(ff) {
     if(ff->cd(path)) {
@@ -211,7 +211,7 @@ std::vector<int> FillingSchemeFromProfile(TFile* ff, const char* path, const cha
 	std::cout << "Number of entries " << bx->GetEntries() << " threshold " << thr/3564.*bx->GetEntries() << std::endl;
 	for(int i=1;i<bx->GetNbinsX()+1;++i) {
 	  if(bx->GetBinEntries(i)>thr/3564.*bx->GetEntries()) {
-	    if(filledbx.size() && i == filledbx[filledbx.size()-1]+1) {
+	    if(!filledbx.empty() && i == filledbx[filledbx.size()-1]+1) {
 	      std::cout << "This is not a 50ns run ! " << std::endl;
 	      filledbx.clear();
 	      return filledbx;

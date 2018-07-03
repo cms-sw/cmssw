@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_EgammaHLTMulti5x5ClusterProducer_h_
 
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -18,6 +18,7 @@
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -26,7 +27,7 @@ namespace edm {
 class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTMulti5x5ClusterProducer();
+  ~EgammaHLTMulti5x5ClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -67,7 +68,7 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
   void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
 			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
-			  const std::vector<EcalEtaPhiRegion>& regions,
+			  const std::vector<RectangularEtaPhiRegion>& regions,
 			  const reco::CaloID::Detectors detector);
 
   void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);

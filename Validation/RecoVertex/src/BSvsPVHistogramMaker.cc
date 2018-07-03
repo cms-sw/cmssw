@@ -12,11 +12,11 @@
 
 
 BSvsPVHistogramMaker::BSvsPVHistogramMaker(edm::ConsumesCollector&& iC):
-  _currdir(0), m_maxLS(100), useSlope_(true), _trueOnly(true),
+  _currdir(nullptr), m_maxLS(100), useSlope_(true), _trueOnly(true),
   _runHisto(true), _runHistoProfile(true), _runHistoBXProfile(true), _runHistoBX2D(false), _histoParameters(), _rhm(iC) { }
 
 BSvsPVHistogramMaker::BSvsPVHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
-  _currdir(0),
+  _currdir(nullptr),
   m_maxLS(iConfig.getParameter<unsigned int>("maxLSBeforeRebin")),
   useSlope_(iConfig.getParameter<bool>("useSlope")),
   _trueOnly(iConfig.getUntrackedParameter<bool>("trueOnly",true)),
@@ -148,7 +148,7 @@ void BSvsPVHistogramMaker::beginRun(const unsigned int nrun) {
   sprintf(runname,"run_%d",nrun);
 
   TFileDirectory* currdir = _currdir;
-  if(currdir==0) {
+  if(currdir==nullptr) {
     edm::Service<TFileService> tfserv;
     currdir = &(tfserv->tFileDirectory());
   }

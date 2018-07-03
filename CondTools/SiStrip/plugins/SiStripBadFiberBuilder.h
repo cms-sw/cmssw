@@ -18,13 +18,13 @@ class SiStripBadFiberBuilder : public ConditionDBWriter<SiStripBadStrip> {
 public:
 
   explicit SiStripBadFiberBuilder(const edm::ParameterSet&);
-  ~SiStripBadFiberBuilder();
+  ~SiStripBadFiberBuilder() override;
 
-  void algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup);
+  void algoAnalyze(const edm::Event & event, const edm::EventSetup& iSetup) override;
 
 private:
 
-  SiStripBadStrip* getNewObject(){return obj;}
+  SiStripBadStrip* getNewObject() override{return obj;}
 
 private:
   edm::FileInPath fp_;

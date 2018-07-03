@@ -5,13 +5,13 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
 
 /**
  */
-class EcalSRCondTools : public edm::EDAnalyzer {
+class EcalSRCondTools : public edm::one::EDAnalyzer<> {
   //methods
 public:
   /** Constructor
@@ -21,14 +21,14 @@ public:
 
   /** Destructor
    */
-  ~EcalSRCondTools();
+  ~EcalSRCondTools() override;
 
 
   /** Called by CMSSW event loop
    * @param evt the event
    * @param es events setup
    */
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& es);
+  void analyze(const edm::Event& evt, const edm::EventSetup& es) override;
   
   /** Converts CMSSW python file selective readout setting ("parameter set")
    * into a condition database object.
@@ -70,6 +70,9 @@ private:
 private:
 
   edm::ParameterSet ps_;
+
+  bool done_;
+
 };
 
 #endif //SRCONDACCESS_H not defined

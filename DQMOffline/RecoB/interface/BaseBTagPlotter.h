@@ -10,11 +10,11 @@ class BaseBTagPlotter {
 
  public:
 
-  BaseBTagPlotter ( const std::string & tagName, const EtaPtBin & etaPtBin) :
+  BaseBTagPlotter(const std::string & tagName, const EtaPtBin & etaPtBin):
 	etaPtBin_(etaPtBin), tagName_(tagName),
-	theExtensionString ("_"+tagName+etaPtBin.getDescriptionString()) {};
+	theExtensionString("_" + tagName + etaPtBin.getDescriptionString()) {};
 
-  virtual ~BaseBTagPlotter () {};
+  virtual ~BaseBTagPlotter() {};
   
   const EtaPtBin& etaPtBin() { return etaPtBin_ ;}
   
@@ -30,6 +30,6 @@ class BaseBTagPlotter {
   // the extension string to be used in histograms etc.
   const EtaPtBin etaPtBin_;
   const std::string tagName_, theExtensionString;
-} ;
+};
 
 #endif

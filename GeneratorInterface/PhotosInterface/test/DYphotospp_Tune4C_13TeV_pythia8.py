@@ -22,7 +22,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(3000)
 )
 
 # Input source
@@ -67,13 +67,13 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
                                  ExternalDecays = cms.PSet(
-	Photospp355 = cms.untracked.PSet(
+	Photospp = cms.untracked.PSet(
 	parameterSets = cms.vstring("setExponentiation","setInfraredCutOff","setMomentumConservationThreshold"),
 	setExponentiation = cms.bool(True),
 	setInfraredCutOff = cms.double(0.00011),
 	setMomentumConservationThreshold = cms.double(20.0) # 0.5GeV
 	),
-	parameterSets = cms.vstring( "Photospp355")
+	parameterSets = cms.vstring( "Photospp")
 	),
 				 
     UseExternalGenerators = cms.untracked.bool(True),

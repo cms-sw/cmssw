@@ -23,7 +23,7 @@ public:
 
   explicit CaloAlignmentRcdWrite(const edm::ParameterSet& /*iConfig*/)
     :nEventCalls_(0) {}
-  ~CaloAlignmentRcdWrite() {}
+  ~CaloAlignmentRcdWrite() override {}
   
   template<typename T>
   void writeAlignments(const edm::EventSetup& evtSetup);

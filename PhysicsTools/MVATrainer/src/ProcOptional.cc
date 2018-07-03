@@ -28,16 +28,16 @@ class ProcOptional : public TrainProcessor {
 
 	ProcOptional(const char *name, const AtomicId *id,
 	             MVATrainer *trainer);
-	virtual ~ProcOptional();
+	~ProcOptional() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	std::vector<double>	neutrals;
 };
 
-static ProcOptional::Registry registry("ProcOptional");
+ProcOptional::Registry registry("ProcOptional");
 
 ProcOptional::ProcOptional(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :

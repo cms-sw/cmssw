@@ -1,12 +1,14 @@
+#include <cmath>
+
 #include "DQMOffline/Trigger/interface/EgHLTOffEle.h"
 
 using namespace egHLT;
 
 float OffEle::sigmaEtaEta()const
 {
-  if(fabs(etaSC())<1.479) return clusShapeData_.sigmaEtaEta; //barrel case, no correction
+  if(std::fabs(etaSC())<1.479) return clusShapeData_.sigmaEtaEta; //barrel case, no correction
   else{ //endcap, need to apply eta correction
-    return clusShapeData_.sigmaEtaEta - 0.02*( fabs(etaSC()) - 2.3);
+    return clusShapeData_.sigmaEtaEta - 0.02*( std::fabs(etaSC()) - 2.3);
   } 
 
 }
@@ -24,7 +26,7 @@ int OffEle::trigCutsCutCode(const TrigCodes::TrigBitSet& trigger)const
   //if(it!=trigCutsCodes_.end()) return it->second;
   //else return 0; //defaults to passing
 
-  for(size_t i=0;i<trigCutsCutCodes_.size();i++) if(trigger==trigCutsCutCodes_[i].first) return trigCutsCutCodes_[i].second;
+  for(auto const & trigCutsCutCode : trigCutsCutCodes_) if(trigger==trigCutsCutCode.first) return trigCutsCutCode.second;
   return 0; //defaults to passing
 }
 

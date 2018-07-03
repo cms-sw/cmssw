@@ -1,13 +1,8 @@
-/**
-   Editted By     On
-   Michael Case   Sun Nov 13 2005
- **/
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/GeometryConfiguration.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -19,8 +14,8 @@ GeometryConfiguration::GeometryConfiguration( const edm::ParameterSet& pset ) : 
   for (std::vector<std::string>::const_iterator rit = relFiles_.begin(), ritEnd = relFiles_.end();
       rit != ritEnd; ++rit ) {
     edm::FileInPath fp(*rit);
-    files_.push_back(fp.fullPath());
-    emptyStrings_.push_back("");
+    files_.emplace_back(fp.fullPath());
+    emptyStrings_.emplace_back("");
   }
 }
 
@@ -59,8 +54,8 @@ const std::vector < std::string >  & GeometryConfiguration::getURLList(void) con
 void GeometryConfiguration::dumpFileList(void) const {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
-  for (std::vector<std::string>::const_iterator it = files_.begin(), itEnd = files_.end(); it != itEnd; ++it)
-    std::cout << *it << std::endl;
+  for (const auto & file : files_)
+    std::cout << file << std::endl;
 }
 
 int GeometryConfiguration::readConfig( const std::string& fname ) {

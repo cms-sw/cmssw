@@ -32,7 +32,7 @@ public:
   /// Copy constructor
   L1GctHfBitCountsLut(const L1GctHfBitCountsLut& lut);
   /// Destructor
-  virtual ~L1GctHfBitCountsLut();
+  ~L1GctHfBitCountsLut() override;
   
   /// Overload = operator
   L1GctHfBitCountsLut operator= (const L1GctHfBitCountsLut& lut);
@@ -49,7 +49,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  uint16_t value (const uint16_t lutAddress) const override;
 
 private:
 

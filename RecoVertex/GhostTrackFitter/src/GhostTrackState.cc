@@ -22,7 +22,7 @@ namespace {
 
 	typedef SVector<double, 3> Vector3;
 
-	static inline Vector3 conv(const GlobalVector &vec)
+	inline Vector3 conv(const GlobalVector &vec)
 	{
 		Vector3 result;
 		result[0] = vec.x();
@@ -45,24 +45,24 @@ GhostTrackState::GhostTrackState(const GlobalPoint &pos,
 
 GhostTrackState::GhostTrackState(const GlobalPoint &pos,
                                  const GlobalError &error) :
-	Base(new VertexGhostTrackState(pos, error.matrix_new()))
+	Base(new VertexGhostTrackState(pos, error.matrix()))
 {
 }
 
 GhostTrackState::GhostTrackState(const VertexState &state) :
 	Base(new VertexGhostTrackState(state.position(),
-	                               state.error().matrix_new()))
+	                               state.error().matrix()))
 {
 }
 
 bool GhostTrackState::isTrack() const
 {
-	return dynamic_cast<const TrackGhostTrackState*>(&data()) != 0;
+	return dynamic_cast<const TrackGhostTrackState*>(&data()) != nullptr;
 }
 
 bool GhostTrackState::isVertex() const
 {
-	return dynamic_cast<const VertexGhostTrackState*>(&data()) != 0;
+	return dynamic_cast<const VertexGhostTrackState*>(&data()) != nullptr;
 }
 
 static const TrackGhostTrackState *getTrack(const BasicGhostTrackState *basic)
@@ -111,7 +111,7 @@ double GhostTrackState::lambdaError(const GhostTrackPrediction &pred,
 	return std::sqrt(
 	       	ROOT::Math::Similarity(
 	       		conv(pred.direction()),
-	       		(vertexStateOnGhostTrack(pred).second.matrix_new() +
-			 pvError.matrix_new()))
+	       		(vertexStateOnGhostTrack(pred).second.matrix() +
+			 pvError.matrix()))
 	        / pred.rho2());
 }

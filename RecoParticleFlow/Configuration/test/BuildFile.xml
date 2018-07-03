@@ -10,6 +10,7 @@
 <library   name="PFChargedHadronAnalyzer" file="PFChargedHadronAnalyzer.cc">
   <use   name="DataFormats/ParticleFlowCandidate"/>
   <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="RecoParticleFlow/PFTracking"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>

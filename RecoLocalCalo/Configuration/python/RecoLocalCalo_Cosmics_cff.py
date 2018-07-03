@@ -7,51 +7,104 @@ from RecoLocalCalo.Configuration.ecalLocalRecoSequenceCosmics_cff import *
 from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 
 #defines a sequence ecalLocalRecoSequence
+
 #
 # Hcal part
 #
-# calo geometry
-#
-# changed by tommaso. now the calibrations are read from Configuration/StaqndardSequences/data/*Conditions.cff
-#
-# HCAL calibrations
-#include "CalibCalorimetry/HcalPlugins/data/hardwired_conditions.cfi"
 #HCAL reconstruction
-from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
+import RecoLocalCalo.Configuration.hcalLocalReco_cff as _hcalLocalReco_cff
+from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 #
-# sequence CaloLocalReco and CaloGlobalReco
+# sequence CaloLocalReco
 #
-calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
-hbheprereco.puCorrMethod = 0 
-hbheprereco.firstSample = 0
-hbheprereco.samplesToAdd = 10
-hbheprereco.correctForTimeslew = False
-hbheprereco.correctForPhaseContainment = False
-horeco.firstSample = 0
-horeco.samplesToAdd = 10
-horeco.correctForTimeslew = False
-horeco.correctForPhaseContainment = False
-hfreco.firstSample = 0
-hfreco.samplesToAdd = 10 ### min(10,size) in the algo
-hfreco.correctForTimeslew = False
-hfreco.correctForPhaseContainment = False
-#--- special temporary DB-usage unsetting 
-hbheprereco.tsFromDB = False
-hfreco.tsFromDB = False
-horeco.tsFromDB = False
-hfreco.digiTimeFromDB = False
-hbheprereco.recoParamsFromDB = cms.bool(False)
-horeco.recoParamsFromDB      = cms.bool(False)
-hfreco.recoParamsFromDB      = cms.bool(False)
-#zdcreco.firstSample = 1
-#zdcreco.samplesToAdd = 8
-zdcreco.correctForTimeslew = True
-zdcreco.correctForPhaseContainment = True
-zdcreco.correctionPhaseNS = 10.
-#caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
+
+def hbheCosmic(module):
+    return module.clone(
+        tsFromDB = cms.bool(False),
+        recoParamsFromDB = cms.bool(False),
+        algorithm = dict(
+            useMahi = cms.bool(False),
+            useM2 = cms.bool(False),
+            useM3 = cms.bool(False),
+            firstSampleShift = cms.int32(-1000),
+            samplesToAdd = cms.int32(10),
+            correctForPhaseContainment = cms.bool(False),
+        ),
+        sipmQTSShift = cms.int32(-100),
+        sipmQNTStoSum = cms.int32(200),
+    )
+
+hbhereco = hbheCosmic(_hcalLocalReco_cff.hbheprereco)
+hfreco = _hcalLocalReco_cff._default_hfreco.clone(
+    firstSample = 0,
+    samplesToAdd = 10, ### min(10,size) in the algo
+    correctForTimeslew = False,
+    correctForPhaseContainment = False,
+    tsFromDB = False,
+    recoParamsFromDB = cms.bool(False),
+    digiTimeFromDB = False,
+)
+horeco = _hcalLocalReco_cff.horeco.clone(
+    firstSample = 0,
+    samplesToAdd = 10,
+    correctForTimeslew = False,
+    correctForPhaseContainment = False,
+    tsFromDB = False,
+    recoParamsFromDB = cms.bool(False),
+)
+zdcreco = _hcalLocalReco_cff.zdcreco.clone(
+#    firstSample = 1,
+#    samplesToAdd = 8,
+    correctForTimeslew = True,
+    correctForPhaseContainment = True,
+    correctionPhaseNS = 10.,
+)
+
+# 2017 customs
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+
+_phase1_hfreco = _hcalLocalReco_cff._phase1_hfreco.clone(
+    algorithm = dict(
+        Class = cms.string("HFSimpleTimeCheck"),
+        rejectAllFailures = cms.bool(False),
+    )
+)
+
+
+run2_HF_2017.toReplaceWith(hfreco, _phase1_hfreco )
+
+hfprereco = _hcalLocalReco_cff.hfprereco.clone(
+    sumAllTimeSlices = cms.bool(True)
+)
+
+from RecoLocalCalo.HcalRecProducers.hbheplan1_cfi import hbheplan1
+
+# redefine hcal sequence
+hcalLocalRecoSequence = cms.Sequence(hbhereco+hfreco+horeco+zdcreco)
+
+_phase1_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
+_phase1_hcalLocalRecoSequence.insert(0,hfprereco)
+run2_HF_2017.toReplaceWith(hcalLocalRecoSequence, _phase1_hcalLocalRecoSequence)
+
+# shuffle modules so "hbheplan1" produces final collection of hits named "hbhereco"
+_plan1_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
+hbheprereco = hbhereco.clone()
+_plan1_hcalLocalRecoSequence.insert(0,hbheprereco)
+from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toReplaceWith(hbhereco, hbheplan1)
+run2_HEPlan1_2017.toReplaceWith(hcalLocalRecoSequence, _plan1_hcalLocalRecoSequence)
+
+hbhecollapse = hbheplan1.clone()
+_collapse_hcalLocalRecoSequence = _phase1_hcalLocalRecoSequence.copy()
+_collapse_hcalLocalRecoSequence.insert(0,hbheprereco)
+from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
+run2_HECollapse_2018.toReplaceWith(hbhereco, hbhecollapse)
+run2_HECollapse_2018.toReplaceWith(hcalLocalRecoSequence, _collapse_hcalLocalRecoSequence)
+
+calolocalrecoCosmics = cms.Sequence(ecalLocalRecoSequenceCosmics+hcalLocalRecoSequence)
 
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence
 #
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
-calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
+calolocalrecoCosmicsNZS = cms.Sequence(ecalLocalRecoSequenceCosmics+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 

@@ -20,8 +20,8 @@ namespace reco {
   public:
     CaloTau();
     CaloTau(Charge q, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
-    virtual ~CaloTau(){}
-    CaloTau* clone()const;
+    ~CaloTau() override{}
+    CaloTau* clone()const override;
     
     const CaloTauTagInfoRef& caloTauTagInfoRef()const;
     void setcaloTauTagInfoRef(const CaloTauTagInfoRef);
@@ -61,7 +61,7 @@ namespace reco {
     void setmaximumHCALhitEt(const float&);    
   private:
     // check overlap with another candidate
-    virtual bool overlap(const Candidate&d)const;
+    bool overlap(const Candidate&d)const override;
     CaloTauTagInfoRef CaloTauTagInfoRef_;  
     float leadTracksignedSipt_;
     float leadTrackHCAL3x3hitsEtSum_;

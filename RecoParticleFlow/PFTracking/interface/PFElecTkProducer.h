@@ -43,6 +43,7 @@ class ConvBremPFTrackFinder;
  and transform them in PFGsfRecTracks.
 */
 
+#include <unordered_map>
 
 
 class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache> > {
@@ -61,20 +62,20 @@ class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<c
   }
 
      ///Destructor
-     ~PFElecTkProducer();
+     ~PFElecTkProducer() override;
 
    private:
-      virtual void beginRun(const edm::Run&,const edm::EventSetup&) override;
-      virtual void endRun(const edm::Run&,const edm::EventSetup&) override;
+      void beginRun(const edm::Run&,const edm::EventSetup&) override;
+      void endRun(const edm::Run&,const edm::EventSetup&) override;
 
       ///Produce the PFRecTrack collection
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
     
       int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
 		    const reco::GsfTrack&, bool);
       
-      bool isFifthStep(reco::PFRecTrackRef pfKfTrack);
+
 
       bool applySelection(const reco::GsfTrack&);
       
@@ -164,6 +165,9 @@ class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<c
       std::string path_mvaWeightFileConvBremBarrelHighPt_;
       std::string path_mvaWeightFileConvBremEndcapsLowPt_;
       std::string path_mvaWeightFileConvBremEndcapsHighPt_;
-      
+  
+      // cache for multitrajectory states
+      std::vector<double> gsfInnerMomentumCache_;
+
 };
 #endif

@@ -25,7 +25,7 @@ process.load("RecoTracker.TrackProducer.TwoBodyDecayConstraintProducer_cff")
 #process.TwoBodyDecayConstraint.chi2Cut = 100
 
 ### KFFittingSmoother without outlier rejection - to be used for constrained fit
-from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import KFFittingSmoother
+from TrackingTools.TrackFitters.KFFittingSmoother_cfi import KFFittingSmoother
 process.TwoBodyDecayTrackFitter = KFFittingSmoother.clone(
     ComponentName = cms.string( "TwoBodyDecayTrackFitter" ),
     Fitter = cms.string('RKFitter'),

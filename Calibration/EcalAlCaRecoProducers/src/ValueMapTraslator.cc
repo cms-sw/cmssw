@@ -45,19 +45,12 @@ class ValueMapTraslator : public edm::EDProducer {
 
    public:
       explicit ValueMapTraslator(const edm::ParameterSet&);
-      ~ValueMapTraslator();
+      ~ValueMapTraslator() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
   edm::InputTag referenceCollectionTAG,oldreferenceCollectionTAG;
@@ -116,7 +109,7 @@ ValueMapTraslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    std::vector<value_t>  valueVector;
-   std::auto_ptr<Map_t> valueVectorPtr(new Map_t());
+   auto valueVectorPtr = std::make_unique<Map_t>();
 
    //------------------------------ 
    Handle< reco::GsfElectronCollection > referenceHandle;
@@ -173,43 +166,8 @@ ValueMapTraslator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    filler.insert(referenceHandle, valueVector.begin(), valueVector.end());
    filler.fill();
 
-   iEvent.put(valueVectorPtr);
+   iEvent.put(std::move(valueVectorPtr));
    
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ValueMapTraslator::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ValueMapTraslator::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-ValueMapTraslator::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-ValueMapTraslator::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-ValueMapTraslator::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-ValueMapTraslator::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

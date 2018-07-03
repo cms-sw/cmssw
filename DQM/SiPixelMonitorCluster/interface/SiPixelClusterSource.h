@@ -50,8 +50,8 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -60,13 +60,13 @@
  class SiPixelClusterSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelClusterSource(const edm::ParameterSet& conf);
-       ~SiPixelClusterSource();
+       ~SiPixelClusterSource() override;
 
        typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
        
-       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
-       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+       void analyze(const edm::Event&, const edm::EventSetup&) override;
+       void dqmBeginRun(const edm::Run&, edm::EventSetup const&) override;
+       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);
@@ -76,6 +76,7 @@
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
+       edm::InputTag digisrc_;
        bool saveFile;
        bool isPIB;
        bool slowDown;
@@ -101,11 +102,24 @@
        std::vector<MonitorElement*> meClPosDiskpz;
        std::vector<MonitorElement*> meClPosDiskmz;
   
+       MonitorElement* meClusBarrelProf;
+       MonitorElement* meClusFpixPProf;
+       MonitorElement* meClusFpixMProf;
+
+       std::vector<MonitorElement*> meZeroRocBPIX;
+       MonitorElement* meZeroRocFPIX;
+
        int noOfLayers;
        int noOfDisks;
 
+       void getrococcupancy(DetId detId,const edm::DetSetVector<PixelDigi> & diginp,const TrackerTopology* const tTopo,
+			    std::vector<MonitorElement*> const & meinput);
+       void getrococcupancye(DetId detId,const edmNew::DetSetVector<SiPixelCluster> & clustColl, const TrackerTopology* const pTT,
+			     edm::ESHandle<TrackerGeometry> pDD,MonitorElement* meinput);
+
   //define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigi> >         digisrcToken_;
 };
 
 #endif

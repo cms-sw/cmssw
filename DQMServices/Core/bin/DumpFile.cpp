@@ -5,7 +5,7 @@
 #include "classlib/utils/Signal.h"
 #include "TROOT.h"
 #include <iostream>
-#include <errno.h>
+#include <cerrno>
 
 #ifndef _NSIG
 #define _NSIG NSIG
@@ -104,7 +104,7 @@ getMEInfo(DQMStore &store, MonitorElement &me, MEInfo &info)
     info.name.append(name, cat+1, std::string::npos);
 
     errno = 0;
-    char *end = 0;
+    char *end = nullptr;
     info.runnr = strtol(name.c_str()+4, &end, 10);
     if (errno != 0 || !end || *end != '/')
       info.runnr = -1;
@@ -154,12 +154,12 @@ int main(int argc, char **argv)
 {
   // Install base debugging support.
   lat::DebugAids::failHook(&onAssertFail);
-  lat::Signal::handleFatal(argv[0], IOFD_INVALID, 0, 0, FATAL_OPTS);
+  lat::Signal::handleFatal(argv[0], IOFD_INVALID, nullptr, nullptr, FATAL_OPTS);
 
   // Re-capture signals from ROOT after ROOT has initialised.
   ROOT::GetROOT();
   for (int sig = 1; sig < _NSIG; ++sig) lat::Signal::revert(sig);
-  lat::Signal::handleFatal(argv[0], IOFD_INVALID, 0, 0, FATAL_OPTS);
+  lat::Signal::handleFatal(argv[0], IOFD_INVALID, nullptr, nullptr, FATAL_OPTS);
 
   // Check command line arguments.
   int arg = 1;
@@ -202,9 +202,9 @@ int main(int argc, char **argv)
 
       // Dump info about the monitor elements.
       std::vector<MonitorElement *> mes = store.getAllContents("");
-      for (size_t m = 0, e = mes.size(); m < e; ++m)
+      for (auto & m : mes)
       {
-        MonitorElement &me = *mes[m];
+        MonitorElement &me = *m;
         getMEInfo(store, me, info);
         std::cout << "ME STYLE=" << info.style
 		  << " RUN=" << info.runnr

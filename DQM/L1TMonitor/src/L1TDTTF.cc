@@ -246,16 +246,11 @@ void L1TDTTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
   //empty
 }
 
-void L1TDTTF::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c){
-  //empty
-}
 
 //--------------------------------------------------------
 void L1TDTTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&)
 {
  /// testing purposes
-  runId_=ibooker.bookInt("iRun");
-  lumisecId_=ibooker.bookInt("iLumi");
   nev_ = 0;
   nev_dttf_ = 0;
   nev_dttf_track2_ = 0;
@@ -617,7 +612,7 @@ void L1TDTTF::analyze(const edm::Event& event,
     myL1MuDTTrackContainer->getContainer();
 
   /// dttf counters
-  if ( trackContainer->size() > 0 ) {
+  if ( !trackContainer->empty() ) {
     ++nev_dttf_;
     if( trackContainer->size() > 1 ) ++nev_dttf_track2_;
   }
@@ -648,7 +643,7 @@ void L1TDTTF::analyze(const edm::Event& event,
 
 	/// global muon selection plot
 	if ( ! accept ) {
-	  dttf_spare->Fill( trackContainer->size() ? 1 : 0 );
+	  dttf_spare->Fill( !trackContainer->empty() ? 1 : 0 );
 
 	  if ( verbose_ ) {
 	    edm::LogInfo("L1TDTTFClient::Analyze:GM")
@@ -656,7 +651,7 @@ void L1TDTTF::analyze(const edm::Event& event,
 	  }
 
 	} else {
-	  dttf_spare->Fill( trackContainer->size() ? 2 : 3 );
+	  dttf_spare->Fill( !trackContainer->empty() ? 2 : 3 );
 	}
 
       } else {

@@ -78,7 +78,7 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
    iEvent.getByToken(token_additionalSecTracks, additionalSecTracks);
 
    /// Definition of the output
-   std::auto_ptr<reco::NuclearInteractionCollection> theNuclearInteractions(new reco::NuclearInteractionCollection);
+   auto theNuclearInteractions = std::make_unique<reco::NuclearInteractionCollection>();
 
    typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
 
@@ -126,7 +126,7 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
 
    LogDebug("NuclearInteractionMaker") << "End of NuclearInteractionMaker - Number of nuclear interactions found :" << theNuclearInteractions->size();
-   iEvent.put(theNuclearInteractions);
+   iEvent.put(std::move(theNuclearInteractions));
 }
 
 // ------ method used to check whether the seed of a track belong to the vector of seeds --

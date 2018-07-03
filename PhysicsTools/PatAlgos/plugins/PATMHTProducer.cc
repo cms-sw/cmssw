@@ -59,7 +59,7 @@ void
 pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
   // make sure the SigInputObj container is empty
-  while(physobjvector_.size()>0){
+  while(!physobjvector_.empty()){
     physobjvector_.erase(physobjvector_.begin(),physobjvector_.end());
   }
 
@@ -85,9 +85,9 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   double met_set=0;
 
 
-  std::auto_ptr<pat::MHTCollection>  themetsigcoll (new pat::MHTCollection);
+  auto themetsigcoll = std::make_unique<pat::MHTCollection>();
 
-  if(physobjvector_.size() >= 1) { // Only when the vector is not empty
+  if(!physobjvector_.empty()) { // Only when the vector is not empty
 
     // calculate the MHT significance
 
@@ -115,7 +115,7 @@ pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   } // If the vector is empty, just put empty product.
 
 
-  iEvent.put( themetsigcoll);
+  iEvent.put(std::move(themetsigcoll));
 
 
 }
@@ -223,7 +223,7 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
   double number_of_electrons_ = 0.0;
 
   // edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  // iSetup.get<IdealGeometryRecord>().get(cttopo);
+  // iSetup.get<HcalRecNumberingRecord>().get(cttopo);
   // const CaloTowerConstituentsMap* caloTowerMap = cttopo.product();
 
   edm::Handle<edm::View<pat::Electron> > electronHandle;

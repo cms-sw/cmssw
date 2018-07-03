@@ -24,8 +24,10 @@ namespace edm {
   ParameterDescriptionBase::ParameterDescriptionBase(std::string const& iLabel,
                                                      ParameterTypes iType,
                                                      bool isTracked,
-                                                     bool hasDefault)
-    :label_(iLabel),
+                                                     bool hasDefault,
+                                                     Comment const& iComment)
+    :ParameterDescriptionNode(iComment),
+     label_(iLabel),
      type_(iType),
      isTracked_(isTracked),
      hasDefault_(hasDefault) {
@@ -39,8 +41,10 @@ namespace edm {
   ParameterDescriptionBase::ParameterDescriptionBase(char const* iLabel,
                                                      ParameterTypes iType,
                                                      bool isTracked,
-                                                     bool hasDefault)
-    :label_(iLabel),
+                                                     bool hasDefault,
+                                                     Comment const& iComment)
+    :ParameterDescriptionNode(iComment),
+     label_(iLabel),
      type_(iType),
      isTracked_(isTracked),
      hasDefault_(hasDefault) {
@@ -158,7 +162,7 @@ namespace edm {
   print_(std::ostream& os,
          bool optional,
          bool writeToCfi,
-         DocFormatHelper& dfh) {
+         DocFormatHelper& dfh) const {
     if(dfh.pass() == 0) {
       dfh.setAtLeast1(label().size());
       if(isTracked()) {
@@ -228,7 +232,7 @@ namespace edm {
   ParameterDescriptionBase::
   printDefault_(std::ostream& os,
                   bool writeToCfi,
-                  DocFormatHelper& dfh) {
+                  DocFormatHelper& dfh) const {
     if(!dfh.brief()) os << "default: ";
     if(writeToCfi && hasDefault()) {
       if(hasNestedContent()) {
@@ -251,7 +255,7 @@ namespace edm {
   ParameterDescriptionBase::
   printNestedContent_(std::ostream& os,
                       bool /*optional*/,
-                      DocFormatHelper& dfh) {
+                      DocFormatHelper& dfh) const {
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {
       indentation -= DocFormatHelper::offsetSectionContent();

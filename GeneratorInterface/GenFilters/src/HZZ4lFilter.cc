@@ -34,7 +34,7 @@
 
 
 HZZ4lFilter::HZZ4lFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minPtElectronMuon(iConfig.getUntrackedParameter("MinPtElectronMuon", 0.)),
 maxEtaElectronMuon(iConfig.getUntrackedParameter("MaxEtaElectronMuon", 10.))
 {

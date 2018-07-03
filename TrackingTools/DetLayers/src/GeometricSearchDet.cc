@@ -11,7 +11,7 @@ GeometricSearchDet::compatibleDetsV( const TrajectoryStateOnSurface& startingSta
 				     const MeasurementEstimator& est,
 				     std::vector<DetWithState>& result) const {
   
-  if unlikely(!hasGroups()) edm::LogError("DetLayers") << "At the moment not a real implementation" ;
+  if UNLIKELY(!hasGroups()) edm::LogError("DetLayers") << "At the moment not a real implementation" ;
 
 
   // standard implementation of compatibleDets() for class which have 

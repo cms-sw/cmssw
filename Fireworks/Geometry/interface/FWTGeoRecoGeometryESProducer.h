@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H
 # define GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H
 
-# include "boost/shared_ptr.hpp"
+# include <memory>
 
 # include "FWCore/Framework/interface/ESProducer.h"
 # include "FWCore/Framework/interface/ESHandle.h"
@@ -15,6 +15,7 @@ namespace edm
 class CaloGeometry;
 class GlobalTrackingGeometry;
 class TrackerGeometry;
+class TrackerTopology;
 class FWTGeoRecoGeometry;
 class FWTGeoRecoGeometryRecord;
 
@@ -30,13 +31,13 @@ class FWTGeoRecoGeometryESProducer : public edm::ESProducer
    enum ERecoDet  {kDummy, 
                    kSiPixel, kSiStrip,
                    kMuonDT, kMuonRPC, kMuonCSC, kMuonGEM, kMuonME0,
-                   kECal, kHCal,
+                   kECal, kHCal, kCaloTower,
                    kHGCE, kHGCH };
 public:
    FWTGeoRecoGeometryESProducer( const edm::ParameterSet& );
-   virtual ~FWTGeoRecoGeometryESProducer( void );
+   ~FWTGeoRecoGeometryESProducer( void ) override;
   
-   boost::shared_ptr<FWTGeoRecoGeometry> produce( const FWTGeoRecoGeometryRecord& );
+   std::shared_ptr<FWTGeoRecoGeometry> produce( const FWTGeoRecoGeometryRecord& );
 
 private:
    FWTGeoRecoGeometryESProducer( const FWTGeoRecoGeometryESProducer& );
@@ -67,18 +68,26 @@ private:
    void addEcalCaloGeometry();
    void addHcalCaloGeometryBarrel();
    void addHcalCaloGeometryEndcap();
+   void addHcalCaloGeometryOuter();
+   void addHcalCaloGeometryForward();
+   void addCaloTowerGeometry();
   
    std::map<std::string, TGeoShape*>    m_nameToShape;
    std::map<TGeoShape*, TGeoVolume*>   m_shapeToVolume;
    std::map<ERecoDet, TGeoMedium*> m_recoMedium;
 
    edm::ESHandle<GlobalTrackingGeometry> m_geomRecord;
-   edm::ESHandle<CaloGeometry>           m_caloGeom;
+   const CaloGeometry*    m_caloGeom;
    const TrackerGeometry* m_trackerGeom;
+   const TrackerTopology* m_trackerTopology;
   
-   boost::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
+   std::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
 
    TGeoMedium* m_dummyMedium;
+
+   bool m_tracker;
+   bool m_muon;
+   bool m_calo;
 };
 
 #endif // GEOMETRY_FWTGEORECO_GEOMETRY_ES_PRODUCER_H

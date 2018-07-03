@@ -61,10 +61,10 @@ void PFPileUp::produce(Event& iEvent,
 
   // get PFCandidates
 
-  auto_ptr< PFCollection >
+  unique_ptr< PFCollection >
     pOutput( new PFCollection );
 
-  auto_ptr< PFCollectionByValue >
+  unique_ptr< PFCollectionByValue >
     pOutputByValue ( new PFCollectionByValue );
 
   if(enable_) {
@@ -76,7 +76,7 @@ void PFPileUp::produce(Event& iEvent,
 
     // get PF Candidates
     Handle<PFCollection> pfCandidates;
-    PFCollection const * pfCandidatesRef = 0;
+    PFCollection const * pfCandidatesRef = nullptr;
     PFCollection usedIfNoFwdPtrs;
     bool getFromFwdPtr = iEvent.getByToken( tokenPFCandidates_, pfCandidates);
     if ( getFromFwdPtr ) {
@@ -101,7 +101,7 @@ void PFPileUp::produce(Event& iEvent,
       pfCandidatesRef = &usedIfNoFwdPtrs;
     }
 
-    if ( pfCandidatesRef == 0 ) {
+    if ( pfCandidatesRef == nullptr ) {
       throw cms::Exception("Something went dreadfully wrong with PFPileUp. pfCandidatesRef should never be zero, so this is a logic error.");
     }
 
@@ -118,7 +118,7 @@ void PFPileUp::produce(Event& iEvent,
 
   } // end if enabled
   // outsize of the loop to fill the collection anyway even when disabled
-  iEvent.put( pOutput );
-  // iEvent.put( pOutputByValue );
+  iEvent.put(std::move(pOutput));
+  // iEvent.put(std::move(pOutputByValue));
 }
 

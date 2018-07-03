@@ -10,10 +10,10 @@ class ODFEDAQConfig : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODFEDAQConfig();
-  ~ODFEDAQConfig();
+  ~ODFEDAQConfig() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_DAQ_CONFIG"; }
+  inline std::string getTable() override { return "FE_DAQ_CONFIG"; }
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
@@ -42,19 +42,19 @@ class ODFEDAQConfig : public IODConfig {
   inline void setComment(std::string x) { m_com = x; }
   inline std::string getComment() const { return m_com; }
 
-  int fetchNextId() throw(std::runtime_error);
+  int fetchNextId() noexcept(false);
   void setParameters(const std::map<std::string,std::string>& my_keys_map);
   
  private:
-  void prepareWrite()  throw(std::runtime_error);
+  void prepareWrite()  noexcept(false) override;
 
-  void writeDB()       throw(std::runtime_error);
+  void writeDB()       noexcept(false);
 
   void clear();
 
-  void fetchData(ODFEDAQConfig * result)     throw(std::runtime_error);
+  void fetchData(ODFEDAQConfig * result)     noexcept(false);
 
-  int fetchID()  throw(std::runtime_error);
+  int fetchID()  noexcept(false);
 
 
   // User data

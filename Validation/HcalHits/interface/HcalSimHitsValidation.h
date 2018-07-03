@@ -22,6 +22,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -43,12 +44,12 @@ class HcalSimHitsValidation : public DQMEDAnalyzer {
 
 public:
   HcalSimHitsValidation(edm::ParameterSet const& conf);
-  ~HcalSimHitsValidation();
+  ~HcalSimHitsValidation() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & );
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & ) override;
 
-  virtual void analyze(edm::Event const& ev, edm::EventSetup const& c);
-  virtual void endJob() ;
+  void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
+  void endJob() override;
 
 private:
   
@@ -57,41 +58,40 @@ private:
   double dPhiWsign(double phi1,double phi2);  
 
   std::string outputFile_;
+  std::string g4Label_,hcalHits_,ebHits_,eeHits_;
 
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEB_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_ecalEE_;
 
+  const HcalDDDRecConstants               *hcons;
+  int                                      maxDepthHB_, maxDepthHE_;
+  int                                      maxDepthHO_, maxDepthHF_;
+
+  bool                                     testNumber_;
+  bool                                     auxPlots_;
 
   // Hits counters
-  MonitorElement* Nhb;
-  MonitorElement* Nhe;
+  std::vector<MonitorElement*> Nhb;
+  std::vector<MonitorElement*> Nhe;
   MonitorElement* Nho;
-  MonitorElement* Nhf;
+  std::vector<MonitorElement*> Nhf;
 
   // In ALL other cases : 2D ieta-iphi maps 
   // without and with cuts (a la "Scheme B") on energy
   // - only in the cone around particle for single-part samples (mc = "yes")
   // - for all calls in milti-particle samples (mc = "no")
 
-  MonitorElement* emean_vs_ieta_HB1;
-  MonitorElement* emean_vs_ieta_HB2;
-  MonitorElement* emean_vs_ieta_HE1;
-  MonitorElement* emean_vs_ieta_HE2;
-  MonitorElement* emean_vs_ieta_HE3;
+  std::vector<MonitorElement*> emean_vs_ieta_HB;
+  std::vector<MonitorElement*> emean_vs_ieta_HE;
   MonitorElement* emean_vs_ieta_HO;
-  MonitorElement* emean_vs_ieta_HF1;
-  MonitorElement* emean_vs_ieta_HF2;
+  std::vector<MonitorElement*> emean_vs_ieta_HF;
 
-  MonitorElement* occupancy_vs_ieta_HB1;
-  MonitorElement* occupancy_vs_ieta_HB2;
-  MonitorElement* occupancy_vs_ieta_HE1;
-  MonitorElement* occupancy_vs_ieta_HE2;
-  MonitorElement* occupancy_vs_ieta_HE3;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HB;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HE;
   MonitorElement* occupancy_vs_ieta_HO;
-  MonitorElement* occupancy_vs_ieta_HF1;
-  MonitorElement* occupancy_vs_ieta_HF2;
+  std::vector<MonitorElement*> occupancy_vs_ieta_HF;
 
   // for single monoenergetic particles - cone collection profile vs ieta.
   MonitorElement* meEnConeEtaProfile;
@@ -99,16 +99,19 @@ private:
   MonitorElement* meEnConeEtaProfile_EH;
 
   // energy of rechits
-  MonitorElement* meSimHitsEnergyHB;
-  MonitorElement* meSimHitsEnergyHE;
+  std::vector<MonitorElement*> meSimHitsEnergyHB;
+  std::vector<MonitorElement*> meSimHitsEnergyHE;
   MonitorElement* meSimHitsEnergyHO;
-  MonitorElement* meSimHitsEnergyHF;
+  std::vector<MonitorElement*> meSimHitsEnergyHF;
 
   edm::ESHandle<CaloGeometry> geometry ;
 
   // counter
   int nevtot;
 
+  // sampling factors
+  double hf1_;
+  double hf2_;
 };
 
 #endif

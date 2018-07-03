@@ -13,8 +13,10 @@ from Configuration.DataProcessing.Impl.pp import pp
 
 class hcalnzs(pp):
     def __init__(self):
+        pp.__init__(self)
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
+        self.addEI=True
     """
     _hcalnzs_
 
@@ -31,5 +33,7 @@ class hcalnzs(pp):
         """
         if not 'skims' in args:
             args['skims']=['HcalCalMinBias']
+
         process = pp.promptReco(self,globalTag,**args)
+        
         return process

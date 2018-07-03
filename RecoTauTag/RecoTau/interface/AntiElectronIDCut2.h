@@ -56,7 +56,7 @@ class AntiElectronIDCut2
 	const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
 	for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	      pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-	  const reco::Track* track = 0;
+	  const reco::Track* track = nullptr;
 	  if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
 	  else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
 	  else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();

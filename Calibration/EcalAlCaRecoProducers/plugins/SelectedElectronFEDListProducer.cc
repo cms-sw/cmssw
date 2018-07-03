@@ -15,6 +15,7 @@
 
 // Geometry
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 // strip geometry
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
@@ -301,12 +302,12 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
       module.x = (*itTracker)->position().x();
       module.y = (*itTracker)->position().y();
       module.z = (*itTracker)->position().z();
-      module.Phi = normalizedPhi((*itTracker)->position().phi()) ; 
-      module.Eta = (*itTracker)->position().eta() ;
+      module.Phi = (*itTracker)->position().phi(); 
+      module.Eta = (*itTracker)->position().eta();
       module.DetId  = (*itTracker)->geographicalId().rawId();
       const std::vector<sipixelobjects::CablingPathToDetUnit> path2det = PixelCabling_->pathToDetUnit(module.DetId);
       module.Fed = path2det[0].fed;
-      assert(module.Fed<40);
+
       pixelModuleVector_.push_back(module);
     }
     std::sort(pixelModuleVector_.begin(),pixelModuleVector_.end());
@@ -334,7 +335,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   // take the calo tower collection
   edm::Handle<HBHERecHitCollection> hbheRecHitHandle;
   if(!(HBHERecHitTag_ == edm::InputTag("")))  iEvent.getByToken(hbheRecHitToken_,hbheRecHitHandle);
-  const HBHERecHitCollection* hcalRecHitCollection = NULL;
+  const HBHERecHitCollection* hcalRecHitCollection = nullptr;
   if(!hbheRecHitHandle.failedToGet()) hcalRecHitCollection = hbheRecHitHandle.product();   
 
   double radTodeg = 180. / Geom::pi();
@@ -471,8 +472,8 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	      HBHERecHitCollection::const_iterator itHcalRecHit = hcalRecHitCollection->begin();
 	      for( ; itHcalRecHit != hcalRecHitCollection->end() ; ++itHcalRecHit) {
 		HcalDetId recHitId(itHcalRecHit->id());
-		const CaloCellGeometry* cellGeometry = GeometryCalo_->getSubdetectorGeometry(recHitId)->getGeometry(recHitId);
-		float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition().eta(),cellGeometry->getPosition().phi());
+		const HcalGeometry* cellGeometry = static_cast<const HcalGeometry*>(GeometryCalo_->getSubdetectorGeometry(recHitId));
+		float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition(recHitId).eta(),cellGeometry->getPosition(recHitId).phi());
 		if(dR <= dRHcalRegion_) {
 		  const HcalElectronicsId electronicId = HcalReadoutMap_->lookup(recHitId);
 		  int hitFED = electronicId.dccid() + FEDNumbering::MINHCALFEDID;
@@ -542,8 +543,8 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	      if(*itElectronCollFlag) momentum = electron.gsfTrack()->momentum();
 	      else momentum = electron.track()->momentum();
 	      PixelRegion region (momentum,dPhiPixelRegion_,dEtaPixelRegion_,maxZPixelRegion_);
-	      PixelModule lowerBound (normalizedPhi(region.vector.phi())-region.dPhi, region.vector.eta()-region.dEta);
-	      PixelModule upperBound (normalizedPhi(region.vector.phi())+region.dPhi, region.vector.eta()+region.dEta);
+	      PixelModule lowerBound (region.vector.phi()-region.dPhi, region.vector.eta()-region.dEta);
+	      PixelModule upperBound (region.vector.phi()+region.dPhi, region.vector.eta()+region.dEta);
 	      
 	      std::vector<PixelModule>::const_iterator itUp, itDn ;
 	      if(lowerBound.Phi >= -M_PI  && upperBound.Phi <= M_PI ){
@@ -577,7 +578,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
   }
 
   // make the final raw data collection
-  std::auto_ptr<FEDRawDataCollection> streamFEDRawProduct(new FEDRawDataCollection());
+  auto streamFEDRawProduct = std::make_unique<FEDRawDataCollection>();
   std::sort(fedList_.begin(),fedList_.end());
   std::vector<uint32_t>::const_iterator itfedList = fedList_.begin();
   for( ; itfedList!=fedList_.end() ; ++itfedList){
@@ -590,7 +591,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
     } 
   } 
   
-  iEvent.put(streamFEDRawProduct,outputLabelModule_);
+  iEvent.put(std::move(streamFEDRawProduct),outputLabelModule_);
 
   if(!fedList_.empty())   fedList_.clear(); 
  

@@ -81,6 +81,10 @@ class DetIdAssociator{
 						  const double dThetaMinus,
 						  const double dPhiPlus,
 						  const double dPhiMinus) const;
+
+   /// helper to see if getDetIdsInACone is useful
+   virtual bool selectAllInACone(const double dR) const {return dR > 2*M_PI && dR > maxEta_;}
+
    /// Find DetIds that satisfy given requirements
    /// - inside eta-phi cone of radius dR
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,
@@ -135,7 +139,7 @@ class DetIdAssociator{
 			       const GlobalPoint&, 
 			       const DetId&,
 			       const double toleranceInSigmas = -1,
-			       const SteppingHelixStateInfo* = 0 ) const { return false; }
+			       const SteppingHelixStateInfo* = nullptr ) const { return false; }
    virtual bool nearElement(const GlobalPoint& point, 
 			    const DetId& id, 
 			    const double distance) const;

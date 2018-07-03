@@ -3,6 +3,7 @@
 #ifndef HcalPedestalWidthsRcd_H
 #define HcalPedestalWidthsRcd_H
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-class HcalPedestalWidthsRcd : public edm::eventsetup::DependentRecordImplementation<HcalPedestalWidthsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalPedestalWidthsRcd : public edm::eventsetup::DependentRecordImplementation<HcalPedestalWidthsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
 #endif

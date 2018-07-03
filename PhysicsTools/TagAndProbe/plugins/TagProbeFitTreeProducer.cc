@@ -19,7 +19,7 @@
 
 // system include files
 #include <memory>
-#include <ctype.h>
+#include <cctype>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -48,12 +48,12 @@
 class TagProbeFitTreeProducer : public edm::EDAnalyzer {
    public:
       explicit TagProbeFitTreeProducer(const edm::ParameterSet&);
-      ~TagProbeFitTreeProducer();
+      ~TagProbeFitTreeProducer() override;
 
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       //---- MC truth information
       /// Is this sample MC?
@@ -76,13 +76,13 @@ class TagProbeFitTreeProducer : public edm::EDAnalyzer {
       /// The object that produces pairs of tags and probes, making any arbitration needed
       tnp::TagProbePairMaker tagProbePairMaker_;
       /// The object that actually computes variables and fills the tree for T&P
-      std::auto_ptr<tnp::TPTreeFiller> treeFiller_;
+      std::unique_ptr<tnp::TPTreeFiller> treeFiller_;
       /// The object that actually computes variables and fills the tree for unbiased MC
-      std::auto_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> oldTagFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> tagFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> pairFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> mcFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> oldTagFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> tagFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> pairFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> mcFiller_;
 };
 
 //
@@ -94,7 +94,7 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
     checkMotherInUnbiasEff_(makeMCUnbiasTree_ ? iConfig.getParameter<bool>("checkMotherInUnbiasEff") : false),
     tagProbePairMaker_(iConfig, consumesCollector()),
     treeFiller_(new tnp::TPTreeFiller(iConfig, consumesCollector())),
-    oldTagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig, consumesCollector()) : 0)
+    oldTagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig, consumesCollector()) : nullptr)
 {
     if (isMC_) {
         // For mc efficiency we need the MC matches for tags & probes

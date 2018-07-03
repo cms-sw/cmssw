@@ -83,7 +83,7 @@ process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
-process.simL1uGtDigis = cms.EDProducer("l1t::GtProducer",
+process.simL1uGtDigis = cms.EDProducer("L1TGlobalProducer",
     ProduceL1GtObjectMapRecord = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(False),
     EmulateBxInEvent = cms.int32(1),

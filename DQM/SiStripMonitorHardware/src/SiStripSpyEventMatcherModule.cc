@@ -31,9 +31,9 @@ namespace sistrip {
   {
     public:
       SpyEventMatcherModule(const edm::ParameterSet& config);
-      virtual ~SpyEventMatcherModule();
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
+      ~SpyEventMatcherModule() override;
+      void beginJob() override;
+      bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override;  
     private:
       void findL1IDandAPVAddress(const edm::Event& event, const SiStripFedCabling& cabling, uint32_t& l1ID, uint8_t& apvAddress) const;
       void copyData(const uint32_t eventId, const uint8_t apvAddress, const SpyEventMatcher::SpyEventList* matches, edm::Event& event,
@@ -44,8 +44,8 @@ namespace sistrip {
       const bool doMerge_;
       const edm::InputTag primaryStreamRawDataTag_;
     edm::EDGetTokenT<FEDRawDataCollection> primaryStreamRawDataToken_;
-      std::auto_ptr<SpyEventMatcher> spyEventMatcher_;
-      std::auto_ptr<SpyUtilities> utils_;
+      std::unique_ptr<SpyEventMatcher> spyEventMatcher_;
+      std::unique_ptr<SpyUtilities> utils_;
   };
   
 }
@@ -116,14 +116,14 @@ namespace sistrip {
         LogDebug(messageLabel_) << "Failed to get FED data for FED ID " << *iFedId;
         continue;
       }
-      std::auto_ptr<FEDBuffer> buffer;
+      std::unique_ptr<FEDBuffer> buffer;
       try {
         buffer.reset(new FEDBuffer(data.data(),data.size()));
       } catch (const cms::Exception& e) {
         LogDebug(messageLabel_) << "Failed to build FED buffer for FED ID " << *iFedId << ". Exception was " << e.what();
         continue;
       }
-      if (!buffer->doChecks()) {
+      if (!buffer->doChecks(true)) {
         LogDebug(messageLabel_) << "Buffer check failed for FED ID " << *iFedId;
         continue;
       }
@@ -141,7 +141,7 @@ namespace sistrip {
           if (!iConn->isConnected()) {
             continue;
           }
-          if ( !buffer->channelGood(iConn->fedCh()) ) {
+          if ( !buffer->channelGood(iConn->fedCh(), true) ) {
             continue;
           } else {
             apvAddress = header->feUnitMajorityAddress(iConn->fedCh()/FEDCH_PER_FEUNIT);
@@ -159,14 +159,14 @@ namespace sistrip {
   {
     SpyEventMatcher::SpyDataCollections matchedCollections;
     spyEventMatcher_->getMatchedCollections(eventId,apvAddress,matches,cabling,matchedCollections);
-    if (matchedCollections.rawData.get()) event.put(matchedCollections.rawData,"RawSpyData");
-    if (matchedCollections.totalEventCounters.get()) event.put(matchedCollections.totalEventCounters,"SpyTotalEventCount");
-    if (matchedCollections.l1aCounters.get()) event.put(matchedCollections.l1aCounters,"SpyL1ACount");
-    if (matchedCollections.apvAddresses.get()) event.put(matchedCollections.apvAddresses,"SpyAPVAddress");
-    if (matchedCollections.scopeDigis.get()) event.put(matchedCollections.scopeDigis,"SpyScope");
-    if (matchedCollections.payloadDigis.get()) event.put(matchedCollections.payloadDigis,"SpyPayload");
-    if (matchedCollections.reorderedDigis.get()) event.put(matchedCollections.reorderedDigis,"SpyReordered");
-    if (matchedCollections.virginRawDigis.get()) event.put(matchedCollections.virginRawDigis,"SpyVirginRaw");
+    if (matchedCollections.rawData.get()) event.put(std::move(matchedCollections.rawData),"RawSpyData");
+    if (matchedCollections.totalEventCounters.get()) event.put(std::move(matchedCollections.totalEventCounters),"SpyTotalEventCount");
+    if (matchedCollections.l1aCounters.get()) event.put(std::move(matchedCollections.l1aCounters),"SpyL1ACount");
+    if (matchedCollections.apvAddresses.get()) event.put(std::move(matchedCollections.apvAddresses),"SpyAPVAddress");
+    if (matchedCollections.scopeDigis.get()) event.put(std::move(matchedCollections.scopeDigis),"SpyScope");
+    if (matchedCollections.payloadDigis.get()) event.put(std::move(matchedCollections.payloadDigis),"SpyPayload");
+    if (matchedCollections.reorderedDigis.get()) event.put(std::move(matchedCollections.reorderedDigis),"SpyReordered");
+    if (matchedCollections.virginRawDigis.get()) event.put(std::move(matchedCollections.virginRawDigis),"SpyVirginRaw");
   }
   
 }

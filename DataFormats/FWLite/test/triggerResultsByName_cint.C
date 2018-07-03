@@ -30,23 +30,21 @@ void triggerResultsByName_cint()
   for (ev.toBegin(); ! ev.atEnd(); ++ev) {
 
     bool accept = false;
-    edm::TriggerResultsByName resultsByName = ev.triggerResultsByName("TEST");
-    if (resultsByName.isValid()) {
+
+    hTriggerResults.getByLabel(ev, "TriggerResults", "", "TEST");
+
+    if (hTriggerResults.isValid()) {
+      edm::TriggerResultsByName resultsByName = ev.triggerResultsByName(*hTriggerResults);
       std::cout << "From TriggerResultsByName, accept = "
                 << resultsByName.accept("p") << "\n";
       accept = resultsByName.accept("p");
+    } else {
+      std::cerr << "triggerResultsByName_cint.C, invalid TriggerResults handle" << std::endl;
+      abort();
     }
     if (iEvent < 4 && expectedValue[iEvent] != accept) {
       std::cerr << "triggerResultsByName_cint.C, trigger results do not match expected values" << std::endl;
       abort();
-    }
-
-    // Try again, but this time test what happens when the process does not
-    // exist, the object should not be valid
-    resultsByName = ev.triggerResultsByName("DOESNOTEXIST");
-    if (resultsByName.isValid()) {
-      std::cout << "From TriggerResultsByName, accept = "
-                << resultsByName.accept("p") << "\n";
     }
     ++iEvent;
   }

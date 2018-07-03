@@ -37,6 +37,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+
 namespace reco {
 
   //
@@ -46,7 +48,9 @@ namespace reco {
   class HcalNoiseInfoProducer : public edm::stream::EDProducer<> {
   public:
     explicit HcalNoiseInfoProducer(const edm::ParameterSet&);
-    ~HcalNoiseInfoProducer();
+    ~HcalNoiseInfoProducer() override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
   private:
     
@@ -56,7 +60,7 @@ namespace reco {
     // picks which rbxs are interesting, storing them to the EDM.
     //
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     //
     // more internal methods
@@ -81,6 +85,7 @@ namespace reco {
     bool fillRecHits_;      // fill rechit information into HcalNoiseRBXs and HcalNoiseSummary
     bool fillCaloTowers_;   // fill calotower information into HcalNoiseRBXs and HcalNoiseSummary
     bool fillTracks_;       // fill track information into HcalNoiseSummary
+    bool fillLaserMonitor_; // fill laser monitor information into HcalNoiseSummary
 
     // These provide the requirements for writing an RBX to the event
     int maxProblemRBXs_;   // maximum number of problematic RBXs to be written to the event record
@@ -91,7 +96,9 @@ namespace reco {
     double minTrackPt_;         // minimum track Pt
     double maxNHF_;
     int maxjetindex_;
-    
+
+    const HcalTopology* theHcalTopology_;    
+
     std::string digiCollName_;         // name of the digi collection
     std::string recHitCollName_;       // name of the rechit collection
     std::string caloTowerCollName_;    // name of the caloTower collection
@@ -100,12 +107,14 @@ namespace reco {
 
     edm::EDGetTokenT<HBHEDigiCollection> hbhedigi_token_;
     edm::EDGetTokenT<HcalCalibDigiCollection> hcalcalibdigi_token_;
+    edm::EDGetTokenT<QIE10DigiCollection> lasermondigi_token_;
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
     edm::EDGetTokenT<reco::TrackCollection> track_token_;
     edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
 
-    double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
+    double totalCalibCharge;    // placeholder to calculate total charge in calibration channels
+    double totalLasmonCharge;    // placeholder to calculate total charge in laser monitor channels
 
     double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
@@ -126,8 +135,17 @@ namespace reco {
 
     uint32_t HcalAcceptSeverityLevel_;
     std::vector<int> HcalRecHitFlagsToBeExcluded_;
+
+    std::vector<int> laserMonCBoxList_;
+    std::vector<int> laserMonIPhiList_;
+    std::vector<int> laserMonIEtaList_;
+
+    int laserMonitorTSStart_;
+    int laserMonitorTSEnd_;
+    unsigned laserMonitorSamples_;
     
-    float adc2fC[128];
+    std::vector<float> adc2fC;
+    std::vector<float> adc2fCHF;
   };
   
 } // end of namespace

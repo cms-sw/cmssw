@@ -32,19 +32,15 @@ class DQMSourceEleCalib : public DQMEDAnalyzer {
 public:
 
   DQMSourceEleCalib( const edm::ParameterSet& );
-  ~DQMSourceEleCalib();
+  ~DQMSourceEleCalib() override;
 
 protected:
    
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) ;
 
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
 
 
 private:

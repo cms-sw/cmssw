@@ -16,6 +16,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 // Geometry and topology
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -40,14 +43,14 @@ class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
  public:
   
   HLTRechitInRegionsProducer(const edm::ParameterSet& ps);
-  ~HLTRechitInRegionsProducer();
+  ~HLTRechitInRegionsProducer() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
     
-  void getEtaPhiRegions(std::vector<EcalEtaPhiRegion> *, T1Collection, const L1CaloGeometry&, bool);
+  void getEtaPhiRegions(std::vector<RectangularEtaPhiRegion> *, T1Collection, const L1CaloGeometry&, bool);
     
   const bool useUncalib_;
 

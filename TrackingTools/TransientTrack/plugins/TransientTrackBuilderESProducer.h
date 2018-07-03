@@ -8,15 +8,14 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 class  TransientTrackBuilderESProducer: public edm::ESProducer{
  public:
   TransientTrackBuilderESProducer(const edm::ParameterSet & p);
-  virtual ~TransientTrackBuilderESProducer(); 
-  boost::shared_ptr<TransientTrackBuilder> produce(const TransientTrackRecord &);
+  ~TransientTrackBuilderESProducer() override; 
+  std::unique_ptr<TransientTrackBuilder> produce(const TransientTrackRecord &);
  private:
-  boost::shared_ptr<TransientTrackBuilder> _builder;
   edm::ParameterSet pset_;
 };
 

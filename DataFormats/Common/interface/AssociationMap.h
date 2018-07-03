@@ -38,6 +38,7 @@
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 
 #include <utility>
+#include "tbb/concurrent_unordered_map.h"
 
 namespace edm {
 
@@ -68,7 +69,7 @@ namespace edm {
     /// type return by operator[]
     typedef typename value_type::value_type result_type;
     /// transient map type
-    typedef typename std::map<index_type, value_type> internal_transient_map_type;
+    typedef typename tbb::concurrent_unordered_map<index_type, value_type> internal_transient_map_type;
 
     /// const iterator
     struct const_iterator {
@@ -77,7 +78,7 @@ namespace edm {
       typedef value_type * pointer;
       typedef value_type & reference;
       typedef typename map_type::const_iterator::iterator_category iterator_category;
-      const_iterator(): map_(0) { }
+      const_iterator(): map_(nullptr) { }
       const_iterator(const self * map, typename map_type::const_iterator mi) :
 	map_(map), i(mi) { }
       const_iterator& operator++() { ++i; return *this; }
@@ -96,20 +97,17 @@ namespace edm {
     /// default constructor
     AssociationMap() { }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     // You will see better performance if you use other constructors.
     // Use this when the arguments the other constructors require are
     // not easily available.
     explicit
     AssociationMap(EDProductGetter const* getter) :
       ref_(getter) { }
-#endif
 
     // It is rare for this to be useful
     explicit
     AssociationMap(const ref_type & ref) : ref_(ref) { }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     // In most cases this is the best constructor to use.
     // This constructor should be passed 2 arguments, except in the
     // case where the template parameter is OneToValue where it should
@@ -135,14 +133,13 @@ namespace edm {
     //   edm::Handle<edm::View<Y> > inputView2;
     //   event.getByToken(inputToken2V_, inputView2);
     //   // If you are certain the Views are not empty!
-    //   std::auto_ptr<AssocOneToOneView> assoc8(new AssocOneToOneView(
+    //   std::unique_ptr<AssocOneToOneView> assoc8(new AssocOneToOneView(
     //     edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
     //     edm::makeRefToBaseProdFrom(inputView2->refAt(0), event)
     //   ));
 
     template<typename... Args>
     AssociationMap(Args... args) : ref_(std::forward<Args>(args)...) {}
-#endif
 
     /// clear map
     void clear() { map_.clear(); transientMap_.clear(); }
@@ -169,7 +166,7 @@ namespace edm {
     /// erase the element whose key is k
     size_type erase(const key_type& k) {
       index_type i = k.key();
-      transientMap_.erase(i);
+      transientMap_.unsafe_erase(i);
       return map_.erase(i);
     }
     /// find element with specified reference key
@@ -253,13 +250,13 @@ namespace edm {
     const value_type & get(size_type i) const {
       typename internal_transient_map_type::const_iterator tf = transientMap_.find(i);
       if (tf == transientMap_.end()) {
-	typename map_type::const_iterator f = map_.find(i);
-	if (f == map_.end())
-	  Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
-	value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
-	std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
-	  transientMap_.insert(std::make_pair(i, v));
-	return ins.first->second;
+        typename map_type::const_iterator f = map_.find(i);
+        if (f == map_.end())
+          Exception::throwThis(edm::errors::InvalidReference, "can't find reference in AssociationMap at position ", i);
+        value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
+        std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
+        transientMap_.insert(std::make_pair(i, v));
+        return ins.first->second;
       } else {
 	return tf->second;
       }

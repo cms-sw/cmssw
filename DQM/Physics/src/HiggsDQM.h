@@ -45,18 +45,16 @@ class HiggsDQM : public DQMEDAnalyzer {
 
  public:
   HiggsDQM(const edm::ParameterSet& ps);
-  virtual ~HiggsDQM();
+  ~HiggsDQM() override;
 
  protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                            edm::EventSetup const& context);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                          edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+                          edm::EventSetup const& c) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
  private:
   double Distance(const reco::Candidate& c1, const reco::Candidate& c2);

@@ -64,11 +64,11 @@ namespace helper
   TrackCollectionStoreManager::
   put( edm::Event & evt ) {
     edm::OrphanHandle<reco::TrackCollection> 
-      h = evt.put( selTracks_ );
-    evt.put( selTrackExtras_ );
-    evt.put( selHits_ );
-    evt.put( selStripClusters_ );
-    evt.put( selPixelClusters_ );
+      h = evt.put(std::move(selTracks_));
+    evt.put(std::move(selTrackExtras_));
+    evt.put(std::move(selHits_));
+    evt.put(std::move(selStripClusters_));
+    evt.put(std::move(selPixelClusters_));
     return h; 
   }
   

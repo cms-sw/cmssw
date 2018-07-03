@@ -35,8 +35,6 @@ namespace evf {
   }
 
   void RecoEventWriterForFU::fillDescription(edm::ParameterSetDescription& desc) {
-    desc.setComment("Writes events into a streamer output file.");
-    desc.addUntracked<std::string>("fileName", "teststreamfile.dat")->setComment("Name of output file.");
   }
 
   void RecoEventWriterForFU::setInitMessageFile(std::string const& init){

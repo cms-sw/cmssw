@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 # track associator settings
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
-trackAssociatorByHitsRecoDenom = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
+# to do the track<->TP association with TrackerHitAssociator
+trackAssociatorByHitsRecoDenom = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHitsTrackerHitAssociator.clone()
+from SimGeneral.TrackingAnalysis.trackingParticleNumberOfLayersProducer_cff import *
 
 # reco track quality cuts
 from Validation.RecoTrack.cuts_cff import *
@@ -24,6 +26,8 @@ hiTrackValidator = multiTrackValidator.clone(
     UseAssociators = True,
     label_tp_effic = cms.InputTag("primaryChgSimTracks"),
     label_tp_fake  = cms.InputTag("cutsTPFake"),
+    label_tp_effic_refvector = True,
+    label_tp_fake_refvector = True,
     signalOnlyTP = cms.bool(False),
     trackCollectionForDrCalculation = cms.InputTag("cutsRecoTracks"),
     minpT = cms.double(1.0),
@@ -42,6 +46,7 @@ hiTrackPrevalidation = cms.Sequence(
     * cutsTPFake
     * cutsRecoTracks
     * cutsRecoTracksHP
+    * trackingParticleNumberOfLayersProducer
     )
 
 # track validation sequence

@@ -13,7 +13,7 @@
  */
 
 #pragma GCC visibility push(hidden)
-class Phase2OTBarrelRod GCC11_FINAL : public DetRod {
+class Phase2OTBarrelRod final : public DetRod {
  public:
   typedef GenericBinFinderInZ<float,GeomDet>   BinFinderType;
 
@@ -21,23 +21,23 @@ class Phase2OTBarrelRod GCC11_FINAL : public DetRod {
 			std::vector<const GeomDet*>& outerDets,
 			std::vector<const GeomDet*>& innerDetBrothers,
 		    std::vector<const GeomDet*>& outerDetBrothers) __attribute__ ((cold));
-  ~Phase2OTBarrelRod() __attribute__ ((cold));
+  ~Phase2OTBarrelRod() override __attribute__ ((cold));
   
   // GeometricSearchDet interface
   
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold));
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold));
 
   
-  virtual std::pair<bool, TrajectoryStateOnSurface>
+  std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const  __attribute__ ((cold));
+	      const MeasurementEstimator&) const  override __attribute__ ((cold));
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
   
  
  private:
@@ -66,7 +66,6 @@ class Phase2OTBarrelRod GCC11_FINAL : public DetRod {
 			std::vector<DetGroup>& result,
 			std::vector<DetGroup>& brotherresult,
 			bool checkClosest) const __attribute__ ((hot));
-
 
   const std::vector<const GeomDet*>& subRod( int ind) const {
     return (ind==0 ? theInnerDets : theOuterDets);

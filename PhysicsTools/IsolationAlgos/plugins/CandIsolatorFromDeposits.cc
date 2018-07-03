@@ -121,7 +121,7 @@ CandIsolatorFromDeposits::CandIsolatorFromDeposits(const ParameterSet& par) {
   for (VPSet::const_iterator it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
     sources_.push_back(SingleDeposit(*it, consumesCollector()));
   }
-  if (sources_.size() == 0) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
+  if (sources_.empty()) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
   produces<CandDoubleMap>();
 }
 
@@ -139,11 +139,11 @@ void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetu
 
   const IsoDepositMap & map = begin->map();
 
-  if (map.size()==0) { // !!???
-        event.put(std::auto_ptr<CandDoubleMap>(new CandDoubleMap()));
+  if (map.empty()) { // !!???
+        event.put(std::make_unique<CandDoubleMap>());
         return;
   }
-  std::auto_ptr<CandDoubleMap> ret(new CandDoubleMap());
+  auto ret = std::make_unique<CandDoubleMap>();
   CandDoubleMap::Filler filler(*ret);
 
   typedef reco::IsoDepositMap::const_iterator iterator_i;
@@ -167,7 +167,7 @@ void CandIsolatorFromDeposits::produce(Event& event, const EventSetup& eventSetu
     filler.insert(candH, retV.begin(), retV.end());
   }
   filler.fill();
-  event.put(ret);
+  event.put(std::move(ret));
 }
 
 DEFINE_FWK_MODULE( CandIsolatorFromDeposits );

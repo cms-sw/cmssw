@@ -14,8 +14,8 @@
 class CastorSimpleReconstructor : public edm::stream::EDProducer<> {
     public:
       explicit CastorSimpleReconstructor(const edm::ParameterSet& ps);
-      virtual ~CastorSimpleReconstructor();
-      virtual void produce(edm::Event& e, const edm::EventSetup& c);
+      ~CastorSimpleReconstructor() override;
+      void produce(edm::Event& e, const edm::EventSetup& c) override;
     private:      
       CastorSimpleRecAlgo reco_;
       DetId::Detector det_;

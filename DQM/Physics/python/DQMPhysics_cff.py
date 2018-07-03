@@ -14,14 +14,14 @@ from DQM.Physics.susyDQM_cfi import *
 from DQM.Physics.HiggsDQM_cfi import *
 from DQM.Physics.ExoticaDQM_cfi import *
 from DQM.Physics.B2GDQM_cfi import *
-from DQM.PhysicsHWW.hwwDQM_cfi import *
 from DQM.Physics.CentralityDQM_cfi import *
+from DQM.Physics.CentralitypADQM_cfi import *
 from DQM.Physics.topJetCorrectionHelper_cfi import *
+from DQM.Physics.FSQDQM_cfi import *
 
 dqmPhysics = cms.Sequence( bphysicsOniaDQM 
                            *ewkMuDQM
                            *ewkElecDQM
-                           *ewkMuLumiMonitorDQM
                            *qcdPhotonsDQM
 			   *topSingleMuonMediumDQM
                            *topSingleElectronMediumDQM	
@@ -34,8 +34,19 @@ dqmPhysics = cms.Sequence( bphysicsOniaDQM
                            *HiggsDQM
                            *ExoticaDQM
                            *B2GDQM
-                           *hwwDQM
+                           *FSQDQM
                            )
+
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toReplaceWith(dqmPhysics, dqmPhysics.copyAndExclude([ # FIXME
+    ewkMuDQM,            # Excessive printouts because 2017 doesn't have HLT yet
+    ewkElecDQM,          # Excessive printouts because 2017 doesn't have HLT yet
+    ewkMuLumiMonitorDQM, # Excessive printouts because 2017 doesn't have HLT yet
+]))
+from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
+dqmPhysicspA  =  dqmPhysics.copy()
+dqmPhysicspA += CentralitypADQM
+pA_2016.toReplaceWith(dqmPhysics, dqmPhysicspA)
 
 bphysicsOniaDQMHI = bphysicsOniaDQM.clone(vertex=cms.InputTag("hiSelectedVertex"))
 dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
@@ -43,4 +54,3 @@ dqmPhysicsHI = cms.Sequence(bphysicsOniaDQMHI+CentralityDQM)
 from DQM.Physics.qcdPhotonsCosmicDQM_cff import *
 dqmPhysicsCosmics = cms.Sequence(dqmPhysics)
 dqmPhysicsCosmics.replace(qcdPhotonsDQM, qcdPhotonsCosmicDQM)
-dqmPhysicsCosmics.replace(hwwDQM, hwwCosmicDQM)

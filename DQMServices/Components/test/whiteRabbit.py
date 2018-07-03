@@ -12,8 +12,7 @@ from email.MIMEText import MIMEText
 from email import Encoders
 
 def sort_dict(adict):
-    keys = adict.keys()
-    keys.sort()
+    keys = sorted(adict.keys())
     return [adict[key] for key in keys]
 
 import xml.dom.minidom
@@ -373,7 +372,7 @@ if __name__ == '__main__':
             jobs = parser.n().split(',')
             for test in jobs:
                 # make sure we don't run more than the allowed number of threads:
-                while 1:
+                while True:
                     print 'Active threads: ', tm.activeThreads()
                     if tm.activeThreads() < threads:
                         break

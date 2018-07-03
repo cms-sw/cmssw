@@ -3,16 +3,15 @@
 
 #include <DetectorDescription/Core/src/Box.h>
 #include <DetectorDescription/Core/src/Cons.h>
-#include <DetectorDescription/Core/src/Ellipsoid.h>
 #include <DetectorDescription/Core/src/EllipticalTube.h>
-#include <DetectorDescription/Core/src/Orb.h>
-#include <DetectorDescription/Core/src/Parallelepiped.h>
+#include <DetectorDescription/Core/src/ExtrudedPolygon.h>
 #include <DetectorDescription/Core/src/Polycone.h>
 #include <DetectorDescription/Core/src/Polyhedra.h>
 #include <DetectorDescription/Core/src/Sphere.h>
 #include <DetectorDescription/Core/src/Torus.h>
 #include <DetectorDescription/Core/src/Trap.h>
 #include <DetectorDescription/Core/src/Tubs.h>
+#include <DetectorDescription/Core/src/CutTubs.h>
 
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -29,6 +28,8 @@
 #include <G4Trap.hh>
 #include <G4Trd.hh>
 #include <G4Tubs.hh>
+#include <G4CutTubs.hh>
+#include <G4ExtrudedSolid.hh>
 #include <string>
 
 //
@@ -105,30 +106,6 @@ doCons( const std::string& name,
   DDI::Cons dd( zhalf, rIn1, rOut1, rIn2, rOut2, startPhi, deltaPhi );
   DDCons dds = DDSolidFactory::cons( name, zhalf, rIn1, rOut1, rIn2, rOut2, startPhi, deltaPhi );
   dd.stream(std::cout);
-  std::cout << std::endl;
-  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
-  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
-  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
-}
-
-//
-// 4. Parallelepiped:
-//
-// G4Para(const G4String& pName,                                  
-//        G4double   dx,
-//        G4double   dy,
-//        G4double   dz,
-//        G4double   alpha,
-//        G4double   theta,
-//        G4double   phi)
-void
-doPara( const std::string& name, double xHalf, double yHalf, 
-	double zHalf, double alpha, double theta, double phi )
-{
-  G4Para g4(name, xHalf, yHalf, zHalf, alpha, theta, phi );
-  DDI::Parallelepiped dd( xHalf, yHalf, zHalf, alpha, theta, phi );
-  DDParallelepiped dds = DDSolidFactory::parallelepiped( name, xHalf, yHalf, zHalf, alpha, theta, phi );
-  dd.stream( std::cout );
   std::cout << std::endl;
   std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
@@ -220,29 +197,6 @@ doSphere( const std::string& name, double innerRadius, double outerRadius,
   std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
   std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
   std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
-}
-
-//
-// 8. Full Solid Sphere:
-//
-// G4Orb(const G4String& pName,                                   
-//       G4double  pRmax)
-void
-doOrb( const std::string& name, double radius )
-{  
-  G4Orb g4(name,radius);
-  DDI::Orb dd(radius);
-  DDI::Sphere dds(0.*deg, radius, 0.*deg, 360.*deg, 0., 180.*deg);
-  DDOrb ddo = DDSolidFactory::orb(name, radius);
-  dd.stream(std::cout);
-  std::cout << std::endl;
-  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
-  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
-  std::cout << "\tDD Information: " << ddo << " vol= " << ddo.volume() << std::endl;
-  std::cout << "\tcross check sphere " << std::endl;
-  dds.stream(std::cout);
-  std::cout << std::endl;
-  std::cout << "\tsphere volume = " << dds.volume()/cm3 << " cm3" << std::endl;
 }
 
 //
@@ -397,29 +351,6 @@ doEllipticalTube( const std::string& name, double xSemiaxis, double ySemiAxis, d
 }
 
 //
-// 13. General Ellipsoid:
-//
-// G4Ellipsoid(const G4String& pName,                   
-// 	       G4double  pxSemiAxis,
-// 	       G4double  pySemiAxis,
-// 	       G4double  pzSemiAxis,
-// 	       G4double  pzBottomCut=0,
-// 	       G4double  pzTopCut=0)
-void
-doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis, 
-	     double zSemiAxis, double zBottomCut, double zTopCut )
-{  
-  G4Ellipsoid g4(name,xSemiAxis,ySemiAxis,zSemiAxis,zBottomCut, zTopCut);
-  DDI::Ellipsoid dd(xSemiAxis,ySemiAxis,zSemiAxis,zBottomCut, zTopCut);
-  DDEllipsoid dde = DDSolidFactory::ellipsoid(name, xSemiAxis, ySemiAxis, zSemiAxis, zBottomCut, zTopCut);
-  dd.stream(std::cout);
-  std::cout << std::endl;
-  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
-  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
-  std::cout << "\tDD Information: " << dde << " vol= " << dde.volume() << std::endl;
-}
-
-//
 // 14. Cone with Elliptical Cross Section:
 //
 // G4EllipticalCone(const G4String& pName,              
@@ -529,6 +460,72 @@ doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis,
 // 	      G4double  halfzlen,
 // 	      G4double  dphi)
 
+//
+// 24. Cylindrical Cut Section or Cut Tube:
+//
+// G4CutTubs(const G4String& pName,                        
+//           G4double  pRMin,
+//           G4double  pRMax,
+//           G4double  pDz,
+//           G4double  pSPhi,
+//           G4double  pDPhi,
+//           G4ThreeVector pLowNorm,
+//           G4ThreeVector pHighNorm)
+void
+doCutTubs( const std::string& name, double rIn, double rOut, 
+	   double zhalf, double startPhi, double deltaPhi,
+	   std::array<double, 3> lowNorm, std::array<double, 3> highNorm )
+{
+  G4CutTubs g4( name, rIn, rOut, zhalf, startPhi, deltaPhi,
+		G4ThreeVector( lowNorm[0], lowNorm[1], lowNorm[2]),
+		G4ThreeVector( highNorm[0], highNorm[1], highNorm[2]));
+  DDI::CutTubs dd( zhalf, rIn, rOut, startPhi, deltaPhi,
+		   lowNorm[0], lowNorm[1], lowNorm[2],
+		   highNorm[0], highNorm[1], highNorm[2] );
+  DDCutTubs dds = DDSolidFactory::cuttubs( name, zhalf, rIn, rOut, startPhi, deltaPhi,
+					   lowNorm[0], lowNorm[1], lowNorm[2],
+					   highNorm[0], highNorm[1], highNorm[2] );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
+//
+// 25. Extruded Polygon:
+//
+// The extrusion of an arbitrary polygon (extruded solid)
+// with fixed outline in the defined Z sections can be defined as follows
+// (in a general way, or as special construct with two Z sections):
+//
+//    G4ExtrudedSolid(const G4String& pName,
+//                    std::vector<G4TwoVector> polygon,
+//                    std::vector<ZSection> zsections)
+//
+void
+doExtrudedPgon( const std::string& name, const std::vector<double> x,
+		const std::vector<double> y, const std::vector<double> z,
+		const std::vector<double> zx, const std::vector<double> zy,
+		const std::vector<double> zscale )
+{
+  std::vector<G4TwoVector> polygon;
+  std::vector<G4ExtrudedSolid::ZSection> zsections;
+  for( unsigned int it = 0; it < x.size(); ++it )
+    polygon.emplace_back( x[it], y[it] );
+  for( unsigned int it = 0; it < z.size(); ++it )
+    zsections.emplace_back( z[it], G4TwoVector(zx[it], zy[it]), zscale[it] );
+  G4ExtrudedSolid g4( name, polygon, zsections );
+  DDI::ExtrudedPolygon dd( x, y, z, zx, zy, zscale );
+  DDExtrudedPolygon dds = DDSolidFactory::extrudedpolygon( name,  x, y, z, zx, zy, zscale );
+
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
 int
 main( int argc, char *argv[] )
 {
@@ -564,13 +561,6 @@ main( int argc, char *argv[] )
   double rOut2 = 25.*cm;
   doCons( name, rIn, rOut, rIn2, rOut2, zhalf, startPhi, deltaPhi );
   std::cout << std::endl;
-
-//
-// 4. Parallelepiped:
-//
-  std::cout << "\n\nParallelepiped tests\n" << std::endl;
-  std::cout << "This next should be the same as a xhalf=5cm, yhalf=6cm, zhalf=7cm, alpha=15deg, theta=30deg, phi=45deg" << std::endl;
-  doPara("fred1", 5.*cm, 6.*cm, 7.*cm, 15*deg, 30*deg, 45*deg);
 
 //
 // 5. Trapezoid:
@@ -630,13 +620,6 @@ main( int argc, char *argv[] )
   doSphere("fred1", 2.0*cm, 3.0*cm, 0.*deg, 360.*deg, 75.*deg, 30.*deg);
 
 //
-// 8. Full Solid Sphere:
-//
-  std::cout << "\n\nOrb\n" << std::endl;
-  std::cout << "This next should be the same as a 2cm ball (also the sphere above): " << std::endl;
-  doOrb("fred1", 2.0*cm);
-  
-//
 // 9. Torus:
 //
   std::cout << "\n\nTorus tests\n" << std::endl;
@@ -694,19 +677,6 @@ main( int argc, char *argv[] )
   doEllipticalTube(name, xSemiaxis, ySemiAxis, zHeight);
 
 //
-// 13. General Ellipsoid:
-//
-  std::cout << "\n\nEllipsoid tests\n" << std::endl;
-  std::cout << "This next should be the same as a x = 3cm; y = 2cm; and z = 5cm " << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, 0.*cm, 0.*cm);
-  std::cout << "\nThis one has a top cut off at z=1cm  and should be half of the above + some bit." << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, 0.*cm, 1.*cm);
-  std::cout << "\nThis has a bottom cut off at z= -1cm  and should be the same as the above (symmetric)" << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, -1.*cm, 0.*cm);
-  std::cout << "\nThis has a bottom cut off at z= -1cm  and top cut at z=1cm and should be smaller (just the fat bit around the middle)." << std::endl;
-  doEllipsoid("fred1", 3.0*cm, 2.0*cm, 5.*cm, -1.*cm, 1.*cm);
-
-//
 // 14. Cone with Elliptical Cross Section:
 //
 
@@ -745,6 +715,38 @@ main( int argc, char *argv[] )
 //
 // 23. Tube Section Twisted along Its Axis: 
 //   
+
+//
+// 24. Cylindrical Cut Section or Cut Tube:
+//
+  std::cout << "\n\nCutTub tests\n" << std::endl;
+  std::array<double, 3> lowNorm = {{0, -0.7, -0.71}};
+  std::array<double, 3> highNorm = {{ 0.7, 0, 0.71 }};
+  
+  doCutTubs( name, rIn, rOut, zhalf, startPhi, deltaPhi, lowNorm, highNorm );
+  std::cout << std::endl;
+
+//
+// 25. Extruded Polygon:
+//
+// The extrusion of an arbitrary polygon (extruded solid)
+// with fixed outline in the defined Z sections can be defined as follows
+// (in a general way, or as special construct with two Z sections):
+//
+//    G4ExtrudedSolid(const G4String& pName,
+//                    std::vector<G4TwoVector> polygon,
+//                    std::vector<ZSection> zsections)
+//
+  std::cout << "\n\nExtruded Polygon tests\n" << std::endl;
+  std::vector<double> x = { -300, -300, 300, 300, 150, 150, -150, -150 };
+  std::vector<double> y = { -300, 300, 300, -300, -300, 150, 150, -300 };
+  std::vector<double> epz = { -600, -150, 100, 600 };
+  std::vector<double> zx = { 0, 0, 0, 0 };
+  std::vector<double> zy = { 300, -300, 0, 300 }; 
+  std::vector<double> zscale = { 8, 10, 6, 12 };
+  
+  doExtrudedPgon( name, x, y, epz, zx, zy, zscale );
+  std::cout << std::endl;
   
   return EXIT_SUCCESS;
 }

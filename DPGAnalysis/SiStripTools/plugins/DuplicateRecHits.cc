@@ -63,15 +63,15 @@
 class DuplicateRecHits : public edm::EDAnalyzer {
 public:
   explicit DuplicateRecHits(const edm::ParameterSet&);
-  ~DuplicateRecHits();
+  ~DuplicateRecHits() override;
   
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
       // ----------member data ---------------------------
 
@@ -154,7 +154,7 @@ DuplicateRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    detidstr << ttrh->det()->geographicalId().rawId();
 	    m_nduplmod->Fill(detidstr.str().c_str(),1.);
 	    LogDebug("DuplicateHitFinder") << "Track with " << it->recHitsSize() << " RecHits";
-	    LogTrace("DuplicateHitFinder") << "Duplicate found " << ttrh->det()->geographicalId() << " " << pxrh->cluster().index();
+	    LogTrace("DuplicateHitFinder") << "Duplicate found " << ttrh->det()->geographicalId().rawId() << " " << pxrh->cluster().index();
 	  }
 	  clusters.insert(pxrh->cluster().index());
 	}

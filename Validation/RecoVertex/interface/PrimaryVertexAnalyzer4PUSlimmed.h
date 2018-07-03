@@ -107,7 +107,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
     };
     recoPrimaryVertex(double x1, double y1, double z1)
         :x(x1), y(y1), z(z1),
-         ptsq(0), closest_vertex_distance_z(-1.), purity(-1.),
+         pt(0), ptsq(0), closest_vertex_distance_z(-1.), purity(-1.),
          nRecoTrk(0),
          num_matched_sim_tracks(0),
          kind_of_vertex(0),
@@ -115,6 +115,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
       r = sqrt(x*x + y*y);
     };
     double x, y, z, r;
+    double pt;
     double ptsq;
     double closest_vertex_distance_z;
     double purity; // calculated and assigned in calculatePurityAndFillHistograms
@@ -130,10 +131,10 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
 
  public:
   explicit PrimaryVertexAnalyzer4PUSlimmed(const edm::ParameterSet&);
-  ~PrimaryVertexAnalyzer4PUSlimmed();
+  ~PrimaryVertexAnalyzer4PUSlimmed() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void bookHistograms(DQMStore::IBooker &i,
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &i,
                               edm::Run const&,
                               edm::EventSetup const&) override;
 
@@ -150,12 +151,16 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   //                                      const simPrimaryVertex &v);
   void fillRecoAssociatedGenVertexHistograms(const std::string &,
                                              const simPrimaryVertex &v);
+  void fillRecoAssociatedGenPVHistograms(const std::string& label,
+                                         const PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex& v,
+                                         bool genPVMatchedToRecoPV);
   void fillGenAssociatedRecoVertexHistograms(const std::string &,
                                              int,
                                              recoPrimaryVertex &v);
   void fillResolutionAndPullHistograms(const std::string &,
                                        int,
-                                       recoPrimaryVertex &v);
+                                       recoPrimaryVertex &v,
+                                       bool);
 
   void calculatePurityAndFillHistograms(const std::string&,
                                         std::vector<recoPrimaryVertex>&,
@@ -173,8 +178,7 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   // ----------member data ---------------------------
   bool verbose_;
   bool use_only_charged_tracks_;
-  double sigma_z_match_;
-  double abs_z_match_;
+  const bool do_generic_sim_plots_;
   std::string root_folder_;
 
   std::map<std::string, std::map<std::string, MonitorElement*> > mes_;
@@ -184,13 +188,13 @@ class PrimaryVertexAnalyzer4PUSlimmed : public DQMEDAnalyzer {
   edm::EDGetTokenT< std::vector<PileupSummaryInfo> > vecPileupSummaryInfoToken_;
   std::vector<edm::EDGetTokenT<edm::View<reco::Vertex> > > reco_vertex_collection_tokens_;
   std::vector<edm::InputTag > reco_vertex_collections_;
-  edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
-  edm::EDGetTokenT< edm::View<reco::Track> > edmView_recoTrack_Token_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
+
+  std::vector<bool> errorPrintedForColl_;
 };
 
 #endif  // VALIDATION_RECOVERTEX_INTERFACE_PRIMARYVERTEXANALYZER4PUSLIMMED_H_

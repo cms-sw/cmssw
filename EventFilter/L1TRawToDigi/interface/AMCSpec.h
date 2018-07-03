@@ -1,9 +1,9 @@
-#ifndef AMC_SPEC__h
-#define AMC_SPEC__h
+#ifndef EventFilter_L1TRawToDigi_AMC_SPEC__h
+#define EventFilter_L1TRawToDigi_AMC_SPEC__h
 
 #include <memory>
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 namespace amc {
    static const unsigned int split_block_size = 0x1000;
@@ -105,7 +105,7 @@ namespace amc {
          inline unsigned int getSize() const { return (data_ >> Size_shift) & Size_mask; };
 
          uint64_t raw() const { return data_; }
-         bool check(unsigned int crc, unsigned int lv1_id, unsigned int size) const;
+         bool check(unsigned int crc, unsigned int lv1_id, unsigned int size, bool mtf7_mode=false) const;
 
          static void writeCRC(const uint64_t *start, uint64_t *end);
 
@@ -123,14 +123,14 @@ namespace amc {
    class Packet {
       public:
          Packet(const uint64_t* d) : block_header_(d) {};
-         Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load);
+         Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load, unsigned int user=0);
 
          // Add payload fragment from an AMC13 block to the AMC packet
          void addPayload(const uint64_t*, unsigned int);
          // To be called after the last payload addition.  Removes header
          // and trailer from the actual paylod.  Also performs
          // cross-checks for data consistency.
-         void finalize(unsigned int lv1, unsigned int bx, bool legacy_mc=false);
+         void finalize(unsigned int lv1, unsigned int bx, bool legacy_mc=false, bool mtf7_mode=false);
 
          std::vector<uint64_t> block(unsigned int id) const;
          std::unique_ptr<uint64_t[]> data();

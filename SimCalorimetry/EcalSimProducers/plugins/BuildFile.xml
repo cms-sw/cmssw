@@ -1,4 +1,5 @@
 <use   name="SimCalorimetry/EcalSimProducers"/>
+<use   name="SimGeneral/PreMixingModule"/>
 <library   file="*.cc" name="SimCalorimetryEcalSimProducersPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

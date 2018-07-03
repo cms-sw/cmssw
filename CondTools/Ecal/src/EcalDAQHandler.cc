@@ -308,12 +308,13 @@ void popcon::EcalDAQHandler::getNewObjects() {
     //ofstream *daqFile;
     //daqFile = new ofstream(outfile,ios::out);
   
-    //    for(int kr = 0; kr < num_runs; kr++){
-    int krmax = std::min(num_runs, 1000);
-    for(int kr = 0; kr < krmax; kr++){
-      if(m_to_transfer.size() < 20 ) {
+    //hlt    for(int kr = 0; kr < num_runs; kr++){
+    for(int kr = num_runs -1; kr < num_runs; kr++){
+    //    int krmax = std::min(num_runs, 1000);
+    //    for(int kr = 0; kr < krmax; kr++){
+      //hlt    if(m_to_transfer.size() < 20 ) {
 
-      if(run_vec[kr].getRunTag().getGeneralTag() != "GLOBAL") continue;
+    if(run_vec[kr].getRunTag().getGeneralTag() != "GLOBAL") continue;
       bool somediff = false;
       // initialize this run status to all OK
       irun = (unsigned long) run_vec[kr].getRunNumber();
@@ -345,7 +346,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
       std::map<EcalLogicID, RunFEConfigDat> feconfig;
       econn->fetchDataSet(&feconfig, &run_vec[kr]);
 
-      if(fed_dat.size() == 0 || feconfig.size() == 0) {
+      if(fed_dat.empty() || feconfig.empty()) {
 	std::cout << " run " << irun << " tag " << run_vec[kr].getRunTag().getGeneralTag()
 	          << " Run type " << run_vec[kr].getRunTag().getRunTypeDef().getRunType()
 	          << " feconfig and/or read FED size = 0, leaving..." << std::endl;
@@ -614,7 +615,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 
       }  // no change
 
-      } // check on number of already transferred runs 
+      // hlt    } // check on number of already transferred runs 
     } // loop over runs
   } // check on run number > 0
 

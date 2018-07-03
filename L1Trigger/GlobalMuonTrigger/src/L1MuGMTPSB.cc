@@ -233,7 +233,7 @@ void L1MuGMTPSB::print() const {
 //
 const L1MuRegionalCand* L1MuGMTPSB::RPCMuon(int index) const {
   
-  return ( index < (int)L1MuGMTConfig::MAXRPC && index >= 0 ) ? &(m_RpcMuons[index]) : 0;
+  return ( index < (int)L1MuGMTConfig::MAXRPC && index >= 0 ) ? &(m_RpcMuons[index]) : nullptr;
   
 }
 
@@ -243,7 +243,7 @@ const L1MuRegionalCand* L1MuGMTPSB::RPCMuon(int index) const {
 //
 const L1MuRegionalCand* L1MuGMTPSB::DTBXMuon(int index) const {
       
-  return ( index < (int)L1MuGMTConfig::MAXDTBX && index >= 0 ) ? &(m_DtbxMuons[index]) : 0;
+  return ( index < (int)L1MuGMTConfig::MAXDTBX && index >= 0 ) ? &(m_DtbxMuons[index]) : nullptr;
   
 }
 
@@ -253,7 +253,7 @@ const L1MuRegionalCand* L1MuGMTPSB::DTBXMuon(int index) const {
 //
 const L1MuRegionalCand* L1MuGMTPSB::CSCMuon(int index) const {
  
-  return ( index < (int)L1MuGMTConfig::MAXCSC && index >= 0 ) ? &(m_CscMuons[index]) : 0;
+  return ( index < (int)L1MuGMTConfig::MAXCSC && index >= 0 ) ? &(m_CscMuons[index]) : nullptr;
   
 }
 

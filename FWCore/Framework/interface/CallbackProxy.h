@@ -20,14 +20,15 @@
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
 #include <cassert>
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 
 #include "FWCore/Framework/interface/produce_helpers.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -40,14 +41,14 @@ namespace edm {
          typedef  typename produce::smart_pointer_traits<DataT>::type value_type;
          typedef  RecordT record_type;
          
-         CallbackProxy(boost::shared_ptr<CallbackT>& iCallback) :
+         CallbackProxy(std::shared_ptr<CallbackT>& iCallback) :
          data_(),
          callback_(iCallback) { 
             //The callback fills the data directly.  This is done so that the callback does not have to
             //  hold onto a temporary copy of the result of the callback since the callback is allowed
             //  to return multiple items where only one item is needed by this Proxy
             iCallback->holdOntoPointer(&data_) ; }
-         virtual ~CallbackProxy() {
+         ~CallbackProxy() override {
             DataT* dummy(nullptr);
             callback_->holdOntoPointer(dummy) ;
          }
@@ -56,24 +57,26 @@ namespace edm {
          // ---------- static member functions --------------------
          
          // ---------- member functions ---------------------------
-         const void* getImpl(const EventSetupRecord& iRecord, const DataKey&) {
+         const void* getImpl(const EventSetupRecordImpl& iRecord, const DataKey&) override {
             assert(iRecord.key() == RecordT::keyForClass());
-            (*callback_)(static_cast<const record_type&>(iRecord));
+            record_type rec;
+            rec.setImpl(&iRecord);
+            (*callback_)(rec);
             return &(*data_);
          }
          
-         void invalidateCache() {
+         void invalidateCache() override {
             data_ = DataT();
             callback_->newRecordComing();
          }
       private:
-         CallbackProxy(const CallbackProxy&); // stop default
+         CallbackProxy(const CallbackProxy&) = delete; // stop default
          
-         const CallbackProxy& operator=(const CallbackProxy&); // stop default
+         const CallbackProxy& operator=(const CallbackProxy&) = delete; // stop default
          
          // ---------- member data --------------------------------
          DataT data_;
-         boost::shared_ptr<CallbackT> callback_;
+         edm::propagate_const<std::shared_ptr<CallbackT>> callback_;
       };
       
    }

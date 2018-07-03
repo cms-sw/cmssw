@@ -50,7 +50,7 @@ public:
     L1GtCorrelationCondition(const L1GtCorrelationCondition&);
 
     // destructor
-    virtual ~L1GtCorrelationCondition();
+    ~L1GtCorrelationCondition() override;
 
     // assign operator
     L1GtCorrelationCondition& operator=(const L1GtCorrelationCondition&);
@@ -58,10 +58,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+    const bool evaluateCondition() const override;
 
     /// print condition
-    void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
 public:
 

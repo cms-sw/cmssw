@@ -1,5 +1,5 @@
-#ifndef PackerTokens_h
-#define PackerTokens_h
+#ifndef EventFilter_L1TRawToDigi_PackerTokens_h
+#define EventFilter_L1TRawToDigi_PackerTokens_h
 
 namespace edm {
    class ConsumesCollector;
@@ -8,8 +8,8 @@ namespace edm {
 
 namespace l1t {
    class PackerTokens {
-      public:
-         PackerTokens(const edm::ParameterSet&, edm::ConsumesCollector&) {};
+     public:
+       virtual ~PackerTokens() = default;
    };
 }
 

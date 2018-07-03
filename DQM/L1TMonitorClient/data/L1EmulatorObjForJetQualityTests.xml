@@ -15,7 +15,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/ForJet/ForJetErrorFlag">
+    <LINK name="*Stage1Layer2expert/ForJet/ForJetErrorFlag">
         <TestName activate="true">L1EmulatorForJetGctErrorFlagQT</TestName>
     </LINK>
 

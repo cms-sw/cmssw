@@ -12,7 +12,8 @@ scoutingDiJetVariables = cms.EDProducer("DiJetVarProducer",
                                         wideJetDeltaR = cms.double(1.1),
                                         )
 
-scoutingDiJetVarAnalyzer = cms.EDAnalyzer("DiJetVarAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+scoutingDiJetVarAnalyzer = DQMEDAnalyzer('DiJetVarAnalyzer',
                                           modulePath = cms.untracked.string("DiJet"),
                                           jetCollectionTag = cms.untracked.InputTag("selectedCaloJets"),
                                           #dijetVarCollectionTag = cms.untracked.InputTag("scoutingDiJetVariables","dijetvariables"),
@@ -31,10 +32,8 @@ scoutingDiJetVarAnalyzer = cms.EDAnalyzer("DiJetVarAnalyzer",
                                           triggerConfiguration = cms.PSet(
                                               hltResults = cms.InputTag('TriggerResults','','HLT'),
                                               l1tResults = cms.InputTag(''),
-                                              daqPartitions = cms.uint32(1),
-                                              l1tIgnoreMask = cms.bool( False ),
-                                              l1techIgnorePrescales = cms.bool( False ),
-                                              throw  = cms.bool( True )
+                                              l1tIgnoreMaskAndPrescale = cms.bool( False ),
+                                              throw = cms.bool( True )
                                           )
                                           )
 

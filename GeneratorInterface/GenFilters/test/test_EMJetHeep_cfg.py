@@ -52,7 +52,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 
 process.selection = cms.EDFilter("PythiaFilterEMJetHeep",
 #    
-      moduleLabel = cms.untracked.string('generator'),
+      moduleLabel = cms.untracked.string('VtxSmeared'),
       Minbias     = cms.untracked.bool(False),
       MinEventPt  = cms.untracked.double(80.),
       MaxPhotonEta= cms.untracked.double(2.7),                      

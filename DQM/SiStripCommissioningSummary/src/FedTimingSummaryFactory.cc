@@ -15,7 +15,7 @@ SummaryHistogramFactory<FedTimingAnalysis>::SummaryHistogramFactory() :
   view_(sistrip::UNKNOWN_VIEW),
   level_(sistrip::root_),
   gran_(sistrip::UNKNOWN_GRAN),
-  generator_(0) 
+  generator_(nullptr) 
 {;} 
 
 
@@ -41,7 +41,7 @@ void SummaryHistogramFactory<FedTimingAnalysis>::init( const sistrip::Monitorabl
   gran_ = gran;
 
   // Retrieve utility class used to generate summary histograms
-  if ( generator_ ) { delete generator_; generator_ = 0; }
+  if ( generator_ ) { delete generator_; generator_ = nullptr; }
   generator_ = SummaryGenerator::instance( view );
   
 }
@@ -99,13 +99,6 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
 
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
-
-  // Check if instance of generator class exists
-  if ( !(&summary_histo) ) { 
     edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
 	 << " NULL pointer to SummaryGenerator object!";
     return;

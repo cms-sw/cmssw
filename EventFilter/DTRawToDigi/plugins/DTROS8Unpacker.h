@@ -23,15 +23,15 @@ public:
   DTROS8Unpacker(const edm::ParameterSet& ps): pset(ps) {}
 
   /// Destructor
-  virtual ~DTROS8Unpacker() {}
+  ~DTROS8Unpacker() override {}
 
   // Unpacking method
-  virtual void interpretRawData(const unsigned int* index, int datasize,
+  void interpretRawData(const unsigned int* index, int datasize,
 				int dduID,
 				edm::ESHandle<DTReadOutMapping>& mapping, 
-				std::auto_ptr<DTDigiCollection>& product,
-                                std::auto_ptr<DTLocalTriggerCollection>& product2,
-				uint16_t rosList = 0);
+				std::unique_ptr<DTDigiCollection>& product,
+                                std::unique_ptr<DTLocalTriggerCollection>& product2,
+				uint16_t rosList = 0) override;
 
 private:
 

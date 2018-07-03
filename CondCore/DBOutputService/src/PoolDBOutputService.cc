@@ -1,7 +1,5 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
-//#include "CondCore/DBCommon/interface/TagInfo.h"
-//#include "CondCore/DBCommon/interface/IOVInfo.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -10,8 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "CondCore/CondDB/interface/Exception.h"
-#include "CondCore/DBCommon/interface/DbConnection.h"
-#include "CondCore/DBCommon/interface/DbSession.h"
 //
 #include <vector>
 #include<memory>
@@ -36,19 +32,14 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
 
   m_callbacks.insert(std::make_pair(thisrecord.m_idName,thisrecord));
 
-  // *** THE NEW LOGGING has still to be defined and implemented.
-  if( !m_logConnectionString.empty() ){
-    cond::UserLogInfo userloginfo;
-    m_logheaders.insert(std::make_pair(thisrecord.m_idName,userloginfo));
-  }
+  cond::UserLogInfo userloginfo;
+  m_logheaders.insert(std::make_pair(thisrecord.m_idName,userloginfo));
 }
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
   m_timetypestr(""),
   m_currentTimes{},
   m_session(),
-  m_logConnectionString(""),
-  m_logdb(),
   m_dbstarted( false ),
   m_callbacks(),
   m_closeIOV(false),
@@ -64,18 +55,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   connection.setParameters( connectionPset );
   connection.configure();
   std::string connectionString = iConfig.getParameter<std::string>("connect");
-  BackendType backType = (BackendType) iConfig.getUntrackedParameter<int>("dbFormat", DEFAULT_DB );
-  if( backType == UNKNOWN_DB )  backType = DEFAULT_DB;
-  m_session = connection.createSession( connectionString, true, backType ); 
-  
-  if( iConfig.exists("logconnect") ){
-    m_logConnectionString = iConfig.getUntrackedParameter<std::string>("logconnect");
-    cond::DbConnection conn;
-    conn.configuration().setParameters( connectionPset );
-    conn.configure();
-    cond::DbSession logSession = conn.createSession();
-    m_logdb.reset( new cond::Logger( logSession ) );
-  }  
+  m_session = connection.createSession( connectionString, true ); 
   
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
@@ -121,20 +101,14 @@ cond::service::PoolDBOutputService::isNewTagRequest( const std::string& recordNa
 }
 
 void 
-cond::service::PoolDBOutputService::initDB( bool forReading )
+cond::service::PoolDBOutputService::initDB( bool )
 {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  m_session.transaction().start(false);
   cond::persistency::TransactionScope scope( m_session.transaction() );
+  scope.start( false );
   try{ 
-    if(!forReading) {
-      if( !m_session.existsDatabase() ) m_session.createDatabase();
-    }
-    //init logdb if required
-    if(!m_logConnectionString.empty()){
-      m_logdb->connect( m_logConnectionString );
-      m_logdb->createLogDBIfNonExist();
-    }
+    if( !m_session.existsDatabase() ) m_session.createDatabase();
+
   } catch( const std::exception& er ){
     cond::throwException( std::string(er.what()),"PoolDBOutputService::initDB" );
   }
@@ -182,8 +156,15 @@ cond::service::PoolDBOutputService::preGlobalBeginLumi(edm::GlobalContext const&
 }
 
 cond::service::PoolDBOutputService::~PoolDBOutputService(){
+  if( m_dbstarted) {
+    m_session.transaction().rollback();
+  }
 }
 
+void cond::service::PoolDBOutputService::forceInit(){
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    if (!m_dbstarted) initDB();  
+}
 
 cond::Time_t 
 cond::service::PoolDBOutputService::endOfTime() const{
@@ -216,28 +197,16 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::throwException( myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
   }
   std::string iovToken;
-  if( withlogging && m_logConnectionString.empty() ) 
-    cond::throwException("Log db was not set from PoolDBOutputService::createNewIOV",
-			 "PoolDBOutputService::createNewIOV");
 
   try{
     // FIX ME: synchronization type and description have to be passed as the other parameters?
-    cond::persistency::IOVEditor editor = m_session.createIov( payloadType, myrecord.m_tag, myrecord.m_timetype, cond::OFFLINE ); 
+    cond::persistency::IOVEditor editor = m_session.createIov( payloadType, myrecord.m_tag, myrecord.m_timetype, cond::SYNCH_ANY ); 
     editor.setDescription( "New Tag" );
     editor.insert( firstSinceTime, firstPayloadId );
-    editor.flush();
+    cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
+    editor.flush( a.usertext );
     myrecord.m_isNewTag=false;
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime);
-    }
   }catch(const std::exception& er){ 
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime,std::string(er.what()));
-    }
     cond::throwException(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ",
 			 "PoolDBOutputService::createNewIOV");
   }
@@ -257,30 +226,17 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
     cond::throwException( myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
   }
   std::string iovToken;
-  if( withlogging && m_logConnectionString.empty() ) 
-    cond::throwException("Log db was not set from PoolDBOutputService::createNewIOV",
-			 "PoolDBOutputService::createNewIOV");
-
   std::string payloadType("");
   try{
     // FIX ME: synchronization type and description have to be passed as the other parameters?
-    cond::persistency::IOVEditor editor = m_session.createIovForPayload( firstPayloadId, myrecord.m_tag, myrecord.m_timetype, cond::OFFLINE ); 
+    cond::persistency::IOVEditor editor = m_session.createIovForPayload( firstPayloadId, myrecord.m_tag, myrecord.m_timetype, cond::SYNCH_ANY ); 
     editor.setDescription( "New Tag" );
     payloadType = editor.payloadType();
     editor.insert( firstSinceTime, firstPayloadId );
-    editor.flush();
+    cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
+    editor.flush( a.usertext );
     myrecord.m_isNewTag=false;
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime);
-    }
   }catch(const std::exception& er){ 
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadType,firstPayloadId,myrecord.m_tag,myrecord.timetypestr(),0,firstSinceTime,std::string(er.what()));
-    }
     cond::throwException(std::string(er.what()) + " from PoolDBOutputService::createNewIOV ",
 		   "PoolDBOutputService::createNewIOV");
   }
@@ -299,27 +255,15 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadI
     cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
 		   "PoolDBOutputService::appendSinceTime");  
   }
-  if( withlogging && m_logConnectionString.empty() ) 
-    cond::throwException("Log db was not set from PoolDBOutputService::createNewIOV",
-			 "PoolDBOutputService::createNewIOV");
   std::string payloadType("");
   try{
     cond::persistency::IOVEditor editor = m_session.editIov( myrecord.m_tag ); 
     payloadType = editor.payloadType();
     editor.insert( time, payloadId );
-    editor.flush();
+    cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
+    editor.flush( a.usertext );
 
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logOperationNow(a,destconnect,payloadType,payloadId,myrecord.m_tag,myrecord.timetypestr(),0,time);
-    }
   }catch(const std::exception& er){
-    if(withlogging){
-      std::string destconnect=m_session.connectionString();
-      cond::UserLogInfo a=this->lookUpUserLogInfo(recordName);
-      m_logdb->logFailedOperationNow(a,destconnect,payloadType,payloadId,myrecord.m_tag,myrecord.timetypestr(),0,time,std::string(er.what()));
-    }
     cond::throwException(std::string(er.what()),
 		   "PoolDBOutputService::appendSinceTime");
   }
@@ -329,7 +273,7 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadI
 cond::service::PoolDBOutputService::Record& 
 cond::service::PoolDBOutputService::lookUpRecord(const std::string& recordName){
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_dbstarted) this->initDB( false );
+  if (!m_dbstarted) this->initDB();
   cond::persistency::TransactionScope scope( m_session.transaction() );
   std::map<std::string,Record>::iterator it=m_callbacks.find(recordName);
   if(it==m_callbacks.end()) {
@@ -365,7 +309,7 @@ cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string&
   }
   cond::persistency::IOVEditor editor = m_session.editIov( myrecord.m_tag ); 
   editor.setEndOfValidity( lastTill );
-  editor.flush();
+  editor.flush("Tag closed.");
   scope.close();
 }
 
@@ -376,13 +320,6 @@ cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& rec
   cond::UserLogInfo& myloginfo=this->lookUpUserLogInfo(recordName);
   myloginfo.provenance=dataprovenance;
   myloginfo.usertext=usertext;
-}
-
-//
-const cond::Logger& 
-cond::service::PoolDBOutputService::queryLog()const{
-  if( !m_logdb.get() ) throw cond::Exception("Log database is not set from PoolDBOutputService::queryLog");
-  return *m_logdb;
 }
 
 // Still required.

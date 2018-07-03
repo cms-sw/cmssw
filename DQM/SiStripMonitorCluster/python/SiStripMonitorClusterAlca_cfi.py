@@ -19,6 +19,8 @@ SiStripCalZeroBiasMonitorCluster.ClusterLabel = cms.string('')
 
 SiStripCalZeroBiasMonitorCluster.TkHistoMap_On = cms.bool(False)
 
+SiStripCalZeroBiasMonitorCluster.ClusterChTkHistoMap_On = cms.bool(False)
+
 SiStripCalZeroBiasMonitorCluster.TopFolderName = cms.string('AlcaReco/SiStrip')
 
 SiStripCalZeroBiasMonitorCluster.BPTXfilter     = cms.PSet()
@@ -26,7 +28,7 @@ SiStripCalZeroBiasMonitorCluster.PixelDCSfilter = cms.PSet()
 SiStripCalZeroBiasMonitorCluster.StripDCSfilter = cms.PSet()
 
 SiStripCalZeroBiasMonitorCluster.CreateTrendMEs = cms.bool(False)
-SiStripCalZeroBiasMonitorCluster.TrendVsLS = cms.bool(True)
+SiStripCalZeroBiasMonitorCluster.TrendVs10LS = cms.bool(False)
 SiStripCalZeroBiasMonitorCluster.TH1ClusterNoise = cms.PSet(
     Nbinx          = cms.int32(20),
     xmin           = cms.double(-0.5),
@@ -45,7 +47,7 @@ SiStripCalZeroBiasMonitorCluster.TH1ClusterPos = cms.PSet(
     Nbinx          = cms.int32(768),
     xmin           = cms.double(-0.5),
     xmax           = cms.double(767.5),
-    layerswitchon  = cms.bool(False),
+    layerswitchon  = cms.bool(True),
     moduleswitchon = cms.bool(False)
 )
 SiStripCalZeroBiasMonitorCluster.TH1ClusterDigiPos = cms.PSet(

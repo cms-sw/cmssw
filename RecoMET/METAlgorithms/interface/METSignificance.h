@@ -18,6 +18,8 @@ Implementation:
 //____________________________________________________________________________||
 #include "CondFormats/JetMETObjects/interface/JetResolution.h"
 
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -37,8 +39,14 @@ namespace metsig {
 
          reco::METCovMatrix getCovariance(const edm::View<reco::Jet>& jets,
 					  const std::vector< edm::Handle<reco::CandidateView> >& leptons,
-					  const edm::View<reco::Candidate>& pfCandidates);
-     double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met ) const;
+					  const edm::Handle<edm::View<reco::Candidate> >& pfCandidates,
+					  double rho,
+					  JME::JetResolution & resPtObj,
+					  JME::JetResolution & resPhiObj,
+					  JME::JetResolutionScaleFactor & resSFObj,
+					  bool isRealData);
+
+     static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met );
 
       private:
          bool cleanJet(const reco::Jet& jet, 
@@ -49,9 +57,6 @@ namespace metsig {
          std::vector<double> jetEtas_;
          std::vector<double> jetParams_;
          std::vector<double> pjetParams_;
-
-         JetResolution* ptRes_;
-         JetResolution* phiRes_;
 
    };
 

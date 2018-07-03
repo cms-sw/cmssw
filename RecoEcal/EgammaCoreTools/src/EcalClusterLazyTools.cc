@@ -27,7 +27,7 @@ EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const 
   ebRHToken_ = token1;
   eeRHToken_ = token2;
  
-  getGeometry( es );
+  getGeometry( es , false );
   getTopology( es );
   getEBRecHits( ev );
   getEERecHits( ev );
@@ -55,10 +55,23 @@ EcalClusterLazyToolsBase::EcalClusterLazyToolsBase( const edm::Event &ev, const 
 EcalClusterLazyToolsBase::~EcalClusterLazyToolsBase()
 {}
 
-void EcalClusterLazyToolsBase::getGeometry( const edm::EventSetup &es ) {
+void EcalClusterLazyToolsBase::getGeometry( const edm::EventSetup &es, bool doES ) {
         edm::ESHandle<CaloGeometry> pGeometry;
         es.get<CaloGeometryRecord>().get(pGeometry);
         geometry_ = pGeometry.product();
+
+        if(doES){
+          const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+          if (geometryES) {
+            ecalPS_topology_.reset(new EcalPreshowerTopology(geometry_));
+          } else {
+            ecalPS_topology_.reset();
+            edm::LogInfo("subdetector geometry not available") << "EcalPreshower geometry is missing" << std::endl;
+          }
+        }
+        else {
+          ecalPS_topology_.reset();
+        }
 }
 
 void EcalClusterLazyToolsBase::getTopology( const edm::EventSetup &es ) {
@@ -115,7 +128,7 @@ void EcalClusterLazyToolsBase::getIntercalibConstants( const edm::EventSetup &es
 {
   // get IC's
   es.get<EcalIntercalibConstantsRcd>().get(ical);
-  icalMap = ical->getMap();
+  icalMap = &ical->getMap();
 }
 
 
@@ -140,7 +153,7 @@ const EcalRecHitCollection * EcalClusterLazyToolsBase::getEcalRecHitCollection( 
                 throw cms::Exception("InvalidCluster") << "The cluster has no crystals!";
         }
         DetId id = (cluster.hitsAndFractions()[0]).first; // size is by definition > 0 -- FIXME??
-        const EcalRecHitCollection *recHits = 0;
+        const EcalRecHitCollection *recHits = nullptr;
         if ( id.subdetId() == EcalBarrel ) {
                 recHits = ebRecHits_;
         } else if ( id.subdetId() == EcalEndcap ) {
@@ -193,14 +206,14 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
       float lasercalib = 1.;
       lasercalib = laser->getLaserCorrection( detitr->first, ev.time());
       // 2) get intercalibration
-      EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(detitr->first);
+      EcalIntercalibConstantMap::const_iterator icalit = icalMap->find(detitr->first);
       EcalIntercalibConstant icalconst = 1.;
-      if( icalit!=icalMap.end() ) {
+      if( icalit!=icalMap->end() ) {
 	icalconst = (*icalit);
 	// std::cout << "icalconst set to: " << icalconst << std::endl;
       } else {
 	edm::LogError("EcalClusterLazyTools") << "No intercalib const found for xtal "  << (detitr->first).rawId() << "bailing out";
-	assert(0);
+	assert(false);
       }
       // 3) get adc2GeV
       float adcToGeV = 1.;
@@ -256,12 +269,10 @@ float EcalClusterLazyToolsBase::eseffsirir(const reco::SuperCluster &cluster)
 {
   if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
 
-  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  CaloSubdetectorTopology *topology_p = 0;
-  if (geometryES) topology_p = new EcalPreshowerTopology(geometry_);
+  if (!ecalPS_topology_) return 0.;
 
-  std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 1);
-  std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 2);
+  std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 1);
+  std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 2);
   float phoESShapeIXIX = getESShape(phoESHitsIXIX);
   float phoESShapeIYIY = getESShape(phoESHitsIYIY);
 
@@ -273,11 +284,9 @@ float EcalClusterLazyToolsBase::eseffsixix(const reco::SuperCluster &cluster)
 {
   if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
 
-  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  CaloSubdetectorTopology *topology_p = 0;
-  if (geometryES) topology_p = new EcalPreshowerTopology(geometry_);
+  if (!ecalPS_topology_) return 0.;
 
-  std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 1);
+  std::vector<float> phoESHitsIXIX = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 1);
   float phoESShapeIXIX = getESShape(phoESHitsIXIX);
 
   return phoESShapeIXIX;
@@ -288,26 +297,23 @@ float EcalClusterLazyToolsBase::eseffsiyiy(const reco::SuperCluster &cluster)
 {
   if (!(fabs(cluster.eta()) > 1.6 && fabs(cluster.eta()) < 3.)) return 0.;
 
-  const CaloSubdetectorGeometry *geometryES = geometry_->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  CaloSubdetectorTopology *topology_p = 0;
-  if (geometryES) topology_p = new EcalPreshowerTopology(geometry_);
+  if (!ecalPS_topology_) return 0.;
 
-  std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, topology_p, 0, 2);
+  std::vector<float> phoESHitsIYIY = getESHits(cluster.x(), cluster.y(), cluster.z(), rechits_map_, geometry_, ecalPS_topology_.get(), 0, 2);
   float phoESShapeIYIY = getESShape(phoESHitsIYIY);
 
   return phoESShapeIYIY;
 }
 
 // get Preshower Rechits
-std::vector<float> EcalClusterLazyToolsBase::getESHits(double X, double Y, double Z, const std::map<DetId, EcalRecHit>& _rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology *topology_p, int row, int plane) 
+std::vector<float> EcalClusterLazyToolsBase::getESHits(double X, double Y, double Z, const std::map<DetId, EcalRecHit>& _rechits_map, const CaloGeometry* geometry, CaloSubdetectorTopology const *topology_p, int row, int plane) 
 {
   std::map<DetId, EcalRecHit> rechits_map = _rechits_map;
   std::vector<float> esHits;
 
   const GlobalPoint point(X,Y,Z);
 
-  const CaloSubdetectorGeometry *geometry_p ;
-  geometry_p = geometry->getSubdetectorGeometry (DetId::Ecal,EcalPreshower) ;
+  const CaloSubdetectorGeometry *geometry_p = geometry->getSubdetectorGeometry (DetId::Ecal,EcalPreshower);
 
   DetId esId = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane);
   ESDetId esDetId = (esId == DetId(0)) ? ESDetId(0) : ESDetId(esId);

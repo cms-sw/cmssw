@@ -2,7 +2,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "CalibTracker/Records/interface/SiStripHashedDetIdRcd.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripFedIdListReader.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"

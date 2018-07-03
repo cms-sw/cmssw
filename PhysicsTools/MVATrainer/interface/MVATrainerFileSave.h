@@ -18,10 +18,10 @@ class MVATrainerFileSave : public edm::EDAnalyzer {
     public:
 	explicit MVATrainerFileSave(const edm::ParameterSet &params);
 
-	virtual void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup);
+	void analyze(const edm::Event& iEvent,
+	                     const edm::EventSetup& iSetup) override;
 
-	virtual void endJob();
+	void endJob() override;
 
     protected:
 	virtual const Calibration::MVAComputerContainer *
@@ -33,7 +33,7 @@ class MVATrainerFileSave : public edm::EDAnalyzer {
 	typedef std::map<std::string, std::string> LabelFileMap;
 
 	LabelFileMap						toPut;
-	std::auto_ptr<Calibration::MVAComputerContainer>	calib;
+	std::unique_ptr<Calibration::MVAComputerContainer>	calib;
 	bool							saved;
 };
 

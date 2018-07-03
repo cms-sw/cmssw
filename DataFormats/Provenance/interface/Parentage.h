@@ -27,7 +27,14 @@ namespace edm {
     Parentage();
 
     explicit Parentage(std::vector<BranchID> const& parents);
+    explicit Parentage(std::vector<BranchID>&& parents);
 
+    Parentage(Parentage const&) = default;
+    Parentage(Parentage&&) = default;
+
+    Parentage& operator=(Parentage const&) = default;
+    Parentage& operator=(Parentage&&) = default;
+    
     ~Parentage() {}
 
     ParentageID id() const;

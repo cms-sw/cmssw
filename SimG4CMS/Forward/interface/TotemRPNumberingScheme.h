@@ -31,10 +31,8 @@ public:
 
   // ---------- Constructor and destructor -----------------
   TotemRPNumberingScheme(int i);
-  ~TotemRPNumberingScheme();
+  ~TotemRPNumberingScheme() override;
 	 
-  //  virtual uint32_t GetUnitID(const G4Step* aStep) const ;
-
 };
 
 #endif

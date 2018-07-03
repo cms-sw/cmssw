@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 ################# Quality Tests for jets #########################
 qTesterJet = cms.EDAnalyzer("QualityTester",
@@ -17,7 +18,7 @@ qTesterMET = cms.EDAnalyzer("QualityTester",
  )
 
 ################# Data Certification #########################
-dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
+dataCertificationJetMET = DQMEDHarvester('DataCertificationJetMET',
                               fileName       = cms.untracked.string(""),
                               refFileName    = cms.untracked.string(""),
                               OutputFile     = cms.untracked.bool(False),
@@ -27,6 +28,9 @@ dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
                               jetAlgo        = cms.untracked.string("ak4"),
                               folderName     = cms.untracked.string("JetMET/EventInfo"),  
                               METTypeRECO    = cms.InputTag("pfMETT1"),
+                              #for the uncleaned directory the flag needs to be set accordingly in
+                              #metDQMConfig_cfi.py
+                              METTypeRECOUncleaned = cms.InputTag("pfMet"),
                               METTypeMiniAOD = cms.InputTag("slimmedMETs"),
                               JetTypeRECO    = cms.InputTag("ak4PFJetsCHS"),
                               JetTypeMiniAOD = cms.InputTag("slimmedJets"),

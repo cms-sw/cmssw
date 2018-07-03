@@ -65,7 +65,7 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
     
     DTSLRecSegment2D *segment = (**cand);
 
-    theUpdator->update(segment,0);
+    theUpdator->update(segment,false);
 
     result.push_back(segment);
 
@@ -314,7 +314,7 @@ DTCombinatorialPatternReco::buildBestSegment(std::vector<DTSegmentCand::AssPoint
                                              const DTSuperLayer* sl) {
   if (hits.size()<3) {
     //cout << "buildBestSegment: hits " << hits.size()<< endl;
-    return 0; // a least 3 point
+    return nullptr; // a least 3 point
   }
 
   // hits with defined LR
@@ -372,7 +372,7 @@ DTCombinatorialPatternReco::buildBestSegment(std::vector<DTSegmentCand::AssPoint
        if (bestCandIter != candidates.end()) {
          return (*bestCandIter);
        }
-       return 0;
+       return nullptr;
 }
 
 void
@@ -385,7 +385,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<DTSegmentCand::AssPoint
     cout << "buildPointsCollection " << endl;
     cout << "points: " << points.size() << " NOLR: " << pointsNoLR.size()<< endl;
   }
-  if (pointsNoLR.size()>0) { // still unassociated points!
+  if (!pointsNoLR.empty()) { // still unassociated points!
     std::shared_ptr<DTHitPairForFit> unassHit = pointsNoLR.front();
     // try with the right
     if(debug)
@@ -427,7 +427,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<DTSegmentCand::AssPoint
     }
 
     DTSegmentCand* newCand = new DTSegmentCand(pointsSet,sl);
-    if (theUpdator->fit(newCand,0,0)) candidates.push_back(newCand);
+    if (theUpdator->fit(newCand,false,false)) candidates.push_back(newCand);
     else delete newCand; // bad seg, too few hits
   }
 }

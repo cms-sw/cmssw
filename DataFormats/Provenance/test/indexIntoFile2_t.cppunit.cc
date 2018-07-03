@@ -9,10 +9,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
-// This is very ugly, but I am told OK for white box  unit tests 
-#define private public
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
-#undef private
 
 #include <string>
 #include <iostream>
@@ -38,18 +35,18 @@ public:
     nullPHID = ProcessHistoryID();
 
     ProcessConfiguration pc;
-    std::unique_ptr<ProcessHistory> processHistory1(new ProcessHistory);
+    auto processHistory1 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph1 = *processHistory1;
     processHistory1->push_back(pc);
     fakePHID1 = ph1.id();
 
-    std::unique_ptr<ProcessHistory> processHistory2(new ProcessHistory);
+    auto processHistory2 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph2 = *processHistory2;
     processHistory2->push_back(pc);
     processHistory2->push_back(pc);
     fakePHID2 = ph2.id();
 
-    std::unique_ptr<ProcessHistory> processHistory3(new ProcessHistory);
+    auto processHistory3 = std::make_unique<ProcessHistory>();
     ProcessHistory& ph3 = *processHistory3;
     processHistory3->push_back(pc);
     processHistory3->push_back(pc);
@@ -187,9 +184,9 @@ void TestIndexIntoFile2::testAddEntryAndFixAndSort() {
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[4].orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[5].orderPHIDRunLumi() == 1);
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[6].orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
-  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[7].orderPHIDRunLumi() == 3);
-  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[8].orderPHIDRunLumi() == 4);
-  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[9].orderPHIDRunLumi() == 4);
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[7].orderPHIDRunLumi() == 2);
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[8].orderPHIDRunLumi() == 3);
+  CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[9].orderPHIDRunLumi() == 3);
 
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[0].entry() == 0);
   CPPUNIT_ASSERT(indexIntoFile.runOrLumiEntries()[1].entry() == 2);

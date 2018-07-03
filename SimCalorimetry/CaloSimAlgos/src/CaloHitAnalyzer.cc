@@ -30,7 +30,7 @@ void CaloHitAnalyzer::fillHits(MixCollection<PCaloHit> & hits) {
   MixCollection<PCaloHit>::MixItr last = hits.end();
   for( ; hitItr != last; ++hitItr) 
   {
-    if(hitFilter_ == 0 || hitFilter_->accepts(*hitItr)) {
+    if(hitFilter_ == nullptr || hitFilter_->accepts(*hitItr)) {
       int id = hitItr->id();
       //double samplingFactor = simParameterMap_->simParameters(DetId(id)).samplingFactor();
       double samplingFactor = 1.;

@@ -77,7 +77,7 @@ bool FWSimpleRepresentationChecker::inheritsFrom(const edm::TypeWithDict& iChild
                          unsigned int& distance) {
                            
    if (iChild.getClass()) {
-      if (iChild.getClass()->GetTypeInfo() == 0) {
+      if (iChild.getClass()->GetTypeInfo() == nullptr) {
          return false;
       }
    }
@@ -108,15 +108,15 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    //std::cout<<"checker infoFor"<<iTypeName<<std::endl;
    TClass* clss = TClass::GetClass(iTypeName.c_str());
    //Class could be unknown if the dictionary for it has not been loaded
-   if(0==clss || 0==clss->GetTypeInfo()) {
+   if(nullptr==clss || nullptr==clss->GetTypeInfo()) {
       return FWRepresentationInfo();
    }
-   boost::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
+   std::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
 
    const TClass* modelClass = accessor->modelType();
    //std::cout <<"   "<<modelClass->GetName()<<" "<< bool(modelClass == clss)<< std::endl;
 
-   if(0==modelClass || 0 == modelClass->GetTypeInfo()) {
+   if(nullptr==modelClass || nullptr == modelClass->GetTypeInfo()) {
       //some containers e.g. vector<int> do not have known TClasses for their elements
       // or the contained type may be unknown to ROOT
       return FWRepresentationInfo();

@@ -19,7 +19,7 @@ RPCGeomServ::~RPCGeomServ( void )
 std::string 
 RPCGeomServ::name( void )
 {
-  if( _n.size() < 1 )
+  if( _n.empty() )
   {
     int station = _id->station();
     int region = _id->region();
@@ -121,7 +121,7 @@ RPCGeomServ::name( void )
 std::string 
 RPCGeomServ::chambername()
 {
-  if( _cn.size() < 1 )
+  if( _cn.empty() )
   {
     int station = _id->station();
     int region = _id->region();
@@ -207,7 +207,7 @@ RPCGeomServ::chambername()
 std::string 
 RPCGeomServ::shortname( void )
 {
-  if( _sn.size() < 1 )
+  if( _sn.empty() )
   {
     int station = _id->station();
     int region = _id->region();
@@ -284,20 +284,20 @@ RPCGeomServ::channelInChip( void )
     int station = _id->station();
   
     if (station<3 && _id->layer()==1){ // i.e. RB1in ||RB2in  
-      chipCh.push_back(7);
-      chipCh.push_back(8);
+      chipCh.emplace_back(7);
+      chipCh.emplace_back(8);
     }else if (station == 1 || station == 3){//i.e. RB1out || RB3 
-      chipCh.push_back(7);
-      chipCh.push_back(7);
+      chipCh.emplace_back(7);
+      chipCh.emplace_back(7);
     }else if (station == 2){// i.e. RB2out
-      chipCh.push_back(6);
-      chipCh.push_back(8);
+      chipCh.emplace_back(6);
+      chipCh.emplace_back(8);
     }else if (_id->sector() == 4 || _id->sector()==10 ||(_id->sector() == 8 &&  _id->subsector()!=1) || (_id->sector() == 12  &&  _id->subsector()==1)){
-      chipCh.push_back(6);//i.e. Sector 4 &  10 RB4 and Sector 8 &12 RB4+
-      chipCh.push_back(6);
+      chipCh.emplace_back(6);//i.e. Sector 4 &  10 RB4 and Sector 8 &12 RB4+
+      chipCh.emplace_back(6);
     }else {
-      chipCh.push_back(8);
-      chipCh.push_back(8);
+      chipCh.emplace_back(8);
+      chipCh.emplace_back(8);
     }	
   }
 
@@ -529,7 +529,7 @@ RPCGeomServ::aclockwise()
   return _a;
 }
 
-RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _sn(""), _cn(""), _t (-99), _z(false), _a(false)
+RPCGeomServ::RPCGeomServ() : _id(nullptr), _n(""), _sn(""), _cn(""), _t (-99), _z(false), _a(false)
 {} 
 
 

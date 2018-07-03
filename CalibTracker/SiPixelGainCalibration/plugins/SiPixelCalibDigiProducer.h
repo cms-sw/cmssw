@@ -44,6 +44,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
 #include "CondFormats/DataRecord/interface/SiPixelCalibConfigurationRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
 #include <map>
 #include <vector>
@@ -55,11 +56,11 @@
 class SiPixelCalibDigiProducer : public edm::EDProducer {
    public:
       explicit SiPixelCalibDigiProducer(const edm::ParameterSet& iConfig);
-      ~SiPixelCalibDigiProducer();
+      ~SiPixelCalibDigiProducer() override;
 
    private:
 
-      virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
       virtual bool store();
       virtual void setPattern();
       virtual void fill(edm::Event &iEvent, const edm::EventSetup& iSetup);

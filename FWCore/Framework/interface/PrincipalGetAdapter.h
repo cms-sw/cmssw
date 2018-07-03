@@ -41,19 +41,17 @@ event.getByLabel("market", "apple", fruits);
 Putting Data
 
 \code
-std::unique_ptr<AppleCollection> pApples(new AppleCollection);
   
 //fill the collection
 ...
-event.put(std::move(pApples));
+event.put(std::make_unique<AppleCollection>());
 \endcode
 
 \code
-std::unique_ptr<FruitCollection> pFruits(new FruitCollection);
 
 //fill the collection
 ...
-event.put("apple", std::move(pFruits));
+event.put(std::make_unique<FruitCollection>());
 \endcode
 
 
@@ -63,7 +61,7 @@ NOTE: The edm::RefProd returned will not work until after the
 edm::PrincipalGetAdapter has been committed (which happens after the
 EDProducer::produce method has ended)
 \code
-std::unique_ptr<AppleCollection> pApples(new AppleCollection);
+auto pApples = std::make_unique<AppleCollection>();
 
 edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
 
@@ -86,7 +84,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include <typeinfo>
 #include <string>
 #include <vector>
-#include <boost/type_traits.hpp>
+#include <type_traits>
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -104,18 +102,26 @@ edm::Ref<AppleCollection> ref(refApples, index);
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/ProductLabels.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/Transition.h"
 
 
 namespace edm {
 
   class ModuleCallingContext;
   class SharedResourcesAcquirer;
+  class ProducerBase;
 
   namespace principal_get_adapter_detail {
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
+    void
+    throwOnPutOfUninitializedToken(char const* principalType, std::type_info const& productType);
+    void
+    throwOnPutOfWrongType(std::type_info const& wrongType, TypeID const& rightType);
     void
     throwOnPrematureRead(char const* principalType, TypeID const& productType, std::string const& moduleLabel, std::string const& productInstanceName);
     void
@@ -127,8 +133,8 @@ namespace edm {
   }
   class PrincipalGetAdapter {
   public:
-    PrincipalGetAdapter(Principal & pcpl,
-		 ModuleDescription const& md);
+    PrincipalGetAdapter(Principal const& pcpl,
+		 ModuleDescription const& md, bool isComplete);
 
     ~PrincipalGetAdapter();
 
@@ -145,12 +151,19 @@ namespace edm {
       resourcesAcquirer_ = iSra;
     }
 
+    void setProducer(ProducerBase const* iProd) {
+      prodBase_ = iProd;
+    }
 
-    bool isComplete() const;
+    size_t numberOfProductsConsumed() const ;
+    
+    bool isComplete() const { return isComplete_;}
 
     template <typename PROD>
     bool 
     checkIfComplete() const;
+    
+    Transition transition() const;
 
     template <typename PROD>
     void 
@@ -159,14 +172,27 @@ namespace edm {
     ProcessHistory const&
     processHistory() const;
 
-    Principal& principal() {return principal_;}
     Principal const& principal() const {return principal_;}
 
     BranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
+    EDPutToken::value_type
+    getPutTokenIndex(TypeID const& type, std::string const& productInstanceName) const;
+
+    TypeID const& getTypeIDForPutTokenIndex(EDPutToken::value_type index) const;
+    std::string const& productInstanceLabel(EDPutToken) const;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
+    BranchDescription const&
+    getBranchDescription(unsigned int iPutTokenIndex) const;
+    ProductID const& getProductID(unsigned int iPutTokenIndex) const;
+    
+    std::vector<edm::ProductResolverIndex> const&
+    putTokenIndexToProductResolverIndex() const ;
+    
+    //uses the EDPutToken index
+    std::vector<bool> const& recordProvenanceList() const;
     //------------------------------------------------------------
     // Protected functions.
     //
@@ -222,6 +248,9 @@ namespace edm {
     void
     throwAmbiguousException(TypeID const& productType, EDGetToken token) const;
 
+    void
+    throwUnregisteredPutException(TypeID const& type,
+                                  std::string const& productInstanceLabel) const;
   private:
     //------------------------------------------------------------
     // Data members
@@ -229,14 +258,16 @@ namespace edm {
 
     // Each PrincipalGetAdapter must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
-    Principal & principal_;
+    Principal const& principal_;
 
     // Each PrincipalGetAdapter must have a description of the module executing the
     // "transaction" which the PrincipalGetAdapter represents.
     ModuleDescription const& md_;
     
     EDConsumerBase const* consumer_;
-    SharedResourcesAcquirer* resourcesAcquirer_;
+    SharedResourcesAcquirer* resourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
+    ProducerBase const* prodBase_ = nullptr;
+    bool isComplete_;
   };
 
   template <typename PROD>
@@ -263,8 +294,8 @@ namespace edm {
   // no such member function.
 
   namespace detail {
-    typedef char (& no_tag)[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
+    using no_tag = std::false_type; // type indicating FALSE
+    using yes_tag = std::true_type; // type indicating TRUE
 
     // Definitions forthe following struct and function templates are
     // not needed; we only require the declarations.
@@ -275,19 +306,8 @@ namespace edm {
 
     template<typename T>
     struct has_postinsert {
-      static bool const value = 
-	sizeof(has_postinsert_helper<T>(nullptr)) == sizeof(yes_tag) &&
-	!boost::is_base_of<DoNotSortUponInsertion, T>::value;
-    };
-
-
-    // has_donotrecordparents<T>::value is true if we should not
-    // record parentage for type T, and false otherwise.
-
-    template <typename T>
-    struct has_donotrecordparents {
-      static bool const value = 
-	boost::is_base_of<DoNotRecordParents,T>::value;
+      static constexpr bool value = std::is_same<decltype(has_postinsert_helper<T>(nullptr)), yes_tag>::value &&
+	!std::is_base_of<DoNotSortUponInsertion, T>::value;
     };
 
   }

@@ -27,10 +27,6 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-# process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-# process.load('Configuration.Geometry.GeometryExtended2019_cff')
-# process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-# process.load('Configuration.Geometry.GeometryExtended2023_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
@@ -44,7 +40,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
-process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
+#process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
+process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cff')
 
 ### Try to do RecoLocalMuon on all muon detectors ###
 #####################################################
@@ -118,7 +115,7 @@ process.source = cms.Source("PoolSource",
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        'file:out_local_reco.root'
+        'file:out_local_reco_test.root'
         # 'file:out_local_reco_100GeV_1000evts.root'
         # 'file:out_local_reco_1To100GeV_1000evts.root'
     ),
@@ -132,7 +129,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ### Paths and Schedules
 #######################
-process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0RecHits)
+process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0LocalReco)
+#process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0RecHits)
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
 

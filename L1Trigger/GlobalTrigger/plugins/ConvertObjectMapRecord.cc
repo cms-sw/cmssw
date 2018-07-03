@@ -52,7 +52,7 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   }
 
   // Create the new object we are going to copy the information to
-  std::auto_ptr<L1GlobalTriggerObjectMaps> gtObjectMaps(new L1GlobalTriggerObjectMaps);
+  std::unique_ptr<L1GlobalTriggerObjectMaps> gtObjectMaps(new L1GlobalTriggerObjectMaps);
 
   // get the algorithm bit numbers and sort them
   std::vector<int> algoBitNumbers;
@@ -204,7 +204,7 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   gtObjectMaps->setNamesParameterSetID(namesPset.id());
 
   gtObjectMaps->consistencyCheck();
-  event.put(gtObjectMaps);
+  event.put(std::move(gtObjectMaps));
 }
 
 DEFINE_FWK_MODULE(ConvertObjectMapRecord);

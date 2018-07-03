@@ -11,7 +11,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TPRegexp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
@@ -127,7 +127,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run c
   edm::ParameterSet TrackPtHistoPar = parameters_.getParameter<edm::ParameterSet>("trackPtH");
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  iBook.setCurrentFolder(currentFolder.c_str());
+  iBook.setCurrentFolder(currentFolder);
 
   // The following are common with the official tool
   if (haveAllHistograms_) {
@@ -548,8 +548,6 @@ void StandaloneTrackMonitor::addClusterToMap(uint32_t detid, const SiStripCluste
     std::set<const SiStripCluster*>& s = it->second;
     s.insert(cluster);
   }
-}
-void StandaloneTrackMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup){
 }
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"

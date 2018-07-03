@@ -32,8 +32,8 @@ namespace lumi{
     float m_norm; //Lumi2DB specific
     bool m_nocheckingstablebeam; //Lumi2DB specific
   private:
-    DataPipe( const DataPipe& );
-    const DataPipe& operator=( const DataPipe& );
+    DataPipe( const DataPipe& ) = delete;
+    const DataPipe& operator=( const DataPipe& ) = delete;
   };//class DataPipe
 }//ns lumi
 #endif

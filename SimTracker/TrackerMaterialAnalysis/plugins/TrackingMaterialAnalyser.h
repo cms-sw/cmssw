@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,11 +13,11 @@
 #include "MaterialAccountingGroup.h"
 #include "TrackingMaterialPlotter.h"
 
-class TrackingMaterialAnalyser : public edm::EDAnalyzer
+class TrackingMaterialAnalyser : public edm::one::EDAnalyzer<>
 {
 public:
-  TrackingMaterialAnalyser(const edm::ParameterSet &);
-  virtual ~TrackingMaterialAnalyser();
+  explicit TrackingMaterialAnalyser(const edm::ParameterSet &);
+  ~TrackingMaterialAnalyser() override;
   
 private:
   enum SplitMode {
@@ -27,9 +27,9 @@ private:
     UNDEFINED
   };
   
-  void analyze(const edm::Event &, const edm::EventSetup &);
-  void beginJob() {}
-  void endJob();
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void beginJob() override {}
+  void endJob() override;
 
   void split( MaterialAccountingTrack & track );
   int  findLayer( const MaterialAccountingDetector & detector );

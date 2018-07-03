@@ -63,8 +63,7 @@ namespace cms
 	  }
       }
     if(nr_clusters_above_threshold>=minNrOfTECClusters) decision=true;
-    std::auto_ptr< int > output_decision( new int(decision) );
-    e.put(output_decision);
+    e.put(std::make_unique<int>(decision));
     return decision;
   }
 }

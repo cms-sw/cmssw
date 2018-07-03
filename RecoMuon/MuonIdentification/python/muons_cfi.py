@@ -91,5 +91,13 @@ muons = cms.EDProducer("MuonProducer",
                        ShowerInfoMap = cms.InputTag("muonShowerInformation"),
 
                        FillCosmicsIdMap = cms.bool(True),
-                       CosmicIdMap = cms.InputTag("cosmicsVeto")
+                       CosmicIdMap = cms.InputTag("cosmicsVeto"),
+
+                       ComputeStandardSelectors = cms.bool(True),
+                       vertices = cms.InputTag("offlinePrimaryVertices")
+                       
                        )
+
+# not commisoned and not relevant in FastSim (?):
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(muons, FillCosmicsIdMap = False, FillSelectorMaps = False)

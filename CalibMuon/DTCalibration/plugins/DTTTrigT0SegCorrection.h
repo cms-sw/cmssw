@@ -29,10 +29,10 @@ public:
   DTTTrigT0SegCorrection(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTTTrigT0SegCorrection();
+  ~DTTTrigT0SegCorrection() override;
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual DTTTrigData correction(const DTSuperLayerId&);
+  void setES(const edm::EventSetup& setup) override;
+  DTTTrigData correction(const DTSuperLayerId&) override;
 
 private:
   const TH1F* getHisto(const DTSuperLayerId&);

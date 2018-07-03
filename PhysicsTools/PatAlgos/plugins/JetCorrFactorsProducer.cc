@@ -99,7 +99,7 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
       }
     }
     else{
-      edm::LogWarning message( "Parameter rho not used" );
+      edm::LogInfo message( "Parameter rho not used" );
       message << "Module is configured to use the parameter rho, but rho is only used     \n"
 	      << "for L1FastJet corrections. The configuration of levels does not contain \n"
 	      << "L1FastJet corrections though, so rho will not be used by this module.   \n";
@@ -232,13 +232,9 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
 					    << "the sequence.";
     }
     for(unsigned int idx=0; idx<corrLevel->second.size(); ++idx){
-      bool flavorDependent=false;
       std::vector<float> factors;
-      if(flavorDependent ||
-	 corrLevel->second[idx].find("L5Flavor")!=std::string::npos ||
+      if(corrLevel->second[idx].find("L5Flavor")!=std::string::npos ||
 	 corrLevel->second[idx].find("L7Parton")!=std::string::npos){
-	flavorDependent=true;
-	// after the first encounter all subsequent correction levels are flavor dependent
 	for(FlavorCorrLevelMap::const_iterator flavor=corrLevel; flavor!=levels_.end(); ++flavor){
 	  if(!primaryVertices_.label().empty()){
 	    // if primaryVerticesToken_ has a value the number of primary vertices needs to be
@@ -284,13 +280,13 @@ JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& setup)
     jcfs.push_back(corrFactors);
   }
   // build the value map
-  std::auto_ptr<JetCorrFactorsMap> jetCorrsMap(new JetCorrFactorsMap());
+  auto jetCorrsMap = std::make_unique<JetCorrFactorsMap>();
   JetCorrFactorsMap::Filler filler(*jetCorrsMap);
   // jets and jetCorrs have their indices aligned by construction
   filler.insert(jets, jcfs.begin(), jcfs.end());
   filler.fill(); // do the actual filling
   // put our produced stuff in the event
-  event.put(jetCorrsMap);
+  event.put(std::move(jetCorrsMap));
 }
 
 void
@@ -311,6 +307,7 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   levels.push_back(std::string("L1Offset"  ));
   levels.push_back(std::string("L2Relative"));
   levels.push_back(std::string("L3Absolute"));
+  levels.push_back(std::string("L2L3Residual"));
   levels.push_back(std::string("L5Flavor"  ));
   levels.push_back(std::string("L7Parton"  ));
   iDesc.add<std::vector<std::string> >("levels", levels);

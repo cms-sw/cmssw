@@ -30,10 +30,10 @@ class ProcCategory : public VarProcessor {
 	ProcCategory(const char *name,
 	             const Calibration::ProcCategory *calib,
 	             const MVAComputer *computer);
-	virtual ~ProcCategory() {}
+	~ProcCategory() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
 	typedef Calibration::ProcCategory::BinLimits BinLimits;
@@ -41,7 +41,7 @@ class ProcCategory : public VarProcessor {
 	const Calibration::ProcCategory	*calib;
 };
 
-static ProcCategory::Registry registry("ProcCategory");
+ProcCategory::Registry registry("ProcCategory");
 
 ProcCategory::ProcCategory(const char *name,
                            const Calibration::ProcCategory *calib,

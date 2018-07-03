@@ -1,37 +1,23 @@
-/***************************************************************************
-                          DDLPseudoTrap.cc  -  description
-                             -------------------
-    begin                : Mon Jul 17 2003
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLPseudoTrap.h"
-
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <map>
+#include <utility>
+
+class DDCompactView;
 
 DDLPseudoTrap::DDLPseudoTrap( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
-{}
-
-DDLPseudoTrap::~DDLPseudoTrap( void )
 {}
 
 // Upon encountering an end of the tag, call DDCore's Trap.
 void
 DDLPseudoTrap::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLPseudoTrap::processElement started");
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
@@ -45,6 +31,4 @@ DDLPseudoTrap::processElement( const std::string& name, const std::string& nmspa
 					       (atts.find("atMinusZ")->second == "true") ? true : false );
 
   DDLSolid::setReference(nmspace, cpv);
-
-  DCOUT_V('P', "DDLPseudoTrap::processElement completed");
 }

@@ -10,12 +10,11 @@ hiMuons1stStep.inputCollectionLabels = [hiTracks, 'globalMuons', 'standAloneMuon
 hiMuons1stStep.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks','tev firstHit', 'tev picky', 'tev dyt']
 hiMuons1stStep.TrackExtractorPSet.inputTrackCollection = hiTracks
 hiMuons1stStep.minPt = cms.double(0.8)
+#iso deposits are not used in HI
+hiMuons1stStep.writeIsoDeposits = False
 #hiMuons1stStep.fillGlobalTrackRefits = False
 muonEcalDetIds.inputCollection = "hiMuons1stStep"
 
-calomuons.inputTracks = hiTracks
-calomuons.inputCollection = 'hiMuons1stStep'
-calomuons.inputMuons = 'hiMuons1stStep'
 muIsoDepositTk.inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:tracker"))
 muIsoDepositJets. inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:jets"))
 muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:ecal"), cms.InputTag("hiMuons1stStep:hcal"), cms.InputTag("hiMuons1stStep:ho"))
@@ -24,9 +23,17 @@ muonShowerInformation.muonCollection = "hiMuons1stStep"
 
 #don't modify somebody else's sequence, create a new one if needed
 #standalone muon tracking is already done... so remove standalonemuontracking from muontracking
-muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(standalonemuontracking._seq._collection + displacedGlobalMuonTracking._seq._collection)
-muonreco_plus_isolation_PbPb.replace(muons1stStep, hiMuons1stStep)
+from FWCore.ParameterSet.SequenceTypes import ModuleNodeVisitor
+_excludes=[]
+_visitor=ModuleNodeVisitor(_excludes)
+standalonemuontracking.visit(_visitor)
+displacedGlobalMuonTracking.visit(_visitor)
+muonreco_plus_isolation_PbPbTask = muonreco_plus_isolationTask.copyAndExclude(_excludes)
 
+muonreco_plus_isolation_PbPbTask.replace(muons1stStep, hiMuons1stStep)
+#iso deposits are not used in HI
+muonreco_plus_isolation_PbPbTask.remove(muIsoDeposits_muonsTask)
+muonreco_plus_isolation_PbPb = cms.Sequence(muonreco_plus_isolation_PbPbTask)
 
 globalMuons.TrackerCollectionLabel = hiTracks
 
@@ -45,9 +52,10 @@ muons.FillPFIsolation = cms.bool(False)
 muons.FillSelectorMaps = cms.bool(False)
 muons.FillShoweringInfo = cms.bool(False)
 muons.FillCosmicsIdMap = cms.bool(False)
+muons.vertices = cms.InputTag("hiSelectedVertex")
 muonRecoHighLevelPbPb = cms.Sequence(muons)
 
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 
-muonRecoPbPb = cms.Sequence(muonreco_plus_isolation_PbPb)
+muonRecoPbPb = cms.Sequence(muonreco_plus_isolation_PbPbTask)
 

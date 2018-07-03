@@ -1,14 +1,15 @@
 ///
 /// \class l1t::Stage2Layer2JetAlgorithmFirmwareImp1
 ///
-/// \author: 
+/// \author:
 ///
-/// Description: 
+/// Description:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxJetAlgoFirmware.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 
 #include <vector>
@@ -16,7 +17,7 @@
 
 inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
 {
-  if ( a.hwPt() > b.hwPt() ){ 
+  if ( a.hwPt() > b.hwPt() ){
     return true;
   } else {
     return false;
@@ -25,7 +26,7 @@ inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
 
 #include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
-l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParams* params) :
+l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParamsHelper* params) :
   params_(params)
 {
 
@@ -42,29 +43,30 @@ l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::~Stage2Layer2DemuxJetAlgoFirmwareImp1
 void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l1t::Jet> & inputJets,
                                                              std::vector<l1t::Jet> & outputJets) {
 
-  // Set the output jets to the input jets
   outputJets = inputJets;
-  
+
   // Sort the jets by pT
   std::vector<l1t::Jet>::iterator start(outputJets.begin());
   std::vector<l1t::Jet>::iterator end(outputJets.end());
-  
-  BitonicSort< l1t::Jet >(down,start,end);
-  
-  // Transform the eta and phi onto the ouput scales to GT 
-  for (std::vector<l1t::Jet>::iterator jet = outputJets.begin(); jet != outputJets.end(); ++jet )
-    {
-      
-      jet->setHwPhi(2*jet->hwPhi());
-      jet->setHwEta(2*jet->hwEta());
-      
-      if (jet->hwPt()>0x7FF){
-        jet->setHwPt(0x7FF);
-      } else {
-        jet->setHwPt(jet->hwPt() & 0x7FF);
-      }
 
-    }
+  //  for (auto& jet: outputJets){
+  //    std::cout << "MP : " << jet.hwPt() << ", " << jet.hwEta() << ", " << jet.hwPhi() << ", " << CaloTools::towerEta(jet.hwEta()) << ", " << CaloTools::towerPhi(jet.hwEta(),jet.hwPhi()) << std::endl;
+  //  }
+
+  BitonicSort< l1t::Jet >(down,start,end);
+
+  // convert eta to GT coordinates
+  for(auto& jet : outputJets){
+
+    int gtEt = jet.hwPt() == 0xFFFF ? 0x7FF :  jet.hwPt();
+    int gtEta = CaloTools::gtEta(CaloTools::mpEta(jet.hwEta()));
+    int gtPhi = CaloTools::gtPhi(CaloTools::mpEta(jet.hwEta()),jet.hwPhi());
+    
+    jet.setHwPt(gtEt);
+    jet.setHwEta(gtEta);
+    jet.setHwPhi(gtPhi);
+    
+  }
+  
 
 }
-

@@ -1,7 +1,7 @@
 #include "DetectorDescription/Core/src/PseudoTrap.h"
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-
+#include "CLHEP/Units/SystemOfUnits.h"
 
 void DDI::PseudoTrap::stream(std::ostream & os) const
 {

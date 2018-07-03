@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 import os,os.path,sys,fnmatch,commands
 dbname='oracle://cms_orcon_prod/cms_lumi_prod'
 authpath='/home/lumidb/auth/writer'
@@ -22,7 +22,7 @@ def main(*args):
     except IndexError:
         print 'dir name should be provided'
         return 1
-    except Exception,er:
+    except Exception as er:
         print str(er)
         return 2
     else:

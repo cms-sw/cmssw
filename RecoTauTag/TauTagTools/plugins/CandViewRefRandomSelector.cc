@@ -48,8 +48,7 @@ bool CandViewRefRandomSelector::filter(edm::Event& evt,
                                        const edm::EventSetup& es) {
   edm::Handle<edm::View<reco::Candidate> > cands;
   evt.getByLabel(src_, cands);
-  std::auto_ptr<reco::CandidateBaseRefVector> output(
-      new reco::CandidateBaseRefVector(cands));
+  auto output = std::make_unique<reco::CandidateBaseRefVector>(cands);
   // If we don't have enough elements to select, just copy what we have
   if (cands->size() <= choose_) {
     for (size_t i = 0; i < cands->size(); ++i)
@@ -66,7 +65,7 @@ bool CandViewRefRandomSelector::filter(edm::Event& evt,
     }
   }
   size_t outputSize = output->size();
-  evt.put(output);
+  evt.put(std::move(output));
   return ( !filter_ || outputSize );
 }
 

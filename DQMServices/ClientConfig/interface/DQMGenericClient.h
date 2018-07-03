@@ -29,15 +29,23 @@ class DQMGenericClient : public DQMEDHarvester
 {
  public:
   DQMGenericClient(const edm::ParameterSet& pset);
-  ~DQMGenericClient() {};
+  ~DQMGenericClient() override {};
 
+  void dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,DQMStore::IGetter& igetter,const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
+  enum class EfficType {
+    none = 0,
+    efficiency,
+    fakerate,
+    simpleratio
+  };
 
   struct EfficOption
   {
     std::string name, title;
     std::string numerator, denominator;
-    int type;
+    EfficType type;
     bool isProfile;
   };
 
@@ -61,6 +69,12 @@ class DQMGenericClient : public DQMEDHarvester
   struct CDOption
   {
     std::string name;
+    bool ascending;
+  };
+
+  struct NoFlowOption
+  {
+    std::string name;
   };
 
   void computeEfficiency(DQMStore::IBooker& ibooker,
@@ -70,7 +84,7 @@ class DQMGenericClient : public DQMEDHarvester
                          const std::string& efficMETitle,
                          const std::string& recoMEName, 
                          const std::string& simMEName, 
-                         const int type=1,
+                         const EfficType type=EfficType::efficiency,
                          const bool makeProfile = false);
   void computeResolution(DQMStore::IBooker& ibooker,
 			 DQMStore::IGetter& igetter,
@@ -91,12 +105,20 @@ class DQMGenericClient : public DQMEDHarvester
   void makeCumulativeDist(DQMStore::IBooker& ibooker,
 			  DQMStore::IGetter& igetter,
 			  const std::string& startDir,
-			  const std::string& cdName);
+			  const std::string& cdName,
+                          bool ascending=true);
+  void makeNoFlowDist(DQMStore::IBooker& ibooker,
+                      DQMStore::IGetter& igetter,
+                      const std::string& startDir,
+                      const std::string& cdName);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
 
  private:
   unsigned int verbose_;
+  bool runOnEndLumi_;
+  bool runOnEndJob_;
+  bool makeGlobalEffPlot_;
   bool isWildcardUsed_;
   bool resLimitedFit_;
 
@@ -109,14 +131,19 @@ class DQMGenericClient : public DQMEDHarvester
   std::vector<ProfileOption> profileOptions_;
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
+  std::vector<NoFlowOption> noFlowOptions_;
 
-  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1);
+  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const EfficType type=EfficType::efficiency);
 
   void findAllSubdirectories (DQMStore::IBooker& ibooker,
 			      DQMStore::IGetter& igetter,
 			      std::string dir,
 			      std::set<std::string> * myList,
 			      const TString& pattern);
+
+  void makeAllPlots(DQMStore::IBooker &, DQMStore::IGetter &);
+
+  void removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 

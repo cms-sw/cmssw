@@ -24,9 +24,9 @@ public:
 
   ME0EtaPartitionSpecs( SubDetector rss, const std::string& name, const ME0Specs& pars);
 
-  ~ME0EtaPartitionSpecs();
+  ~ME0EtaPartitionSpecs() override;
 
-  const Topology& topology() const;
+  const Topology& topology() const override;
 
   const StripTopology& specificTopology() const;
 

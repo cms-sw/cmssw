@@ -2,6 +2,7 @@
 #define DataFormats_Provenance_Hash_h
 
 #include <string>
+#include <functional>
 
 /*----------------------------------------------------------------------
   
@@ -48,6 +49,9 @@ namespace edm {
 
     Hash(Hash<I> const&);
     Hash<I>& operator=(Hash<I> const& iRHS);
+    
+    Hash(Hash<I>&&) = default;
+    Hash<I>& operator=(Hash<I>&&) = default;
 
     void reset();
 

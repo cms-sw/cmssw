@@ -37,12 +37,12 @@ struct GreaterByVProb {
 class Onia2MuMuPAT : public edm::EDProducer {
  public:
   explicit Onia2MuMuPAT(const edm::ParameterSet&);
-  ~Onia2MuMuPAT();
+  ~Onia2MuMuPAT() override;
 
  private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   bool isAbHadron(int pdgID);
   bool isAMixedbHadron(int pdgID, int momPdgID);
   std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi);
@@ -53,6 +53,8 @@ class Onia2MuMuPAT : public edm::EDProducer {
   edm::EDGetTokenT<edm::View<pat::Muon>> muons_;
   edm::EDGetTokenT<reco::BeamSpot> thebeamspot_;
   edm::EDGetTokenT<reco::VertexCollection> thePVs_;
+  edm::EDGetTokenT<reco::TrackCollection> revtxtrks_;
+  edm::EDGetTokenT<reco::BeamSpot> revtxbs_;
   StringCutObjectSelector<pat::Muon> higherPuritySelection_;
   StringCutObjectSelector<pat::Muon> lowerPuritySelection_; 
   StringCutObjectSelector<reco::Candidate, true> dimuonSelection_;

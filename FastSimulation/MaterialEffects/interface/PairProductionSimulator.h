@@ -1,5 +1,5 @@
 #ifndef PAIRPRODUCTIONSIMULATOR_H
-#define FPAIRPRODUCTIONSIMULATOR_H
+#define PAIRPRODUCTIONSIMULATOR_H
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
 
@@ -29,7 +29,7 @@ class PairProductionSimulator : public MaterialEffectsSimulator
   PairProductionSimulator(double photonEnergyCut);
 
   /// Default Destructor
-  ~PairProductionSimulator() {}
+  ~PairProductionSimulator() override {}
 
  private:
 
@@ -37,9 +37,9 @@ class PairProductionSimulator : public MaterialEffectsSimulator
   double photonEnergy;
 
   /// Generate an e+e- pair according to the probability that it happens
-  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*);
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
 
   /// A universal angular distribution - still from GEANT.
   double gbteth(double ener,double partm,double efrac, RandomEngineAndDistribution const*);
 };
-#endif
+#endif // PAIRPRODUCTIONSIMULATOR

@@ -51,7 +51,7 @@ class Handle<FWGenericObject> {
 public:
       ///Throws exception if iName is not a known C++ class type
       Handle(std::string const& iName) : 
-        type_(edm::TypeWithDict::byName(iName)), prod_(), prov_(0) {
+        type_(edm::TypeWithDict::byName(iName)), prod_(), prov_(nullptr) {
            if(type_ == edm::TypeWithDict()) {
               Exception::throwThis(errors::NotFound,
                 "Handle<FWGenericObject> told to use uknown type '",
@@ -62,7 +62,7 @@ public:
    
    ///Throws exception if iType is invalid
    Handle(edm::TypeWithDict const& iType):
-      type_(iType), prod_(), prov_(0) {
+      type_(iType), prod_(), prov_(nullptr) {
          if(iType == edm::TypeWithDict()) {
             Exception::throwThis(errors::NotFound, "Handle<FWGenericObject> given an invalid edm::TypeWithDict");
          }
@@ -105,11 +105,11 @@ public:
    }
    
    bool isValid() const {
-      return prod_ && 0!= prov_;
+      return prod_ && nullptr!= prov_;
    }
 
    bool failedToGet() const {
-     return 0 != whyFailed_.get();
+     return nullptr != whyFailed_.get();
    }
    edm::ObjectWithDict const* product() const { 
      if(this->failedToGet()) { 
@@ -125,7 +125,7 @@ public:
    
    ProductID id() const {return prov_->productID();}
 
-   void clear() { prov_ = 0; whyFailed_.reset();}
+   void clear() { prov_ = nullptr; whyFailed_.reset();}
       
    void setWhyFailed(std::shared_ptr<cms::Exception> const& iWhyFailed) {
     whyFailed_=iWhyFailed;

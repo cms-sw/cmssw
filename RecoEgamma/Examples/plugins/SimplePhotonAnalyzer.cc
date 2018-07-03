@@ -65,7 +65,7 @@ SimplePhotonAnalyzer::beginJob() {
 //========================================================================
 
 
-  dbe_ = 0;
+  dbe_ = nullptr;
   dbe_ = edm::Service<DQMStore>().operator->();
 
 
@@ -171,7 +171,7 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   const reco::PhotonCollection photonCollection = *(photonHandle.product());
 
   Handle< HepMCProduct > hepProd ;
-  evt.getByLabel( mcProducer_.c_str(),  hepProd ) ;
+  evt.getByLabel( mcProducer_,  hepProd ) ;
   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
 
 
@@ -205,14 +205,14 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
     if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
 
     // single primary photons or photons from Higgs or RS Graviton
-    HepMC::GenParticle* mother = 0;
+    HepMC::GenParticle* mother = nullptr;
     if ( (*p)->production_vertex() )  {
       if ( (*p)->production_vertex()->particles_begin(HepMC::parents) !=
            (*p)->production_vertex()->particles_end(HepMC::parents))
 	mother = *((*p)->production_vertex()->particles_begin(HepMC::parents));
     }
-    if ( ((mother == 0) || ((mother != 0) && (mother->pdg_id() == 25))
-	  || ((mother != 0) && (mother->pdg_id() == 22)))) {
+    if ( ((mother == nullptr) || ((mother != nullptr) && (mother->pdg_id() == 25))
+	  || ((mother != nullptr) && (mother->pdg_id() == 22)))) {
 
       float minDelta=10000.;
       std::vector<reco::Photon> localPhotons;

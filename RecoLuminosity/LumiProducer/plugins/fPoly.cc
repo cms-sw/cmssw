@@ -6,10 +6,10 @@ namespace lumi{
   class fPoly:public NormFunctor{
   public:
     fPoly(){}
-    ~fPoly(){}
+    ~fPoly() override{}
     void initialize(const std::map< std::string , float >& coeffmap,
 		    const std::map< unsigned int, float >& afterglowmap);
-    virtual float getCorrection(float luminonorm,float intglumi,unsigned int nBXs)const override;
+    float getCorrection(float luminonorm,float intglumi,unsigned int nBXs)const override;
   };
 }//ns lumi
 

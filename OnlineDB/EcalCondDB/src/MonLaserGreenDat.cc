@@ -9,16 +9,16 @@ using namespace oracle::occi;
 
 MonLaserGreenDat::MonLaserGreenDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_apdMean = 0;
   m_apdRMS = 0;
   m_apdOverPNMean = 0;
   m_apdOverPNRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
   
 }
 
@@ -31,7 +31,7 @@ MonLaserGreenDat::~MonLaserGreenDat()
 
 
 void MonLaserGreenDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -42,14 +42,14 @@ void MonLaserGreenDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":apd_mean, :apd_rms, :apd_over_pn_mean, :apd_over_pn_rms, :task_status)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserGreenDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserGreenDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void MonLaserGreenDat::writeDB(const EcalLogicID* ecid, const MonLaserGreenDat* item, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -72,14 +72,14 @@ void MonLaserGreenDat::writeDB(const EcalLogicID* ecid, const MonLaserGreenDat* 
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserGreenDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserGreenDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void MonLaserGreenDat::fetchData(std::map< EcalLogicID, MonLaserGreenDat >* fillMap, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -105,12 +105,12 @@ void MonLaserGreenDat::fetchData(std::map< EcalLogicID, MonLaserGreenDat >* fill
     std::pair< EcalLogicID, MonLaserGreenDat > p;
     MonLaserGreenDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setAPDMean( rset->getFloat(7) );
       dat.setAPDRMS( rset->getFloat(8) );
@@ -123,12 +123,12 @@ void MonLaserGreenDat::fetchData(std::map< EcalLogicID, MonLaserGreenDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserGreenDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserGreenDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 void MonLaserGreenDat::writeArrayDB(const std::map< EcalLogicID, MonLaserGreenDat >* data, MonRunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -226,6 +226,6 @@ void MonLaserGreenDat::writeArrayDB(const std::map< EcalLogicID, MonLaserGreenDa
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonLaserGreenDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonLaserGreenDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

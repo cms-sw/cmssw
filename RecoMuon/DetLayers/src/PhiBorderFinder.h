@@ -17,6 +17,7 @@
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include <Utilities/General/interface/precomputed_value_sort.h>
 #include <TrackingTools/DetLayers/interface/simple_stat.h>
+#include <TrackingTools/DetLayers/interface/DetRod.h>
 #include <FWCore/Utilities/interface/Exception.h>
 
 // FIXME: remove this include
@@ -59,7 +60,7 @@ public:
 
       ConstReferenceCountingPointer<BoundPlane> plane = 
 	dynamic_cast<const BoundPlane*>(&theDets[i]->surface());
-      if (plane==0) {
+      if (plane==nullptr) {
 	//FIXME
 	throw cms::Exception("UnexpectedState") << ("PhiBorderFinder: det surface is not a BoundPlane");
       }

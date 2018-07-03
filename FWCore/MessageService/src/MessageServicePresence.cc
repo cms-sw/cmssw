@@ -52,7 +52,7 @@ MessageServicePresence::MessageServicePresence()
   , m_queue (new ThreadQueue)
   , m_scribeThread
          ( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
-            , std::bind(&runMessageLoggerScribe, m_queue)
+            , std::bind(&runMessageLoggerScribe, queue())
 	    			// start a new thread, run rMLS(m_queue)
 				// ChangeLog 2
           ) ) 
@@ -65,7 +65,7 @@ MessageServicePresence::MessageServicePresence()
 	  // first executing the before-the-comma statement. 
 {
   MessageLoggerQ::setMLscribe_ptr(
-    std::shared_ptr<edm::service::AbstractMLscribe>(std::make_shared<MainThreadMLscribe>(m_queue)));
+    std::shared_ptr<edm::service::AbstractMLscribe>(std::make_shared<MainThreadMLscribe>(queue())));
     								// change log 3
   //std::cout << "MessageServicePresence ctor\n";
 }

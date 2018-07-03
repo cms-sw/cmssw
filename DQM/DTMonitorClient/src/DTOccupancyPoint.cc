@@ -7,7 +7,7 @@
 
 #include "DTOccupancyPoint.h"
 
-#include <math.h>
+#include <cmath>
 
 
 

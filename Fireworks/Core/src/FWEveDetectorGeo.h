@@ -11,16 +11,16 @@ class FWEveDetectorGeo : public FWGeoTopNode
 {
 public:
    FWEveDetectorGeo(FWGeometryTableView* v); 
-   virtual ~FWEveDetectorGeo() {}
+   ~FWEveDetectorGeo() override {}
 
-   virtual void Paint(Option_t* option="");
+   void Paint(Option_t* option="") override;
 
-   virtual TString     GetHighlightTooltip();
+   TString     GetHighlightTooltip() override;
 
-   virtual FWGeometryTableManagerBase* tableManager();
-   virtual FWGeometryTableViewBase* browser();
+   FWGeometryTableManagerBase* tableManager() override;
+   FWGeometryTableViewBase* browser() override;
 
-   virtual void popupMenu(int x, int y, TGLViewer*);
+   void popupMenu(int x, int y, TGLViewer*) override;
    
 #ifndef __CINT__
   // virtual void paintShape(bool visLevel, FWGeometryTableManagerBase::NodeInfo& data,  Int_t tableIndex, const TGeoHMatrix& nm, bool volumeColor);
@@ -36,7 +36,7 @@ private:
    int m_maxLevel;
    bool m_filterOff;
 
-   ClassDef(FWEveDetectorGeo, 0);
+   ClassDefOverride(FWEveDetectorGeo, 0);
 };
 
 #endif

@@ -29,9 +29,9 @@ namespace edm {
 class PythiaFilterZgamma : public edm::EDFilter {
    public:
       explicit PythiaFilterZgamma(const edm::ParameterSet&);
-      ~PythiaFilterZgamma();
+      ~PythiaFilterZgamma() override;
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
 
    private:
       

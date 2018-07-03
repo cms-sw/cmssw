@@ -19,7 +19,6 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(True)
 )
 
@@ -30,14 +29,23 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
+
 process.load("PhysicsTools.PatAlgos.cleaningLayer1.cleanPatCandidates_cff")
+process.task.add(process.cleanPatCandidatesTask)
 process.cleanPatElectrons.checkOverlaps.muons.requireNoOverlaps = True
 process.cleanPatJets.checkOverlaps.muons.requireNoOverlaps     = True
 process.cleanPatJets.checkOverlaps.electrons.requireNoOverlaps = True
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
 
 ## configure mva trainer
 process.load("TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff")
@@ -47,4 +55,4 @@ from TopQuarkAnalysis.TopEventSelection.TtSemiLepSignalSelMVATrainTreeSaver_cff 
 process.looper = looper
 
 ## produce pat objects and ttGenEvt and make mva training
-process.p = cms.Path(process.saveTrainTree)
+process.p = cms.Path(process.saveTrainTree, process.task)

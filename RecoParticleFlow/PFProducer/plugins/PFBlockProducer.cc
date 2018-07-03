@@ -64,9 +64,6 @@ PFBlockProducer::produce(Event& iEvent,
     LogInfo("PFBlockProducer") << str.str()<<endl;
   }    
 
-  auto_ptr< reco::PFBlockCollection > 
-    pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
-  
-  iEvent.put(pOutputBlockCollection);
+  iEvent.put(std::move(pfBlockAlgo_.transferBlocks()));
     
 }

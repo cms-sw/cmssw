@@ -30,9 +30,9 @@ namespace pat {
     public:
 
       explicit PATSingleVertexSelector(const edm::ParameterSet & iConfig);
-      ~PATSingleVertexSelector();
+      ~PATSingleVertexSelector() override;
 
-      virtual bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      bool filter(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       enum Mode { First, NearestToCand, FromCand, FromBeamSpot };
@@ -41,7 +41,7 @@ namespace pat {
 
       Mode parseMode(const std::string &name) const;
       
-      std::auto_ptr<std::vector<reco::Vertex> >
+      std::unique_ptr<std::vector<reco::Vertex> >
         filter_(Mode mode, const edm::Event & iEvent, const edm::EventSetup & iSetup);
       bool hasMode_(Mode mode) const ;
       // configurables

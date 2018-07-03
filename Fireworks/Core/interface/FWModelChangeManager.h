@@ -55,9 +55,9 @@ public:
    void itemsGoingToBeClearedSlot(void);
 
 private:
-   FWModelChangeManager(const FWModelChangeManager&);    // stop default
+   FWModelChangeManager(const FWModelChangeManager&) = delete;    // stop default
 
-   const FWModelChangeManager& operator=(const FWModelChangeManager&);    // stop default
+   const FWModelChangeManager& operator=(const FWModelChangeManager&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    unsigned int m_depth;

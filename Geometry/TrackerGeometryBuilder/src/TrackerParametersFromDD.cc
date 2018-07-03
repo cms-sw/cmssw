@@ -2,7 +2,7 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 
 bool
 TrackerParametersFromDD::build( const DDCompactView* cvp,
@@ -32,5 +32,5 @@ TrackerParametersFromDD::putOne( int subdet, std::vector<int> & vpars, PTrackerP
   PTrackerParameters::Item item;
   item.id = subdet;
   item.vpars = vpars;
-  ptp.vitems.push_back( item );
+  ptp.vitems.emplace_back( item );
 }

@@ -17,6 +17,9 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
+#include "DataFormats/L1TGlobal/interface/GlobalLogicParser.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <string>
 #include <utility>
@@ -52,6 +55,7 @@ public:
 
   HLTConfigProvider const& hltConfigProvider() const { return hltConfigProvider_; }
   L1GtUtils const& l1GtUtils() const { return l1GtUtils_; }
+  l1t::L1TGlobalUtil const& l1tGlobalUtil() const { return l1tGlobalUtil_; }
 
   /// HLT prescale values via (L1) EventSetup
   /// current (default) prescale set index - to be taken from L1GtUtil via Event
@@ -73,11 +77,16 @@ public:
   std::pair<std::vector<std::pair<std::string,int> >,int> prescaleValuesInDetail(const edm::Event& iEvent,
                                                                                  const edm::EventSetup& iSetup,
                                                                                  const std::string& trigger);
+  // Event rejected by HLTPrescaler on ith HLT path?
+  bool rejectedByHLTPrescaler(const edm::TriggerResults& triggerResults, unsigned int i) const;
 
  private:
 
   HLTConfigProvider hltConfigProvider_;
   L1GtUtils l1GtUtils_;
+  l1t::L1TGlobalUtil l1tGlobalUtil_;
+  unsigned char count_[5] = {0,0,0,0,0};
+
 };
 
 template <typename T>
@@ -90,5 +99,5 @@ template <typename T>
 HLTPrescaleProvider::HLTPrescaleProvider(edm::ParameterSet const& pset,
                                          edm::ConsumesCollector& iC,
                                          T& module) :
-  l1GtUtils_(pset, iC, false, module) { }
+  l1GtUtils_(pset, iC, false, module), l1tGlobalUtil_(pset, iC, module) { }
 #endif

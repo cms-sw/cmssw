@@ -14,7 +14,7 @@ class DCCTBTrailerBlock : public DCCTBBlockPrototype {
 		
 		DCCTBTrailerBlock(
 			DCCTBDataParser * parser, 
-			uint32_t * buffer, 
+			const uint32_t * buffer, 
 			uint32_t numbBytes,
 			uint32_t wToEnd, 
 			uint32_t wordEventOffset,

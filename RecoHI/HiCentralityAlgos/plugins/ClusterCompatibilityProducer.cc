@@ -38,9 +38,9 @@ class ClusterCompatibilityProducer : public edm::stream::EDProducer<> {
 
   public:
     explicit ClusterCompatibilityProducer(const edm::ParameterSet&);
-    ~ClusterCompatibilityProducer();
+    ~ClusterCompatibilityProducer() override;
 
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
 
@@ -84,7 +84,7 @@ ClusterCompatibilityProducer::~ClusterCompatibilityProducer() {}
 void
 ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<reco::ClusterCompatibility> creco(new reco::ClusterCompatibility());
+  auto creco = std::make_unique<reco::ClusterCompatibility>();
 
   // get hold of products from Event
   edm::Handle<SiPixelRecHitCollection> hRecHits;
@@ -145,7 +145,7 @@ ClusterCompatibilityProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     }
 
   }
-  iEvent.put(creco);
+  iEvent.put(std::move(creco));
 
 }
 

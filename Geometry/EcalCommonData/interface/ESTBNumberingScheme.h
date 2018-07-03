@@ -8,8 +8,8 @@ class ESTBNumberingScheme : public EcalNumberingScheme {
 public:
 
   ESTBNumberingScheme();
-  ~ESTBNumberingScheme();
-  virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const ;
+  ~ESTBNumberingScheme() override;
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
 
 private:
 

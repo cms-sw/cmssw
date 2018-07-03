@@ -49,15 +49,15 @@ bool TTULogicUnit::initialise()
   status = m_logtool->initialise();
   if ( !status ) { 
     if( m_debug ) std::cout << "TTULogicUnit> Problem initialising LogicTool \n"; 
-    return 0; };
+    return false; };
 
   m_logic  = dynamic_cast<TTULogic*> ( m_logtool->retrieve(m_logtype) );
   
   if ( ! m_logic ) { 
     if( m_debug ) std::cout << "TTULogicUnit> No logic found \n"; 
-    return 0; };
+    return false; };
   
-  return 1;
+  return true;
   
 }
 

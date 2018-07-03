@@ -8,38 +8,31 @@ from TkAlExceptions import AllInOneError
 
 
 class MonteCarloValidation(GenericValidationData):
-    def __init__(self, valName, alignment, config,
-                 configBaseName = "TkAlMcValidate", scriptBaseName = "TkAlMcValidate", crabCfgBaseName = "TkAlMcValidate",
-                 resultBaseName = "McValidation", outputBaseName = "McValidation"):
-        self.configBaseName = configBaseName
-        self.scriptBaseName = scriptBaseName
-        self.crabCfgBaseName = crabCfgBaseName
-        self.resultBaseName = resultBaseName
-        self.outputBaseName = outputBaseName
-        self.needParentFiles = True
-        GenericValidationData.__init__(self, valName, alignment, config,
-                                       "mcValidate")
+    configBaseName = "TkAlMcValidate"
+    scriptBaseName = "TkAlMcValidate"
+    crabCfgBaseName = "TkAlMcValidate"
+    resultBaseName = "McValidation"
+    outputBaseName = "McValidation"
+    needParentFiles = True
+    valType = "mcValidate"
+    def __init__(self, valName, alignment, config):
+        super(MonteCarloValidation, self).__init__(valName, alignment, config)
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the MC validation!\n"
                                 "Please set parallelJobs = 1.")
 
-    def createConfiguration(self, path ):
-        cfgName = "%s.%s.%s_cfg.py"%(self.configBaseName, self.name,
-                                     self.alignmentToValidate.name)
-        repMap = self.getRepMap()
-        cfgs = {cfgName: configTemplates.mcValidateTemplate}
-        self.filesToCompare[GenericValidationData.defaultReferenceName] = \
-            repMap["finalResultFile"]
-        GenericValidationData.createConfiguration(self, cfgs, path, repMap = repMap)
+    @property
+    def cfgTemplate(self):
+        return configTemplates.mcValidateTemplate
 
     def createScript(self, path):
-        return GenericValidationData.createScript(self, path)
+        return super(MonteCarloValidation, self).createScript(path)
 
     def createCrabCfg(self, path):
-        return GenericValidationData.createCrabCfg(self, path, self.crabCfgBaseName)
+        return super(MonteCarloValidation, self).createCrabCfg(path, self.crabCfgBaseName)
 
     def getRepMap( self, alignment = None ):
-        repMap = GenericValidationData.getRepMap(self, alignment)
+        repMap = super(MonteCarloValidation, self).getRepMap(alignment)
         repMap.update({
             "nEvents": self.general["maxevents"]
             })

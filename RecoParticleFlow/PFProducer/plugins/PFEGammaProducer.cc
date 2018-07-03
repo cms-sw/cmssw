@@ -17,6 +17,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
+#include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
+#include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
+#include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESChannelStatus.h"
+
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <sstream>
 
@@ -74,9 +79,8 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   calibPFSCEle_Fbrem_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_Fbrem_endcap");
   calibPFSCEle_barrel = iConfig.getParameter<std::vector<double> >("calibPFSCEle_barrel");
   calibPFSCEle_endcap = iConfig.getParameter<std::vector<double> >("calibPFSCEle_endcap");
-  std::shared_ptr<PFSCEnergyCalibration>  
-    thePFSCEnergyCalibration ( new PFSCEnergyCalibration(calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
-                                                         calibPFSCEle_barrel,calibPFSCEle_endcap )); 
+  algo_config.thePFSCEnergyCalibration.reset( new PFSCEnergyCalibration( calibPFSCEle_Fbrem_barrel,calibPFSCEle_Fbrem_endcap,
+									 calibPFSCEle_barrel,calibPFSCEle_endcap ) ); 
                                
   algo_config.useEGammaSupercluster = 
     iConfig.getParameter<bool>("useEGammaSupercluster");
@@ -164,7 +168,7 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   useCalibrationsFromDB_
     = iConfig.getParameter<bool>("useCalibrationsFromDB");    
 
-  std::shared_ptr<PFEnergyCalibration> calibration(new PFEnergyCalibration()); 
+  algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
   int algoType 
     = iConfig.getParameter<unsigned>("algoType");
@@ -244,14 +248,23 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   
 
   // reset output collection  
-  egCandidates_.reset( new reco::PFCandidateCollection );   
-  egExtra_.reset( new reco::PFCandidateEGammaExtraCollection ); 
-  sClusters_.reset( new reco::SuperClusterCollection );      
+  egCandidates_ = std::make_unique<reco::PFCandidateCollection>();
+  egExtra_ = std::make_unique<reco::PFCandidateEGammaExtraCollection>();
+  sClusters_ = std::make_unique<reco::SuperClusterCollection>();
     
   // Get the EE-PS associations
   edm::Handle<reco::PFCluster::EEtoPSAssociation> eetops;
   iEvent.getByToken(eetopsSrc_,eetops);
   pfeg_->setEEtoPSAssociation(eetops);
+
+  // preshower conditions                                                                                                                    
+  edm::ESHandle<ESEEIntercalibConstants> esEEInterCalibHandle_;
+  iSetup.get<ESEEIntercalibConstantsRcd>().get(esEEInterCalibHandle_);
+  pfeg_->setAlphaGamma_ESplanes_fromDB(esEEInterCalibHandle_.product());
+
+  edm::ESHandle<ESChannelStatus> esChannelStatusHandle_;
+  iSetup.get<ESChannelStatusRcd>().get(esChannelStatusHandle_);
+  pfeg_->setESChannelStatus(esChannelStatusHandle_.product());
 
   // Get The vertices from the event
   // and assign dynamic vertex parameters
@@ -364,7 +377,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     
     pfeg_->RunPFEG(globalCache(),blockref,active);
 
-    if( pfeg_->getCandidates().size() ) {
+    if( !pfeg_->getCandidates().empty() ) {
       LOGDRESSED("PFEGammaProducer")
       << "Block with " << elements.size() 
       << " elements produced " 
@@ -422,8 +435,8 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
   
   //build collections of output CaloClusters from the used PFClusters
-  std::auto_ptr<reco::CaloClusterCollection> caloClustersEBEE(new reco::CaloClusterCollection);
-  std::auto_ptr<reco::CaloClusterCollection> caloClustersES(new reco::CaloClusterCollection);
+  auto caloClustersEBEE = std::make_unique<reco::CaloClusterCollection>();
+  auto caloClustersES = std::make_unique<reco::CaloClusterCollection>();
   
   std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapEBEE; //maps of pfclusters to caloclusters 
   std::map<edm::Ptr<reco::CaloCluster>, unsigned int> pfClusterMapES;  
@@ -456,8 +469,8 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   }
   
   //put calocluster output collections in event and get orphan handles to create ptrs
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(caloClustersEBEE,ebeeClustersCollection_);
-  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(caloClustersES,esClustersCollection_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleEBEE = iEvent.put(std::move(caloClustersEBEE),ebeeClustersCollection_);
+  const edm::OrphanHandle<reco::CaloClusterCollection> &caloClusHandleES = iEvent.put(std::move(caloClustersES),esClustersCollection_);
   
   //relink superclusters to output caloclusters
   for( auto& sc : *sClusters_ ) {
@@ -481,14 +494,14 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   
   //create and fill references to single leg conversions
   edm::RefProd<reco::ConversionCollection> convProd = iEvent.getRefBeforePut<reco::ConversionCollection>();
-  singleLegConv_.reset(new reco::ConversionCollection);  
+  singleLegConv_ = std::make_unique<reco::ConversionCollection>();  
   createSingleLegConversions(*egExtra_, *singleLegConv_, convProd);
   
   // release our demonspawn into the wild to cause havoc
-  iEvent.put(sClusters_);
-  iEvent.put(egExtra_);  
-  iEvent.put(singleLegConv_);
-  iEvent.put(egCandidates_); 
+  iEvent.put(std::move(sClusters_));
+  iEvent.put(std::move(egExtra_));
+  iEvent.put(std::move(singleLegConv_));
+  iEvent.put(std::move(egCandidates_));
 }
 
 //PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 

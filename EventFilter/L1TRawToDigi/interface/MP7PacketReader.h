@@ -5,8 +5,8 @@
  * Created on August 22, 2014, 6:26 PM
  */
 
-#ifndef MP7PacketReader_h
-#define	MP7PacketReader_h
+#ifndef EventFilter_L1TRawToDigi_MP7PacketReader_h
+#define EventFilter_L1TRawToDigi_MP7PacketReader_h
 
 #include "EventFilter/L1TRawToDigi/interface/MP7FileReader.h"
 
@@ -47,7 +47,7 @@ class MP7PacketReader {
 public:
     typedef std::vector<PacketData>::const_iterator const_iterator;
         
-    MP7PacketReader( const std::string& path, uint32_t striphdr = 0, uint32_t stripftr = 0);
+    MP7PacketReader( const std::string& path, uint32_t striphdr = 0, uint32_t stripftr = 0, uint32_t ikey = 0);
 
     //    MP7PacketReader( MP7FileReader rdr, uint32_t striphdr = 0, uint32_t stripftr = 0);
 
@@ -72,6 +72,7 @@ private:
     MP7FileReader reader_;
     uint32_t header_;
     uint32_t footer_;
+    uint32_t ikey_;
 };
 
 #endif	/* TMTREADER_H */

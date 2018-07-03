@@ -10,7 +10,7 @@ import matplotlib
 from RecoLuminosity.LumiDB import CommonUtil,lumiTime,csvReporter
 
 batchonly=False
-if not os.environ.has_key('DISPLAY') or not os.environ['DISPLAY']:
+if 'DISPLAY' not in os.environ or not os.environ['DISPLAY']:
     batchonly=True
     matplotlib.use('Agg',warn=False)
 else:
@@ -163,8 +163,7 @@ class matplotRender():
         ax.xaxis.set_minor_locator(minorLocator)
         ax.set_xbound(lower=xpoints[0],upper=xpoints[-1])
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
         head=['#Run']
@@ -172,7 +171,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
@@ -184,7 +183,7 @@ class matplotRender():
             csvreport.writeRow(head)
             allruns=[int(t[0]) for t in rawdata[referenceLabel]]
             flat.insert(0,allruns)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
             csvreport.writeRow(textsummaryline)
@@ -261,8 +260,7 @@ class matplotRender():
         ax.xaxis.set_major_formatter(majorFormatter)
         #ax.xaxis.set_minor_locator(minorLocator)
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
         head=['#fill','run']        
@@ -270,7 +268,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
@@ -283,7 +281,7 @@ class matplotRender():
             allruns=[int(t[1]) for t in rawdata[referenceLabel]]
             flat.insert(0,allfills)
             flat.insert(1,allruns)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRow(head)
             csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
@@ -375,8 +373,7 @@ class matplotRender():
         for tx in xticklabels:
             tx.set_horizontalalignment('left')
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         keylist.insert(0,keylist.pop(keylist.index(referenceLabel)))#move refereceLabel to front from now on
         legendlist=[]
         head=['#Run','StartTime','StopTime']
@@ -384,7 +381,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(xpoints))]
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' '+'%.3f'%(ytotal[ylabel])+' '+unitstring)
@@ -400,7 +397,7 @@ class matplotRender():
             flat.insert(0,allruns)
             flat.insert(1,allstarts)
             flat.insert(2,allstops)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
             csvreport.writeRow(textsummaryhead)
             csvreport.writeRow(textsummaryline)
@@ -509,7 +506,7 @@ class matplotRender():
             flat.insert(1,allstarts)
             flat.insert(2,allstops)
             flat.append(alldates)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
         yearStrMin=minTime.strftime('%Y')
         yearStrMax=maxTime.strftime('%Y')
@@ -540,7 +537,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(alldays))]
         for ylabel in labels:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label=ylabel,color=cl,drawstyle='steps')
             legendlist.append(ylabel+' Max '+'%.3f'%(ymax[ylabel])+' '+unitstring)
@@ -621,8 +618,7 @@ class matplotRender():
         MaxDay=maxTime.date().toordinal()
         fulldays=range(MinDay,MaxDay+1)
         for label in rawdata.keys():
-            yvalues=rawdata[label]
-            yvalues.sort()#sort by day
+            yvalues=sorted(rawdata[label])
             alldays=[t[0] for t in yvalues]
             alldates=[str(datetime.date.fromordinal(t)) for t in alldays]
             ypoints[label]=[]
@@ -654,7 +650,7 @@ class matplotRender():
             flat.insert(1,allruns)
             flat.insert(2,allls)
             flat.append(alldates)
-            rows=zip(*flat)
+            rows=list(zip(*flat))
             csvreport.writeRows([list(t) for t in rows])
             
         yearStrMin=minTime.strftime('%Y')
@@ -686,7 +682,7 @@ class matplotRender():
         textsummaryline=['#'+str(len(alldays))]
         for ylabel in labels:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],label='Max Inst',color=cl,drawstyle='steps')
             legendlist.append('Max Inst %.3f'%(ymax[ylabel])+' '+unitstring)
@@ -769,13 +765,12 @@ class matplotRender():
         for tx in xticklabels:
             tx.set_horizontalalignment('right')
         ax.grid(True)
-        keylist=ypoints.keys()
-        keylist.sort()
+        keylist=sorted(ypoints.keys())
         legendlist=[]
 
         for ylabel in keylist:
             cl='k'
-            if self.colormap.has_key(ylabel):
+            if ylabel in self.colormap:
                 cl=self.colormap[ylabel]
             ax.plot(xpoints,ypoints[ylabel],'.',label=ylabel,color=cl)
             legendlist.append(ylabel)      

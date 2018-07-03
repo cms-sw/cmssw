@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 DCULVRVoltagesDat::DCULVRVoltagesDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_vfe1_A = 0;
   m_vfe2_A = 0;
@@ -42,7 +42,7 @@ DCULVRVoltagesDat::~DCULVRVoltagesDat()
 
 
 void DCULVRVoltagesDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -53,14 +53,14 @@ void DCULVRVoltagesDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRVoltagesDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRVoltagesDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void DCULVRVoltagesDat::writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat* item, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -93,14 +93,14 @@ void DCULVRVoltagesDat::writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRVoltagesDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRVoltagesDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fillMap, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -125,12 +125,12 @@ void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fi
     std::pair< EcalLogicID, DCULVRVoltagesDat > p;
     DCULVRVoltagesDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setVFE1_A( rset->getFloat(7) );
       dat.setVFE2_A( rset->getFloat(8) );
@@ -152,11 +152,11 @@ void DCULVRVoltagesDat::fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fi
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRVoltagesDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRVoltagesDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltagesDat >* data, DCUIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -327,6 +327,6 @@ void DCULVRVoltagesDat::writeArrayDB(const std::map< EcalLogicID, DCULVRVoltages
     delete [] h_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("DCULVRVoltagesDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("DCULVRVoltagesDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

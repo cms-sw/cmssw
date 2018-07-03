@@ -29,9 +29,9 @@ class HLTRFilter : public HLTFilter {
    public:
 
       explicit HLTRFilter(const edm::ParameterSet&);
-      ~HLTRFilter();
+      ~HLTRFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
       static double CalcMR(TLorentzVector ja,TLorentzVector jb);
       static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<edm::View<reco::MET> > met, const std::vector<math::XYZTLorentzVector>& muons);

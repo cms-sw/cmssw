@@ -1,0 +1,30 @@
+PROGRAMS = write_HBHENegativeEFilter.cc
+
+OFILES = HcalDetId.o PiecewiseScalingPolynomial.o HBHENegativeEFilter.o \
+         make_HBHENegativeEFilter.o templateInstantiations.o
+
+BOOST_LIB = /usr/local/lib
+BOOST_INC = /usr/local/include
+
+OPTIMIZE = -std=c++11 -g
+INCLUDES = -I. -I$(BOOST_INC) -I/usr/local/include
+CXXFLAGS = $(OPTIMIZE) $(INCLUDES) -fPIC -Wall -W -Werror
+LINKFLAGS = $(OPTIMIZE) -fPIC
+
+LIBS = -L$(BOOST_LIB) -lboost_serialization -L/usr/lib -ldl -lm
+
+%.o : %.cc
+	g++ -c $(CXXFLAGS) -MD $< -o $@
+	@sed -i 's,\($*\.o\)[:]*\(.*\),$@: $$\(wildcard\2\)\n\1:\2,g' $*.d
+
+BINARIES = $(PROGRAMS:.cc=)
+
+all: $(BINARIES)
+
+$(BINARIES): % : %.o $(OFILES); g++ $(LINKFLAGS) -o $@ $^ $(LIBS)
+
+clean:
+	rm -f $(BINARIES) core.* *.o *.d *~
+
+-include $(OFILES:.o=.d)
+-include $(PROGRAMS:.cc=.d)

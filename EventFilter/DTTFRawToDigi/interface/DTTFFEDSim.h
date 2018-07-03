@@ -20,13 +20,13 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
 
-#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/Framework/interface/stream/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 
 #include <string>
 
-class DTTFFEDSim : public edm::EDProducer {
+class DTTFFEDSim : public edm::stream::EDProducer<> {
 
  public:
 
@@ -34,10 +34,10 @@ class DTTFFEDSim : public edm::EDProducer {
   DTTFFEDSim(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTFFEDSim();
+  ~DTTFFEDSim() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e,
@@ -58,8 +58,6 @@ class DTTFFEDSim : public edm::EDProducer {
   int sector(int channel);
 
   int wheel(int channel);
-
-  void calcCRC(int myD1, int myD2, int &myC);
 
   edm::InputTag getDTDigiInputTag() { return DTDigiInputTag; }
   edm::InputTag getDTPHTFInputTag() { return DTPHTFInputTag; }

@@ -57,7 +57,7 @@ TFileService::~TFileService() {
 void TFileService::setDirectoryName(const edm::ModuleDescription & desc) {
   tFileDirectory_.file_ = file_;
   tFileDirectory_.dir_ = desc.moduleLabel();
-  tFileDirectory_.descr_ = (tFileDirectory_.dir_ + " (" + desc.moduleName() + ") folder").c_str();
+  tFileDirectory_.descr_ = tFileDirectory_.dir_ + " (" + desc.moduleName() + ") folder";
 }
 
 void TFileService::preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
@@ -88,9 +88,18 @@ void TFileService::afterBeginJob() {
 
   if(!fileName_.empty())  {
     if(!fileNameRecorded_) {
-      std::string fullName;
-      fullName.reserve(1024);
-      fullName = getcwd(&fullName[0],1024);
+      std::string fullName(1024, '\0');
+
+      while (getcwd(&fullName[0], fullName.size()) == nullptr) {
+	 if (errno != ERANGE) {
+	    throw cms::Exception("TFileService")
+	       << "Failed to get current directory (errno=" << errno 
+	       << "): " << strerror(errno);
+	 }
+	 fullName.resize(fullName.size()*2, '\0');
+      }   
+      fullName.resize(fullName.find('\0'));
+
       fullName += "/" + fileName_;
 
       std::map<std::string, std::string> fileData;

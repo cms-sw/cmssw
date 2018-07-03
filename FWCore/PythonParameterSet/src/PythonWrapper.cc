@@ -6,7 +6,7 @@ namespace edm {
 void pythonToCppException(const std::string& iType)
  {
   using namespace boost::python;
-  PyObject *exc=NULL, *val=NULL, *trace=NULL;
+  PyObject *exc=nullptr, *val=nullptr, *trace=nullptr;
   PyErr_Fetch(&exc,&val,&trace);
   PyErr_NormalizeException(&exc,&val,&trace);
   handle<> hExc(allow_null(exc));

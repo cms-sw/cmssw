@@ -63,8 +63,7 @@ def ReadNewList(newlist):
 if __name__=="__main__":
     defaultList=hcalLaserEventFilter.BadRunEventNumbers
     defaultDict=MakePair(defaultList)
-    keys=defaultDict.keys()
-    keys.sort()
+    keys=sorted(defaultDict.keys())
     if len(sys.argv)==1:
         print "Default bad (run,events) are:"
         for i in keys:

@@ -77,7 +77,7 @@ TH1F* CombinedHisto(TFile& ff, const char* module, const char* histname) {
   
   CommonAnalyzer castat(&ff,"",module);
   
-  TH1F* result = 0;
+  TH1F* result = nullptr;
   
   std::vector<unsigned int> runs = castat.getRunList();
   std::sort(runs.begin(),runs.end());
@@ -94,7 +94,7 @@ TH1F* CombinedHisto(TFile& ff, const char* module, const char* histname) {
       TH1F* hist = (TH1F*)castat.getObject(histname);
       
       if(hist) {
-	if(result==0) {
+	if(result==nullptr) {
 	  result = new TH1F(*hist);
 	  result->Reset();
 	}
@@ -122,13 +122,13 @@ TH1F* TimeRatio(TFile& ff, const char* modulen, const char* moduled, const int i
   castatn.setPath(runpath);
   castatd.setPath(runpath);
   
-  TH1F* ratio = 0;
+  TH1F* ratio = nullptr;
   
-  TH1F* orbitn=0;
-  if(orbitn==0) orbitn = (TH1F*)castatn.getObject("orbit");
-  TH1F* orbitd=0;
-  if(orbitd==0) orbitd = (TH1F*)castatd.getObject("orbit");
-  if(orbitn != 0 && orbitd != 0) {
+  TH1F* orbitn=nullptr;
+  if(orbitn==nullptr) orbitn = (TH1F*)castatn.getObject("orbit");
+  TH1F* orbitd=nullptr;
+  if(orbitd==nullptr) orbitd = (TH1F*)castatd.getObject("orbit");
+  if(orbitn != nullptr && orbitd != nullptr) {
     orbitn->Rebin(rebin);
     orbitd->Rebin(rebin);
     ratio = new TH1F(*orbitd);
@@ -159,8 +159,8 @@ TH1D* SummaryHisto(TFile& ff, const char* module) {
       castat.setPath(runpath);
       
       
-      TH1F* orbit=0;
-      if(orbit==0) orbit = (TH1F*)castat.getObject("orbit");
+      TH1F* orbit=nullptr;
+      if(orbit==nullptr) orbit = (TH1F*)castat.getObject("orbit");
       if(orbit) {
 	// fill the summary
 	nevents->Fill(runlabel,orbit->GetEntries());
@@ -180,7 +180,7 @@ TH1D* SummaryHistoRatio(TFile& f1, const char* mod1, TFile& f2, const char* mod2
   ratio->SetTitle("Fraction of events vs run");
   ratio->Sumw2();
   ratio->Reset();
-  ratio->SetDirectory(0);
+  ratio->SetDirectory(nullptr);
   ratio->Divide(numer,denom,1,1,"b");
 
   return ratio;
@@ -204,7 +204,7 @@ TH2F* Combined2DHisto(TFile& ff, const char* module, const char* histname) {
   
   CommonAnalyzer castat(&ff,"",module);
   
-  TH2F* result = 0;
+  TH2F* result = nullptr;
   
   std::vector<unsigned int> runs = castat.getRunList();
   std::sort(runs.begin(),runs.end());
@@ -221,7 +221,7 @@ TH2F* Combined2DHisto(TFile& ff, const char* module, const char* histname) {
       TH2F* hist = (TH2F*)castat.getObject(histname);
       
       if(hist) {
-	if(result==0) {
+	if(result==nullptr) {
 	  result = new TH2F(*hist);
 	  result->Reset();
 	}
@@ -295,9 +295,9 @@ void StatisticsPlots(const char* fullname, const char* module, const char* label
       sprintf(runpath,"run_%d",runs[i]);
       castat.setPath(runpath);
 
-      TH1* orbit=0;
+      TH1* orbit=nullptr;
       TH2F* orbitvsbx = (TH2F*)castat.getObject("orbitvsbxincycle");
-      if(orbitvsbx==0) orbitvsbx = (TH2F*)castat.getObject("orbitvsbx");
+      if(orbitvsbx==nullptr) orbitvsbx = (TH2F*)castat.getObject("orbitvsbx");
       if (orbitvsbx) {
 	std::cout << runpath << " " << orbitvsbx->GetEntries() << std::endl;
 	// prepare plot
@@ -307,7 +307,7 @@ void StatisticsPlots(const char* fullname, const char* module, const char* label
 	}
 	delete orbitvsbx;
       }
-      if(orbit==0) orbit = (TH1F*)castat.getObject("orbit");
+      if(orbit==nullptr) orbit = (TH1F*)castat.getObject("orbit");
       if(orbit) {
 	orbit->GetXaxis()->SetTitle("orbit");
 	orbit->SetTitle(runpath);
@@ -379,7 +379,7 @@ void StatisticsPlots(const char* fullname, const char* module, const char* label
     }
   }
 
-  if(runs.size()) {
+  if(!runs.empty()) {
     std::string plotfilename;
     plotfilename = outtrunk;
     plotfilename += dirname;

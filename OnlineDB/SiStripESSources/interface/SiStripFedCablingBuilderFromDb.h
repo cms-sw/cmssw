@@ -22,12 +22,12 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, publi
   // -------------------- Constructors, destructors --------------------
 
   SiStripFedCablingBuilderFromDb( const edm::ParameterSet& );
-  virtual ~SiStripFedCablingBuilderFromDb(); 
+  ~SiStripFedCablingBuilderFromDb() override; 
 
   // -------------------- Methods to build FED cabling --------------------
   
   /** Builds FED cabling using info from configuration database. */
-  virtual SiStripFedCabling* make( const SiStripFedCablingRcd& ); 
+  SiStripFedCabling* make( const SiStripFedCablingRcd& ) override; 
   
   // -------------------- Convert b/w FED and FEC cabling --------------------
   
@@ -77,9 +77,9 @@ class SiStripFedCablingBuilderFromDb : public SiStripFedCablingESProducer, publi
  protected:
   
   /** */
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
   /** */
   static void assignDcuAndDetIds( SiStripFecCabling&,

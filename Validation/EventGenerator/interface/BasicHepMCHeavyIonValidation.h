@@ -34,10 +34,10 @@
 class BasicHepMCHeavyIonValidation : public DQMEDAnalyzer {
 	public:
 		explicit BasicHepMCHeavyIonValidation(const edm::ParameterSet&);
-		virtual ~BasicHepMCHeavyIonValidation();
+		~BasicHepMCHeavyIonValidation() override;
 
-		virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-		virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
+		void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
+		void analyze(edm::Event const&, edm::EventSetup const&) override;
 
 	private:
 		WeightManager wmanager_;

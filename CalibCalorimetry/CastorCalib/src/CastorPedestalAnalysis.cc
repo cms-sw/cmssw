@@ -8,36 +8,36 @@
 
 #include "CalibCalorimetry/CastorCalib/interface/CastorPedestalAnalysis.h"
 #include <TFile.h>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
 CastorPedestalAnalysis::CastorPedestalAnalysis(const edm::ParameterSet& ps)
-  : fRefPedestals (0),
-    fRefPedestalWidths (0),
-    fRawPedestals (0),
-    fRawPedestalWidths (0),
-    fValPedestals (0),
-    fValPedestalWidths (0)
+  : fRefPedestals (nullptr),
+    fRefPedestalWidths (nullptr),
+    fRawPedestals (nullptr),
+    fRawPedestalWidths (nullptr),
+    fValPedestals (nullptr),
+    fValPedestalWidths (nullptr)
 {
   evt=0;
   sample=0;
-  m_file=0;
+  m_file=nullptr;
   m_AllPedsOK=0;
   for(int i=0; i<4; i++) m_stat[i]=0;
   for(int k=0;k<4;k++) state.push_back(true);
 
 // user cfg parameters
   m_outputFileMean = ps.getUntrackedParameter<string>("outputFileMeans", "");
-  if ( m_outputFileMean.size() != 0 ) {
+  if ( !m_outputFileMean.empty() ) {
     cout << "Castor pedestal means will be saved to " << m_outputFileMean.c_str() << endl;
   } 
   m_outputFileWidth = ps.getUntrackedParameter<string>("outputFileWidths", "");
-  if ( m_outputFileWidth.size() != 0 ) {
+  if ( !m_outputFileWidth.empty() ) {
     cout << "Castor pedestal widths will be saved to " << m_outputFileWidth.c_str() << endl;
   } 
   m_outputFileROOT = ps.getUntrackedParameter<string>("outputFileHist", "");
-  if ( m_outputFileROOT.size() != 0 ) {
+  if ( !m_outputFileROOT.empty() ) {
     cout << "Castor pedestal histograms will be saved to " << m_outputFileROOT.c_str() << endl;
   } 
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",0);
@@ -102,8 +102,8 @@ void CastorPedestalAnalysis::processEvent(const CastorDigiCollection& castor,
   m_shape = cond.getCastorShape();
   // HF
   try{
-    if(!castor.size()) throw (int)castor.size();
-    for (CastorDigiCollection::const_iterator j=castor.begin(); j!=castor.end(); j++){
+    if(castor.empty()) throw (int)castor.size();
+    for (CastorDigiCollection::const_iterator j=castor.begin(); j!=castor.end(); ++j){
       const CastorDataFrame digi = (const CastorDataFrame)(*j);
       m_coder = cond.getCastorCoder(digi.id());
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
@@ -522,12 +522,12 @@ void CastorPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       // Pedestal mean - put content and errors
       int j=0;
       for(sample_it=_meot->second[i].second.first[0].begin();
-          sample_it!=_meot->second[i].second.first[0].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[0].end();++sample_it){
         _meot->second[i].second.second[0]->SetBinContent(++j,*sample_it);
       }
       j=0;
       for(sample_it=_meot->second[i].second.first[1].begin();
-          sample_it!=_meot->second[i].second.first[1].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[1].end();++sample_it){
         _meot->second[i].second.second[0]->SetBinError(++j,*sample_it);
       }
       // fit with a constant - extract parameters
@@ -546,12 +546,12 @@ void CastorPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       // Pedestal width - put content and errors
       j=0;
       for(sample_it=_meot->second[i].second.first[2].begin();
-          sample_it!=_meot->second[i].second.first[2].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[2].end();++sample_it){
         _meot->second[i].second.second[1]->SetBinContent(++j,*sample_it);
       }
       j=0;
       for(sample_it=_meot->second[i].second.first[3].begin();
-          sample_it!=_meot->second[i].second.first[3].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[3].end();++sample_it){
         _meot->second[i].second.second[1]->SetBinError(++j,*sample_it);
       }
       _meot->second[i].second.second[1]->GetXaxis()->SetTitle(name);
@@ -560,12 +560,12 @@ void CastorPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       // Correlation coeffs - put contents and errors
       j=0;
       for(sample_it=_meot->second[i].second.first[5].begin();
-          sample_it!=_meot->second[i].second.first[5].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[5].end();++sample_it){
         _meot->second[i].second.second[2]->SetBinContent(++j,*sample_it);
       }
       j=0;
       for(sample_it=_meot->second[i].second.first[6].begin();
-          sample_it!=_meot->second[i].second.first[6].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[6].end();++sample_it){
         _meot->second[i].second.second[2]->SetBinError(++j,*sample_it);
       }
       _meot->second[i].second.second[2]->GetXaxis()->SetTitle(name);
@@ -600,7 +600,7 @@ void CastorPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       // chi2
       j=0;
       for(sample_it=_meot->second[i].second.first[4].begin();
-          sample_it!=_meot->second[i].second.first[4].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[4].end();++sample_it){
         Chi2->Fill(*sample_it);
       }
     }
@@ -611,12 +611,12 @@ void CastorPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT
   std::vector<double>::iterator sample_it;
   int j=0;
   for(sample_it=AverageValues[0].begin();
-      sample_it!=AverageValues[0].end();sample_it++){
+      sample_it!=AverageValues[0].end();++sample_it){
     CapidAverage->SetBinContent(++j,*sample_it);
   }
   j=0;
   for(sample_it=AverageValues[1].begin();
-      sample_it!=AverageValues[1].end();sample_it++){
+      sample_it!=AverageValues[1].end();++sample_it){
     CapidAverage->SetBinError(++j,*sample_it);
   }
   CapidChi2= new TH1F("Constant fit: Chi2/ndf",
@@ -624,7 +624,7 @@ void CastorPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT
                       AverageValues[2].size(),0.,AverageValues[2].size());
   j=0;
   for(sample_it=AverageValues[2].begin();
-      sample_it!=AverageValues[2].end();sample_it++){
+      sample_it!=AverageValues[2].end();++sample_it){
     CapidChi2->SetBinContent(++j,*sample_it);
     //CapidChi2->SetBinError(++j,0);
   }

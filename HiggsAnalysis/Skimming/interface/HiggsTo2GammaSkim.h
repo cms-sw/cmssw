@@ -31,10 +31,10 @@ class HiggsTo2GammaSkim : public edm::EDFilter {
   explicit HiggsTo2GammaSkim(const edm::ParameterSet&);
 
   // Destructor
-  ~HiggsTo2GammaSkim();
+  ~HiggsTo2GammaSkim() override;
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool filter(edm::Event&, const edm::EventSetup& );
+  bool filter(edm::Event&, const edm::EventSetup& ) override;
 
 
  private:

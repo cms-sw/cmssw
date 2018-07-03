@@ -7,7 +7,7 @@ using namespace reco;
 using namespace std;
 
 void PFCandCommonVertexFitterBase::set(VertexCompositeCandidate & c) const {
-  if(bField_ == 0)
+  if(bField_ == nullptr)
     throw edm::Exception(edm::errors::InvalidReference)
       << "B-Field was not set up PFCandCommonVertexFitter.\n"
       << "the following method must be called before fitting a candidate:\n"
@@ -46,12 +46,11 @@ void PFCandCommonVertexFitterBase::set(VertexCompositeCandidate & c) const {
     }
     c.setP4(mp4);
     Vertex v = vertex;
-    c.setChi2AndNdof(chi2_ = v.chi2(), ndof_ = v.ndof());
-    v.fill(cov_);
-    c.setCovariance(cov_);
+    c.setChi2AndNdof(v.chi2(), v.ndof());
+    c.setCovariance(v.covariance());
   } else {
-    c.setChi2AndNdof(chi2_ = -1, ndof_ = 0);
-    c.setCovariance(cov_ = CovarianceMatrix(ROOT::Math::SMatrixIdentity())); 
+    c.setChi2AndNdof(-1, 0);
+    c.setCovariance(CovarianceMatrix(ROOT::Math::SMatrixIdentity())); 
   }
 }
 
@@ -62,12 +61,12 @@ void PFCandCommonVertexFitterBase::fill(std::vector<TransientTrack> & tracks,
   size_t nDau = c.numberOfDaughters();
   for(unsigned int j = 0; j < nDau ; ++j) {
     Candidate * d = c.daughter(j);
-    if(d == 0) {
+    if(d == nullptr) {
       ostringstream message;
       message << "Can't access in write mode candidate daughters. "
 	      << "pdgId = " << c.pdgId() << ".\n";
       const Candidate * d1 = c.daughter(j);
-      if(d1 == 0)
+      if(d1 == nullptr)
 	message << "Null daughter also found in read-only mode\n";
       else
 	message << "Daughter found in read-only mode with id: " << d1->pdgId() << "\n";
@@ -76,7 +75,7 @@ void PFCandCommonVertexFitterBase::fill(std::vector<TransientTrack> & tracks,
     if(d->numberOfDaughters() > 0)
       fill(tracks, daughters, trackTypes, * d);
     else {
-       const Track * trk = NULL;
+       const Track * trk = nullptr;
        RecoCandidate::TrackType type = RecoCandidate::recoTrackType;
        if (d->hasMasterClone())
        {
@@ -84,7 +83,7 @@ void PFCandCommonVertexFitterBase::fill(std::vector<TransientTrack> & tracks,
           const PFCandidate* myPFCand = dynamic_cast<const PFCandidate*>(d->masterClone().get());
           trk = myPFCand->trackRef().get();
        }
-      if(trk != 0) {
+      if(trk != nullptr) {
 	tracks.push_back(TransientTrack(* trk, bField_));
 	daughters.push_back(d);
 	trackTypes.push_back(type);

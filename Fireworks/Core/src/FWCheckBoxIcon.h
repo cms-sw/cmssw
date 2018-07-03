@@ -29,7 +29,7 @@ class FWCheckBoxIcon : public FWBoxIconBase {
 
 public:
    FWCheckBoxIcon(unsigned int iEdgeLength);
-   virtual ~FWCheckBoxIcon();
+   ~FWCheckBoxIcon() override;
    
    // ---------- const member functions ---------------------
    bool isChecked() const { return m_checked;}
@@ -43,11 +43,11 @@ public:
    }
    
 private:
-   FWCheckBoxIcon(const FWCheckBoxIcon&); // stop default
+   FWCheckBoxIcon(const FWCheckBoxIcon&) = delete; // stop default
    
-   const FWCheckBoxIcon& operator=(const FWCheckBoxIcon&); // stop default
+   const FWCheckBoxIcon& operator=(const FWCheckBoxIcon&) = delete; // stop default
    
-   void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const;
+   void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const override;
    
    // ---------- member data --------------------------------
    bool m_checked;

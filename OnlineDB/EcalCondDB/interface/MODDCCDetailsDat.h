@@ -12,10 +12,10 @@ class MODDCCDetailsDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MODDCCDetailsDat();
-  ~MODDCCDetailsDat();
+  ~MODDCCDetailsDat() override;
 
   // User data methods
-  inline std::string getTable() { return "OD_DCC_DETAILS_DAT"; }
+  inline std::string getTable() override { return "OD_DCC_DETAILS_DAT"; }
 
   inline void setQPLL(int x) { m_qpll = x; }
   inline int getQPLL() const { return m_qpll; }
@@ -55,18 +55,18 @@ class MODDCCDetailsDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MODDCCDetailsDat* item, MODRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MODDCCDetailsDat >* data, MODRunIOV* iov)
-  throw(std::runtime_error);
+  noexcept(false);
 
 
 
   void fetchData(std::map< EcalLogicID, MODDCCDetailsDat >* fillMap, MODRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_qpll;

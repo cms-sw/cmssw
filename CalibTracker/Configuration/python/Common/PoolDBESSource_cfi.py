@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from CondCore.DBCommon.CondDBCommon_cfi import *
+from CondCore.CondDB.CondDB_cfi import *
 poolDBESSource = cms.ESSource("PoolDBESSource",
-    CondDBCommon,
+    CondDB,
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
     appendToDataLabel = cms.string(''),
     toGet = cms.VPSet(cms.PSet(

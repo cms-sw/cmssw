@@ -3,6 +3,7 @@
 #ifndef HcalQIEDataRcd_H
 #define HcalQIEDataRcd_H
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-class HcalQIEDataRcd : public edm::eventsetup::DependentRecordImplementation<HcalQIEDataRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalQIEDataRcd : public edm::eventsetup::DependentRecordImplementation<HcalQIEDataRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
 #endif

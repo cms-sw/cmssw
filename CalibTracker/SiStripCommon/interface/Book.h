@@ -32,7 +32,7 @@ class Book {
   
  public:
   
-  Book() : title_(""), directory(0) {}
+  Book() : title_(""), directory(nullptr) {}
   Book(string_t t) : title_(t), directory(new TDirectory(t.c_str(),t.c_str())) {}
 
   string_t& title() const { return title_;}
@@ -41,7 +41,7 @@ class Book {
 
   TH1* book(string_t name, TH1*const hist)   { book_[name]=hist; hist->SetDirectory(directory); if(!hist->GetSumw2N()) hist->Sumw2(); return hist;}
   TH1*& operator[](string_t name)       { return book_[name]; }
-  const TH1*  operator[](string_t name) const { book_t::const_iterator it = book_.find(name); return it==book_.end() ? 0 : it->second;}
+  const TH1*  operator[](string_t name) const { book_t::const_iterator it = book_.find(name); return it==book_.end() ? nullptr : it->second;}
 
   typedef boost::filter_iterator<match_name,book_t::iterator> iterator;
   typedef boost::filter_iterator<match_name,book_t::const_iterator> const_iterator;

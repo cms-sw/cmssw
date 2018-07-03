@@ -1,3 +1,5 @@
+#include <cmath>
+
 #include "DQMOffline/Trigger/interface/EgHLTOffEgSel.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTEgCutCodes.h"
@@ -17,7 +19,7 @@ void OffEgSel::setup(const edm::ParameterSet& iConfig)
 
 int OffEgSel::getCutCode(const OffEle& ele,int cutMask)const
 {
-  if(fabs(ele.detEta())<1.5) return getCutCode(ele,ebCutValues_,cutMask);
+  if(std::fabs(ele.detEta())<1.5) return getCutCode(ele,ebCutValues_,cutMask);
   else return getCutCode(ele,eeCutValues_,cutMask);
 }
 
@@ -26,11 +28,11 @@ int OffEgSel::getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask)
   int cutCode = 0x0;
   //kinematic cuts
   if(ele.et() < cuts.minEt) cutCode |= EgCutCodes::ET;
-  if(fabs(ele.etaSC()) < cuts.minEta || fabs(ele.etaSC()) > cuts.maxEta) cutCode |= EgCutCodes::DETETA;
+  if(std::fabs(ele.etaSC()) < cuts.minEta || std::fabs(ele.etaSC()) > cuts.maxEta) cutCode |= EgCutCodes::DETETA;
   if(ele.isGap()) cutCode |= EgCutCodes::CRACK;
   //track cuts
-  if(fabs(ele.dEtaIn()) > cuts.maxDEtaIn ) cutCode |=EgCutCodes::DETAIN;
-  if(fabs(ele.dPhiIn()) > cuts.maxDPhiIn ) cutCode |=EgCutCodes::DPHIIN;
+  if(std::fabs(ele.dEtaIn()) > cuts.maxDEtaIn ) cutCode |=EgCutCodes::DETAIN;
+  if(std::fabs(ele.dPhiIn()) > cuts.maxDPhiIn ) cutCode |=EgCutCodes::DPHIIN;
   if(ele.invEInvP() > cuts.maxInvEInvP) cutCode |= EgCutCodes::INVEINVP;
   //supercluster cuts
   if(ele.hOverE() > cuts.maxHadem && ele.hOverE()*ele.caloEnergy() > cuts.maxHadEnergy) cutCode |= EgCutCodes::HADEM;
@@ -81,16 +83,16 @@ int OffEgSel::getCutCode(const OffEle& ele,const EgCutValues& cuts,int cutMask)
     // std::cout <<"eta "<<ele.detEta()<<" max inner "<<cuts.maxCTFTrkInnerRadius<<" inner "<<ele.ctfTrkInnerRadius()<<std::endl;
   }else cutCode |=EgCutCodes::CTFTRACK;
 
-  if(fabs(ele.hltDEtaIn()) > cuts.maxHLTDEtaIn) cutCode |=EgCutCodes::HLTDETAIN;
-  if(fabs(ele.hltDPhiIn()) > cuts.maxHLTDPhiIn) cutCode |=EgCutCodes::HLTDPHIIN;
-  if(fabs(ele.hltInvEInvP()) > cuts.maxHLTInvEInvP) cutCode |=EgCutCodes::HLTINVEINVP;
+  if(std::fabs(ele.hltDEtaIn()) > cuts.maxHLTDEtaIn) cutCode |=EgCutCodes::HLTDETAIN;
+  if(std::fabs(ele.hltDPhiIn()) > cuts.maxHLTDPhiIn) cutCode |=EgCutCodes::HLTDPHIIN;
+  if(std::fabs(ele.hltInvEInvP()) > cuts.maxHLTInvEInvP) cutCode |=EgCutCodes::HLTINVEINVP;
 
   return (cutCode & cuts.cutMask & cutMask);
 }
 
 int OffEgSel::getCutCode(const OffPho& pho,int cutMask)const
 {
-  if(fabs(pho.detEta())<1.5) return getCutCode(pho,ebCutValues_,cutMask);
+  if(std::fabs(pho.detEta())<1.5) return getCutCode(pho,ebCutValues_,cutMask);
   else return getCutCode(pho,eeCutValues_,cutMask);
 }
 
@@ -100,7 +102,7 @@ int OffEgSel::getCutCode(const OffPho& pho,const EgCutValues& cuts,int cutMask)
   int cutCode = 0x0;
   //kinematic cuts
   if(pho.et()< cuts.minEt) cutCode |= EgCutCodes::ET;
-  if(fabs(pho.etaSC())< cuts.minEta || fabs(pho.etaSC())>cuts.maxEta) cutCode |= EgCutCodes::DETETA;
+  if(std::fabs(pho.etaSC())< cuts.minEta || std::fabs(pho.etaSC())>cuts.maxEta) cutCode |= EgCutCodes::DETETA;
   if(pho.isGap()) cutCode |= EgCutCodes::CRACK;
   //track cuts (all fail)
   cutCode |=EgCutCodes::DETAIN;

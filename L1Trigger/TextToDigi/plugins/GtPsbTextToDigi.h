@@ -34,11 +34,11 @@
 class GtPsbTextToDigi : public edm::EDProducer {
  public:
   explicit GtPsbTextToDigi(const edm::ParameterSet&);
-  ~GtPsbTextToDigi();
+  ~GtPsbTextToDigi() override;
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
  private:
   /// Create empty digi collection

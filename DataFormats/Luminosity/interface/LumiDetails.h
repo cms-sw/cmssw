@@ -78,7 +78,7 @@ private:
   void checkAlgo(AlgoType algo) const;
   void checkAlgoAndBX(AlgoType algo, unsigned int bx) const;
 
-  static std::vector<std::string> m_algoNames;
+  static std::vector<std::string> const m_algoNames;
 
   std::string m_lumiVersion;
 

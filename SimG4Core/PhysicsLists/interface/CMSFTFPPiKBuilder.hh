@@ -24,19 +24,19 @@ class CMSFTFPPiKBuilder : public G4VPiKBuilder
 {
   public: 
     CMSFTFPPiKBuilder(G4bool quasiElastic=false);
-    virtual ~CMSFTFPPiKBuilder();
+    ~CMSFTFPPiKBuilder() override;
 
   public: 
-    virtual void Build(G4HadronElasticProcess * aP);
-    virtual void Build(G4PionPlusInelasticProcess * aP);
-    virtual void Build(G4PionMinusInelasticProcess * aP);
-    virtual void Build(G4KaonPlusInelasticProcess * aP);
-    virtual void Build(G4KaonMinusInelasticProcess * aP);
-    virtual void Build(G4KaonZeroLInelasticProcess * aP);
-    virtual void Build(G4KaonZeroSInelasticProcess * aP);
+    void Build(G4HadronElasticProcess * aP) override;
+    void Build(G4PionPlusInelasticProcess * aP) override;
+    void Build(G4PionMinusInelasticProcess * aP) override;
+    void Build(G4KaonPlusInelasticProcess * aP) override;
+    void Build(G4KaonMinusInelasticProcess * aP) override;
+    void Build(G4KaonZeroLInelasticProcess * aP) override;
+    void Build(G4KaonZeroSInelasticProcess * aP) override;
     
-    void SetMinEnergy(G4double aM) {theMin = aM;}
-    void SetMaxEnergy(G4double aM) {theMax = aM;}
+    void SetMinEnergy(G4double aM) override {theMin = aM;}
+    void SetMaxEnergy(G4double aM) override {theMax = aM;}
 
   private:
     G4TheoFSGenerator * theModel;

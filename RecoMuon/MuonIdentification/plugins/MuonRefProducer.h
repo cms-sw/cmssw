@@ -21,13 +21,14 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 class MuonRefProducer : public edm::global::EDProducer<> {
  public:
    explicit MuonRefProducer(const edm::ParameterSet&);
-   virtual ~MuonRefProducer();
-   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+   ~MuonRefProducer() override;
+   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
    edm::InputTag theReferenceCollection_;

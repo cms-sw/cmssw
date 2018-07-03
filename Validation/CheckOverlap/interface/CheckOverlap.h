@@ -21,11 +21,11 @@ class CheckOverlap : public SimWatcher,
 public:
 
   CheckOverlap(edm::ParameterSet const & p);
-  ~CheckOverlap();
+  ~CheckOverlap() override;
 
 private:
 
-  void update(const BeginOfRun * run);
+  void update(const BeginOfRun * run) override;
   void checkHierarchyLeafPVLV(G4LogicalVolume * lv, unsigned int leafDepth);
   void checkPV(G4VPhysicalVolume * pv, unsigned int leafDepth);
   G4VPhysicalVolume * getTopPV();

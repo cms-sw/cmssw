@@ -22,18 +22,20 @@ public:
     theNbins( last-first)
   {
     theBins.reserve(theNbins);
+    theBorders.reserve(theNbins-1);
     for (ConstItr i=first; i<last-1; i++) {
       theBins.push_back((**i).position().z());
       theBorders.push_back(((**i).position().z() + 
 			    (**(i+1)).position().z()) / 2.);
     }
+    theBins.push_back((**(last-1)).position().z());
 
     theZOffset = theBorders.front(); 
     theZStep = (theBorders.back() - theBorders.front()) / (theNbins-2);
   }
 
   /// returns an index in the valid range for the bin closest to Z
-  virtual int binIndex( T z) const {
+  int binIndex( T z) const override {
     int bin = binIndex( int((z-theZOffset)/theZStep)+1);
 
     // check left border
@@ -65,12 +67,12 @@ public:
   }
 
   /// returns an index in the valid range
-  virtual int binIndex( int i) const {
+  int binIndex( int i) const override {
     return std::min( std::max( i, 0), theNbins-1);
   }
    
   /// the middle of the bin.
-  virtual T binPosition( int ind) const {
+  T binPosition( int ind) const override {
     return theBins[binIndex(ind)];
   }
 

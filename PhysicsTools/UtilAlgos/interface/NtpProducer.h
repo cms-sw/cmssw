@@ -62,12 +62,12 @@ void NtpProducer<C>::produce( edm::Event& iEvent, const edm::EventSetup& ) {
    typename std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > >::const_iterator
      q = tags_.begin(), end = tags_.end();
    for(;q!=end; ++q) {
-     std::auto_ptr<std::vector<float> > x(new std::vector<float>);
+     auto x = std::make_unique<std::vector<float>>();
      x->reserve(coll->size());
      for (typename C::const_iterator elem=coll->begin(); elem!=coll->end(); ++elem ) {
        x->push_back(q->second(*elem));
      }
-     iEvent.put(x, q->first);
+     iEvent.put(std::move(x), q->first);
    }
 }
 

@@ -57,7 +57,7 @@ class L1GtHwValidation: public DQMEDAnalyzer  {
 
 public:
     explicit L1GtHwValidation(const edm::ParameterSet&);
-    virtual ~L1GtHwValidation();
+    ~L1GtHwValidation() override;
 
 private:
 
@@ -108,13 +108,12 @@ private:
     /// exclusion status for algorithm with bit i
     bool excludedAlgo(const int&) const;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 protected:
     
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     //virtual void analyze(DQMStore::IBooker &ibooker, const edm::Event&, const edm::EventSetup&);
 
 private:
@@ -261,10 +260,6 @@ private:
     MonitorElement* m_fdlDataEmulTechDecision[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulTechDecision_Err[NumberOfGtRecords];
-
-    
-    MonitorElement* runId_;
-    MonitorElement* lumisecId_;
 
     MonitorElement* m_excludedAlgorithmsAgreement;
 

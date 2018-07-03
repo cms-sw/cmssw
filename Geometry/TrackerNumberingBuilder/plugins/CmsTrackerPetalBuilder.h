@@ -10,8 +10,8 @@
 class CmsTrackerPetalBuilder : public CmsTrackerLevelBuilder {
   
  private:
-  virtual void sortNS(DDFilteredView& , GeometricDet*);
-  virtual void buildComponent(DDFilteredView& , GeometricDet*, std::string);
+  void sortNS(DDFilteredView& , GeometricDet*) override;
+  void buildComponent(DDFilteredView& , GeometricDet*, std::string) override;
 
 };
 

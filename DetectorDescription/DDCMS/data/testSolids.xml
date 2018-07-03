@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd">
+
+  <SolidSection label="testSolids.xml">
+    <!-- Trapezoid name="trap1" alp1="10*deg" alp2="10*deg" bl1="50*cm" bl2="75*cm" dz="1*m" h1="20*cm" h2="40*cm" phi="30*deg" theta="30*deg" tl1="50*cm" tl2="75*cm"/ -->
+    <Trapezoid name="trap1" alp1="10*deg" alp2="10*deg" bl1="30*cm" bl2="10*cm" dz="60*cm" h1="40*cm" h2="16*cm" phi="5*deg" theta="20*deg" tl1="40*cm" tl2="14*cm"/>
+    <Trapezoid name="trap2" alp1="10*deg" alp2="10*deg" bl1="50*cm" bl2="75*cm" dz="1*m" h1="20*cm" h2="40*cm" tl1="50*cm" tl2="75*cm"/>
+    <PseudoTrap name="ptrap1" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="false"/>
+    <PseudoTrap name="ptrap2" dx1="10*cm" dx2="3*cm" dy1="30*cm" dy2="10*cm" dz="30*cm" radius="10*cm" atMinusZ="true"/>
+    <Box name="box1" dx="10*cm" dy="10*cm" dz="10*cm"/>
+    <Cone name="cone1" dz="1*m" rMin1="50*cm" rMax1="100*cm" rMin2="75*cm" rMax2="125*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Cone name="cone2" dz="1*m" rMin1="50*cm" rMax1="100*cm" rMin2="50*cm" rMax2="100*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <Cone name="cone2hole" dz="20*cm" rMin1="50*cm" rMax1="100*cm" rMin2="50*cm" rMax2="100*cm" startPhi="0*deg" deltaPhi="20*deg"/>
+    <!-- While using this as a test solid I found that there is a 
+problem with it.  Can a Polycone come to a point "in the real world?" -->
+    <Polycone name="pczsect" startPhi="0*deg" deltaPhi="360*deg">
+      <!-- see above comment ZSection z="1*m" rMin="50*cm" rMax="50*cm"/ -->
+      <ZSection z="1*m" rMin="50*cm" rMax="55*cm"/>
+      <ZSection z="1.5*m" rMin="50*cm" rMax="60*cm"/>
+      <ZSection z="2*m" rMin="50*cm" rMax="75*cm"/>
+    </Polycone>
+    <Polycone name="pcrz" startPhi="0*deg" deltaPhi="360*deg">
+      <RZPoint r="50*cm" z="1*m"/>
+      <RZPoint r="60*cm" z="1.5*m"/>
+      <RZPoint r="75*cm" z="2*m"/>
+      <RZPoint r="50*cm" z="2.5*m"/>
+    </Polycone>
+    <Polyhedra name="phzsect" numSide="18" startPhi="0*deg" deltaPhi="360*deg">
+      <ZSection z="1*m" rMin="50*cm" rMax="50*cm"/>
+      <ZSection z="1.5*m" rMin="50*cm" rMax="60*cm"/>
+      <ZSection z="2*m" rMin="50*cm" rMax="75*cm"/>
+    </Polyhedra>
+    <Polyhedra name="phrz" numSide="18" startPhi="0*deg" deltaPhi="360*deg">
+      <RZPoint r="50*cm" z="1*m"/>
+      <RZPoint r="60*cm" z="1.5*m"/>
+      <RZPoint r="75*cm" z="2*m"/>
+      <RZPoint r="50*cm" z="2.5*m"/>
+    </Polyhedra>
+    <ExtrudedPolygon name="extrudedpgon">
+      <XYPoint x="-30*cm" y="-30*cm"/>
+      <XYPoint x="-30*cm" y=" 30*cm"/>
+      <XYPoint x=" 30*cm" y=" 30*cm"/>
+      <XYPoint x=" 30*cm" y="-30*cm"/>
+      <XYPoint x=" 15*cm" y="-30*cm"/>
+      <XYPoint x=" 15*cm" y=" 15*cm"/>
+      <XYPoint x="-15*cm" y=" 15*cm"/>
+      <XYPoint x="-15*cm" y="-30*cm"/>
+      <ZXYSection z="-60*cm" x="0*cm" y="30*cm" scale="0.8"/>
+      <ZXYSection z="-15*cm" x="0*cm" y="-30*cm" scale="1."/>
+      <ZXYSection z="10*cm" x="0*cm" y="0*cm" scale="0.6"/>
+      <ZXYSection z="60*cm" x="0*cm" y="30*cm" scale="1.2"/>
+    </ExtrudedPolygon>
+    <Trd1 name="trd1" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm"/>
+    <Trd1 name="trd2" dx1="1*m" dx2="1.3*m" dz="3*m" dy1="30*cm" dy2="50*cm"/>
+    <Tube name="tube1" rMin="1*m" rMax="1.5*m" dz="1*m"/>
+    <Tubs name="tube2" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg"/>
+    <CutTubs name="cuttubs" rMin="1*m" rMax="2*m" dz="1*m" startPhi="30*deg" deltaPhi="150*deg" lx="0" ly="-0.7" lz="-0.71" tx="0.7" ty="0" tz="0.71"/>
+    <TruncTubs name="trunctubs1" zHalf="50*cm" rMin="20*cm" rMax="40*cm" startPhi="0*deg" deltaPhi="90*deg" cutAtStart="25*cm" cutAtDelta="35*cm" cutInside="true"/>
+    <TruncTubs name="trunctubs2" rMin="6.9551*m" rMax="9*m" cutAtStart="6.9551*m" cutAtDelta="7.20045*m" cutInside="true" startPhi="0*deg" deltaPhi="15*deg" zHalf="6.57005*m"/>
+    <ShapelessSolid name="momma"/>
+    <Box name="MotherOfAllBoxes" dx="10*m" dy="10*m" dz="10*m"/>
+    <Torus name="torus" innerRadius="7.5*cm" outerRadius="10*cm" torusRadius="30*cm" startPhi="0*deg" deltaPhi="360*deg"/>
+    <SubtractionSolid name="subsolid" firstSolid="cone2" secondSolid="cone2hole"/>
+    <UnionSolid name="unionsolid" firstSolid="pcrz" secondSolid="cone1">
+      <Translation x="0" y="0" z="-1.0*m"/>
+    </UnionSolid>
+    <IntersectionSolid name="intsolid" firstSolid="cone1" secondSolid="cone2">
+      <RotationByAxis axis="y" angle="90*deg"/>
+      <Translation x="0" y="0" z="50*cm"/>
+    </IntersectionSolid>
+    <Sphere name="asphere" innerRadius="100.*cm" outerRadius="110.*cm" startPhi="0*deg" deltaPhi="180*deg" startTheta="15*deg" deltaTheta="90*deg"/>
+    <EllipticalTube name="etube" xSemiAxis=".5*cm" ySemiAxis="1.*cm" zHeight="3.*cm"/>
+    <SubtractionSolid name="subsolidOLD">
+        <rSolid name="cone2"/>
+        <rSolid name="cone2hole"/>
+        <rRotation name="testRotations:x90y45"/>
+    </SubtractionSolid>
+  </SolidSection>
+</DDDefinition>

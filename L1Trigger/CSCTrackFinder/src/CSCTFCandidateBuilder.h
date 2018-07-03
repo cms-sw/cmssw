@@ -19,7 +19,7 @@ class CSCTFCandidateBuilder
 {
  public:
   CSCTFCandidateBuilder(const edm::ParameterSet&);
-  ~CSCTFCandidateBuilder() { delete m_muonsorter; m_muonsorter = NULL; }
+  ~CSCTFCandidateBuilder() { delete m_muonsorter; m_muonsorter = nullptr; }
 
   void buildCandidates(const L1CSCTrackCollection*, std::vector<L1MuRegionalCand>*) const;
 

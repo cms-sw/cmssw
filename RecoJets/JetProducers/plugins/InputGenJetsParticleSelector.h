@@ -20,22 +20,22 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class InputGenJetsParticleSelector : public edm::EDProducer {
+class InputGenJetsParticleSelector : public edm::global::EDProducer<> {
   // collection type
  public:
   typedef std::vector<bool>     ParticleBitmap;
   typedef std::vector<const reco::Candidate*> ParticleVector;
       
   InputGenJetsParticleSelector(const edm::ParameterSet & ); 
-  ~InputGenJetsParticleSelector(); 
+  ~InputGenJetsParticleSelector() override; 
   // select object from a collection and 
   // possibly event content
-  virtual void produce (edm::Event &evt, const edm::EventSetup &evtSetup);
+  void produce (edm::StreamID, edm::Event &evt, const edm::EventSetup &evtSetup) const override;
       
   bool getPartonicFinalState() const { return partonicFinalState; }
   bool getExcludeResonances() const { return excludeResonances; }

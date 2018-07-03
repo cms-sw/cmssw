@@ -24,7 +24,7 @@ namespace Phase2Tracker {
 
   Phase2TrackerDigiProducer::Phase2TrackerDigiProducer( const edm::ParameterSet& pset ) :
     runNumber_(0),
-    cabling_(0),
+    cabling_(nullptr),
     cacheId_(0)
   {
     // define product
@@ -70,7 +70,7 @@ namespace Phase2Tracker {
       if(fed.size()!=0)
       {
 	// construct buffer
-	Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
+	Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = nullptr;
 	buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
 
         #ifdef EDM_ML_DEBUG
@@ -213,8 +213,7 @@ namespace Phase2Tracker {
 
         edm::DetSetVector<Phase2TrackerDigi> proc_raw_dsv( sorted_and_merged, true );
         pr->swap( proc_raw_dsv );
-        std::auto_ptr< edm::DetSetVector<Phase2TrackerDigi> > pr_dsv(pr);
-        event.put( pr_dsv, "ProcessedRaw" );
+        event.put(std::unique_ptr<edm::DetSetVector<Phase2TrackerDigi>>(pr), "ProcessedRaw");
         delete buffer;
         }
      }   

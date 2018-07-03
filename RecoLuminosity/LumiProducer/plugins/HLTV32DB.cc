@@ -38,10 +38,10 @@ namespace lumi{
     const static unsigned int COMMITLSINTERVAL=500; //commit interval in LS
     
     explicit HLTV32DB(const std::string& dest);
-    virtual unsigned long long retrieveData( unsigned int ) override;
-    virtual const std::string dataType() const override;
-    virtual const std::string sourceType() const override;
-    virtual ~HLTV32DB();
+    unsigned long long retrieveData( unsigned int ) override;
+    const std::string dataType() const override;
+    const std::string sourceType() const override;
+    ~HLTV32DB() override;
     struct hltinfo{
       unsigned int cmsluminr;
       std::string pathname;
@@ -137,7 +137,7 @@ namespace lumi{
       }
     }
     delete qPsindex;
-    if(psindexmap.size()==0){
+    if(psindexmap.empty()){
       srcsession->transaction().commit();
       delete srcsession;
       throw lumi::Exception("no psindex data found","retrieveData","HLTV32DB");
@@ -359,7 +359,7 @@ namespace lumi{
     unsigned int& acceptcount=hltData["ACCEPTCOUNT"].data<unsigned int>();
     unsigned int& prescale=hltData["PRESCALE"].data<unsigned int>();
     hltlscount=0;
-    coral::IBulkOperation* hltInserter=0; 
+    coral::IBulkOperation* hltInserter=nullptr; 
     unsigned int comittedls=0;
     for(HltResult::iterator hltIt=hltItBeg;hltIt!=hltItEnd;++hltIt,++hltlscount){
       std::map<unsigned int,HLTV32DB::hltinfo>::const_iterator pathIt;
@@ -390,13 +390,13 @@ namespace lumi{
       ++comittedls;
       if(comittedls==commitintv){
 	std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-	delete hltInserter; hltInserter=0;
+	delete hltInserter; hltInserter=nullptr;
 	lumisession->transaction().commit();
 	comittedls=0;
 	std::cout<<"\t committed "<<std::endl; 
       }else if( hltlscount==(totalcmsls-1) ){
 	std::cout<<"\t committing at the end"<<std::endl; 
-	delete hltInserter; hltInserter=0;
+	delete hltInserter; hltInserter=nullptr;
 	lumisession->transaction().commit();
 	std::cout<<"\t done"<<std::endl; 
       }
@@ -467,7 +467,7 @@ namespace lumi{
    std::cout<<"inserting lshlt data"<<std::endl;
 
    unsigned int hltlscount=0;
-   coral::IBulkOperation* hltInserter=0; 
+   coral::IBulkOperation* hltInserter=nullptr; 
    unsigned int comittedls=0;
    for(HltResult::iterator hltIt=hltItBeg;hltIt!=hltItEnd;++hltIt,++hltlscount){
      unsigned int cmslscount=hltlscount+1;
@@ -517,13 +517,13 @@ namespace lumi{
      ++comittedls;
      if(comittedls==commitintv){
        std::cout<<"\t committing in LS chunck "<<comittedls<<std::endl; 
-       delete hltInserter; hltInserter=0;
+       delete hltInserter; hltInserter=nullptr;
        lumisession->transaction().commit();
        comittedls=0;
        std::cout<<"\t committed "<<std::endl; 
      }else if( hltlscount==(totalcmsls-1) ){
        std::cout<<"\t committing at the end"<<std::endl; 
-       delete hltInserter; hltInserter=0;
+       delete hltInserter; hltInserter=nullptr;
        lumisession->transaction().commit();
        std::cout<<"\t done"<<std::endl; 
      }

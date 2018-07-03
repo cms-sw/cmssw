@@ -34,8 +34,8 @@ TestLumiInfo::testConstructor() {
   LumiInfo lumiInfo;
   
   lumiInfo.setDeadFraction(0.4);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.deadFraction() - 0.4) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.liveFraction() - 0.6) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getDeadFraction() - 0.4) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getLiveFraction() - 0.6) < tol);
 }
 
 void
@@ -47,16 +47,23 @@ TestLumiInfo::testFill() {
   lumBX.push_back(2.0f);
   lumBX.push_back(3.0f);
 
-  lumiInfo.fill(lumBX);
+  lumiInfo.setInstLumiAllBX(lumBX);
+  lumiInfo.setTotalInstLumi(8.0f);
 
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(0) - 1.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(1) - 2.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(2) - 3.0f) < tol);
 
-  CPPUNIT_ASSERT(std::abs(lumiInfo.instLuminosity() - 6.0f) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 6.0f*lumiInfo.lumiSectionLength()) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 3.0f*lumiInfo.lumiSectionLength()) < tol);
-  
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getTotalInstLumi() - 8.0f) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.instLuminosityBXSum() - 6.0f) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 8.0f*lumiInfo.lumiSectionLength()) < tol);
+  CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 4.0f*lumiInfo.lumiSectionLength()) < tol);
+
+ 
+  lumiInfo.setTotalInstToBXSum();
+  CPPUNIT_ASSERT(std::abs(lumiInfo.getTotalInstLumi() - 6.0f) < tol);
+
+
   CPPUNIT_ASSERT(lumiInfo.isProductEqual(lumiInfo));
 
   LumiInfo lumiInfo2;

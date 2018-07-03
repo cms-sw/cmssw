@@ -78,17 +78,20 @@ class TrackerValidationVariables
   ~TrackerValidationVariables();
 
   void fillHitQuantities(const Trajectory* trajectory, std::vector<AVHitStruct> & v_avhitout);
+  void fillHitQuantities(reco::Track const & track, std::vector<AVHitStruct> & v_avhitout);
   void fillTrackQuantities(const edm::Event&,
                            const edm::EventSetup&,
                            std::vector<AVTrackStruct> & v_avtrackout);
-
-  // need the following method for MonitorTrackResiduals in DQM/TrackerMonitorTrack
-  void fillHitQuantities(const edm::Event&, std::vector<AVHitStruct> & v_avhitout);
-
+  // all Tracks are passed to the trackFilter first, and only processed if it returns true.
+  void fillTrackQuantities(const edm::Event& event,
+                           const edm::EventSetup& eventSetup,
+                           std::function<bool(const reco::Track&)> trackFilter, 
+                           std::vector<AVTrackStruct> & v_avtrackout);
+  
  private:
 
-  edm::EDGetTokenT<std::vector<Trajectory> > trajCollectionToken_;
-  edm::EDGetTokenT<TrajTrackAssociationCollection> trajTracksToken_;
+  edm::EDGetTokenT<std::vector<Trajectory>> trajCollectionToken_;
+  edm::EDGetTokenT<std::vector<reco::Track>> tracksToken_;
 };
 
 #endif

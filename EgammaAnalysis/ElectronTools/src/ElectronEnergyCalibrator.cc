@@ -19,12 +19,6 @@
 #include <sstream>
 #include <iostream>
 
-using std::string;
-using std::vector;
-using std::ifstream;
-using std::istringstream;
-using std::cout;
-using namespace edm;
 
 void ElectronEnergyCalibrator::init()
 {
@@ -35,7 +29,7 @@ void ElectronEnergyCalibrator::init()
             std::cout << "[ElectronEnergyCalibrator] Initialization in DATA mode" << std::endl;
         }
 
-    	ifstream fin(pathData_.c_str());
+	    std::ifstream fin(pathData_.c_str());
     
     	if (!fin){
     		     throw cms::Exception("Configuration")
@@ -49,9 +43,9 @@ void ElectronEnergyCalibrator::init()
                     << pathData_ << " succesfully opened" << std::endl;
             }
     
-        	string s;
-        	vector<string> selements;
-        	string delimiter = ",";
+	    std::string s;
+	    std::vector<std::string> selements;
+	    std::string delimiter = ",";
         	nCorrValRaw = 0;	
     	
         	while ( !fin.eof() ) 
@@ -88,7 +82,7 @@ void ElectronEnergyCalibrator::init()
         // linearity corrections data
         if(applyLinearityCorrection_) 
         {
-            ifstream finlin(pathLinData_.c_str());
+	  std::ifstream finlin(pathLinData_.c_str());
 
             if (!finlin)
             {
@@ -101,9 +95,9 @@ void ElectronEnergyCalibrator::init()
                     std::cout<<"[ElectronEnergyCalibrator] File with Linearity Corrections "<<pathLinData_<<" succesfully opened"<<std::endl;
                 }
 
-                string s;
-                vector<string> selements;
-                string delimiter = ",";
+                std::string s;
+                std::vector<std::string> selements;
+                std::string delimiter = ",";
                 nLinCorrValRaw = 0;	
 
                 while ( !finlin.eof() ) 
@@ -145,12 +139,12 @@ void ElectronEnergyCalibrator::init()
     }
 }
 
-void ElectronEnergyCalibrator::splitString(const string &fullstr, vector<string> &elements, const string &delimiter)
+void ElectronEnergyCalibrator::splitString(const std::string &fullstr, std::vector<std::string> &elements, const std::string &delimiter)
 {
-	string::size_type lastpos = fullstr.find_first_not_of(delimiter, 0);
-	string::size_type pos     = fullstr.find_first_of(delimiter, lastpos);
+	std::string::size_type lastpos = fullstr.find_first_not_of(delimiter, 0);
+	std::string::size_type pos     = fullstr.find_first_of(delimiter, lastpos);
 	
-	while ( ( string::npos != pos ) || ( string::npos != lastpos ) ) 
+	while ( ( std::string::npos != pos ) || ( std::string::npos != lastpos ) ) 
     {
 	    elements.push_back(fullstr.substr(lastpos, pos-lastpos));
 	    lastpos = fullstr.find_first_not_of(delimiter, pos);
@@ -158,9 +152,9 @@ void ElectronEnergyCalibrator::splitString(const string &fullstr, vector<string>
 	}
 }
 
-double ElectronEnergyCalibrator::stringToDouble(const string &str)
+double ElectronEnergyCalibrator::stringToDouble(const std::string &str)
 {
-	istringstream stm;
+  std::istringstream stm;
 	double val = 0;
 	stm.str(str);
 	stm >> val;

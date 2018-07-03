@@ -39,13 +39,24 @@ cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*
 
 muonQualityTests = cms.Sequence(muonSourcesQualityTests*
                                 muTrackResidualsTest*
-                                effPlotter_Loose*
-                                effPlotter_Medium*
-                                effPlotter_Tight*
+                                effPlotterLoose*
+                                effPlotterMedium*
+                                effPlotterTight*
                                 muRecoTest*
                                 muonClientsQualityTests*
                                 muonComp2RefQualityTests*
                                 muonComp2RefKolmoQualityTests*
                                 muonTestSummary)
+
+muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
+                                        muTrackResidualsTest*
+                                        effPlotterLooseMiniAOD*
+                                        effPlotterMediumMiniAOD*
+                                        effPlotterTightMiniAOD*
+                                        muRecoTest*
+                                        muonClientsQualityTests*
+                                        muonComp2RefQualityTests*
+                                        muonComp2RefKolmoQualityTests*
+                                        muonTestSummary)
 
 

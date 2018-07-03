@@ -6,6 +6,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
 namespace reco {
@@ -20,7 +21,24 @@ class TrackSelector {
 	                 const reco::Jet &jet,
 	                 const GlobalPoint &pv) const;
 
+	bool operator() (const reco::CandidatePtr &track,
+	                 const reco::btag::TrackIPData &ipData,
+	                 const reco::Jet &jet,
+	                 const GlobalPoint &pv) const;
+
+	inline
+	bool operator() (const reco::TrackRef &track,
+	                 const reco::btag::TrackIPData &ipData,
+	                 const reco::Jet &jet,
+	                 const GlobalPoint &pv) const
+	{ return (*this)(*track, ipData, jet, pv); }
+
     private:
+	bool trackSelection(const reco::Track &track,
+	                    const reco::btag::TrackIPData &ipData,
+	                    const reco::Jet &jet,
+	                    const GlobalPoint &pv) const;
+
 	bool				selectQuality;
 	reco::TrackBase::TrackQuality	quality;
 	unsigned int			minPixelHits;

@@ -19,7 +19,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -35,39 +34,52 @@ class HcalDbRecord;
 class HcalDbProducer : public edm::ESProducer {
  public:
   HcalDbProducer( const edm::ParameterSet& );
-  ~HcalDbProducer();
+  ~HcalDbProducer() override;
   
-  boost::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
+  std::shared_ptr<HcalDbService> produce( const HcalDbRecord& );
 
-  boost::shared_ptr<HcalChannelQuality> produceChannelQualityWithTopo( const HcalChannelQualityRcd&);
+  std::shared_ptr<HcalChannelQuality> produceChannelQualityWithTopo( const HcalChannelQualityRcd&);
 
   // callbacks
   void pedestalsCallback (const HcalPedestalsRcd& fRecord);
   void pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
+  void effectivePedestalsCallback (const HcalPedestalsRcd& fRecord);
+  void effectivePedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord);
   void gainsCallback (const HcalGainsRcd& fRecord);
   void gainWidthsCallback (const HcalGainWidthsRcd& fRecord);
   void QIEDataCallback (const HcalQIEDataRcd& fRecord);
+  void QIETypesCallback (const HcalQIETypesRcd& fRecord);
   void channelQualityCallback (const HcalChannelQualityRcd& fRecord);
   void zsThresholdsCallback (const HcalZSThresholdsRcd& fRecord);
   void respCorrsCallback (const HcalRespCorrsRcd& fRecord);
   void L1triggerObjectsCallback (const HcalL1TriggerObjectsRcd& fRecord);
   void electronicsMapCallback (const HcalElectronicsMapRcd& fRecord);
+  void frontEndMapCallback (const HcalFrontEndMapRcd& fRecord);
   void timeCorrsCallback (const HcalTimeCorrsRcd& fRecord);
   void LUTCorrsCallback (const HcalLUTCorrsRcd& fRecord);
   void PFCorrsCallback (const HcalPFCorrsRcd& fRecord);
   void lutMetadataCallback (const HcalLutMetadataRcd& fRecord);
+  void SiPMParametersCallback (const HcalSiPMParametersRcd& fRecord);
+  void SiPMCharacteristicsCallback (const HcalSiPMCharacteristicsRcd& fRecord);
+  void TPChannelParametersCallback (const HcalTPChannelParametersRcd& fRecord);
+  void TPParametersCallback (const HcalTPParametersRcd& fRecord);
+  void MCParamsCallback (const HcalMCParamsRcd& fRecord);
+  void RecoParamsCallback (const HcalRecoParamsRcd& fRecord);
 
-   private:
+private:
       // ----------member data ---------------------------
-  boost::shared_ptr<HcalDbService> mService;
+  std::shared_ptr<HcalDbService> mService;
   std::vector<std::string> mDumpRequest;
   std::ostream* mDumpStream;
 
   std::unique_ptr<HcalPedestals> mPedestals;
   std::unique_ptr<HcalPedestalWidths> mPedestalWidths;
+  std::unique_ptr<HcalPedestals> mEffectivePedestals;
+  std::unique_ptr<HcalPedestalWidths> mEffectivePedestalWidths;
   std::unique_ptr<HcalGains> mGains;
   std::unique_ptr<HcalGainWidths> mGainWidths;
   std::unique_ptr<HcalQIEData> mQIEData;
+  std::unique_ptr<HcalQIETypes> mQIETypes;
   std::unique_ptr<HcalRespCorrs> mRespCorrs;
   std::unique_ptr<HcalLUTCorrs> mLUTCorrs;
   std::unique_ptr<HcalPFCorrs> mPFCorrs;
@@ -75,5 +87,11 @@ class HcalDbProducer : public edm::ESProducer {
   std::unique_ptr<HcalZSThresholds> mZSThresholds;
   std::unique_ptr<HcalL1TriggerObjects> mL1TriggerObjects;
   std::unique_ptr<HcalLutMetadata> mLutMetadata;
+  std::unique_ptr<HcalSiPMParameters> mSiPMParameters;
+  std::unique_ptr<HcalSiPMCharacteristics> mSiPMCharacteristics;
+  std::unique_ptr<HcalTPChannelParameters> mTPChannelParameters;
+  std::unique_ptr<HcalTPParameters> mTPParameters;
+  std::unique_ptr<HcalMCParams> mMCParams;
+  std::unique_ptr<HcalRecoParams> mRecoParams;
 
 };

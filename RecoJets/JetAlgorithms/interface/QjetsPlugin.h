@@ -20,14 +20,14 @@ class QjetsPlugin: public fastjet::JetDefinition::Plugin{
     _exp_max(exp_max),
     _rigidity(rigidity),
     _truncation_fctr(truncation_fctr),
-    _rnEngine(0)
+    _rnEngine(nullptr)
       {};
   void SetRandSeed(unsigned int seed); /* In case you want reproducible behavior */
   void SetRNEngine(CLHEP::HepRandomEngine* rnEngine){
     _rnEngine=rnEngine;
   };
-  double R() const;
-  std::string description() const;
-  void run_clustering(fastjet::ClusterSequence & cs) const;
+  double R() const override;
+  std::string description() const override;
+  void run_clustering(fastjet::ClusterSequence & cs) const override;
 };
 #endif

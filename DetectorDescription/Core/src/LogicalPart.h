@@ -2,16 +2,16 @@
 #define DDI_LogicalPart_h
 
 #include <iostream>
-#include <vector>
-#include <utility>
 #include <map>
+#include <utility>
+#include <vector>
 
+#include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDEnums.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
-//class DDsvalues_type;
 class DDPartSelection;
 
 namespace DDI {
@@ -35,14 +35,11 @@ namespace DDI {
     bool hasDDValue(const DDValue &) const;
     //const std::vector<DDPartSelection*> & partSelections(const DDValue &) const;	 
     void stream(std::ostream &);
-    double & weight();
   private:
     DDMaterial material_;
     DDSolid solid_;
     DDEnums::Category cat_;      
-    double weight_;  		
 
-    //std::vector<DDSpecifics> specifics_;
     std::map<DDValue, std::vector<DDPartSelection*> > valToParsel_;
     std::vector<std::pair<const DDPartSelection*, const DDsvalues_type* > > specifics_;
     std::vector<bool> hasDDValue_;

@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQM.EcalMonitorTasks.EnergyTask_cfi import ecalEnergyTask
 from DQM.EcalMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
@@ -53,7 +54,7 @@ halo = "HALO"
 # run tags are only used if the DAQ failed to write the RunIOV
 # Otherwise existing IOV will be used
 
-ecalCondDBWriter = cms.EDAnalyzer("EcalCondDBWriter",
+ecalCondDBWriter = DQMEDHarvester("EcalCondDBWriter",
     DBName = cms.untracked.string(""),
     hostName = cms.untracked.string(""),
     hostPort = cms.untracked.int32(0),

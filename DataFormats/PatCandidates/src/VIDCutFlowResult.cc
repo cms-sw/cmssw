@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace {
-  static const std::string empty_str("");
+  const std::string empty_str("");
 }
 
 namespace vid {

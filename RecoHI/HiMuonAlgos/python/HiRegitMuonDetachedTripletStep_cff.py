@@ -5,26 +5,42 @@ import FWCore.ParameterSet.Config as cms
 ################################### 3rd step: low-pT and displaced tracks from pixel triplets
 
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.vertexCollection = cms.InputTag("hiSelectedVertex")
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonSrc= cms.InputTag("standAloneMuons","UpdatedAtVtx")
-
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.UseVertex      = True
-
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Phi_fixed     = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed     = True
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaPhi      = 0.3
-HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.DeltaEta      = 0.2
+# Are the following values set to the same in every iteration? If yes,
+# why not making the change in HITrackingRegionProducer_cfi directly
+# once for all?
+hiRegitMuDetachedTripletStepTrackingRegions = HiTrackingRegionFactoryFromSTAMuonsEDProducer.clone(
+    MuonSrc = "standAloneMuons:UpdatedAtVtx", # this is the same as default, why repeat?
+    MuonTrackingRegionBuilder = dict(
+        vertexCollection = "hiSelectedPixelVertex",
+        UseVertex     = True,
+        Phi_fixed     = True,
+        Eta_fixed     = True,
+        DeltaPhi      = 0.3,
+        DeltaEta      = 0.2,
+        # Ok, the following ones are specific to DetachedTripletStep
+        Pt_min        = 0.9,
+        DeltaR        = 2.0, # default = 0.2
+        DeltaZ        = 2.0, # this give you the length
+        Rescale_Dz    = 4., # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+    )
+)
 
 ###################################
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitMuDetachedTripletStepClusters = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.clone(
-    trajectories          = cms.InputTag("hiRegitMuPixelLessStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep'),
-    trackClassifier       = cms.InputTag(''),
-    TrackQuality          = cms.string('tight')
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import trackClusterRemover as _trackClusterRemover
+hiRegitMuDetachedTripletStepClusters = _trackClusterRemover.clone(
+    maxChi2                                  = 9.0,
+    pixelClusters                            = "siPixelClusters",
+    stripClusters                            = "siStripClusters",
+    trajectories          		     = cms.InputTag("hiRegitMuPixelLessStepTracks"),
+    overrideTrkQuals      		     = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep'),
+    TrackQuality                             = 'tight',
+    trackClassifier       		     = cms.InputTag(''),
+    minNumberOfLayersWithMeasBeforeFiltering = 0
 )
+
 
 # SEEDING LAYERS
 hiRegitMuDetachedTripletStepSeedLayers =  RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.clone()
@@ -32,14 +48,17 @@ hiRegitMuDetachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegit
 hiRegitMuDetachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 
 # seeding
-hiRegitMuDetachedTripletStepSeeds     = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.clone()
-hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
-hiRegitMuDetachedTripletStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Pt_min          = 0.9
-hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 2.0 # default = 0.2
-hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ          = 2.0 # this give you the length 
-hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuDetachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMuDetachedTripletStepSeedLayers'
+hiRegitMuDetachedTripletStepHitDoublets = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepHitDoublets.clone(
+    seedingLayers = "hiRegitMuDetachedTripletStepSeedLayers",
+    trackingRegions = "hiRegitMuDetachedTripletStepTrackingRegions",
+    clusterCheck = "hiRegitMuClusterCheck",
+)
+hiRegitMuDetachedTripletStepHitTriplets = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepHitTriplets.clone(
+    doublets = "hiRegitMuDetachedTripletStepHitDoublets"
+)
+hiRegitMuDetachedTripletStepSeeds     = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.clone(
+    seedingHitSets = "hiRegitMuDetachedTripletStepHitTriplets"
+)
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 
 
@@ -73,7 +92,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuDetachedTripletStepTracks',
-    vertices            = cms.InputTag("hiSelectedVertex"),
+    vertices            = cms.InputTag("hiSelectedPixelVertex"),
     useAnyMVA = cms.bool(True),
     GBRForestLabel = cms.string('HIMVASelectorIter7'),
     GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
@@ -98,10 +117,35 @@ hiRegitMuDetachedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cf
             )
         ) #end of vpset
     )
-
+from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
+trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, useAnyMVA = cms.bool(False))
+trackingPhase1.toModify(hiRegitMuDetachedTripletStepSelector, trackSelectors= cms.VPSet(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuDetachedTripletStepLoose',
+           min_nhits = cms.uint32(8)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+            name = 'hiRegitMuDetachedTripletStepTight',
+            preFilterName = 'hiRegitMuDetachedTripletStepLoose',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.2)
+            ),
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+            name = 'hiRegitMuDetachedTripletStep',
+            preFilterName = 'hiRegitMuDetachedTripletStepTight',
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(False),
+            minMVA = cms.double(-0.09)
+            )
+        )
+)
 
 hiRegitMuonDetachedTripletStep = cms.Sequence(hiRegitMuDetachedTripletStepClusters*
                                               hiRegitMuDetachedTripletStepSeedLayers*
+                                              hiRegitMuDetachedTripletStepTrackingRegions*
+                                              hiRegitMuDetachedTripletStepHitDoublets*
+                                              hiRegitMuDetachedTripletStepHitTriplets*
                                               hiRegitMuDetachedTripletStepSeeds*
                                               hiRegitMuDetachedTripletStepTrackCandidates*
                                               hiRegitMuDetachedTripletStepTracks*

@@ -11,7 +11,7 @@ fit_width_profile(Book& book) {
   for(Book::iterator it = book.begin(".*"+method(WIDTH)); it!=book.end(); ++it) {
     it->second->SetTitle("Mean Cluster Width;tan#theta_{t}");
     TH1* const p = it->second;
-    if(p->GetEntries() < 400) { delete p; book[it->first]=0; continue;}
+    if(p->GetEntries() < 400) { delete p; book[it->first]=nullptr; continue;}
     p->SetTitle(";tan#theta_{t};");
     const float min = p->GetMinimum();
     const float max = p->GetMaximum();
@@ -36,36 +36,36 @@ make_and_fit_symmchi2(Book& book) {
     const std::string base = boost::erase_all_copy(it->first,"_all");
 
     std::vector<Book::iterator> rebin_hists;              
-    Book::iterator    all = it;	                             rebin_hists.push_back(all);   
+    const Book::iterator&    all = it;	                             rebin_hists.push_back(all);   
     Book::iterator     w1 = book.find(base+"_w1");           rebin_hists.push_back(w1);    
-    Book::iterator var_w2 = book.find(base+method(AVGV2,0)); rebin_hists.push_back(var_w2);
-    Book::iterator var_w3 = book.find(base+method(AVGV3,0)); rebin_hists.push_back(var_w3);
+    Book::iterator var_w2 = book.find(base+method(AVGV2,false)); rebin_hists.push_back(var_w2);
+    Book::iterator var_w3 = book.find(base+method(AVGV3,false)); rebin_hists.push_back(var_w3);
 
     const unsigned rebin = std::max( var_w2==book.end() ? 0 : find_rebin(var_w2->second), 
 				     var_w3==book.end() ? 0 : find_rebin(var_w3->second) );
     BOOST_FOREACH(Book::iterator it, rebin_hists) if(it!=book.end()) it->second->Rebin( rebin>1 ? rebin<7 ? rebin : 6 : 1);
 
-    TH1* const prob_w1 = w1==book.end()     ? 0 : subset_probability( base+method(PROB1,0) ,w1->second,all->second);
-    TH1* const rmsv_w2 = var_w2==book.end() ? 0 :        rms_profile( base+method(RMSV2,0), (TProfile*const)var_w2->second);
-    TH1* const rmsv_w3 = var_w3==book.end() ? 0 :        rms_profile( base+method(RMSV3,0), (TProfile*const)var_w3->second);
+    TH1* const prob_w1 = w1==book.end()     ? nullptr : subset_probability( base+method(PROB1,false) ,w1->second,all->second);
+    TH1* const rmsv_w2 = var_w2==book.end() ? nullptr :        rms_profile( base+method(RMSV2,false), (TProfile*const)var_w2->second);
+    TH1* const rmsv_w3 = var_w3==book.end() ? nullptr :        rms_profile( base+method(RMSV3,false), (TProfile*const)var_w3->second);
     
     std::vector<TH1*> fit_hists;
     if(prob_w1) {
-      book.book(base+method(PROB1,0),prob_w1);
+      book.book(base+method(PROB1,false),prob_w1);
       fit_hists.push_back(prob_w1);  prob_w1->SetTitle("Width==1 Probability;tan#theta_{t}-(dx/dz)_{reco}");
     }
     if(var_w2!=book.end())  {
-      book.book(base+method(RMSV2,0),rmsv_w2);
+      book.book(base+method(RMSV2,false),rmsv_w2);
       fit_hists.push_back(var_w2->second);   var_w2->second->SetTitle("Width==2 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
       fit_hists.push_back(rmsv_w2);                 rmsv_w2->SetTitle("Width==2 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
     }
     if(var_w3!=book.end())  {
-      book.book(base+method(RMSV3,0),rmsv_w3);
+      book.book(base+method(RMSV3,false),rmsv_w3);
       fit_hists.push_back(var_w3->second);   var_w3->second->SetTitle("Width==3 Mean Variance;tan#theta_{t}-(dx/dz)_{reco}");
       fit_hists.push_back(rmsv_w3);                 rmsv_w3->SetTitle("Width==3 RMS Variance;tan#theta_{t}-(dx/dz)_{reco}");
     }
 
-    if(!fit_hists.size()) continue;
+    if(fit_hists.empty()) continue;
     const unsigned bins = fit_hists[0]->GetNbinsX();
     const unsigned guess = fit_hists[0]->FindBin(0);
     const std::pair<unsigned,unsigned> range(guess-bins/30,guess+bins/30);

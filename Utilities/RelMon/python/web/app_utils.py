@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 # coding: utf-8
 '''
 Helper functions for CherryPy application ``browse_db.py``.
@@ -12,7 +12,9 @@ import re
 from os import getcwd, listdir
 from os.path import join
 from urllib import quote
+from functools import reduce
 
+import six
 
 renaming = {
         'MessageLogger': 'Miscellanea', 'FourVector': 'Generic',
@@ -122,7 +124,7 @@ def get_folders(c, file_id, filename, dir_id, threshold):  # TODO: If folder [Eg
         total_successes += successes
         total_nulls += nulls
         total_fails += fails
-        if file_folders.has_key(name):
+        if name in file_folders:
             file_folders[name].append([file_id, ds_name, successes, nulls, fails])
         else:
             file_folders[name] = [file_id, ds_name, successes, nulls, fails]
@@ -131,7 +133,7 @@ def get_folders(c, file_id, filename, dir_id, threshold):  # TODO: If folder [Eg
 
 def join_ranges(ranges, elem):
     '''To do less DB calls, joins [(from_id, till_id), ...] ranges.'''
-    if type(ranges) == tuple:
+    if isinstance(ranges, tuple):
         ranges = [ranges]
     if ranges[-1][-1] + 1 == elem[0]:
         ranges[-1] = (ranges[-1][0], elem[1])
@@ -194,7 +196,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
         # file_folders: [(folder_name, [(file_id, file_name, success, null, fail)]), ...]
         file_folders = get_folders(c, file_id, filename, dir_id, threshold)
         for folder_name, file_folder_stats in file_folders:
-            if folders.has_key(folder_name):
+            if folder_name in folders:
                 # Add folder stats
                 folders[folder_name].append(file_folder_stats)
                 # Update folder summary
@@ -236,7 +238,7 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     cum_lvl3_dir_ranges = dict()
     for name, from_id, till_id in lvl3_dir_ranges:
-        if cum_lvl3_dir_ranges.has_key(name):
+        if name in cum_lvl3_dir_ranges:
             cum_lvl3_dir_ranges[name].append((from_id, till_id))
         else:
             cum_lvl3_dir_ranges[name] = [(from_id, till_id)]
@@ -244,16 +246,16 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
     # Fetch stats
     summary_stats = dict()
     detailed_stats = dict()
-    for name, ranges in cum_lvl3_dir_ranges.iteritems():
+    for name, ranges in six.iteritems(cum_lvl3_dir_ranges):
         successes, nulls, fails = get_stats(c, threshold, ranges)
-        if detailed_stats.has_key(name):
+        if name in detailed_stats:
             detailed_stats[name][0] += successes
             detailed_stats[name][1] += nulls
             detailed_stats[name][2] += fails
         else:
             detailed_stats[name] = [successes, nulls, fails]
-        if renaming.has_key(name):
-            if summary_stats.has_key(renaming[name]):
+        if name in renaming:
+            if renaming[name] in summary_stats:
                 summary_stats[renaming[name]][0] += successes
                 summary_stats[renaming[name]][1] += nulls
                 summary_stats[renaming[name]][2] += fails
@@ -262,13 +264,13 @@ def get_release_summary_stats(c, release_title, st_test, threshold=1e-5):
 
     # Calculate ratio
     summary_ratios = []
-    for name, stats in summary_stats.iteritems():
+    for name, stats in six.iteritems(summary_stats):
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)
             summary_ratios.append((name, ratio))
     detailed_ratios = []
-    for name, stats in detailed_stats.iteritems():
+    for name, stats in six.iteritems(detailed_stats):
         total = sum(stats)
         if total:
             ratio = float(stats[0]) / sum(stats)

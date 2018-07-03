@@ -43,6 +43,7 @@ trackListMerger = cms.EDProducer("TrackListMerger",
                              cms.PSet( tLists=cms.vint32(2,3,4,5), pQual=cms.bool(True) ),
                              cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) )
                              ),
+    trackAlgoPriorityOrder = cms.string("trackAlgoPriorityOrder"),
 
     # set new quality for confirmed tracks for each merged pair and then for the final pair
     allowFirstHitShare = cms.bool(True),

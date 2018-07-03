@@ -1,6 +1,6 @@
 #include "CondFormats/Serialization/interface/Test.h"
 
-#include "../src/headers.h"
+#include "CondFormats/JetMETObjects/src/headers.h"
 
 int main()
 {
@@ -20,6 +20,11 @@ int main()
     testSerialization<std::vector<JetCorrectorParametersCollection>>();
     testSerialization<QGLikelihoodCategory>();
     testSerialization<QGLikelihoodObject>();
+
+    testSerialization<JME::JetResolutionObject>();
+    testSerialization<JME::JetResolutionObject::Definition>();
+    testSerialization<JME::JetResolutionObject::Record>();
+    testSerialization<JME::JetResolutionObject::Range>();
 
     return 0;
 }

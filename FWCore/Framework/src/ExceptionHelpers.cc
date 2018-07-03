@@ -12,7 +12,7 @@ namespace edm {
   addContextAndPrintException(char const* context,
                               cms::Exception& ex,
                               bool disablePrint) {
-    if (context != 0 && strlen(context) != 0U) {
+    if (context != nullptr && strlen(context) != 0U) {
       ex.addContext(context);
     }
     if (!disablePrint) {

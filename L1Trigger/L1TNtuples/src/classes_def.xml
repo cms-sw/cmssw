@@ -1,0 +1,32 @@
+<lcgdict>
+<class name="L1Analysis::L1AnalysisEventDataFormat"/>
+<class name="L1Analysis::L1AnalysisCSCTFDataFormat"/>
+<class name="L1Analysis::L1AnalysisDTTFDataFormat"/>
+<class name="L1Analysis::L1AnalysisGCTDataFormat"/>
+<class name="L1Analysis::L1AnalysisGMTDataFormat"/>
+<class name="L1Analysis::L1AnalysisGTDataFormat"/>
+<class name="L1Analysis::L1AnalysisRCTDataFormat"/>
+<class name="L1Analysis::L1AnalysisCaloTPDataFormat"/>
+<class name="L1Analysis::L1AnalysisGeneratorDataFormat"/>
+<class name="L1Analysis::L1AnalysisSimulationDataFormat"/>
+<class name="L1Analysis::L1AnalysisL1ExtraDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoMuonDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoRpcHitDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoJetDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoMetFilterDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoMetDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoClusterDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoVertexDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoTrackDataFormat"/>
+<class name="L1Analysis::L1AnalysisL1MenuDataFormat"/>
+<class name="L1Analysis::L1AnalysisL1UpgradeDataFormat"/>
+<class name="L1Analysis::L1AnalysisL1UpgradeTfMuonDataFormat"/>
+<class name="L1Analysis::L1AnalysisL1CaloTowerDataFormat"/>
+<class name="L1Analysis::L1AnalysisBMTFInputsDataFormat"/>
+<class name="L1Analysis::L1AnalysisL1HODataFormat"/>
+<class name="L1Analysis::L1AnalysisL1CaloClusterDataFormat"/>
+
+<class name="L1Analysis::L1AnalysisRecoTauDataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoMuon2DataFormat"/>
+<class name="L1Analysis::L1AnalysisRecoElectronDataFormat"/>
+</lcgdict>

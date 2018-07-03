@@ -49,7 +49,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -67,12 +66,12 @@
 class OverlapProblemTSOSAnalyzer : public edm::EDAnalyzer {
 public:
   explicit OverlapProblemTSOSAnalyzer(const edm::ParameterSet&);
-  ~OverlapProblemTSOSAnalyzer();
+  ~OverlapProblemTSOSAnalyzer() override;
   
 private:
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 

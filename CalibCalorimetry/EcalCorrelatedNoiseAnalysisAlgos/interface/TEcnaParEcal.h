@@ -181,7 +181,7 @@ private:
   TEcnaParEcal(); 
   TEcnaParEcal(const TString&); 
   TEcnaParEcal(TEcnaObject*, const TString&);
-  ~TEcnaParEcal();
+  ~TEcnaParEcal() override;
 
   void    SetEcalSubDetector(const TString&);
   TString GetEcalSubDetector();
@@ -281,6 +281,6 @@ private:
   Int_t MaxCrysVecoInStin();
   Int_t MaxCrysInStin();
 
-  ClassDef(TEcnaParEcal,1)  //Init of ECAL parameters
+  ClassDefOverride(TEcnaParEcal,1)  //Init of ECAL parameters
 };
 #endif

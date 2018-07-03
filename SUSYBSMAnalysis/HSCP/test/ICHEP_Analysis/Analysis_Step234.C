@@ -293,7 +293,11 @@ bool hasGoodPtHat(const fwlite::ChainEvent& ev, const double& PtMax){
 
 bool PassTrigger(const fwlite::ChainEvent& ev)
 {
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
+      fwlite::Handle<edm::TriggerResults> hTriggerResults;
+      hTriggerResults.getByLabel(ev, "TriggerResults", "", "MergeHLT");
+      if(!hTriggerResults.isValid()) return false;
+
+      edm::TriggerResultsByName tr = ev.triggerResultsByName(*hTriggerResults);
       if(!tr.isValid())return false;
 
       if(tr.accept(tr.triggerIndex("HscpPathSingleMu")))return true;

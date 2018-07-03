@@ -14,10 +14,10 @@ int main() {
         {
           std::cout << "Position " << -17.+ 34./1000.*i << " Plane " << j << std::endl;
           std::vector<int> firedFibres=theTestGeom.getFiredFibresInPlane(-17.+ 34./1000.*i,j);
-          for (unsigned int k=0; k < firedFibres.size() ; k++) {
-            std::cout << firedFibres[k] << std::endl;
+          for (int firedFibre : firedFibres) {
+            std::cout << firedFibre << std::endl;
          
-            HodoscopeDetId myDetId = HodoscopeDetId( j , (int)firedFibres[k] );
+            HodoscopeDetId myDetId = HodoscopeDetId( j , (int)firedFibre );
             std::cout << myDetId << std::endl;
    
           }

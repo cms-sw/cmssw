@@ -5,6 +5,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <boost/bind.hpp>
+
 bool SiStripBaseDelay::put( const uint32_t detId, const uint16_t coarseDelay, const uint16_t fineDelay )
 {
   delays_.push_back(Delay(detId, coarseDelay, fineDelay));
@@ -46,10 +48,10 @@ void SiStripBaseDelay::detIds(std::vector<uint32_t> & detIdVector) const
   }
 }
 
-void SiStripBaseDelay::printSummary(std::stringstream & ss) const
+void SiStripBaseDelay::printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
   ss << "Total number of delays = " << delays_.size() << std::endl;
-  SiStripDetSummary summaryDelays;
+  SiStripDetSummary summaryDelays{trackerTopo};
   delayConstIt it = delays_.begin();
   for( ; it != delays_.end(); ++it ) {
     summaryDelays.add(it->detId, makeDelay(it->coarseDelay, it->fineDelay));
@@ -58,9 +60,9 @@ void SiStripBaseDelay::printSummary(std::stringstream & ss) const
   summaryDelays.print(ss);
 }
 
-void SiStripBaseDelay::printDebug(std::stringstream & ss) const
+void SiStripBaseDelay::printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const
 {
-  printSummary(ss);
+  printSummary(ss, trackerTopo);
   delayConstIt it = delays_.begin();
   ss << std::endl << "All pedestal values:" << std::endl;
   for( ; it != delays_.end(); ++it ) {

@@ -2,6 +2,7 @@
 //         Created:  Thu, 19 Mar 2015 18:12:35 GMT
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileConverter.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlobCollection.h"
@@ -10,42 +11,33 @@
 #include <fstream>
 
 MillePedeFileConverter::MillePedeFileConverter(const edm::ParameterSet& iConfig)
-    : theInputDir(iConfig.getParameter<std::string>("fileDir")),
-      theInputFileName(iConfig.getParameter<std::string>("inputBinaryFile")),
-      theFileBlobLabel(iConfig.getParameter<std::string>("fileBlobLabel")) {
+    : inputDir_(iConfig.getParameter<std::string>("fileDir")),
+      inputFileName_(iConfig.getParameter<std::string>("inputBinaryFile")),
+      fileBlobLabel_(iConfig.getParameter<std::string>("fileBlobLabel")) {
   // We define what this producer produces: A FileBlobCollection
-  produces<FileBlobCollection, edm::InRun>(theFileBlobLabel);
+  produces<FileBlobCollection, edm::Transition::EndLuminosityBlock>(fileBlobLabel_);
 }
 
 MillePedeFileConverter::~MillePedeFileConverter() {}
 
-void MillePedeFileConverter::endRunProduce(edm::Run& iRun,
-                                           const edm::EventSetup& iSetup) {
+void MillePedeFileConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
+                                                       const edm::EventSetup& iSetup) {
   edm::LogInfo("MillePedeFileActions")
-      << "Inserting all data from file " << theInputDir + theInputFileName
-      << " as a FileBlob to the run, using label \"" << theFileBlobLabel
+      << "Inserting all data from file " << inputDir_ + inputFileName_
+      << " as a FileBlob to the lumi, using label \"" << fileBlobLabel_
       << "\".";
   // Preparing the FileBlobCollection:
-  std::unique_ptr<FileBlobCollection> theFileBlobCollection(
-      new FileBlobCollection());
-  FileBlob theFileBlob;
-  try {
-    // Creating the FileBlob:
-    // (The FileBlob will signal problems with the file itself.)
-    theFileBlob = FileBlob(theInputDir + theInputFileName, true);
+  auto fileBlobCollection = std::make_unique<FileBlobCollection>();
+
+  // Creating the FileBlob:
+  // (The FileBlob will signal problems with the file itself.)
+  FileBlob fileBlob{inputDir_ + inputFileName_, true};
+
+  if (fileBlob.size() > 0) {	// skip if no data or FileBlob file not found
+    // Adding the FileBlob to the lumi:
+    fileBlobCollection->addFileBlob(fileBlob);
   }
-  catch (...) {
-    // When creation of the FileBlob fails:
-    edm::LogError("MillePedeFileActions")
-        << "Error: No FileBlob could be created from the file \""
-        << theInputDir + theInputFileName << "\".";
-    throw;
-  }
-  if (theFileBlob.size() > 0) {
-    // Adding the FileBlob to the run:
-    theFileBlobCollection->addFileBlob(theFileBlob);
-    iRun.put(std::move(theFileBlobCollection), theFileBlobLabel);
-  }
+  iLumi.put(std::move(fileBlobCollection), fileBlobLabel_);
 }
 
 // Manage the parameters for the module:

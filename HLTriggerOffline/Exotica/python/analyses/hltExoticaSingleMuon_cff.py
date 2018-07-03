@@ -4,6 +4,7 @@ SingleMuonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_Mu45_eta2p1_v", # Run 2 
         "HLT_Mu50_v", # Run 2
+        "HLT_TkMu50_v", # 2016 menu
         #50ns backup menu
         "HLT_Mu55_v",
         "HLT_Mu50_eta2p1_v"

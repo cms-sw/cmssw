@@ -42,7 +42,7 @@ public:
     Combination comb;
     Vecint newcomb=next_combi(the_comb,the_n,the_part);
     the_comb=newcomb;
-    if (newcomb.size()==0) {
+    if (newcomb.empty()) {
       Combination empty;
       return empty;
     }
@@ -64,7 +64,7 @@ private:
   Vecint next_combi( Vecint & cold, int n, const Partition & p )
   {
     Vecint empty;
-    if (cold.size()==0) { // first entry, initialize
+    if (cold.empty()) { // first entry, initialize
       cold.reserve(n);
       for (int i=0;i<n;cold.push_back(++i));
       return cold;
@@ -77,7 +77,7 @@ private:
     Vecint cnew1(n1);
     Partition p1(p.begin()+1,p.end());
     cnew1=next_combi(cold1,n1,p1);
-    if (cnew1.size()!=0) {
+    if (!cnew1.empty()) {
       copy(cnew1.begin(),cnew1.end(),cnew.begin()+p[0]);
       return cnew;
     }
@@ -86,7 +86,7 @@ private:
     sort(cold.begin(),cold.end());
     sort(cold2.begin(),cold2.end());
     cnew2=next_subset(cold,cold2);
-    if (cnew2.size()==0) return empty;
+    if (cnew2.empty()) return empty;
     copy(cnew2.begin(),cnew2.begin()+p[0],cnew.begin());
     Vecint ss(n1);
     set_difference(cold.begin(),cold.end(),
@@ -102,7 +102,7 @@ private:
       Vecint::iterator j1=find_if(ss.begin(),ss.end(),bind2nd(std::greater<int>(),mincnew2));
       if (ss.end()-j1 < p[i]) return empty;
       Vecint sss(j1,ss.end());
-      for (int j=0;j<p[i];cnew[ip+j]=cnew2[j]=sss[j++]);
+      for (int j=0;j<p[i];j++){cnew[ip+j]=cnew2[j]=sss[j];}
       int n2=ss.size()-cnew2.size();
       if (n2==0) return cnew;
       Vecint s(n2);

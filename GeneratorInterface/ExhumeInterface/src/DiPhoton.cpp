@@ -16,8 +16,8 @@ Exhume::DiPhoton::DiPhoton(const edm::ParameterSet& pset):
   Partons[0].AntiColour=0;
   Partons[1].Colour=0;
   Partons[1].AntiColour=0;
-  Inv64PI2=double(1.0)/(64.0*PI*PI);
-  PI2 = PI * PI;
+  Inv64PI2=double(1.0)/(64.0*M_PI*M_PI);
+  PI2 = M_PI * M_PI;
 
   Nup=2;
   Ndown=2;

@@ -58,7 +58,7 @@
 #include<cstring>
 
 /// Class to manage all object collections from a centralized place.
-class EVTColContainer;
+struct EVTColContainer;
 
 /// This class is the main workhorse of the package.
 /// It makes the histograms for one given analysis, taking care
@@ -174,6 +174,7 @@ private:
     StringCutObjectSelector<reco::PFMET>       * _recPFMHTSelector;
     StringCutObjectSelector<reco::GenMET>      * _genMETSelector;
     StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+    StringCutObjectSelector<reco::CaloMET>     * _recCaloMHTSelector;
     StringCutObjectSelector<l1extra::L1EtMissParticle> * _l1METSelector;
     StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
     StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;

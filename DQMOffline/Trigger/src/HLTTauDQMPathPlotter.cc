@@ -67,6 +67,9 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
       hL3TrigTauPhiEffDenom_ = iBooker.book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;Efficiency", phibins_, -3.2, 3.2);
       hL3TrigTauHighEtEffNum_    = iBooker.book1D("L3TrigTauHighEtEffNum",    "L3 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
       hL3TrigTauHighEtEffDenom_  = iBooker.book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};Efficiency", ptbins_, 0, highptmax_);
+      hL3TrigTauEtaPhiEffNum_    = iBooker.book2D("L3TrigTauEtaPhiEffNum",    "L3 efficiency in eta-phi plane", etabins_, -2.5, 2.5, phibins_, -3.2, 3.2);
+      hL3TrigTauEtaPhiEffDenom_  = iBooker.book2D("L3TrigTauEtaPhiEffDenom",  "L3 denominator in eta-phi plane", etabins_, -2.5, 2.5, phibins_, -3.2, 3.2);
+      hL3TrigTauEtaPhiEffDenom_->getTH2F()->SetOption("COL");
     }
 
     if(hltPath_.hasL2Electrons()) {
@@ -116,8 +119,7 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
   // Book di-object invariant mass histogram only for mu+tau, ele+tau, and di-tau paths
   hMass_ = nullptr;
   if(doRefAnalysis_) {
-    const int lastFilter = hltPath_.filtersSize()-1;
-    const int ntaus = hltPath_.getFilterNTaus(lastFilter);
+    const int ntaus = hltPath_.getFilterNTaus(hltPath_.getLastL3TauFilterIndex());
     const int neles = hltPath_.getFilterNElectrons(hltPath_.getLastL3ElectronFilterIndex());
     const int nmus = hltPath_.getFilterNMuons(hltPath_.getLastL3MuonFilterIndex());
 
@@ -162,10 +164,9 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
 }
 
 
-HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() {}
+HLTTauDQMPathPlotter::~HLTTauDQMPathPlotter() = default;
 
 void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection) {
-
   std::vector<HLTTauDQMPath::Object> triggerObjs;
   std::vector<HLTTauDQMPath::Object> matchedTriggerObjs;
   HLTTauDQMOfflineObjects matchedOfflineObjs;
@@ -199,7 +200,9 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
       if(hltPath_.getFilterType(i) == "HLTMuonL3PreFilter" || hltPath_.getFilterType(i) == "HLTMuonIsoFilter") lastMatchedMuonFilter = i;
       if(hltPath_.getFilterName(i).find("hltEle") < hltPath_.getFilterName(i).length()) lastMatchedElectronFilter = i;
       if(hltPath_.getFilterName(i).find("hltPFTau") < hltPath_.getFilterName(i).length() || 
-         hltPath_.getFilterName(i).find("hltDoublePFTau") < hltPath_.getFilterName(i).length())    lastMatchedTauFilter = i;
+         hltPath_.getFilterName(i).find("hltHpsPFTau") < hltPath_.getFilterName(i).length() ||
+         hltPath_.getFilterName(i).find("hltDoublePFTau") < hltPath_.getFilterName(i).length() ||
+         hltPath_.getFilterName(i).find("hltHpsDoublePFTau") < hltPath_.getFilterName(i).length())    lastMatchedTauFilter = i;
       if(firstMatchedMETFilter < 0 && hltPath_.getFilterName(i).find("hltMET") < hltPath_.getFilterName(i).length()) firstMatchedMETFilter = i;
     }
   }
@@ -250,6 +253,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
           hL3TrigTauHighEtEffDenom_->Fill(tau.pt());
           hL3TrigTauEtaEffDenom_->Fill(tau.eta());
           hL3TrigTauPhiEffDenom_->Fill(tau.phi());
+          hL3TrigTauEtaPhiEffDenom_->Fill(tau.eta(),tau.phi());
         }
       }
 
@@ -266,6 +270,7 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
             hL3TrigTauHighEtEffNum_->Fill(tau.pt());
             hL3TrigTauEtaEffNum_->Fill(tau.eta());
             hL3TrigTauPhiEffNum_->Fill(tau.phi());
+            hL3TrigTauEtaPhiEffNum_->Fill(tau.eta(),tau.phi());
           }
         }
       }
@@ -445,28 +450,28 @@ void HLTTauDQMPathPlotter::analyze(const edm::TriggerResults& triggerResults, co
           }
         }
       }
-    }
 
-    // Triggered object kinematics
-    for(const HLTTauDQMPath::Object& obj: triggerObjs) {
-      if(obj.id == trigger::TriggerTau){
-	hTrigTauEt_->Fill(obj.object.pt());
-	hTrigTauEta_->Fill(obj.object.eta());
-	hTrigTauPhi_->Fill(obj.object.phi());
-      }
-      if(obj.id == trigger::TriggerElectron || obj.id == trigger::TriggerPhoton){
-        hTrigElectronEt_->Fill(obj.object.pt());
-        hTrigElectronEta_->Fill(obj.object.eta());
-        hTrigElectronPhi_->Fill(obj.object.phi());
-      }
-      if(obj.id == trigger::TriggerMuon){   
-        hTrigMuonEt_->Fill(obj.object.pt());   
-        hTrigMuonEta_->Fill(obj.object.eta());
-        hTrigMuonPhi_->Fill(obj.object.phi());
-      }
-      if(obj.id == trigger::TriggerMET){
-        hTrigMETEt_->Fill(obj.object.pt());
-        hTrigMETPhi_->Fill(obj.object.phi());
+      // Triggered object kinematics
+      for(const HLTTauDQMPath::Object& obj: triggerObjs) {
+        if(obj.id == trigger::TriggerTau){
+  	  hTrigTauEt_->Fill(obj.object.pt());
+	  hTrigTauEta_->Fill(obj.object.eta());
+	  hTrigTauPhi_->Fill(obj.object.phi());
+        }
+        if(obj.id == trigger::TriggerElectron || obj.id == trigger::TriggerPhoton){
+          hTrigElectronEt_->Fill(obj.object.pt());
+          hTrigElectronEta_->Fill(obj.object.eta());
+          hTrigElectronPhi_->Fill(obj.object.phi());
+        }
+        if(obj.id == trigger::TriggerMuon){   
+          hTrigMuonEt_->Fill(obj.object.pt());   
+          hTrigMuonEta_->Fill(obj.object.eta());
+          hTrigMuonPhi_->Fill(obj.object.phi());
+        }
+        if(obj.id == trigger::TriggerMET){
+          hTrigMETEt_->Fill(obj.object.pt());
+          hTrigMETPhi_->Fill(obj.object.phi());
+        }
       }
     }
   }

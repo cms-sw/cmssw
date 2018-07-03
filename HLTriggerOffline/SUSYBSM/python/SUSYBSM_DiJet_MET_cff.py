@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SUSY_HLT_DiJet_MET = DQMEDAnalyzer('SUSY_HLT_DiJet_MET',
   trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), 
   pfMETCollection = cms.InputTag("pfMet"),
   caloMETCollection = cms.InputTag("caloMet"),
@@ -8,7 +10,7 @@ SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_DiCentralPFJet55_PFMET110_NoiseCleaned_v'),
+  TriggerPath = cms.string('HLT_DiCentralPFJet55_PFMET110_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_v'),
   TriggerFilter = cms.InputTag('hltPFMET110Filter','','HLT'), #the last filter in the path
   TriggerJetFilter = cms.InputTag('hltDiCentralPFJet55','','HLT'), #the last filter in the path
@@ -19,8 +21,8 @@ SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
   OfflineMetCut = cms.untracked.double(250.0),
 )
 
-SUSY_HLT_DiJet_MET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110_NoiseCleaned"),
+SUSYoHLToDiJetMEToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(

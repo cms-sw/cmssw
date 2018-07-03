@@ -1,11 +1,11 @@
 from alternateValidationTemplates import *
 from offlineValidationTemplates import *
+from primaryVertexValidationTemplates import *
 from geometryComparisonTemplates import *
 from monteCarloValidationTemplates import *
 from trackSplittingValidationTemplates import *
 from zMuMuValidationTemplates import *
 from TkAlExceptions import AllInOneError
-
 
 ######################################################################
 ######################################################################
@@ -14,6 +14,16 @@ from TkAlExceptions import AllInOneError
 ###                                                                ###
 ######################################################################
 ######################################################################
+
+######################################################################
+######################################################################
+loadGlobalTagTemplate="""
+#Global tag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag,".oO[GlobalTag]Oo.")
+"""
+
 
 ######################################################################
 ######################################################################
@@ -38,25 +48,27 @@ scriptTemplate="""
 #ulimit -v 3072000
 #export STAGE_SVCCLASS=cmscafuser
 #save path to the LSF batch working directory  (/pool/lsf)
+
 export LSFWORKDIR=`pwd -P`
 echo LSF working directory is $LSFWORKDIR
 source /afs/cern.ch/cms/caf/setup.sh
+export X509_USER_PROXY=.oO[scriptsdir]Oo./.user_proxy
 cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 #rfmkdir -p .oO[datadir]Oo. &>! /dev/null
 
 #remove possible result file from previous runs
-previous_results=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}')
+previous_results=$(ls /eos/cms/store/caf/user/$USER/.oO[eosdir]Oo.)
 for file in ${previous_results}
 do
-    if [ ${file} = /store/caf/user/$USER/.oO[eosdir]Oo./.oO[outputFile]Oo. ]
+    if [ ${file} = /eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[outputFile]Oo. ]
     then
-        cmsStage -f ${file} ${file}.bak
+        xrdcp -f root://eoscms//eos/cms${file} root://eoscms//eos/cms${file}.bak
     fi
 done
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     rfmkdir -p .oO[workdir]Oo.
     rm -f .oO[workdir]Oo./*
@@ -86,7 +98,7 @@ gzip -f LOGFILE_*_.oO[name]Oo..log
 find . -maxdepth 1 -name "LOGFILE*.oO[alignmentName]Oo.*" -print | xargs -I {} bash -c "rfcp {} .oO[logdir]Oo."
 
 #copy root files to eos
-cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.
+mkdir -p /eos/cms/store/caf/user/$USER/.oO[eosdir]Oo.
 if [ .oO[parallelJobs]Oo. -eq 1 ]
 then
     root_files=$(ls --color=never -d *.oO[alignmentName]Oo.*.root)
@@ -97,18 +109,110 @@ echo ${root_files}
 
 for file in ${root_files}
 do
-    cmsStage -f ${file} /store/caf/user/$USER/.oO[eosdir]Oo.
+    xrdcp -f ${file} root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo.
     echo ${file}
 done
 
 #cleanup
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     rm -rf .oO[workdir]Oo.
 fi
 echo "done."
 """
 
+
+######################################################################
+######################################################################
+cfgTemplate="""
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process(".oO[ProcessName]Oo.")
+
+.oO[datasetDefinition]Oo.
+.oO[Bookkeeping]Oo.
+.oO[LoadBasicModules]Oo.
+.oO[TrackSelectionRefitting]Oo.
+.oO[LoadGlobalTagTemplate]Oo.
+.oO[condLoad]Oo.
+.oO[ValidationConfig]Oo.
+.oO[FileOutputTemplate]Oo.
+
+.oO[DefinePath]Oo.
+"""
+
+
+######################################################################
+######################################################################
+Bookkeeping = """
+process.options = cms.untracked.PSet(
+   wantSummary = cms.untracked.bool(False),
+   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
+   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+)
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.destinations = ['cout', 'cerr']
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.statistics.append('cout')
+"""
+
+
+######################################################################
+######################################################################
+CommonTrackSelectionRefitting = """
+import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
+process.seqTrackselRefit = trackselRefit.getSequence(process, '.oO[trackcollection]Oo.',
+                                                     isPVValidation=.oO[ispvvalidation]Oo., 
+                                                     TTRHBuilder='.oO[ttrhbuilder]Oo.',
+                                                     usePixelQualityFlag=.oO[usepixelqualityflag]Oo.,
+                                                     openMassWindow=.oO[openmasswindow]Oo.,
+                                                     cosmicsDecoMode=.oO[cosmicsdecomode]Oo.,
+                                                     cosmicsZeroTesla=.oO[cosmics0T]Oo.,
+                                                     momentumConstraint=.oO[momentumconstraint]Oo.,
+                                                     cosmicTrackSplitting=.oO[istracksplitting]Oo.,
+                                                     use_d0cut=.oO[use_d0cut]Oo.,
+                                                    )
+
+.oO[trackhitfiltercommands]Oo.
+"""
+
+
+######################################################################
+######################################################################
+SingleTrackRefitter = """
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
+process.TrackRefitter.src = ".oO[TrackCollection]Oo."
+process.TrackRefitter.TTRHBuilder = ".oO[ttrhbuilder]Oo."
+process.TrackRefitter.NavigationSchool = ""
+"""
+
+
+######################################################################
+######################################################################
+LoadBasicModules = """
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
+process.load('Configuration.StandardSequences.Services_cff')
+process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
+"""
+
+
+######################################################################
+######################################################################
+FileOutputTemplate = """
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('.oO[outputFile]Oo.')
+)
+"""
+
+
+######################################################################
+######################################################################
+DefinePath_CommonSelectionRefitting = """
+process.p = cms.Path(
+process.seqTrackselRefit*.oO[ValidationSequence]Oo.)
+"""
 
 ######################################################################
 ######################################################################
@@ -119,11 +223,10 @@ cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
 
-#create results-directory and copy used configuration there
-rfmkdir -p .oO[datadir]Oo.
-rfcp .oO[logdir]Oo./usedConfiguration.ini .oO[datadir]Oo.
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+.oO[createResultsDirectory]Oo.
+
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
 then
     mkdir -p .oO[workdir]Oo.
     cd .oO[workdir]Oo.
@@ -134,21 +237,20 @@ echo "Working directory: $(pwd -P)"
 
 ###############################################################################
 # download root files from eos
-root_files=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}' \
+root_files=$(ls /eos/cms/store/caf/user/$USER/.oO[eosdir]Oo. \
              | grep ".root$" | grep -v "result.root$")
-for file in ${root_files}
-do
-    cmsStage -f ${file} .
-    # echo ${file}
-done
+#for file in ${root_files}
+#do
+#    xrdcp -f root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./${file} .
+#    echo ${file}
+#done
 
 
 #run
 .oO[DownloadData]Oo.
 .oO[CompareAlignments]Oo.
 
-.oO[RunExtendedOfflineValidation]Oo.
-.oO[RunTrackSplitPlot]Oo.
+.oO[RunValidationPlots]Oo.
 
 # clean-up
 # ls -l *.root
@@ -161,12 +263,55 @@ find . -name "*.stdout" -exec gzip -f {} \;
 """
 
 
+
+######################################################################
+######################################################################
+mergeParallelOfflineTemplate="""
+#!/bin/bash
+CWD=`pwd -P`
+cd .oO[CMSSW_BASE]Oo./src
+export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
+eval `scramv1 ru -sh`
+
+if [[ $HOSTNAME = lxplus[0-9]*[.a-z0-9]* ]] # check for interactive mode
+then
+    mkdir -p .oO[workdir]Oo.
+    cd .oO[workdir]Oo.
+else
+    cd $CWD
+fi
+echo "Working directory: $(pwd -P)"
+
+###############################################################################
+# download root files from eos
+root_files=$(ls /eos/cms/store/caf/user/$USER/.oO[eosdir]Oo. \
+             | grep ".root$" | grep -v "result.root$")
+#for file in ${root_files}
+#do
+#    xrdcp -f root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./${file} .
+#    echo ${file}
+#done
+
+
+#run
+.oO[DownloadData]Oo.
+"""
+
+######################################################################
+######################################################################
+createResultsDirectoryTemplate="""
+#create results-directory and copy used configuration there
+rfmkdir -p .oO[datadir]Oo.
+rfcp .oO[logdir]Oo./usedConfiguration.ini .oO[datadir]Oo.
+"""
+
+
 ######################################################################
 ######################################################################
 mergeParallelResults="""
 
-.oO[copyMergeScripts]Oo.
-.oO[haddLoop]Oo.
+.oO[beforeMerge]Oo.
+.oO[doMerge]Oo.
 
 # create log file
 ls -al .oO[mergeParallelFilePrefixes]Oo. > .oO[datadir]Oo./log_rootfilelist.txt
@@ -181,81 +326,21 @@ ls -al .oO[mergeParallelFilePrefixes]Oo. > .oO[datadir]Oo./log_rootfilelist.txt
 compareAlignmentsExecution="""
 #merge for .oO[validationId]Oo. if it does not exist or is not up-to-date
 echo -e "\n\nComparing validations"
-cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo./
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareFileAges.C .
+mkdir -p /eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./
+cp .oO[Alignment/OfflineValidation]Oo./scripts/compareFileAges.C .
 root -x -q -b -l "compareFileAges.C(\\\"root://eoscms.cern.ch//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root\\\", \\\".oO[compareStringsPlain]Oo.\\\")"
 comparisonNeeded=${?}
 
 if [[ ${comparisonNeeded} -eq 1 ]]
 then
-    cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/compareAlignments.cc .
-    root -x -q -b -l 'compareAlignments.cc++(\".oO[compareStrings]Oo.\")'
+    cp .oO[compareAlignmentsPath]Oo. .
+    root -x -q -b -l '.oO[compareAlignmentsName]Oo.++(\".oO[compareStrings]Oo.\", ".oO[legendheader]Oo.", ".oO[customtitle]Oo.", ".oO[customrighttitle]Oo.", .oO[bigtext]Oo.)'
     mv result.root .oO[validationId]Oo._result.root
-    cmsStage -f .oO[validationId]Oo._result.root /store/caf/user/$USER/.oO[eosdir]Oo.
+    xrdcp -f .oO[validationId]Oo._result.root root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo.
 else
     echo ".oO[validationId]Oo._result.root is up-to-date, no need to compare again."
-    cmsStage -f /store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root .
+    xrdcp -f root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[validationId]Oo._result.root .
 fi
-"""
-
-
-######################################################################
-######################################################################
-extendedValidationExecution="""
-#run extended offline validation scripts
-echo -e "\n\nRunning extended offline validation"
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
-then
-    rfmkdir -p .oO[workdir]Oo./ExtendedOfflineValidation_Images
-else
-    mkdir -p ExtendedOfflineValidation_Images
-fi
-
-rfcp .oO[extendedValScriptPath]Oo. .
-rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C .
-root -x -b -q -l TkAlExtendedOfflineValidation.C
-rfmkdir -p .oO[datadir]Oo./ExtendedOfflineValidation_Images
-
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
-then
-    image_files=$(ls --color=never | find .oO[workdir]Oo./ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root)
-    echo -e "\n\nProduced plot files:"
-    #echo ${image_files}
-    ls .oO[workdir]Oo./ExtendedOfflineValidation_Images
-else
-    image_files=$(ls --color=never | find ExtendedOfflineValidation_Images/ -name \*ps -o -name \*root)
-    echo -e "\n\nProduced plot files:"
-    #echo ${image_files}
-    ls ExtendedOfflineValidation_Images
-fi
-
-for image in ${image_files}
-do
-    cp ${image} .oO[datadir]Oo./ExtendedOfflineValidation_Images
-done
-"""
-
-
-######################################################################
-######################################################################
-extendedValidationTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
-void TkAlExtendedOfflineValidation()
-{
-  // load framework lite just to find the CMSSW libs...
-  gSystem->Load("libFWCoreFWLite");
-  FWLiteEnabler::enable();
-  //compile the makro
-  //gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
-  // gROOT->ProcessLine(".L ./PlotAlignmentValidation.C++");
-
-  .oO[extendedInstantiation]Oo.
-  p.setOutputDir("./ExtendedOfflineValidation_Images");
-  p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
-  p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
-  p.plotSurfaceShapes(".oO[SurfaceShapes]Oo.");
-  p.plotChi2("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[resultPlotFile]Oo._result.root");
-}
 """
 
 

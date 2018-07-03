@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 FEConfigMainInfo::FEConfigMainInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_ID=0;
   m_version=0;
@@ -46,7 +46,7 @@ void FEConfigMainInfo::clear() {
 
 
 }
-int FEConfigMainInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigMainInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -62,13 +62,13 @@ int FEConfigMainInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigMainInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigMainInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
 
 int FEConfigMainInfo::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -110,7 +110,7 @@ int FEConfigMainInfo::fetchID()
     std::cout<<m_ID<<endl;
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigMainInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigMainInfo::fetchID:  ")+getOraMessage(&e)));
   }
   setByID(m_ID);
   return m_ID;
@@ -120,7 +120,7 @@ int FEConfigMainInfo::fetchID()
 
 
 void FEConfigMainInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -136,14 +136,14 @@ void FEConfigMainInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigMainInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigMainInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
 
 
 void FEConfigMainInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -172,7 +172,7 @@ void FEConfigMainInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigMainInfo::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigMainInfo::writeDB:  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -188,7 +188,7 @@ void FEConfigMainInfo::writeDB()
 
 
 int FEConfigMainInfo::fetchIDLast()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -207,7 +207,7 @@ int FEConfigMainInfo::fetchIDLast()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigInfo::fetchIDLast:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigInfo::fetchIDLast:  ")+getOraMessage(&e)));
   }
 
   setByID(m_ID);
@@ -216,7 +216,7 @@ int FEConfigMainInfo::fetchIDLast()
 
 
 void FEConfigMainInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -244,9 +244,9 @@ void FEConfigMainInfo::setByID(int id)
        setBxtId(       rset->getInt(10) );
        setBttId(       rset->getInt(11) );
        setBstId(       rset->getInt(12) );
-       setConfigTag(   rset->getString(13) );
+       setConfigTag(   getOraString(rset,13) );
        setVersion(     rset->getInt(14) );
-       setDescription(      rset->getString(15) );
+       setDescription(      getOraString(rset,15) );
        Date dbdate = rset->getDate(16);
        setDBTime( dh.dateToTm( dbdate ));
        m_ID = id;
@@ -255,13 +255,13 @@ void FEConfigMainInfo::setByID(int id)
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("FEConfigMainInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("FEConfigMainInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 
 
 void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 { std::cout << " ### 1 getId from FEConfigMainInfo = " << result->getId() << std::endl;
  std::cout << " tag/version " << result->getConfigTag() <<"/"<<result->getVersion() << std::endl;
   
@@ -302,19 +302,19 @@ void FEConfigMainInfo::fetchData(FEConfigMainInfo * result)
     setBttId(       rset->getInt(11) );
     setBstId(       rset->getInt(12) );
     
-    result->setConfigTag(         rset->getString(13) );
+    result->setConfigTag(         getOraString(rset,13) );
     result->setVersion(     rset->getInt(14) );
-    result->setDescription(      rset->getString(15) );
+    result->setDescription(      getOraString(rset,15) );
     Date dbdate = rset->getDate(16);
     result->setDBTime( dh.dateToTm( dbdate ));
  
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigMainInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigMainInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
  void FEConfigMainInfo::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

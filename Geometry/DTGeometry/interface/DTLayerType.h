@@ -20,7 +20,7 @@ class DTLayerType : public GeomDetType {
     DTLayerType() ;
 
 /* Operations */ 
-    virtual const Topology& topology() const;
+    const Topology& topology() const override;
 };
 #endif // DTLAYERTYPE_H
 

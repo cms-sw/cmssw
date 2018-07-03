@@ -20,7 +20,7 @@
 
 // system include files
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
 // user include files
@@ -35,11 +35,11 @@ class FWExpressionValidator : public FWValidatorBase {
 
 public:
    FWExpressionValidator();
-   virtual ~FWExpressionValidator();
+   ~FWExpressionValidator() override;
 
    // ---------- const member functions ---------------------
-   virtual void fillOptions(const char* iBegin, const char* iEnd,
-                            std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const;
+   void fillOptions(const char* iBegin, const char* iEnd,
+                            std::vector<std::pair<std::shared_ptr<std::string>, std::string> >& oOptions) const override;
 
    // ---------- static member functions --------------------
 
@@ -47,14 +47,14 @@ public:
    void setType(const edm::TypeWithDict&);
 
 private:
-   FWExpressionValidator(const FWExpressionValidator&); // stop default
+   FWExpressionValidator(const FWExpressionValidator&) = delete; // stop default
 
-   const FWExpressionValidator& operator=(const FWExpressionValidator&); // stop default
+   const FWExpressionValidator& operator=(const FWExpressionValidator&) = delete; // stop default
 
    // ---------- member data --------------------------------
    edm::TypeWithDict m_type;
-   std::vector<boost::shared_ptr<fireworks::OptionNode> > m_options;
-   std::vector<boost::shared_ptr<fireworks::OptionNode> > m_builtins;
+   std::vector<std::shared_ptr<fireworks::OptionNode> > m_options;
+   std::vector<std::shared_ptr<fireworks::OptionNode> > m_builtins;
 
 };
 

@@ -45,8 +45,6 @@ const double defaultYaxisTitleSize = 0.05;
 const double defaultYaxisMaximumScaleFactor_linear = 1.6;
 const double defaultYaxisMaximumScaleFactor_log = 5.e+2;
 
-double TauDQMHistPlotter::cfgEntryAxisY::yAxisNorm_ = 0.;
-
 // defaults for cfgEntryLegend
 const double defaultLegendPosX = 0.50;
 const double defaultLegendPosY = 0.55;
@@ -121,7 +119,7 @@ const T* findCfgDef(const std::string& cfgEntryName, std::map<std::string, T>& d
     return &(it->second);
   } else {
     edm::LogError ("findCfgDef") << " " << defType << " = " << cfgEntryName << " undefined, needed by drawJob = " << drawJobName << " !!";
-    return NULL;
+    return nullptr;
   } 
 }
 
@@ -257,7 +255,7 @@ void TauDQMHistPlotter::cfgEntryAxisY::print() const
   std::cout << " yAxisTitleSize = " << yAxisTitleSize_ << std::endl;
 }
 
-void TauDQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram) const
+void TauDQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram, double norm) const
 {
   if ( histogram ) {
     bool yLogScale = ( yScale_ == yScale_log ) ? true : false;
@@ -273,7 +271,7 @@ void TauDQMHistPlotter::cfgEntryAxisY::applyTo(TH1* histogram) const
 //    normalize y-axis range to maximum of any histogram included in drawJob
 //    times defaultYaxisMaximumScaleFactor (apply scale factor in order to make space for legend)
       double defaultYaxisMaximumScaleFactor = ( yLogScale ) ? defaultYaxisMaximumScaleFactor_log : defaultYaxisMaximumScaleFactor_linear;
-      histogram->SetMaximum(defaultYaxisMaximumScaleFactor*yAxisNorm_);
+      histogram->SetMaximum(defaultYaxisMaximumScaleFactor*norm);
     }
     histogram->GetYaxis()->SetTitle(yAxisTitle_.data());
     histogram->GetYaxis()->SetTitleOffset(yAxisTitleOffset_);
@@ -925,7 +923,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
   //pad.Divide(1,1);
   //pad.cd(1);
 
-  TPostScript* ps = NULL;
+  TPostScript* ps = nullptr;
   if ( outputFileName_ != "" ) {
     std::string psFileName = ( outputFilePath_ != "" ) ? std::string(outputFilePath_).append("/").append(outputFileName_) : outputFileName_;
     ps = new TPostScript(psFileName.data(), 112);
@@ -939,7 +937,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       std::cout << "--> processing drawJob " << drawJobName << "..." << std::endl;
 
 //--- prepare internally used histogram data-structures
-    TH1* stackedHistogram_sum = NULL;
+    TH1* stackedHistogram_sum = nullptr;
     std::list<TH1*> histogramsToDelete;
     std::list<plotDefEntry*> drawOptionsToDelete;
 
@@ -960,7 +958,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       //      TH1* histogram = ( dqmMonitorElement ) ? dynamic_cast<TH1*>(dqmMonitorElement->getTH1()->Clone()) : NULL;
       //histogramsToDelete.push_back(histogram);
 
-      if ( histogram == NULL ) {
+      if ( histogram == nullptr ) {
 	edm::LogError ("endJob") << " Failed to access dqmMonitorElement = " << dqmMonitorElementName_full <<","
 				 << " needed by drawJob = " << drawJobName << " --> histograms will NOT be plotted !!";
 	continue;
@@ -970,7 +968,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 
       const cfgEntryDrawOption* drawOptionConfig = 
 	findCfgDef<cfgEntryDrawOption>(plot->drawOptionEntry_, drawOptionEntries_, "drawOptionEntry", drawJobName);
-      if ( drawOptionConfig == NULL ) {
+      if ( drawOptionConfig == nullptr ) {
 	edm::LogError ("endJob") << " Failed to access information needed by drawJob = " << drawJobName 
 				 << " --> histograms will NOT be plotted !!";
 	return;
@@ -1038,13 +1036,12 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       yAxisNorm = TMath::Max(yAxisNorm, it->first->GetMaximum());
     }
     //std::cout << " yAxisNorm = " << yAxisNorm << std::endl;
-    cfgEntryAxisY::setNorm(yAxisNorm);
 
 //--- prepare histograms for drawing
     const cfgEntryAxisX* xAxisConfig = findCfgDef<cfgEntryAxisX>(drawJob->xAxis_, xAxes_, "xAxis", drawJobName);
     const cfgEntryAxisY* yAxisConfig = findCfgDef<cfgEntryAxisY>(drawJob->yAxis_, yAxes_, "yAxis", drawJobName);
     const cfgEntryLegend* legendConfig = findCfgDef<cfgEntryLegend>(drawJob->legend_, legends_, "legend", drawJobName);
-    if ( xAxisConfig == NULL || yAxisConfig == NULL || legendConfig == NULL ) {
+    if ( xAxisConfig == nullptr || yAxisConfig == nullptr || legendConfig == nullptr ) {
       edm::LogError ("endJob") << " Failed to access information needed by drawJob = " << drawJobName 
 			       << " --> histograms will NOT be plotted !!";
       return;
@@ -1070,7 +1067,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       const cfgEntryDrawOption* drawOptionConfig = 
 	findCfgDef<cfgEntryDrawOption>(drawOption->drawOptionEntry_, drawOptionEntries_, "drawOptionEntry", drawJobName);
       const cfgEntryProcess* processConfig = findCfgDef<cfgEntryProcess>(drawOption->process_, processes_, "process", drawJobName);
-      if ( drawOptionConfig == NULL || processConfig == NULL ) {
+      if ( drawOptionConfig == nullptr || processConfig == nullptr ) {
 	edm::LogError ("endJob") << " Failed to access information needed by drawJob = " << drawJobName 
 				 << " --> histograms will NOT be plotted !!";
 	return;
@@ -1079,7 +1076,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       if ( drawJob->title_ != "" ) histogram->SetTitle(drawJob->title_.data());
 
       xAxisConfig->applyTo(histogram);
-      yAxisConfig->applyTo(histogram);
+      yAxisConfig->applyTo(histogram,yAxisNorm);
 
       bool yLogScale = ( yAxisConfig->yScale_ == yScale_log ) ? true : false;
       //std::cout << " yLogScale = " << yLogScale << std::endl; 

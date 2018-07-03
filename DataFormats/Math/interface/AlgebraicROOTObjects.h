@@ -1,15 +1,7 @@
 #ifndef DataFormats_Math_AlgebraicROOTObjects_h_
 #define DataFormats_Math_AlgebraicROOTObjects_h_
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
-#ifdef CMS_NOCXX11
-#define SMATRIX_USE_COMPUTATION
-#else
 #define SMATRIX_USE_CONSTEXPR
-#endif
-
-
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 

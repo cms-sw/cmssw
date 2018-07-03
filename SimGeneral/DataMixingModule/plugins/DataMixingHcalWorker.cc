@@ -82,7 +82,7 @@ namespace edm
 
    Handle< HBHERecHitCollection > pHBHERecHits;
 
-   const HBHERecHitCollection*  HBHERecHits = 0;
+   const HBHERecHitCollection*  HBHERecHits = nullptr;
 
    if( e.getByToken( HBHERecHitToken_, pHBHERecHits) ) {
      HBHERecHits = pHBHERecHits.product(); // get a ptr to the product
@@ -111,7 +111,7 @@ namespace edm
 
    Handle< HORecHitCollection > pHORecHits;
 
-   const HORecHitCollection*  HORecHits = 0;
+   const HORecHitCollection*  HORecHits = nullptr;
 
    if( e.getByToken( HORecHitToken_, pHORecHits) ){
      HORecHits = pHORecHits.product(); // get a ptr to the product
@@ -142,7 +142,7 @@ namespace edm
 
    Handle< HFRecHitCollection > pHFRecHits;
 
-   const HFRecHitCollection*  HFRecHits = 0;
+   const HFRecHitCollection*  HFRecHits = nullptr;
 
    if( e.getByToken( HFRecHitToken_, pHFRecHits) ) {
      HFRecHits = pHFRecHits.product(); // get a ptr to the product
@@ -173,7 +173,7 @@ namespace edm
 
    Handle< ZDCRecHitCollection > pZDCRecHits;
 
-   const ZDCRecHitCollection*  ZDCRecHits = 0;
+   const ZDCRecHitCollection*  ZDCRecHits = nullptr;
 
    if( e.getByToken( ZDCRecHitToken_, pZDCRecHits) ) {
      ZDCRecHits = pZDCRecHits.product(); // get a ptr to the product
@@ -315,10 +315,10 @@ namespace edm
   void DataMixingHcalWorker::putHcal(edm::Event &e) {
 
     // collection of rechits to put in the event
-    std::auto_ptr< HBHERecHitCollection > HBHErechits( new HBHERecHitCollection );
-    std::auto_ptr< HORecHitCollection > HOrechits( new HORecHitCollection );
-    std::auto_ptr< HFRecHitCollection > HFrechits( new HFRecHitCollection );
-    std::auto_ptr< ZDCRecHitCollection > ZDCrechits( new ZDCRecHitCollection );
+    std::unique_ptr< HBHERecHitCollection > HBHErechits( new HBHERecHitCollection );
+    std::unique_ptr< HORecHitCollection > HOrechits( new HORecHitCollection );
+    std::unique_ptr< HFRecHitCollection > HFrechits( new HFRecHitCollection );
+    std::unique_ptr< ZDCRecHitCollection > ZDCrechits( new ZDCRecHitCollection );
 
     // loop over the maps we have, re-making individual hits or rechits if necessary.
     DetId formerID = 0;
@@ -486,10 +486,10 @@ namespace edm
     LogInfo("DataMixingHcalWorker") << "total # HF Merged rechits: " << HFrechits->size() ;
     LogInfo("DataMixingHcalWorker") << "total # ZDC Merged rechits: " << ZDCrechits->size() ;
 
-    e.put( HBHErechits, HBHERecHitCollectionDM_ );
-    e.put( HOrechits, HORecHitCollectionDM_ );
-    e.put( HFrechits, HFRecHitCollectionDM_ );
-    e.put( ZDCrechits, ZDCRecHitCollectionDM_ );
+    e.put(std::move(HBHErechits), HBHERecHitCollectionDM_ );
+    e.put(std::move(HOrechits), HORecHitCollectionDM_ );
+    e.put(std::move(HFrechits), HFRecHitCollectionDM_ );
+    e.put(std::move(ZDCrechits), ZDCRecHitCollectionDM_ );
 
     // clear local storage after this event
     HBHERecHitStorage_.clear();

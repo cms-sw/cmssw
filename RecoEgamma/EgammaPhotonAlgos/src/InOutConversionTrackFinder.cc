@@ -3,8 +3,6 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
 
 //
-#include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
-#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 //
@@ -28,16 +26,12 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::ParameterSet& 
 
  // get the seed cleaner
  std::string cleaner = conf.getParameter<std::string>("InOutRedundantSeedCleaner");
- if (cleaner == "SeedCleanerByHitPosition") {
-   theSeedCleaner_ = new SeedCleanerByHitPosition();
- } else if (cleaner == "CachingSeedCleanerByHitPosition") {
-   theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
- } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+ if (cleaner == "CachingSeedCleanerBySharedInput") {
    theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
  } else if (cleaner == "none") {
-   theSeedCleaner_ = 0;
+   theSeedCleaner_ = nullptr;
  } else {
-   throw cms::Exception("InOutRedundantSeedCleaner not found", cleaner);
+   throw cms::Exception("InOutRedundantSeedCleaner not found, please use CachingSeedCleanerBySharedInput or none", cleaner);
  }
 
 }

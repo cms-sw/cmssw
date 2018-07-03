@@ -126,7 +126,7 @@ const bool L1GtHfRingEtSumsCondition::evaluateCondition() const {
     const L1GctHFRingEtSums* etSumCand = m_gtPSB->getCandL1HfRingEtSums();
 
     // protection against missing HF Ring Et sums collection
-    if (etSumCand == 0) {
+    if (etSumCand == nullptr) {
         return false;
     }
 

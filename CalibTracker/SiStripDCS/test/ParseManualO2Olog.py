@@ -730,10 +730,8 @@ class TrkVoltageStatus:
         """
         Function that returns the IOV timestamps (ordered) contained in a given interval.
         """
-        #Copy the timestamps in a list
-        TimeStamps=HistoryDict.keys()[:]
-        #Sort them:
-        TimeStamps.sort()
+        #Copy and sort the timestamps in a list
+        TimeStamps=sorted(HistoryDict.keys()[:])
         IOVsInTimeInterval=[]
         #loop over them:
         for timestamp in TimeStamps:
@@ -749,10 +747,8 @@ class TrkVoltageStatus:
         """
         deltaTime=datetime.timedelta(seconds=deltaT)
         maxSequenceLength=datetime.timedelta(seconds=maxIOVLength)
-        #Copy the timestamps in a list:
-        TimeStamps=HistoryDict.keys()[:]
-        #Sort them:
-        TimeStamps.sort()
+        #Copy and sort the timestamps in a list:
+        TimeStamps=sorted(HistoryDict.keys()[:])
         ReducedIOVs=TimeStamps[:]
         PreviousTimestamp=TimeStamps[0] 
         SequenceStart=TimeStamps[0]  #Initialization irrelevant see loop
@@ -1308,7 +1304,7 @@ for interval in QueryResults.keys():
         #    print row
         #if row['change_date']==datetime.datetime(2010, 8, 28, 22, 51, 8, 994000):
         #    print row
-        if row['change_date']>datetime.datetime(2010, 8, 28, 22, 44) and row['change_date']<datetime.datetime(2010, 8, 28, 23, 05,37):
+        if row['change_date']>datetime.datetime(2010, 8, 28, 22, 44) and row['change_date']<datetime.datetime(2010, 8, 28, 23, 5,37):
             print row    
             
         

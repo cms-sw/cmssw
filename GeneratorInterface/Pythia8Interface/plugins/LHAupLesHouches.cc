@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 
 #include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,10 +42,13 @@ bool LHAupLesHouches::setInit()
     infoPtr->setHeader("slha",slhaheader);
   }  
   
-  //work around missing initialization inside pythia8
-  infoPtr->eventAttributes = new std::map<std::string, std::string >;
-  
-  
+  //will be used to work around missing initialization inside pythia8
+  if(!fEvAttributes) {
+    fEvAttributes = new std::map<std::string, std::string >;
+  } else {
+    fEvAttributes->clear();
+  }
+
   return true;
 }
 
@@ -72,7 +75,7 @@ bool LHAupLesHouches::setEvent(int inProcId)
     
     //handle clustering scales if present,
     //applies to outgoing partons only
-    if (setScalesFromLHEF_ && scales.size()>0 && hepeup.ISTUP[i]==1) {
+    if (setScalesFromLHEF_ && !scales.empty() && hepeup.ISTUP[i]==1) {
       if (iscale>=scales.size()) {
         edm::LogError("InvalidLHEInput") << "Pythia8 requires"
                                     << "cluster scales for all outgoing partons or for none" 
@@ -91,8 +94,13 @@ bool LHAupLesHouches::setEvent(int inProcId)
                 hepeup.SPINUP[i],scalein);
   }
   
-  infoPtr->eventAttributes->clear();
-  
+  if(!infoPtr->eventAttributes) {
+    fEvAttributes->clear();
+    infoPtr->eventAttributes = fEvAttributes;
+  } else {
+    infoPtr->eventAttributes->clear();
+  }
+
   //fill parton multiplicities if available
   int npLO = event->npLO();
   int npNLO = event->npNLO();
@@ -108,6 +116,13 @@ bool LHAupLesHouches::setEvent(int inProcId)
     char buffer [100];
     snprintf( buffer, 100, "%i",npNLO);    
     (*infoPtr->eventAttributes)["npNLO"] = buffer;
+  }
+  
+  //add #rwgt info from comments 
+  const std::vector<std::string> &comments = event->getComments(); 
+  for (unsigned i=0; i<comments.size(); i++){
+    if (comments[i].rfind("#rwgt", 0)==0)
+      (*infoPtr->eventAttributes)["#rwgt"] = comments[i]; 
   }
   
   const lhef::LHEEvent::PDF *pdf = event->getPDF();

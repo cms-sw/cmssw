@@ -13,23 +13,23 @@ class RunCrystalErrorsDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   RunCrystalErrorsDat();
-  ~RunCrystalErrorsDat();
+  ~RunCrystalErrorsDat() override;
 
   // User data methods
-  inline std::string getTable() { return "RUN_CRYSTAL_ERRORS_DAT"; }
+  inline std::string getTable() override { return "RUN_CRYSTAL_ERRORS_DAT"; }
 
   inline void setErrorBits(uint64_t bits) { m_errorBits = bits; }
   inline uint64_t getErrorBits() const { return m_errorBits; }
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunCrystalErrorsDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunCrystalErrorsDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   uint64_t m_errorBits;

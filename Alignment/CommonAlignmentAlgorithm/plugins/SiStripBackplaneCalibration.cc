@@ -59,10 +59,10 @@ public:
   explicit SiStripBackplaneCalibration(const edm::ParameterSet &cfg);
   
   /// Destructor
-  virtual ~SiStripBackplaneCalibration();
+  ~SiStripBackplaneCalibration() override;
 
   /// How many parameters does this calibration define?
-  virtual unsigned int numParameters() const;
+  unsigned int numParameters() const override;
 
   // /// Return all derivatives,
   // /// default implementation uses other derivatives(..) method,
@@ -74,36 +74,36 @@ public:
 
   /// Return non-zero derivatives for x- and y-measurements with their indices by reference.
   /// Return value is their number.
-  virtual unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
+  unsigned int derivatives(std::vector<ValuesIndexPair> &outDerivInds,
 				   const TransientTrackingRecHit &hit,
 				   const TrajectoryStateOnSurface &tsos,
 				   const edm::EventSetup &setup,
-				   const EventInfo &eventInfo) const;
+				   const EventInfo &eventInfo) const override;
 
   /// Setting the determined parameter identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  virtual bool setParameter(unsigned int index, double value);
+  bool setParameter(unsigned int index, double value) override;
 
   /// Setting the determined parameter uncertainty identified by index,
   /// returns false if out-of-bounds, true otherwise.
-  virtual bool setParameterError(unsigned int index, double error);
+  bool setParameterError(unsigned int index, double error) override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds.
-  virtual double getParameter(unsigned int index) const;
+  double getParameter(unsigned int index) const override;
 
   /// Return current value of parameter identified by index.
   /// Returns 0. if index out-of-bounds or if errors undetermined.
-  virtual double getParameterError(unsigned int index) const;
+  double getParameterError(unsigned int index) const override;
 
   // /// Call at beginning of job:
-  virtual void beginOfJob(AlignableTracker *tracker,
+  void beginOfJob(AlignableTracker *tracker,
   			  AlignableMuon *muon,
-  			  AlignableExtras *extras);
+  			  AlignableExtras *extras) override;
 
   /// Called at end of a the job of the AlignmentProducer.
   /// Write out determined parameters.
-  virtual void endOfJob();
+  void endOfJob() override;
 
 private:
   /// If called the first time, fill 'siStripBackPlaneCorrInput_',
@@ -152,8 +152,8 @@ SiStripBackplaneCalibration::SiStripBackplaneCalibration(const edm::ParameterSet
     recordNameDBwrite_(cfg.getParameter<std::string>("recordNameDBwrite")),
     outFileName_(cfg.getParameter<std::string>("treeFile")),
     mergeFileNames_(cfg.getParameter<std::vector<std::string> >("mergeTreeFiles")),
-    siStripBackPlaneCorrInput_(0),
-    moduleGroupSelector_(0),
+    siStripBackPlaneCorrInput_(nullptr),
+    moduleGroupSelector_(nullptr),
     moduleGroupSelCfg_(cfg.getParameter<edm::ParameterSet>("BackplaneModuleGroups"))
 {
 
@@ -313,7 +313,7 @@ void SiStripBackplaneCalibration::beginOfJob(AlignableTracker *aliTracker,
                             << "\n N(merge files) = " << mergeFileNames_.size()
                             << "\n number of IOVs = " << moduleGroupSelector_->numIovs();
   
-  if (mergeFileNames_.size()) {
+  if (!mergeFileNames_.empty()) {
     edm::LogInfo("Alignment") << "@SUB=SiStripBackplaneCalibration"
                               << "First file to merge: " << mergeFileNames_[0];
   }
@@ -399,7 +399,7 @@ void SiStripBackplaneCalibration::endOfJob()
     if (saveToDB_) { // If requested, write out to DB 
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if (dbService.isAvailable()) {
-	dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_.c_str());
+	dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_);
 	// no 'delete output;': writeOne(..) took over ownership
       } else {
 	delete output;
@@ -541,17 +541,17 @@ SiStripBackplaneCalibration::createFromTree(const char *fileName, const char *tr
 {
   // Check for file existence on your own to work around
   // https://hypernews.cern.ch/HyperNews/CMS/get/swDevelopment/2715.html:
-  TFile* file = 0;
+  TFile* file = nullptr;
   FILE* testFile = fopen(fileName,"r");
   if (testFile) {
     fclose(testFile);
     file = TFile::Open(fileName, "READ");
   } // else not existing, see error below
 
-  TTree *tree = 0;
+  TTree *tree = nullptr;
   if (file) file->GetObject(treeName, tree);
 
-  SiStripBackPlaneCorrection *result = 0;
+  SiStripBackPlaneCorrection *result = nullptr;
   if (tree) {
     unsigned int id = 0;
     float value = 0.;

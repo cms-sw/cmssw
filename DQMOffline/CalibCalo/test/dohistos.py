@@ -43,7 +43,7 @@ if len(sys.argv)>1:
         name=sys.argv[1]        
         try:
             os.mkdir(name)
-        except OSError, inst:
+        except OSError as inst:
             if inst.errno==errno.EEXIST:
                 print "Warning: the specified working folder already exist"
         os.chdir(name)

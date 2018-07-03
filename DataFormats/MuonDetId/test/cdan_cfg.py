@@ -10,13 +10,6 @@ process.load("Geometry.MuonCommonData.muonEndcapIdealGeometryXML_cfi")
 # flags for modelling of CSC layer & strip geometry
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 
-process.EnableFloatingPointExceptions = cms.Service("EnableFloatingPointExceptions",
-    enableOverFlowEx = cms.untracked.bool(True),
-    enableDivByZeroEx = cms.untracked.bool(True),
-    enableInvalidEx = cms.untracked.bool(True),
-    enableUnderFlowEx = cms.untracked.bool(False)
-)
-
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(

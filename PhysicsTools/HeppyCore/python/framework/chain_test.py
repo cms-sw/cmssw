@@ -2,7 +2,7 @@ import unittest
 import os
 import shutil
 
-from PhysicsTools.HeppyCore.framework.chain import Chain
+from chain import Chain
 from PhysicsTools.HeppyCore.utils.testtree import create_tree
 
 testfname = 'test_tree.root'
@@ -35,6 +35,11 @@ class ChainTestCase(unittest.TestCase):
         chain = Chain(testfname.replace('.root', '*.root'), 'test_tree')
         self.assertEqual(len(chain), 200)
         os.remove(tmpfile)
+    
+    def test_load_3(self):
+        '''Test LFN/root-fn loading'''
+        chain = Chain(["root://{0}".format(os.path.abspath(testfname))], 'test_tree')
+        self.assertEqual(len(chain), 100)
 
     def test_iterate(self):
         '''Test iteration'''

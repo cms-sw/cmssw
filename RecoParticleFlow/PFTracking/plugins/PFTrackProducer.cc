@@ -59,8 +59,7 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
   
   //create the empty collections 
-  auto_ptr< reco::PFRecTrackCollection > 
-    PfTrColl (new reco::PFRecTrackCollection);
+  auto PfTrColl = std::make_unique<reco::PFRecTrackCollection>();
   
   //read track collection
   Handle<GsfTrackCollection> gsftrackcoll;
@@ -220,7 +219,7 @@ PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup)
       }
     }
   }
-  iEvent.put(PfTrColl);
+  iEvent.put(std::move(PfTrColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -37,8 +37,9 @@ process.dqmSaver.tag = 'L1TEMU'
 # Condition for P5 cluster
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
-# Condition for lxplus
-#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
+# Condition for lxplus: change and possibly customise the GT
+#from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
@@ -67,10 +68,10 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
-if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
-else:
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+#if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+#else:
+#    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
@@ -96,7 +97,7 @@ process.valCsctfTrackDigis.SectorProcessor.gangedME1a = cms.untracked.bool(False
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1HwValEmulatorMonitorPath,
-                                process.l1EmulatorMonitorClientPath,
+                                #process.l1EmulatorMonitorClientPath,
                                 process.l1EmulatorMonitorEndPath)
 
 #---------------------------------------------
@@ -107,18 +108,25 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # remove a module from hardware validation
 # cff file: L1Trigger.HardwareValidation.L1HardwareValidation_cff
 #
-# process.L1HardwareValidation.remove(process.deCsctf)
+process.l1HwValEmulatorMonitorPath.remove(process.l1TdeCSCTF)
 #
 process.L1HardwareValidation.remove(process.deDt)
 
-
+process.l1HwValEmulatorMonitorPath.remove(process.l1TdeRCTRun1)
 #
 # remove a L1 trigger system from the comparator integrated in hardware validation
 # cfi file: L1Trigger.HardwareValidation.L1Comparator_cfi
 #
 # process.l1compare.COMPARE_COLLS = [0, 0, 1, 1,  0, 1, 0, 0, 1, 0, 1, 0]
-#
+process.l1compare.COMPARE_COLLS = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 
+process.l1demon.COMPARE_COLLS = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+
+process.l1demon.HistFolder = cms.untracked.string('L1TEMU/Legacy')
+
+process.l1TdeGCT.HistFolder = cms.untracked.string('L1TEMU/Legacy/GCTexpert')
+
+process.l1GtHwValidation.DirName = cms.untracked.string("L1TEMU/Legacy/GTexpert")
 
 #
 # remove an expert module for L1 trigger system

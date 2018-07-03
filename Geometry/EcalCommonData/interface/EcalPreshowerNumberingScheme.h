@@ -12,8 +12,8 @@ class EcalPreshowerNumberingScheme : public EcalNumberingScheme {
  public:
 
   EcalPreshowerNumberingScheme();
-  ~EcalPreshowerNumberingScheme();
-  virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const ;
+  ~EcalPreshowerNumberingScheme() override;
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
 
  private:
 

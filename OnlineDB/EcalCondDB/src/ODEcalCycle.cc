@@ -24,10 +24,10 @@ using namespace oracle::occi;
 
 ODEcalCycle::ODEcalCycle()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
    m_ID=0;
    clear();
@@ -42,7 +42,7 @@ ODEcalCycle::~ODEcalCycle()
 
 
 void ODEcalCycle::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   std::cout<< "ODEcalCycle::prepareWrite(): this is a view writing specific tables  "<< endl;
@@ -52,7 +52,7 @@ void ODEcalCycle::prepareWrite()
 
 
 void ODEcalCycle::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   ODRunConfigCycleInfo cyc;
@@ -200,7 +200,7 @@ void ODEcalCycle::clear(){
 }
 
 int ODEcalCycle::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -227,14 +227,14 @@ int ODEcalCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODEcalCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODEcalCycle::fetchID:  ")+getOraMessage(&e)));
   }
   setByID(m_ID);
   return m_ID;
 }
 
 void ODEcalCycle::setByID(int id)
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -253,12 +253,12 @@ void ODEcalCycle::setByID(int id)
 
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
-       m_tag = rset->getString(1);
+       m_tag = getOraString(rset,1);
        m_version = rset->getInt(2);
        m_seq_num = rset->getInt(3);
        m_cycle_num = rset->getInt(4);
-       m_cycle_tag = rset->getString(5);
-       m_cycle_description = rset->getString(6);
+       m_cycle_tag = getOraString(rset,5);
+       m_cycle_description = getOraString(rset,6);
        m_ccs = rset->getInt(7);
        m_dcc = rset->getInt(8);
        m_laser = rset->getInt(9);
@@ -278,7 +278,7 @@ void ODEcalCycle::setByID(int id)
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("ODEcalCycle::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("ODEcalCycle::setByID:  ")+getOraMessage(&e)));
    }
 }
 
@@ -306,7 +306,7 @@ void ODEcalCycle::printout(){
 
 
 void ODEcalCycle::fetchData(ODEcalCycle * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   //  result->clear();
@@ -328,12 +328,12 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
 
     rset->next();
 
-    result->setTag(          rset->getString(1) );
+    result->setTag(          getOraString(rset,1) );
     result->setVersion(      rset->getInt(2) );
     result->setSeqNum(       rset->getInt(3) );
     result->setCycleNum(     rset->getInt(4) );
-    result->setCycleTag(     rset->getString(5) );
-    result->setCycleDescription( rset->getString(6) );
+    result->setCycleTag(     getOraString(rset,5) );
+    result->setCycleDescription( getOraString(rset,6) );
     result->setCCSId(        rset->getInt(7) );
     result->setDCCId(        rset->getInt(8) );
     result->setLaserId(      rset->getInt(9) );
@@ -352,7 +352,7 @@ void ODEcalCycle::fetchData(ODEcalCycle * result)
     result->setTCCEEId(      rset->getInt(19) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODEcalCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODEcalCycle::fetchData():  ")+getOraMessage(&e)));
   }
 }
 

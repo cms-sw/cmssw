@@ -92,8 +92,8 @@ process.Analyzer = cms.EDAnalyzer(
     zMuSa = cms.InputTag("goodZToMuMuOneStandAloneMuon"),
     zMuSaMatchMap= cms.InputTag("allDimuonsMCMatch"),
     veto = cms.untracked.double(0.015),
-    deltaRTrk = cms.untracked.double("0.3"),
-    ptThreshold = cms.untracked.double("1.5")
+    deltaRTrk = cms.untracked.double(0.3),
+    ptThreshold = cms.untracked.double(1.5)
     )
 
 

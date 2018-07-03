@@ -23,16 +23,11 @@
 class PileupJPTJetIdProducer : public edm::EDProducer {
 public:
 	explicit PileupJPTJetIdProducer(const edm::ParameterSet&);
-	~PileupJPTJetIdProducer();
+	~PileupJPTJetIdProducer() override;
 
 private:
-	virtual void produce(edm::Event&, const edm::EventSetup&);
+	void produce(edm::Event&, const edm::EventSetup&) override;
       
-	virtual void beginRun(edm::Run&, edm::EventSetup const&);
-	virtual void endRun(edm::Run&, edm::EventSetup const&);
-	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
 	edm::InputTag jets_;
         edm::EDGetTokenT<edm::View<reco::JPTJet> > input_token_;
              bool allowMissingInputs_;
@@ -108,42 +103,18 @@ PileupJPTJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     
     }
      
-    auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
+    auto mvaout = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler mvafiller(*mvaout);
     mvafiller.insert(jets,mva.begin(),mva.end());
     mvafiller.fill();
-    iEvent.put(mvaout,"JPTPUDiscriminant");
+    iEvent.put(std::move(mvaout),"JPTPUDiscriminant");
 
-    auto_ptr<ValueMap<int> > idflagout(new ValueMap<int>());
+    auto idflagout = std::make_unique<ValueMap<int>>();
     ValueMap<int>::Filler idflagfiller(*idflagout);
     idflagfiller.insert(jets,idflag.begin(),idflag.end());
     idflagfiller.fill();
-    iEvent.put(idflagout,"JPTPUId");
+    iEvent.put(std::move(idflagout),"JPTPUId");
        
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------------------------------------------------------------------------------------
-void 
-PileupJPTJetIdProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 //define this as a plug-in

@@ -3,9 +3,12 @@
 #include "Calibration/IsolatedParticles/interface/MatrixHCALDetIds.h"
 #include "Calibration/IsolatedParticles/interface/FindDistCone.h"
 #include "Calibration/IsolatedParticles/interface/DebugInfo.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 #include<algorithm>
 #include<iostream>
+
+//#define EDM_ML_DEBUG
 
 namespace spr{
 
@@ -13,13 +16,14 @@ namespace spr{
 				   const HcalTopology* topology, int ieta, 
 				   int iphi, bool includeHO, bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "matrixHCALIds::Add " << ieta << " rows and " << iphi 
 		<< " columns of cells for " << dets.size() << " cells" 
 		<< std::endl;
       spr::debugHcalDets(0, dets);
     }
-
+#endif
     std::vector<DetId> vdetN = spr::newHCALIdNS(dets, 0, topology, true,  ieta,
 					       iphi, debug);
     std::vector<DetId> vdetS = spr::newHCALIdNS(dets, 0, topology, false, ieta,
@@ -31,11 +35,13 @@ namespace spr{
 
     vdetS = spr::matrixHCALIdsDepth(vdetN, topology, includeHO, debug);
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "matrixHCALIds::Total number of cells found is " 
 		<< vdetS.size() << std::endl;
       spr::debugHcalDets(0, vdetS);
     }
+#endif
     return vdetS;
   }
 
@@ -45,7 +51,7 @@ namespace spr{
 				   bool debug) {
  
     HcalDetId   hcdet = HcalDetId(det);
-    GlobalPoint core  = geo->getPosition(hcdet);
+    GlobalPoint core  = (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
     std::vector<DetId> dets, vdetx;
     dets.push_back(det);
     int ietaphi = (int)(dR/15.0)+1;
@@ -53,18 +59,20 @@ namespace spr{
 						  ietaphi, includeHO, debug);
     for (unsigned int i=0; i<vdets.size(); ++i) {
       HcalDetId   hcdet  = HcalDetId(vdets[i]);
-      GlobalPoint rpoint = geo->getPosition(hcdet);
+      GlobalPoint rpoint = (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(hcdet)))->getPosition(hcdet);
       if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint) < dR) {
 	vdetx.push_back(vdets[i]);
       }
     }
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "matrixHCALIds::Final List of cells for dR " << dR
 		<< " is with " << vdetx.size() << " from original list of "
 		<< vdets.size() << " cells" << std::endl;
       spr::debugHcalDets(0, vdetx);
     }
+#endif
     return vdetx;
  }
 
@@ -73,13 +81,14 @@ namespace spr{
 				   int ietaW,int iphiN,int iphiS, 
 				   bool includeHO, bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "matrixHCALIds::Add " <<ietaE << "|" <<ietaW << " rows and "
 		<< iphiN << "|" << iphiS << " columns of cells for " 
 		<< dets.size() << " cells" << std::endl;
       spr::debugHcalDets(0, dets);
     }
-
+#endif
     std::vector<DetId> vdetN = spr::newHCALIdNS(dets, 0, topology, true, ietaE,
 						ietaW, iphiN, iphiS, debug);
     std::vector<DetId> vdetS = spr::newHCALIdNS(dets, 0, topology, false,ietaE,
@@ -91,11 +100,13 @@ namespace spr{
 
     vdetS = spr::matrixHCALIdsDepth(vdetN, topology, includeHO, debug);
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "matrixHCALIds::Total number of cells found is " 
 		<< vdetS.size() << std::endl;
       spr::debugHcalDets(0, vdetS);
     }
+#endif
     return vdetS;
   }
 
@@ -103,13 +114,14 @@ namespace spr{
 				 const HcalTopology* topology, bool shiftNorth,
 				 int ieta, int iphi, bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "newHCALIdNS::Add " << iphi << " columns of cells along " 
 		<< shiftNorth << " for " << (dets.size()-last) << " cells" 
 		<< std::endl;
       spr::debugHcalDets(last, dets);
     }
-
+#endif
     std::vector<DetId> vdets;
     vdets.insert(vdets.end(), dets.begin(), dets.end());
     std::vector<DetId> vdetE, vdetW;
@@ -124,11 +136,13 @@ namespace spr{
 	if (std::count(vdets.begin(),vdets.end(),vdetE[i1]) == 0)
 	  vdets.push_back(vdetE[i1]);
       }
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout <<"newHCALIdNS::With Added cells along E/W results a set of "
 		  << (vdets.size()-dets.size()) << " new  cells" << std::endl;
 	spr::debugHcalDets(dets.size(), vdets);
       }
+#endif
     }
     unsigned int last0 = vdets.size();
     if (iphi > 0) {
@@ -157,11 +171,13 @@ namespace spr{
       }
       last = vdets.size();
       vdets.insert(vdets.end(), vdetnew.begin(), vdetnew.end());
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout << "newHCALIdNS::Addition results a set of " 
 		  << (vdets.size()-last0)  << " new  cells" << std::endl;
 	spr::debugHcalDets(last0, vdets);
       }
+#endif
       last0 = last;
     }
 
@@ -169,11 +185,13 @@ namespace spr{
       last = last0;
       return spr::newHCALIdNS(vdets,last,topology,shiftNorth,ieta,iphi,debug);
     } else {
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout << "newHCALIdNS::Final list consists of " << vdets.size()
 		  << " cells" << std::endl;
 	spr::debugHcalDets(0, vdets);
       }
+#endif
       return vdets;
     }
   }
@@ -183,13 +201,14 @@ namespace spr{
 				 int ietaE, int ietaW, int iphiN, int iphiS,
 				 bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "newHCALIdNS::Add " << iphiN << "|" << iphiS
 		<< " columns of cells along " << shiftNorth << " for " 
 		<< (dets.size()-last) << " cells" << std::endl;
       spr::debugHcalDets(last, dets);
     }
-
+#endif
     std::vector<DetId> vdets;
     vdets.insert(vdets.end(), dets.begin(), dets.end());
     std::vector<DetId> vdetE, vdetW;
@@ -204,11 +223,13 @@ namespace spr{
 	if (std::count(vdets.begin(),vdets.end(),vdetE[i1]) == 0)
 	  vdets.push_back(vdetE[i1]);
       }
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout <<"newHCALIdNS::With Added cells along E/W results a set of "
 		  << (vdets.size()-dets.size()) << " new  cells" << std::endl;
 	spr::debugHcalDets(dets.size(), vdets);
       }
+#endif
     }
     unsigned int last0 = vdets.size();
     int iphi = iphiS;
@@ -239,11 +260,13 @@ namespace spr{
       }
       last = vdets.size();
       vdets.insert(vdets.end(), vdetnew.begin(), vdetnew.end());
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout << "newHCALIdNS::Addition results a set of " 
 		  << (vdets.size()-last0)  << " new  cells" << std::endl;
 	spr::debugHcalDets(last0, vdets);
       }
+#endif
       last0 = last;
     }
     if (shiftNorth) iphiN = iphi;
@@ -254,11 +277,13 @@ namespace spr{
       return spr::newHCALIdNS(vdets,last,topology,shiftNorth,ietaE,ietaW,
 			      iphiN,iphiS,debug);
     } else {
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout << "newHCALIdNS::Final list consists of " << vdets.size()
 		  << " cells" << std::endl;
 	spr::debugHcalDets(0, vdets);
       }
+#endif
       return vdets;
     }
   }
@@ -267,13 +292,14 @@ namespace spr{
 				 const HcalTopology* topology, bool shiftEast,
 				 int ieta, bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "newHCALIdEW::Add " << ieta << " rows of cells along " 
 		<< shiftEast << " for " << (dets.size()-last) << " cells" 
 		<< std::endl;
       spr::debugHcalDets(last, dets);
     }
-
+#endif
     std::vector<DetId> vdets;
     vdets.insert(vdets.end(), dets.begin(), dets.end());
     if (ieta > 0) {
@@ -289,21 +315,24 @@ namespace spr{
       ieta--;
     }
     
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "newHCALIdEW::Addition results a set of " 
 		<< (vdets.size()-dets.size()) << " new  cells" << std::endl;
       spr::debugHcalDets(dets.size(), vdets);
     }
-
+#endif
     if (ieta > 0) {
       last = dets.size();
       return spr::newHCALIdEW(vdets, last, topology, shiftEast, ieta, debug);
     } else {
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout << "newHCALIdEW::Final list (EW) consists of " <<vdets.size()
 		  << " cells" << std::endl;
 	spr::debugHcalDets(0, vdets);
       }
+#endif
       return vdets;
     }
   }
@@ -312,13 +341,14 @@ namespace spr{
 				 const HcalTopology* topology, bool shiftEast,
 				 int ietaE, int ietaW, bool debug) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "newHCALIdEW::Add " << ietaE << "|" << ietaW
 		<< " rows of cells along " << shiftEast << " for " 
 		<< (dets.size()-last) << " cells" << std::endl;
       spr::debugHcalDets(last, dets);
     }
-
+#endif
     int ieta = ietaW;
     if (shiftEast) ieta = ietaE;
     std::vector<DetId> vdets;
@@ -338,48 +368,58 @@ namespace spr{
     if (shiftEast) ietaE = ieta;
     else           ietaW = ieta;
     
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "newHCALIdEW::Addition results a set of " 
 		<< (vdets.size()-dets.size()) << " new  cells" << std::endl;
       spr::debugHcalDets(dets.size(), vdets);
     }
-
+#endif
     if (ieta > 0) {
       last = dets.size();
       return spr::newHCALIdEW(vdets,last,topology,shiftEast,ietaE,ietaW,debug);
     } else {
+#ifdef EDM_ML_DEBUG
       if (debug) {
 	std::cout << "newHCALIdEW::Final list (EW) consists of " <<vdets.size()
 		  << " cells" << std::endl;
 	spr::debugHcalDets(0, vdets);
       }
+#endif
       return vdets;
     }
   }
 
   std::vector<DetId> matrixHCALIdsDepth(std::vector<DetId>& dets, 
 					const HcalTopology* topology, 
-					bool includeHO, bool debug) {
+					bool includeHO, bool
+#ifdef EDM_ML_DEBUG
+					debug
+#endif
+					) {
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "matrixHCALIdsDepth::Add cells with higher depths with HO" 
 		<< "Flag set to " << includeHO << " to existing "
 		<< dets.size() << " cells" << std::endl;
       spr::debugHcalDets(0, dets);
     }
- 
+#endif 
     std::vector<DetId> vdets(dets);
     for (unsigned int i1=0; i1<dets.size(); i1++) {
       HcalDetId vdet = dets[i1];
       for (int idepth = 0; idepth < 3; idepth++) {
         std::vector<DetId> vUpDetId = topology->up(vdet);
-        if (vUpDetId.size() != 0) {
+        if (!vUpDetId.empty()) {
           if (includeHO || vUpDetId[0].subdetId() != (int)(HcalOuter)) {
             int n = std::count(vdets.begin(),vdets.end(),vUpDetId[0]);
             if (n == 0) {
+#ifdef EDM_ML_DEBUG
 	      if (debug) std::cout << "matrixHCALIdsDepth:: Depth " << idepth 
 				   << " " << vdet << " " 
 				   << (HcalDetId)vUpDetId[0] << std::endl;
+#endif
               vdets.push_back(vUpDetId[0]);
 	    }
           }
@@ -388,11 +428,13 @@ namespace spr{
       }
     }
 
+#ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "matrixHCALIdsDepth::Final list contains " << vdets.size() 
 		<< " cells" << std::endl;
       spr::debugHcalDets(0, vdets);
     }
+#endif
     return vdets;
   }
 

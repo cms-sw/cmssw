@@ -40,12 +40,11 @@ L1GtPsbSetupConfigOnlineProd::~L1GtPsbSetupConfigOnlineProd() {
 
 // public methods
 
-boost::shared_ptr<L1GtPsbSetup> L1GtPsbSetupConfigOnlineProd::newObject(
+std::shared_ptr<L1GtPsbSetup> L1GtPsbSetupConfigOnlineProd::newObject(
         const std::string& objectKey) {
 
     // shared pointer for L1GtPsbSetup
-    boost::shared_ptr<L1GtPsbSetup> pL1GtPsbSetup = boost::shared_ptr<L1GtPsbSetup>(
-            new L1GtPsbSetup());
+    auto pL1GtPsbSetup = std::make_shared<L1GtPsbSetup>();
 
     const std::string gtSchema = "CMS_GT";
 
@@ -113,7 +112,7 @@ bool L1GtPsbSetupConfigOnlineProd::notPsbColumnName(const std::string& columnNam
 }
 
 void L1GtPsbSetupConfigOnlineProd::addPsbFromDb(const std::string& psbKey, std::vector<
-        L1GtPsbConfig>& psbSetup) const {
+        L1GtPsbConfig>& psbSetup) {
 
     // SQL> describe gt_psb_setup;
     // (heavily pruned to just the stuff we need to set up a GtPsbConfig)

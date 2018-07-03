@@ -1,5 +1,5 @@
-#ifndef MessageLogger_LoggedErrorsSummaryy_h
-#define MessageLogger_LoggedErrorsSummaryEntry_h
+#ifndef MessageLogger_LoggedErrorsSummary_h
+#define MessageLogger_LoggedErrorsSummary_h
 
 // ----------------------------------------------------------------------
 //
@@ -57,5 +57,5 @@ std::vector<ErrorSummaryEntry> LoggedErrorsOnlySummary(unsigned int iStreamID); 
 }        // end of namespace edm
 
 
-#endif  // MessageLogger_ErrorSummaryEntry_h
+#endif  // MessageLogger_LoggedErrorsSummary_h
 

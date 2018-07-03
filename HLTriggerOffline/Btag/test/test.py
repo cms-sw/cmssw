@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 process = cms.Process("HLTBTAG")
 
 from PhysicsTools.PatAlgos.tools.coreTools import *	
@@ -50,10 +51,8 @@ process.hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
       triggerString),
     hltResults = cms.InputTag( "TriggerResults", "", fileini.processname ),
-#    l1tResults = cms.InputTag( "gtDigis" ),
-#    l1tIgnoreMask = cms.bool( False ),
-#    l1techIgnorePrescales = cms.bool( False ),
-#    daqPartitions = cms.uint32( 1 ),
+    l1tResults = cms.InputTag( "" ),
+    l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True )
 )
 
@@ -61,7 +60,8 @@ process.hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
 process.hltBtagJetsbyRef.jets = cms.InputTag(fileini.jets)
 
 #define VertexValidationVertices for the vertex DQM validation
-process.VertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.VertexValidationVertices= DQMEDAnalyzer('HLTVertexPerformanceAnalyzer',
 	SimVertexCollection = cms.InputTag("g4SimHits"),
 	TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
 	HLTPathNames = cms.vstring(fileini.vertex_pathes),
@@ -69,7 +69,7 @@ process.VertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 )
 
 #define bTagValidation for the b-tag DQM validation (distribution plot)
-process.bTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
+process.bTagValidation = DQMEDAnalyzer('HLTBTagPerformanceAnalyzer',
 	TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
 	HLTPathNames = cms.vstring(fileini.btag_pathes),
 	JetTag = fileini.btag_modules,
@@ -85,7 +85,7 @@ process.bTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 )
 
 #define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
-process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
+process.bTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
 	HLTPathNames = fileini.btag_pathes,
 	histoName	= fileini.btag_modules_string,
 	minTag	= cms.double(0.6),

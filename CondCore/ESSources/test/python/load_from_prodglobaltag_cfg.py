@@ -80,7 +80,7 @@ process = cms.Process("TEST")
 
 process.add_(cms.Service("PrintEventSetupDataRetrieval", printProviders=cms.untracked.bool(True)))
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
+process.load("CondCore.ESSources.CondDBESSource_cfi")
 process.GlobalTag.globaltag = gName
 
 process.GlobalTag.RefreshEachRun=cms.untracked.bool(False)

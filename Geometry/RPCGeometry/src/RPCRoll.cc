@@ -3,7 +3,7 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 
-RPCRoll::RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs) :
+RPCRoll::RPCRoll(RPCDetId id, const BoundPlane::BoundPlanePointer& bp, RPCRollSpecs* rrs) :
   GeomDetUnit(bp), _id(id),_rrs(rrs)
 {
   setDetId(id);

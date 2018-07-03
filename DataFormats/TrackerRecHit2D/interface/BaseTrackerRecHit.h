@@ -21,7 +21,7 @@ namespace trackerHitRTTI {
   inline bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
   inline bool isSingle(TrackingRecHit const & hit)  { return rtti(hit)==single || rtti(hit)==fastSingle;}
   inline bool isProjMono(TrackingRecHit const & hit)  { return rtti(hit)==projMono || rtti(hit)==fastProjMono;}
-  inline bool isProjStereo(TrackingRecHit const & hit)  { return rtti(hit)==projStereo || fastProjStereo;}
+  inline bool isProjStereo(TrackingRecHit const & hit)  { return rtti(hit)==projStereo || rtti(hit)==fastProjStereo;}
   inline bool isProjected(TrackingRecHit const & hit)  { return ((rtti(hit)==projMono) | (rtti(hit)==projStereo)) || (rtti(hit)==fastProjMono) | (rtti(hit)==fastProjStereo);}
   inline bool isMatched(TrackingRecHit const & hit)  { return rtti(hit)==match || rtti(hit)==fastMatch;}
   inline bool isMulti(TrackingRecHit const & hit)  { return rtti(hit)==multi;}
@@ -35,9 +35,9 @@ public:
   BaseTrackerRecHit() : qualWord_(0){}
 
   // fake TTRH interface
-  BaseTrackerRecHit const * hit() const GCC11_FINAL { return this;}  
+  BaseTrackerRecHit const * hit() const final { return this;}  
 
-  virtual ~BaseTrackerRecHit() {}
+  ~BaseTrackerRecHit() override {}
 
   // no position (as in persistent)
  BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)),qualWord_(0) {}
@@ -58,10 +58,11 @@ public:
   bool isMatched() const { return trackerHitRTTI::isMatched(*this);}
   bool isProjected() const { return trackerHitRTTI::isProjected(*this);}
   bool isProjMono() const { return trackerHitRTTI::isProjMono(*this);}
-  bool isProjSterep() const { return trackerHitRTTI::isProjStereo(*this);}
+  bool isProjStereo() const { return trackerHitRTTI::isProjStereo(*this);}
   bool isMulti() const { return trackerHitRTTI::isMulti(*this);}
 
   virtual bool isPixel() const { return false;}
+  virtual bool isPhase2() const { return false;}
 
  // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const=0;
@@ -70,11 +71,11 @@ public:
   // verify that hits can share clusters...
   inline bool sameDetModule(TrackingRecHit const & hit) const;
 
-  bool hasPositionAndError() const  GCC11_FINAL; 
+  bool hasPositionAndError() const  final; 
 
-  virtual LocalPoint localPosition() const  GCC11_FINAL { check(); return pos_;}
+  LocalPoint localPosition() const  final { check(); return pos_;}
 
-  virtual LocalError localPositionError() const  GCC11_FINAL { check(); return err_;}
+  LocalError localPositionError() const  final { check(); return err_;}
 
  
   const LocalPoint & localPositionFast()      const { check(); return pos_; }
@@ -83,8 +84,8 @@ public:
 
 
   // to be specialized for 1D and 2D
-  virtual void getKfComponents( KfComponentsHolder & holder ) const=0;
-  virtual int dimension() const=0; 
+  void getKfComponents( KfComponentsHolder & holder ) const override =0;
+  int dimension() const override =0; 
 
   void getKfComponents1D( KfComponentsHolder & holder ) const;
   void getKfComponents2D( KfComponentsHolder & holder ) const;
@@ -92,17 +93,17 @@ public:
 
   // global coordinates
   // Extension of the TrackingRecHit interface
-  virtual const Surface * surface() const GCC11_FINAL {return &(det()->surface());}
+  const Surface * surface() const final {return &(det()->surface());}
 
 
-  virtual GlobalPoint globalPosition() const GCC11_FINAL {
+  GlobalPoint globalPosition() const final {
       return surface()->toGlobal(localPosition());
   }
   
-  GlobalError globalPositionError() const GCC11_FINAL { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
-  float errorGlobalR() const GCC11_FINAL { return std::sqrt(globalPositionError().rerr(globalPosition()));}
-  float errorGlobalZ() const GCC11_FINAL { return std::sqrt(globalPositionError().czz()); }
-  float errorGlobalRPhi() const GCC11_FINAL { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
+  GlobalError globalPositionError() const final { return ErrorFrameTransformer().transform( localPositionError(), *surface() );}
+  float errorGlobalR() const final { return std::sqrt(globalPositionError().rerr(globalPosition()));}
+  float errorGlobalZ() const final { return std::sqrt(globalPositionError().czz()); }
+  float errorGlobalRPhi() const final { return globalPosition().perp()*sqrt(globalPositionError().phierr(globalPosition())); }
 
   // once cache removed will obsolete the above
   TrackingRecHitGlobalState globalState() const {
@@ -125,9 +126,9 @@ public:
 public:
 
   // obsolete (for what tracker is concerned...) interface
-  virtual AlgebraicVector parameters() const;
-  virtual AlgebraicSymMatrix parametersError() const;
-  virtual AlgebraicMatrix projectionMatrix() const;
+  AlgebraicVector parameters() const override;
+  AlgebraicSymMatrix parametersError() const override;
+  AlgebraicMatrix projectionMatrix() const override;
 
 private:
 

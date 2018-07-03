@@ -81,7 +81,7 @@ unsigned QIE8Simulator::run(const double dt, const double tstop,
             historyBuffer_.resize(runLen);
         double* hbuf = &historyBuffer_[0];
         for (unsigned istep=0; istep<runLen; ++istep, ++hbuf)
-            rhs.calc(istep*dt, 0, 0U, hbuf);
+            rhs.calc(istep*dt, nullptr, 0U, hbuf);
         solver_.setHistory(dt, &historyBuffer_[0], 1U, runLen);
     }
 

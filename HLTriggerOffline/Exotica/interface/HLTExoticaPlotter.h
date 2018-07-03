@@ -39,7 +39,7 @@
 
 //const unsigned int kNull = (unsigned int) - 1;
 
-class EVTColContainer;
+struct EVTColContainer;
 
 class HLTExoticaPlotter {
 public:

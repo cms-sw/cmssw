@@ -12,7 +12,7 @@
 
 #include "H_Parameters.h"
 
-#include <math.h>
+#include <cmath>
 
 Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transport,bool ZDCTransport) : 
   m_verbosity(verbosity), 
@@ -239,7 +239,7 @@ void Hector::filterFP420(TRandom3* rootEngine){
   float x1_420;
   float y1_420;
   
-  if ( m_beamPart.size() && lengthfp420>0. ) {
+  if ( !m_beamPart.empty() && lengthfp420>0. ) {
     
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;
@@ -268,12 +268,12 @@ void Hector::filterFP420(TRandom3* rootEngine){
             part->smearE(SBE,rootEngine);  // in GeV, default is SBE=0.79
           }
         }
-        if ( direction == 1 && m_beamlineFP4201 != 0 ) {
+        if ( direction == 1 && m_beamlineFP4201 != nullptr ) {
           part->computePath( m_beamlineFP4201 );
           is_stop = part->stopped( m_beamlineFP4201 );
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterFP420: barcode = " << line << " positive is_stop=  "<< is_stop;
         }
-        else if ( direction == -1 && m_beamlineFP4202 != 0 ){
+        else if ( direction == -1 && m_beamlineFP4202 != nullptr ){
           part->computePath( m_beamlineFP4202 );
           is_stop = part->stopped( m_beamlineFP4202 );
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterFP420: barcode = " << line << " negative is_stop=  "<< is_stop;
@@ -320,7 +320,7 @@ void Hector::filterZDC(TRandom3* rootEngine){
   bool is_stop_zdc = false;
   int direction;
   
-  if ( m_beamPart.size() && lengthzdc>0. ) {
+  if ( !m_beamPart.empty() && lengthzdc>0. ) {
     
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;
@@ -352,12 +352,12 @@ void Hector::filterZDC(TRandom3* rootEngine){
             part->smearE(SBE,rootEngine);  // in GeV, default is SBE=0.79
           }
         }
-        if ( direction == 1 && m_beamlineZDC1 != 0 ){
+        if ( direction == 1 && m_beamlineZDC1 != nullptr ){
           part->computePath( m_beamlineZDC1 );
           is_stop_zdc = part->stopped( m_beamlineZDC1 );
           m_isStoppedzdc[line] = is_stop_zdc;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterZDC: barcode " << line << " positive is_stop_zdc=  "<< is_stop_zdc;
-        } else if ( direction == -1 && m_beamlineZDC2 != 0 ){
+        } else if ( direction == -1 && m_beamlineZDC2 != nullptr ){
           part->computePath( m_beamlineZDC2 );
           is_stop_zdc = part->stopped( m_beamlineZDC2 );
           m_isStoppedzdc[line] = is_stop_zdc;
@@ -394,7 +394,7 @@ void Hector::filterD1(TRandom3* rootEngine){
   float x1_d1;
   float y1_d1;
   
-  if ( m_beamPart.size() && lengthd1>0.) {
+  if ( !m_beamPart.empty() && lengthd1>0.) {
     
     for (it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
       line = (*it).first;
@@ -422,12 +422,12 @@ void Hector::filterD1(TRandom3* rootEngine){
             part->smearE(SBE,rootEngine);  // in GeV, default is SBE=0.79
           }
         }
-        if ( direction == 1 && m_beamlineD11 != 0 ) {
+        if ( direction == 1 && m_beamlineD11 != nullptr ) {
           part->computePath( m_beamlineD11 );
           is_stop_d1 = part->stopped( m_beamlineD11 );
           m_isStoppedd1[line] = is_stop_d1;
           if(m_verbosity) LogDebug("HectorEventProcessing") << "Hector:filterD1 barcode " << line << " positive is_stop_d1 =  "<< is_stop_d1;
-        } else  if ( direction == -1 && m_beamlineD12 != 0 ){
+        } else  if ( direction == -1 && m_beamlineD12 != nullptr ){
           part->computePath( m_beamlineD12 );
           is_stop_d1 = part->stopped( m_beamlineD12 );
           m_isStoppedd1[line] = is_stop_d1;

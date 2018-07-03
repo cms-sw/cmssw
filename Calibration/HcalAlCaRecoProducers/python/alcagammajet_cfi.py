@@ -21,4 +21,12 @@ GammaJetProd = cms.EDProducer("AlCaGammaJetProducer",
                               MinPtPhoton = cms.double(10.0)
                               )
 
+GammaJetFilter = cms.EDFilter("AlCaGammaJetSelector",
+                              PhoInput = cms.InputTag("gedPhotons"),
+                              PFjetInput = cms.InputTag("ak4PFJetsCHS"),
+                              MinPtJet = cms.double(10.0),
+                              MinPtPhoton = cms.double(10.0)
+                              )
+
+
 

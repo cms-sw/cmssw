@@ -7,12 +7,12 @@
 #include <iomanip>
 
 CaloHitID::CaloHitID(uint32_t unitID, double timeSlice, int trackID,
-		     uint16_t depth, int tSlice, bool ignoreTkID) :
+		     uint16_t depth, float tSlice, bool ignoreTkID) :
   timeSliceUnit(tSlice), ignoreTrackID(ignoreTkID) {
   setID(unitID, timeSlice, trackID, depth);
 }
 
-CaloHitID::CaloHitID(int tSlice, bool ignoreTkID) :
+CaloHitID::CaloHitID(float tSlice, bool ignoreTkID) :
   timeSliceUnit(tSlice), ignoreTrackID(ignoreTkID) {
   reset();
 }

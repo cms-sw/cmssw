@@ -431,9 +431,9 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
   if(read_events%1000 ==0)std::cout << "read_events = " << read_events << std::endl;
   
   if(!hits)return;
-  if(hits->size() == 0)return;
+  if(hits->empty())return;
   if(!electronCollection)return;
-  if(electronCollection->size() == 0)return;
+  if(electronCollection->empty())return;
   
   
   ////////////////////////////////////////////////////////////////////////////////////////

@@ -51,20 +51,20 @@ extern "C" {
 
 // helpers
 namespace {
-	static inline bool call_hwmatch()
+	inline bool call_hwmatch()
 	{
 		int result;
 		hwmatch(&result);
 		return result;
 	}  
-	static inline bool call_hwmsct()
+	inline bool call_hwmsct()
 	{
 		int result;
 		hwmsct(&result);
 		return result;
 	}
 
-	static int pdgToHerwig(int ipdg, char *nwig)
+	int pdgToHerwig(int ipdg, char *nwig)
 	{
 		int iopt = 1;
 		int iwig = 0;
@@ -72,7 +72,7 @@ namespace {
 		return ipdg ? iwig : 0;
 	}
 
-	static bool markStable(int pdgId)
+	bool markStable(int pdgId)
 	{
 		char nwig[9] = "        ";
 		if (!pdgToHerwig(pdgId, nwig))
@@ -86,7 +86,7 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
                           public gen::Herwig6Instance {
     public:
 	Herwig6Hadronizer(const edm::ParameterSet &params);
-	~Herwig6Hadronizer();
+	~Herwig6Hadronizer() override;
 
 	void setSLHAFromHeader(const std::vector<std::string> &lines);
 	bool initialize(const lhef::HEPRUP *heprup);
@@ -115,16 +115,16 @@ class Herwig6Hadronizer : public gen::BaseHadronizer,
 
     private:
 
-        virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-        virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+        void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+        std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
 	void clear();
 
 	int pythiaStatusCode(const HepMC::GenParticle *p) const;
 	void pythiaStatusCodes();
 
-	virtual void upInit() override;
-	virtual void upEvnt() override;
+	void upInit() override;
+	void upEvnt() override;
 
         static const std::vector<std::string> theSharedResources;
 
@@ -241,7 +241,7 @@ void Herwig6Hadronizer::setSLHAFromHeader(
 			boost::split(tokens, line,
 			             boost::algorithm::is_space(),
 			             boost::token_compress_on);
-			if (!tokens.size())
+			if (tokens.empty())
 				continue;
 			block.clear();
 			if (tokens.size() < 2)
@@ -270,7 +270,7 @@ bool Herwig6Hadronizer:: readSettings( int key )
 
    clear();
    const lhef::HEPRUP* heprup = lheRunInfo()->getHEPRUP();
-   externalPartons = ( heprup != 0 );
+   externalPartons = ( heprup != nullptr );
    
    if ( key == 0 && externalPartons ) return false;
    if ( key > 0 && !externalPartons ) return false;
@@ -421,7 +421,7 @@ bool Herwig6Hadronizer:: readSettings( int key )
 
 	//Lars: lower EFFMIN threshold, to continue execution of IPROC=4000, lambda'_211=0.01 at LM7,10
 	if( readParticleSpecFile ) {
-	  openParticleSpecFile(particleSpecFileName.c_str());
+	  openParticleSpecFile(particleSpecFileName);
 	  hwpram.EFFMIN = 1e-5;
 	}
 	
@@ -455,7 +455,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 {
 	clear();
 
-	externalPartons = (heprup != 0);
+	externalPartons = (heprup != nullptr);
 
 	std::ostringstream info;
 	info << "---------------------------------------------------\n"; 
@@ -590,7 +590,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 
 	//Lars: lower EFFMIN threshold, to continue execution of IPROC=4000, lambda'_211=0.01 at LM7,10
 	if( readParticleSpecFile ) {
-	  openParticleSpecFile(particleSpecFileName.c_str());
+	  openParticleSpecFile(particleSpecFileName);
 	  hwpram.EFFMIN = 1e-5;
 	}
 	
@@ -777,30 +777,30 @@ void Herwig6Hadronizer::finalizeEvent()
 
   }
     
-  HepMC::GenParticle* incomingParton = NULL;
-  HepMC::GenParticle* targetParton = NULL;
+  HepMC::GenParticle* incomingParton = nullptr;
+  HepMC::GenParticle* targetParton = nullptr;
   
-  HepMC::GenParticle* incomingProton = NULL;
-  HepMC::GenParticle* targetProton = NULL;
+  HepMC::GenParticle* incomingProton = nullptr;
+  HepMC::GenParticle* targetProton = nullptr;
   
   // find incoming parton (first entry with IST=121)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && incomingParton==NULL); it++)
+      (it != event()->particles_end() && incomingParton==nullptr); it++)
     if((*it)->status()==121) incomingParton = (*it);
   
   // find target parton (first entry with IST=122)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && targetParton==NULL); it++)
+      (it != event()->particles_end() && targetParton==nullptr); it++)
     if((*it)->status()==122) targetParton = (*it);
   
   // find incoming Proton (first entry ID=2212, IST=101)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && incomingProton==NULL); it++)
+      (it != event()->particles_end() && incomingProton==nullptr); it++)
     if((*it)->status()==101 && (*it)->pdg_id()==2212) incomingProton = (*it);
   
   // find target Proton (first entry ID=2212, IST=102)
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && targetProton==NULL); it++)
+      (it != event()->particles_end() && targetProton==nullptr); it++)
     if((*it)->status()==102 && (*it)->pdg_id()==2212) targetProton = (*it);
   
   // find hard scale Q (computed from colliding partons)
@@ -839,7 +839,7 @@ void Herwig6Hadronizer::finalizeEvent()
   }
   
   // add event weight & PDF information
-  if (lheRunInfo() != 0 && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
+  if (lheRunInfo() != nullptr && std::abs(lheRunInfo()->getHEPRUP()->IDWTUP) == 4)
     // in LHE weighting mode 4 the weight is an xsec, so convert form HERWIG
     // to standard CMS unit "picobarn"
     event()->weights().push_back( 1.0e3 * hwevnt.EVWGT );
@@ -848,9 +848,9 @@ void Herwig6Hadronizer::finalizeEvent()
 
     
   // find final parton (first entry with IST=123)
-  HepMC::GenParticle* finalParton = NULL;
+  HepMC::GenParticle* finalParton = nullptr;
   for(HepMC::GenEvent::particle_const_iterator it = event()->particles_begin(); 
-      (it != event()->particles_end() && finalParton==NULL); it++)
+      (it != event()->particles_end() && finalParton==nullptr); it++)
     if((*it)->status()==123) finalParton = (*it);
   
   

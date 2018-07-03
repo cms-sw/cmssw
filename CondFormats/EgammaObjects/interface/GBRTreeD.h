@@ -26,7 +26,7 @@
 
 #include <vector>
 #include <map>
-#include <stdio.h>
+#include <cstdio>
 #include <cmath>
 #include "Rtypes.h"
 

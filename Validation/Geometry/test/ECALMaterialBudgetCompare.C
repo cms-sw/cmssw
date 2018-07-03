@@ -6,8 +6,8 @@ void ECALMaterialBudgetCompare()
 {
 
  gROOT ->Reset();
- char*  rfilename = "old_matbdg_ECAL.root";
- char*  sfilename = "new_matbdg_ECAL.root";
+ const char*  rfilename = "old_matbdg_ECAL.root";
+ const char*  sfilename = "new_matbdg_ECAL.root";
 
  int rcolor = 2;
  int scolor = 4;

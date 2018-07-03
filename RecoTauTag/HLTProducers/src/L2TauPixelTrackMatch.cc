@@ -84,9 +84,9 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es)
   // *** Match tau jets to intertesting tracks  and assign them new vertices ***
 
   // the new product
-  std::auto_ptr<CaloJetCollection> new_tau_jets(new CaloJetCollection);
+  std::unique_ptr<CaloJetCollection> new_tau_jets(new CaloJetCollection);
   int n_uniq = 0;
-  if (good_tracks.size()) for (size_t i=0; i < n_jets; ++i)
+  if (!good_tracks.empty()) for (size_t i=0; i < n_jets; ++i)
   {
     reco::CaloJetRef jet = tau_jets[i];
     if ( jet->pt() < m_jetMinPt || std::abs(jet->eta()) > m_jetMaxEta ) continue;
@@ -123,5 +123,5 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es)
   DBG_PRINT(cout<<"n_uniq_matched_jets "<<n_uniq<<endl<<"storing njets "<<new_tau_jets->size()<<endl);
   
   // store the result
-  ev.put(new_tau_jets);
+  ev.put(std::move(new_tau_jets));
 }

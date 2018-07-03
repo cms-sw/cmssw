@@ -11,13 +11,6 @@ using namespace std;
 
 namespace{
 
-  inline double deltaR2(double eta0, double phi0, double eta, double phi){
-    double dphi=phi-phi0;
-    if(dphi>M_PI) dphi-=2*M_PI;
-    else if(dphi<=-M_PI) dphi+=2*M_PI;
-    return dphi*dphi+(eta-eta0)*(eta-eta0);
-  }
-
   double deltaPhi(double phi0, double phi){
     double dphi=phi-phi0;
     if(dphi>M_PI) dphi-=2*M_PI;
@@ -36,7 +29,7 @@ namespace{
 
 
 PythiaFilterEMJet::PythiaFilterEMJet(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 etaMin(iConfig.getUntrackedParameter<double>("MinEMEta", 0)),
 eTSumMin(iConfig.getUntrackedParameter<double>("ETSumMin", 50.)),
 pTMin(iConfig.getUntrackedParameter<double>("MinEMpT", 5.)),
@@ -124,10 +117,10 @@ bool PythiaFilterEMJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     ptEMClus = ptEM;
 
     //check if the EM particle is in the barrel
-    bool inEB(0);
+    bool inEB(false);
     double tgx(0);
     double tgy(0);
-    if( std::abs(etaEM)<ebEtaMax ) inEB=1;
+    if( std::abs(etaEM)<ebEtaMax ) inEB=true;
     else{
       tgx=(*is)->momentum().px()/(*is)->momentum().pz();
       tgy=(*is)->momentum().py()/(*is)->momentum().pz();

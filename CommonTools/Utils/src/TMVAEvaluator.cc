@@ -8,17 +8,9 @@
 
 
 TMVAEvaluator::TMVAEvaluator() :
-  mIsInitialized(false), mUsingGBRForest(false), mUseAdaBoost(false), mReleaseAtEnd(false)
+  mIsInitialized(false), mUsingGBRForest(false), mUseAdaBoost(false)
 {
 }
-
-
-TMVAEvaluator::~TMVAEvaluator()
-{
-  if (mReleaseAtEnd)
-    mGBRForest.release();
-}
-
 
 void TMVAEvaluator::initialize(const std::string & options, const std::string & method, const std::string & weightFile,
                                const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useGBRForest, bool useAdaBoost)
@@ -43,7 +35,7 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
   }
 
   // load the TMVA weights
-  mIMethod = std::unique_ptr<TMVA::IMethod>( reco::details::loadTMVAWeights(mReader.get(), mMethod.c_str(), weightFile.c_str()) );
+  reco::details::loadTMVAWeights(mReader.get(), mMethod, weightFile);
 
   if (useGBRForest)
   {
@@ -51,7 +43,6 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
 
     // now can free some memory
     mReader.reset(nullptr);
-    mIMethod.reset(nullptr);
 
     mUsingGBRForest = true;
     mUseAdaBoost = useAdaBoost;
@@ -72,12 +63,12 @@ void TMVAEvaluator::initializeGBRForest(const GBRForest* gbrForest, const std::v
   for(std::vector<std::string>::const_iterator it = spectators.begin(); it!=spectators.end(); ++it)
     mSpectators.insert( std::make_pair( *it, std::make_pair( it - spectators.begin(), 0. ) ) );
 
-  mGBRForest.reset( gbrForest );
+  // do not take ownership if getting GBRForest from an external source
+  mGBRForest = std::shared_ptr<const GBRForest>(gbrForest, [](const GBRForest*) {} );
 
   mIsInitialized = true;
   mUsingGBRForest = true;
   mUseAdaBoost = useAdaBoost;
-  mReleaseAtEnd = true; // need to release ownership at the end if getting GBRForest from an external source
 }
 
 

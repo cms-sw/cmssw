@@ -20,6 +20,7 @@
 #include "TVector3.h"
 #include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -37,6 +38,8 @@ Onia2MuMuPAT::Onia2MuMuPAT(const edm::ParameterSet& iConfig):
   resolveAmbiguity_(iConfig.getParameter<bool>("resolvePileUpAmbiguity")),
   addMCTruth_(iConfig.getParameter<bool>("addMCTruth"))
 {  
+    revtxtrks_ = consumes<reco::TrackCollection>((edm::InputTag)"generalTracks"); //if that is not true, we will raise an exception
+    revtxbs_ = consumes<reco::BeamSpot>((edm::InputTag)"offlineBeamSpot");
     produces<pat::CompositeCandidateCollection>();  
 }
 
@@ -67,13 +70,14 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   muMasses.push_back( 0.1056583715 );
   muMasses.push_back( 0.1056583715 );
 
-  std::auto_ptr<pat::CompositeCandidateCollection> oniaOutput(new pat::CompositeCandidateCollection);
+  std::unique_ptr<pat::CompositeCandidateCollection> oniaOutput(new pat::CompositeCandidateCollection);
   
   Vertex thePrimaryV;
   Vertex theBeamSpotV; 
 
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField* field = magneticField.product();
 
   Handle<BeamSpot> theBeamSpot;
   iEvent.getByToken(thebeamspot_,theBeamSpot);
@@ -132,8 +136,14 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	TransientVertex myVertex = vtxFitter.vertex(t_tks);
 
 	CachingVertex<5> VtxForInvMass = vtxFitter.vertex( t_tks );
-	Measurement1D MassWErr = massCalculator.invariantMass( VtxForInvMass, muMasses );
-	
+
+        Measurement1D MassWErr(jpsi.M(),-9999.);
+        if ( field->nominalValue() > 0 ) {
+          MassWErr = massCalculator.invariantMass( VtxForInvMass, muMasses );
+        } else {
+          myVertex = TransientVertex();                      // with no arguments it is invalid
+        }
+
 	myCand.addUserFloat("MassErr",MassWErr.error());
 
 	if (myVertex.isValid()) {
@@ -181,13 +191,11 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if( addMuonlessPrimaryVertex_  && thePrimaryV.tracksSize()>2) {
 	    // Primary vertex matched to the dimuon, now refit it removing the two muons
 	    OniaVtxReProducer revertex(priVtxs, iEvent);
-            edm::EDGetTokenT<reco::TrackCollection> revtxtrks_ = consumes<reco::TrackCollection>(revertex.inputTracks());
 	    edm::Handle<reco::TrackCollection> pvtracks;
 	    iEvent.getByToken(revtxtrks_,   pvtracks);
  	    if( !pvtracks.isValid()) { std::cout << "pvtracks NOT valid " << std::endl; }
  	    else {
 	      edm::Handle<reco::BeamSpot> pvbeamspot; 
-              edm::EDGetTokenT<reco::BeamSpot> revtxbs_ = consumes<reco::BeamSpot>(revertex.inputBeamSpot());
 	      iEvent.getByToken(revtxbs_, pvbeamspot);
 	      if (pvbeamspot.id() != theBeamSpot.id()) edm::LogWarning("Inconsistency") << "The BeamSpot used for PV reco is not the same used in this analyzer.";
 	      // I need to go back to the reco::Muon object, as the TrackRef in the pat::Muon can be an embedded ref.
@@ -195,7 +203,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      const reco::Muon *rmu2 = dynamic_cast<const reco::Muon *>(it2->originalObject());
 	      // check that muons are truly from reco::Muons (and not, e.g., from PF Muons)
 	      // also check that the tracks really come from the track collection used for the BS
-	      if (rmu1 != 0 && rmu2 != 0 && rmu1->track().id() == pvtracks.id() && rmu2->track().id() == pvtracks.id()) { 
+	      if (rmu1 != nullptr && rmu2 != nullptr && rmu1->track().id() == pvtracks.id() && rmu2->track().id() == pvtracks.id()) { 
 		// Save the keys of the tracks in the primary vertex
 		// std::vector<size_t> vertexTracksKeys;
 		// vertexTracksKeys.reserve(thePrimaryV.tracksSize());
@@ -246,9 +254,9 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      if (tkPVdist.second.significance()>3) continue;
 	      if (track.ptError()/track.pt()>0.1) continue;
 	      // do not count the two muons
-	      if (rmu1 != 0 && rmu1->innerTrack().key() == itVtx->key())
+	      if (rmu1 != nullptr && rmu1->innerTrack().key() == itVtx->key())
 		continue;
-	      if (rmu2 != 0 && rmu2->innerTrack().key() == itVtx->key())
+	      if (rmu2 != nullptr && rmu2->innerTrack().key() == itVtx->key())
 		continue;
 	      
 	      vertexWeight += theOriginalPV.trackWeight(*itVtx);
@@ -324,6 +332,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  myCand.addUserFloat("cosAlpha",-100);
 	  myCand.addUserFloat("ppdlBS",-100);
           myCand.addUserFloat("ppdlErrBS",-100);
+          myCand.addUserFloat("DCA", -1 );
 	  if (addCommonVertex_) {
 	    myCand.addUserData("commonVertex",Vertex());
 	  }
@@ -391,7 +400,7 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::sort(oniaOutput->begin(),oniaOutput->end(),vPComparator_);
 
-  iEvent.put(oniaOutput);
+  iEvent.put(std::move(oniaOutput));
 
 }
 

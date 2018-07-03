@@ -22,13 +22,13 @@ public:
   /// Standard constructor
   TTUPointingLogic( ); 
   
-  virtual ~TTUPointingLogic( ); ///< Destructor
+  ~TTUPointingLogic( ) override; ///< Destructor
 
   //... from TTULogic interface:
   
-  bool process( const TTUInput & );
+  bool process( const TTUInput & ) override;
   
-  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & );
+  void setBoardSpecs( const TTUBoardSpecs::TTUBoardConfig & ) override;
   
   //...
   

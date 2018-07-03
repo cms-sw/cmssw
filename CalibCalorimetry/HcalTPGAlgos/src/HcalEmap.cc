@@ -12,7 +12,7 @@
 //         Created:  Tue Oct 14 14:30:20 CDT 2009
 //
 
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -37,7 +37,7 @@ int HcalEmap::read_map( std::string filename )
   else{
     std::cout << "File with the electronic map opened successfully: " << filename << std::endl;
   }
-  while ( getline( inFile, _row ) > 0 ){
+  while (getline( inFile, _row )) {
     HcalEmapRow aRow;
     char fpga[32];
     char subdet[32];

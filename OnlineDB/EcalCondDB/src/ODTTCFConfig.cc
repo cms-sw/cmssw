@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 ODTTCFConfig::ODTTCFConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   clear();
@@ -31,7 +31,7 @@ ODTTCFConfig::~ODTTCFConfig()
 {
 }
 
-int ODTTCFConfig::fetchNextId()  throw(std::runtime_error) {
+int ODTTCFConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -49,7 +49,7 @@ int ODTTCFConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTTCFConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTTCFConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -58,7 +58,7 @@ int ODTTCFConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODTTCFConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -94,7 +94,7 @@ void ODTTCFConfig::prepareWrite()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTTCFConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTTCFConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -102,7 +102,7 @@ void ODTTCFConfig::prepareWrite()
 }
 
 void ODTTCFConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   std::cout<<"updating the clob 2"<<std::endl;
@@ -123,7 +123,7 @@ void ODTTCFConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTTCFConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTTCFConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -137,12 +137,12 @@ void ODTTCFConfig::writeDB()
 
 
 void ODTTCFConfig::fetchData(ODTTCFConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
 
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODTTCFConfig::fetchData(): no Id defined for this ODTTCFConfig "));
   }
 
@@ -158,8 +158,8 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
-    result->setTTCFConfigurationFile(rset->getString(3));
+    result->setConfigTag(getOraString(rset,2));
+    result->setTTCFConfigurationFile(getOraString(rset,3));
     Clob clob = rset->getClob (4);
     cout << "Opening the clob in Read only mode" << endl;
     clob.open (OCCI_LOB_READONLY);
@@ -171,13 +171,13 @@ void ODTTCFConfig::fetchData(ODTTCFConfig * result)
     result->setTTCFClob((unsigned char*) buffer );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTTCFConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTTCFConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 
 
-int ODTTCFConfig::fetchID()    throw(std::runtime_error)
+int ODTTCFConfig::fetchID()    noexcept(false)
 {
   if (m_ID!=0) {
     return m_ID;
@@ -202,7 +202,7 @@ int ODTTCFConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODTTCFConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODTTCFConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
     return m_ID;

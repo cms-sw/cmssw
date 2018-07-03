@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 ODDelaysDat::ODDelaysDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_sm = 0;
   m_fed = 0;
@@ -30,7 +30,7 @@ ODDelaysDat::~ODDelaysDat()
 
 
 void ODDelaysDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -39,14 +39,14 @@ void ODDelaysDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, sm_id, fed_id, tt_id, time_offset ) "
 			"VALUES (:1, :2, :3, :4, :5 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDelaysDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDelaysDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -59,19 +59,19 @@ void ODDelaysDat::writeDB(const ODDelaysDat* item, ODFEDelaysInfo* iov )
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDelaysDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDelaysDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, ODFEDelaysInfo* iov)
-  throw(std::runtime_error) {
+  noexcept(false) {
   iov->setConnection(m_env, m_conn);
   int iovID = iov->fetchID();
   fetchData(p, iovID);
 }
 
 void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, int iovID)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -99,14 +99,14 @@ void ODDelaysDat::fetchData(std::vector< ODDelaysDat >* p, int iovID)
 
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDelaysDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDelaysDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 //  ************************************************************************   // 
 
 void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelaysInfo* iov)
-    throw(std::runtime_error)
+    noexcept(false)
 {
   this->checkConnection();
 
@@ -174,6 +174,6 @@ void ODDelaysDat::writeArrayDB(const std::vector< ODDelaysDat >& data, ODFEDelay
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDelaysDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDelaysDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

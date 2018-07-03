@@ -49,7 +49,7 @@ MuonCosmicCompatibilityFiller::MuonCosmicCompatibilityFiller(const edm::Paramete
   inputTrackCollections_(iConfig.getParameter<std::vector<edm::InputTag> >("InputTrackCollections")),
   inputCosmicMuonCollection_(iConfig.getParameter<edm::InputTag>("InputCosmicMuonCollection")),
   inputVertexCollection_(iConfig.getParameter<edm::InputTag>("InputVertexCollection")),
-  service_(0)
+  service_(nullptr)
 {
   // service parameters
   edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -229,7 +229,8 @@ MuonCosmicCompatibilityFiller::backToBack2LegCosmic(const edm::Event& iEvent, co
   reco::TrackRef track;
   if ( muon.isGlobalMuon()  )            track = muon.innerTrack();
   else if ( muon.isTrackerMuon() )       track = muon.track();
-  else if ( muon.isStandAloneMuon() || muon.isRPCMuon() )    return false;
+  else if ( muon.isStandAloneMuon() || muon.isRPCMuon() || muon.isGEMMuon() || muon.isME0Muon() )
+    return false;
 
   for (unsigned int iColl = 0; iColl<trackTokens_.size(); ++iColl){
     edm::Handle<reco::TrackCollection> trackHandle;

@@ -19,16 +19,16 @@ public :
   TFitParticleEMomDev(const TString &name, const TString &title, 
 	       TLorentzVector* pini,
 	       const TMatrixD* theCovMatrix);
-  virtual ~TFitParticleEMomDev();
-  virtual TAbsFitParticle* clone( const TString& newname = "" ) const;
+  ~TFitParticleEMomDev() override;
+  TAbsFitParticle* clone( const TString& newname = "" ) const override;
 
   // returns derivative dP/dy with P=(p,E) and y=(par1, par2, par3, ...) 
   // the free parameters of the fit. The columns of the matrix contain 
   // (dP/dpar1, dP/dpar2, ...).
-  virtual TMatrixD* getDerivative();
-  virtual TMatrixD* transform(const TLorentzVector& vec);
-  virtual void setIni4Vec(const TLorentzVector* pini);
-  virtual TLorentzVector* calc4Vec( const TMatrixD* params );
+  TMatrixD* getDerivative() override;
+  TMatrixD* transform(const TLorentzVector& vec) override;
+  void setIni4Vec(const TLorentzVector* pini) override;
+  TLorentzVector* calc4Vec( const TMatrixD* params ) override;
 
 protected :
 
@@ -36,7 +36,8 @@ protected :
 
 
 private:
-  
+
+  ClassDefOverride(TFitParticleEMomDev, 0)
 };
 
 #endif

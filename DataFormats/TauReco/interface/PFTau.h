@@ -55,8 +55,8 @@ class PFTau : public BaseTau {
 
     PFTau();
     PFTau(Charge q,const LorentzVector &,const Point & = Point( 0, 0, 0 ) );
-    virtual ~PFTau() {};
-    PFTau* clone() const;
+    ~PFTau() override {};
+    PFTau* clone() const override;
 
     const PFJetRef& jetRef() const;
     void setjetRef(const PFJetRef&);
@@ -193,11 +193,11 @@ class PFTau : public BaseTau {
     /// ( the candidates used to construct this Candidate)
     /// in the case of taus, there is only one source candidate,
     /// which is the corresponding PFJet
-    size_type numberOfSourceCandidatePtrs() const {return 1;}
+    size_type numberOfSourceCandidatePtrs() const override {return 1;}
 
     /// return a RefToBase to the source Candidates
     /// ( the candidates used to construct this Candidate)
-    CandidatePtr sourceCandidatePtr( size_type i ) const;
+    CandidatePtr sourceCandidatePtr( size_type i ) const override;
 
     /// prints information on this PFTau
     void dump(std::ostream& out = std::cout) const;
@@ -213,7 +213,7 @@ class PFTau : public BaseTau {
     std::vector<PFRecoTauChargedHadron>& isolationTauChargedHadronCandidatesRestricted();
 
     // check overlap with another candidate
-    virtual bool overlap(const Candidate&) const;
+    bool overlap(const Candidate&) const override;
 
     bool muonDecision_;
     bool electronPreIDDecision_;

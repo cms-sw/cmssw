@@ -6,26 +6,24 @@
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/refcore_implementation.h"
 
 #include <algorithm>
 #include <typeinfo>
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
-#endif
 
 namespace edm {
   class RefCoreWithIndex;
+  class EDProductGetter;
+  class WrapperBase;
   
   class RefCore {
     //RefCoreWithIndex is a specialization of RefCore done for performance
     // Since we need to freely convert one to the other the friendship is used
     friend class RefCoreWithIndex;
   public:
-    RefCore() :  cachePtr_(0),processIndex_(0),productIndex_(0){}
+    RefCore() :  cachePtr_(nullptr),processIndex_(0),productIndex_(0){}
 
     RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient);
 
@@ -33,10 +31,20 @@ namespace edm {
     
     RefCore& operator=(RefCore const&);
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    RefCore( RefCore&& ) = default;
-    RefCore& operator=(RefCore&&) = default;
-#endif
+    RefCore( RefCore && iOther) noexcept :
+      processIndex_(iOther.processIndex_),
+      productIndex_(iOther.productIndex_) {
+         cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+     }
+
+    RefCore& operator=( RefCore && iOther) noexcept{
+      cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+      processIndex_ = iOther.processIndex_;
+      productIndex_ = iOther.productIndex_;
+      return *this;
+    }
+
+    ~RefCore() noexcept {}
     
     ProductID id() const {ID_IMPL;}
 
@@ -93,7 +101,7 @@ namespace edm {
 
     void nullPointerForTransientException(std::type_info const& type) const;
 
-    void swap(RefCore &);
+    void swap(RefCore &) noexcept;
     
     bool isTransient() const {ISTRANSIENT_IMPL;}
 
@@ -110,18 +118,12 @@ namespace edm {
     void setTransient() {SETTRANSIENT_IMPL;}
     void setCacheIsProductPtr(const void* iItem) const {SETCACHEISPRODUCTPTR_IMPL(iItem);}
     void setCacheIsProductGetter(EDProductGetter const * iGetter) const {SETCACHEISPRODUCTGETTER_IMPL(iGetter);}
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     bool cachePtrIsInvalid() const { return 0 == (reinterpret_cast<std::uintptr_t>(cachePtr_.load()) & refcoreimpl::kCacheIsProductPtrMask); }
-#endif
 
     //The low bit of the address is used to determine  if the cachePtr_
     // is storing the productPtr or the EDProductGetter. The bit is set if
     // the address refers to the EDProductGetter.
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     mutable std::atomic<void const*> cachePtr_; // transient
-#else
-    mutable void const* cachePtr_;               // transient
-#endif
     //The following is what is stored in a ProductID
     // the high bit of processIndex is used to store info on
     // if this is transient.
@@ -150,10 +152,9 @@ namespace edm {
     return lhs.isTransient() ? (rhs.isTransient() ? lhs.productPtr() < rhs.productPtr() : false) : (rhs.isTransient() ? true : lhs.id() < rhs.id());
   }
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   inline 
   void
-  RefCore::swap(RefCore & other) {
+  RefCore::swap(RefCore & other) noexcept {
     std::swap(processIndex_, other.processIndex_);
     std::swap(productIndex_, other.productIndex_);
     other.cachePtr_.store(cachePtr_.exchange(other.cachePtr_.load()));
@@ -162,7 +163,6 @@ namespace edm {
   inline void swap(edm::RefCore & lhs, edm::RefCore & rhs) {
     lhs.swap(rhs);
   }
-#endif
 }
 
 #endif

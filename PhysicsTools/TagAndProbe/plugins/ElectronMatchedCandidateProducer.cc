@@ -42,10 +42,8 @@ void ElectronMatchedCandidateProducer::produce(edm::Event &event,
 			      const edm::EventSetup &eventSetup)
 {
    // Create the output collection
-  std::auto_ptr< edm::RefToBaseVector<reco::Candidate> >
-    outColRef( new edm::RefToBaseVector<reco::Candidate> );
-  std::auto_ptr< edm::PtrVector<reco::Candidate> >
-    outColPtr( new edm::PtrVector<reco::Candidate> );
+  auto outColRef = std::make_unique<edm::RefToBaseVector<reco::Candidate>>();
+  auto outColPtr = std::make_unique<edm::PtrVector<reco::Candidate>>();
 
 
   // Read electrons
@@ -82,8 +80,8 @@ void ElectronMatchedCandidateProducer::produce(edm::Event &event,
 
   } // end candidate loop
 
-  event.put(outColRef);
-  event.put(outColPtr);
+  event.put(std::move(outColRef));
+  event.put(std::move(outColPtr));
 }
 
 

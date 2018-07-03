@@ -27,10 +27,10 @@ class TrackerHitProducer : public edm::EDProducer
   typedef std::vector<int> IntegerVector;
 
   explicit TrackerHitProducer(const edm::ParameterSet&);
-  virtual ~TrackerHitProducer();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  ~TrackerHitProducer() override;
+  void beginJob() override;
+  void endJob() override;  
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 

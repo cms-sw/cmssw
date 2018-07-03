@@ -8,10 +8,10 @@ using namespace oracle::occi;
 
 ODLaserCycle::ODLaserCycle()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   //
   m_ID = 0;
   m_laser_config_id = 0;
@@ -24,7 +24,7 @@ ODLaserCycle::~ODLaserCycle()
 
 
 void ODLaserCycle::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -33,12 +33,12 @@ void ODLaserCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_Laser_Cycle (cycle_id, laser_configuration_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
-void ODLaserCycle::writeDB()  throw(std::runtime_error)
+void ODLaserCycle::writeDB()  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -52,7 +52,7 @@ void ODLaserCycle::writeDB()  throw(std::runtime_error)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -69,7 +69,7 @@ void ODLaserCycle::clear(){
 
 
 int ODLaserCycle::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -93,7 +93,7 @@ int ODLaserCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -102,7 +102,7 @@ int ODLaserCycle::fetchID()
 
 
 void ODLaserCycle::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -122,14 +122,14 @@ void ODLaserCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::fetchID:  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void ODLaserCycle::fetchData(ODLaserCycle * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -151,12 +151,12 @@ void ODLaserCycle::fetchData(ODLaserCycle * result)
     result->setLaserConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLaserCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLaserCycle::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
  void ODLaserCycle::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

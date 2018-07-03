@@ -16,8 +16,8 @@ namespace muonisolation {
     typedef reco::IsoDeposit::Vetos Vetos;
 
     struct DepositAndVetos {
-      DepositAndVetos(): dep(0), vetos(0) {}
-      DepositAndVetos(const reco::IsoDeposit* depA, const Vetos* vetosA = 0):
+      DepositAndVetos(): dep(nullptr), vetos(nullptr) {}
+      DepositAndVetos(const reco::IsoDeposit* depA, const Vetos* vetosA = nullptr):
 	dep(depA), vetos(vetosA) {}
       const reco::IsoDeposit* dep;
       const Vetos* vetos;
@@ -51,13 +51,13 @@ namespace muonisolation {
     virtual ~MuIsoBaseIsolator(){}
 
     //! Compute and return the isolation variable
-    virtual Result result(const DepositContainer& deposits, const edm::Event* = 0) const = 0;
+    virtual Result result(const DepositContainer& deposits, const edm::Event* = nullptr) const = 0;
     //! Compute and return the isolation variable, with vetoes and the muon
-    virtual Result result(const DepositContainer& deposits, const reco::Candidate& muon, const edm::Event* = 0) const {
+    virtual Result result(const DepositContainer& deposits, const reco::Candidate& muon, const edm::Event* = nullptr) const {
       return result(deposits);
     }
     //! Compute and return the isolation variable, with vetoes and the muon
-    virtual Result result(const DepositContainer& deposits, const reco::Track& muon, const edm::Event* = 0) const {
+    virtual Result result(const DepositContainer& deposits, const reco::Track& muon, const edm::Event* = nullptr) const {
       return result(deposits);
     }
 

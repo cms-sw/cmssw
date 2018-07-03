@@ -11,8 +11,8 @@ unpackGctStage1 = L1Trigger.L1TCommon.l1tRawToDigi_cfi.caloStage1Digis.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())
 )
 
-import L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi
-unpackGctDigis = L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi.caloStage1LegacyFormatDigis.clone(
+import L1Trigger.L1TCalorimeter.caloStage1LegacyFormatDigis_cfi
+unpackGctDigis = L1Trigger.L1TCalorimeter.caloStage1LegacyFormatDigis_cfi.caloStage1LegacyFormatDigis.clone(
     InputCollection         = cms.InputTag("unpackGctStage1"),
     InputRlxTauCollection   = cms.InputTag("unpackGctStage1:rlxTaus"),
     InputIsoTauCollection   = cms.InputTag("unpackGctStage1:isoTaus"),

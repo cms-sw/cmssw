@@ -23,6 +23,5 @@ CATopJetParameters = cms.PSet(
     useMaxTower = cms.bool(False),          			# use max tower in adjacency criterion, otherwise use centroid - NOT USED
     sumEtEtaCut = cms.double(3.0),          			# eta for event SumEt - NOT USED                                                 
     etFrac = cms.double(0.7),               			# fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED
-    debugLevel = cms.untracked.int32(0)     			# debug level
 )
 

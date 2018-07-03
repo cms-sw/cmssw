@@ -1,10 +1,10 @@
 #include "SimGeneral/GFlash/interface/GflashHistogram.h"
 
-GflashHistogram* GflashHistogram::instance_ = 0;
+GflashHistogram* GflashHistogram::instance_ = nullptr;
 
 GflashHistogram* GflashHistogram::instance(){
 
-  if(instance_ == 0) instance_ = new GflashHistogram();
+  if(instance_ == nullptr) instance_ = new GflashHistogram();
   return instance_;
 
 }

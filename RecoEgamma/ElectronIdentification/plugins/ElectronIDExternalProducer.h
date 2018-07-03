@@ -24,7 +24,7 @@ class ElectronIDExternalProducer : public edm::stream::EDProducer<> {
         produces<edm::ValueMap<float> >();
    }
 
-   virtual ~ElectronIDExternalProducer() {}
+   ~ElectronIDExternalProducer() override {}
 
    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
@@ -52,12 +52,12 @@ void ElectronIDExternalProducer<algo>::produce(edm::Event & iEvent, const edm::E
      }
 
      // fill in the ValueMap
-     std::auto_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>());
+     auto out = std::make_unique<edm::ValueMap<float>>();
      edm::ValueMap<float>::Filler filler(*out);
      filler.insert(electrons, values.begin(), values.end());
      filler.fill();
      // and put it into the event
-     iEvent.put(out);
+     iEvent.put(std::move(out));
 
 }
 #endif

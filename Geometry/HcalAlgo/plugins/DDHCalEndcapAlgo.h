@@ -4,14 +4,14 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDHCalEndcapAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDHCalEndcapAlgo(); //const std::string & name);
-  virtual ~DDHCalEndcapAlgo();
+  ~DDHCalEndcapAlgo() override;
   
   //Get Methods
   std::string getGenMat()                  const {return genMaterial;}
@@ -81,14 +81,14 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 protected:
 
   void constructGeneralVolume(DDCompactView& cpv);
-  void constructInsideSector(DDLogicalPart sector, DDCompactView& cpv);
+  void constructInsideSector(const DDLogicalPart& sector, DDCompactView& cpv);
   void parameterLayer (int iphi, double rinF, double routF, double rinB, 
 		       double routB, double zi, double zo, double& yh1, 
 		       double& bl1, double& tl1, double& yh2, double& bl2,
@@ -97,11 +97,11 @@ protected:
   void parameterLayer0(int mod, int layer, int iphi, double& yh, double& bl, 
 		       double& tl, double& alp, double& xpos, double& ypos, 
 		       double& zcpv);
-  void constructInsideModule0(DDLogicalPart module, int mod, DDCompactView& cpv);
-  void constructInsideModule (DDLogicalPart module, int mod, DDCompactView& cpv);
-  void constructScintLayer   (DDLogicalPart glog, double pDz, double yh, 
+  void constructInsideModule0(const DDLogicalPart& module, int mod, DDCompactView& cpv);
+  void constructInsideModule (const DDLogicalPart& module, int mod, DDCompactView& cpv);
+  void constructScintLayer   (const DDLogicalPart& glog, double pDz, double yh, 
 			      double bl, double tl, double alp, 
-			      std::string name, int id, DDCompactView& cpv);
+			      const std::string& name, int id, DDCompactView& cpv);
 
 private:
 

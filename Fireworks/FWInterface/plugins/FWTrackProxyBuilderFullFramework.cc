@@ -35,16 +35,16 @@ class FWTrackProxyBuilderFullFramework : public FWProxyBuilderBase {
 
 public:
    FWTrackProxyBuilderFullFramework();
-   virtual ~FWTrackProxyBuilderFullFramework();
+   ~FWTrackProxyBuilderFullFramework() override;
 
    REGISTER_PROXYBUILDER_METHODS();
    
-   virtual void setItem(const FWEventItem* iItem) override;
-   virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
+   void setItem(const FWEventItem* iItem) override;
+   bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
    
 private:
-   FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&); // stop default
-   const FWTrackProxyBuilderFullFramework& operator=(const FWTrackProxyBuilderFullFramework&); // stop default
+   FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&) = delete; // stop default
+   const FWTrackProxyBuilderFullFramework& operator=(const FWTrackProxyBuilderFullFramework&) = delete; // stop default
 
    void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    void buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp);
@@ -55,8 +55,8 @@ private:
 };
 
 FWTrackProxyBuilderFullFramework::FWTrackProxyBuilderFullFramework(): 
-m_trackerPropagator(0),
-m_trajToTrackMap(0)
+m_trackerPropagator(nullptr),
+m_trajToTrackMap(nullptr)
 {
    m_trackerPropagator = new TEveTrackPropagator();
    m_trackerPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
@@ -83,9 +83,9 @@ void FWTrackProxyBuilderFullFramework::setItem(const FWEventItem* iItem)
 void
 FWTrackProxyBuilderFullFramework::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc)
 {    
-   const reco::TrackCollection * tracks = 0;
+   const reco::TrackCollection * tracks = nullptr;
    iItem->get( tracks );
-   if( tracks == 0 ) return;
+   if( tracks == nullptr ) return;
    
    try {
       const edm::EventBase* event = item()->getEvent();
@@ -96,7 +96,7 @@ FWTrackProxyBuilderFullFramework::build(const FWEventItem* iItem, TEveElementLis
    }
    catch (cms::Exception &exception)
    {
-      m_trajToTrackMap =0;
+      m_trajToTrackMap =nullptr;
       std::cout << exception.what() << std::endl;
    }
     

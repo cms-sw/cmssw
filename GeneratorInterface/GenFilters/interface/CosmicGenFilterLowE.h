@@ -16,9 +16,9 @@
 class CosmicGenFilterLowE : public edm::EDFilter {
  public:
   explicit CosmicGenFilterLowE(const edm::ParameterSet& conf);
-  virtual ~CosmicGenFilterLowE() {}
+  ~CosmicGenFilterLowE() override {}
   //virtual bool filter(edm::Event & e, edm::EventSetup const& c);
-  bool filter(edm::Event & iEvent, edm::EventSetup const& c);
+  bool filter(edm::Event & iEvent, edm::EventSetup const& c) override;
   
  private:
   TRandom2 RanGen2;

@@ -1,38 +1,76 @@
 #ifndef GEMRecHit_ME0SegmentAlgorithm_h
 #define GEMRecHit_ME0SegmentAlgorithm_h
 
-/** \class ME0SegmentAlgo derived from CSC
- * An abstract base class for algorithmic classes used to
- * build segments in one ensemble of ME0 detector 
+/**
+ * \class ME0SegmentAlgorithm
  *
- * Implementation notes: <BR>
- * For example, ME0SegmAlgoMM inherits from this class,
+ * This algorithm is very basic no attemp to deal with ambiguities , noise etc.
+ * The ME0 track segments is built out of the rechit's in a the 6 ME0 Layer denoted
+ * as the ME0 Ensabmle .<BR>
  *
- * \author Marcello Maggi
+ *  \authors Marcello Maggi 
  *
  */
 
-#include <DataFormats/GEMRecHit/interface/ME0RecHitCollection.h>
-#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
-#include <Geometry/GEMGeometry/interface/ME0EtaPartition.h>
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <map>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoLocalMuon/GEMSegment/plugins/ME0SegmentAlgorithmBase.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHit.h"
+
+#include <deque>
 #include <vector>
 
-class ME0SegmentAlgorithm {
+class MuonSegFit;
+
+class ME0SegmentAlgorithm : public ME0SegmentAlgorithmBase {
+
+
 public:
-  typedef std::pair<const ME0EtaPartition*, std::map<uint32_t, const ME0EtaPartition*> >ME0Ensemble; 
 
-    /// Constructor
-    explicit ME0SegmentAlgorithm(const edm::ParameterSet&) {};
-    /// Destructor
-    virtual ~ME0SegmentAlgorithm() {};
+  /// Typedefs
+  typedef std::vector<HitAndPositionPtrContainer> ProtoSegments;
 
-    /** Run the algorithm = build the segments in this chamber
-    */
-    virtual std::vector<ME0Segment> run(const ME0Ensemble& ensemble, const std::vector<const ME0RecHit*>& rechits) = 0;  
+  /// Constructor
+  explicit ME0SegmentAlgorithm(const edm::ParameterSet& ps);
+  /// Destructor
+  ~ME0SegmentAlgorithm() override;
 
-    private:
+  /**
+   * Build segments for all desired groups of hits
+   */
+  std::vector<ME0Segment> run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits) override;
+
+private:
+  /// Utility functions 
+
+  //  Build groups of rechits that are separated in x and y to save time on the segment finding
+  ProtoSegments clusterHits(const HitAndPositionContainer& rechits);
+
+  // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
+  ProtoSegments chainHits(const ME0Chamber * chamber, const HitAndPositionContainer& rechits);
+
+  bool isGoodToMerge(const ME0Chamber * chamber, const HitAndPositionPtrContainer& newChain, const HitAndPositionPtrContainer& oldChain);
+
+  // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
+  void buildSegments(const ME0Chamber * chamber, const HitAndPositionPtrContainer& rechits, std::vector<ME0Segment>& me0segs);
+
+  // Member variables
+  const std::string myName; 
+
+  // input from .cfi file
+  bool    debug;
+  unsigned int     minHitsPerSegment;
+  bool    preClustering;
+  double  dXclusBoxMax;
+  double  dYclusBoxMax;
+  bool    preClustering_useChaining;
+  double  dPhiChainBoxMax;
+  double  dEtaChainBoxMax;
+  double  dTimeChainBoxMax;
+  int     maxRecHitsInCluster;
+  
+  static constexpr float running_max=std::numeric_limits<float>::max();
+  std::unique_ptr<MuonSegFit> sfit_;
+
 };
 
 #endif

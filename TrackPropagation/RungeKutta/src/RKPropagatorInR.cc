@@ -27,7 +27,7 @@ RKPropagatorInR::myPropagate (const FreeTrajectoryState& ts, const Cylinder& cyl
     LocalVector startmom = cyl.toLocal(mom);
 
     CylindricalState startState( startpos, startmom, ts.charge());
-    RKVector start = startState.parameters();
+    const RKVector& start = startState.parameters();
 
     RKLocalFieldProvider localField( *theVolume, cyl);
     CylindricalLorentzForce<double,5> deriv(localField);

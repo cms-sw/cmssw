@@ -19,21 +19,17 @@ public:
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
   typedef std::pair< ConstRecHitContainer, ConstRecHitContainer > ConstRecHitCollection;
 
-  TwoBodyDecayTrajectory( const TwoBodyDecayTrajectoryState & trajectoryState,
-			  const ConstRecHitCollection & recHits,
-			  const MagneticField* magField,
-			  MaterialEffects materialEffects,
-			  PropagationDirection propDir,
-			  bool hitsAreReverse,
-			  const reco::BeamSpot &beamSpot,
-			  bool useRefittedState,
-			  bool constructTsosWithErrors );
+  TwoBodyDecayTrajectory(const TwoBodyDecayTrajectoryState& tsos,
+                         const ConstRecHitCollection& recHits,
+                         const MagneticField* magField,
+                         const reco::BeamSpot& beamSpot,
+                         const ReferenceTrajectoryBase::Config& config);
 
   TwoBodyDecayTrajectory( void );
 
-  ~TwoBodyDecayTrajectory( void ) {}
+  ~TwoBodyDecayTrajectory( void ) override {}
 
-  virtual TwoBodyDecayTrajectory* clone( void ) const
+  TwoBodyDecayTrajectory* clone( void ) const override
     { return new TwoBodyDecayTrajectory( *this ); }
 
   /**Number of RecHits belonging to the first and second track.
@@ -42,14 +38,10 @@ public:
 
 private:
 
-  bool construct( const TwoBodyDecayTrajectoryState & state,
-		  const ConstRecHitCollection & recHits,
-		  const MagneticField* field,
-		  MaterialEffects materialEffects,
-		  PropagationDirection propDir,
-		  const reco::BeamSpot &beamSpot,
-		  bool useRefittedState,
-		  bool constructTsosWithErrors );
+  bool construct(const TwoBodyDecayTrajectoryState& state,
+                 const ConstRecHitCollection& recHits,
+                 const MagneticField* field,
+                 const reco::BeamSpot& beamSpot);
 
   void constructTsosVecWithErrors( const ReferenceTrajectory& traj1,
 				   const ReferenceTrajectory& traj2,
@@ -59,8 +51,12 @@ private:
 				      int iTsos,
 				      const MagneticField* field );
 
-  std::pair< int, int > theNumberOfRecHits;
+  const MaterialEffects materialEffects_;
+  const PropagationDirection propDir_;
+  const bool useRefittedState_;
+  const bool constructTsosWithErrors_;
 
+  std::pair< int, int > theNumberOfRecHits;
 };
 
 #endif

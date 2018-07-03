@@ -20,9 +20,7 @@
 
 // system include files
 #include "boost/intrusive_ptr.hpp"
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
-#endif
 
 // user include files
 
@@ -34,28 +32,24 @@ class BasicReferenceCounted
    public:
       BasicReferenceCounted() : referenceCount_(0) {}
       BasicReferenceCounted( const BasicReferenceCounted& /* iRHS */) : referenceCount_(0) {}
+      BasicReferenceCounted(BasicReferenceCounted&&) = default;
+      BasicReferenceCounted& operator=(BasicReferenceCounted&& ) = default;
 
-      const BasicReferenceCounted& operator=( const BasicReferenceCounted& ) {
+      BasicReferenceCounted& operator=( const BasicReferenceCounted& ) {
 	return *this;
       }
+
       virtual ~BasicReferenceCounted() {}
 
       // ---------- const member functions ---------------------
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-      void addReference() const { referenceCount_.fetch_add(1,std::memory_order_acq_rel) ; }
-      void removeReference() const { if( 1 == referenceCount_.fetch_sub(1,std::memory_order_acq_rel ) ) {
+      void addReference() const { referenceCount_++; }
+      void removeReference() const { if(1 == referenceCount_--) {
 	  delete const_cast<BasicReferenceCounted*>(this);
 	}
       }
 
-      unsigned int  references() const {return referenceCount_.load(std::memory_order_acquire);}
-#else
-      void addReference() const;
-      void removeReference() const;
-
-      unsigned int  references() const;
-#endif
+      unsigned int  references() const {return referenceCount_;}
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
@@ -63,11 +57,7 @@ class BasicReferenceCounted
    private:
 
       // ---------- member data --------------------------------
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
       mutable std::atomic<unsigned int> referenceCount_;
-#else
-      unsigned int referenceCount_;
-#endif
 };
 
 template <class T> class ReferenceCountingPointer : 

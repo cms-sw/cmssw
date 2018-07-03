@@ -1,5 +1,6 @@
 
 #include "boost/serialization/assume_abstract.hpp"
+#include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"
 
 // take care of instantiating the concrete templates:
 

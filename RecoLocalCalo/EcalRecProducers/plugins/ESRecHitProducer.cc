@@ -30,14 +30,14 @@ ESRecHitProducer::~ESRecHitProducer() {
 void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   edm::Handle<ESDigiCollection> digiHandle;  
-  const ESDigiCollection* digi=0;
+  const ESDigiCollection* digi=nullptr;
   e.getByToken( digiToken_, digiHandle);
  
   digi = digiHandle.product();
   LogDebug("ESRecHitInfo") << "total # ESdigis: " << digi->size();
   
   // Create empty output
-  std::auto_ptr<ESRecHitCollection> rec(new ESRecHitCollection );
+  auto rec = std::make_unique<ESRecHitCollection>();
   
   if ( digi ) {
     rec->reserve(digi->size()); 
@@ -51,7 +51,7 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
   }
   
-  e.put(rec,rechitCollection_);
+  e.put(std::move(rec),rechitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"  

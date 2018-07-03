@@ -15,6 +15,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 /// Base class to build a scenario from configuration and apply to either tracker or muon.
 
@@ -23,12 +24,11 @@ class MisalignmentScenarioBuilder
 
 public:
  
-  /// Default constructor
-  MisalignmentScenarioBuilder( ) :
-    theModifierCounter(0) {};
+  /// Constructor
+  MisalignmentScenarioBuilder(AlignableObjectId::Geometry);
 
   /// Destructor
-  virtual ~MisalignmentScenarioBuilder() {};
+  virtual ~MisalignmentScenarioBuilder() = default;
 
   /// Apply misalignment scenario to the tracker (sub-system specific)
   virtual void applyScenario( const edm::ParameterSet& scenario ) = 0;
@@ -36,10 +36,10 @@ public:
 protected: // Methods
 
   /// Decode movements defined in given parameter set for given set of alignables
-  void decodeMovements_(const edm::ParameterSet &pSet, const std::vector<Alignable*> &alignables);
+  void decodeMovements_(const edm::ParameterSet&, const align::Alignables&);
   
   /// Decode movements defined in given parameter set for given set of alignables tagged by given name
-  void decodeMovements_(const edm::ParameterSet& pSet, const std::vector<Alignable*> &alignables,
+  void decodeMovements_(const edm::ParameterSet&, const align::Alignables&,
 			const std::string &levelName);
 
   /// Apply movements given by parameter set to given alignable
@@ -85,9 +85,12 @@ protected: // Members
   edm::ParameterSet theScenario;           ///< Misalignment scenario to apply (from config file)
   AlignableModifier theModifier;           ///< Helper class for random movements
   
-  int theModifierCounter;                  ///< Counter for applied modification
+  int theModifierCounter{0};                  ///< Counter for applied modification
 
   mutable std::string indent_;             ///< Depth in hierarchy
+
+private:
+  const AlignableObjectId alignableObjectId_;
 };
 
 

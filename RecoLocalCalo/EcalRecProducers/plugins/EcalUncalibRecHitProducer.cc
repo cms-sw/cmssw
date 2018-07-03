@@ -57,13 +57,16 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     auto itInfos = infos.begin();
     assert(itInfos != infos.end());
 
-    std::auto_ptr<edm::ParameterDescriptionCases<std::string>> s;
+    std::unique_ptr<edm::ParameterDescriptionCases<std::string>> s;
     {
-      s = itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
+      std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> tmw(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_));
+      s = (itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", tmw->getAlgoDescription(), true));      
     }
-    for (++itInfos; itInfos != infos.end(); ++itInfos)
-      s = s or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_)->getAlgoDescription(), true);
-    desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerMultiFit", true), s);
+    for (++itInfos; itInfos != infos.end(); ++itInfos) {
+      std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> tmw(EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_));
+      s = (std::move(s) or itInfos->name_ >> edm::ParameterDescription<edm::ParameterSetDescription>("algoPSet", tmw->getAlgoDescription(), true));
+    }
+    desc.ifValue(edm::ParameterDescription<std::string>("algo", "EcalUncalibRecHitWorkerMultiFit", true), std::move(s));
     
     descriptions.addDefault(desc);
   }
@@ -92,8 +95,8 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         Handle< EBDigiCollection > pEBDigis;
         Handle< EEDigiCollection > pEEDigis;
 
-        const EBDigiCollection* ebDigis =0;
-        const EEDigiCollection* eeDigis =0;
+        const EBDigiCollection* ebDigis =nullptr;
+        const EEDigiCollection* eeDigis =nullptr;
 
 
 	evt.getByToken( ebDigiCollectionToken_, pEBDigis);		
@@ -110,30 +113,20 @@ EcalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         worker_->set(evt);
 
         // prepare output
-        std::auto_ptr< EBUncalibratedRecHitCollection > ebUncalibRechits( new EBUncalibratedRecHitCollection );
-        std::auto_ptr< EEUncalibratedRecHitCollection > eeUncalibRechits( new EEUncalibratedRecHitCollection );
+        auto ebUncalibRechits = std::make_unique<EBUncalibratedRecHitCollection>();
+        auto eeUncalibRechits = std::make_unique<EEUncalibratedRecHitCollection>();
 
         // loop over EB digis
         if (ebDigis)
-        {
-                ebUncalibRechits->reserve(ebDigis->size());
-                for(EBDigiCollection::const_iterator itdg = ebDigis->begin(); itdg != ebDigis->end(); ++itdg) {
-                        worker_->run(evt, itdg, *ebUncalibRechits);
-                }
-        }
+            worker_->run(evt, *ebDigis, *ebUncalibRechits);
 
         // loop over EB digis
         if (eeDigis)
-        {
-                eeUncalibRechits->reserve(eeDigis->size());
-                for(EEDigiCollection::const_iterator itdg = eeDigis->begin(); itdg != eeDigis->end(); ++itdg) {
-                        worker_->run(evt, itdg, *eeUncalibRechits);
-                }
-        }
+            worker_->run(evt, *eeDigis, *eeUncalibRechits);
 
         // put the collection of recunstructed hits in the event
-        evt.put( ebUncalibRechits, ebHitCollection_ );
-        evt.put( eeUncalibRechits, eeHitCollection_ );
+        evt.put(std::move(ebUncalibRechits), ebHitCollection_);
+        evt.put(std::move(eeUncalibRechits), eeHitCollection_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"                                                                                                            

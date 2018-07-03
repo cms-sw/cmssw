@@ -35,7 +35,7 @@ using edm::LogError;
 
 RctRawToDigi::RctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
-  fedId_(iConfig.getUntrackedParameter<int>("rctFedId", FEDNumbering::MINTriggerUpgradeFEDID)),
+  fedId_(iConfig.getUntrackedParameter<int>("rctFedId", FEDNumbering::MINRCTFEDID)),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
 {
   LogDebug("RCT") << "RctRawToDigi will unpack FED Id " << fedId_;
@@ -64,7 +64,7 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
-  std::auto_ptr<RctUnpackCollections> colls(new RctUnpackCollections(iEvent));  
+  std::unique_ptr<RctUnpackCollections> colls(new RctUnpackCollections(iEvent));  
   
   // get raw data collection
   edm::Handle<FEDRawDataCollection> feds;
@@ -80,8 +80,12 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //check header size
     if ( rctRcd.size() < sLinkHeaderSize_ + sLinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + MIN_DATA) {
-      LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
-		      << rctRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
+      if (rctRcd.size() > 0) {
+	LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+			<< rctRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
+      } else {
+	// there's no MC packer for this payload, so totally expected that sometimes it will be absent... no warning issued.
+      }
       //continue;
       return;
     }
@@ -125,7 +129,7 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
   
   if (trailer.check()) {
     LogDebug("L1T") << "Found SLink trailer:"
-		    << " Length " << trailer.lenght()
+		    << " Length " << trailer.fragmentLength()
 		    << " CRC " << trailer.crc()
 		    << " Status " << trailer.evtStatus()
 		    << " Throttling bits " << trailer.ttsBits();

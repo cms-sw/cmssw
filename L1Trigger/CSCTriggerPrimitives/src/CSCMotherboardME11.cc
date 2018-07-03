@@ -10,17 +10,16 @@
 //
 //-----------------------------------------------------------------------------
 
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h>
-//#include <Utilities/Timing/interface/TimingReport.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
+#include "L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 
 
 
 // LUT for which ME1/1 wire group can cross which ME1/a halfstrip
 // 1st index: WG number
 // 2nd index: inclusive HS range
-const int CSCMotherboardME11::lut_wg_vs_hs_me1a[48][2] = {
+const int CSCMotherboardME11::lut_wg_vs_hs_me1a[CSCConstants::MAX_WIRES_ME11][2] = {
 {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
 {0, 95},{0, 95},{0, 95},{0, 95},{0, 95},
 {0, 95},{0, 95},{0, 77},{0, 61},{0, 39},
@@ -32,7 +31,7 @@ const int CSCMotherboardME11::lut_wg_vs_hs_me1a[48][2] = {
 {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
 {-1,-1},{-1,-1},{-1,-1} };
 // a modified LUT for ganged ME1a
-const int CSCMotherboardME11::lut_wg_vs_hs_me1ag[48][2] = {
+const int CSCMotherboardME11::lut_wg_vs_hs_me1ag[CSCConstants::MAX_WIRES_ME11][2] = {
 {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
 {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
 {0, 31},{0, 31},{0, 31},{0, 31},{0, 31},
@@ -47,7 +46,7 @@ const int CSCMotherboardME11::lut_wg_vs_hs_me1ag[48][2] = {
 // LUT for which ME1/1 wire group can cross which ME1/b halfstrip
 // 1st index: WG number
 // 2nd index: inclusive HS range
-const int CSCMotherboardME11::lut_wg_vs_hs_me1b[48][2] = {
+const int CSCMotherboardME11::lut_wg_vs_hs_me1b[CSCConstants::MAX_WIRES_ME11][2] = {
 {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
 {-1,-1},{-1,-1},{-1,-1},{-1,-1},{-1,-1},
 {100, 127},{73, 127},{47, 127},{22, 127},{0, 127},
@@ -135,12 +134,10 @@ void CSCMotherboardME11::clear()
 {
   CSCMotherboard::clear();
   if (clct1a) clct1a->clear();
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
   {
-    //firstLCT1a[bx].clear();
-    //secondLCT1a[bx].clear();
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
       {
         allLCTs1b[bx][mbx][i].clear();
         allLCTs1a[bx][mbx][i].clear();
@@ -162,13 +159,17 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
                              const CSCComparatorDigiCollection* compdc)
 {
   clear();
-  
+
   if (!( alct && clct &&  clct1a && smartME1aME1b))
   {
     if (infoV >= 0) edm::LogError("L1CSCTPEmulatorSetupError")
       << "+++ run() called for non-existing ALCT/CLCT processor! +++ \n";
     return;
   }
+
+  alct->setCSCGeometry(csc_g);
+  clct->setCSCGeometry(csc_g);
+  clct1a->setCSCGeometry(csc_g);
 
   alctV = alct->run(wiredc); // run anodeLCT
   clctV1b = clct->run(compdc); // run cathodeLCT in ME1/b
@@ -184,7 +185,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     used_alct_mask[b] = used_alct_mask_1a[b] = used_clct_mask[b] = used_clct_mask_1a[b] = 0;
 
   // CLCT-centric CLCT-to-ALCT matching
-  if (clct_to_alct) for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS; bx_clct++)
+  if (clct_to_alct) for (int bx_clct = 0; bx_clct < CSCConstants::MAX_CLCT_TBINS; bx_clct++)
   {
     // matching in ME1b
     if (clct->bestCLCT[bx_clct].isValid())
@@ -193,7 +194,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       int bx_alct_stop  = bx_clct + match_trig_window_size/2;
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++)
       {
-        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS) continue;
+        if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS) continue;
         if (drop_used_alcts && used_alct_mask[bx_alct]) continue;
         if (alct->bestALCT[bx_alct].isValid())
         {
@@ -221,7 +222,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       int bx_alct_stop  = bx_clct + match_trig_window_size/2;
       for (int bx_alct = bx_alct_start; bx_alct <= bx_alct_stop; bx_alct++)
       {
-        if (bx_alct < 0 || bx_alct >= CSCAnodeLCTProcessor::MAX_ALCT_BINS) continue;
+        if (bx_alct < 0 || bx_alct >= CSCConstants::MAX_ALCT_TBINS) continue;
         if (drop_used_alcts && used_alct_mask_1a[bx_alct]) continue;
         if (alct->bestALCT[bx_alct].isValid())
         {
@@ -246,17 +247,17 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of CLCT-centric matching
 
   // ALCT-centric ALCT-to-CLCT matching
-  else for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
+  else for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++)
   {
     if (alct->bestALCT[bx_alct].isValid())
     {
       int bx_clct_start = bx_alct - match_trig_window_size/2;
       int bx_clct_stop  = bx_alct + match_trig_window_size/2;
-      
+
       // matching in ME1b
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 || bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
         if (drop_used_clcts && used_clct_mask[bx_clct]) continue;
         if (clct->bestCLCT[bx_clct].isValid())
         {
@@ -279,7 +280,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       // matching in ME1a
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 || bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 || bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
         if (drop_used_clcts && used_clct_mask_1a[bx_clct]) continue;
         if (clct1a->bestCLCT[bx_clct].isValid())
         {
@@ -302,12 +303,12 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
   } // end of ALCT-centric matching
 
   // reduction of nLCTs per each BX
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
   {
     // counting
     unsigned int n1a=0, n1b=0;
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
       {
         int cbx = bx + mbx - match_trig_window_size/2;
         if (allLCTs1b[bx][mbx][i].isValid())
@@ -328,7 +329,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     {
       n1a=0, n1b=0;
       for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-        for (int i=0;i<2;i++)
+        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         {
           if (allLCTs1b[bx][pref[mbx]][i].isValid())
           {
@@ -345,7 +346,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       if (infoV > 0) LogDebug("CSCMotherboard") <<"After x-bx sorting:";
       n1a=0, n1b=0;
       for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-        for (int i=0;i<2;i++)
+        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         {
           int cbx = bx + mbx - match_trig_window_size/2;
           if (allLCTs1b[bx][mbx][i].isValid())
@@ -371,7 +372,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       n1a=0;
       // right now nLCT<=2; cut 1a if necessary
       for (unsigned int mbx=0; mbx<match_trig_window_size; mbx++)
-        for (int i=0;i<2;i++)
+        for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
           if (allLCTs1a[bx][mbx][i].isValid()) {
             nLCT++;
             if (nLCT>max_me11_lcts) allLCTs1a[bx][mbx][i].clear();
@@ -387,13 +388,13 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 }
 
 
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1a()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1a() const
 {
   return readoutLCTs(ME1A);
 }
 
 
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1b()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1b() const
 {
   return readoutLCTs(ME1B);
 }
@@ -402,7 +403,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs1b()
 // Returns vector of read-out correlated LCTs, if any.  Starts with
 // the vector of all found LCTs and selects the ones in the read-out
 // time window.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab)
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) const
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
@@ -413,9 +414,9 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab)
   //static int early_tbins = 4;
   // The number of LCT bins in the read-out is given by the
   // tmb_l1a_window_size parameter, forced to be odd
-  static int lct_bins   = 
+  const int lct_bins   =
     (tmb_l1a_window_size % 2 == 0) ? tmb_l1a_window_size + 1 : tmb_l1a_window_size;
-  static int late_tbins = early_tbins + lct_bins;
+  const int late_tbins = early_tbins + lct_bins;
 
 
   // Start from the vector of all found correlated LCTs and select
@@ -451,35 +452,35 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab)
 
 
 // Returns vector of found correlated LCTs, if any.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b() const
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) 
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         if (allLCTs1b[bx][mbx][i].isValid()) tmpV.push_back(allLCTs1b[bx][mbx][i]);
   return tmpV;
 }
 
 // Returns vector of found correlated LCTs, if any.
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a() const
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
-  
+
   // disabled ME1a
   if (mpc_block_me1a || disableME1a) return tmpV;
 
   // Report all LCTs found.
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
-      for (int i=0;i<2;i++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
+      for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++)
         if (allLCTs1a[bx][mbx][i].isValid())  tmpV.push_back(allLCTs1a[bx][mbx][i]);
   return tmpV;
 }
 
 
-bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int me)
+bool CSCMotherboardME11::doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c, int me) const
 {
   if ( !c.isValid() || !a.isValid() ) return false;
   int key_hs = c.getKeyStrip();
@@ -489,14 +490,14 @@ bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int m
     if ( !gangedME1a )
     {
       // wrap around ME11 HS number for -z endcap
-      if (theEndcap==2) key_hs = 95 - key_hs;
-      if ( key_hs >= lut_wg_vs_hs_me1a[key_wg][0] && 
+      if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_UNGANGED - key_hs;
+      if ( key_hs >= lut_wg_vs_hs_me1a[key_wg][0] &&
            key_hs <= lut_wg_vs_hs_me1a[key_wg][1]    ) return true;
       return false;
     }
     else
     {
-      if (theEndcap==2) key_hs = 31 - key_hs;
+      if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1A_GANGED - key_hs;
       if ( key_hs >= lut_wg_vs_hs_me1ag[key_wg][0] &&
            key_hs <= lut_wg_vs_hs_me1ag[key_wg][1]    ) return true;
       return false;
@@ -504,62 +505,28 @@ bool CSCMotherboardME11::doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int m
   }
   if ( me == ME1B)
   {
-    if (theEndcap==2) key_hs = 127 - key_hs;
-    if ( key_hs >= lut_wg_vs_hs_me1b[key_wg][0] && 
+    if (theEndcap==2) key_hs = CSCConstants::MAX_HALF_STRIP_ME1B - key_hs;
+    if ( key_hs >= lut_wg_vs_hs_me1b[key_wg][0] &&
          key_hs <= lut_wg_vs_hs_me1b[key_wg][1]      ) return true;
   }
   return false;
 }
 
 
-void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
-				   CSCALCTDigi secondALCT,
-				   CSCCLCTDigi bestCLCT,
-				   CSCCLCTDigi secondCLCT,
-				   CSCCorrelatedLCTDigi& lct1,
-				   CSCCorrelatedLCTDigi& lct2)
-{
-  bool anodeBestValid     = bestALCT.isValid();
-  bool anodeSecondValid   = secondALCT.isValid();
-  bool cathodeBestValid   = bestCLCT.isValid();
-  bool cathodeSecondValid = secondCLCT.isValid();
-
-  if (anodeBestValid && !anodeSecondValid)     secondALCT = bestALCT;
-  if (!anodeBestValid && anodeSecondValid)     bestALCT   = secondALCT;
-  if (cathodeBestValid && !cathodeSecondValid) secondCLCT = bestCLCT;
-  if (!cathodeBestValid && cathodeSecondValid) bestCLCT   = secondCLCT;
-
-  // ALCT-CLCT matching conditions are defined by "trig_enable" configuration
-  // parameters.
-  if ((alct_trig_enable  && bestALCT.isValid()) ||
-      (clct_trig_enable  && bestCLCT.isValid()) ||
-      (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid()))
-  {
-    lct1 = constructLCTs(bestALCT, bestCLCT);
-    lct1.setTrknmb(1);
-  }
-
-  if (((secondALCT != bestALCT) || (secondCLCT != bestCLCT)) &&
-      ((alct_trig_enable  && secondALCT.isValid()) ||
-       (clct_trig_enable  && secondCLCT.isValid()) ||
-       (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid())))
-  {
-    lct2 = constructLCTs(secondALCT, secondCLCT);
-    lct2.setTrknmb(2);
-  }
-}
-
-
-void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
-				   CSCALCTDigi secondALCT,
-				   CSCCLCTDigi bestCLCT,
-				   CSCCLCTDigi secondCLCT,
-				   CSCCorrelatedLCTDigi& lct1,
-				   CSCCorrelatedLCTDigi& lct2,
-                                   int me)
+void CSCMotherboardME11::correlateLCTs(const CSCALCTDigi& bALCT,
+                                       const CSCALCTDigi& sALCT,
+                                       const CSCCLCTDigi& bCLCT,
+                                       const CSCCLCTDigi& sCLCT,
+                                       CSCCorrelatedLCTDigi& lct1,
+                                       CSCCorrelatedLCTDigi& lct2,
+                                       int me) const
 {
   // assume that always anodeBestValid && cathodeBestValid
-  
+  CSCALCTDigi bestALCT = bALCT;
+  CSCALCTDigi secondALCT = sALCT;
+  CSCCLCTDigi bestCLCT = bCLCT;
+  CSCCLCTDigi secondCLCT = sCLCT;
+
   if (secondALCT == bestALCT) secondALCT.clear();
   if (secondCLCT == bestCLCT) secondCLCT.clear();
 
@@ -608,38 +575,34 @@ void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
 
   switch (lut[code][0]) {
     case 11:
-      lct1 = constructLCTs(bestALCT, bestCLCT);
+      lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
     case 12:
-      lct1 = constructLCTs(bestALCT, secondCLCT);
+      lct1 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
     case 21:
-      lct1 = constructLCTs(secondALCT, bestCLCT);
+      lct1 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
     case 22:
-      lct1 = constructLCTs(secondALCT, secondCLCT);
+      lct1 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
       break;
-    default: return;  
+    default: return;
   }
-  lct1.setTrknmb(1);
 
   if (dbg) LogTrace("CSCMotherboardME11")<<"lct1: "<<lct1<<std::endl;
-  
+
   switch (lut[code][1])
   {
     case 12:
-      lct2 = constructLCTs(bestALCT, secondCLCT);
-      lct2.setTrknmb(2);
+      lct2 = constructLCTs(bestALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     case 21:
-      lct2 = constructLCTs(secondALCT, bestCLCT);
-      lct2.setTrknmb(2);
+      lct2 = constructLCTs(secondALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     case 22:
-      lct2 = constructLCTs(secondALCT, secondCLCT);
-      lct2.setTrknmb(2);
+      lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     default: return;

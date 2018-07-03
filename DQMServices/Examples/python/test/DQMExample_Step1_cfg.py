@@ -23,13 +23,13 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
 )
 
+with open('fileList.log') as f:
+    lines = f.readlines()
+
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring(
-        #reco from relVals
-        'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/datatest/forTutorial/step2_RAW2DIGI_RECO_fromRelValTTbarLepton.root'
-        )
+    fileNames = cms.untracked.vstring(lines)
 )
 
 

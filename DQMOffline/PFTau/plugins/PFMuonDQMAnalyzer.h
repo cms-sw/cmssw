@@ -18,7 +18,7 @@ class PFMuonDQMAnalyzer: public DQMEDAnalyzer {
   PFMuonDQMAnalyzer(const edm::ParameterSet& parameterSet);
   
  private:
-  void analyze(edm::Event const&, edm::EventSetup const&);
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

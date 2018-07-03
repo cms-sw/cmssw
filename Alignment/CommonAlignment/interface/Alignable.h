@@ -3,6 +3,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 #include "Alignment/CommonAlignment/interface/StructureType.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 class AlignmentErrorsExtended;
@@ -18,9 +19,6 @@ class SurfaceDeformation;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2011/09/19 11:42:35 $
- *  $Revision: 1.36 $
- *  (last update by $Author: mussgill $)
  */
 
 class AlignmentParameters;
@@ -39,6 +37,8 @@ public:
   typedef align::Alignables   Alignables;
   typedef align::StructureType StructureType;
 
+  enum class CompConstraintType { NONE, POSITION, POSITION_Z };
+
   /// Constructor from id and surface, setting also geomDetId
   /// (AlignableNavigator relies on the fact that only AlignableDet/DetUnit have geomDetId!)
   Alignable( align::ID, const AlignableSurface& );
@@ -49,6 +49,10 @@ public:
 
   /// Destructor
   virtual ~Alignable();
+
+  /// Updater using id and surface.
+  /// The given id has to match the current id.
+  void update(align::ID, const AlignableSurface&);
 
   /// Set the AlignmentParameters
   void setAlignmentParameters( AlignmentParameters* dap );
@@ -61,7 +65,7 @@ public:
   virtual void addComponent( Alignable* ) = 0;
 
   /// Return vector of all direct components
-  virtual Alignables components() const = 0;
+  virtual const Alignables& components() const = 0;
 
   /// Return number of direct components
   int size() const { return components().size(); }
@@ -80,6 +84,11 @@ public:
   /// and adds them to argument. True either if no such components are found
   /// or if all branches of components end with such components (i.e. 'consistent').
   bool firstCompsWithParams(Alignables &paramComps) const;
+
+  /// Steps down hierarchy to the lowest level of components with AlignmentParameters
+  /// and adds them to argument. True either if no such components are found
+  /// or if all branches of components end with such components (i.e. 'consistent').
+  bool lastCompsWithParams(Alignables& paramComps) const;
 
   /// Return pointer to container alignable (if any)
   Alignable* mother() const { return theMother; }
@@ -179,6 +188,9 @@ public:
   /// Return the ID of Alignable, i.e. DetId of 'first' component GeomDet(Unit). 
   align::ID id() const { return theId; } 
 
+  /// Return the alignable type of contraints wrt. its components
+  virtual CompConstraintType compConstraintType() const { return compConstraintType_; }
+
   /// Recursive printout of alignable information
   virtual void dump() const = 0;
 
@@ -195,11 +207,19 @@ public:
   /// and pointers to surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const = 0;
 
-  /// cache the current position, rotation and other parameters (e.g. surface deformations)
+  /// cache the current position, rotation and other parameters (e.g. surface deformations), also for possible components
   virtual void cacheTransformation();
+
+  /// cache for the given run the current position, rotation and other
+  /// parameters (e.g. surface deformations), also for possible components
+  virtual void cacheTransformation(const align::RunNumber&);
 
   /// restore the previously cached transformation, also for possible components
   virtual void restoreCachedTransformation();
+
+  /// restore for the given run the previously cached transformation, also for
+  /// possible components
+  virtual void restoreCachedTransformation(const align::RunNumber&);
 
   /// Return survey info
   const SurveyDet* survey() const { return theSurvey; }
@@ -207,12 +227,16 @@ public:
   /// Set survey info
   void setSurvey( const SurveyDet* );
 
+  /// Recenter surface object without moving possible components
+  virtual void recenterSurface();
+
 protected:
+  template<class T>
+  using Cache = std::map<align::RunNumber, T>;
 
   void addDisplacement( const GlobalVector& displacement );
   void addRotation( const RotationType& rotation );
-
-protected:
+  virtual void updateMother(const GlobalVector& shift);
 
   DetId theDetId; // used to check if Alignable is associated to a GeomDet 
                   // ugly way to keep AlignableNavigator happy for now 
@@ -228,10 +252,17 @@ protected:
   GlobalVector theCachedDisplacement;
   RotationType theCachedRotation;
 
+  CompConstraintType compConstraintType_{CompConstraintType::NONE};
+
   Alignables theDeepComponents; // list of lowest daughters
                                 // contain itself if Alignable is a unit
 
+  Cache<AlignableSurface> surfacesCache_;
+  Cache<GlobalVector> displacementsCache_;
+  Cache<RotationType> rotationsCache_;
+
 private:
+
   /// private default ctr. to enforce usage of the specialised ones
   Alignable() {};
 
@@ -242,7 +273,5 @@ private:
   const SurveyDet* theSurvey; // Pointer to survey info; owned by class
 
 };
-
-typedef std::vector<Alignable*> Alignables;
 
 #endif

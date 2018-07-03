@@ -27,8 +27,11 @@ ecalSummaryClient = cms.untracked.PSet(
         RawData = ecalRawDataClient.MEs.QualitySummary,
         DesyncByLumi = ecalRawDataTask.MEs.DesyncByLumi,
         FEByLumi = ecalRawDataTask.MEs.FEByLumi,
+        FEStatusErrMapByLumi = ecalRawDataTask.MEs.FEStatusErrMapByLumi,
         TriggerPrimitives = ecalTrigPrimClient.MEs.EmulQualitySummary,
-        HotCell = ecalOccupancyClient.MEs.QualitySummary
+        HotCell = ecalOccupancyClient.MEs.QualitySummary,
+        BXSRP = ecalRawDataTask.MEs.BXSRP,
+        BXTCC = ecalRawDataTask.MEs.BXTCC
     ),
     MEs = cms.untracked.PSet(
         ReportSummaryMap = cms.untracked.PSet(

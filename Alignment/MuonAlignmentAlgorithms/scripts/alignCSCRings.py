@@ -53,7 +53,7 @@ allOptions = "-l "+options.runLabel+" -i "+options.dir+" -x "+options.xml
 #if options.diagnostic: allOptions += " --diagnostic"
 print sys.argv[0]+" "+allOptions
 
-pwd = str(os.getcwdu())
+pwd = str(os.getcwd())
 
 if not os.access(options.dir,os.F_OK):
   print "Directory " + options.dir + " does not exist. Exiting..."
@@ -77,7 +77,7 @@ for endcap in CSC_TYPES:
       
       ring_id = "%s%s/%s" % (endcap[0], station[1],ring[1])
       
-      if MAP_RESULTS_FITSIN.has_key(ring_id):
+      if ring_id in MAP_RESULTS_FITSIN:
         postal_address = idToPostalAddress(ring_id+'/01')
         
         fits = MAP_RESULTS_FITSIN[ring_id]
@@ -119,7 +119,7 @@ for endcap in CSC_TYPES:
       
       ring_id = "%s%s/%s" % (endcap[0], s_with_corr, r_with_corr)
 
-      if xml_corr.has_key(ring_id):
+      if ring_id in xml_corr:
         corr = xml_corr[ring_id]
         e = endcap[3]
         s = station[1]

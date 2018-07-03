@@ -62,7 +62,7 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   DTSectColl(DTSectCollId id);
   
   //!  Destructor 
-  ~DTSectColl();
+  ~DTSectColl() override;
 
   /// Set configuration
   void setConfig(const DTConfigManager *conf);
@@ -174,7 +174,7 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   void clearCache() { DTSCPhCache::clearCache();  DTSCThCache::clearCache(); }
   
   //! Load Trigger Units triggers and run Sector Collector algorithm
-  virtual void reconstruct() { loadSectColl(); runSectColl(); }
+  void reconstruct() override { loadSectColl(); runSectColl(); }
 
   //! Return the Sector Collector Id
   DTSectCollId SectCollId() { return _sectcollid; }

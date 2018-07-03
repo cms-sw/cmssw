@@ -12,7 +12,7 @@ AnyJetToCaloJetProducer::AnyJetToCaloJetProducer(const edm::ParameterSet& iConfi
   produces<reco::CaloJetCollection>();
 }
 
-AnyJetToCaloJetProducer::~AnyJetToCaloJetProducer(){ }
+AnyJetToCaloJetProducer::~AnyJetToCaloJetProducer()= default;
 
 void
 AnyJetToCaloJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -23,7 +23,7 @@ AnyJetToCaloJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 
 void AnyJetToCaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
-  std::auto_ptr<reco::CaloJetCollection> newjets(new reco::CaloJetCollection());
+  std::unique_ptr<reco::CaloJetCollection> newjets(new reco::CaloJetCollection());
   
   edm::Handle<edm::View<reco::Jet> > jets;
   if(iEvent.getByToken(m_theGenericJetToken,jets)) {
@@ -33,7 +33,7 @@ void AnyJetToCaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     }
   }
   
-  iEvent.put(newjets);
+  iEvent.put(std::move(newjets));
 }
 
 

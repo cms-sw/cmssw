@@ -34,12 +34,6 @@ parser.add_option("--conditions",
                   default=None,
                   dest="conditions")
 
-parser.add_option("--useCondDBv1",
-                  help="use conditions DB V1",
-                  action="store_false",
-                  default=False,
-                  dest="useCondDBv1")
-
 parser.add_option("--eventcontent",
                   help="What event content to write out. Default=FEVTDEBUG, or FEVT (for cosmics)",
                   default='RECOSIM',
@@ -105,7 +99,7 @@ parser.add_option("--runsScenarioForMC",
                   dest="runsScenarioForMC")
 
 parser.add_option("--runUnscheduled",
-                  help="Enable unscheduled mode",
+                  help="Automatically convert configuration to run unscheduled the EDProducers/EDFilters that were scheduled",
                   action="store_true",
                   default=False,
                   dest="runUnscheduled")
@@ -351,15 +345,16 @@ expertSettings.add_option("--restoreRNDSeeds",
                           )
 threeValued.append( ('--restoreRNDSeeds',True) )
 
-expertSettings.add_option("--slhc",
-                          help="Specify the SLHC scenario version",
-                          default=None,
-                          dest="slhc")
 
 expertSettings.add_option("--era",
                           help="Specify which era to use (e.g. \"run2\")",
                           default=None,
                           dest="era")
+
+expertSettings.add_option("--procModifiers",
+                          help="Specify any process Modifiers to include (in Configuration/ProcessModiers) - comma separated list",
+                          default=None,
+                          dest="procModifiers")
 
 expertSettings.add_option("--evt_type",
                           help="specify the gen fragment",

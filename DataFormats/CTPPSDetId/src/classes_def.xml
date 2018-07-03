@@ -1,0 +1,21 @@
+<lcgdict>
+  <class name="CTPPSDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="2579437464"/>
+  </class>
+  <class name="TotemRPDetId" ClassVersion="3">
+    <version ClassVersion="2" checksum="1856701727"/>
+    <version ClassVersion="3" checksum="2940094261"/>
+  </class>
+
+  <class name="CTPPSDiamondDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="4277652856"/>
+  </class>
+  <class name="CTPPSPixelDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="2664786666"/>
+  </class>
+  
+  <class name="TotemTimingDetId" ClassVersion="3">
+    <version ClassVersion="3" checksum="376818709"/>
+  </class>
+
+</lcgdict>

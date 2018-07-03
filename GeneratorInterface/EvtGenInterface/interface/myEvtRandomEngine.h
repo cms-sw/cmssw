@@ -31,9 +31,9 @@ public:
   
   myEvtRandomEngine(CLHEP::HepRandomEngine* xx);
 
-  virtual ~myEvtRandomEngine();
+  ~myEvtRandomEngine() override;
 
-  virtual double random();
+  double random() override;
 
   void setRandomEngine(CLHEP::HepRandomEngine* v) { the_engine = v; }
 

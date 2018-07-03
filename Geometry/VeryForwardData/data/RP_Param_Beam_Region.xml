@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="RP_Param_Beam_Region.xml" eval="true">
+ <Constant name="Dummy" value="250*m"/>
+</ConstantsSection>
+
+<SolidSection label="RP_Param_Beam_Region.xml">
+ <Polycone name="Beam_IP_150_R" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="[cms:HallZ]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
+  <ZSection z="[RP_Stations_Assembly:RP_147_Right_Station_Position_z]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
+ </Polycone> 
+ <Polycone name="Beam_IP_150_L" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="-[cms:HallZ]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
+  <ZSection z="[RP_Stations_Assembly:RP_147_Left_Station_Position_z]" rMin="[cms:Rmin]" rMax="[cms:HallR]"/>
+ </Polycone> 
+</SolidSection>
+
+<LogicalPartSection label="RP_Param_Beam_Region.xml">
+ <LogicalPart name="Beam_IP_150_R" category="unspecified">
+  <rSolid name="Beam_IP_150_R"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+ <LogicalPart name="Beam_IP_150_L" category="unspecified">
+  <rSolid name="Beam_IP_150_L"/>
+  <rMaterial name="materials:Vacuum"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="RP_Param_Beam_Region.xml">
+ <PosPart copyNumber="1">
+  <rParent name="cms:CMSE"/>
+  <rChild name="Beam_IP_150_R"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+  <rParent name="cms:CMSE"/>
+  <rChild name="Beam_IP_150_L"/>
+ </PosPart>
+</PosPartSection>
+</DDDefinition>

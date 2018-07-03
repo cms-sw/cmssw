@@ -15,22 +15,22 @@
 
 AntiElectronIDMVA5::AntiElectronIDMVA5(const edm::ParameterSet& cfg)
   : isInitialized_(false),
-    mva_NoEleMatch_woGwoGSF_BL_(0),
-    mva_NoEleMatch_woGwGSF_BL_(0),
-    mva_NoEleMatch_wGwoGSF_BL_(0),
-    mva_NoEleMatch_wGwGSF_BL_(0),
-    mva_woGwoGSF_BL_(0),
-    mva_woGwGSF_BL_(0),
-    mva_wGwoGSF_BL_(0),
-    mva_wGwGSF_BL_(0),
-    mva_NoEleMatch_woGwoGSF_EC_(0),
-    mva_NoEleMatch_woGwGSF_EC_(0),
-    mva_NoEleMatch_wGwoGSF_EC_(0),
-    mva_NoEleMatch_wGwGSF_EC_(0),
-    mva_woGwoGSF_EC_(0),
-    mva_woGwGSF_EC_(0),
-    mva_wGwoGSF_EC_(0),
-    mva_wGwGSF_EC_(0)
+    mva_NoEleMatch_woGwoGSF_BL_(nullptr),
+    mva_NoEleMatch_woGwGSF_BL_(nullptr),
+    mva_NoEleMatch_wGwoGSF_BL_(nullptr),
+    mva_NoEleMatch_wGwGSF_BL_(nullptr),
+    mva_woGwoGSF_BL_(nullptr),
+    mva_woGwGSF_BL_(nullptr),
+    mva_wGwoGSF_BL_(nullptr),
+    mva_wGwGSF_BL_(nullptr),
+    mva_NoEleMatch_woGwoGSF_EC_(nullptr),
+    mva_NoEleMatch_woGwGSF_EC_(nullptr),
+    mva_NoEleMatch_wGwoGSF_EC_(nullptr),
+    mva_NoEleMatch_wGwGSF_EC_(nullptr),
+    mva_woGwoGSF_EC_(nullptr),
+    mva_woGwGSF_EC_(nullptr),
+    mva_wGwoGSF_EC_(nullptr),
+    mva_wGwGSF_EC_(nullptr)
 {
   loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB"): false;
   if ( !loadMVAfromDB_ ) {
@@ -226,11 +226,8 @@ double AntiElectronIDMVA5::MVAValue(Float_t TauEtaAtEcalEntrance,
 				    Float_t ElecGSFTrackEta)
 {
   double sumPt  = 0.;
-  double dEta   = 0.;
   double dEta2  = 0.;
-  double dPhi   = 0.;
   double dPhi2  = 0.;
-  double sumPt2 = 0.;
   for ( unsigned int i = 0 ; i < GammasPt.size() ; ++i ) {
     double pt_i  = GammasPt[i];
     double phi_i = GammasdPhi[i];
@@ -238,18 +235,13 @@ double AntiElectronIDMVA5::MVAValue(Float_t TauEtaAtEcalEntrance,
     else if ( GammasdPhi[i] < -M_PI ) phi_i = GammasdPhi[i] + 2*M_PI;
     double eta_i = GammasdEta[i];
     sumPt  +=  pt_i;
-    sumPt2 += (pt_i*pt_i);
-    dEta   += (pt_i*eta_i);
     dEta2  += (pt_i*eta_i*eta_i);
-    dPhi   += (pt_i*phi_i);
     dPhi2  += (pt_i*phi_i*phi_i);
   }
 
   Float_t TauGammaEnFrac = sumPt/TauPt;
 
   if ( sumPt > 0. ) {
-    dEta  /= sumPt;
-    dPhi  /= sumPt;
     dEta2 /= sumPt;
     dPhi2 /= sumPt;
   }
@@ -715,7 +707,7 @@ double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau,
   float TauLeadChargedPFCandPt = -99.;
   for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    const reco::Track* track = 0;
+    const reco::Track* track = nullptr;
     if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
@@ -880,7 +872,7 @@ double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau)
   float TauLeadChargedPFCandPt = -99.;
   for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    const reco::Track* track = 0;
+    const reco::Track* track = nullptr;
     if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
     else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
@@ -1015,7 +1007,7 @@ namespace {
   return cPhi;
  }
      
-  static const std::array<double,18> cPhi = fill_cPhi();
+  const std::array<double,18> cPhi = fill_cPhi();
 
 }
 

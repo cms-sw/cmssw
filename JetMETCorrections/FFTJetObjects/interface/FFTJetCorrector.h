@@ -1,8 +1,8 @@
 #ifndef JetMETCorrections_FFTJetObjects_FFTJetCorrector_h
 #define JetMETCorrections_FFTJetObjects_FFTJetCorrector_h
 
+#include <memory>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 #include "JetMETCorrections/FFTJetObjects/interface/AbsFFTJetAdjuster.h"
 #include "JetMETCorrections/FFTJetObjects/interface/AbsFFTJetScaleCalculator.h"
@@ -17,8 +17,8 @@ public:
     typedef AbsFFTJetScaleCalculator<jet_type, adjustable_type> AbsScaler;
     typedef AbsFFTJetAdjuster<jet_type, adjustable_type> AbsAdjuster;
 
-    inline FFTJetCorrector(boost::shared_ptr<const AbsAdjuster> adjuster,
-                           const std::vector<boost::shared_ptr<const AbsScaler> >& scalers,
+    inline FFTJetCorrector(std::shared_ptr<const AbsAdjuster> adjuster,
+                           const std::vector<std::shared_ptr<const AbsScaler> >& scalers,
                            const unsigned i_level, const FFTJetCorrectorApp a)
         : adjuster_(adjuster), scalers_(scalers),
           level_(i_level), app_(a) {}
@@ -56,8 +56,8 @@ public:
     inline FFTJetCorrectorApp app() const {return app_;}
 
 private:
-    boost::shared_ptr<const AbsAdjuster> adjuster_;
-    std::vector<boost::shared_ptr<const AbsScaler> > scalers_;
+    std::shared_ptr<const AbsAdjuster> adjuster_;
+    std::vector<std::shared_ptr<const AbsScaler> > scalers_;
     unsigned level_;
     FFTJetCorrectorApp app_;
 };

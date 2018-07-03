@@ -35,7 +35,7 @@ namespace ZSEnergy_impl {
       
     int sum=0;
 
-    for (int j=0; j<samples && j+firstSample < inp.size(); j++) {
+    for (int j=0; j<samples && j+firstSample < (int)inp.size(); j++) {
       sum+=inp[j+firstSample].adc();
       pedsum+=pedave;
     }
@@ -64,9 +64,12 @@ bool HcalZSAlgoEnergy::shouldKeep(const HODataFrame& digi) const {
 bool HcalZSAlgoEnergy::shouldKeep(const HFDataFrame& digi) const {
   return ZSEnergy_impl::keepMe<HFDataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
 }
-bool HcalZSAlgoEnergy::shouldKeep(const HcalUpgradeDataFrame& digi) const {
-  return ZSEnergy_impl::keepMe<HcalUpgradeDataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
+bool HcalZSAlgoEnergy::shouldKeep(const QIE10DataFrame& digi) const {
+  return ZSEnergy_impl::keepMe<QIE10DataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
+}
+bool HcalZSAlgoEnergy::shouldKeep(const QIE11DataFrame& digi) const {
+  return ZSEnergy_impl::keepMe<QIE11DataFrame>(*db_,digi,threshold_,firstsample_,samplecount_,twosided_);
 }
 
 void HcalZSAlgoEnergy::prepare(const HcalDbService* db) { db_=db; }
-void HcalZSAlgoEnergy::done() { db_=0; }
+void HcalZSAlgoEnergy::done() { db_=nullptr; }

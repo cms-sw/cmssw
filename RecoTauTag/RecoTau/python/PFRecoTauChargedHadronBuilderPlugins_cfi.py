@@ -31,8 +31,8 @@ chargedPFCandidates = cms.PSet(
     dRmergePhotonWrtOther = cms.double(0.005),    
     minBlockElementMatchesPhoton = cms.int32(2),
     maxUnmatchedBlockElementsPhoton = cms.int32(1),
-    minMergeNeutralHadronEt = cms.double(0.),
-    minMergeGammaEt = cms.double(0.),
+    minMergeNeutralHadronEt = cms.double(1.0),
+    minMergeGammaEt = cms.double(1.0),
     minMergeChargedHadronPt = cms.double(100.)
 )
 
@@ -47,8 +47,8 @@ tracks = cms.PSet(
     qualityCuts = PFTauQualityCuts,
     dRmergeNeutralHadron = cms.double(0.10),
     dRmergePhoton = cms.double(0.05),
-    minMergeNeutralHadronEt = cms.double(0.),
-    minMergeGammaEt = cms.double(0.),
+    minMergeNeutralHadronEt = cms.double(1.0),
+    minMergeGammaEt = cms.double(1.0),
     minMergeChargedHadronPt = cms.double(100.)
 )
 

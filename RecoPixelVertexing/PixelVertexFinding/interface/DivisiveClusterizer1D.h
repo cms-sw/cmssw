@@ -33,11 +33,11 @@ public:
     DivisiveClusterizer1D( float zoffset = 5., int ntkmin = 5, bool useError = true,
                          float zsep = 0.05, bool wei = true );
 
-    ~DivisiveClusterizer1D();
+    ~DivisiveClusterizer1D() override;
 
     std::pair < std::vector < Cluster1D<T> >, std::vector < const T * > > operator()
-        ( const std::vector < Cluster1D<T> > & ) const;
-    virtual DivisiveClusterizer1D * clone() const;
+        ( const std::vector < Cluster1D<T> > & ) const override;
+    DivisiveClusterizer1D * clone() const override;
 
     void setBeamSpot(const math::XYZPoint & bs) {theMerger->setBeamSpot(bs); } 
 
@@ -240,7 +240,7 @@ void
 DivisiveClusterizer1D<T>::insertTracks( std::vector< Cluster1D<T> >&  clusou,
                                       std::vector< Cluster1D<T> >&  cludest) const
 {
-    if (clusou.size() == 0)
+    if (clusou.empty())
         return;
     for ( typename std::vector< Cluster1D<T> >::const_iterator iclu = clusou.begin();
             iclu != clusou.end(); iclu++)

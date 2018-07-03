@@ -67,7 +67,7 @@ double L1JPTOffsetCorrector::correction(const reco::Jet& fJet,
 {
   double result = 1.;
   const reco::JPTJet& jptjet = dynamic_cast <const reco::JPTJet&> (fJet);
-  edm::RefToBase<reco::Jet> jptjetRef = jptjet.getCaloJetRef();
+  const edm::RefToBase<reco::Jet>& jptjetRef = jptjet.getCaloJetRef();
   reco::CaloJet const * rawcalojet = dynamic_cast<reco::CaloJet const *>( &* jptjetRef);   
   //------ access the offset correction service ----------------
   double offset = 1.0;

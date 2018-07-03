@@ -47,7 +47,7 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
   int runNumber = e.id().run();
   // Get input
   edm::Handle<HcalTBTiming> ecalRawTDC;  
-  const HcalTBTiming* ecalTDCRawInfo = 0;
+  const HcalTBTiming* ecalTDCRawInfo = nullptr;
   
   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
   e.getByLabel( rawInfoProducer_, ecalRawTDC);
@@ -65,7 +65,7 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
   
   // Get input
   edm::Handle<HcalTBTriggerData> triggerData;  
-  const HcalTBTriggerData* h2TriggerData = 0;
+  const HcalTBTriggerData* h2TriggerData = nullptr;
   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
   e.getByLabel(triggerDataProducer_, triggerData);
   if (triggerData.isValid()) {
@@ -81,13 +81,11 @@ void EcalTBH2TDCRecInfoProducer::produce(edm::Event& e, const edm::EventSetup& e
   
   if (!h2TriggerData->wasBeamTrigger())
     {
-      std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(0.5));
-      e.put(recInfo,recInfoCollection_);
+      e.put(std::make_unique<EcalTBTDCRecInfo>(0.5),recInfoCollection_);
     }
    else
      {
-       std::auto_ptr<EcalTBTDCRecInfo> recInfo(new EcalTBTDCRecInfo(algo_->reconstruct(runNumber,*ecalRawTDC)));
-       e.put(recInfo,recInfoCollection_);
+       e.put(std::make_unique<EcalTBTDCRecInfo>(algo_->reconstruct(runNumber,*ecalRawTDC)),recInfoCollection_);
      }
   
 

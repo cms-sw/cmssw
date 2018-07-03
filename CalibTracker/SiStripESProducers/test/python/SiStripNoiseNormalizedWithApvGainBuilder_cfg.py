@@ -45,10 +45,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
 process.prod = cms.EDFilter("SiStripNoiseNormalizedWithApvGainBuilder",
                             printDebug = cms.untracked.uint32(5),
-                            file = cms.untracked.FileInPath('CalibTracker/SiStripCommon/data/SiStripDetInfo.dat'),
                                                                           
                             StripLengthMode = cms.bool(True),
 

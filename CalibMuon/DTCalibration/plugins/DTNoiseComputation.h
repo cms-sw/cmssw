@@ -40,17 +40,17 @@ class DTNoiseComputation: public edm::EDAnalyzer{
   DTNoiseComputation(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTNoiseComputation();
+  ~DTNoiseComputation() override;
 
   /// BeginJob
-  void beginJob() {}
+  void beginJob() override {}
 
-  void beginRun(const edm::Run&, const edm::EventSetup& setup);
+  void beginRun(const edm::Run&, const edm::EventSetup& setup) override;
 
-  void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
 
   /// Endjob
-  void endJob();
+  void endJob() override;
 
 
 protected:

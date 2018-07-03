@@ -139,7 +139,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "CondCore/DBCommon/interface/Time.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -159,7 +158,7 @@ class ConditionDBWriter : public edm::EDAnalyzer {
   
 public:
 
-  explicit ConditionDBWriter(const edm::ParameterSet& iConfig) : LumiBlockMode_(false), RunMode_(false), JobMode_(false), AlgoDrivenMode_(false), Time_(0), setSinceTime_(false), firstRun_(true)
+  explicit ConditionDBWriter(const edm::ParameterSet& iConfig) : minRunRange_(1<<31), maxRunRange_(0), LumiBlockMode_(false), RunMode_(false), JobMode_(false), AlgoDrivenMode_(false), Time_(0), setSinceTime_(false), firstRun_(true)
   {
     edm::LogInfo("ConditionDBWriter::ConditionDBWriter()") << std::endl;
     SinceAppendMode_=iConfig.getParameter<bool>("SinceAppendMode");
@@ -172,12 +171,13 @@ public:
     Record_=iConfig.getParameter<std::string>("Record");
     doStore_=iConfig.getParameter<bool>("doStoreOnDB");
     timeFromEndRun_=iConfig.getUntrackedParameter<bool>("TimeFromEndRun", false);
-    
+    timeFromStartOfRunRange_=iConfig.getUntrackedParameter<bool>("TimeFromStartOfRunRange", false);
+
     if(! SinceAppendMode_ ) 
       edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
   }
   
-  virtual ~ConditionDBWriter()
+  ~ConditionDBWriter() override
   {
     edm::LogInfo("ConditionDBWriter::~ConditionDBWriter()") << std::endl;
   }
@@ -204,9 +204,9 @@ private:
   //Will be called at the end of the job
   virtual void algoEndJob(){};
 
-  void beginJob() {}
+  void beginJob() override {}
 
-  void beginRun(const edm::Run & run, const edm::EventSetup &  es)
+  void beginRun(const edm::Run & run, const edm::EventSetup &  es) override
   {
     if( firstRun_ ) {
       edm::LogInfo("ConditionDBWriter::beginJob") << std::endl;
@@ -214,19 +214,23 @@ private:
       algoBeginJob(es);
       firstRun_ = false;
     }
+
+    if( run.id().run() < minRunRange_ ) minRunRange_=run.id().run();
+    if( run.id().run() > maxRunRange_ ) maxRunRange_=run.id().run();
+
     edm::LogInfo("ConditionDBWriter::beginRun") << std::endl;
     if(RunMode_ && SinceAppendMode_) setSinceTime_=true;
     algoBeginRun(run,es);
   }
   
-  void beginLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & iSetup)
+  void beginLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & iSetup) override
   {
     edm::LogInfo("ConditionDBWriter::beginLuminosityBlock") << std::endl;
     if(LumiBlockMode_ && SinceAppendMode_) setSinceTime_=true;
     algoBeginLuminosityBlock(lumiBlock, iSetup);
   }
 
-  void analyze(const edm::Event& event, const edm::EventSetup& iSetup)
+  void analyze(const edm::Event& event, const edm::EventSetup& iSetup) override
   {
     if(setSinceTime_ ){
       setTime(); //set new since time for possible next upload to DB  
@@ -235,7 +239,7 @@ private:
     algoAnalyze(event, iSetup);
   }
   
-  void endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es)
+  void endLuminosityBlock(const edm::LuminosityBlock & lumiBlock, const edm::EventSetup & es) override
   {
     edm::LogInfo("ConditionDBWriter::endLuminosityBlock") << std::endl;
     algoEndLuminosityBlock(lumiBlock, es);
@@ -255,7 +259,7 @@ private:
   
   virtual void algoEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
 
-  void endRun(const edm::Run & run, const edm::EventSetup & es)
+  void endRun(const edm::Run & run, const edm::EventSetup & es) override
   {
     edm::LogInfo("ConditionDBWriter::endRun") << std::endl;
     
@@ -275,7 +279,7 @@ private:
     }
   }
   
-  void endJob()
+  void endJob() override
   {
     edm::LogInfo("ConditionDBWriter::endJob") << std::endl;
     
@@ -318,6 +322,9 @@ private:
     cond::Time_t since = 
       ( mydbservice->isNewTagRequest(Record_) && !timeFromEndRun_ ) ? mydbservice->beginOfTime() : Time_;
 
+    //overwrite tim in the case we have the flag TimeFromStartOfRunRange set to on
+    if (timeFromStartOfRunRange_ ) since = minRunRange_; 
+
     edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " 
 				      <<Record_ <<" in since mode " << std::endl;
     mydbservice->writeOne<T>(objPointer, since, Record_);
@@ -342,7 +349,7 @@ protected:
 
   void storeOnDbNow()
   {
-    T * objPointer = 0;
+    T * objPointer = nullptr;
     
     if(AlgoDrivenMode_){
       
@@ -372,6 +379,9 @@ protected:
   void setDoStore(const bool doStore) {doStore_ = doStore;}
 
 private:
+
+  unsigned int minRunRange_;
+  unsigned int maxRunRange_;
   
   bool SinceAppendMode_; // till or since append mode 
 
@@ -389,6 +399,7 @@ private:
   bool firstRun_;
 
   bool timeFromEndRun_;
+  bool timeFromStartOfRunRange_;
 };
 
 #endif

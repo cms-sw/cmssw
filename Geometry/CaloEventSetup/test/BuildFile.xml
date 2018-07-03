@@ -12,7 +12,7 @@
   <use name="DataFormats/EcalDetId"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="dumpEcalTrigTowerMapping.cc" name="testEcalTrigTowerMappingSProducer">
+<library   file="DumpEcalTrigTowerMapping.cc" name="testEcalTrigTowerMappingSProducer">
   <use name="Geometry/Records"/>
   <use name="Geometry/CaloTopology"/>
   <use name="Geometry/CaloGeometry"/>
@@ -21,7 +21,7 @@
   <use name="rootgraphics"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="testEcalGetWindow.cc" name="testEcalGetWindow">
+<library   file="TestEcalGetWindow.cc" name="testEcalGetWindow">
   <use name="Geometry/CaloTopology"/>
   <use name="rootgraphics"/>
   <use name="Geometry/Records"/>

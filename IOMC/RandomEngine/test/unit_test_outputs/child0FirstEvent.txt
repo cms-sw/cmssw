@@ -2,3 +2,4 @@ t1 Event random numbers 0.422889 0.0392907 0.291227 1.61244 Lumi random numbers 
 t2 Event random numbers 0.999981 0.203459 0.668007 7.73632 Lumi random numbers 3.66345e-05 0.440199 0.548889
 t3 Event random numbers 0.257042 0.565658 0.683788 1.8103 Lumi random numbers 0.202607 0.993071 0.207093
 t4 Event random numbers 0.133504 0.85941 0.256103 11.7224 Lumi random numbers 0.00202554 0.718933 0.136718
+t6 Event random numbers 0.0298122 0.993504 0.26053 4.79664 Lumi random numbers 0.473693 0.743566 0.931702

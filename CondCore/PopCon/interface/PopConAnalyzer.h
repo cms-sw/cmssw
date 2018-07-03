@@ -25,16 +25,16 @@ namespace popcon{
       m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
     
     
-    virtual ~PopConAnalyzer(){}
+    ~PopConAnalyzer() override{}
     
   private:
     
-    virtual void beginJob(){}
-    virtual void endJob() {
+    void beginJob() override{}
+    void endJob() override {
       write();
     }
     
-    virtual void analyze(const edm::Event&, const edm::EventSetup&){} 
+    void analyze(const edm::Event&, const edm::EventSetup&) override{} 
     
     
     void write() {

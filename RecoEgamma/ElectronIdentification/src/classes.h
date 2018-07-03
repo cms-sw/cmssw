@@ -10,6 +10,13 @@
 #include "PhysicsTools/SelectorUtils/interface/MakePtrFromCollection.h"
 #include "PhysicsTools/SelectorUtils/interface/PrintVIDToString.h"
 
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring16HZZ.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring16GeneralPurpose.h"
+
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17NoIso.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Fall17Iso.h"
+
 namespace RecoEgamma_ElectronIdentification {
   struct dictionary {    
     typedef MakeVersionedSelector<reco::GsfElectron> MakeVersionedGsfElectronSelector;

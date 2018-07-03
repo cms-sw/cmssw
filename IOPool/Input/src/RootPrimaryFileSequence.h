@@ -13,6 +13,7 @@ RootPrimaryFileSequence: This is an InputSource
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
@@ -34,16 +35,14 @@ namespace edm {
   public:
     explicit RootPrimaryFileSequence(ParameterSet const& pset,
                                    PoolSource& input,
-                                   InputFileCatalog const& catalog,
-                                   unsigned int nStreams);
-    virtual ~RootPrimaryFileSequence();
+                                   InputFileCatalog const& catalog);
+    ~RootPrimaryFileSequence() override;
 
     RootPrimaryFileSequence(RootPrimaryFileSequence const&) = delete; // Disallow copying and moving
     RootPrimaryFileSequence& operator=(RootPrimaryFileSequence const&) = delete; // Disallow copying and moving
 
-    typedef std::shared_ptr<RootFile> RootFileSharedPtr;
     std::unique_ptr<FileBlock> readFile_();
-    virtual void closeFile_() override;
+    void closeFile_() override;
     void endJob();
     InputSource::ItemType getNextItemType(RunNumber_t& run, LuminosityBlockNumber_t& lumi, EventNumber_t& event);
     bool skipEvents(int offset);
@@ -53,8 +52,8 @@ namespace edm {
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
   private:
-    virtual void initFile_(bool skipBadFiles) override;
-    virtual RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
+    void initFile_(bool skipBadFiles) override;
+    RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
     bool nextFile();
     bool previousFile();
     void rewindFile();
@@ -67,19 +66,16 @@ namespace edm {
     BranchDescription::MatchMode branchesMustMatch_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
 
-    unsigned int nStreams_; 
-    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    std::shared_ptr<EventSkipperByID const> eventSkipperByID() const {return get_underlying_safe(eventSkipperByID_);}
+    std::shared_ptr<EventSkipperByID>& eventSkipperByID() {return get_underlying_safe(eventSkipperByID_);}
+    std::shared_ptr<DuplicateChecker const> duplicateChecker() const {return get_underlying_safe(duplicateChecker_);}
+    std::shared_ptr<DuplicateChecker>& duplicateChecker() {return get_underlying_safe(duplicateChecker_);}
+
+    edm::propagate_const<std::shared_ptr<EventSkipperByID>> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
     bool noEventSort_;
-    bool skipBadFiles_;
-    bool bypassVersionCheck_;
     unsigned int treeCacheSize_;
-    int const treeMaxVirtualSize_;
-    RunNumber_t setRun_;
-    ProductSelectorRules productSelectorRules_;
-    std::shared_ptr<DuplicateChecker> duplicateChecker_;
-    bool dropDescendants_;
-    bool labelRawDataLikeMC_;
+    edm::propagate_const<std::shared_ptr<DuplicateChecker>> duplicateChecker_;
     bool usingGoToEvent_;
     bool enablePrefetching_;
   }; // class RootPrimaryFileSequence

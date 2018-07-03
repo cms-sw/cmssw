@@ -58,16 +58,16 @@ namespace amc13 {
    }
 
    void
-   Packet::add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load)
+   Packet::add(unsigned int amc_no, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load, unsigned int user)
    {
       edm::LogInfo("AMC") << "Adding board " << board << " with payload size " << load.size()
          << " as payload #" << amc_no;
       // Start by indexing with 1
-      payload_.push_back(amc::Packet(amc_no, board, lv1id, orbit, bx, load));
+      payload_.push_back(amc::Packet(amc_no, board, lv1id, orbit, bx, load, user));
    }
 
    bool
-   Packet::parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx, bool legacy_mc)
+   Packet::parse(const uint64_t *start, const uint64_t *data, unsigned int size, unsigned int lv1, unsigned int bx, bool legacy_mc, bool mtf7_mode)
    {
       // Need at least a header and trailer
       // TODO check if this can be removed
@@ -179,7 +179,7 @@ namespace amc13 {
       }
 
       for (auto& amc: payload_) {
-         amc.finalize(lv1, bx, legacy_mc);
+	amc.finalize(lv1, bx, legacy_mc, mtf7_mode);
       }
 
       return true;

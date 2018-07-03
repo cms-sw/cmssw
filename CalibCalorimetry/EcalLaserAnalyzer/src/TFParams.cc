@@ -15,7 +15,7 @@
 #include "TMath.h"
 
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 
 //ClassImp(TFParams)
@@ -569,7 +569,7 @@ void TFParams::produit_mat(matrice A , matrice B , matrice M)
 //  resultat du produit A*B = M 
   if(A.nb_colonnes != B.nb_lignes) {
     printf( " Erreur : produit de matrices de tailles incompatibles \n ");
-    M.coeff = NULL ;
+    M.coeff = nullptr ;
     return ;
   }
   M.nb_lignes = A.nb_lignes ;
@@ -590,7 +590,7 @@ void TFParams::produit_mat_int(matrice A , matrice B, matrice M)
   int i,j,k ;
   if(A.nb_colonnes != B.nb_lignes) {
     printf( " Erreur : produit de matrices de tailles incompatibles \n ");
-    M.coeff = NULL ;
+    M.coeff = nullptr ;
     return ;
   }
   M.nb_lignes = A.nb_lignes ;
@@ -610,7 +610,7 @@ void TFParams::diff_mat(matrice A , matrice B , matrice M)
 //resultat de la difference A-B = M 
   if(A.nb_lignes != B.nb_lignes) {
     printf( " Erreur : difference de matrices de tailles incompatibles \n ");
-    M.coeff = NULL ;
+    M.coeff = nullptr ;
     return ;
   }
   M.nb_lignes = A.nb_lignes ;
@@ -646,7 +646,7 @@ void TFParams::somme_mat_int(matrice A , matrice M)
  /* resultat de la somme integree M += A */
   if(A.nb_lignes != M.nb_lignes) {
     printf( " Erreur : somme de matrices de tailles incompatibles \n ");
-    M.coeff = NULL ;
+    M.coeff = nullptr ;
     return ;
   }
   M.nb_lignes = A.nb_lignes ;
@@ -736,7 +736,7 @@ void fill_mat( matrice A , matrice M)
 void TFParams::print_mat(matrice M)
 {
   int i,j ;
-  if( M.coeff == NULL) 
+  if( M.coeff == nullptr) 
   {
     printf(" erreur : affichage d'une matrice vide \n") ;
     return;
@@ -766,7 +766,7 @@ void TFParams::zero_mat_nk(matrice M,int nk)
 void TFParams::print_mat_nk(matrice M,int nk)
 {
   int j ;
-  if( M.coeff == NULL)
+  if( M.coeff == nullptr)
     printf(" erreur : affichage d'une matrice vide \n") ;
   printf(" nk = %d m_nli %d M_ncol %d \n",nk,M.nb_lignes,M.nb_colonnes) ;
     for(j=0 ; j< M.nb_colonnes ; j++) 

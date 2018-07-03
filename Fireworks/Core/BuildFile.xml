@@ -15,6 +15,7 @@
 <use name="FWCore/FWLite"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
 <use name="Fireworks/TableWidget"/>
 <use name="boost"/>
 <use name="boost_program_options"/>
@@ -29,7 +30,12 @@
 <lib name="Geom"/>
 <lib name="GeomPainter"/>
 <lib name="GuiHtml"/>
+<architecture name="!amd64_clang8">
 <lib name="GX11"/>
+</architecture>
+<architecture name="amd64_clang8">
+<lib name="GCocoa"/>
+</architecture>
 <lib name="RGL"/>
 <lib name="GLEW"/>
 <lib name="Gui"/>

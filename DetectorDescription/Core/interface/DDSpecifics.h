@@ -1,19 +1,24 @@
 #ifndef DDSpecifics_h
 #define DDSpecifics_h
 
+#include <iosfwd>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 
-class DDSpecifics;
-class DDPartSelection;
+class DDExpandedView;
 class DDNodes;
-namespace DDI { class Specific; }
+class DDPartSelection;
+class DDSpecifics;
+namespace DDI {
+class Specific;
+}  // namespace DDI
 
 typedef std::vector<std::string> selectors_type;
 
@@ -65,7 +70,7 @@ public:
 	      const DDsvalues_type & svalues,
 	      bool doRegex=true);
   
-  ~DDSpecifics();
+  ~DDSpecifics() override;
   
   //! Gives a reference to the collection of part-selections
   const std::vector<DDPartSelection> & selection() const;

@@ -33,7 +33,7 @@ void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& 
 
     edm::ESHandle<PTrackerParameters> ptp;
     setup.get<PTrackerParametersRcd>().get( ptp );
-    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp );
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(&*geom, *ptp, tTopo );
     
     addComponent(new AlignableTracker( tracker, tTopo ));
 

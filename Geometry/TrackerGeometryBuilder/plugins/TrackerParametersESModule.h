@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -16,9 +16,9 @@ class  TrackerParametersESModule: public edm::ESProducer
 {
  public:
   TrackerParametersESModule( const edm::ParameterSet & );
-  ~TrackerParametersESModule( void );
+  ~TrackerParametersESModule( void ) override;
 
-  typedef boost::shared_ptr<PTrackerParameters> ReturnType;
+  typedef std::shared_ptr<PTrackerParameters> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   

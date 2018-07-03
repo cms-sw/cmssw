@@ -69,7 +69,7 @@
 #include <vector>
 #include <iostream>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 //=============================================================================
 template <class IDdet>

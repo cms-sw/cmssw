@@ -24,12 +24,12 @@
 class LHECOMWeightProducer : public edm::EDProducer {
    public:
       explicit LHECOMWeightProducer(const edm::ParameterSet&);
-      ~LHECOMWeightProducer();
+      ~LHECOMWeightProducer() override;
 
    private:
-      virtual void beginJob() override;
-      virtual void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void beginJob() override;
+      void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       edm::InputTag lheTag_;
       int _pdfset;
@@ -140,9 +140,9 @@ void LHECOMWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       double weight = (newpdf1/oldpdf1)*(newpdf2/oldpdf2);
       std::vector<double> weights;
       weights.push_back(weight);
-      std::auto_ptr<GenEventInfoProduct> info(new GenEventInfoProduct());
+      std::unique_ptr<GenEventInfoProduct> info(new GenEventInfoProduct());
       info->setWeights(weights);
-      iEvent.put(info, _label);
+      iEvent.put(std::move(info), _label);
 }
 
 DEFINE_FWK_MODULE(LHECOMWeightProducer);

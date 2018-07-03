@@ -48,6 +48,7 @@ class TrajectoryFilter {
 
   virtual bool toBeContinued( TempTrajectory&) const = 0;
   virtual bool toBeContinued( Trajectory&) const = 0;
+
 };
 
 

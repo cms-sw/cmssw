@@ -43,9 +43,7 @@ class PileUpEventPrincipal ;
 
 namespace edm {
   class ConsumesCollector;
-  namespace one {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   template<typename T> class Handle;
@@ -60,15 +58,15 @@ namespace CLHEP {
 class EcalDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-      EcalDigiProducer( const edm::ParameterSet& params , edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+      EcalDigiProducer( const edm::ParameterSet& params , edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
       EcalDigiProducer( const edm::ParameterSet& params , edm::ConsumesCollector& iC);
-      virtual ~EcalDigiProducer();
+      ~EcalDigiProducer() override;
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
-      virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
+      void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
+      void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
+      void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
+      void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
       void setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
       void setEENoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
@@ -80,15 +78,13 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const { }
 
       typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
-      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing, CLHEP::HepRandomEngine*);
+      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing);
 
       void checkGeometry(const edm::EventSetup& eventSetup) ;
 
       void updateGeometry() ;
 
       void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
-
-      CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
       const APDShape m_APDShape ;
       const EBShape  m_EBShape  ;
@@ -109,18 +105,18 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       const unsigned int         m_readoutFrameSize ;
    protected:
-      const EcalSimParameterMap* m_ParameterMap  ;
+      std::unique_ptr<const EcalSimParameterMap> m_ParameterMap  ;
    private:
       const std::string          m_apdDigiTag    ;
-      const APDSimParameters*    m_apdParameters ;
+      std::unique_ptr<const APDSimParameters>    m_apdParameters ;
 
-      EBHitResponse* m_APDResponse ;
+      std::unique_ptr<EBHitResponse> m_APDResponse ;
    protected:
-      EBHitResponse* m_EBResponse ;
-      EEHitResponse* m_EEResponse ;
+      std::unique_ptr<EBHitResponse> m_EBResponse ;
+      std::unique_ptr<EEHitResponse> m_EEResponse ;
    private:
-      ESHitResponse* m_ESResponse ;
-      CaloHitResponse* m_ESOldResponse ;
+      std::unique_ptr<ESHitResponse> m_ESResponse ;
+      std::unique_ptr<CaloHitResponse> m_ESOldResponse ;
 
       const bool m_addESNoise ;
       const bool m_PreMix1 ;
@@ -128,27 +124,29 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       const bool m_doFastES   ;
 
-      ESElectronicsSim*     m_ESElectronicsSim     ;
-      ESOldDigitizer*       m_ESOldDigitizer       ;
-      ESElectronicsSimFast* m_ESElectronicsSimFast ;
-      ESDigitizer*          m_ESDigitizer          ;
+      const bool m_doEB, m_doEE, m_doES;
 
-      EBDigitizer*          m_APDDigitizer ;
-      EBDigitizer*          m_BarrelDigitizer ;
-      EEDigitizer*          m_EndcapDigitizer ;
+      std::unique_ptr<ESElectronicsSim>     m_ESElectronicsSim     ;
+      std::unique_ptr<ESOldDigitizer>       m_ESOldDigitizer       ;
+      std::unique_ptr<ESElectronicsSimFast> m_ESElectronicsSimFast ;
+      std::unique_ptr<ESDigitizer>          m_ESDigitizer          ;
 
-      EcalElectronicsSim*   m_ElectronicsSim ;
-      EcalCoder*            m_Coder ;
+      std::unique_ptr<EBDigitizer>          m_APDDigitizer ;
+      std::unique_ptr<EBDigitizer>          m_BarrelDigitizer ;
+      std::unique_ptr<EEDigitizer>          m_EndcapDigitizer ;
 
-      EcalElectronicsSim*   m_APDElectronicsSim ;
-      EcalCoder*            m_APDCoder ;
+      std::unique_ptr<EcalElectronicsSim>   m_ElectronicsSim ;
+      std::unique_ptr<EcalCoder>            m_Coder ;
+
+      std::unique_ptr<EcalElectronicsSim>   m_APDElectronicsSim ;
+      std::unique_ptr<EcalCoder>            m_APDCoder ;
 
       const CaloGeometry*   m_Geometry ;
 
-      CorrelatedNoisifier<EcalCorrMatrix>* m_EBCorrNoise[3] ;
-      CorrelatedNoisifier<EcalCorrMatrix>* m_EECorrNoise[3] ;
+      std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EBCorrNoise ;
+      std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EECorrNoise ;
 
-      std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+      CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif 

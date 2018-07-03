@@ -23,7 +23,6 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -38,9 +37,9 @@
 class L1TriggerKeyOnlineProd : public edm::ESProducer {
    public:
       L1TriggerKeyOnlineProd(const edm::ParameterSet&);
-      ~L1TriggerKeyOnlineProd();
+      ~L1TriggerKeyOnlineProd() override;
 
-      typedef boost::shared_ptr<L1TriggerKey> ReturnType;
+      typedef std::shared_ptr<L1TriggerKey> ReturnType;
 
       ReturnType produce(const L1TriggerKeyRcd&);
    private:

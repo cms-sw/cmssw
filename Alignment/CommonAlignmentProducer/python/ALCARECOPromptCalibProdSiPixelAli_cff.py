@@ -11,7 +11,6 @@ ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("Trigger
 
 from Alignment.CommonAlignmentProducer.LSNumberFilter_cfi import *
 
-
 # Ingredient: offlineBeamSpot
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
 
@@ -74,17 +73,12 @@ SiPixelAliTrackRefitter1 = SiPixelAliTrackRefitter0.clone(
 
 #-- Alignment producer
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
-from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer 
+from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
 SiPixelAliMilleAlignmentProducer = copy.deepcopy(AlignmentProducer)
 SiPixelAliMilleAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
     alignParams = cms.vstring(
-        'TrackerTPBHalfBarrel,111111',
-        'TrackerTPEHalfCylinder,111111',
-
-        'TrackerTIBHalfBarrel,ffffff',
-        'TrackerTOBHalfBarrel,ffffff',
-        'TrackerTIDEndcap,ffffff',
-        'TrackerTECEndcap,ffffff'
+        "PixelHalfBarrels,111111",
+        "PXECHalfCylinders,111111",
         )
     )
 
@@ -97,6 +91,7 @@ SiPixelAliMilleAlignmentProducer.tjTkAssociationMapTag = 'SiPixelAliTrackRefitte
 
 SiPixelAliMilleAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliMilleAlignmentProducer.algoConfig.mode = 'mille'
+SiPixelAliMilleAlignmentProducer.algoConfig.runAtPCL = True
 SiPixelAliMilleAlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
 SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary_0.dat'
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
@@ -119,7 +114,7 @@ SiPixelAliTrackerTrackHitFilter = HitFilter.TrackerTrackHitFilter.clone(
     rejectBadStoNHits = True,
     commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC"), #,"drop TID stereo","drop TEC stereo")
     stripAllInvalidHits = False,
-    StoNcommands = cms.vstring("ALL 18.0"),
+    StoNcommands = cms.vstring("ALL 12.0"),
     rejectLowAngleHits = True,
     TrackAngleCut = 0.17, # in rads, starting from the module surface; .35 for cosmcics ok, .17 for collision tracks
     usePixelQualityFlag = True #False

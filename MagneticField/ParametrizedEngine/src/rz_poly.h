@@ -36,7 +36,7 @@ private:
 public:
 
    rz_poly() : data(), max_nr(0), max_nz(0), n_active(0), 
-               r_pow(0), z_pow(0), is_off(0) {};
+               r_pow(nullptr), z_pow(nullptr), is_off(nullptr) {};
 
    rz_poly(int N);
    rz_poly(const rz_poly& S);
@@ -53,7 +53,7 @@ public:
    rz_poly& operator*=(double *C);
    
    double  GetSVal(double r, double z, const double *C) const;
-   double *GetVVal(double r, double z, double *rez_out = 0);
+   double *GetVVal(double r, double z, double *rez_out = nullptr);
    
    int GetMaxRPow() const {return max_nr-1;}
    int GetMaxZPow() const {return max_nz-1;}
