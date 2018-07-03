@@ -361,7 +361,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                         properties+=[(objectproperties[property][1],property,objectproperties[property][0])]
                         del objectproperties[property]
             
-        if len(objectproperties.keys())>0:
+        if len(objectproperties)>0:
             properties+=[("Category","Errors","")]
             for property in objectproperties_sorted:
                 if property in objectproperties.keys():
