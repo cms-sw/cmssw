@@ -63,11 +63,11 @@ class TreeAnalyzer(object):
                 emptyFiles.append(p)
         print "found ",len(emptyFiles),"empty files. "
 
-        print "found ", len(self.dirSizes.keys()), 'directories, top 10 are:'
+        print "found ", len(self.dirSizes), 'directories, top 10 are:'
         for i in range(10):
             print topDirs[i]
 
-        print "found ", len(self.fileSizes.keys()), 'files, top 10 are:'
+        print "found ", len(self.fileSizes), 'files, top 10 are:'
         for i in range(10):
             print topFiles[i]
 

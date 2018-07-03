@@ -537,7 +537,7 @@ class ConfigBuilder(object):
 			if not theFileName.endswith('.root'):
 				theFileName+='.root'
 				
-			if len(outDefDict.keys()):
+			if len(outDefDict):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
 			if theStreamType=='DQMIO': theStreamType='DQM'
 			if theStreamType=='ALL':
