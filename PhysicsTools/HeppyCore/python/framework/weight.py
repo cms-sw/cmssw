@@ -2,7 +2,8 @@
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 def printWeights( weights ):
-    for key, value in weights.iteritems():
+    import six
+    for key, value in six.iteritems(weights):
         print key
         print value 
 
@@ -55,3 +56,4 @@ class Weight( object ):
                        self.addWeight,
                        self.GetWeight() )
         
+

@@ -2,6 +2,7 @@
 
 # Pure trick to start ROOT in batch mode, pass this only option to it
 # and the rest of the command line options to this code.
+import six
 import sys
 oldargv = sys.argv[:]
 sys.argv = [ '-b-' ]
@@ -84,7 +85,6 @@ def createPlots_(plot):
     IBs = ["InnerServices", "Phase2PixelBarrel", "TIB", "TIDF", "TIDB"]
     theDirname = "Figures"
 
-    hist_X0_detectors = OrderedDict()
     if plot not in plots.keys():
         print("Error: chosen plot name not known %s" % plot)
         return
@@ -96,7 +96,7 @@ def createPlots_(plot):
 
     hist_X0_elements = OrderedDict()
     prof_X0_elements = OrderedDict()
-    for subDetector,color in DETECTORS.iteritems():
+    for subDetector,color in six.iteritems(DETECTORS):
         subDetectorFilename = "matbdg_%s.root" % subDetector
         if not checkFile_(subDetectorFilename):
             print("Error opening file: %s" % subDetectorFilename)
@@ -114,7 +114,7 @@ def createPlots_(plot):
         hist_X0_detectors[subDetector] = prof_X0_XXX.ProjectionX()
 
         # category profiles
-        for label, [num, color, leg] in hist_label_to_num.iteritems():
+        for label, [num, color, leg] in six.iteritems(hist_label_to_num):
             prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
             hist_X0_elements[label] = assignOrAddIfExists_(hist_X0_elements.setdefault(label, None),
                                                           prof_X0_elements[label])
@@ -127,10 +127,10 @@ def createPlots_(plot):
     cumulative_matbdg.SetDirectory(0)
 
     # colors
-    for det, color in DETECTORS.iteritems():
+    for det, color in six.iteritems(DETECTORS):
         setColorIfExists_(hist_X0_detectors, det, color)
 
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         hist_X0_elements[label].SetFillColor(color)
 
     # First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
@@ -138,7 +138,7 @@ def createPlots_(plot):
     stackTitle_SubDetectors = "Tracker Material Budget;%s;%s" % (
         plots[plot].abscissa,plots[plot].ordinate)
     stack_X0_SubDetectors = THStack("stack_X0",stackTitle_SubDetectors)
-    for det, histo in hist_X0_detectors.iteritems():
+    for det, histo in six.iteritems(hist_X0_detectors):
         stack_X0_SubDetectors.Add(histo)
         cumulative_matbdg.Add(histo, 1)
 
@@ -161,7 +161,7 @@ def createPlots_(plot):
     theLegend_SubDetectors.SetFillStyle(0)
     theLegend_SubDetectors.SetBorderSize(0)
 
-    for det, histo in hist_X0_detectors.iteritems():
+    for det, histo in six.iteritems(hist_X0_detectors):
         theLegend_SubDetectors.AddEntry(histo, det,  "f")
 
     theLegend_SubDetectors.Draw()
@@ -188,7 +188,7 @@ def createPlots_(plot):
                                                               plots[plot].ordinate)
     stack_X0_Materials = THStack("stack_X0",stackTitle_Materials)
     stack_X0_Materials.Add(hist_X0_detectors["BeamPipe"])
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         stack_X0_Materials.Add(hist_X0_elements[label])
 
     # canvas
@@ -209,7 +209,7 @@ def createPlots_(plot):
     theLegend_Materials.SetBorderSize(0)
 
     theLegend_Materials.AddEntry(hist_X0_detectors["BeamPipe"],  "Beam Pipe", "f")
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         theLegend_Materials.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend_Materials.Draw()
 
@@ -256,7 +256,7 @@ def createPlotsReco_(reco_file, label, debug=False):
     for s in sPREF:
         hs = THStack("hs","");
         histos = []
-        for det, color in sDETS.iteritems():
+        for det, color in six.iteritems(sDETS):
             layer_number = 0
             while True:
                 layer_number += 1
@@ -359,7 +359,7 @@ def createCompoundPlots(detector, plot):
     # get TProfiles
     prof_X0_elements = OrderedDict()
     hist_X0_elements = OrderedDict()
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         prof_X0_elements[label] = theDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
         hist_X0_elements[label] = prof_X0_elements[label].ProjectionX()
         hist_X0_elements[label].SetFillColor(color)
@@ -379,7 +379,7 @@ def createCompoundPlots(detector, plot):
             print("*** Open file... %s" %  subDetectorFilename)
 
             # subdetector profiles
-            for label, [num, color, leg] in hist_label_to_num.iteritems():
+            for label, [num, color, leg] in six.iteritems(hist_label_to_num):
                 prof_X0_elements[label] = subDetectorFile.Get("%d" % (num + plots[plot].plotNumber))
                 hist_X0_elements[label].Add(prof_X0_elements[label].ProjectionX("B_%s" % prof_X0_elements[label].GetName())
                                             , +1.000)
@@ -389,7 +389,7 @@ def createCompoundPlots(detector, plot):
                                                plots[plot].abscissa,
                                                plots[plot].ordinate)
     stack_X0 = THStack("stack_X0", stackTitle);
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         stack_X0.Add(hist_X0_elements[label])
 
     # canvas
@@ -404,7 +404,7 @@ def createCompoundPlots(detector, plot):
 
     # Legenda
     theLegend = TLegend(0.70, 0.70, 0.89, 0.89);
-    for label, [num, color, leg] in hist_label_to_num.iteritems():
+    for label, [num, color, leg] in six.iteritems(hist_label_to_num):
         theLegend.AddEntry(hist_X0_elements[label], leg, "f")
     theLegend.Draw();
 
@@ -420,7 +420,7 @@ def create2DPlots(detector, plot):
        Function that will plot the requested 2D-@plot for the
        specified @detector. The specified detector could either be a
        real detector or a compound one. The list of available plots
-       are the keys of plots dictionary (imported from plot_utils.
+       are the keys of plots dictionary (imported from plot_utils).
 
     """
 

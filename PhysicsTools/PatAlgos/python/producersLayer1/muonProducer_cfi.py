@@ -106,7 +106,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # Depends on MiniIsolation, so only works in miniaod
     # Don't forget to set flags properly in miniAOD_tools.py                      
     computeMuonMVA = cms.bool(False),
-    mvaTrainingFile = cms.string("RecoMuon/MuonIdentification/data/mu_BDTG.weights.xml"),
+    mvaTrainingFile = cms.string("RecoMuon/MuonIdentification/data/mu_BDTG_Run2017.weights.xml"),
     recomputeBasicSelectors = cms.bool(True),
     mvaUseJec = cms.bool(True),
     mvaDrMax = cms.double(0.4),
@@ -119,10 +119,14 @@ patMuons = cms.EDProducer("PATMuonProducer",
     softMvaTrainingFile = cms.string("RecoMuon/MuonIdentification/data/TMVA-muonid-bmm4-B-25.weights.xml"),
 
     # MC Info
-    muonSimInfo = cms.InputTag("muonSimClassifier")                 
-                          
-)
+    muonSimInfo = cms.InputTag("muonSimClassifier"),                 
 
+    # Trigger Info 
+    addTriggerMatching = cms.bool(False),                      
+    triggerObjects = cms.InputTag("slimmedPatTrigger"),
+    triggerResults = cms.InputTag("TriggerResults","","HLT"),
+    hltCollectionFilters = cms.vstring('*')
+)
 
 
 

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import listDependencyChain, massSearchReplaceAnyInputTag, cloneProcessingSnippet, addKeepStatement,listModules
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
+import six
 
 def makeRecoJetCollection(process, 
                           pfCandCollection,
@@ -92,7 +93,7 @@ def backupJetsSecondStep(process, sequences, badMuons, verbose=False):
     task = getPatAlgosToolsTask(process)
 
     # put back the old input tags and copy in task
-    for sequence in sequences.itervalues():
+    for sequence in six.itervalues(sequences):
         massSearchReplaceAnyInputTag(sequence, "pfCandidatesBadMuonsCleaned", "particleFlow")
         massSearchReplaceAnyInputTag(sequence, "muonsCleaned", "muons")
         for mod in listModules(sequence):

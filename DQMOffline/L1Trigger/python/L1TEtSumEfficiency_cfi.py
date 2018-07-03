@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEtSumJetOffline_cfi as L1TStep1
+import six
 
 variables = {
     'met': L1TStep1.metEfficiencyThresholds,
@@ -14,6 +15,7 @@ plots = {
     'ett': ['efficiencyETT'],
     'htt': ['efficiencyHTT'],
 }
+
 
 from DQMOffline.L1Trigger.L1TCommon import generateEfficiencyStrings
 
@@ -36,6 +38,7 @@ l1tEtSumEmuEfficiency = l1tEtSumEfficiency.clone(
 
 # modifications for the pp reference run
 variables_HI = variables
+
 efficiencyStrings_HI = list(generateEfficiencyStrings(variables_HI, plots))
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
