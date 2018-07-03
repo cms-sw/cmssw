@@ -558,7 +558,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     	      if (seagull_ && ((m.charge()* deltaPhi(m.phi(), m1.phi())) > 0.) ) continue;
     	      if( !matchToTrigger(hltpath1,m1))continue;          
     	      if( !matchToTrigger(hltpath1,m))continue;          
-    	      DiMuMass_.numerator ->Fill(DiMuMass);      
+	      DiMuMass_.numerator ->Fill(DiMuMass, PrescaleWeight);
     	    }
           if ((Jpsi_) && (!Upsilon_)){
             if (DiMuMass> maxmassJpsi || DiMuMass< minmassJpsi) continue;
