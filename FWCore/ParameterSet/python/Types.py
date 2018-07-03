@@ -4,6 +4,7 @@ from ExceptionHandling import format_typename, format_outerframe
 
 import copy
 import math
+import six
 
 class _Untracked(object):
     """Class type for 'untracked' to allow nice syntax"""
@@ -981,7 +982,7 @@ def makeCppPSet(module,cppPSetMaker):
     if not isinstance(module,dict):
         module = dict( ( (x,getattr(module,x)) for x in dir(module)) )  
         
-    for x,p in module.iteritems():
+    for x,p in six.iteritems(module):
         if isinstance(p,PSet):
             p.insertInto(cppPSetMaker,x)
     return cppPSetMaker
@@ -1130,7 +1131,7 @@ def convertToPSet(name,module):
 
 def convertToVPSet( **kw ):
     returnValue = VPSet()
-    for name,module in kw.iteritems():
+    for name,module in six.iteritems(kw):
         returnValue.append(convertToPSet(name,module))
     return returnValue
 
@@ -1157,7 +1158,7 @@ class EDAlias(_ConfigureComponent,_Labelable):
         return super(EDAlias,self).__delattr__(attr)
 
     def __setParameters(self,parameters):
-        for name,value in parameters.iteritems():
+        for name,value in six.iteritems(parameters):
             self.__addParameter(name, value)
 
     def _place(self,name,proc):

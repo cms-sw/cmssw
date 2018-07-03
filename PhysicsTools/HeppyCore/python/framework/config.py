@@ -4,6 +4,7 @@
 from weight import Weight
 import copy
 import glob
+import six
 
 def printComps(comps, details=False):
     '''
@@ -41,7 +42,7 @@ class CFG(object):
         header = '{type}: {name}'.format( type=self.__class__.__name__,
                                           name=self.name)
         varlines = ['\t{var:<15}:   {value}'.format(var=var, value=value) \
-                    for var,value in sorted(vars(self).iteritems()) \
+                    for var,value in sorted(vars(six.iteritems(self))) \
                     if var is not 'name']
         all = [ header ]
         all.extend(varlines)
@@ -70,7 +71,7 @@ class CFG(object):
            module2 will share the same instance of value1, and not have two copies.
         '''
         other = copy.copy(self)
-        for k,v in kwargs.iteritems():
+        for k,v in six.iteritems(kwargs):
             setattr(other, k, v)
         return other
     

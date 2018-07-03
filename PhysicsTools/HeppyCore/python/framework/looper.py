@@ -11,6 +11,7 @@ from event import Event
 import timeit
 import resource
 import json
+import six
 
 class Setup(object):
     '''The Looper creates a Setup object to hold information relevant during 
@@ -277,7 +278,7 @@ if __name__ == '__main__':
         jsonfilename = options.options
         jfile = open (jsonfilename, 'r')
         opts=json.loads(jfile.readline())
-        for k,v in opts.iteritems():
+        for k,v in six.iteritems(opts):
             _heppyGlobalOptions[k]=v
         jfile.close()
 
