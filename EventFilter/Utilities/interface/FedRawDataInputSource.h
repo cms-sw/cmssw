@@ -33,11 +33,6 @@ namespace evf {
 class FastMonitoringService;
 }
 
-namespace jsoncollector {
-class DataPointDefinition;
-}
-
-
 class FedRawDataInputSource: public edm::RawInputSource {
 
 friend struct InputFile;
@@ -57,12 +52,10 @@ private:
   void rewind_() override;
 
   void maybeOpenNewLumiSection(const uint32_t lumiSection);
-  void createBoLSFile(const uint32_t lumiSection,bool checkIfExists);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
   void deleteFile(std::string const&);
-  int grabNextJsonFile(boost::filesystem::path const&);
 
   void readSupervisor();
   void readWorker(unsigned int tid);
@@ -98,6 +91,7 @@ private:
   const bool verifyChecksum_;
   const bool useL1EventID_;
   std::vector<std::string> fileNames_;
+  bool useFileService_;
   //std::vector<std::string> fileNamesSorted_;
 
   const bool fileListMode_;
@@ -122,8 +116,6 @@ private:
   unsigned char *tcds_pointer_;
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
-
-  jsoncollector::DataPointDefinition *dpd_;
 
   /*
    *

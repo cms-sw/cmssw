@@ -38,6 +38,7 @@ namespace evf {
     bu_base_dir_(pset.getUntrackedParameter<std::string> ("buBaseDir", ".")),
     directorBu_(pset.getUntrackedParameter<bool> ("directorIsBu", false)),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
+    useFileService_(pset.getUntrackedParameter<bool> ("useFileService", false)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
     requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
@@ -85,6 +86,17 @@ namespace evf {
       }
     }
 
+    //override file service parameter if specified by environment
+    char * fileServiceParamPtr = getenv("FFF_USEFILESERVICE");
+    if (fileServiceParamPtr) {
+      try {
+        useFileService_=(boost::lexical_cast<unsigned int>(std::string(fileServiceParamPtr)))>0;
+        edm::LogInfo("FedRawDataInputSource") << "Setting useFileService parameter by environment string: " << useFileService_;
+      }
+      catch( boost::bad_lexical_cast const& ) {
+        edm::LogWarning("FedRawDataInputSource") << "Bad lexical cast in parsing: " << std::string(fileServiceParamPtr);
+      }
+    }
   }
 
   void EvFDaqDirector::initRun()
@@ -215,6 +227,29 @@ namespace evf {
     std::stringstream sstp;
     sstp << stopFilePath_ << "_pid" << getpid();
     stopFilePathPid_ = sstp.str();
+
+
+    if (!directorBu_) {
+      std::string defPath = bu_run_dir_ + "/jsd/rawData.jsd";
+      struct stat statbuf;
+      if (!stat(defPath.c_str(), &statbuf)) 
+        edm::LogInfo("EvFDaqDirector") << "found JSD file in ramdisk -: " << defPath;
+      else {
+        //look in source directory if not present in ramdisk
+        std::string defPathSuffix = "src/EventFilter/Utilities/plugins/budef.jsd";
+        defPath = std::string(getenv("CMSSW_BASE")) + "/" + defPathSuffix;
+        if (stat(defPath.c_str(), &statbuf)) {
+          defPath = std::string(getenv("CMSSW_RELEASE_BASE")) + "/" + defPathSuffix;
+          if (stat(defPath.c_str(), &statbuf)) {
+            defPath = defPathSuffix;
+          }
+        }
+      }
+      dpd_ = new DataPointDefinition();
+      std::string defLabel = "data";
+      DataPointDefinition::getDataPointDefinitionFor(defPath, dpd_,&defLabel);
+    }
+
   }
 
   EvFDaqDirector::~EvFDaqDirector()
@@ -252,6 +287,7 @@ namespace evf {
     desc.addUntracked<std::string>("selectedTransferMode","")->setComment("Selected transfer mode (choice in Lvl0 propagated as Python parameter");
     desc.addUntracked<unsigned int>("fuLockPollInterval",2000)->setComment("Lock polling interval in microseconds for the input directory file lock");
     desc.addUntracked<std::string>("mergingPset","")->setComment("Name of merging PSet to look for merging type definitions for streams");
+    desc.addUntracked<bool> ("useFileService", false)->setComment("Use BU file service to grab input data instead of NFS file locking");
     desc.setAllowAnything();
     descriptions.add("EvFDaqDirector", desc);
   }
@@ -415,9 +451,12 @@ namespace evf {
     return bu_run_dir_ + "/" + fffnaming::eorFileName(run_);
   }
 
-
   std::string EvFDaqDirector::getEoRFilePathOnFU() const {
     return run_dir_ + "/" + fffnaming::eorFileName(run_);
+  }
+
+  std::string EvFDaqDirector::getFFFParamsFilePathOnBU() const {
+   return bu_run_dir_ + "/hlt/fffParameters.jsn";
   }
 
   void EvFDaqDirector::removeFile(std::string filename) {
@@ -826,6 +865,147 @@ namespace evf {
   }
 
 
+  void EvFDaqDirector::createBoLSFile(const uint32_t lumiSection, bool checkIfExists) const
+  {
+    //used for backpressure mechanisms and monitoring
+    const std::string fuBoLS = getBoLSFilePathOnFU(lumiSection);
+    struct stat buf;
+    if (checkIfExists==false || stat(fuBoLS.c_str(), &buf) != 0) {
+      int bol_fd = open(fuBoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+      close(bol_fd);
+    }
+  }
+
+  //TODO:loop over lumisections
+  void EvFDaqDirector::createLumiSectionFiles(const uint32_t lumiSection, const uint32_t currentLumiSection) const {
+    if ( currentLumiSection > 0) {
+      const std::string fuEoLS =
+        getEoLSFilePathOnFU(currentLumiSection);
+      struct stat buf;
+      bool found = (stat(fuEoLS.c_str(), &buf) == 0);
+      if ( !found ) {
+        //! daqDirector_->lockFULocal2();
+        int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
+        close(eol_fd);
+        createBoLSFile(lumiSection,false);
+        //! daqDirector_->unlockFULocal2();
+      }
+    }
+    else createBoLSFile(lumiSection,true);//needed for initial lumisection
+  }
+
+  int EvFDaqDirector::grabNextJsonFile(boost::filesystem::path const& jsonSourcePath)
+  {
+    std::string data;
+    try {
+      // assemble json destination path
+      boost::filesystem::path jsonDestPath(baseRunDir());
+
+      //TODO:should be ported to use fffnaming
+      std::ostringstream fileNameWithPID;
+      fileNameWithPID << jsonSourcePath.stem().string() << "_pid"
+                    << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
+      jsonDestPath /= fileNameWithPID.str();
+
+      LogDebug("FedRawDataInputSource") << "JSON rename -: " << jsonSourcePath << " to "
+                                          << jsonDestPath;
+      try {
+        boost::filesystem::copy(jsonSourcePath,jsonDestPath);
+      }
+      catch (const boost::filesystem::filesystem_error& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+        //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
+        sleep(1);
+        boost::filesystem::copy(jsonSourcePath,jsonDestPath);
+      }
+      unlockFULocal();
+
+      try {
+        //sometimes this fails but file gets deleted
+        boost::filesystem::remove(jsonSourcePath);
+      }
+      catch (const boost::filesystem::filesystem_error& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+      }
+      catch (std::exception& ex)
+      {
+        // Input dir gone?
+        edm::LogError("FedRawDataInputSource") << "grabNextFile std::exception CAUGHT -: " << ex.what();
+      }
+
+      boost::filesystem::ifstream ij(jsonDestPath);
+      Json::Value deserializeRoot;
+      Json::Reader reader;
+
+      std::stringstream ss;
+      ss << ij.rdbuf();
+      if (!reader.parse(ss.str(), deserializeRoot)) {
+
+        edm::LogError("FedRawDataInputSource") << "Failed to deserialize JSON file -: " << jsonDestPath
+                                               << "\nERROR:\n" << reader.getFormatedErrorMessages()
+                                               << "CONTENT:\n" << ss.str()<<".";
+        throw std::runtime_error("Cannot deserialize input JSON file");
+      }
+
+      //read BU JSON
+      std::string data;
+      DataPoint dp;
+      dp.deserialize(deserializeRoot);
+      bool success = false;
+      for (unsigned int i=0;i<dpd_->getNames().size();i++) {
+        if (dpd_->getNames().at(i)=="NEvents")
+	  if (i<dp.getData().size()) {
+	    data = dp.getData()[i];
+	    success=true;
+	  }
+      }
+      if (!success) {
+        if (!dp.getData().empty())
+	  data = dp.getData()[0];
+        else
+	  throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
+	    " error reading number of events from BU JSON -: No input value " << data;
+      }
+      return boost::lexical_cast<int>(data);
+
+    }
+    catch (const boost::filesystem::filesystem_error& ex)
+    {
+      // Input dir gone?
+      unlockFULocal();
+      edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+    }
+    catch (std::runtime_error e)
+    {
+      // Another process grabbed the file and NFS did not register this
+      unlockFULocal();
+      edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - runtime Exception -: " << e.what();
+    }
+
+    catch( boost::bad_lexical_cast const& ) {
+      edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - error parsing number of events from BU JSON. "
+                                             << "Input value is -: " << data;
+    }
+
+    catch (std::exception e)
+    {
+      // BU run directory disappeared?
+      unlockFULocal();
+      edm::LogError("FedRawDataInputSource") << "grabNextFile - SOME OTHER EXCEPTION OCCURED!!!! -: " << e.what();
+    }
+
+    return -1;
+  }
+
+  EvFDaqDirector::FileStatus EvFDaqDirector::getNextFromFileService(const unsigned int currentLumiSection,unsigned int& ls,std::string& nextFile,
+                                                    int& serverEventsInNewFile_,uint32_t& fileSize,uint64_t& thisLockWaitTimeUs) {
+    return noFile; 
+  }
+ 
   void EvFDaqDirector::createRunOpendirMaybe() {
     // create open dir if not already there
 
