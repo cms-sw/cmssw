@@ -75,7 +75,7 @@ HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
 HLTMonitoringPA = cms.Sequence( OfflineHLTMonitoringPA )
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
-                           HLTMonitoring *
+                           OfflineHLTMonitoringNoTRK *
                            # dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
