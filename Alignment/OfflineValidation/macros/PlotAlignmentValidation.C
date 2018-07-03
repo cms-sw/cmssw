@@ -1962,12 +1962,16 @@ vector <TH1*>  PlotAlignmentValidation::findmodule (TFile* f, unsigned int modul
  }
 
 void PlotAlignmentValidation::residual_by_moduleID( unsigned int moduleid){
-	TString histname = "residual_module_";
-	histname.Append(to_string(moduleid));
 	TCanvas *cx = new TCanvas("x_residual");
 	TCanvas *cy = new TCanvas("y_residual");
+	TLegend *legendx =new TLegend(0.55, 0.7, 1, 0.9);
+        TLegend *legendy =new TLegend(0.55, 0.7, 1, 0.9);
 	
-    	
+    	legendx->SetTextSize(0.016);
+	legendx->SetTextAlign(12);
+        legendy->SetTextSize(0.016);
+        legendy->SetTextAlign(12);
+
 	
 	
 	
@@ -1978,8 +1982,8 @@ void PlotAlignmentValidation::residual_by_moduleID( unsigned int moduleid){
 		TString legendname = it->getName(); //this goes in the legend
 	    	vector<TH1*> hist = findmodule(file, moduleid);
 			
-		TString filenamex = legendname+" NEntries: "+to_string(int(hist[0]->GetEntries()));
-        	hist[0]->SetTitle(filenamex);
+		TString histnamex = legendname+" NEntries: "+to_string(int(hist[0]->GetEntries()));
+        	hist[0]->SetTitle(histnamex);
         	hist[0]->SetStats(0);
         	hist[0]->Rebin(50);
         	hist[0]->SetBit(TH1::kNoTitle);
@@ -1987,30 +1991,33 @@ void PlotAlignmentValidation::residual_by_moduleID( unsigned int moduleid){
         	hist[0]->SetLineStyle(linestyle);
         	cx->cd();
 		hist[0]->Draw("Same");
+		legendx->AddEntry(hist[0], histnamex, "l");
+				
 			
-			
-		TString filenamey = legendname+" NEntries: "+to_string(int(hist[1]->GetEntries()));
-        	hist[1]->SetTitle(filenamey);
+		TString histnamey = legendname+" NEntries: "+to_string(int(hist[1]->GetEntries()));
+        	hist[1]->SetTitle(histnamey);
         	hist[1]->SetStats(0);
         	hist[1]->Rebin(50);
         	hist[1]->SetBit(TH1::kNoTitle);
         	hist[1]->SetLineColor(color);
         	hist[1]->SetLineStyle(linestyle);
         	cy->cd();
-			hist[1]->Draw("Same");
+		hist[1]->Draw("Same");
+		legendy->AddEntry(hist[1], histnamey, "l");
+	
 	}
 	
 	TString filenamex = "x_residual_"+to_string(moduleid);
         TString filenamey = "y_residual_"+to_string(moduleid);
         cx->cd();
-        gPad->BuildLegend(0.6,0.75,0.9,0.9);
+	legendx->Draw();
         cx->SaveAs(outputDir + "/" +filenamex+".root");
         cx->SaveAs(outputDir + "/" +filenamex+".pdf");
         cx->SaveAs(outputDir + "/" +filenamex+".png");
         cx->SaveAs(outputDir + "/" +filenamex+".eps");
 
         cy->cd();
-        gPad->BuildLegend(0.6,0.75,0.9,0.9);
+	legendy->Draw();
         cy->SaveAs(outputDir + "/" +filenamey+".root");
         cy->SaveAs(outputDir + "/" +filenamey+".pdf");
         cy->SaveAs(outputDir + "/" +filenamey+".png");
