@@ -11,13 +11,14 @@ import os
 import datetime
 import subprocess
 import argparse
+import six
 
 def insert_to_file(template, target, replace_dict):
     '''Update the template file based on the replace_dict, and write to the target.'''
     with open(template, 'r') as input_file:
         config=input_file.read()
     with open(target, 'w') as output_file:
-        for key, value in replace_dict.iteritems():
+        for key, value in six.iteritems(replace_dict):
             config = config.replace(key, value)
         output_file.write(config)
 

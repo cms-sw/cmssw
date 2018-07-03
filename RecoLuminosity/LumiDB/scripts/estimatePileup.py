@@ -8,6 +8,7 @@ import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
 import re
 
 from pprint import pprint
+import six
 
 def fillPileupHistogram (deadTable, parameters,
                          runNumber = 0, hist = None, debug = False,
@@ -25,7 +26,7 @@ def fillPileupHistogram (deadTable, parameters,
         hist = ROOT.TH1D (histname, histname, parameters.maxPileupBin + 1,
                           -0.5, parameters.maxPileupBin + 0.5)
         upper  = parameters.maxPileupBin
-    for lumiSection, deadArray in sorted (deadTable.iteritems()):
+    for lumiSection, deadArray in sorted (six.iteritems(deadTable)):
         if mode == 'csv':
             numerator     = float (deadArray[1])
             denominator   = float (deadArray[0])
@@ -210,7 +211,7 @@ if __name__ == '__main__':
             csvDict.setdefault (run, {})[lumi] = \
                                ( delivered, recorded, xingInstLumiArray )
         events.close()
-        for runNumber, lumiDict in sorted( csvDict.iteritems() ):
+        for runNumber, lumiDict in sorted( six.iteritems(csvDict) ):
             if options.saveRuns:
                 hist = fillPileupHistogram (lumiDict, parameters,
                                             runNumber = runNumber,
