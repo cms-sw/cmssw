@@ -386,7 +386,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
  
 
-  int PrescaleWeight =1;
+  double PrescaleWeight = 1.0;
   const std::string & hltpath = getTriggerName(hltpaths_den[0]);
   const std::string & hltpath1 = getTriggerName(hltpaths_num[0]);
 
@@ -1171,12 +1171,11 @@ bool BPHMonitor::matchToTrigger(const std::string  &theTriggerName , T t){
 
 }
 
-int BPHMonitor::Prescale(const std::string  hltpath1, const std::string  hltpath, edm::Event const& iEvent, edm::EventSetup const& iSetup,  HLTPrescaleProvider* hltPrescale_)
+double BPHMonitor::Prescale(const std::string  hltpath1, const std::string  hltpath, edm::Event const& iEvent, edm::EventSetup const& iSetup,  HLTPrescaleProvider* hltPrescale_)
 {
   int PrescaleHLT_num = 1;
   int PrescaleHLT_den = 1;
   double Prescale_num = 1;
-  int TotalPrescale =1;
   double  L1P=1, HLTP=1;
   bool flag=true;
   std::vector<bool> theSame_den;    
@@ -1272,10 +1271,9 @@ int BPHMonitor::Prescale(const std::string  hltpath1, const std::string  hltpath
 	  if (Prescale_num!=1 )Prescale_num = 1.0 / (1 - Prescale_num);
 	}
       L1P = Prescale_num;
-    }    
-  TotalPrescale = (int)(L1P*HLTP + 0.5);
+    }
 
-  return TotalPrescale;
+  return L1P * HLTP;
 
 }
 
