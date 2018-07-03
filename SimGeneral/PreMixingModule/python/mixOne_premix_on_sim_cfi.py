@@ -333,7 +333,7 @@ phase2_hgcal.toModify(mixData,
             workerType = cms.string("PreMixingHGCalWorker"),
             #
             digiTagSig = cms.InputTag("mix", "HGCDigisEE"),
-            pileInputTag = cms.InputTag("mix", "HGCDigisEE"),
+            pileInputTag = cms.InputTag("simHGCalUnsuppressedDigis", "EE"),
         ),
         hgchefront = cms.PSet(
             hgchefrontDigitizer,
@@ -341,7 +341,7 @@ phase2_hgcal.toModify(mixData,
             workerType = cms.string("PreMixingHGCalWorker"),
             #
             digiTagSig = cms.InputTag("mix", "HGCDigisHEfront"),
-            pileInputTag = cms.InputTag("mix", "HGCDigisHEfront"),
+            pileInputTag = cms.InputTag("simHGCalUnsuppressedDigis", "HEfront"),
         ),
         hgcheback = cms.PSet(
             hgchebackDigitizer,
@@ -349,7 +349,7 @@ phase2_hgcal.toModify(mixData,
             workerType = cms.string("PreMixingHGCalWorker"),
             #
             digiTagSig = cms.InputTag("mix", "HGCDigisHEback"),
-            pileInputTag = cms.InputTag("mix", "HGCDigisHEback"),
+            pileInputTag = cms.InputTag("simHGCalUnsuppressedDigis", "HEback"),
         ),
         caloTruth = cms.PSet(
             workerType = cms.string("PreMixingCaloParticleWorker"),
