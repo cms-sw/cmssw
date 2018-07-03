@@ -4,10 +4,11 @@ from RecoVertex.AdaptiveVertexFinder.inclusiveVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.vertexMerger_cfi import *
 from RecoVertex.AdaptiveVertexFinder.trackVertexArbitrator_cfi import *
 
-inclusiveSecondaryVertices = vertexMerger.clone()
-inclusiveSecondaryVertices.secondaryVertices = cms.InputTag("trackVertexArbitrator")
-inclusiveSecondaryVertices.maxFraction = 0.2
-inclusiveSecondaryVertices.minSignificance = 10.
+inclusiveSecondaryVertices = vertexMerger.clone(
+    secondaryVertices = "trackVertexArbitrator",
+    maxFraction = 0.2,
+    minSignificance = 10.
+)
 
 inclusiveVertexingTask = cms.Task(inclusiveVertexFinder,
                                   vertexMerger,
@@ -19,10 +20,11 @@ from RecoVertex.AdaptiveVertexFinder.inclusiveCandidateVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.candidateVertexMerger_cfi import *
 from RecoVertex.AdaptiveVertexFinder.candidateVertexArbitrator_cfi import *
 
-inclusiveCandidateSecondaryVertices = candidateVertexMerger.clone()
-inclusiveCandidateSecondaryVertices.secondaryVertices = cms.InputTag("candidateVertexArbitrator")
-inclusiveCandidateSecondaryVertices.maxFraction = 0.2
-inclusiveCandidateSecondaryVertices.minSignificance = 10.
+inclusiveCandidateSecondaryVertices = candidateVertexMerger.clone(
+    secondaryVertices = "candidateVertexArbitrator",
+    maxFraction = 0.2,
+    minSignificance = 10.
+)
 
 inclusiveCandidateVertexingTask = cms.Task(inclusiveCandidateVertexFinder,
                                            candidateVertexMerger,
@@ -32,12 +34,12 @@ inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexingTask)
 
 #relaxed IVF reconstruction cuts for candidate-based ctagging
 inclusiveCandidateVertexFinderCvsL = inclusiveCandidateVertexFinder.clone(
-   vertexMinDLen2DSig = cms.double(1.25),
-   vertexMinDLenSig = cms.double(0.25)
+   vertexMinDLen2DSig = 1.25,
+   vertexMinDLenSig = 0.25
 )
 
 candidateVertexMergerCvsL = candidateVertexMerger.clone(
-   secondaryVertices = cms.InputTag("inclusiveCandidateVertexFinderCvsL")
+   secondaryVertices = "inclusiveCandidateVertexFinderCvsL"
 )
 
 candidateVertexArbitratorCvsL = candidateVertexArbitrator.clone(
@@ -45,9 +47,9 @@ candidateVertexArbitratorCvsL = candidateVertexArbitrator.clone(
 )
 
 inclusiveCandidateSecondaryVerticesCvsL = candidateVertexMerger.clone(
-   secondaryVertices = cms.InputTag("candidateVertexArbitratorCvsL"),
-   maxFraction = cms.double(0.2),
-   minSignificance = cms.double(10.)
+   secondaryVertices = "candidateVertexArbitratorCvsL",
+   maxFraction = 0.2,
+   minSignificance = 10.
 )
 
 inclusiveCandidateVertexingCvsLTask = cms.Task(inclusiveCandidateVertexFinderCvsL,

@@ -143,7 +143,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 		vars.insert(btau::flightDistance2dSig,flipValue(svInfo.flightDistance(vtx, 2).significance(),true),true);
 		vars.insert(btau::flightDistance3dVal,flipValue(svInfo.flightDistance(vtx, 3).value(),true),true);
 		vars.insert(btau::flightDistance3dSig,flipValue(svInfo.flightDistance(vtx, 3).significance(),true),true);
-		vars.insert(btau::vertexJetDeltaR,Geom::deltaR(svInfo.flightDirection(vtx), jetDir),true);
+		vars.insert(btau::vertexJetDeltaR,Geom::deltaR(svInfo.flightDirection(vtx), vertexFlip ? -jetDir : jetDir),true);
 		vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
 	}
 
@@ -244,7 +244,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
 	vars.insert(btau::trackJetPt, trackJetKinematics.vectorSum().Pt(), true);
 	vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
 	vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
-	
+
 	vars.insert(btau::trackSip3dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.significance(),false),true);
 	vars.insert(btau::trackSip3dValAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv).ip3d.value(),false),true);
 	vars.insert(btau::trackSip2dSigAboveCharm, flipValue(threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv).ip2d.significance(),false),true);
