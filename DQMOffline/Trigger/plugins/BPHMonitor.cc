@@ -1066,6 +1066,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   genericTriggerEventPSet.add<bool>("errorReplyHlt",false);
   genericTriggerEventPSet.add<bool>("errorReplyL1",true);
   genericTriggerEventPSet.add<bool>("l1BeforeMask",true);
+  genericTriggerEventPSet.add<unsigned int>("verbosityLevel",0);
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 
