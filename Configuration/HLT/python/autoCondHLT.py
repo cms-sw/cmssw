@@ -1,5 +1,4 @@
 # https://cms-conddb.cern.ch/browser/#search
-
 # default value for all L1T menus
 connectionString = "frontier://FrontierProd/CMS_CONDITIONS"
 
@@ -67,7 +66,8 @@ hltGTs = {
 }
 
 def autoCondHLT(autoCond):
-    for key,val in hltGTs.iteritems():
+    import six
+    for key,val in six.iteritems(hltGTs):
         if len(val)==1 :
            autoCond[key] = ( autoCond[val[0]] )
         else:

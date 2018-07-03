@@ -3,6 +3,7 @@ from itertools import groupby
 from operator import attrgetter,itemgetter
 import sys
 from collections import defaultdict
+import six
 
 #----------------------------------------------
 def printHelp():
@@ -161,7 +162,7 @@ class StallMonitorParser(object):
         self.numStreams =numStreams
         self._moduleNames = moduleNames
         self.maxNameSize =0
-        for n in moduleNames.iteritems():
+        for n in six.iteritems(moduleNames):
             self.maxNameSize = max(self.maxNameSize,len(n))
         self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
 
@@ -391,7 +392,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
 def printStalledModulesInOrder(stalledModules):
     priorities = []
     maxNameSize = 0
-    for name,t in stalledModules.iteritems():
+    for name,t in six.iteritems(stalledModules):
         maxNameSize = max(maxNameSize, len(name))
         t.sort(reverse=True)
         priorities.append((name,sum(t),t))

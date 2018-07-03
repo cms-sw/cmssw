@@ -13,6 +13,7 @@
 #==============================
 
 import sys
+import six
 
 f = open(sys.argv[1])
 
@@ -132,7 +133,7 @@ modulesWithConsumes = set()
 #needed to get rid of PathStatus modules at end of paths
 pathNamesAsModules = set( (fixName(n) for n in pathParser._pathToModules.iterkeys()) )
 
-for m,c in consumesParser._consumesForModule.iteritems():
+for m,c in six.iteritems(consumesParser._consumesForModule):
     if m in pathNamesAsModules:
         continue
     if m in consumesParser._isAnalyzer:
@@ -146,7 +147,7 @@ for m,c in consumesParser._consumesForModule.iteritems():
         allModules.add(o)
     modulesWithConsumes.add(m)
 
-for m in pathParser._pathToModules.itervalues():
+for m in six.itervalues(pathParser._pathToModules):
     for i in m:
         allModules.add(i)
 
@@ -155,7 +156,7 @@ for m in allModules.difference(modulesWithConsumes):
 
 
 print 't = cms.Task(*[%s])'%(",".join(["process.%s"%i for i in allModules if i not in consumesParser._isAnalyzer]))
-for p,m in pathParser._pathToModules.iteritems():
+for p,m in six.iteritems(pathParser._pathToModules):
     if p in pathParser._isEndPath:
         print "process.%s = cms.EndPath(%s)"%(p,"+".join(["process.%s"%i for i in m]))
     else:

@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEtSumJetOffline_cfi as L1TStep1
+import six
 
 variables = {
     'jet': L1TStep1.jetEfficiencyThresholds,
@@ -10,6 +11,7 @@ plots = {
         "efficiencyJetEt_HB", "efficiencyJetEt_HE", "efficiencyJetEt_HF",
         "efficiencyJetEt_HB_HE"],
 }
+
 
 from DQMOffline.L1Trigger.L1TCommon import generateEfficiencyStrings
 efficiencyStrings = list(generateEfficiencyStrings(variables, plots))
@@ -33,7 +35,9 @@ l1tJetEmuEfficiency = l1tJetEfficiency.clone(
 variables_HI = variables
 variables_HI['jet'] = L1TStep1.jetEfficiencyThresholds_HI
 
+
 efficiencyStrings_HI = list(generateEfficiencyStrings(variables_HI, plots))
+
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
 ppRef_2017.toModify(l1tJetEfficiency, efficiencyProfile=efficiencyStrings_HI)
