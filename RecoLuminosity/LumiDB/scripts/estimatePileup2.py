@@ -4,6 +4,7 @@ import os, sys
 import coral
 import optparse
 from RecoLuminosity.LumiDB import sessionManager,csvSelectionParser,selectionParser,lumiCorrections,lumiCalcAPI
+import six
 
 beamChoices=['PROTPHYS','IONPHYS']
 
@@ -233,7 +234,7 @@ if __name__ == '__main__':
                       options.maxPileupBin + 1,
                       -0.5, options.maxPileupBin + 0.5)
     histList = []
-    for runNumber, lumiList in sorted( runDict.iteritems() ):
+    for runNumber, lumiList in sorted( six.iteritems(runDict) ):
         if options.saveRuns:
             hist = fillPileupHistogram (lumiList,options.pileupHistName,options.maxPileupBin,
                                         runNumber = runNumber,

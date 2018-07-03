@@ -20,6 +20,7 @@ numWFIB.extend([20434.0]) #2023D19 (already has timing)
 numWFIB.extend([21234.0,21234.11]) #2023D21
 numWFIB.extend([21634.0]) #2023D22
 numWFIB.extend([22034.0]) #2023D23
+numWFIB.extend([22434.0]) #2023D24
 numWFIB.extend([24034.0]) #2023D28
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]

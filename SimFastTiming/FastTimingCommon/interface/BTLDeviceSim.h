@@ -11,6 +11,10 @@
 
 #include <tuple>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class BTLDeviceSim {
 
  public:
@@ -23,13 +27,18 @@ class BTLDeviceSim {
 
   void getHitsResponse(const std::vector<std::tuple<int,uint32_t,float> > &hitRefs, 
 		       const edm::Handle<edm::PSimHitContainer> &hits,
-		       mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator);
-
+		       mtd_digitizer::MTDSimHitDataAccumulator *simHitAccumulator,
+		       CLHEP::HepRandomEngine *hre);
+  
  private:
 
-  float MIPPerMeV_;
-  float bxTime_;
-  float tofDelay_;
+  const float refSpeed_;  
+  const float bxTime_;
+  const float LightYield_;
+  const float LightCollEff_;
+  const float LightCollTime_;
+  const float smearLightCollTime_;
+  const float PDE_;
 
 };
 

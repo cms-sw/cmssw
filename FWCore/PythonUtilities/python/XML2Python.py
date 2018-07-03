@@ -6,6 +6,7 @@ import re
 import os
 import xml.sax.handler
 import pprint
+import six
 
 class DataNode (object):
 
@@ -134,7 +135,7 @@ class DataNode (object):
             retval += '\n' + ' ' * offset
             retval += '%s: ' % name
         first = True
-        for key, value in sorted (self._attrs.iteritems()):
+        for key, value in sorted (six.iteritems(self._attrs)):
             if first:
                 retval += '{ \n'
                 tempspace = offset + 3

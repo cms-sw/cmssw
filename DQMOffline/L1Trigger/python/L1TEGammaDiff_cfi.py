@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMOffline.L1Trigger import L1TEGammaOffline_cfi
+import six
 
 variables = {
     'electron': L1TEGammaOffline_cfi.electronEfficiencyThresholds,
@@ -14,7 +15,7 @@ plots = {
 
 allEfficiencyPlots = []
 add_plot = allEfficiencyPlots.append
-for variable, thresholds in variables.iteritems():
+for variable, thresholds in six.iteritems(variables):
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
@@ -69,7 +70,7 @@ variables_HI = {
 
 allEfficiencyPlots_HI = []
 add_plot = allEfficiencyPlots_HI.append
-for variable, thresholds in variables_HI.iteritems():
+for variable, thresholds in six.iteritems(variables_HI):
     for plot in plots[variable]:
         for threshold in thresholds:
             plotName = '{0}_threshold_{1}'.format(plot, threshold)

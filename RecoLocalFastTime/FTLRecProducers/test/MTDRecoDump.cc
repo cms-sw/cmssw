@@ -36,8 +36,8 @@ MTDRecoDump::MTDRecoDump(const edm::ParameterSet& iConfig)
 
 {
 
-  tok_BTL_reco = consumes<FTLRecHitCollection>(edm::InputTag("ftlRecHits","FTLBarrel"));
-  tok_ETL_reco = consumes<FTLRecHitCollection>(edm::InputTag("ftlRecHits","FTLEndcap"));
+  tok_BTL_reco = consumes<FTLRecHitCollection>(edm::InputTag("mtdRecHits","FTLBarrel"));
+  tok_ETL_reco = consumes<FTLRecHitCollection>(edm::InputTag("mtdRecHits","FTLEndcap"));
 
 }
 

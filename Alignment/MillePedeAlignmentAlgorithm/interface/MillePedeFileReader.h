@@ -86,6 +86,7 @@ class MillePedeFileReader {
                                                             1000000. }}; // tZ
 
     bool updateDB_{false};
+    bool vetoUpdateDB_{false};
     int Nrec_{0};
 
     std::array<double, 6> Xobs_     = {{0.,0.,0.,0.,0.,0.}};

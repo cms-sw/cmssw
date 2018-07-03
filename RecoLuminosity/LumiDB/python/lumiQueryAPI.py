@@ -4,6 +4,7 @@ from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil,lumiCorrections
 import array
 import argparse
 
+import six
 from RecoLuminosity.LumiDB import  nameDealer, selectionParser, hltTrgSeedMapper, \
      connectstrParser, cacheconfigParser, tablePrinter, csvReporter, csvSelectionParser
 from RecoLuminosity.LumiDB.wordWrappers import wrap_always, wrap_onspace, wrap_onspace_strict
@@ -126,7 +127,7 @@ def recordedLumiForRange (dbsession, parameters, inputRange,finecorrections=None
                 maxLumiSectionDict[run] = max ( max (lslist),
                                            maxLumiSectionDict.get(run,0) )
             runLsDict.setdefault (run, []).append (lslist)
-        for run, metaLsList in sorted (runLsDict.iteritems()):
+        for run, metaLsList in sorted (six.iteritems(runLsDict)):
             if parameters.verbose:
                 print "run", run
             runLumiData = []
@@ -879,7 +880,7 @@ def mergeXingLumi (triplet, xingLumiDict):
     luminosity information is merged with the general information'''
     runNumber = triplet[0]
     deadTable = triplet[2]
-    for lumi, lumiList in deadTable.iteritems():
+    for lumi, lumiList in six.iteritems(deadTable):
         key = ( int(runNumber), int(lumi) )
         xingLumiValues = xingLumiDict.get (key)
         if xingLumiValues:

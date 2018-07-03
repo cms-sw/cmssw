@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import MassSearchReplaceAnyInputTagVisitor, addKeepStatement
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
+import six
 
 def loadJetMETBTag(process):
 
@@ -56,7 +57,7 @@ def cleanPfCandidates(process, verbose=False):
     replacePFCandidates = MassSearchReplaceAnyInputTagVisitor("particleFlow", "pfCandidateRecalibrator", verbose=verbose)
     replacePFTmpPtrs = MassSearchReplaceAnyInputTagVisitor("particleFlowTmpPtrs", "particleFlowPtrs", verbose=verbose)
     for everywhere in [ process.producers, process.filters, process.analyzers, process.psets, process.vpsets ]:
-        for name,obj in everywhere.iteritems():
+        for name,obj in six.iteritems(everywhere):
             if obj != process.pfCandidateRecalibrator:
                 replacePFCandidates.doIt(obj, name)
                 replacePFTmpPtrs.doIt(obj, name)
