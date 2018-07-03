@@ -12,44 +12,48 @@
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 //#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
 namespace btagbtvdeep {
 
   // remove infs and NaNs with value  (adapted from DeepNTuples)
   const float catch_infs(const float in,
-			 const float replace_value);
-  
-  // remove infs/NaN and bound (adapted from DeepNTuples) 
+			 const float replace_value = 0.);
+
+  // remove infs/NaN and bound (adapted from DeepNTuples)
   const float catch_infs_and_bound(const float in,
 				   const float replace_value,
 				   const float lowerbound,
 				   const float upperbound,
 				   const float offset=0.,
 				   const bool use_offsets = true);
-  
+
   // 2D distance between SV and PV (adapted from DeepNTuples)
   Measurement1D vertexDxy(const reco::VertexCompositePtrCandidate &svcand, const reco::Vertex &pv);
-  
+
   //3D distance between SV and PV (adapted from DeepNTuples)
   Measurement1D vertexD3d(const reco::VertexCompositePtrCandidate &svcand, const reco::Vertex &pv);
-  
+
   // dot product between SV and PV (adapted from DeepNTuples)
-  float vertexDdotP(const reco::VertexCompositePtrCandidate &sv, const reco::Vertex &pv);  
-  
+  float vertexDdotP(const reco::VertexCompositePtrCandidate &sv, const reco::Vertex &pv);
+
   // helper to order vertices by significance (adapted from DeepNTuples)
   template < typename SVType, typename PVType>
     bool sv_vertex_comparator(const SVType & sva, const SVType & svb, const PVType & pv) {
-    auto adxy = vertexDxy(sva,pv); 
-    auto bdxy = vertexDxy(svb,pv); 
+    auto adxy = vertexDxy(sva,pv);
+    auto bdxy = vertexDxy(svb,pv);
     float aval= adxy.value();
     float bval= bdxy.value();
     float aerr= adxy.error();
     float berr= bdxy.error();
-    
+
     float asig= catch_infs(aval/aerr,0.);
     float bsig= catch_infs(bval/berr,0.);
     return bsig<asig;
   }
-  
+
   // write tagging variables to vector (adapted from DeepNTuples)
   template <typename T>
     int dump_vector(reco::TaggingVariableList& from, T* to,
@@ -63,9 +67,14 @@ namespace btagbtvdeep {
     }
     return size;
   }
-  
+
   // compute minimum dr between SVs and a candidate (from DeepNTuples, now polymorphic)
-  float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> & svs, 
+  float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> & svs,
                       const reco::Candidate* cand, float mindr=0.4);
+
+  // mimic the calculation in PackedCandidate
+  float vtx_ass_from_pfcand(const reco::PFCandidate &pfcand, int pv_ass_quality, const reco::VertexRef & pv);
+  float quality_from_pfcand(const reco::PFCandidate &pfcand);
+  float lost_inner_hits_from_pfcand(const reco::PFCandidate &pfcand);
 }
 #endif //RecoBTag_TensorFlow_deep_helpers_h
