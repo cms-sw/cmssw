@@ -76,9 +76,9 @@ void HGCDigiConverter::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
 
 void HGCDigiConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 	edm::ParameterSetDescription desc;
-	desc.add<edm::InputTag>("eeDigis",edm::InputTag("mix:HGCDigisEE"));
-	desc.add<edm::InputTag>("fhDigis",edm::InputTag("mix:HGCDigisHEfront"));
-	desc.add<edm::InputTag>("bhDigis",edm::InputTag("mix:HGCDigisHEback"));
+	desc.add<edm::InputTag>("eeDigis",edm::InputTag("simHGCalUnsuppressedDigis:EE"));
+	desc.add<edm::InputTag>("fhDigis",edm::InputTag("simHGCalUnsuppressedDigis:HEfront"));
+	desc.add<edm::InputTag>("bhDigis",edm::InputTag("simHGCalUnsuppressedDigis:HEback"));
 
 	descriptions.add("HGCDigiConverter",desc);
 }
