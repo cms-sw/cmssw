@@ -1964,9 +1964,8 @@ vector <TH1*>  PlotAlignmentValidation::findmodule (TFile* f, unsigned int modul
 void PlotAlignmentValidation::residual_by_moduleID( unsigned int moduleid){
 	TString histname = "residual_module_";
 	histname.Append(to_string(moduleid));
-	TFile * f = new TFile (histname+".root","RECREATE");
-	TCanvas *cx = new TCanvas("h_x_residual");
-	TCanvas *cy = new TCanvas("h_y_residual");
+	TCanvas *cx = new TCanvas("x_residual");
+	TCanvas *cy = new TCanvas("y_residual");
 	
     	
 	
@@ -2001,14 +2000,21 @@ void PlotAlignmentValidation::residual_by_moduleID( unsigned int moduleid){
 			hist[1]->Draw("Same");
 	}
 	
-	cx->cd();
-	gPad->BuildLegend(0.6,0.6,0.9,0.9);
-	cy->cd();
-	gPad->BuildLegend(0.6,0.6,0.9,0.9);
+	TString filenamex = "x_residual_"+to_string(moduleid);
+        TString filenamey = "y_residual_"+to_string(moduleid);
+        cx->cd();
+        gPad->BuildLegend(0.6,0.75,0.9,0.9);
+        cx->SaveAs(outputDir + "/" +filenamex+".root");
+        cx->SaveAs(outputDir + "/" +filenamex+".pdf");
+        cx->SaveAs(outputDir + "/" +filenamex+".png");
+        cx->SaveAs(outputDir + "/" +filenamex+".eps");
+
+        cy->cd();
+        gPad->BuildLegend(0.6,0.75,0.9,0.9);
+        cy->SaveAs(outputDir + "/" +filenamey+".root");
+        cy->SaveAs(outputDir + "/" +filenamey+".pdf");
+        cy->SaveAs(outputDir + "/" +filenamey+".png");
+        cy->SaveAs(outputDir + "/" +filenamey+".eps");
 	
-    f->cd();
-    cx->Write();
-    cy->Write();
-    f->Close();
-	
+
 }
